@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os, sys, tempfile, shutil, getopt, time
+import os, sys, tempfile, shutil, getopt, time, contextlib, glob
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -100,6 +100,19 @@ parser Hal:
     rule OptSValue: SValue {{ return SValue }}
                 | {{ return 1 }}
 %%
+
+@contextlib.contextmanager
+def temporary_directory(do_chdir=False):
+    d = tempfile.mkdtemp()
+    o = None
+    if do_chdir:
+        o = os.getcwd()
+        os.chdir(d)
+    try:
+        yield d
+    finally:
+        if o: os.chdir(o)
+        shutil.rmtree(d)
 
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
@@ -689,8 +702,10 @@ def epilogue(f):
     else:
         print >>f, "static int __comp_get_data_size(void) { return 0; }"
 
-INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
-modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
+(
+INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC, HTMLDOC
+) = range(8)
+modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc", "htmldoc")
 
 modinc = None
 def find_modinc():
@@ -783,11 +798,209 @@ def to_hal_man(s):
     # s = s.replace("-", "\\-")
     return s
 
-def document(filename, outfilename):
+def adocument(filename, outfilename, frontmatter, a=None, b=None):
+    if outfilename is None:
+        outfilename = os.path.splitext(filename)[0] + ".txt"
+
+    if a is None:
+        a, b = parse(filename)
+    f = open(outfilename, "w")
+
+    has_personality = False
+    for name, type, array, dir, value, personality in pins:
+        if personality: has_personality = True
+        if isinstance(array, tuple): has_personality = True
+    for name, type, array, dir, value, personality in params:
+        if personality: has_personality = True
+        if isinstance(array, tuple): has_personality = True
+
+    if frontmatter:
+        print >>f, "---"
+        for fm in frontmatter:
+            print >>f, fm
+        print >>f, "edit-path: src/%s" % (filename)
+        print >>f, "generator: comp"
+        print >>f, "---"
+        print >>f, ":skip-front-matter:\n"
+
+    print >>f, "= %s(9)" % (comp_name.upper())
+    print >>f, ""
+
+    print >>f, "== NAME"
+    print >>f, ""
+    doc = finddoc('component')
+    if doc and doc[2]:
+        if '\n' in doc[2]:
+            firstline, rest = doc[2].split('\n', 1)
+        else:
+            firstline = doc[2]
+            rest = ''
+        print >>f, "%s - %s" % (doc[1], firstline)
+    else:
+        rest = ''
+        print >>f, "%s" % doc[1]
+    print >>f, ""
+
+    if options.get("userspace"):
+        loader = "loadusr [-W]"
+    else:
+        loader = "loadrt"
+
+    print >>f, "== SYNOPSIS"
+    print >>f, "[verse]"
+    if rest:
+        print >>f, "*%s %s*" % (loader, rest),
+    else:
+        rest = ''
+        print >>f, "*%s %s*" % (loader, doc[1]),
+
+    if not (options.get("singleton") or options.get("count_function")):
+        print >>f, "*[count=_N_|names=_name1_[,_name2..._]]*",
+    if has_personality:
+        print >>f, "*personality=_P_*",
+
+    for type, name, default, doc in modparams:
+        print >>f, "[%s=_N_]" % name,
+    print >>f
+
+    hasparamdoc = False
+    for type, name, default, doc in modparams:
+        if doc or default: hasparamdoc = True
+
+    doc = finddoc('descr')
+    if doc and doc[1]:
+        print >>f, ""
+        print >>f, "== DESCRIPTION"
+        print >>f, ""
+        print >>f, "%s" % doc[1]
+        print >>f, ""
+
+    if modparams:
+        print >>f, ""
+        print >>f, "== OPTIONS"
+
+        for type, name, default, doc in modparams:
+            print >>f, ""
+            print >>f, "*%s*::" % name,
+            if default:
+                print >>f, "[default: %s]" % default
+            if doc:
+                print >>f, doc
+            print >>f, ""
+
+    if functions:
+        print >>f
+        print >>f, "== FUNCTIONS"
+        print >>f, ""
+        for _, name, fp, doc in finddocs('funct'):
+	    if name != None and name != "_":
+                print >>f, "*%s._N_.%s*" % (comp_name, name)
+            else :
+                print >>f, "*%s._N_*" % comp_name
+            if fp:
+                print >>f, "(requires a floating-point thread)"
+            else:
+                print >>f
+            print >>f, doc
+            print >>f, ""
+        print >>f, ""
+
+    if pins:
+        print >>f, ""
+        print >>f, "== PINS"
+        print >>f, ""
+    for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
+        print >>f, "*%s*" % name,
+        print >>f, type, dir,
+        if array:
+            sz = name.count("#")
+            if isinstance(array, tuple):
+                print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
+            else:
+                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+        if personality:
+            print >>f, " [if %s]" % personality,
+        if value:
+            print >>f, "*(default: _%s_)*" % value,
+        f.softspace = False
+        if doc:
+            print >>f, "::\n    %s\n" % doc.strip()
+        else:
+	    print >>f, "\n"
+
+    print >>f, "\n"
+
+    if params:
+        print >>f, "== PARAMETERS"
+        print >>f, ""
+        for _, name, type, array, dir, doc, value, personality in finddocs('param'):
+            print >>f, "*%s*" % name,
+            print >>f, type, dir,
+            if array:
+                sz = name.count("#")
+                if isinstance(array, tuple):
+                    print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
+                else:
+                    print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+            if personality:
+                print >>f, " [if %s]" % personality,
+            if value:
+                print >>f, "*(default: _%s_)*" % value,
+            f.softspace = False
+            if doc:
+                print >>f, "::\n    %s\n" % doc.strip()
+            else:
+		print >>f, "\n"
+
+	print >>f, "\n"
+
+    doc = finddoc('see_also')
+    if doc and doc[1]:
+        print >>f, ""
+        print >>f, "== SEE ALSO"
+        print >>f, ""
+        print >>f, "%s" % doc[1]
+        print >>f, ""
+
+    doc = finddoc('notes')
+    if doc and doc[1]:
+        print >>f, ""
+        print >>f, "== NOTES"
+        print >>f, ""
+        print >>f, "%s" % doc[1]
+        print >>f, ""
+
+    doc = finddoc('author')
+    if doc and doc[1]:
+        print >>f, ""
+        print >>f, "== AUTHOR"
+        print >>f, ""
+        print >>f, "%s" % doc[1]
+        print >>f, ""
+
+    doc = finddoc('license')
+    if doc and doc[1]:
+        print >>f, ""
+        print >>f, "== LICENCE"
+        print >>f, ""
+        print >>f, "%s" % doc[1]
+    print >>f, ""
+
+    return outfilename
+
+def document(filename, outfilename, a=None, b=None):
     if outfilename is None:
         outfilename = os.path.splitext(filename)[0] + ".9"
-
-    a, b = parse(filename)
+    if a is None:
+        a, b = parse(filename)
+    if options.get('asciidoc'):
+        afilename = outfilename + ".txt"
+        result = os.system("a2x --xsltproc-opts --nonet -f manpage %s"
+                    % adocument(filename, afilename, False, a, b))
+        if result != 0:
+            raise SystemExit, os.WEXITSTATUS(result) or 1
+        os.unlink(afilename)
+        return
     f = open(outfilename, "w")
 
     has_personality = False
@@ -942,6 +1155,35 @@ def document(filename, outfilename):
         print >>f, ".SH LICENSE\n"
         print >>f, "%s" % doc[1]
 
+def html(filename, outfilename):
+    a, b = parse(filename)
+    if outfilename is None:
+        outfilename = os.path.splitext(filename)[0] + ".9.html"
+    if options.get("asciidoc"):
+        filename = os.path.abspath(filename)
+        outfilename = os.path.abspath(outfilename)
+        outdir = os.path.dirname(outfilename)
+        basename = os.path.basename(outfilename)
+        afilename = os.path.splitext(basename)[0] + ".txt"
+        htmlfilename = os.path.splitext(basename)[0] + ".txt"
+        with temporary_directory(True):
+            shutil.copy(filename, basename)
+            adocument(basename, afilename, False, a, b)
+            result = os.system("a2x --xsltproc-opts --nonet -aleveloffset=1 -f xhtml %s" % afilename)
+            if result != 0:
+                raise SystemExit, os.WEXITSTATUS(result) or 1
+            for i in glob.glob("*"):
+                if i not in (afilename, "docbook-xsl.css"):
+                    shutil.copy(i, outdir)
+    else:
+        manfilename = os.path.splitext(outfilename)[0] + ".9"
+        document(filename, manfilename, a, b)
+        result = os.system("groff -Thtml -man %s > %s" %
+                (manfilename, outfilename))
+        if result != 0:
+            raise SystemExit, os.WEXITSTATUS(result) or 1
+        os.unlink(manfilename)
+
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
     try:
@@ -1020,14 +1262,16 @@ def main():
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:hH?",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'help', 'userspace', 'install-doc',
+                            'document', 'html', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
 
     for k, v in opts:
+        if k in ("-H", "--html"):
+            mode = HTMLDOC
         if k in ("-U", "--unix"):
             require_unix_line_endings = True
         if k in ("-u", "--userspace"):
@@ -1055,7 +1299,7 @@ def main():
         if k in ("-?", "-h", "--help"):
             usage(0)
 
-    if outfile and mode != PREPROCESS and mode != DOCUMENT:
+    if outfile and mode not in (PREPROCESS, DOCUMENT, HTMLDOC):
         raise SystemExit, "Can only specify -o when preprocessing or documenting"
 
     if mode == MODINC:
@@ -1068,7 +1312,9 @@ def main():
     for f in args:
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
-            if f.endswith(".comp") and mode == DOCUMENT:
+            if f.endswith(".comp") and mode == HTMLDOC:
+                html(f, outfile)
+            elif f.endswith(".comp") and mode == DOCUMENT:
                 document(f, outfile)            
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
