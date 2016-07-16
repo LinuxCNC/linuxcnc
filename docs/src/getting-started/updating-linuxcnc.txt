@@ -618,17 +618,15 @@ with related pins.
        is: halui.joint.selected.on-soft-min-limit
 ----
 
-=== Axis gui
+=== AXIS GUI
 
-==== Kinematics Support
-
-===== Identity
+==== Identity Kinematics
 
 The axis gui continues to support identity kinematics configurations.  This gui
 hides the distinctions of axes and joints in order to simplify the display and
 usage of simple machines.
 
-===== Special cases
+==== Special case kinematics
 
 Some machines, typically gantrys, may use a configuration with more than
 one joint assigned to an axis letter.  This can be done with the trivkins
@@ -648,7 +646,7 @@ This machine, after homing, has a one-to-one correspondence between a single
 axis letter (Y) and a pair of joints (1,2).  Using 'kinematics=BOTH' allows
 control of individual joints in joint mode 'if/when required'.
 
-===== Non-identity
+==== Non-identity kinematics
 
 The axis gui supports configurations using non-identity kinematics with:
 
