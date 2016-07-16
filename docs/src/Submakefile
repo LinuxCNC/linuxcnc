@@ -237,6 +237,8 @@ DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) )
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
+.PHONY: man-html
+man-html: $(MAN_HTML_TARGETS)
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
