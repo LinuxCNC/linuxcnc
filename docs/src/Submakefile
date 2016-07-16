@@ -356,8 +356,17 @@ $(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr
 $(DOC_DIR)/LinuxCNC_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 
-$(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
-	@echo Formatting $(notdir $<) as HTML
+$(COMP_HTML): $(DOC_DIR)/html/man/man9/%.9.html: hal/components/%.comp
+	$(ECHO) Formatting $(notdir $<) as HTML with comp
+	$(Q)mkdir -p $(dir $@)
+	$(Q)../bin/halcompile -U --html -o $@ $<
+$(COMP_DRIVER_HTML): $(DOC_DIR)/html/man/man9/%.9.html: hal/drivers/%.comp
+	$(ECHO) Formatting $(notdir $<) as HTML with comp
+	$(Q)mkdir -p $(dir $@)
+	$(Q)../bin/halcompile -U --html -o $@ $<
+
+$(filter-out $(COMP_HTML) $(COMP_DRIVER_HTML), $(MAN_HTML_TARGETS)): $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
+	@echo Formatting $(notdir $<) as HTML with groff
 	@mkdir -p $(dir $@)
 	@(cd $(DOC_DIR)/man; groff -Thtml -man $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 

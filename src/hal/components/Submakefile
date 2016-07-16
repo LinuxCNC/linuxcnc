@@ -9,12 +9,14 @@ CONVERTERS :=  \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
 COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
+COMP_HTML := $(patsubst hal/components/%.comp, ../docs/html/man/man9/%.9.html, $(COMPS))
 ifeq ($(BUILD_SYS),uspace)
 COMP_DRIVERS += hal/drivers/serport.comp
 else
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 endif
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
+COMP_DRIVER_HTML := $(patsubst hal/drivers/%.comp, ../docs/html/man/man9/%.9.html, $(COMP_DRIVERS))
 TARGETS += manpages
 GENERATED_MANPAGES += $(COMP_MANPAGES)
 GENERATED_MANPAGES += $(COMP_DRIVER_MANPAGES)
