@@ -1,5 +1,5 @@
 # check_config.tcl
-# usage: haltcl -i inifilename path_to_this_file
+# Usage: tclsh path_to_this_file inifilename
 # if a check fails, print message and exit 1
 #
 # checks:
@@ -7,30 +7,6 @@
 #   2) if trivkins, check consistency of [JOINT_] and [AXIS_]
 #      MIN_LIMIT and MAX_LIMIT
 #----------------------------------------------------------------------
-set ::progname [file tail [info script]]
-
-proc parse_ini {filename} {
-    set f [open $filename]
-
-    while {[gets $f line] >= 0} {
-        if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
-            # nothing
-        } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
-            upvar $section s
-            lappend s([string trim $k]) $v
-        }
-    }
-
-    close $f
-}
-
-if {   [llength $argv] > 0 \
-    && (  ([lindex $argv 0] == "-i") || ([lindex $argv 0] == "-ini")  )} {
-    parse_ini [lindex $argv 1]
-    set argv [lrange $argv 2 end]
-}
-
-
 set ::mandatory_items {KINS KINEMATICS
                        KINS JOINTS
                       }
@@ -38,7 +14,7 @@ set ::mandatory_items {KINS KINEMATICS
 proc err_exit msg {
   puts "\n$::progname: ERROR"
   if [info exists ::kins(module)] {
-    puts "  (IDENTITY KINEMATICS: $::kins(module))"
+    puts "  (Using identity kinematics: $::kins(module))"
   }
   foreach m $msg {puts "  $m"}
   puts ""
@@ -104,6 +80,18 @@ proc validate_identity_kins_limits {} {
 } ;# validate_identity_kins_limits
 #----------------------------------------------------------------------
 # begin
+package require Linuxcnc ;# parse_ini
+
+set ::progname [file rootname [file tail [info script]]]
+set inifile [lindex $::argv 0]
+if ![file exists $inifile]   {
+  err_exit [list "No such file <$inifile>"]
+}
+if ![file readable $inifile] {
+   err_exit [list "File not readable <$inifile>"]
+}
+parse_ini $inifile
+
 check_mandatory_items
 
 set kins_kinematics [lindex $::KINS(KINEMATICS) end]

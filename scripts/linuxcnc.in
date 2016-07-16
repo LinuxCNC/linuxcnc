@@ -361,7 +361,7 @@ function run_applications () {
 }
 
 INIFILE="$(handle_includes "$INIFILE")"
-@TCLSH@ $HALLIB_DIR/check_config.tcl -i "$INIFILE"
+@TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
 exitval=$?
 case "$exitval" in
   0) ;;
