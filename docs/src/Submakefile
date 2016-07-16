@@ -325,7 +325,7 @@ checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
-			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
+			$(shell grep -q -L '^\.so ' $(sort $(MAN_SRCS))))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
@@ -584,7 +584,7 @@ $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo Depending $(notdir $<)
 	@mkdir -p $(dir $@)
 	$(Q)echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
-	$(Q)grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
+	$(Q)grep -q '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
 	$(Q)echo >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
