@@ -38,10 +38,10 @@
 #define setresult(t,s) Tcl_SetObjResult((t), Tcl_NewStringObj((s),-1))
 
 /*
-  Using tcl package Emc:
+  Using tcl package Linuxcnc:
   Using emcsh:
 
-  % package require Emc
+  % package require Linuxcnc
   % emc_init -ini inifilename # to start with an inifile
   or
   % emc_init # to start with the default inifilename (emc.ini)
@@ -51,7 +51,7 @@
 
   With -ini <inifile>, uses inifile instead of emc.ini.
 
-  Commands in the emc package are all prefixed with "emc_", which makes them
+  Commands in the Linuxcnc package are all prefixed with "emc_", which makes them
   somewhat inconvenient for typing but avoids name conflicts, e.g., open.
 
   Some commands take 0 or more arguments. 0 arguments means they return
