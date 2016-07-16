@@ -9,6 +9,28 @@
 #----------------------------------------------------------------------
 set ::progname [file tail [info script]]
 
+proc parse_ini {filename} {
+    set f [open $filename]
+
+    while {[gets $f line] >= 0} {
+        if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
+            # nothing
+        } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
+            upvar $section s
+            lappend s([string trim $k]) $v
+        }
+    }
+
+    close $f
+}
+
+if {   [llength $argv] > 0 \
+    && (  ([lindex $argv 0] == "-i") || ([lindex $argv 0] == "-ini")  )} {
+    parse_ini [lindex $argv 1]
+    set argv [lrange $argv 2 end]
+}
+
+
 set ::mandatory_items {KINS KINEMATICS
                        KINS JOINTS
                       }
