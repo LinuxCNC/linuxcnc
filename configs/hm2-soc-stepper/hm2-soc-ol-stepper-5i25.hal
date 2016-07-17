@@ -33,7 +33,8 @@ loadrt trivkins
 loadrt tp
 
 # hostmot2 driver
-loadrt hostmot2
+#loadrt hostmot2
+loadrt hostmot2 debug_idrom=1 debug_modules=1
 
 # load low-level driver
 loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
@@ -49,11 +50,13 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 # THREADS
 # ################################################
 
+addf hm2_[HOSTMOT2](BOARD).0.read         servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.read_gpio    servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
 
 addf hm2_[HOSTMOT2](BOARD).0.write        servo-thread
-addf hm2_[HOSTMOT2](BOARD).0.read         servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.write_gpio        servo-thread
 
 # revel in the free time here from not having to run PID
 #addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
