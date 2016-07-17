@@ -277,6 +277,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_PKTUART_RX:      return "PktUART Receive Channel";
         case HM2_GTAG_PKTUART_TX:      return "PktUART Transmit Channel";
         case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
+        case HM2_GTAG_FWID:            return "Firmware ID";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -835,6 +836,7 @@ int hm2_md_is_consistent(
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
 
+    // hm2_stepgen_parse_md() needs this, so determine in advance
     hm2->dpll_module_present = 0;
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
@@ -947,6 +949,9 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
                 break;
+
+	    case HM2_GTAG_FWID:
+		continue;  // skip - already parsed above from well-known memory address
 
             default:
                 HM2_WARN(
