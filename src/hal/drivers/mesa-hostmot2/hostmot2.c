@@ -455,6 +455,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "enable_raw", 10) == 0) {
             hm2->config.enable_raw = 1;
 
+	} else if (strncmp(token, "nofwid", 6) == 0) {
+            hm2->config.skip_fwid = 1;
+
         } else if (strncmp(token, "firmware=", 9) == 0) {
             // FIXME: we leak this in hm2_register
             hm2->config.firmware = kstrdup(token + 9, GFP_KERNEL);
@@ -831,7 +834,7 @@ int hm2_md_is_consistent(
 
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
-    
+
     hm2->dpll_module_present = 0;
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
@@ -892,13 +895,13 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_MUXED_ENCODER:
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
                 break;
-            
+
             case HM2_GTAG_SSI:
             case HM2_GTAG_BISS:
             case HM2_GTAG_FABS:
                 md_accepted = hm2_absenc_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_RESOLVER:
                 md_accepted = hm2_resolver_parse_md(hm2, md_index);
                 break;
@@ -922,16 +925,16 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_SMARTSERIAL:
                 md_accepted = hm2_sserial_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_BSPI:
                 md_accepted = hm2_bspi_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_UART_RX:
             case HM2_GTAG_UART_TX:
                 md_accepted = hm2_uart_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_PKTUART_RX:
             case HM2_GTAG_PKTUART_TX:
                 md_accepted = hm2_pktuart_parse_md(hm2, md_index);
@@ -940,7 +943,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_HM2DPLL:
                 md_accepted = hm2_dpll_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
                 break;
