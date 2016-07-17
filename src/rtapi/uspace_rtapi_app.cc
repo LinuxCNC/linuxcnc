@@ -828,14 +828,9 @@ void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int nperiod) {
     }
 }
 
-template<class T=rtapi_task>
-T *get_task(int task_id) {
-    return static_cast<T*>(RtapiApp::get_task(task_id));
-}
-
 int Posix::task_delete(int id)
 {
-  auto task = ::get_task<PosixTask>(id);
+  auto task = ::rtapi_get_task<PosixTask>(id);
   if(!task) return -EINVAL;
 
   pthread_cancel(task->thr);
@@ -848,7 +843,7 @@ int Posix::task_delete(int id)
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
-  auto task = ::get_task<PosixTask>(task_id);
+  auto task = ::rtapi_get_task<PosixTask>(task_id);
   if(!task) return -EINVAL;
 
   if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
@@ -884,25 +879,6 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   return 0;
 }
 
-const unsigned long ONE_SEC_IN_NS = 1000000000;
-static void advance_clock(struct timespec &result, const struct timespec &src, unsigned long nsec)
-{
-    time_t sec = src.tv_sec;
-    while(nsec >= ONE_SEC_IN_NS)
-    {
-        ++sec;
-        nsec -= ONE_SEC_IN_NS;
-    }
-    nsec += src.tv_nsec;
-    if(nsec >= ONE_SEC_IN_NS)
-    {
-        ++sec;
-        nsec -= ONE_SEC_IN_NS;
-    }
-    result.tv_sec = sec;
-    result.tv_nsec = nsec;
-}
-
 #define RTAPI_CLOCK (CLOCK_MONOTONIC)
 
 pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
@@ -929,7 +905,7 @@ void *Posix::wrapper(void *arg)
 
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
-  advance_clock(task->nextstart, now, task->period);
+  rtapi_timespec_advance(task->nextstart, now, task->period);
 
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
@@ -952,21 +928,15 @@ int Posix::task_self() {
     return task->id;
 }
 
-static bool ts_less(const struct timespec &ta, const struct timespec &tb) {
-    if(ta.tv_sec < tb.tv_sec) return 1;
-    if(ta.tv_sec > tb.tv_sec) return 0;
-    return ta.tv_nsec < tb.tv_nsec;
-}
-
 void Posix::wait() {
     if(do_thread_lock)
         pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    advance_clock(task->nextstart, task->nextstart, task->period);
+    rtapi_timespec_advance(task->nextstart, task->nextstart, task->period);
     struct timespec now;
     clock_gettime(RTAPI_CLOCK, &now);
-    if(ts_less(task->nextstart, now))
+    if(rtapi_timespec_less(task->nextstart, now))
     {
         if(policy == SCHED_FIFO)
             unexpected_realtime_delay(task);
@@ -1106,3 +1076,21 @@ void rtapi_delay(long ns) {
     App().do_delay(ns);
 }
 
+const unsigned long ONE_SEC_IN_NS = 1000000000;
+void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec)
+{
+    time_t sec = src.tv_sec;
+    while(nsec >= ONE_SEC_IN_NS)
+    {
+        ++sec;
+        nsec -= ONE_SEC_IN_NS;
+    }
+    nsec += src.tv_nsec;
+    if(nsec >= ONE_SEC_IN_NS)
+    {
+        ++sec;
+        nsec -= ONE_SEC_IN_NS;
+    }
+    result.tv_sec = sec;
+    result.tv_nsec = nsec;
+}
