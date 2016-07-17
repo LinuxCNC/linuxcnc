@@ -35,7 +35,6 @@ struct rtapi_task {
   int id;
   int owner;
   int uses_fp;
-  void *appspecific;          /* app-specific storage */
   size_t stacksize;
   int prio;
   long period;

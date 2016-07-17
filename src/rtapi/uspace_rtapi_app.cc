@@ -521,7 +521,7 @@ struct rtapi_module {
 #define MODULE_OFFSET 32768
 
 rtapi_task::rtapi_task()
-    : magic{}, id{}, owner{}, appspecific{}, stacksize{}, prio{},
+    : magic{}, id{}, owner{}, stacksize{}, prio{},
       period{}, nextstart{},
       ratio{}, arg{}, taskcode{}
 {}
