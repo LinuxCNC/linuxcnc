@@ -47,7 +47,7 @@ use_frames = True
 show_dro_btn = False
 use_auto_units = True
 blockdel = False
-opstop = True
+opstop = False
 enable_dro = False
 show_offsets = False
 show_dtg = False
@@ -72,4 +72,5 @@ unhomed_color = red
 dro_digits = 3
 toggle_readout = True
 scale_rapid_override = 1.0
+offset_axis_z = 0.0
 

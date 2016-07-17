@@ -1751,7 +1751,8 @@ class gmoccapy(object):
         # Motion mode change in identity kinematics makes no sense
         # so we will not react on the signal and correct the misbehavior
         print("Motion mode has changed, now we are in mode ", new_mode)
-        # Mode 1 = joint ; Mode 3 = teleop
+        # self.stat.motion_mode return
+        # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
         # so in mode 1 we have to show Joints and in Mode 3 axis values
         print("we have %s joints" % self.stat.joints)
         print("we have %s axis" % self.stat.axes)
@@ -3948,8 +3949,8 @@ class gmoccapy(object):
     def on_tbtn_switch_mode_toggled(self, widget, data=None):
         if widget.get_active():
             self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
-            # Mode 1 = joint ; Mode 3 = teleop
-            # so in mode 1 we have to show Joints and in Mode 3 axis values
+            # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
+            # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
             self.set_motion_mode(0)
         else:
             self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
