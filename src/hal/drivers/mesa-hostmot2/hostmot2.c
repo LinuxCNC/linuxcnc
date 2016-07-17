@@ -1021,6 +1021,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_led_cleanup(hm2);
     hm2_sserial_cleanup(hm2);
     hm2_bspi_cleanup(hm2);
+    hm2_fwid_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
@@ -1208,7 +1209,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
     }
 
-    
+
     //
     // if programming of the fpga is supported by the board and the user
     // requested a firmware file, fetch it from userspace and program
@@ -1356,6 +1357,17 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         }
     }
 
+    // parse any fwid protobuf message, either given at the fixed address (0xF800) of
+    // the FPGA image, or a replacement message 'passed up' from the llio driver
+    // via the hm2_lowlevel_io_struct.fwid_* fields
+    if (!hm2->config.skip_fwid) {
+	r = hm2_fwid_parse_md(hm2, -1); // -1 .. read from well-known address
+	if (r) {
+	    HM2_ERR("error reading fwid proto msg\n");
+	    return r;
+	}
+    } else
+	HM2_INFO("skipping fwid parse");
 
     //
     // read & verify FPGA firmware ConfigName
