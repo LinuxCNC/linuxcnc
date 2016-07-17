@@ -59,9 +59,9 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 #include "config.h"
 
 // this should be an general socfpga #define
-#if !defined(TARGET_PLATFORM_SOCFPGA)
-#error "This driver is for the socfpga platform only"
-#endif
+/* #if !defined(TARGET_PLATFORM_SOCFPGA) */
+/* #error "This driver is for the socfpga platform only" */
+/* #endif */
 
 #if !defined(BUILD_SYS_USER_DSO)
 #error "This driver is for usermode threads only"
@@ -88,6 +88,7 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /* Wrap up dt state */
 #define DTOV_STAT_UNAPPLIED	0x0
@@ -113,6 +114,12 @@ RTAPI_MP_INT(debug, "turn on extra debug output");
 static char *name = "hm2-socfpg0";
 RTAPI_MP_STRING(name, "logical device name, default hm2-socfpg0hm2-socfpg0");
 
+static char *descriptor = NULL;
+RTAPI_MP_STRING(descriptor, ".bin file with encoded fwid protobuf descriptor message");
+
+static int no_init_llio;
+RTAPI_MP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like num_leds");
+
 static int timer1;
 RTAPI_MP_INT(timer1, "rate for hm2 Timer1 IRQ, 0: IRQ disabled");
 
@@ -121,19 +128,17 @@ static int comp_id;
 static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
 static int num_boards;
 static int failed_errno = 0; // errno of last failed registration
+
 /* Pick a configfs folder that is unlikely to conflict with other overlays */
 static char *configfs_dir = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol";
 static char *configfs_path = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol/path";
 static char *configfs_status = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol/status";
 static int zero = 0;
 
-
 static int hm2_soc_mmap(hm2_soc_t *brd);
 static int waitirq(void *arg, const hal_funct_args_t *fa); // HAL thread funct
-
 static int fpga_status();
 static char *strlwr(char *str);
-
 static int locate_uio_device(hm2_soc_t *brd, const char *name);
 
 //
@@ -211,7 +216,6 @@ static int hm2_soc_verify_firmware(hm2_lowlevel_io_t *this,  const struct firmwa
 	LL_ERR("NULL firmware name, unable to program fpga");
         return -EINVAL;
     }
-
     return 0;
 }
 
@@ -253,9 +257,8 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
         return -EIO;
     }
 
-    //
     int fd;
-        
+
     // Spin to give configfs time to make the files
     int retries = 10;
     while(retries > 0) {
@@ -264,15 +267,15 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
             break;
         retries--;
         usleep(200000);
-    }    
-    
+    }
+
     if (fd < 0) {
         LL_ERR("open(%s) failed: %s", configfs_path, strerror(errno));
         return -EIO;
     }
 
-    int size = strlen(this->firmware);
-    
+    size_t size = strlen(this->firmware);
+
     // load FPGA by writing the name of the overlay to the path node
     if (write(fd, this->firmware, size) != size)  {
         LL_ERR("write(%s, %zu) failed: %s",
@@ -303,7 +306,6 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
         LL_ERR("soc_mmap_fail");
         return -EINVAL;
     }
-
     return 0;
 }
 
@@ -388,9 +390,11 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
     return 0;
 }
 
-static int hm2_soc_register(hm2_soc_t *brd, const char *name)
+static int hm2_soc_register(hm2_soc_t *brd,
+			    const char *name,
+			    void *fwid,
+			    size_t fwid_len)
 {
-    memset(brd, 0,  sizeof(hm2_soc_t));
 
     brd->name = name;
 
@@ -398,12 +402,25 @@ static int hm2_soc_register(hm2_soc_t *brd, const char *name)
     brd->fpga_state = -1;
 
     brd->llio.comp_id = comp_id;
-    brd->llio.num_ioport_connectors = 2;
-    brd->llio.pins_per_connector = 17;
-    brd->llio.ioport_connector_name[0] = "P3";
-    brd->llio.ioport_connector_name[1] = "P2";
-    brd->llio.fpga_part_number = 0; // "6slx9tqg144";
-    brd->llio.num_leds = 2;
+
+    if (no_init_llio) {
+	// defer to initialization in hm2_register()
+	// via fwid message
+	brd->llio.num_ioport_connectors = 0;
+	brd->llio.pins_per_connector = 0;
+	brd->llio.ioport_connector_name[0] = NULL;
+	brd->llio.fpga_part_number = 0;
+	brd->llio.num_leds = 0;
+   } else {
+	brd->llio.num_ioport_connectors = 4;
+	brd->llio.pins_per_connector = 17;
+	brd->llio.ioport_connector_name[0] = "GPIO0.P3";
+	brd->llio.ioport_connector_name[1] = "GPIO0.P2";
+	brd->llio.ioport_connector_name[2] = "GPIO1.P3";
+	brd->llio.ioport_connector_name[3] = "GPIO1.P2";
+	brd->llio.fpga_part_number = 0; // "6slx9tqg144";
+	brd->llio.num_leds = 4;
+    }
 
     // keeps hm2_register happy - will be overwritten
     // once the FPGA regs are accessible
@@ -411,25 +428,33 @@ static int hm2_soc_register(hm2_soc_t *brd, const char *name)
 
     brd->llio.threadsafe = 1;
 
-    // not safe to read yet as fpga memory not yet mapped
-    // so trap this on first downcall
+    // not yet safe to read as fpga memory not yet mapped
+    // so trap first downcall to read or write,
+    // and mmap() there
     brd->llio.read = hm2_soc_unmapped_read;
     brd->llio.write = hm2_soc_unmapped_write;
+
     brd->llio.reset = hm2_soc_reset;
 
     // hm2_register will downcall on those if firmware= given
     brd->llio.program_fpga = hm2_soc_program_fpga;
     brd->llio.verify_firmware = hm2_soc_verify_firmware;
 
+    // if descriptor=<filename> is given,
+    // read it (see rtapi_app_main) and pass it up to hm2_register()
+    // to override the fwid message in the FPGA
+    brd->llio.fwid_msg = fwid;
+    brd->llio.fwid_len = fwid_len;
+
     brd->llio.private = brd;
     hm2_lowlevel_io_t *this =  &brd->llio;
 
-    int r = hm2_register( this, config[0]);
+    int r = hm2_register(this, config[0]);
     if (r != 0) {
         THIS_ERR("hm2_soc_ol_board fails HM2 registration\n");
         close(brd->uio_fd);
         brd->uio_fd = -1;
-        return -EIO;
+        return r;
     }
 
     LL_PRINT("initialized AnyIO hm2_soc_ol_board %s on %s\n", brd->name, brd->uio_dev);
@@ -450,17 +475,51 @@ static int hm2_soc_munmap(hm2_soc_t *brd) {
 
 int rtapi_app_main(void) {
     int r = 0;
+    size_t nread = 0;
+    void *blob = NULL;
 
     LL_PRINT("loading Mesa AnyIO HostMot2 socfpga overlay driver version " HM2_SOCFPGA_VERSION "\n");
 
-    // Don't check for the hm2 module here, it hasn't been probed yet...
+    // read a custom fwid message if given
+    if (descriptor) {
+	struct stat st;
+	if (stat(descriptor, &st)) {
+	    LL_ERR("stat(%s) failed: %s\n", descriptor,
+		   strerror(errno));
+	    return -EINVAL;
+	}
+	blob = malloc(st.st_size);
+	if (blob == 0) {
+	    LL_ERR("malloc(%lu) failed: %s\n", st.st_size,
+		   strerror(errno));
+	    return -ENOMEM;
+	}
+	int fd = open(descriptor, O_RDONLY);
+	if (fd < 0) {
+	    LL_ERR("open(%s) failed: %s\n", descriptor,
+		   strerror(errno));
+	    free(blob);
+	    return -EINVAL;
+	}
+	nread = read(fd, blob, st.st_size);
+	if (nread != st.st_size) {
+	    LL_ERR("reading '%s': expected %zu got %u - %s\n",
+		   descriptor,
+		   (unsigned) st.st_size, nread, strerror(errno));
+	    return -EINVAL;
+	}
+	close(fd);
+	LL_DBG("custom descriptor '%s' size %zu", descriptor, nread);
+    }
 
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
 
     hm2_soc_t *brd = &board[0];
+    memset(brd, 0,  sizeof(hm2_soc_t));
 
-    r = hm2_soc_register(brd, name);
+
+    r = hm2_soc_register(brd, name, blob, nread);
     if (r != 0) {
         LL_ERR("error registering UIO driver\n");
         hal_exit(comp_id);
@@ -615,8 +674,6 @@ static int locate_uio_device(hm2_soc_t *brd, const char *name)
 static int waitirq(void *arg, const hal_funct_args_t *fa)
 {
     hm2_soc_t *brd = arg;
-
-
     uint32_t info;
     ssize_t nb;
 
