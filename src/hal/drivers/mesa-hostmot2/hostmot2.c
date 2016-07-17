@@ -60,7 +60,6 @@ RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration o
 int sserial_baudrate = -1;
 RTAPI_MP_INT(sserial_baudrate, "Over-ride the standard smart-serial baud rate. For flashing remote firmware only.");
 
-
 // this keeps track of all the hm2 instances that have been registered by
 // the low-level drivers
 struct list_head hm2_list;
@@ -1108,45 +1107,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
 
     //
-    // verify llio ioport connector names
-    //
-
-    if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
-        HM2_ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
-        return -EINVAL;
-    }
-
-    {
-        int port;
-
-        for (port = 0; port < llio->num_ioport_connectors; port ++) {
-            int i;
-
-            if (llio->ioport_connector_name[port] == NULL) {
-                HM2_ERR_NO_LL("llio ioport connector name %d is NULL\n", port);
-                return -EINVAL;
-            }
-
-            for (i = 0; i < HAL_NAME_LEN+1; i ++) {
-                if (llio->ioport_connector_name[port][i] == '\0') break;
-                if (!isprint(llio->ioport_connector_name[port][i])) {
-                    HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
-                    return -EINVAL;
-                }
-            }
-            if (i == HAL_NAME_LEN+1) {
-                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
-                return -EINVAL;
-            }
-            if (i == 0) {
-                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (zero length)\n", port);
-                return -EINVAL;
-            }
-        }
-    }
-
-
-    //
     // verify llio functions
     //
 
@@ -1368,6 +1328,45 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 	}
     } else
 	HM2_INFO("skipping fwid parse");
+
+
+    //
+    // verify llio ioport connector names
+    //
+
+    if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
+        HM2_ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
+        return -EINVAL;
+    }
+
+    {
+        int port;
+
+        for (port = 0; port < llio->num_ioport_connectors; port ++) {
+            int i;
+
+            if (llio->ioport_connector_name[port] == NULL) {
+                HM2_ERR_NO_LL("llio ioport connector name %d is NULL\n", port);
+                return -EINVAL;
+            }
+
+            for (i = 0; i < HAL_NAME_LEN+1; i ++) {
+                if (llio->ioport_connector_name[port][i] == '\0') break;
+                if (!isprint(llio->ioport_connector_name[port][i])) {
+                    HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
+                    return -EINVAL;
+                }
+            }
+            if (i == HAL_NAME_LEN+1) {
+                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
+                return -EINVAL;
+            }
+            if (i == 0) {
+                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (zero length)\n", port);
+                return -EINVAL;
+            }
+        }
+    }
 
     //
     // read & verify FPGA firmware ConfigName
