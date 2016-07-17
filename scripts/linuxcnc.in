@@ -361,13 +361,6 @@ function run_applications () {
 }
 
 INIFILE="$(handle_includes "$INIFILE")"
-@TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
-exitval=$?
-case "$exitval" in
-  0) ;;
-  1) echo "check_config validation failed"; exit $exitval ;;
-  *) echo "check_config validation failed in an unexpected way."; exit $exitval ;;
-esac
 
 # delete directories from path, save name only
 INI_NAME="${INIFILE##*/}"
@@ -443,7 +436,15 @@ if [ "$retval" != "1.0" ]; then
     esac
 fi
 
+@TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
+exitval=$?
+case "$exitval" in
+  0) ;;
+  1) echo "check_config validation failed"; exit $exitval ;;
+  *) echo "check_config validation failed in an unexpected way."; exit $exitval ;;
+esac
 # 2.2. get param file
+
 GetFromIni PARAMETER_FILE RS274NGC 
 RS274NGC_PARAMFILE=$retval
 
