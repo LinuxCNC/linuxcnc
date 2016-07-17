@@ -23,6 +23,7 @@
 #include "rtapi.h"
 #include <unistd.h>
 #include <rtapi_errno.h>
+#include "rtapi/uspace_common.h"
 
 
 /* FIXME - no support for fifos */
@@ -54,4 +55,3 @@ long long rtapi_get_time(void) {
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
-#include "rtapi/uspace_common.h"
