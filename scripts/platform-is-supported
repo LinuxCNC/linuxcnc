@@ -26,6 +26,8 @@ import sys
 import subprocess
 import re
 
+if sys.hexversion < 0x2070000:
+    raise SystemExit, "System Python is too old"
 
 supported_oses = [ 'linux' ]
 supported_cpus = [ 'amd64', 'i386', 'arm' ]
@@ -59,22 +61,17 @@ def detect_kernel_flavor(uname):
         return 'vanilla'
 
 
-# use subprocess.Popen() in this funny way, instead of
-# subprocess.check_output(), because check_output() is not in Hardy's
-# Python 2.5
-
 os = detect_os()
 
 if os == 'linux':
-    cpu = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU'], stdout=subprocess.PIPE).communicate()[0][:-1]
-    distributor = subprocess.Popen(['lsb_release', '--id', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
-
-    release = subprocess.Popen(['lsb_release', '--release', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
+    cpu = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU']).strip()
+    distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip()
+    release = subprocess.check_output(['lsb_release', '--release', '--short']).strip()
     major, minor = re.split('\.', release)
     release_major = int(major)
     release_minor = int(minor)
 
-    uname = subprocess.Popen(['uname', '-r'], stdout=subprocess.PIPE).communicate()[0][:-1]
+    uname = subprocess.check_output(['uname', '-r']).strip()
     kernel_flavor = detect_kernel_flavor(uname)
 
 else:
