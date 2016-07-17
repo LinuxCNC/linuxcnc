@@ -50,7 +50,7 @@ oprofile*
 position.txt
 *.9comp
 **/DOTGIT
-src/machinetalk/generated/*
+src/machinetalk/build/*
 lib/python/*_pb2.py
 lib/python/pb2json.py
 lib/python/google/
