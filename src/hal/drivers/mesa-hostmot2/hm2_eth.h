@@ -42,18 +42,33 @@ typedef struct {
     struct sockaddr_in local_addr;
     struct sockaddr_in server_addr;
 
+    rtapi_u8 read_packet[1400];
+    rtapi_u8 *read_packet_ptr;
     hm2_read_queue_entry_t queue_reads[MAX_ETH_READS];
-    lbp16_cmd_addr queue_packets[MAX_ETH_READS];
     int queue_reads_count;
     int queue_buff_size;
 
     rtapi_u8 write_packet[1400];
-    void *write_packet_ptr;
+    rtapi_u8 *write_packet_ptr;
     int write_packet_size;
-    int read_cnt;
-    int write_cnt;
+    uint32_t read_cnt, write_cnt;
+    // these two fields must be kept together, they're read by a single
+    // read-request
+    uint32_t confirm_read_cnt, confirm_write_cnt;
 
+    int comm_error_counter;
+    uint16_t old_rxudpcount, rxudpcount;
     struct arpreq req;
+
+    struct {
+        hal_s32_t read_timeout;
+        hal_s32_t packet_error_limit;
+        hal_s32_t packet_error_increment;
+        hal_s32_t packet_error_decrement;
+        hal_bit_t *packet_error;
+        hal_s32_t *packet_error_level;
+        hal_bit_t *packet_error_exceeded;
+    } *hal;
 } hm2_eth_t;
 
 #endif

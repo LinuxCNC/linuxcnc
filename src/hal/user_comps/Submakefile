@@ -56,12 +56,12 @@ $(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.hh)): .
 $(USER_COMP_MANPAGES): ../docs/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile --userspace --document -o $@ $<
+	$(Q)../bin/halcompile -U --userspace --document -o $@ $<
 
 $(USER_COMP_SRCS): objects/%.c: %.comp ../bin/halcompile
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile --userspace --require-license -o $@ $<
+	$(Q)../bin/halcompile -U --userspace --require-license -o $@ $<
 
 $(USER_COMP_BINS): ../bin/%: objects/objects/hal/user_comps/%.o ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)

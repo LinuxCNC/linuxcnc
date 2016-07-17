@@ -120,12 +120,20 @@ struct hm2_lowlevel_io_struct {
     // to amortize latency on multiple ethernet devices
     bool read_requested;
 
+    // the period (in ns) of the last read-request invocation
+    unsigned long period;
+
+    // the time (in ns) that the last read-request was issued
+    unsigned long long read_time;
+
     // TRUE if it is useful to split reads into a request and response part
     bool split_read;
 
     // this gets set to TRUE when the llio driver detects an io_error, and
     // by the hm2 watchdog (if present) when it detects a watchdog bite
-    int needs_reset;
+    // needs_soft_reset is like needs_reset except that no message is logged
+    // to the user
+    int needs_reset, needs_soft_reset;
 
     // the pin-count and names of the io port connectors on this board
     int num_ioport_connectors;

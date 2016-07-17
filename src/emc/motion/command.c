@@ -493,7 +493,6 @@ void emcmotCommandHandler(void *arg, long period)
 	       does yet), and if in free mode, it disables the free mode traj
 	       planners which stops joint motion */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {

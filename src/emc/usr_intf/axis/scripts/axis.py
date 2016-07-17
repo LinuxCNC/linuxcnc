@@ -1925,10 +1925,6 @@ class TclCommands(nf.TclCommands):
         spindlerate_blackout = time.time() + 1
 
     def set_feedrate(newval):
-        if      (joints_mode()
-            and (s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)):
-            return
-        # teleop or identity allows (De Morgan):
         global feedrate_blackout
         try:
             value = int(newval)

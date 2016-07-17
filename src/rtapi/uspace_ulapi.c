@@ -23,6 +23,7 @@
 #include "rtapi.h"
 #include <unistd.h>
 #include <rtapi_errno.h>
+#include "rtapi/uspace_common.h"
 
 
 /* FIXME - no support for fifos */
@@ -48,4 +49,16 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
   return -ENOSYS;
 }
 
-#include "rtapi/uspace_common.h"
+long long rtapi_get_time(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
+long int rtapi_delay_max() { return 999999999; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    struct timespec ts = {0, ns};
+    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+}

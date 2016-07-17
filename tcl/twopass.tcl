@@ -419,20 +419,6 @@ proc ::tp::hal_to_tcl {ifile ofile} {
   return $ofile
 } ;# hal_to_tcl
 
-proc ::tp::parse_ini {filename} {
-  # adapted from haltcl.in
-  set f [open $filename]
-  while {[gets $f line] >= 0} {
-    if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
-      # nothing
-    } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
-      upvar $section s
-      lappend s([string trim $k]) $v
-    }
-  }
-  close $f
-} ;# parse_ini
-
 proc ::tp::source_the_files {} {
   foreach file_plus_args $::TP(runfiles) {
     catch {unset ::argv}
@@ -532,6 +518,7 @@ proc ::tp::verbose {msg} {
 
 #----------------------------------------------------------------------
 # begin
+package require Linuxcnc ;# parse_ini
 set ::tp::options ""
 set ::tp::verbose 0
 if {[string first verbose [string tolower $::HAL(TWOPASS)]] >=0} {
