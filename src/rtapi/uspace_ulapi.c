@@ -55,3 +55,10 @@ long long rtapi_get_time(void) {
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
+long int rtapi_delay_max() { return 999999999; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    struct timespec ts = {0, ns};
+    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+}

@@ -388,15 +388,3 @@ static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
     return nanosleep(&request, remain);
 #endif
 }
-
-void rtapi_delay(long ns) {
-    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
-    struct timespec ts = {0, ns};
-    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
-}
-
-#ifdef ULAPI
-long int rtapi_delay_max() { return 999999999; }
-#else
-long int rtapi_delay_max() { return 10000; }
-#endif
