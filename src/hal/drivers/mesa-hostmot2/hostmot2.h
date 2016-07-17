@@ -132,6 +132,9 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 
 #define HM2_DPLL_SYNC_REG           0x7600
 
+#define HM2_FWID_BASE               0xF800
+#define HM2_FWID_MAXLEN             2048
+#define HM2_FWID_COOKIE             0xFEEDBABE
 
 //
 // Pin Descriptor constants
@@ -183,7 +186,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_RESOLVER          (192)
 #define HM2_GTAG_SMARTSERIAL       (193)
 #define HM2_GTAG_TWIDDLER          (194) // Not supported
-
+#define HM2_GTAG_FWID              (248)
 
 
 //
@@ -1021,6 +1024,12 @@ typedef struct {
 
 } hm2_led_t ;
 
+struct _pb_Firmware;
+
+typedef struct {
+    struct _pb_Firmware *dmsg; // decoded protobuf message, nanopb format
+} hm2_fwid_t ;
+
 
 //
 // raw peek/poke access
@@ -1083,6 +1092,7 @@ typedef struct {
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
+	int skip_fwid;  // skip applying the fwid proto message if set
     } config;
 
     char config_name[HM2_CONFIGNAME_LENGTH + 1];
@@ -1123,7 +1133,7 @@ typedef struct {
     hm2_watchdog_t watchdog;
     hm2_dpll_t dpll;
     hm2_led_t led;
-
+    hm2_fwid_t fwid;
     hm2_raw_t *raw;
 
     struct list_head list;
@@ -1394,6 +1404,14 @@ void hm2_watchdog_process_tram_read(hostmot2_t *hm2);
 int hm2_led_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_led_write(hostmot2_t *hm2);
 void hm2_led_cleanup(hostmot2_t *hm2);
+
+
+//
+// Firmware ID functions
+//
+int hm2_fwid_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_fwid_cleanup(hostmot2_t *hm2);
+
 
 //
 // the raw interface lets you peek and poke the hostmot2 instance from HAL
