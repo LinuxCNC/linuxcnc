@@ -20,31 +20,7 @@ See the file COPYING for more details.
 
 # The Build Process
 
-Refer to the file 'docs/INSTALL' for information about building and 
-running the software.
-    
+Refer to the file 'docs/src/code/building-linuxcnc.txt' for information
+about building and running the software, or look here:
 
-# Quickstart
-
-From the top level directory, switch to the source directory:
-
-    cd src
-
-In the source directory, build LinuxCNC:
-
-    # for rtai
-    ./autogen.sh
-    ./configure
-    # or, for PREEMPT-rt or vanilla kernels:
-    ./autogen.sh
-    ./configure --with-realtime=uspace
-
-    make clean
-    make
-    # for rtai or PREEMPT-rt kernels:
-    sudo make setuid
-
-to run the software go back to the top level directory, and issue:
-
-    . scripts/rip-environment
-    linuxcnc
+http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
