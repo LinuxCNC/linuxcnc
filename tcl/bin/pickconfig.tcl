@@ -115,6 +115,7 @@ proc initialize_config {} {
 
 # FIXME add trap for comment on the first of a line.
 proc getVal {stringa sect var} {
+    set varval ""
     set x [regexp -indices -- "$sect.*$var *= *" $stringa  indexes]
     if {$x } {
         set startindex [lindex $indexes 1]
@@ -789,6 +790,7 @@ proc make_shortcut {inifile} {
               }
       default {set name linuxcnc-other}
     }
+    if {"$name" == ""} {set name LinuxCNC-other}
     set filename0 [file join $::desktopdir [file rootname [file tail $inifile]]]
     set filename ${filename0}.desktop
     set i 0

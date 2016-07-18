@@ -431,7 +431,7 @@ if [ "$retval" != "1.0" ]; then
     exitval=$?
     case "$exitval" in
     0) ;;
-    42) echo "update_ini cancelled by user" ;;
+    42) echo "update_ini cancelled by user" ; exit 0;;
     *) echo "update script failed in an unexpected way."; exit $exitval ;;
     esac
 fi

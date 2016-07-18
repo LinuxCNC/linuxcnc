@@ -1,6 +1,20 @@
 #!@TCLSH@
 
-package require Linuxcnc
+# linuxcnc script exports LINUXCNC_TCL_DIR
+# rip-environment exports TCLLIBPATH
+# a RIP build desktop shortcut will not have TCLLIBPATH
+if {    [info exists ::env(LINUXCNC_TCL_DIR)]
+    && ![info exists ::env(TCLLIBPATH)] } {
+  # prepend:
+  set ::auto_path [lreplace $::auto_path -1 -1 $::env(LINUXCNC_TCL_DIR)]
+}
+
+if [catch {package require Linuxcnc} msg] {
+  puts "haltcl config problem:$msg"
+  catch {puts "LINUXCNC_TCL_DIR = $::env(LINUXCNC_TCL_DIR)"}
+  catch {puts "TCLLIBPATH       = $::env(TCLLIBPATH)"}
+  exit 1
+}
 
 if {   [llength $argv] > 0 \
     && (  ([lindex $argv 0] == "-i") || ([lindex $argv 0] == "-ini")  )} {
