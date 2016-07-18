@@ -1169,6 +1169,13 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
     }
 
+    // detect fw specified in config string, but board does not support programming
+    if ((llio->program_fpga == NULL) && (hm2->config.firmware != NULL)) {
+	HM2_PRINT_NO_LL("firmware specified (%s) but card does not suppport FPGA programming\n",
+			hm2->config.firmware);
+	r = -ENOENT;
+	goto fail0;
+    }
 
     //
     // if programming of the fpga is supported by the board and the user
