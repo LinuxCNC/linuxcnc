@@ -1,3 +1,14 @@
+ver. 2.0.21
+- added Joint Jog Button, _init_joints_btn will show only 
+  the needed button, so from now on gmoccapy supports 8 Joints
+  and 5 axis
+- still problems with the initialization of optional stops
+- some button renaming to distinguish joints and axis jog button
+  due to special case 4th and 5th axis
+- reworked on_jog_btn_pressed and released to support joint jogging
+  could be done better, will need some additional rework
+- deleted some print messages
+
 ver. 2.0.20
 - small bug in _reset_override in rapid handling, 
   as it would reset to 100 % on change to any state, 
