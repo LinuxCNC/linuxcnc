@@ -518,22 +518,7 @@ proc ::tp::verbose {msg} {
 
 #----------------------------------------------------------------------
 # begin
-# linuxcnc script exports LINUXCNC_TCL_DIR
-# rip-environment exports TCLLIBPATH
-# a RIP build desktop shortcut will not have TCLLIBPATH
-if {    [info exists ::env(LINUXCNC_TCL_DIR)]
-    && ![info exists ::env(TCLLIBPATH)] } {
-  # prepend:
-  set ::auto_path [lreplace $::auto_path -1 -1 $::env(LINUXCNC_TCL_DIR)]
-}
-
-if [catch {package require Linuxcnc} msg] {
-  puts "twopass problem:$msg"
-  catch {puts "LINUXCNC_TCL_DIR = $::env(LINUXCNC_TCL_DIR)"}
-  catch {puts "TCLLIBPATH       = $::env(TCLLIBPATH)"}
-  exit 1
-}
-
+package require Linuxcnc ;# parse_ini
 set ::tp::options ""
 set ::tp::verbose 0
 if {[string first verbose [string tolower $::HAL(TWOPASS)]] >=0} {
@@ -544,6 +529,15 @@ set ::tp::nodelete 0
 if {[string first nodelete [string tolower $::HAL(TWOPASS)]] >=0} {
   set ::tp::nodelete 1
   lappend ::tp::options nodelete
+}
+
+# the linuxcnc script exports LINUXCNC_TCL_DIR
+# make sure it is first in case run-in-place with existing deb install
+if [info exists ::auto_path] {
+  # prepend:
+  set ::auto_path [lreplace $::auto_path -1 -1 $::env(LINUXCNC_TCL_DIR)]
+} else {
+  set ::auto_path $::env(LINUXCNC_TCL_DIR)
 }
 
 puts "twopass:invoked with <$::tp::options> options"

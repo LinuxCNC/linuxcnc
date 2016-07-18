@@ -16,27 +16,13 @@ exec ${LINUXCNC_EMCSH-emcsh} "$0" "$@"
 # Provides default display or operators for each NML message
 ###############################################################
 
-set ::prog [file tail $::argv0] ;# program name
 
-# linuxcnc script exports LINUXCNC_TCL_DIR
-# rip-environment exports TCLLIBPATH
-# a RIP build desktop shortcut will not have TCLLIBPATH
-if {    [info exists ::env(LINUXCNC_TCL_DIR)]
-    && ![info exists ::env(TCLLIBPATH)] } {
-  # prepend:
-  set ::auto_path [lreplace $::auto_path -1 -1 $::env(LINUXCNC_TCL_DIR)]
-}
-
-if [catch {package require Linuxcnc} msg] {
-  puts "::prog problem:$msg"
-  catch {puts "LINUXCNC_TCL_DIR = $::env(LINUXCNC_TCL_DIR)"}
-  catch {puts "TCLLIBPATH       = $::env(TCLLIBPATH)"}
-  exit 1
-}
-
+# Load the emc package, which defines variables for various useful paths
+package require Linuxcnc
 eval emc_init $argv
 
 # constants:
+set ::prog [file tail $::argv0] ;# program name
 set ::JOGJOINT  1               ;# joint jog
 set ::JOGTELEOP 0               ;# teleop jog
 set ::KINEMATICS_IDENTITY 1     ;# src/emc/kinematics/kinematics.h

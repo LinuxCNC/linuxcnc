@@ -80,24 +80,9 @@ proc validate_identity_kins_limits {} {
 } ;# validate_identity_kins_limits
 #----------------------------------------------------------------------
 # begin
+package require Linuxcnc ;# parse_ini
+
 set ::progname [file rootname [file tail [info script]]]
-
-# linuxcnc script exports LINUXCNC_TCL_DIR
-# rip-environment exports TCLLIBPATH
-# a RIP build desktop shortcut will not have TCLLIBPATH
-if {    [info exists ::env(LINUXCNC_TCL_DIR)]
-    && ![info exists ::env(TCLLIBPATH)] } {
-  # prepend:
-  set ::auto_path [lreplace $::auto_path -1 -1 $::env(LINUXCNC_TCL_DIR)]
-}
-
-if [catch {package require Linuxcnc} msg] {
-  puts "$::progname problem:$msg"
-  catch {puts "LINUXCNC_TCL_DIR = $::env(LINUXCNC_TCL_DIR)"}
-  catch {puts "TCLLIBPATH       = $::env(TCLLIBPATH)"}
-  exit 1
-}
-
 set inifile [lindex $::argv 0]
 if ![file exists $inifile]   {
   err_exit [list "No such file <$inifile>"]
