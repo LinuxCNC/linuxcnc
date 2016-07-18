@@ -1406,8 +1406,8 @@ STATIC int handleModeChange(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
         tp_debug_print("Blending disabled: can't blend between rapid and feed motions\n");
         tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
     }
-    if ((prev_tc->synchronized == TC_SYNC_POSITION) ^
-            (tc->synchronized == TC_SYNC_POSITION)) {
+    if (prev_tc->synchronized != TC_SYNC_POSITION &&
+            tc->synchronized == TC_SYNC_POSITION) {
         tp_debug_print("Blending disabled: changing spindle sync mode from %d to %d\n",
                 prev_tc->synchronized,
                 tc->synchronized);
