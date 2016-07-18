@@ -66,8 +66,6 @@ else
 fi
 export PYTHONPATH
 
-XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
-export XFILESEARCHPATH
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 
