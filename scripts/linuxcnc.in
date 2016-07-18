@@ -30,10 +30,8 @@ fi
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-LSMOD=@LSMOD@
 PIDOF="@PIDOF@ -x"
 PS=@PS@
-AWK=@AWK@
 IPCS=@IPCS@
 KILL=@KILL@
 
