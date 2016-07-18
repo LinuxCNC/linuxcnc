@@ -17,6 +17,13 @@
 # Copyright (c) 2004-2009 All rights reserved.
 ################################################################################
 
+# -1. Get all rip-environment items if we are RIP
+if test "xyes" = "x@RUN_IN_PLACE@"; then
+    if test "${EMC2_HOME:-}" != "@EMC2_HOME@"; then
+        exec @EMC2_HOME@/scripts/rip-environment linuxcnc "$@"
+    fi
+fi
+
 ################################################################################
 # 0. Values that come from configure
 ################################################################################
