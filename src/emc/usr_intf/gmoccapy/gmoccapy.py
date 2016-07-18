@@ -415,7 +415,7 @@ class gmoccapy( object ):
         self.widgets.ntb_jog.set_current_page( 0 )
         self.widgets.tbtn_optional_blocks.set_active( self.prefs.getpref( "blockdel", False ) )
         self.command.set_block_delete( self.widgets.tbtn_optional_blocks.get_active() )
-        self.widgets.tbtn_optional_stops.set_active( not self.prefs.getpref( "opstop", False ) )
+        self.widgets.tbtn_optional_stops.set_active( self.prefs.getpref( "opstop", False ) )
         self.command.set_optional_stop( self.widgets.tbtn_optional_stops.get_active() )
         self.widgets.chk_show_dro.set_active( self.prefs.getpref( "enable_dro", False ) )
         self.widgets.chk_show_offsets.set_active( self.prefs.getpref( "show_offsets", False ) )
