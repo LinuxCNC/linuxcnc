@@ -929,9 +929,7 @@ This means this function returns True when the mdi tab is visible."""
 # first (task) mode MANUAL,MDI,AUTO
 def ensure_mode(m, *p):
     s.poll()
-    # jogging in mdi requires setting always for mdi,auto (not sure why)
-    if ( (s.task_mode == m) and (m == linuxcnc.MODE_MANUAL) ): return True
-    if running(do_poll=False): return False
+    if s.task_mode == m or s.task_mode in p: return True
     c.mode(m) # task_mode
     c.wait_complete()
     s.poll()
