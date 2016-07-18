@@ -313,15 +313,7 @@ static int probe_board(hm2_rpspi_t *board, uint16_t spiclkdiv) {
 
 	char *base;
 
-	if(!memcmp(ident, "MESA7I43", 8)) {
-		base = "hm2_7i43spi";
-		board->llio.num_ioport_connectors = 2;
-		board->llio.pins_per_connector = 24;
-		board->llio.ioport_connector_name[0] = "P4";
-		board->llio.ioport_connector_name[1] = "P3";
-		board->llio.num_leds = 8;
-		board->llio.fpga_part_number = "3s400tq144";
-	} else if(!memcmp(ident, "MESA7I90", 8)) {
+	if(!memcmp(ident, "MESA7I90", 8)) {
 		base = "hm2_7i90";
 		board->llio.num_ioport_connectors = 3;
 		board->llio.pins_per_connector = 24;
