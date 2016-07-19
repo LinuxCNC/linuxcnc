@@ -20,44 +20,29 @@ COMPS := $(sort $(wildcard hal/components/*.comp) \
 
 USER_COMP_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
 
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.9comp, \
+COMP_DOCPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.asciidoc, \
 	$(COMPS))
 
-COMP_DOCPAGES := $(patsubst hal/components/%.comp, ../man/doc/man9/%.asciidoc, \
-	$(COMPS))
-
-USER_COMP_MANPAGES := $(patsubst hal/user_comps/%.comp, ../man/man9/%.9comp, \
-	$(USER_COMP_COMPS))
-
-USER_COMP_DOCPAGES := $(patsubst hal/user_comps/%.comp, ../man/doc/man9/%.asciidoc, \
+USER_COMP_DOCPAGES := $(patsubst hal/user_comps/%.comp, ../man/man9/%.asciidoc, \
 	$(USER_COMP_COMPS))
 
 MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
-MSG_COMP_MANPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
-	../man/man9/%.9comp, $(MSG_COMPS))
 
 MSG_COMP_DOCPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
-	../man/doc/man9/%.asciidoc, $(MSG_COMPS))
+	../man/man9/%.asciidoc, $(MSG_COMPS))
 
 DRIVER_COMPS := $(wildcard hal/drivers/*.comp)
-DRIVER_COMP_MANPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.9comp, \
+
+DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.asciidoc, \
 	$(COMP_DRIVERS))
 
-DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/doc/man9/%.asciidoc, \
-	$(COMP_DRIVERS))
+docpages: $(COMP_DOCPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_DOCPAGES) $(USER_COMP_DOCPAGES)
 
-
-
-
-ifeq ($(BUILD_DOCS),yes)
-manpages: $(COMP_MANPAGES) $(COMP_DOCPAGES) $(DRIVER_COMP_MANPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_MANPAGES) $(MSG_COMP_DOCPAGES)  $(USER_COMP_MANPAGES)  $(USER_COMP_DOCPAGES)
-else
-manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)  $(USER_COMP_MANPAGES)
+ifeq ($(BUILD_ASCIIDOC),yes)
+    TARGETS += docpages
+    .PHONY: docpages
 endif
 
-
-TARGETS += manpages
-.PHONY: manpages
 ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
 -include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak,\
 	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
@@ -71,56 +56,35 @@ obj-m += $(patsubst hal/drivers/%.comp, %.o, \
 	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))))
 endif
 
-$(COMP_MANPAGES): ../man/man9/%.9comp: hal/components/%.comp ../bin/comp
-	$(ECHO) Making comp manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document -o $@ $<
-
-$(USER_COMP_MANPAGES): ../man/man9/%.9comp: hal/user_comps/%.comp ../bin/comp
-	$(ECHO) Making usercomp manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document -o $@ $<
-
-$(COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/components/%.comp  ../bin/comp
+$(COMP_DOCPAGES): ../man/man9/%.asciidoc: hal/components/%.comp  ../bin/comp
 	$(ECHO) Making comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document \
+	$(Q)../bin/comp --document \
 	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 	-o $@ $<
 
-$(USER_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/user_comps/%.comp  ../bin/comp
+$(USER_COMP_DOCPAGES): ../man/man9/%.asciidoc: hal/user_comps/%.comp  ../bin/comp
 	$(ECHO) Making comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document \
+	$(Q)../bin/comp --document \
 	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 	-o $@ $<
 
-$(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
-	$(ECHO) Making comp manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document -o $@ $<
-
-$(DRIVER_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: hal/drivers/%.comp ../bin/comp
+$(DRIVER_COMP_DOCPAGES): ../man/man9/%.asciidoc: hal/drivers/%.comp ../bin/comp
 	$(ECHO) Making driver comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document  \
+	$(Q)../bin/comp --document  \
 	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 	-o $@ $<
 
-$(MSG_COMP_MANPAGES): ../man/man9/%.9comp: \
-		machinetalk/msgcomponents/%.comp ../bin/comp
-	$(ECHO) Making comp manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document -o $@ $<
-
-$(MSG_COMP_DOCPAGES): ../man/doc/man9/%.asciidoc: \
+$(MSG_COMP_DOCPAGES): ../man/man9/%.asciidoc: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
 	$(ECHO) Making message comp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --ascii-document  \
+	$(Q)../bin/comp --document  \
 	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 	-o $@ $<
@@ -171,10 +135,6 @@ endif # BUILD_ALL_FLAVORS == yes
 # 	cp $< $@
 # endif
 # endif
-
-clean: clean-comp-manpages
-clean-comp-manpages:
-	-rm -f $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
 
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
