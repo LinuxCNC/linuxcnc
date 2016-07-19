@@ -146,7 +146,7 @@ int drain_interp_list = 0;
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
-static int all_homed(void) {
+int all_homed(void) {
     for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
         if(!emcStatus->motion.joint[i].homed) // XXX
             return 0;
