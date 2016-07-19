@@ -227,6 +227,7 @@ int emcTaskSetMode(int mode)
     case EMC_TASK_MODE_MDI:
 	// go to mdi mode
 	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
+        printf("%s:%d: aborting due to MDI switch\n", __FILE__, __LINE__);
 	emcTaskAbort();
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE_MDI;
@@ -235,6 +236,7 @@ int emcTaskSetMode(int mode)
     case EMC_TASK_MODE_AUTO:
 	// go to auto mode
 	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
+        printf("%s:%d: aborting due to AUTO switch\n", __FILE__, __LINE__);
 	emcTaskAbort();
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE_AUTO;
@@ -264,6 +266,7 @@ int emcTaskSetState(int state)
 	emcTrajDisable();
 	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
 	emcLubeOff();
+        printf("%s:%d: aborting due to OFF switch\n", __FILE__, __LINE__);
 	emcTaskAbort();
         emcSpindleAbort();
         emcAxisUnhome(-2); // only those joints which are volatile_home
@@ -284,6 +287,7 @@ int emcTaskSetState(int state)
 	// reset the estop
 	emcAuxEstopOff();
 	emcLubeOff();
+        printf("%s:%d: aborting due to Estop-Reset switch\n", __FILE__, __LINE__);
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP_RESET);
         emcSpindleAbort();
@@ -301,6 +305,7 @@ int emcTaskSetState(int state)
 	}
 	emcTrajDisable();
 	emcLubeOff();
+        printf("%s:%d: aborting due to ESTOP switch\n", __FILE__, __LINE__);
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
         emcAxisUnhome(-2); // only those joints which are volatile_home
@@ -664,6 +669,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     stat->state = (enum EMC_TASK_STATE_ENUM) determineState();
 
     if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
+        printf("%s:%d: aborting due to State switch\n", __FILE__, __LINE__);
 	emcTaskAbort();
         emcSpindleAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);

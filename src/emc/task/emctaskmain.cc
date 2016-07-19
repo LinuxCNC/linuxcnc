@@ -2104,6 +2104,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
+        printf("%s:%d: issuing abort\n", __FILE__, __LINE__);
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_ABORT);
         emcSpindleAbort();
@@ -2130,6 +2131,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	        and in emcTaskExecute() */
 
 		// abort motion
+                printf("%s:%d: abort due to issuing EMC_TASK_SET_MODE", __FILE__, __LINE__);
 		emcTaskAbort();
 		mdi_execute_abort();
 
@@ -2251,6 +2253,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// emcStatus->task.interpState =  EMC_TASK_INTERP_WAITING;
 		interp_list.clear();
 		// abort everything
+                printf("%s:%d: aborting due to INTERP_ERROR\n", __FILE__, __LINE__);
 		emcTaskAbort();
 		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
 		emcSpindleAbort(); 
@@ -2539,6 +2542,7 @@ static int emcTaskExecute(void)
 	   and in emcTaskIssueCommand() */
 
 	// abort everything
+        printf("%s:%d: aborting due to task.execState error\n", __FILE__, __LINE__);
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_EXEC_ERROR);
         emcSpindleAbort();
@@ -3347,6 +3351,7 @@ int main(int argc, char *argv[])
 	if (emcStatus->io.aux.estop) {
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
+                printf("%s:%d: aborting due to io.aux.estop\n", __FILE__, __LINE__);
 		emcTaskAbort();
 		emcIoAbort(EMC_ABORT_AUX_ESTOP);
 		emcSpindleAbort();
@@ -3416,6 +3421,7 @@ int main(int argc, char *argv[])
 	    // }
 
             // abort everything
+            printf("%s:%d: abort motion.status=%d io.status=%d io.reason=%d\n", __FILE__, __LINE__, emcStatus->motion.status, emcStatus->io.status, emcStatus->io.reason);
             emcTaskAbort();
             emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
             emcSpindleAbort();
