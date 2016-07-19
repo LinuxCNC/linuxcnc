@@ -38,7 +38,7 @@ DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.asciidoc, \
 
 docpages: $(COMP_DOCPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_DOCPAGES) $(USER_COMP_DOCPAGES)
 
-ifeq ($(BUILD_ASCIIDOC),yes)
+ifeq ($(BUILD_DOCS),yes)
     TARGETS += docpages
     .PHONY: docpages
 endif

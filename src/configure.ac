@@ -2557,8 +2557,8 @@ AC_ARG_ENABLE(build-documentation,
 #    fi
 #fi
 AC_SUBST(BUILD_DOCS)
-AC_SUBST(BUILD_DOCS_PDF)
-AC_SUBST(BUILD_DOCS_HTML)
+#AC_SUBST(BUILD_DOCS_PDF)
+#AC_SUBST(BUILD_DOCS_HTML)
 
 ##############################################################################
 # Section 4 - Important headers, functions and gloabl defines.               #

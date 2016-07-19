@@ -16,7 +16,7 @@ ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.asciidoc, \
 
 i_docpages: $(ICOMP_DOCPAGES)
 
-ifeq ($(BUILD_ASCIIDOC),yes)
+ifeq ($(BUILD_DOCS),yes)
     TARGETS += i_docpages
     .PHONY: i_docpages
 endif
