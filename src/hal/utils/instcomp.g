@@ -1346,12 +1346,12 @@ def main():
             elif f.endswith(".icomp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".asciiidoc")
+                    outfile = os.path.join(tempdir, basename + ".asciidoc")
                     adocument(f, outfile, frontmatter)
                     cmd = "mank -f %s -p %s -s" % (basename, tempdir)
 		    os.system(cmd)
                 finally:
-                    shutil.rmtree(tempdir)
+		    shutil.rmtree(tempdir)
             elif f.endswith(".icomp") and mode == INSTALLDOC:
 		manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):

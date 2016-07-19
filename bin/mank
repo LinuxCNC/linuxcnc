@@ -42,7 +42,7 @@ fi
 
 # if path supplied use that over defaults
 if [ -n "$path" ]; then
-    filn=$(find $path -type f -name $fil.asciidoc)
+    filn=$(find "$path" -type f -name "$fil.asciidoc")
 else
     if [ "$RIP" == "yes" ]; then
 	filn=$(find $EMC2_HOME/man -type f -name $fil.asciidoc)

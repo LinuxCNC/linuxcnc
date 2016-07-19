@@ -39,7 +39,7 @@ ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.asciidoc, \
 $(ICOMP_DOCPAGES): ../man/man9/%.asciidoc: $(HALICOMPDIR)/%.icomp ../bin/instcomp
 	$(ECHO) Making icomp docpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/instcomp --ascii-document 	\
+	$(Q)../bin/instcomp --document 	\
 	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 		-o $@ $<
