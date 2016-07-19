@@ -2430,22 +2430,10 @@ AC_ARG_ENABLE(pydot,
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
-    [  --enable-build-documentation[=format]   Build documentation.
-                          Format may be "asciidoc" only.],
+    [  --enable-build-documentation   Build asciidoc documentation.],
     [
-        case "$enableval" in
-        asciidoc)
-            BUILD_DOCS=yes
-            BUILD_DOCS_PDF=no
-            BUILD_DOCS_HTML=no
-            AC_MSG_RESULT([ASCIIDOC build requested])
-	;;
-
-        *)
-            BUILD_DOCS=no
-            AC_MSG_RESULT([no])
-        ;;
-    esac
+        BUILD_DOCS=yes
+        AC_MSG_RESULT([ASCIIDOC build requested])
     ],
     [
         BUILD_DOCS=no
