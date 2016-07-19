@@ -124,6 +124,9 @@ struct hm2_lowlevel_io_struct {
     char *firmware; // Name of the firmware file
 
     void *private;  // for the low-level driver to hang their struct on
+
+    void *fwid_msg; // the lowlevel driver may override any built-in fwid message
+    int   fwid_len; // in the FPGA image
 };
 
 

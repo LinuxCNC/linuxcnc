@@ -60,7 +60,6 @@ RTAPI_MP_INT(use_serial_numbers, "Name cards by serial number, not enumeration o
 int sserial_baudrate = -1;
 RTAPI_MP_INT(sserial_baudrate, "Over-ride the standard smart-serial baud rate. For flashing remote firmware only.");
 
-
 // this keeps track of all the hm2 instances that have been registered by
 // the low-level drivers
 struct list_head hm2_list;
@@ -277,6 +276,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_PKTUART_RX:      return "PktUART Receive Channel";
         case HM2_GTAG_PKTUART_TX:      return "PktUART Transmit Channel";
         case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
+        case HM2_GTAG_FWID:            return "Firmware ID";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -454,6 +454,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
         } else if (strncmp(token, "enable_raw", 10) == 0) {
             hm2->config.enable_raw = 1;
+
+	} else if (strncmp(token, "nofwid", 6) == 0) {
+            hm2->config.skip_fwid = 1;
 
         } else if (strncmp(token, "firmware=", 9) == 0) {
             // FIXME: we leak this in hm2_register
@@ -831,7 +834,8 @@ int hm2_md_is_consistent(
 
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
-    
+
+    // hm2_stepgen_parse_md() needs this, so determine in advance
     hm2->dpll_module_present = 0;
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
@@ -892,13 +896,13 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_MUXED_ENCODER:
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
                 break;
-            
+
             case HM2_GTAG_SSI:
             case HM2_GTAG_BISS:
             case HM2_GTAG_FABS:
                 md_accepted = hm2_absenc_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_RESOLVER:
                 md_accepted = hm2_resolver_parse_md(hm2, md_index);
                 break;
@@ -922,16 +926,16 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_SMARTSERIAL:
                 md_accepted = hm2_sserial_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_BSPI:
                 md_accepted = hm2_bspi_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_UART_RX:
             case HM2_GTAG_UART_TX:
                 md_accepted = hm2_uart_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_PKTUART_RX:
             case HM2_GTAG_PKTUART_TX:
                 md_accepted = hm2_pktuart_parse_md(hm2, md_index);
@@ -940,10 +944,13 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_HM2DPLL:
                 md_accepted = hm2_dpll_parse_md(hm2, md_index);
                 break;
-                
+
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
                 break;
+
+	    case HM2_GTAG_FWID:
+		continue;  // skip - already parsed above from well-known memory address
 
             default:
                 HM2_WARN(
@@ -1013,6 +1020,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_led_cleanup(hm2);
     hm2_sserial_cleanup(hm2);
     hm2_bspi_cleanup(hm2);
+    hm2_fwid_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
@@ -1099,45 +1107,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
 
     //
-    // verify llio ioport connector names
-    //
-
-    if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
-        HM2_ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
-        return -EINVAL;
-    }
-
-    {
-        int port;
-
-        for (port = 0; port < llio->num_ioport_connectors; port ++) {
-            int i;
-
-            if (llio->ioport_connector_name[port] == NULL) {
-                HM2_ERR_NO_LL("llio ioport connector name %d is NULL\n", port);
-                return -EINVAL;
-            }
-
-            for (i = 0; i < HAL_NAME_LEN+1; i ++) {
-                if (llio->ioport_connector_name[port][i] == '\0') break;
-                if (!isprint(llio->ioport_connector_name[port][i])) {
-                    HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
-                    return -EINVAL;
-                }
-            }
-            if (i == HAL_NAME_LEN+1) {
-                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
-                return -EINVAL;
-            }
-            if (i == 0) {
-                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (zero length)\n", port);
-                return -EINVAL;
-            }
-        }
-    }
-
-
-    //
     // verify llio functions
     //
 
@@ -1200,7 +1169,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
     }
 
-    
+    // detect fw specified in config string, but board does not support programming
+    if ((llio->program_fpga == NULL) && (hm2->config.firmware != NULL)) {
+	HM2_PRINT_NO_LL("firmware specified (%s) but card does not suppport FPGA programming\n",
+			hm2->config.firmware);
+	r = -ENOENT;
+	goto fail0;
+    }
+
     //
     // if programming of the fpga is supported by the board and the user
     // requested a firmware file, fetch it from userspace and program
@@ -1348,6 +1324,56 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         }
     }
 
+    // parse any fwid protobuf message, either given at the fixed address (0xF800) of
+    // the FPGA image, or a replacement message 'passed up' from the llio driver
+    // via the hm2_lowlevel_io_struct.fwid_* fields
+    if (!hm2->config.skip_fwid) {
+	r = hm2_fwid_parse_md(hm2, -1); // -1 .. read from well-known address
+	if (r) {
+	    HM2_ERR("error reading fwid proto msg\n");
+	    return r;
+	}
+    } else
+	HM2_INFO("skipping fwid parse");
+
+
+    //
+    // verify llio ioport connector names
+    //
+
+    if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
+        HM2_ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
+        return -EINVAL;
+    }
+
+    {
+        int port;
+
+        for (port = 0; port < llio->num_ioport_connectors; port ++) {
+            int i;
+
+            if (llio->ioport_connector_name[port] == NULL) {
+                HM2_ERR_NO_LL("llio ioport connector name %d is NULL\n", port);
+                return -EINVAL;
+            }
+
+            for (i = 0; i < HAL_NAME_LEN+1; i ++) {
+                if (llio->ioport_connector_name[port][i] == '\0') break;
+                if (!isprint(llio->ioport_connector_name[port][i])) {
+                    HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
+                    return -EINVAL;
+                }
+            }
+            if (i == HAL_NAME_LEN+1) {
+                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
+                return -EINVAL;
+            }
+            if (i == 0) {
+                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (zero length)\n", port);
+                return -EINVAL;
+            }
+        }
+    }
 
     //
     // read & verify FPGA firmware ConfigName
