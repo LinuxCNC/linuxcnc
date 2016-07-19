@@ -926,6 +926,8 @@ def document(filename, outfilename):
         print >>f, "%s" % doc[1]
         print >>f, ".HP"        
 
+
+
 ##############################################################################
 # asciidoc
 ############
@@ -951,6 +953,7 @@ def adocument(filename, outfilename, frontmatter):
             print >>f, fm
         print >>f, "edit-path: src/%s" % (filename)
         print >>f, "generator: comp"
+	print >>f, "(This page is generated, do not edit directly. See the source file at src/%s)" % filename
         print >>f, "---"
         print >>f, ":skip-front-matter:\n"
 
@@ -1139,6 +1142,7 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, "%s" % doc[1]
         print >>f, ""    
         
+
 
 ###########################################################
 
