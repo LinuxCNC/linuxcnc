@@ -14,52 +14,42 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-component pluto_step """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with stepper machines.
+component pluto_step """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with stepper machines.""";
 
-.B loadrt pluto_step ioaddr=\\fIaddr\\fB ioaddr_hi=\\fIaddr\\fB epp_wide=\\fI[0|1]\\fB
+synopsis """
+[verse]
+**loadrt pluto_step ioaddr=__addr__ ioaddr_hi=__addr__ epp_wide=__[0|1]__**
 
-.RS 4
-.TP
-\\fBioaddr\\fR [default: 0x378]
+== LOAD-TIME PARAMETERS
+**ioaddr** [default: 0x378]::
 The base address of the parallel port.
 
-.TP
-\\fBioaddr_hi\\fR [default: 0]
+**ioaddr_hi** [default: 0]::
 The secondary address of the parallel port, used to set EPP
 mode.  0 means to use ioaddr + 0x400.  -1 means there is no
 secondary address.
 
-.TP
-\\fBepp_wide\\fR [default: 1]
+**epp_wide** [default: 1]::
 Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
 transfers, which can reduce the time spent in the read and write functions.
 However, this mode may not work on all EPP parallel ports.
 
-.TP
-\\fBwatchdog\\fR [default: 1]
+**watchdog** [default: 1]::
 Set to zero to disable the "hardware watchdog".  "Watchdog" will tristate all
 outputs approximately 6ms after the last execution of
-\\fBpluto-step.write\\fR, which adds some protection in the case of LinuxCNC
+**pluto-step.write**, which adds some protection in the case of LinuxCNC
 crashes.
 
-.TP
-\\fBspeedrange\\fR [default: 0]
-Selects one of four speed ranges:
-.RS
-.RS 4
-.TQ
-0: Top speed 312.5kHz; minimum speed 610Hz
-.TQ
-1: Top speed 156.25kHz; minimum speed 305Hz
-.TQ
-2: Top speed 78.125kHz; minimum speed 153Hz
-.TQ
-3: Top speed 39.06kHz; minimum speed 76Hz
-.RE
-Choosing the smallest maximum speed that is above the maximum for any one axis
-may give improved step regularity at low step speeds.
-.RE
-.RE""";
+**speedrange** [default: 0]::
+  Selects one of four speed ranges:
+
+  0;; Top speed 312.5kHz; minimum speed 610Hz
+  1;; Top speed 156.25kHz; minimum speed 305Hz
+  2;; Top speed 78.125kHz; minimum speed 153Hz
+  3;; Top speed 39.06kHz; minimum speed 76Hz
+
+Choosing the smallest maximum speed that is above the maximum for any one axis may give improved step regularity at low step speeds.
+""";
 
 description """
 Pluto_step is a LinuxCNC software driver and associated firmware that allow the Pluto-P board to be used to control a stepper-based CNC machine.
@@ -67,15 +57,15 @@ Pluto_step is a LinuxCNC software driver and associated firmware that allow the 
 The driver has 4 step+direction channels, 14 dedicated digital outputs, and 16
 dedicated digital inputs.
 
-.SS Step generators
+=== Step generators
 The step generator takes a position input and output.
 
 The step waveform includes step length/space and direction hold/setup time.
 Step length and direction setup/hold time is enforced in the FPGA.  Step space
 is enforced by a velocity cap in the driver.
 
-\\fI(all the following numbers are subject to change)\\fR
-In \\fIspeedrange=0\\fR, the maximum step rate is 312.5kHz.  For position
+__(all the following numbers are subject to change)__
+In __speedrange=0__, the maximum step rate is 312.5kHz.  For position
 feedback to be accurate, the maximum step rate is 512 pulses per servo cycle
 (so a 1kHz servo cycle does not impose any additional limitation).  The maximum
 step rate may be lowered by the step length and space parameters, which are
@@ -84,7 +74,7 @@ rounded up to the nearest multiple of 1600ns.
 In successive speedranges the maximum step rate is divided in half, as is the
 maximum steps per servo cycle, and the minimum nonzero step rate.
 
-.SS Digital I/O
+=== Digital I/O
 The digital output pins conform to the `canonical digital output' interface
 described in the HAL manual.
 
@@ -106,15 +96,15 @@ param rw u32 stepgen.stepspace "Step space in ns";
 param rw u32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
 
 pin in bit dout.##[14]
-"""dout.\\fIMM\\fR corresponds to the pin labeled
-OUT\\fIM\\fR on the pinout diagram.""";
+"""dout.__MM__ corresponds to the pin labeled
+OUT__M__ on the pinout diagram.""";
 param rw bit dout.##-invert[14]
-"If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
+"If TRUE, the output on the corresponding **dout.__MM__** is inverted.";
 
 pin out bit din.##[16];
 pin out bit din.##_not[16]
-"""din.\\fIMM\\fR corresponds to the pin labeled
-IN\\fIM\\fR on the pinout diagram.""";
+"""din.__MM__ corresponds to the pin labeled
+IN__M__ on the pinout diagram.""";
 
 param rw u32 communication_error """Incremented each time 
 pluto-step.read detects an error code in the EPP status register.  While
@@ -139,10 +129,11 @@ option data internal;
 function read "Read all the inputs from the pluto-step board";
 function write "Write all the outputs on the pluto-step board";
 
-see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
+see_also """The __pluto_step__ section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
 license "GPL";
 include "hal/drivers/pluto_common.h";
+option asciidoc;
 ;;
 
 static int speedrange=0;

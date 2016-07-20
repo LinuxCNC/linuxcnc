@@ -18,12 +18,12 @@ pin out  unsigned wait_clocks;
 function read nofp "Reads each of the digital inputs and updates the HAL pins";
 function write nofp "Writes the values of the output HAL pins to the digital IO";
 function reset nofp """Waits for the length of time specified by the
-\\fBreset-time\\fP parameter and resets any pins for which the \\fBreset\\fP
+**reset-time** parameter and resets any pins for which the **reset**
 parameter has been set. This can be used to allow step generators to make a step
 every thread rather than every other thread. This function must be added to the
 thread after the "write" function.
  Do not use this function if you do not wish to reset any pins.
- the stepgen \\fBstep-space\\fP parameter should be set to 0 to make use of this
+ the stepgen **step-space** parameter should be set to 0 to make use of this
 function.""";
 
 variable unsigned base_addr;
@@ -38,11 +38,19 @@ option count_function yes;
 option extra_setup yes;
 
 modparam dummy ioaddr """Base address of card. Separate each card base address
-with a comma but no space to load more than one card. eg
-loadrt pcl720 ioaddr=0x200,0x200. use 0xNNN to define addresses in Hex""";
+with a comma but no space to load more than one card, e.g.,
++
+[listing]
+--
+loadrt pcl720 ioaddr=0x200,0x200
+--
++
+Use 0xNNN to define addresses in Hex
+""";
 
 license "GPL";
 author "Andy Pugh";
+option asciidoc;
 ;;
 
 #include <asm/io.h>

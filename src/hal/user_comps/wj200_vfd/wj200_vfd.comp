@@ -12,6 +12,7 @@ pin out bit watchdog_out          "Alternates between 1 and 0 after every update
 option userspace;
 option userinit yes;
 license "GPLv2 or greater";
+option asciidoc;
 ;;
 /*
   Userspace HAL component to control a Hitatchi WJ200 series VFD

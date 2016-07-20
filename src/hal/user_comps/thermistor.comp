@@ -60,6 +60,7 @@ pin out float temperature_f "Temperature sensed by the thermistor, in degrees Fa
 
 pin out float resistance "Computed resistance of the thermistor.";
 
+option asciidoc;
 ;;
 
 #include <signal.h>
