@@ -5,19 +5,25 @@ description
 toggle2nist can be used with a momentary push button connected to a
 toggle component to control a device that has seperate on and off inputs
 and has an is-on output. 
-If in changes states via the toggle output
-  If is-on is true then on is false and off is true. 
-  If is-on is false the on true and off is false.
+If **in** changes states via the toggle output,
+
+[verse]
+  If **is-on** is true then **on** becomes false and **off** becomes true. 
+  If **is-on** is false the **on** becomes true and **off** becomes false.
+
+Otherwise, When **in** is steady and **is_on** matches the desired state,
+**on** and **off** both become false.
 """;
 
-pin in  bit in;
-pin in  bit is_on;
-pin out bit on;
-pin out bit off;
+pin in  bit in """Input from toggle switch, possibly debounced""";
+pin in  bit is_on """Current state of NIST logic""";
+pin out bit on """Request NIST logic state to be turned on""";
+pin out bit off """Request NIST logic state to be turned off""";
 variable int old_in;
 variable int to_state=0;
 function _ nofp;
 license "GPL";
+option asciidoc;
 ;;
 FUNCTION(_)  {
 if (in!=old_in) /* a toggle has occurred */ {

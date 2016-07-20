@@ -38,16 +38,19 @@
 component message "Display a message";
  
 description """Allows HAL pins to trigger a message. Example hal commands:
- loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil
-pressure,Spindle inverter fault"
- addf oillow servo-thread
- addf oilpressure servo-thread
- addf inverterfail servo-thread
- 
- setp oillow.edge 0 #this pin should be active low
- net no-oil classicladder.0.out-21 oillow.trigger
- net no-pressure classicladder.0.out-22 oilpressure.trigger
- net no-inverter classicladder.0.out-23 inverterfail.trigger
+
+[listing]
+--
+loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil pressure,Spindle inverter fault"
+addf oillow servo-thread
+addf oilpressure servo-thread
+addf inverterfail servo-thread
+
+setp oillow.edge 0 #this pin should be active low
+net no-oil classicladder.0.out-21 oillow.trigger
+net no-pressure classicladder.0.out-22 oilpressure.trigger
+net no-inverter classicladder.0.out-23 inverterfail.trigger
+--
  
 When any pin goes active, the corresponding message will be displayed.""";
  
@@ -74,6 +77,7 @@ option extra_setup yes;
  
 function _ nofp "Display a message";
 license "GPL v2";
+option asciidoc;
 ;;
  
 char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

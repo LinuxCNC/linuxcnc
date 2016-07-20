@@ -11,6 +11,7 @@ pin out bit  home_sw"Home switch activated";
 
 function _ fp;
 license "GPL";
+option asciidoc;
 ;;
 
 FUNCTION(_) {

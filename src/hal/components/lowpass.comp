@@ -1,41 +1,53 @@
 component lowpass "Low-pass filter";
 notes """
-
-\\fBgain\\fR pin setting
-
 The digital filter implemented is equivalent to a unity-gain
 continuous-time single-pole low-pass filter that is preceded
 by a zero-order-hold and sampled at a fixed period.  For a pole
-at \\fB-a\\fR (radians/seconds) the corresponding continuous-time
+at **-a** (radians/seconds) the corresponding continuous-time
 lowpass filter LaPlace transfer function is:
 
-\\fBH(s) = a/(s + a)\\fR
+[verse]
+**H(s) = a/(s + a)**
 
-For a sampling period \\fBT\\fR (seconds), the gain for this
+For a sampling period **T** (seconds), the gain for this
 Hal lowpass component is:
 
-\\fBgain = 1 - e**(-a * T)\\fR
+[verse]
+**gain = 1 - exp(-a * T)**
 
-\\fBExamples:\\fR
-     T = 0.001 seconds (typical servo thread period)
-     a = (2*pi*100)    (\\fB100Hz\\fR bandwith single pole)
-  gain = \\fB0.466\\fR
+== EXAMPLE GAIN VALUES
 
-     T = 0.001 seconds (typical servo thread period)
-     a = (2*pi*10)     ( \\fB10Hz\\fR bandwith single pole)
-  gain = \\fB0.0609\\fR
+All examples are for a 1kHz thread period,
+[verse]
+T = 0.001 seconds
 
-     T = 0.001 seconds (typical servo thread period)
-     a = (2*pi*1)      ( \\fB1Hz\\fR bandwith single pole)
-  gain = \\fB0.0063\\fR
+For 100Hz bandwidth single pole,
+
+[verse]
+a = (2*pi*100)
+gain = **0.466**
+
+For 10Hz bandwidth single pole,
+
+[verse]
+a = (2*pi*10)
+gain = **0.0609**
+
+For 1Hz bandwidth single pole,
+
+[verse]
+a = (2*pi*1)
+gain = **0.0063**
+
 """;
 pin in float in;
 pin out float out " out += (in - out) * gain ";
-pin in bit load "When TRUE, copy \\fBin\\fR to \\fBout\\fR instead of applying the filter equation.";
+pin in bit load "When TRUE, copy **in** to **out** instead of applying the filter equation.";
 param rw float gain;
 function _;
 license "GPL";
-notes "The effect of a specific \\fBgain\\fR value is dependent on the period of the function that \\fBlowpass.\\fIN\\fR is added to";
+notes "The effect of a specific **gain** value is dependent on the period of the function that **lowpass.__N__** is added to";
+option asciidoc;
 ;;
 FUNCTION(_) {
     if(load)

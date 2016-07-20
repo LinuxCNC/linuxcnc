@@ -6,6 +6,7 @@ option data toggle_data;
 
 function _ nofp;
 license "GPL";
+option asciidoc;
 ;;
 
 typedef struct {

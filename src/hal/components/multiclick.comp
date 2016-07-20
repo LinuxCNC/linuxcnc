@@ -139,6 +139,8 @@ click is coming.  This is useful for triggering halui MDI commands.""";
 
 function _ nofp "Detect single-, double-, triple-, and quadruple-clicks";
 
+option asciidoc;
+
 ;;
 
 typedef enum {

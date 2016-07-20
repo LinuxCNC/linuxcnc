@@ -28,6 +28,7 @@ pin in float fb_in "The feedback input value";
 pin out float fb_out "The feedback output value";
 
 license "GPL";
+option asciidoc;
 ;;
 
 FUNCTION(update_feedback) { fb_out = fb_in - offset; }

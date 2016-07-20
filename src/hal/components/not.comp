@@ -3,5 +3,6 @@ pin in bit in;
 pin out bit out;
 function _ nofp;
 license "GPL";
+option asciidoc;
 ;;
 FUNCTION(_) { out = ! in; }

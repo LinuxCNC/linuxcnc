@@ -4,7 +4,7 @@ to halui.program.is_paused, is_idle, is_running to generate outputs for
 halui.program.pause, resume, run.
 
 Includes 4 simple lowpass filters with coef and scale pins.  The coef value should
-be 0 <= coef <=1, smaller coef values slow response.
+be 0 ≤ coef ≤ 1, smaller coef values slow response.
 
 Includes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The amux.N.in0
 inputs are used by default, the amux.N.in1 inputs are selected when the is-manual
@@ -72,6 +72,7 @@ variable double value3;
 
 function _;
 license "GPL";
+option asciidoc;
 ;;
 #include <rtapi_math.h>
 

@@ -18,6 +18,7 @@ variable int last[64];
 
 function _;
 license "GPL";
+option asciidoc;
 ;;
 FUNCTION(_) {
     int num = 0;

@@ -7,6 +7,7 @@ param rw float offset;
 pin out float out "out = in0 * gain0 + in1 * gain1 + offset";
 function _;
 license "GPL";
+option asciidoc;
 ;;
 FUNCTION(_) {
     out = in0 * gain0 + in1 * gain1 + offset;
