@@ -997,10 +997,14 @@ def adocument(filename, outfilename, frontmatter, a=None, b=None):
     return outfilename
 
 def document(filename, outfilename, a=None, b=None):
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9"
     if a is None:
         a, b = parse(filename)
+    if outfilename is None:
+        if options.get("userspace"):
+            section="1"
+        else:
+            section="9"
+        outfilename = os.path.splitext(filename)[0] + "." + section
     if options.get('asciidoc'):
         afilename = outfilename + ".txt"
         result = os.system("a2x --xsltproc-opts --nonet -f manpage %s"
@@ -1165,8 +1169,12 @@ def document(filename, outfilename, a=None, b=None):
 
 def html(filename, outfilename):
     a, b = parse(filename)
+    if options.get("userspace"):
+        section="1"
+    else:
+        section="9"
     if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9.html"
+        outfilename = os.path.splitext(filename)[0] + "." + section + ".html"
     if options.get("asciidoc"):
         filename = os.path.abspath(filename)
         outfilename = os.path.abspath(outfilename)
@@ -1184,7 +1192,7 @@ def html(filename, outfilename):
                 if i not in (afilename, "docbook-xsl.css"):
                     shutil.copy(i, outdir)
     else:
-        manfilename = os.path.splitext(outfilename)[0] + ".9"
+        manfilename = os.path.splitext(outfilename)[0] + "." + section
         document(filename, manfilename, a, b)
         result = os.system("groff -Thtml -man %s > %s" %
                 (manfilename, outfilename))
@@ -1326,17 +1334,25 @@ def main():
                 document(f, outfile)            
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
+                if userspace:
+                    section="1"
+                else:
+                    section="9"
                 try:
-                    outfile = os.path.join(tempdir, basename + ".9")
+                    outfile = os.path.join(tempdir, basename + "." + section)
                     document(f, outfile)
                     os.spawnvp(os.P_WAIT, "man", ["man", outfile])
                 finally:
                     shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == INSTALLDOC:
-                manpath = os.path.join(BASE, "share/man/man9")
+                if userspace:
+                    section="1"
+                else:
+                    section="9"
+                manpath = os.path.join(BASE, "share/man/man" + section)
                 if not os.path.isdir(manpath):
-                    manpath = os.path.join(BASE, "docs/man/man9")
-                outfile = os.path.join(manpath, basename + ".9")
+                    manpath = os.path.join(BASE, "docs/man/man" + section)
+                outfile = os.path.join(manpath, basename + "." + section)
                 print "INSTALLDOC", outfile
                 document(f, outfile)            
             elif f.endswith(".comp"):
