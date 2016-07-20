@@ -5,5 +5,6 @@ pin out unsigned out "gray code out";
 license "GPL";
 author "andy pugh";
 function _ nofp;
+option asciidoc;
 ;;
 out = (in >> 1) ^ in;

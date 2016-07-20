@@ -66,6 +66,7 @@ option extra_setup;
 function _;
 
 license "GPL";
+option asciidoc;
 ;;
 
 
