@@ -51,6 +51,7 @@ parser Hal:
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
+      | "synopsis" String ";"   {{ synopsis(String) }}
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
@@ -192,6 +193,9 @@ def see_also(doc):
 
 def notes(doc):
     docs.append(('notes', doc));
+
+def synopsis(doc):
+    docs.append(('synopsis', doc));
 
 def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
@@ -847,20 +851,24 @@ def adocument(filename, outfilename, frontmatter, a=None, b=None):
         loader = "loadrt"
 
     print >>f, "== SYNOPSIS"
-    print >>f, "[verse]"
-    if rest:
-        print >>f, "*%s %s*" % (loader, rest),
+    synopsis = finddoc('synopsis')
+    if synopsis:
+        print >>f, synopsis[1]
     else:
-        rest = ''
-        print >>f, "*%s %s*" % (loader, doc[1]),
+        print >>f, "[verse]"
+        if rest:
+            print >>f, "*%s %s*" % (loader, rest),
+        else:
+            rest = ''
+            print >>f, "*%s %s*" % (loader, doc[1]),
 
-    if not (options.get("singleton") or options.get("count_function")):
-        print >>f, "*[count=_N_|names=_name1_[,_name2..._]]*",
-    if has_personality:
-        print >>f, "*personality=_P_*",
+        if not (options.get("singleton") or options.get("count_function")):
+            print >>f, "*[count=_N_|names=_name1_[,_name2..._]]*",
+        if has_personality:
+            print >>f, "*personality=_P_*",
 
-    for type, name, default, doc in modparams:
-        print >>f, "[%s=_N_]" % name,
+        for type, name, default, doc in modparams:
+            print >>f, "[%s=_N_]" % name,
     print >>f
 
     hasparamdoc = False
