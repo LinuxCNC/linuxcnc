@@ -3,6 +3,7 @@ pin out float out;
 param rw float value;
 function _;
 license "GPL";
+option asciidoc;
 ;;
 FUNCTION(_) {
     out = value;

@@ -24,15 +24,15 @@ param rw float offset = 0.;
 param rw bit inverse = 0;	
 
 description """
-The component \\fBjoyhandle\\fR uses the following formula for a non linear joypad movements:
+The component **joyhandle** uses the following formula for a non linear joypad movements:
 
-\\fBy = (scale * (a*x^power + b*x)) + offset\\fR
+**y = (scale * (a*x^power + b*x)) + offset**
 
 The parameters a and b are adjusted in such a way, that the function starts at (deadband,offset) and ends at (1,scale+offset).
 
 Negative values will be treated point symetrically to origin. Values -deadband < x < +deadband will be set to zero.
 
-Values x > 1 and x < -1 will be skipped to \\(+-(scale+offset). Invert transforms the function to a progressive movement.
+Values x > 1 and x < -1 will be skipped to ±(scale+offset). Invert transforms the function to a progressive movement.
 
 With power one can adjust the nonlinearity (default = 2). Default for deadband is 0.
 
@@ -45,6 +45,7 @@ All values can be adjusted for each instance separately.
 
 function _;
 license "GPL";
+option asciidoc;
 ;;
 #include <rtapi_math.h>
 

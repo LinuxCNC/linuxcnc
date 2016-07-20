@@ -1,7 +1,10 @@
 component latencybins
-"""comp utility for scripts/latency-histogram
+"""comp utility for scripts/latency-histogram""";
 
-Usage:
+description """
+This component is for the internal use of latency-histogram.  Its details
+are subject to change between versions without notice.""";
+/*
   Read availablebins pin for the number of bins available.
   Set the maxbinnumber pin for the number of +/- bins.
     Ensure maxbinnumber <= availablebins
@@ -27,7 +30,7 @@ Usage:
    The latency pin outputs the instantaneous latency.
 
 Maintainers note: hardcoded for MAXBINNUMBER==1000
-""";
+*/
 
 pin in  s32 maxbinnumber = 1000;  // MAXBINNUMBER
 pin in  s32 index;  //use s32 to avoid 0x hex display in hal
@@ -60,6 +63,7 @@ variable rtapi_u64 sum;
 variable rtapi_u64 sq_sum;
 
 license "GPL";
+option asciidoc;
 ;;
 
 rtapi_s64     now = rtapi_get_time();

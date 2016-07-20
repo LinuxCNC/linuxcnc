@@ -23,6 +23,7 @@ variable double old;
 
 function _;
 license "GPL";
+option asciidoc;
 ;;
 double tmp = in;
 out = (tmp - old) / (period * 1e-9);

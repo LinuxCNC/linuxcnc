@@ -36,6 +36,7 @@ option extra_setup 1;
 
 author "Andy Pugh";
 license "GPL";
+option asciidoc;
 
 function _;
 

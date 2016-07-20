@@ -8,6 +8,7 @@ option data flipflop_data;
 
 function _ nofp;
 license "GPL";
+option asciidoc;
 ;;
 
 typedef struct { int oldclk; } flipflop_data;

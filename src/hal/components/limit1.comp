@@ -5,6 +5,7 @@ param rw float min_=-1e20;
 param rw float max_=1e20;
 function _;
 license "GPL";
+option asciidoc;
 ;;
 FUNCTION(_) {
     double tmp = in;
