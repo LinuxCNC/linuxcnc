@@ -52,7 +52,6 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
-      | "special_format_man" String ";"   {{ special_format_man(String) }}
       | "special_format_doc" String ";"   {{ special_format_doc(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
@@ -165,9 +164,6 @@ def comp(name, doc):
 
 def description(doc):
     docs.append(('descr', doc));
-
-def special_format_man(doc):
-    docs.append(('sf_man', doc));
 
 def special_format_doc(doc):
     docs.append(('sf_doc', doc));
