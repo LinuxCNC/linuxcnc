@@ -412,10 +412,12 @@ message EmcStatusIo {
     optional bool           lube            = 3;  /// Lube enabled.
     optional bool           lube_level      = 4;  /// Lube level. Reflects iocontrol.0.lube_level
     optional bool           mist            = 5;  /// Mist enabled.
-    optional bool           pocket_prepped  = 6;  /// A Tx command completed and this pocket is prepared. TODO wrong type?
-    optional bool           tool_in_spindle = 7;  /// Current tool number.
+    //optional bool           pocket_prepped  = 6;  /// replaced with field 10
+    //optional bool           tool_in_spindle = 7;  /// replaced with field 11
     optional Position       tool_offset     = 8;  /// Offset values of the current tool.
     repeated EmcToolData    tool_table      = 9;  /// List of tool entries.
+    optional int32          pocket_prepped  = 10; /// A Tx command completed and this pocket is prepared
+    optional int32          tool_in_spindle = 11; /// Current tool number.
 }
 
 /**
