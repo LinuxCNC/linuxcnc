@@ -326,7 +326,12 @@ class Notification(Tkinter.Frame):
         self.widgets.append(widgets)
 
     def remove(self, widgets):
-        self.widgets.remove(widgets)
+        for w in widgets:
+            if w in self.widgets:
+                print "removing widget", w
+                self.widgets.remove(w)
+            else:
+                print "trying to remove missing widget", w
         if len(self.cache) < 10:
             widgets[0].pack_forget()
             self.cache.append(widgets)
