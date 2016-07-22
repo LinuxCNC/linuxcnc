@@ -42,6 +42,9 @@
 #include "halcmd.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+
+RTAPI_BEGIN_DECLS
+
 extern int do_addf_cmd(char *funct, char *thread, char *tokens[]);
 extern int do_alias_cmd(char *pinparam, char *name, char *alias);
 extern int do_unalias_cmd(char *pinparam, char *name);
@@ -86,4 +89,7 @@ pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
 
 extern int scriptmode, comp_id;
+
+RTAPI_END_DECLS
+
 #endif

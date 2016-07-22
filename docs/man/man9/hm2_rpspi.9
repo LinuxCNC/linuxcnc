@@ -1,0 +1,75 @@
+.\" Copyright (c) 2016 W. Martinjak
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.TH HM2_RPSPI "9" "2016-07-08" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+hm2_rpspi \- LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware.
+.SH SYNOPSIS
+
+.HP
+.B loadrt hm2_rpspi
+.RS 4
+.TP
+\fBconfig\fR [default: ""]
+HostMot2 config strings, described in the hostmot2(9) manpage.
+
+.SH DESCRIPTION
+
+hm2_rpspi is a device driver for the Raspberry Pi 2/3 that interfaces Mesa's SPI
+based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
+HAL.
+This driver is not based on the linux spidev driver, but on a dedicated BCM2835-SPI driver.
+
+The supported boards are: 7I90HD.
+
+The board must have a compatible firmware (ie.: 7i90_spi_svst4_8.bit) loaded on the board by the
+mesaflash(1) program.
+
+hm2_rpspi is only available when linuxcnc is configured with "uspace" realtime.
+It works with Raspian and PREEMPT_RT kernel.
+
+.SH INTERFACE CONFIGURATION
+
+At the moment just one device (7I90 card) is supported.
+
+.SH REALTIME PERFORMANCE OF THE BCM2835-SPI DRIVER
+
+.\"As of kernel 3.8, most or all kernel SPI drivers do not achieve the high"
+.\"realtime response rate required for a typical linuxcnc configuration.  The"
+.\"driver was tested with ..."
+
+.SH SPI CLOCK RATES
+The maximum SPI clock of the BCM2835-SPI driver and the 7i90 is documented over 32MHz.
+.\" There are limits on the lower end of the SPI data rate due to ...."
+
+.SH SEE ALSO
+
+hostmot2(9)
+.SH LICENSE
+
+GPL
