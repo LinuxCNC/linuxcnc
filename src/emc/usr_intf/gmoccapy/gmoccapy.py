@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.22"
+_RELEASE = " 2.0.23"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2343,10 +2343,10 @@ class gmoccapy(object):
         # like max_vel and jog_vel
         for widget in widgetlist:
             value = self.widgets[widget].get_value()
-            max = self.widgets[widget].upper
-            min = self.widgets[widget].lower
-            self.widgets[widget].lower = min * self.faktor
-            self.widgets[widget].upper = max * self.faktor
+            min = self.widgets[widget].get_property("min")
+            max = self.widgets[widget].get_property("max")
+            self.widgets[widget].set_property("min", min * self.faktor)
+            self.widgets[widget].set_property("max", max * self.faktor)
             self.widgets[widget].set_value(value * self.faktor)
 
         self.scale_jog_vel = self.scale_jog_vel * self.faktor
@@ -2524,8 +2524,6 @@ class gmoccapy(object):
                 self._update_slider(widgetlist)
                 self.faktor = 1.0
                 self._update_slider(widgetlist)
-
-#        self.widgets.spc_jog_vel.set_adjustment(self.widgets.adj_jog_vel)
 
         if metric_units:
             self.widgets.spc_jog_vel.set_digits(0)

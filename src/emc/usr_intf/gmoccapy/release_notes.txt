@@ -1,3 +1,7 @@
+ver. 2.0.23
+- bug in _update_slider, caused by units change and the needed
+  recalculation of jog_vel
+
 ver. 2.0.22
 - corrected the reading of preferences, under some circumstances
   as bool written settings, couldn't be read correct from file,
