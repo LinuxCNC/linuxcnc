@@ -669,7 +669,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     stat->state = (enum EMC_TASK_STATE_ENUM) determineState();
 
     if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
-        printf("%s:%d: aborting due to State switch\n", __FILE__, __LINE__);
+        printf("%s:%d: aborting due to State switch (ON to %d)\n", __FILE__, __LINE__, stat->state);
 	emcTaskAbort();
         emcSpindleAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);
