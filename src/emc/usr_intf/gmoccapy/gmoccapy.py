@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.23"
+_RELEASE = " 2.0.24"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2287,7 +2287,7 @@ class gmoccapy(object):
                 feed_str = "%d" % self.stat.settings[1]
                 real_feed_str = "F  %.d" % real_feed
         else:
-            self.widgets.lbl_current_vel.set_text("%.3f" % (self.stat.current_vel * 60.0 * self.faktor))
+            self.widgets.lbl_current_vel.set_text("%.2f" % (self.stat.current_vel * 60.0 * self.faktor))
             if "G95" in self.active_gcodes:
                 feed_str = "%.4f" % self.stat.settings[1]
                 real_feed_str = "F %.4f" % real_feed

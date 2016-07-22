@@ -1,3 +1,6 @@
+ver. 2.0.24
+- reduced digits of velocity label to 2 digits for imperial
+
 ver. 2.0.23
 - bug in _update_slider, caused by units change and the needed
   recalculation of jog_vel
