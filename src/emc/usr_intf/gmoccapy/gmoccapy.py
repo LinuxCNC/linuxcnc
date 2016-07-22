@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.21"
+_RELEASE = " 2.0.22"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -448,26 +448,24 @@ class gmoccapy(object):
         # and the rest of the widgets
         self.widgets.rbt_manual.set_active(True)
         self.widgets.ntb_jog.set_current_page(0)
-        opt_blocks = self.prefs.getpref("blockdel", False)
+        
+        opt_blocks = self.prefs.getpref("blockdel", False, bool)
         self.widgets.tbtn_optional_blocks.set_active(opt_blocks)
         self.command.set_block_delete(opt_blocks)
+        
+        optional_stops = self.prefs.getpref( "opstop", False, bool )
+        self.widgets.tbtn_optional_stops.set_active( optional_stops )
+        self.command.set_optional_stop( optional_stops )
 
-        opt_stops = self.prefs.getpref("opstop", False)
-        print("Optstops = ", opt_stops)
-        self.widgets.tbtn_optional_stops.set_active(opt_stops)
-        self.command.set_optional_stop(0)
-        self.command.wait_complete()
-        print("stat says = ", self.stat.optional_stop)
-
-        self.widgets.chk_show_dro.set_active(self.prefs.getpref("enable_dro", False))
-        self.widgets.chk_show_offsets.set_active(self.prefs.getpref("show_offsets", False))
-        self.widgets.chk_show_dtg.set_active(self.prefs.getpref("show_dtg", False))
+        self.widgets.chk_show_dro.set_active(self.prefs.getpref("enable_dro", False, bool))
+        self.widgets.chk_show_offsets.set_active(self.prefs.getpref("show_offsets", False, bool))
+        self.widgets.chk_show_dtg.set_active(self.prefs.getpref("show_dtg", False, bool))
         self.widgets.chk_show_offsets.set_sensitive(self.widgets.chk_show_dro.get_active())
         self.widgets.chk_show_dtg.set_sensitive(self.widgets.chk_show_dro.get_active())
         self.widgets.cmb_mouse_button_mode.set_active(self.prefs.getpref("mouse_btn_mode", 4, int))
 
-        self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True))
-        self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True))
+        self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True, bool))
+        self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True, bool))
         view = self.prefs.getpref("gremlin_view", "rbt_view_p", str)
         self.widgets[view].set_active(True)
 
@@ -712,7 +710,6 @@ class gmoccapy(object):
     def set_motion_mode(self, state):
         # 1:teleop, 0: joint
         self.command.teleop_enable(state)
-        print("Line 675")
         self.command.wait_complete()
 
     def _get_axis_list(self):
@@ -1377,7 +1374,7 @@ class gmoccapy(object):
             names = self.widgets.offsetpage1.get_names()
             for system, name in names:
                 system_name = "system_name_%s" % system
-                self.prefs.putpref(system_name, name, str)
+                self.prefs.putpref(system_name, name)
             page.hide()
             self.widgets.tbtn_edit_offsets.set_active(False)
             self.widgets.ntb_preview.set_current_page(0)
@@ -1557,7 +1554,6 @@ class gmoccapy(object):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
         ]
         self._sensitize_widgets(widgetlist, True)
-        print("Line 1496")
         self.set_motion_mode(1)
 
     def on_hal_status_not_all_homed(self, *args):
@@ -1569,7 +1565,6 @@ class gmoccapy(object):
         ]
         self._sensitize_widgets(widgetlist, False)
         self.set_motion_mode(0)
-        print("Line 1508")
         
     def on_hal_status_homed(self, widget, data):
         pass
@@ -1836,6 +1831,14 @@ class gmoccapy(object):
 
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
+
+
+#        
+#        opt_stops = self.prefs.getpref("opstop", False, bool)
+#        print("Optstops = ", opt_stops)
+#        self.widgets.tbtn_optional_stops.set_active(opt_stops)
+#        self.command.set_optional_stop(opt_stops)
+#        print("stat says = ", self.stat.optional_stop)
 
         self.initialized = True
 
@@ -2440,7 +2443,7 @@ class gmoccapy(object):
 
     def on_chk_toggle_readout_toggled(self, widget, data=None):
         state = widget.get_active()
-        self.prefs.putpref("toggle_readout", state, bool)
+        self.prefs.putpref("toggle_readout", state)
         self.toggle_readout = state
         for axis in self.axis_list:
             if axis == self.axisletter_four:
@@ -2581,7 +2584,7 @@ class gmoccapy(object):
             self.widgets["Combi_DRO_%s" % axis].set_auto_units(self.widgets.chk_auto_units.get_active())
         if self.lathe_mode:
             self.widgets.Combi_DRO_y.set_auto_units(self.widgets.chk_auto_units.get_active())
-        self.prefs.putpref("use_auto_units", self.widgets.chk_auto_units.get_active(), bool)
+        self.prefs.putpref("use_auto_units", self.widgets.chk_auto_units.get_active())
 
     def on_chk_show_dro_btn_toggled(self, widget, data=None):
         if self.widgets.chk_show_dro_btn.get_active():
@@ -2592,7 +2595,7 @@ class gmoccapy(object):
             self.widgets.tbl_dro_button.hide()
             self.widgets.chk_auto_units.set_active(True)
             self.widgets.chk_auto_units.set_sensitive(True)
-        self.prefs.putpref("show_dro_btn", self.widgets.chk_show_dro_btn.get_active(), bool)
+        self.prefs.putpref("show_dro_btn", self.widgets.chk_show_dro_btn.get_active())
 
 # to here only needed, if the DRO button will remain in gmoccapy
 # =========================================================
@@ -2624,11 +2627,11 @@ class gmoccapy(object):
     def on_chk_use_frames_toggled(self, widget, data=None):
         if not self.initialized:
             return
-        self.prefs.putpref("use_frames", widget.get_active(), bool)
+        self.prefs.putpref("use_frames", widget.get_active())
         self._init_notification()
 
     def on_fontbutton_popup_font_set(self, font):
-        self.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font_name(), str)
+        self.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font_name())
         self._init_notification()
 
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
@@ -2726,7 +2729,6 @@ class gmoccapy(object):
                 # this may happen, because the joints / axes has been unhomed
                 print("wrong motion mode, change to the correct one")
                 self.set_motion_mode(1)
-                print("Line 2636")
                 JOGMODE = 0
             else:
                 JOGMODE = 1
@@ -2764,7 +2766,6 @@ class gmoccapy(object):
                 # this may happen, because the joints / axes has been unhomed
                 print("wrong motion mode, change to the correct one")
                 self.set_motion_mode(1)
-                print("Line 2665")
                 JOGMODE = 0
             else:
                 JOGMODE = 1
@@ -2781,13 +2782,13 @@ class gmoccapy(object):
     def on_btn_use_current_clicked(self, widget, data=None):
         if self.stat.file:
             self.widgets.file_to_load_chooser.set_filename(self.stat.file)
-            self.prefs.putpref("open_file", self.stat.file, str)
+            self.prefs.putpref("open_file", self.stat.file)
 
     # Clear the status to load a file on start up, so there will not be loaded a program
     # on the next start of the GUI
     def on_btn_none_clicked(self, widget, data=None):
         self.widgets.file_to_load_chooser.set_filename(" ")
-        self.prefs.putpref("open_file", " ", str)
+        self.prefs.putpref("open_file", " ")
 
     def on_ntb_main_switch_page(self, widget, page, page_num, data=None):
         if self.widgets.tbtn_setup.get_active():
@@ -2877,7 +2878,6 @@ class gmoccapy(object):
 
     def on_btn_unhome_all_clicked(self, widget, data=None):
         self.set_motion_mode(0)
-        print("Line 2780")
         self.all_homed = False
         # -1 for all
         self.command.unhome(-1)
@@ -3154,7 +3154,7 @@ class gmoccapy(object):
             self.widgets.hal_mdihistory.model.clear()
 
     def on_tbtn_use_screen2_toggled(self, widget, data=None):
-        self.prefs.putpref("use_screen2", widget.get_active(), bool)
+        self.prefs.putpref("use_screen2", widget.get_active())
         if widget.get_active():
             self.widgets.window2.show()
             if self.widgets.rbtn_window.get_active():
@@ -3348,7 +3348,7 @@ class gmoccapy(object):
             self.halcomp["searchvel"] = 0.0
             self.halcomp["probevel"] = 0.0
             self.halcomp["probeheight"] = 0.0
-        self.prefs.putpref("use_toolmeasurement", widget.get_active(), bool)
+        self.prefs.putpref("use_toolmeasurement", widget.get_active())
 
     def on_btn_block_height_clicked(self, widget, data=None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
@@ -3382,7 +3382,7 @@ class gmoccapy(object):
         theme = widget.get_active_text()
         if theme == None:
             return
-        self.prefs.putpref('gtk_theme', theme, str)
+        self.prefs.putpref('gtk_theme', theme)
         settings = gtk.settings_get_default()
         if theme == "Follow System Theme":
             theme = self.default_theme
@@ -3391,41 +3391,41 @@ class gmoccapy(object):
     def on_rbt_unlock_toggled(self, widget, data=None):
         if widget.get_active():
             if widget == self.widgets.rbt_use_unlock:
-                self.prefs.putpref("unlock_way", "use", str)
+                self.prefs.putpref("unlock_way", "use")
             elif widget == self.widgets.rbt_no_unlock:
-                self.prefs.putpref("unlock_way", "no", str)
+                self.prefs.putpref("unlock_way", "no")
             else:
-                self.prefs.putpref("unlock_way", "hal", str)
+                self.prefs.putpref("unlock_way", "hal")
 
     def on_rbtn_run_from_line_toggled(self, widget, data=None):
         if widget.get_active():
             if widget == self.widgets.rbtn_no_run_from_line:
-                self.prefs.putpref("run_from_line", "no_run", str)
+                self.prefs.putpref("run_from_line", "no_run")
                 self.widgets.btn_from_line.set_sensitive(False)
             else:  # widget == self.widgets.rbtn_run_from_line:
-                self.prefs.putpref("run_from_line", "run", str)
+                self.prefs.putpref("run_from_line", "run")
                 self.widgets.btn_from_line.set_sensitive(True)
 
     def on_chk_use_kb_on_offset_toggled(self, widget, data=None):
-        self.prefs.putpref("show_keyboard_on_offset", widget.get_active(), bool)
+        self.prefs.putpref("show_keyboard_on_offset", widget.get_active())
 
     def on_chk_use_kb_on_tooledit_toggled(self, widget, data=None):
-        self.prefs.putpref("show_keyboard_on_tooledit", widget.get_active(), bool)
+        self.prefs.putpref("show_keyboard_on_tooledit", widget.get_active())
 
     def on_chk_use_kb_on_edit_toggled(self, widget, data=None):
-        self.prefs.putpref("show_keyboard_on_edit", widget.get_active(), bool)
+        self.prefs.putpref("show_keyboard_on_edit", widget.get_active())
 
     def on_chk_use_kb_on_mdi_toggled(self, widget, data=None):
-        self.prefs.putpref("show_keyboard_on_mdi", widget.get_active(), bool)
+        self.prefs.putpref("show_keyboard_on_mdi", widget.get_active())
 
     def on_chk_use_kb_on_file_selection_toggled(self, widget, data=None):
-        self.prefs.putpref("show_keyboard_on_file_selection", widget.get_active(), bool)
+        self.prefs.putpref("show_keyboard_on_file_selection", widget.get_active())
 
     def on_chk_use_kb_shortcuts_toggled(self, widget, data=None):
-        self.prefs.putpref("use_keyboard_shortcuts", widget.get_active(), bool)
+        self.prefs.putpref("use_keyboard_shortcuts", widget.get_active())
 
     def on_rbtn_show_preview_toggled(self, widget, data=None):
-        self.prefs.putpref("show_preview_on_offset", widget.get_active(), bool)
+        self.prefs.putpref("show_preview_on_offset", widget.get_active())
 
     def on_adj_scale_jog_vel_value_changed(self, widget, data=None):
         self.prefs.putpref("scale_jog_vel", widget.get_value(), float)
@@ -3446,14 +3446,14 @@ class gmoccapy(object):
     def on_rbtn_fullscreen_toggled(self, widget):
         if widget.get_active():
             self.widgets.window1.fullscreen()
-            self.prefs.putpref("screen1", "fullscreen", str)
+            self.prefs.putpref("screen1", "fullscreen")
         else:
             self.widgets.window1.unfullscreen()
 
     def on_rbtn_maximized_toggled(self, widget):
         if widget.get_active():
             self.widgets.window1.maximize()
-            self.prefs.putpref("screen1", "maximized", str)
+            self.prefs.putpref("screen1", "maximized")
         else:
             self.widgets.window1.unmaximize()
 
@@ -3467,7 +3467,7 @@ class gmoccapy(object):
         if widget.get_active() and self.widgets.window1.is_active():
             self.widgets.window1.move(self.xpos, self.ypos)
             self.widgets.window1.resize(self.width, self.height)
-            self.prefs.putpref("screen1", "window", str)
+            self.prefs.putpref("screen1", "window")
 
     def on_adj_x_pos_value_changed(self, widget, data=None):
         if not self.initialized:
@@ -3519,7 +3519,7 @@ class gmoccapy(object):
             self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
-        self.prefs.putpref("hide_cursor", widget.get_active(), bool)
+        self.prefs.putpref("hide_cursor", widget.get_active())
         self.hide_cursor = widget.get_active()
         if widget.get_active():
             self.widgets.window1.window.set_cursor(INVISABLE)
@@ -3533,40 +3533,40 @@ class gmoccapy(object):
 
     def on_rel_colorbutton_color_set(self, widget):
         color = widget.get_color()
-        self.prefs.putpref('rel_color', color, str)
+        self.prefs.putpref('rel_color', color)
         self._change_dro_color("rel_color", color)
         self.rel_color = str(color)
 
     def on_abs_colorbutton_color_set(self, widget):
         color = widget.get_color()
-        self.prefs.putpref('abs_color', widget.get_color(), str)
+        self.prefs.putpref('abs_color', widget.get_color())
         self._change_dro_color("abs_color", color)
         self.abs_color = str(color)
 
     def on_dtg_colorbutton_color_set(self, widget):
         color = widget.get_color()
-        self.prefs.putpref('dtg_color', widget.get_color(), str)
+        self.prefs.putpref('dtg_color', widget.get_color())
         self._change_dro_color("dtg_color", color)
         self.dtg_color = str(color)
 
     def on_homed_colorbtn_color_set(self, widget):
         color = widget.get_color()
-        self.prefs.putpref('homed_color', widget.get_color(), str)
+        self.prefs.putpref('homed_color', widget.get_color())
         self._change_dro_color("homed_color", color)
         self.homed_color = str(color)
 
     def on_unhomed_colorbtn_color_set(self, widget):
         color = widget.get_color()
-        self.prefs.putpref('unhomed_color', widget.get_color(), str)
+        self.prefs.putpref('unhomed_color', widget.get_color())
         self._change_dro_color("unhomed_color", color)
         self.unhomed_color = str(color)
 
     def on_file_to_load_chooser_file_set(self, widget):
-        self.prefs.putpref("open_file", widget.get_filename(), str)
+        self.prefs.putpref("open_file", widget.get_filename())
 
     def on_jump_to_dir_chooser_file_set(self, widget, data=None):
         path = widget.get_filename()
-        self.prefs.putpref("jump_to_dir", path, str)
+        self.prefs.putpref("jump_to_dir", path)
         self.widgets.IconFileSelection1.set_property("jump_to_dir", path)
 
     def on_grid_size_value_changed(self, widget, data=None):
@@ -3574,22 +3574,22 @@ class gmoccapy(object):
         self.prefs.putpref('grid_size', widget.get_value(), float)
 
     def on_tbtn_log_actions_toggled(self, widget, data=None):
-        self.prefs.putpref("log_actions", widget.get_active(), bool)
+        self.prefs.putpref("log_actions", widget.get_active())
 
     def on_chk_show_dro_toggled(self, widget, data=None):
         self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
         self.widgets.gremlin.set_property("enable_dro", widget.get_active())
-        self.prefs.putpref("enable_dro", widget.get_active(), bool)
+        self.prefs.putpref("enable_dro", widget.get_active())
         self.widgets.chk_show_offsets.set_sensitive(widget.get_active())
         self.widgets.chk_show_dtg.set_sensitive(widget.get_active())
 
     def on_chk_show_dtg_toggled(self, widget, data=None):
         self.widgets.gremlin.set_property("show_dtg", widget.get_active())
-        self.prefs.putpref("show_dtg", widget.get_active(), bool)
+        self.prefs.putpref("show_dtg", widget.get_active())
 
     def on_chk_show_offsets_toggled(self, widget, data=None):
         self.widgets.gremlin.show_offsets = widget.get_active()
-        self.prefs.putpref("show_offsets", widget.get_active(), bool)
+        self.prefs.putpref("show_offsets", widget.get_active())
 
     def on_cmb_mouse_button_mode_changed(self, widget):
         index = widget.get_active()
@@ -3751,27 +3751,27 @@ class gmoccapy(object):
     def on_rbt_view_p_toggled(self, widget, data=None):
         if self.widgets.rbt_view_p.get_active():
             self.widgets.gremlin.set_property("view", "p")
-        self.prefs.putpref("gremlin_view", "rbt_view_p", str)
+        self.prefs.putpref("gremlin_view", "rbt_view_p")
 
     def on_rbt_view_x_toggled(self, widget, data=None):
         if self.widgets.rbt_view_x.get_active():
             self.widgets.gremlin.set_property("view", "x")
-        self.prefs.putpref("gremlin_view", "rbt_view_x", str)
+        self.prefs.putpref("gremlin_view", "rbt_view_x")
 
     def on_rbt_view_y_toggled(self, widget, data=None):
         if self.widgets.rbt_view_y.get_active():
             self.widgets.gremlin.set_property("view", "y")
-        self.prefs.putpref("gremlin_view", "rbt_view_y", str)
+        self.prefs.putpref("gremlin_view", "rbt_view_y")
 
     def on_rbt_view_z_toggled(self, widget, data=None):
         if self.widgets.rbt_view_z.get_active():
             self.widgets.gremlin.set_property("view", "z")
-        self.prefs.putpref("gremlin_view", "rbt_view_z", str)
+        self.prefs.putpref("gremlin_view", "rbt_view_z")
 
     def on_rbt_view_y2_toggled(self, widget, data=None):
         if self.widgets.rbt_view_y2.get_active():
             self.widgets.gremlin.set_property("view", "y2")
-        self.prefs.putpref("gremlin_view", "rbt_view_y2", str)
+        self.prefs.putpref("gremlin_view", "rbt_view_y2")
 
     def on_btn_zoom_in_clicked(self, widget, data=None):
         self.widgets.gremlin.zoom_in()
@@ -3784,11 +3784,11 @@ class gmoccapy(object):
 
     def on_tbtn_view_dimension_toggled(self, widget, data=None):
         self.widgets.gremlin.set_property("show_extents_option", widget.get_active())
-        self.prefs.putpref("view_dimension", self.widgets.tbtn_view_dimension.get_active(), bool)
+        self.prefs.putpref("view_dimension", self.widgets.tbtn_view_dimension.get_active())
 
     def on_tbtn_view_tool_path_toggled(self, widget, data=None):
         self.widgets.gremlin.set_property("show_live_plot", widget.get_active())
-        self.prefs.putpref("view_tool_path", self.widgets.tbtn_view_tool_path.get_active(), bool)
+        self.prefs.putpref("view_tool_path", self.widgets.tbtn_view_tool_path.get_active())
 
     def on_gremlin_line_clicked(self, widget, line):
         self.widgets.gcode_view.set_line_number(line)
@@ -3935,14 +3935,15 @@ class gmoccapy(object):
         self.widgets.btn_save.set_sensitive(False)
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
-        self.command.set_block_delete(widget.get_active())
-        self.prefs.putpref("blockdel", widget.get_active(), bool)
+        opt_blocks = widget.get_active()
+        self.command.set_block_delete(opt_blocks)
+        self.prefs.putpref("blockdel", opt_blocks)
         self.widgets.hal_action_reload.emit("activate")
 
-
     def on_tbtn_optional_stops_toggled(self, widget, data=None):
-        self.command.set_optional_stop(widget.get_active())
-        self.prefs.putpref("opstop", widget.get_active(), bool)
+        opt_stops = widget.get_active()
+        self.command.set_optional_stop(opt_stops)
+        self.prefs.putpref("opstop", opt_stops)
 
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal
@@ -3966,10 +3967,10 @@ class gmoccapy(object):
         if file:
             if widget == self.widgets.audio_error_chooser:
                 self.error_sound = file
-                self.prefs.putpref("audio_error", file, str)
+                self.prefs.putpref("audio_error", file)
             else:
                 self.alert_sound = file
-                self.prefs.putpref("audio_alert", file, str)
+                self.prefs.putpref("audio_alert", file)
 
     def on_tbtn_switch_mode_toggled(self, widget, data=None):
         if widget.get_active():

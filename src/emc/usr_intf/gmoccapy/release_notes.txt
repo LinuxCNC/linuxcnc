@@ -1,3 +1,11 @@
+ver. 2.0.22
+- corrected the reading of preferences, under some circumstances
+  as bool written settings, couldn't be read correct from file,
+  leading to wrong settings. This is a known bug in ConfigParser.
+  I went over to write all bool settings as string, this way it 
+  works like a charm. At the same time all bool values must be 
+  read with type = bool!
+
 ver. 2.0.21
 - added Joint Jog Button, _init_joints_btn will show only 
   the needed button, so from now on gmoccapy supports 8 Joints
