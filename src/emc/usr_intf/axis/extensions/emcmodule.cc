@@ -1093,8 +1093,8 @@ static PyObject *reset_interpreter(pyCommandChannel *s, PyObject *o) {
 }
 
 static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
-    if(!reset_interpreter(s, o))
-        return NULL;
+    EMC_TASK_PLAN_CLOSE m0;
+    emcSendCommand(s, m0);
 
     EMC_TASK_PLAN_OPEN m;
     char *file;
