@@ -28,9 +28,9 @@ Parallel Pin 16 => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
 .br
-net torch-up thc.torch-up <= paraport.0.pin-12-in
+net torch-up thcud.torch-up <= paraport.0.pin-12-in
 .br
-net torch-down thc.torch-down <= paraport.0.pin-13-in
+net torch-down thcud.torch-down <= paraport.0.pin-13-in
 .br
 net torch-on motion.spindle-on => parport.0.pin-16-out (start the arc)
 .br
@@ -50,21 +50,12 @@ In the xml file you need something like:
     <text>"THC Enable"</text>
     <halpin>"thc-enable"</halpin>
   </checkbutton>
-  <spinbox>
-    <width>"5"</width>
-    <halpin>"vel-tol"</halpin>
-    <min_>.01</min_>
-    <max_>1</max_>
-    <resolution>0.01</resolution>
-    <initval>0.2</initval>
-    <format>"1.2f"</format>
-    <font>("Arial",10)</font>
-  </spinbox>
   </pyvcp>
 
 Connect the Pyvcp pins in the postgui.hal file like this:
 
 net thc-enable thcud.enable <= pyvcp.thc-enable
+
 
 """;
  
