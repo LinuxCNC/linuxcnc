@@ -91,7 +91,7 @@ bool wj200_run(modbus_t* ctx, bool runBit)
 bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
 {
         int rc;
-        uint8_t bits[10];
+        uint8_t bits[16];
         uint16_t registers[2];
 
         /*read coils 0x000F thru 0x0019 in one step*/
