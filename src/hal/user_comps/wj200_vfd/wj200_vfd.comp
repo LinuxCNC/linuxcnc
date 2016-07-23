@@ -91,7 +91,7 @@ bool wj200_run(modbus_t* ctx, bool runBit)
 bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
 {
         int rc;
-        uint8_t bits[10];
+        uint8_t bits[16];
         uint16_t registers[2];
 
         /*read coils 0x000F thru 0x0019 in one step*/
@@ -149,6 +149,7 @@ void userinit(int argc, char **argv)
 		{"parity", required_argument, 0, 0 },
 		{"databits", required_argument, 0, 0 },
 		{"stopbits", required_argument, 0, 0 },
+		{"device", required_argument, 0, 0 },
 		{0, 0, 0, 0}
 	};	
 
@@ -206,6 +207,10 @@ void userinit(int argc, char **argv)
 					exit(1);
 				}
 				break;
+			case 4:
+				device = optarg;
+				break;
+
 
 			default:
                                 fprintf(stderr, "internal error: invalid option index!\n");
