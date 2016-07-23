@@ -4,6 +4,9 @@ ver. 1.5.6.3
 - In glade file a signal on_btn_load_state_changed was set, but no handler present, 
   leading to a error message on start in the terminal, erased the signal
 
+ver. 1.5.6.2.1
+- bug in initialize optional stops
+
 ver. 1.5.6.2
 - bugfix: run from line was trying to set an entry in the alarm page, whitch
   I drobed in 1.5.6 
