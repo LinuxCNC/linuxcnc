@@ -47,7 +47,8 @@ else
     if [ "$RIP" == "yes" ]; then
 	filn=$(find $EMC2_HOME/man -type f -name $fil.asciidoc)
     else
-	filn=$(find /usr/share/man /usr/local/man /usr/local/share/man -type f -name $fil.asciidoc)
+	## this is the install path for machinekit-manual-pages plus optional /local prefix
+	filn=$(find /usr/share/doc/machinekit/man /usr/local/share/doc/machinekit/man -type f -name $fil.asciidoc)
     fi
 fi
 
