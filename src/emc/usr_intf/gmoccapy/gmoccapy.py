@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.25"
+_RELEASE = " 2.0.25.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -822,6 +822,7 @@ class gmoccapy(object):
             self.widgets.lbl_replace_set_value_5.hide()
             self.axisletter_five = self.axis_list[-1]
             self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
+#            self.widgets.Combi_DRO_5.set_property("joint_number", self.stat.joints -1 )
             self.widgets.Combi_DRO_5.set_property("joint_number", self.axisnumber_five)
             self.widgets.Combi_DRO_5.change_axisletter(self.axisletter_five.upper())
 
@@ -1548,7 +1549,7 @@ class gmoccapy(object):
     # use the hal_status widget to control buttons and
     # actions allowed by the user and sensitive widgets
     def on_hal_status_all_homed(self, widget):
-        print("all axis homed")
+        print("all joints homed")
         self.all_homed = True
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_select_tool_by_no",
@@ -1557,8 +1558,8 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, True)
         self.set_motion_mode(1)
 
-    def on_hal_status_not_all_homed(self, *args):
-        print("not all axis homed")
+    def on_hal_status_not_all_homed(self, widget, joints):
+        print("not all joints homed", joints)
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -1568,22 +1569,6 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, False)
         self.set_motion_mode(0)
         
-    def on_hal_status_homed(self, widget, data):
-        print("Axis %s homed"%data)
-
-# Joints homed stuff start 
-
-    def on_hal_status_joint_homed(self, widget, data):
-        print("Joint %s homed"%data)
-
-    def on_hal_status_all_joints_homed(self, widget):
-        print("all joints homed")
-
-    def on_hal_status_not_all_homed(self, *args):
-        print("not all joints homed")
-
-# Joints homed stuff end 
-
     def on_hal_status_file_loaded(self, widget, filename):
         widgetlist = ["btn_use_current" ]
         # this test is only necessary, because of remap and toolchange, it will emit a file loaded signal
@@ -1784,17 +1769,21 @@ class gmoccapy(object):
         # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
         # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
 
+        widgetlist = ("rbt_mdi", "rbt_auto")
         if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
             self.widgets.tbtn_switch_mode.set_active(True)
             self.widgets.ntb_jog_JA.set_page(1)
+            state = False
         else:
             if not self.widgets.tbtn_fullsize_preview.get_active():
                 self.widgets.gremlin.set_property("enable_dro", False)
             self.widgets.gremlin.use_joints_mode = False
             self.widgets.tbtn_switch_mode.set_active(False)
             self.widgets.ntb_jog_JA.set_page(0)
+            state = True
+        self._sensitize_widgets(widgetlist, state)
             
 # hal status End
 # =========================================================
@@ -2894,16 +2883,22 @@ class gmoccapy(object):
         self.command.unhome(-1)
 
     def on_btn_home_selected_clicked(self, widget, data=None):
-        if widget == self.widgets.btn_home_x:
-            axis = 0
-        elif widget == self.widgets.btn_home_y:
-            axis = 1
-        elif widget == self.widgets.btn_home_z:
-            axis = 2
-        elif widget == self.widgets.btn_home_4:
-            axis = "xyzabcuvw".index(self.axisletter_four)
-        elif widget == self.widgets.btn_home_5:
-            axis = "xyzabcuvw".index(self.axisletter_five)
+        if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+            # we can switch without any risk to joint mode and home the selected joint
+            self.set_motion_mode(0)
+            if widget == self.widgets.btn_home_x:
+                axis = 0
+            elif widget == self.widgets.btn_home_y:
+                axis = 1
+            elif widget == self.widgets.btn_home_z:
+                axis = 2
+            elif widget == self.widgets.btn_home_4:
+                axis = "xyzabcuvw".index(self.axisletter_four)
+            elif widget == self.widgets.btn_home_5:
+                axis = "xyzabcuvw".index(self.axisletter_five)
+        else:
+            self._show_error((13, _("Homing of an axis not allowed in not identity kinematics\nPlease use <home all> button")))
+            return
         self.command.home(axis)
 
     def _check_limits(self):
