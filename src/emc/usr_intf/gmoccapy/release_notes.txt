@@ -1,3 +1,10 @@
+ver.2.0.25
+- introduced hal pin to jog joints, make sure not to
+  allow joint jogging in world mode and vice versa
+- renamed most hal pin, so they are better organized, 
+  kept together in groups
+- big bug in all homed signal of hal_glib avoid pushing to master
+
 ver. 2.0.24
 - reduced digits of velocity label to 2 digits for imperial
 

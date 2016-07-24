@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.24"
+_RELEASE = " 2.0.25"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1548,6 +1548,7 @@ class gmoccapy(object):
     # use the hal_status widget to control buttons and
     # actions allowed by the user and sensitive widgets
     def on_hal_status_all_homed(self, widget):
+        print("all homed")
         self.all_homed = True
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_select_tool_by_no",
@@ -1557,6 +1558,7 @@ class gmoccapy(object):
         self.set_motion_mode(1)
 
     def on_hal_status_not_all_homed(self, *args):
+        print("not all homed")
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -1567,6 +1569,7 @@ class gmoccapy(object):
         self.set_motion_mode(0)
         
     def on_hal_status_homed(self, widget, data):
+        print(widget,"\n", data)
         pass
 
     def on_hal_status_file_loaded(self, widget, filename):
@@ -2475,11 +2478,11 @@ class gmoccapy(object):
 
     def _offset_changed(self, pin, tooloffset):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
-            self.widgets.lbl_tool_offset_z.set_text("%.3f" % self.halcomp["tooloffset-z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.3f" % self.halcomp["tooloffset-x"])
+            self.widgets.lbl_tool_offset_z.set_text("%.3f" % self.halcomp["tool.tooloffset-z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.3f" % self.halcomp["tool.tooloffset-x"])
         else:
-            self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tooloffset-z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tooloffset-x"])
+            self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tool.tooloffset-z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tool.tooloffset-x"])
 
     def on_offsetpage1_selection_changed(self, widget, system, name):
         if system not in self.system_list[1:] or self.widgets.tbtn_edit_offsets.get_active():
@@ -2692,20 +2695,20 @@ class gmoccapy(object):
             return
 
         joint_btn = False
-        joint_axis = widget.get_label()[0]
-        if not joint_axis.lower() in "xyzabcuvw":
+        joint_or_axis = widget.get_label()[0]
+        if not joint_or_axis.lower() in "xyzabcuvw":
             # OK, it may be a Joints button
-            if joint_axis in "01234567":
+            if joint_or_axis in "01234567":
                 joint_btn = True
             else:
-                print ("unknown axis %s" % joint_axis)
+                print ("unknown joint or axis %s" % joint_or_axis)
                 return
 
         if not joint_btn:
             # get the axisnumber
-            joint_axis_number = "xyzabcuvws".index(joint_axis.lower())
+            joint_axis_number = "xyzabcuvws".index(joint_or_axis.lower())
         else:
-            joint_axis_number = "01234567".index(joint_axis)
+            joint_axis_number = "01234567".index(joint_or_axis)
 
         # if data = True, then the user pressed SHIFT for Jogging and
         # want's to jog at full speed
@@ -2869,8 +2872,6 @@ class gmoccapy(object):
     def on_btn_home_all_clicked(self, widget, data=None):
         if self.stat.motion_mode == 3:
             self.set_motion_mode(0)
-            print ("Line 2781")
-            
         # home -1 means all
         self.command.home(-1)
 
@@ -2881,6 +2882,7 @@ class gmoccapy(object):
         self.command.unhome(-1)
 
     def on_btn_home_selected_clicked(self, widget, data=None):
+        print(widget)
         if widget == self.widgets.btn_home_x:
             axis = 0
         elif widget == self.widgets.btn_home_y:
@@ -2892,6 +2894,7 @@ class gmoccapy(object):
         elif widget == self.widgets.btn_home_5:
             axis = "xyzabcuvw".index(self.axisletter_five)
         self.command.home(axis)
+        print("Homed ",axis)
 
     def _check_limits(self):
         for axis in self.axis_list:
@@ -3320,32 +3323,32 @@ class gmoccapy(object):
             self.command.wait_complete()
 
     def on_spbtn_probe_height_value_changed(self, widget, data=None):
-        self.halcomp["probeheight"] = widget.get_value()
+        self.halcomp["tool.measurement.probeheight"] = widget.get_value()
         self.prefs.putpref("probeheight", widget.get_value(), float)
 
     def on_spbtn_search_vel_value_changed(self, widget, data=None):
-        self.halcomp["searchvel"] = widget.get_value()
+        self.halcomp["tool.measurement.searchvel"] = widget.get_value()
         self.prefs.putpref("searchvel", widget.get_value(), float)
 
     def on_spbtn_probe_vel_value_changed(self, widget, data=None):
-        self.halcomp["probevel"] = widget.get_value()
+        self.halcomp["tool.measurement.probevel"] = widget.get_value()
         self.prefs.putpref("probevel", widget.get_value(), float)
 
     def on_chk_use_tool_measurement_toggled(self, widget, data=None):
         if widget.get_active():
             self.widgets.frm_probe_pos.set_sensitive(True)
             self.widgets.frm_probe_vel.set_sensitive(True)
-            self.halcomp["toolmeasurement"] = True
-            self.halcomp["searchvel"] = self.widgets.spbtn_search_vel.get_value()
-            self.halcomp["probevel"] = self.widgets.spbtn_probe_vel.get_value()
-            self.halcomp["probeheight"] = self.widgets.spbtn_probe_height.get_value()
+            self.halcomp["tool.measurement.toolmeasurement"] = True
+            self.halcomp["tool.measurement.searchvel"] = self.widgets.spbtn_search_vel.get_value()
+            self.halcomp["tool.measurement.probevel"] = self.widgets.spbtn_probe_vel.get_value()
+            self.halcomp["tool.measurement.probeheight"] = self.widgets.spbtn_probe_height.get_value()
         else:
             self.widgets.frm_probe_pos.set_sensitive(False)
             self.widgets.frm_probe_vel.set_sensitive(False)
-            self.halcomp["toolmeasurement"] = False
-            self.halcomp["searchvel"] = 0.0
-            self.halcomp["probevel"] = 0.0
-            self.halcomp["probeheight"] = 0.0
+            self.halcomp["tool.measurement.toolmeasurement"] = False
+            self.halcomp["tool.measurement.searchvel"] = 0.0
+            self.halcomp["tool.measurement.probevel"] = 0.0
+            self.halcomp["tool.measurement.probeheight"] = 0.0
         self.prefs.putpref("use_toolmeasurement", widget.get_active())
 
     def on_btn_block_height_clicked(self, widget, data=None):
@@ -3356,8 +3359,8 @@ class gmoccapy(object):
         if blockheight == "CANCEL" or blockheight == "ERROR":
             return
         if blockheight != False or blockheight == 0:
-            self.halcomp["blockheight"] = blockheight
-            self.halcomp["probeheight"] = probeheight
+            self.halcomp["tool.measurement.blockheight"] = blockheight
+            self.halcomp["tool.measurement.probeheight"] = probeheight
             self.prefs.putpref("blockheight", blockheight, float)
             self.prefs.putpref("probeheight", probeheight, float)
         else:
@@ -3604,8 +3607,8 @@ class gmoccapy(object):
 
     # Here we create a manual tool change dialog
     def on_tool_change(self, widget):
-        change = self.halcomp['toolchange-change']
-        toolnumber = self.halcomp['toolchange-number']
+        change = self.halcomp['tool.toolchange-change']
+        toolnumber = self.halcomp['tool.toolchange-number']
         if change:
             # if toolnumber = 0 we will get an error because we will not be able to get
             # any tool description, so we avoid that case
@@ -3616,18 +3619,18 @@ class gmoccapy(object):
                 message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
             result = dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
             if result:
-                self.halcomp["toolchange-changed"] = True
+                self.halcomp["tool.toolchange-changed"] = True
             else:
                 print"toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number']
                 self.command.abort()
-                self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
-                self.halcomp['toolchange-change'] = False
-                self.halcomp['toolchange-changed'] = True
+                self.halcomp['tool.toolchange-number'] = self.stat.tool_in_spindle
+                self.halcomp['tool.toolchange-change'] = False
+                self.halcomp['tool.toolchange-changed'] = True
                 message = _("Tool Change has been aborted!\n")
                 message += _("The old tool will remain set!")
                 dialogs.warning_dialog(self, message)
         else:
-            self.halcomp['toolchange-changed'] = False
+            self.halcomp['tool.toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
         self.tooledit_btn_delete_tool.emit("clicked")
@@ -3988,29 +3991,32 @@ class gmoccapy(object):
             return
         difference = 0
         counts = pin.get()
-        if self.halcomp["feed-override.count-enable"]:
+        if self.halcomp["feed.feed-override.count-enable"]:
             if widget == "spc_feed":
                 difference = (counts - self.fo_counts) * self.scale_feed_override
                 self.fo_counts = counts
                 self._check_counts(counts)
-        if self.halcomp["rapid-override.count-enable"]:
+        if self.halcomp["rapid.rapid-override.count-enable"]:
             if widget == "spc_rapid":
                 difference = (counts - self.ro_counts) * self.scale_rapid_override
                 self.ro_counts = counts
                 self._check_counts(counts)
-        if self.halcomp["spindle-override.count-enable"]:
+        if self.halcomp["spindle.spindle-override.count-enable"]:
             if widget == "spc_spindle":
                 difference = (counts - self.so_counts) * self.scale_spindle_override
                 self.so_counts = counts
                 self._check_counts(counts)
-        if self.halcomp["jog-velocity.count-enable"]:
+        if self.halcomp["jog.jog-velocity.count-enable"]:
             if widget == "spc_jog_vel":
                 difference = (counts - self.jv_counts) * self.scale_jog_vel
                 if self.widgets.tbtn_turtle_jog.get_active():
                     difference = difference / self.turtle_jog_factor
                 self.jv_counts = counts
                 self._check_counts(counts)
-        if not self.halcomp["feed-override.count-enable"] and not self.halcomp["spindle-override.count-enable"] and not self.halcomp["jog-velocity.count-enable"] and not self.halcomp["rapid-override.count-enable"]:
+        if not self.halcomp["feed.feed-override.count-enable"] \
+                            and not self.halcomp["spindle.spindle-override.count-enable"] \
+                            and not self.halcomp["jog.jog-velocity.count-enable"] \
+                            and not self.halcomp["rapid.rapid-override.count-enable"]:
             self._check_counts(counts)
 
         val = self.widgets[widget].get_value() + difference
@@ -4023,28 +4029,28 @@ class gmoccapy(object):
         # as we do not know how the user did connect the jog wheels, we have to check all
         # possibilities. Does he use only one jog wheel and a selection switch or do he use
         # a mpg for each slider or one for speeds and one for override, or ??
-        if self.halcomp["feed-override.counts"] == self.halcomp["spindle-override.counts"]:
-            if self.halcomp["feed-override.count-enable"] and self.halcomp["spindle-override.count-enable"]:
+        if self.halcomp["feed.feed-override.counts"] == self.halcomp["spindle.spindle-override.counts"]:
+            if self.halcomp["feed.feed-override.count-enable"] and self.halcomp["spindle.spindle-override.count-enable"]:
                 return
             self.fo_counts = self.so_counts = counts
-        if self.halcomp["feed-override.counts"] == self.halcomp["jog-velocity.counts"]:
-            if self.halcomp["feed-override.count-enable"] and self.halcomp["jog-velocity.count-enable"]:
+        if self.halcomp["feed.feed-override.counts"] == self.halcomp["jog.jog-velocity.counts"]:
+            if self.halcomp["feed.feed-override.count-enable"] and self.halcomp["jog.jog-velocity.count-enable"]:
                 return
             self.fo_counts = self.jv_counts = counts
-        if self.halcomp["feed-override.counts"] == self.halcomp["rapid-override.counts"]:
-            if self.halcomp["feed-override.count-enable"] and self.halcomp["rapid-override.count-enable"]:
+        if self.halcomp["feed.feed-override.counts"] == self.halcomp["rapid.rapid-override.counts"]:
+            if self.halcomp["feed.feed-override.count-enable"] and self.halcomp["rapid.rapid-override.count-enable"]:
                 return
             self.fo_counts = self.ro_counts = counts
-        if self.halcomp["spindle-override.counts"] == self.halcomp["jog-velocity.counts"]:
-            if self.halcomp["spindle-override.count-enable"] and self.halcomp["jog-velocity.count-enable"]:
+        if self.halcomp["spindle.spindle-override.counts"] == self.halcomp["jog.jog-velocity.counts"]:
+            if self.halcomp["spindle.spindle-override.count-enable"] and self.halcomp["jog.jog-velocity.count-enable"]:
                 return
             self.so_counts = self.jv_counts = counts
-        if self.halcomp["spindle-override.counts"] == self.halcomp["rapid-override.counts"]:
-            if self.halcomp["spindle-override.count-enable"] and self.halcomp["rapid-override.count-enable"]:
+        if self.halcomp["spindle.spindle-override.counts"] == self.halcomp["rapid.rapid-override.counts"]:
+            if self.halcomp["spindle.spindle-override.count-enable"] and self.halcomp["rapid.rapid-override.count-enable"]:
                 return
             self.so_counts = self.ro_counts = counts
-        if self.halcomp["jog-velocity.counts"] == self.halcomp["rapid-override.counts"]:
-            if self.halcomp["jog-velocity.count-enable"] and self.halcomp["rapid-override.count-enable"]:
+        if self.halcomp["jog.jog-velocity.counts"] == self.halcomp["rapid.rapid-override.counts"]:
+            if self.halcomp["jog.jog-velocity.count-enable"] and self.halcomp["rapid.rapid-override.count-enable"]:
                 return
             self.jv_counts = self.ro_counts = counts
 
@@ -4068,21 +4074,21 @@ class gmoccapy(object):
             # special case of jog_vel, as we have to take care of both modes,
             # more details see _on_analog_value_changed
             if self.widgets.tbtn_turtle_jog.get_active():
-                value = self.rabbit_jog = self.jog_rate_max * self.halcomp["jog-velocity.direct-value"]
+                value = self.rabbit_jog = self.jog_rate_max * self.halcomp["jog.jog-velocity.direct-value"]
             elif not self.widgets.tbtn_turtle_jog.get_active():
-                value = self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * self.halcomp["jog-velocity.direct-value"]
+                value = self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * self.halcomp["jog.jog-velocity.direct-value"]
             self.widgets.spc_jog_vel.set_value(value)
 
     def _on_analog_value_changed(self, pin, widget):
         if not self.initialized:
             return
-        if widget == "spc_jog_vel" and not self.halcomp["jog-velocity.analog-enable"]:
+        if widget == "spc_jog_vel" and not self.halcomp["jog.jog-velocity.analog-enable"]:
             return
-        if widget == "spc_feed" and not self.halcomp["feed-override.analog-enable"]:
+        if widget == "spc_feed" and not self.halcomp["feed.feed-override.analog-enable"]:
             return
-        if widget == "spc_spindle" and not self.halcomp["spindle-override.analog-enable"]:
+        if widget == "spc_spindle" and not self.halcomp["spindle.spindle-override.analog-enable"]:
             return
-        if widget == "spc_rapid" and not self.halcomp["rapid-override.analog-enable"]:
+        if widget == "spc_rapid" and not self.halcomp["rapid.rapid-override.analog-enable"]:
             return
         percentage = pin.get()
         if percentage > 1.0:
@@ -4141,7 +4147,14 @@ class gmoccapy(object):
         self.on_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
         self.incr_rbt_list[int(buttonnumber)].set_active(True)
 
-    def _on_pin_jog_changed(self, pin, axis, direction):
+    def _on_pin_jog_axis_changed(self, pin, axis, direction):
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            if self.stat.motion_mode == 1 and pin.get():
+                message = _("Axis jogging is only allowed in world mode, but you are in joint mode!")
+                print(message)
+                self._show_error((13, message))
+                return
+
         if axis not in "xyz":
             if axis == self.axisletter_four:
                 axis = 4
@@ -4151,6 +4164,22 @@ class gmoccapy(object):
             widget = self.widgets["btn_%s_plus" % axis]
         else:
             widget = self.widgets["btn_%s_minus" % axis]
+        if pin.get():
+            self.on_btn_jog_pressed(widget)
+        else:
+            self.on_btn_jog_released(widget)
+
+    def _on_pin_jog_joint_changed(self, pin, joint, direction):
+        if self.stat.motion_mode != 1 and pin.get():
+            message = _("Joint jogging is only allowed in joint mode, but you are in world mode!")
+            print(message)
+            self._show_error((13, message))
+            return
+
+        if direction == 1:
+            widget = self.widgets["btn_j%s_plus" % str(joint)]
+        else:
+            widget = self.widgets["btn_j%s_minus" % str(joint)]
         if pin.get():
             self.on_btn_jog_pressed(widget)
         else:
@@ -4254,10 +4283,17 @@ class gmoccapy(object):
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:
-            pin = self.halcomp.newpin("jog.jog-%s-plus" % jog_button, hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, jog_button, 1)
-            pin = self.halcomp.newpin("jog.jog-%s-minus" % jog_button, hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, jog_button, -1)
+            pin = self.halcomp.newpin("jog.axis.jog-%s-plus" % jog_button, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, jog_button, 1)
+            pin = self.halcomp.newpin("jog.axis.jog-%s-minus" % jog_button, hal.HAL_BIT, hal.HAL_IN)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, jog_button, -1)
+
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            for joint_button in range(0, self.stat.joints):
+                pin = self.halcomp.newpin("jog.joint.jog-%s-plus" % joint_button, hal.HAL_BIT, hal.HAL_IN)
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, joint_button, 1)
+                pin = self.halcomp.newpin("jog.joint.jog-%s-minus" % joint_button, hal.HAL_BIT, hal.HAL_IN)
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, joint_button, -1)
 
         # jog_increment out pin
         self.halcomp.newpin("jog.jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
@@ -4272,35 +4308,35 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._on_unlock_settings_changed)
 
         # generate the pins to connect encoders to the sliders
-        pin = self.halcomp.newpin("feed-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_jog_vel")
-        pin = self.halcomp.newpin("rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
-        self.halcomp.newpin("feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("spindle-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("jog-velocity.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("rapid-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("feed.feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("spindle.spindle-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("jog.jog-velocity.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("rapid.rapid-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
 
         # generate the pins to connect analog inputs for sliders
-        pin = self.halcomp.newpin("feed-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_jog_vel")
-        pin = self.halcomp.newpin("rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_rapid")
-        pin = self.halcomp.newpin("feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_jog_vel")
-        pin = self.halcomp.newpin("rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_rapid")
 
         # make a pin to set turtle jog vel
@@ -4308,16 +4344,16 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._on_turtle_jog_enable)
 
         # make the pins for tool measurement
-        self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("tool.measurement.probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("tool.measurement.blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("tool.measurement.toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("tool.measurement.searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("tool.measurement.probevel", hal.HAL_FLOAT, hal.HAL_OUT)
 
         # make pins to react to tool_offset changes
-        pin = self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tool.tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
-        pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tool.tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
 
         # make a pin to delete a notification message
@@ -4325,21 +4361,21 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._del_message_changed)
 
         # for manual tool change dialog
-        self.halcomp.newpin("toolchange-number", hal.HAL_S32, hal.HAL_IN)
-        self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
-        pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("tool.toolchange-number", hal.HAL_S32, hal.HAL_IN)
+        self.halcomp.newpin("tool.toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
+        pin = self.halcomp.newpin('tool.toolchange-change', hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
 
         # make a pin to reset feed override to 100 %
-        pin = self.halcomp.newpin("reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "feed")
 
         # make a pin to reset rapid override to 100 %
-        pin = self.halcomp.newpin("reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "rapid")
 
         # make a pin to reset spindle override to 100 %
-        pin = self.halcomp.newpin("reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "spindle")
 
         # make an error pin to indicate a error to hardware

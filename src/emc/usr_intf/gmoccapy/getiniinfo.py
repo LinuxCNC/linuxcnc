@@ -236,6 +236,7 @@ class GetIniInfo:
         return subroutines_path
 
     def get_axis_2_min_limit(self):
+        # needed to calculate the offset for automated tool measurement
         temp = self.inifile.find("AXIS_2", "MIN_LIMIT")
         if not temp:
             return False
@@ -264,7 +265,6 @@ class GetIniInfo:
 
     def get_trajcoordinates(self):
         return self.inifile.find("TRAJ", "COORDINATES")
-
 
     def get_kinstype(self):
         return self.inifile.find("KINS", "KINEMATICS")
