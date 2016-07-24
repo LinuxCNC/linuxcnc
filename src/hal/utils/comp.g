@@ -52,7 +52,6 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
-      | "special_format_man" String ";"   {{ special_format_man(String) }}
       | "special_format_doc" String ";"   {{ special_format_doc(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
@@ -166,9 +165,6 @@ def comp(name, doc):
 def description(doc):
     docs.append(('descr', doc));
 
-def special_format_man(doc):
-    docs.append(('sf_man', doc));
-
 def special_format_doc(doc):
     docs.append(('sf_doc', doc));
 
@@ -268,9 +264,6 @@ def prologue(f):
 
 static int comp_id;
 """
-
-    global doctype
-    doctype = None
 
     for name in includes:
         print >>f, "#include %s" % name
@@ -734,197 +727,6 @@ def to_hal_man(s):
     s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
     # s = s.replace("-", "\\-")
     return s
-	
-def document(filename, outfilename):
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9comp"
-
-    a, b = parse(filename)
-    f = open(outfilename, "w")
-
-    has_personality = False
-    for name, type, array, dir, value, personality in pins:
-        if personality: has_personality = True
-        if isinstance(array, tuple): has_personality = True
-    for name, type, array, dir, value, personality in params:
-        if personality: has_personality = True
-        if isinstance(array, tuple): has_personality = True
-
-    print >>f, ".TH %s \"9\" \"%s\" \"Machinekit Documentation\" \"HAL Component\"" % (comp_name.upper(), time.strftime("%F"))
-    print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
-
-    print >>f, ".RE"
-    print >>f, ".SH NAME"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    doc = finddoc('component')
-    if doc and doc[2]:
-        if '\n' in doc[2]:
-            firstline, rest = doc[2].split('\n', 1)
-        else:
-            firstline = doc[2]
-            rest = ''
-        print >>f, "%s \\- %s" % (doc[1], firstline)
-    else:
-        rest = ''
-        print >>f, "%s" % doc[1]
-
-
-    print >>f, ".SH SYNOPSIS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    if options.get("userspace"):
-	print >>f, ".B %s" % comp_name
-    else:
-        if rest:
-            print >>f, rest
-        else:
-            print >>f, ".HP"
-            if options.get("singleton") or options.get("count_function"):
-                if has_personality:
-                    print >>f, ".B loadrt %s personality=\\fIP\\fB" % comp_name,
-                else:
-                    print >>f, ".B loadrt %s" % comp_name,
-            else:
-                if has_personality:
-                    print >>f, ".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name,
-                else:
-                    print >>f, ".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name,
-            for type, name, default, doc in modparams:
-                print >>f, "[%s=\\fIN\\fB]" % name,
-            print >>f
-
-            hasparamdoc = False
-            for type, name, default, doc in modparams:
-                if doc: hasparamdoc = True
-
-            if hasparamdoc:
-                print >>f, ".RS 4"
-                for type, name, default, doc in modparams:
-                    print >>f, ".TP"
-                    print >>f, "\\fB%s\\fR" % name,
-                    if default:
-                        print >>f, "[default: %s]" % default
-                    else:
-                        print >>f
-                    print >>f, doc
-                print >>f, ".RE"
-
-        if options.get("constructable") and not options.get("singleton"):
-            print >>f, ".PP\n.B newinst %s \\fIname\\fB" % comp_name
-
-    doc = finddoc('descr')
-    if doc and doc[1]:
-        print >>f, ".SH DESCRIPTION"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        
-    doc = finddoc('sf_man')
-    if doc and doc[1]:
-        print >>f, ".SH EXTRA INFO"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-
-    if functions:
-        print >>f, ".SH FUNCTIONS"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        for _, name, fp, doc in finddocs('funct'):
-            print >>f, ".TP"
-            print >>f, "\\fB%s\\fR" % to_hal_man(name),
-            if fp:
-                print >>f, "(requires a floating-point thread)"
-            else:
-                print >>f
-            print >>f, doc
-
-    lead = ".TP"
-    print >>f, ".SH PINS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
-        print >>f, lead
-        print >>f, ".B %s\\fR" % to_hal_man(name),
-        print >>f, type, dir,
-        if array:
-            sz = name.count("#")
-            if isinstance(array, tuple):
-                print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
-            else:
-                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
-        if personality:
-            print >>f, " [if %s]" % personality,
-        if value:
-            print >>f, "\\fR(default: \\fI%s\\fR)" % value
-        else:
-            print >>f, "\\fR"
-        if doc:
-            print >>f, doc
-            lead = ".TP"
-        else:
-            lead = ".TQ"
-
-    lead = ".TP"
-    if params:
-        print >>f, ".SH PARAMETERS"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        for _, name, type, array, dir, doc, value, personality in finddocs('param'):
-            print >>f, lead
-            print >>f, ".B %s\\fR" % to_hal_man(name),
-            print >>f, type, dir,
-            if array:
-                sz = name.count("#")
-                if isinstance(array, tuple):
-                    print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
-                else:
-                    print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
-            if personality:
-                print >>f, " [if %s]" % personality,
-            if value:
-                print >>f, "\\fR(default: \\fI%s\\fR)" % value
-            else:
-                print >>f, "\\fR"
-            if doc:
-                print >>f, doc
-                lead = ".TP"
-            else:
-                lead = ".TQ"
-
-    print >>f, ".HP"
-    doc = finddoc('see_also')
-    if doc and doc[1]:
-        print >>f, ".SH SEE ALSO"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"
-        
-    doc = finddoc('notes')
-    if doc and doc[1]:
-        print >>f, ".SH NOTES"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"        
-
-    doc = finddoc('author')
-    if doc and doc[1]:
-        print >>f, ".SH AUTHOR"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"
-        
-    doc = finddoc('license')
-    if doc and doc[1]:
-        print >>f, ".SH LICENCE"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"        
 
 ##############################################################################
 # asciidoc
@@ -951,6 +753,7 @@ def adocument(filename, outfilename, frontmatter):
             print >>f, fm
         print >>f, "edit-path: src/%s" % (filename)
         print >>f, "generator: comp"
+	print >>f, "(This page is generated, do not edit directly. See the source file at src/%s)" % filename
         print >>f, "---"
         print >>f, ":skip-front-matter:\n"
 
@@ -1140,6 +943,7 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, ""    
         
 
+
 ###########################################################
 
         
@@ -1202,8 +1006,8 @@ def usage(exitval=0):
     print """%(name)s: Build, compile, and install Machinekit HAL components
 
 Usage:
-           %(name)s [--compile|--preprocess|--document|--ascii-document|--view-doc] compfile...
-    [sudo] %(name)s [--install|--install-doc|--install-man] compfile..
+           %(name)s [--compile -c|--preprocess -p|--document -d|--view-doc -v] compfile...
+    [sudo] %(name)s [--install -i|--install-doc -j] compfile..
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
@@ -1214,17 +1018,16 @@ Usage:
 def main():
     global require_license
     require_license = True
-    global doctype
     mode = PREPROCESS
     outfile = None
     frontmatter = []
     userspace = False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:luijcpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "f:luicpdjvo:h?",
                            ['frontmatter=', 'install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'ascii-document', 'help', 'userspace', 'install-doc',
-                            'install-man', 'view-doc', 'require-license', 'print-modinc'])
+                            'document', 'help', 'userspace', 'install-doc',
+                            'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
 
@@ -1239,19 +1042,10 @@ def main():
             mode = PREPROCESS
         if k in ("-d", "--document"):
             mode = DOCUMENT
-            doctype = "manpage"
-	if k in ("-a", "--ascii-document"):
-	    mode = DOCUMENT
-	    doctype = "asciidoc"
-        if k in ("-j", "--install-man"):
+        if k in ("-j", "--install-doc"):
             mode = INSTALLDOC
-            doctype = "manpage"
-        if k in ("-k", "--install-doc"):
-            mode = INSTALLDOC
-            doctype = "asciidoc"
         if k in ("-v", "--view-doc"):
             mode = VIEWDOC
-            doctype = "manpage"
         if k in ("--print-modinc",):
             mode = MODINC
         if k in ("-l", "--require-license"):
@@ -1279,34 +1073,23 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
-                if doctype == "manpage":
-                    document(f, outfile)
-                else:
-		    adocument(f, outfile, frontmatter)
-
+		adocument(f, outfile, frontmatter)
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".9comp")
-                    document(f, outfile)
-                    os.spawnvp(os.P_WAIT, "man", ["man", outfile])
+                    outfile = os.path.join(tempdir, basename + ".asciiidoc")
+                    adocument(f, outfile, frontmatter)
+                    cmd = "mank -f %s -p %s -s" % (basename, tempdir)
+		    os.system(cmd)
                 finally:
                     shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == INSTALLDOC:
-                if doctype == "manpage":
-		    manpath = os.path.join(BASE, "share/man/man9")
-                    if not os.path.isdir(manpath):
-			manpath = os.path.join(BASE, "man/man9")
-		    outfile = os.path.join(manpath, basename + ".9comp")
-		    print "INSTALLDOC", outfile
-		    document(f, outfile)
-		else:
-		    manpath = os.path.join(BASE, "share/man/doc/man9")
-                    if not os.path.isdir(manpath):
-		        manpath = os.path.join(BASE, "man/doc/man9")
-		    outfile = os.path.join(manpath, basename + ".asciidoc")
-    		    print "INSTALLDOC", outfile
-		    adocument(f, outfile)
+		manpath = os.path.join(BASE, "share/man/man9")
+                if not os.path.isdir(manpath):
+		    manpath = os.path.join(BASE, "man/man9")
+		outfile = os.path.join(manpath, basename + ".asciidoc")
+    		print "INSTALLDOC", outfile
+		adocument(f, outfile, frontmatter)
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:

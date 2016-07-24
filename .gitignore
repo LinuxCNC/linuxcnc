@@ -22,7 +22,6 @@ share/desktop-directories/cnc.directory
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
-/man/man1/linuxcnc.1
 lib/python/gremlin.py
 lib/python/touchy
 tests/*/skip

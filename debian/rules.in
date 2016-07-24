@@ -119,7 +119,6 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	rm -f \
 	    lib/python/machinekit/config.py \
 	    lib/python/nf.py \
-	    man/man1/linuxcnc.1 \
 	    scripts/check-build-vs-configure-sha \
 	    scripts/gen-rtapi.ini.sh \
 	    scripts/gen-rtapi.ini.sh.in \
@@ -215,7 +214,6 @@ binary-arch: build install
 
 #	# delete files that should be in machinekit-dev package
 	rm -f debian/machinekit/usr/bin/comp
-	rm -f debian/machinekit/usr/share/man/man1/comp.1.gz
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
 

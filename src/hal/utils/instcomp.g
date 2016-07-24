@@ -58,7 +58,6 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
-      | "special_format_man" String ";"   {{ special_format_man(String) }}      
       | "special_format_doc" String ";"   {{ special_format_doc(String) }}            
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
@@ -176,9 +175,6 @@ def comp(name, doc):
 def description(doc):
     docs.append(('descr', doc));
 
-def special_format_man(doc):
-    docs.append(('sf_man', doc));
-
 def special_format_doc(doc):
     docs.append(('sf_doc', doc));
 
@@ -292,7 +288,7 @@ def to_noquotes(name):
 
 
 def prologue(f):
-
+    ## userspace left in for possible future use - serves no purpose currently
     if options.get("userspace"):
         raise SystemExit, "Error: instcomp does not support userspace components"
 
@@ -342,9 +338,6 @@ static int comp_id;
     global have_count
     have_count = False
 
-    global doctype
-    doctype = None
-    
     print >>f, "static char *compname = \"%s\";\n" % (comp_name)
 
     for name in includes:
@@ -980,231 +973,6 @@ def to_hal_man(s):
     s = re.sub("#+", lambda m: "_" + "M" * len(m.group(0)) + "_", s)
     return s
 
-#############################################################################
-# man page
-##########
-
-def document(filename, outfilename):
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9comp"
-
-    a, b = parse(filename)
-    f = open(outfilename, "w")
-
-    print >>f, ".TH %s \"9\" \"%s\" \"Machinekit Documentation\" \"HAL Component\"" % (comp_name.upper(), time.strftime("%F"))
-#    print >>f, ".TH %s \"9\" \"Machinekit Documentation\" \"HAL Component\"" % (comp_name.upper())
-    print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
-
-    print >>f, ".SH INSTANTIABLE COMPONENTS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    print >>f, ".B All instantiable components can be loaded in two manners\n"
-    print >>f, ".LP"
-    print >>f, ".B Using loadrt with or without count= | names= parameters as per legacy components\n"
-    print >>f, ".LP"
-    print >>f, ".B Using newinst, which names the instance and allows further parameters and arguments,\n"
-    print >>f, ".LP"
-    print >>f, ".B primarily pincount= which can set the number of pins created for that instance (where applicable)\n"
-    print >>f, ".HP"
-
-    print >>f, ".RE"
-    print >>f, ".SH NAME"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    doc = finddoc('component')
-    if doc and doc[2]:
-        if '\n' in doc[2]:
-            firstline, rest = doc[2].split('\n', 1)
-        else:
-            firstline = doc[2]
-            rest = ''
-        print >>f, "%s \\- %s" % (doc[1], firstline)
-    else:
-        rest = ''
-        print >>f, "%s" % doc[1]
-
-    print >>f, ".SH SYNOPSIS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    if rest:
-        print >>f, rest
-    else:
-        rest = ''
-        print >>f, "%s" % doc[1]
-
-    print >>f, ".SH USAGE SYNOPSIS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-
-    if rest:
-        print >>f, rest
-        print >>f, ".HP"
-    else:
-        print >>f, ".B loadrt %s " % comp_name
-        print >>f, ".LP"
-        print >>f, ".B newinst %s <newinstname> [ pincount=\\fIN\\fB | iprefix=\\fIprefix\\fB ]" % comp_name
-        print >>f, ".B                             [instanceparamX=\\fIX\\fB | argX=\\fIX\\fB ]"
-        print >>f, ".HP"
-        print >>f, "( args in [ ] denote possible args and parameters, may not be used in all components )"
-        print >>f, ".HP"
-        for type, name, default, doc in modparams:
-            print >>f, "[%s=\\fIN\\fB]" % name,
-        print >>f
-
-        hasparamdoc = False
-        for type, name, default, doc in modparams:
-            if doc: hasparamdoc = True
-
-        if hasparamdoc:
-            print >>f, ".RS 4"
-            for type, name, default, doc in modparams:
-                print >>f, ".TP"
-                print >>f, "\\fB%s\\fR" % name,
-                if default:
-                    print >>f, "[default: %s]" % default
-                else:
-                    print >>f
-                print >>f, doc
-            print >>f, ".RE"
-
-    doc = finddoc('descr')
-    if doc and doc[1]:
-        print >>f, ".SH DESCRIPTION"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-
-    doc = finddoc('sf_man')
-    if doc and doc[1]:
-        print >>f, ".SH EXTRA INFO"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-
-    if functions:
-        print >>f, ".SH FUNCTIONS"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        for _, name, fp, doc in finddocs('funct'):
-            print >>f, ".TP"
-            if name != None and name != "_":
-                print >>f, "\\fB%s.N.%s.funct\\fR" % (comp_name, name) ,
-            else :
-                print >>f, "\\fB%s.N.funct\\fR" % comp_name ,
-	    print >>f, "\n( OR"
-            if name != None and name != "_":
-                print >>f, "\\fB<newinstname>.%s.funct\\fR"  % name ,
-            else :
-                print >>f, "\\fB<newinstname>.funct\\fR" ,
-            if fp:
-                print >>f, "(requires a floating-point thread) )"
-            else:
-                print >>f, " )"
-            print >>f, ".HP"
-            print >>f, doc
-
-    lead = ".TP"
-    print >>f, ".SH PINS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    for _, name, type, array, dir, doc, value in finddocs('pin'):
-        print >>f, lead
-        print >>f, ".B %s.N.%s \\fR" % (comp_name, name),
-        print >>f, type, dir,
-        if array:
-            sz = name.count("#")
-            print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
-        if value:
-            print >>f, "\\fR(default: \\fI%s\\fR)" % value
-        else:
-            print >>f, "\\fR"
-	print >>f, "( OR"
-
-        print >>f, ".B <newinstname>.%s \\fR" % name,
-        print >>f, type, dir,
-        if array:
-            sz = name.count("#")
-            print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
-        if value:
-            print >>f, "\\fR(default: \\fI%s\\fR) )\n" % value
-        else:
-            print >>f, "\\fR )\n"
-        if doc:
-	    print >>f, ".HP"
-            print >>f, doc
-
-    lead = ".TP"
-
-    if instanceparams:
-        print >>f, ".SH INST_PARAMETERS"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        for _, name, type, doc, value in finddocs('instanceparam'):
-            print >>f, lead
-            print >>f, ".B %s\\fR" % name,
-            print >>f, type,
-            if value:
-                print >>f, "\\fR(default: \\fI%s\\fR)" % value
-            else:
-                print >>f, "\\fR"
-            if doc:
-                print >>f, doc
-                lead = ".TP"
-            else:
-                lead = ".TQ"
-
-    if moduleparams:
-        print >>f, ".SH MODULE_PARAMETERS"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        for _, name, type, doc, value in finddocs('moduleparam'):
-            print >>f, lead
-            print >>f, ".B %s\\fR" % name,
-            print >>f, type,
-            if value:
-                print >>f, "\\fR(default: \\fI%s\\fR)" % value
-            else:
-                print >>f, "\\fR"
-            if doc:
-                print >>f, doc
-                lead = ".TP"
-            else:
-                lead = ".TQ"
-        print >>f, ".HP"
-        
-    doc = finddoc('see_also')
-    if doc and doc[1]:
-        print >>f, ".SH SEE ALSO"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"
-        
-    doc = finddoc('notes')
-    if doc and doc[1]:
-        print >>f, ".SH NOTES"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"
-        
-    doc = finddoc('author')
-    if doc and doc[1]:
-        print >>f, ".SH AUTHOR"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"
-        
-    doc = finddoc('license')
-    if doc and doc[1]:
-        print >>f, ".SH LICENCE"
-        print >>f, ".HP"
-        print >>f, ".HP"
-        print >>f, "%s" % doc[1]
-        print >>f, ".HP"
-        
-
 ##############################################################################
 # asciidoc
 ############
@@ -1222,6 +990,7 @@ def adocument(filename, outfilename, frontmatter):
             print >>f, fm
         print >>f, "edit-path: src/%s" % (filename)
         print >>f, "generator: instcomp"
+	print >>f, "(This page is generated, do not edit directly. See the source file at src/%s)" % filename
         print >>f, "---"
         print >>f, ":skip-front-matter:\n"
 
@@ -1413,6 +1182,7 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, ""    
 
 
+
 ###########################################################
 
 
@@ -1504,8 +1274,8 @@ def usage(exitval=0):
     print """%(name)s: Build, compile, and install Machinekit HAL components
 
 Usage:
-           %(name)s [--compile|--preprocess|--document|--ascii-document|--view-doc] compfile...
-    [sudo] %(name)s [--install|--install-doc|--install-man] compfile...
+           %(name)s [--compile -c|--preprocess -p|--document -d|--view-doc -v] compfile...
+    [sudo] %(name)s [--install -i|--install-doc -j] compfile...
            %(name)s --print-modinc
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
@@ -1516,22 +1286,19 @@ Usage:
 def main():
     global require_license
     require_license = True
-    global doctype
     mode = PREPROCESS
     outfile = None
     frontmatter = []
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:luijcpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "f:lijcpdo:h?",
                            ['frontmatter=', 'install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'ascii-document', 'help', 'userspace', 'install-doc',
-                            'install-man', 'view-doc', 'require-license', 'print-modinc'])
+                            'document', 'help', 'userspace', 'install-doc',
+                            'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
     
     for k, v in opts:
-        if k in ("-u", "--userspace"):
-            raise SystemExit, "Error: instcomp does not support userspace components"
         if k in ("-i", "--install"):
             mode = INSTALL
         if k in ("-c", "--compile"):
@@ -1540,19 +1307,10 @@ def main():
             mode = PREPROCESS
         if k in ("-d", "--document"):
             mode = DOCUMENT
-            doctype = "manpage"
-	if k in ("-a", "--ascii-document"):            
-	    mode = DOCUMENT
-	    doctype = "asciidoc"
-        if k in ("-j", "--install-man"):
+        if k in ("-j", "--install-doc"):
             mode = INSTALLDOC
-            doctype = "manpage"
-        if k in ("-k", "--install-doc"):
-            mode = INSTALLDOC
-            doctype = "asciidoc"
         if k in ("-v", "--view-doc"):
             mode = VIEWDOC
-            doctype = "manpage"
         if k in ("--print-modinc",):
             mode = MODINC
         if k in ("-l", "--require-license"):
@@ -1580,35 +1338,23 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".icomp") and mode == DOCUMENT:
-                if doctype == "manpage":
-                    document(f, outfile)
-                else:
-		    adocument(f, outfile, frontmatter)
-            	    
+		adocument(f, outfile, frontmatter)
             elif f.endswith(".icomp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".9icomp")
-                    document(f, outfile)
-                    os.spawnvp(os.P_WAIT, "man", ["man", outfile])
+                    outfile = os.path.join(tempdir, basename + ".asciidoc")
+                    adocument(f, outfile, frontmatter)
+                    cmd = "mank -f %s -p %s -s" % (basename, tempdir)
+		    os.system(cmd)
                 finally:
-                    shutil.rmtree(tempdir)
+		    shutil.rmtree(tempdir)
             elif f.endswith(".icomp") and mode == INSTALLDOC:
-                if doctype == "manpage":
-            	    manpath = os.path.join(BASE, "share/man/man9")
-                    if not os.path.isdir(manpath):
-	                manpath = os.path.join(BASE, "man/man9")
-    	            outfile = os.path.join(manpath, basename + ".9icomp")
-        	    print "INSTALLDOC", outfile
-            	    document(f, outfile)
-            	else:
-            	    manpath = os.path.join(BASE, "share/man/doc/man9")
-                    if not os.path.isdir(manpath):
-	                manpath = os.path.join(BASE, "man/doc/man9")
-    	            outfile = os.path.join(manpath, basename + ".asciidoc")
-        	    print "INSTALLDOC", outfile
-		    adocument(f, outfile, frontmatter)
-            	
+		manpath = os.path.join(BASE, "share/man/man9")
+                if not os.path.isdir(manpath):
+	            manpath = os.path.join(BASE, "man/man9")
+    	        outfile = os.path.join(manpath, basename + ".asciidoc")
+        	print "INSTALLDOC", outfile
+		adocument(f, outfile, frontmatter)
             elif f.endswith(".icomp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:
