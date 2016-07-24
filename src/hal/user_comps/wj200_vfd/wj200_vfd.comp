@@ -8,6 +8,8 @@ pin out bit is_running            "1 when running";
 pin out bit is_at_speed           "1 when running at assigned frequency";
 pin out bit is_ready              "1 when vfd is ready to run";
 pin out bit is_alarm              "1 when vfd alarm is set";
+pin out float motor_current       "Output current in amps";
+pin out float heatsink_temp       "Temperature of drive heatsink";
 pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
 option userspace;
 option userinit yes;
@@ -51,6 +53,8 @@ typedef struct
         uint8_t direction;
         uint8_t at_speed;
         uint8_t alarm;
+	float output_current;
+	float sink_temp;
         uint16_t frequency;
 } wj200_status;
 
@@ -93,6 +97,8 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         int rc;
         uint8_t bits[16];
         uint16_t registers[2];
+	uint16_t currentRegister[1];
+	uint16_t temperatureRegister[1];
 
         /*read coils 0x000F thru 0x0019 in one step*/
         rc = modbus_read_bits(ctx, 0x000F-1, 11, bits);
@@ -110,12 +116,30 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
                 return false;
         }
 
+	// Read 1003h (output current) to 1019h (heatsink temp)
+        rc = modbus_read_registers(ctx, 0x1003-1, 1, currentRegister);
+
+        if(rc < 0)
+        {
+                return false;
+        }
+
+	rc = modbus_read_registers(ctx, 0x1019-1, 1, temperatureRegister);
+
+        if(rc < 0)
+        {
+                return false;
+        }
+
+
         status->running = bits[0];
         status->direction = bits[1];
         status->ready = bits[2];
         status->alarm = bits[9];
         status->at_speed = bits[5];
         status->frequency = registers[1];
+	status->output_current = currentRegister[0];
+	status->sink_temp = temperatureRegister[0];
 
         return true;
 }
@@ -311,6 +335,8 @@ void user_mainloop(void) {
 			}
 
 			watchdog_out = !watchdog_out;
+			motor_current = status.output_current / 100;
+			heatsink_temp = status.sink_temp / 10;
 		}
 	}
 	}
