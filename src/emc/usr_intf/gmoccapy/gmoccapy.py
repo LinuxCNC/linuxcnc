@@ -1548,7 +1548,7 @@ class gmoccapy(object):
     # use the hal_status widget to control buttons and
     # actions allowed by the user and sensitive widgets
     def on_hal_status_all_homed(self, widget):
-        print("all homed")
+        print("all axis homed")
         self.all_homed = True
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_select_tool_by_no",
@@ -1558,7 +1558,7 @@ class gmoccapy(object):
         self.set_motion_mode(1)
 
     def on_hal_status_not_all_homed(self, *args):
-        print("not all homed")
+        print("not all axis homed")
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -1569,8 +1569,20 @@ class gmoccapy(object):
         self.set_motion_mode(0)
         
     def on_hal_status_homed(self, widget, data):
-        print(widget,"\n", data)
-        pass
+        print("Axis %s homed"%data)
+
+# Joints homed stuff start 
+
+    def on_hal_status_joint_homed(self, widget, data):
+        print("Joint %s homed"%data)
+
+    def on_hal_status_all_joints_homed(self, widget):
+        print("all joints homed")
+
+    def on_hal_status_not_all_homed(self, *args):
+        print("not all joints homed")
+
+# Joints homed stuff end 
 
     def on_hal_status_file_loaded(self, widget, filename):
         widgetlist = ["btn_use_current" ]
@@ -2882,7 +2894,6 @@ class gmoccapy(object):
         self.command.unhome(-1)
 
     def on_btn_home_selected_clicked(self, widget, data=None):
-        print(widget)
         if widget == self.widgets.btn_home_x:
             axis = 0
         elif widget == self.widgets.btn_home_y:
@@ -2894,7 +2905,6 @@ class gmoccapy(object):
         elif widget == self.widgets.btn_home_5:
             axis = "xyzabcuvw".index(self.axisletter_five)
         self.command.home(axis)
-        print("Homed ",axis)
 
     def _check_limits(self):
         for axis in self.axis_list:

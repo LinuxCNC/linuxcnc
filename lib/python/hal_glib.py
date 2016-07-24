@@ -75,6 +75,10 @@ class _GStat(gobject.GObject):
         'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
+        'joint-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'all-joints-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'not-all-joints-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+
         'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-mdi': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -132,6 +136,7 @@ class _GStat(gobject.GObject):
             self.old['file']  = self.stat.file
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
+        self.old['joint-homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
         self.old['motion-mode'] = self.stat.motion_mode
 
@@ -233,6 +238,29 @@ class _GStat(gobject.GObject):
                 self.emit('all-homed')
             else:
                 self.emit('not-all-homed',unhomed)
+
+        # if the homed status has changed
+        # check number of homed joints against number of available joints
+        # if they are equal send the all-homed signal
+        # else not-all-homed (with a string of unhomed joint numbers)
+        # if a joint is homed send 'homed' (with a string of homed joint numbers)
+        homed_joint_old = old.get('joint-homed', None)
+        homed_joint_new = self.old['joint-homed']
+        if homed_joint_new != homed_joint_old:
+            homed_joints = 0
+            unhomed_joints = ""
+            for joint in range(0,self.stat.joints):
+                if self.stat.homed[joint]:
+                    homed_joints += 1
+                    print ("Joint %s homed"%joint)
+                    self.emit('joint-homed', joint)
+                else:
+                    unhomed_joints += str(joint)
+            if homed_joints == self.stat.joints:
+                self.emit('all-joints-homed')
+                self.emit('all-homed')
+            else:
+                self.emit('not-all-joints-homed',unhomed)
 
         return True
 
