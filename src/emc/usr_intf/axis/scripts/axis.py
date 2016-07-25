@@ -221,13 +221,13 @@ help2 = [
     ("F10", _("Turn spindle counterclockwise")),
     ("F11", _("Turn spindle more slowly")),
     ("F12", _("Turn spindle more quickly")),
-    ("", ""),
     (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
     ("F4", _("Cycle among preview, DRO, and user tabs")),
     ("@", _("toggle Actual/Commanded")),
     ("#", _("toggle Relative/Machine")),
     (_("Ctrl-Space"), _("Clear notifications")),
+    (_("Alt-F, M, V"), _("Open a Menu")),
 ]
 
 
