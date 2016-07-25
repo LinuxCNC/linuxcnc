@@ -990,7 +990,7 @@ def adocument(filename, outfilename, frontmatter):
             print >>f, fm
         print >>f, "edit-path: src/%s" % (filename)
         print >>f, "generator: instcomp"
-	print >>f, "(This page is generated, do not edit directly. See the source file at src/%s)" % filename
+	print >>f, "description: This page was generated from src/%s. Do not edit directly, edit the source." % filename
         print >>f, "---"
         print >>f, ":skip-front-matter:\n"
 
