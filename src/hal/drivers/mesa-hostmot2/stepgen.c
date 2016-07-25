@@ -433,7 +433,7 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(u32)), &hm2->stepgen.mode_reg[i], sizeof(u32));
         }
     }
-    if (hm2->dpll_module_present) {
+    if (hm2->dpll_module_present && (hm2->stepgen.num_instances > 0)) {
         if (*hm2->stepgen.hal->pin.dpll_timer_num != hm2->stepgen.written_dpll_timer_num) {
             hm2_stepgen_set_dpll_timer(hm2);
         }
