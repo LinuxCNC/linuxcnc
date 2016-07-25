@@ -1,0 +1,32 @@
+troff man page builds have been deprecated as part of Machinekit
+
+The first port of call for manual pages (and all documentation) should be the website.
+
+www.machinekit.io
+
+From the right hand side bar - which is visible from anywhere in the 'Documentation' section, select either
+
+http://www.machinekit.io/docs/man/man1/  For information on utilities and GUIs
+http://www.machinekit.io/docs/man/man3/  For information on the hal and rtapi APIs
+http://www.machinekit.io/docs/man/man9/  For information on components and drivers
+
+To cater for terminal viewing locally, a second option is available
+
+A Package called 'machinekit-manual-pages' is now automatically created as part of the website build process.
+
+This is available from deb.machinekit.io as per any other package.
+The manual pages will then be available at /usr/share/doc/machinekit/man
+
+You can display the pages easily with the asciidoctor plugin for firefox
+https://addons.mozilla.org/en-GB/firefox/addon/asciidoctorjs-live-preview/
+or for chrome
+https://chrome.google.com/webstore/detail/asciidoctorjs-live-previe/iaalpfgpbocpdfblpnhhgllgbdbchmia?hl=en
+
+Alternately, for a terminal display of manual pages, Machinekit now contains a script called mank.
+Invoking 'mank debounce' for instance, will display the manual page for the component debounce
+
+mank uses asciidoctor and elinks and will prompt for their installation if not present.
+They were not made dependencies of the machinekit package deliberately, as the overwhelming majority of users are likely
+to simply use the web site and never install the local manual pages.
+
+(NB If you are a developer and use the --view-doc option to (inst)comp, you will need asciidoctor and elinks for that to operate.)
