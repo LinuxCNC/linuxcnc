@@ -1597,6 +1597,7 @@ class gmoccapy(object):
             # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
+        print("Interpreter idle!")
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
@@ -1630,6 +1631,7 @@ class gmoccapy(object):
         self.halcomp["program.progress"] = 0.0
 
     def on_hal_status_interp_run(self, widget):
+        print("Interpreter run!")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
