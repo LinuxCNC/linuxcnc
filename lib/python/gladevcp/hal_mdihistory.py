@@ -74,9 +74,6 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.reload()
         self.show_all()
 
-    def not_all_homed(self, widget, unhomed_joints):
-        self.set_sensitive(self.no_home_required)
-
     def reload(self):
         self.model.clear()
 
