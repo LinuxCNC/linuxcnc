@@ -222,7 +222,6 @@ class _GStat(gobject.GObject):
             for joint in range(0, self.stat.joints):
                 if self.stat.homed[joint]:
                     homed_joints += 1
-                    print ("Joint %s homed"%joint)
                     self.emit('homed', joint)
                 else:
                     unhomed_joints += str(joint)
