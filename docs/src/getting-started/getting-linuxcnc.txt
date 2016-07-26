@@ -229,7 +229,6 @@ or
 sudo apt-get install linux-image-rt-686-pae
 ----
 
-linux-rt
 . Reboot, and select the Linux 3.2.0-4-rt-686-pae kernel. When you
   log in, verify that `PREEMPT RT`is reported by the following command.
 +
