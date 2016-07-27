@@ -124,14 +124,18 @@ assert(s.enabled == True)
 comp['x-neg-lim-sw'] = True
 
 # let linuxcnc react to the limit switch
+expected_error = 'joint 0 on limit switch error'
 start_time = time.time()
 while (time.time() - start_time < 5):
     error = e.poll()
     if error != None:
-        break
+        if error[1] == expected_error:
+            break
+        else:
+            print "linuxcnc sent other error %d: %s" % (error[0], error[1])
     time.sleep(0.1)
 
-if error == None:
+if error == None or error[1] != expected_error:
     print "no limit switch error from LinuxCNC"
     sys.exit(1)
 
@@ -140,17 +144,16 @@ print_status(s)
 
 # verify that we're stopping
 s.poll()
-old_x = s.position[0]
 start_time = time.time()
-while (old_x != s.position[0]) and (time.time() - start_time < 5):
+while (s.axis[0]['velocity'] != 0.0) and (time.time() - start_time < 5):
     time.sleep(0.1)
     s.poll()
 
-if old_x != s.position[0]:
+if s.axis[0]['velocity'] != 0.0:
     print "limit switch didn't stop movement"
     sys.exit(1)
 
-print "x stopped moving (%.6f)" % s.position[0]
+print "x stopped moving (pos=%.6f, vel=%.6f)" % (s.position[0], s.axis[0]['velocity'])
 print_status(s)
 
 # verify that Status reflects the situation
