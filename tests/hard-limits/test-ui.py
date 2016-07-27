@@ -124,14 +124,18 @@ assert(s.enabled == True)
 comp['x-neg-lim-sw'] = True
 
 # let linuxcnc react to the limit switch
+expected_error = 'joint 0 on limit switch error'
 start_time = time.time()
 while (time.time() - start_time < 5):
     error = e.poll()
     if error != None:
-        break
+        if error[1] == expected_error:
+            break
+        else:
+            print "linuxcnc sent error %d: %s" % (error[0], error[1])
     time.sleep(0.1)
 
-if error == None:
+if error == None or error[1] != expected_error:
     print "no limit switch error from LinuxCNC"
     sys.exit(1)
 
