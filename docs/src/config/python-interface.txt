@@ -563,9 +563,9 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	jog(linuxcnc.JOG_CONTINUOUS, axis, velocity) +
 	jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance) +
 	Constants: +
-	JOG_STOP (0) +
-	JOG_CONTINUOUS (1) +
-	JOG_INCREMENT (2)
+	JOG_STOP +
+	JOG_CONTINUOUS +
+	JOG_INCREMENT
 
 `load_tool_table()`::
 	reload the tool table.
@@ -579,11 +579,11 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `mist(int)`:: turn on/off mist. +
 	Syntax: +
 	mist(command) +
-	mist(linuxcnc.MIST_ON) [(1)] +
-	mist(linuxcnc.MIST_OFF) [(0)] +
+	mist(linuxcnc.MIST_ON) +
+	mist(linuxcnc.MIST_OFF) +
 	Constants: +
-	MIST_ON (1) +
-	MIST_OFF (0)
+	MIST_ON +
+	MIST_OFF
 
 
 `mode(int)`::
