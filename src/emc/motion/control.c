@@ -803,6 +803,7 @@ static void set_operating_mode(void)
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
+		SET_JOINT_INPOS_FLAG(joint, 1);
 		SET_JOINT_ENABLE_FLAG(joint, 0);
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		joint->home_state = HOME_IDLE;
