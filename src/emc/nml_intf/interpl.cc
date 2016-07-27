@@ -158,6 +158,10 @@ NMLmsg *NML_INTERP_LIST::get()
 void NML_INTERP_LIST::clear()
 {
     if (NULL != linked_list_ptr) {
+        if (emc_debug & EMC_DEBUG_INTERP_LIST) {
+            rcs_print("NML_INTERP_LIST(%p)::clear(): discarding %d items\n", this, linked_list_ptr->list_size);
+        }
+
 	linked_list_ptr->delete_members();
     }
 }
