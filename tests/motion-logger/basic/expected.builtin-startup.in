@@ -172,7 +172,6 @@ AXIS_ABORT joint=7
 AXIS_ABORT joint=8
 ABORT
 SPINDLE_OFF
-SET_SPINDLESYNC sync=0.000000, flags=0x00000000
 
 #
 # The test UI then sends an NML command to move Task to the On state, which
