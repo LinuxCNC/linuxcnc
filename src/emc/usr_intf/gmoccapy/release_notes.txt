@@ -1,3 +1,12 @@
+ver.2.0.26
+- bugfix: if toggle button user tabs was active and the user changed the mode
+  (Manual,MDI or AUTO) the user tabs button staid active, but the screen
+  layout changed to the corresponding mode, letting the button pressed.
+- if embedded tabs was set in the INI file, the toggle button user tabs
+  got active, even if no tab was configured for "ntb_user_tabs", changed this
+  and sorted the code to be together with the rest of user tabs
+- error in getiniinfo.get_increments, default values contained "," insteadt "."
+
 ver.2.0.25.1
 - some changes to support new homing by joints, not by axis
   still work to do!
