@@ -19,7 +19,6 @@
 extern NMLmsg *emcTaskCommand;
 extern int stepping;
 extern int steppingWait;
-extern int drain_interp_list;
 extern int emcTaskQueueCommand(NMLmsg *cmd);
 extern int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg);
 extern int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg);
