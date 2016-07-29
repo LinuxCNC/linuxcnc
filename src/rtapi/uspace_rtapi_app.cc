@@ -421,11 +421,10 @@ static int callback(int fd)
     return !force_exit && instance_count > 0;
 }
 
+static pthread_t main_thread{};
+
 static int master(int fd, vector<string> args) {
-    if(pthread_create(&queue_thread, nullptr, &queue_function, nullptr) < 0) {
-        perror("pthread_create (queue function)");
-        return -1;
-    }
+    main_thread = pthread_self();
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     App(); // force rtapi_app to be created
     int result=0;
@@ -1123,10 +1122,14 @@ long long rtapi_get_time() {
 }
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    message_t m;
-    m.level = level;
-    vsnprintf(m.msg, sizeof(m.msg), fmt, ap);
-    rtapi_msg_queue.push(m);
+    if(main_thread && pthread_self() != main_thread) {
+        message_t m;
+        m.level = level;
+        vsnprintf(m.msg, sizeof(m.msg), fmt, ap);
+        rtapi_msg_queue.push(m);
+    } else {
+        vfprintf(level == RTAPI_MSG_ALL ? stdout : stderr, fmt, ap);
+    }
 }
 
 long int rtapi_delay_max() { return 10000; }
