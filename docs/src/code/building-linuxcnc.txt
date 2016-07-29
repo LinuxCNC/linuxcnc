@@ -193,11 +193,13 @@ executable by running:
 
 When building Debian packages, the LinuxCNC programs are compiled from
 source and then stored in a Debian package, complete with dependency
-information.
+information.  This takes more time, and the programs can't be used until
+the Debian package is installed on a target machine.
 
-This takes more time, and the programs can't be used until the Debian
-package is installed on a target machine.  This build mode is primarily
-useful when packaging the software for delivery to end users.
+This build mode is primarily useful when packaging the software for
+delivery to end users, and when building the software for a machine
+that doesn't have the build environment installed, or that doesn't have
+internet access.
 
 Building Debian packages requires the `dpkg-buildpackage` tool, from the
 `dpkg-dev` package:
@@ -250,7 +252,7 @@ platform to build for.  The normal values for this argument are:
 
 `uspace`::
 
-    Configure the Debian package for for Preempt-RT realtime or for
+    Configure the Debian package for Preempt-RT realtime or for
     non-realtime (these two are compatible).
 
 `-r`::
@@ -258,6 +260,16 @@ platform to build for.  The normal values for this argument are:
     Configure the Debian package for the currently running RTAI kernel.
     You must be running an RTAI kernel on your build machine for this
     to work!
+
+`$KERNEL_VERSION`::
+
+    Configure the debian package for the specified RTAI kernel version
+    (for example "3.4.9-rtai-686-pae").  The matching kernel headers
+    debian package must be installed on your build machine (for example
+    "linux-headers-3.4.9-rtai-686-pae").  Note that you can _build_
+    LinuxCNC in this configuration, but if you are not running the
+    matching RTAI kernel you will not be able to _run_ LinuxCNC, including
+    the test suite.
 
 
 [[Satisfying-Build-Dependencies]]

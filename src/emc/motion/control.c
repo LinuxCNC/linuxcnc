@@ -1007,7 +1007,7 @@ static void handle_ajogwheels(void)
 	distance = delta * *(axis_data->ajog_scale);
 	pos = axis->teleop_tp.pos_cmd + distance;
 	if ( *(axis_data->ajog_vel_mode) ) {
-            double v = axis->vel_limit * emcmotStatus->net_feed_scale;
+            double v = axis->vel_limit;
 	    /* compute stopping distance at max speed */
 	    stop_dist = v * v / ( 2 * axis->acc_limit);
 	    /* if commanded position leads the actual position by more
@@ -1355,7 +1355,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Check: joints vs axis LIMITS"));
+                        reportError(_("Stop, fix joints axis LIMITS, then Restart"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1364,7 +1364,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Check: joints vs axis LIMITS"));
+                        reportError(_("Stop, fix joints and axis LIMITS, then Restart"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }

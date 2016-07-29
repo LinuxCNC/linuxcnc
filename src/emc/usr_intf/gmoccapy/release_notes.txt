@@ -1,3 +1,50 @@
+ver.2.0.26
+- bugfix: if toggle button user tabs was active and the user changed the mode
+  (Manual,MDI or AUTO) the user tabs button staid active, but the screen
+  layout changed to the corresponding mode, letting the button pressed.
+- if embedded tabs was set in the INI file, the toggle button user tabs
+  got active, even if no tab was configured for "ntb_user_tabs", changed this
+  and sorted the code to be together with the rest of user tabs
+- error in getiniinfo.get_increments, default values contained "," insteadt "."
+
+ver.2.0.25.1
+- some changes to support new homing by joints, not by axis
+  still work to do!
+- do not allow any more the change to mdi or auto in Joint Mode!
+ 
+ver.2.0.25
+- introduced hal pin to jog joints, make sure not to
+  allow joint jogging in world mode and vice versa
+- renamed most hal pin, so they are better organized, 
+  kept together in groups
+- big bug in all homed signal of hal_glib avoid pushing to master
+
+ver. 2.0.24
+- reduced digits of velocity label to 2 digits for imperial
+
+ver. 2.0.23
+- bug in _update_slider, caused by units change and the needed
+  recalculation of jog_vel
+
+ver. 2.0.22
+- corrected the reading of preferences, under some circumstances
+  as bool written settings, couldn't be read correct from file,
+  leading to wrong settings. This is a known bug in ConfigParser.
+  I went over to write all bool settings as string, this way it 
+  works like a charm. At the same time all bool values must be 
+  read with type = bool!
+
+ver. 2.0.21
+- added Joint Jog Button, _init_joints_btn will show only 
+  the needed button, so from now on gmoccapy supports 8 Joints
+  and 5 axis
+- still problems with the initialization of optional stops
+- some button renaming to distinguish joints and axis jog button
+  due to special case 4th and 5th axis
+- reworked on_jog_btn_pressed and released to support joint jogging
+  could be done better, will need some additional rework
+- deleted some print messages
+
 ver. 2.0.20
 - small bug in _reset_override in rapid handling, 
   as it would reset to 100 % on change to any state, 
@@ -121,6 +168,9 @@ ver. 1.5.6.3
   so changes the user makes to the glade file was not been taken care of
 - In glade file a signal on_btn_load_state_changed was set, but no handler present, 
   leading to a error message on start in the terminal, erased the signal
+
+ver. 1.5.6.2.1
+- bug in initialize optional stops
 
 ver. 1.5.6.2
 - bugfix: run from line was trying to set an entry in the alarm page, whitch

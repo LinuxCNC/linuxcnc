@@ -138,6 +138,11 @@ Debian-5.0*)
 	EXTRA_BUILD=dvipng,module-init-tools,libgnomeprintui2.2-dev,python-support
 	TCLTK_VERSION=8.4
 	;;
+Raspbian-8.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+	TCLTK_VERSION=8.6
+	PYTHON_PACKAGING=dh_python2
+	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "configuration may be wrong!"

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #    Copyright 2007 Chris Radek
 #    Derived from a work by John Kasunich and Jeff Epler
 #

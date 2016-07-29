@@ -176,7 +176,7 @@ proc listHAL {} {
                 makeNodeP $node [set ${node}str]
             }
             sig {
-                makeNodeSig $sigstr
+                makeNodeP $node [set ${node}str]
             }
             comp {-}
             funct {-}
@@ -218,72 +218,6 @@ proc makeNodeP {which pstring} {
     }
     # empty the counts array in preparation for next proc call
     array unset pcounts {}
-}
-
-# signal node assumes more about HAL than pins or params.
-# For this reason the hard coded variable ::signodes
-proc makeNodeSig {sigstring} {
-    # build sublists dotstring, each signode element, and remainder
-    foreach nodename $::signodes {
-        set nodesig$nodename ""
-    }
-    set dotsig ""
-    set remainder ""
-    foreach tmp $sigstring {
-        set i 0
-        if {[string match *.* $tmp]} {
-            lappend dotsig $tmp
-            set i 1
-        }
-   
-        foreach nodename $::signodes {
-            if {$i == 0 && [string match *$nodename* $tmp]} {
-                lappend nodesig$nodename $tmp
-                set i 1
-            }
-        }
-        if {$i == 0} {
-            lappend remainder $tmp
-        }
-    }
-    set i 0
-    # build the signode named nodes and leaves
-    foreach nodename $::signodes {
-        set tmpstring [set nodesig$nodename]
-        if {$tmpstring != ""} {
-            set snode "sig+$nodename"
-            writeNode "$i sig $snode $nodename 1"
-            incr i
-            set j 0
-            foreach tmp [set nodesig$nodename] {
-                set ssnode sig+$tmp
-                writeNode "$j $snode $ssnode $tmp 0"
-                incr j
-            }
-        }
-    }
-    set j 0
-    # build the linkpp based signals just below signode
-    foreach tmp $dotsig {
-        set tmplist [split $tmp "."]
-        set tmpmain [lindex $tmplist 0]
-        set tmpname [lindex $tmplist end] 
-        set snode sig+$tmpmain
-        if {! [$::treew exists "$snode"] } {
-            writeNode "$i sig $snode $tmpmain 1"
-            incr i
-        }
-        set ssnode sig+$tmp
-        writeNode "$j $snode $ssnode $tmp 0"
-        incr j
-    }
-    # build the remaining leaves at the bottom of list
-    foreach tmp $remainder {
-        set snode sig+$tmp
-        writeNode "$i sig $snode $tmp 0"
-        incr i
-    }
-
 }
 
 proc makeNodeOther {which otherstring} {

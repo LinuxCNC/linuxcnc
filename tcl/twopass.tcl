@@ -202,6 +202,13 @@ proc ::tp::loadrt_substitute {arg1 args} {
                 set ::TP($module,names) "$::TP($module,names),$value"
               }
             }
+      personality {
+              if ![info exists ::TP($module,personality)] {
+                set ::TP($module,personality) $value
+              } else {
+                set ::TP($module,personality) "$::TP($module,personality),$value"
+              }
+            }
      debug  {
               if ![info exists ::TP($module,debug)] {
                 set ::TP($module,debug) $value
@@ -419,20 +426,6 @@ proc ::tp::hal_to_tcl {ifile ofile} {
   return $ofile
 } ;# hal_to_tcl
 
-proc ::tp::parse_ini {filename} {
-  # adapted from haltcl.in
-  set f [open $filename]
-  while {[gets $f line] >= 0} {
-    if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
-      # nothing
-    } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
-      upvar $section s
-      lappend s([string trim $k]) $v
-    }
-  }
-  close $f
-} ;# parse_ini
-
 proc ::tp::source_the_files {} {
   foreach file_plus_args $::TP(runfiles) {
     catch {unset ::argv}
@@ -481,6 +474,10 @@ proc ::tp::load_the_modules {} {
       set cmd "$cmd num_chan=$::TP($m,num_chan)"
     } elseif [info exists ::TP($m,names)] {
       set cmd "$cmd names=$::TP($m,names)"
+    }
+
+    if [info exists ::TP($m,personality)] {
+      set cmd "$cmd personality=$::TP($m,personality)"
     }
     if [info exists ::TP($m,debug)] {
       set cmd "$cmd debug=$::TP($m,debug)"
@@ -532,6 +529,7 @@ proc ::tp::verbose {msg} {
 
 #----------------------------------------------------------------------
 # begin
+package require Linuxcnc ;# parse_ini
 set ::tp::options ""
 set ::tp::verbose 0
 if {[string first verbose [string tolower $::HAL(TWOPASS)]] >=0} {

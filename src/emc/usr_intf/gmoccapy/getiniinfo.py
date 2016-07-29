@@ -207,8 +207,8 @@ class GetIniInfo:
                 jog_increments = increments.split()
             jog_increments.insert(0, 0)
         else:
-            jog_increments = [0, "1,000", "0,100", "0,010", "0,001"]
-            print("**** GMOCCAPY GETINIINFO **** \n No default jog increments entry found in [DISPLAY] of INI file")
+            jog_increments = [0, "1.000", "0.100", "0.010", "0.001"]
+            print("**** GMOCCAPY GETINIINFO **** \nNo default jog increments entry found in [DISPLAY] of INI file\nUsing default values")
         return jog_increments
 
     def get_toolfile(self):
@@ -236,6 +236,7 @@ class GetIniInfo:
         return subroutines_path
 
     def get_axis_2_min_limit(self):
+        # needed to calculate the offset for automated tool measurement
         temp = self.inifile.find("AXIS_2", "MIN_LIMIT")
         if not temp:
             return False
@@ -264,7 +265,6 @@ class GetIniInfo:
 
     def get_trajcoordinates(self):
         return self.inifile.find("TRAJ", "COORDINATES")
-
 
     def get_kinstype(self):
         return self.inifile.find("KINS", "KINEMATICS")

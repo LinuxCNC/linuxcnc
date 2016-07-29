@@ -2,6 +2,14 @@
 
 = Updating LinuxCNC
 
+Updating LinuxCNC for example from 2.7.0 to 2.7.1 and your PC is connected to
+the internet is an automatic process. You will see an update prompt after a
+minor release along with other software updates. If you don't have an internet
+connection to your PC see
+<<getting-started:update-no-network,Updating without Network>>
+
++== Upgrade to the new version
+
 This section describes how to upgrade LinuxCNC from version 2.7 to the
 new version.  It assumes that you have an existing 2.7 install that you
 want to update.
@@ -14,9 +22,6 @@ the new version.
 If you do not have an old version of LinuxCNC to upgrade, then you're
 best off making a fresh install of the new version as described in the
 section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
-
-
-== Upgrade to the new version
 
 To upgrade major versions like 2.6 to 2.7 when you have a network connection at
 the machine you need to disable the old linuxcnc.org apt sources and add a new
@@ -130,6 +135,7 @@ Debian Wheezy and Ubuntu Lucid both use the Synaptic Package Manager.
   all packages.
 
 == Updating without Network
+[[getting-started:update-no-network]]
 
 To update without a network connection you need to download the deb then install
 it with dpkg. The buildbot builds new debs each time something is updated and
@@ -618,17 +624,15 @@ with related pins.
        is: halui.joint.selected.on-soft-min-limit
 ----
 
-=== Axis gui
+=== AXIS GUI
 
-==== Kinematics Support
-
-===== Identity
+==== Identity Kinematics
 
 The axis gui continues to support identity kinematics configurations.  This gui
 hides the distinctions of axes and joints in order to simplify the display and
 usage of simple machines.
 
-===== Special cases
+==== Special case kinematics
 
 Some machines, typically gantrys, may use a configuration with more than
 one joint assigned to an axis letter.  This can be done with the trivkins
@@ -648,7 +652,7 @@ This machine, after homing, has a one-to-one correspondence between a single
 axis letter (Y) and a pair of joints (1,2).  Using 'kinematics=BOTH' allows
 control of individual joints in joint mode 'if/when required'.
 
-===== Non-identity
+==== Non-identity kinematics
 
 The axis gui supports configurations using non-identity kinematics with:
 

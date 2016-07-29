@@ -58,6 +58,7 @@
 #include <ctype.h>		// isspace()
 #include <libintl.h>
 #include <locale.h>
+#include "usrmotintf.h"
 
 
 #if 0
@@ -82,6 +83,8 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "taskclass.hh"
 #include "motion.h"             // EMCMOT_ORIENT_*
 #include "inihal.hh"
+
+static emcmot_config_t emcmotConfig;
 
 /* time after which the user interface is declared dead
  * because it would'nt read any more messages
@@ -143,7 +146,7 @@ int drain_interp_list = 0;
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
-static int all_homed(void) {
+int all_homed(void) {
     for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
         if(!emcStatus->motion.joint[i].homed) // XXX
             return 0;
@@ -820,6 +823,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
@@ -936,6 +940,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -1041,6 +1046,7 @@ static int emcTaskPlan(void)
 		case EMC_TASK_ABORT_TYPE:
 		case EMC_TASK_PLAN_INIT_TYPE:
 		case EMC_TASK_PLAN_OPEN_TYPE:
+                case EMC_TASK_PLAN_CLOSE_TYPE:
 		case EMC_TASK_PLAN_RUN_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
@@ -1373,6 +1379,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -2135,6 +2142,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
 	// interpreter commands
+
+    case EMC_TASK_PLAN_CLOSE_TYPE:
+        retval = emcTaskPlanClose();
+	if (retval > INTERP_MIN_ERROR) {
+	    emcOperatorError(0, _("failed to close file"));
+	    retval = -1;
+	} else {
+	    retval = 0;
+        }
+        break;
 
     case EMC_TASK_PLAN_OPEN_TYPE:
 	open_msg = (EMC_TASK_PLAN_OPEN *) cmd;
@@ -3290,7 +3307,11 @@ int main(int argc, char *argv[])
     minTime = DBL_MAX;		// set to value that can never be exceeded
     maxTime = 0.0;		// set to value that can never be underset
 
+    if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
+        rcs_print("%s failed usrmotReadEmcmotconfig()\n",__FILE__);
+    }
     while (!done) {
+        static int gave_soft_limit_message = 0;
         check_ini_hal_items(emcStatus->motion.traj.joints);
 	// read command
 	if (0 != emcCommandBuffer->read()) {
@@ -3354,11 +3375,23 @@ int main(int argc, char *argv[])
 
 	}
 
+        if (!emcStatus->motion.on_soft_limit) {gave_soft_limit_message = 0;}
+
 	// check for subordinate errors, and halt task if so
-	if (emcStatus->motion.status == RCS_ERROR ||
+        if (   emcStatus->motion.status == RCS_ERROR
+            && emcStatus->motion.on_soft_limit) { 
+           if (!gave_soft_limit_message) {
+                emcOperatorError(0, "On Soft Limit");
+                // if gui does not provide a means to switch to joint mode
+                // the  machine may be stuck (a misconfiguration)
+                if (emcmotConfig.kinType == KINEMATICS_IDENTITY) {
+                    emcOperatorError(0,"Identity kinematics are MISCONFIGURED");
+                }
+                gave_soft_limit_message = 1;
+           }
+        } else if (emcStatus->motion.status == RCS_ERROR ||
 	    ((emcStatus->io.status == RCS_ERROR) &&
 	     (emcStatus->io.reason <= 0))) {
-
 	    /*! \todo FIXME-- duplicate code for abort,
 	      also in emcTaskExecute()
 	      and in emcTaskIssueCommand() */

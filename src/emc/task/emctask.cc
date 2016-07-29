@@ -33,6 +33,7 @@
 #include "task.hh"		// emcTaskCommand etc
 #include "python_plugin.hh"
 #include "taskclass.hh"
+#include "motion.h"
 
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
@@ -220,7 +221,11 @@ int emcTaskSetMode(int mode)
     switch (mode) {
     case EMC_TASK_MODE_MANUAL:
 	// go to manual mode
-	emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+        if (all_homed()) {
+            emcTrajSetMode(EMC_TRAJ_MODE_TELEOP);
+        } else {
+            emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+        }
 	mdiOrAuto = EMC_TASK_MODE_AUTO;	// we'll default back to here
 	break;
 

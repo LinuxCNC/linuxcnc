@@ -748,6 +748,9 @@ class LivePlotter:
             and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
             ):
             set_motion_teleop(1)
+        if      ( (self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+            and   not vars.teleop_mode.get() ):
+            vars.teleop_mode.set(1)
 
         # With joints_axes support and jogging while mdi
         #  (ref: emctaskmain.cc:allow_while_idle_type())
@@ -929,9 +932,7 @@ This means this function returns True when the mdi tab is visible."""
 # first (task) mode MANUAL,MDI,AUTO
 def ensure_mode(m, *p):
     s.poll()
-    # jogging in mdi requires setting always for mdi,auto (not sure why)
-    if ( (s.task_mode == m) and (m == linuxcnc.MODE_MANUAL) ): return True
-    if running(do_poll=False): return False
+    if s.task_mode == m or s.task_mode in p: return True
     c.mode(m) # task_mode
     c.wait_complete()
     s.poll()
@@ -1925,10 +1926,6 @@ class TclCommands(nf.TclCommands):
         spindlerate_blackout = time.time() + 1
 
     def set_feedrate(newval):
-        if      (joints_mode()
-            and (s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)):
-            return
-        # teleop or identity allows (De Morgan):
         global feedrate_blackout
         try:
             value = int(newval)

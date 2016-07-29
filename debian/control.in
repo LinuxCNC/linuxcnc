@@ -22,6 +22,7 @@ Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    python-serial,
     ${python:Depends}, ${misc:Depends},
     @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
     yapps2-runtime

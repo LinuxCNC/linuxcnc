@@ -258,7 +258,7 @@ You're now ready to give it a try (while LinuxCNC, e.g. Axis is running) it with
     gladevcp myui.ui
 
 GladeVCP creates a HAL component named like the basename of the UI
-file - 'myui' in this case - unless overriden by the +-c <component
+file - 'myui' in this case - unless overridden by the +-c <component
 name>+ option.  If running Axis, just try 'Show HAL configuration' and
 inspect its pins.
 
@@ -790,7 +790,7 @@ or you push the left mouse button and move the cursor in circular direction to i
  * Wheel up         = increase counts
  * Wheel down       = reduce counts
 
-As moving the mouse the drag and drob way may be faster than the widget can update itself, you may loose counts turning to fast.
+As moving the mouse the drag and drop way may be faster than the widget can update itself, you may loose counts turning to fast.
 It is recommended to use the mouse wheel, and only for very rough movements the drag and drop way.
 
 JogWheel exports it's count value as hal pin:
@@ -840,7 +840,7 @@ SpeedControl is a widget specially made to control an adjustment
 with a touch screen. It is a replacement to the normal scale widget
 witch is difficult to slide on a touch screen.
 
-The value is controled with two button to increase or drecrease the value. 
+The value is controlled with two button to increase or decrease the value. 
 The Increment will change as long a button is pressed. The value of each increment 
 as well as the time between two changes can be set using the widget properties. 
 
@@ -852,7 +852,7 @@ SpeedControl offers some hal pin:
 
 <widgetname>-scaled-value::
    out float pin
-   The shown value divided by the scale value, this is very usefull, if the 
+   The shown value divided by the scale value, this is very useful, if the 
    velocity is shown in units / min, but linuxcnc expects it to be in units / second
 
 <widgetname>-scale::
@@ -889,18 +889,20 @@ min::
 	The min allowed value
 	allowed values are 0.0 to 99999.0
 	default is 0.0
+        If you change this value, the increment will be reseted to default, so it might be necessary to set afterwards a new increment.
 
 max::
 	float
 	The max allowed value
 	allowed values are 0.001 to 99999.0
 	default is 100.0
+        If you change this value, the increment will be reseted to default, so it might be necessary to set afterwards a new increment.
 
 increment::
         float
         sets the applied increment per mouse click
 	allowed values are 0.001 to 99999.0 and -1
-        default is -1 resulting in 100 increments fom min to max
+        default is -1 resulting in 100 increments from min to max
 
 inc_speed::
 	integer
@@ -926,9 +928,9 @@ template::
 	Any allowed format
 	default is "%.1f"
 
-hide_button::
+do_hide_button::
 	Boolean
-	Whether to show or hide the increment an devrement button
+	Whether to show or hide the increment an decrement button
 	True or False
 	Default = False
 
@@ -937,7 +939,7 @@ Direct program control::
     There a couple ways to directly control the widget using Python.
 
     Using gobject to set the above listed properties:
-        [widget name].set_property("hide_button",bool(value))
+        [widget name].set_property("do_hide_button",bool(value))
         [widget name].set_property("color","#FF00FF")
         [widget name].set_property("unit", "mm/min")
 		etc.
@@ -946,7 +948,7 @@ Direct program control::
         [widget name].set_adjustment(gtk-adjustment)
         You can assign a existing adjustment to the control, that way it is easy to replace
         existing sliders without many code changes. Be aware, that after changing the adjustment
-        you may need to set a new increment, as it will be resetted to its default (100 steps from MIN to MAX)
+        you may need to set a new increment, as it will be reseted to its default (100 steps from MIN to MAX)
         [widget name].get_value()
         Will return the counts value as float
         [widget name].set_value(float(value))
@@ -959,6 +961,7 @@ Direct program control::
 Example Speedcontrol:
 
 image::images/SpeedControl.png[]
+
 
 [[gladevcp:hal-label]]
 
@@ -1474,8 +1477,8 @@ font_size::
     default is 25
 
 toggle_readout::
-    A left mouse click will toggle the DRO readout through the differnt modes ["Rel", "Abs", "DTG"]. +
-    By unchecking the box you can disable that behavior. The toogling can still be done with [widget name].toggle_readout() +
+    A left mouse click will toggle the DRO readout through the different modes ["Rel", "Abs", "DTG"]. +
+    By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout() +
     Value must be bool +    
     default is TRUE
 
@@ -1554,7 +1557,7 @@ The widget will emit the following signals:
                           G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3
                           or Rel if non has been selected at all, what will only happen in Glade with no linuxcnc running
 
-There are some information you can get through commands, witch may be of ineterst for you:
+There are some information you can get through commands, witch may be of interest for you:
 
     [widget name].system
         The actual system, as mentioned in the system_changed signal
@@ -1672,7 +1675,7 @@ The widget will emit the following signals:
         file path if a file has been selected, or None if an directory has been selected
     sensitive
         This signal is emitted, when the buttons change there state from sensitive to not sensitive or vice versa. 
-        This signal is usefull to mantain surrounding GUI synconized with the button of the widget. See gmoccapy as example.
+        This signal is useful to maintain surrounding GUI synchronized with the button of the widget. See gmoccapy as example.
         It will return the buttonname and the new state. Buttonname is one of "btn_home", "btn_dir_up", "btn_sel_prev",
         "btn_sel_next", "btn_jump_to" or "btn_select". State is a boolean and will be True or False.
     exit
@@ -1782,7 +1785,7 @@ image::images/gtk-tooledit.png[]
 === Offsetpage
 
 The Offsetpage widget is used to display/edit the offsets of all the axes. +
-It has convience buttons for zeroing G92 and Rotation-Around-Z offsets. +
+It has convenience buttons for zeroing G92 and Rotation-Around-Z offsets. +
 It will only allow you to select the edit mode when the machine is on and idle. +
 You can directly edit the offsets in the table at this time. Unselect the edit +
 button to allow the OffsetPage to reflect changes.
@@ -1873,7 +1876,7 @@ Direct program control::
     [widget name].set_line_number(linenumber)
         Sets the line to high light. Uses the sourceview line numbers.
     [widget name].get_line_number()
-        returns the currenly high lighted line.
+        returns the currently high lighted line.
     [widget name].line_up()
         Moves the High lighted line up one line
     [widget name].line_down()
@@ -1889,7 +1892,7 @@ image::images/hal_sourceview.png[]
 === MDI history
 
 This is for displaying and entering MDI codes. +
-It will automatically grey out when MDI is not available. +
+It will automatically gray out when MDI is not available. +
 Eg during Estop and program running.
 
 === Animated function diagrams: HAL widgets in a bitmap
@@ -2170,7 +2173,7 @@ Or do some more useful stuff, like calling an MDI command!
 HAL input widgets, like a LED, automatically associate their HAL pin state
 (on/off) with the optical appearance of the widget (LED lit/dark).
 
-Beyond this builtin functionality, one may associate a change
+Beyond this built-in functionality, one may associate a change
 callback with any HAL pin, including those of predefined HAL
 widgets. This fits nicely with the event-driven structure of a typical
 widget application: every activity, be it mouse click, key, timer
@@ -2567,12 +2570,12 @@ glib.timeout_add_seconds(1, self._on_timer_tick)
 With glade, widget properties are typically set fixed while editing.
 You can, however, set widget properties at runtime, for instance from
 ini file values, which  would typically be done in the handler
-initialisation code. Setting properties from HAL pin values is
+initialization code. Setting properties from HAL pin values is
 possible, too.
 
 In the following example (assuming a HAL Meter widget called `meter`), the
 meter's min value is set from an INI file parameter at startup, and the max value
-is set via a HAL pin, which causese the widget's scale to readjust dynamically:
+is set via a HAL pin, which causes the widget's scale to readjust dynamically:
 
 [source,python]
 ----------------------------------
@@ -2645,19 +2648,19 @@ My GladeVCP program starts, but no window appears where I expect it to be?::
 
 I want a blinking LED, but it wont blink::
 
-  I ticked the checkbutton to let it blink with 100msec interval. It
+  I ticked the checkbutton to let it blink with 100 msec interval. It
   wont blink, and I get a startup warning: Warning: value "0" of type
   `gint' is invalid or out of range for property `led-blink-rate' of
   type `gint'?  This seems to be a glade bug. Just type over the blink
   rate field, and save again - this works for me.
 
-My gladevcp panel in Axis doesnt save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal::
+My gladevcp panel in Axis doesn't save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal::
    Very likely this handler is linked to window1,
-   which due to reparenting isnt usable for this purpose. Please link
+   which due to reparenting isn't usable for this purpose. Please link
    the on_destroy handler to the destroy signal of an interior
    window. For instance, I have a notebook inside window1, and linked
    on_destroy to the notebooks destroy signal, and that works fine. It
-   doesnt work for window1.
+   doesn't work for window1.
 
 
 I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
