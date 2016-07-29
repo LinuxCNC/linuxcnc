@@ -52,10 +52,6 @@
 
 #include "spi_common_rpspi.h"
 
-#if !defined(BUILD_SYS_USER_DSO)
-//#error "This driver is for usermode threads only"
-#endif
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Matsche");
 MODULE_DESCRIPTION("Driver for HostMot2 devices connected via SPI to RaspberryPi");
