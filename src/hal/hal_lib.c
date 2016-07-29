@@ -1102,7 +1102,9 @@ int hal_link(const char *pin_name, const char *sig_name)
     comp = SHMPTR(pin->owner_ptr);
     data_addr = comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
-    if (( sig->readers == 0 ) && ( sig->writers == 0 ) && ( sig->bidirs == 0 )) {
+    bool drive_pin_default_value_onto_signal =
+        ( sig->readers == 0 ) && ( sig->writers == 0 ) && ( sig->bidirs == 0 );
+    if (drive_pin_default_value_onto_signal) {
 	/* this is the first pin for this signal, copy value from pin's "dummy" field */
 	data_addr = hal_shmem_base + sig->data_ptr;
 
