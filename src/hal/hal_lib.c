@@ -1103,7 +1103,8 @@ int hal_link(const char *pin_name, const char *sig_name)
     data_addr = comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
     bool drive_pin_default_value_onto_signal =
-        ( sig->readers == 0 ) && ( sig->writers == 0 ) && ( sig->bidirs == 0 );
+        ( pin->dir != HAL_IN || sig->readers == 0 )
+            && ( sig->writers == 0 ) && ( sig->bidirs == 0 );
     if (drive_pin_default_value_onto_signal) {
 	/* this is the first pin for this signal, copy value from pin's "dummy" field */
 	data_addr = hal_shmem_base + sig->data_ptr;
