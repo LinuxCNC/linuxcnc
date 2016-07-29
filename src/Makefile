@@ -483,13 +483,13 @@ ifeq ($(BUILD_SYS),uspace)
 	chown root ../bin/rtapi_app
 	chmod 4750 ../bin/rtapi_app
 else
-	chown root ../bin/linuxcnc_module_helper
-	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
 	chown root ../bin/pci_read
 	chmod 4750 ../bin/pci_read
 endif
+	chown root ../bin/linuxcnc_module_helper
+	chmod 4750 ../bin/linuxcnc_module_helper
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
@@ -692,9 +692,9 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
+	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 ifneq "$(BUILD_SYS)" "uspace"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
-	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 else

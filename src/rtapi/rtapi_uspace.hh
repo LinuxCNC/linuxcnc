@@ -21,6 +21,23 @@
 #include <unistd.h>
 #include <pthread.h>
 
+inline void rtapi_timespec_add(timespec &result, const timespec &ta, const timespec &tb) {
+    result.tv_sec = ta.tv_sec + tb.tv_sec;
+    result.tv_nsec = ta.tv_nsec + tb.tv_nsec;
+    if (result.tv_nsec >= 1000000000) {
+        result.tv_sec++;
+        result.tv_nsec -= 1000000000;
+    }
+}
+
+inline bool rtapi_timespec_less(const struct timespec &ta, const struct timespec &tb) {
+    if(ta.tv_sec < tb.tv_sec) return 1;
+    if(ta.tv_sec > tb.tv_sec) return 0;
+    return ta.tv_nsec < tb.tv_nsec;
+}
+
+void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec);
+
 struct WithRoot
 {
     WithRoot() { if(!level) setfsuid(geteuid()); level++; }
@@ -74,6 +91,11 @@ struct RtapiApp
     int policy;
     long period;
 };
+
+template<class T=rtapi_task>
+T *rtapi_get_task(int task_id) {
+    return static_cast<T*>(RtapiApp::get_task(task_id));
+}
 
 #define MAX_TASKS  64
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
