@@ -94,10 +94,4 @@ typedef enum {
 	RPI,
 	RPI_2
 } platform_t;
-
-
-static char *firmware = "/lib/firmware/7i90_spi_svst4_8.bit";
-RTAPI_MP_STRING(firmware, "Firmware Path");
-
-
 #endif

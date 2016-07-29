@@ -83,7 +83,6 @@ static int hm2_rpspi_setup(void);
 static int map_gpio();
 static void setup_gpio(uint16_t);
 static void restore_gpio();
-static int hm2_rpspi_program(char *);
 static platform_t check_platform(void);
 
 static char *config[MAX_BOARDS];
@@ -372,15 +371,6 @@ static int hm2_rpspi_setup(void) {
 			return retval;
 		}
 	}
-	//TODO
-	/*retval = hm2_rpspi_program(firmware);
-	if(retval < 0)
-	{
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"HAL_hm2_rpspi: ERROR: uploading firmware failed!!!\n");
-		return retval;
-	}
-	*/
 
 	return 0;
 }
@@ -523,13 +513,6 @@ static void restore_gpio() {
 	x = BCM2835_GPFSEL1;
 	x &= ~(0b111 << (0*3) | 0b111 << (1*3));
 	BCM2835_GPFSEL1 = x;
-}
-
-/*************************************************/
-static int hm2_rpspi_program(char *firmware) {
-	
-	rtapi_print_msg(RTAPI_MSG_ERR,"...done\n");
-	return -1;
 }
 
 /*************************************************/
