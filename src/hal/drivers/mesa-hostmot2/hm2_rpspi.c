@@ -149,7 +149,7 @@ static int hm2_rpspi_write(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer,
 	uint8_t *tbuff;
 	uint32_t *buffer32 = (uint32_t *)buffer;
 	int i=0, j=0;
-	uint8_t  gully;
+	uint8_t  gully __attribute__((unused));	// it's like a drain or nulldevice.
 
 	this->txBuf[0] = mk_write_cmd(addr, msgsize, true);
 
@@ -179,7 +179,7 @@ static int hm2_rpspi_write(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer,
 		for(j=3; j>=0; j--){
 			if(!(BCM2835_SPICS & SPI_CS_RXD))
 				rtapi_print_msg(RTAPI_MSG_ERR, "RX-FIFO is empty!\n");
-			gully = BCM2835_SPIFIFO;
+			gully = BCM2835_SPIFIFO;	// discard one byte from read FIFO
 		}
 		
 		tbuff += 4;
