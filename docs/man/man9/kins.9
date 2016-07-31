@@ -134,6 +134,10 @@ forward kinematics iteration is controlled by hal pins.
 .B genhexkins.platform.\fIN\fB.z
 Parameters describing the \fIN\fRth joint's coordinates.
 .TQ
+.B genhexkins.spindle-offset
+Added to all joints Z coordinates to change the machine origin.
+Facilitates adjusting spindle position.
+.TQ
 .B genhexkins.convergence-criterion
 Minimum error value that ends iterations with converged solution.
 .TQ

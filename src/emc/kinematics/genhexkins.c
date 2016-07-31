@@ -32,10 +32,19 @@
 
   genhexkins.base.N.x
   genhexkins.base.N.y
-  genhexkins.base.N.z
+  genhexkins.base.N.z - base joint coordinates.
+
   genhexkins.platform.N.x
   genhexkins.platform.N.y
-  genhexkins.platform.N.z
+  genhexkins.platform.N.z - platform joint coordinates.
+
+  genhexkins.spindle-offset - added to Z coordinates of all joints to
+                              change the machine origin. Facilitates
+                              adjusting spindle position.
+
+  genhexkins.tool-offset - tool length offset (TCP offset along Z),
+                           implements RTCP function when connected to
+                           motion.tooloffset.Z.
 
   The kinematicsInverse function solves the inverse kinematics using
   a closed form algorithm.  The inverse kinematics problem is given
@@ -90,10 +99,11 @@ struct haldata {
     hal_float_t platformz[NUM_STRUTS];
     hal_u32_t *last_iter;
     hal_u32_t *max_iter;
-    hal_u32_t *iter_limit;
-    hal_float_t *max_error;
-    hal_float_t *conv_criterion;
+    hal_u32_t iter_limit;
+    hal_float_t max_error;
+    hal_float_t conv_criterion;
     hal_float_t *tool_offset;
+    hal_float_t spindle_offset;
 } *haldata;
 
 
@@ -211,10 +221,10 @@ int genhexkins_read_hal_pins(void) {
     for (t = 0; t < NUM_STRUTS; t++) {
         b[t].x = haldata->basex[t];
         b[t].y = haldata->basey[t];
-        b[t].z = haldata->basez[t] + *haldata->tool_offset;
+        b[t].z = haldata->basez[t] + haldata->spindle_offset + *haldata->tool_offset;
         a[t].x = haldata->platformx[t];
         a[t].y = haldata->platformy[t];
-        a[t].z = haldata->platformz[t] + *haldata->tool_offset;
+        a[t].z = haldata->platformz[t] + haldata->spindle_offset + *haldata->tool_offset;
     }
     return 0;
 }
@@ -271,8 +281,8 @@ int kinematicsForward(const double * joints,
   /* Enter Newton-Raphson iterative method   */
   while (iterate) {
     /* check for large error and return error flag if no convergence */
-    if ((conv_err > +(*haldata->max_error)) ||
-    (conv_err < -(*haldata->max_error))) {
+    if ((conv_err > +(haldata->max_error)) ||
+    (conv_err < -(haldata->max_error))) {
       /* we can't converge */
       return -2;
     };
@@ -281,7 +291,7 @@ int kinematicsForward(const double * joints,
 
     /* check iteration to see if the kinematics can reach the
        convergence criterion and return error flag if it can't */
-    if (iteration > *haldata->iter_limit) {
+    if (iteration > haldata->iter_limit) {
       /* we can't converge */
       return -5;
     }
@@ -337,7 +347,7 @@ int kinematicsForward(const double * joints,
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;            /*assume iteration is done */
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > *haldata->conv_criterion) {
+      if (fabs(StrutLengthDiff[i]) > haldata->conv_criterion) {
     iterate = 1;
       }
     }
@@ -470,25 +480,30 @@ int rtapi_app_main(void)
     goto error;
     *haldata->max_iter = 0;
 
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->max_error, comp_id,
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->max_error, comp_id,
         "genhexkins.max-error")) < 0)
     goto error;
-    *haldata->max_error = 100;
+    haldata->max_error = 500.0;
 
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->conv_criterion, comp_id,
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->conv_criterion, comp_id,
         "genhexkins.convergence-criterion")) < 0)
     goto error;
-    *haldata->conv_criterion = 1e-9;
+    haldata->conv_criterion = 1e-9;
 
-    if ((res = hal_pin_u32_newf(HAL_IO, &haldata->iter_limit, comp_id,
+    if ((res = hal_param_u32_newf(HAL_RW, &haldata->iter_limit, comp_id,
         "genhexkins.limit-iterations")) < 0)
     goto error;
-    *haldata->iter_limit = 120;
-    
+    haldata->iter_limit = 120;
+
     if ((res = hal_pin_float_newf(HAL_IN, &haldata->tool_offset, comp_id,
         "genhexkins.tool-offset")) < 0)
     goto error;
     *haldata->tool_offset = 0.0;
+
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->spindle_offset, comp_id,
+        "genhexkins.spindle-offset")) < 0)
+    goto error;
+    haldata->spindle_offset = 0.0;
 
     haldata->basex[0] = DEFAULT_BASE_0_X;
     haldata->basey[0] = DEFAULT_BASE_0_Y;
