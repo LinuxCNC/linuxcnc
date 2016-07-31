@@ -11,7 +11,7 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 2014.12.22
+* Last change: 2016.08.04
 *********************************************************************
 
   These are the forward and inverse kinematic functions for a class of
@@ -219,107 +219,6 @@ int genhexkins_read_hal_pins(void) {
     return 0;
 }
 
-/**************************** jacobianInverse() ***************************/
-
-static int JInvMat(const EmcPose * pos,
-           double InverseJacobian[][NUM_STRUTS])
-{
-  int i;
-  PmRpy rpy;
-  PmRotationMatrix RMatrix;
-  PmCartesian aw, RMatrix_a;
-  PmCartesian InvKinStrutVect,InvKinStrutVectUnit;
-  PmCartesian RMatrix_a_cross_Strut;
-
-  genhexkins_read_hal_pins();
-
-  /* assign a, b, c to roll, pitch, yaw angles and convert to rot matrix */
-  rpy.r = pos->a * PM_PI / 180.0;
-  rpy.p = pos->b * PM_PI / 180.0;
-  rpy.y = pos->c * PM_PI / 180.0;
-  pmRpyMatConvert(&rpy, &RMatrix);
-
-  /* Enter for loop to build Inverse Jacobian */
-  for (i = 0; i < NUM_STRUTS; i++) {
-    /* run part of inverse kins to get strut vectors */
-    pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
-    pmCartCartAdd(&pos->tran, &RMatrix_a, &aw);
-    pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
-
-    /* Determine RMatrix_a_cross_strut */
-    if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-      return -1;
-    }
-    pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
-
-    /* Build Inverse Jacobian Matrix */
-    InverseJacobian[i][0] = InvKinStrutVectUnit.x;
-    InverseJacobian[i][1] = InvKinStrutVectUnit.y;
-    InverseJacobian[i][2] = InvKinStrutVectUnit.z;
-    InverseJacobian[i][3] = RMatrix_a_cross_Strut.x;
-    InverseJacobian[i][4] = RMatrix_a_cross_Strut.y;
-    InverseJacobian[i][5] = RMatrix_a_cross_Strut.z;
-  }
-
-  return 0;
-}
-
-int jacobianInverse(const EmcPose * pos,
-            const EmcPose * vel,
-            const double * joints,
-            double * jointvels)
-{
-  double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
-  double velmatrix[6];
-
-  if (0 != JInvMat(pos, InverseJacobian)) {
-    return -1;
-  }
-
-  /* Multiply Jinv[] by vel[] to get jointvels */
-  velmatrix[0] = vel->tran.x;   /* dx/dt */
-  velmatrix[1] = vel->tran.y;   /* dy/dt */
-  velmatrix[2] = vel->tran.z;   /* dz/dt */
-  velmatrix[3] = vel->a;    /* droll/dt */
-  velmatrix[4] = vel->b;    /* dpitch/dt */
-  velmatrix[5] = vel->c;    /* dyaw/dt */
-  MatMult(InverseJacobian, velmatrix, jointvels);
-
-  return 0;
-}
-
-/**************************** jacobianForward() ***************************/
-
-/* FIXME-- could use a better implementation than computing the
-   inverse and then inverting it */
-int jacobianForward(const double * joints,
-            const double * jointvels,
-            const EmcPose * pos,
-            EmcPose * vel)
-{
-  double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
-  double Jacobian[NUM_STRUTS][NUM_STRUTS];
-  double velmatrix[6];
-
-  if (0 != JInvMat(pos, InverseJacobian)) {
-    return -1;
-  }
-  if (0 != MatInvert(InverseJacobian, Jacobian)) {
-    return -1;
-  }
-
-  /* Multiply J[] by jointvels to get vels */
-  MatMult(Jacobian, jointvels, velmatrix);
-  vel->tran.x = velmatrix[0];
-  vel->tran.y = velmatrix[1];
-  vel->tran.z = velmatrix[2];
-  vel->a = velmatrix[3];
-  vel->b = velmatrix[4];
-  vel->c = velmatrix[5];
-
-  return 0;
-}
-
 /**************************** kinematicsForward() ***************************/
 
 int kinematicsForward(const double * joints,
@@ -398,7 +297,7 @@ int kinematicsForward(const double * joints,
       pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
       pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-    return -1;
+        return -1;
       }
       pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
       StrutLengthDiff[i] = InvKinStrutLength - joints[i];
@@ -444,7 +343,7 @@ int kinematicsForward(const double * joints,
     }
   } /* exit Newton-Raphson Iterative loop */
 
-  /* assign r,p,w to a,b,c */
+  /* assign r,p,y to a,b,c */
   pos->a = q_RPY.r * 180.0 / PM_PI;
   pos->b = q_RPY.p * 180.0 / PM_PI;
   pos->c = q_RPY.y * 180.0 / PM_PI;
