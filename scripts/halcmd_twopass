@@ -1,0 +1,6 @@
+#!/bin/sh
+DASHI="" INIARG=""
+HALLIB_DIR=/home/gmoccapy/linuxcnc-org/lib/hallib; export HALLIB_DIR
+LINUXCNC_TCL_DIR=/home/gmoccapy/linuxcnc-org/tcl; export LINUXCNC_TCL_DIR
+if [ $# -ne 1 ]; then echo 1>&2 Usage: "$0" inifile; exit 1; fi
+exec haltcl -i "$1" /home/gmoccapy/linuxcnc-org/tcl/twopass.tcl
