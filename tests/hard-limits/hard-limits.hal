@@ -1,0 +1,15 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+net xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+net x-neg-lim-sw => joint.0.neg-lim-sw-in
+
+net ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+
+net zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in

@@ -42,12 +42,34 @@ LINUXCNC_TCL_DIR=@EMC2_TCL_DIR@
 LINUXCNC_HELP_DIR=@EMC2_HELP_DIR@
 LINUXCNC_RTLIB_DIR=@EMC2_RTLIB_DIR@
 LINUXCNC_CONFIG_PATH="@LINUXCNC_CONFIG_PATH@"
+LINUXCNC_NCFILES_DIR=@EMC2_NCFILES_DIR@
 LINUXCNC_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
 LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
 LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
 HALLIB_PATH=.:$HALLIB_DIR; export HALLIB_PATH
+
+#put the LINUXCNC_BIN_DIR in PATH
+PATH=$LINUXCNC_BIN_DIR:$PATH
+#ditto scripts if not RIP
+[ -d $LINUXCNC_HOME/scripts ] && PATH=$LINUXCNC_HOME/scripts:$PATH
+
+if test "xyes" = "x@RUN_IN_PLACE@"; then
+	if [ -z "$LD_LIBRARY_PATH" ]; then
+	    LD_LIBRARY_PATH=$LINUXCNC_HOME/lib
+	else
+	    LD_LIBRARY_PATH=$LINUXCNC_HOME/lib:"$LD_LIBRARY_PATH"
+	fi
+	export LD_LIBRARY_PATH
+fi
+
+if [ -z "$PYTHONPATH" ]; then
+    PYTHONPATH=$LINUXCNC_HOME/lib/python
+else
+    PYTHONPATH=$LINUXCNC_HOME/lib/python:"$PYTHONPATH"
+fi
+export PYTHONPATH
 
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
@@ -199,10 +221,13 @@ EXTRA_ARGS="$@"
 RUN_IN_PLACE=@RUN_IN_PLACE@
 echo RUN_IN_PLACE=$RUN_IN_PLACE >>$PRINT_FILE
 
+LINUXCNCVERSION="@EMC2VERSION@"; export LINUXCNCVERSION
+
 # common from here..
 INIVAR=inivar
 HALCMD="halcmd $DASHK"
 PICKCONFIG="@WISH@ $LINUXCNC_TCL_DIR/bin/pickconfig.tcl"
+LINUXCNC_EMCSH=@WISH@
 
 echo LINUXCNC_DIR=$LINUXCNC_DIR >>$PRINT_FILE
 echo LINUXCNC_BIN_DIR=$LINUXCNC_BIN_DIR >>$PRINT_FILE
@@ -217,10 +242,12 @@ echo LINUXCNC_EMCSH=$LINUXCNC_EMCSH >>$PRINT_FILE
 
 #export some common directories, used by some of the GUI's
 export LINUXCNC_TCL_DIR
+export LINUXCNC_EMCSH
 export LINUXCNC_HELP_DIR
 export LINUXCNC_LANG_DIR
 export REALTIME
 export HALCMD
+export LINUXCNC_NCFILES_DIR
 
 [ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
 
@@ -403,6 +430,10 @@ function GetFromIniEx {
 # 2.1.5 check version
 GetFromIni VERSION EMC
 if [ "$retval" != "1.0" ]; then
+    if [ -z "$DISPLAY" ]; then
+        echo "ini file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
+        exit 1
+    fi
     update_ini -d $INIFILE
     exitval=$?
     case "$exitval" in

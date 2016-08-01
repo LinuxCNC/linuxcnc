@@ -52,10 +52,6 @@
 
 #include "spi_common_rpspi.h"
 
-#if !defined(BUILD_SYS_USER_DSO)
-//#error "This driver is for usermode threads only"
-#endif
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Matsche");
 MODULE_DESCRIPTION("Driver for HostMot2 devices connected via SPI to RaspberryPi");
@@ -83,7 +79,6 @@ static int hm2_rpspi_setup(void);
 static int map_gpio();
 static void setup_gpio(uint16_t);
 static void restore_gpio();
-static int hm2_rpspi_program(char *);
 static platform_t check_platform(void);
 
 static char *config[MAX_BOARDS];
@@ -154,7 +149,7 @@ static int hm2_rpspi_write(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer,
 	uint8_t *tbuff;
 	uint32_t *buffer32 = (uint32_t *)buffer;
 	int i=0, j=0;
-	uint8_t  gully;
+	uint8_t  gully __attribute__((unused));	// it's like a drain or nulldevice.
 
 	this->txBuf[0] = mk_write_cmd(addr, msgsize, true);
 
@@ -184,7 +179,7 @@ static int hm2_rpspi_write(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer,
 		for(j=3; j>=0; j--){
 			if(!(BCM2835_SPICS & SPI_CS_RXD))
 				rtapi_print_msg(RTAPI_MSG_ERR, "RX-FIFO is empty!\n");
-			gully = BCM2835_SPIFIFO;
+			gully = BCM2835_SPIFIFO;	// discard one byte from read FIFO
 		}
 		
 		tbuff += 4;
@@ -372,15 +367,6 @@ static int hm2_rpspi_setup(void) {
 			return retval;
 		}
 	}
-	//TODO
-	/*retval = hm2_rpspi_program(firmware);
-	if(retval < 0)
-	{
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"HAL_hm2_rpspi: ERROR: uploading firmware failed!!!\n");
-		return retval;
-	}
-	*/
 
 	return 0;
 }
@@ -523,13 +509,6 @@ static void restore_gpio() {
 	x = BCM2835_GPFSEL1;
 	x &= ~(0b111 << (0*3) | 0b111 << (1*3));
 	BCM2835_GPFSEL1 = x;
-}
-
-/*************************************************/
-static int hm2_rpspi_program(char *firmware) {
-	
-	rtapi_print_msg(RTAPI_MSG_ERR,"...done\n");
-	return -1;
 }
 
 /*************************************************/

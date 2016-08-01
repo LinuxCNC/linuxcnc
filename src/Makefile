@@ -121,7 +121,7 @@ SUBDIRS := \
     hal/user_comps/huanyang-vfd \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin \ emc/usr_intf/gscreen \ emc/usr_intf/pyui \
+    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
     emc/usr_intf/gmoccapy \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
@@ -483,13 +483,13 @@ ifeq ($(BUILD_SYS),uspace)
 	chown root ../bin/rtapi_app
 	chmod 4750 ../bin/rtapi_app
 else
-	chown root ../bin/linuxcnc_module_helper
-	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
 	chown root ../bin/pci_read
 	chmod 4750 ../bin/pci_read
 endif
+	chown root ../bin/linuxcnc_module_helper
+	chmod 4750 ../bin/linuxcnc_module_helper
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
@@ -692,9 +692,9 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
+	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 ifneq "$(BUILD_SYS)" "uspace"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
-	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 else

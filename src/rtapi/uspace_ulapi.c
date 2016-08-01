@@ -62,3 +62,13 @@ void rtapi_delay(long ns) {
     struct timespec ts = {0, ns};
     rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
 }
+
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
+    if(level == RTAPI_MSG_ALL) {
+	vfprintf(stdout, fmt, ap);
+        fflush(stdout);
+    } else {
+	vfprintf(stderr, fmt, ap);
+        fflush(stderr);
+    }
+}

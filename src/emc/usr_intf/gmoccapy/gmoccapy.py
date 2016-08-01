@@ -2885,7 +2885,7 @@ class gmoccapy(object):
         # otherwise external halui commands could start a program while we are in settings
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
-
+        
         if widget.get_active():
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
             self.widgets.rbt_manual.set_sensitive(False)
@@ -2938,6 +2938,7 @@ class gmoccapy(object):
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_jog.set_current_page(0)
+
             # if we are in user tabs, we must reset the button
             if self.widgets.tbtn_user_tabs.get_active():
                 self.widgets.tbtn_user_tabs.set_active(False)
