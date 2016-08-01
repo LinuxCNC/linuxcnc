@@ -1,3 +1,13 @@
+ver. 2.1.0
+- reworked Combi_DRO to fit the needs of JA requierements
+- some configs must be adapted to the new hal pin names, as they are
+  put together in groups, so all stuff with jog is in that group
+- Hiding the jog button in world mode is possible with a command line argument
+- reorderd some code to be more understandable
+- deleted a lot of debug prints
+- still having problems with matchbox-keyboard, it is found, but not shown
+  on every config, need more testing.
+
 ver.2.0.26
 - bugfix: if toggle button user tabs was active and the user changed the mode
   (Manual,MDI or AUTO) the user tabs button staid active, but the screen

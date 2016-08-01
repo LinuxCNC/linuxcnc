@@ -1,1 +1,0 @@
-pin+motion.teleop-mode pin+joint.0.pos-fb pin+joint.1.pos-fb pin+joint.2.pos-fb pin+joint.3.pos-fb pin+axis.x.pos-cmd pin+axis.y.pos-cmd pin+axis.z.pos-cmd

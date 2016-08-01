@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.0.26"
+_RELEASE = " 2.1.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -220,13 +220,9 @@ class gmoccapy(object):
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
 
-        # the sounds to play if an error or message rises
-        self.alert_sound = "/usr/share/sounds/freedesktop/stereo/bell.oga"
-        self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
-
         # check the arguments given from the command line (Ini file)
         self.user_mode = False
-        logofile = None
+        self.logofile = None
         for index, arg in enumerate(argv):
             print(index, " = ", arg)
             if arg == "-user_mode":
@@ -236,18 +232,28 @@ class gmoccapy(object):
                 message += _("user mode selected")
                 print (message)
             if arg == "-logo":
-                logofile = str(argv[ index + 1 ])
+                self.logofile = str(argv[ index + 1 ])
                 message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("logo entry found = %s") % logofile
+                message += _("logo entry found = %s") % self.logofile
                 print (message)
-                logofile = logofile.strip("\"\'")
-                if not os.path.isfile(logofile):
-                    logofile = None
+                self.logofile = self.logofile.strip("\"\'")
+                if not os.path.isfile(self.logofile):
+                    self.logofile = None
                     message = _("**** GMOCCAPY INI Entry Error **** \n")
                     message += _("Logofile entry found, but could not be converted to path.\n")
                     message += _("The file path should not contain any spaces")
                     print(message)
-                    
+
+        # check if the user want a Logo (given as command line argument)
+        if self.logofile:
+            self.widgets.img_logo.set_from_file(self.logofile)
+            self.widgets.img_logo.show()
+
+            page2 = self.widgets.ntb_jog_JA.get_nth_page(2)
+            self.widgets.ntb_jog_JA.reorder_child(page2, 0)
+            page1 = self.widgets.ntb_jog_JA.get_nth_page(1)
+            self.widgets.ntb_jog_JA.reorder_child(page1, -1)
+
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -256,7 +262,6 @@ class gmoccapy(object):
 
         self._get_axis_list()
         self._init_extra_axes()
-        self._init_joints_btn()
         self._init_jog_increments()
 
         self._init_hal_pins()
@@ -277,6 +282,9 @@ class gmoccapy(object):
         # finally show the window
         self.widgets.window1.show()
 
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            self._init_joints_btn()
+
         self._init_dynamic_tabs()
         self._init_tooleditor()
         self._init_themes()
@@ -285,10 +293,10 @@ class gmoccapy(object):
         self._init_hardware_button_order()
         self._init_kinematics_type()
         self._init_hide_cursor()
-        self._init_keyboard()
         self._init_offsetpage()
         self._init_keybindings()
         self._init_IconFileSelection()
+        self._init_keyboard()
 
         # now we initialize the file to load widget
         self._init_file_to_load()
@@ -296,12 +304,6 @@ class gmoccapy(object):
         self._show_offset_tab(False)
         self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
-
-        # check if the user want a Logo (given as command line argument)
-        if logofile:
-            self.widgets.img_logo.set_from_file(logofile)
-            self.widgets.img_logo.show()
-            self.widgets.frm_jogging.hide()
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
@@ -431,21 +433,6 @@ class gmoccapy(object):
         if unlock == "hal" and not self.halcomp["unlock-settings"]:
             self.widgets.tbtn_setup.set_sensitive(False)
         self.unlock_code = self.prefs.getpref("unlock_code", "123", str)  # get unlock code
-
-        # get when the keyboard should be shown
-        # and set the corresponding button active
-        # only if onbaoard keyboard is ok.
-        if self.onboard:
-            self.widgets.chk_use_kb_on_offset.set_active(self.prefs.getpref("show_keyboard_on_offset",
-                                                                            True, bool))
-            self.widgets.chk_use_kb_on_tooledit.set_active(self.prefs.getpref("show_keyboard_on_tooledit",
-                                                                              False, bool))
-            self.widgets.chk_use_kb_on_edit.set_active(self.prefs.getpref("show_keyboard_on_edit",
-                                                                          True, bool))
-            self.widgets.chk_use_kb_on_mdi.set_active(self.prefs.getpref("show_keyboard_on_mdi",
-                                                                         True, bool))
-            self.widgets.chk_use_kb_on_file_selection.set_active(self.prefs.getpref("show_keyboard_on_file_selection",
-                                                                                    False, bool))
 
         # check if the user want to display preview window instead of offsetpage widget
         state = self.prefs.getpref("show_preview_on_offset", False, bool)
@@ -879,7 +866,6 @@ class gmoccapy(object):
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
         for item in range(1, len(self.jog_increments)):
-            print("Incremnet =",self.jog_increments[item])
             rbt = "rbt%d" % (item)
             rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
             rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
@@ -1078,6 +1064,10 @@ class gmoccapy(object):
             return
 
         if self._AUDIO_AVAILABLE:
+            # the sounds to play if an error or message rises
+            self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
+            self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
+
             self.audio = player.Player()
             self.alert_sound = self.prefs.getpref('audio_alert', self.alert_sound, str)
             self.error_sound = self.prefs.getpref('audio_error', self.error_sound, str)
@@ -1247,16 +1237,39 @@ class gmoccapy(object):
                 return
             sid = self.onboard_kb.stdout.readline()
             socket = gtk.Socket()
-            socket.show()
             self.widgets.key_box.add(socket)
             socket.add_id(long(sid))
+            socket.show()
             self.onboard = True
+            print(self.onboard)
         except Exception, e:
             print (_("**** GMOCCAPY ERROR ****"))
             print (_("**** Error with launching virtual keyboard,"))
             print (_("**** is onboard or matchbox-keyboard installed? ****"))
             traceback.print_exc()
             self._no_virt_keyboard()
+
+        # get when the keyboard should be shown
+        # and set the corresponding button active
+        # only if onbaoard keyboard is ok.
+        if self.onboard:
+            self.widgets.chk_use_kb_on_offset.set_active(self.prefs.getpref("show_keyboard_on_offset",
+                                                                            False, bool))
+            self.widgets.chk_use_kb_on_tooledit.set_active(self.prefs.getpref("show_keyboard_on_tooledit",
+                                                                              False, bool))
+            self.widgets.chk_use_kb_on_edit.set_active(self.prefs.getpref("show_keyboard_on_edit",
+                                                                          True, bool))
+            self.widgets.chk_use_kb_on_mdi.set_active(self.prefs.getpref("show_keyboard_on_mdi",
+                                                                         True, bool))
+            self.widgets.chk_use_kb_on_file_selection.set_active(self.prefs.getpref("show_keyboard_on_file_selection",
+                                                                                    False, bool))
+        else:
+            self.widgets.chk_use_kb_on_offset.set_active(False)
+            self.widgets.chk_use_kb_on_tooledit.set_active(False)
+            self.widgets.chk_use_kb_on_edit.set_active(False)
+            self.widgets.chk_use_kb_on_mdi.set_active(False)
+            self.widgets.chk_use_kb_on_file_selection.set_active(False)
+            self.widgets.frm_keyboard.set_sensitive(False) 
 
     def _no_virt_keyboard(self):
         # In this case we will disable the corresponding part on the settings page
@@ -1615,7 +1628,6 @@ class gmoccapy(object):
     # use the hal_status widget to control buttons and
     # actions allowed by the user and sensitive widgets
     def on_hal_status_all_homed(self, widget):
-        print("all joints homed")
         self.all_homed = True
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_select_tool_by_no",
@@ -1625,7 +1637,6 @@ class gmoccapy(object):
         self.set_motion_mode(1)
 
     def on_hal_status_not_all_homed(self, widget, joints):
-        print("not all joints homed", joints)
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -1663,7 +1674,6 @@ class gmoccapy(object):
             # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
-        print("Interpreter idle!")
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
@@ -1679,7 +1689,11 @@ class gmoccapy(object):
             widgetlist.append("btn_tool_touchoff_x")
             widgetlist.append("btn_tool_touchoff_z")
             widgetlist.append("btn_touch")
-        self._sensitize_widgets(widgetlist, True)
+        # This happen because hal_glib does emmit the signals in the order that idle is emited later that estop
+        if self.stat.task_state == linuxcnc.STATE_ESTOP or self.stat.task_state == linuxcnc.STATE_OFF:
+            self._sensitize_widgets(widgetlist, False)
+        else:
+            self._sensitize_widgets(widgetlist, True)
         for btn in self.macrobuttons:
             btn.set_sensitive(True)
         if self.onboard:
@@ -1697,7 +1711,6 @@ class gmoccapy(object):
         self.halcomp["program.progress"] = 0.0
 
     def on_hal_status_interp_run(self, widget):
-        print("Interpreter run!")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
@@ -1717,7 +1730,6 @@ class gmoccapy(object):
         self._update_toolinfo(new_tool_no)
 
     def on_hal_status_state_estop(self, widget=None):
-        print("EStop")
         self.widgets.tbtn_estop.set_active(True)
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
@@ -1727,7 +1739,6 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_state_estop_reset(self, widget=None):
-        print("EStop reset")
         self.widgets.tbtn_estop.set_active(False)
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
@@ -1740,7 +1751,6 @@ class gmoccapy(object):
         self._check_limits()
 
     def on_hal_status_state_off(self, widget):
-        print("OFF")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "ntb_jog_JA", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
@@ -1759,7 +1769,6 @@ class gmoccapy(object):
         self.widgets.ntb_jog.set_current_page(0)
 
     def on_hal_status_state_on(self, widget):
-        print("ON")
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "spc_feed", "btn_feed_100", "rbt_forward",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist",
@@ -1776,7 +1785,6 @@ class gmoccapy(object):
             self.command.wait_complete()
 
     def on_hal_status_mode_manual(self, widget):
-        print("MANUAL")
         self.widgets.rbt_manual.set_active(True)
         # if setup page is activated, we must leave here, otherwise the pages will be reset
         if self.widgets.tbtn_setup.get_active():
@@ -1791,7 +1799,6 @@ class gmoccapy(object):
         self._check_limits()
 
     def on_hal_status_mode_mdi(self, widget):
-        print("MDI")
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -1825,7 +1832,6 @@ class gmoccapy(object):
             self.widgets.rbt_mdi.set_active(True)
 
     def on_hal_status_mode_auto(self, widget):
-        print("AUTO")
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to abort external commands and get back to manual mode
         # This will happen mostly, if we are in settings mode, as we do disable the mode button
@@ -1848,13 +1854,11 @@ class gmoccapy(object):
     def on_hal_status_motion_mode_changed(self, widget, new_mode):
         # Motion mode change in identity kinematics makes no sense
         # so we will not react on the signal and correct the misbehavior
-        print("Motion mode has changed, now we are in mode ", new_mode)
         # self.stat.motion_mode return
         # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
         # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
 
         widgetlist = ("rbt_mdi", "rbt_auto")
-        print("ON / OFF = ", self.stat.task_state != linuxcnc.STATE_ON)
         if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
@@ -1922,14 +1926,6 @@ class gmoccapy(object):
 
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
-
-
-#        
-#        opt_stops = self.prefs.getpref("opstop", False, bool)
-#        print("Optstops = ", opt_stops)
-#        self.widgets.tbtn_optional_stops.set_active(opt_stops)
-#        self.command.set_optional_stop(opt_stops)
-#        print("stat says = ", self.stat.optional_stop)
 
         self.initialized = True
 
@@ -2566,11 +2562,11 @@ class gmoccapy(object):
 
     def _offset_changed(self, pin, tooloffset):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
-            self.widgets.lbl_tool_offset_z.set_text("%.3f" % self.halcomp["tool.tooloffset-z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.3f" % self.halcomp["tool.tooloffset-x"])
+            self.widgets.lbl_tool_offset_z.set_text("%.3f" % self.halcomp["tooloffset-z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.3f" % self.halcomp["tooloffset-x"])
         else:
-            self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tool.tooloffset-z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tool.tooloffset-x"])
+            self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tooloffset-z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tooloffset-x"])
 
     def on_offsetpage1_selection_changed(self, widget, system, name):
         if system not in self.system_list[1:] or self.widgets.tbtn_edit_offsets.get_active():
@@ -2975,7 +2971,6 @@ class gmoccapy(object):
     def on_btn_home_selected_clicked(self, widget, data=None):
         if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             # we can switch without any risk to joint mode and home the selected joint
-            self.set_motion_mode(0)
             if widget == self.widgets.btn_home_x:
                 axis = 0
             elif widget == self.widgets.btn_home_y:
@@ -2987,8 +2982,11 @@ class gmoccapy(object):
             elif widget == self.widgets.btn_home_5:
                 axis = "xyzabcuvw".index(self.axisletter_five)
         else:
-            self._show_error((13, _("Homing of an axis not allowed in not identity kinematics\nPlease use <home all> button")))
-            return
+            for button in range(0,8):
+                if widget == self.widgets["btn_home_j%s"%button]:
+                    axis = button
+                    break
+        self.set_motion_mode(0)
         self.command.home(axis)
         
     def on_btn_sel_next_joints_clicked(self, widget, data=None):
@@ -3453,32 +3451,32 @@ class gmoccapy(object):
             self.command.wait_complete()
 
     def on_spbtn_probe_height_value_changed(self, widget, data=None):
-        self.halcomp["tool.measurement.probeheight"] = widget.get_value()
+        self.halcomp["probeheight"] = widget.get_value()
         self.prefs.putpref("probeheight", widget.get_value(), float)
 
     def on_spbtn_search_vel_value_changed(self, widget, data=None):
-        self.halcomp["tool.measurement.searchvel"] = widget.get_value()
+        self.halcomp["searchvel"] = widget.get_value()
         self.prefs.putpref("searchvel", widget.get_value(), float)
 
     def on_spbtn_probe_vel_value_changed(self, widget, data=None):
-        self.halcomp["tool.measurement.probevel"] = widget.get_value()
+        self.halcomp["probevel"] = widget.get_value()
         self.prefs.putpref("probevel", widget.get_value(), float)
 
     def on_chk_use_tool_measurement_toggled(self, widget, data=None):
         if widget.get_active():
             self.widgets.frm_probe_pos.set_sensitive(True)
             self.widgets.frm_probe_vel.set_sensitive(True)
-            self.halcomp["tool.measurement.toolmeasurement"] = True
-            self.halcomp["tool.measurement.searchvel"] = self.widgets.spbtn_search_vel.get_value()
-            self.halcomp["tool.measurement.probevel"] = self.widgets.spbtn_probe_vel.get_value()
-            self.halcomp["tool.measurement.probeheight"] = self.widgets.spbtn_probe_height.get_value()
+            self.halcomp["toolmeasurement"] = True
+            self.halcomp["searchvel"] = self.widgets.spbtn_search_vel.get_value()
+            self.halcomp["probevel"] = self.widgets.spbtn_probe_vel.get_value()
+            self.halcomp["probeheight"] = self.widgets.spbtn_probe_height.get_value()
         else:
             self.widgets.frm_probe_pos.set_sensitive(False)
             self.widgets.frm_probe_vel.set_sensitive(False)
-            self.halcomp["tool.measurement.toolmeasurement"] = False
-            self.halcomp["tool.measurement.searchvel"] = 0.0
-            self.halcomp["tool.measurement.probevel"] = 0.0
-            self.halcomp["tool.measurement.probeheight"] = 0.0
+            self.halcomp["toolmeasurement"] = False
+            self.halcomp["searchvel"] = 0.0
+            self.halcomp["probevel"] = 0.0
+            self.halcomp["probeheight"] = 0.0
         self.prefs.putpref("use_toolmeasurement", widget.get_active())
 
     def on_btn_block_height_clicked(self, widget, data=None):
@@ -3489,8 +3487,8 @@ class gmoccapy(object):
         if blockheight == "CANCEL" or blockheight == "ERROR":
             return
         if blockheight != False or blockheight == 0:
-            self.halcomp["tool.measurement.blockheight"] = blockheight
-            self.halcomp["tool.measurement.probeheight"] = probeheight
+            self.halcomp["blockheight"] = blockheight
+            self.halcomp["probeheight"] = probeheight
             self.prefs.putpref("blockheight", blockheight, float)
             self.prefs.putpref("probeheight", probeheight, float)
         else:
@@ -3737,8 +3735,8 @@ class gmoccapy(object):
 
     # Here we create a manual tool change dialog
     def on_tool_change(self, widget):
-        change = self.halcomp['tool.toolchange-change']
-        toolnumber = self.halcomp['tool.toolchange-number']
+        change = self.halcomp['toolchange-change']
+        toolnumber = self.halcomp['toolchange-number']
         if change:
             # if toolnumber = 0 we will get an error because we will not be able to get
             # any tool description, so we avoid that case
@@ -3749,18 +3747,18 @@ class gmoccapy(object):
                 message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
             result = dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
             if result:
-                self.halcomp["tool.toolchange-changed"] = True
+                self.halcomp["toolchange-changed"] = True
             else:
                 print"toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number']
                 self.command.abort()
-                self.halcomp['tool.toolchange-number'] = self.stat.tool_in_spindle
-                self.halcomp['tool.toolchange-change'] = False
-                self.halcomp['tool.toolchange-changed'] = True
+                self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
+                self.halcomp['toolchange-change'] = False
+                self.halcomp['toolchange-changed'] = True
                 message = _("Tool Change has been aborted!\n")
                 message += _("The old tool will remain set!")
                 dialogs.warning_dialog(self, message)
         else:
-            self.halcomp['tool.toolchange-changed'] = False
+            self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
         self.tooledit_btn_delete_tool.emit("clicked")
@@ -4475,16 +4473,16 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._on_turtle_jog_enable)
 
         # make the pins for tool measurement
-        self.halcomp.newpin("tool.measurement.probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("tool.measurement.blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("tool.measurement.toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("tool.measurement.searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("tool.measurement.probevel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
 
         # make pins to react to tool_offset changes
-        pin = self.halcomp.newpin("tool.tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
-        pin = self.halcomp.newpin("tool.tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
 
         # make a pin to delete a notification message
@@ -4492,9 +4490,9 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._del_message_changed)
 
         # for manual tool change dialog
-        self.halcomp.newpin("tool.toolchange-number", hal.HAL_S32, hal.HAL_IN)
-        self.halcomp.newpin("tool.toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
-        pin = self.halcomp.newpin('tool.toolchange-change', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("toolchange-number", hal.HAL_S32, hal.HAL_IN)
+        self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
+        pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
 
         # make a pin to reset feed override to 100 %

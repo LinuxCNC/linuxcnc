@@ -1,6 +1,6 @@
-T1 P1 D4.500000 Z-16.309261 ;4.5 mm 3 flute cutter                                 
+T1 P1 D4.500000 Z-2.667780 ;4.5 mm 3 flute cutter                                 
 T2 P2 D25.000000 Z-17.295477 ;25 mm cutter                                   
-T3 P3 D7.500000 Z-18.746089 ;7.5 mm 3 flute cutter                                   
+T3 P3 D7.500000 Z+1.229786 ;7.5 mm 3 flute cutter                                   
 T4 P4 D4.000000 Z-10.256000 ;4 mm Drill                                   
 T5 P5 D5.000000 Z-10.254000 ;5 mm Drill                                   
 T6 P6 D6.000000 Z-11.120000 ;6 mm Carbide burr                                   
