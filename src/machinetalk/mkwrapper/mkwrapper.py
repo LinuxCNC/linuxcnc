@@ -1037,11 +1037,11 @@ class LinuxCNCWrapper():
             txToolResult.Clear()
             resultModified = False
 
+            if (index == 0):  # TODO: consider [EMCIO]RANDOM_TOOL_CHANGER
+                continue
+
             if (statToolResult.id == -1):
-                if (index > 0):  # last tool in table
-                    break
-                else:
-                    continue
+                break  # last tool in table, except index = 0 (spindle !)
 
             if len(self.status.io.tool_table) == tableIndex:
                 self.status.io.tool_table.add()
@@ -1081,7 +1081,7 @@ class LinuxCNCWrapper():
 
             tableIndex += 1
 
-        if toolTableChanged or self.ioLoadToolTable:
+        if toolTableChanged:
             # update pocket and comment from tool table file
             self.load_tool_table(self.status.io, self.statusTx.io)
             self.ioLoadToolTable = False
