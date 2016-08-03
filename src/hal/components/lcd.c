@@ -235,6 +235,9 @@ int rtapi_app_main(void){
         lcd->insts[i].buff[0] = 0;
         lcd->insts[i].c_ptr = 0;
     }
+
+    hal_ready(comp_id);
+
     return 0;
 }
 
