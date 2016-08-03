@@ -269,7 +269,6 @@ static void write_one(lcd_inst_t *inst){
     
     if (*inst->page_num != inst->last_page){
         inst->last_page = *inst->page_num;
-        if (*inst->page_num >= inst->num_pages) return; // should this error?
         *inst->out = 0x11; //cursor off
         inst->buff[0] = 0x1A; //dummy
         inst->buff[1] = 0; //end
@@ -279,6 +278,8 @@ static void write_one(lcd_inst_t *inst){
         return;
     }    
     
+    if (*inst->page_num >= inst->num_pages) return; // should this error?
+
     if (inst->f_ptr > inst->pages[*inst->page_num].length){
         *inst->out = 0x18; // clear line
         inst->buff[0] = 0x1E; // home
