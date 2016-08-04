@@ -10,8 +10,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 2016.08.04
 *********************************************************************
 
   These are the forward and inverse kinematic functions for a class of

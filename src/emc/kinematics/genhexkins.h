@@ -10,8 +10,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 2016.08.04
 ********************************************************************
 
   This is the header file to accompany genhexkins.c.  This header file
