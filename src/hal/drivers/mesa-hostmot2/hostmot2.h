@@ -1076,6 +1076,7 @@ typedef struct {
 
     struct {
         int num_encoders;
+        int num_mencoders;
         int num_absencs;
         struct list_head absenc_formats;
         int num_resolvers;
@@ -1120,6 +1121,7 @@ typedef struct {
 
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
+    hm2_encoder_t mencoder;
     hm2_absenc_t absenc;
     hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
