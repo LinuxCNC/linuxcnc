@@ -1,15 +1,23 @@
 # !/bin/bash
 
+usage() 
+{
+    echo " Usage  mank filename(.asciidoc) OR mank -f filename(.asciidoc) [optional -p path -s(cripted)]"
+    exit 1
+}
+
+
 ## If only one arg, assumed to be name of asciidoc to display
-if [ "$#" -eq 1 ]; then
+if [[ "$#" -eq 1 && "$1" != "-h" ]]; then
     fil=$1
 ## otherwise allow use with specific switches and paramenters
 else
-    TEMP=`getopt -o f:sp: -- "$@"`
+    TEMP=`getopt -o f:shp: -- "$@"`
     eval set -- "$TEMP"
 
     while true ; do
 	case "$1" in
+	    -h) usage ;;
     	    -f)
         	case "$2" in
                     *) fil=$2 ; shift 2 ;;
@@ -19,15 +27,15 @@ else
         	case "$2" in
                     *) path=$2 ; shift 2 ;;
 	        esac ;;
-    	    --) shift ; break ;;
+
+	    --) shift ; break ;;
             *) echo "Internal error!" ; exit 1 ;;
 	esac
     done
 fi
 
 if [ -z "$fil" ]; then
-    echo " Usage  mank filename(.asciidoc) OR mank -f filename(.asciidoc) [optional -p path -s(cripted)]"
-    exit 1
+    usage
 fi
 
 if [ ! -f /usr/bin/elinks ]; then
@@ -45,23 +53,27 @@ if [ -n "$path" ]; then
     filn=$(find "$path" -type f -name "$fil.asciidoc")
 else
     if [ "$RIP" == "yes" ]; then
-	filn=$(find $EMC2_HOME/man -type f -name $fil.asciidoc)
+	filn=$(find . $EMC2_HOME/man -type f -name $fil.asciidoc)
     else
 	## this is the install path for machinekit-manual-pages plus optional /local prefix
-	filn=$(find /usr/share/doc/machinekit/man /usr/local/share/doc/machinekit/man -type f -name $fil.asciidoc)
+	filn=$(find . /usr/share/doc/machinekit/man /usr/local/share/doc/machinekit/man -type f -name $fil.asciidoc)
     fi
 fi
 
-asciidoctor $filn -o - | elinks -dump
+if [ ! -z "$filn" ]; then
+    asciidoctor $filn -o - | elinks -dump | more
 
-## allow dispensing with key read and screen clear when scripting use of mank, as in instcomp / comp
-## --view-doc
+    ## allow dispensing with key read and screen clear when scripting use of mank, as in instcomp / comp
+    ## --view-doc
 
-if [ "$script" != "yes" ]; then
-    read -p "Press [Enter] to exit: "
-    clear
+    if [ "$script" != "yes" ]; then
+	read -p "Press [Enter] to exit: "
+        clear
+    fi
+else
+    echo "Incorrect syntax or file does not exist"
+    usage
 fi
-
 exit 0
 
 
