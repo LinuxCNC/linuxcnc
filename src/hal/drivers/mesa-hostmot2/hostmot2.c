@@ -331,6 +331,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     // default is to enable everything in the firmware
     hm2->config.num_encoders = -1;
+    hm2->config.num_mencoders = -1;
     hm2->config.num_absencs = -1;
     hm2->absenc.chans = NULL;
     hm2->absenc.num_chans = 0;
@@ -369,6 +370,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         if (strncmp(token, "num_encoders=", 13) == 0) {
             token += 13;
             hm2->config.num_encoders = simple_strtol(token, NULL, 0);
+
+	} else if (strncmp(token, "num_mencoders=", 14) == 0) {
+            token += 14;
+            hm2->config.num_mencoders = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "ssi_chan_", 9) == 0) {
             token += 9;
@@ -473,6 +478,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     HM2_DBG("final config:\n");
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
+    HM2_DBG("    num_mencoders=%d\n", hm2->config.num_mencoders);
     HM2_DBG("    num_absencs=%d\n", hm2->config.num_absencs);
     HM2_DBG("    num_resolvers=%d\n", hm2->config.num_resolvers);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
