@@ -1108,6 +1108,9 @@ typedef struct {
 
     hm2_pin_t *pin;
     int num_pins;
+    // running count of encoders instantiated so far
+    // regardless of type (muxed or unmuxed)
+    int encoder_base;
 
     // this keeps track of all the tram entries
     struct list_head tram_read_entries;
