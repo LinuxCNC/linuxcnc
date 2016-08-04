@@ -314,10 +314,9 @@ typedef struct {
 
 #define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
 
-
-#define hm2_encoder_get_reg_count(hm2, instance)     (hm2->encoder.counter_reg[instance] & 0x0000ffff)
-#define hm2_encoder_get_reg_timestamp(hm2, instance) ((hm2->encoder.counter_reg[instance] >> 16) & 0x0000ffff)
-#define hm2_encoder_get_reg_tsc(hm2)                 ((*hm2->encoder.timestamp_count_reg) & 0xFFFF)
+#define hm2_encoder_get_reg_count(encoder, instance)     (encoder->counter_reg[instance] & 0x0000ffff)
+#define hm2_encoder_get_reg_timestamp(encoder, instance) ((encoder->counter_reg[instance] >> 16) & 0x0000ffff)
+#define hm2_encoder_get_reg_tsc(encoder)                 ((*encoder->timestamp_count_reg) & 0xFFFF)
 
 
 typedef struct {
@@ -1121,7 +1120,7 @@ typedef struct {
 
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
-    hm2_encoder_t mencoder;
+    hm2_encoder_t muxed_encoder;
     hm2_absenc_t absenc;
     hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
@@ -1233,13 +1232,24 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2);
 // encoder functions
 //
 
-int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_encoder_tram_init(hostmot2_t *hm2);
-void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns);
-void hm2_encoder_write(hostmot2_t *hm2);
-void hm2_encoder_cleanup(hostmot2_t *hm2);
-void hm2_encoder_print_module(hostmot2_t *hm2);
-void hm2_encoder_force_write(hostmot2_t *hm2);
+int hm2_encoder_parse_md(hostmot2_t *hm2,
+			 hm2_encoder_t *encoder,
+			 int md_index,
+			 int num_encs);
+void hm2_encoder_tram_init(hostmot2_t *hm2,
+			   hm2_encoder_t *encoder);
+void hm2_encoder_process_tram_read(hostmot2_t *hm2,
+				   hm2_encoder_t *encoder,
+				   long l_period_ns);
+void hm2_encoder_write(hostmot2_t *hm2,
+		       hm2_encoder_t *encoder);
+void hm2_encoder_cleanup(hostmot2_t *hm2,
+			 hm2_encoder_t *encoder);
+void hm2_encoder_print_module(hostmot2_t *hm2,
+			      hm2_encoder_t *encoder,
+			      char *tag);
+void hm2_encoder_force_write(hostmot2_t *hm2,
+			     hm2_encoder_t *encoder);
 
 
 //
