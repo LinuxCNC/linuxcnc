@@ -619,14 +619,11 @@ typedef struct {
             hal_float_t *Cvalue;
             hal_bit_t *fault;
             hal_bit_t *enable;
+            hal_float_t *scale;
+            hal_float_t *deadzone;
+            hal_bit_t *faultpolarity;
+            hal_float_t *sampletime;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_float_t deadzone;
-            hal_bit_t faultpolarity;
-            hal_float_t sampletime;
-        } param;
 
     } hal;
 
@@ -641,8 +638,8 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency; // One PWM rate for all instances
-    } param;
+        hal_u32_t *pwm_frequency; // One PWM rate for all instances
+    } pin;
 } hm2_tp_pwmgen_global_hal_t;
 
 typedef struct {
