@@ -49,65 +49,66 @@ static void do_flag(u32 *reg, int condition, u32 bits) {
 }
 
 
-static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
+static void hm2_encoder_update_control_register(hostmot2_t *hm2,
+						hm2_encoder_t *encoder) {
     int i;
 
-    for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
+    for (i = 0; i < encoder->num_instances; i ++) {
+        hm2_encoder_instance_t *e = &encoder->instance[i];
         int index_enable = *e->hal.pin.index_enable;
         int latch_enable = *e->hal.pin.latch_enable;
-        hm2->encoder.control_reg[i] = 0;
+        encoder->control_reg[i] = 0;
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             index_enable,
             HM2_ENCODER_LATCH_ON_INDEX
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             !index_enable && latch_enable,
             HM2_ENCODER_LATCH_ON_PROBE
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             index_enable || latch_enable,
 	    HM2_ENCODER_INDEX_JUSTONCE
 	);
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             *e->hal.pin.latch_polarity,
             HM2_ENCODER_PROBE_POLARITY
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             e->hal.param.index_invert,
             HM2_ENCODER_INDEX_POLARITY
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             e->hal.param.index_mask,
             HM2_ENCODER_INDEX_MASK
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             e->hal.param.index_mask_invert,
             HM2_ENCODER_INDEX_MASK_POLARITY
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             e->hal.param.counter_mode,
             HM2_ENCODER_COUNTER_MODE
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             e->hal.param.filter,
             HM2_ENCODER_FILTER
         );
@@ -128,7 +129,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2,
                 hm2_encoder_force_write(hm2, encoder);
                 last_error_enable = 1;
             } else {
-                int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
+                int state = (encoder->read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
                 if ((*e->hal.pin.quadrature_error == 0) && state) {
                     HM2_ERR("Encoder %d: quadrature count error", i);
                 }
@@ -178,7 +179,7 @@ void hm2_encoder_write(hostmot2_t *hm2,
 
     if (encoder->num_instances == 0) return;
 
-    hm2_encoder_update_control_register(hm2);
+    hm2_encoder_update_control_register(hm2, encoder);
 
     for (i = 0; i < encoder->num_instances; i ++) {
         if ((encoder->instance[i].prev_control & HM2_ENCODER_CONTROL_MASK) != (encoder->control_reg[i] & HM2_ENCODER_CONTROL_MASK)) {
@@ -208,7 +209,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2,
 
     if (encoder->num_instances == 0) return;
 
-    hm2_encoder_update_control_register(hm2);
+    hm2_encoder_update_control_register(hm2, encoder);
 
     hm2->llio->write(
         hm2->llio,
