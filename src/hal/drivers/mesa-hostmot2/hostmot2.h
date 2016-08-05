@@ -731,21 +731,20 @@ typedef struct {
             hal_float_t *dbg_err_at_match;
             hal_s32_t *dbg_step_rate;
             hal_float_t *dbg_pos_minus_prev_cmd;
-        } pin;
 
-        struct {
-            hal_float_t position_scale;
-            hal_float_t maxvel;
-            hal_float_t maxaccel;
 
-            hal_u32_t steplen;
-            hal_u32_t stepspace;
-            hal_u32_t dirsetup;
-            hal_u32_t dirhold;
+            hal_float_t *position_scale;
+            hal_float_t *maxvel;
+            hal_float_t *maxaccel;
 
-            hal_u32_t step_type;
-            hal_u32_t table[5]; // the Fifth Element is used as a very crude hash
-        } param;
+            hal_u32_t *steplen;
+            hal_u32_t *stepspace;
+            hal_u32_t *dirsetup;
+            hal_u32_t *dirhold;
+
+            hal_u32_t *step_type;
+            hal_u32_t *table[5]; // the Fifth Element is used as a very crude hash
+	} pin;
 
     } hal;
 
