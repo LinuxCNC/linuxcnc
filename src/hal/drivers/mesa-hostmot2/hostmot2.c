@@ -84,7 +84,8 @@ static void hm2_read(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
     hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
-    hm2_encoder_process_tram_read(hm2, period);
+    hm2_encoder_process_tram_read(hm2, &hm2->encoder, period);
+    hm2_encoder_process_tram_read(hm2, &hm2->muxed_encoder, period);
     hm2_resolver_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
     hm2_sserial_process_tram_read(hm2, period);
@@ -121,7 +122,8 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
-    hm2_encoder_write(hm2);   // update ctrl register if needed
+    hm2_encoder_write(hm2, &hm2->encoder);   // update ctrl register if needed
+    hm2_encoder_write(hm2, &hm2->muxed_encoder);   // update ctrl register if needed
     hm2_absenc_write(hm2);    // set bit-lengths and frequency
     hm2_resolver_write(hm2, period); // Update the excitation frequency
     hm2_dpll_write(hm2, period); // Update the timer phases
@@ -330,7 +332,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     int i,j;
 
     // default is to enable everything in the firmware
+    hm2->encoder_base = 0;
     hm2->config.num_encoders = -1;
+    hm2->config.num_mencoders = -1;
     hm2->config.num_absencs = -1;
     hm2->absenc.chans = NULL;
     hm2->absenc.num_chans = 0;
@@ -369,6 +373,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         if (strncmp(token, "num_encoders=", 13) == 0) {
             token += 13;
             hm2->config.num_encoders = simple_strtol(token, NULL, 0);
+
+	} else if (strncmp(token, "num_mencoders=", 14) == 0) {
+            token += 14;
+            hm2->config.num_mencoders = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "ssi_chan_", 9) == 0) {
             token += 9;
@@ -473,6 +481,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     HM2_DBG("final config:\n");
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
+    HM2_DBG("    num_mencoders=%d\n", hm2->config.num_mencoders);
     HM2_DBG("    num_absencs=%d\n", hm2->config.num_absencs);
     HM2_DBG("    num_resolvers=%d\n", hm2->config.num_resolvers);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
@@ -893,8 +902,21 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         switch (md->gtag) {
 
             case HM2_GTAG_ENCODER:
+	        md_accepted = hm2_encoder_parse_md(hm2,
+						   &hm2->encoder,
+						   md_index,
+						   hm2->config.num_encoders);
+		if (md_accepted > 0)
+		    hm2->encoder_base += md_accepted; // update running count
+	        break;
+
             case HM2_GTAG_MUXED_ENCODER:
-                md_accepted = hm2_encoder_parse_md(hm2, md_index);
+                md_accepted = hm2_encoder_parse_md(hm2,
+						   &hm2->muxed_encoder,
+						   md_index,
+						   hm2->config.num_mencoders);
+		if (md_accepted > 0)
+		    hm2->encoder_base += md_accepted;
                 break;
 
             case HM2_GTAG_SSI:
@@ -1011,7 +1033,8 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
-    hm2_encoder_cleanup(hm2);
+    hm2_encoder_cleanup(hm2, &hm2->encoder);
+    hm2_encoder_cleanup(hm2, &hm2->muxed_encoder);
     hm2_absenc_cleanup(hm2);
     hm2_resolver_cleanup(hm2);
     hm2_watchdog_cleanup(hm2);
@@ -1030,7 +1053,8 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 
 
 void hm2_print_modules(hostmot2_t *hm2) {
-    hm2_encoder_print_module(hm2);
+    hm2_encoder_print_module(hm2, &hm2->encoder, "Encoders");
+    hm2_encoder_print_module(hm2, &hm2->muxed_encoder, "Muxed Encoders");
     hm2_absenc_print_module(hm2);
     hm2_resolver_print_module(hm2);
     hm2_pwmgen_print_module(hm2);
@@ -1503,8 +1527,11 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     hm2_ioport_gpio_process_tram_read(hm2);
 
     // initialize encoder count & pos to 0
-    hm2_encoder_tram_init(hm2);
-    hm2_encoder_process_tram_read(hm2, 1000);
+    hm2_encoder_tram_init(hm2, &hm2->encoder);
+    hm2_encoder_process_tram_read(hm2, &hm2->encoder, 1000);
+
+    hm2_encoder_tram_init(hm2, &hm2->muxed_encoder);
+    hm2_encoder_process_tram_read(hm2, &hm2->muxed_encoder, 1000);
 
     // initialize step accumulator, hal count & position to 0
     hm2_stepgen_tram_init(hm2);
@@ -1686,7 +1713,8 @@ void rtapi_app_exit(void) {
 void hm2_force_write(hostmot2_t *hm2) {
     hm2_watchdog_force_write(hm2);
     hm2_ioport_force_write(hm2);
-    hm2_encoder_force_write(hm2);
+    hm2_encoder_force_write(hm2, &hm2->encoder);
+    hm2_encoder_force_write(hm2, &hm2->muxed_encoder);
     hm2_pwmgen_force_write(hm2);
     hm2_stepgen_force_write(hm2);
     hm2_tp_pwmgen_force_write(hm2);
