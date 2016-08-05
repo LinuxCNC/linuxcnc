@@ -348,9 +348,9 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     
     // No point coming back unless something changes
     inst->written_step_type  = *inst->hal.pin.step_type;
-    *inst->hal.pin.table[4] = (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
-                            ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3]);
-                                                                             
+    inst->hal.table_hash = (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
+			     ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3]);
+
     if (*inst->hal.pin.step_type <= 2) {
         hm2->stepgen.mode_reg[i] = *inst->hal.pin.step_type;
         return;
@@ -428,7 +428,7 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
         if ((*inst->hal.pin.step_type != inst->written_step_type)
                 || (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
                  ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3])
-                 != *inst->hal.pin.table[4]) {
+                 != inst->hal.table_hash) {
             hm2_stepgen_update_mode(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(u32)), &hm2->stepgen.mode_reg[i], sizeof(u32));
         }

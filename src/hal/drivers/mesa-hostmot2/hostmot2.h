@@ -743,9 +743,9 @@ typedef struct {
             hal_u32_t *dirhold;
 
             hal_u32_t *step_type;
-            hal_u32_t *table[5]; // the Fifth Element is used as a very crude hash
+            hal_u32_t *table[4];
 	} pin;
-
+	hal_u32_t table_hash;  //  a very crude hash over hal.pin.table[0..3]
     } hal;
 
     // this variable holds the previous position command, for
