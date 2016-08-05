@@ -330,6 +330,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     int i,j;
 
     // default is to enable everything in the firmware
+    hm2->encoder_base = 0;
     hm2->config.num_encoders = -1;
     hm2->config.num_mencoders = -1;
     hm2->config.num_absencs = -1;
@@ -899,8 +900,21 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         switch (md->gtag) {
 
             case HM2_GTAG_ENCODER:
+	        md_accepted = hm2_encoder_parse_md(hm2,
+						   &hm2->encoder,
+						   md_index,
+						   hm2->config.num_encoders);
+		if (md_accepted > 0)
+		    hm2->encoder_base += md_accepted; // update running count
+	        break;
+
             case HM2_GTAG_MUXED_ENCODER:
-                md_accepted = hm2_encoder_parse_md(hm2, md_index);
+                md_accepted = hm2_encoder_parse_md(hm2,
+						   &hm2->muxed_encoder,
+						   md_index,
+						   hm2->config.num_mencoders);
+		if (md_accepted > 0)
+		    hm2->encoder_base += md_accepted;
                 break;
 
             case HM2_GTAG_SSI:
