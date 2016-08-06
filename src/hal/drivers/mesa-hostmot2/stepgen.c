@@ -345,16 +345,19 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     u32 buff;
     int j;
     hm2_stepgen_instance_t *inst =  &hm2->stepgen.instance[i];
-    
+
     // No point coming back unless something changes
     inst->written_step_type  = *inst->hal.pin.step_type;
-    inst->hal.table_hash = (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
-			     ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3]);
 
+    // do not refer to table pins if not allocated
     if (*inst->hal.pin.step_type <= 2) {
         hm2->stepgen.mode_reg[i] = *inst->hal.pin.step_type;
         return;
-    } 
+    }
+    inst->hal.table_hash = (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
+			     ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3]);
+
+
     if (inst->table_width <  *inst->hal.pin.step_type){
         HM2_ERR("the firmware only supports %i pins in the step pattern for "
                 "stepgen instance %i, you asked for %i. Reverting to step type 0\n",
@@ -425,11 +428,13 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
             hm2->llio->write(hm2->llio, hm2->stepgen.pulse_idle_width_addr + (i * sizeof(u32)), &hm2->stepgen.pulse_idle_width_reg[i], sizeof(u32));
         }
 
-        if ((*inst->hal.pin.step_type != inst->written_step_type)
-                || (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
-                 ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3])
-                 != inst->hal.table_hash) {
-            hm2_stepgen_update_mode(hm2, i);
+        if ((*inst->hal.pin.step_type != inst->written_step_type)  ||
+	    ((*inst->hal.pin.step_type > 2) && // do not touch table pins if not allocated
+	     ((*inst->hal.pin.table[0] ^
+	       *inst->hal.pin.table[1] ^
+	       *inst->hal.pin.table[2] ^
+	       *inst->hal.pin.table[3]) != inst->hal.table_hash))) {
+	    hm2_stepgen_update_mode(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(u32)), &hm2->stepgen.mode_reg[i], sizeof(u32));
         }
     }
@@ -977,11 +982,13 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->stepgen.instance[i].written_dirhold = 0;
 
             hm2->stepgen.instance[i].written_step_type = 0xffffffff;
-            *(hm2->stepgen.instance[i].hal.pin.table[0]) = 0;
-            *(hm2->stepgen.instance[i].hal.pin.table[1]) = 0;
-            *(hm2->stepgen.instance[i].hal.pin.table[2]) = 0;
-            *(hm2->stepgen.instance[i].hal.pin.table[3]) = 0;
-
+            if (hm2->stepgen.instance[i].table_width > 2) {
+		// do not touch pins if not allocated
+		*(hm2->stepgen.instance[i].hal.pin.table[0]) = 0;
+		*(hm2->stepgen.instance[i].hal.pin.table[1]) = 0;
+		*(hm2->stepgen.instance[i].hal.pin.table[2]) = 0;
+		*(hm2->stepgen.instance[i].hal.pin.table[3]) = 0;
+	    }
             hm2->stepgen.instance[i].prev_accumulator = 0;
         }
     }
