@@ -619,14 +619,11 @@ typedef struct {
             hal_float_t *Cvalue;
             hal_bit_t *fault;
             hal_bit_t *enable;
+            hal_float_t *scale;
+            hal_float_t *deadzone;
+            hal_bit_t *faultpolarity;
+            hal_float_t *sampletime;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_float_t deadzone;
-            hal_bit_t faultpolarity;
-            hal_float_t sampletime;
-        } param;
 
     } hal;
 
@@ -641,8 +638,8 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency; // One PWM rate for all instances
-    } param;
+        hal_u32_t *pwm_frequency; // One PWM rate for all instances
+    } pin;
 } hm2_tp_pwmgen_global_hal_t;
 
 typedef struct {
@@ -734,22 +731,21 @@ typedef struct {
             hal_float_t *dbg_err_at_match;
             hal_s32_t *dbg_step_rate;
             hal_float_t *dbg_pos_minus_prev_cmd;
-        } pin;
 
-        struct {
-            hal_float_t position_scale;
-            hal_float_t maxvel;
-            hal_float_t maxaccel;
 
-            hal_u32_t steplen;
-            hal_u32_t stepspace;
-            hal_u32_t dirsetup;
-            hal_u32_t dirhold;
+            hal_float_t *position_scale;
+            hal_float_t *maxvel;
+            hal_float_t *maxaccel;
 
-            hal_u32_t step_type;
-            hal_u32_t table[5]; // the Fifth Element is used as a very crude hash
-        } param;
+            hal_u32_t *steplen;
+            hal_u32_t *stepspace;
+            hal_u32_t *dirsetup;
+            hal_u32_t *dirhold;
 
+            hal_u32_t *step_type;
+            hal_u32_t *table[4];
+	} pin;
+	hal_u32_t table_hash;  //  a very crude hash over hal.pin.table[0..3]
     } hal;
 
     // this variable holds the previous position command, for

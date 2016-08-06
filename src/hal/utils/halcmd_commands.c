@@ -1984,7 +1984,7 @@ static void print_vtable_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Exported vtables:\n");
-	halcmd_output("ID      Name                  Version Refcnt  Context Owner\n");
+	halcmd_output("ID      Name                             Version Refcnt  Context Owner\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     int next = hal_data->vtable_list_ptr;
@@ -1999,7 +1999,7 @@ static void print_vtable_info(char **patterns)
 		halcmd_output("   %-5d", vt->context);
 	    hal_comp_t *comp = halpr_find_comp_by_id(vt->comp_id);
 	    if (comp) {
-                halcmd_output("   %-5d %-30.30s", comp->comp_id,  comp->name);
+                halcmd_output("   %-5d %-41.41s", comp->comp_id,  comp->name);
 	    } else {
                 halcmd_output("   * not owned by a component *");
 	    }
@@ -2022,7 +2022,7 @@ static void print_pin_info(int type, char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
-	halcmd_output("  Comp   Inst Type  Dir         Value  Name                             Epsilon         Flags\n");
+	halcmd_output("  Comp   Inst Type  Dir         Value  Name                                             Epsilon         Flags\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
@@ -2046,7 +2046,7 @@ static void print_pin_info(int type, char **patterns)
 		    halcmd_output("%5d", pin->owner_id);
 
 		if (pin->type == HAL_FLOAT) {
-		    halcmd_output(" %5s %-3s  %9s  %-30.30s\t%f\t%d",
+		    halcmd_output(" %5s %-3s  %9s  %-41.41s\t%f\t%d",
 				  data_type((int) pin->type),
 				  pin_data_dir((int) pin->dir),
 				  data_value((int) pin->type, dptr),
@@ -2054,7 +2054,7 @@ static void print_pin_info(int type, char **patterns)
 				  hal_data->epsilon[pin->eps_index],
 				  pin->flags);
 		} else {
-		    halcmd_output(" %5s %-3s  %9s  %-30.30s\t\t\t%d",
+		    halcmd_output(" %5s %-3s  %9s  %-41.41s\t\t\t%d",
 				  data_type((int) pin->type),
 				  pin_data_dir((int) pin->dir),
 				  data_value((int) pin->type, dptr),
@@ -2062,7 +2062,7 @@ static void print_pin_info(int type, char **patterns)
 				  pin->flags);
 		}
 	    } else {
-		halcmd_output("%s %s %s %s %-30.30s",
+		halcmd_output("%s %s %s %s %-41.41s",
 			      comp->name,
 			      data_type((int) pin->type),
 			      pin_data_dir((int) pin->dir),
