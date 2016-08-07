@@ -10,6 +10,7 @@ import math
 import subprocess
 import fcntl
 import shlex
+import dbus
 
 from machinekit import service
 from machinekit import config
@@ -356,6 +357,18 @@ class Mklauncher:
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
 
+    def shutdown_system(self):
+        try:
+            systemBus = dbus.SystemBus()
+            ckService = systemBus.get_object('org.freedesktop.ConsoleKit',
+                                             '/org/freedesktop/ConsoleKit/Manager')
+            ckInterface = dbus.Interface(ckService, 'org.freedesktop.ConsoleKit.Manager')
+            stopMethod = ckInterface.get_dbus_method("Stop")
+            stopMethod()
+            return True
+        except:
+            return False
+
     def send_command_wrong_params(self, identity, note='wrong parameters'):
         self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
@@ -429,8 +442,9 @@ class Mklauncher:
             self.send_command_msg(identity, MT_ERROR)
 
         elif self.rx.type == MT_LAUNCHER_SHUTDOWN:
-            self.txCommand.note.append("shutdown not allowed")
-            self.send_command_msg(identity, MT_ERROR)
+            if not self.shutdown_system():
+                self.txCommand.note.append("cannot shutdown system: DBus error")
+                self.send_command_msg(identity, MT_ERROR)
 
         else:
             self.txCommand.note.append("unknown command")
