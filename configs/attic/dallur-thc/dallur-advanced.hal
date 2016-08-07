@@ -95,8 +95,9 @@ net limit-reached-z axis.2.neg-lim-sw-in
 # This is for Charge Pump which requires a 15khz signal to activate, maxfreq is the limiter 
 loadrt freqgen step_type=0
 loadrt siggen
-loadrt threads name1=fastcp period1=30000 name2=slowcp period2=1000000
 
+newthread fastcp 30000
+newthread slowcp 1000000
 
 net velcp siggen.0.square
 net velcp freqgen.0.velocity

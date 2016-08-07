@@ -12,7 +12,8 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 #loadrt hal_parport cfg=0x378
 #setp parport.0.reset-time 5000
 #loadrt stepgen step_type=0,0,0
-# loadrt threads fp1=0 name1=fast period1=50000 name2=slow period2=1000000
+# newthread fast 50000
+# newthread slow 1000000
 
 loadrt hal_bb_gpio output_pins=113,116 input_pins=108,114,115,117,118
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
