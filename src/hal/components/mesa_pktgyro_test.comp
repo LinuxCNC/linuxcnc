@@ -29,7 +29,7 @@ To test this component  set DEBUG=5 before and execute this HAL script:
     loadrt hostmot2
     loadrt hm2_pci
     loadrt mesa_pktgyro_test names=hm2_5i25.0.pktuart.0
-    loadrt threads name1=test1 period1=10000000
+    newthread test1 10000000
     addf hm2_5i25.0.pktuart.0.receive test1
     start
 

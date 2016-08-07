@@ -15,7 +15,7 @@ to fault during thread execution the comp's thread
 function must execute:
 
    loadrt die inthread=1
-   loadrt threads
+   newthread thread1
    addf die thread1
 
    # starting the thread should create a segfault  of rtapi_app:
