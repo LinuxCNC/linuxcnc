@@ -1198,6 +1198,10 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 	return -EPERM;
     }
 
+    if (strcmp(mod_name, "threads") == 0)
+	halcmd_info("the threads module is deprecated,"
+		    " consider replacing by halcmd newthread\n");
+
     // determine module properties (loaded or not)
     retval = rtapi_get_tags(mod_name);
     if(retval == -1) {
@@ -2280,7 +2284,7 @@ static void print_funct_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Exported Functions:\n");
-	halcmd_output("  Comp   Inst CodeAddr  Arg       FP   Users Type    Name\n");
+	halcmd_output("  Comp   Inst CodeAddr         Arg              Users Type    Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->funct_list_ptr;
@@ -2295,15 +2299,15 @@ static void print_funct_info(char **patterns)
 		    halcmd_output("     ");
 		else
 		    halcmd_output("%5d", fptr->owner_id);
-		halcmd_output(" %08lx  %08lx  %-3s  %5d %-7s %s\n",
+		halcmd_output(" %016lx %016lx %5d %-7s %s\n",
 
 			      (long)fptr->funct.l,
-			      (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
+			      (long)fptr->arg,
 			      fptr->users,
 			      ftype(fptr->type),
 			      fptr->name);
 	    } else {
-		halcmd_output("%s %08lx %08lx %s %3d %s\n",
+		halcmd_output("%s %016lx %016lx %s %3d %s\n",
 		    comp->name,
 		    (long)fptr->funct.l,
 		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
@@ -2394,7 +2398,7 @@ static void print_thread_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Realtime Threads (flavor: %s) :\n",  current_flavor->name);
-	halcmd_output("     Period  FP     Name               (     Time, Max-Time ) flags\n");
+	halcmd_output("     Period      Name               (     Time, Max-Time ) flags\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
@@ -2408,8 +2412,10 @@ static void print_thread_info(char **patterns)
 		     tptr->flags & TF_NONRT ? "posix ":"",
 		     tptr->flags & TF_NOWAIT ? "nowait":"");
 
-	    halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld ) %s\n" : "%ld %s %s %ld %ld %s"),
-		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name,
+	    halcmd_output(((scriptmode == 0) ? "%11ld %s%23s ( %8ld, %8ld ) %s\n" : "%ld %s %s %ld %ld %s"),
+			  tptr->period,
+			  (scriptmode == 0) ? "" : (tptr->uses_fp ? "YES" : "NO"),
+			  tptr->name,
 			  (long)tptr->runtime,
 			  (long)tptr->maxtime,  flags);
 
@@ -2423,7 +2429,7 @@ static void print_thread_info(char **patterns)
 		/* scriptmode only uses one line per thread, which contains:
 		   thread period, FP flag, name, then all functs separated by spaces  */
 		if (scriptmode == 0) {
-		    halcmd_output("                 %2d %s\n", n, funct->name);
+		    halcmd_output("              %2d %s\n", n, funct->name);
 		} else {
 		    halcmd_output(" %s", funct->name);
 		}
@@ -4083,10 +4089,12 @@ int do_newthread_cmd(char *name, char *args[])
 	if (sscanf(s, "cpu=%d", &cpu) == 1)
 	    continue;
 	if (strcmp(s, "fp") == 0) {
+	    halcmd_info("newthread: the 'fp' flag is deprecated and can be omitted\n");
 	    use_fp = true;
 	    continue;
 	}
 	if (strcmp(s, "nofp") == 0) {
+	    halcmd_info("newthread: the 'nofp' flag is deprecated and can be omitted\n");
 	    use_fp = false;
 	    continue;
 	}
