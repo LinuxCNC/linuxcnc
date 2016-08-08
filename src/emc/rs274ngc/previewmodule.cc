@@ -251,7 +251,6 @@ static PyTypeObject LineCodeType = {
 static PyObject *callback;
 static int interp_error;
 static int last_sequence_number;
-static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
@@ -306,16 +305,6 @@ void ARC_FEED(int line_number,
               double a_position, double b_position, double c_position,
               double u_position, double v_position, double w_position) {
     // XXX: set _pos_*
-    if(metric) {
-        first_end /= 25.4;
-        second_end /= 25.4;
-        first_axis /= 25.4;
-        second_axis /= 25.4;
-        axis_end_point /= 25.4;
-        u_position /= 25.4;
-        v_position /= 25.4;
-        w_position /= 25.4;
-    }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -355,7 +344,6 @@ void STRAIGHT_FEED(int line_number,
     _pos_x=x; _pos_y=y; _pos_z=z;
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -389,7 +377,6 @@ void STRAIGHT_TRAVERSE(int line_number,
     _pos_x=x; _pos_y=y; _pos_z=z;
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -420,7 +407,6 @@ void SET_G5X_OFFSET(int g5x_index,
                     double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     // PyObject *result =
@@ -452,7 +438,6 @@ void SET_G5X_OFFSET(int g5x_index,
 void SET_G92_OFFSET(double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     // PyObject *result =
@@ -494,7 +479,7 @@ void SET_XY_ROTATION(double t) {
 
 };
 
-void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
+void USE_LENGTH_UNITS(CANON_UNITS u) { }
 
 void SELECT_PLANE(CANON_PLANE pl) {
     maybe_new_line();
@@ -567,7 +552,6 @@ void CHANGE_TOOL_NUMBER(int pocket) {
 void SET_FEED_RATE(double rate) {
     maybe_new_line();
     if(interp_error) return;
-    if(metric) rate /= 25.4;
     // PyObject *result =
     //     callmethod(callback, "set_feed_rate", "f", rate);
     // if(result == NULL) interp_error ++;
@@ -642,9 +626,6 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
     tool_offset = offset;
     maybe_new_line();
     if(interp_error) return;
-    if(metric) {
-        offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
-        offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
 
     // PyObject *result = callmethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z,
     //     offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
@@ -749,7 +730,6 @@ void STRAIGHT_PROBE(int line_number,
     _pos_x=x; _pos_y=y; _pos_z=z;
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -777,7 +757,6 @@ void STRAIGHT_PROBE(int line_number,
 
 void RIGID_TAP(int line_number,
                double x, double y, double z) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -1007,7 +986,6 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 
     gettimeofday(&t0, NULL);
 
-    metric=false;
     interp_error = 0;
     last_sequence_number = -1;
 
