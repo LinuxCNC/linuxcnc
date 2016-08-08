@@ -55,7 +55,7 @@ BASE_HUMAN=$(human_time $BASE)
 SERVO_HUMAN=$(human_time $SERVO)
 if [ $BASE -eq 0 ]; then
 cat > lat.hal <<EOF
-loadrt threads name1=slow period1=$SERVO
+newthread slow $SERVO
 loadrt timedelta count=1
 addf timedelta.0 slow
 start
@@ -96,7 +96,8 @@ EOF
 
 else
 cat > lat.hal <<EOF
-loadrt threads name1=fast period1=$BASE cpu1=1 name2=slow period2=$SERVO cpu2=1
+newthread fast $BASE  cpu=1
+newthread slow $SERVO cpu=2
 loadrt timedelta count=2
 addf timedelta.0 fast
 addf timedelta.1 slow

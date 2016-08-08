@@ -7,7 +7,7 @@
 # first load the motenc driver
 loadrt hal_motenc
 # and create a 1mS thread
-loadrt threads name1=motenc.thread period1=1000000
+newthread motenc.thread 1000000
 
 # then load the PID module, for three PID loops
 loadrt pid count=3

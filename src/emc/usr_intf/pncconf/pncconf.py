@@ -5560,7 +5560,8 @@ You also will not be able to do any other testing untill you reload pncconf and 
 I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
                         return
         self.halrun = os.popen("halrun -I > /dev/null", "w") 
-        self.halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
+        self.halrun.write("newthread fast %d\n" % (50000))
+        self.halrun.write("newthread slow %d\n" % (1000000))
         self.hal_cmnds("LOAD")
         self.hal_cmnds("READ")
         self.hal_cmnds("WRITE")
@@ -8417,7 +8418,8 @@ different program to copy to your configuration file.\nThe edited program will b
             return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )  
-        halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
+        halrun.write("newthread fast %d\n" % (100000))
+        halrun.write("newthread slow %d\n" % (self.data.servoperiod))
         self.hal_cmnds("LOAD")
         for i in range(0,self.data.number_pports ):
             halrun.write("loadusr -Wn parport%(number)dtest pyvcp -g +%(pos)d+0 -c parport%(number)dtest %(panel)s\n" 
@@ -8769,8 +8771,9 @@ But there is not one in the machine-named folder.."""),True)
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
+        halrun.write("newthread fast %d\n" % (100000))
+        halrun.write("newthread slow %d\n" % (self.data.servoperiod))
         halrun.write(""" 
-              loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow 
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
                numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d numBits=%(bmem)d numWords=%(wmem)d
                addf classicladder.0.refresh slow
@@ -8908,8 +8911,9 @@ But there is not one in the machine-named folder.."""),True)
              
         self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
 
+        halrun.write("newthread fast %d\n" % (100000))
+        halrun.write("newthread slow %d\n" % (self.data.servoperiod))
         halrun.write("""
-        loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
         loadrt scale names=scale_to_rpm
         loadrt steptest     
@@ -9211,7 +9215,8 @@ But there is not one in the machine-named folder.."""),True)
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
-        halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))
+        halrun.write("newthread fast %d\n" % (100000))
+        halrun.write("newthread slow %d\n" % (self.data.servoperiod))
         if not _DEBUGSTRING is None:
             halrun.write("echo\n")
         self.hal_cmnds("LOAD")

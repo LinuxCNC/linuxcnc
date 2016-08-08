@@ -1,7 +1,9 @@
 # stepgen demo using raspberry hal_gpio driver
 
-loadrt hal_gpio 
-loadrt threads name1=fast period1=100000 name2=slow period2=1000000 
+loadrt hal_gpio
+newthread fast 100000
+newthread slow 1000000
+
 loadrt stepgen step_type=5 ctrl_type=v 
 
 net a stepgen.0.phase-A => hal_gpio.pin-03-out

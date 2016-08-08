@@ -187,8 +187,8 @@ proc start {} {
 } ;# start
 
 proc start_hal_timedelta {} {
-  hal loadrt threads name1=base period1=$::sc(base,period,ns) \
-                     name2=servo period2=$::sc(servo,period,ns)
+  hal newthread base $::sc(base,period,ns)
+  hal newthread base $::sc(servo,period,ns)
   hal loadrt timedelta names=base:time,servo:time
   hal addf  base:time base
   hal addf servo:time servo
@@ -403,7 +403,8 @@ proc finish_hal_timedelta {} {
   hal     delf base:time base
   hal     delf servo:time servo
   hal unloadrt timedelta
-  hal unloadrt threads ;# doesnt seem to work
+  hal delthread base
+  hal delthread servo
 
   #puts [hal show funct]  ;# gone
   #puts [hal show thread] ;# not gone

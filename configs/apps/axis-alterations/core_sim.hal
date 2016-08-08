@@ -7,7 +7,7 @@ loadrt trivkins
 # trajectory planner
 loadrt tp
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD  num_joints=[TRAJ]AXES tp=tp kins=trivkins
-loadrt threads name3=real_servo_thread period3=1000000 fp3=1
+newthread real_servo_thread 1000000
 
 # load 6 differentiators (for velocity and accel signals
 loadrt ddt count=6

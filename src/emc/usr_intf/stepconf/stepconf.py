@@ -1125,14 +1125,14 @@ class StepconfApp:
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.d.modbus = self.w.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -Is", "w")
+        halrun.write("newthread fast %d\n" % (50000))
+        halrun.write("newthread slow %d\n" % (1000000))
         halrun.write(""" 
-              loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d\
                      numFloatIn=%(fin)d numFloatOut=%(fout)d\n
               addf classicladder.0.refresh slow\n
               start\n
                       """ % {
-                      'period': 50000,
                       'din': self.w.digitsin.get_value(),
                       'dout': self.w.digitsout.get_value(),
                       'sin': self.w.s32in.get_value(),
@@ -1226,11 +1226,12 @@ class StepconfApp:
              else: 
                 port2dir =" out"
         halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
+        halrun.write("newthread fast %d\n" % (period))
+        halrun.write("newthread slow %d\n" % (1000000))
         halrun.write("""
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
             addf stepgen.make-pulses fast
             addf parport.0.write fast
-            """%{'period': period})
+            """)
 
         if self.d.number_pports>1:
             halrun.write( "addf parport.0.write fast\n")

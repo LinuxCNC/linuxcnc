@@ -89,7 +89,7 @@ loadrt hal_pru prucode="$1" disabled=1 pru=$PRU
 
 loadrt hal_prudebug
 
-loadrt threads period1=20000000 # 20msec
+newthread thread1 20000000 # 20msec
 addf hal_pru.update thread1
 addf hal_prudebug.update thread1
 #

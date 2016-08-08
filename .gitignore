@@ -67,3 +67,4 @@ src/hal/cython/machinekit/*.c
 # mk-build-deps artifact
 /machinekit-build-deps_*.deb
 .directory
+*.9icomp

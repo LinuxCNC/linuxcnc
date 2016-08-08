@@ -9,7 +9,8 @@ loadrt charge_pump
 net square-wave charge-pump.out ringwrite.write
 
 # 1ms/200ms
-loadrt threads name1=fast period1=1000000 name2=slow period2=200000000
+newthread  fast 1000000
+newthread  slow 200000000
 
 # the 'enqueue a message' function
 addf ringwrite fast
