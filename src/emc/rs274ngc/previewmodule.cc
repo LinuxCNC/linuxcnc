@@ -86,7 +86,21 @@ static void send_preview(const char *client, bool flush = false)
     }
 }
 
+// send preview start message
+static void preview_start()
+{
+    pb::Preview *p = output.add_preview();
+    p->set_type(pb::PV_PREVIEW_START);
+    send_preview(p_client);
+}
 
+// send preview end message
+static void preview_end()
+{
+    pb::Preview *p = output.add_preview();
+    p->set_type(pb::PV_PREVIEW_END);
+    send_preview(p_client);
+}
 
 static int z_init(void)
 {
@@ -992,10 +1006,11 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
 
-    interp_new.init();
-    interp_new.open(f);
     note_printf(istat, "open '%s'", f);
     publish_istat(pb::INTERP_RUNNING);
+    preview_start();
+    interp_new.init();
+    interp_new.open(f);
     maybe_new_line();
 
     pb::Preview *p = output.add_preview();
@@ -1027,10 +1042,12 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         error_line_offset = 0;
         result = interp_new.execute();
     }
-    publish_istat(pb::INTERP_IDLE);
-    send_preview(p_client, true);
 
 out_error:
+    preview_end();
+    send_preview(p_client, true);
+    publish_istat(pb::INTERP_IDLE);
+
     if(pinterp) pinterp->close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
