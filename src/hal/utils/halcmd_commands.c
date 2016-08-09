@@ -4246,6 +4246,15 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "stype") == 0) {
 	printf("stype signame\n");
 	printf("  Gets the type of signal 'signame'\n");
+    } else if (strcmp(command, "newthread") == 0) {
+	printf("newthread name [options] period\n");
+	printf("  Creates a new realtime thread called 'name' which\n");
+	printf("  runs every 'period' nanoseconds.  Options are:\n");
+	printf("  cpu=N     assigns thread to CPU #N\n");
+	printf("  fp        (deprecated) thread supports floating point\n");
+	printf("  nofp      (deprecated) no floating point support (default)\n");
+	printf("  posix     (experimental) non-realtime thread\n");
+	printf("  nowait    (experimental) ignores period, for external sync\n");
     } else if (strcmp(command, "addf") == 0) {
 	printf("addf functname threadname [position]\n");
 	printf("  Adds function 'functname' to thread 'threadname'.  If\n");
@@ -4351,6 +4360,7 @@ static void print_help_commands(void)
     printf("  getp, gets          Get the value of a pin, parameter or signal\n");
     printf("  ptype, stype        Get the type of a pin, parameter or signal\n");
     printf("  setp, sets          Set the value of a pin, parameter or signal\n");
+    printf("  newthread           Creates a new realtime thread\n");
     printf("  addf, delf          Add/remove function to/from a thread\n");
     printf("  show                Display info about HAL objects\n");
     printf("  list                Display names of HAL objects\n");
