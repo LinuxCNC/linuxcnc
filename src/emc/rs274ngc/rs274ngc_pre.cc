@@ -452,9 +452,6 @@ int Interp::_execute(const char *command)
 		      (_setup.mdi_interrupt)) { 
 
 		      status = convert_control_functions(eblock, &_setup);
-		      // a prolog might yield INTERP_EXECUTE_FINISH too
-		      if (status == INTERP_EXECUTE_FINISH) 
-			  _setup.mdi_interrupt = true;
 		      CHP(status);
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
