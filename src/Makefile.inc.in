@@ -11,6 +11,7 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 
 EMC2_HOME=@EMC2_HOME@
+HALONLY=@HALONLY@
 LIB_DIR=@EMC2_HOME@/lib
 
 #used for install stuff

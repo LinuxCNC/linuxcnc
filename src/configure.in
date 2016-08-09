@@ -166,6 +166,18 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
+HALONLY=false
+AC_ARG_ENABLE(hal-only,
+    AS_HELP_STRING(
+        [--enable-hal-only],
+        [To disable building linuxcnc, rs274, and so forth]),
+    [
+        case "$enableval" in
+        (yes) HALONLY=true ;;
+        esac
+    ])
+AC_SUBST([HALONLY])
+
 NONDISTRIBUTABLE=false
 AC_ARG_ENABLE(non-distributable,
     AS_HELP_STRING(

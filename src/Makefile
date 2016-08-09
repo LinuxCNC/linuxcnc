@@ -109,9 +109,7 @@ GENERATED_MANPAGES :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
-    libnml/linklist libnml/cms libnml/rcs libnml/inifile libnml/os_intf \
-    libnml/nml libnml/buffer libnml/posemath libnml \
-    \
+    libnml/inifile \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
@@ -120,20 +118,25 @@ SUBDIRS := \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
     \
-    emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
-    emc/usr_intf/gmoccapy \
-    emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
-    emc/motion-logger \
-    \
     module_helper \
     \
     po \
     \
     ../docs/src ../docs/src/source-highlight \
 
+ifeq ($(HALONLY),false)
+SUBDIRS += \
+    libnml/linklist libnml/cms libnml/rcs libnml/os_intf \
+    libnml/nml libnml/buffer libnml/posemath libnml \
+    \
+    emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
+    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
+    emc/usr_intf/gmoccapy \
+    emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
+    emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
+    emc/motion-logger \
 
+endif
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
@@ -266,6 +269,36 @@ default: $(INFILES)
 # in ../include is used when building external components of linuxcnc.
 HEADERS := \
     config.h \
+    hal/hal.h \
+    hal/hal_parport.h \
+    libnml/inifile/inifile.h \
+    libnml/inifile/inifile.hh \
+    rtapi/rtapi.h \
+    rtapi/rtapi_app.h \
+    rtapi/rtapi_atomic.h \
+    rtapi/rtapi_bitops.h \
+    rtapi/rtapi_bool.h \
+    rtapi/rtapi_byteorder.h \
+    rtapi/rtapi_device.h \
+    rtapi/rtapi_firmware.h \
+    rtapi/rtapi_gfp.h \
+    rtapi/rtapi_io.h \
+    rtapi/rtapi_limits.h \
+    rtapi/rtapi_list.h \
+    rtapi/rtapi_math.h \
+    rtapi/rtapi_math_i386.h \
+    rtapi/rtapi_math64.h \
+    rtapi/rtapi_mutex.h \
+    rtapi/rtapi_parport.h \
+    rtapi/rtapi_pci.h \
+    rtapi/rtapi_slab.h \
+    rtapi/rtapi_stdint.h \
+    rtapi/rtapi_ctype.h \
+    rtapi/rtapi_errno.h \
+    rtapi/rtapi_string.h
+
+ifeq ($(HALONLY),false)
+HEADERS += \
     emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
     emc/ini/inijoint.hh \
@@ -303,8 +336,6 @@ HEADERS := \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/rs274ngc.hh \
-    hal/hal.h \
-    hal/hal_parport.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -325,9 +356,6 @@ HEADERS := \
     libnml/cms/cmsdiag.hh \
     libnml/cms/tcp_opts.hh \
     libnml/cms/tcp_srv.hh \
-    libnml/inifile/inifile.h \
-    libnml/inifile/inifile.hh \
-    libnml/linklist/linklist.hh \
     libnml/nml/cmd_msg.hh \
     libnml/nml/nml.hh \
     libnml/nml/nml_mod.hh \
@@ -343,6 +371,7 @@ HEADERS := \
     libnml/os_intf/shm.hh \
     libnml/os_intf/_timer.h \
     libnml/os_intf/timer.hh \
+    libnml/linklist/linklist.hh \
     libnml/posemath/posemath.h \
     libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \
@@ -351,30 +380,8 @@ HEADERS := \
     libnml/rcs/rcs_exit.hh \
     libnml/rcs/rcs_print.hh \
     libnml/rcs/rcsversion.h \
-    rtapi/rtapi.h \
-    rtapi/rtapi_app.h \
-    rtapi/rtapi_atomic.h \
-    rtapi/rtapi_bitops.h \
-    rtapi/rtapi_bool.h \
-    rtapi/rtapi_byteorder.h \
-    rtapi/rtapi_device.h \
-    rtapi/rtapi_firmware.h \
-    rtapi/rtapi_gfp.h \
-    rtapi/rtapi_io.h \
-    rtapi/rtapi_limits.h \
-    rtapi/rtapi_list.h \
-    rtapi/rtapi_math.h \
-    rtapi/rtapi_math_i386.h \
-    rtapi/rtapi_math64.h \
-    rtapi/rtapi_mutex.h \
-    rtapi/rtapi_parport.h \
-    rtapi/rtapi_pci.h \
-    rtapi/rtapi_slab.h \
-    rtapi/rtapi_stdint.h \
-    rtapi/rtapi_ctype.h \
-    rtapi/rtapi_errno.h \
-    rtapi/rtapi_string.h
 
+endif
 # the "headers" target installs all the header files in ../include
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
