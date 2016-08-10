@@ -817,6 +817,8 @@ extern long int simple_strtol(const char *nptr, char **endptr, int base);
 extern int rtapi_is_kernelspace(void);
 extern int rtapi_is_realtime(void);
 
+int rtapi_open_as_root(const char *filename, int mode);
+
 RTAPI_END_DECLS
 
 #endif /* RTAPI_H */

@@ -96,16 +96,6 @@ struct hm2_rpspi_struct {
 static hm2_rpspi_t boards[MAX_BOARDS];
 static int comp_id;
 
-
-/*************************************************/
-//so untested, you could implement rtapi_open_as_root in "C" as
-int rtapi_open_as_root(const char *filename, int mode) {
-		setfsuid(geteuid());
-	int r = open(filename, mode);
-	setfsuid(getuid());
-	return r;
-}
-
 /*************************************************/
 // aib (address increment bit)
 static uint32_t mk_read_cmd(uint16_t addr, unsigned msglen, bool aib) {
