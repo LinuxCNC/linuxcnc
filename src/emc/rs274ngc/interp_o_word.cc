@@ -378,7 +378,8 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
 		    settings->call_state = CS_REEXEC_EPILOG;
-		    break;
+		    eblock->call_type = CT_REMAP;
+		    CHP(status);
 		default:
 		    settings->call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
