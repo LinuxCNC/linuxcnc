@@ -1161,3 +1161,11 @@ void rtapi_timespec_advance(struct timespec &result, const struct timespec &src,
     result.tv_sec = sec;
     result.tv_nsec = nsec;
 }
+
+int rtapi_open_as_root(const char *filename, int mode) {
+    setfsuid(geteuid());
+    int r = open(filename, mode);
+    setfsuid(getuid());
+    if(r < 0) return -errno;
+    return r;
+}
