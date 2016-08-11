@@ -3,15 +3,14 @@
 
 newthread servo nowait
 
-# for full detail, add
-#debug_idrom=1 debug_module_descriptors=1 debug_modules=1 debug_pin_descriptors=1
-loadrt hostmot2
+loadrt hostmot2 irq_period_nsec=1000000  debug_module_descriptors=1 debug_modules=1 debug_pin_descriptors=1
 
-loadrt hm2_soc_ol config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I76_7I76_7I76.dtbo num_stepgens=6 num_encoders=2 "   timer1=211812352
+# new style of loading hm2_soc_ol:
+# instance name must match device name from DTBO
+newinst hm2_soc_ol hm2-socfpg0 config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I85S_GPIO_GPIO.dtbo "
 
-# does not load yet
-#loadrt hm2_soc_ol config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I85S_GPIO_GPIO.dtbo "   timer1=211812352
-
+# in theory this disables DPLL tracking:
+setp hm2_de0n.0.dpll.plimit 0
 
 # new options:
 # config="...  nofwid .."
@@ -19,7 +18,8 @@ loadrt hm2_soc_ol config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I76_7I76
 # descriptor=custom.bin
 
 loadrt siggen names=test
-setp test.frequency 20  # Hz
+setp test.frequency 2  # Hz
+
 
 newinst scale rate
 setp rate.gain 10
@@ -27,9 +27,13 @@ setp rate.offset 0
 net sq-out test.square
 net sq-out rate.in
 
+newinst period servo-period
+newinst stats sp-stats
+net sp servo-period.actual-period-ns sp-stats.in
+setp sp-stats.enable 1
+
 newsig enable bit
 
-addf waitirq.0                 servo
 
 addf hm2_de0n.0.read           servo
 addf hm2_de0n.0.read_gpio      servo
@@ -39,7 +43,10 @@ addf rate 		       servo
 
 addf hm2_de0n.0.write          servo
 addf hm2_de0n.0.write_gpio     servo
+addf servo-period              servo
+addf sp-stats                  servo
 
+addf hm2_de0n.0.waitirq        servo
 
 
 # -- stepgen.00
@@ -153,11 +160,13 @@ net clock test.clock
 # in theory the leds should blink:
 net clock hm2_de0n.0.led.CR01
 net clock hm2_de0n.0.led.CR02
+net clock hm2_de0n.0.led.CR03
+net clock hm2_de0n.0.led.CR04
 
 
 # this should produce a scopeable signal on the following pins
 # 7i76 #0 TB6-17 OUTPUT0
-net clock hm2_de0n.0.7i76.0.0.output-00
+#net clock hm2_de0n.0.7i76.0.0.output-00
 
 
 # test for second 7i76
@@ -168,4 +177,4 @@ net clock hm2_de0n.0.7i76.0.0.output-00
 
 #loadusr halscope
 
-start
+#start
