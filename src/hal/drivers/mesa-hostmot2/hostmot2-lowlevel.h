@@ -55,7 +55,7 @@
 
 
 
-// 
+//
 // this struct holds an abstract "low-level I/O" driver
 //
 
@@ -86,18 +86,18 @@ struct hm2_lowlevel_io_struct {
     int (*verify_firmware)(hm2_lowlevel_io_t *self, const struct firmware *fw);
 
 
-    // 
+    //
     // This is a HAL parameter allocated and added to HAL by hostmot2.
-    // 
+    //
     // * The llio driver sets it whenever it detects an I/O error.
-    // 
+    //
     // * The hostmot2 driver checks it and stops calling the llio driver if
     //   it's true.
-    // 
+    //
     // * Users can clear it (by poking the HAL parameter), which makes the
     //   hostmot2 driver call into llio to reset the hardware and start
     //   driving it again.
-    // 
+    //
     hal_bit_t *io_error;
 
     // this gets set to TRUE when the llio driver detects an io_error, and
@@ -108,7 +108,7 @@ struct hm2_lowlevel_io_struct {
     int num_ioport_connectors;
     int pins_per_connector;
     const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];
-    
+
     // llio enumeration is the easiest place to count the leds
     int num_leds;
 
@@ -120,8 +120,10 @@ struct hm2_lowlevel_io_struct {
     // if FALSE, the hostmot2 driver will export only global read() and write() functions (and pet_watchdog())
     // if TRUE, the hostmot2 driver will export those three functions and also read_gpio() and write_gpio()
     int threadsafe;
-    
+
     char *firmware; // Name of the firmware file
+    int host_wants_irq; // flag passed in to request llio to setup IRQ
+    int irq_fd;     // The uio file descriptor used for irq blocking
 
     void *private;  // for the low-level driver to hang their struct on
 
@@ -132,7 +134,7 @@ struct hm2_lowlevel_io_struct {
 
 
 
-// 
+//
 // HostMot2 functions for the low-level I/O drivers to call
 //
 
@@ -141,4 +143,3 @@ void hm2_unregister(hm2_lowlevel_io_t *llio);
 
 
 #endif //  HOSTMOT2_LOWLEVEL_H
-

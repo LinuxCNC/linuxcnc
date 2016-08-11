@@ -944,10 +944,31 @@ typedef struct {
     u32 timer_34_written;
     u32 hm2_dpll_sync_addr;
     u32 *hm2_dpll_sync_reg;
+    u32 *phase_err_reg;
     u32 clock_frequency;
 
 } hm2_dpll_t ;
 
+//
+// irq
+//
+
+typedef struct {
+    hal_u32_t *desired_rate_nsec;
+    hal_u32_t *current_rate_nsec;
+    hal_u32_t *count;
+    hal_u32_t *missed;
+    hal_u32_t *write_errors;
+    hal_u32_t *read_errors;
+} hm2_irq_pins_t ;
+
+// in case this becomes a full module later
+typedef struct {
+    int num_instances;
+    hm2_irq_pins_t *pins;
+
+    int dpll_timer_num;
+} hm2_irq_t ;
 
 //
 // watchdog
@@ -1132,6 +1153,7 @@ typedef struct {
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
     hm2_dpll_t dpll;
+    hm2_irq_t irq;
     hm2_led_t led;
     hm2_fwid_t fwid;
     hm2_raw_t *raw;
@@ -1392,6 +1414,13 @@ int hm2_dpll_force_write(hostmot2_t *hm2);
 int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_dpll_write(hostmot2_t *hm2, long period);
+
+//
+// irq functions
+//
+
+int hm2_irq_setup(hostmot2_t *hm2, long period);
+void hm2_irq_write(hostmot2_t *hm2);
 
 //
 // watchdog functions

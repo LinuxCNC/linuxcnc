@@ -1,4 +1,3 @@
-
 //
 //    Copyright (C) 2013 Andy Pugh
 
@@ -106,8 +105,15 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
     *hm2->dpll.pins->time_const = 0xA000;
     *hm2->dpll.pins->plimit = 0x400000;
 
-    r = hm2_register_tram_read_region(hm2, hm2->dpll.hm2_dpll_sync_addr,
-            sizeof(u32), &hm2->dpll.hm2_dpll_sync_reg);
+    if (hm2->llio->irq_fd < 0) {
+        r = hm2_register_tram_read_region(hm2, hm2->dpll.hm2_dpll_sync_addr,
+                sizeof(u32), &hm2->dpll.hm2_dpll_sync_reg);
+    } else {
+        // we want irq, switch to nonlatching reads
+        r = hm2_register_tram_read_region(hm2, hm2->dpll.phase_err_addr,
+                sizeof(u32), &hm2->dpll.phase_err_reg);
+    }
+
     if (r < 0) {
         HM2_ERR("Error registering tram synch write. Aborting\n");
         goto fail0;
@@ -132,9 +138,15 @@ void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
     if (hm2->dpll.num_instances == 0) return;
     
      pins = hm2->dpll.pins;
-    
-    *pins->phase_error = (s32)*hm2->dpll.hm2_dpll_sync_reg 
-            * (period / 4294967296000.00) ;
+
+    if (hm2->llio->irq_fd < 0) {
+        *pins->phase_error = (s32)*hm2->dpll.hm2_dpll_sync_reg
+                * (period / 4294967296000.00) ;
+    } else {
+        // Read from the non-latching phase error register
+        *pins->phase_error = (s32)*hm2->dpll.phase_err_reg
+                * (period / 4294967296000.00) ;
+    }
     *pins->ddssize = *hm2->dpll.control_reg1_read & 0xFF;
 }
 
