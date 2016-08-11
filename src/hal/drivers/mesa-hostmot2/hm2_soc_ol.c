@@ -105,36 +105,38 @@ MODULE_AUTHOR("Michael Brown & Michael Haberler & Devin Hughes");
 MODULE_DESCRIPTION("Low level driver for HostMot2 on SoC Based Devices");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
 
-static char *config[HM2_SOC_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, HM2_SOC_MAX_BOARDS,
-		      "config string for the AnyIO boards (see hostmot2(9) manpage)")
+// module-level params
 static int debug;
 RTAPI_MP_INT(debug, "turn on extra debug output");
 
-static char *name = "hm2-socfpg0";
-RTAPI_MP_STRING(name, "logical device name, default hm2-socfpg0hm2-socfpg0");
+// instance-level params
+static char *config;
+RTAPI_IP_STRING(config, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+
+//static char *name = "hm2-socfpg0";
+//RTAPI_IP_STRING(name, "logical device name, default hm2-socfpg0");
 
 static char *descriptor = NULL;
-RTAPI_MP_STRING(descriptor, ".bin file with encoded fwid protobuf descriptor message");
+RTAPI_IP_STRING(descriptor, ".bin file with encoded fwid protobuf descriptor message");
 
 static int no_init_llio;
-RTAPI_MP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like num_leds");
+RTAPI_IP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like num_leds");
 
-static long timer1;
-RTAPI_MP_INT(timer1, "rate for hm2 Timer1 IRQ, 0: IRQ disabled");
+static int timer1;
+RTAPI_IP_INT(timer1, "rate for hm2 Timer1 IRQ, 0: IRQ disabled");
+
+static int num;
+RTAPI_IP_INT(num, "hm2 instance number, used for <boardname>.<num>.<pinname>");
 
 static int comp_id;
-static hm2_soc_t board[HM2_SOC_MAX_BOARDS];
-static int num_boards;
-static int failed_errno = 0; // errno of last failed registration
 
-/* Pick a configfs folder that is unlikely to conflict with other overlays */
-static char *configfs_dir = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol";
-static char *configfs_path = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol/path";
-static char *configfs_status = "/sys/kernel/config/device-tree/overlays/hm2_soc_ol/status";
+/* derive configfs folder from instance name which is unique */
+static char *configfs_dir = "/sys/kernel/config/device-tree/overlays/%s";
+static char *configfs_path = "/sys/kernel/config/device-tree/overlays/%s/path";
+static char *configfs_status = "/sys/kernel/config/device-tree/overlays/%s/status";
 
 static int hm2_soc_mmap(hm2_soc_t *brd);
-static int fpga_status();
+static int fpga_status(const char *name);
 static char *strlwr(char *str);
 static int locate_uio_device(hm2_soc_t *brd, const char *name);
 
@@ -229,6 +231,7 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
 
     int rc;
     hm2_soc_t *brd =  this->private;
+    char buf[MAXNAMELEN];
 
     LL_DBG("soc_program_fpga");
 
@@ -238,28 +241,31 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
     // on the firmware path to the "path" node and it will do all of the
     // magic.
 
-    DIR* dir = opendir(configfs_dir);
+    rtapi_snprintf(buf, sizeof(buf), configfs_dir, brd->name);
+
+    DIR* dir = opendir(buf);
     if(dir) {
         // old config left behind? - Directory always appears empty
         // so okay to call rmdir()
-        if(rmdir(configfs_dir) < 0) {
-            LL_ERR("rmdir(%s) failed: %s", configfs_dir, strerror(errno));
+        if(rmdir(buf) < 0) {
+            LL_ERR("rmdir(%s) failed: %s", buf, strerror(errno));
             return -EIO;
         }
     }
 
     // umask will clip permissions to match parent
-    if(mkdir(configfs_dir, 0777) < 0) {
-        LL_ERR("mkdir(%s) failed: %s", configfs_dir, strerror(errno));
+    if(mkdir(buf, 0777) < 0) {
+        LL_ERR("mkdir(%s) failed: %s", buf, strerror(errno));
         return -EIO;
     }
 
     int fd;
+    rtapi_snprintf(buf, sizeof(buf), configfs_path, brd->name);
 
     // Spin to give configfs time to make the files
     int retries = 10;
     while(retries > 0) {
-        fd = open(configfs_path, O_WRONLY);
+        fd = open(buf, O_WRONLY);
         if (fd != -1)
             break;
         retries--;
@@ -267,7 +273,7 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
     }
 
     if (fd < 0) {
-        LL_ERR("open(%s) failed: %s", configfs_path, strerror(errno));
+        LL_ERR("open(%s) failed: %s", buf, strerror(errno));
         return -EIO;
     }
 
@@ -285,7 +291,7 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
     // Spin to give fpga time to program
     retries = 12;
     while(retries > 0) {
-        brd->fpga_state = fpga_status();
+        brd->fpga_state = fpga_status(brd->name);
         if (brd->fpga_state == DTOV_STAT_APPLIED)
             break;
         retries--;
@@ -293,14 +299,14 @@ static int hm2_soc_program_fpga(hm2_lowlevel_io_t *this,
     }
 
     if (brd->fpga_state != DTOV_STAT_APPLIED) {
-        LL_ERR("DTOverlay status is not applied post programming: state=%d",
-            brd->fpga_state);
+        LL_ERR("DTOverlay status is not applied post programming: name=%s state=%d",
+	       brd->name, brd->fpga_state);
         return -ENOENT;
     }
 
     rc = hm2_soc_mmap(this->private);
     if (rc) {
-        LL_ERR("soc_mmap_fail");
+        LL_ERR("soc_mmap_fail %s", brd->name);
         return -EINVAL;
     }
 
@@ -324,14 +330,14 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
     int retries = 10;
     int ret;
     while(retries > 0) {
-	ret = locate_uio_device(brd, name);
+	ret = locate_uio_device(brd, brd->name);
 	if (ret == 0)
 	    break;
         retries--;
         usleep(200000);
     }
     if (ret || (brd->uio_dev == NULL)) {
-	LL_ERR("failed to map %s to /dev/uioX\n", name);
+	LL_ERR("failed to map %s to /dev/uioX\n", brd->name);
 	return ret;
     }
     brd->uio_fd = open(brd->uio_dev , ( O_RDWR | O_SYNC ));
@@ -350,9 +356,9 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
     }
 
     if (debug)
-    rtapi_print_hex_dump(RTAPI_MSG_INFO, RTAPI_DUMP_PREFIX_OFFSET,
-		         16, 1, (const void *)virtual_base, 4096, 1,
-		         "hm2 regs at %p:", virtual_base);
+	rtapi_print_hex_dump(RTAPI_MSG_INFO, RTAPI_DUMP_PREFIX_OFFSET,
+			     16, 1, (const void *)virtual_base, 4096, 1,
+			     "hm2 regs at %p:", virtual_base);
 
     // this duplicates stuff already happening in hm2_register - no harm
     u32 reg = *((u32 *)(virtual_base + HM2_ADDR_IOCOOKIE));
@@ -379,7 +385,7 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
 
     // use BoardNameHigh as board name - see http://freeby.mesanet.com/regmap
     rtapi_snprintf(this->name, sizeof(this->name), "hm2_%4.4s.%d",
-                   idrom->board_name + 4, num_boards);
+                   idrom->board_name + 4, brd->num);
     strlwr(this->name);
     brd->base = (void *)virtual_base;
     // now it's safe to read/write
@@ -395,16 +401,24 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
 
 static int hm2_soc_register(hm2_soc_t *brd,
 			    const char *name,
+			    const char *config,
 			    void *fwid,
-			    size_t fwid_len)
+			    size_t fwid_len,
+			    int inst_id,
+			    int no_init_llio,
+			    int num)
 {
 
     brd->name = name;
+    brd->config = config;
+    brd->no_init_llio = no_init_llio;
+    brd->num = num;
 
     // no directory to check state yet, so it's unknown
     brd->fpga_state = -1;
 
-    brd->llio.comp_id = comp_id;
+    // pins are owned by instance so they go away on delinst
+    brd->llio.comp_id = inst_id;
 
     if (no_init_llio) {
 	// defer to initialization in hm2_register()
@@ -452,7 +466,7 @@ static int hm2_soc_register(hm2_soc_t *brd,
     brd->llio.private = brd;
     hm2_lowlevel_io_t *this =  &brd->llio;
 
-    int r = hm2_register(this, config[0]);
+    int r = hm2_register(this, (char *)brd->config);
     if (r != 0) {
         THIS_ERR("hm2_soc_ol_board fails HM2 registration\n");
         close(brd->uio_fd);
@@ -461,7 +475,6 @@ static int hm2_soc_register(hm2_soc_t *brd,
     }
 
     LL_PRINT("initialized AnyIO hm2_soc_ol_board %s on %s\n", brd->name, brd->uio_dev);
-    num_boards++;
     return 0;
 }
 
@@ -476,12 +489,25 @@ static int hm2_soc_munmap(hm2_soc_t *brd) {
     return(1);
 }
 
-int rtapi_app_main(void) {
+
+static int instantiate(const int argc, const char**argv)
+{
     int r = 0;
     size_t nread = 0;
     void *blob = NULL;
 
     LL_PRINT("loading Mesa AnyIO HostMot2 socfpga overlay driver version " HM2_SOCFPGA_VERSION "\n");
+
+    // argv[0]: component name
+    const char *name = argv[1]; // instance name
+    hm2_soc_t *brd;
+
+    // allocate a named instance, and HAL memory for the instance data
+    int inst_id = hal_inst_create(name, comp_id,
+				  sizeof(hm2_soc_t),
+				  (void **)&brd);
+    if (inst_id < 0)
+	return -1;
 
     // read a custom fwid message if given
     if (descriptor) {
@@ -515,50 +541,41 @@ int rtapi_app_main(void) {
 	LL_DBG("custom descriptor '%s' size %zu", descriptor, nread);
     }
 
-    comp_id = hal_init(HM2_LLIO_NAME);
-    if (comp_id < 0) return comp_id;
-
-    hm2_soc_t *brd = &board[0];
-    memset(brd, 0,  sizeof(hm2_soc_t));
-
-
-    r = hm2_soc_register(brd, name, blob, nread);
+    r = hm2_soc_register(brd, name, config, blob, nread,
+			 inst_id, no_init_llio, num);
+    if (blob)
+	free(blob);
     if (r != 0) {
         LL_ERR("error registering UIO driver\n");
-        hal_exit(comp_id);
-        return r;
+        return -1;
     }
-
-    if (failed_errno) {
-        // at least one card registration failed
-        hal_exit(comp_id);
-        r = hm2_soc_munmap(brd);
-        return r;
-    }
-
-    if (num_boards == 0) {
-        // no cards were detected
-        LL_PRINT("error - no supported cards detected\n");
-        hal_exit(comp_id);
-        r = hm2_soc_munmap(brd);
-        return r;
-    }
-
-    hal_ready(comp_id);
     return 0;
 }
 
+static int delete(const char *name, void *inst, const int inst_size)
+{
+    hm2_soc_t *brd = (hm2_soc_t *)inst;
+    char buf[MAXNAMELEN];
+
+    hm2_unregister(&brd->llio);
+    int r = hm2_soc_munmap(brd);
+    rtapi_snprintf(buf, sizeof(buf), configfs_dir, name);
+    rmdir(buf);
+    return r;
+}
 
 void rtapi_app_exit(void)
 {
-    hm2_soc_t *brd = &board[0];
-
-    hm2_unregister(&brd->llio);
-    hm2_soc_munmap(brd);
-    // Clean up the overlay
-    rmdir(configfs_dir);
-    LL_PRINT("UIO driver unloaded\n");
     hal_exit(comp_id);
+}
+
+int rtapi_app_main(void) {
+
+    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, delete, HM2_LLIO_NAME);
+    if (comp_id < 0)
+	return comp_id;
+    hal_ready(comp_id);
+    return 0;
 }
 
 
@@ -582,13 +599,19 @@ static struct dt_ol_state dt_ol_states[] = {
     { -1, NULL }
 };
 
-static int fpga_status() {
+static int fpga_status(const char *name) {
+
+    char buf[MAXNAMELEN];
+
     // The device tree status node only has two choices. If the state is applied
     // then the fpga was configured correctly, and any modules are probed.
-    int fd = open(configfs_status, O_RDONLY);
+
+    rtapi_snprintf(buf, sizeof(buf), configfs_status, name);
+
+    int fd = open(buf, O_RDONLY);
     if (fd < 0) {
         LL_ERR( "Failed to open sysfs entry '%s': %s\n",
-                configfs_status, strerror(errno));
+                buf, strerror(errno));
         return -errno;
     }
 
@@ -597,7 +620,7 @@ static int fpga_status() {
     int len = read(fd, status, sizeof(status));
     if (len < 0)  {
         LL_ERR( "Failed to read sysfs entry '%s': %s\n",
-                configfs_status, strerror(errno));
+                buf, strerror(errno));
         close(fd);
         return -errno;
     }
@@ -612,7 +635,7 @@ static int fpga_status() {
     }
 
     // state wasn't recognized from array
-    LL_ERR( "FPGA overlay unknown status: %s", status);
+    LL_ERR( "FPGA overlay unknown status: %s %s", buf, status);
     return -EINVAL;
 }
 
