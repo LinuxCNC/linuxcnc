@@ -384,7 +384,7 @@ typedef struct {
 
     // invocation time of the current funct.
     // accounts for the time being used by previous functs,
-    // without calling rtapi_get_clocks() yet once more
+    // without calling rtapi_get_time() yet once more
     // (RTAPI thread_task already does this, so it's all about making an
     // existing value accessible to the funct)
     long long int start_time;

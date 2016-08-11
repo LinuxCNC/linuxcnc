@@ -35,7 +35,7 @@ static void thread_task(void *arg)
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
 	    /* execution time logging */
-	    fa.start_time = rtapi_get_clocks();
+	    fa.start_time = rtapi_get_time();
 	    end_time = fa.start_time;
 	    fa.thread_start_time = fa.start_time;
 
@@ -57,7 +57,7 @@ static void thread_task(void *arg)
 		    ;
 		}
 		/* capture execution time */
-		end_time = rtapi_get_clocks();
+		end_time = rtapi_get_time();
 		/* update execution time data */
 		*(fa.funct->runtime) = (hal_s32_t)(end_time - fa.start_time);
 		if ( *(fa.funct->runtime) > fa.funct->maxtime) {
