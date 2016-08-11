@@ -497,6 +497,8 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_bspis=%d\n", hm2->config.num_bspis);
     HM2_DBG("    num_uarts=%d\n", hm2->config.num_uarts);
     HM2_DBG("    num_pktuarts=%d\n", hm2->config.num_pktuarts);
+    HM2_DBG("    num_dplls=%d\n",    hm2->config.num_dplls);
+    HM2_DBG("    num_leds=%d\n",    hm2->config.num_leds);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
