@@ -35,27 +35,14 @@ typedef struct {
     int uio_fd;
     int firmware_given;
     const char *name;
+    const char *config;
     const char *uio_dev;
     void __iomem *base;
     int len;
-    unsigned long ctrl_base_addr;
-    unsigned long data_base_addr;
     char *firmware;
     hm2_lowlevel_io_t llio;
     hm2_soc_pins_t *pins;
+    int no_init_llio;
+    int num;
 } hm2_soc_t;
-
-struct compatible {
-    char vendor[32];
-    char name[32];
-};
-
-struct dts_device_id {
-    unsigned short address_width;           //address width /
-    unsigned short clocks;                  // clocks /
-    struct compatible compatible;
-    unsigned short data_width;       /* (class,subclass,prog-if) triplet */
-    char name[32];
-    unsigned long reg[3];
-};
 
