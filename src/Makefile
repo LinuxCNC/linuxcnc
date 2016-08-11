@@ -1275,8 +1275,7 @@ endif
 
 ifdef TARGET_PLATFORM_SOCFPGA
 ifeq ($(BUILD_SYS),user-dso)
-obj-$(CONFIG_HM2_SOC) += hm2_soc.o hm2_soc_ol.o
-hm2_soc-objs := hal/drivers/mesa-hostmot2/hm2_soc.o
+obj-$(CONFIG_HM2_SOC_OL) += hm2_soc_ol.o
 hm2_soc_ol-objs := hal/drivers/mesa-hostmot2/hm2_soc_ol.o
 endif
 endif
@@ -1693,7 +1692,6 @@ endif
 ifdef TARGET_PLATFORM_SOCFPGA
 ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
-$(RTLIBDIR)/hm2_soc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_soc-objs))
 $(RTLIBDIR)/hm2_soc_ol$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_soc_ol-objs))
 endif
 endif
