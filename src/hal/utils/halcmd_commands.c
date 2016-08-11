@@ -2284,7 +2284,10 @@ static void print_funct_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Exported Functions:\n");
-	halcmd_output("  Comp   Inst CodeAddr         Arg              Users Type    Name\n");
+	halcmd_output("  Comp   Inst CodeAddr         Arg              "
+		      "Users Type    "
+		      "Name                              "
+		      "Runtime    Maxtime\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->funct_list_ptr;
@@ -2299,13 +2302,21 @@ static void print_funct_info(char **patterns)
 		    halcmd_output("     ");
 		else
 		    halcmd_output("%5d", fptr->owner_id);
-		halcmd_output(" %016lx %016lx %5d %-7s %s\n",
+		hal_s32_t runtime = 0;
+		if (fptr->runtime) {
+		    hal_s32_t* rt = SHMPTR((void *)fptr->runtime -
+					   comp->shmem_base);
+		    runtime = *rt;
+		}
+		halcmd_output(" %016lx %016lx %5d %-7s %-30.30s %10d %10d\n",
 
 			      (long)fptr->funct.l,
 			      (long)fptr->arg,
 			      fptr->users,
 			      ftype(fptr->type),
-			      fptr->name);
+			      fptr->name,
+			      runtime,
+			      fptr->maxtime);
 	    } else {
 		halcmd_output("%s %016lx %016lx %s %3d %s\n",
 		    comp->name,
@@ -2406,7 +2417,6 @@ static void print_thread_info(char **patterns)
 	tptr = SHMPTR(next_thread);
 	if ( match(patterns, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
-		// TODO FIXME add thread runtime and max runtime to this print
 	    char flags[100];
 	    snprintf(flags, sizeof(flags),"%s%s",
 		     tptr->flags & TF_NONRT ? "posix ":"",
