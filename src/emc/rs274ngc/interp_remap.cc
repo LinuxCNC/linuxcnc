@@ -644,6 +644,7 @@ int Interp::init_remap_sets()
 
     _setup.m_remappable[60] = 1;  //Pallet Change Pause
 
+    _setup.m_remappable[19] = 1;  //spindle orientation
 
     // the G codes:
     // in the range 1..999 unused G-codes are remappable
