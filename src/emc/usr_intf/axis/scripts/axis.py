@@ -1712,6 +1712,19 @@ def reload_file(refilter=True):
     if line:
         o.set_highlight_line(line)
  
+def _axis_activated(axis):
+    if not hal_present: return # this only makes sense if HAL is present on this machine
+    vars.current_axis.set(axis)
+    comp['jog.x'] = vars.current_axis.get() == "x"
+    comp['jog.y'] = vars.current_axis.get() == "y"
+    comp['jog.z'] = vars.current_axis.get() == "z"
+    comp['jog.a'] = vars.current_axis.get() == "a"
+    comp['jog.b'] = vars.current_axis.get() == "b"
+    comp['jog.c'] = vars.current_axis.get() == "c"
+    comp['jog.u'] = vars.current_axis.get() == "u"
+    comp['jog.v'] = vars.current_axis.get() == "v"
+    comp['jog.w'] = vars.current_axis.get() == "w"
+
 class TclCommands(nf.TclCommands):
 #---------------------------------------------------------------------------------------------------
     if  user_commands :  # disable if user commands not activated in ini file
@@ -2589,17 +2602,32 @@ class TclCommands(nf.TclCommands):
         else:
             commands.set_view_z()
 
-    def axis_activated(*args):
-        if not hal_present: return # this only makes sense if HAL is present on this machine
-        comp['jog.x'] = vars.current_axis.get() == "x"
-        comp['jog.y'] = vars.current_axis.get() == "y"
-        comp['jog.z'] = vars.current_axis.get() == "z"
-        comp['jog.a'] = vars.current_axis.get() == "a"
-        comp['jog.b'] = vars.current_axis.get() == "b"
-        comp['jog.c'] = vars.current_axis.get() == "c"
-        comp['jog.u'] = vars.current_axis.get() == "u"
-        comp['jog.v'] = vars.current_axis.get() == "v"
-        comp['jog.w'] = vars.current_axis.get() == "w"
+    def axis_activated_x(*args):
+        _axis_activated("x")
+
+    def axis_activated_y(*args):
+        _axis_activated("y")
+
+    def axis_activated_z(*args):
+        _axis_activated("z")
+
+    def axis_activated_a(*args):
+        _axis_activated("a")
+
+    def axis_activated_b(*args):
+        _axis_activated("b")
+
+    def axis_activated_c(*args):
+        _axis_activated("c")
+
+    def axis_activated_u(*args):
+        _axis_activated("u")
+
+    def axis_activated_v(*args):
+        _axis_activated("v")
+
+    def axis_activated_w(*args):
+        _axis_activated("w")
 
     def set_joint_mode(*args):
         joint_mode = vars.joint_mode.get()
