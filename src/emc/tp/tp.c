@@ -378,7 +378,6 @@ int tpClear(TP_STRUCT * const tp)
     // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
-    tp->tc_completed = NULL;
     struct state_tag_t tag = {0};
     tp->execTag = tag;
     tp->motionType = 0;
