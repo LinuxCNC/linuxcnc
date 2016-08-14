@@ -1867,31 +1867,19 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
-  if(access(filename, F_OK)==0) 
-  {
-    // rename as .bak
-    int r;
-    r = snprintf(line, sizeof(line), "%s%s", filename, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
-    CHKS((r >= (int)sizeof(line)), NCE_CANNOT_CREATE_BACKUP_FILE);
-    CHKS((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
-
-    // open backup for reading
-    infile = fopen(line, "r");
-    CHKS((infile == NULL), NCE_CANNOT_OPEN_BACKUP_FILE);
-  } else {
-    // it's OK if the parameter file doesn't exist yet
-    // it will now be created with a default list of parameters
-    infile = fopen("/dev/null", "r");
-  }
-  // open original for writing
-  outfile = fopen(filename, "w");
+  std::string tempfile = std::string(filename) + ".new";
+  outfile = fopen(tempfile.c_str(), "w");
   CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
+
+  infile = fopen(filename, "r");
+  if(!infile)
+    infile = fopen("/dev/null", "r");
 
   k = 0;
   index = 0;
   required = _required_parameters[index++];
   while (feof(infile) == 0) {
-    if (fgets(line, 256, infile) == NULL) {
+    if (fgets(line, sizeof(line), infile) == NULL) {
       break;
     }
     // try for a variable-value match
@@ -1928,7 +1916,15 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
       required = _required_parameters[index++];
     }
   }
+
+  fflush(outfile);
+  fdatasync(fileno(outfile));
   fclose(outfile);
+  std::string bakfile = std::string(filename)
+                            + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
+  unlink(bakfile.c_str());
+  link(filename, bakfile.c_str());
+  rename(tempfile.c_str(), filename);
   return INTERP_OK;
 }
 
