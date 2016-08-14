@@ -692,21 +692,6 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
     return fmin(triangle_vel, max_vel);
 }
 
-/**
- * Calculate the angle between two unit cartesian vectors.
- */
-STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
-    double dot;
-    pmCartCartDot(u1, u2, &dot);
-
-    if (dot > 1.0 || dot < -1.0) {
-        tp_debug_print("dot product %f outside domain of acos!\n",dot);
-        sat_inplace(&dot,1.0);
-    }
-
-    *theta = acos(dot);
-    return TP_ERR_OK;
-}
 
 /**
  * Initialize a blend arc from its parent segments.
