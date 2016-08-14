@@ -1070,6 +1070,7 @@ void STRAIGHT_TRAVERSE(int line_number,
 	STOP_SPEED_FEED_SYNCH();
 
     if(vel && acc)  {
+        interp_list.set_line_number(line_number);
         tag_and_send(linearMoveMsg, _tag);
     }
 
