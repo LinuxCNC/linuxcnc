@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.0"
+_RELEASE = " 2.1.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1241,7 +1241,6 @@ class gmoccapy(object):
             socket.add_id(long(sid))
             socket.show()
             self.onboard = True
-            print(self.onboard)
         except Exception, e:
             print (_("**** GMOCCAPY ERROR ****"))
             print (_("**** Error with launching virtual keyboard,"))
@@ -1937,7 +1936,8 @@ class gmoccapy(object):
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
         print "estoping / killing gmoccapy"
-        self._kill_keyboard()
+        if self.onboard:
+            self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
         self.command.state(linuxcnc.STATE_ESTOP)
         gtk.main_quit()
@@ -2771,11 +2771,8 @@ class gmoccapy(object):
         self.widgets.tbtn_turtle_jog.set_active(pin.get())
 
     def on_btn_jog_pressed(self, widget, data=None):
-        if not self.initialized:
-            return
-
         # only in manual mode we will allow jogging the axis at this development state
-        if self.stat.estop or not self.stat.task_mode == linuxcnc.MODE_MANUAL:
+        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
         joint_btn = False
@@ -2827,7 +2824,7 @@ class gmoccapy(object):
 
     def on_btn_jog_released(self, widget, data=None):
         # only in manual mode we will allow jogging the axis at this development state
-        if self.stat.estop or not self.stat.task_mode == linuxcnc.MODE_MANUAL:
+        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
         joint_btn = False
@@ -4240,6 +4237,8 @@ class gmoccapy(object):
             self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * pin.get()
 
     def _on_unlock_settings_changed(self, pin):
+        if not self.initialized:
+            return
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             return
         self.widgets.tbtn_setup.set_sensitive(pin.get())

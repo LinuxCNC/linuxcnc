@@ -1,3 +1,7 @@
+ver. 2.1.1
+- starting with estop-reset, caused some errors, because it is not 
+  possible to JOG_STOP with machine in OFF state
+
 ver. 2.1.0
 - reworked Combi_DRO to fit the needs of JA requierements
 - some configs must be adapted to the new hal pin names, as they are
