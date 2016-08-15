@@ -134,6 +134,32 @@ forward kinematics iteration is controlled by hal pins.
 .B genhexkins.platform.\fIN\fB.z
 Parameters describing the \fIN\fRth joint's coordinates.
 .TQ
+.B genhexkins.spindle-offset
+Added to all joints Z coordinates to change the machine origin.
+Facilitates adjusting spindle position.
+.TQ
+.B genhexkins.base-n.\fIN\fB.x
+.TQ
+.B genhexkins.base-n.\fIN\fB.y
+.TQ
+.B genhexkins.base-n.\fIN\fB.z
+.TQ
+.B genhexkins.platform-n.\fIN\fB.x
+.TQ
+.B genhexkins.platform-n.\fIN\fB.y
+.TQ
+.B genhexkins.platform-n.\fIN\fB.z
+Parameters describing unit vectors of \fIN\fRth joint's axis. Used to
+calculate strut length correction for cardanic joints and non-captive
+actuators.
+.TQ
+.B genhexkins.screw-lead
+Lead of strut actuator screw, positive for the right-handed thread.
+Default is 0 (strut length correction disabled).
+.TQ
+.B genhexkins.correction.\fIN\fB
+Current values of strut length correction for non-captive actuators with
+cardanic joints.
 .B genhexkins.convergence-criterion
 Minimum error value that ends iterations with converged solution.
 .TQ
