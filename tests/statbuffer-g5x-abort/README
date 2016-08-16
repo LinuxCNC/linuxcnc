@@ -1,0 +1,16 @@
+Interp runs ahead of motion.  This test checks various state after
+aborting a program that switches coordinate systems within the program.
+
+Interp's state must be synched from the status channel after an abort.
+If this breaks, MDI command motion, mode line settings and system
+parameters will follow interp's idea of state, which is probably that
+where the program had run to a queue buster or to exit, whichever
+comes first, whereas preview DROs and origin will match the status
+channel's idea of state, which is that of the running program just
+prior to the abort.
+
+This test runs a program that starts in G55 and aborts during a slow
+move; were the program to continue, it would switch to G56 before
+hitting a queue buster.  Before program run, coordinate systems are
+given distinct settings so that after aborting, status channel and
+interp offsets can be checked in various ways.
