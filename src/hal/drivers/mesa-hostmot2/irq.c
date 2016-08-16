@@ -68,8 +68,6 @@ int hm2_irq_setup(hostmot2_t *hm2, long period) {
     *(hm2->irq.pins->current_rate_nsec) = 0;
 
     // export the waitirq blocking function
-    rtapi_snprintf(name, sizeof(name), "%s.waitirq", hm2->llio->name);
-
     hal_export_xfunct_args_t xfunct_args = {
 	    .type = FS_XTHREADFUNC,
 	    .funct.x = hm2_waitirq,
@@ -79,18 +77,19 @@ int hm2_irq_setup(hostmot2_t *hm2, long period) {
 	    .owner_id = hm2->llio->comp_id
     };
 
-    if ((r = hal_export_xfunctf(&xfunct_args, name)) != 0) {
+    if ((r = hal_export_xfunctf(&xfunct_args,
+				"%s.waitirq",
+				hm2->llio->name)) != 0) {
         HM2_ERR("hal_export waitirq failed - %d\n", r);
         return r;
     }
 
     // Issue the write to set the registers properly first pass
-	hm2_irq_write(hm2);
+    hm2_irq_write(hm2);
+    return 1;
 
-	return 1;
-
-	fail0:
-	return r;
+ fail0:
+    return r;
 }
 
 void hm2_irq_write(hostmot2_t *hm2) {
