@@ -26,7 +26,7 @@ FUNCTION(_)
     if (enable) {
 	n += 1;
 	delta = in - mean;
-	mean = mean + (hal_float_t)delta/n;
+	mean = mean + delta/(hal_float_t)n;
 	m2 = m2 + delta * (in - mean);
 	variance = m2/(hal_float_t)(n-1);
     }
