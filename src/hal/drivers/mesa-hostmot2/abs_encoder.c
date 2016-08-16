@@ -18,12 +18,14 @@
 #include "rtapi_math.h"
 #include "rtapi_math64.h"
 #include "hal.h"
+#include "hal_priv.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 static bool funct_flag = false;
 
-static void hm2_absenc_trigger(void *void_hm2, long period){
+static int hm2_absenc_trigger(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
+
     u32 buff = 0xFFFFFFFF;
     if (hm2->absenc.ssi_global_start_addr){
     hm2->llio->write(hm2->llio,
@@ -43,7 +45,7 @@ static void hm2_absenc_trigger(void *void_hm2, long period){
             &buff,
             sizeof(u32));
     }
-
+    return 0;
 }
 
 int hm2_absenc_register_tram(hostmot2_t *hm2){
@@ -132,13 +134,24 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
     }
     
     // If there is no dpll to link to, then we export the trigger function.
-    
+
     if (hm2->config.num_dplls == 0){
-        char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
-        rtapi_snprintf(name, sizeof(name),
-                "%s.trigger-encoders", hm2->llio->name);
-        hal_export_funct(name, hm2_absenc_trigger,
-                hm2, 0, 0,hm2->llio->comp_id);
+	int r;
+	hal_export_xfunct_args_t xfunct_args = {
+	    .type = FS_XTHREADFUNC,
+	    .funct.x = hm2_absenc_trigger,
+	    .arg = hm2,
+	    .uses_fp = 0,
+	    .reentrant = 0,
+	    .owner_id = hm2->llio->comp_id
+	};
+
+	if ((r = hal_export_xfunctf(&xfunct_args,
+				    "%s.trigger-encoders",
+				    hm2->llio->name)) != 0) {
+	    HM2_ERR("hal_export trigger-encoders failed - %d\n", r);
+	    return r;
+	}
         funct_flag = true;
     }
 

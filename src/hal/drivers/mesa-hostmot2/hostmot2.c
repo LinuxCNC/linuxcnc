@@ -28,6 +28,7 @@
 #include "rtapi_math.h"
 
 #include "hal.h"
+#include "hal_priv.h"
 
 #include "hostmot2.h"
 #include "bitfile.h"
@@ -74,14 +75,15 @@ static int comp_id;
 // functions exported to LinuxCNC
 //
 
-static void hm2_read(void *void_hm2, long period) {
+static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
+    long period = fa_actual_period(fa);
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->io_error) != 0) return -1;
 
     hm2_tram_read(hm2);
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->io_error) != 0) return -1;
     hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, &hm2->encoder, period);
@@ -96,14 +98,16 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_dpll_process_tram_read(hm2, period);
     hm2_raw_read(hm2);
+    return 0;
 }
 
 
-static void hm2_write(void *void_hm2, long period) {
+static int hm2_write(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
+    long period = fa_actual_period(fa);
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->io_error) != 0) return -1;
 
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
@@ -131,27 +135,30 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
+    return 0;
 }
 
-
-static void hm2_read_gpio(void *void_hm2, long period) {
+static int hm2_read_gpio(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->io_error) != 0) return -1;
 
     hm2_ioport_gpio_read(hm2);
+    return 0;
 }
 
 
-static void hm2_write_gpio(void *void_hm2, long period) {
+static int hm2_write_gpio(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
+    long period = fa_actual_period(fa);
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->io_error) != 0) return -1;
 
     hm2_ioport_gpio_write(hm2);
     hm2_watchdog_write(hm2, period);
+    return 0;
 }
 
 
@@ -497,6 +504,8 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_bspis=%d\n", hm2->config.num_bspis);
     HM2_DBG("    num_uarts=%d\n", hm2->config.num_uarts);
     HM2_DBG("    num_pktuarts=%d\n", hm2->config.num_pktuarts);
+    HM2_DBG("    num_dplls=%d\n",    hm2->config.num_dplls);
+    HM2_DBG("    num_leds=%d\n",    hm2->config.num_leds);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
@@ -1604,23 +1613,39 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-        char name[HAL_NAME_LEN + 1];
+	int r;
 
-        rtapi_snprintf(name, sizeof(name), "%s.read", hm2->llio->name);
-        r = hal_export_funct(name, hm2_read, hm2, 1, 0, hm2->llio->comp_id);
-        if (r != 0) {
-            HM2_ERR("error %d exporting read function %s\n", r, name);
-            r = -EINVAL;
-            goto fail1;
-        }
+	hal_export_xfunct_args_t read_args = {
+	    .type = FS_XTHREADFUNC,
+	    .funct.x = hm2_read,
+	    .arg = hm2,
+	    .uses_fp = 1,
+	    .reentrant = 0,
+	    .owner_id = hm2->llio->comp_id
+	};
+	if ((r = hal_export_xfunctf(&read_args,
+				"%s.read",
+				hm2->llio->name)) != 0) {
+	    HM2_ERR("hal_export_xfunctf(%s.read) failed: %d\n",
+		    hm2->llio->name, r);
+	    return r;
+	}
 
-        rtapi_snprintf(name, sizeof(name), "%s.write", hm2->llio->name);
-        r = hal_export_funct(name, hm2_write, hm2, 1, 0, hm2->llio->comp_id);
-        if (r != 0) {
-            HM2_ERR("error %d exporting write function %s\n", r, name);
-            r = -EINVAL;
-            goto fail1;
-        }
+	hal_export_xfunct_args_t write_args = {
+	    .type = FS_XTHREADFUNC,
+	    .funct.x = hm2_write,
+	    .arg = hm2,
+	    .uses_fp = 1,
+	    .reentrant = 0,
+	    .owner_id = hm2->llio->comp_id
+	};
+	if ((r = hal_export_xfunctf(&write_args,
+				"%s.write",
+				hm2->llio->name)) != 0) {
+	    HM2_ERR("hal_export_xfunctf(%s.write) failed: %d\n",
+		    hm2->llio->name, r);
+	    return r;
+	}
     }
 
 
@@ -1629,23 +1654,40 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if (hm2->llio->threadsafe) {
-        char name[HAL_NAME_LEN + 1];
+	int r;
 
-        rtapi_snprintf(name, sizeof(name), "%s.read_gpio", hm2->llio->name);
-        r = hal_export_funct(name, hm2_read_gpio, hm2, 1, 0, hm2->llio->comp_id);
-        if (r != 0) {
-            HM2_ERR("error %d exporting gpio_read function %s\n", r, name);
-            r = -EINVAL;
-            goto fail1;
-        }
+	hal_export_xfunct_args_t read_gpio_args = {
+	    .type = FS_XTHREADFUNC,
+	    .funct.x = hm2_read_gpio,
+	    .arg = hm2,
+	    .uses_fp = 1,
+	    .reentrant = 0,
+	    .owner_id = hm2->llio->comp_id
+	};
+	if ((r = hal_export_xfunctf(&read_gpio_args,
+				"%s.read_gpio",
+				hm2->llio->name)) != 0) {
+	    HM2_ERR("hal_export_xfunctf(%s.read_gpio) failed: %d\n",
+		    hm2->llio->name, r);
+	    return r;
+	}
 
-        rtapi_snprintf(name, sizeof(name), "%s.write_gpio", hm2->llio->name);
-        r = hal_export_funct(name, hm2_write_gpio, hm2, 1, 0, hm2->llio->comp_id);
-        if (r != 0) {
-            HM2_ERR("error %d exporting gpio_write function %s\n", r, name);
-            r = -EINVAL;
-            goto fail1;
-        }
+	hal_export_xfunct_args_t write_gpio_args = {
+	    .type = FS_XTHREADFUNC,
+	    .funct.x = hm2_write_gpio,
+	    .arg = hm2,
+	    .uses_fp = 1,
+	    .reentrant = 0,
+	    .owner_id = hm2->llio->comp_id
+	};
+	if ((r = hal_export_xfunctf(&write_gpio_args,
+				"%s.write_gpio",
+				hm2->llio->name)) != 0) {
+	    HM2_ERR("hal_export_xfunctf(%s.write_gpio) failed: %d\n",
+		    hm2->llio->name, r);
+	    return r;
+	}
+
     }
 
     //

@@ -29,15 +29,18 @@ static void thread_task(void *arg)
     };
     bool do_wait = ((thread->flags & TF_NOWAIT) == 0);
 
+    // first time around after start threads,
+    // use nominal period as actual period
+    fa.last_start_time = rtapi_get_time() - thread->period;
+
     while (1) {
 	if (hal_data->threads_running > 0) {
 	    /* point at first function on function list */
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
 	    /* execution time logging */
-	    fa.start_time = rtapi_get_clocks();
-	    end_time = fa.start_time;
-	    fa.thread_start_time = fa.start_time;
+	    fa.thread_start_time = fa.start_time = end_time =rtapi_get_time();
+	    fa.actual_period = fa.thread_start_time - fa.last_start_time;
 
 	    /* run thru function list */
 	    while (funct_entry != funct_root) {
@@ -57,7 +60,7 @@ static void thread_task(void *arg)
 		    ;
 		}
 		/* capture execution time */
-		end_time = rtapi_get_clocks();
+		end_time = rtapi_get_time();
 		/* update execution time data */
 		*(fa.funct->runtime) = (hal_s32_t)(end_time - fa.start_time);
 		if ( *(fa.funct->runtime) > fa.funct->maxtime) {
@@ -76,8 +79,13 @@ static void thread_task(void *arg)
 	    if (thread->runtime > thread->maxtime) {
 		thread->maxtime = thread->runtime;
 	    }
+	    fa.last_start_time = fa.thread_start_time;
 	} else {
+	    // give some breathing time if not threads_running
 	    rtapi_wait();
+	    // if threads were stopped when the thread was created,
+	    // start the first cycle by using the nominal thread period
+	    fa.last_start_time = rtapi_get_time() - thread->period;
 	    continue;
 	}
 	/* wait until next period */

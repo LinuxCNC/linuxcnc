@@ -25,6 +25,7 @@
 #include "rtapi_math.h"
 
 #include "hal.h"
+#include "hal_priv.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -33,7 +34,7 @@
 
 // this is the function exported to HAL
 // it keeps the watchdog from biting us for a while
-static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
+static int hm2_pet_watchdog(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
     static int print_warning = 1;
 
@@ -42,6 +43,7 @@ static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
         HM2_PRINT("The hm2 write function now pets the watchdog.\n");
         print_warning = 0;
     }
+    return 0;
 }
 
 
@@ -181,15 +183,22 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
     // the function
     {
-        char name[HAL_NAME_LEN + 1];
+	hal_export_xfunct_args_t xfunct_args = {
+	    .type = FS_XTHREADFUNC,
+	    .funct.x = hm2_pet_watchdog,
+	    .arg = hm2,
+	    .uses_fp = 0,
+	    .reentrant = 0,
+	    .owner_id = hm2->llio->comp_id
+	};
 
-        rtapi_snprintf(name, sizeof(name), "%s.pet_watchdog", hm2->llio->name);
-        r = hal_export_funct(name, hm2_pet_watchdog, hm2, 0, 0, hm2->llio->comp_id);
-        if (r != 0) {
-            HM2_ERR("error %d exporting pet_watchdog function %s\n", r, name);
-            r = -EINVAL;
+	if ((r = hal_export_xfunctf(&xfunct_args,
+				    "%s.pet_watchdog",
+				    hm2->llio->name)) != 0) {
+	    HM2_ERR("hal_export pet_watchdog failed - %d\n", r);
+	    r = -EINVAL;
             goto fail1;
-        }
+	}
     }
 
 

@@ -381,16 +381,18 @@ typedef struct {
     // actual invocation time of this thread cycle
     // (i.e. before calling the first funct in chain)
     long long int thread_start_time;
+    long long int last_start_time; // used to determine the actual period
 
     // invocation time of the current funct.
     // accounts for the time being used by previous functs,
-    // without calling rtapi_get_clocks() yet once more
+    // without calling rtapi_get_time() yet once more
     // (RTAPI thread_task already does this, so it's all about making an
     // existing value accessible to the funct)
     long long int start_time;
 
     hal_thread_t  *thread; // descriptor of invoking thread, NULL with FS_USERLAND
     hal_funct_t   *funct;  // descriptor of invoked funct
+    long          actual_period;  // actually measured
 
     // argument vector for FS_USERLAND; 0/NULL for others
     int argc;
@@ -473,17 +475,29 @@ typedef struct hal_thread {
 
 
 // public accessors for hal_funct_args_t argument
+
+// timestamp: start of current funct
 static inline long long int fa_start_time(const hal_funct_args_t *fa)
  { return fa->start_time; }
 
+// timestamp: start of this thread cycle
 static inline long long int fa_thread_start_time(const hal_funct_args_t *fa)
 { return fa->thread_start_time; }
 
+// nominal thread period in nS as passed to hal_create_xthread/newthread
 static inline long fa_period(const hal_funct_args_t *fa)
 {
     if (fa->thread)
 	return fa->thread->period;
     return 0;
+}
+
+// actually measured thread period in nS, relative to last invocation
+// on first call, will expose the nominal period, measured times thereafter
+// addresses https://github.com/machinekit/machinekit/issues/657
+static inline long fa_actual_period(const hal_funct_args_t *fa)
+{
+    return fa->actual_period;
 }
 
 static inline const char* fa_thread_name(const hal_funct_args_t *fa)
@@ -492,11 +506,25 @@ static inline const char* fa_thread_name(const hal_funct_args_t *fa)
 	return fa->thread->name;
     return "";
 }
-static inline const char* fa_funct_name(const hal_funct_args_t *fa) { return fa->funct->name; }
+static inline const char* fa_funct_name(const hal_funct_args_t *fa)
+{
+    return fa->funct->name;
+}
 
-static inline const int fa_argc(const hal_funct_args_t *fa) { return fa->argc; }
-static inline const char** fa_argv(const hal_funct_args_t *fa) { return fa->argv; }
-static inline const void * fa_arg(const hal_funct_args_t *fa) { return fa->funct->arg; }
+static inline const int fa_argc(const hal_funct_args_t *fa)
+{
+    return fa->argc;
+}
+
+static inline const char** fa_argv(const hal_funct_args_t *fa)
+{
+    return fa->argv;
+}
+
+static inline const void * fa_arg(const hal_funct_args_t *fa)
+{
+    return fa->funct->arg;
+}
 
 
 // represents a HAL vtable object
