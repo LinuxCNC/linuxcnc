@@ -170,6 +170,11 @@ int main(int argc, char **argv)
     }
     int num_pins = hal_stream_element_count(&stream);
     while ( fgets(buf, BUF_SIZE, stdin) ) {
+	/* skip comment lines */
+	if ( buf[0] == '#' ) {
+	    line++;
+	    continue;
+	}
 	cp = buf;
 	errmsg = NULL;
 	union hal_stream_data data[num_pins];
