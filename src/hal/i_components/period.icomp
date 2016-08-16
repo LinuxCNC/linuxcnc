@@ -1,0 +1,14 @@
+component period "export nominal and actual thread period as pins";
+
+pin out float period_ns;
+pin out float actual_period_ns;
+
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    period_ns = (hal_float_t) fa_period(fa);
+    actual_period_ns = (hal_float_t)fa_actual_period(fa);
+    return 0;
+}
