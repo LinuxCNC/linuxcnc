@@ -88,6 +88,9 @@ public:
          double *settings,
          StateTag const &tag);
 
+    // Print contents of state tag for debugging
+    void print_state_tag(StateTag const &tag);
+
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
  char *error_text(int error_code, char *error_text,

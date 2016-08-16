@@ -2148,6 +2148,28 @@ int Interp::active_modes(int *g_codes,
 }
 
 
+/**
+ * Print state information from a motion line tag for debugging.
+ */
+void Interp::print_state_tag(StateTag const &tag)
+{
+    // Extract as-is field values directly into appropriate array
+    // position
+    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %d, MOTION_MODE %d "
+		 "ORIGIN G%0.1f; flags UNITS %s, DISTANCE_MODE %s, "
+		 "SPINDLE_ON %s",
+		 tag.is_valid() ? "valid" : "invalid",
+		 &tag,
+		 tag.fields[GM_FIELD_LINE_NUMBER],
+		 tag.fields[GM_FIELD_MOTION_MODE],
+		 tag.fields[GM_FIELD_ORIGIN]/10.0,
+		 tag.flags[GM_FLAG_UNITS] ? "G20" : "G21",
+		 tag.flags[GM_FLAG_DISTANCE_MODE] ? "G90" : "G91",
+		 (!tag.flags[GM_FLAG_SPINDLE_ON] ? "off" :
+		  (tag.flags[GM_FLAG_SPINDLE_CW] ? "cw" : "ccw")));
+}
+
+
 void Interp::setError(const char *fmt, ...)
 {
     va_list ap;

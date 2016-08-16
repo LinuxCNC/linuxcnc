@@ -36,6 +36,7 @@
 #define EMC_DEBUG_NAMEDPARAM        0x00010000
 #define EMC_DEBUG_GDBONSIGNAL       0x00020000
 #define EMC_DEBUG_PYTHON_TASK       0x00040000
+#define EMC_DEBUG_STATE_TAGS        0x00080000
 
 // not interpreted by EMC.
 #define EMC_DEBUG_USER1             0x10000000

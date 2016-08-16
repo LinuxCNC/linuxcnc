@@ -2851,6 +2851,8 @@ int Interp::gen_restore_cmd(int *current_g,
     //Extract saved state to local vectors
     int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
     if (res_unpack != INTERP_OK) {
+	logStateTags("gen_restore_cmd() error %d:  failed to unpack state tag",
+		     res_unpack);
         return INTERP_ERROR;
     }
 
@@ -2874,6 +2876,9 @@ int Interp::gen_restore_cmd(int *current_g,
     int res_g = gen_g_codes(current_g, saved_g, cmd);
 
     if (res_settings || res_m || res_g) {
+	logStateTags("gen_restore_cmd():  error restoring "
+		     "settings (%d) or G codes (%d)",
+		     res_settings, res_g);
         return INTERP_ERROR;
     }
     return INTERP_OK;
@@ -2977,6 +2982,8 @@ int Interp::restore_from_tag(StateTag const &tag)
 
     if (!tag.is_valid() || !tag.flags[GM_FLAG_RESTORABLE]) {
         //Invalid line implies a bad tag, don't restore
+	logStateTags("restore_from_tag() error:  Invalid tag");
+	print_state_tag(tag);
         return INTERP_ERROR;
     }
 
@@ -3002,6 +3009,8 @@ int Interp::restore_from_tag(StateTag const &tag)
             tag,
             cmd);
     if (res_unpack != INTERP_OK) {
+	logStateTags("restore_from_tag() failed to generate restore command");
+	print_state_tag(tag);
         return res_unpack;
     }
 
@@ -3023,6 +3032,11 @@ int Interp::restore_from_tag(StateTag const &tag)
         write_g_codes((block_pointer) NULL, &_setup);
         write_m_codes((block_pointer) NULL, &_setup);
         write_settings(&_setup);
+	logStateTags("Restored program pre-abort state from tag:  |%s|",
+		     cmd.c_str());
+    } else {
+	logStateTags("Program pre-abort state unchanged; not restoring:");
+	print_state_tag(tag);
     }
 
     return INTERP_OK;

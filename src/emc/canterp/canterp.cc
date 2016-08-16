@@ -98,6 +98,7 @@ public:
             double settings[ACTIVE_SETTINGS],
             StateTag const &tag);
     int restore_from_tag(StateTag const &tag);
+    void print_state_tag(StateTag const &tag);
     void set_loglevel(int level);
     FILE *f;
     char filename[PATH_MAX];
@@ -730,6 +731,7 @@ void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES
 void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
 //NOT necessary for canterp
 int Canterp::restore_from_tag(StateTag const &tag) {return -1;}
+void Canterp::print_state_tag(StateTag const &tag) {}
 
 int Canterp::active_modes(int g_codes[ACTIVE_G_CODES],
         int m_codes[ACTIVE_M_CODES],
