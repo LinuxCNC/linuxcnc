@@ -2838,10 +2838,10 @@ int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
  * motion line, but does not restore M codes.
  */
 int Interp::gen_restore_cmd(int *current_g,
-         int *current_m,
-         double *current_settings,
-         StateTag const &saved,
-         std::string &cmd)
+			    int *current_m,
+			    double *current_settings,
+			    StateTag const &saved,
+			    std::string &cmd)
 {
     // A local copy of the saved settings, unpacked from a state tag
     int saved_g[ACTIVE_G_CODES];
@@ -2867,7 +2867,8 @@ int Interp::gen_restore_cmd(int *current_g,
     if (current_g[5] != saved_g[5]) {
         char buf[LINELEN];
         snprintf(buf,sizeof(buf), "G%d",saved_g[5]/10);
-        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"), cmd.c_str());
+        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"),
+	     cmd.c_str());
     }
 
     int res_settings = gen_settings(current_settings, saved_settings, cmd);
@@ -2987,10 +2988,11 @@ int Interp::restore_from_tag(StateTag const &tag)
         return INTERP_ERROR;
     }
 
-	// clear queue buster sflags, otherwise the command won't be executed - Tormach *dpr 8/17/15
-	_setup.input_flag = false;
-	_setup.toolchange_flag = false;
-	_setup.probe_flag = false;
+    // clear queue buster sflags, otherwise the command won't be
+    // executed - Tormach *dpr 8/17/15
+    _setup.input_flag = false;
+    _setup.toolchange_flag = false;
+    _setup.probe_flag = false;
 
     // linearize state
     write_g_codes((block_pointer) NULL, &_setup);
@@ -3004,10 +3006,10 @@ int Interp::restore_from_tag(StateTag const &tag)
     // just restoring interp variables is not enough
 
     int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
-            (int *) _setup.active_m_codes,
-            (double *) _setup.active_settings,
-            tag,
-            cmd);
+				     (int *) _setup.active_m_codes,
+				     (double *) _setup.active_settings,
+				     tag,
+				     cmd);
     if (res_unpack != INTERP_OK) {
 	logStateTags("restore_from_tag() failed to generate restore command");
 	print_state_tag(tag);
@@ -3026,7 +3028,8 @@ int Interp::restore_from_tag(StateTag const &tag)
             if (status != INTERP_OK) {
                 char currentError[LINELEN+1];
                 strcpy(currentError,getSavedError());
-                CHKS(status, _("Failed to restore interp state on abort '%s': %s"), s, currentError);
+                CHKS(status, _("Failed to restore interp state on abort "
+			       "'%s': %s"), s, currentError);
             }
         }
         write_g_codes((block_pointer) NULL, &_setup);
@@ -3576,15 +3579,15 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
 
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
-    StateTag tag;
-    write_state_tag(block, settings, tag);
-    update_tag(tag);
-    CHP(convert_spline(motion, block, settings));
+      StateTag tag;
+      write_state_tag(block, settings, tag);
+      update_tag(tag);
+      CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
-    StateTag tag;
-    write_state_tag(block, settings, tag);
-    update_tag(tag);
-    CHP(convert_nurbs(motion, block, settings));
+      StateTag tag;
+      write_state_tag(block, settings, tag);
+      update_tag(tag);
+      CHP(convert_nurbs(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
   }
@@ -5385,6 +5388,6 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 
 int Interp::update_tag(StateTag &tag)
 {
-  UPDATE_TAG(tag);
-  return INTERP_OK;
+    UPDATE_TAG(tag);
+    return INTERP_OK;
 }

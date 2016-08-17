@@ -39,17 +39,19 @@ int tpPause(TP_STRUCT * tp);
 int tpResume(TP_STRUCT * tp);
 int tpAbort(TP_STRUCT * tp);
 int tpAddRigidTap(TP_STRUCT * const tp,
-        EmcPose end,
-        double vel,
-        double ini_maxvel,
-        double acc,
-        unsigned char enables,
-        struct state_tag_t tag);
-int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
-                     ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary, struct state_tag_t tag);
+		  EmcPose end,
+		  double vel,
+		  double ini_maxvel,
+		  double acc,
+		  unsigned char enables,
+		  struct state_tag_t tag);
+int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
+	      double vel, double ini_maxvel, double acc, unsigned char enables,
+	      char atspeed, int indexrotary, struct state_tag_t tag);
 int tpAddCircle(TP_STRUCT * const tp, EmcPose end, PmCartesian center,
-        PmCartesian normal, int turn, int canon_motion_type, double vel, double ini_maxvel,
-                       double acc, unsigned char enables, char atspeed, struct state_tag_t tag);
+		PmCartesian normal, int turn, int canon_motion_type, double vel,
+		double ini_maxvel, double acc, unsigned char enables,
+		char atspeed, struct state_tag_t tag);
 int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
 int tpIsDone(TP_STRUCT * const tp);
 int tpQueueDepth(TP_STRUCT * const tp);

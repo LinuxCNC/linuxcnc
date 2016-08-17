@@ -268,7 +268,7 @@ extern "C" {
         double arcBlendRampFreq;
         double arcBlendTangentKinkRatio;
         double maxFeedScale;
-    struct state_tag_t tag;
+	struct state_tag_t tag;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -689,7 +689,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by g-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by g-code */
 
-    struct state_tag_t tag; /* Current interp state corresponding to motion line */
+	struct state_tag_t tag; /* Current interp state corresponding
+				   to motion line */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

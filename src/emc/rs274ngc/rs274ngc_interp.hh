@@ -82,11 +82,11 @@ public:
 // copy active F, S settings into array [0]..[2]
  void active_settings(double *settings);
 
- // Update the state vectors from a state tag
- int active_modes(int *g_codes,
-         int *mcodes,
-         double *settings,
-         StateTag const &tag);
+    // Update the state vectors from a state tag
+    int active_modes(int *g_codes,
+		     int *mcodes,
+		     double *settings,
+		     StateTag const &tag);
 
     // Print contents of state tag for debugging
     void print_state_tag(StateTag const &tag);
@@ -472,11 +472,11 @@ public:
  int gen_settings(double *current, double *saved, std::string &cmd);
  int gen_g_codes(int *current, int *saved, std::string &cmd);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
- int gen_restore_cmd(int *current_g,
-         int *current_m,
-         double *current_settings,
-         StateTag const &saved,
-         std::string &cmd);
+    int gen_restore_cmd(int *current_g,
+			int *current_m,
+			double *current_settings,
+			StateTag const &saved,
+			std::string &cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);
@@ -523,7 +523,8 @@ public:
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
- int write_state_tag(block_pointer block, setup_pointer settings, StateTag &state);
+ int write_state_tag(block_pointer block, setup_pointer settings,
+		     StateTag &state);
  int unwrap_rotary(double *, double, double, double, char);
  bool isreadonly(int index);
 

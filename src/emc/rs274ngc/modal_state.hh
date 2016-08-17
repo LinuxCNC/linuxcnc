@@ -31,16 +31,17 @@ extern "C" {
 }
 
 /**
- * C++ version of state_tag_t structure to stuff interp state info in a motion message.
- * Previously, this information was stored only in the interpreter, and as
- * vectors of g codes, m codes, and settings. Considering that the write_XXX
- * and gen_XXX functions had to jump through hoops to translate from a settings
- * struct, the extra packing here isn't much more complex to deal with, and
- * will cost much less space in an NML message.
+ * C++ version of state_tag_t structure to stuff interp state info in
+ * a motion message.  Previously, this information was stored only in
+ * the interpreter, and as vectors of g codes, m codes, and
+ * settings. Considering that the write_XXX and gen_XXX functions had
+ * to jump through hoops to translate from a settings struct, the
+ * extra packing here isn't much more complex to deal with, and will
+ * cost much less space in an NML message.
  *
- * Using this class means we can work with a bitset instead of raw bitmasking
- * operations. Also, because we're inheriting from the C struct, copy /
- * assignment is valid.
+ * Using this class means we can work with a bitset instead of raw
+ * bitmasking operations. Also, because we're inheriting from the C
+ * struct, copy / assignment is valid.
  */
 struct StateTag : public state_tag_t {
     StateTag();

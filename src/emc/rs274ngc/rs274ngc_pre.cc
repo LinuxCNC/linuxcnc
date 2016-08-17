@@ -2075,14 +2075,16 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
 //TODO rename to read_state_tag?
 
 /**
- * Unpack state information from a motion line tag into TASK_STAT-style arrays of G/M Codes.
+ * Unpack state information from a motion line tag into
+ * TASK_STAT-style arrays of G/M Codes.
+ *
  * This method allows us to keep the existing infrastructure for g
  * code status / state storage intact.
  */
 int Interp::active_modes(int *g_codes,
-         int *m_codes,
-         double *settings,
-         StateTag const &tag)
+			 int *m_codes,
+			 double *settings,
+			 StateTag const &tag)
 {
     // Pre-checks on fields
     if (!tag.is_valid()) {

@@ -62,10 +62,16 @@ typedef enum {
 
 /**
  * Enum for various fields of state info that aren't binary.
+ *
  * WARNING:
+ *
  * 1) Since these are used as array indices, they have to start at 0,
  * be monotonic, and the MAX_FIELDS enum MUST be last in the list.
- * 2) If your application needs to pass state tags through NML, then you MUST update the corresponding cms->update function for state tags.
+ *
+ * 2) If your application needs to pass state tags through NML, then
+ * you MUST update the corresponding cms->update function for state
+ * tags.
+ *
  * TODO: make that standalone function a method here for maintainability
  */
 typedef enum {
