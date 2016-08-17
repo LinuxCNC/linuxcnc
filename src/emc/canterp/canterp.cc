@@ -750,9 +750,9 @@ int Canterp::restore_from_tag(StateTag const &tag) {return -1;}
 void Canterp::print_state_tag(StateTag const &tag) {}
 
 int Canterp::active_modes(int g_codes[ACTIVE_G_CODES],
-        int m_codes[ACTIVE_M_CODES],
-        double settings[ACTIVE_SETTINGS],
-        StateTag const &tag){ return -1;}
+			  int m_codes[ACTIVE_M_CODES],
+			  double settings[ACTIVE_SETTINGS],
+			  StateTag const &tag){ return -1;}
 
 void Canterp::set_loglevel(int level) {}
 void Canterp::set_loop_on_main_m99(bool state) {}

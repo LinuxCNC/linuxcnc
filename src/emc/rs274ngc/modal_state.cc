@@ -31,7 +31,8 @@ StateTag::StateTag(): flags(0)
     speed = 0.0;
 }
 
-StateTag::StateTag(struct state_tag_t const & basetag): state_tag_t(basetag), flags(basetag.packed_flags)
+StateTag::StateTag(struct state_tag_t const & basetag):
+    state_tag_t(basetag), flags(basetag.packed_flags)
 {}
 
 /**

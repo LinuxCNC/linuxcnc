@@ -698,11 +698,12 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
  * segments together, however.
  */
 STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT* const blend_tc,
-        double vel,
-        double ini_maxvel,
-        double acc) {
+				  TC_STRUCT const * const prev_tc,
+				  TC_STRUCT* const blend_tc,
+				  double vel,
+				  double ini_maxvel,
+				  double acc)
+{
 
 #ifdef TP_SHOW_BLENDS
     int canon_motion_type = EMC_MOTION_TYPE_ARC;
@@ -727,7 +728,8 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
             acc);
 
     // Skip syncdio setup since this blend extends the previous line
-    blend_tc->syncdio = prev_tc->syncdio; //enqueue the list of DIOs that need toggling
+    blend_tc->syncdio =		// enqueue the list of DIOs
+	prev_tc->syncdio;	// that need toggling
 
     // find "helix" length for target
     double length;
@@ -1463,6 +1465,7 @@ int tpAddRigidTap(TP_STRUCT * const tp,
         unsigned char enables,
         double scale,
         struct state_tag_t tag) {
+
     if (tpErrorCheck(tp)) {
         return TP_ERR_FAIL;
     }
@@ -1936,8 +1939,11 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
  * end of the previous move to the new end specified here at the
  * currently-active accel and vel settings from the tp struct.
  */
-int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
-        ini_maxvel, double acc, unsigned char enables, char atspeed, int indexer_jnum, struct state_tag_t tag) {
+
+int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
+            double vel, double ini_maxvel, double acc, unsigned char enables,
+            char atspeed, int indexer_jnum, struct state_tag_t tag)
+{
     if (tpErrorCheck(tp) < 0) {
         return TP_ERR_FAIL;
     }

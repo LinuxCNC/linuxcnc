@@ -254,13 +254,13 @@ extern "C" {
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
-        unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
-                                     |1 = suppress error, report in # instead
-                                     ~2 = move until probe trips (ngc default)
-                                     |2 = move until probe clears */
-        int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
-        int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
-        EmcPose tool_offset;        /* TLO */
+    unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
+                                 |1 = suppress error, report in # instead
+                                 ~2 = move until probe trips (ngc default)
+                                 |2 = move until probe clears */
+    int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
+    int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
+    EmcPose tool_offset;        /* TLO */
     double  orientation;    /* angle for spindle orient */
     char    direction;      /* CANON_DIRECTION flag for spindle orient */
     double  timeout;        /* of wait for spindle orient to complete */
@@ -645,7 +645,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by g-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by g-code */
 
-    struct state_tag_t tag; /* Current interp state corresponding to motion line */
+	struct state_tag_t tag; /* Current interp state corresponding
+				   to motion line */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
