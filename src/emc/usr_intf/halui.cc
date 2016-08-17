@@ -2096,10 +2096,10 @@ static void modify_hal_pins()
 	*(halui_data->mode_is_teleop)=0;
     }
 
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
-	*(halui_data->mode_is_joint)=0;
-    } else {
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE) {
 	*(halui_data->mode_is_joint)=1;
+    } else {
+	*(halui_data->mode_is_joint)=0;
     }
 
     *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED;
