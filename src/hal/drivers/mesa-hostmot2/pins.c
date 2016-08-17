@@ -408,18 +408,23 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
                     "invalid\n", pin->bit_num );
             return -EINVAL;
         }
-        switch (hm2->idrom.port_width) {
-            case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
-                pin->port_pin = ((i % 24) * 2) + 1;
-                break;
-            case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
-                pin->port_pin = DB25[i % 17];
-                break;
-            case 32:      /* 5I21 punt on this for now */
-                pin->port_pin = i + 1;
-                break;
-            default:
-                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+        if(hm2->fwid.dmsg == NULL) {
+            switch (hm2->idrom.port_width) {
+                case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
+                    pin->port_pin = ((i % 24) * 2) + 1;
+                    break;
+                case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
+                    pin->port_pin = DB25[i % 17];
+                    break;
+                case 32:      /* 5I21 punt on this for now */
+                    pin->port_pin = i + 1;
+                    break;
+                default:
+                    HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+            }
+        }
+        else {
+            pin->port_pin = i + 1;
         }
         
         addr += 4;
