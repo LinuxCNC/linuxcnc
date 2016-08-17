@@ -48,6 +48,43 @@ InterpBase *pinterp=0;
 setup_pointer _is = 0; // helper for gdb hardware watchpoints FIXME
 
 
+// Print error messages thrown by interpreter
+static char interp_error_text_buf[LINELEN];
+static char interp_stack_buf[LINELEN];
+
+static void print_interp_error(int retval)
+{
+    int index = 0;
+    if (retval == 0) {
+	return;
+    }
+
+    if (0 != emcStatus) {
+	emcStatus->task.interpreter_errcode = retval;
+    }
+
+    interp_error_text_buf[0] = 0;
+    interp.error_text(retval, interp_error_text_buf, LINELEN);
+    if (0 != interp_error_text_buf[0]) {
+	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
+    }
+    emcOperatorError(0, "%s", interp_error_text_buf);
+    index = 0;
+    if (emc_debug & EMC_DEBUG_INTERP) {
+	rcs_print("Interpreter stack: \t");
+	while (index < 5) {
+	    interp_stack_buf[0] = 0;
+	    interp.stack_name(index, interp_stack_buf, LINELEN);
+	    if (0 == interp_stack_buf[0]) {
+		break;
+	    }
+	    rcs_print(" - %s ", interp_stack_buf);
+	    index++;
+	}
+	rcs_print("\n");
+    }
+}
+
 /*
   format string for user-defined programs, e.g., "programs/M1%02d" means
   user-defined programs are in the programs/ directory and are named
@@ -176,10 +213,14 @@ int emcTaskHalt()
 
 int emcTaskStateRestore()
 {
+    int res;
     // Do NOT restore on MDI command
     if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
         // Validity of state tag checked within restore function
-        pinterp->restore_from_tag(emcStatus->motion.traj.tag);
+        res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
+	if (res != INTERP_OK)
+	    // Print error but don't bail
+	    print_interp_error(res);
     }
     return 0;
 }
@@ -386,42 +427,6 @@ static int determineState()
 }
 
 static int waitFlag = 0;
-
-static char interp_error_text_buf[LINELEN];
-static char interp_stack_buf[LINELEN];
-
-static void print_interp_error(int retval)
-{
-    int index = 0;
-    if (retval == 0) {
-	return;
-    }
-
-    if (0 != emcStatus) {
-	emcStatus->task.interpreter_errcode = retval;
-    }
-
-    interp_error_text_buf[0] = 0;
-    interp.error_text(retval, interp_error_text_buf, LINELEN);
-    if (0 != interp_error_text_buf[0]) {
-	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
-    }
-    emcOperatorError(0, "%s", interp_error_text_buf);
-    index = 0;
-    if (emc_debug & EMC_DEBUG_INTERP) {
-	rcs_print("Interpreter stack: \t");
-	while (index < 5) {
-	    interp_stack_buf[0] = 0;
-	    interp.stack_name(index, interp_stack_buf, LINELEN);
-	    if (0 == interp_stack_buf[0]) {
-		break;
-	    }
-	    rcs_print(" - %s ", interp_stack_buf);
-	    index++;
-	}
-	rcs_print("\n");
-    }
-}
 
 int emcTaskPlanInit()
 {
