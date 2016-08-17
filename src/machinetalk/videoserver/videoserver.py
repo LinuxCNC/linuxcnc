@@ -97,7 +97,7 @@ class VideoServer(threading.Thread):
         if videoDevice.arguments is not '':
             arguments = ' ' + videoDevice.arguments
 
-        command = ['mjpg_streamer -i \"%s' + libpath + 'input_uvc.so -n' +
+        command = ['mjpg_streamer -i \"' + libpath + 'input_uvc.so -n' +
                    ' -f ' + str(videoDevice.framerate) +
                    ' -r ' + videoDevice.resolution +
                    ' -q ' + videoDevice.quality +
