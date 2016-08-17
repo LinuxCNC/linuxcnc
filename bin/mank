@@ -56,7 +56,7 @@ else
 	filn=$(find . $EMC2_HOME/man /usr/share/doc/machinekit/man -type f -name $fil.asciidoc)
     else
 	## this is the install path for machinekit-manual-pages plus optional /local prefix
-	filn=$(find . /usr/share/doc/machinekit/man f -name $fil.asciidoc)
+	filn=$(find . /usr/share/doc/machinekit/man -type f -name $fil.asciidoc)
     fi
 fi
 
