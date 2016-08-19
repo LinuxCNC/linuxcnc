@@ -1859,9 +1859,9 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     localMotionCommandType = emcmotStatus.commandEcho;	/*! \todo FIXME-- not NML one! */
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
+    r3 = emcTrajUpdate(&stat->traj);
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
-    r3 = emcTrajUpdate(&stat->traj);
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
