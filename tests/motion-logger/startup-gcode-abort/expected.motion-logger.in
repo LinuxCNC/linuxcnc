@@ -88,17 +88,6 @@ DISABLE_AMPLIFIER
 DISABLE_AMPLIFIER
 DISABLE_AMPLIFIER
 DISABLE
-JOINT_ABORT joint=0
-JOINT_ABORT joint=1
-JOINT_ABORT joint=2
-JOINT_ABORT joint=3
-JOINT_ABORT joint=4
-JOINT_ABORT joint=5
-JOINT_ABORT joint=6
-JOINT_ABORT joint=7
-JOINT_ABORT joint=8
-ABORT
-SPINDLE_OFF
 JOINT_UNHOME joint=-2
 
 #
@@ -120,10 +109,6 @@ SET_TERM_COND termCond=2, tolerance=0.000000
 # These are the [RS274NGC]RS274NGC_STARTUP_CODE
 SET_LINE x=-1.000000, y=-2.000000, z=-3.000000, a=0.000000, b=0.000000, c=0.000000, u=0.000000, v=0.000000, w=0.000000, id=2, motion_type=1, vel=4.988877, ini_maxvel=4.988877, acc=1247.219129, turn=-1
 SET_LINE x=1.000000, y=2.000000, z=3.000000, a=0.000000, b=0.000000, c=0.000000, u=0.000000, v=0.000000, w=0.000000, id=4, motion_type=1, vel=4.988877, ini_maxvel=4.988877, acc=1247.219129, turn=-1
-
-# ... And this is the rest of emcTaskPlanInit()'s Motion commands
-SET_SPINDLESYNC sync=0.000000, flags=0x00000000
-SPINDLE_OFF
 
 #
 # Task has fully booted!  It's now in Estop, in Manual, and ready to
