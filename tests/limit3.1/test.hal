@@ -14,6 +14,7 @@ net lim limit3.0.in-limit sampler.0.pin.2
 addf siggen.0.update t
 addf limit3.0 t
 addf sampler.0 t
+setp siggen.0.amplitude 1.002
 
 start
 loadusr -w halsampler -t -n 900
