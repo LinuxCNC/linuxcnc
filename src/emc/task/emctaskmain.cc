@@ -3284,8 +3284,18 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // set the default startup modes
-    emcTaskSetState(EMC_TASK_STATE_ESTOP);
-    emcTaskSetMode(EMC_TASK_MODE_MANUAL);
+    emcMotionAbort();
+    emcSpindleAbort();
+    emcAuxEstopOn();
+    for (int t = 0; t < emcStatus->motion.traj.axes; t++) {
+        emcAxisDisable(t);
+    }
+    emcTrajDisable();
+    emcLubeOff();
+    emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
+    emcAxisUnhome(-2);
+
+    emcTrajSetMode(EMC_TRAJ_MODE_FREE);
 
     // reflect the initial value of EMC_DEBUG in emcStatus->debug
     emcStatus->debug = emc_debug;

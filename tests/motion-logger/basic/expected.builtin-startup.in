@@ -99,7 +99,7 @@ ACTIVATE_JOINT joint=8
 #
 
 #
-# Next Task enters Estop, by calling emcTaskSetState(EMC_TASK_STATE_ESTOP).
+# Next Task sets default startup modes as if aborting and entering estop
 # This does the following:
 #     * Abort Motion, which aborts each Axis, then Aborts Motion
 #     * Stop the spindle
@@ -107,7 +107,6 @@ ACTIVATE_JOINT joint=8
 #     * Disable all the amps
 #     * Disable Motion
 #     * Send Lube Off to IO (which we don't detect)
-#     * Abort Motion again, which aborts each Axis, and Motion, again
 #     * Abort IO, which we miss
 #     * Unhome VOLATILE_HOME joints
 #
@@ -133,20 +132,10 @@ DISABLE_AMPLIFIER
 DISABLE_AMPLIFIER
 DISABLE_AMPLIFIER
 DISABLE
-AXIS_ABORT joint=0
-AXIS_ABORT joint=1
-AXIS_ABORT joint=2
-AXIS_ABORT joint=3
-AXIS_ABORT joint=4
-AXIS_ABORT joint=5
-AXIS_ABORT joint=6
-AXIS_ABORT joint=7
-AXIS_ABORT joint=8
-ABORT
 UNHOME joint=-2
 
 #
-# Here's emcTaskSetMode(EMC_TASK_MODE_MANUAL)
+# Here's emcTrajSetMode(EMC_TRAJ_MODE_FREE)
 #
 
 FREE
