@@ -1,0 +1,2 @@
+This test starts LinuxCNC and verifies that it comes up in the expected
+state by validating the statbuffer contents.
