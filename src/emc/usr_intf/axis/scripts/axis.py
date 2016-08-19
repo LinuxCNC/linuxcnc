@@ -1256,6 +1256,13 @@ widgets = nf.Widgets(root_window,
     ("homemenu", Menu, ".menu.machine.home"),
     ("unhomemenu", Menu, ".menu.machine.unhome")
 )
+# Work around an apparent regression in python-tk which causes the value
+# associated with the Y axis button to be changed to the string "True",
+# related to the interpretation of the string "y" as true in a boolean
+# context in Tcl's typeless value system.
+# https://github.com/LinuxCNC/linuxcnc/issues/146
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=834783
+widgets.axis_y.configure(value="y")
 
 def activate_axis(i, force=0):
     if not force and not manual_ok(): return
