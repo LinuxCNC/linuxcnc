@@ -35,11 +35,11 @@ MODULE_LICENSE("GPL");
 
 typedef struct {
     hal_bit_t* led_pins[4];
-    hal_bit_t* input_pins[PINS_PER_HEADER * HEADERS]; // array of pointers to bivts
-    hal_bit_t* output_pins[PINS_PER_HEADER * HEADERS]; // array of pointers to bits
+    hal_bit_t* input_pins[1 + PINS_PER_HEADER * HEADERS]; // array of pointers to bivts
+    hal_bit_t* output_pins[1 + PINS_PER_HEADER * HEADERS]; // array of pointers to bits
     hal_bit_t  *led_inv[4];
-    hal_bit_t  *input_inv[PINS_PER_HEADER * HEADERS];
-    hal_bit_t  *output_inv[PINS_PER_HEADER * HEADERS];
+    hal_bit_t  *input_inv[1 + PINS_PER_HEADER * HEADERS];
+    hal_bit_t  *output_inv[1 + PINS_PER_HEADER * HEADERS];
 } port_data_t;
 
 static port_data_t *port_data;
