@@ -173,48 +173,14 @@ static int locate_uio_device(hm2_soc_t *brd, const char *name);
 //
 static int hm2_soc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_soc_t *brd = this->private;
-    int i;
-    u32* src = (u32*) (brd->base + addr);
-    u32* dst = (u32*) buffer;
-
-    /* Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned */
-    /* Check for any address or size values that violate this alignment */
-    if ( ((addr & 0x3) != 0) || ((size & 0x03) != 0) ){
-        u16* dst16 = (u16*) dst;
-        u16* src16 = (u16*) src;
-        /* hm2_read_idrom performs a 16-bit read, which seems to be OK, so let's allow it */
-        if ( ((addr & 0x1) != 0) || (size != 2) ){
-            LL_ERR( "hm2_soc_read: Unaligned Access: %08x %04x\n", addr,size);
-            memcpy(dst, src, size);
-            return 1;  // success
-        }
-        dst16[0] = src16[0];
-        return 1;  // success
-    }
-    for (i=0; i<(size/4); i++) {
-        dst[i] = src[i];
-    }
+    memcpy(buffer, brd->base + addr, size);
     return 1;  // success
 }
 
 static int hm2_soc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_soc_t *brd = this->private;
-    int i;
-    u32* src = (u32*) buffer;
-    u32* dst = (u32*) (brd->base + addr);
-
-    /* Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned */
-    /* Check for any address or size values that violate this alignment */
-    if ( ((addr & 0x3) != 0) || ((size & 0x03) != 0) ){
-        LL_ERR( "hm2_soc_write: Unaligned Access: %08x %04x\n", addr,size);
-        memcpy(dst, src, size);
-        return 1;  // success
-    }
-
-    for (i=0; i<(size/4); i++) {
-        dst[i] = src[i];
-    }
-    return 1;  // success
+    memcpy(brd->base + addr, buffer, size);
+    return 1;
 }
 
 // when no firmware= was specified, hm2_register() will read/write from the
