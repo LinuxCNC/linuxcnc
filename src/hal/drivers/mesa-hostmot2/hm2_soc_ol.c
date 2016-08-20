@@ -1,5 +1,7 @@
 //
-//    Copyright (C) 2007-2008 Sebastian Kuzminsky
+//    Copyright (C) 2015-2016  Michael Brown, Devin Hughes, Michael Haberler
+//
+//    loosely based on hm2_pci.c, Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,6 +21,7 @@
 //    Copyright (C) Holotronic 2016-2017
 //
 //    some polishings Michael Haberler 2016
+//    Copyright (C) 2016 Michael Haberler
 //
 //    Rewritten for overlay based FPGA manager interface
 //    Copyright (C) 2016 Devin Hughes, JD Squared
