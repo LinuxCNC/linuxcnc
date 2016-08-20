@@ -7,7 +7,8 @@ loadrt hostmot2 irq_period_nsec=1000000  debug_module_descriptors=1 debug_module
 
 # new style of loading hm2_soc_ol:
 # instance name must match device name from DTBO
-newinst hm2_soc_ol hm2-socfpg0 config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I85S_GPIO_GPIO.dtbo "
+newinst hm2_soc_ol hm2-socfpga0 config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I85S_GPIO_GPIO.dtbo " debug=1
+#newinst hm2_soc_ol hm2-socfpga0 config="firmware=zynq/dtbo/zturn_ztio7020_ol.dtbo" debug=1
 
 # in theory this disables DPLL tracking:
 setp hm2_de0n.0.dpll.plimit 0

@@ -1,5 +1,7 @@
 //
-//    Copyright (C) 2007-2008 Sebastian Kuzminsky
+//    Copyright (C) 2015-2016  Michael Brown, Devin Hughes, Michael Haberler
+//
+//    loosely based on hm2_pci.c, Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,13 +21,14 @@
 //    Copyright (C) Holotronic 2016-2017
 //
 //    some polishings Michael Haberler 2016
+//    Copyright (C) 2016 Michael Haberler
 //
 //    Rewritten for overlay based FPGA manager interface
 //    Copyright (C) 2016 Devin Hughes, JD Squared
 
-/* a matching device tree overlay:
+/* a matching device tree overlay - Altera Terasic DE0-Nano:
 
-/dts-v1/ /plugin/;
+/dts-v1/;/plugin/;
 
 / {
 	fragment@0 {
@@ -39,8 +42,8 @@
 			ranges = <0x00040000 0xff240000 0x00010000>;
 			firmware-name = "socfpga/DE0_NANO.rbf";
 
-			hm2reg_io_0: hm2-socfpg0@0x40000 {
-				compatible = "hm2reg_io,generic-uio,ui_pdrv";
+			hm2reg_io_0: hm2-socfpga0@0x40000 {
+				compatible = "generic-uio,ui_pdrv";
 				reg = <0x40000 0x10000>;
 				interrupt-parent = <0x2>;
 				interrupts = <0 43 1>;
@@ -51,7 +54,32 @@
 		};
 	};
 };
-# /usr/src/linux-headers-4.1.17-ltsi-rt17-gab2edea/scripts/dtc/dtc -I dts -O dtb -o hm2reg_uio.dtbo hm2reg_uio-irq.dts
+
+Xilinx Zyn, MYIR Z-Turn:
+
+/dts-v1/; /plugin/;
+
+/ {
+  fragment@0 {
+    target = <&base_fpga_region>;
+    #address-cells = <1>;
+    #size-cells = <1>;
+    __overlay__ {
+      #address-cells = <1>;
+      #size-cells = <1>;
+
+          firmware-name = "zynq/zturn_ztio.bit.bin";
+
+          hm2reg_io_0: hm2-socfpga0@0x43C00000 {
+                compatible = "generic-uio,ui_pdrv";
+                reg = < 0x43C00000 0x00010000 >;
+                interrupt-parent = <&intc>;
+                interrupts = <0 29 1>;
+          };
+    };
+  };
+};
+
 see configs/hm2-soc-stepper/irqtest.hal for a usage example
  */
 //---------------------------------------------------------------------------//
@@ -107,7 +135,7 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
 
 // module-level params
 static int debug;
-RTAPI_MP_INT(debug, "turn on extra debug output");
+RTAPI_IP_INT(debug, "turn on extra debug output");
 
 // instance-level params
 static char *config;
