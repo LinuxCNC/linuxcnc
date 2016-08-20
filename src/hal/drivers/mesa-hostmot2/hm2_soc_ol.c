@@ -107,7 +107,7 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
 
 // module-level params
 static int debug;
-RTAPI_MP_INT(debug, "turn on extra debug output");
+RTAPI_IP_INT(debug, "turn on extra debug output");
 
 // instance-level params
 static char *config;
