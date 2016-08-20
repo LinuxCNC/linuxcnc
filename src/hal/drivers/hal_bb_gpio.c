@@ -84,9 +84,32 @@ void configure_control_module() {
 }
 
 void configure_gpio_port(int n) {
+	volatile void *cm_per;  // pointer to clock manager registers
+	volatile unsigned int *regptr;
+	unsigned int regvalue;
+
 	int fd = open("/dev/mem", O_RDWR);
 
 	gpio_ports[n] = hal_malloc(sizeof(bb_gpio_port));
+
+	// need to verify that port is enabled and clocked before accessing it
+	// port 0 is always mapped, the others need checked
+	if ( n > 0 ) {
+	    cm_per = mmap(0,CM_PER_LEN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, CM_PER_ADDR);
+	    if(cm_per == MAP_FAILED) {
+		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Unable to map Clock Module: %s\n", modname, strerror(errno));
+		exit(1);
+	    }
+	    // point at CM_PER_GPIOn_CLKCTRL register for port n
+	    regptr = cm_per + CM_PER_GPIO1_CLKCTRL_OFFSET + 4*(n-1);
+	    regvalue = *regptr;
+	    // check for port enabled
+	    if ( (regvalue & CM_PER_GPIO_CLKCTRL_MODMODE_MASK ) != CM_PER_GPIO_CLKCTRL_MODMODE_ENABLED ) {
+		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: GPIO Port %d is not enabled in device tree\n", modname, n);
+		exit(1);
+	    }
+	    munmap((void *)cm_per, CM_PER_LEN);
+	}
 
 	gpio_ports[n]->gpio_addr = mmap(0, GPIO_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, start_addr_for_port(n));
 
