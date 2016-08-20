@@ -101,7 +101,7 @@ int configure_gpio_port(int n) {
 	// check for port enabled
 	if ( (regvalue & CM_PER_GPIO_CLKCTRL_MODMODE_MASK ) != CM_PER_GPIO_CLKCTRL_MODMODE_ENABLED ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: GPIO Port %d is not enabled in device tree\n", modname, n);
-	    return -errno;
+	    return -ENODEV;
 	}
 	munmap((void *)cm_per, CM_PER_LEN);
     }
