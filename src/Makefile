@@ -906,7 +906,6 @@ scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 obj-m += hal_lib.o
 hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
-ifeq ($(HALONLY),false)
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
@@ -978,8 +977,6 @@ motmod-objs += emc/motion/dbuf.o
 motmod-objs += emc/nml_intf/emcpose.o
 motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-endif
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),uspace)
