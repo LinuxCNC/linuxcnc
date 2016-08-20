@@ -64,20 +64,21 @@ RTAPI_MP_STRING(input_pins, "input pins, comma separated.  P8 pins add 800, P9 p
 static char *output_pins;
 RTAPI_MP_STRING(output_pins, "output pins, comma separated.  P8 pins add 800, P9 pins add 900");
 
-void configure_control_module() {
+int configure_control_module() {
     int fd = rtapi_open_as_root("/dev/mem", O_RDWR);
 
     control_module = mmap(0, CONTROL_MODULE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, CONTROL_MODULE_START_ADDR);
 
     if(control_module == MAP_FAILED) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Unable to map Control Module: %s\n", modname, strerror(errno));
-        exit(1);
+        return -errno;
     }
 
     close(fd);
+    return 0;
 }
 
-void configure_gpio_port(int n) {
+int configure_gpio_port(int n) {
     volatile void *cm_per;  // pointer to clock manager registers
     volatile unsigned int *regptr;
     unsigned int regvalue;
@@ -92,7 +93,7 @@ void configure_gpio_port(int n) {
 	cm_per = mmap(0,CM_PER_LEN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, CM_PER_ADDR);
 	if(cm_per == MAP_FAILED) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Unable to map Clock Module: %s\n", modname, strerror(errno));
-	    exit(1);
+	    return -errno;
 	}
 	// point at CM_PER_GPIOn_CLKCTRL register for port n
 	regptr = cm_per + CM_PER_GPIO1_CLKCTRL_OFFSET + 4*(n-1);
@@ -100,7 +101,7 @@ void configure_gpio_port(int n) {
 	// check for port enabled
 	if ( (regvalue & CM_PER_GPIO_CLKCTRL_MODMODE_MASK ) != CM_PER_GPIO_CLKCTRL_MODMODE_ENABLED ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: GPIO Port %d is not enabled in device tree\n", modname, n);
-	    exit(1);
+	    return -errno;
 	}
 	munmap((void *)cm_per, CM_PER_LEN);
     }
@@ -109,7 +110,7 @@ void configure_gpio_port(int n) {
 
     if(gpio_ports[n]->gpio_addr == MAP_FAILED) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Unable to map GPIO: %s\n", modname, strerror(errno));
-        exit(1);
+        return -errno;
     }
 
     gpio_ports[n]->oe_reg = gpio_ports[n]->gpio_addr + GPIO_OE;
@@ -121,6 +122,7 @@ void configure_gpio_port(int n) {
     rtapi_print("memmapped gpio port %d to %p, oe: %p, set: %p, clr: %p\n", n, gpio_ports[n]->gpio_addr, gpio_ports[n]->oe_reg, gpio_ports[n]->setdataout_reg, gpio_ports[n]->clrdataout_reg);
 
     close(fd);
+    return 0;
 }
 
 int rtapi_app_main(void) {
@@ -147,7 +149,11 @@ int rtapi_app_main(void) {
     }
 
     // map control module memory
-    configure_control_module();
+    int result = configure_control_module();
+    if(result < 0) {
+        hal_exit(comp_id);
+        return result;
+    }
 
     // configure userleds
     if(user_leds != NULL) {
@@ -187,7 +193,11 @@ int rtapi_app_main(void) {
             int gpio_num = user_led_gpio_pins[led].port_num;
             // configure gpio port if necessary
             if(gpio_ports[gpio_num] == NULL) {
-                configure_gpio_port(gpio_num);
+                int result = configure_gpio_port(gpio_num);
+                if(result < 0) {
+                    hal_exit(comp_id);
+                    return result;
+                }
             }
 
             user_led_gpio_pins[led].port = gpio_ports[gpio_num];
@@ -258,7 +268,11 @@ int rtapi_app_main(void) {
 
             // configure gpio port if necessary
             if(gpio_ports[gpio_num] == NULL) {
-                configure_gpio_port(gpio_num);
+                int result = configure_gpio_port(gpio_num);
+                if(result < 0) {
+                    hal_exit(comp_id);
+                    return result;
+                }
             }
 
             bbpin->port = gpio_ports[gpio_num];
@@ -330,7 +344,11 @@ int rtapi_app_main(void) {
 
             // configure gpio port if necessary
             if(gpio_ports[gpio_num] == NULL) {
-                configure_gpio_port(gpio_num);
+                int result = configure_gpio_port(gpio_num);
+                if(result < 0) {
+                    hal_exit(comp_id);
+                    return result;
+                }
             }
 
             bbpin->port = gpio_ports[gpio_num];
