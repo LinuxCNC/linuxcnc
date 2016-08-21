@@ -124,6 +124,8 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 
 #define HM2REG_IO_0_SPAN 65536
 
+// on a time-critical path. Unlikely to happen - never seen so far.
+#define WARN_ON_UNALIGNED_ACCESS 1
 
 #define MAXUIOIDS  100
 #define MAXNAMELEN 256
@@ -170,12 +172,27 @@ static int locate_uio_device(hm2_soc_t *brd, const char *name);
 //
 static int hm2_soc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_soc_t *brd = this->private;
+
+#ifdef WARN_ON_UNALIGNED_ACCESS
+    /* hm2_read_idrom performs a 16-bit read, which seems to be OK, so let's allow it */
+    if ( ((addr & 0x1) != 0) || (((size & 0x03) != 0)  && (size != 2))) {
+	LL_ERR( "hm2_soc_read: Unaligned Access: %08x %04x\n", addr,size);
+    }
+#endif
     memcpy(buffer, brd->base + addr, size);
     return 1;  // success
 }
 
 static int hm2_soc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     hm2_soc_t *brd = this->private;
+
+#ifdef WARN_ON_UNALIGNED_ACCESS
+    // Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned
+    // Check for any address or size values that violate this alignment
+    if ((addr & 0x3) || (size & 0x3)) {
+	LL_ERR( "hm2_soc_write: Unaligned Access: %08x %04x\n", addr, size);
+    }
+#endif
     memcpy(brd->base + addr, buffer, size);
     return 1;
 }
