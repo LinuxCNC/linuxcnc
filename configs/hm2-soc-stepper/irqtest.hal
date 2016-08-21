@@ -37,13 +37,11 @@ newsig enable bit
 
 
 addf hm2_de0n.0.read           servo
-addf hm2_de0n.0.read_gpio      servo
 
 addf test.update               servo
 addf rate 		       servo
 
 addf hm2_de0n.0.write          servo
-addf hm2_de0n.0.write_gpio     servo
 addf servo-period              servo
 addf sp-stats                  servo
 
