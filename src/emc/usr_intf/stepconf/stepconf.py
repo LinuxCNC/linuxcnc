@@ -1025,7 +1025,6 @@ class StepconfApp:
             self.w[axis + "axistest"].set_sensitive(0)
 
     def axis_sanity_test(self, axis):
-        return
         # I hate the inner function
         def get(n):
             return float(self.w[axis + n].get_text())
