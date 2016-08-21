@@ -150,9 +150,6 @@ RTAPI_IP_STRING(descriptor, ".bin file with encoded fwid protobuf descriptor mes
 static int no_init_llio;
 RTAPI_IP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like num_leds");
 
-static int timer1;
-RTAPI_IP_INT(timer1, "rate for hm2 Timer1 IRQ, 0: IRQ disabled");
-
 static int num;
 RTAPI_IP_INT(num, "hm2 instance number, used for <boardname>.<num>.<pinname>");
 
