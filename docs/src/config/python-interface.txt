@@ -97,8 +97,8 @@ reflects [TRAJ] ANGULAR_UNITS ini value.
 *aout*:: '(returns tuple of floats)' -
 current value of the analog output pins.
 
-*axes*:: '(returns string)' -
-reflects [TRAJ] AXES ini value.
+*joints*:: '(returns string)' -
+reflects [KINS] JOINTS ini value.
 
 *axis*:: '(returns tuple of dicts)' -
 reflecting current axis values. See
@@ -208,6 +208,10 @@ current RS274NGC interpreter return code. One of
 INTERP_OK, INTERP_EXIT, INTERP_EXECUTE_FINISH, INTERP_ENDFILE,
 INTERP_FILE_NOT_OPEN, INTERP_ERROR. 
 see src/emc/nml_intf/interp_return.hh
+
+*joint*:: '(returns tuple of dicts)' -
+reflecting current joint values. See
+<<sec:the-joint-dictionary,The joint dictionary>>.
 
 *joint_actual_position*:: '(returns tuple of floats)' -
 actual joint positions.
@@ -367,18 +371,35 @@ of a particular axis:
 import linuxcnc
 s = linuxcnc.stat() 
 s.poll() 
-print "Axis 1 homed: ", s.axis[1]["homed"]
+print "Joint 1 homed: ", s.joint[1]["homed"]
 ---------------------------------------------------------------------
 
-For each axis, the following dictionary keys are available:
+Note that many properties that were formerly in the `axis` dictionary are
+now in the `joint` dictionary, because on nontrivial kinematics machines
+these items (such as backlash) are not the properties of an axis.
 
-*axisType*:: '(returns integer)' -
+*max_position_limit*:: '(returns float)' -
+maximum limit (soft limit) for axis motion, in machine units.configuration
+parameter, reflects [JOINT_n]MAX_LIMIT.
+
+*min_position_limit*:: '(returns float)' -
+minimum limit (soft limit) for axis motion, in machine units.configuration
+parameter, reflects [JOINT_n]MIN_LIMIT.
+
+*velocity*:: '(returns float)' -
+current velocity.
+
+=== The `joint` dictionary [[sec:the-joint-dictionary]]
+
+For each joint, the following dictionary keys are available:
+
+*jointType*:: '(returns integer)' -
 type of axis configuration parameter, reflects
-[AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sec:axis-section, Axis
+[JOINT_n]TYPE. LINEAR=1, ANGULAR=2. See <<sec:axis-section, Joint
 ini configuration>> for details.
 
 *backlash*:: '(returns float)' -
-Backlash in machine units. configuration parameter, reflects [AXIS_x]BACKLASH.
+Backlash in machine units. configuration parameter, reflects [JOINT_n]BACKLASH.
 
 *enabled*:: '(returns integer)' -
 non-zero means enabled.
@@ -406,27 +427,27 @@ current input position.
 
 *max_ferror*:: '(returns float)' -
 maximum following error. configuration
-parameter, reflects [AXIS_x]FERROR.
+parameter, reflects [JOINT_n]FERROR.
 
 *max_hard_limit*:: '(returns integer)' -
 non-zero means max hard limit exceeded.
 
 *max_position_limit*:: '(returns float)' -
 maximum limit (soft limit) for axis motion, in machine units.configuration
-parameter, reflects [AXIS_x]MAX_LIMIT.
+parameter, reflects [JOINT_n]MAX_LIMIT.
 
 *max_soft_limit*::
 non-zero means `max_position_limit` was exceeded, int
 
 *min_ferror*:: '(returns float)' -
-configuration parameter, reflects [AXIS_x]MIN_FERROR.
+configuration parameter, reflects [JOINT_n]MIN_FERROR.
 
 *min_hard_limit*:: '(returns integer)' -
 non-zero means min hard limit exceeded.
 
 *min_position_limit*:: '(returns float)' -
 minimum limit (soft limit) for axis motion, in machine units.configuration
-parameter, reflects [AXIS_x]MIN_LIMIT.
+parameter, reflects [JOINT_n]MIN_LIMIT.
 
 *min_soft_limit*:: '(returns integer)' -
 non-zero means `min_position_limit` was exceeded.
@@ -442,6 +463,7 @@ units per mm, deg for linear, angular
 
 *velocity*:: '(returns float)' -
 current velocity.
+
 
 ==  Preparing to send  commands 
 
@@ -501,9 +523,9 @@ c.flood(linuxcnc.FLOOD_OFF)
 
 c.home(2)
 
-c.jog(linuxcnc.JOG_STOP, axis) 
-c.jog(linuxcnc.JOG_CONTINUOUS, axis, speed) 
-c.jog(linuxcnc.JOG_INCREMENT, axis, speed, increment)
+c.jog(linuxcnc.JOG_STOP, jogmode, axis) 
+c.jog(linuxcnc.JOG_CONTINUOUS, jogmode, axis, speed) 
+c.jog(linuxcnc.JOG_INCREMENT, jogmode, axis, speed, increment)
 
 c.load_tool_table()
 
@@ -551,18 +573,21 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	turn on/off flooding.
 
 `home(int)`::
-	home a given axis.
+	home a given joint.
 
-`jog(int, int, [, int[,int]])`::
+`jog(command-constant, int, bool[, float[, float]])`::
 	Syntax: +
-	jog(command, axis[, velocity[, distance]]) +
-	jog(linuxcnc.JOG_STOP, axis) +
-	jog(linuxcnc.JOG_CONTINUOUS, axis, velocity) +
-	jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance) +
-	Constants: +
-	JOG_STOP (0) +
-	JOG_CONTINUOUS (1) +
-	JOG_INCREMENT (2)
+	jog(command, axis-or-joint-number, joint-flag[, velocity[, distance]]) +
+	jog(linuxcnc.JOG_STOP, axis-or-joint-number, joint-flag) +
+	jog(linuxcnc.JOG_CONTINUOUS, axis-or-joint-number, joint-flag, velocity) +
+	jog(linuxcnc.JOG_INCREMENT, axis-or-joint-number, joint-flag, velocity, distance)
+	Command Constants;;
+	JOG_STOP +
+	JOG_CONTINUOUS +
+	JOG_INCREMENT
+        Joint flag;;
+            True::: joint mode jog
+            False::: axis (cartesian) mode jog
 
 `load_tool_table()`::
 	reload the tool table.
@@ -576,11 +601,11 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `mist(int)`:: turn on/off mist. +
 	Syntax: +
 	mist(command) +
-	mist(linuxcnc.MIST_ON) [(1)] +
-	mist(linuxcnc.MIST_OFF) [(0)] +
+	mist(linuxcnc.MIST_ON) +
+	mist(linuxcnc.MIST_OFF) +
 	Constants: +
-	MIST_ON (1) +
-	MIST_OFF (0)
+	MIST_ON +
+	MIST_OFF
 
 
 `mode(int)`::
@@ -636,11 +661,12 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `state(int)`::
 	set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF
 
+`task_plan_sync()`::
+        on completion of this call, the var file on disk is updated with
+        live values from the interpreter.
+
 `teleop_enable(int)`::
 	enable/disable teleop mode.
-
-`teleop_vector(float, float, float [,float, float, float])`::
-        set teleop destination vector
 
 `tool_offset(int, float, float, float, float, float, int)`::
         set the tool offset. See usage example above.
@@ -650,7 +676,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	MODE_TELEOP.
 
 `unhome(int)`::
-	unhome a given axis.
+	unhome a given joint.
 
 `wait_complete([float])`::
 	wait for completion of the last command sent. If timeout in

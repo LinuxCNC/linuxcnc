@@ -1,0 +1,21 @@
+trivkins examples
+
+xz.ini           KINEMATICS_IDENTITY
+
+xz_both.ini      KINEMATICS_BOTH
+
+xz_both_auto.ini KINEMATICS_BOTH
+                 (auto switch to teleop after homing)
+
+NOTE:
+!!!  [TRAJ]COORDINATES MUST AGREE WITH KINS:
+!!!  [TRAJ]COORDINATES = xz 
+
+xz.ini
+  [KINS]KINEMATICS=trivkins coordinates=xz
+
+xz_both.ini 
+  KINEMATICS = trivkins coordinates=xz kinstype=BOTH
+
+xz_both_auto.ini
+  KINEMATICS = trivkins coordinates=xz kinstype=BOTH

@@ -22,12 +22,14 @@
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
 #include "motion_debug.h"
 #include "emc.hh"
+#include "emccfg.h"		// EMC_INIFILE
 #include "emcglb.h"		// EMC_INIFILE
 #include "emc_nml.hh"
 #include "rcs_print.hh"
 #include "timer.hh"
 #include "inifile.hh"
 #include "iniaxis.hh"
+#include "inijoint.hh"
 #include "initraj.hh"
 #include "inihal.hh"
 
@@ -36,6 +38,18 @@ value_inihal_data old_inihal_data;
 /* define this to catch isnan errors, for rtlinux FPU register 
    problem testing */
 #define ISNAN_TRAP
+
+#ifdef ISNAN_TRAP
+#define CATCH_NAN(cond) do {                           \
+    if (cond) {                                        \
+        printf("isnan error in %s()\n", __FUNCTION__); \
+        return -1;                                     \
+    }                                                  \
+} while(0)
+#else
+#define CATCH_NAN(cond) do {} while(0)
+#endif
+
 
 // MOTION INTERFACE
 
@@ -54,205 +68,235 @@ static emcmot_status_t emcmotStatus;
   been called.
   */
 
-static emcmot_command_t emcmotCommand;
+static struct TrajConfig_t TrajConfig;
+static struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
+static struct AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
 
-static int emcmotTrajInited = 0;	// non-zero means traj called init
-/* FIXME is this supposed to be axes, or joints? */
-static int emcmotAxisInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means axis called init
+static emcmot_command_t emcmotCommand;
 
 __attribute__ ((unused))
 static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
-// EMC_AXIS functions
-
 // local status data, not provided by emcmot
 static unsigned long localMotionHeartbeat = 0;
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
 
-/* FIXME axes or joints? */
-static unsigned char localEmcAxisAxisType[EMCMOT_MAX_JOINTS];
-static double localEmcAxisUnits[EMCMOT_MAX_JOINTS];
-static double localEmcMaxAcceleration = DBL_MAX;
+//FIXME-AJ: see if needed
+//static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
 
-// axes are numbered 0..NUM-1
+// axes and joints are numbered 0..NUM-1
 
 /*
   In emcmot, we need to set the cycle time for traj, and the interpolation
   rate, in any order, but both need to be done. 
  */
-/* FIXME: all of this stuff is really JOINTS not AXES!!! */
 
-int emcAxisSetAxis(int axis, unsigned char axisType)
+/*! functions involving joints */
+
+int emcJointSetType(int joint, unsigned char jointType)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    localEmcAxisAxisType[axis] = axisType;
+    JointConfig[joint].Type = jointType;
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %d)\n", __FUNCTION__, joint, jointType);
+    }
     return 0;
 }
 
-int emcAxisSetUnits(int axis, double units)
+int emcJointSetUnits(int joint, double units)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    localEmcAxisUnits[axis] = units;
+    JointConfig[joint].Units = units;
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, joint, units);
+    }
     return 0;
 }
 
-int emcAxisSetBacklash(int axis, double backlash)
+int emcJointSetBacklash(int joint, double backlash)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(backlash)) {
-	printf("std::isnan error in emcAxisSetBacklash()\n");
+	printf("std::isnan error in emcJointSetBacklash()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_BACKLASH;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_SET_JOINT_BACKLASH;
+    emcmotCommand.joint = joint;
     emcmotCommand.backlash = backlash;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, backlash, retval);
+    }
+    return retval;
 }
 
-// saved values of limits, since emcmot expects them to be set in
-// pairs and we set them individually.
-static double saveMinLimit[EMCMOT_MAX_JOINTS];
-static double saveMaxLimit[EMCMOT_MAX_JOINTS];
-
-int emcAxisSetMinPositionLimit(int axis, double limit)
+int emcJointSetMinPositionLimit(int joint, double limit)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(limit)) {
-	printf("std::isnan error in emcAxisSetMinPosition()\n");
+	printf("isnan error in emcJointSetMinPosition()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
-    emcmotCommand.axis = axis;
-    emcmotCommand.maxLimit = saveMaxLimit[axis];
-    emcmotCommand.minLimit = limit;
-    saveMinLimit[axis] = limit;
+    JointConfig[joint].MinLimit = limit;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    emcmotCommand.command = EMCMOT_SET_JOINT_POSITION_LIMITS;
+    emcmotCommand.joint = joint;
+    emcmotCommand.minLimit = JointConfig[joint].MinLimit;
+    emcmotCommand.maxLimit = JointConfig[joint].MaxLimit;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, limit, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetMaxPositionLimit(int axis, double limit)
+int emcJointSetMaxPositionLimit(int joint, double limit)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(limit)) {
-	printf("std::isnan error in emcAxisSetMaxPosition()\n");
+	printf("std::isnan error in emcJointSetMaxPosition()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
-    emcmotCommand.axis = axis;
-    emcmotCommand.minLimit = saveMinLimit[axis];
-    emcmotCommand.maxLimit = limit;
-    saveMaxLimit[axis] = limit;
+    JointConfig[joint].MaxLimit = limit;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    emcmotCommand.command = EMCMOT_SET_JOINT_POSITION_LIMITS;
+    emcmotCommand.joint = joint;
+    emcmotCommand.minLimit = JointConfig[joint].MinLimit;
+    emcmotCommand.maxLimit = JointConfig[joint].MaxLimit;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, limit, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetMotorOffset(int axis, double offset) 
+int emcJointSetMotorOffset(int joint, double offset) 
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(offset)) {
-	printf("std::isnan error in emcAxisSetMotorOffset()\n");
+	printf("isnan error in emcJointSetMotorOffset()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_SET_MOTOR_OFFSET;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_SET_JOINT_MOTOR_OFFSET;
+    emcmotCommand.joint = joint;
     emcmotCommand.motor_offset = offset;
     
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, offset, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetFerror(int axis, double ferror)
+int emcJointSetFerror(int joint, double ferror)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(ferror)) {
-	printf("std::isnan error in emcAxisSetFerror()\n");
+	printf("isnan error in emcJointSetFerror()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_MAX_FERROR;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_SET_JOINT_MAX_FERROR;
+    emcmotCommand.joint = joint;
     emcmotCommand.maxFerror = ferror;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, ferror, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetMinFerror(int axis, double ferror)
+int emcJointSetMinFerror(int joint, double ferror)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(ferror)) {
-	printf("std::isnan error in emcAxisSetMinFerror()\n");
+	printf("isnan error in emcJointSetMinFerror()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_SET_MIN_FERROR;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_SET_JOINT_MIN_FERROR;
+    emcmotCommand.joint = joint;
     emcmotCommand.minFerror = ferror;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, ferror, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
+int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
 			   int use_index, int ignore_limits, int is_shared,
-			   int sequence,int volatile_home, int locking_indexer)
+			   int sequence,int volatile_home, int locking_indexer,int absolute_encoder)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(home) || std::isnan(offset) || std::isnan(home_final_vel) ||
 	std::isnan(search_vel) || std::isnan(latch_vel)) {
-	printf("std::isnan error in emcAxisSetHoming()\n");
+	printf("isnan error in emcJointSetHomingParams()\n");
 	return -1;
     }
 #endif
 
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_HOMING_PARAMS;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_SET_JOINT_HOMING_PARAMS;
+    emcmotCommand.joint = joint;
     emcmotCommand.home = home;
     emcmotCommand.offset = offset;
     emcmotCommand.home_final_vel = home_final_vel;
@@ -273,13 +317,59 @@ int emcAxisSetHomingParams(int axis, double home, double offset, double home_fin
     if (locking_indexer) {
         emcmotCommand.flags |= HOME_UNLOCK_FIRST;
     }
+    if (absolute_encoder) {
+        switch (absolute_encoder) {
+          case 0: break;
+          case 1: emcmotCommand.flags |= HOME_ABSOLUTE_ENCODER;
+                  emcmotCommand.flags |= HOME_NO_REHOME;
+                  break;
+          case 2: emcmotCommand.flags |= HOME_ABSOLUTE_ENCODER;
+                  emcmotCommand.flags |= HOME_NO_REHOME;
+                  emcmotCommand.flags |= HOME_NO_FINAL_MOVE;
+                  break;
+          default: fprintf(stderr,
+                   "Unknown option for absolute_encoder <%d>",absolute_encoder);
+                  break;
+        }
+    }
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %d, %d, %d, %d) returned %d\n",
+          __FUNCTION__, joint, home, offset, home_final_vel, search_vel, latch_vel,
+          use_index, ignore_limits, is_shared, sequence, volatile_home, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetMaxVelocity(int axis, double vel)
+int emcJointUpdateHomingParams(int joint, double home, double offset)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    CATCH_NAN(std::isnan(home) || std::isnan(offset) );
+
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	return 0;
+    }
+
+    emcmotCommand.command = EMCMOT_UPDATE_JOINT_HOMING_PARAMS;
+    emcmotCommand.joint = joint;
+    emcmotCommand.home = home;
+    emcmotCommand.offset = offset;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f, %.4f) returned %d\n",
+          __FUNCTION__, joint, home, offset,retval);
+    }
+    return retval;
+}
+
+int emcJointSetMaxVelocity(int joint, double vel)
+{
+    CATCH_NAN(std::isnan(vel));
+
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
@@ -287,249 +377,483 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 	vel = 0.0;
     }
 
-    axis_max_velocity[axis] = vel;
+    JointConfig[joint].MaxVel = vel;
 
     emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
-    emcmotCommand.axis = axis;
+    emcmotCommand.joint = joint;
     emcmotCommand.vel = vel;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, vel, retval);
+    }
+    return retval;
 }
 
-int emcAxisSetMaxAcceleration(int axis, double acc)
+int emcJointSetMaxAcceleration(int joint, double acc)
 {
+    CATCH_NAN(std::isnan(acc));
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
     if (acc < 0.0) {
 	acc = 0.0;
     }
-    axis_max_acceleration[axis] = acc;
+    JointConfig[joint].MaxAccel = acc;
+    //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the ini, or from kins..)
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
-    emcmotCommand.axis = axis;
+    emcmotCommand.joint = joint;
     emcmotCommand.acc = acc;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, acc, retval);
+    }
+    return retval;
 }
 
-/* This function checks to see if any axis or the traj has
+/*! functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W) */
+    
+int emcAxisSetMinPositionLimit(int axis, double limit)
+{
+    CATCH_NAN(std::isnan(limit));
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
+	return 0;
+    }
+
+    AxisConfig[axis].MinLimit = limit;
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_POSITION_LIMITS;
+    emcmotCommand.axis = axis;
+    emcmotCommand.minLimit = AxisConfig[axis].MinLimit;
+    emcmotCommand.maxLimit = AxisConfig[axis].MaxLimit;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, limit, retval);
+    }
+    return retval;
+}
+
+int emcAxisSetMaxPositionLimit(int axis, double limit)
+{
+    CATCH_NAN(std::isnan(limit));
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
+	return 0;
+    }
+
+    AxisConfig[axis].MaxLimit = limit;
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_POSITION_LIMITS;
+    emcmotCommand.axis = axis;
+    emcmotCommand.minLimit = AxisConfig[axis].MinLimit;
+    emcmotCommand.maxLimit = AxisConfig[axis].MaxLimit;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, limit, retval);
+    }
+    return retval;
+}
+
+int emcAxisSetMaxVelocity(int axis, double vel)
+{
+    CATCH_NAN(std::isnan(vel));
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
+	return 0;
+    }
+
+    if (vel < 0.0) {
+	vel = 0.0;
+    }
+
+    AxisConfig[axis].MaxVel = vel;
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_VEL_LIMIT;
+    emcmotCommand.axis = axis;
+    emcmotCommand.vel = vel;
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, vel, retval);
+    }
+    return retval;
+}
+
+int emcAxisSetMaxAcceleration(int axis, double acc)
+{
+    CATCH_NAN(std::isnan(acc));
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
+	return 0;
+    }
+
+    if (acc < 0.0) {
+	acc = 0.0;
+    }
+    
+    AxisConfig[axis].MaxAccel = acc;    
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_ACC_LIMIT;
+    emcmotCommand.axis = axis;
+    emcmotCommand.acc = acc;
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, acc, retval);
+    }
+    return retval;
+}
+
+int emcAxisSetLockingJoint(int axis, int joint)
+{
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
+	return 0;
+    }
+
+    if (joint < 0) {
+	joint = -1;
+    }
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_LOCKING_JOINT;
+    emcmotCommand.axis    = axis;
+    emcmotCommand.joint   = joint;
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %d) returned %d\n", __FUNCTION__, axis, joint, retval);
+    }
+    return retval;
+}
+
+double emcAxisGetMaxVelocity(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+
+    return AxisConfig[axis].MaxVel;
+}
+
+double emcAxisGetMaxAcceleration(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+
+    return AxisConfig[axis].MaxAccel;
+}
+
+int emcAxisUpdate(EMC_AXIS_STAT stat[], int axis_mask)
+{
+    int axis_num;
+    emcmot_axis_status_t *axis;
+    
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+        if(!(axis_mask & (1 << axis_num))) continue;
+        axis = &(emcmotStatus.axis_status[axis_num]);
+
+        stat[axis_num].velocity = axis->vel_cmd;
+        stat[axis_num].minPositionLimit = axis->min_pos_limit;
+        stat[axis_num].maxPositionLimit = axis->max_pos_limit;
+    }
+    return 0;
+}
+
+/* This function checks to see if any joint or the traj has
    been inited already.  At startup, if none have been inited,
    usrmotIniLoad and usrmotInit must be called first.  At
    shutdown, after all have been halted, the usrmotExit must
    be called.
 */
 
-static int AxisOrTrajInited(void)
+static int JointOrTrajInited(void)
 {
-    int axis;
+    int joint;
 
-    for (axis = 0; axis < EMCMOT_MAX_JOINTS; axis++) {
-	if (emcmotAxisInited[axis]) {
+    for (joint = 0; joint < EMCMOT_MAX_JOINTS; joint++) {
+	if (JointConfig[joint].Inited) {
 	    return 1;
 	}
     }
-    if (emcmotTrajInited) {
+    if (TrajConfig.Inited) {
 	return 1;
     }
     return 0;
 }
 
-int emcAxisInit(int axis)
+int emcJointInit(int joint)
 {
     int retval = 0;
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
     // init emcmot interface
-    if (!AxisOrTrajInited()) {
+    if (!JointOrTrajInited()) {
 	usrmotIniLoad(emc_inifile);
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
-    emcmotAxisInited[axis] = 1;
+    JointConfig[joint].Inited = 1;
+    if (0 != iniJoint(joint, emc_inifile)) {
+	retval = -1;
+    }
+    return retval;
+}
+
+int emcAxisInit(int axis)
+{
+    int retval = 0;
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+	return 0;
+    }
+    // init emcmot interface
+    if (!JointOrTrajInited()) {
+	usrmotIniLoad(emc_inifile);
+	if (0 != usrmotInit("emc2_task")) {
+	    return -1;
+	}
+    }
+    AxisConfig[axis].Inited = 1;
     if (0 != iniAxis(axis, emc_inifile)) {
 	retval = -1;
     }
     return retval;
 }
 
-int emcAxisHalt(int axis)
+int emcJointHalt(int joint)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    /*! \todo FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here */
+    /*! \todo FIXME-- refs global emcStatus; should make EMC_JOINT_STAT an arg here */
     if (NULL != emcStatus && emcmotion_initialized
-	&& emcmotAxisInited[axis]) {
-	dumpAxis(axis, emc_inifile, &emcStatus->motion.axis[axis]);
+	&& JointConfig[joint].Inited) {
+	//dumpJoint(joint, emc_inifile, &emcStatus->motion.joint[joint]);
     }
-    emcmotAxisInited[axis] = 0;
+    JointConfig[joint].Inited = 0;
 
-    if (!AxisOrTrajInited()) {
+    if (!JointOrTrajInited()) {
 	usrmotExit();		// ours is final exit
     }
 
     return 0;
 }
 
-int emcAxisAbort(int axis)
+int emcJointAbort(int joint)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_AXIS_ABORT;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisActivate(int axis)
+int emcJointActivate(int joint)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_JOINT_ACTIVATE;
+    emcmotCommand.joint = joint;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d) returned %d\n", __FUNCTION__, joint, retval);
+    }
+    return retval;
+}
+
+int emcJointDeactivate(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	return 0;
+    }
+
+    emcmotCommand.command = EMCMOT_JOINT_DEACTIVATE;
+    emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisDeactivate(int axis)
+int emcJointOverrideLimits(int joint)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_DEACTIVATE_JOINT;
-    emcmotCommand.axis = axis;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisOverrideLimits(int axis)
-{
-    // can have axis < 0, for resuming normal limit checking
-    if (axis >= EMCMOT_MAX_JOINTS) {
+    // can have joint < 0, for resuming normal limit checking
+    if (joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
     emcmotCommand.command = EMCMOT_OVERRIDE_LIMITS;
-    emcmotCommand.axis = axis;
+    emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisEnable(int axis)
+int emcJointEnable(int joint)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_ENABLE_AMPLIFIER;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_JOINT_ENABLE_AMPLIFIER;
+    emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisDisable(int axis)
+int emcJointDisable(int joint)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_DISABLE_AMPLIFIER;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_JOINT_DISABLE_AMPLIFIER;
+    emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisHome(int axis)
+int emcJointHome(int joint)
 {
-    if (axis < -1 || axis >= EMCMOT_MAX_JOINTS) {
+    if (joint < -1 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_HOME;
-    emcmotCommand.axis = axis;
+    emcmotCommand.command = EMCMOT_JOINT_HOME;
+    emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisUnhome(int axis)
+int emcJointUnhome(int joint)
 {
-	if (axis < -2 || axis >= EMCMOT_MAX_JOINTS) {
+	if (joint < -2 || joint >= EMCMOT_MAX_JOINTS) {
 		return 0;
 	}
 
-	emcmotCommand.command = EMCMOT_UNHOME;
-	emcmotCommand.axis = axis;
+	emcmotCommand.command = EMCMOT_JOINT_UNHOME;
+	emcmotCommand.joint = joint;
 
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisJog(int axis, double vel)
+int emcJogCont(int nr, double vel, int jjogmode)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
-	return 0;
+    if (jjogmode) {
+        if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) { return 0; }
+        if (vel > JointConfig[nr].MaxVel) {
+            vel = JointConfig[nr].MaxVel;
+        } else if (vel < -JointConfig[nr].MaxVel) {
+            vel = -JointConfig[nr].MaxVel;
+        }
+        emcmotCommand.joint = nr;
+        emcmotCommand.axis = -1;  //NA
+    } else {
+        if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
+        if (vel > AxisConfig[nr].MaxVel) {
+            vel = AxisConfig[nr].MaxVel;
+        } else if (vel < -AxisConfig[nr].MaxVel) {
+            vel = -AxisConfig[nr].MaxVel;
+        }
+        emcmotCommand.joint = -1; //NA
+        emcmotCommand.axis = nr;
     }
-
-    if (vel > axis_max_velocity[axis]) {
-	vel = axis_max_velocity[axis];
-    } else if (vel < -axis_max_velocity[axis]) {
-	vel = -axis_max_velocity[axis];
-    }
-
     emcmotCommand.command = EMCMOT_JOG_CONT;
-    emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisIncrJog(int axis, double incr, double vel)
+int emcJogIncr(int nr, double incr, double vel, int jjogmode)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
-	return 0;
+    if (jjogmode) {
+        if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) { return 0; }
+        if (vel > JointConfig[nr].MaxVel) {
+            vel = JointConfig[nr].MaxVel;
+        } else if (vel < -JointConfig[nr].MaxVel) {
+            vel = -JointConfig[nr].MaxVel;
+        }
+        emcmotCommand.joint = nr;
+        emcmotCommand.axis = -1; //NA
+    } else {
+        if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
+        if (vel > AxisConfig[nr].MaxVel) {
+            vel = AxisConfig[nr].MaxVel;
+        } else if (vel < -AxisConfig[nr].MaxVel) {
+            vel = -AxisConfig[nr].MaxVel;
+        }
+        emcmotCommand.joint = -1; //NA
+        emcmotCommand.axis = nr;
     }
-
-    if (vel > axis_max_velocity[axis]) {
-	vel = axis_max_velocity[axis];
-    } else if (vel < -axis_max_velocity[axis]) {
-	vel = -axis_max_velocity[axis];
-    }
-
     emcmotCommand.command = EMCMOT_JOG_INCR;
-    emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
     emcmotCommand.offset = incr;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisAbsJog(int axis, double pos, double vel)
+int emcJogAbs(int nr, double pos, double vel, int jjogmode)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
-	return 0;
+    if (jjogmode) {        
+        if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) { return 0; }
+        if (vel > JointConfig[nr].MaxVel) {
+            vel = JointConfig[nr].MaxVel;
+        } else if (vel < -JointConfig[nr].MaxVel) {
+            vel = -JointConfig[nr].MaxVel;
+        }
+        emcmotCommand.joint = nr;
+        emcmotCommand.axis = -1; //NA
+    } else {
+        if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
+        if (vel > AxisConfig[nr].MaxVel) {
+            vel = AxisConfig[nr].MaxVel;
+        } else if (vel < -AxisConfig[nr].MaxVel) {
+            vel = -AxisConfig[nr].MaxVel;
+        }
+        emcmotCommand.joint = -1; //NA
+        emcmotCommand.axis = nr;
     }
-
-    if (vel > axis_max_velocity[axis]) {
-	vel = axis_max_velocity[axis];
-    } else if (vel < -axis_max_velocity[axis]) {
-	vel = -axis_max_velocity[axis];
-    }
-
     emcmotCommand.command = EMCMOT_JOG_ABS;
-    emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
     emcmotCommand.offset = pos;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisLoadComp(int axis, const char *file, int type)
+int emcJogStop(int nr, int jjogmode)
 {
-    return usrmotLoadComp(axis, file, type);
+    if (jjogmode) {
+        if (nr < 0 || nr >= EMCMOT_MAX_JOINTS) { return 0; }
+        emcmotCommand.joint = nr;
+        emcmotCommand.axis = -1; //NA
+    } else {
+        if (nr < 0 || nr >= EMCMOT_MAX_AXIS) { return 0; }
+        emcmotCommand.joint = -1; //NA
+        emcmotCommand.axis = nr;
+    }
+    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+
+int emcJointLoadComp(int joint, const char *file, int type)
+{
+    return usrmotLoadComp(joint, file, type);
 }
 
 static emcmot_config_t emcmotConfig;
@@ -537,91 +861,93 @@ int get_emcmot_debug_info = 0;
 
 /*
   these globals are set in emcMotionUpdate(), then referenced in
-  emcAxisUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
+  emcJointUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
 static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
-   AXIS_FLAG */
+   JOINT_FLAG */
 // #define WATCH_FLAGS 1
 
-int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
+int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 {
 /*! \todo FIXME - this function accesses data that has been
    moved.  Once I know what it is used for I'll fix it */
 
-    int axis;
+    int joint_num;
     emcmot_joint_status_t *joint;
 #ifdef WATCH_FLAGS
     static int old_joint_flag[8];
 #endif
 
     // check for valid range
-    if (numAxes <= 0 || numAxes > EMCMOT_MAX_JOINTS) {
+    if (numJoints <= 0 || numJoints > EMCMOT_MAX_JOINTS) {
 	return -1;
     }
 
-    for (axis = 0; axis < numAxes; axis++) {
+    for (joint_num = 0; joint_num < numJoints; joint_num++) {
 	/* point to joint data */
 
-	joint = &(emcmotStatus.joint_status[axis]);
+	joint = &(emcmotStatus.joint_status[joint_num]);
 
-	stat[axis].axisType = localEmcAxisAxisType[axis];
-	stat[axis].units = localEmcAxisUnits[axis];
+	stat[joint_num].jointType = JointConfig[joint_num].Type;
+	stat[joint_num].units = JointConfig[joint_num].Units;
 	if (new_config) {
-	    stat[axis].backlash = joint->backlash;
-	    stat[axis].minPositionLimit = joint->min_pos_limit;
-	    stat[axis].maxPositionLimit = joint->max_pos_limit;
-	    stat[axis].minFerror = joint->min_ferror;
-	    stat[axis].maxFerror = joint->max_ferror;
+	    stat[joint_num].backlash = joint->backlash;
+	    stat[joint_num].minPositionLimit = joint->min_pos_limit;
+	    stat[joint_num].maxPositionLimit = joint->max_pos_limit;
+	    stat[joint_num].minFerror = joint->min_ferror;
+	    stat[joint_num].maxFerror = joint->max_ferror;
+/*! \todo FIXME - should all homing config params be included here? */
+//	    stat[joint_num].homeOffset = joint->home_offset;
 	}
-	stat[axis].output = joint->pos_cmd;
-	stat[axis].input = joint->pos_fb;
-	stat[axis].velocity = joint->vel_cmd;
-        stat[axis].ferrorCurrent = joint->ferror;
-        stat[axis].ferrorHighMark = joint->ferror_high_mark;
+	stat[joint_num].output = joint->pos_cmd;
+	stat[joint_num].input = joint->pos_fb;
+	stat[joint_num].velocity = joint->vel_cmd;
+	stat[joint_num].ferrorCurrent = joint->ferror;
+	stat[joint_num].ferrorHighMark = joint->ferror_high_mark;
 
-	stat[axis].homing = (joint->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
-	stat[axis].homed = (joint->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0);
-	stat[axis].fault = (joint->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0);
-	stat[axis].enabled = (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
-	stat[axis].inpos = (joint->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0);
+	stat[joint_num].homing = (joint->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
+	stat[joint_num].homed = (joint->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0);
+	stat[joint_num].fault = (joint->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0);
+	stat[joint_num].enabled = (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
+	stat[joint_num].inpos = (joint->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0);
 
 /* FIXME - soft limits are now applied to the command, and should never
    happen */
-	stat[axis].minSoftLimit = 0;
-	stat[axis].maxSoftLimit = 0;
-	stat[axis].minHardLimit =
+	stat[joint_num].minSoftLimit = 0;
+	stat[joint_num].maxSoftLimit = 0;
+	stat[joint_num].minHardLimit =
 	    (joint->flag & EMCMOT_JOINT_MIN_HARD_LIMIT_BIT ? 1 : 0);
-	stat[axis].maxHardLimit =
+	stat[joint_num].maxHardLimit =
 	    (joint->flag & EMCMOT_JOINT_MAX_HARD_LIMIT_BIT ? 1 : 0);
-	stat[axis].overrideLimits = !!(emcmotStatus.overrideLimitMask);	// one
+	stat[joint_num].overrideLimits = !!(emcmotStatus.overrideLimitMask);	// one
 	// for
 	// all
 
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - per-axis Vscale temporarily? removed */
-	stat[axis].scale = emcmotStatus.axVscale[axis];
+#if 0				/*! \todo FIXME - per-joint Vscale temporarily? removed */
+	stat[joint_num].scale = emcmotStatus.axVscale[joint_num];
 #endif
 #ifdef WATCH_FLAGS
-	if (old_joint_flag[axis] != joint->flag) {
-	    printf("joint %d flag: %04X -> %04X\n", axis,
-		   old_joint_flag[axis], joint->flag);
-	    old_joint_flag[axis] = joint->flag;
+	if (old_joint_flag[joint_num] != joint->flag) {
+	    printf("joint %d flag: %04X -> %04X\n", joint_num,
+		   old_joint_flag[joint_num], joint->flag);
+	    old_joint_flag[joint_num] = joint->flag;
 	}
 #endif
 	if (joint->flag & EMCMOT_JOINT_ERROR_BIT) {
-	    if (stat[axis].status != RCS_ERROR) {
-		rcs_print_error("Error on axis %d, command number %d\n",
-				axis, emcmotStatus.commandNumEcho);
-		stat[axis].status = RCS_ERROR;
+	    if (stat[joint_num].status != RCS_ERROR) {
+		rcs_print_error("Error on joint %d, command number %d\n",
+				joint_num, emcmotStatus.commandNumEcho);
+		stat[joint_num].status = RCS_ERROR;
 	    }
 	} else if (joint->flag & EMCMOT_JOINT_INPOS_BIT) {
-	    stat[axis].status = RCS_DONE;
+	    stat[joint_num].status = RCS_DONE;
 	} else {
-	    stat[axis].status = RCS_EXEC;
+	    stat[joint_num].status = RCS_EXEC;
 	}
     }
     return 0;
@@ -629,37 +955,38 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
 // EMC_TRAJ functions
 
-// local status data, not provided by emcmot
-static int localEmcTrajAxes = 0;
-static int localEmcTrajAxisMask = 0;
-static double localEmcTrajLinearUnits = 1.0;
-static double localEmcTrajAngularUnits = 1.0;
-static int localEmcTrajMotionId = 0;
-
-int emcTrajSetAxes(int axes, int axismask)
+int emcTrajSetJoints(int joints)
 {
-    if(axes == 0) {
-	if(axismask & 256) axes = 9;
-	else if(axismask & 128) axes = 8;
-	else if(axismask & 64) axes = 7;
-	else if(axismask & 32) axes = 6;
-	else if(axismask & 16) axes = 5;
-	else if(axismask & 8) axes = 4;
-	else if(axismask & 4) axes = 3;
-	else if(axismask & 2) axes = 2;
-	else if(axismask & 1) axes = 1;
-    }
-    if (axes <= 0 || axes > EMCMOT_MAX_JOINTS || axismask >= (1<<axes)) {
-	rcs_print("emcTrajSetAxes failing: axes=%d axismask=%x\n",
-		axes, axismask);
+    if (joints <= 0 || joints > EMCMOT_MAX_JOINTS) {
+	rcs_print("emcTrajSetJoints failing: joints=%d\n",
+		joints);
 	return -1;
     }
 
-    localEmcTrajAxes = axes;
-    localEmcTrajAxisMask = axismask;
-    emcmotCommand.command = EMCMOT_SET_NUM_AXES;
-    emcmotCommand.axis = axes;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    TrajConfig.Joints = joints;
+    emcmotCommand.command = EMCMOT_SET_NUM_JOINTS;
+    emcmotCommand.joint = joints;
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d) returned %d\n", __FUNCTION__, joints, retval);
+    }
+    return retval;
+}
+
+int emcTrajSetAxes(int axismask)
+{
+    int axes = 0;
+    for(int i=0; i<EMCMOT_MAX_AXIS; i++)
+        if(axismask & (1<<i)) axes = i+1;
+
+    TrajConfig.DeprecatedAxes = axes;
+    TrajConfig.AxisMask = axismask;
+    
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %d)\n", __FUNCTION__, axes, axismask);
+    }
+    return 0;
 }
 
 int emcTrajSetUnits(double linearUnits, double angularUnits)
@@ -668,9 +995,12 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
 	return -1;
     }
 
-    localEmcTrajLinearUnits = linearUnits;
-    localEmcTrajAngularUnits = angularUnits;
+    TrajConfig.LinearUnits = linearUnits;
+    TrajConfig.AngularUnits = angularUnits;
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f, %.4f)\n", __FUNCTION__, linearUnits, angularUnits);
+    }
     return 0;
 }
 
@@ -694,35 +1024,29 @@ int emcTrajSetMode(int mode)
     }
 }
 
-int emcTrajSetTeleopVector(EmcPose vel)
-{
-    emcmotCommand.command = EMCMOT_SET_TELEOP_VECTOR;
-    emcmotCommand.pos = vel;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcTrajSetVelocity(double vel, double ini_maxvel)
 {
-    int retval;
-
     if (vel < 0.0) {
 	vel = 0.0;
-    } else if (vel > traj_max_velocity) {
-	vel = traj_max_velocity;
+    } else if (vel > TrajConfig.MaxVel) {
+	vel = TrajConfig.MaxVel;
     }
 
     if (ini_maxvel < 0.0) {
 	    ini_maxvel = 0.0;
-    } else if (vel > traj_max_velocity) {
-	    ini_maxvel = traj_max_velocity;
+    } else if (vel > TrajConfig.MaxVel) {
+	    ini_maxvel = TrajConfig.MaxVel;
     }
 
     emcmotCommand.command = EMCMOT_SET_VEL;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
 
-    retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f, %.4f) returned %d\n", __FUNCTION__, vel, ini_maxvel, retval);
+    }
     return retval;
 }
 
@@ -730,14 +1054,19 @@ int emcTrajSetAcceleration(double acc)
 {
     if (acc < 0.0) {
 	acc = 0.0;
-    } else if (acc > localEmcMaxAcceleration) {
-	acc = localEmcMaxAcceleration;
+    } else if (acc > TrajConfig.MaxAccel) {
+	acc = TrajConfig.MaxAccel;
     }
 
     emcmotCommand.command = EMCMOT_SET_ACC;
     emcmotCommand.acc = acc;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, acc, retval);
+    }
+    return retval;
 }
 
 /*
@@ -750,12 +1079,17 @@ int emcTrajSetMaxVelocity(double vel)
 	vel = 0.0;
     }
 
-    traj_max_velocity = vel;
+    TrajConfig.MaxVel = vel;
 
     emcmotCommand.command = EMCMOT_SET_VEL_LIMIT;
     emcmotCommand.vel = vel;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, vel, retval);
+    }
+    return retval;
 }
 
 int emcTrajSetMaxAcceleration(double acc)
@@ -764,8 +1098,11 @@ int emcTrajSetMaxAcceleration(double acc)
 	acc = 0.0;
     }
 
-    localEmcMaxAcceleration = acc;
+    TrajConfig.MaxAccel = acc;
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f)\n", __FUNCTION__, acc);
+    }
     return 0;
 }
 
@@ -783,7 +1120,14 @@ int emcTrajSetHome(EmcPose home)
     emcmotCommand.command = EMCMOT_SET_WORLD_HOME;
     emcmotCommand.pos = home;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f) returned %d\n", 
+          __FUNCTION__, home.tran.x, home.tran.y, home.tran.z, home.a, home.b, home.c, 
+          home.u, home.v, home.w, retval);
+    }
+    return retval;
 }
 
 int emcTrajSetScale(double scale)
@@ -862,12 +1206,12 @@ int emcTrajSetMotionId(int id)
 {
 
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
-	if (id != localEmcTrajMotionId) {
+	if (id != TrajConfig.MotionId) {
 	    rcs_print("Outgoing motion id is %d.\n", id);
 	}
     }
 
-    localEmcTrajMotionId = id;
+    TrajConfig.MotionId = id;
 
     return 0;
 }
@@ -876,14 +1220,24 @@ int emcTrajInit()
 {
     int retval = 0;
 
+    TrajConfig.Inited = 0;
+    TrajConfig.Joints = 0;
+    TrajConfig.MaxAccel = DBL_MAX;
+    TrajConfig.DeprecatedAxes = 0;
+    TrajConfig.AxisMask = 0;
+    TrajConfig.LinearUnits = 1.0;
+    TrajConfig.AngularUnits = 1.0;
+    TrajConfig.MotionId = 0;
+    TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
+
     // init emcmot interface
-    if (!AxisOrTrajInited()) {
+    if (!JointOrTrajInited()) {
 	usrmotIniLoad(emc_inifile);
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
-    emcmotTrajInited = 1;
+    TrajConfig.Inited = 1;
     // initialize parameters from ini file
     if (0 != iniTraj(emc_inifile)) {
 	retval = -1;
@@ -893,9 +1247,9 @@ int emcTrajInit()
 
 int emcTrajHalt()
 {
-    emcmotTrajInited = 0;
+    TrajConfig.Inited = 0;
 
-    if (!AxisOrTrajInited()) {
+    if (!JointOrTrajInited()) {
 	usrmotExit();		// ours is final exit
     }
 
@@ -953,12 +1307,12 @@ int emcTrajDelay(double delay)
 
 double emcTrajGetLinearUnits()
 {
-    return localEmcTrajLinearUnits;
+    return TrajConfig.LinearUnits;
 }
 
 double emcTrajGetAngularUnits()
 {
-    return localEmcTrajAngularUnits;
+    return TrajConfig.AngularUnits;
 }
 
 int emcTrajSetOffset(EmcPose tool_offset)
@@ -1002,7 +1356,7 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
 
     emcmotCommand.pos = end;
 
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1040,7 +1394,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     emcmotCommand.normal.z = normal.z;
 
     emcmotCommand.turn = turn;
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
 
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1069,7 +1423,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
 
     emcmotCommand.command = EMCMOT_PROBE;
     emcmotCommand.pos = pos;
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1090,7 +1444,7 @@ int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 
     emcmotCommand.command = EMCMOT_RIGID_TAP;
     emcmotCommand.pos.tran = pos.tran;
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
@@ -1106,12 +1460,13 @@ static double last_id_time;
 
 int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 {
-    int axis, enables;
+    int joint, enables;
 
-    stat->axes = localEmcTrajAxes;
-    stat->axis_mask = localEmcTrajAxisMask;
-    stat->linearUnits = localEmcTrajLinearUnits;
-    stat->angularUnits = localEmcTrajAngularUnits;
+    stat->joints = TrajConfig.Joints;
+    stat->deprecated_axes = TrajConfig.DeprecatedAxes;
+    stat->axis_mask = TrajConfig.AxisMask;
+    stat->linearUnits = TrajConfig.LinearUnits;
+    stat->angularUnits = TrajConfig.AngularUnits;
 
     stat->mode =
 	emcmotStatus.
@@ -1120,10 +1475,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	   motionFlag & EMCMOT_MOTION_COORD_BIT ? EMC_TRAJ_MODE_COORD :
 	   EMC_TRAJ_MODE_FREE);
 
-    /* enabled if motion enabled and all axes enabled */
+    /* enabled if motion enabled and all joints enabled */
     stat->enabled = 0;		/* start at disabled */
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ENABLE_BIT) {
-	for (axis = 0; axis < localEmcTrajAxes; axis++) {
+	for (joint = 0; joint < TrajConfig.Joints; joint++) {
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - the axis flag has been moved to the joint struct */
 	    if (!emcmotStatus.axisFlag[axis] & EMCMOT_JOINT_ENABLE_BIT) {
@@ -1167,7 +1522,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->velocity = emcmotStatus.vel;
     stat->acceleration = emcmotStatus.acc;
-    stat->maxAcceleration = localEmcMaxAcceleration;
+    stat->maxAcceleration = TrajConfig.MaxAccel;
 
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ERROR_BIT) {
 	stat->status = RCS_ERROR;
@@ -1205,7 +1560,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
-	stat->kinematics_type = emcmotConfig.kinematics_type;
+	stat->kinematics_type = emcmotConfig.kinType;
 	stat->maxVelocity = emcmotConfig.limitVel;
     }
 
@@ -1228,7 +1583,7 @@ int emcPositionLoad() {
     fclose(f);
     int result = 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
-	if(emcAxisSetMotorOffset(i, -positions[i]) != 0) result = -1;;
+	if(emcJointSetMotorOffset(i, -positions[i]) != 0) result = -1;;
     }
     return result;
 }
@@ -1263,30 +1618,37 @@ int emcPositionSave() {
 // EMC_MOTION functions
 int emcMotionInit()
 {
-    int r1;
-    int r2;
-    int r3;
-    int axis;
+    int r1, r2, r3, r4;
+    int joint, axis;
+    
+    r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
+    // it also determines the number of existing joints, and axes
 
-    r2 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
-
-    r1 = 0;
-    for (axis = 0; axis < localEmcTrajAxes; axis++) {
-	if (0 != emcAxisInit(axis)) {
-	    r1 = -1;		// at least one is busted
+    r2 = 0;
+    for (joint = 0; joint < TrajConfig.Joints; joint++) {
+	if (0 != emcJointInit(joint)) {
+	    r2 = -1;		// at least one is busted
 	}
     }
 
+    r3 = 0;
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+        if (TrajConfig.AxisMask & (1<<axis)) {
+	    if (0 != emcAxisInit(axis)) {
+	        r3 = -1;		// at least one is busted
+	    }
+	}
+    }
 
-    r3 = emcPositionLoad();
+    r4 = emcPositionLoad();
 
-    if (r1 == 0 && r2 == 0 && r3 == 0) {
+    if (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) {
 	emcmotion_initialized = 1;
-        if (ini_hal_init()) {
+        if (ini_hal_init(TrajConfig.Joints)) {
 	    rcs_print("emcMotionInit: ini_hal_init fail, continuing\n");
         }
 
-        if (ini_hal_init_pins()) {
+        if (ini_hal_init_pins(TrajConfig.Joints)) {
 	    rcs_print("emcMotionInit: ini_hal_init_pins fail, continuing\n");
         }
     }
@@ -1301,7 +1663,7 @@ int emcMotionHalt()
 
     r1 = -1;
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	if (0 == emcAxisHalt(t)) {
+	if (0 == emcJointHalt(t)) {
 	    r1 = 0;		// at least one is okay
 	}
     }
@@ -1324,7 +1686,7 @@ int emcMotionAbort()
 
     r1 = -1;
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	if (0 == emcAxisAbort(t)) {
+	if (0 == emcJointAbort(t)) {
 	    r1 = 0;		// at least one is okay
 	}
     }
@@ -1459,9 +1821,8 @@ int emcSpindleConstant()
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
-    int r1;
-    int r2;
-    int axis;
+    int r1, r2, r3;
+    int joint;
     int error;
     int exec;
     int dio, aio;
@@ -1498,8 +1859,9 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     localMotionCommandType = emcmotStatus.commandEcho;	/*! \todo FIXME-- not NML one! */
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
-    r1 = emcAxisUpdate(&stat->axis[0], EMCMOT_MAX_JOINTS);
-    r2 = emcTrajUpdate(&stat->traj);
+    r3 = emcTrajUpdate(&stat->traj);
+    r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
+    r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
@@ -1511,13 +1873,14 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->spindle.direction = emcmotStatus.spindle.direction;
     stat->spindle.orient_state = emcmotStatus.spindle.orient_state;
     stat->spindle.orient_fault = emcmotStatus.spindle.orient_fault;
+    stat->on_soft_limit = emcmotStatus.on_soft_limit;
 
-    for (dio = 0; dio < EMC_MAX_DIO; dio++) {
+    for (dio = 0; dio < EMCMOT_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
 	stat->synch_do[dio] = emcmotStatus.synch_do[dio];
     }
 
-    for (aio = 0; aio < EMC_MAX_AIO; aio++) {
+    for (aio = 0; aio < EMCMOT_MAX_AIO; aio++) {
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
@@ -1526,12 +1889,13 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     error = 0;
     exec = 0;
 
-    for (axis = 0; axis < stat->traj.axes; axis++) {
-	if (stat->axis[axis].status == RCS_ERROR) {
+    // FIXME-AJ: joints not axes
+    for (joint = 0; joint < stat->traj.joints; joint++) {
+	if (stat->joint[joint].status == RCS_ERROR) {
 	    error = 1;
 	    break;
 	}
-	if (stat->axis[axis].status == RCS_EXEC) {
+	if (stat->joint[joint].status == RCS_EXEC) {
 	    exec = 1;
 	    break;
 	}
@@ -1549,7 +1913,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     } else {
 	stat->status = RCS_DONE;
     }
-    return (r1 == 0 && r2 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
 
 int emcSetupArcBlends(int arcBlendEnable,

@@ -1,4 +1,4 @@
-USER_COMP_PY = pyvcp hal_input gladevcp
+USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3
 
 USER_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
 USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMPS))
@@ -30,12 +30,12 @@ TARGETS += ../bin/gs2_vfd
 endif # HAVE_LIBMODBUS
 
 ifeq ($(HIDRAW_H_USABLE),yes)
-SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
-USERSRCS += $(SHUTTLEXPRESS_SRC)
-../bin/shuttlexpress: $(call TOOBJS, $(SHUTTLEXPRESS_SRC)) ../lib/liblinuxcnchal.so.0
+SHUTTLE_SRC = hal/user_comps/shuttle.c
+USERSRCS += $(SHUTTLE_SRC)
+../bin/shuttle: $(call TOOBJS, $(SHUTTLE_SRC)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/shuttlexpress
+TARGETS += ../bin/shuttle
 endif
 
 ifdef HAVE_LIBUSB10
@@ -56,12 +56,12 @@ $(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.hh)): .
 $(USER_COMP_MANPAGES): ../docs/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile --userspace --document -o $@ $<
+	$(Q)../bin/halcompile -U --userspace --document -o $@ $<
 
 $(USER_COMP_SRCS): objects/%.c: %.comp ../bin/halcompile
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile --userspace --require-license -o $@ $<
+	$(Q)../bin/halcompile -U --userspace --require-license -o $@ $<
 
 $(USER_COMP_BINS): ../bin/%: objects/objects/hal/user_comps/%.o ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)

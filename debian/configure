@@ -16,7 +16,7 @@ usage () {
 $P: Set up debian/ files to build for a particular kernel
 
 Usage:
-    $P uspace
+    $P uspace [noauto | rtai | rtai=packagename | xenomai] ...
         Build for a userspace realtime systems or simulator
 
     $P sim
@@ -37,7 +37,7 @@ EOF
 
 cd "${0%/*}"
 
-if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+if [ $# -eq 0 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     usage
     if [ $# -ne 1 ]; then
         exit 1
@@ -59,21 +59,69 @@ elif [ $1 = "-a" ]; then
     set -- $KERNEL
 fi
 
-TARGET=$1
+TARGET=$1; shift
 
 # for example: "3.16.0-9"
 KERNEL_VERSION_ABI=${TARGET%-rtai-*}
 
-MODULE_PATH=usr/realtime-$1/modules/linuxcnc
+MODULE_PATH=usr/realtime-$TARGET/modules/linuxcnc
 MODULE_EXT=.ko
-KERNEL_DEPENDS="linux-image-$1,rtai-modules-$TARGET|rtai-modules-$KERNEL_VERSION_ABI"
-KERNEL_HEADERS=linux-headers-$1
-EXTRA_FILES="usr/bin/linuxcnc_module_helper"
-KERNEL_VERSION=$1
+KERNEL_DEPENDS="linux-image-$TARGET,rtai-modules-$TARGET|rtai-modules-$KERNEL_VERSION_ABI"
+KERNEL_HEADERS=linux-headers-$TARGET
+EXTRA_FILES=
+KERNEL_VERSION=$TARGET
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
 PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
 LIBREADLINE_DEV=libreadline-gplv2-dev
+
+BUILD_RTAI=false
+BUILD_XENOMAI=false
+BUILD_AUTO=true
+
+# Specialize these based on DISTRIB_NAME as needed
+# These do not run-time depend on a specific package because
+# the whole point is to allow a range of kernels to work, and we don't know
+# of any common thing that all such kernels would provide.
+
+# rtai-modules typically doesn't properly declare the architectures where
+# it works, so hardcode it...
+RTAI_DEV="$(apt-cache search -n rtai-modules | head -1 | awk '{print $1}')"
+RTAI_ARCHITECTURE="i386 amd64"
+if [ ! -z "$RTAI_DEV" ]; then
+    RTAI_DEV="$RTAI_DEV [i386], $RTAI_DEV [amd64]"
+fi
+# libxenomai-dev does encode the architectures, but we have to resort to awful
+# shell juju to transform it into a proper dependency list
+XENOMAI_DEV="$(apt-cache search -n libxenomai-dev | head -1 | awk '{print $1}')"
+if [ ! -z "$XENOMAI_DEV" ]; then
+    XENOMAI_ARCHITECTURE="$(apt-cache showsrc libxenomai-dev \
+        | grep ^Architecture: \
+        | head -1 \
+        | tr '[:space:]' '\n' \
+        | tail -n +2 \
+        | grep -vw all \
+        | tr '\n' ' ')"
+    XENOMAI_DEV="$(apt-cache showsrc libxenomai-dev \
+        | grep ^Architecture: \
+        | head -1 \
+        | tr '[:space:]' '\n' \
+        | tail -n +2 \
+        | grep -vw all \
+        | sed "s/.*/$XENOMAI_DEV [&],/" \
+        | tr '\n' ' ')"
+fi
+
+while test $# -ne 0; do
+    case "$1" in
+    noauto) BUILD_AUTO=false ;;
+    rtai) BUILD_RTAI=true ;;
+    rtai=*) BUILD_RTAI=true; RTAI_DEV=${1#rtai=} ;;
+    xenomai) BUILD_XENOMAI=true ;;
+    *) echo 1>&2 "Unknown feature: $1"; exit 99 ;;
+    esac
+    shift
+done
 
 # hope this works on other systems too
 DISTRIB_NAME=
@@ -138,6 +186,11 @@ Debian-5.0*)
 	EXTRA_BUILD=dvipng,module-init-tools,libgnomeprintui2.2-dev,python-support
 	TCLTK_VERSION=8.4
 	;;
+Raspbian-8.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+	TCLTK_VERSION=8.6
+	PYTHON_PACKAGING=dh_python2
+	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
         echo "configuration may be wrong!"
@@ -147,11 +200,31 @@ Debian-5.0*)
 esac
 
 DOC_BUILD=
+TARGET_EXTRA=
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
 EXTRA_RECOMMENDS=hostmot2-firmware-all
 case $TARGET in
     uspace|sim)
+        if $BUILD_AUTO; then
+            if test ! -z "$XENOMAI_DEV" > /dev/null; then
+                BUILD_XENOMAI=true
+            fi
+            if test ! -z "$RTAI_DEV"; then
+                BUILD_RTAI=true
+            fi
+        fi
+
+        if $BUILD_RTAI; then
+            EXTRA_BUILD="$EXTRA_BUILD,$RTAI_DEV"
+            TARGET_EXTRA="$TARGET_EXTRA+rtai"
+        fi
+
+        if $BUILD_XENOMAI; then
+            EXTRA_BUILD="$EXTRA_BUILD,$XENOMAI_DEV"
+            TARGET_EXTRA="$TARGET_EXTRA+xenomai"
+        fi
+
 	TARGET=uspace
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
@@ -202,10 +275,28 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
     -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
     -e "s|@PYTHON_PACKAGING@|$PYTHON_PACKAGING|g" \
+    -e "s|@XENOMAI_ARCHITECTURE@|$XENOMAI_ARCHITECTURE|g" \
+    -e "s|@RTAI_ARCHITECTURE@|$RTAI_ARCHITECTURE|g" \
     $*
 }
 
-subst control.in > control
+subst control.top.in > control
+
+if [ "$TARGET" == "uspace" ]; then
+    if $BUILD_RTAI; then
+        echo >> control
+        subst control.uspace-rtai.in >> control
+        subst linuxcnc-uspace-rtai.files.in > linuxcnc-uspace-rtai.files
+    fi
+    if $BUILD_XENOMAI; then
+        echo >> control
+        subst control.uspace-xenomai.in >> control
+        subst linuxcnc-uspace-xenomai.files.in > linuxcnc-uspace-xenomai.files
+    fi
+fi
+
+echo >> control
+subst control.bottom.in >> control
 
 if [ "$TARGET" == "uspace" ]; then
     cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
@@ -232,4 +323,4 @@ for P in $DOCS_PACKAGES; do
 done
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."
+echo "successfully configured for '$DISTRIB_NAME'-'$TARGET$TARGET_EXTRA'.."

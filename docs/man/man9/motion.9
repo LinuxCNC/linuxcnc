@@ -8,7 +8,11 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB])
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-9]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR
+
+The maximum number of joints available is set by EMCMOT_MAX_JOINTS.
+The maximum number of digital inputs is set by EMCMOT_MAX_DIO.
+The maximum number of analog inputs is set by EMCMOT_MAX_AIO.
 
 .SH DESCRIPTION
 By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  \fBbase_thread_fp\fR can be used to enable floating point in the base thread (for example for brushless DC motor control).
@@ -20,76 +24,121 @@ These pins and parameters are created by the realtime \fBmotmod\fR module. This 
 Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.
 
 .P
-Pin names starting with "\fBaxis\fR" are actually joint values, but the pins and parameters are still called "\fBaxis.\fIN\fR". They are read and updated by the motion-controller function.
+Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are are read and updated by the motion-controller function.
 
-.SH PINS
-
+.SH  AXIS PINS
+(\fBL\fR is the axis letter, one of: \fBX Y Z A B C U V W\fR)
 .TP
-\fBaxis.\fIN\fB.amp-enable-out\fR OUT BIT 
-TRUE if the amplifier for this joint should be enabled
-
-.TP
-\fBaxis.\fIN\fB.amp-fault-in\fR IN BIT 
-Should be driven TRUE if an external fault is detected with the amplifier for this joint
-
-.TP
-\fBaxis.\fIN\fB.home-sw-in\fR IN BIT 
-Should be driven TRUE if the home switch for this joint is closed
-
-.TP
-\fBaxis.\fIN\fB.homing\fR OUT BIT 
-TRUE if the joint is currently homing
-
-.TP
-\fBaxis.\fIN\fB.index-enable\fR IO BIT 
-Should be attached to the index-enable pin of the joint's encoder to enable homing to index pulse
-
-.TP
-\fBaxis.\fIN\fB.is-unlocked\fR IN BIT
-If the axis is a locked rotary the unlocked sensor should be connected to this pin
-
-.TP
-\fBaxis.\fIN\fB.jog-counts\fR IN S32 
+\fBaxis.\fIL\fB.jog-counts\fR IN S32
 Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 
 .TP
-\fBaxis.\fIN\fB.jog-enable\fR IN BIT 
+\fBaxis.\fIL\fB.jog-enable\fR IN BIT
 When TRUE (and in manual mode), any change to "jog-counts" will result in motion. When false, "jog-counts" is ignored.
 
 .TP
-\fBaxis.\fIN\fB.jog-scale\fR IN FLOAT 
+\fBaxis.\fIL\fB.jog-scale\fR IN FLOAT
 Sets the distance moved for each count on "jog-counts", in machine units.
 
 .TP
-\fBaxis.\fIN\fB.jog-vel-mode\fR IN BIT 
+\fBaxis.\fIL\fB.jog-vel-mode\fR IN BIT
 When FALSE (the default), the jogwheel operates in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 
 .TP
-\fBaxis.\fIN\fB.joint-pos-cmd\fR OUT FLOAT 
+\fBaxis.\fIL\fB.pos-cmd\fR OUT FLOAT
+The axis commanded position. There may be several offsets between the axis and motor coordinates: backlash compensation, screw error compensation, and home offsets.
+
+.TP
+\fBaxis.\fIL\fB.kb-jog-active\fR OUT BIT
+(free planner axis jogging active (keyboard or halui))
+
+.TP
+\fBaxis.\fIL\fB.teleop-pos-cmd\fR OUT FLOAT
+
+.TP
+\fBaxis.\fIL\fB.teleop-tp-enable\fR OUT BIT
+TRUE when the "teleop planner" is enabled for this axis
+
+.TP
+\fBaxis.\fIL\fB.teleop-vel-lim\fR OUT FLOAT
+The velocity limit for the teleop planner
+
+.TP
+\fBaxis.\fIN\fB.vel-cmd\fR OUT FLOAT
+The axis's commanded velocity
+
+.TP
+\fBaxis.\fIL\fB.wheel-jog-active\fR OUT BIT
+
+.SH JOINT PINS
+(\fBN\fR is the joint number (\fB0\fR ... \fBnum_joints-1\fR))
+
+.TP
+\fBjoint.\fIN\fB.amp-enable-out\fR OUT BIT
+TRUE if the amplifier for this joint should be enabled
+
+.TP
+\fBjoint.\fIN\fB.amp-fault-in\fR IN BIT
+Should be driven TRUE if an external fault is detected with the amplifier for this joint
+
+.TP
+\fBjoint.\fIN\fB.home-sw-in\fR IN BIT
+Should be driven TRUE if the home switch for this joint is closed
+
+.TP
+\fBjoint.\fIN\fB.homing\fR OUT BIT
+TRUE if the joint is currently homing
+
+.TP
+\fBjoint.\fIN\fB.index-enable\fR IO BIT
+Should be attached to the index-enable pin of the joint's encoder to enable homing to index pulse
+
+.TP
+\fBjoint.\fIN\fB.is-unlocked\fR IN BIT
+If the axis is a locked rotary the unlocked sensor should be connected to this pin
+
+.TP
+\fBjoint.\fIN\fB.jog-counts\fR IN S32
+Connect to the "counts" pin of an external encoder to use a physical jog wheel.
+
+.TP
+\fBjoint.\fIN\fB.jog-enable\fR IN BIT
+When TRUE (and in manual mode), any change to "jog-counts" will result in motion. When false, "jog-counts" is ignored.
+
+.TP
+\fBjoint.\fIN\fB.jog-scale\fR IN FLOAT
+Sets the distance moved for each count on "jog-counts", in machine units.
+
+.TP
+\fBjoint.\fIN\fB.jog-vel-mode\fR IN BIT
+When FALSE (the default), the jogwheel operates in position mode. The joint will move exactly jog-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
+
+.TP
+\fBjoint.\fIN\fB.joint-pos-cmd\fR OUT FLOAT
 The joint (as opposed to motor) commanded position. There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
 
 .TP
-\fBaxis.\fIN\fB.joint-pos-fb\fR OUT FLOAT 
+\fBjoint.\fIN\fB.joint-pos-fb\fR OUT FLOAT
 The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-cmd\fR OUT FLOAT 
+\fBjoint.\fIN\fB.motor-pos-cmd\fR OUT FLOAT
 The commanded position for this joint.
 
 .TP
-\fBaxis.\fIN\fB.motor-pos-fb\fR IN FLOAT 
+\fBjoint.\fIN\fB.motor-pos-fb\fR IN FLOAT
 The actual position for this joint.
 
 .TP
-\fBaxis.\fIN\fB.neg-lim-sw-in\fR IN BIT 
+\fBjoint.\fIN\fB.neg-lim-sw-in\fR IN BIT
 Should be driven TRUE if the negative limit switch for this joint is tripped.
 
 .TP
-\fBaxis.\fIN\fB.pos-lim-sw-in\fR IN BIT 
+\fBjoint.\fIN\fB.pos-lim-sw-in\fR IN BIT
 Should be driven TRUE if the positive limit switch for this joint is tripped.
 
 .TP
-\fBaxis.\fIN\fB.unlock\fR OUT BIT 
+\fBjoint.\fIN\fB.unlock\fR OUT BIT
 TRUE if the axis is a locked rotary and a move is commanded.
 
 .TP
@@ -279,87 +328,109 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 \fBmotion.tooloffset.w\fR OUT FLOAT
 Current tool offset in all 9 axes.
 
+.SH UNLOCK PINS
+The pins for unlocking a joint are enabled with
+the \fBunlock_joints_mask=\fRjointmask parameter for motmod.
+
+These pins may be required for locking indexers (typically a rotary joint)
+
+The jointmask bits are: (lsb)0:joint0, 1:joint1, 2:joint2, ...
+
+.TQ
+Example: loadrt motmod ... \fBunlock_joints_mask=\fR0x38 creates unlock pins for joints 3,4,5
+
+.TQ
+\fBjoint.N.unlock\fR OUT BIT
+.TQ
+\fBjoint.N.is-unlocked\fR IN BIT
+
 
 .SH DEBUGGING PINS
 
 Many of the pins below serve as debugging aids, and are subject to change or removal at any time.
 
 .TP
-\fBaxis.\fIN\fB.active\fR OUT BIT
+\fBjoint.\fIN\fB.active\fR OUT BIT
 TRUE when this joint is active
 
 .TP
-\fBaxis.\fIN\fB.backlash-corr\fR OUT FLOAT
+\fBjoint.\fIN\fB.backlash-corr\fR OUT FLOAT
 Backlash or screw compensation raw value
 
 .TP
-\fBaxis.\fIN\fB.backlash-filt\fR OUT FLOAT
+\fBjoint.\fIN\fB.backlash-filt\fR OUT FLOAT
 Backlash or screw compensation filtered value (respecting motion limits)
 
 .TP
-\fBaxis.\fIN\fB.backlash-vel\fR OUT FLOAT
+\fBjoint.\fIN\fB.backlash-vel\fR OUT FLOAT
 Backlash or screw compensation velocity 
 
 .TP
-\fBaxis.\fIN\fB.coarse-pos-cmd\fR OUT FLOAT
+\fBjoint.\fIN\fB.coarse-pos-cmd\fR OUT FLOAT
 
 .TP
-\fBaxis.\fIN\fB.error\fR OUT BIT
+\fBjoint.\fIN\fB.error\fR OUT BIT
 TRUE when this joint has encountered an error, such as a limit switch closing
 
 .TP
-\fBaxis.\fIN\fB.f-error\fR OUT FLOAT
+\fBjoint.\fIN\fB.f-error\fR OUT FLOAT
 The actual following error
 
 .TP
-\fBaxis.\fIN\fB.f-error-lim\fR OUT FLOAT
+\fBjoint.\fIN\fB.f-error-lim\fR OUT FLOAT
 The following error limit
 
 .TP
-\fBaxis.\fIN\fB.f-errored\fR OUT BIT
+\fBjoint.\fIN\fB.f-errored\fR OUT BIT
 TRUE when this joint has exceeded the following error limit
 
 .TP
-\fBaxis.\fIN\fB.faulted\fR OUT BIT
+\fBjoint.\fIN\fB.faulted\fR OUT BIT
 
 .TP
-\fBaxis.\fIN\fB.free-pos-cmd\fR OUT FLOAT
+\fBjoint.\fIN\fB.free-pos-cmd\fR OUT FLOAT
 The "free planner" commanded position for this joint.
 
 .TP
-\fBaxis.\fIN\fB.free-tp-enable\fR OUT BIT
+\fBjoint.\fIN\fB.free-tp-enable\fR OUT BIT
 TRUE when the "free planner" is enabled for this joint
 
 .TP
-\fBaxis.\fIN\fB.free-vel-lim\fR OUT FLOAT
+\fBjoint.\fIN\fB.free-vel-lim\fR OUT FLOAT
 The velocity limit for the free planner
 
 .TP
-\fBaxis.\fIN\fB.homed\fR OUT BIT
+\fBjoint.\fIN\fB.homed\fR OUT BIT
 TRUE if the joint has been homed
 
 .TP
-\fBaxis.\fIN\fB.in-position\fR OUT BIT
+\fBjoint.\fIN\fB.home-state\fR OUT S32
+homing state machine state
+
+.TP
+\fBjoint.\fIN\fB.in-position\fR OUT BIT
 TRUE if the joint is using the "free planner" and has come to a stop
 
 .TP
-\fBaxis.\fIN\fB.joint-vel-cmd\fR OUT FLOAT
+\fBjoint.\fIN\fB.joint-vel-cmd\fR OUT FLOAT
 The joint's commanded velocity
 
 .TP
-\fBaxis.\fIN\fB.kb-jog-active\fR OUT BIT
-
+\fBjoint.\fIN\fB.kb-jog-active\fR OUT BIT
+(free planner joint jogging active (keyboard or halui))
 
 .TP
-\fBaxis.\fIN\fB.neg-hard-limit\fR OUT BIT
+\fBjoint.\fIN\fB.neg-hard-limit\fR OUT BIT
 The negative hard limit for the joint
 
 .TP
-\fBaxis.\fIN\fB.pos-hard-limit\fR OUT BIT
+\fBjoint.\fIN\fB.pos-hard-limit\fR OUT BIT
 The positive hard limit for the joint
 
 .TP
-\fBaxis.\fIN\fB.wheel-jog-active\fR OUT BIT
+\fBjoint.\fIN\fB.wheel-jog-active\fR OUT BIT
+
+.SH  MOTION PINS
 
 .TP
 \fBmotion.motion-enabled\fR OUT BIT
@@ -380,7 +451,7 @@ These values are from src/emc/nml_intf/motion_types.h
 .P
 5: Probing
 .P
-6: Rotary axis indexing
+6: Rotary FIXME joint indexing
 .RE
 .RE
 
@@ -395,23 +466,32 @@ These values are from src/emc/nml_intf/motion_types.h
 \fBmotion.teleop-mode\fR OUT BIT
 TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
 
-
-.SH PARAMETERS
-
-Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
+.TP
+\fBmotion.spindle-is-oriented\fR OUT S32
 
 .TP
 \fBmotion-command-handler.time\fR
 
 .TQ
-\fBmotion-command-handler.tmax\fR
+\fBmotion-controller.time\fR
+
+.SH PARAMETERS
+
+Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
 .TQ
-\fBmotion-controller.time\fR
+\fBmotion-command-handler.tmax\fR
+Show information about the execution time of these HAL functions in CPU cycles
+
+.TQ
+\fBmotion-command-handler.tmax-increased\fR
 
 .TQ
 \fBmotion-controller.tmax\fR
 Show information about the execution time of these HAL functions in CPU cycles
+
+.TQ
+\fBmotion-controller.tmax-increased\fR
 
 .TP
 \fBmotion.debug-\fI*\fR 

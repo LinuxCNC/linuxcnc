@@ -96,27 +96,19 @@ class GetIniInfo:
     def get_jog_vel(self):
         # get default jog velocity
         # must convert from INI's units per second to gscreen's units per minute
-        temp = self.inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
+        temp = self.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
-            temp = 3.0
+            temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )/ 2
+            if not temp:
+                temp = 3.0
         return float(temp) * 60
 
     def get_max_jog_vel(self):
         # get max jog velocity
         # must convert from INI's units per second to gscreen's units per minute
-        temp = self.inifile.find("DISPLAY", "MAX_LINEAR_VELOCITY")
+        temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
-        return float(temp) * 60
-
-# ToDo : This may not be needed, as it could be recieved from linuxcnc.stat
-    def get_max_velocity(self):
-        # max velocity settings: more then one place to check
-        # This is the maximum velocity of the machine
-        temp = self.inifile.find("TRAJ", "MAX_VELOCITY")
-        if  temp == None:
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_VELOCITY found in [TRAJ] of the INI file")
-            temp = 15.0
         return float(temp) * 60
 
     def get_max_spindle_override(self):
@@ -139,6 +131,13 @@ class GetIniInfo:
         if not temp:
             temp = 1.0
             print("**** GMOCCAPY GETINIINFO **** \n No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
+        return float(temp)
+
+    def get_max_rapid_override(self):
+        temp = self.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
+        if not temp:
+            temp = 1.0
+            print("**** GMOCCAPY GETINIINFO **** \n No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file \n Default settings 100 % applied!")
         return float(temp)
 
     def get_embedded_tabs(self):
@@ -208,8 +207,8 @@ class GetIniInfo:
                 jog_increments = increments.split()
             jog_increments.insert(0, 0)
         else:
-            jog_increments = [0, "1,000", "0,100", "0,010", "0,001"]
-            print("**** GMOCCAPY GETINIINFO **** \n No default jog increments entry found in [DISPLAY] of INI file")
+            jog_increments = [0, "1.000", "0.100", "0.010", "0.001"]
+            print("**** GMOCCAPY GETINIINFO **** \nNo default jog increments entry found in [DISPLAY] of INI file\nUsing default values")
         return jog_increments
 
     def get_toolfile(self):
@@ -237,6 +236,7 @@ class GetIniInfo:
         return subroutines_path
 
     def get_axis_2_min_limit(self):
+        # needed to calculate the offset for automated tool measurement
         temp = self.inifile.find("AXIS_2", "MIN_LIMIT")
         if not temp:
             return False
@@ -263,3 +263,8 @@ class GetIniInfo:
             messages = zip(message_text, message_type, message_pinname)
             return messages
 
+    def get_trajcoordinates(self):
+        return self.inifile.find("TRAJ", "COORDINATES")
+
+    def get_kinstype(self):
+        return self.inifile.find("KINS", "KINEMATICS")

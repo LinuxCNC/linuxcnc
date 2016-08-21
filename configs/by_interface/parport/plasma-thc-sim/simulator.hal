@@ -27,10 +27,10 @@ net PosZ-fb => wcomp.4.in
 net TimeLeft oneshot.1.time-left => wcomp.5.in
 
 # Simulate limits with wcomps
-net LimitX wcomp.0.out => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
-net LimitY wcomp.1.out => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
+net LimitX wcomp.0.out => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in joint.0.home-sw-in
+net LimitY wcomp.1.out => joint.1.neg-lim-sw-in joint.1.pos-lim-sw-in joint.1.home-sw-in
 net LimitZ or2.9.out => or2.2.in0
-net LimitA wcomp.3.out => axis.3.neg-lim-sw-in axis.3.pos-lim-sw-in axis.3.home-sw-in
+net LimitA wcomp.3.out => joint.3.neg-lim-sw-in joint.3.pos-lim-sw-in joint.3.home-sw-in
 
 # Hook up other simulated signals
 net FloatSwitch and2.9.out => or2.1.in1 and2.4.in0 and2.5.in1 and2.6.in1
@@ -39,7 +39,7 @@ net IgnDebugTimer wcomp.5.out and2.10.in0
 net ArcOKSwitch and2.11.out and2.10.in1
 
 # Fix the problem with the float switch being triggered during homing because machine starts at pos 0
-net MachineIsHoming axis.2.homing = not.3.in
+net MachineIsHoming joint.2.homing => not.3.in
 net InvertedMachineIsHoming not.3.out => and2.9.in0
 net OriginalFloatSignal wcomp.4.out => and2.9.in1
 

@@ -13,15 +13,19 @@
 # electrical noise on the encoder inputs.
 
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 #motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # next load the PID module, for four PID loops
 loadrt pid num_chan=4
 
 # install Universal PWM Controller driver
+#if the PPMC is not connected to the standard parallel port at 0x378
+# add port_addr="0x1234" to the following command line
+# timestamp="0x00" turns on timestamp encoder velocity estimation on the
+# first encoder board of the PPMC system.
 loadrt hal_ppmc timestamp="0x00"
 
 # make some signals for the scope for tuning.

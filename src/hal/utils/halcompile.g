@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #    This is 'halcompile', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -119,6 +119,12 @@ def _parse(rule, text, filename=None):
 def parse(filename):
     initialize()
     f = open(filename).read()
+    if '\r' in f:
+        if require_unix_line_endings:
+            raise SystemExit, "%s:0: Error: File contains DOS-style or Mac-style line endings." % filename
+        else:
+            print >>sys.stderr, "%s:0: Warning: File contains DOS-style or Mac-style line endings." % filename
+        f = open(filename, "rU").read()
     a, b = f.split("\n;;\n", 1)
     p = _parse('File', a + "\n\n", filename)
     if not p: raise SystemExit, 1
@@ -1008,18 +1014,22 @@ Usage:
 def main():
     global require_license
     require_license = True
+    global require_unix_line_endings
+    require_unix_line_endings = False
     mode = PREPROCESS
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
-                           ['install', 'compile', 'preprocess', 'outfile=',
+        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?",
+                           ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
 
     for k, v in opts:
+        if k in ("-U", "--unix"):
+            require_unix_line_endings = True
         if k in ("-u", "--userspace"):
             userspace = True
         if k in ("-i", "--install"):

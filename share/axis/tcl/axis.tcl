@@ -809,280 +809,56 @@ setup_widget_accel $_tabs_manual.axis [_ Axis:]
 
 frame $_tabs_manual.axes
 
-radiobutton $_tabs_manual.axes.axisx \
+# Axis select radiobuttons
+# These set the variable ja_rbutton to alphabetic value
+foreach {letter} {x y z a b c u v w} {
+  radiobutton $_tabs_manual.axes.axis$letter \
 	-anchor w \
 	-padx 0 \
-	-value x \
-	-variable current_axis \
+	-value $letter \
+	-variable ja_rbutton \
 	-width 2 \
-        -text X \
+        -text [string toupper $letter] \
         -command axis_activated
+}
 
-radiobutton $_tabs_manual.axes.axisy \
-	-anchor w \
-	-padx 0 \
-	-value y \
-	-variable current_axis \
-	-width 2 \
-        -text Y \
-        -command axis_activated
-
-radiobutton $_tabs_manual.axes.axisz \
-	-anchor w \
-	-padx 0 \
-	-value z \
-	-variable current_axis \
-	-width 2 \
-        -text Z \
-        -command axis_activated
-
-radiobutton $_tabs_manual.axes.axisa \
-	-anchor w \
-	-padx 0 \
-	-value a \
-	-variable current_axis \
-	-width 2 \
-        -text A \
-        -command axis_activated
-
-radiobutton $_tabs_manual.axes.axisb \
-	-anchor w \
-	-padx 0 \
-	-value b \
-	-variable current_axis \
-	-width 2 \
-        -text B \
-        -command axis_activated
-
-radiobutton $_tabs_manual.axes.axisc \
-	-anchor w \
-	-padx 0 \
-	-value c \
-	-variable current_axis \
-	-width 2 \
-        -text C \
-        -command axis_activated
-
-
-radiobutton $_tabs_manual.axes.axisu \
-	-anchor w \
-	-padx 0 \
-	-value u \
-	-variable current_axis \
-	-width 2 \
-        -text U \
-        -command axis_activated
-
-radiobutton $_tabs_manual.axes.axisv \
-	-anchor w \
-	-padx 0 \
-	-value v \
-	-variable current_axis \
-	-width 2 \
-        -text V \
-        -command axis_activated
-
-radiobutton $_tabs_manual.axes.axisw \
-	-anchor w \
-	-padx 0 \
-	-value w \
-	-variable current_axis \
-	-width 2 \
-        -text W \
-        -command axis_activated
-
-# Grid widget $_tabs_manual.axes.axisa
-grid $_tabs_manual.axes.axisu \
-	-column 0 \
-	-row 2 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisb
-grid $_tabs_manual.axes.axisv \
-	-column 1 \
-	-row 2 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisc
-grid $_tabs_manual.axes.axisw \
-	-column 2 \
-	-row 2 \
-	-padx 4
-
-
-# Grid widget $_tabs_manual.axes.axisa
-grid $_tabs_manual.axes.axisa \
-	-column 0 \
-	-row 1 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisb
-grid $_tabs_manual.axes.axisb \
-	-column 1 \
-	-row 1 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisc
-grid $_tabs_manual.axes.axisc \
-	-column 2 \
-	-row 1 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisx
-grid $_tabs_manual.axes.axisx \
-	-column 0 \
-	-row 0 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisy
-grid $_tabs_manual.axes.axisy \
-	-column 1 \
-	-row 0 \
-	-padx 4
-
-# Grid widget $_tabs_manual.axes.axisz
-grid $_tabs_manual.axes.axisz \
-	-column 2 \
-	-row 0 \
-	-padx 4
+# grid for Axis select radiobuttons
+set ano 0; set aletters {x y z a b c u v w}
+for {set row 0} {$row < 3} {incr row} {
+  for {set col 0} {$col < 3} {incr col} {
+    grid $_tabs_manual.axes.axis[lindex $aletters $ano] \
+         -column $col -row $row -padx 4
+    incr ano
+  }
+}
 
 frame $_tabs_manual.joints
 
-radiobutton $_tabs_manual.joints.joint0 \
+# Joints select radiobuttons
+# These set the variable ja_rbutton to numeric values [0,MAX_JOINTS)
+for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
+  radiobutton $_tabs_manual.joints.joint$num \
 	-anchor w \
 	-padx 0 \
-	-value x \
-	-variable current_axis \
+	-value $num \
+	-variable ja_rbutton \
 	-width 2 \
-        -text 0 \
+        -text $num \
         -command axis_activated
+}
 
-radiobutton $_tabs_manual.joints.joint1 \
-	-anchor w \
-	-padx 0 \
-	-value y \
-	-variable current_axis \
-	-width 2 \
-        -text 1 \
-        -command axis_activated
-
-radiobutton $_tabs_manual.joints.joint2 \
-	-anchor w \
-	-padx 0 \
-	-value z \
-	-variable current_axis \
-	-width 2 \
-        -text 2 \
-        -command axis_activated
-
-radiobutton $_tabs_manual.joints.joint3 \
-	-anchor w \
-	-padx 0 \
-	-value a \
-	-variable current_axis \
-	-width 2 \
-        -text 3 \
-        -command axis_activated
-
-radiobutton $_tabs_manual.joints.joint4 \
-	-anchor w \
-	-padx 0 \
-	-value b \
-	-variable current_axis \
-	-width 2 \
-        -text 4 \
-        -command axis_activated
-
-radiobutton $_tabs_manual.joints.joint5 \
-	-anchor w \
-	-padx 0 \
-	-value c \
-	-variable current_axis \
-	-width 2 \
-        -text 5 \
-        -command axis_activated
-
-
-radiobutton $_tabs_manual.joints.joint6 \
-	-anchor w \
-	-padx 0 \
-	-value u \
-	-variable current_axis \
-	-width 2 \
-        -text 6 \
-        -command axis_activated
-
-radiobutton $_tabs_manual.joints.joint7 \
-	-anchor w \
-	-padx 0 \
-	-value v \
-	-variable current_axis \
-	-width 2 \
-        -text 7 \
-        -command axis_activated
-
-radiobutton $_tabs_manual.joints.joint8 \
-	-anchor w \
-	-padx 0 \
-	-value w \
-	-variable current_axis \
-	-width 2 \
-        -text 8 \
-        -command axis_activated
-
-# Grid widget $_tabs_manual.joints.joint0
-grid $_tabs_manual.joints.joint0 \
-	-column 0 \
-	-row 0 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint1
-grid $_tabs_manual.joints.joint1 \
-	-column 1 \
-	-row 0 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint2
-grid $_tabs_manual.joints.joint2 \
-	-column 2 \
-	-row 0 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint3
-grid $_tabs_manual.joints.joint3 \
-	-column 0 \
-	-row 1 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint4
-grid $_tabs_manual.joints.joint4 \
-	-column 1 \
-	-row 1 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint5
-grid $_tabs_manual.joints.joint5 \
-	-column 2 \
-	-row 1 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint6
-grid $_tabs_manual.joints.joint6 \
-	-column 0 \
-	-row 2 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint7
-grid $_tabs_manual.joints.joint7 \
-	-column 1 \
-	-row 2 \
-	-padx 4
-
-# Grid widget $_tabs_manual.joints.joint8
-grid $_tabs_manual.joints.joint8 \
-	-column 2 \
-	-row 2 \
-	-padx 4
+# grid for Joint select radiobuttons
+set jno 0
+set rows [expr $::MAX_JOINTS / 3]
+for {set row 0} {$row < 3} {incr row} {
+  for {set col 0} {$col < 3} {incr col} {
+    grid $_tabs_manual.joints.joint$jno \
+         -column $col -row $row -padx 4
+    incr jno
+    if {$jno >= $::MAX_JOINTS} break
+  }
+  if {$jno >= $::MAX_JOINTS} break
+}
 
 frame $_tabs_manual.jogf
 frame $_tabs_manual.jogf.jog
@@ -1123,7 +899,7 @@ $_tabs_manual.jogf.jog.jogincr list insert end [_ Continuous] 0.1000 0.0100 0.00
 frame $_tabs_manual.jogf.zerohome
 
 button $_tabs_manual.jogf.zerohome.home \
-	-command home_axis \
+	-command home_joint \
 	-padx 2m \
 	-pady 0
 setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home Axis"]
@@ -1929,23 +1705,6 @@ grid rowconfigure . 1 -weight 1
 
 # vim:ts=8:sts=8:noet:sw=8
 
-set TASK_MODE_MANUAL 1
-set TASK_MODE_AUTO 2
-set TASK_MODE_MDI 3
-
-set STATE_ESTOP 1
-set STATE_ESTOP_RESET 2
-set STATE_OFF 3
-set STATE_ON 4
-
-set INTERP_IDLE 1
-set INTERP_READING 2
-set INTERP_PAUSED 3
-set INTERP_WAITING 4
-
-set TRAJ_MODE_FREE 1
-set KINEMATICS_IDENTITY 1
-
 set manualgroup [concat [winfo children $_tabs_manual.axes] \
     $_tabs_manual.jogf.zerohome.home \
     $_tabs_manual.jogf.jog.jogminus \
@@ -2061,7 +1820,9 @@ proc update_state {args} {
                 $::_tabs_manual.spindlef.spindleminus \
                 $::_tabs_manual.spindlef.spindleplus
 
-    if {$::motion_mode == $::TRAJ_MODE_FREE && $::kinematics_type != $::KINEMATICS_IDENTITY} {
+    if {   $::motion_mode     == $::TRAJ_MODE_FREE
+        && $::kinematics_type != $::KINEMATICS_IDENTITY
+       } {
         set ::position [concat [_ "Position:"] Joint]
     } else {
         set coord_str [lindex [list [_ Machine] [_ Relative]] $::coord_type]
@@ -2085,26 +1846,21 @@ proc update_state {args} {
         disable_group $::mdigroup
     }
 
-    if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE &&
-        ($::motion_mode == $::TRAJ_MODE_FREE
-            || $::kinematics_type == $::KINEMATICS_IDENTITY)} {
-        $::_tabs_manual.jogf.jog.jogincr configure -state normal
-    } else {
-        $::_tabs_manual.jogf.jog.jogincr configure -state disabled
-    }
-
     if {   $::task_state == $::STATE_ON
         && $::interp_state == $::INTERP_IDLE
-        && ($::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY)
-       } {
+        && (   $::motion_mode != $::TRAJ_MODE_FREE
+            || $::kinematics_type == $::KINEMATICS_IDENTITY
+           )} {
         $::_tabs_manual.jogf.zerohome.zero configure -state normal
     } else {
         $::_tabs_manual.jogf.zerohome.zero configure -state disabled
     }
 
-    if {    $::task_state == $::STATE_ON
+    if {    $::task_state   == $::STATE_ON
          && $::interp_state == $::INTERP_IDLE
-         && ($::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY)
+         && (   $::motion_mode != $::TRAJ_MODE_FREE
+             || $::kinematics_type == $::KINEMATICS_IDENTITY
+            )
          && ("$::tool" != "" && "$::tool" != [_ "No tool"])
        } {
         $::_tabs_manual.jogf.zerohome.tooltouch configure -state normal
@@ -2127,20 +1883,45 @@ proc set_mode_from_tab {} {
     set page [${::pane_top}.tabs raise]
     switch $page {
         mdi { ensure_mdi }
-        default { ensure_manual }
+        default { ensure_manual
+                  focus $::pane_top.tabs.fmanual
+                }
     }
 
 }
 
+# trace var: motion_mode
 proc joint_mode_switch {args} {
-    if {$::motion_mode == $::TRAJ_MODE_FREE && $::kinematics_type != $::KINEMATICS_IDENTITY} {
+    # note: test for existence of ::trajcoordinates because it is not avail first timeo
+    # todo: save and restore last value of ::ja_rbutton for joints,axes
+    if {   $::motion_mode     == $::TRAJ_MODE_FREE
+        && $::kinematics_type != $::KINEMATICS_IDENTITY
+       } {
         grid forget $::_tabs_manual.axes
         grid $::_tabs_manual.joints -column 1 -row 0 -padx 0 -pady 0 -sticky w
         setup_widget_accel $::_tabs_manual.axis [_ Joint:]
+        # Joints: need number for ja_rbutton
+        if {[info exists ::trajcoordinates]} {
+          # make first (leftmost) radiobutton active
+          for {set i 0} {$i < $::MAX_AXIS} {incr i} {lappend anums $i}
+          # typ anums is {0 ... 8}
+          if { [lsearch $anums $::ja_rbutton] < 0 } {
+            set ::ja_rbutton 0
+          }
+        }
     } else {
         grid forget $::_tabs_manual.joints
         grid $::_tabs_manual.axes -column 1 -row 0 -padx 0 -pady 0 -sticky w
         setup_widget_accel $::_tabs_manual.axis [_ Axis:]
+        # Axes: need letter for ja_rbutton
+        if {[info exists ::trajcoordinates]} {
+          # make first (leftmost) radiobutton active
+          for {set i 0} {$i < $::MAX_JOINTS} {incr i} {lappend jnums $i}
+          # typ jnums is {0 ... 8}
+          if { [lsearch $jnums $::ja_rbutton] >= 0 } { 
+            set ::ja_rbutton [string range $::trajcoordinates 0 0]
+          }
+        }
     }    
 }
 

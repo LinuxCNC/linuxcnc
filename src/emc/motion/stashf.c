@@ -24,11 +24,9 @@
 #ifdef __KERNEL__
 #include <linux/kernel.h>
 #define gettext(s) s
-#define alloca __builtin_alloca
 #else
 #include <stdio.h>
 #include <libintl.h>
-#include <alloca.h>
 #endif
 
 static int SET_ERRNO(int value) {

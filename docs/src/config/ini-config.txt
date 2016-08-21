@@ -69,7 +69,10 @@ The following sections are used by LinuxCNC:
 * '[<<sec:halui-section,HALUI>>]' MDI commands used by HALUI
 * '[<<sec:applications-section,APPLICATIONS>>]' Other applications to be started by LinuxCNC
 * '[<<sec:traj-section,TRAJ>>]' additional settings used by the real time motion controller
+* '[<<sec:joint-section,JOINT_n>>]' individual joint variables
 * '[<<sec:axis-section,AXIS_n>>]' individual axis variables
+* '[<<sec:axis-section,KINS>>]' kinematics variables
+
 * '[<<sec:emcio-section,EMCIO>>]' settings used by the I/O Controller
 
 === Variables
@@ -130,7 +133,7 @@ in that section.
 
 .Custom Variable Example
 ----
-[AXIS_0]
+[JOINT_0]
 TYPE = LINEAR
 ...
 SCALE = 16000
@@ -142,7 +145,7 @@ name in place of the value.
 .HAL Example
 ----
 setp offset.1.offset [OFFSETS]OFFSET_1
-setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.0.position-scale [JOINT_0]SCALE
 ----
 
 [NOTE]
@@ -170,9 +173,9 @@ Multiple #INCLUDE directives are supported.
 
 .#INCLUDE Examples
 ----
-#INCLUDE axis_0.inc
-#INCLUDE ../parallel/axis_1.inc
-#INCLUDE below/axis_2.inc
+#INCLUDE joint_0.inc
+#INCLUDE ../parallel/joint_1.inc
+#INCLUDE below/joint_2.inc
 #INCLUDE /home/myusername/myincludes/display.inc
 #INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc
 ----
@@ -216,8 +219,8 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'keystick',
-   'mini', 'tklinuxcnc', 'xemc',
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen',
+   'mini', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show when the user interface starts. The RELATIVE coordinate system
@@ -309,10 +312,11 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
 * 'LATHE = 1' - This displays in lathe mode with a top view and with Radius and
     Diameter on the DRO.
 
+* 'FOAM = 1' - Change the display for foam-cutter mode.
+
 * 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
-    of a sequence of axis letters, optionally preceded by a "-" sign. Only
-    axes defined in '[TRAJ]AXES' should be used. This sequence specifies
-    the order in which the effect
+    of a sequence of axis letters, optionally preceded by a "-" sign.
+    This sequence specifies the order in which the effect
     of each axis is applied, with a "-" inverting the sense of the
     rotation.
      The proper GEOMETRY string depends on the machine configuration and
@@ -323,6 +327,10 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     expresses the order in which the different transformations are applied.
     For example rotating around C then B is different than rotating around
     B then C. Geometry has no effect without a rotary axis.
+     Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value
+    blank even though this value is presently ignored in foam-cutter mode.  A
+    future version may define what ";" means, but if it does "XY;UV" will mean
+    the same as the current foam default.
 
 * 'ARCDIVISION = 64' - Set the quality of preview of arcs. Arcs are previewed by dividing
     them into a number of straight lines; a semicircle is divided into
@@ -338,6 +346,10 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     will save the MDI history in *.axis_mdi_history* in the user's home
     directory. This is useful if you have multiple configurations on one
     computer.
+
+* 'JOG_AXES =' - The order in which jog keys are assigned to axis letters.  The left and right arrows are assigned to the first axis letter, up and down to the second, page up/page down to the third, and left and right bracket to the fourth.  If unspecified, the default is determined from the [TRAJ]COORDINATES, [DISPLAY]LATHE and [DISPLAY]FOAM values.
+
+* 'JOG_INVERT =' - For each axis letter, the jog direction is inverted.  The default is "X" for lathes and blank otherwise.
 
 [NOTE]
 The following [DISPLAY] item is used by the TKLinuxCNC interface only.
@@ -401,7 +413,7 @@ This example program filters a file and adds a W axis to match the Z axis.
 It depends on there being a space between each axis word to work.
 
 ----
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 import sys
 
@@ -780,30 +792,13 @@ small, tight corners, since you're limited by cornering acceleration.
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code. This has no effect on the mapping from G-code
-    axis names (X- Y- Z-) to joint numbers--for 'trivial kinematics', X is
+    axis names (X- Y- Z-) to joint numbers--for 'trivkins kinematics', X is
     always joint 0, A is always joint 3, and U is always joint 6, and so
     on. It is permitted to write an axis name twice (e.g., X Y Y Z for a
-    gantry machine) but this has no effect.
-
-* 'AXES = 3' - One more than the number of the highest joint number in the system.
-    For an XYZ machine, the joints are numbered 0, 1 and 2; in this case
-    AXES should be 3. For an XYUV machine using 'trivial kinematics', the V
-    joint is numbered 7 and therefore AXES should be 8. For a machine with
-    nontrivial kinematics (e.g., scarakins) this will generally be the
-    number of controlled joints.
-
-* 'JOINTS = 3' - (This config variable is used by the Axis GUI only,
-    not by the trajectory planner in the motion controller.)  Specifies
-    the number of joints (motors) in the system.  For example, an XYZ
-    machine with a single motor for each axis has 3 joints.  A gantry
-    machine with one motor on each of two of the axes, and two motors
-    on the third axis, has 4 joints.
-
-* 'HOME = 0 0 0' - Coordinates of the homed position of each axis. Again
-    for a fourth
-    axis you will need 0 0 0 0. This value is only used for machines with
-    nontrivial kinematics. On machines with trivial kinematics this value
-    is ignored.
+    gantry machine) but this has no effect.  For 'trivkins kinematics',
+    joint numbers are assigned in sequence according to the 
+    trivkins parameter coordinates=.  So, for trivkins coordinates=xz,
+    joint0 corresponds to X and joint1 corresponds to Z.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
     Possible choices are (in, inch, imperial, metric, mm).
@@ -816,18 +811,18 @@ small, tight corners, since you're limited by cornering acceleration.
      This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
-* 'DEFAULT_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in 
+* 'DEFAULT_LINEAR_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in
   machine units per second. The value shown in 'Axis' equals
   machine units per minute.
 
-* 'DEFAULT_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
+* 'DEFAULT_LINEAR_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
     for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
 
-* 'MAX_VELOCITY = 5.0' - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated
+* 'MAX_LINEAR_VELOCITY = 5.0' - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated
     move, in 'machine units' per second. The value shown equals 300 units per
     minute.
 
-* 'MAX_ACCELERATION = 20.0' - (((MAX ACCELERATION))) The maximum acceleration for any axis or
+* 'MAX_LINEAR_ACCELERATION = 20.0' - (((MAX ACCELERATION))) The maximum acceleration for any axis or
     coordinated axis move, in 'machine units' per second per second.
 
 * 'POSITION_FILE = position.txt' - If set to a non-empty value, the joint positions are stored between
@@ -844,50 +839,36 @@ small, tight corners, since you're limited by cornering acceleration.
    machine first. Interfaces without homing ability will need to have this
    option set to 1.
 
+* 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
+   that compute world coordinates using kinematicsForward() when switching
+   from joint to teleop mode.  Up to nine coordinate values (X Y Z A B C U V W)
+   may be specified, unused trailing items may be omitted.
+   Note: the sim hexapod config requires a non-zero value for the Z coordinate.
+
 [WARNING]
-LinuxCNC will not know your axis travel limits when using 'NO_FORCE_HOMING = 1'.
+LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
+
+[[sec:kins-section]](((INI File, KINS Section)))
+
+=== [KINS] Section
+* 'JOINTS = 3' - Specifies the number of joints (motors) in the system.
+    For example, a trivkins XYZ machine with a single motor for each axis has 3
+    joints.  A gantry machine with one motor on each of two of the axes,
+    and two motors on the third axis, has 4 joints.
+    (This config variable may be used by a gui to set the number of joints
+    (num_joints) specified to the motion module (motmod)).
+    The Axis gui, pncconf,  and stepconf use this item.
+
+* 'KINEMATICS = trivkins' - Specify a kinematics module for the motion module.
+     Guis may use this variable to specify the loadrt line in hal files for
+     the motmod module.  For more information on kinematics modules see the
+     manpage: '$ man kins'
 
 [[sec:axis-section]](((INI File, AXIS Section)))
 
-=== [AXIS_<num>] Section
-
-The [AXIS_0], [AXIS_1], etc. sections contains general parameters for
-the individual components in the axis control module. The axis section
-names begin numbering at 0, and run through the number of axes
-specified in the [TRAJ] AXES entry minus 1.
-
-Typically (but not always):
-
-* AXIS_0 = X
-* AXIS_1 = Y
-* AXIS_2 = Z
-* AXIS_3 = A
-* AXIS_4 = B
-* AXIS_5 = C
-* AXIS_6 = U
-* AXIS_7 = V
-* AXIS_8 = W
-
-* 'TYPE = LINEAR' -
-    The type of axes, either LINEAR or ANGULAR.
-
-* 'WRAPPED_ROTARY = 1' - 
-     When this is set to 1 for an ANGULAR axis the axis will move 0-359.999
-    degrees. Positive Numbers will move the axis in a positive direction and
-    negative numbers will move the axis in the negative direction.
-
-* 'LOCKING_INDEXER = 1' - When this is set to 1 a G0 move for this axis will
-    initiate an unlock with axis.N.unlock pin then wait for the
-    axis.N.is-unlocked pin then move the axis at the rapid rate for that axis.
-    After the move the axis.N.unlock will be false and motion will wait for
-    axis.N.is-unlocked to go false. Moving with other axes is not allowed when
-    moving a locked rotary axis.
-
-* 'UNITS = INCH' -
-    (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.
-    (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR,
-    [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
-
+=== [AXIS_<letter>] Section
+The <letter> specifies one of: X Y Z A B C U V W
+   
 * 'MAX_VELOCITY = 1.2' -
     Maximum velocity for this axis in <<sec:traj-section,machine units>> per second.
 
@@ -895,27 +876,108 @@ Typically (but not always):
      Maximum acceleration for this axis in machine units per
     second squared.
 
+* 'MIN_LIMIT = -1000' -
+    (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
+    When this limit is exceeded, the controller aborts axis motion.
+
+* 'MAX_LIMIT = 1000' -
+    (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
+    When this limit is exceeded, the controller aborts axis motion.
+
+* 'WRAPPED_ROTARY = 1' - 
+    When this is set to 1 for an ANGULAR joint the joint will move 0-359.999
+    degrees. Positive Numbers will move the joint in a positive direction and
+    negative numbers will move the joint in the negative direction.
+
+* 'LOCKING_INDEXER_JOINT = 4' - This value selects a joint to use for
+    a locking indexer for the specified axis <letter>.  In this example, the
+    joint is 4 which would correspond to the B axis for a XYZAB system with
+    trivkins (identity) kinematics.
+    When set, a G0 move for this axis will initiate an unlock with the
+    joint.4.unlock pin then wait for the joint.4.is-unlocked pin then move
+    the joint at the rapid rate for that joint.  After the move the
+    joint.4.unlock will be false and motion will wait for joint.4.is-unlocked
+    to go false. Moving with other joints is not allowed when moving a
+    locked rotary joint.
+    To create the unlock pins, use the motmod parameter:
+
+      unlock_joints_mask=jointmask
+
+    The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ...
+
+    Example: loadrt motmod ... unlock_joints_mask=0x38
+    creates  unlock  pins for joints 3,4,5
+
+[[sec:joint-section]](((INI File, JOINT Section)))
+
+=== [JOINT_<num>] Section
+The <num> specifies the joint number 0 ... (num_joints-1)
+The value of 'num_joints' is set by [KINS]JOINTS=
+
+The [JOINT_0], [JOINT_1], etc. sections contains general parameters for
+the individual components in the joint control module. The joint section
+names begin numbering at 0, and run through the number of joints
+specified in the [KINS]JOINTS entry minus 1.
+
+Typically (for systems using 'trivkins kinematics', there is a 1:1
+correspondence between a joint and an axis):
+
+* JOINT_0 = X
+* JOINT_1 = Y
+* JOINT_2 = Z
+* JOINT_3 = A
+* JOINT_4 = B
+* JOINT_5 = C
+* JOINT_6 = U
+* JOINT_7 = V
+* JOINT_8 = W
+
+Other kinematics modules with identity kinematics are available to support
+configurations with partial sets of axes.  For example, using trivkins
+with coordinates=XZ, the joint-axes relationships are:
+
+* JOINT_0 = X
+* JOINT_1 = Z
+
+For more information on kinematics modules see the manpage: '$ man kins'
+
+* 'TYPE = LINEAR' -
+    The type of joint, either LINEAR or ANGULAR.
+
+* 'UNITS = INCH' -
+    (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.
+    (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this joint is LINEAR,
+    [TRAJ]ANGULAR_UNITS if the TYPE of this joint is ANGULAR)
+
+* 'MAX_VELOCITY = 1.2' -
+    Maximum velocity for this joint in <<sec:traj-section,machine units>> per second.
+
+* 'MAX_ACCELERATION = 20.0' -
+     Maximum acceleration for this joint in machine units per
+    second squared.
+
 * 'BACKLASH = 0.0000' -
     (((Backlash))) Backlash in machine units. Backlash compensation value
     can be used to make up for small deficiencies in the hardware used to
-    drive an axis. If backlash is added to an axis and you are using
+    drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
-    MAX_ACCELERATION for the axis.
+    MAX_ACCELERATION for the joint.
 
 * 'COMP_FILE = file.extension' -
-    (((Compensation))) A file holding compensation structure for the axis.
-    The file could be named xscrew.comp, for example, for the X axis. File
+    (((Compensation))) A file holding compensation structure for the joint.
+    The file could be named joint0screw.comp (or xscrew.comp for the X axis
+    for aa config with identity kinematics). File
     names are case sensitive and can contain letters and/or numbers. The
     values are triplets per line separated by a space. The first value is
     nominal (where it should be). The second and third values depend on the
     setting of COMP_FILE_TYPE. Currently the limit inside LinuxCNC is for 256
-    triplets per axis. If COMP_FILE is specified, BACKLASH is ignored.
+    triplets per joint. If COMP_FILE is specified, BACKLASH is ignored.
     Compensation file values are in machine units.
 
 * 'COMP_FILE_TYPE = 0 or 1' -
 ** 'If 0:' The second and third values specify
-    the forward position (where the axis is while traveling forward) and
-    the reverse position (where the axis is while traveling reverse),
+    the forward position (where the joint is while traveling forward) and
+    the reverse position (where the joint is while traveling reverse),
     positions which correspond to the nominal position.'
 ** 'If 1:' The second and third values specify
     the forward trim (how far from nominal while traveling forward) and
@@ -925,19 +987,17 @@ Typically (but not always):
     Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
     Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
 
-
-
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
     machine units. When this limit is reached, the controller aborts axis
     motion. The axis must be homed before MIN_LIMIT is in force. For a rotary
     axis with unlimited rotation having no MIN_LIMIT for that axis in the 
-    [AXIS_n] section then the value -1e99 is used.
+    [JOINT_n] section then the value -1e99 is used.
 
 * 'MAX_LIMIT = 1000' - (((MAX LIMIT))) The maximum limit for axis motion, in
     machine units. When this limit is reached, the controller aborts axis
     motion. The axis must be homed before MAX_LIMIT is in force. For a rotary
     axis with unlimited rotation having no MAX_LIMIT for that axis in the 
-    [AXIS_n] section then the value 1e99 is used.
+    [JOINT_n] section then the value 1e99 is used.
 
 * 'MIN_FERROR = 0.010' - (((MIN FERROR))) This is the value in machine units by
     which the axis is permitted to deviate from commanded position at very low
@@ -958,6 +1018,9 @@ Typically (but not always):
     errors for stationary axes from inadvertently aborting motion. Small
     following errors will always be present due to vibration, etc.
 
+* 'LOCKING_INDEXER = 1' -
+     Indicates the joint is used as a locking indexer.
+
 .Homing
 
 These parameters are Homing related, for a better explanation read the
@@ -968,7 +1031,7 @@ These parameters are Homing related, for a better explanation read the
     sequence.
 
 * 'HOME_OFFSET = 0.0' -
-     The axis position of the home switch or index pulse, in
+     The joint position of the home switch or index pulse, in
     <<sec:traj-section,machine units>>. When the home point is found during
     the homing process, this is the position that is assigned to that point.
     When sharing home and limit switches and using a home sequence that will
@@ -988,11 +1051,11 @@ These parameters are Homing related, for a better explanation read the
 
 * 'HOME_FINAL_VEL = 0.0' -
      Velocity in machine units per second from home latch position to home
-    position. If left at 0 or not included in the axis rapid velocity is
+    position. If left at 0 or not included in the joint rapid velocity is
     used. Must be a positive number.
 
 * 'HOME_USE_INDEX = NO' -
-     If the encoder used for this axis has an index pulse, and the motion
+     If the encoder used for this joint has an index pulse, and the motion
     card has provision for this signal you may set it to yes. When it is
     yes, it will affect the kind of home pattern used. Currently, you can't
     home to index with steppers unless you're using stepgen in velocity mode
@@ -1001,20 +1064,29 @@ These parameters are Homing related, for a better explanation read the
 * 'HOME_IGNORE_LIMITS = NO' -
      When you use the limit switch as a home switch and the limit switch
     this should be set to YES. When set to YES the limit switch for this
-    axis is ignored when homing. You must configure your homing
+    joint is ignored when homing. You must configure your homing
     so that at the end of your home move the home/limit switch is not in the
     toggled state you will get a limit switch error after the home move.
 
 * 'HOME_IS_SHARED = <n>' -
-     If the home input is shared by more than one axis set <n> to 1 to
+     If the home input is shared by more than one joint set <n> to 1 to
     prevent homing from starting if the one of the shared switches is
     already closed. Set <n> to 0 to permit homing if a switch is closed.
 
+* 'HOME_ABSOLUTE_ENCODER = 0 | 1 | 2' -
+     Used to indicate the joint uses an absolute encoder.  At a request
+    for homing, the current joint value is set to the 'HOME_OFFSET' value.
+    If the 'HOME_ABSOLUTE_ENCODER' setting is 1, the machine makes the usual
+    final move to the 'HOME' value.  
+    If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
+
 * 'HOME_SEQUENCE = <n>' -
      Used to define the "Home All" sequence. <n> starts at 0 and no numbers
-    may be skipped. If left out or set to -1 the joint will not be homed by
-    the "Home All" function. More than one axis can be homed at the same
-    time.
+    may be skipped. If left out the joint will not be homed by the
+    "Home All" function. More than one joint can be homed at the same
+    time by specifying the same sequence number for more than one joint.
+    A negative sequence number is used to defer the final move for
+    all joints having that (negative or positive) sequence number.
 
 * 'VOLATILE_HOME = 0' -
      When enabled (set to 1) this joint will be unhomed if the Machine
@@ -1024,7 +1096,7 @@ These parameters are Homing related, for a better explanation read the
 
 .Servo
 
-These parameters are relevant to axes controlled by servos.
+These parameters are relevant to joints controlled by servos.
 
 [WARNING]
 The following are custom INI file entries that you may find in a sample INI file
@@ -1071,7 +1143,7 @@ image::images/encoder-counts-math.png[align="center"]
     vertically. bias is turned off when the PID loop is disabled, just like
     all other components of the output.
 
-* 'P = 50' - The proportional gain for the axis servo. This value
+* 'P = 50' - The proportional gain for the joint servo. This value
     multiplies the
     error between commanded and actual position in machine units, resulting
     in a contribution to the computed voltage for the motor amplifier. The
@@ -1080,7 +1152,7 @@ image::images/encoder-counts-math.png[align="center"]
 
 //latexmath:[$\frac{volt}{mu}$]. 
 
-* 'I = 0' - The integral gain for the axis servo. The value
+* 'I = 0' - The integral gain for the joint servo. The value
     multiplies the
     cumulative error between commanded and actual position in machine
     units, resulting in a contribution to the computed voltage for the
@@ -1089,7 +1161,7 @@ image::images/encoder-counts-math.png[align="center"]
     
 //latexmath:[$\frac{volt}{mu\, s}$].
 
-* 'D = 0' - The derivative gain for the axis servo. The value
+* 'D = 0' - The derivative gain for the joint servo. The value
     multiplies the
     difference between the current and previous errors, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
@@ -1126,7 +1198,7 @@ image::images/encoder-counts-math.png[align="center"]
 * 'OUTPUT_SCALE = 1.000' - 
 
 * 'OUTPUT_OFFSET = 0.000' - These two values are the scale and offset factors for
-    the axis output to the motor amplifiers.
+    the joint output to the motor amplifiers.
     The second value (offset) is subtracted from
     the computed output (in volts), and divided by the first value (scale
     factor), before being written to the D/A converters. The units on the
@@ -1202,9 +1274,9 @@ See the following table for an example of voltage measurements.
 * 'ENCODER_SCALE = 20000' - in PNCconf built configs
 Specifies the number of pulses that
 corresponds to a move of one machine unit as set in the [TRAJ] section.
-For a linear axis one machine unit will be equal to
+For a linear joint one machine unit will be equal to
 the setting of LINEAR_UNITS.
-For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
+For an angular joint one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
 For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
@@ -1218,7 +1290,7 @@ image::images/encoder-scale.png[align="center"]
 
 .Stepper
 
-These parameters are relevant to axes controlled by steppers.
+These parameters are relevant to joints controlled by steppers.
 
 [WARNING]
 The following are custom INI file entries that you may find in a sample INI file
@@ -1234,9 +1306,9 @@ The following items might be used by a stepgen component.
 Specifies the number of pulses that corresponds to a
 move of one machine unit as set in the [TRAJ] section.
 For stepper systems, this is
-the number of step pulses issued per machine unit. For a linear axis
+the number of step pulses issued per machine unit. For a linear joint
 one machine unit will be equal to the setting of LINEAR_UNITS. For an
-angular axis one unit is equal to the setting in ANGULAR_UNITS. For
+angular joint one unit is equal to the setting in ANGULAR_UNITS. For
 servo systems, this is the number of feedback pulses per machine unit.
 A second number, if specified, is ignored.
 
@@ -1253,9 +1325,9 @@ image::images/stepper-scale.png[align="center"]
 * 'ENCODER_SCALE = 20000' (Optionally used in PNCconf built configs) -
 Specifies the number of pulses that
 corresponds to a move of one machine unit as set in the [TRAJ] section.
-For a linear axis one machine unit will be equal to
+For a linear joint one machine unit will be equal to
 the setting of LINEAR_UNITS.
-For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
+For an angular joint one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
 For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
@@ -1270,15 +1342,15 @@ image::images/encoder-scale.png[align="center"]
 
 * 'STEPGEN_MAXACCEL = 21.0' -  Acceleration limit for the step generator.
     This should be 1% to 10%
-    larger than the axis MAX_ACCELERATION. This value improves the tuning
+    larger than the joint MAX_ACCELERATION. This value improves the tuning
     of stepgen's "position loop". If you have added backlash compensation
-    to an axis then this should be 1.5 to 2 times greater than
+    to an joint then this should be 1.5 to 2 times greater than
     MAX_ACCELERATION.
 
 * 'STEPGEN_MAXVEL = 1.4' - Older configuration files have a velocity limit for
     the step
     generator as well. If specified, it should also be 1% to 10% larger
-    than the axis MAX_VELOCITY. Subsequent testing has shown that use of
+    than the joint MAX_VELOCITY. Subsequent testing has shown that use of
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
 

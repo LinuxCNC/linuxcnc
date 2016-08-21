@@ -2,9 +2,9 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load 6 differentiators (for velocity and accel signals
 loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
 # load additional blocks

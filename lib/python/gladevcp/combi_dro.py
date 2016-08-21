@@ -24,6 +24,7 @@ import sys
 import pango
 import math
 import linuxcnc
+from hal_glib import GStat
 
 # constants
 _INCH = 0
@@ -95,10 +96,11 @@ class Combi_DRO(gtk.VBox):
     def __init__(self, joint_number = 0):
         super(Combi_DRO, self).__init__()
 
-        # get the necesarry connextions to linuxcnc
+        # get the necessary connections to linuxcnc
         self.joint_number = joint_number
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
+        self.gstat = GStat()
 
         # set some default values'
         self._ORDER = ["Rel", "Abs", "DTG"]
@@ -164,6 +166,10 @@ class Combi_DRO(gtk.VBox):
         self.eventbox.connect("button_press_event", self._on_eventbox_clicked)
 
         self.show_all()
+
+        self.gstat.connect('not-all-homed', self._not_all_homed )
+        self.gstat.connect('all-homed', self._all_homed )
+        self.gstat.connect('homed', self._homed )
 
         # add the timer at a period of 100 ms
         gobject.timeout_add(100, self._periodic)
@@ -329,15 +335,19 @@ class Combi_DRO(gtk.VBox):
 
     # periodic call to update the positions, every 100 ms
     def _periodic(self):
+        self.status.poll()
+
+        if self.status.kinematics_type != linuxcnc.KINEMATICS_IDENTITY and not self.homed:
+            self.main_dro.set_text("----.---")
+            self.dro_left.set_text("----.---")
+            self.dro_right.set_text("----.---")
+            return True
+
         try:
-            self.status.poll()
             main, left, right = self._position()
             if self.system != self._get_current_system():
                 self._set_labels()
                 self.emit("system_changed", self._get_current_system())
-            if self.homed != self.status.homed[self.joint_number]:
-                self.homed = self.status.homed[self.joint_number]
-                self._set_labels()
             if (self._get_current_units() == 20 and self.metric_units) or (self._get_current_units() == 21 and not self.metric_units):
                 if self._auto_units:
                     self.metric_units = not self.metric_units
@@ -406,6 +416,29 @@ class Combi_DRO(gtk.VBox):
             return dtg, rel_pos, abs_pos
         if self._ORDER == ["Abs", "DTG", "Rel"]:
             return abs_pos, dtg, rel_pos
+
+    def _not_all_homed(self, widget, data = None):
+        if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+            self.status.poll()
+            self.homed = self.status.homed[self.joint_number]
+        else:
+            self.homed = False
+        self._set_labels()
+
+    def _all_homed(self, widget, data = None):
+        if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+            return
+        if not self.homed:
+            self.homed = True
+            self._set_labels()
+
+    def _homed(self, widget, data = None):
+        if self.status.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            return
+        else:
+            self.status.poll()
+            self.homed = self.status.homed[self.joint_number]
+            self._set_labels()
 
     # sets the DRO explicity to inch or mm
     # attentions auto_units takes also effekt on that!

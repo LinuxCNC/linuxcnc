@@ -228,7 +228,7 @@
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="d1">
-                            <property name="title">DIameter</property>
+                            <property name="title">Diameter</property>
                             <property name="clickable">True</property>
                             <property name="reorderable">True</property>
                             <property name="sort_indicator">True</property>

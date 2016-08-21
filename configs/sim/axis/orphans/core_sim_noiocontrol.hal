@@ -2,9 +2,9 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load 6 differentiators (for velocity and accel signals
 loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
 # load additional blocks
@@ -25,9 +25,9 @@ addf vel_xyz servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt_x.in
-net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt_y.in
-net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt_z.in
+net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt_x.in
+net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt_y.in
+net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt_z.in
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals

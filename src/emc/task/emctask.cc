@@ -33,6 +33,7 @@
 #include "task.hh"		// emcTaskCommand etc
 #include "python_plugin.hh"
 #include "taskclass.hh"
+#include "motion.h"
 
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
@@ -178,8 +179,10 @@ int emcTaskAbort()
     emcMotionAbort();
 
     // clear out the pending command
-    emcTaskCommand = 0;
-    interp_list.clear();
+    if (!drain_interp_list) {
+        emcTaskCommand = 0;
+        interp_list.clear();
+    }
 
     // clear out the interpreter state
     emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
@@ -218,7 +221,11 @@ int emcTaskSetMode(int mode)
     switch (mode) {
     case EMC_TASK_MODE_MANUAL:
 	// go to manual mode
-	emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+        if (all_homed()) {
+            emcTrajSetMode(EMC_TRAJ_MODE_TELEOP);
+        } else {
+            emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+        }
 	mdiOrAuto = EMC_TASK_MODE_AUTO;	// we'll default back to here
 	break;
 
@@ -256,15 +263,15 @@ int emcTaskSetState(int state)
         emcMotionAbort();
 	// turn the machine servos off-- go into READY state
         emcSpindleAbort();
-	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisDisable(t);
+	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
+	    emcJointDisable(t);
 	}
 	emcTrajDisable();
 	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
 	emcLubeOff();
 	emcTaskAbort();
         emcSpindleAbort();
-        emcAxisUnhome(-2); // only those joints which are volatile_home
+        emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_OFF);
 	emcTaskPlanSynch();
 	break;
@@ -272,8 +279,8 @@ int emcTaskSetState(int state)
     case EMC_TASK_STATE_ON:
 	// turn the machine servos on
 	emcTrajEnable();
-	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisEnable(t);
+	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
+	    emcJointEnable(t);
 	}
 	emcLubeOn();
 	break;
@@ -294,15 +301,15 @@ int emcTaskSetState(int state)
         emcSpindleAbort();
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
-	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisDisable(t);
+	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
+	    emcJointDisable(t);
 	}
 	emcTrajDisable();
 	emcLubeOff();
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
         emcSpindleAbort();
-        emcAxisUnhome(-2); // only those joints which are volatile_home
+        emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP);
 	emcTaskPlanSynch();
 	break;
@@ -324,20 +331,22 @@ int emcTaskSetState(int state)
 
   Depends on traj mode, and mdiOrAuto flag
 
-  traj mode   mdiOrAuto     mode
-  ---------   ---------     ----
+  traj mode   mdiOrAuto     task mode
+  ---------   ---------     ---------
   FREE        XXX           MANUAL
+  TELEOP      XXX           MANUAL
   COORD       MDI           MDI
   COORD       AUTO          AUTO
   */
 static int determineMode()
 {
-    // if traj is in free mode, then we're in manual mode
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE ||
-	emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
-	return EMC_TASK_MODE_MANUAL;
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE) {
+        return EMC_TASK_MODE_MANUAL;
     }
-    // else traj is in coord mode-- we can be in either mdi or auto
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
+        return EMC_TASK_MODE_MANUAL;
+    }
+    // for EMC_TRAJ_MODE_COORD
     return mdiOrAuto;
 }
 
@@ -442,6 +451,10 @@ int emcTaskPlanInit()
 	    }
 	}
     }
+
+    // Let the Interp init and .ini startup code finish before talking
+    // with the user interfaces.
+    drain_interp_list = 1;
 
     if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanInit() returned %d\n", retval);
@@ -695,7 +708,10 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
 int emcAbortCleanup(int reason, const char *message)
 {
+    emcTaskPlanSynch();
+
     int status = interp.on_abort(reason,message);
+    drain_interp_list = 1;
     if (status > INTERP_MIN_ERROR)
 	print_interp_error(status);
     return status;

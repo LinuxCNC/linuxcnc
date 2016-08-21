@@ -1,16 +1,18 @@
 #!/usr/bin/tclsh
 
 # This [APPLICATIONS]APP script is used with the library
-# halfile: LIB:xhc-hb04.tcl to connect ini hal pins:
-# ini.N.max_acceleration.  These ini hal pins are not
+# halfile: LIB:xhc-hb04.tcl to connect ini hal pins that control
+# joint/axis max acceleration. These ini hal pins are not
 # available until task is started.
 
 # This script waits for the creation of ini hal pins (based
 # on testpin)  and then connects signals named:
-#     pendant:muxed-accel-N
-#  to ini.N.max_acceleration
+#     pendant:muxed-accel-L
+#  to ini.L.max_acceleration   (L == coord letter)
+#  to ini.N.max_acceleration   (N == joint number, identity kins reqd)
 
 package require Hal
+source [file join $::env(HALLIB_DIR) util_lib.tcl]
 
 set testpin ini.traj_default_acceleration ;# should always get created
 set max_wait_ms 10000 ;# 10 seconds
@@ -36,8 +38,12 @@ if ![info exists ok] {
   puts "\n$::argv0:$msg\n"
   exit 1
 }
-foreach axno {0 1 2 3 4 5 6 7 8} {
-  if ![catch {hal gets pendant:muxed-accel-$axno} msg] {
-    hal net pendant:muxed-accel-$axno ini.$axno.max_acceleration
+
+foreach coord {x y z a b c u v w} {
+  if ![catch {
+    set jnum [joint_number_for_axis $coord]
+    hal gets pendant:muxed-accel-$coord} msg] {
+    hal net pendant:muxed-accel-$coord ini.$coord.max_acceleration
+    hal net pendant:muxed-accel-$coord ini.$jnum.max_acceleration
   }
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import hal,time,os,sys
 import traceback
 from configobj import ConfigObj

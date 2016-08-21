@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # This script returns 0 when run on a platform supported by the current
 # branch of LinuxCNC, and 1 when run on an unsupported platform.  It is
 # intended to guide build automation on whether or not to try to build.
 #
-# Copyright: 2014
+# Copyright: 2014, 2016
 # Author:    Sebastian Kuzminsky <seb@highlab.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,14 +21,21 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import os
 import sys
 import subprocess
 import re
 
+if sys.hexversion < 0x2070000:
+    raise SystemExit, "System Python is too old"
 
 supported_oses = [ 'linux' ]
 supported_cpus = [ 'amd64', 'i386', 'arm' ]
 supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
+
+
+def detect_os():
+    return os.uname()[0].lower()
 
 
 def detect_kernel_flavor(uname):
@@ -54,21 +61,23 @@ def detect_kernel_flavor(uname):
         return 'vanilla'
 
 
-# use subprocess.Popen() in this funny way, instead of
-# subprocess.check_output(), because check_output() is not in Hardy's
-# Python 2.5
+os = detect_os()
 
-os = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH_OS'], stdout=subprocess.PIPE).communicate()[0][:-1]
-cpu = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU'], stdout=subprocess.PIPE).communicate()[0][:-1]
-distributor = subprocess.Popen(['lsb_release', '--id', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
+if os == 'linux':
+    cpu = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU']).strip()
+    distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip()
+    release = subprocess.check_output(['lsb_release', '--release', '--short']).strip()
+    major, minor = re.split('\.', release)
+    release_major = int(major)
+    release_minor = int(minor)
 
-release = subprocess.Popen(['lsb_release', '--release', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
-major, minor = re.split('\.', release)
-release_major = int(major)
-release_minor = int(minor)
+    uname = subprocess.check_output(['uname', '-r']).strip()
+    kernel_flavor = detect_kernel_flavor(uname)
 
-uname = subprocess.Popen(['uname', '-r'], stdout=subprocess.PIPE).communicate()[0][:-1]
-kernel_flavor = detect_kernel_flavor(uname)
+else:
+    print "unknown OS:", os
+    sys.exit(1)
+
 
 print "os =", os
 print "cpu =", cpu

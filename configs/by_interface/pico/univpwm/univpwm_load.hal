@@ -2,14 +2,17 @@
 # when emc2 starts it loads iocontrol
 
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # next load the PID module, for four PID loops
 loadrt pid num_chan=4
 
 # install Universal PWM Controller driver
+# if the PWM controller is not connected to the standard parallel port
+# at address 0x378, add port_addr="0x1234" to the following line, separated
+# by a space
 loadrt hal_ppmc
 
 # make some signals for the scope for tuning.

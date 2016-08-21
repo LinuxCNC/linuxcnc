@@ -1,0 +1,135 @@
+
+#
+# First come "immediate" Motion commands sent from emctask_startup().
+#
+
+SET_NUM_JOINTS 3
+SET_VEL vel=0.000000, ini_maxvel=1.200000
+SET_VEL_LIMIT vel=4.000000
+SET_ACC acc=999999999999999967336168804116691273849533185806555472917961779471295845921727862608739868455469056.000000
+SETUP_ARC_BLENDS
+SET_MAX_FEED_OVERRIDE 1.000000
+SETUP_SET_PROBE_ERR_INHIBIT 0 0
+SET_WORLD_HOME x=0.000000, y=0.000000, z=0.000000, a=0.000000, b=0.000000, c=0.000000, u=0.000000, v=0.000000, w=0.000000
+SET_JOINT_BACKLASH joint=0, backlash=0.000000
+SET_JOINT_POSITION_LIMITS joint=0, min=-40.000000, max=0.000000
+SET_JOINT_POSITION_LIMITS joint=0, min=-40.000000, max=40.000000
+SET_JOINT_MAX_FERROR joint=0, maxFerror=0.050000
+SET_JOINT_MIN_FERROR joint=0, minFerror=0.010000
+SET_JOINT_HOMING_PARAMS joint=0, offset=0.000000 home=0.000000, final_vel=-1.000000, search_vel=0.000000, latch_vel=0.000000, flags=0x00000000, sequence=-1, volatile=0
+SET_JOINT_VEL_LIMIT joint=0, vel=4.000000
+SET_JOINT_ACC_LIMIT joint=0, acc=1000.000000
+JOINT_ACTIVATE joint=0
+SET_JOINT_BACKLASH joint=1, backlash=0.000000
+SET_JOINT_POSITION_LIMITS joint=1, min=-40.000000, max=0.000000
+SET_JOINT_POSITION_LIMITS joint=1, min=-40.000000, max=40.000000
+SET_JOINT_MAX_FERROR joint=1, maxFerror=0.050000
+SET_JOINT_MIN_FERROR joint=1, minFerror=0.010000
+SET_JOINT_HOMING_PARAMS joint=1, offset=0.000000 home=0.000000, final_vel=-1.000000, search_vel=0.000000, latch_vel=0.000000, flags=0x00000000, sequence=-1, volatile=0
+SET_JOINT_VEL_LIMIT joint=1, vel=4.000000
+SET_JOINT_ACC_LIMIT joint=1, acc=1000.000000
+JOINT_ACTIVATE joint=1
+SET_JOINT_BACKLASH joint=2, backlash=0.000000
+SET_JOINT_POSITION_LIMITS joint=2, min=-4.000000, max=0.000000
+SET_JOINT_POSITION_LIMITS joint=2, min=-4.000000, max=4.000000
+SET_JOINT_MAX_FERROR joint=2, maxFerror=0.050000
+SET_JOINT_MIN_FERROR joint=2, minFerror=0.010000
+SET_JOINT_HOMING_PARAMS joint=2, offset=0.000000 home=0.000000, final_vel=-1.000000, search_vel=0.000000, latch_vel=0.000000, flags=0x00000000, sequence=-1, volatile=0
+SET_JOINT_VEL_LIMIT joint=2, vel=4.000000
+SET_JOINT_ACC_LIMIT joint=2, acc=1000.000000
+JOINT_ACTIVATE joint=2
+SET_AXIS_POSITION_LIMITS axis=0, min=-40.000000, max=0.000000
+#
+# Everything above this line was sent from emctask_startup().
+# That function also enqueued some Canon commands on interp_list, that will
+# generate Motion commands later.
+#
+
+#
+# Next Task enters Estop, by calling emcTaskSetState(EMC_TASK_STATE_ESTOP).
+# This does the following:
+#     * Abort Motion, which aborts each Axis, then Aborts Motion
+#     * Stop the spindle
+#     * Send Estop to IO (which we don't detect in motion-logger)
+#     * Disable all the amps
+#     * Disable Motion
+#     * Send Lube Off to IO (which we don't detect)
+#     * Abort Motion again, which aborts each Axis, and Motion, again
+#     * Abort IO, which we miss
+#     * Unhome VOLATILE_HOME joints
+#
+SET_AXIS_POSITION_LIMITS axis=0, min=-40.000000, max=40.000000
+SET_AXIS_VEL_LIMIT axis=0 vel=4.000000
+SET_AXIS_ACC_LIMIT axis=0, acc=1000.000000
+SET_AXIS_LOCKING_JOINT axis=0, locking_joint=-1
+SET_AXIS_POSITION_LIMITS axis=1, min=-40.000000, max=0.000000
+SET_AXIS_POSITION_LIMITS axis=1, min=-40.000000, max=40.000000
+SET_AXIS_VEL_LIMIT axis=1 vel=4.000000
+SET_AXIS_ACC_LIMIT axis=1, acc=1000.000000
+SET_AXIS_LOCKING_JOINT axis=1, locking_joint=-1
+SET_AXIS_POSITION_LIMITS axis=2, min=-4.000000, max=0.000000
+SET_AXIS_POSITION_LIMITS axis=2, min=-4.000000, max=4.000000
+SET_AXIS_VEL_LIMIT axis=2 vel=4.000000
+SET_AXIS_ACC_LIMIT axis=2, acc=1000.000000
+SET_AXIS_LOCKING_JOINT axis=2, locking_joint=-1
+
+JOINT_ABORT joint=0
+JOINT_ABORT joint=1
+JOINT_ABORT joint=2
+JOINT_ABORT joint=3
+JOINT_ABORT joint=4
+JOINT_ABORT joint=5
+JOINT_ABORT joint=6
+JOINT_ABORT joint=7
+JOINT_ABORT joint=8
+ABORT
+SPINDLE_OFF
+DISABLE_AMPLIFIER
+DISABLE_AMPLIFIER
+DISABLE_AMPLIFIER
+DISABLE
+JOINT_UNHOME joint=-2
+
+#
+# Here's emcTaskSetMode(EMC_TASK_MODE_MANUAL)
+#
+
+FREE
+
+#
+# Now Task is done with its internal immediate startup and starts
+# draining the interp_list.
+#
+# emctask_start() called emcTaskPlanInit(), which initialized the
+# Interpreter, enqueueing Canon commands on interp_list.
+#
+
+SET_TERM_COND termCond=2, tolerance=0.000000
+
+# These are the [RS274NGC]RS274NGC_STARTUP_CODE
+SET_LINE x=-1.000000, y=-2.000000, z=-3.000000, a=0.000000, b=0.000000, c=0.000000, u=0.000000, v=0.000000, w=0.000000, id=2, motion_type=1, vel=4.988877, ini_maxvel=4.988877, acc=1247.219129, turn=-1
+SET_LINE x=1.000000, y=2.000000, z=3.000000, a=0.000000, b=0.000000, c=0.000000, u=0.000000, v=0.000000, w=0.000000, id=4, motion_type=1, vel=4.988877, ini_maxvel=4.988877, acc=1247.219129, turn=-1
+
+#
+# Task has fully booted!  It's now in Estop, in Manual, and ready to
+# receive commands from the UIs.
+#
+
+#
+# The test UI immediately sent an Abort.
+#
+
+JOINT_ABORT joint=0
+JOINT_ABORT joint=1
+JOINT_ABORT joint=2
+JOINT_ABORT joint=3
+JOINT_ABORT joint=4
+JOINT_ABORT joint=5
+JOINT_ABORT joint=6
+JOINT_ABORT joint=7
+JOINT_ABORT joint=8
+ABORT
+SPINDLE_OFF
+SET_SPINDLESYNC sync=0.000000, flags=0x00000000
+SPINDLE_OFF
+DISABLE

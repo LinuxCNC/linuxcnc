@@ -382,7 +382,8 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
 		    settings->call_state = CS_REEXEC_EPILOG;
-		    break;
+		    eblock->call_type = CT_REMAP;
+		    CHP(status);
 		default:
 		    settings->call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
@@ -536,7 +537,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
             settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename
         }
     } else {
-	char *dirname = get_current_dir_name();
+	char *dirname = getcwd(NULL, 0);
 	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
 		 dirname);
 	free(dirname);

@@ -7,7 +7,7 @@ This component creates simulated home and limit switches based on the current po
 It currently can supply simulation for X,Y,Z,U,V and A axes.
 
 """;
-pin in float Xcurrent_pos "The current position on the axis - eg connect to axis.0.joint-pos-fb";
+pin in float Xcurrent_pos "The current position on the axis - eg connect to joint.0.motor-pos-fb";
 pin in float Ycurrent_pos;
 pin in float Zcurrent_pos;
 pin in float Acurrent_pos;
@@ -123,8 +123,6 @@ license "GPL";
 author "Chris Morley";
 ;;
 
-FUNCTION(update) {
-
     /* private comparator function */
     int comp(double in0, double in1, double hyst) {
         double tmp;
@@ -145,6 +143,9 @@ FUNCTION(update) {
     int wcomp (double in, double max_, double min_){
         return !((in >= max_)|| (in <= min_));
     }
+
+
+FUNCTION(update) {
 
 /*set home switches */
 Xhomesw_out = comp(Xhomesw_pos,Xcurrent_pos,Xhomesw_hyst);

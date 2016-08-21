@@ -60,7 +60,7 @@ class Private_Data:
         self.prepare_block = False
         self._AXIS = 1
         self._TKLINUXCNC = 2
-        self._MINI = 3
+        self._NOTUSED = 3
         self._TOUCHY = 4
         self._SSCOMBOLEN = 60
         self._IMPERIAL = 0

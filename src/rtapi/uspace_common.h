@@ -19,6 +19,9 @@
 #include <sys/utsname.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
@@ -27,6 +30,8 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 #include <sys/shm.h>		/* shmget() */
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
+
+#include "config.h"
 
 typedef struct {
   int magic;			/* to check for valid handle */
@@ -73,13 +78,27 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   int res = shmctl(shmem->id, IPC_STAT, &stat);
   if(res < 0) perror("shmctl IPC_STAT");
 
+  /* ensure the segment is owned by user, not root */
   if(geteuid() == 0 && getuid() != 0) {
     stat.shm_perm.uid = getuid();
+    res = shmctl(shmem->id, IPC_SET, &stat);
+    if(res < 0) perror("shmctl IPC_SET");
   }
 
-  stat.shm_perm.mode |= SHM_LOCKED;
-  res = shmctl(shmem->id, IPC_SET, &stat);
-  if(res < 0) perror("shmctl IPC_SET");
+#ifdef RTAPI
+  if(rtapi_is_realtime())
+  {
+    /* ensure the segment is locked */
+    res = shmctl(shmem->id, SHM_LOCK, NULL);
+    if(res < 0) perror("shmctl IPC_LOCK");
+
+    res = shmctl(shmem->id, IPC_STAT, &stat);
+    if(res < 0) perror("shmctl IPC_STAT");
+    if((stat.shm_perm.mode & SHM_LOCKED) != SHM_LOCKED)
+      rtapi_print_msg(RTAPI_MSG_ERR,
+          "shared memory segment not locked as requested\n");
+  }
+#endif
 
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
@@ -149,8 +168,13 @@ int rtapi_shmem_delete(int handle, int module_id)
 
   /* destroy the shared memory */
   r2 = shmctl(shmem->id, IPC_STAT, &d);
+  if (r2 != 0)
+      rtapi_print_msg(RTAPI_MSG_ERR, "shmctl(%d, IPC_STAT, ...): %s\n", shmem->id, strerror(errno));
+
   if(r2 == 0 && d.shm_nattch == 0) {
       r2 = shmctl(shmem->id, IPC_RMID, &d);
+      if (r2 != 0)
+	      rtapi_print_msg(RTAPI_MSG_ERR, "shmctl(%d, IPC_RMID, ...): %s\n", shmem->id, strerror(errno));
   }
 
   /* free the shmem structure */
@@ -164,12 +188,8 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 
 
-void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    if(level == RTAPI_MSG_ALL)
-	vfprintf(stdout, fmt, ap);
-    else
-	vfprintf(stderr, fmt, ap);
-}
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
+
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
 rtapi_msg_handler_t rtapi_get_msg_handler(void) {
@@ -226,12 +246,6 @@ int rtapi_set_msg_level(int level) {
 
 int rtapi_get_msg_level() {
     return msg_level;
-}
-
-long long rtapi_get_time(void) {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
 #if defined(__i386) || defined(__amd64)
@@ -299,7 +313,7 @@ int rtapi_exit(int module_id)
 
 int rtapi_is_kernelspace() { return 0; }
 static int _rtapi_is_realtime = -1;
-static int detect_realtime() {
+static int detect_preempt_rt() {
     struct utsname u;
     int crit1, crit2 = 0;
     FILE *fd;
@@ -312,7 +326,37 @@ static int detect_realtime() {
         crit2 = ((fscanf(fd, "%d", &flag) == 1) && (flag == 1));
         fclose(fd);
     }
+
     return crit1 && crit2;
+}
+#ifdef USPACE_RTAI
+static int detect_rtai() {
+    struct utsname u;
+    uname(&u);
+    return strcasestr (u.release, "-rtai") != 0;
+}
+#else
+static int detect_rtai() {
+    return 0;
+}
+#endif
+#ifdef USPACE_XENOMAI
+static int detect_xenomai() {
+    struct utsname u;
+    uname(&u);
+    return strcasestr (u.release, "-xenomai") != 0;
+}
+#else
+static int detect_xenomai() {
+    return 0;
+}
+#endif
+static int detect_realtime() {
+    struct stat st;
+    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
+            || st.st_uid != 0 || !(st.st_mode & S_ISUID))
+        return 0;
+    return detect_preempt_rt() || detect_rtai() || detect_xenomai();
 }
 
 int rtapi_is_realtime() {
@@ -320,9 +364,44 @@ int rtapi_is_realtime() {
     return _rtapi_is_realtime;
 }
 
-void rtapi_delay(long ns) {
-    struct timespec ts = {0, ns};
-    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+/* Like clock_nanosleep, except that an optional 'estimate of now' parameter may
+ * optionally be passed in.  This is a very slight optimization for platforms
+ * where rtapi_clock_nanosleep is implemented in terms of nanosleep, because it
+ * can avoid an additional clock_gettime syscall.
+ */
+static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
+        const struct timespec *prequest, struct timespec *remain,
+        const struct timespec *pnow)
+{
+#if defined(HAVE_CLOCK_NANOSLEEP)
+    return clock_nanosleep(clock_id, flags, prequest, remain);
+#else
+    if(flags == 0)
+        return nanosleep(prequest, remain);
+    if(flags != TIMER_ABSTIME)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+    struct timespec now;
+    if(!pnow)
+    {
+        int res = clock_gettime(clock_id, &now);
+        if(res < 0) return res;
+        pnow = &now;
+    }
+#undef timespecsub
+#define	timespecsub(tvp, uvp, vvp)					\
+	do {								\
+		(vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;		\
+		(vvp)->tv_nsec = (tvp)->tv_nsec - (uvp)->tv_nsec;	\
+		if ((vvp)->tv_nsec < 0) {				\
+			(vvp)->tv_sec--;				\
+			(vvp)->tv_nsec += 1000000000;			\
+		}							\
+	} while (0)
+    struct timespec request;
+    timespecsub(prequest, pnow, &request);
+    return nanosleep(&request, remain);
+#endif
 }
-
-long int rtapi_delay_max() { return 10000; }

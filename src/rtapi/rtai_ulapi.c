@@ -853,3 +853,11 @@ unsigned char rtapi_inb(unsigned int port)
 
 int rtapi_is_realtime() { return 1; }
 int rtapi_is_kernelspace() { return 1; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    struct timespec ts = {0, ns};
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+}
+
+long int rtapi_delay_max() { return 999999999; }

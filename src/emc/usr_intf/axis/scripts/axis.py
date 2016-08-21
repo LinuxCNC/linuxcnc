@@ -126,11 +126,22 @@ rs274.options.install(root_window)
 root_window.tk.call("set", "version", linuxcnc.version)
 
 try:
+    root_window.tk.call("set","::MAX_JOINTS"         ,linuxcnc.MAX_JOINTS)
+    root_window.tk.call("set","::MAX_AXIS"           ,linuxcnc.MAX_AXIS)
+    root_window.tk.call("set","::STATE_ESTOP"        ,linuxcnc.STATE_ESTOP)
+    root_window.tk.call("set","::STATE_ESTOP_RESET"  ,linuxcnc.STATE_ESTOP_RESET)
+    root_window.tk.call("set","::STATE_OFF"          ,linuxcnc.STATE_OFF)
+    root_window.tk.call("set","::STATE_ON"           ,linuxcnc.STATE_ON)
+    root_window.tk.call("set","::INTERP_IDLE"        ,linuxcnc.INTERP_IDLE)
+    root_window.tk.call("set","::INTERP_READING"     ,linuxcnc.INTERP_READING)
+    root_window.tk.call("set","::INTERP_PAUSED"      ,linuxcnc.INTERP_PAUSED)
+    root_window.tk.call("set","::INTERP_WAITING"     ,linuxcnc.INTERP_WAITING)
+    root_window.tk.call("set","::TRAJ_MODE_FREE"     ,linuxcnc.TRAJ_MODE_FREE)
+    root_window.tk.call("set","::KINEMATICS_IDENTITY",linuxcnc.KINEMATICS_IDENTITY)
     nf.source_lib_tcl(root_window,"axis.tcl")
 except TclError:
     print root_window.tk.call("set", "errorInfo")
     raise
-
 
 def General_Halt():
     text = "Do you really want to close linuxcnc?"
@@ -161,29 +172,29 @@ help1 = [
     ("F1", _("Emergency stop")),
     ("F2", _("Turn machine on")),
     ("", ""),
-    ("X, `", _("Activate first axis")),
-    ("Y, 1", _("Activate second axis")),
-    ("Z, 2", _("Activate third axis")),
-    ("A, 3", _("Activate fourth axis")),
-    ("4..8", _("Activate fifth through ninth axis")),
-    ("`, 1..9, 0", _("Set Feed Override from 0% to 100%")),
+    ("X", _("Activate first axis")),
+    ("Y", _("Activate second axis")),
+    ("Z", _("Activate third axis")),
+    ("A", _("Activate fourth axis")),
+    ("`,1..8", _("Activate first through ninth joint")),
+    ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
     (_(", and ."), _("Select jog speed")),
     (_("< and >"), _("Select angular jog speed")),
     (_("I, Shift-I"), _("Select jog increment")),
     ("C", _("Continuous jog")),
-    (_("Home"), _("Send active axis home")),
-    (_("Ctrl-Home"), _("Home all axes")),
+    (_("Home"), _("Send active joint home")),
+    (_("Ctrl-Home"), _("Home all joints")),
     (_("Shift-Home"), _("Zero G54 offset for active axis")),
     (_("End"), _("Set G54 offset for active axis")),
     (_("Ctrl-End"), _("Set tool offset for loaded tool")),
-    ("-, =", _("Jog active axis")),
+    ("-, =", _("Jog active axis or joint")),
 
     ("", ""),
-    (_("Left, Right"), _("Jog first axis")),
-    (_("Up, Down"), _("Jog second axis")),
-    (_("Pg Up, Pg Dn"), _("Jog third axis")),
+    (_("Left, Right"), _("Jog first axis or joint")),
+    (_("Up, Down"), _("Jog second axis or joint")),
+    (_("Pg Up, Pg Dn"), _("Jog third axis or joint")),
     (_("Shift+above jogs"), _("Jog at traverse speed")),
-    ("[, ]", _("Jog fourth axis")),
+    ("[, ]", _("Jog fourth axis or joint")),
 
     ("", ""),
     ("D", _("Toggle between Drag and Rotate mode")),
@@ -221,13 +232,13 @@ help2 = [
     ("F10", _("Turn spindle counterclockwise")),
     ("F11", _("Turn spindle more slowly")),
     ("F12", _("Turn spindle more quickly")),
-    ("", ""),
     (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
     ("F4", _("Cycle among preview, DRO, and user tabs")),
     ("@", _("toggle Actual/Commanded")),
     ("#", _("toggle Relative/Machine")),
     (_("Ctrl-Space"), _("Clear notifications")),
+    (_("Alt-F, M, V"), _("Open a Menu")),
 ]
 
 
@@ -245,7 +256,14 @@ def install_help(app):
     Label(keys, text="    ").grid(row=0, column=2)
 
 def joints_mode():
-    return s.motion_mode == linuxcnc.TRAJ_MODE_FREE and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
+    return s.motion_mode == linuxcnc.TRAJ_MODE_FREE
+
+def set_motion_teleop(value):
+    # 1:teleop, 0: joint
+    vars.teleop_mode.set(value)
+    c.teleop_enable(value)
+    c.wait_complete()
+    s.poll()
 
 def parse_color(c):
     if c == "": return (1,0,0)
@@ -278,6 +296,12 @@ def from_internal_linear_unit(v, unit=None):
         unit = s.linear_units
     lu = (unit or 1) * 25.4
     return v*lu
+
+def masked_axes_count():
+    ct = 0
+    for i in range(linuxcnc.MAX_JOINTS):
+        if s.axis_mask & (1<<i): ct +=1
+    return ct
 
 class Notification(Tkinter.Frame):
     def __init__(self, master):
@@ -337,7 +361,7 @@ class Notification(Tkinter.Frame):
 
 def soft_limits():
     def fudge(x):
-        if abs(x) > 1e30: return 0
+        if abs(x) > 1e99: return 0
         return x
 
     ax = s.axis
@@ -364,11 +388,13 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.last_origin = None
         self.last_rotation_xy = None
         self.last_tool = None
+        self.last_tool_offset = None
         self.last_limits = None
         self.set_eyepoint(5.)
         self.get_resources()
         self.realize()
-
+        self.init_glcanondraw(trajcoordinates=trajcoordinates,
+                              kinstype=kinstype)
     def getRotateMode(self):
         return vars.rotate_mode.get()
 
@@ -551,6 +577,7 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def redraw_dro(self):
         self.stat.poll()
+
         limit, homed, posstrs, droposstrs = self.posstrs()
 
         text = widgets.numbers_text
@@ -567,18 +594,6 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
-        i = 0
-        for ts in t:
-            if i < len(homed) and homed[i]:
-                t[i] += "*"
-            else:
-                t[i] += " "
-            if i < len(homed) and limit[i]:
-                t[i] += "!" # !!!1!
-            else:
-                t[i] += " "
-            i+=1
-            
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
@@ -672,7 +687,8 @@ class LivePlotter:
             self.stat = linuxcnc.stat()
         except linuxcnc.error:
             return False
-        self.current_task_mode = self.stat.task_mode
+        self.last_task_mode = self.stat.task_mode
+        self.last_motion_mode  = self.stat.motion_mode
         def C(s):
             a = o.colors[s + "_alpha"]
             s = o.colors[s]
@@ -727,15 +743,31 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
-        if (self.stat.task_mode != self.current_task_mode):
-            self.current_task_mode = self.stat.task_mode
-            if (self.current_task_mode == linuxcnc.MODE_MANUAL):
+
+        if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
+            and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
+            ):
+            set_motion_teleop(1)
+        if      ( (self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+            and   not vars.teleop_mode.get() ):
+            vars.teleop_mode.set(1)
+
+        # With joints_axes support and jogging while mdi
+        #  (ref: emctaskmain.cc:allow_while_idle_type())
+        # behavior is better without changing tabs upon detecting
+        # a task_mode change.
+        # Restore behavior with this local var: enable_tab_change
+        enable_tab_change = False
+        if (     enable_tab_change
+            and (self.stat.task_mode != self.last_task_mode)):
+            if (self.stat.task_mode == linuxcnc.MODE_MANUAL):
                 root_window.tk.eval(pane_top + ".tabs raise manual")
-            if (self.current_task_mode == linuxcnc.MODE_MDI):
+            if (self.stat.task_mode == linuxcnc.MODE_MDI):
                 root_window.tk.eval(pane_top + ".tabs raise mdi")
-            if (self.current_task_mode == linuxcnc.MODE_AUTO):
+            if (self.stat.task_mode == linuxcnc.MODE_AUTO):
                 # not sure if anything needs to be done for this
                 pass
+        self.last_task_mode = self.stat.task_mode
 
         self.after = self.win.after(update_ms, self.update)
 
@@ -745,6 +777,9 @@ class LivePlotter:
 
         limits = soft_limits()
 
+        if (   self.stat.tool_offset   != o.last_tool_offset
+            or self.stat.tool_table[0] != o.last_tool):
+            o.redraw_dro()
         if (self.logger.npts != self.lastpts
                 or limits != o.last_limits
                 or self.stat.actual_position != o.last_position
@@ -755,8 +790,9 @@ class LivePlotter:
                 or self.stat.g5x_index != o.last_g5x_index
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
+                or self.stat.tool_offset != o.last_tool_offset
                 or self.stat.tool_table[0] != o.last_tool
-                or self.stat.motion_mode != o.last_motion_mode
+                or self.stat.motion_mode != self.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
             o.last_limits = limits
@@ -767,8 +803,9 @@ class LivePlotter:
             o.last_g92_offset = self.stat.g92_offset
             o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
-            o.last_motion_mode = self.stat.motion_mode
+            self.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]
+            o.last_tool_offset = self.stat.tool_offset
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
             self.lastpts = self.logger.npts
@@ -824,11 +861,12 @@ class LivePlotter:
             if vars.metric.get(): m = m * 25.4
             vupdate(vars.maxvel_speed, float(int(600 * m)/10.0))
             root_window.tk.call("update_maxvel_slider")
-        vupdate(vars.override_limits, self.stat.axis[0]['override_limits'])
+        vupdate(vars.override_limits, self.stat.joint[0]['override_limits'])
         on_any_limit = 0
-        for i, l in enumerate(self.stat.limit):
-            if self.stat.axis_mask & (1<<i) and l:
+        for l in self.stat.limit:
+            if l:
                 on_any_limit = True
+                break
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
         current_tool = self.stat.tool_table[0]
@@ -891,13 +929,13 @@ This means this function returns True when the mdi tab is visible."""
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
-# first mode
+# first (task) mode MANUAL,MDI,AUTO
 def ensure_mode(m, *p):
     s.poll()
     if s.task_mode == m or s.task_mode in p: return True
-    if running(do_poll=False): return False
-    c.mode(m)
+    c.mode(m) # task_mode
     c.wait_complete()
+    s.poll()
     return True
 
 class DummyProgress:
@@ -1065,6 +1103,9 @@ def cancel_open(event=None):
 
 loaded_file = None
 def open_file_guts(f, filtered=False, addrecent=True):
+    s.poll()
+    save_task_mode = s.task_mode
+    ensure_mode(linuxcnc.MODE_MANUAL)
     if addrecent:
         add_recent_file(f)
     if not filtered:
@@ -1082,8 +1123,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
                             % {'program': program_filter, 'code': exitcode},
                         "error",0,_("OK"))
                 return
+            ensure_mode(save_task_mode)
             return open_file_guts(tempfile, True, False)
 
+    ensure_mode(save_task_mode)
     set_first_line(0)
     t0 = time.time()
 
@@ -1125,9 +1168,9 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
         if not interpname:
-		unitcode = "G%d" % (20 + (s.linear_units == 1))
+            unitcode = "G%d" % (20 + (s.linear_units == 1))
         else:
-		unitcode = ''
+            unitcode = ''
         try:
             result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
         except KeyboardInterrupt:
@@ -1251,17 +1294,32 @@ widgets = nf.Widgets(root_window,
     ("homemenu", Menu, ".menu.machine.home"),
     ("unhomemenu", Menu, ".menu.machine.unhome")
 )
+# Work around an apparent regression in python-tk which causes the value
+# associated with the Y axis button to be changed to the string "True",
+# related to the interpretation of the string "y" as true in a boolean
+# context in Tcl's typeless value system.
+# https://github.com/LinuxCNC/linuxcnc/issues/146
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=834783
+widgets.axis_y.configure(value="y")
 
-def activate_axis(i, force=0):
+def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if joints_mode():
+    if get_jog_mode():
+        # free jogging (joints) (only accept integers here)
+        if type(i) != type(0): return
         if i >= num_joints: return
-        axis = getattr(widgets, "joint_%d" % i)
+        widget = getattr(widgets, "joint_%d" % i)
     else:
-        if not s.axis_mask & (1<<i): return
-        axis = getattr(widgets, "axis_%s" % "xyzabcuvw"[i])
-    axis.focus()
-    axis.invoke()
+        # teleop jogging (axes) (letters are special case for key bindings)
+        if type(i) == type(""): letter = i
+        else:                   letter = "xyzabcuvw"[i]
+        if letter in trajcoordinates:
+            widget = getattr(widgets, "axis_%s" % letter)
+        else:
+            # key bindings for letters not in trajcoordinates end up here
+            return
+    widget.focus()
+    widget.invoke()
 
 def set_first_line(lineno):
     global program_start_line
@@ -1326,6 +1384,7 @@ def jogspeed_incremental(dir=1):
     jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
     # pdb.set_trace()
     cursel = root_window.call(widgets.jogincr._w, "curselection")
+    if type(cursel) == tuple: cursel = cursel[0]
     if cursel == "":
         cursel = 0
     else:
@@ -1560,11 +1619,11 @@ class _prompt_touchoff(_prompt_float):
         systems = all_systems[:]
         if not tool_only:
             del systems[-1]
-        linear_axis = vars.current_axis.get() in "xyzuvw"
+        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
             else: unit_str = " " + _("in")
-            if lathe and vars.current_axis.get() == "x":
+            if lathe and vars.ja_rbutton.get() == "x":
                 if 80 in s.gcodes:
                     unit_str += _(" radius")
                 else:
@@ -1634,7 +1693,7 @@ def dist((x,y,z),(p,q,r)):
 # returns units/sec
 def get_jog_speed(a):
     if vars.teleop_mode.get():
-        if a in (0,1,2,6,7,8):
+        if axis_type[a] == "LINEAR" :
             return vars.jog_speed.get()/60.
         else:
             return vars.jog_aspeed.get()/60.
@@ -1643,6 +1702,13 @@ def get_jog_speed(a):
             return vars.jog_speed.get()/60.
         else:
             return vars.jog_aspeed.get()/60.
+
+def get_jog_speed_map(a):
+    if a >= len(jog_order): return 0
+    if not get_jog_mode():
+        axis_letter = jog_order[a]
+        a = "XYZABCUVW".index(axis_letter)
+    return get_jog_speed(a)
 
 def get_max_jog_speed(a):
     max_linear_speed = vars.max_speed.get()
@@ -1659,6 +1725,11 @@ def get_max_jog_speed(a):
             return max_linear_speed
         else:
             return vars.max_aspeed.get()
+def get_max_jog_speed_map(a):
+    if not get_jog_mode():
+        axis_letter = jog_order[a]
+        a = "XYZABCUVW".index(axis_letter)
+    return get_max_jog_speed(a)
 
 def run_warn():
     warnings = []
@@ -1697,7 +1768,62 @@ def reload_file(refilter=True):
         open_file_guts(tempfile, True, False)
     if line:
         o.set_highlight_line(line)
- 
+
+def ja_from_rbutton():
+    # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
+    # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
+    ja = vars.ja_rbutton.get()
+    if ja in "012345678":
+        a = int(ja)
+    else :
+        a = "xyzabcuvw".index(ja)
+    return a
+
+def all_homed():
+    isHomed=True
+    for i,h in enumerate(s.homed):
+        if i >= num_joints: break
+        isHomed = isHomed and h
+    return isHomed
+
+def go_home(num):
+    set_motion_teleop(0)
+    c.home(num)
+    c.wait_complete()
+
+#-----------------------------------------------------------
+# convenience functions
+def motion_modename(x):
+    if x ==   linuxcnc.TRAJ_MODE_FREE: return "FREE"
+    if x ==  linuxcnc.TRAJ_MODE_COORD: return "COORD"
+    if x == linuxcnc.TRAJ_MODE_TELEOP: return "TELEOP"
+
+def task_modename(x):
+    if x ==    linuxcnc.MODE_MDI: return "MDI"
+    if x == linuxcnc.MODE_MANUAL: return "MANUAL"
+    if x ==   linuxcnc.MODE_AUTO: return "AUTO"
+
+def task_statename(x):
+    if x ==       linuxcnc.STATE_ESTOP: return "STATE_ESTOP"
+    if x == linuxcnc.STATE_ESTOP_RESET: return "STATE_ESTOP_RESET"
+    if x ==         linuxcnc.STATE_OFF: return "STATE_OFF"
+    if x ==          linuxcnc.STATE_ON: return "STATE_ON"
+
+def interp_statename(x):
+    if x ==    linuxcnc.INTERP_IDLE: return "IDLE"
+    if x == linuxcnc.INTERP_READING: return "READING"
+    if x ==  linuxcnc.INTERP_PAUSED: return "PAUSED"
+    if x == linuxcnc.INTERP_WAITING: return "WAITING"
+
+def get_states():
+    s.poll()
+    return (task_modename(s.task_mode)
+           ,task_statename(s.task_state)
+           ,motion_modename(s.motion_mode)
+           ,interp_statename(s.interp_state)
+           )
+#-----------------------------------------------------------
+
 class TclCommands(nf.TclCommands):
     def next_tab(event=None):
         current = widgets.right.raise_page()
@@ -2146,6 +2272,7 @@ class TclCommands(nf.TclCommands):
                 history_size= (mdi_history_max_entries + 1)
             # pdb.set_trace()
             mdi_history_index = widgets.mdi_history.index("end") - 1
+
             c.mdi(command)
             o.tkRedraw()
             commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
@@ -2238,13 +2365,25 @@ class TclCommands(nf.TclCommands):
         commands.mdi_history_write_to_file(mdi_history_save_filename, -1)
 
     def ensure_manual(*event):
+        s.poll()
         if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        commands.set_teleop_mode()
-
+        if  (     all_homed()
+             and (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+                  or
+                 (s.motion_mode == linuxcnc.TRAJ_MODE_COORD)
+            ):
+            set_motion_teleop(1)
+        else:
+            ensure_mode(linuxcnc.MODE_MANUAL)
+            set_motion_teleop(0)
+   
     def ensure_mdi(*event):
+        # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
+        set_motion_teleop(0)
         ensure_mode(linuxcnc.MODE_MDI)
+        set_motion_teleop(1)
+        s.poll()
 
     def redraw(*ignored):
         o.tkRedraw()
@@ -2313,58 +2452,75 @@ class TclCommands(nf.TclCommands):
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
     def jog_plus(incr=False):
-        a = vars.current_axis.get()
-        if isinstance(a, (str, unicode)):
-            a = "xyzabcuvw".index(a)
+        a = ja_from_rbutton()
         speed = get_jog_speed(a)
         jog_on(a, speed)
+
     def jog_minus(incr=False):
-        a = vars.current_axis.get()
-        if isinstance(a, (str, unicode)):
-            a = "xyzabcuvw".index(a)
+        a = ja_from_rbutton()
         speed = get_jog_speed(a)
         jog_on(a, -speed)
-    def jog_stop(event=None):
-        jog_off(vars.current_axis.get())
 
-    def home_all_axes(event=None):
+    def jog_stop(event=None):
+        a = ja_from_rbutton()
+        jog_off(a)
+
+    def home_all_joints(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
-        isHomed=True
-        for i,h in enumerate(s.homed):
-            if s.axis_mask & (1<<i):
-                isHomed=isHomed and h
+        isHomed = all_homed()
         doHoming=True
         if isHomed:
-            doHoming=prompt_areyousure(_("Warning"),_("Axis is already homed, are you sure you want to re-home?"))
+            doHoming=prompt_areyousure(_("Warning"),_("Joint is already homed, are you sure you want to re-home?"))
         if doHoming:
-            c.home(-1)
+            go_home(-1)
 
-    def unhome_all_axes(event=None):
+    def unhome_all_joints(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
+        set_motion_teleop(0)
         c.unhome(-1)
 
-    def home_axis(event=None):
+    def home_joint(event=None):
         if not manual_ok(): return
+        jora = vars.ja_rbutton.get()
+        if jora in trajcoordinates:
+            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                print "home_joint <%s> Use joint mode for homing"%jora
+                return
+            jnum = trajcoordinates.index(jora)
+        else:
+            jnum = int(jora)
         doHoming=True
-        if s.homed["xyzabcuvw".index(vars.current_axis.get())]:
-            doHoming=prompt_areyousure(_("Warning"),_("This axis is already homed, are you sure you want to re-home?"))
+        if s.homed[jnum]:
+            doHoming=prompt_areyousure(_("Warning"),_("This joint is already homed, are you sure you want to re-home?"))
         if doHoming:
             ensure_mode(linuxcnc.MODE_MANUAL)
-            c.home("xyzabcuvw".index(vars.current_axis.get()))
+            go_home(jnum)
 
-    def unhome_axis(event=None):
+    def unhome_joint(event=None):
         if not manual_ok(): return
+        jora = vars.ja_rbutton.get()
+        if jora in trajcoordinates:
+            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                print "unhome_joint <%s> Use joint mode for unhoming"%jora
+                return
+            jnum = trajcoordinates.index(jora)
+        else:
+            jnum = int(jora)
         ensure_mode(linuxcnc.MODE_MANUAL)
-        c.unhome("xyzabcuvw".index(vars.current_axis.get()))
+        set_motion_teleop(0)
+        c.unhome(jnum)
 
-    def home_axis_number(num):
+    def home_joint_number(num):
+        # invoked by machine menu/home widgets
         ensure_mode(linuxcnc.MODE_MANUAL)
-        c.home(num)
+        go_home(num)
 
-    def unhome_axis_number(num):
+    def unhome_joint_number(num):
+        # invoked by machine menu/unhome widgets
         ensure_mode(linuxcnc.MODE_MANUAL)
+        set_motion_teleop(0)
         c.unhome(num)
 
     def clear_offset(num):
@@ -2386,12 +2542,11 @@ class TclCommands(nf.TclCommands):
     def touch_off_system(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
-        if joints_mode(): return
-        offset_axis = "xyzabcuvw".index(vars.current_axis.get())
+        offset_axis = trajcoordinates.index(vars.ja_rbutton.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
                 title=_("Touch Off (system)"),
-                text=_("Enter %s coordinate relative to %%s:") % vars.current_axis.get().upper(),
+                text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=False,
                 system=vars.touch_off_system.get()
@@ -2399,37 +2554,40 @@ class TclCommands(nf.TclCommands):
         else:
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
+
+        save_task_mode = s.task_mode
         vars.touch_off_system.set(system)
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = vars.current_axis.get() in "xyzuvw"
+        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
 
-        offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.current_axis.get(), new_axis_value, scale)
+        offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
 
-        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
+        ensure_mode(save_task_mode)
+        set_motion_teleop(1)
+        o.redraw_dro()
 
     def touch_off_tool(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
-        if joints_mode(): return
         s.poll()
         # in case we get here via the keyboard shortcut, when the widget is disabled:
         if s.tool_in_spindle == 0: return
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
                 title=_("Tool Touch Off (Tool No:%s)"%s.tool_in_spindle),
-                text=_("Enter %s coordinate relative to %%s:") % vars.current_axis.get().upper(),
+                text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=True,
                 system=vars.touch_off_system.get()
@@ -2437,11 +2595,13 @@ class TclCommands(nf.TclCommands):
         else:
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
+
+        save_task_mode = s.task_mode
         vars.touch_off_system.set(system)
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = vars.current_axis.get() in "xyzuvw"
+        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
@@ -2449,16 +2609,18 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         lnum = 10 + vars.tto_g11.get()
-        offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
+        offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
         c.mdi("G43")
         c.wait_complete()
 
-        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
+        ensure_mode(save_task_mode)
+        set_motion_teleop(1)
+        o.redraw_dro()
 
     def set_axis_offset(event=None):
         commands.touch_off_system(new_axis_value=0.)
@@ -2523,8 +2685,8 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
 
     def toggle_teleop_mode(*args):
-        vars.teleop_mode.set(not vars.teleop_mode.get())
-        commands.set_teleop_mode()
+        s.poll()
+        set_motion_teleop(not (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP))
 
     def toggle_coord_type(*args):
         vars.coord_type.set(not vars.coord_type.get())
@@ -2533,7 +2695,7 @@ class TclCommands(nf.TclCommands):
     def toggle_override_limits(*args):
         s.poll()
         if s.interp_state != linuxcnc.INTERP_IDLE: return
-        if s.axis[0]['override_limits']:
+        if s.joint[0]['override_limits']:
             ensure_mode(linuxcnc.MODE_AUTO)
         else:
             ensure_mode(linuxcnc.MODE_MANUAL)
@@ -2552,21 +2714,21 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z()
 
     def axis_activated(*args):
-        if not hal_present: return # this only makes sense if HAL is present on this machine
-        comp['jog.x'] = vars.current_axis.get() == "x"
-        comp['jog.y'] = vars.current_axis.get() == "y"
-        comp['jog.z'] = vars.current_axis.get() == "z"
-        comp['jog.a'] = vars.current_axis.get() == "a"
-        comp['jog.b'] = vars.current_axis.get() == "b"
-        comp['jog.c'] = vars.current_axis.get() == "c"
-        comp['jog.u'] = vars.current_axis.get() == "u"
-        comp['jog.v'] = vars.current_axis.get() == "v"
-        comp['jog.w'] = vars.current_axis.get() == "w"
+        # this only makes sense if HAL is present on this machine
+        if not hal_present: return
+        comp['jog.x'] = vars.ja_rbutton.get() == "x"
+        comp['jog.y'] = vars.ja_rbutton.get() == "y"
+        comp['jog.z'] = vars.ja_rbutton.get() == "z"
+        comp['jog.a'] = vars.ja_rbutton.get() == "a"
+        comp['jog.b'] = vars.ja_rbutton.get() == "b"
+        comp['jog.c'] = vars.ja_rbutton.get() == "c"
+        comp['jog.u'] = vars.ja_rbutton.get() == "u"
+        comp['jog.v'] = vars.ja_rbutton.get() == "v"
+        comp['jog.w'] = vars.ja_rbutton.get() == "w"
 
-    def set_teleop_mode(*args):
-        teleop_mode = vars.teleop_mode.get()
-        c.teleop_enable(teleop_mode)
-        c.wait_complete()
+    def set_teleop_mode():
+        set_motion_teleop(vars.teleop_mode.get())
+        s.poll()
 
     def save_gcode(*args):
         if not loaded_file: return
@@ -2623,7 +2785,7 @@ vars = nf.Variables(root_window,
     ("task_mode", IntVar),
     ("has_ladder", IntVar),
     ("has_editor", IntVar),
-    ("current_axis", StringVar),
+    ("ja_rbutton", StringVar),
     ("tto_g11", BooleanVar),
     ("mist", BooleanVar),
     ("flood", BooleanVar),
@@ -2670,6 +2832,7 @@ vars = nf.Variables(root_window,
     ("on_any_limit", BooleanVar),
     ("queued_mdi_commands", IntVar),
     ("max_queued_mdi_commands", IntVar),
+    ("trajcoordinates", StringVar),
 )
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
@@ -2704,12 +2867,21 @@ def set_feedrate(n):
 def set_rapidrate(n):
     widgets.rapidoverride.set(n)
 
-def activate_axis_or_set_feedrate(n):
-    # XXX: axis_mask does not apply if in joint mode
-    if manual_ok() and s.axis_mask & (1<<n):
-        activate_axis(n)
+def activate_ja_widget_or_set_feedrate(jora):
+    # note: call with integers only
+    if manual_ok():
+        if joints_mode():
+            activate_ja_widget(jora)
+            return
+        if not joints_mode():
+            if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                activate_ja_widget(jora)
+                return
+            else:
+                return # ignore number (no teleop letter correspondence)
     else:
-        set_feedrate(10*n)
+        set_feedrate(10*jora)
+    return
 
 def nomodifier(f):
     def g(event):
@@ -2742,19 +2914,25 @@ root_window.bind("<Key-F12>", commands.spindle_increase)
 root_window.bind("B", commands.brake_on)
 root_window.bind("b", commands.brake_off)
 root_window.bind("<Control-k>", commands.clear_live_plot)
-root_window.bind("x", lambda event: activate_axis(0))
-root_window.bind("y", lambda event: activate_axis(1))
-root_window.bind("z", lambda event: activate_axis(2))
-root_window.bind("a", lambda event: activate_axis(3))
-root_window.bind("`", lambda event: activate_axis_or_set_feedrate(0))
-root_window.bind("1", lambda event: activate_axis_or_set_feedrate(1))
-root_window.bind("2", lambda event: activate_axis_or_set_feedrate(2))
-root_window.bind("3", lambda event: activate_axis_or_set_feedrate(3))
-root_window.bind("4", lambda event: activate_axis_or_set_feedrate(4))
-root_window.bind("5", lambda event: activate_axis_or_set_feedrate(5))
-root_window.bind("6", lambda event: activate_axis_or_set_feedrate(6))
-root_window.bind("7", lambda event: activate_axis_or_set_feedrate(7))
-root_window.bind("8", lambda event: activate_axis_or_set_feedrate(8))
+
+#----------------------------------------------------
+# letters for teleop only
+root_window.bind("x", lambda event: activate_ja_widget("x"))
+root_window.bind("y", lambda event: activate_ja_widget("y"))
+root_window.bind("z", lambda event: activate_ja_widget("z"))
+root_window.bind("a", lambda event: activate_ja_widget("a"))
+#----------------------------------------------------
+
+root_window.bind("`", lambda event: activate_ja_widget_or_set_feedrate(0))
+root_window.bind("1", lambda event: activate_ja_widget_or_set_feedrate(1))
+root_window.bind("2", lambda event: activate_ja_widget_or_set_feedrate(2))
+root_window.bind("3", lambda event: activate_ja_widget_or_set_feedrate(3))
+root_window.bind("4", lambda event: activate_ja_widget_or_set_feedrate(4))
+root_window.bind("5", lambda event: activate_ja_widget_or_set_feedrate(5))
+root_window.bind("6", lambda event: activate_ja_widget_or_set_feedrate(6))
+root_window.bind("7", lambda event: activate_ja_widget_or_set_feedrate(7))
+root_window.bind("8", lambda event: activate_ja_widget_or_set_feedrate(8))
+
 root_window.bind("9", lambda event: set_feedrate(90))
 root_window.bind("0", lambda event: set_feedrate(100))
 root_window.bind("c", lambda event: jogspeed_continuous())
@@ -2766,13 +2944,13 @@ root_window.bind("@", commands.toggle_display_type)
 root_window.bind("#", commands.toggle_coord_type)
 root_window.bind("$", commands.toggle_teleop_mode)
 
-root_window.bind("<Home>", commands.home_axis)
-root_window.bind("<KP_Home>", kp_wrap(commands.home_axis, "KeyPress"))
-root_window.bind("<Control-Home>", commands.home_all_axes)
+root_window.bind("<Home>", commands.home_joint)
+root_window.bind("<KP_Home>", kp_wrap(commands.home_joint, "KeyPress"))
+root_window.bind("<Control-Home>", commands.home_all_joints)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
 root_window.bind("<End>", commands.touch_off_system)
 root_window.bind("<Control-End>", commands.touch_off_tool)
-root_window.bind("<Control-KP_Home>", kp_wrap(commands.home_all_axes, "KeyPress"))
+root_window.bind("<Control-KP_Home>", kp_wrap(commands.home_all_joints, "KeyPress"))
 root_window.bind("<Shift-KP_Home>", kp_wrap(commands.set_axis_offset, "KeyPress"))
 root_window.bind("<KP_End>", kp_wrap(commands.touch_off_system, "KeyPress"))
 widgets.mdi_history.bind("<Configure>", "%W see end" )
@@ -2816,23 +2994,36 @@ try:
 except IOError:
     pass
 
-
-
 def jog(*args):
     if not manual_ok(): return
     if not manual_tab_visible(): return
-    ensure_mode(linuxcnc.MODE_MANUAL)
     c.jog(*args)
 
-# XXX correct for machines with more than six axes
-jog_after = [None] * 9
-jog_cont  = [False] * 9
-jogging   = [0] * 9
+def get_jog_mode():
+    s.poll()
+    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+        teleop_mode = 1
+        jjogmode = False
+    else:
+        # check motion_mode since other guis (halui) could alter it
+        if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+            teleop_mode = 0
+            jjogmode = True
+        else:
+            teleop_mode = 1
+            jjogmode = False
+    if (   (    jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_FREE)
+        or (not jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_TELEOP) ):
+        set_motion_teleop(teleop_mode)
+    return jjogmode
+
+# Note: require linuxcnc.MAX_JOINTS >= linuxcnc.MAX_AXIS
+jog_after = [None]  * linuxcnc.MAX_JOINTS
+jog_cont  = [False] * linuxcnc.MAX_JOINTS
+jogging   = [0]     * linuxcnc.MAX_JOINTS
 def jog_on(a, b):
     if not manual_ok(): return
     if not manual_tab_visible(): return
-    if isinstance(a, (str, unicode)):
-        a = "xyzabcuvw".index(a)
     if a < 3 or a > 5:
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
@@ -2841,53 +3032,57 @@ def jog_on(a, b):
         jog_after[a] = None
         return
     jogincr = widgets.jogincr.get()
-    if s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
-        jogging[a] = b
+    jjogmode = get_jog_mode()
+    if jogincr != _("Continuous"):
+        s.poll()
+        if s.state != 1: return
+        distance = parse_increment(jogincr)
+        jog(linuxcnc.JOG_INCREMENT, jjogmode, a, b, distance)
         jog_cont[a] = False
-        cartesian_only=jogging[:6]
-        c.teleop_vector(*cartesian_only)
     else:
-        if jogincr != _("Continuous"):
-            s.poll()
-            if s.state != 1: return
-            distance = parse_increment(jogincr)
-            jog(linuxcnc.JOG_INCREMENT, a, b, distance)
-            jog_cont[a] = False
-        else:
-            jog(linuxcnc.JOG_CONTINUOUS, a, b)
-            jog_cont[a] = True
-            jogging[a] = b
+        jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
+        jog_cont[a] = True
+        jogging[a] = b
 
 def jog_off(a):
-    if isinstance(a, (str, unicode)):
-        a = "xyzabcuvw".index(a)
     if jog_after[a]: return
     jog_after[a] = root_window.after_idle(lambda: jog_off_actual(a))
 
 def jog_off_actual(a):
     if not manual_ok(): return
-    activate_axis(a)
+    activate_ja_widget(a)
     jog_after[a] = None
     jogging[a] = 0
-    if s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
-        cartesian_only=jogging[:6]
-        c.teleop_vector(*cartesian_only)
-    else:
-        if jog_cont[a]:
-            jog(linuxcnc.JOG_STOP, a)
+    jjogmode = get_jog_mode()
+    if jog_cont[a]:
+        jog(linuxcnc.JOG_STOP, jjogmode, a)
 
 def jog_off_all():
     for i in range(6):
         if jogging[i]:
             jog_off_actual(i)
 
+def jog_on_map(num, speed):
+    if not get_jog_mode():
+        if num >= len(jog_order): return
+        axis_letter = jog_order[num]
+        num = "XYZABCUVW".index(axis_letter)
+        if axis_letter in jog_invert: speed = -speed
+    return jog_on(num, speed)
+
+def jog_off_map(num):
+    if not get_jog_mode():
+        if num >= len(jog_order): return
+        num = "XYZABCUVW".index(jog_order[num])
+    return jog_off(num)
+
 def bind_axis(a, b, d):
-    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on(d, -get_jog_speed(d)), "KeyPress"))
-    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on(d, get_jog_speed(d)), "KeyPress"))
-    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on(d, -get_max_jog_speed(d)))
-    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on(d, get_max_jog_speed(d)))
-    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off(d))
-    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
+    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on_map(d, -get_jog_speed_map(d)), "KeyPress"))
+    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on_map(d, get_jog_speed_map(d)), "KeyPress"))
+    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on_map(d, -get_max_jog_speed_map(d)))
+    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on_map(d, get_max_jog_speed_map(d)))
+    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off_map(d))
+    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off_map(d))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 
@@ -2902,13 +3097,15 @@ def units(s, d=1.0):
 
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
-open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
+jointcount = int(inifile.find("KINS", "JOINTS"))
+jointnames = "012345678"[:jointcount]
+open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX") or open_directory
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
 postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
-max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
+max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
@@ -2917,33 +3114,113 @@ geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
 
-jog_speed = (
-    inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
-    or 1.0)
-vars.jog_speed.set(float(jog_speed)*60)
-jog_speed = (
-    inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_VELOCITY")
-    or jog_speed)
-vars.jog_aspeed.set(float(jog_speed)*60)
-mlv = (
+try:
+    trajcoordinates=inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+except:
+    raise SystemExit("Missing [TRAJ]COORDINATES")
+vars.trajcoordinates.set(trajcoordinates)
+
+joint_type = [None] * linuxcnc.MAX_JOINTS
+for j in range(linuxcnc.MAX_JOINTS):
+    section = "JOINT_%d" % j
+    joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
+
+axis_type = [None] * linuxcnc.MAX_AXIS
+for a in range(linuxcnc.MAX_AXIS):
+    # supply defaults, supersede with ini [AXIS_*]TYPE
+    letter = "xyzabcuvw"[a]
+    if not (letter in trajcoordinates): continue
+    if letter in "abc":
+        axis_type[a] = "ANGULAR"
+    else:
+        axis_type[a] = "LINEAR"
+    section = "AXIS_%s" % letter
+    initype = inifile.find(section, "TYPE")
+    if initype is None: continue # use default
+    axis_type[a] = initype
+
+has_angular_joint_or_axis = (   ("ANGULAR" in joint_type)
+                             or ("ANGULAR" in axis_type) )
+
+has_linear_joint_or_axis = (    ("LINEAR" in joint_type)
+                             or ("LINEAR" in axis_type) )
+
+# Search rules for slider items
+max_linear_speed = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
-    or inifile.find("TRAJ","MAX_VELOCITY")
-    or 1.0)
-vars.max_speed.set(float(mlv))
-mav = (
+    or None)
+default_jog_linear_speed = (
+    inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+    or None)
+
+max_angular_speed = (
     inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY")
     or inifile.find("TRAJ","MAX_ANGULAR_VELOCITY")
-    or inifile.find("TRAJ","MAX_VELOCITY")
-    or mlv)
-vars.max_aspeed.set(float(mav))
-mv = inifile.find("DISPLAY","MAX_LINEAR_VELOCITY") or inifile.find("TRAJ","MAX_LINEAR_VELOCITY") or inifile.find("TRAJ","MAX_VELOCITY") or inifile.find("AXIS_0","MAX_VELOCITY") or 1.0
-vars.maxvel_speed.set(float(mv)*60)
-vars.max_maxvel.set(float(mv))
+    or None)
+default_jog_angular_speed = (
+    inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_ANGULAR_VELOCITY")
+    or None)
+
+max_velocity = (
+    inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
+    or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+    or inifile.find("AXIS_X","MAX_VELOCITY")
+    or None)
+
+# Enforce these slider items (exit if missing)
+try:
+    msg = "max velocity"
+    vars.maxvel_speed.set(float(max_velocity)*60)
+    vars.max_maxvel.set(float(max_velocity))
+    if has_linear_joint_or_axis:
+        msg = "max linear speed"
+        vars.max_speed.set(float(max_linear_speed))
+except Exception:
+    print "\nMissing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    raise SystemExit
+
+if default_jog_linear_speed is None: default_jog_linear_speed = max_linear_speed
+vars.jog_speed.set(float(default_jog_linear_speed)*60)
+
+# Check for these slider items (message if missing)
+try:
+    if has_angular_joint_or_axis:
+        msg = "max angular speed"
+        vars.max_aspeed.set(float(max_angular_speed))
+        if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
+        vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
+except Exception:
+    print "\nWarning: Missing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    max_angular_speed = 1
+    default_jog_angular_speed = 1
+    vars.max_aspeed.set(float(max_angular_speed))
+    vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
+
+# temporary debugging prints
+print >>sys.stderr, "note: MAXV     max: %.3f units/sec %.3f units/min"%(
+      float(max_velocity),60*float(max_velocity))
+if has_linear_joint_or_axis:
+    print >>sys.stderr, "note: LJOG     max: %.3f units/sec %.3f units/min"%(
+          float(max_linear_speed),60*float(max_linear_speed))
+    print >>sys.stderr, "note: LJOG default: %.3f units/sec %.3f units/min"%(
+          float(default_jog_linear_speed),60*float(default_jog_linear_speed))
+if has_angular_joint_or_axis:
+    print >>sys.stderr, "note: AJOG     max: %.3f units/sec %.3f units/min"%(
+          float(max_angular_speed),60*float(max_angular_speed))
+    print >>sys.stderr, "note: AJOG default: %.3f units/sec %.3f units/min"%(
+          float(default_jog_angular_speed),60*float(default_jog_angular_speed))
+
+# always allow tcl widgets creation (though they may be forgotten later)
+if not has_linear_joint_or_axis:
+    vars.jog_speed.set(1)
+    vars.max_speed.set(1)
+if not has_angular_joint_or_axis:
+    vars.jog_aspeed.set(1)
+    vars.max_aspeed.set(1)
+
 root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
 root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
@@ -2962,10 +3239,17 @@ editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
 tooltable = inifile.find("EMCIO", "TOOL_TABLE")
-lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
-a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
-b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
-c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
+if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
+    raise SystemExit, (
+          "Missing ini file setting for [RS274NGC]PARAMETER_FILE")
+try:
+    lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+except TypeError:
+    raise SystemExit, (
+          "Missing [TRAJ]LINEAR_UNITS or ANGULAR_UNITS")
+a_axis_wrapped = inifile.find("AXIS_A", "WRAPPED_ROTARY")
+b_axis_wrapped = inifile.find("AXIS_B", "WRAPPED_ROTARY")
+c_axis_wrapped = inifile.find("AXIS_C", "WRAPPED_ROTARY")
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
     else: vars.metric.set(0)
@@ -2979,29 +3263,19 @@ else:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
     root_window.tk.eval("${pane_top}.maxvel.l1 configure -text in/min")
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
-homing_order_defined = inifile.find("AXIS_0", "HOME_SEQUENCE") is not None
-
-if homing_order_defined:
-    widgets.homebutton.configure(text=_("Home All"), command="home_all_axes")
-    root_window.tk.call("DynamicHelp::add", widgets.homebutton,
-            "-text", _("Home all axes [Ctrl-Home]"))
-    widgets.homemenu.add_command(command=commands.home_all_axes)
-    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
-            _("Home All Axes"))
+homing_order_defined = inifile.find("JOINT_0", "HOME_SEQUENCE") is not None
 
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
 
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
-widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
-root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))
-
 s = linuxcnc.stat();
 s.poll()
+
 statfail=0
 statwait=.01
-while s.axes == 0:
-    print "waiting for s.axes"
+while ((s.joints == 0) or (s.kinematics_type < linuxcnc.KINEMATICS_IDENTITY)):
+    print "waiting for s.joints<%d>, s.kinematics_type<%d>"%(s.joints,s.kinematics_type)
     time.sleep(statwait)
     statfail+=1
     statwait *= 2
@@ -3011,22 +3285,105 @@ while s.axes == 0:
             "More information may be available when running from a terminal.")
     s.poll()
 
-live_axis_count = 0
-for i,j in enumerate("XYZABCUVW"):
-    if s.axis_mask & (1<<i) == 0: continue
-    live_axis_count += 1
-    widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
-    widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_axis_number(i))
+if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+    ja_name = "Axes"
+else:
+    ja_name = "Joints"
+if homing_order_defined:
+    widgets.homebutton.configure(text=_("Home All"), command="home_all_joints")
+    root_window.tk.call("DynamicHelp::add", widgets.homebutton,
+            "-text", _("Home all %s [Ctrl-Home]" % ja_name))
+    widgets.homemenu.add_command(command=commands.home_all_joints)
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
-            _("Home Axis _%s") % j)
+            _("Home All %s" % ja_name))
+widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
+root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
+
+kinstype=inifile.find("KINS", "KINEMATICS").lower()
+kins_is_trivkins = False
+if kinstype.split()[0] == "trivkins":
+    kins_is_trivkins = True
+    trivkinscoords = "XYZABCUVW"
+    for item in kinstype.split():
+        if "coordinates=" in item:
+            trivkinscoords = item.split("=")[1]
+
+duplicate_coord_letters = ""
+for i in range(len(trajcoordinates)):
+    if trajcoordinates[i] == " ": continue
+    if trajcoordinates.count(trajcoordinates[i]) > 1:
+        duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
+if duplicate_coord_letters != "":
+    # Can occur, for instance, with trivkins with kinstype=both).
+    # In such kins, the value for a duplicated axis letter will equal the
+    # value of the highest numbered joint.
+    # Movements on axis gui display in joint mode (after homing) may be unexpected,
+    #   e.g., moving  a joint that is not the highest number will not affect the
+    # corresponding 'identity' coordinate.
+    print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
+          duplicate_coord_letters)
+if len(trajcoordinates) > jointcount:
+    print ("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
+          %(trajcoordinates,jointcount))
+
+def jnum_for_aletter(aletter):
+    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
+    aletter = aletter.lower()
+    if kins_is_trivkins:
+        return trajcoordinates.index(aletter)
+    else:
+        guess = trajcoordinates.index(aletter)
+        print "jnum_for_aletter guessing %s --> %d"%(aletter,guess)
+        return guess
+
+def lathe_historical_config():
+    # detect historical lathe config with dummy joint 1
+    if      (lathe
+        and (trajcoordinates.upper() == "XZ")
+        and (num_joints == 3)):
+        return True
+    return False
+
+def aletter_for_jnum(jnum):
+    if lathe_historical_config():
+        if jnum == 1: return "Y"
+        if jnum == 2: return "Z"
+    if kins_is_trivkins:
+        return trivkinscoords.upper()[jnum]
+    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
+    else:
+        guess = trajcoordinates.upper()[jnum]
+        print "aletter_for_jnum guessing %d --> %s"%(jnum,guess)
+        return guess
+
+num_joints = s.joints
+for jnum in range(num_joints):
+    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+        ja_name = "Axis"
+        ja_id = aletter_for_jnum(jnum)
+        if ja_id == "NOALETTER": continue
+        widgets.homemenu.add_command(
+               command=lambda jnum=jnum: commands.home_joint_number(jnum))
+        widgets.unhomemenu.add_command(
+               command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
+    else:
+        widgets.homemenu.add_command(
+               command=lambda jnum=jnum: commands.home_joint_number(jnum))
+        widgets.unhomemenu.add_command(
+               command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
+        ja_name = "Joint"; ja_id = jnum
+    root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
+            _("Home %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
-            _("Unhome Axis _%s") % j)
-num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
+            _("Unhome %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
 
 astep_size = step_size = 1
-for a in range(9):
-    if s.axis_mask & (1<<a) == 0: continue
-    section = "AXIS_%d" % a
+for a in range(linuxcnc.MAX_AXIS):
+    a = "XYZABCUVW"[a]
+    if s.axis_mask & (1<<i) == 0: continue
+    section = "AXIS_%s" % a
     unit = inifile.find(section, "UNITS") or lu
     unit = units(unit) * 25.4
     f = inifile.find(section, "SCALE") or inifile.find(section, "INPUT_SCALE") or "8000"
@@ -3040,18 +3397,13 @@ for a in range(9):
             if a < 3: step_size = astep_size = step_size_tmp
             else: astep_size = step_size_tmp
 
-joint_type = [None] * 9
-for j in range(9):
-    if s.axis_mask & (1<<j) == 0: continue
-    section = "AXIS_%d" % j
-    joint_type[j] = inifile.find(section, "TYPE")
-
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
 elif step_size != 1:
     root_window.tk.call("set_slider_min", step_size*30)
+
 if inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"):
     root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"))*60)
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
@@ -3079,45 +3431,70 @@ del sys.argv[1:3]
 root_window.bind("<KeyPress-KP_Begin>", kp_wrap(lambda e: None, "KeyPress"))
 root_window.bind("<KeyPress-KP_Insert>", kp_wrap(lambda e: None, "KeyPress"))
 
-if lathe:
-    bind_axis("Left", "Right", 2)
-    bind_axis("Up", "Down", 0)
-    bind_axis("KP_Left", "KP_Right", 2)
-    bind_axis("KP_Up", "KP_Down", 0)
-    bind_axis("KP_4", "KP_6", 2)
-    bind_axis("KP_8", "KP_2", 0)
+def unique_axes(axes, order):
+    r = ""
+    axes = set(axes.upper())
+    for c in order.upper():
+        if c in axes: r += c
+    return r
+
+jog_invert = inifile.find("DISPLAY", "JOG_INVERT")
+if jog_invert is None:
+    if lathe: jog_invert = "X"
+    else: jog_invert = ""
+jog_invert = set(jog_invert.upper())
+
+jog_order = inifile.find("DISPLAY", "JOG_AXES")
+if jog_order is None:
+    if lathe:
+        jog_order = unique_axes(trajcoordinates, "ZXYABCUVW")
+    elif foam:
+        jog_order = unique_axes(trajcoordinates, "XYUVABCZW")
+    else:
+        jog_order = unique_axes(trajcoordinates, "XYZABCUVW")
+else: jog_order = jog_order.upper()
+
+print >>sys.stderr, "note: jog_order=%r" % jog_order
+print >>sys.stderr, "note: jog_invert=%r" % jog_invert
+bind_axis("Left", "Right", 0)
+bind_axis("Down", "Up", 1)
+bind_axis("Next", "Prior", 2)
+bind_axis("KP_Left", "KP_Right", 0)
+bind_axis("KP_Down", "KP_Up", 1)
+bind_axis("KP_Next", "KP_Prior", 2)
+bind_axis("KP_4", "KP_6", 0)
+bind_axis("KP_2", "KP_8", 1)
+bind_axis("KP_3", "KP_9", 2)
+bind_axis("bracketleft", "bracketright", 3)
+
+if len(jog_order) < 3:
     root_window.bind("<KeyPress-KP_Next>", kp_wrap(lambda e: None, "KeyPress"))
     root_window.bind("<KeyPress-KP_Prior>", kp_wrap(lambda e: None, "KeyPress"))
-else:
-    bind_axis("Left", "Right", 0)
-    bind_axis("Down", "Up", 1)
-    bind_axis("Next", "Prior", 2)
-    bind_axis("KP_Left", "KP_Right", 0)
-    bind_axis("KP_Down", "KP_Up", 1)
-    bind_axis("KP_Next", "KP_Prior", 2)
-    bind_axis("KP_4", "KP_6", 0)
-    bind_axis("KP_2", "KP_8", 1)
-    bind_axis("KP_3", "KP_9", 2)
-    bind_axis("bracketleft", "bracketright", 3)
 
 root_window.bind("<KeyPress-minus>", nomodifier(commands.jog_minus))
 root_window.bind("<KeyPress-equal>", nomodifier(commands.jog_plus))
 root_window.bind("<KeyRelease-minus>", commands.jog_stop)
 root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 
-
-
 opts, args = getopt.getopt(sys.argv[1:], 'd:')
-for i in range(9):
+
+# forget axis radiobuttons not in axis_mask
+for i in range(linuxcnc.MAX_AXIS):
     if s.axis_mask & (1<<i): continue
-    c = getattr(widgets, "axis_%s" % ("xyzabcuvw"[i]))
+    letter = "xyzabcuvw"[i]
+    c = getattr(widgets, "axis_%s" % letter)
     c.grid_forget()
-for i in range(num_joints, 9):
+
+# forget joint radiobuttons for joints > num_joints
+for i in range(num_joints, linuxcnc.MAX_JOINTS):
     c = getattr(widgets, "joint_%d" % i)
     c.grid_forget()
-    
-if s.axis_mask & 56 == 0:
+
+if  (       (s.axis_mask & 56 == 0)  # 56==0x38== 000111000 (ABC)
+    and not ("ANGULAR" in joint_type)
+    ):
     widgets.ajogspeed.grid_forget()
+
 c = linuxcnc.command()
 e = linuxcnc.error_channel()
 
@@ -3286,7 +3663,7 @@ def remove_tempdir(t):
 tempdir = tempfile.mkdtemp()
 atexit.register(remove_tempdir, tempdir)
 
-activate_axis(0, True)
+activate_ja_widget(0, True)
 set_hal_jogincrement()
 
 code = []
@@ -3409,9 +3786,7 @@ def balance_ja():
     widgets.axes.configure(width=w, height=h)
     widgets.joints.configure(width=w, height=h)
 if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-    c.teleop_enable(0)
-    c.wait_complete()
-    vars.teleop_mode.set(0)
+    set_motion_teleop(0)
     widgets.joints.grid_propagate(0)
     widgets.axes.grid_propagate(0)
     root_window.after_idle(balance_ja)
@@ -3473,12 +3848,12 @@ forget(widgets.spinoverridef,
        "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
 
 has_limit_switch = 0
-for j in range(9):
+for j in range(linuxcnc.MAX_JOINTS):
     try:
-        if hal.pin_has_writer("axis.%d.neg-lim-sw-in" % j):
+        if hal.pin_has_writer("joint.%d.neg-lim-sw-in" % j):
             has_limit_switch=1
             break
-        if hal.pin_has_writer("axis.%d.pos-lim-sw-in" % j):
+        if hal.pin_has_writer("joint.%d.pos-lim-sw-in" % j):
             has_limit_switch=1
             break
     except NameError, detail:
@@ -3512,6 +3887,8 @@ if hal_present == 1:
 else:
     root_window.deiconify()
     destroy_splash()
+
+set_motion_teleop(0) # start in joint mode
 
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)

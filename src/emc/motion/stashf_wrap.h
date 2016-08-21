@@ -31,7 +31,7 @@ const char *fmt, *efmt;
         int modifier_l;
         int code = get_code(&efmt, &modifier_l);
         int fmt_len = efmt - fmt;
-        char *block = alloca(fmt_len + 1);
+        char block[fmt_len + 1];
         memcpy(block, fmt, fmt_len);
         block[fmt_len] = 0;
 

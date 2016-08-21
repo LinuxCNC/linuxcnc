@@ -1,0 +1,30 @@
+# for trivkins     xyzb
+#                 --> 0123
+
+# connect joint and axis jog pins together for corresponding items
+net j:x axis.x.jog-counts joint.0.jog-counts
+net j:y axis.y.jog-counts joint.1.jog-counts
+net j:z axis.z.jog-counts joint.2.jog-counts
+net j:b axis.b.jog-counts joint.3.jog-counts
+
+net  j:e joint.0.jog-enable joint.1.jog-enable joint.2.jog-enable joint.3.jog-enable
+net  j:e  axis.x.jog-enable  axis.y.jog-enable  axis.z.jog-enable  axis.b.jog-enable
+sets j:e 1
+
+net  j:s joint.0.jog-scale joint.1.jog-scale  joint.2.jog-scale joint.3.jog-scale
+net  j:s  axis.x.jog-scale   axis.y.jog-scale  axis.z.jog-scale  axis.b.jog-scale
+sets j:s 1
+
+net  j:v joint.0.jog-vel-mode joint.1.jog-vel-mode  joint.2.jog-vel-mode joint.3.jog-vel-mode
+net  j:v  axis.x.jog-vel-mode  axis.y.jog-vel-mode   axis.z.jog-vel-mode  axis.b.jog-vel-mode
+sets j:v 1
+
+# simulate a locking rotary joint3
+loadrt timedelay names=timedelay_unlock
+addf   timedelay_unlock servo-thread
+
+net B-unlock      joint.3.unlock       => timedelay_unlock.in
+net B-is-unlocked timedelay_unlock.out => joint.3.is-unlocked
+
+setp timedelay_unlock.on-delay 0.75
+setp timedelay_unlock.off-delay 0.5

@@ -124,6 +124,11 @@ public:
  int set_tool_parameters();
  int on_abort(int reason, const char *message);
 
+ // program_end_cleanup() resets Interp settings, and enqueues (on the
+ // interp_list) Canon calls to reset Canon state after a program ends
+ // (either by executing M2 or M30, or by Abort.
+ void program_end_cleanup(setup_pointer settings);
+
     void set_loglevel(int level);
 
     // for now, public - for boost.python access
@@ -646,8 +651,8 @@ int read_inputs(setup_pointer settings);
     int unwind_call(int status, const char *file, int line, const char *function);
 
 
- int convert_straight_indexer(int, block*, setup*);
- int issue_straight_index(int, double, int, setup*);
+ int convert_straight_indexer(int anum, int jnum, block* blk, setup* settings);
+ int issue_straight_index(int anum, int jnum, double end, int lineno, setup* settings);
 
  void doLog(unsigned int flags, const char *file, int line,
 	    const char *fmt, ...) __attribute__((format(printf,5,6)));

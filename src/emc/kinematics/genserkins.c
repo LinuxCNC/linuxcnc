@@ -47,6 +47,7 @@ struct haldata {
     hal_float_t *a[GENSER_MAX_JOINTS];
     hal_float_t *alpha[GENSER_MAX_JOINTS];
     hal_float_t *d[GENSER_MAX_JOINTS];
+    hal_s32_t   unrotate[GENSER_MAX_JOINTS];
     genser_struct *kins;
     go_pose *pos;		// used in various functions, we malloc it
 				// only once in rtapi_app_main
@@ -318,6 +319,8 @@ int kinematicsForward(const double *joint,
 	if (!GO_ROT_CLOSE(j[i],joint[i])) changed = 1;
 	// convert to radians to pass to genser_kin_fwd
 	jcopy[i] = joint[i] * PM_PI / 180;
+        if ((i) && (haldata->unrotate[i]))
+            jcopy[i] -= haldata->unrotate[i]*jcopy[i-1];
     }
     
     if (changed) {
@@ -505,6 +508,8 @@ int kinematicsInverse(const EmcPose * world,
 	    for (link = 0; link < genser->link_num; link++) {
 		// convert from radians back to angles
 		joints[link] = jest[link] * 180 / PM_PI;
+                if ((link) && (haldata->unrotate[link]))
+                    joints[link] += (haldata->unrotate[link]) * joints[link-1];
 	    }
 //	    rtapi_print("DONEkineInverse(joints: %f %f %f %f %f %f), (iterations=%d)\n", joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
 	    return GO_RESULT_OK;
@@ -596,6 +601,11 @@ int rtapi_app_main(void)
 		    "genserkins.D-%d", i)) < 0)
 	    goto error;
         *(haldata->d[i])=0;
+        if ((res =
+                hal_param_s32_newf(HAL_RW, &(haldata->unrotate[i]), comp_id,
+                    "genserkins.unrotate-%d", i)) < 0)
+            goto error;
+        haldata->unrotate[i]=0;
     }
 
     KINS_PTR = hal_malloc(sizeof(genser_struct));
@@ -651,8 +661,8 @@ void rtapi_app_exit(void)
 #ifdef ULAPI
 
 #include <stdio.h>
-#include <malloc.h>
 #include <sys/time.h>		/* struct timeval */
+#include <stdlib.h>		/* malloc() */
 #include <unistd.h>		/* gettimeofday() */
 
 static double timestamp()

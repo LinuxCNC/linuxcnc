@@ -1,0 +1,6 @@
+sudo: required
+language: c++
+before_install: ./scripts/travis-install-build-deps.sh
+script: ./scripts/travis-build-test.sh
+notifications:
+    email: false

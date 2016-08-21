@@ -157,6 +157,12 @@ class GremlinView():
         self.gbox      = bldr.get_object('gremlin_view_box')
         self.halg      = bldr.get_object('gremlin_view_hal_gremlin')
 
+        #self.halg.show_lathe_radius = 1 # for test, hal_gremlin default is Dia
+
+        self.halg.init_glcanondraw(
+             trajcoordinates=self.halg.inifile.find('TRAJ','COORDINATES'),
+             kinstype=self.halg.inifile.find('KINS','KINEMATICS'))
+
         if not linuxcnc_running:
             # blanks display area:
             self.halg.set_has_window(False)

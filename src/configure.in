@@ -30,6 +30,18 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
+AC_PROG_CXX
+
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADER([boost/lockfree/queue.hpp],
+    [], [RTAPI_APP_CFLAGS="$RTAPI_APP_CFLAGS -I external"])
+AC_LANG_POP([C++])
+AC_SUBST([RTAPI_APP_CFLAGS])
+
+m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+# make this optional - it will likely only result in warnings
+AX_CXX_COMPILE_STDCXX_11(noext,optional)
+
 ## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
 ##
 m4_define([_PYTHON_SYSCONFIG],
@@ -147,8 +159,6 @@ fi
 # Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
 
-AC_MSG_CHECKING(for RT dir)
-
 # set up some default values
 RTDIR=""
 RTAI=""
@@ -215,8 +225,66 @@ AC_SUBST([RTS])
 ##############################################################################
 
 #at this point if RTS is empty, we need to find RT ourselves
-if test "$RTS" = uspace ; then
-  AC_MSG_RESULT([Using userspace realtime]);
+AC_MSG_CHECKING([for rtai-config])
+if test -z "$RTDIR"; then
+  DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
+else
+  DIRS="$RTS"
+fi
+  RTAI_CONFIG=none
+  for location in $DIRS; do
+    for subdir in . scripts bin; do
+    for signature in rtai; do
+      candidate=$location/$subdir/$signature-config
+      if test "$RTAI_CONFIG" = "none" -a -x $candidate; then
+        RTAI_CONFIG=$candidate
+      fi
+    done
+  done
+done
+
+AC_MSG_RESULT([$RTAI_CONFIG])
+AC_SUBST([RTAI_CONFIG])
+
+AC_PATH_PROG([XENOMAI_CONFIG], [xeno-config], [none])
+AC_SUBST([XENOMAI_CONFIG])
+
+AC_MSG_CHECKING([for realtime API(s) to use])
+if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
+  RTS=uspace
+  if test "$RTAI_CONFIG" = "none" ; then
+    USPACE_RTAI=
+    CONFIG_USPACE_RTAI=n
+    RTAI_LXRT_CFLAGS=
+    RTAI_LXRT_LDFLAGS=
+  else
+    USPACE_RTAI=+lxrt
+    CONFIG_USPACE_RTAI=y
+    RTAI_LXRT_CFLAGS=`$RTAI_CONFIG --lxrt-cflags`
+    RTAI_LXRT_LDFLAGS=`$RTAI_CONFIG --lxrt-ldflags`
+    AC_DEFINE([USPACE_RTAI], [], [Define if uspace realtime should optionally support RTAI LXRT])
+  fi
+  AC_SUBST([CONFIG_USPACE_RTAI])
+  AC_SUBST([RTAI_LXRT_CFLAGS])
+  AC_SUBST([RTAI_LXRT_LDFLAGS])
+
+  if test "$XENOMAI_CONFIG" = "none" ; then
+    USPACE_XENOMAI=
+    CONFIG_USPACE_XENOMAI=n
+    XENOMAI_CFLAGS=
+    XENOMAI_LDFLAGS=
+  else
+    USPACE_XENOMAI=+xenomai
+    CONFIG_USPACE_XENOMAI=y
+    XENOMAI_CFLAGS=`$XENOMAI_CONFIG --skin posix --cflags`
+    XENOMAI_LDFLAGS=`$XENOMAI_CONFIG --skin posix --ldflags`
+    AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
+  fi
+  AC_SUBST([CONFIG_USPACE_XENOMAI])
+  AC_SUBST([XENOMAI_CFLAGS])
+  AC_SUBST([XENOMAI_LDFLAGS])
+
+  AC_MSG_RESULT([$RTS$USPACE_RTAI$USPACE_XENOMAI])
 
   AC_MSG_CHECKING([whether to enable userspace PCI access])
   AC_ARG_ENABLE(userspace-pci,
@@ -257,30 +325,8 @@ if test "$RTS" = uspace ; then
   AC_SUBST([LIBUDEV_CFLAGS])
   AC_SUBST([LIBUDEV_LIBS])
 else
-  if test -z "$RTDIR"; then
-    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-  else
-    DIRS="$RTS"
-  fi
-  RTS=""
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
-      for signature in rtai; do
-	candidate=$location/$subdir/$signature-config
-	if test -z "$RTS" -a -e $candidate; then
-	  RTS=$candidate
-	fi
-      done
-    done
- done
- if test -z "$RTS"; then
-    AC_MSG_ERROR([RT not found.  Specify:
-	--with-realtime=<path>
-or use
-	--with-realtime=uspace
-to build for userspace (with or without realtime support)])
-  fi
-  AC_MSG_RESULT([Using $RTS as the RT signature])
+  RTS="$RTAI_CONFIG"
+  AC_MSG_RESULT([$RTS])
 fi
 
 
@@ -306,14 +352,14 @@ case $RTS in
     ULAPI_CFLAGS=`$RTS --lxrt-cflags`
     ULAPI_LDFLAGS=`$RTS --lxrt-ldflags`
 ;;
-uspace)
+uspace|uspace+*)
     RTPREFIX=uspace
     RTDIR=$(pwd -P)
-    RTFLAGS=-DUSPACE
+    ULAPI_CFLAGS=""
+    RTFLAGS="-DUSPACE"
     BUILD_SYS=uspace
     MODEXT=.so
     MODULE_DIR=${prefix}/lib/linuxcnc/modules
-    ULAPI_CFLAGS=""
     ULAPI_LDFLAGS=""
 esac
 
@@ -766,12 +812,6 @@ AC_SUBST(GLIB_CFLAGS)
 ##############################################################################
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-AC_PROG_CXX
-
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
-# make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_11(noext,optional)
-
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
@@ -1073,7 +1113,7 @@ AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)
 
-if test $RTS '!=' uspace
+if test "$RTS" '!=' uspace
 then
 for m in adeos rtai_hal rtai_ksched rtai_sched rtai_fifos rtai_sem rtai_math \
 ; do
@@ -1163,6 +1203,41 @@ AC_MSG_RESULT([$sincos_ok])
 
 AC_CHECK_FUNCS(__sincos)
 LIBS=$LIBS_hold
+
+AC_MSG_CHECKING([for optreset])
+AC_TRY_LINK(
+    [
+#include <unistd.h>
+extern int optreset;
+    ],
+    [ optreset = 1; ],
+    [
+	HAVE_OPTRESET=yes
+        AC_DEFINE([HAVE_OPTRESET], [], [Define to 1 if getopt has the BSD 'optreset' extension])
+],
+    [HAVE_OPTRESET=no])
+AC_MSG_RESULT($HAVE_OPTRESET)
+AC_SUBST([HAVE_OPTRESET])
+
+
+
+LIBS_hold=$LIBS
+LIBS=
+AC_SEARCH_LIBS(dlopen, [c dl], [
+    case "$LIBS" in
+    (-lc) LIBDL= ;;
+    (*)   LIBDL="$LIBS"
+    esac
+
+    AC_DEFINE([LIBDL], [$LIBDL], [Define to the library that dlopen comes from, if it is not a part of libc])
+], [AC_MSG_ERROR([not found])])
+AC_SUBST([LIBDL])
+LIBS=$LIBS_hold
+
+AC_SEARCH_LIBS(clock_nanosleep, [rt], [
+    AC_DEFINE([HAVE_CLOCK_NANOSLEEP], 1,
+        [Define to 1 if clock_nanosleep is available (in -lc or -lrt)])
+])
 
 AH_BOTTOM(#endif
 )
@@ -1357,36 +1432,7 @@ if test "x$HAVE_XINERAMA" = "xno"; then
     AC_MSG_ERROR([Xinerama library or headers not found])
 fi
 
-# check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
-
-if test "$have_x" = "yes"; then
-CFLAGS_hold=$CFLAGS
-LIBS_hold=$LIBS
-CFLAGS="$CFLAGS $X_CFLAGS"
-LIBS="$LIBS $X_PRE_LIBS $X_LIBS"
-
-AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
-	    [HAVE_XAW=yes],
-	    [HAVE_XAW=no],
-	    [[#include <X11/Intrinsic.h>
-	    ]])
-
-AC_CHECK_LIB(Xaw, XawDialogGetValueString,
-	    [],
-	    [HAVE_XAW=no])
-CFLAGS=$CFLAGS_hold
-LIBS=$LIBS_hold
-fi
-
-if test "x$HAVE_XAW" = "xno"; then
-    AC_MSG_WARN([Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev'])
-else    
-    XAW_LIBS="$X_PRE_LIBS $X_LIBS -lX11 -lXaw -lXt"
-fi
-AC_SUBST([HAVE_XAW])
-AC_SUBST([XAW_LIBS])
-
-#clean out LIBS, or else all future tests will check with -lXaw (which fails on odd systems)
+#clean out LIBS
 temp_LIBS=$LIBS
 LIBS=
 
@@ -1422,7 +1468,7 @@ AC_TRY_COMPILE([
         AC_MSG_RESULT(no)
         AC_MSG_WARN(
 [The LinuxCNC binary you are building may not be
-distributable due to a license incompatiblilty with LinuxCNC (some portions
+distributable due to a license incompatibility with LinuxCNC (some portions
 GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
         if $NONDISTRIBUTABLE; then
             AC_MSG_WARN(
@@ -1442,26 +1488,6 @@ else
 fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])
-
-
-#check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
-
-AC_CHECK_HEADERS(ncurses.h,
-	    [HAVE_NCURSES=yes],
-	    [HAVE_NCURSES=no])
-
-AC_CHECK_LIB(ncurses, initscr,
-	    [],
-	    [HAVE_NCURSES=no])
-
-if test "x$HAVE_NCURSES" = "xno"; then
-    AC_MSG_WARN(ncurses lib missing, you won't be able to build/run keystick. try installing it with 'apt-get install libncurses-dev')
-else    
-    NCURSES_LIBS="-lncurses"
-fi
-AC_SUBST([HAVE_NCURSES])
-AC_SUBST([NCURSES_LIBS])
-
 
 ##############################################################################
 # Section 7 - Language support                                               #
@@ -1646,6 +1672,7 @@ AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
+AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES(Makefile.inc)

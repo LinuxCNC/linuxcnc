@@ -28,17 +28,17 @@ net Zpos-fb => wcomp_zmax.in
 net Zpos-fb => wcomp_zhome.in
 
 # connect simulated switch outputs to motion controller
-net Xminlim wcomp_xmin.out => axis.0.neg-lim-sw-in
-net Xmaxlim wcomp_xmax.out => axis.0.pos-lim-sw-in
-net Xhome wcomp_xhome.out => axis.0.home-sw-in
+net Xminlim wcomp_xmin.out => joint.0.neg-lim-sw-in
+net Xmaxlim wcomp_xmax.out => joint.0.pos-lim-sw-in
+net Xhome wcomp_xhome.out => joint.0.home-sw-in
 
-net Yminlim wcomp_ymin.out => axis.1.neg-lim-sw-in
-net Ymaxlim wcomp_ymax.out => axis.1.pos-lim-sw-in
-net Yhome wcomp_yhome.out => axis.1.home-sw-in
+net Yminlim wcomp_ymin.out => joint.1.neg-lim-sw-in
+net Ymaxlim wcomp_ymax.out => joint.1.pos-lim-sw-in
+net Yhome wcomp_yhome.out => joint.1.home-sw-in
 
-net Zminlim wcomp_zmin.out => axis.2.neg-lim-sw-in
-net Zmaxlim wcomp_zmax.out => axis.2.pos-lim-sw-in
-net Zhome wcomp_zhome.out => axis.2.home-sw-in
+net Zminlim wcomp_zmin.out => joint.2.neg-lim-sw-in
+net Zmaxlim wcomp_zmax.out => joint.2.pos-lim-sw-in
+net Zhome wcomp_zhome.out => joint.2.home-sw-in
 
 # configure the points at which the simulated switches trip
 # X axis first

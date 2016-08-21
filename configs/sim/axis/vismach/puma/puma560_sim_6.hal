@@ -1,29 +1,29 @@
 # core HAL config file for simulation - 6 axis
 
 # load RT modules
-loadrt genserkins
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[TRAJ]AXES
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[KINS]JOINTS
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
 # create HAL signals for position commands from motion module
-net J0pos <= axis.0.motor-pos-cmd
-net J1pos <= axis.1.motor-pos-cmd
-net J2pos <= axis.2.motor-pos-cmd
-net J3pos <= axis.3.motor-pos-cmd
-net J4pos <= axis.4.motor-pos-cmd
-net J5pos <= axis.5.motor-pos-cmd
+net J0pos <= joint.0.motor-pos-cmd
+net J1pos <= joint.1.motor-pos-cmd
+net J2pos <= joint.2.motor-pos-cmd
+net J3pos <= joint.3.motor-pos-cmd
+net J4pos <= joint.4.motor-pos-cmd
+net J5pos <= joint.5.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-net J0pos => axis.0.motor-pos-fb
-net J1pos => axis.1.motor-pos-fb
-net J2pos => axis.2.motor-pos-fb
-net J3pos => axis.3.motor-pos-fb
-net J4pos => axis.4.motor-pos-fb
-net J5pos => axis.5.motor-pos-fb
+net J0pos => joint.0.motor-pos-fb
+net J1pos => joint.1.motor-pos-fb
+net J2pos => joint.2.motor-pos-fb
+net J3pos => joint.3.motor-pos-fb
+net J4pos => joint.4.motor-pos-fb
+net J5pos => joint.5.motor-pos-fb
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in

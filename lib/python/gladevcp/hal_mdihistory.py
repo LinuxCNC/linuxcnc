@@ -31,7 +31,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.ini = linuxcnc.ini(inifile)
-        no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
+        self.no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
         path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.filename = os.path.expanduser(path)
 
@@ -66,9 +66,11 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.pack_start(self.entry, False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or no_home_required ) ))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(not self.is_auto_mode()))
         self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
+        # this time lambda with two parameters, as not all homed will send also the unhomed joints
+        self.gstat.connect('not-all-homed', lambda w,uj: self.set_sensitive(self.no_home_required) )
         self.reload()
         self.show_all()
 

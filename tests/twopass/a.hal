@@ -1,0 +1,3 @@
+loadrt and2 names=andX,andY
+net p andX.in0 andX.in1 andY.out
+

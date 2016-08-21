@@ -160,7 +160,8 @@ static void sample(void *arg, long period)
     samp = arg;
     /* are we enabled? */
     if ( ! *(samp->enable) ) {
-	/* no, done */
+	*(samp->curr_depth) = hal_stream_depth(&samp->fifo);
+	*(samp->full) = !hal_stream_writable(&samp->fifo);
 	return;
     }
     /* point at pins in hal shmem */

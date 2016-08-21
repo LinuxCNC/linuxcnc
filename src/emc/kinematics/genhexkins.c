@@ -10,8 +10,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 2014.12.22
 *********************************************************************
 
   These are the forward and inverse kinematic functions for a class of
@@ -32,10 +30,42 @@
 
   genhexkins.base.N.x
   genhexkins.base.N.y
-  genhexkins.base.N.z
+  genhexkins.base.N.z - base joint coordinates.
+
   genhexkins.platform.N.x
   genhexkins.platform.N.y
-  genhexkins.platform.N.z
+  genhexkins.platform.N.z - platform joint coordinates.
+
+  genhexkins.spindle-offset - added to Z coordinates of all joints to
+                              change the machine origin. Facilitates
+                              adjusting spindle position.
+
+  genhexkins.tool-offset - tool length offset (TCP offset along Z),
+                           implements RTCP function when connected to
+                           motion.tooloffset.Z.
+
+  To avoid joints jump change tool offset (G43, G49) only when the
+  platform is not tilted (A = B = 0).
+
+  Some hexapods use non-captive screw actuators and universal (cardanic)
+  joints, thus the strut lengths depend on orientation of joints axes.
+  Strut length correction is implemented to compensate for this.
+  The calculations use orientation (unit vectors) of base and platform
+  joint axes and the lead of actuator screws:
+
+  genhexkins.base-n.N.x
+  genhexkins.base-n.N.y
+  genhexkins.base-n.N.z - unit vectors of base joint axes;
+
+  genhexkins.platform-n.N.x
+  genhexkins.platform-n.N.y
+  genhexkins.platform-n.N.z - unit vectors of platform joint axes
+                              in platform CS.
+  genhexkins.screw-lead - lead of strut actuator screw, positive for
+                          right-hand thread. Default is 0 (strut length
+                          correction disabled).
+  genhexkins.correction.N - pins showing current values of strut length
+                            correction.
 
   The kinematicsInverse function solves the inverse kinematics using
   a closed form algorithm.  The inverse kinematics problem is given
@@ -88,11 +118,21 @@ struct haldata {
     hal_float_t platformx[NUM_STRUTS];
     hal_float_t platformy[NUM_STRUTS];
     hal_float_t platformz[NUM_STRUTS];
+    hal_float_t basenx[NUM_STRUTS];
+    hal_float_t baseny[NUM_STRUTS];
+    hal_float_t basenz[NUM_STRUTS];
+    hal_float_t platformnx[NUM_STRUTS];
+    hal_float_t platformny[NUM_STRUTS];
+    hal_float_t platformnz[NUM_STRUTS];
+    hal_float_t *correction[NUM_STRUTS];
+    hal_float_t screw_lead;
     hal_u32_t *last_iter;
     hal_u32_t *max_iter;
-    hal_u32_t *iter_limit;
-    hal_float_t *max_error;
-    hal_float_t *conv_criterion;
+    hal_u32_t iter_limit;
+    hal_float_t max_error;
+    hal_float_t conv_criterion;
+    hal_float_t *tool_offset;
+    hal_float_t spindle_offset;
 } *haldata;
 
 
@@ -201,6 +241,11 @@ static void MatMult(double J[][6], const double x[], double Ans[])
 static PmCartesian b[NUM_STRUTS];
 static PmCartesian a[NUM_STRUTS];
 
+/* declare base and platform joint axes vectors */
+
+static PmCartesian nb1[NUM_STRUTS];
+static PmCartesian na0[NUM_STRUTS];
+
 /************************genhexkins_read_hal_pins**************************/
 
 int genhexkins_read_hal_pins(void) {
@@ -210,121 +255,52 @@ int genhexkins_read_hal_pins(void) {
     for (t = 0; t < NUM_STRUTS; t++) {
         b[t].x = haldata->basex[t];
         b[t].y = haldata->basey[t];
-        b[t].z = haldata->basez[t];
+        b[t].z = haldata->basez[t] + haldata->spindle_offset + *haldata->tool_offset;
         a[t].x = haldata->platformx[t];
         a[t].y = haldata->platformy[t];
-        a[t].z = haldata->platformz[t];
+        a[t].z = haldata->platformz[t] + haldata->spindle_offset + *haldata->tool_offset;
+
+        nb1[t].x = haldata->basenx[t];
+        nb1[t].y = haldata->baseny[t];
+        nb1[t].z = haldata->basenz[t];
+        na0[t].x = haldata->platformnx[t];
+        na0[t].y = haldata->platformny[t];
+        na0[t].z = haldata->platformnz[t];
+
     }
     return 0;
 }
 
-/**************************** jacobianInverse() ***************************/
+/***************************StrutLengthCorrection***************************/
 
-static int JInvMat(const EmcPose * pos,
-           double InverseJacobian[][NUM_STRUTS])
+int StrutLengthCorrection(const PmCartesian * StrutVectUnit,
+                          const PmRotationMatrix * RMatrix,
+                          const int strut_number,
+                          double * correction)
 {
-  int i;
-  PmRpy rpy;
-  PmRotationMatrix RMatrix;
-  PmCartesian aw, RMatrix_a;
-  PmCartesian InvKinStrutVect,InvKinStrutVectUnit;
-  PmCartesian RMatrix_a_cross_Strut;
+  PmCartesian nb2, nb3, na1, na2;
+  double dotprod;
 
-  genhexkins_read_hal_pins();
+  /* define base joints axis vectors */
+  pmCartCartCross(&nb1[strut_number], StrutVectUnit, &nb2);
+  pmCartCartCross(StrutVectUnit, &nb2, &nb3);
+  pmCartUnitEq(&nb3);
 
-  /* assign a, b, c to roll, pitch, yaw angles and convert to rot matrix */
-  rpy.r = pos->a * PM_PI / 180.0;
-  rpy.p = pos->b * PM_PI / 180.0;
-  rpy.y = pos->c * PM_PI / 180.0;
-  pmRpyMatConvert(&rpy, &RMatrix);
+  /* define platform joints axis vectors */
+  pmMatCartMult(RMatrix, &na0[strut_number], &na1);
+  pmCartCartCross(&na1, StrutVectUnit, &na2);
+  pmCartUnitEq(&na2);
 
-  /* Enter for loop to build Inverse Jacobian */
-  for (i = 0; i < NUM_STRUTS; i++) {
-    /* run part of inverse kins to get strut vectors */
-    pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
-    pmCartCartAdd(&pos->tran, &RMatrix_a, &aw);
-    pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
+  /* define dot product */
+  pmCartCartDot(&nb3, &na2, &dotprod);
 
-    /* Determine RMatrix_a_cross_strut */
-    if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-      return -1;
-    }
-    pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
-
-    /* Build Inverse Jacobian Matrix */
-    InverseJacobian[i][0] = InvKinStrutVectUnit.x;
-    InverseJacobian[i][1] = InvKinStrutVectUnit.y;
-    InverseJacobian[i][2] = InvKinStrutVectUnit.z;
-    InverseJacobian[i][3] = RMatrix_a_cross_Strut.x;
-    InverseJacobian[i][4] = RMatrix_a_cross_Strut.y;
-    InverseJacobian[i][5] = RMatrix_a_cross_Strut.z;
-  }
+  *correction = haldata->screw_lead * asin(dotprod) / PM_2_PI;
 
   return 0;
 }
 
-int jacobianInverse(const EmcPose * pos,
-            const EmcPose * vel,
-            const double * joints,
-            double * jointvels)
-{
-  double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
-  double velmatrix[6];
-
-  if (0 != JInvMat(pos, InverseJacobian)) {
-    return -1;
-  }
-
-  /* Multiply Jinv[] by vel[] to get jointvels */
-  velmatrix[0] = vel->tran.x;   /* dx/dt */
-  velmatrix[1] = vel->tran.y;   /* dy/dt */
-  velmatrix[2] = vel->tran.z;   /* dz/dt */
-  velmatrix[3] = vel->a;    /* droll/dt */
-  velmatrix[4] = vel->b;    /* dpitch/dt */
-  velmatrix[5] = vel->c;    /* dyaw/dt */
-  MatMult(InverseJacobian, velmatrix, jointvels);
-
-  return 0;
-}
-
-/**************************** jacobianForward() ***************************/
-
-/* FIXME-- could use a better implementation than computing the
-   inverse and then inverting it */
-int jacobianForward(const double * joints,
-            const double * jointvels,
-            const EmcPose * pos,
-            EmcPose * vel)
-{
-  double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
-  double Jacobian[NUM_STRUTS][NUM_STRUTS];
-  double velmatrix[6];
-
-  if (0 != JInvMat(pos, InverseJacobian)) {
-    return -1;
-  }
-  if (0 != MatInvert(InverseJacobian, Jacobian)) {
-    return -1;
-  }
-
-  /* Multiply J[] by jointvels to get vels */
-  MatMult(Jacobian, jointvels, velmatrix);
-  vel->tran.x = velmatrix[0];
-  vel->tran.y = velmatrix[1];
-  vel->tran.z = velmatrix[2];
-  vel->a = velmatrix[3];
-  vel->b = velmatrix[4];
-  vel->c = velmatrix[5];
-
-  return 0;
-}
 
 /**************************** kinematicsForward() ***************************/
-
-/* the inverse kinematics take world coordinates and determine joint values,
-   given the inverse kinematics flags to resolve any ambiguities. The forward
-   flags are set to indicate their value appropriate to the world coordinates
-   passed in. */
 
 int kinematicsForward(const double * joints,
                       EmcPose * pos,
@@ -341,6 +317,7 @@ int kinematicsForward(const double * joints,
   double InvKinStrutLength, StrutLengthDiff[NUM_STRUTS];
   double delta[NUM_STRUTS];
   double conv_err = 1.0;
+  double corr;
 
   PmRotationMatrix RMatrix;
   PmRpy q_RPY;
@@ -376,8 +353,8 @@ int kinematicsForward(const double * joints,
   /* Enter Newton-Raphson iterative method   */
   while (iterate) {
     /* check for large error and return error flag if no convergence */
-    if ((conv_err > +(*haldata->max_error)) ||
-    (conv_err < -(*haldata->max_error))) {
+    if ((conv_err > +(haldata->max_error)) ||
+    (conv_err < -(haldata->max_error))) {
       /* we can't converge */
       return -2;
     };
@@ -386,7 +363,7 @@ int kinematicsForward(const double * joints,
 
     /* check iteration to see if the kinematics can reach the
        convergence criterion and return error flag if it can't */
-    if (iteration > *haldata->iter_limit) {
+    if (iteration > haldata->iter_limit) {
       /* we can't converge */
       return -5;
     }
@@ -402,9 +379,17 @@ int kinematicsForward(const double * joints,
       pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
       pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-    return -1;
+        return -1;
       }
       pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
+
+      if (haldata->screw_lead != 0.0) {
+        /* enable strut length correction */
+        StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
+        /* define corrected joint lengths */
+        InvKinStrutLength += corr;
+      }
+
       StrutLengthDiff[i] = InvKinStrutLength - joints[i];
 
       /* Determine RMatrix_a_cross_strut */
@@ -442,13 +427,13 @@ int kinematicsForward(const double * joints,
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;            /*assume iteration is done */
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > *haldata->conv_criterion) {
+      if (fabs(StrutLengthDiff[i]) > haldata->conv_criterion) {
     iterate = 1;
       }
     }
   } /* exit Newton-Raphson Iterative loop */
 
-  /* assign r,p,w to a,b,c */
+  /* assign r,p,y to a,b,c */
   pos->a = q_RPY.r * 180.0 / PM_PI;
   pos->b = q_RPY.p * 180.0 / PM_PI;
   pos->c = q_RPY.y * 180.0 / PM_PI;
@@ -468,6 +453,10 @@ int kinematicsForward(const double * joints,
 
 
 /************************ kinematicsInverse() ********************************/
+/* the inverse kinematics take world coordinates and determine joint values,
+   given the inverse kinematics flags to resolve any ambiguities. The forward
+   flags are set to indicate their value appropriate to the world coordinates
+   passed in. */
 
 int kinematicsInverse(const EmcPose * pos,
                       double * joints,
@@ -476,9 +465,11 @@ int kinematicsInverse(const EmcPose * pos,
 {
 
   PmCartesian aw, temp;
+  PmCartesian InvKinStrutVect, InvKinStrutVectUnit;
   PmRotationMatrix RMatrix;
   PmRpy rpy;
   int i;
+  double InvKinStrutLength, corr;
 
   genhexkins_read_hal_pins();
 
@@ -496,8 +487,22 @@ int kinematicsInverse(const EmcPose * pos,
     pmCartCartAdd(&pos->tran, &temp, &aw);
 
     /* define strut lengths */
-    pmCartCartSub(&aw, &b[i], &temp);
-    pmCartMag(&temp, &joints[i]);
+    pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
+    pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
+
+    if (haldata->screw_lead != 0.0) {
+      /* enable strut length correction */
+      /* define unit strut vector */
+      if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
+          return -1;
+      }
+      /* define correction value and corrected joint lengths */
+      StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
+      *haldata->correction[i] = corr;
+      InvKinStrutLength += corr;
+    }
+
+    joints[i] = InvKinStrutLength;
   }
 
   return 0;
@@ -559,6 +564,36 @@ int rtapi_app_main(void)
         if ((res = hal_param_float_newf(HAL_RW, &haldata->platformz[i], comp_id,
             "genhexkins.platform.%d.z", i)) < 0)
         goto error;
+
+        if ((res = hal_param_float_newf(HAL_RW, &haldata->basenx[i], comp_id,
+            "genhexkins.base-n.%d.x", i)) < 0)
+        goto error;
+
+        if ((res = hal_param_float_newf(HAL_RW, &haldata->baseny[i], comp_id,
+            "genhexkins.base-n.%d.y", i)) < 0)
+        goto error;
+
+        if ((res = hal_param_float_newf(HAL_RW, &haldata->basenz[i], comp_id,
+            "genhexkins.base-n.%d.z", i)) < 0)
+        goto error;
+
+        if ((res = hal_param_float_newf(HAL_RW, &haldata->platformnx[i], comp_id,
+            "genhexkins.platform-n.%d.x", i)) < 0)
+        goto error;
+
+        if ((res = hal_param_float_newf(HAL_RW, &haldata->platformny[i], comp_id,
+            "genhexkins.platform-n.%d.y", i)) < 0)
+        goto error;
+
+        if ((res = hal_param_float_newf(HAL_RW, &haldata->platformnz[i], comp_id,
+            "genhexkins.platform-n.%d.z", i)) < 0)
+        goto error;
+
+        if ((res = hal_pin_float_newf(HAL_OUT, &haldata->correction[i], comp_id,
+            "genhexkins.correction.%d", i)) < 0)
+        goto error;
+        *haldata->correction[i] = 0.0;
+
     }
 
     if ((res = hal_pin_u32_newf(HAL_OUT, &haldata->last_iter, comp_id,
@@ -571,20 +606,35 @@ int rtapi_app_main(void)
     goto error;
     *haldata->max_iter = 0;
 
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->max_error, comp_id,
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->max_error, comp_id,
         "genhexkins.max-error")) < 0)
     goto error;
-    *haldata->max_error = 100;
+    haldata->max_error = 500.0;
 
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->conv_criterion, comp_id,
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->conv_criterion, comp_id,
         "genhexkins.convergence-criterion")) < 0)
     goto error;
-    *haldata->conv_criterion = 1e-9;
+    haldata->conv_criterion = 1e-9;
 
-    if ((res = hal_pin_u32_newf(HAL_IO, &haldata->iter_limit, comp_id,
+    if ((res = hal_param_u32_newf(HAL_RW, &haldata->iter_limit, comp_id,
         "genhexkins.limit-iterations")) < 0)
     goto error;
-    *haldata->iter_limit = 120;
+    haldata->iter_limit = 120;
+
+    if ((res = hal_pin_float_newf(HAL_IN, &haldata->tool_offset, comp_id,
+        "genhexkins.tool-offset")) < 0)
+    goto error;
+    *haldata->tool_offset = 0.0;
+
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->spindle_offset, comp_id,
+        "genhexkins.spindle-offset")) < 0)
+    goto error;
+    haldata->spindle_offset = 0.0;
+
+    if ((res = hal_param_float_newf(HAL_RW, &haldata->screw_lead, comp_id,
+        "genhexkins.screw-lead")) < 0)
+    goto error;
+    haldata->screw_lead = DEFAULT_SCREW_LEAD;
 
     haldata->basex[0] = DEFAULT_BASE_0_X;
     haldata->basey[0] = DEFAULT_BASE_0_Y;
@@ -623,6 +673,44 @@ int rtapi_app_main(void)
     haldata->platformx[5] = DEFAULT_PLATFORM_5_X;
     haldata->platformy[5] = DEFAULT_PLATFORM_5_Y;
     haldata->platformz[5] = DEFAULT_PLATFORM_5_Z;
+
+    haldata->basenx[0] = DEFAULT_BASE_0_NX;
+    haldata->baseny[0] = DEFAULT_BASE_0_NY;
+    haldata->basenz[0] = DEFAULT_BASE_0_NZ;
+    haldata->basenx[1] = DEFAULT_BASE_1_NX;
+    haldata->baseny[1] = DEFAULT_BASE_1_NY;
+    haldata->basenz[1] = DEFAULT_BASE_1_NZ;
+    haldata->basenx[2] = DEFAULT_BASE_2_NX;
+    haldata->baseny[2] = DEFAULT_BASE_2_NY;
+    haldata->basenz[2] = DEFAULT_BASE_2_NZ;
+    haldata->basenx[3] = DEFAULT_BASE_3_NX;
+    haldata->baseny[3] = DEFAULT_BASE_3_NY;
+    haldata->basenz[3] = DEFAULT_BASE_3_NZ;
+    haldata->basenx[4] = DEFAULT_BASE_4_NX;
+    haldata->baseny[4] = DEFAULT_BASE_4_NY;
+    haldata->basenz[4] = DEFAULT_BASE_4_NZ;
+    haldata->basenx[5] = DEFAULT_BASE_5_NX;
+    haldata->baseny[5] = DEFAULT_BASE_5_NY;
+    haldata->basenz[5] = DEFAULT_BASE_5_NZ;
+
+    haldata->platformnx[0] = DEFAULT_PLATFORM_0_NX;
+    haldata->platformny[0] = DEFAULT_PLATFORM_0_NY;
+    haldata->platformnz[0] = DEFAULT_PLATFORM_0_NZ;
+    haldata->platformnx[1] = DEFAULT_PLATFORM_1_NX;
+    haldata->platformny[1] = DEFAULT_PLATFORM_1_NY;
+    haldata->platformnz[1] = DEFAULT_PLATFORM_1_NZ;
+    haldata->platformnx[2] = DEFAULT_PLATFORM_2_NX;
+    haldata->platformny[2] = DEFAULT_PLATFORM_2_NY;
+    haldata->platformnz[2] = DEFAULT_PLATFORM_2_NZ;
+    haldata->platformnx[3] = DEFAULT_PLATFORM_3_NX;
+    haldata->platformny[3] = DEFAULT_PLATFORM_3_NY;
+    haldata->platformnz[3] = DEFAULT_PLATFORM_3_NZ;
+    haldata->platformnx[4] = DEFAULT_PLATFORM_4_NX;
+    haldata->platformny[4] = DEFAULT_PLATFORM_4_NY;
+    haldata->platformnz[4] = DEFAULT_PLATFORM_4_NZ;
+    haldata->platformnx[5] = DEFAULT_PLATFORM_5_NX;
+    haldata->platformny[5] = DEFAULT_PLATFORM_5_NY;
+    haldata->platformnz[5] = DEFAULT_PLATFORM_5_NZ;
 
     hal_ready(comp_id);
     return 0;

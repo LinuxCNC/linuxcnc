@@ -20,10 +20,10 @@ setp hm2_5i20.0.raw.write_strobe 1
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 # load motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[KINS]JOINTS
 
 # classicladder for machine logic
 # (load the realtime portion)
@@ -57,36 +57,36 @@ setp hm2_5i20.0.stepgen.00.dirsetup        5000
 setp hm2_5i20.0.stepgen.00.dirhold         2000
 setp hm2_5i20.0.stepgen.00.steplen         2000
 setp hm2_5i20.0.stepgen.00.stepspace       2000
-setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
-setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.00.position-scale  [JOINT_0]SCALE
+setp hm2_5i20.0.stepgen.00.maxaccel        [JOINT_0]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.00.maxvel          [JOINT_0]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.01.dirsetup        5000
 setp hm2_5i20.0.stepgen.01.dirhold         2000
 setp hm2_5i20.0.stepgen.01.steplen         2000
 setp hm2_5i20.0.stepgen.01.stepspace       2000
-setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_2]SCALE
-setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_2]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.01.position-scale  [JOINT_2]SCALE
+setp hm2_5i20.0.stepgen.01.maxaccel        [JOINT_2]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.01.maxvel          [JOINT_2]STEPGEN_MAXVEL
 
 # connect position commands from motion module to step generator
-net Xpos-cmd axis.0.motor-pos-cmd hm2_5i20.0.stepgen.00.position-cmd
-net Zpos-cmd axis.2.motor-pos-cmd hm2_5i20.0.stepgen.01.position-cmd
+net Xpos-cmd joint.0.motor-pos-cmd hm2_5i20.0.stepgen.00.position-cmd
+net Zpos-cmd joint.2.motor-pos-cmd hm2_5i20.0.stepgen.01.position-cmd
 
 # connect position feedback from step generators to motion module
-net Xpos-fb hm2_5i20.0.stepgen.00.position-fb axis.0.motor-pos-fb
-net Zpos-fb hm2_5i20.0.stepgen.01.position-fb axis.2.motor-pos-fb
+net Xpos-fb hm2_5i20.0.stepgen.00.position-fb joint.0.motor-pos-fb
+net Zpos-fb hm2_5i20.0.stepgen.01.position-fb joint.2.motor-pos-fb
 
 # connect enable signals for amplifiers and step generators
 setp hm2_5i20.0.gpio.018.is_output TRUE
 setp hm2_5i20.0.gpio.018.invert_output TRUE
 setp hm2_5i20.0.gpio.019.is_output TRUE
 setp hm2_5i20.0.gpio.019.invert_output TRUE
-net Xen axis.0.amp-enable-out hm2_5i20.0.gpio.018.out hm2_5i20.0.stepgen.00.enable
-net Zen axis.2.amp-enable-out hm2_5i20.0.gpio.019.out hm2_5i20.0.stepgen.01.enable
+net Xen joint.0.amp-enable-out hm2_5i20.0.gpio.018.out hm2_5i20.0.stepgen.00.enable
+net Zen joint.2.amp-enable-out hm2_5i20.0.gpio.019.out hm2_5i20.0.stepgen.01.enable
 
 # enable velocity mode jogging
-setp axis.0.jog-vel-mode TRUE
-setp axis.2.jog-vel-mode TRUE
+setp joint.0.jog-vel-mode TRUE
+setp joint.2.jog-vel-mode TRUE
 
 # enable the PWM generator
 setp hm2_5i20.0.pwmgen.00.enable TRUE
@@ -108,13 +108,13 @@ net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
 #connect limit/home switches
 #Brown Wire - Was Zhome, now Xpos
-net Xpos_lim hm2_5i20.0.gpio.024.in axis.0.pos-lim-sw-in axis.0.home-sw-in
+net Xpos_lim hm2_5i20.0.gpio.024.in joint.0.pos-lim-sw-in joint.0.home-sw-in
 #Brown/White Wire - Was Xhome, now Xneg
-net Xneg_lim hm2_5i20.0.gpio.026.in axis.0.neg-lim-sw-in
+net Xneg_lim hm2_5i20.0.gpio.026.in joint.0.neg-lim-sw-in
 #Green Wire - Was XZpos, now Zpos
-net Zpos_lim hm2_5i20.0.gpio.028.in axis.2.pos-lim-sw-in axis.2.home-sw-in
+net Zpos_lim hm2_5i20.0.gpio.028.in joint.2.pos-lim-sw-in joint.2.home-sw-in
 #Green/White Wire - Was XZneg, now Zneg
-net Zneg_lim hm2_5i20.0.gpio.030.in axis.2.neg-lim-sw-in
+net Zneg_lim hm2_5i20.0.gpio.030.in joint.2.neg-lim-sw-in
 
 #Tool Post Control Inputs
 net PrepNo iocontrol.0.tool-prep-number classicladder.0.s32in-00

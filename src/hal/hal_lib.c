@@ -1102,7 +1102,10 @@ int hal_link(const char *pin_name, const char *sig_name)
     comp = SHMPTR(pin->owner_ptr);
     data_addr = comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
-    if (( sig->readers == 0 ) && ( sig->writers == 0 ) && ( sig->bidirs == 0 )) {
+    bool drive_pin_default_value_onto_signal =
+        ( pin->dir != HAL_IN || sig->readers == 0 )
+            && ( sig->writers == 0 ) && ( sig->bidirs == 0 );
+    if (drive_pin_default_value_onto_signal) {
 	/* this is the first pin for this signal, copy value from pin's "dummy" field */
 	data_addr = hal_shmem_base + sig->data_ptr;
 
@@ -3548,17 +3551,15 @@ int hal_stream_maxdepth(hal_stream_t *stream) {
 #ifdef ULAPI
 void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop) {
     while(!hal_stream_writable(stream) && (!stop || !*stop)) {
-        /* fifo full, sleep for 10mS */
-        struct timespec delay = { .tv_sec = 0, .tv_nsec = 10000000};
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, NULL);
+        /* fifo full, sleep for 10ms */
+        rtapi_delay(10000000);
     }
 }
 
 void hal_stream_wait_readable(hal_stream_t *stream, sig_atomic_t *stop) {
     while(!hal_stream_readable(stream) && (!stop || !*stop)) {
-        /* fifo full, sleep for 10mS */
-        struct timespec delay = { .tv_sec = 0, .tv_nsec = 10000000};
-        nanosleep(&delay, NULL);
+        /* fifo full, sleep for 10ms */
+        rtapi_delay(10000000);
     }
 }
 #endif
@@ -3778,6 +3779,7 @@ EXPORT_SYMBOL(hal_param_alias);
 EXPORT_SYMBOL_GPL(hal_stream_create);
 EXPORT_SYMBOL_GPL(hal_stream_destroy);
 EXPORT_SYMBOL_GPL(hal_stream_readable);
+EXPORT_SYMBOL_GPL(hal_stream_writable);
 EXPORT_SYMBOL_GPL(hal_stream_depth);
 EXPORT_SYMBOL_GPL(hal_stream_maxdepth);
 EXPORT_SYMBOL_GPL(hal_stream_write);

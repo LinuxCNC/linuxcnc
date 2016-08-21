@@ -107,12 +107,24 @@ proc ::tp::loadusr_substitute {args} {
   }
 } ;# loadusr_substitute
 
-proc ::tp::loadrt_substitute {args} {
-  # syntax: loadrt modulename item=value ...
-  set parms  [split $args]
+proc ::tp::loadrt_substitute {arg1 args} {
+  set arg1split [split $arg1]
+  # detect multiple items in arg1
+  if {[llength $arg1split] > 1} {
+    #puts "loadrt_substitute arg1split=<$arg1split>"
+    #example:                arg1split=<\{trivkins coordinates=xyz\}>
+    set arg1split [string range $arg1 1 [expr -2 + [string len $arg1]]]
+    set arg1args  ""
+    for {set i 0} {$i < [llength $arg1split]} {incr i} {
+      set arg1args [concat $arg1args [lindex $arg1split $i]]
+    }
+    set theargs [concat $arg1args $args]
+  } else {
+    set theargs [concat $arg1 $args]
+  }
+  set parms  [split $theargs]
   set module [lindex $parms 0]
   set pass   [passnumber]
-  #puts "loadrt_substitute<$pass> <$parms>"
 
   # keep track of loadrt for each module in order to detect
   # unsupportable loadrt calls in pass1. The ct is the number of
@@ -136,7 +148,9 @@ proc ::tp::loadrt_substitute {args} {
     }
   }
   if {$pass > 0} {
-    eval orig_loadrt $parms
+    if [catch {eval orig_loadrt $parms} msg] {
+      puts "\ntwopass:loadrt_substitute parms=<$parms>\n$msg\n"
+    }
     return
   }
   # pass0 only follows ------------------------------------
@@ -186,6 +200,13 @@ proc ::tp::loadrt_substitute {args} {
                 set ::TP($module,names) $value
               } else {
                 set ::TP($module,names) "$::TP($module,names),$value"
+              }
+            }
+      personality {
+              if ![info exists ::TP($module,personality)] {
+                set ::TP($module,personality) $value
+              } else {
+                set ::TP($module,personality) "$::TP($module,personality),$value"
               }
             }
      debug  {
@@ -405,20 +426,6 @@ proc ::tp::hal_to_tcl {ifile ofile} {
   return $ofile
 } ;# hal_to_tcl
 
-proc ::tp::parse_ini {filename} {
-  # adapted from haltcl.in
-  set f [open $filename]
-  while {[gets $f line] >= 0} {
-    if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
-      # nothing
-    } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
-      upvar $section s
-      lappend s([string trim $k]) $v
-    }
-  }
-  close $f
-} ;# parse_ini
-
 proc ::tp::source_the_files {} {
   foreach file_plus_args $::TP(runfiles) {
     catch {unset ::argv}
@@ -468,6 +475,10 @@ proc ::tp::load_the_modules {} {
     } elseif [info exists ::TP($m,names)] {
       set cmd "$cmd names=$::TP($m,names)"
     }
+
+    if [info exists ::TP($m,personality)] {
+      set cmd "$cmd personality=$::TP($m,personality)"
+    }
     if [info exists ::TP($m,debug)] {
       set cmd "$cmd debug=$::TP($m,debug)"
     }
@@ -475,7 +486,9 @@ proc ::tp::load_the_modules {} {
       set cmd "$cmd $::TP($m,other)"
     }
     verbose "[string range $cmd 5 end]" ;# omit leading orig_
-    eval $cmd
+    if [catch { eval $cmd} msg] {
+       puts "\ntwopass: load_the_modules cmd=<$cmd>\n$msg\n"
+    }
   }
   set ::TP(loaded,modules) $::TP(modules)
   set ::TP(modules) ""
@@ -516,6 +529,7 @@ proc ::tp::verbose {msg} {
 
 #----------------------------------------------------------------------
 # begin
+package require Linuxcnc ;# parse_ini
 set ::tp::options ""
 set ::tp::verbose 0
 if {[string first verbose [string tolower $::HAL(TWOPASS)]] >=0} {

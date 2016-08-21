@@ -48,6 +48,7 @@
 #include "config.h"
 
 #include "rtapi.h"
+#include "rtapi/uspace_common.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
@@ -55,12 +56,39 @@
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
+#include <boost/lockfree/queue.hpp>
 
 int WithRoot::level;
 
 namespace
 {
 RtapiApp &App();
+
+struct message_t {
+    msg_level_t level;
+    char msg[1024-sizeof(level)];
+};
+
+boost::lockfree::queue<message_t, boost::lockfree::capacity<128>>
+rtapi_msg_queue;
+
+pthread_t queue_thread;
+void *queue_function(void *arg) {
+    // note: can't use anything in this function that requires App() to exist
+    // but it's OK to use functions that aren't safe for realtime (that's the
+    // point of running this in a thread)
+    while(1) {
+        pthread_testcancel();
+        pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, nullptr);
+        rtapi_msg_queue.consume_all([](const message_t &m) {
+            fputs(m.msg, m.level == RTAPI_MSG_ALL ? stdout : stderr);
+        });
+        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr);
+        struct timespec ts = {0, 10000000};
+        rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+    }
+    return nullptr;
+}
 }
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
@@ -393,17 +421,30 @@ static int callback(int fd)
     return !force_exit && instance_count > 0;
 }
 
+static pthread_t main_thread{};
+
 static int master(int fd, vector<string> args) {
+    main_thread = pthread_self();
+    if(pthread_create(&queue_thread, nullptr, &queue_function, nullptr) < 0) {
+        perror("pthread_create (queue function)");
+        return -1;
+    }
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     App(); // force rtapi_app to be created
+    int result=0;
     if(args.size()) {
-        int result = handle_command(args);
-        if(result != 0) return result;
-        if(force_exit || instance_count == 0) return 0;
+        result = handle_command(args);
+        if(result != 0) goto out;
+        if(force_exit || instance_count == 0) goto out;
     }
     sim_rtapi_run_threads(fd, callback);
-
-    return 0;
+out:
+    pthread_cancel(queue_thread);
+    pthread_join(queue_thread, nullptr);
+    rtapi_msg_queue.consume_all([](const message_t &m) {
+        fputs(m.msg, m.level == RTAPI_MSG_ALL ? stdout : stderr);
+    });
+    return result;
 }
 
 static std::string
@@ -450,7 +491,7 @@ int main(int argc, char **argv) {
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
-                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb rtapi_app\n");
+                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
         setreuid(fallback_uid, 0);
@@ -519,8 +560,22 @@ struct rtapi_module {
 #define MAX_MODULES  64
 #define MODULE_OFFSET 32768
 
+rtapi_task::rtapi_task()
+    : magic{}, id{}, owner{}, stacksize{}, prio{},
+      period{}, nextstart{},
+      ratio{}, arg{}, taskcode{}
+{}
+
 namespace
 {
+struct PosixTask : rtapi_task
+{
+    PosixTask() : rtapi_task{}, thr{}
+    {}
+
+    pthread_t thr;                /* thread's context */
+};
+
 struct Posix : RtapiApp
 {
     Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
@@ -534,6 +589,9 @@ struct Posix : RtapiApp
     int task_resume(int task_id);
     int task_self();
     void wait();
+    struct rtapi_task *do_task_new() {
+        return new PosixTask;
+    }
     unsigned char do_inb(unsigned int port);
     void do_outb(unsigned char value, unsigned int port);
     int run_threads(int fd, int (*callback)(int fd));
@@ -546,6 +604,14 @@ struct Posix : RtapiApp
     static void init_key(void) {
         pthread_key_create(&key, NULL);
     }
+
+    long long do_get_time(void) {
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    }
+
+    void do_delay(long ns);
 };
 
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
@@ -610,9 +676,6 @@ static void configure_memory()
     }
     free(buf);
 }
-
-extern "C"
-int rtapi_is_realtime();
 
 static int harden_rt()
 {
@@ -687,14 +750,31 @@ static int harden_rt()
 
 static RtapiApp *makeApp()
 {
-    if(harden_rt() < 0)
+    if(geteuid() != 0 || harden_rt() < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
         return new Posix(SCHED_OTHER);
-    } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
-        return new Posix(SCHED_FIFO);
     }
+    WithRoot r;
+    void *dll = nullptr;
+    if(detect_xenomai()) {
+        dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai.so.0", RTLD_NOW);
+        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    } else if(detect_rtai()) {
+        dll = dlopen(EMC2_HOME "/lib/libuspace-rtai.so.0", RTLD_NOW);
+        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    }
+    if(dll)
+    {
+        auto fn = reinterpret_cast<RtapiApp*(*)()>(dlsym(dll, "make"));
+        if(!fn) fprintf(stderr, "dlopen: %s\n", dlerror());
+        auto result = fn ? fn() : nullptr;
+        if(result) {
+            return result;
+        }
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
+    return new Posix(SCHED_FIFO);
 }
 RtapiApp &App()
 {
@@ -704,7 +784,7 @@ RtapiApp &App()
 
 }
 /* data for all tasks */
-struct rtapi_task task_array[MAX_TASKS] = {{0},};
+struct rtapi_task *task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
@@ -741,12 +821,12 @@ int RtapiApp::prio_next_lower(int prio)
   return prio - 1;
 }
 
-int RtapiApp::allocate_task()
+int RtapiApp::allocate_task_id()
 {
     for(int n=0; n<MAX_TASKS; n++)
     {
-        rtapi_task *task = &(task_array[n]);
-        if(__sync_bool_compare_and_swap(&task->magic, 0, TASK_MAGIC_INIT))
+        rtapi_task **taskptr = &(task_array[n]);
+        if(__sync_bool_compare_and_swap(taskptr, (rtapi_task*)0, TASK_MAGIC_INIT))
             return n;
     }
     return -ENOSPC;
@@ -761,20 +841,21 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   }
 
   /* label as a valid task structure */
-  int n = allocate_task();
+  int n = allocate_task_id();
   if(n < 0) return n;
 
-  // cannot use get_task, since task->magic is TASK_MAGIC_INIT
-  struct rtapi_task *task = &(task_array[n]);
-
+  struct rtapi_task *task = do_task_new();
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
   memset(task, 0, sizeof(*task));
+  task->id = n;
   task->owner = owner;
+  task->uses_fp = uses_fp;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
   task->prio = prio;
   task->magic = TASK_MAGIC;
+  task_array[n] = task;
 
   /* and return handle to the caller */
 
@@ -784,27 +865,42 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
 rtapi_task *RtapiApp::get_task(int task_id) {
     if(task_id < 0 || task_id >= MAX_TASKS) return NULL;
     /* validate task handle */
-    rtapi_task *task = &task_array[task_id];
-    if(!task || task->magic != TASK_MAGIC)
+    rtapi_task *task = task_array[task_id];
+    if(!task || task == TASK_MAGIC_INIT || task->magic != TASK_MAGIC)
         return NULL;
 
     return task;
 }
 
+void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int nperiod) {
+    static int printed = 0;
+    if(!printed)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Unexpected realtime delay on task %d with period %ld\n"
+                "This Message will only display once per session.\n"
+                "Run the Latency Test and resolve before continuing.\n",
+                task->id, task->period);
+        printed = 1;
+    }
+}
+
 int Posix::task_delete(int id)
 {
-  struct rtapi_task *task = get_task(id);
+  auto task = ::rtapi_get_task<PosixTask>(id);
   if(!task) return -EINVAL;
 
   pthread_cancel(task->thr);
   pthread_join(task->thr, 0);
   task->magic = 0;
+  task_array[id] = 0;
+  delete task;
   return 0;
 }
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
-  struct rtapi_task *task = get_task(task_id);
+  auto task = ::rtapi_get_task<PosixTask>(task_id);
   if(!task) return -EINVAL;
 
   if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
@@ -840,25 +936,6 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   return 0;
 }
 
-const unsigned long ONE_SEC_IN_NS = 1000000000;
-static void advance_clock(struct timespec &result, const struct timespec &src, unsigned long nsec)
-{
-    time_t sec = src.tv_sec;
-    while(nsec >= ONE_SEC_IN_NS)
-    {
-        ++sec;
-        nsec -= ONE_SEC_IN_NS;
-    }
-    nsec += src.tv_nsec;
-    if(nsec >= ONE_SEC_IN_NS)
-    {
-        ++sec;
-        nsec -= ONE_SEC_IN_NS;
-    }
-    result.tv_sec = sec;
-    result.tv_nsec = nsec;
-}
-
 #define RTAPI_CLOCK (CLOCK_MONOTONIC)
 
 pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
@@ -885,12 +962,12 @@ void *Posix::wrapper(void *arg)
 
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
-  advance_clock(task->nextstart, now, task->period);
+  rtapi_timespec_advance(task->nextstart, now, task->period);
 
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
 
-  rtapi_print("ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
+  rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
   return NULL;
 }
 
@@ -905,13 +982,7 @@ int Posix::task_resume(int) {
 int Posix::task_self() {
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
     if(!task) return -EINVAL;
-    return task - task_array;
-}
-
-static bool ts_less(const struct timespec &ta, const struct timespec &tb) {
-    if(ta.tv_sec < tb.tv_sec) return 1;
-    if(ta.tv_sec > tb.tv_sec) return 0;
-    return ta.tv_nsec < tb.tv_nsec;
+    return task->id;
 }
 
 void Posix::wait() {
@@ -919,24 +990,17 @@ void Posix::wait() {
         pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    advance_clock(task->nextstart, task->nextstart, task->period);
+    rtapi_timespec_advance(task->nextstart, task->nextstart, task->period);
     struct timespec now;
     clock_gettime(RTAPI_CLOCK, &now);
-    if(ts_less(task->nextstart, now))
+    if(rtapi_timespec_less(task->nextstart, now))
     {
-        static int printed = 0;
-        if(policy == SCHED_FIFO && !printed)
-        {
-            rtapi_print_msg(RTAPI_MSG_ERR, "Unexpected realtime delay on task %zd\n"
-		    "This Message will only display once per session.\n"
-		    "Run the Latency Test and resolve before continuing.\n", 
-                    task - task_array);
-            printed = 1;
-        }
+        if(policy == SCHED_FIFO)
+            unexpected_realtime_delay(task);
     }
     else
     {
-        int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
+        int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
         if(res < 0) perror("clock_nanosleep");
     }
     if(do_thread_lock)
@@ -959,6 +1023,10 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 #endif
 }
 
+void Posix::do_delay(long ns) {
+    struct timespec ts = {0, ns};
+    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+}
 int rtapi_prio_highest(void)
 {
     return App().prio_highest();
@@ -1053,6 +1121,51 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
     return App().run_threads(fd, callback);
 }
 
+long long rtapi_get_time() {
+    return App().do_get_time();
+}
 
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
+    if(main_thread && pthread_self() != main_thread) {
+        message_t m;
+        m.level = level;
+        vsnprintf(m.msg, sizeof(m.msg), fmt, ap);
+        rtapi_msg_queue.push(m);
+    } else {
+        vfprintf(level == RTAPI_MSG_ALL ? stdout : stderr, fmt, ap);
+    }
+}
 
-#include "rtapi/uspace_common.h"
+long int rtapi_delay_max() { return 10000; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    App().do_delay(ns);
+}
+
+const unsigned long ONE_SEC_IN_NS = 1000000000;
+void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec)
+{
+    time_t sec = src.tv_sec;
+    while(nsec >= ONE_SEC_IN_NS)
+    {
+        ++sec;
+        nsec -= ONE_SEC_IN_NS;
+    }
+    nsec += src.tv_nsec;
+    if(nsec >= ONE_SEC_IN_NS)
+    {
+        ++sec;
+        nsec -= ONE_SEC_IN_NS;
+    }
+    result.tv_sec = sec;
+    result.tv_nsec = nsec;
+}
+
+int rtapi_open_as_root(const char *filename, int mode) {
+    setfsuid(geteuid());
+    int r = open(filename, mode);
+    setfsuid(getuid());
+    if(r < 0) return -errno;
+    return r;
+}

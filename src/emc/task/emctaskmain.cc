@@ -58,6 +58,7 @@
 #include <ctype.h>		// isspace()
 #include <libintl.h>
 #include <locale.h>
+#include "usrmotintf.h"
 
 
 #if 0
@@ -83,6 +84,8 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "motion.h"             // EMCMOT_ORIENT_*
 #include "inihal.hh"
 
+static emcmot_config_t emcmotConfig;
+
 /* time after which the user interface is declared dead
  * because it would'nt read any more messages
  */
@@ -93,9 +96,6 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
 static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
 static NML *emcErrorBuffer = 0;
-
-// NML command channel data pointer
-static RCS_CMD_MSG *emcCommand = 0;
 
 // global EMC status
 EMC_STAT *emcStatus = 0;
@@ -137,12 +137,18 @@ int _task = 1; // control preview behaviour when remapping
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
 
+// When this flag is True (non-zero), Task will refrain from reading NML
+// input from the user interfaces, preferring instead to process Canon
+// messages from interp_list.  It's used in situations where Interp's
+// output is vital and must not be interrupted by pesky users, such as
+// when processing an Abort.
+int drain_interp_list = 0;
+
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
-static int all_homed(void) {
-    for(int i=0; i<9; i++) {
-        unsigned int mask = 1<<i;
-        if((emcStatus->motion.traj.axis_mask & mask) && !emcStatus->motion.axis[i].homed)
+int all_homed(void) {
+    for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+        if(!emcStatus->motion.joint[i].homed) // XXX
             return 0;
     }
     return 1;
@@ -350,24 +356,24 @@ int emcSystemCmd(char *s)
 }
 
 // shorthand typecasting ptrs
-static EMC_AXIS_HALT *axis_halt_msg;
-static EMC_AXIS_DISABLE *disable_msg;
-static EMC_AXIS_ENABLE *enable_msg;
-static EMC_AXIS_HOME *home_msg;
-static EMC_AXIS_UNHOME *unhome_msg;
-static EMC_AXIS_JOG *jog_msg;
-static EMC_AXIS_ABORT *axis_abort_msg;
-static EMC_AXIS_INCR_JOG *incr_jog_msg;
-static EMC_AXIS_ABS_JOG *abs_jog_msg;
-static EMC_AXIS_SET_BACKLASH *set_backlash_msg;
-static EMC_AXIS_SET_HOMING_PARAMS *set_homing_params_msg;
-static EMC_AXIS_SET_FERROR *set_ferror_msg;
-static EMC_AXIS_SET_MIN_FERROR *set_min_ferror_msg;
-static EMC_AXIS_SET_MAX_POSITION_LIMIT *set_max_limit_msg;
-static EMC_AXIS_SET_MIN_POSITION_LIMIT *set_min_limit_msg;
-static EMC_AXIS_OVERRIDE_LIMITS *axis_lim_msg;
-//static EMC_AXIS_SET_OUTPUT *axis_output_msg;
-static EMC_AXIS_LOAD_COMP *axis_load_comp_msg;
+static EMC_JOINT_HALT *joint_halt_msg;
+static EMC_JOINT_DISABLE *disable_msg;
+static EMC_JOINT_ENABLE *enable_msg;
+static EMC_JOINT_HOME *home_msg;
+static EMC_JOINT_UNHOME *unhome_msg;
+static EMC_JOG_CONT *jog_cont_msg;
+static EMC_JOG_STOP *jog_stop_msg;
+static EMC_JOG_INCR *jog_incr_msg;
+static EMC_JOG_ABS *jog_abs_msg;
+static EMC_JOINT_SET_BACKLASH *set_backlash_msg;
+static EMC_JOINT_SET_HOMING_PARAMS *set_homing_params_msg;
+static EMC_JOINT_SET_FERROR *set_ferror_msg;
+static EMC_JOINT_SET_MIN_FERROR *set_min_ferror_msg;
+static EMC_JOINT_SET_MAX_POSITION_LIMIT *set_max_limit_msg;
+static EMC_JOINT_SET_MIN_POSITION_LIMIT *set_min_limit_msg;
+static EMC_JOINT_OVERRIDE_LIMITS *joint_lim_msg;
+//static EMC_JOINT_SET_OUTPUT *axis_output_msg;
+static EMC_JOINT_LOAD_COMP *joint_load_comp_msg;
 //static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
@@ -462,70 +468,11 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 			     operator_error_msg->error);
 	    break;
 
+//FIXME: there was limit checking tests below, see if they were needed
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
-	    if (linear_move->end.tran.x >
-		stat->motion.axis[0].maxPositionLimit) {
-		emcOperatorError(0, _("%s exceeds +X limit"), stat->task.command);
-		return -1;
-	    }
-	    if (linear_move->end.tran.y >
-		stat->motion.axis[1].maxPositionLimit) {
-		emcOperatorError(0, _("%s exceeds +Y limit"), stat->task.command);
-		return -1;
-	    }
-	    if (linear_move->end.tran.z >
-		stat->motion.axis[2].maxPositionLimit) {
-		emcOperatorError(0, _("%s exceeds +Z limit"), stat->task.command);
-		return -1;
-	    }
-	    if (linear_move->end.tran.x <
-		stat->motion.axis[0].minPositionLimit) {
-		emcOperatorError(0, _("%s exceeds -X limit"), stat->task.command);
-		return -1;
-	    }
-	    if (linear_move->end.tran.y <
-		stat->motion.axis[1].minPositionLimit) {
-		emcOperatorError(0, _("%s exceeds -Y limit"), stat->task.command);
-		return -1;
-	    }
-	    if (linear_move->end.tran.z <
-		stat->motion.axis[2].minPositionLimit) {
-		emcOperatorError(0, _("%s exceeds -Z limit"), stat->task.command);
-		return -1;
-	    }
 	    break;
 
 	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-	    if (circular_move->end.tran.x >
-		stat->motion.axis[0].maxPositionLimit) {
-		emcOperatorError(0, _("%s exceeds +X limit"), stat->task.command);
-		return -1;
-	    }
-	    if (circular_move->end.tran.y >
-		stat->motion.axis[1].maxPositionLimit) {
-		emcOperatorError(0, _("%s exceeds +Y limit"), stat->task.command);
-		return -1;
-	    }
-	    if (circular_move->end.tran.z >
-		stat->motion.axis[2].maxPositionLimit) {
-		emcOperatorError(0, _("%s exceeds +Z limit"), stat->task.command);
-		return -1;
-	    }
-	    if (circular_move->end.tran.x <
-		stat->motion.axis[0].minPositionLimit) {
-		emcOperatorError(0, _("%s exceeds -X limit"), stat->task.command);
-		return -1;
-	    }
-	    if (circular_move->end.tran.y <
-		stat->motion.axis[1].minPositionLimit) {
-		emcOperatorError(0, _("%s exceeds -Y limit"), stat->task.command);
-		return -1;
-	    }
-	    if (circular_move->end.tran.z <
-		stat->motion.axis[2].minPositionLimit) {
-		emcOperatorError(0, _("%s exceeds -Z limit"), stat->task.command);
-		return -1;
-	    }
 	    break;
 
 	default:
@@ -781,15 +728,48 @@ void readahead_waiting(void)
         }
 }
 
+static bool allow_while_idle_type() {
+    // allow for EMC_TASK_MODE_AUTO, EMC_TASK_MODE_MDI
+    // expect immediate command
+    RCS_CMD_MSG *emcCommand;
+    emcCommand = emcCommandBuffer->get_address();
+    switch(emcCommand->type) {
+      case EMC_JOG_CONT_TYPE:
+      case EMC_JOG_INCR_TYPE:
+      case EMC_JOG_STOP_TYPE:
+      case EMC_JOG_ABS_TYPE:
+      case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
+       return 1;
+       break;
+    }
+    return 0;
+}
+
 /*
   emcTaskPlan()
 
   Planner for NC code or manual mode operations
+
+  Note that early return from this function is not OK; the bottom, where
+  echo_serial_numbers are updated, must be reached for linuxcnc to operate
+  properly.
+
   */
 static int emcTaskPlan(void)
 {
+    RCS_CMD_MSG *emcCommand;
     NMLTYPE type;
     int retval = 0;
+
+    if (drain_interp_list) {
+        if ((interp_list.len() == 0) && (emcTaskCommand == NULL)) {
+            drain_interp_list = 0;
+        } else {
+            return 0;
+        }
+    }
+
+    emcCommand = emcCommandBuffer->get_address();
 
     // check for new command
     if (emcCommand->serial_number != emcStatus->echo_serial_number) {
@@ -820,15 +800,15 @@ static int emcTaskPlan(void)
 		break;
 
 		// immediate commands
-	    case EMC_AXIS_SET_BACKLASH_TYPE:
-	    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	    case EMC_AXIS_DISABLE_TYPE:
-	    case EMC_AXIS_ENABLE_TYPE:
-	    case EMC_AXIS_SET_FERROR_TYPE:
-	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
-	    case EMC_AXIS_ABORT_TYPE:
-	    case EMC_AXIS_LOAD_COMP_TYPE:
-	    case EMC_AXIS_UNHOME_TYPE:
+	    case EMC_JOINT_SET_BACKLASH_TYPE:
+	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+	    case EMC_JOINT_DISABLE_TYPE:
+	    case EMC_JOINT_ENABLE_TYPE:
+	    case EMC_JOINT_SET_FERROR_TYPE:
+	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
+	    case EMC_JOINT_ABORT_TYPE:
+	    case EMC_JOINT_LOAD_COMP_TYPE:
+	    case EMC_JOINT_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -843,6 +823,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
@@ -860,7 +841,7 @@ static int emcTaskPlan(void)
 		break;
 
 		// one case where we need to be in manual mode
-	    case EMC_AXIS_OVERRIDE_LIMITS_TYPE:
+	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 		retval = 0;
 		if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
 		    retval = emcTaskIssueCommand(emcCommand);
@@ -915,22 +896,22 @@ static int emcTaskPlan(void)
 
 		// immediate commands
 
-	    case EMC_AXIS_DISABLE_TYPE:
-	    case EMC_AXIS_ENABLE_TYPE:
-	    case EMC_AXIS_SET_BACKLASH_TYPE:
-	    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	    case EMC_AXIS_SET_FERROR_TYPE:
-	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
-	    case EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE:
-	    case EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE:
-	    case EMC_AXIS_ABORT_TYPE:
-	    case EMC_AXIS_HALT_TYPE:
-	    case EMC_AXIS_HOME_TYPE:
-	    case EMC_AXIS_UNHOME_TYPE:
-	    case EMC_AXIS_JOG_TYPE:
-	    case EMC_AXIS_INCR_JOG_TYPE:
-	    case EMC_AXIS_ABS_JOG_TYPE:
-	    case EMC_AXIS_OVERRIDE_LIMITS_TYPE:
+	    case EMC_JOINT_DISABLE_TYPE:
+	    case EMC_JOINT_ENABLE_TYPE:
+	    case EMC_JOINT_SET_BACKLASH_TYPE:
+	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+	    case EMC_JOINT_SET_FERROR_TYPE:
+	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
+	    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
+	    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
+	    case EMC_JOINT_HALT_TYPE:
+	    case EMC_JOINT_HOME_TYPE:
+	    case EMC_JOINT_UNHOME_TYPE:
+	    case EMC_JOG_CONT_TYPE:
+	    case EMC_JOG_INCR_TYPE:
+	    case EMC_JOG_ABS_TYPE:
+	    case EMC_JOG_STOP_TYPE:
+	    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
 	    case EMC_TRAJ_PAUSE_TYPE:
 	    case EMC_TRAJ_RESUME_TYPE:
 	    case EMC_TRAJ_ABORT_TYPE:
@@ -959,6 +940,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
@@ -974,7 +956,6 @@ static int emcTaskPlan(void)
 	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-	    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
@@ -1029,11 +1010,11 @@ static int emcTaskPlan(void)
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_BACKLASH_TYPE:
-		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_FERROR_TYPE:
-		case EMC_AXIS_SET_MIN_FERROR_TYPE:
-		case EMC_AXIS_UNHOME_TYPE:
+		case EMC_JOINT_SET_BACKLASH_TYPE:
+		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+		case EMC_JOINT_SET_FERROR_TYPE:
+		case EMC_JOINT_SET_MIN_FERROR_TYPE:
+		case EMC_JOINT_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1065,6 +1046,7 @@ static int emcTaskPlan(void)
 		case EMC_TASK_ABORT_TYPE:
 		case EMC_TASK_PLAN_INIT_TYPE:
 		case EMC_TASK_PLAN_OPEN_TYPE:
+                case EMC_TASK_PLAN_CLOSE_TYPE:
 		case EMC_TASK_PLAN_RUN_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
@@ -1105,9 +1087,13 @@ static int emcTaskPlan(void)
 		    // then resynch interpreter
 		    emcTaskQueueCommand(&taskPlanSynchCmd);
 		    break;
-
 		    // otherwise we can't handle it
 		default:
+	            //EMC_TASK_MODE_AUTO(2) && EMC_TASK_INTERP_IDLE(1)
+                    if ( allow_while_idle_type() ) {
+                        retval = emcTaskIssueCommand(emcCommand);
+		        break;
+                    }
 		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter idle"),
 			    emc_symbol_lookup(type));
@@ -1127,11 +1113,11 @@ static int emcTaskPlan(void)
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_BACKLASH_TYPE:
-		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_FERROR_TYPE:
-		case EMC_AXIS_SET_MIN_FERROR_TYPE:
-		case EMC_AXIS_UNHOME_TYPE:
+		case EMC_JOINT_SET_BACKLASH_TYPE:
+		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+		case EMC_JOINT_SET_FERROR_TYPE:
+		case EMC_JOINT_SET_MIN_FERROR_TYPE:
+		case EMC_JOINT_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1165,7 +1151,7 @@ static int emcTaskPlan(void)
                 case EMC_LUBE_ON_TYPE:
                 case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
-		    return retval;
+                    goto done;
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1197,11 +1183,11 @@ static int emcTaskPlan(void)
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_BACKLASH_TYPE:
-		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_FERROR_TYPE:
-		case EMC_AXIS_SET_MIN_FERROR_TYPE:
-		case EMC_AXIS_UNHOME_TYPE:
+		case EMC_JOINT_SET_BACKLASH_TYPE:
+		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+		case EMC_JOINT_SET_FERROR_TYPE:
+		case EMC_JOINT_SET_MIN_FERROR_TYPE:
+		case EMC_JOINT_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1281,11 +1267,11 @@ static int emcTaskPlan(void)
 
 		    // immediate commands
 
-		case EMC_AXIS_SET_BACKLASH_TYPE:
-		case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-		case EMC_AXIS_SET_FERROR_TYPE:
-		case EMC_AXIS_SET_MIN_FERROR_TYPE:
-		case EMC_AXIS_UNHOME_TYPE:
+		case EMC_JOINT_SET_BACKLASH_TYPE:
+		case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+		case EMC_JOINT_SET_FERROR_TYPE:
+		case EMC_JOINT_SET_MIN_FERROR_TYPE:
+		case EMC_JOINT_UNHOME_TYPE:
 		case EMC_TRAJ_PAUSE_TYPE:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
@@ -1361,11 +1347,11 @@ static int emcTaskPlan(void)
 
 		// immediate commands
 
-	    case EMC_AXIS_SET_BACKLASH_TYPE:
-	    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	    case EMC_AXIS_SET_FERROR_TYPE:
-	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
-	    case EMC_AXIS_UNHOME_TYPE:
+	    case EMC_JOINT_SET_BACKLASH_TYPE:
+	    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+	    case EMC_JOINT_SET_FERROR_TYPE:
+	    case EMC_JOINT_SET_MIN_FERROR_TYPE:
+	    case EMC_JOINT_UNHOME_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
 	    case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
@@ -1393,6 +1379,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1440,6 +1427,11 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
+	        //EMC_TASK_MODE_MDI(3) && EMC_TASK_INTERP_IDLE(1)
+                if ( allow_while_idle_type() ) {
+                    retval = emcTaskIssueCommand(emcCommand);
+		    break;
+                }
 		emcOperatorError(0, _("can't do that (%s:%d) in MDI mode"),
 			emc_symbol_lookup(type),(int) type);
 
@@ -1462,6 +1454,16 @@ static int emcTaskPlan(void)
 	break;
 
     }				// switch (task.state)
+
+
+done:
+    // Acknowledge receipt of the command by "echoing" the type and serial
+    // number in the emcStatus struct.
+    emcStatus->task.command_type = emcCommand->type;
+    emcStatus->task.echo_serial_number = emcCommand->serial_number;
+
+    emcStatus->command_type = emcCommand->type;
+    emcStatus->echo_serial_number = emcCommand->serial_number;
 
     return retval;
 }
@@ -1610,7 +1612,6 @@ int emcTaskQueueCommand(NMLmsg * cmd)
     if (0 == cmd) {
 	return 0;
     }
-
     interp_list.append(cmd);
 
     return 0;
@@ -1655,60 +1656,67 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcSystemCmd(((EMC_SYSTEM_CMD *) cmd)->string);
 	break;
 
-	// axis commands
+	// joint commands
 
-    case EMC_AXIS_DISABLE_TYPE:
-	disable_msg = (EMC_AXIS_DISABLE *) cmd;
-	retval = emcAxisDisable(disable_msg->axis);
+    case EMC_JOINT_DISABLE_TYPE:
+	disable_msg = (EMC_JOINT_DISABLE *) cmd;
+	retval = emcJointDisable(disable_msg->joint);
 	break;
 
-    case EMC_AXIS_ENABLE_TYPE:
-	enable_msg = (EMC_AXIS_ENABLE *) cmd;
-	retval = emcAxisEnable(enable_msg->axis);
+    case EMC_JOINT_ENABLE_TYPE:
+	enable_msg = (EMC_JOINT_ENABLE *) cmd;
+	retval = emcJointEnable(enable_msg->joint);
 	break;
 
-    case EMC_AXIS_HOME_TYPE:
-	home_msg = (EMC_AXIS_HOME *) cmd;
-	retval = emcAxisHome(home_msg->axis);
+    case EMC_JOINT_HOME_TYPE:
+	home_msg = (EMC_JOINT_HOME *) cmd;
+	retval = emcJointHome(home_msg->joint);
 	break;
 
-    case EMC_AXIS_UNHOME_TYPE:
-	unhome_msg = (EMC_AXIS_UNHOME *) cmd;
-	retval = emcAxisUnhome(unhome_msg->axis);
+    case EMC_JOINT_UNHOME_TYPE:
+	unhome_msg = (EMC_JOINT_UNHOME *) cmd;
+	retval = emcJointUnhome(unhome_msg->joint);
 	break;
 
-    case EMC_AXIS_JOG_TYPE:
-	jog_msg = (EMC_AXIS_JOG *) cmd;
-	retval = emcAxisJog(jog_msg->axis, jog_msg->vel);
+    case EMC_JOG_CONT_TYPE:
+	jog_cont_msg = (EMC_JOG_CONT *) cmd;
+	retval = emcJogCont(jog_cont_msg->joint_or_axis,
+                            jog_cont_msg->vel,
+                            jog_cont_msg->jjogmode);
 	break;
 
-    case EMC_AXIS_ABORT_TYPE:
-	axis_abort_msg = (EMC_AXIS_ABORT *) cmd;
-	retval = emcAxisAbort(axis_abort_msg->axis);
+    case EMC_JOG_STOP_TYPE:
+	jog_stop_msg = (EMC_JOG_STOP *) cmd;
+	retval = emcJogStop(jog_stop_msg->joint_or_axis,
+                            jog_stop_msg->jjogmode);
 	break;
 
-    case EMC_AXIS_INCR_JOG_TYPE:
-	incr_jog_msg = (EMC_AXIS_INCR_JOG *) cmd;
-	retval = emcAxisIncrJog(incr_jog_msg->axis,
-				incr_jog_msg->incr, incr_jog_msg->vel);
+    case EMC_JOG_INCR_TYPE:
+	jog_incr_msg = (EMC_JOG_INCR *) cmd;
+	retval = emcJogIncr(jog_incr_msg->joint_or_axis,
+			    jog_incr_msg->incr,
+                            jog_incr_msg->vel,
+                            jog_incr_msg->jjogmode);
 	break;
 
-    case EMC_AXIS_ABS_JOG_TYPE:
-	abs_jog_msg = (EMC_AXIS_ABS_JOG *) cmd;
-	retval = emcAxisAbsJog(abs_jog_msg->axis,
-			       abs_jog_msg->pos, abs_jog_msg->vel);
+    case EMC_JOG_ABS_TYPE:
+	jog_abs_msg = (EMC_JOG_ABS *) cmd;
+	retval = emcJogAbs(jog_abs_msg->joint_or_axis,
+	                   jog_abs_msg->pos,
+                           jog_abs_msg->vel,
+                           jog_abs_msg->jjogmode);
 	break;
 
-    case EMC_AXIS_SET_BACKLASH_TYPE:
-	set_backlash_msg = (EMC_AXIS_SET_BACKLASH *) cmd;
+    case EMC_JOINT_SET_BACKLASH_TYPE:
+	set_backlash_msg = (EMC_JOINT_SET_BACKLASH *) cmd;
 	retval =
-	    emcAxisSetBacklash(set_backlash_msg->axis,
+	    emcJointSetBacklash(set_backlash_msg->joint,
 			       set_backlash_msg->backlash);
 	break;
 
-    case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	set_homing_params_msg = (EMC_AXIS_SET_HOMING_PARAMS *) cmd;
-	retval = emcAxisSetHomingParams(set_homing_params_msg->axis,
+    case EMC_JOINT_SET_HOMING_PARAMS_TYPE:
+	set_homing_params_msg = (EMC_JOINT_SET_HOMING_PARAMS *) cmd;
+	retval = emcJointSetHomingParams(set_homing_params_msg->joint,
 					set_homing_params_msg->home,
 					set_homing_params_msg->offset,
 					set_homing_params_msg->home_final_vel,
@@ -1719,48 +1727,49 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
 					set_homing_params_msg->volatile_home,
-                                        set_homing_params_msg->locking_indexer);
+                                        set_homing_params_msg->locking_indexer,
+                                        set_homing_params_msg->absolute_encoder);
 	break;
 
-    case EMC_AXIS_SET_FERROR_TYPE:
-	set_ferror_msg = (EMC_AXIS_SET_FERROR *) cmd;
-	retval = emcAxisSetFerror(set_ferror_msg->axis,
+    case EMC_JOINT_SET_FERROR_TYPE:
+	set_ferror_msg = (EMC_JOINT_SET_FERROR *) cmd;
+	retval = emcJointSetFerror(set_ferror_msg->joint,
 				  set_ferror_msg->ferror);
 	break;
 
-    case EMC_AXIS_SET_MIN_FERROR_TYPE:
-	set_min_ferror_msg = (EMC_AXIS_SET_MIN_FERROR *) cmd;
-	retval = emcAxisSetMinFerror(set_min_ferror_msg->axis,
+    case EMC_JOINT_SET_MIN_FERROR_TYPE:
+	set_min_ferror_msg = (EMC_JOINT_SET_MIN_FERROR *) cmd;
+	retval = emcJointSetMinFerror(set_min_ferror_msg->joint,
 				     set_min_ferror_msg->ferror);
 	break;
 
-    case EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE:
-	set_max_limit_msg = (EMC_AXIS_SET_MAX_POSITION_LIMIT *) cmd;
-	retval = emcAxisSetMaxPositionLimit(set_max_limit_msg->axis,
+    case EMC_JOINT_SET_MAX_POSITION_LIMIT_TYPE:
+	set_max_limit_msg = (EMC_JOINT_SET_MAX_POSITION_LIMIT *) cmd;
+	retval = emcJointSetMaxPositionLimit(set_max_limit_msg->joint,
 					    set_max_limit_msg->limit);
 	break;
 
-    case EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE:
-	set_min_limit_msg = (EMC_AXIS_SET_MIN_POSITION_LIMIT *) cmd;
-	retval = emcAxisSetMinPositionLimit(set_min_limit_msg->axis,
+    case EMC_JOINT_SET_MIN_POSITION_LIMIT_TYPE:
+	set_min_limit_msg = (EMC_JOINT_SET_MIN_POSITION_LIMIT *) cmd;
+	retval = emcJointSetMinPositionLimit(set_min_limit_msg->joint,
 					    set_min_limit_msg->limit);
 	break;
 
-    case EMC_AXIS_HALT_TYPE:
-	axis_halt_msg = (EMC_AXIS_HALT *) cmd;
-	retval = emcAxisHalt(axis_halt_msg->axis);
+    case EMC_JOINT_HALT_TYPE:
+	joint_halt_msg = (EMC_JOINT_HALT *) cmd;
+	retval = emcJointHalt(joint_halt_msg->joint);
 	break;
 
-    case EMC_AXIS_OVERRIDE_LIMITS_TYPE:
-	axis_lim_msg = (EMC_AXIS_OVERRIDE_LIMITS *) cmd;
-	retval = emcAxisOverrideLimits(axis_lim_msg->axis);
+    case EMC_JOINT_OVERRIDE_LIMITS_TYPE:
+	joint_lim_msg = (EMC_JOINT_OVERRIDE_LIMITS *) cmd;
+	retval = emcJointOverrideLimits(joint_lim_msg->joint);
 	break;
 
-    case EMC_AXIS_LOAD_COMP_TYPE:
-	axis_load_comp_msg = (EMC_AXIS_LOAD_COMP *) cmd;
-	retval = emcAxisLoadComp(axis_load_comp_msg->axis,
-				 axis_load_comp_msg->file,
-				 axis_load_comp_msg->type);
+    case EMC_JOINT_LOAD_COMP_TYPE:
+	joint_load_comp_msg = (EMC_JOINT_LOAD_COMP *) cmd;
+	retval = emcJointLoadComp(joint_load_comp_msg->joint,
+				 joint_load_comp_msg->file,
+				 joint_load_comp_msg->type);
 	break;
 
 	// traj commands
@@ -1926,12 +1935,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	} else {
 	    retval = emcTrajSetMode(EMC_TRAJ_MODE_FREE);
 	}
-	break;
-
-    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
-	retval =
-	    emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->
-				   vector);
 	break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
@@ -2139,6 +2142,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
 	// interpreter commands
+
+    case EMC_TASK_PLAN_CLOSE_TYPE:
+        retval = emcTaskPlanClose();
+	if (retval > INTERP_MIN_ERROR) {
+	    emcOperatorError(0, _("failed to close file"));
+	    retval = -1;
+	} else {
+	    retval = 0;
+        }
+        break;
 
     case EMC_TASK_PLAN_OPEN_TYPE:
 	open_msg = (EMC_TASK_PLAN_OPEN *) cmd;
@@ -2395,7 +2408,6 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
-    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
@@ -2851,8 +2863,6 @@ static int emctask_startup()
 	rcs_print_error("can't get emcCommand buffer\n");
 	return -1;
     }
-    // get our command data structure
-    emcCommand = emcCommandBuffer->get_address();
 
     // get the NML status buffer
     if (!(emc_debug & EMC_DEBUG_NML)) {
@@ -3060,7 +3070,6 @@ static int emctask_shutdown(void)
     if (0 != emcCommandBuffer) {
 	delete emcCommandBuffer;
 	emcCommandBuffer = 0;
-	emcCommand = 0;
     }
 
     if (0 != emcStatus) {
@@ -3132,11 +3141,13 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "EMC"))) {
+    if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
 	// copy to global
 	strcpy(rs274ngc_startup_code, inistring);
     } else {
-	if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
+	//FIXME-AJ: this is the old (unpreferred) location. just for compatibility purposes
+	//it will be dropped in v2.4
+	if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "EMC"))) {
 	    // copy to global
 	    strcpy(rs274ngc_startup_code, inistring);
 	} else {
@@ -3246,8 +3257,6 @@ int main(int argc, char *argv[])
 	emctask_shutdown();
 	exit(1);
     }
-    // initialize globals
-    emcInitGlobals();
 
     if (done) {
 	emctask_shutdown();
@@ -3285,11 +3294,19 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // set the default startup modes
-    emcTaskSetState(EMC_TASK_STATE_ESTOP);
-    emcTaskSetMode(EMC_TASK_MODE_MANUAL);
+    emcMotionAbort();
+    emcSpindleAbort();
+    emcAuxEstopOn();
+    for (int t = 0; t < emcStatus->motion.traj.joints; t++) {
+        emcJointDisable(t);
+    }
+    emcTrajDisable();
+    emcLubeOff();
+    emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
+    emcJointUnhome(-2);
 
-    // cause the interpreter's starting offset to be reflected
-    emcTaskPlanInit();
+    emcTrajSetMode(EMC_TRAJ_MODE_FREE);
+
     // reflect the initial value of EMC_DEBUG in emcStatus->debug
     emcStatus->debug = emc_debug;
 
@@ -3300,8 +3317,12 @@ int main(int argc, char *argv[])
     minTime = DBL_MAX;		// set to value that can never be exceeded
     maxTime = 0.0;		// set to value that can never be underset
 
+    if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
+        rcs_print("%s failed usrmotReadEmcmotconfig()\n",__FILE__);
+    }
     while (!done) {
-        check_ini_hal_items();
+        static int gave_soft_limit_message = 0;
+        check_ini_hal_items(emcStatus->motion.traj.joints);
 	// read command
 	if (0 != emcCommandBuffer->read()) {
 	    // got a new command, so clear out errors
@@ -3324,9 +3345,9 @@ int main(int argc, char *argv[])
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();
-		emcIoAbort(EMC_ABORT_AUX_ESTOP);
-		emcSpindleAbort();
-		emcAxisUnhome(-2); // only those joints which are volatile_home
+                emcIoAbort(EMC_ABORT_AUX_ESTOP);
+                emcSpindleAbort();
+                emcJointUnhome(-2); // only those joints which are volatile_home
 		mdi_execute_abort();
 		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
 		emcTaskPlanSynch();
@@ -3364,11 +3385,23 @@ int main(int argc, char *argv[])
 
 	}
 
+        if (!emcStatus->motion.on_soft_limit) {gave_soft_limit_message = 0;}
+
 	// check for subordinate errors, and halt task if so
-	if (emcStatus->motion.status == RCS_ERROR ||
+        if (   emcStatus->motion.status == RCS_ERROR
+            && emcStatus->motion.on_soft_limit) { 
+           if (!gave_soft_limit_message) {
+                emcOperatorError(0, "On Soft Limit");
+                // if gui does not provide a means to switch to joint mode
+                // the  machine may be stuck (a misconfiguration)
+                if (emcmotConfig.kinType == KINEMATICS_IDENTITY) {
+                    emcOperatorError(0,"Identity kinematics are MISCONFIGURED");
+                }
+                gave_soft_limit_message = 1;
+           }
+        } else if (emcStatus->motion.status == RCS_ERROR ||
 	    ((emcStatus->io.status == RCS_ERROR) &&
 	     (emcStatus->io.reason <= 0))) {
-
 	    /*! \todo FIXME-- duplicate code for abort,
 	      also in emcTaskExecute()
 	      and in emcTaskIssueCommand() */
@@ -3429,14 +3462,6 @@ int main(int argc, char *argv[])
 
 	// handle RCS_STAT_MSG base class members explicitly, since this
 	// is not an NML_MODULE and they won't be set automatically
-
-	// do task
-	emcStatus->task.command_type = emcCommand->type;
-	emcStatus->task.echo_serial_number = emcCommand->serial_number;
-
-	// do top level
-	emcStatus->command_type = emcCommand->type;
-	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||
 	    emcStatus->task.execState == EMC_TASK_EXEC_ERROR ||

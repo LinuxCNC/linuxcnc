@@ -50,6 +50,9 @@ order and separated by whitespace.  Floats must be formatted as required
 by *strtod*(3), signed and unsigned integers must be formated as required
 by *strtol*(3) and *strtoul*(3), and bits must be either '0' or '1'.
 
+Input lines that begin with '#' will be treated as comments and silently
+skipped.
+
 *halstreamer* transfers data to the FIFO as fast as possible until the
 FIFO is full, then it retries at regular intervals, until it is either
 killed or reads EOF from stdin.  Data can be redirected from a file or

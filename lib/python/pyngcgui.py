@@ -2147,6 +2147,9 @@ class ControlPanel():
         intfc = self.mypg.nset.intfc
 
         global g_gcmc_exe
+        if g_gcmc_exe is None:
+            if not find_gcmc():
+                return False ;# fail
         xcmd = []
         xcmd.append(g_gcmc_exe)
 
