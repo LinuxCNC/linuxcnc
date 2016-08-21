@@ -13,8 +13,8 @@ import tkMessageBox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
-    regex = "\[%s\](.+?)(?:\n\[|$)" % block
-    section = re.search(regex, inistring, re.DOTALL)
+    regex = "^\s*\[%s\](.+?)(?:^\s*\[|\Z)" % block
+    section = re.search(regex, inistring, re.M | re.DOTALL)
     newini.write("\n[%s]" % block)
     if section != None:
         newini.write(section.group(1))
@@ -163,7 +163,7 @@ inistring = open(filename,'r').read()
 newini = open(filename, 'w')
 
 # Get a list of all sections
-all_sections = re.findall("^\[(.+)\]", inistring, re.MULTILINE)
+all_sections = re.findall("^\s*\[(.+)\]", inistring, re.MULTILINE)
 
 # A C-style Switch would be nice here, to allow us to fall through successive
 # version updates.
