@@ -74,6 +74,7 @@ static void print_comp_info(char **patterns);
 static void print_inst_info(char **patterns);
 static void print_vtable_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
+static void print_pin_exists(int type, char **patterns);
 static void print_pin_aliases(char **patterns);
 static void print_param_aliases(char **patterns);
 static void print_sig_info(int type, char **patterns);
@@ -970,6 +971,9 @@ int do_show_cmd(char *type, char **patterns)
     } else if (strcmp(type, "pin") == 0) {
 	int type = get_type(&patterns);
 	print_pin_info(type, patterns);
+    } else if (strcmp(type, "pexists") == 0) {
+	int type = get_type(&patterns);
+	print_pin_exists(type, patterns);
     } else if (strcmp(type, "sig") == 0) {
 	int type = get_type(&patterns);
 	print_sig_info(type, patterns);
@@ -2088,6 +2092,37 @@ static void print_pin_info(int type, char **patterns)
     }
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
+}
+
+// This function is a temporary measure to keep the xhc-hb04 pendant working.
+// xhc-hb04.tcl uses commandline halcmd outputs against tests which are fixed
+// in expectation of a particular return. (ie from linuxcnc circa 2014)
+// Changes to halcmd print routines broke xhc-hb04.
+// This will tell the tcl code if a pin exists, removing the need for the
+// previous convoluted parsing of the stdout output.
+
+static void print_pin_exists(int type, char **patterns)
+{
+hal_pin_t *pin = NULL;
+int next;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->pin_list_ptr;
+    while (next != 0)
+        {
+        pin = SHMPTR(next);
+        if ( tmatch(type, pin->type) && match(patterns, pin->name) )
+            {
+            rtapi_mutex_give(&(hal_data->mutex));
+            halcmd_output("Exists\n");
+            return;
+            }
+
+        next = pin->next_ptr;
+        }
+    rtapi_mutex_give(&(hal_data->mutex));
+    halcmd_output("Imaginary\n");
+
 }
 
 static void print_pin_aliases(char **patterns)
