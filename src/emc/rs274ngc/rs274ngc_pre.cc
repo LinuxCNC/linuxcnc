@@ -1920,8 +1920,10 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   std::string bakfile = std::string(filename)
                             + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
   unlink(bakfile.c_str());
-  link(filename, bakfile.c_str());
-  rename(tempfile.c_str(), filename);
+  if(link(filename, bakfile.c_str()) < 0)
+    perror("link (updating variable file)");
+  if(rename(tempfile.c_str(), filename) < 0)
+    perror("rename (updating variable file)");
   return INTERP_OK;
 }
 
