@@ -144,7 +144,7 @@ int kinematicsInverse(
     double j1_angle;
 
     // the location of J2, this is what we're trying to find
-    double r_j2, z_j2;
+    double z_j2;
 
     // rtapi_print("inv: x=%f, y=%f, z=%f\n", pose->tran.x, pose->tran.y, pose->tran.z);
 
@@ -217,7 +217,6 @@ int kinematicsInverse(
     // rtapi_print("inv: j1: %f\n", joints[1]);
 
     // now we can compute the location of J2
-    r_j2 = L1_LENGTH * cos(TO_RAD * joints[1]);
     z_j2 = L1_LENGTH * sin(TO_RAD * joints[1]);
     // rtapi_print("inv: r_j2=%f, z_j2=%f (translated j2)\n", r_j2, z_j2);
 
