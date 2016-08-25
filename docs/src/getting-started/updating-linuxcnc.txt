@@ -8,7 +8,7 @@ minor release along with other software updates. If you don't have an internet
 connection to your PC see
 <<getting-started:update-no-network,Updating without Network>>
 
-+== Upgrade to the new version
+== Upgrade to the new version
 
 This section describes how to upgrade LinuxCNC from version 2.7 to the
 new version.  It assumes that you have an existing 2.7 install that you
