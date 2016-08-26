@@ -618,7 +618,7 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
 		--xsltproc-opts --nonet \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
-		$< 2>&1 | grep -vFe 'destination-dir option is only '
+		$<
 
 else
 docclean:
