@@ -12,6 +12,8 @@ import fcntl
 import shlex
 import dbus
 
+from operator import attrgetter
+
 from machinekit import service
 from machinekit import config
 
@@ -68,21 +70,19 @@ class Mklauncher:
             'type': '',
             'manufacturer': '',
             'model': '',
-            'variant': ''
+            'variant': '',
+            'priority': '0'
         }
 
-        index = 0
+        launchers = []
         for rootDir in self.launcherDirs:
             for root, _, files in os.walk(rootDir):
                 if iniName in files:
                     iniFile = os.path.join(root, iniName)
                     cfg = configparser.ConfigParser(configDefaults)
                     cfg.read(iniFile)
-                    launcher = Launcher()
                     for section in cfg.sections():
-                        launcher.Clear()
-                        launcher.index = index
-                        index += 1
+                        launcher = Launcher()
                         # descriptive data
                         launcher.name = cfg.get(section, 'name')
                         launcher.description = cfg.get(section, 'description')
@@ -91,6 +91,7 @@ class Mklauncher:
                         info.manufacturer = cfg.get(section, 'manufacturer')
                         info.model = cfg.get(section, 'model')
                         info.variant = cfg.get(section, 'variant')
+                        launcher.priority = cfg.getint(section, 'priority')
                         launcher.info.MergeFrom(info)
                         # command data
                         launcher.command = cfg.get(section, 'command')
@@ -113,8 +114,14 @@ class Mklauncher:
                             image.encoding = CLEARTEXT
                             image.blob = fileBuffer
                             launcher.image.MergeFrom(image)
-                        self.container.launcher.add().CopyFrom(launcher)
-                        self.txContainer.launcher.add().CopyFrom(launcher)
+                        launchers.append(launcher)
+
+        # sort using the priority attribute before distribution
+        launchers = sorted(launchers, key=attrgetter('priority'), reverse=True)
+        for index, launcher in enumerate(launchers):
+            launcher.index = index
+            self.container.launcher.add().CopyFrom(launcher)
+            self.txContainer.launcher.add().MergeFrom(launcher)
 
         if self.debug:
             print(self.container)
