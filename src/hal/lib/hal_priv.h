@@ -511,7 +511,7 @@ static inline const char* fa_funct_name(const hal_funct_args_t *fa)
     return fa->funct->name;
 }
 
-static inline const int fa_argc(const hal_funct_args_t *fa)
+static inline int fa_argc(const hal_funct_args_t *fa)
 {
     return fa->argc;
 }
