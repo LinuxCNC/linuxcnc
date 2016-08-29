@@ -535,10 +535,11 @@ KSOURCE_LOCATION_HINTS=$(echo \
 # TARGET_PLATFORM_PC
 # TARGET_PLATFORM_SOCFPGA
 # TARGET_PLATFORM_BEAGLEBONE
+# TARGET_PLATFORM_CHIP
 # TARGET_PLATFORM_RASPBERRY
 # TARGET_PLATFORM_ZEDBOARD
 #
-# Platforms. set by --with-platform-{pc,beaglebone,socfpga,raspberry,zedboard}
+# Platforms. set by --with-platform-{pc,beaglebone,chip,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
 
 ARCHITECTURE=`$ARCHCMD`
@@ -563,7 +564,7 @@ XENO_CONFIG=
 # Configure several basic features:                                          #
 # - some etc/linuxcnc/machinekit.ini  values                                 #
 # - the MKUUID instance UUID                                                 #
-# - Platform (PC, Raspberry Pi, BeagleBone,SocFpga, Zedboard)                        #
+# - Platform (PC, Raspberry Pi, CHIP, BeagleBone,SocFpga, Zedboard)                        #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
 # - emcweb UI                                                                #
@@ -674,6 +675,35 @@ AC_ARG_WITH(platform-beaglebone,
 	esac
     ])
 
+AC_ARG_WITH(platform-chip,
+    [AS_HELP_STRING(
+        [--with-platform-chip],
+	[Build for Chip platform (default for ARM arch)])],
+    [
+        case $with_platform_chip in
+	    (y*)
+	    	TARGET_PLATFORM_CHIP=true
+		platform_specified=true
+		platform_chip_reason="$cmdl_enab_msg"
+		;;
+	    (*)
+	    	TARGET_PLATFORM_CHIP=false
+		platform_chip_reason="$cmdl_disab_msg"
+		;;
+	esac
+    ],
+    [
+        case $host_cpu in
+	    (arm*)
+	        TARGET_PLATFORM_CHIP=unk
+		;;
+	    (*)
+	        TARGET_PLATFORM_CHIP=false
+		platform_chip_reason="$arch_disab_msg"
+		;;
+	esac
+    ])
+
 AC_ARG_WITH(platform-raspberry,
     [AS_HELP_STRING(
         [--with-platform-raspberry],
@@ -747,6 +777,10 @@ if $platform_specified; then
 	TARGET_PLATFORM_BEAGLEBONE=false
 	platform_beaglebone_reason="$cmdl_notspec_msg"
     fi
+    if test $TARGET_PLATFORM_CHIP = unk; then
+	TARGET_PLATFORM_CHIP=false
+	platform_chip_reason="$cmdl_notspec_msg"
+    fi
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
 	TARGET_PLATFORM_RASPBERRY=false
 	platform_raspberry_reason="$cmdl_notspec_msg"
@@ -771,6 +805,10 @@ else
         TARGET_PLATFORM_BEAGLEBONE=true
 	platform_beaglebone_reason="$arch_enab_msg"
     fi
+    if test $TARGET_PLATFORM_CHIP = unk; then
+        TARGET_PLATFORM_CHIP=true
+	platform_chip_reason="$arch_enab_msg"
+    fi
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
         TARGET_PLATFORM_RASPBERRY=true
 	platform_raspberry_reason="$arch_enab_msg"
@@ -787,6 +825,9 @@ AC_MSG_RESULT([$platform_pc_reason])
 
 AC_MSG_CHECKING(platform-beaglebone)
 AC_MSG_RESULT([$platform_beaglebone_reason])
+
+AC_MSG_CHECKING(platform-chip)
+AC_MSG_RESULT([$platform_chip_reason])
 
 AC_MSG_CHECKING(platform-socfpga)
 AC_MSG_RESULT([$platform_socfpga_reason])
@@ -1836,6 +1877,12 @@ if $TARGET_PLATFORM_BEAGLEBONE; then
    target_platform_beaglebone_val=yes
 fi
 AC_SUBST(TARGET_PLATFORM_BEAGLEBONE,$target_platform_beaglebone_val)
+
+if $TARGET_PLATFORM_CHIP; then
+   AC_DEFINE(TARGET_PLATFORM_CHIP, [], [build for Chip platform])
+   target_platform_chip_val=yes
+fi
+AC_SUBST(TARGET_PLATFORM_CHIP,$target_platform_chip_val)
 
 if $TARGET_PLATFORM_RASPBERRY; then
    AC_DEFINE(TARGET_PLATFORM_RASPBERRY, [], [build for Raspberry Pi platform])
