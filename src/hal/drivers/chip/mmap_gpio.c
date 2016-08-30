@@ -238,5 +238,10 @@ mmap_gpio_level libsoc_mmap_gpio_get_level(mmap_gpio* gpio)
 		return LEVEL_ERROR;
 	}
 
-	return (gpio->data & 0x1 ? HIGH : LOW);
+    if (pio_get(gpio_mem, gpio) == PIO_SUCCESS)
+	{
+		return (gpio->data & 0x1 ? HIGH : LOW);;
+	}
+
+	return LEVEL_ERROR;
 }
