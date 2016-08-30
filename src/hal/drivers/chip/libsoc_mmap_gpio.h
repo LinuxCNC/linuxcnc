@@ -17,12 +17,12 @@ extern "C" {
  */
 
 typedef struct {
-    int cfg;
-    int pull;
-    int drv_level;
-    int data;
-    const char port;
-    const unsigned int pin;
+	int cfg;
+	int pull;
+	int drv_level;
+	int data;
+	const char port;
+	const unsigned int pin;
 } mmap_gpio;
 
 /**
@@ -31,9 +31,9 @@ typedef struct {
  */
 
 typedef enum {
-    DIRECTION_ERROR = -1,
-    INPUT = 0,
-    OUTPUT = 1,
+	DIRECTION_ERROR = -1,
+	INPUT = 0,
+	OUTPUT = 1,
 } mmap_gpio_direction;
 
 /**
@@ -42,9 +42,9 @@ typedef enum {
  */
 
 typedef enum {
-    LEVEL_ERROR = -1,
-    LOW = 0,
-    HIGH = 1,
+	LEVEL_ERROR = -1,
+	LOW = 0,
+	HIGH = 1,
 } mmap_gpio_level;
 
 /**

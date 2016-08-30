@@ -133,7 +133,7 @@ int rtapi_app_main(void) {
             }
 
             // Add HAL pin
-            retval = hal_pin_bit_newf(HAL_IN, &(port_data->input_inv[pin]), comp_id, "bb_gpio.in-%02d.invert", pin);
+            retval = hal_pin_bit_newf(HAL_IN, &(port_data->input_inv[pin]), comp_id, "chip_gpio.in-%02d.invert", pin);
 
             if(retval < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %02d could not export pin, err: %d\n", modname, pin, retval);
@@ -154,7 +154,13 @@ int rtapi_app_main(void) {
             }
             pins[pin] = gpio_pin;
 
-            libsoc_mmap_gpio_set_direction(gpio_pin, INPUT);
+            retval = libsoc_mmap_gpio_set_direction(gpio_pin, INPUT);
+            if (retval == DIRECTION_ERROR)
+            {
+                rtapi_print("%s: ERROR: failed to set GPIO direction %d", modname, pin);
+                hal_exit(comp_id);
+                return -1;
+            }
             rtapi_print("pin %d setup with mode input\n", pin);
         }
     }
@@ -176,7 +182,7 @@ int rtapi_app_main(void) {
             data = NULL; // after the first call, subsequent calls to strtok need to be on NULL
 
             // Add HAL pin
-            retval = hal_pin_bit_newf(HAL_OUT, &(port_data->output_pins[pin]), comp_id, "chip_gpio.out-%02d", pin);
+            retval = hal_pin_bit_newf(HAL_IN, &(port_data->output_pins[pin]), comp_id, "chip_gpio.out-%02d", pin);
 
             if(retval < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %02d could not export pin, err: %d\n", modname, pin, retval);
@@ -206,7 +212,13 @@ int rtapi_app_main(void) {
             }
             pins[pin] = gpio_pin;
 
-            libsoc_mmap_gpio_set_direction(gpio_pin, OUTPUT);
+            retval = libsoc_mmap_gpio_set_direction(gpio_pin, OUTPUT);
+            if (retval == DIRECTION_ERROR)
+            {
+                rtapi_print("%s: ERROR: failed to set GPIO direction %d", modname, pin);
+                hal_exit(comp_id);
+                return -1;
+            }
             rtapi_print("pin %d setup with mode output\n", pin);
         }
     }
@@ -242,9 +254,10 @@ void rtapi_app_exit(void)
 
     hal_exit(comp_id);
 
-    for(i=1; i<=HEADERS*PINS_PER_HEADER; i++) {
+    for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
         libsoc_mmap_gpio_free(pins[i]);
     }
+    libsoc_mmap_gpio_shutdown();
 }
 
 static void write_port(void *arg, long period)
@@ -253,7 +266,9 @@ static void write_port(void *arg, long period)
     port_data_t *port = (port_data_t *)arg;
 
     // set output states
-    for(i=1; i<=HEADERS*PINS_PER_HEADER; i++) {
+    for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
+        int retval;
+
         if (port->output_pins[i] == NULL) {
             continue; // short circuit if hal hasn't malloc'd a bit at this location
         }
@@ -261,10 +276,14 @@ static void write_port(void *arg, long period)
         mmap_gpio *pin = pins[i];
 
         if((*port->output_pins[i] ^ *(port->output_inv[i])) == 0) {
-            libsoc_mmap_gpio_set_level(pin, LOW);
+            retval = libsoc_mmap_gpio_set_level(pin, LOW);
         }
         else {
-            libsoc_mmap_gpio_set_level(pin, HIGH);
+            retval = libsoc_mmap_gpio_set_level(pin, HIGH);
+        }
+        if (retval == LEVEL_ERROR) {
+            rtapi_print("%s: ERROR: failed to set GPIO pin %d", modname, i);
+            return;
         }
     }
 }
@@ -275,7 +294,7 @@ static void read_port(void *arg, long period)
     port_data_t *port = (port_data_t *)arg;
 
     // read input states
-    for(i=1; i<=HEADERS*PINS_PER_HEADER; i++) {
+    for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
         if(port->input_pins[i] == NULL) {
             continue; // short circuit if hal hasn't malloc'd a bit at this location
         }
@@ -286,6 +305,14 @@ static void read_port(void *arg, long period)
         pin = pins[i];
         level = libsoc_mmap_gpio_get_level(pin);
 
-        *port->input_pins[i] = (hal_bit_t)(level == HIGH) ^ *(port->input_inv[i]);
+        if (level == LEVEL_ERROR)
+        {
+            rtapi_print("%s: ERROR: failed to read GPIO pin %d", modname, i);
+            return;
+        }
+        else
+        {
+            *port->input_pins[i] = (hal_bit_t)(level == HIGH) ^ *(port->input_inv[i]);
+        }
     }
 }
