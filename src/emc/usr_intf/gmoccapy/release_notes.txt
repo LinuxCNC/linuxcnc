@@ -1,3 +1,6 @@
+ver. 2.1.2
+- spindle label besides the 100 % button has not been updated
+
 ver. 2.1.1
 - starting with estop-reset, caused some errors, because it is not 
   possible to JOG_STOP with machine in OFF state

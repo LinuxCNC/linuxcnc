@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.1"
+_RELEASE = " 2.1.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3097,7 +3097,7 @@ class gmoccapy(object):
         else:
             speed = self.stat.spindle_speed
         self.widgets.active_speed_label.set_label("%.0f" % abs(speed))
-        #self.on_spc_spindle_value_changed(self.widgets.spc_spindle)
+        self.on_spc_spindle_value_changed(self.widgets.spc_spindle)
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if widget.get_active():
