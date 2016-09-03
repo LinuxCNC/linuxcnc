@@ -21,6 +21,7 @@
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
+#include "math_util.h"
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
 //#include "emc.hh"
@@ -303,9 +304,14 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
 }
 
 /**
- * Convert the 2-part spindle position and sign to a signed double.
+ * Convert a raw spindle position into a "progress" position in the current spindle direction.
+ * In other words, how far has the spindle moved in the indicated direction?
+ *
+ * @param spindle_pos signed raw spindle position (typically from motion)
+ * @param spindle_dir commanded spindle direction
+ * @return Spindle progress, POSITIVE if the position and direction have the same sign, NEGATIVE otherwise.
  */
-STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_dir) {
+STATIC inline double getSpindleProgress(double spindle_pos, int spindle_dir) {
     if (spindle_dir < 0.0) {
         spindle_pos*=-1.0;
     }
@@ -2710,10 +2716,9 @@ STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
 STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc ) {
 
-    double spindle_pos = tpGetSignedSpindlePosition(emcmotStatus->spindleRevs,
+    double spindle_pos = getSpindleProgress(emcmotStatus->spindleRevs,
             emcmotStatus->spindle.direction);
     tp_debug_print("Spindle at %f\n",spindle_pos);
-    double spindle_vel, target_vel;
     double oldrevs = tp->spindle.revs;
 
     if ((tc->motion_type == TC_RIGIDTAP) && (tc->coords.rigidtap.state == RETRACTION ||
@@ -2731,19 +2736,19 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         pos_error -= nexttc->progress;
     }
 
+    const double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
     if(tc->sync_accel) {
         // detect when velocities match, and move the target accordingly.
         // acceleration will abruptly stop and we will be on our new target.
         // FIX: this is driven by TP cycle time, not the segment cycle time
-        double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
-        spindle_vel = tp->spindle.revs / ( dt * tc->sync_accel++);
-        target_vel = spindle_vel * tc->uu_per_rev;
-        if(tc->currentvel >= target_vel) {
+        double avg_spindle_vel = tp->spindle.revs / ( dt * tc->sync_accel++);
+        double avg_target_vel = avg_spindle_vel * tc->uu_per_rev;
+        if(tc->currentvel >= avg_target_vel) {
             tc_debug_print("Hit accel target in pos sync\n");
             // move target so as to drive pos_error to 0 next cycle
             tp->spindle.offset = tp->spindle.revs - tc->progress / tc->uu_per_rev;
             tc->sync_accel = 0;
-            tc->target_vel = target_vel;
+            tc->target_vel = avg_target_vel;
         } else {
             tc_debug_print("accelerating in pos_sync\n");
             // beginning of move and we are behind: accel as fast as we can
@@ -2752,15 +2757,12 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     } else {
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
-        tc_debug_print("tracking in pos_sync\n");
-        double errorvel;
-        spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
-        target_vel = spindle_vel * tc->uu_per_rev;
-        errorvel = pmSqrt(fabs(pos_error) * tpGetScaledAccel(tp,tc));
-        if(pos_error<0) {
-            errorvel *= -1.0;
-        }
+        double spindle_vel = (tp->spindle.revs - oldrevs) / dt;
+        double target_vel = spindle_vel * tc->uu_per_rev;
+        double errorvel = pos_error / dt;
+
         tc->target_vel = target_vel + errorvel;
+        tc_debug_print("in position sync, target_vel = %f\n", tc->target_vel);
     }
 
     //Finally, clip requested velocity at zero
