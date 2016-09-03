@@ -1,0 +1,10 @@
+%
+( Subs may follow main program )
+
+O1 call
+M30
+
+O1 sub
+(PRINT,X IN O1)
+O1 endsub
+%
