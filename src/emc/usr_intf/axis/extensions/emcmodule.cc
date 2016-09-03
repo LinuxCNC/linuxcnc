@@ -1299,7 +1299,18 @@ static PyMethodDef Command_methods[] = {
     {"override_limits", (PyCFunction)override_limits, METH_NOARGS},
     {"home", (PyCFunction)home, METH_VARARGS},
     {"unhome", (PyCFunction)unhome, METH_VARARGS},
-    {"jog", (PyCFunction)jog, METH_VARARGS},
+    {"jog", (PyCFunction)jog, METH_VARARGS,
+        "jog(JOG_CONTINUOUS, joint_flag, index, speed)\n"
+        "jog(JOG_INCREMENT, joint_flag, index, speed, increment)\n"
+        "jog(JOG_STOP, joint_flag, index)\n"
+        "\n"
+        "Start or stop a continuous or incremental jog of a joint or an axis.\n"
+        "\n"
+        "    joint_flag: True to jog a joint, False to jog an axis\n"
+        "    index: the index of the joint or axis to jog\n"
+        "    speed: jog speed\n"
+        "    increment: distance to jog\n"
+    },
     {"reset_interpreter", (PyCFunction)reset_interpreter, METH_NOARGS},
     {"program_open", (PyCFunction)program_open, METH_VARARGS},
     {"auto", (PyCFunction)emcauto, METH_VARARGS},
