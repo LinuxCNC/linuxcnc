@@ -1,3 +1,11 @@
+ver. 2.1.3
+- mode change was possible with keyboard shortcuts, even if the 
+  interpreter was running.
+- if the user changed with keyboard shortcut a mode and after that to
+  an other mode with button, it was not possible to change to the 
+  previous mode with the keyboard shortcut, as the last key event 
+  is recorded. Now the hal status event will reset the key event
+ 
 ver. 2.1.2
 - spindle label besides the 100 % button has not been updated
 

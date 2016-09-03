@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.2"
+_RELEASE = " 2.1.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1796,6 +1796,14 @@ class gmoccapy(object):
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
         self._check_limits()
+        
+        # if the status changed, we reset the key event, otherwise the key press
+        # event will not change, if the user did the last change with keyboard shortcut
+        # This is caused, because we record the last key event to avoid multiple key
+        # press events by holding down the key. I.e. One press should only advance one increment
+        # on incremental jogging.
+        self.last_key_event = None, 0
+
 
     def on_hal_status_mode_mdi(self, widget):
         # self.tool_change is set only if the tool change was commanded
@@ -1829,6 +1837,14 @@ class gmoccapy(object):
             self.widgets.ntb_jog.set_current_page(1)
             self.widgets.hal_mdihistory.entry.grab_focus()
             self.widgets.rbt_mdi.set_active(True)
+            
+            # if the status changed, we reset the key event, otherwise the key press
+            # event will not change, if the user did the last change with keyboard shortcut
+            # This is caused, because we record the last key event to avoid multiple key
+            # press events by holding down the key. I.e. One press should only advance one increment
+            # on incremental jogging.
+            self.last_key_event = None, 0
+
 
     def on_hal_status_mode_auto(self, widget):
         # if Auto button is not sensitive, we are not ready for AUTO commands
@@ -1849,6 +1865,13 @@ class gmoccapy(object):
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_jog.set_current_page(2)
             self.widgets.rbt_auto.set_active(True)
+            
+            # if the status changed, we reset the key event, otherwise the key press
+            # event will not change, if the user did the last change with keyboard shortcut
+            # This is caused, because we record the last key event to avoid multiple key
+            # press events by holding down the key. I.e. One press should only advance one increment
+            # on incremental jogging.
+            self.last_key_event = None, 0
 
     def on_hal_status_motion_mode_changed(self, widget, new_mode):
         # Motion mode change in identity kinematics makes no sense
@@ -2032,7 +2055,7 @@ class gmoccapy(object):
             self.command.abort()
             return True
 # ToDo:
-# Check if homed, otherwise fo not allow to change mode
+# Check if homed, otherwise do not allow to change mode
 
         # change between teleop and world mode
         if keyname == "F12" or keyname == "$":
@@ -2079,24 +2102,6 @@ class gmoccapy(object):
             print("Settings say: do not use keyboard shortcuts, abort")
             return
 
-        # F3 should change to manual mode
-        if keyname == "F3" and signal:
-            self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
-            # we need to leave here, otherwise the check for jogging 
-            # only allowed in manual mode will finish the sub
-            self.last_key_event = keyname, signal
-            return True
-
-        # F5 should change to mdi mode
-        if keyname == "F5" and signal:
-            self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()        
-            # we need to leave here, otherwise the check for jogging 
-            # only allowed in manual mode will finish the sub
-            self.last_key_event = keyname, signal
-            return True
-
         # Only in MDI mode the RETURN key should execute a command
         if keyname == "Return" and signal and self.stat.task_mode == linuxcnc.MODE_MDI:
             # print("Got enter in MDI")
@@ -2105,6 +2110,31 @@ class gmoccapy(object):
             # we need to leave here, otherwise the check for jogging 
             # only allowed in manual mode will finish the sub
             return True
+
+        # mode change are only allowed if the interpreter is idle, like mode switching
+        if keyname == "F3" or keyname == "F5":
+            if self.stat.interp_state != linuxcnc.INTERP_IDLE:
+                if signal: # Otherwise the message will be shown twice
+                    self._show_error((13, _("Mode change is only allowed if the interpreter is idle!")))
+                return
+            else:
+                # F3 change to manual mode
+                if keyname == "F3" and signal:
+                    self.command.mode(linuxcnc.MODE_MANUAL)
+                    self.command.wait_complete()
+                    # we need to leave here, otherwise the check for jogging 
+                    # only allowed in manual mode will finish the sub
+                    self.last_key_event = keyname, signal
+                    return True
+        
+                # F5 should change to mdi mode
+                if keyname == "F5" and signal:
+                    self.command.mode(linuxcnc.MODE_MDI)
+                    self.command.wait_complete()        
+                    # we need to leave here, otherwise the check for jogging 
+                    # only allowed in manual mode will finish the sub
+                    self.last_key_event = keyname, signal
+                    return True
 
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history
