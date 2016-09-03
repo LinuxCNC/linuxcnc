@@ -942,7 +942,7 @@ class HAL:
         print >>f1
         print >>f1, "loadusr -Wn spindle-vfd gs2_vfd -d %s -r %s -p none -s 2 -t %s -n spindle-vfd -A %s -D %s"%(p,b,s,a,d)
         print >>f1, "net spindle-cw           => spindle-vfd.spindle-fwd"
-        print >>f1, "net spindle-on           => spindle-vfd.spindle-on"
+        print >>f1, "net spindle-enable       => spindle-vfd.spindle-on"
         print >>f1, "net spindle-at-speed     <= spindle-vfd.at-speed"
         print >>f1, "net spindle-vel-cmd-rpm  => spindle-vfd.speed-command"
         f1.close()

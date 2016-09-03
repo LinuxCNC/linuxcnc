@@ -644,6 +644,12 @@ class Pages:
         self.w.gs2_vfd_slave.set_value(self.d.gs2_vfd_slave)
         self.w.gs2_vfd_accel.set_value(self.d.gs2_vfd_accel)
         self.w.gs2_vfd_deaccel.set_value(self.d.gs2_vfd_deaccel)
+        self.search_for_serial_device_name()
+        self.w.gs2_vfd_device_name.set_active(0)
+        model = self.w.gs2_vfd_device_name.get_model()
+        for num,i in enumerate(model):
+            if i[0] == self.d.gs2_vfd_port:
+                self.w.gs2_vfd_device_name.set_active(num)
         self.w.gs2_vfd_baud.set_active(0)
         model = self.w.gs2_vfd_baud.get_model()
         for num,i in enumerate(model):
@@ -694,6 +700,7 @@ class Pages:
         self.d.gs2_vfd_slave = self.w.gs2_vfd_slave.get_value()
         self.d.gs2_vfd_accel = self.w.gs2_vfd_accel.get_value()
         self.d.gs2_vfd_deaccel = self.w.gs2_vfd_deaccel.get_value()
+        self.d.gs2_vfd_port = self.w.gs2_vfd_device_name.get_active_text()
         model = self.w.gs2_vfd_baud.get_model()
         index = self.w.gs2_vfd_baud.get_active()
         self.d.gs2_vfd_baud = model[index][1]
@@ -788,6 +795,15 @@ class Pages:
         self.a.search_for_device_rule()
     def on_joysticktest_clicked(self, *args):
         self.a.test_joystick()
+
+    def search_for_serial_device_name(self):
+        match = os.popen("""ls /sys/class/tty/*/device/driver | grep 'driver' | cut -d "/" -f 5""").read().split()
+        model = self.w.gs2_vfd_device_name.get_model()
+        model.clear()
+        for item in match:
+            name = '/dev/%s'%item
+            model.append((name,))
+
 #************
 # MESA0 PAGE
 #************
