@@ -4633,14 +4633,26 @@ show / adjust parameters.</property>
                     <child>
                       <object class="GtkTable" id="table2">
                         <property name="visible">True</property>
-                        <property name="n_rows">4</property>
+                        <property name="n_rows">5</property>
                         <property name="n_columns">2</property>
                         <child>
-                          <object class="GtkLabel" id="label18">
+                          <object class="GtkLabel" id="label21">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Baud Rate</property>
+                            <property name="label" translatable="yes">Deacceleration Time</property>
                           </object>
                           <packing>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label20">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Acceleration Time</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_EXPAND</property>
                           </packing>
                         </child>
@@ -4650,17 +4662,71 @@ show / adjust parameters.</property>
                             <property name="label" translatable="yes">Slave number</property>
                           </object>
                           <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label18">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Baud Rate</property>
+                          </object>
+                          <packing>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_EXPAND</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label20">
+                          <object class="GtkLabel" id="label12">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Acceleration Time</property>
+                            <property name="label" translatable="yes">Device  Name</property>
                           </object>
                           <packing>
+                            <property name="x_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="gs2_vfd_deaccel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="adjustment">gs2_dacc_time_adjust</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
+                            <property name="x_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="gs2_vfd_accel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="adjustment">gs2_acc_time_adjust</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="gs2_vfd_slave">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="adjustment">gs2_slave_adjust</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
                             <property name="x_options">GTK_EXPAND</property>
@@ -4681,61 +4747,25 @@ show / adjust parameters.</property>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSpinButton" id="gs2_vfd_slave">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
-                            <property name="adjustment">gs2_slave_adjust</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
-                            <property name="x_options">GTK_EXPAND</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label21">
+                          <object class="GtkComboBox" id="gs2_vfd_device_name">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Deacceleration Time</property>
-                          </object>
-                          <packing>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSpinButton" id="gs2_vfd_accel">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
-                            <property name="adjustment">gs2_acc_time_adjust</property>
+                            <property name="model">gs2_device_name_liststore</property>
+                            <property name="active">0</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSpinButton" id="gs2_vfd_deaccel">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
-                            <property name="adjustment">gs2_dacc_time_adjust</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
-                            <property name="x_options">GTK_EXPAND</property>
                           </packing>
                         </child>
                       </object>
@@ -5117,5 +5147,16 @@ show / adjust parameters.</property>
   <object class="GtkAdjustment" id="gs2_dacc_time_adjust">
     <property name="upper">20</property>
     <property name="step_increment">1</property>
+  </object>
+  <object class="GtkListStore" id="gs2_device_name_liststore">
+    <columns>
+      <!-- column-name device_name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">/dev/ttyS0</col>
+      </row>
+    </data>
   </object>
 </interface>
