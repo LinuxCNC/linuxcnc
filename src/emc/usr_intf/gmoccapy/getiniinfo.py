@@ -92,6 +92,11 @@ class GetIniInfo:
             return False
         return True
 
+    def get_lathe_wear_offsets(self):
+        temp = self.inifile.find("DISPLAY", "LATHE_WEAR_OFFSETS")
+        if not temp or temp == "0":
+            return False
+        return True
 
     def get_jog_vel(self):
         # get default jog velocity

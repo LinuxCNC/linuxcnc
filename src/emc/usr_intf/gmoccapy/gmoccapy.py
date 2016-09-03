@@ -1008,6 +1008,9 @@ class gmoccapy(object):
 
         if self.lathe_mode:
             self.widgets.tooledit1.set_visible("ijq", True)
+            if not self.get_ini_info.get_lathe_wear_offsets():
+                # hide the wear offset tabs
+                self.widgets.tooledit1.set_lathe_display(False)
         # get the path to the tool table
         tooltable = self.get_ini_info.get_toolfile()
         if not tooltable:

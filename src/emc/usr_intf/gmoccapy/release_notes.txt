@@ -1,3 +1,11 @@
+ver. 2.1.4
+- lathe wear offsets has been displayed by default, IMHO that
+  disturbs most users, as the wear offsets do only work with
+  remaped code. That part is only weak documented.
+- If the user wants to use wear offsets, he will have to include
+  in [DISPLAY] LATHE_WEAR_OFFSETS = 1, otherwise the additional tabs
+  will be hidden.
+
 ver. 2.1.3
 - mode change was possible with keyboard shortcuts, even if the 
   interpreter was running.
