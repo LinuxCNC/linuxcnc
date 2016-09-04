@@ -303,9 +303,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
       return (INTERP_EXECUTE_FINISH);
 
   // All changes to settings are complete
-  StateTag tag;
-  write_state_tag(block, settings, tag);
-  update_tag(tag);
+  write_canon_state_tag(block, settings);
   return INTERP_OK;
 }
 

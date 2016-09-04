@@ -525,6 +525,7 @@ public:
  int write_settings(setup_pointer settings);
  int write_state_tag(block_pointer block, setup_pointer settings,
 		     StateTag &state);
+ int write_canon_state_tag(block_pointer block, setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
  bool isreadonly(int index);
 

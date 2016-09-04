@@ -670,9 +670,7 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
   //tag displays correctly
   int save_mode = settings->motion_mode;
   settings->motion_mode = motion;
-  StateTag tag;
-  write_state_tag(block, settings, tag);
-  update_tag(tag);
+  write_canon_state_tag(block, settings);
   settings->motion_mode = save_mode;
   // end KLUDGE
 
