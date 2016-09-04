@@ -314,5 +314,14 @@ int Interp::write_state_tag(block_pointer block,
 
     return 0;
 }
+
+int Interp::write_canon_state_tag(block_pointer block, setup_pointer settings)
+{
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
+    return 0;
+}
+
 /****************************************************************************/
 
