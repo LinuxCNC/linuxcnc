@@ -1,3 +1,29 @@
+linuxcnc (1:2.7.7) UNRELEASED; urgency=medium
+
+  * docs: fix example scrips so they work when copied and pasted
+  * docs: fix minor mux_generic(9) manpage quibbles
+
+  * Axis GUI: work around python-tk "True" bug
+  * halui: correctly report "mode.is_joint"
+
+  * lcd: stop processing when page_num is too high
+  * lcd: add missing call to hal_ready
+
+  * pncconf: add ability to set gs2 vfd serial device
+
+  * Interp: support subs placed after main program
+  * Interp: don't drop remap level at prog exit
+  * Interp: fix startup regression regarding coordinate systems and more
+
+  * add test validating initial coordinate system and RS274NGC_STARTUP_CODE
+  * add test validating the startup state of the Status buffer
+  * add test for M30 and remapped command interaction
+
+  * travis-ci: Disable e-mail notifications
+  * build: include metadata for Travis CI integration
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 07 Sep 2016 19:00:54 -0600
+
 linuxcnc (1:2.7.6) unstable; urgency=medium
 
   * docs: add info about updating
