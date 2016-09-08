@@ -175,7 +175,7 @@ current feedrate override, 1.0 = 100%.
 currently loaded gcode filename with path.
 
 *flood*:: '(returns integer)' -
-One of 'FLOOD_OFF' or 'FLOOD_ON'.
+Flood status, either 'FLOOD_OFF' or 'FLOOD_ON'.
 
 *g5x_index*:: '(returns integer)' -
 **** replace with constants list
@@ -253,7 +253,7 @@ maximum  velocity. reflects [TRAJ] MAX_VELOCITY.
 currently active M-codes.
 
 *mist*:: '(returns integer)' -
-'mist on' flag.
+Mist status, either MIST_OFF' or 'MIST_ON'
 
 *motion_line*:: '(returns integer)' -
 source line number motion is currently executing. Relation
