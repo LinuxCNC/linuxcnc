@@ -363,6 +363,10 @@ class Data:
              self[i+'latchdir'] = 0
              self[i+'scale'] = 0
 
+	     # Varibles for test axis
+             self[i+'testmaxvel'] = None
+             self[i+'testmaxacc'] = None
+
         # set xyzuv axes defaults depending on units true = imperial
         self.set_axis_unit_defaults(True)
 
@@ -520,7 +524,7 @@ class Data:
     # write stepconf's hidden preference file
     def save_preferences(self):
         filename = os.path.expanduser("~/.stepconf-preferences")
-        print filename
+        #print filename
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -1247,8 +1251,19 @@ class StepconfApp:
         if not self.check_for_rt(): return
         SIG = self._p
 
-        vel = float(self.w[axis + "maxvel"].get_text())
-        acc = float(self.w[axis + "maxacc"].get_text())
+	# Retrive user setting for maxvel and maxacc on current axis tab
+	# Test if there is some data saved
+	testvel = self.d[axis + "testmaxvel"]
+	testacc = self.d[axis + "testmaxacc"]
+	if(testvel != None):
+		vel = float(testvel)
+	else:
+        	vel = float(self.w[axis + "maxvel"].get_text())
+
+	if(testacc != None):
+		acc = float(testacc)
+	else:
+        	acc = float(self.w[axis + "maxacc"].get_text())
 
         scale = self.d[axis + "scale"]
         maxvel = 1.5 * vel
@@ -1432,7 +1447,13 @@ class StepconfApp:
         halrun.write("start\n"); halrun.flush()
         self.w.dialog1.show_all()
         result = self.w.dialog1.run()
+
+	# Save test parameters just for this session
+	self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
+	self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
         self.w.dialog1.hide()
+
+
         
         if amp_signals:
             for pin in amp_signals:
