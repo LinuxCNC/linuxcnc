@@ -48,7 +48,7 @@ typedef struct {
 
 static port_data_t *port_data;
 static const char *modname = MODNAME;
-static mmap_gpio * pins[PINS_PER_HEADER * HEADERS];
+static mmap_gpio pins[PINS_PER_HEADER * HEADERS];
 
 static void write_port(void *arg, long period);
 static void read_port(void *arg, long period);
@@ -62,13 +62,13 @@ RTAPI_MP_STRING(input_pins, "input pins, comma separated.  P0-P7 use 0-7");
 static char *output_pins;
 RTAPI_MP_STRING(output_pins, "output pins, comma separated.  P0-P7 use 0-7");
 
-static mmap_gpio * get_gpio(int raw_pin)
+static int get_gpio(mmap_gpio *gpio, int raw_pin)
 {
     int pin_id = raw_pin + 132;
     char port = (char)(pin_id / 32) + 'A';
     int pin = pin_id % 32;
 
-    return libsoc_mmap_gpio_request(port, pin);
+    return libsoc_mmap_gpio_request(gpio, port, pin);
 }
 
 static void configure_control_module() {
@@ -145,14 +145,13 @@ int rtapi_app_main(void) {
             *(port_data->input_inv[pin]) = 0;
 
             // Initialize GPIO pin
-            gpio_pin = get_gpio(pin);
-            if (gpio_pin == NULL)
+	    gpio_pin = &pins[pin];
+            if (!get_gpio(gpio_pin, pin))
             {
                 rtapi_print("%s: ERROR: failed to open GPIO pin %d", modname, pin);
                 hal_exit(comp_id);
                 return -1;
             }
-            pins[pin] = gpio_pin;
 
             retval = libsoc_mmap_gpio_set_direction(gpio_pin, INPUT);
             if (retval == DIRECTION_ERROR)
@@ -203,14 +202,13 @@ int rtapi_app_main(void) {
             *(port_data->output_inv[pin]) = 0;
 
             // Initialize GPIO pin
-            gpio_pin = get_gpio(pin);
-            if (gpio_pin == NULL)
+	    gpio_pin = &pins[pin];
+            if (!get_gpio(gpio_pin, pin))
             {
                 rtapi_print("%s: ERROR: failed to open GPIO pin %d", modname, pin);
                 hal_exit(comp_id);
                 return -1;
             }
-            pins[pin] = gpio_pin;
 
             retval = libsoc_mmap_gpio_set_direction(gpio_pin, OUTPUT);
             if (retval == DIRECTION_ERROR)
@@ -250,13 +248,7 @@ int rtapi_app_main(void) {
 
 void rtapi_app_exit(void)
 {
-    int i;
-
     hal_exit(comp_id);
-
-    for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
-        libsoc_mmap_gpio_free(pins[i]);
-    }
     libsoc_mmap_gpio_shutdown();
 }
 
@@ -273,7 +265,7 @@ static void write_port(void *arg, long period)
             continue; // short circuit if hal hasn't malloc'd a bit at this location
         }
 
-        mmap_gpio *pin = pins[i];
+        mmap_gpio *pin = &pins[i];
 
         if((*port->output_pins[i] ^ *(port->output_inv[i])) == 0) {
             retval = libsoc_mmap_gpio_set_level(pin, LOW);
@@ -302,7 +294,7 @@ static void read_port(void *arg, long period)
         mmap_gpio *pin;
         mmap_gpio_level level;
 
-        pin = pins[i];
+        pin = &pins[i];
         level = libsoc_mmap_gpio_get_level(pin);
 
         if (level == LEVEL_ERROR)

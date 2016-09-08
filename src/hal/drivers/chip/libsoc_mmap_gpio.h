@@ -1,6 +1,8 @@
 #ifndef _LIBSOC_MMAP_GPIO_H_
 #define _LIBSOC_MMAP_GPIO_H_
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,12 +19,16 @@ extern "C" {
  */
 
 typedef struct {
-	int cfg;
-	int pull;
-	int drv_level;
-	int data;
-	const char port;
-	const unsigned int pin;
+	uint32_t cfg;
+	uint32_t pull;
+	uint32_t drv_level;
+	uint32_t data;
+        uint32_t *cfg_address;
+        uint32_t *dlevel_address;
+        uint32_t *pull_address;
+        uint32_t *data_address;
+	char port;
+	uint32_t pin;
 } mmap_gpio;
 
 /**
@@ -64,20 +70,13 @@ void libsoc_mmap_gpio_shutdown();
 /**
  * \fn mmap_gpio* libsoc_mmap_gpio_request(char port, unsigned int pin)
  * \brief request a gpio to use
+ * \param pio, pointer to gpio structure
  * \param char port - the port name ('A', 'B, 'C', ..)
  * \param unsigned int pin - the pin of port
- * \return pointer to mmap_gpio*
+ * \return true on succes, false on failure
  */
 
-mmap_gpio* libsoc_mmap_gpio_request(char port, unsigned int pin);
-
-/**
- * \fn void libsoc_mmap_gpio_free(mmap_gpio* gpio)
- * \brief free a previously requested gpio
- * \param mmap_gpio* gpio - valid pointer to a requested gpio
- */
-
-void libsoc_mmap_gpio_free(mmap_gpio* gpio);
+int libsoc_mmap_gpio_request(mmap_gpio *pio, char port, uint32_t pin);
 
 /**
  * \fn int libsoc_mmap_gpio_set_direction(mmap_gpio* gpio, mmap_gpio_direction direction)
