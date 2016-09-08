@@ -365,6 +365,20 @@ id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
 woffset, diameter, frontangle, backangle, orientation. The id and orientation
 are integers and the rest are floats.
 
+[source,python]
+----
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import linuxcnc
+s = linuxcnc.stat()
+s.poll()
+# to find the loaded tool information it is in tool table index 0
+if s.tool_table[0].id != 0: # a tool is loaded
+	print s.tool_table[0].zoffset
+else:
+	print "no tool loaded"
+----
+
 *velocity*:: '(returns float)' -
 ********
 default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
@@ -380,8 +394,8 @@ of a particular axis:
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import linuxcnc
-s = linuxcnc.stat() 
-s.poll() 
+s = linuxcnc.stat()
+s.poll()
 print "Axis 1 homed: ", s.axis[1]["homed"]
 ---------------------------------------------------------------------
 
