@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import math
@@ -11,38 +12,6 @@ import os
 import signal
 import glob
 import re
-
-
-def wait_for_linuxcnc_startup(status, timeout=10.0):
-
-    """Poll the Status buffer waiting for it to look initialized,
-    rather than just allocated (all-zero).  Returns on success, throws
-    TimeoutError on failure."""
-
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        status.poll()
-        if (status.angular_units == 0.0) \
-            or (status.axes == 0) \
-            or (status.axis_mask == 0) \
-            or (status.cycle_time == 0.0) \
-            or (status.exec_state != linuxcnc.EXEC_DONE) \
-            or (s.interp_state != linuxcnc.INTERP_IDLE) \
-            or (status.inpos == False) \
-            or (status.linear_units == 0.0) \
-            or (status.max_acceleration == 0.0) \
-            or (status.max_velocity == 0.0) \
-            or (status.program_units == 0.0) \
-            or (status.rapidrate == 0.0) \
-            or (status.state != linuxcnc.STATE_ESTOP) \
-            or (status.task_state != linuxcnc.STATE_ESTOP):
-            time.sleep(0.1)
-        else:
-            # looks good
-            return
-
-    # timeout, throw an exception
-    raise TimeoutError
 
 
 def print_status(status):
@@ -207,8 +176,9 @@ c = linuxcnc.command()
 s = linuxcnc.stat()
 e = linuxcnc.error_channel()
 
+l = linuxcnc_util.LinuxCNC()
 # Wait for LinuxCNC to initialize itself so the Status buffer stabilizes.
-wait_for_linuxcnc_startup(s)
+l.wait_for_linuxcnc_startup()
 
 print "status at boot up"
 s.poll()

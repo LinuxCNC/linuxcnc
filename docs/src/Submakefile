@@ -605,6 +605,10 @@ endif
 %.eps:; $(error Required image file $@ does not exist)
 
 # make manpages from all the asciidoc manpage-sources
+# Note that in some versions of asciidoc, including the one in Debian Jessie,
+# a2x spuriously warns that this --destination-dir is ignored.  It is *NOT*
+# ignored, don't remove it trying to fix the diagnostic.
+# For more information, see https://github.com/asciidoc/asciidoc/issues/44
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.txt, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.txt))
 $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
 	@mkdir -p `dirname $@`

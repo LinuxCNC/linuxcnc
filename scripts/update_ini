@@ -13,8 +13,8 @@ import tkMessageBox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
-    regex = "\[%s\](.+?)(?:\n\[|$)" % block
-    section = re.search(regex, inistring, re.DOTALL)
+    regex = "^\s*\[%s\](.+?)(?:^\s*\[|\Z)" % block
+    section = re.search(regex, inistring, re.M | re.DOTALL)
     newini.write("\n[%s]" % block)
     if section != None:
         newini.write(section.group(1))
@@ -163,7 +163,7 @@ inistring = open(filename,'r').read()
 newini = open(filename, 'w')
 
 # Get a list of all sections
-all_sections = re.findall("^\[(.+)\]", inistring, re.MULTILINE)
+all_sections = re.findall("^\s*\[(.+)\]", inistring, re.MULTILINE)
 
 # A C-style Switch would be nice here, to allow us to fall through successive
 # version updates.
@@ -245,7 +245,7 @@ if version == "$Revision$" or version < "1.0":
                 match = re.search('coordinates *= *(\w+)', line)
                 if match:
                     coordinates = list(match.group(1))
-                    coords_enry = 1
+                    coords_entry = 1
                 match = re.search('kinstype *= *(\w+)', line)
                 if kinstype: kinstype = match.group(1)
                 break
@@ -332,16 +332,11 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
-    # set a flag to decide whether to link world jogging pins
-    if not kinstype:
-        identitykins = True
-    elif kinstype == "1":
-        identitykins = True
-    else:
-        identitykins = False
-
     # Now change all the pin names etc in the linked HAL files.
-    subs = {'axis.(.).active':    'joint.\\1.active',
+    # Any machine can be jogged in world mode (in theory) but joint-mode jog-enable
+    # is not auto-linked for safety.
+
+    subs = {'axis.(.).active':'joint.\\1.active',
     'axis.(.).amp-enable-out':    'joint.\\1.amp-enable-out',
     'axis.(.).amp-fault-in':      'joint.\\1.amp-fault-in',
     'axis.(.).backlash-corr':     'joint.\\1.backlash-corr',
@@ -362,14 +357,6 @@ if version == "$Revision$" or version < "1.0":
     'axis.(.).homing':            'joint.\\1.homing',
     'axis.(.).in-position':       'joint.\\1.in-position',
     'axis.(.).index-enable':      'joint.\\1.index-enable',
-    'axis.(.).jog-counts':        'joint.\\1.jog-counts' if not identitykins
-                             else 'joint.\\1.jog-counts => @ax\\1@.jog-counts',
-    'axis.(.).jog-enable':        'joint.\\1.jog-enable' if not identitykins
-                             else 'joint.\\1.jog-enable => @ax\\1@.jog-enable',
-    'axis.(.).jog-scale':         'joint.\\1.jog-scale' if not identitykins
-                             else 'joint.\\1.jog-scale => @ax\\1@.jog-scale',
-    'axis.(.).jog-vel-mode':      'joint.\\1.jog-vel-mode' if not identitykins
-                             else 'joint.\\1.jog-vel-mode => @ax\\1@.jog-counts',
     'axis.(.).joint-pos-cmd':     'joint.\\1.pos-cmd',
     'axis.(.).joint-pos-fb':      'joint.\\1.pos-fb',
     'axis.(.).joint-vel-cmd':     'joint.\\1.vel-cmd',
@@ -384,6 +371,10 @@ if version == "$Revision$" or version < "1.0":
     'axis.(.).wheel-jog-active':  'joint.\\1.wheel-jog-active',
     'axis.(.).unlock':            'joint.\\1.unlock',
     'axis.(.).is-unlocked':       'joint.\\1.is-unlocked',
+    'axis.(.).jog-enable':        '@ax\\1@.jog-enable',
+    'axis.(.).jog-counts':        'joint.\\1.jog-counts @ax\\1@.jog-counts',
+    'axis.(.).jog-scale':         'joint.\\1.jog-scale @ax\\1@.jog-scale',
+    'axis.(.).jog-vel-mode':      'joint.\\1.jog-vel-mode @ax\\1@.jog-vel-mode',
     'halui.axis.(.).pos-commanded':'halui.@ax\\1@.pos-commanded',
     'halui.axis.(.).pos-feedback':'halui.@ax\\1@.pos-feedback',
     'halui.axis.(.).pos-relative':'halui.@ax\\1@.pos-relative',
@@ -412,7 +403,10 @@ if version == "$Revision$" or version < "1.0":
     '(.+servo_period_ns.+)':      '\\1 %s' % lock_string
     }
 
+    # converts @axN@ pattern to axis.L and splits any malformed setp from mpg
     subs2 = {
+    '^\s*setp\s+(\S+)\s+(\S+)\s+(\S+)\s*$':
+                                 'setp \\1 \\3\nsetp \\2 \\3\n',
     '@ax0@':                     'axis.%s' % coordinates[0].lower(),
     '@ax1@':                     'axis.%s' % coordinates[1].lower(),
     '@ax2@':                     'axis.%s' % coordinates[2].lower(),
@@ -427,9 +421,9 @@ if version == "$Revision$" or version < "1.0":
     for halfile in halpaths:
         halstring = open(halfile,'r').read()
         for sub in subs:
-            halstring = re.sub(sub, subs[sub], halstring)
+            halstring = re.sub(sub, subs[sub], halstring, flags=re.M)
         for sub in subs2:
-            halstring = re.sub(sub, subs2[sub], halstring)
+            halstring = re.sub(sub, subs2[sub], halstring, flags=re.M)
         newhal = open(halfile, 'w')
         newhal.write(halstring)
         newhal.close()

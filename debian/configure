@@ -141,6 +141,11 @@ fi
 PYTHON_PACKAGING=dh_pysupport
 
 case $DISTRIB_NAME in
+Ubuntu-16.04) # Ubuntu Xenial (LTS)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,dh-python
+	TCLTK_VERSION=8.6
+	PYTHON_PACKAGING=dh_python2
+	;;
 Ubuntu-14.*|Ubuntu-15.04|LinuxMint-17.*) # Trusty Tahr (LTS) through Vivid
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,python-support
 	TCLTK_VERSION=8.6

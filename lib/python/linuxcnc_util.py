@@ -34,6 +34,38 @@ class LinuxCNC:
             self.error = linuxcnc.error_channel()
 
 
+    def wait_for_linuxcnc_startup(self, timeout=10.0):
+
+        """Poll the Status buffer waiting for it to look initialized,
+        rather than just allocated (all-zero).  Returns on success, throws
+        RuntimeError on failure."""
+
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            self.status.poll()
+            if (self.status.angular_units == 0.0) \
+                or (self.status.axes == 0) \
+                or (self.status.axis_mask == 0) \
+                or (self.status.cycle_time == 0.0) \
+                or (self.status.exec_state != linuxcnc.EXEC_DONE) \
+                or (self.status.interp_state != linuxcnc.INTERP_IDLE) \
+                or (self.status.inpos == False) \
+                or (self.status.linear_units == 0.0) \
+                or (self.status.max_acceleration == 0.0) \
+                or (self.status.max_velocity == 0.0) \
+                or (self.status.program_units == 0.0) \
+                or (self.status.rapidrate == 0.0) \
+                or (self.status.state != linuxcnc.STATE_ESTOP) \
+                or (self.status.task_state != linuxcnc.STATE_ESTOP):
+                time.sleep(0.1)
+            else:
+                # looks good
+                return
+
+        # timeout, throw an exception
+        raise RuntimeError
+
+
     def all_joints_homed(self, joints):
         """Arguments:
 

@@ -176,23 +176,23 @@ The most commonly used arguments are:
 The `make` command takes two useful optional arguments.
 
 
-===== Parallel compilation
+Parallel compilation::
 
-`make` takes an optional argument `-jN` (where N is a number).
-This enables parallel compilation with N simultaneous processes, which
-can significantly speed up your build.
-
+    `make` takes an optional argument `-jN` (where N is a number).
+    This enables parallel compilation with N simultaneous processes, which
+    can significantly speed up your build.
++
 A useful value for N is the number of CPUs in your build system.  You can
 discover the number of CPUs by running `nproc`.
 
 
-===== Building just a specific target
+Building just a specific target::
 
-If you want to build just a specific part of LinuxCNC, you can name
-the thing you want to build on the `make` command line.  For example,
-if you are working on a component named `froboz`, you can build its
-executable by running:
-
+    If you want to build just a specific part of LinuxCNC, you can name
+    the thing you want to build on the `make` command line.  For example,
+    if you are working on a component named `froboz`, you can build its
+    executable by running:
++
 -----
 > cd linuxcnc-dev/src
 > make ../bin/froboz
