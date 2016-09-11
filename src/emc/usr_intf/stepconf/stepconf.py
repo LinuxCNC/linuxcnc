@@ -1255,12 +1255,14 @@ class StepconfApp:
 	# Test if there is some data saved
 	testvel = self.d[axis + "testmaxvel"]
 	testacc = self.d[axis + "testmaxacc"]
-	if(testvel != None):
+	# Check if not null and not empty and not string "None"
+	if(testvel != None and testvel != "" and testvel != "None"):
 		vel = float(testvel)
 	else:
         	vel = float(self.w[axis + "maxvel"].get_text())
 
-	if(testacc != None):
+	# Check if not null and not empty and not string "None"
+	if(testacc != None and testacc != "" and testacc != "None"):
 		acc = float(testacc)
 	else:
         	acc = float(self.w[axis + "maxacc"].get_text())
