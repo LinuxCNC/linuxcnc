@@ -2761,18 +2761,28 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         double target_vel = spindle_vel * tc->uu_per_rev;
 
         /*
-         * Account for target velocity in correction with the following formula:
+         * Correct for position errors when tracking spindle motion.
+         * This approach assumes that if position error is 0, the correct
+         * velocity is just the nominal target velocity. If the position error
+         * is non-zero, however, then we need to correct it, but then return to
+         * the nominal velocity.
          *
+         * velocity
+         * |          v_p
          * |         /\
-         * |        /..\
+         * |        /..\         v_0
          * |--------....-----------
          * |        ....
          * |        ....
-         * |_______________________
+         * |_________________________
+         *         |----| t      time
          *
-         * To correct a position error x_err (shaded area above), we need to momentarily increase the velocity, then decrease back to the nonimal velocity.
+         * To correct a position error x_err (shaded area above), we need to
+         * momentarily increase the velocity, then decrease back to the nonimal
+         * velocity.
          *
-         * The area under the "blip" is x_err, given the tracking velocity v_0 and maximum axis acceleration a_max.
+         * The area under the "blip" is x_err, given the tracking velocity v_0
+         * and maximum axis acceleration a_max.
          *
          * x_err = (v_0 + v_p) * t / 2 , t = 2 * (v_p - v_0) / a_max
          *
@@ -2782,6 +2792,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
          *
          */
         double a_max = tpGetScaledAccel(tp, tc);
+        // Make correction term non-negative
         double v_sq = pmSq(target_vel) + pos_error * a_max;
         tc->target_vel = pmSqrt(fmax(v_sq, 0.0));
         tc_debug_print("in position sync, target_vel = %f\n", tc->target_vel);
