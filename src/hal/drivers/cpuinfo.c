@@ -74,6 +74,6 @@ int get_rpi_revision(void)
       return 3;
    else if ((strcmp(revision, "a22082") == 0))
       return 4;
-   else // assume rev 4
+   else // assume rev 5
       return 5;
 }
