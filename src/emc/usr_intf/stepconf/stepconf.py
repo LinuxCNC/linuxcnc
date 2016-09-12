@@ -105,6 +105,25 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
+style = """
+GtkEntry.invalid {
+	color:  black;
+	background-color: red;
+	background: red;
+}
+
+GtkEntry.valid {
+	color:  @fg_color;
+	background-color: @bg_color;
+	background: @bg_color;
+}
+
+GtkEntry.selected {
+	color:  @fg_color;
+	background-color: @bg_color;
+	background: @bg_color;
+}
+"""
 
 from stepconf import pages
 from stepconf import build_INI
@@ -1572,11 +1591,10 @@ if __name__ == "__main__":
 
     # Prepare Style
     cssProvider = Gtk.CssProvider()
-    cssProvider.load_from_path(os.path.join(datadir,'style.css'))
+    cssProvider.load_from_data(style)
     screen = Gdk.Screen.get_default()
     styleContext = Gtk.StyleContext()
-    styleContext.add_provider_for_screen(screen, cssProvider,
-                                     Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    styleContext.add_provider_for_screen(screen, cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
     Gtk.main()
 
