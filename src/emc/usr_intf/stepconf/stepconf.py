@@ -1278,7 +1278,8 @@ class StepconfApp:
         	acc = float(self.w[axis + "maxacc"].get_text())
 
         scale = self.d[axis + "scale"]
-        maxvel = 1.5 * vel
+	maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
+        #maxvel = 1.5 * vel
         if self.d.doublestep():
                 period = int(1e9 / maxvel / scale)
         else:
@@ -1464,7 +1465,6 @@ class StepconfApp:
 		self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
 		self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
         self.w.dialog1.hide()
-
         if amp_signals:
             for pin in amp_signals:
                 amp,amp_port = pin
