@@ -1040,25 +1040,16 @@ class StepconfApp:
         for i in datalist:
             # Damn! this is a bug. GTKBuilder sets the widget name to be the builder ID.
             widget_name = Gtk.Buildable.get_name(self.w[axis+i])
+	    ctx = self.w[axis+i].get_style_context()
+
             try:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                mystyle = mystyle + '#' + widget_name + ' { background-color: red; color: red}' + os.linesep
-                mystyle = mystyle + '#' + widget_name + ':selected { background-color: red; color: @selected_fg_color; }' + os.linesep
+	        ctx.add_class('invalid')
             else:
-                mystyle = mystyle + '#' + widget_name + ' { background-color: @bg_color; color: @fg_color; }' + os.linesep
-                mystyle = mystyle + '#' + widget_name + ':selected { background-color: @selected_bg_color; color: @selected_fg_color; }' + os.linesep
-
-        # Really I have not found a better way to change the background color
-        # I hate the person who removed the get_background_color function in GTK3...
-        provider = Gtk.CssProvider()
-        provider.load_from_data(mystyle)
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
+		ctx.remove_class('invalid')
+	
     # pport functions
     # disallow some signal combinations
     def do_exclusive_inputs(self, pin,port):
@@ -1443,20 +1434,18 @@ class StepconfApp:
         self.w.run.set_active(0)
         self.w.testacc.set_value(acc)
         self.w.testvel.set_value(vel)
-        self.axis_under_test = axis
-        self.update_axis_test()
+	self.axis_under_test = axis
+	self.update_axis_test()
 
-        halrun.write("start\n"); halrun.flush()
-        self.w.dialog1.show_all()
-        result = self.w.dialog1.run()
-
-	# Save test parameters just for this session
-	self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
-	self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
+	halrun.write("start\n"); halrun.flush()
+	self.w.dialog1.show_all()
+	result = self.w.dialog1.run()
+	if result == Gtk.ResponseType.OK:
+		# Save test parameters
+		self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
+		self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
         self.w.dialog1.hide()
 
-
-        
         if amp_signals:
             for pin in amp_signals:
                 amp,amp_port = pin
@@ -1580,5 +1569,14 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
+
+    # Prepare Style
+    cssProvider = Gtk.CssProvider()
+    cssProvider.load_from_path(os.path.join(datadir,'style.css'))
+    screen = Gdk.Screen.get_default()
+    styleContext = Gtk.StyleContext()
+    styleContext.add_provider_for_screen(screen, cssProvider,
+                                     Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
     Gtk.main()
 
