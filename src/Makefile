@@ -1288,18 +1288,21 @@ obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
 
+obj-m += hal_arm335xQEP.o
+hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
+endif
+
+ifdef TARGET_PLATFORM_CHIP
+obj-$(CONFIG_HAL_GPIO) += hal_chip_gpio.o
+hal_chip_gpio-objs := hal/drivers/hal_chip_gpio.o hal/drivers/chip/mmap_gpio.o
+endif
+
 ifdef TARGET_PLATFORM_ZEDBOARD
 obj-$(CONFIG_HAL_GPIO) += hal_zed_gpio.o
 hal_zed_gpio-objs := hal/drivers/hal_zed_gpio.o
 obj-$(CONFIG_HAL_CAN) += hal_zed_can.o
 hal_zed_can-objs := hal/drivers/hal_zed_can.o
 endif
-
-obj-m += hal_arm335xQEP.o
-hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
-
-endif
-
 
 # hal_pru_generic driver
 ifdef TARGET_PLATFORM_BEAGLEBONE
@@ -1708,6 +1711,9 @@ $(RTLIBDIR)/hal_arm335xQEP$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_arm335xQEP
 endif
 endif
 
+ifdef TARGET_PLATFORM_CHIP
+$(RTLIBDIR)/hal_chip_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_chip_gpio-objs))
+endif
 
 ifdef TARGET_PLATFORM_RASPBERRY
 $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
