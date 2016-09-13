@@ -68,6 +68,7 @@ There are functions for each of the data types that the HAL supports.  Pins may
 only be linked to signals of the same type.
 
 .SH RETURN VALUE
-Returns a HAL status code.
+Returns 0 on success, or a negative errno value on failure.
+
 .SH SEE ALSO
 \fBhal_type_t(3hal)\fR, \fBhal_link(3hal)\fR
