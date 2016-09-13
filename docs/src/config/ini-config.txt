@@ -71,7 +71,7 @@ The following sections are used by LinuxCNC:
 * '[<<sec:traj-section,TRAJ>>]' additional settings used by the real time motion controller
 * '[<<sec:joint-section,JOINT_n>>]' individual joint variables
 * '[<<sec:axis-section,AXIS_n>>]' individual axis variables
-* '[<<sec:axis-section,KINS>>]' kinematics variables
+* '[<<sec:kins-section,KINS>>]' kinematics variables
 
 * '[<<sec:emcio-section,EMCIO>>]' settings used by the I/O Controller
 
