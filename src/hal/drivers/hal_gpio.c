@@ -219,7 +219,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO, "%d cores rev %d", ncores, rev);
 
     switch (rev) {
-    case 4
+    case 4:
       rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry3\n");
       pins = rpi2_pins;
       gpios = rpi2_gpios;
