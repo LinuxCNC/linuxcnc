@@ -231,6 +231,20 @@ User Manual.
   position requested by LinuxCNC. The ACTUAL position is the feedback position
   of the motors.
 
+* 'DRO_FORMAT_MM = %+08.6f' - Over-ride the default DRO formatting in metric
+  mode. (normally 3 decimal places, padded with spaces to 6 digits to the left)
+  the example above will pad with zeros, display 6 decimal digits and force
+  display of a + sign for positive numbers. Formatting follows Python practice.
+  https://docs.python.org/2/library/string.html#format-specification-mini-language
+  an error will be raised if the format can not accept a floating-point value.
+
+* 'DRO_FORMAT_IN = % 4.1f' - Over-ride the default DRO formatting in imperial
+  mode. (normally 4 decimal places, padded with spaces to 6 digits to the left)
+  the example above will display only one decimal digit. Formatting follows
+  Python practice.
+  https://docs.python.org/2/library/string.html#format-specification-mini-language
+  An error will be raised if the format can not accept a floating-point value.
+
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
 

@@ -23,6 +23,7 @@ import hershey
 import linuxcnc
 import array
 import gcode
+import os
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -420,6 +421,26 @@ class GlCanonDraw:
         self.no_joint_display = False
         self.kinstype = "UNKNOWN"
         self.trajcoordinates = "unknown"
+        self.dro_in = "% 6.4f"
+        self.dro_mm = "% 6.3f"
+        if os.environ["INI_FILE_NAME"]:
+            self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+            if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
+                temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
+                try:
+                    test = temp % 1.234
+                except:
+                    print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
+                else:
+                    self.dro_in = temp
+            if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
+                temp = self.inifile.find("DISPLAY", "DRO_FORMAT_MM")
+                try:
+                    test = temp % 1.234
+                except:
+                    print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
+                else:
+                    self.dro_mm = temp
 
     def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinstype="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
@@ -1490,15 +1511,15 @@ class GlCanonDraw:
 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
-                format = "% 6s:% 9.3f"
-                droformat = " " + format + "  DTG %1s:% 9.3f"
-                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
-                rotformat = "% 5s %1s:% 9.3f"
+                format = "% 6s:" + self.dro_mm
+                droformat = " " + format + "  DTG %1s:" + self.dro_mm
+                offsetformat = "% 5s %1s:" + self.dro_mm + " G92 %1s:" + self.dro_mm
+                rotformat = "% 5s %1s:" + self.dro_mm
             else:
-                format = "% 6s:% 9.4f"
-                droformat = " " + format + "  DTG %1s:% 9.4f"
-                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
-                rotformat = "% 5s %1s:% 9.4f"
+                format = "% 6s:" + self.dro_in
+                droformat = " " + format + "  DTG %1s:" + self.dro_in
+                offsetformat = "% 5s %1s:" + self.dro_in + " G92 %1s:" + self.dro_in
+                rotformat = "% 5s %1s:" + self.dro_in
             diaformat = " " + format
 
             posstrs = []
