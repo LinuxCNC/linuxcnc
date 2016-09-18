@@ -195,7 +195,7 @@ int GET_EXTERNAL_MIST() {}
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
-    snprintf(filename, max_size, "rs274.var");
+    snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
 CANON_PLANE GET_EXTERNAL_PLANE() {}
 double GET_EXTERNAL_POSITION_A() {}
