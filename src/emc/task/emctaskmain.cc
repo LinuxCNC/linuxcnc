@@ -1410,15 +1410,17 @@ static int emcTaskPlan(void)
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
-            case EMC_TASK_PLAN_EXECUTE_TYPE:
-                // If there are no queued MDI commands and no commands
-                // in interp_list, then this new incoming MDI command
-                // can just be issued directly.  Otherwise we need to
-                // queue it and deal with it later.
+	    case EMC_TASK_PLAN_EXECUTE_TYPE:
+                // If there are no queued MDI commands, no commands in
+                // interp_list, and waitFlag isn't set, then this new
+                // incoming MDI command can just be issued directly.
+                // Otherwise we need to queue it and deal with it
+                // later.
                 if (
                     (mdi_execute_queue.len() == 0)
                     && (interp_list.len() == 0)
                     && (emcTaskCommand == NULL)
+		    && (emcTaskPlanIsWait() == 0)
                 ) {
                     retval = emcTaskIssueCommand(emcCommand);
                 } else {
