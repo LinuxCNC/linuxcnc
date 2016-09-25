@@ -53,7 +53,7 @@
 #endif
 
 static int debug_velacc = 0;
-static double css_maximum, css_numerator; // both always positive
+static double css_maximum; // both always positive
 static int spindle_dir = 0;
 
 static const double tiny = 1e-7;
@@ -452,7 +452,7 @@ static double canonMotionTolerance = 0.0;
 static double canonNaivecamTolerance = 0.0;
 
 /* Spindle speed is saved here */
-static double spindleSpeed = 0.0; // always positive
+static double spindleSpeed_rpm = 0.0; // always positive
 
 /* Prepped tool is saved here */
 static int preppedTool = 0;
@@ -467,6 +467,8 @@ static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
   Feed rate is saved here; values are in mm/sec or deg/sec.
   It will be initially set in INIT_CANON() below.
 */
+static double uuPerRev_vel = 0.0;
+static double uuPerRev_pos = 0.0;
 static double currentLinearFeedRate = 0.0;
 static double currentAngularFeedRate = 0.0;
 
@@ -476,6 +478,30 @@ static double currentAngularFeedRate = 0.0;
    //         angular means axes ABC move
 static int cartesian_move = 0;
 static int angular_move = 0;
+
+enum FeedRateType
+{
+    FEED_LINEAR,
+    FEED_ANGULAR
+};
+
+/**
+ * Get the nominal feed rate currently active.
+ * If spindle sync is active, this function estimates the equivalent feed rate under ideal conditions.
+ */
+static double getActiveFeedRate(FeedRateType angular)
+{
+    double uuPerRev = feed_mode ? uuPerRev_vel : uuPerRev_pos;
+    double uu_per_sec = uuPerRev * spindleSpeed_rpm / 60.0;
+
+    //KLUDGE relies on external state here
+    if (!angular) {
+        return synched ? FROM_PROG_LEN(uu_per_sec) : currentLinearFeedRate;
+    } else {
+        return synched ? FROM_PROG_ANG(uu_per_sec) : currentLinearFeedRate;
+    }
+}
+
 
 static double toExtVel(double vel) {
     if (cartesian_move && !angular_move) {
@@ -503,7 +529,7 @@ static void send_g5x_msg(int index) {
     set_g5x_msg.origin = to_ext_pose(g5xOffset);
 
     if(css_maximum) {
-        SET_SPINDLE_SPEED(spindleSpeed);
+        SET_SPINDLE_SPEED(spindleSpeed_rpm);
     }
     interp_list.append(set_g5x_msg);
 }
@@ -518,7 +544,7 @@ static void send_g92_msg(void) {
     set_g92_msg.origin = to_ext_pose(g92Offset);
 
     if(css_maximum) {
-        SET_SPINDLE_SPEED(spindleSpeed);
+        SET_SPINDLE_SPEED(spindleSpeed_rpm);
     }
     interp_list.append(set_g92_msg);
 }
@@ -574,6 +600,7 @@ void SET_FEED_MODE(int mode) {
     flush_segments();
     feed_mode = mode;
     if(feed_mode == 0) STOP_SPEED_FEED_SYNCH();
+    canon_debug("setting feed mode %d\n", mode);
 }
 
 void SET_FEED_RATE(double rate)
@@ -581,7 +608,7 @@ void SET_FEED_RATE(double rate)
 
     if(feed_mode) {
         START_SPEED_FEED_SYNCH(rate, 1);
-        currentLinearFeedRate = rate;
+        uuPerRev_vel = rate;
     } else {
         /* convert from /min to /sec */
         rate /= 60.0;
@@ -755,7 +782,7 @@ static VelData getStraightVelocity(double x, double y, double z,
 /* If we get a move to nowhere (!cartesian_move && !angular_move)
    we might as well go there at the currentLinearFeedRate...
 */
-    out.vel = currentLinearFeedRate;
+    out.vel = getActiveFeedRate(FEED_LINEAR);
     out.tmax = 0;
     out.dtot = 0;
 
@@ -814,7 +841,7 @@ static VelData getStraightVelocity(double x, double y, double z,
             out.dtot = sqrt(du * du + dv * dv + dw * dw);
 
         if (out.tmax <= 0.0) {
-            out.vel = currentLinearFeedRate;
+            out.vel = getActiveFeedRate(FEED_LINEAR);
         } else {
             out.vel = out.dtot / out.tmax;
         }
@@ -828,7 +855,7 @@ static VelData getStraightVelocity(double x, double y, double z,
 
         out.dtot = sqrt(da * da + db * db + dc * dc);
         if (out.tmax <= 0.0) {
-            out.vel = currentAngularFeedRate;
+            out.vel = getActiveFeedRate(FEED_ANGULAR);
         } else {
             out.vel = out.dtot / out.tmax;
         }
@@ -864,7 +891,7 @@ static VelData getStraightVelocity(double x, double y, double z,
             out.dtot = sqrt(du * du + dv * dv + dw * dw);
 
         if (out.tmax <= 0.0) {
-            out.vel = currentLinearFeedRate;
+            out.vel = getActiveFeedRate(FEED_LINEAR);
         } else {
             out.vel = out.dtot / out.tmax;
         }
@@ -912,20 +939,14 @@ static void flush_segments(void) {
     VelData linedata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     double vel = linedata.vel;
 
-    if (cartesian_move && !angular_move) {
-        if (vel > currentLinearFeedRate) {
-            vel = currentLinearFeedRate;
-        }
-    } else if (!cartesian_move && angular_move) {
-        if (vel > currentAngularFeedRate) {
-            vel = currentAngularFeedRate;
-        }
-    } else if (cartesian_move && angular_move) {
-        if (vel > currentLinearFeedRate) {
-            vel = currentLinearFeedRate;
-        }
-    }
+    double nominal_vel = getActiveFeedRate(static_cast<FeedRateType>(!cartesian_move && angular_move));
+    canon_debug("in flush_segments: got vel %f, nominal_vel %f\n", vel, nominal_vel);
+    vel = std::min(vel, nominal_vel);
 
+    if (synched && vel < nominal_vel) {
+        CANON_ERROR("In spindle-synchronized motion, can't maintain required feed %0.2f (max is %0.2f) with current settings",
+                    TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
+        }
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
@@ -1078,7 +1099,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     }
 
     if(old_feed_mode)
-	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
+        START_SPEED_FEED_SYNCH(uuPerRev_vel, 1);
 
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
@@ -1158,19 +1179,12 @@ void STRAIGHT_PROBE(int line_number,
     VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     ini_maxvel = vel = veldata.vel;
 
-    if (cartesian_move && !angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
+    double nominal_vel = getActiveFeedRate(static_cast<FeedRateType>(!cartesian_move && angular_move));
+    vel = std::min(vel, nominal_vel);
+    if (synched && vel < nominal_vel) {
+        CANON_ERROR("In spindle-synchronized motion, can't maintain required feed %0.2f (max is %0.2f) with current settings",
+                    TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
 	}
-    } else if (!cartesian_move && angular_move) {
-	if (vel > currentAngularFeedRate) {
-	    vel = currentAngularFeedRate;
-	}
-    } else if (cartesian_move && angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
-    }
 
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     acc = accdata.acc;
@@ -1246,11 +1260,16 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
     // nothing need be done here
 }
 
-
-
 void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode)
 {
+    canon_debug("Setting sync, feed_per_revolution = %f, velocity_mode = %d\n", feed_per_revolution, velocity_mode);
     flush_segments();
+    // KLUDGE often we pass these values in from internal state, redundant and bug-prone
+    if (velocity_mode) {
+        uuPerRev_vel = feed_per_revolution;
+    } else {
+        uuPerRev_pos = feed_per_revolution;
+    }
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
     spindlesyncMsg.feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
     spindlesyncMsg.velocity_mode = velocity_mode;
@@ -1789,8 +1808,13 @@ void ARC_FEED(int line_number,
     double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
-    double vel = MIN(currentLinearFeedRate, v_max);
-    canon_debug("current F = %f\n",currentLinearFeedRate);
+    double nominal_vel = getActiveFeedRate(FEED_LINEAR);
+    double vel = MIN(nominal_vel, v_max);
+    if (synched && v_max < nominal_vel) {
+        CANON_ERROR("Can't maintain required feed %g (max is %g) with current settings",
+                    TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
+    }
+    canon_debug("current F = %f\n", nominal_vel);
     canon_debug("vel = %f\n",vel);
 
     canon_debug("v_max = %f\n",v_max);
@@ -1865,6 +1889,30 @@ void SET_SPINDLE_MODE(double css_max) {
     css_maximum = fabs(css_max);
 }
 
+
+/**
+ * Hack to add spindle speed information to an existing spindle msg.
+ * Using a template gives us static polymorphism, since all the spindle
+ * messages derive from EMC_SPINDLE_SPEED.
+ */
+template <typename SpindleMsg>
+void buildSpindleCmd(SpindleMsg & msg)
+{
+    double css_numerator = 0.0;
+    if(css_maximum > 0.0) {
+        if(lengthUnits == CANON_UNITS_INCHES)
+            css_numerator = 12 / (2.0 * M_PI) * spindleSpeed_rpm * TO_EXT_LEN(25.4);
+        else
+            css_numerator = 1000 / (2.0 * M_PI) * spindleSpeed_rpm * TO_EXT_LEN(1);
+        msg.speed = spindle_dir * css_maximum;
+        msg.factor = spindle_dir * css_numerator;
+        msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
+    } else {
+        msg.speed = spindle_dir * spindleSpeed_rpm;
+    }
+
+}
+
 void START_SPINDLE_CLOCKWISE()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
@@ -1872,18 +1920,7 @@ void START_SPINDLE_CLOCKWISE()
     flush_segments();
     spindle_dir = 1;
 
-    if(css_maximum) {
-	if(lengthUnits == CANON_UNITS_INCHES) 
-	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
-	else
-	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = spindle_dir * css_maximum;
-	emc_spindle_on_msg.factor = spindle_dir * css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
-    } else {
-	emc_spindle_on_msg.speed = spindle_dir * spindleSpeed;
-	css_numerator = 0;
-    }
+    buildSpindleCmd(emc_spindle_on_msg);
     interp_list.append(emc_spindle_on_msg);
 }
 
@@ -1893,43 +1930,21 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 
     flush_segments();
     spindle_dir = -1;
+    buildSpindleCmd(emc_spindle_on_msg);
 
-    if(css_maximum) {
-	if(lengthUnits == CANON_UNITS_INCHES) 
-	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
-	else
-	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = spindle_dir * css_maximum;
-	emc_spindle_on_msg.factor = spindle_dir * css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
-    } else {
-	emc_spindle_on_msg.speed = spindle_dir * spindleSpeed;
-	css_numerator = 0;
-    }
     interp_list.append(emc_spindle_on_msg);
 }
 
 void SET_SPINDLE_SPEED(double r)
 {
     // speed is in RPMs everywhere
-    spindleSpeed = fabs(r); // interp will never send negative anyway ...
+    spindleSpeed_rpm = fabs(r); // interp will never send negative anyway ...
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
     flush_segments();
 
-    if(css_maximum) {
-        if(lengthUnits == CANON_UNITS_INCHES)
-            css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
-        else
-            css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-        emc_spindle_speed_msg.speed = spindle_dir * css_maximum;
-        emc_spindle_speed_msg.factor = spindle_dir * css_numerator;
-        emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
-    } else {
-        emc_spindle_speed_msg.speed = spindle_dir * spindleSpeed;
-        css_numerator = 0;
-    }
+    buildSpindleCmd(emc_spindle_speed_msg);
     interp_list.append(emc_spindle_speed_msg);
 
 }
@@ -2033,7 +2048,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
     set_offset_msg.offset.w = TO_EXT_LEN(currentToolOffset.w);
 
     if(css_maximum) {
-        SET_SPINDLE_SPEED(spindleSpeed);
+        SET_SPINDLE_SPEED(spindleSpeed_rpm);
     }
     interp_list.append(set_offset_msg);
 }
@@ -2111,7 +2126,7 @@ void CHANGE_TOOL(int slot)
             interp_list.append(linearMoveMsg);
 
 	if(old_feed_mode)
-	    START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
+        START_SPEED_FEED_SYNCH(uuPerRev_vel, 1);
 
         canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
@@ -2547,12 +2562,14 @@ void INIT_CANON()
     activePlane = CANON_PLANE_XY;
     canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
-    spindleSpeed = 0.0;
+    spindleSpeed_rpm = 0.0;
     preppedTool = 0;
     cartesian_move = 0;
     angular_move = 0;
     currentLinearFeedRate = 0.0;
     currentAngularFeedRate = 0.0;
+    uuPerRev_vel = 0.0;
+    uuPerRev_pos = 0.0;
     ZERO_EMC_POSE(currentToolOffset);
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
@@ -2577,8 +2594,6 @@ void CANON_ERROR(const char *fmt, ...)
 {
     va_list ap;
     EMC_OPERATOR_ERROR operator_error_msg;
-
-    flush_segments();
 
     operator_error_msg.id = 0;
     if (fmt != NULL) {
@@ -2769,7 +2784,7 @@ int GET_EXTERNAL_FLOOD()
 double GET_EXTERNAL_SPEED()
 {
     // speed is in RPMs everywhere
-    return spindleSpeed;
+    return spindleSpeed_rpm;
 }
 
 CANON_DIRECTION GET_EXTERNAL_SPINDLE()
@@ -3268,7 +3283,7 @@ int UNLOCK_ROTARY(int line_number, int axis) {
     interp_list.append(m);
     // no need to update endpoint
     if(old_feed_mode)
-	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
+        START_SPEED_FEED_SYNCH(uuPerRev_vel, 1);
 
     // now, the next move is the real indexing move, so be ready
     rotary_unlock_for_traverse = axis;
