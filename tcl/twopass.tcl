@@ -373,6 +373,20 @@ proc ::tp::hal_to_tcl {ifile ofile} {
 
       set new "[string range $line 0 [expr $l -1]]"
       set new "${new}\$::$stanza\("
+
+      # handle [SECTION](VAR)<any char>
+      if {[string range $line [expr $r+1] [expr $r+1]] == "("} {
+        set r2 [string first \) $line $r]
+        if {$r2 < 0} break
+        set item [string range $line [expr $r+2] [expr $r2-1]]
+        set new "${new}${item}\)"
+        set idx [expr [string length $new] -1]
+        set new "${new}[string range $line [expr $r2 +1] end]"
+        set line $new
+        continue
+      }
+
+      # handle [SECTION]VAR<whitespace>
       set s [string first " " $line $r]
       if {$s <0} {
         set item   [string range $line [expr $r + 1] end]
