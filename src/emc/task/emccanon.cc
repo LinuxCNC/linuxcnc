@@ -567,23 +567,23 @@ void SET_FEED_RATE(double rate)
 {
 
     if(feed_mode) {
-	START_SPEED_FEED_SYNCH(rate, 1);
-	currentLinearFeedRate = rate;
+        START_SPEED_FEED_SYNCH(rate, 1);
+        currentLinearFeedRate = rate;
     } else {
-	/* convert from /min to /sec */
-	rate /= 60.0;
+        /* convert from /min to /sec */
+        rate /= 60.0;
 
 
-	/* convert to traj units (mm & deg) if needed */
-	double newLinearFeedRate = FROM_PROG_LEN(rate),
-	       newAngularFeedRate = FROM_PROG_ANG(rate);
+        /* convert to traj units (mm & deg) if needed */
+        double newLinearFeedRate = FROM_PROG_LEN(rate),
+                newAngularFeedRate = FROM_PROG_ANG(rate);
 
-	if(newLinearFeedRate != currentLinearFeedRate
-		|| newAngularFeedRate != currentAngularFeedRate)
-	    flush_segments();
+        if(newLinearFeedRate != currentLinearFeedRate
+                || newAngularFeedRate != currentAngularFeedRate)
+            flush_segments();
 
-	currentLinearFeedRate = newLinearFeedRate;
-	currentAngularFeedRate = newAngularFeedRate;
+        currentLinearFeedRate = newLinearFeedRate;
+        currentAngularFeedRate = newAngularFeedRate;
     }
 }
 
@@ -732,8 +732,8 @@ static AccelData getStraightAcceleration(CANON_POSITION pos)
 }
 
 static VelData getStraightVelocity(double x, double y, double z,
-			   double a, double b, double c,
-                           double u, double v, double w)
+                                   double a, double b, double c,
+                                   double u, double v, double w)
 {
     double dx, dy, dz, da, db, dc, du, dv, dw;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
@@ -1906,19 +1906,19 @@ void SET_SPINDLE_SPEED(double r)
     flush_segments();
 
     if(css_maximum) {
-	if(lengthUnits == CANON_UNITS_INCHES) 
-	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
-	else
-	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_speed_msg.speed = spindle_dir * css_maximum;
-	emc_spindle_speed_msg.factor = spindle_dir * css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
+        if(lengthUnits == CANON_UNITS_INCHES)
+            css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
+        else
+            css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
+        emc_spindle_speed_msg.speed = spindle_dir * css_maximum;
+        emc_spindle_speed_msg.factor = spindle_dir * css_numerator;
+        emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
-	emc_spindle_speed_msg.speed = spindle_dir * spindleSpeed;
-	css_numerator = 0;
+        emc_spindle_speed_msg.speed = spindle_dir * spindleSpeed;
+        css_numerator = 0;
     }
     interp_list.append(emc_spindle_speed_msg);
-    
+
 }
 
 void STOP_SPINDLE_TURNING()
