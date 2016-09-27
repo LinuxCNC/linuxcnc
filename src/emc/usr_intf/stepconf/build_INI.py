@@ -222,7 +222,7 @@ class INI:
         else: extend = .01
         minlim = min(minlim, home - extend)
         maxlim = max(maxlim, home + extend)
-        axis_letter = "XYZABCUVW"[num]
+        axis_letter = letter.upper()
 
         print >>file
         print >>file, "[AXIS_%s]" % axis_letter
