@@ -1,3 +1,7 @@
+ver. 1.5.6.2.2
+- halui spindle override bug, caused by a race conflict
+  Thanks to pippin88 and dinkata to help solving his one
+
 ver. 1.5.6.2.1
 - optional stops was not initialized correctly
 
