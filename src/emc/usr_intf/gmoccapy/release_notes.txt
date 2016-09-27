@@ -1,3 +1,7 @@
+ver. 2.1.5
+- halui spindle override bug, caused by a race conflict
+  Thanks to pippin88 and dinkata to help solving his one
+
 ver. 2.1.4
 - lathe wear offsets has been displayed by default, IMHO that
   disturbs most users, as the wear offsets do only work with

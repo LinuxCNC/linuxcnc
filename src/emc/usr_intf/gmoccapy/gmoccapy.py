@@ -3130,7 +3130,7 @@ class gmoccapy(object):
         else:
             speed = self.stat.spindle_speed
         self.widgets.active_speed_label.set_label("%.0f" % abs(speed))
-        self.on_spc_spindle_value_changed(self.widgets.spc_spindle)
+        self.widgets.lbl_spindle_act.set_text("S %d" % int(speed * self.spindle_override))
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if widget.get_active():
