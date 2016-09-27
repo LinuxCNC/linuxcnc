@@ -1,3 +1,6 @@
+ver. 1.5.6.5
+- merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
+
 ver. 1.5.6.4
 - bugfix: if toggle button user tabs was active and the user changed the mode
   (Manual,MDI or AUTO) the user tabs button staid active, but the screen
@@ -11,6 +14,10 @@ ver. 1.5.6.3
   so changes the user makes to the glade file was not been taken care of
 - In glade file a signal on_btn_load_state_changed was set, but no handler present, 
   leading to a error message on start in the terminal, erased the signal
+
+ver. 1.5.6.2.2
+- halui spindle override bug, caused by a race conflict
+  Thanks to pippin88 and dinkata to help solving his one
 
 ver. 1.5.6.2.1
 - bug in initialize optional stops

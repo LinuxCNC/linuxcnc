@@ -86,7 +86,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.4"
+_RELEASE = " 1.5.6.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2860,7 +2860,7 @@ class gmoccapy( object ):
         else:
             speed = self.stat.spindle_speed
         self.widgets.active_speed_label.set_label( "%.0f" % abs( speed ) )
-        self.on_adj_spindle_value_changed( self.widgets.adj_spindle )
+        self.widgets.lbl_spindle_act.set_text( "S %d" % int(speed * self.spindle_override) )
 
     def on_rbt_forward_clicked( self, widget, data = None ):
         if widget.get_active():
