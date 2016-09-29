@@ -52,6 +52,10 @@
 #define canon_debug(...)
 #endif
 
+static void limitSpindleSpeed(double rpm);
+static void resetSpindleLimit();
+static double limit_rpm = 0;
+
 static int debug_velacc = 0;
 static double css_maximum; // both always positive
 static int spindle_dir = 0;
@@ -944,9 +948,11 @@ static void flush_segments(void) {
     vel = std::min(vel, nominal_vel);
 
     if (synched && vel < nominal_vel) {
-        CANON_ERROR("In spindle-synchronized motion, can't maintain required feed %0.2f (max is %0.2f) with current settings",
-                    TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
-        }
+        const static double SPINDLE_SYNCH_MARGIN = 0.05;
+        double maxSpindleRPM = vel / nominal_vel * (1.0 - SPINDLE_SYNCH_MARGIN) * spindleSpeed_rpm;
+        CANON_ERROR("In spindle-synchronized motion, maximum speed at line %d is %0.0f RPM", line_no, maxSpindleRPM);
+        limitSpindleSpeed(maxSpindleRPM);
+    }
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
@@ -1091,7 +1097,7 @@ void STRAIGHT_TRAVERSE(int line_number,
 
     int old_feed_mode = feed_mode;
     if(feed_mode)
-	STOP_SPEED_FEED_SYNCH();
+        STOP_SPEED_FEED_SYNCH();
 
     if(vel && acc)  {
         interp_list.set_line_number(line_number);
@@ -1184,7 +1190,7 @@ void STRAIGHT_PROBE(int line_number,
     if (synched && vel < nominal_vel) {
         CANON_ERROR("In spindle-synchronized motion, can't maintain required feed %0.2f (max is %0.2f) with current settings",
                     TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
-	}
+    }
 
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     acc = accdata.acc;
@@ -1285,6 +1291,13 @@ void STOP_SPEED_FEED_SYNCH()
     spindlesyncMsg.velocity_mode = false;
     interp_list.append(spindlesyncMsg);
     synched = 0;
+    // KLUDGE force restore the spindle speed after feed synch (in case we limited it
+    if (limit_rpm < spindleSpeed_rpm) {
+        // Restore spindle speed if we limited it
+        canon_debug("Restoring spindle speed to %0.0f after synched motion\n",spindleSpeed_rpm);
+        // KLUDGE if multiple threading segments are queued in succession, then this command will end up being redundant
+        resetSpindleLimit();
+    }
 }
 
 /* Machining Functions */
@@ -1896,19 +1909,19 @@ void SET_SPINDLE_MODE(double css_max) {
  * messages derive from EMC_SPINDLE_SPEED.
  */
 template <typename SpindleMsg>
-void buildSpindleCmd(SpindleMsg & msg)
+void buildSpindleCmd(SpindleMsg & msg, double spindle_rpm)
 {
     double css_numerator = 0.0;
     if(css_maximum > 0.0) {
         if(lengthUnits == CANON_UNITS_INCHES)
-            css_numerator = 12 / (2.0 * M_PI) * spindleSpeed_rpm * TO_EXT_LEN(25.4);
+            css_numerator = 12 / (2.0 * M_PI) * spindle_rpm * TO_EXT_LEN(25.4);
         else
-            css_numerator = 1000 / (2.0 * M_PI) * spindleSpeed_rpm * TO_EXT_LEN(1);
+            css_numerator = 1000 / (2.0 * M_PI) * spindle_rpm * TO_EXT_LEN(1);
         msg.speed = spindle_dir * css_maximum;
         msg.factor = spindle_dir * css_numerator;
         msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
-        msg.speed = spindle_dir * spindleSpeed_rpm;
+        msg.speed = spindle_dir * spindle_rpm;
     }
 
 }
@@ -1920,7 +1933,7 @@ void START_SPINDLE_CLOCKWISE()
     flush_segments();
     spindle_dir = 1;
 
-    buildSpindleCmd(emc_spindle_on_msg);
+    buildSpindleCmd(emc_spindle_on_msg, spindleSpeed_rpm);
     interp_list.append(emc_spindle_on_msg);
 }
 
@@ -1930,7 +1943,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 
     flush_segments();
     spindle_dir = -1;
-    buildSpindleCmd(emc_spindle_on_msg);
+    buildSpindleCmd(emc_spindle_on_msg, spindleSpeed_rpm);
 
     interp_list.append(emc_spindle_on_msg);
 }
@@ -1939,14 +1952,37 @@ void SET_SPINDLE_SPEED(double r)
 {
     // speed is in RPMs everywhere
     spindleSpeed_rpm = fabs(r); // interp will never send negative anyway ...
+    // KLUDGE force the limit_rpm to match
+    limit_rpm = spindleSpeed_rpm;
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
     flush_segments();
 
-    buildSpindleCmd(emc_spindle_speed_msg);
+    buildSpindleCmd(emc_spindle_speed_msg, spindleSpeed_rpm);
     interp_list.append(emc_spindle_speed_msg);
 
+}
+
+static void resetSpindleLimit()
+{
+    SET_SPINDLE_SPEED(spindleSpeed_rpm);
+}
+
+/**
+ * Hack way to immediately update the spindle speed without flushing segments first (typically called within flush segments as a way to limit spindle speed during threading).
+ * @warning does NOT update the interpreter state.
+ */
+static void limitSpindleSpeed(double rpm)
+{
+    limit_rpm = fabs(rpm);
+    if (spindleSpeed_rpm > limit_rpm) {
+        EMC_SPINDLE_SPEED emc_spindle_speed_msg;
+        canon_debug("Reducing spindle speed to %0.0f\n",limit_rpm);
+
+        buildSpindleCmd(emc_spindle_speed_msg, limit_rpm);
+        interp_list.append(emc_spindle_speed_msg);
+    }
 }
 
 void STOP_SPINDLE_TURNING()
@@ -2597,11 +2633,11 @@ void CANON_ERROR(const char *fmt, ...)
 
     operator_error_msg.id = 0;
     if (fmt != NULL) {
-	va_start(ap, fmt);
-	vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);
-	va_end(ap);
+        va_start(ap, fmt);
+        vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);
+        va_end(ap);
     } else {
-	operator_error_msg.error[0] = 0;
+        operator_error_msg.error[0] = 0;
     }
 
     interp_list.append(operator_error_msg);
@@ -3278,7 +3314,7 @@ int UNLOCK_ROTARY(int line_number, int axis) {
     // issue it
     int old_feed_mode = feed_mode;
     if(feed_mode)
-	STOP_SPEED_FEED_SYNCH();
+        STOP_SPEED_FEED_SYNCH();
     interp_list.set_line_number(line_number);
     interp_list.append(m);
     // no need to update endpoint
