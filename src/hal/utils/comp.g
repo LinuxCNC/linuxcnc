@@ -1006,8 +1006,8 @@ def usage(exitval=0):
     print """%(name)s: Build, compile, and install Machinekit HAL components
 
 Usage:
-           %(name)s [--compile -c|--preprocess -p|--document -d|--view-doc -v] compfile...
-    [sudo] %(name)s [--install -i|--install-doc -j] compfile..
+           %(name)s [ --compile (-c) | --preprocess (-p) | --document (-d) | --view-doc (-v) ] compfile...
+    [sudo] %(name)s [ --install (-i) | --install-doc (-j) ] compfile..
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
@@ -1077,7 +1077,7 @@ def main():
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".asciiidoc")
+                    outfile = os.path.join(tempdir, basename + ".asciidoc")
                     adocument(f, outfile, frontmatter)
                     cmd = "mank -f %s -p %s -s" % (basename, tempdir)
 		    os.system(cmd)
