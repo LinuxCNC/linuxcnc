@@ -262,3 +262,13 @@ def set_debug_level(level):
 # set the Machinekit ini
 def set_machinekit_ini(ini):
     os.environ['MACHINEKIT_INI'] = ini
+
+
+# ensure mklauncher is running
+def ensure_mklaucher():
+    try:
+        subprocess.check_output(['pgrep', 'mklauncher'])
+        return
+    except subprocess.CalledProcessError:
+        pass
+    launcher.start_process('mklauncher .')
