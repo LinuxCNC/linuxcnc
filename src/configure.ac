@@ -137,7 +137,6 @@ AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
-AC_PATH_PROG(ARCHCMD, arch)
 
 AC_PROG_CC
 AC_SUBST([CROSS_COMPILING],[$cross_compiling])
@@ -542,17 +541,6 @@ KSOURCE_LOCATION_HINTS=$(echo \
 #
 # Platforms. set by --with-platform-{pc,beaglebone,chip,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
-
-ARCHITECTURE=`$ARCHCMD`
-#
-# Architecture. Use output of arch(1).
-#
-# FIXME this will break 32-bit builds on 64-bit systems.  Need an
-# expert to figure out host/target arch, e.g. --host=i686-pc-linux-gnu
-# even when --build=x86_64-pc-linux-gnu
-#
-# This will cause issues on build servers that build for multiple
-# arches
 
 # xenomai equivalent of pkg-config
 XENO_CONFIG=
@@ -1541,7 +1529,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
     # this CFLAG
-    if test "$ARCHITECTURE" != x86_64; then
+    if test "$host_cpu" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
@@ -1857,8 +1845,6 @@ if test "$USE_PORTABLE_PARPORT_IO" = yes; then
    AC_DEFINE(USE_PORTABLE_PARPORT_IO, [], [use ppdev ioctl instead of inb/outb])
 fi
 AC_SUBST(USE_PORTABLE_PARPORT_IO)
-
-AC_SUBST(ARCHITECTURE)
 
 # Platform
 if $TARGET_PLATFORM_PC; then
