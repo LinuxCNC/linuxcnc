@@ -61,7 +61,7 @@ else
 fi
 
 if [ ! -z "$filn" ]; then
-    asciidoctor $filn -o - | elinks -dump | more
+    asciidoctor $filn -o - | elinks -dump | pager -s
 
     ## allow dispensing with key read and screen clear when scripting use of mank, as in instcomp / comp
     ## --view-doc
