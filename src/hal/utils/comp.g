@@ -459,6 +459,7 @@ static int comp_id;
     print >>f, "    if(__comp_last_inst) __comp_last_inst->_next = inst;"
     print >>f, "    __comp_last_inst = inst;"
     print >>f, "    if(!__comp_first_inst) __comp_first_inst = inst;"
+    print >>f, "    if(!__comp_inst) __comp_inst = inst;"
     print >>f, "    return 0;"
     print >>f, "}"
 
@@ -657,6 +658,8 @@ def build_usr(tempdir, filename, mode, origfilename):
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
+    print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath(os.path.dirname(origfilename))
+    print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath('.')
     f.close()
     result = os.system("cd %s && make -S %s" % (tempdir, binname))
     if result != 0:
