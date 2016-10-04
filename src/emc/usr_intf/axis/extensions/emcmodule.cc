@@ -643,7 +643,10 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"joint_position", (getter)Stat_joint_position},
     {(char*)"joint_actual_position", (getter)Stat_joint_actual},
     {(char*)"probed_position", (getter)Stat_probed},
-    {(char*)"settings", (getter)Stat_activesettings},
+    {(char*)"settings", (getter)Stat_activesettings, (setter)NULL,
+        (char*)"This is an array containing the Interp active settings: sequence number,\n"
+        "feed rate, and spindle speed."
+    },
     {(char*)"tool_offset", (getter)Stat_tool_offset},
     {(char*)"tool_table", (getter)Stat_tool_table},
     {NULL}
