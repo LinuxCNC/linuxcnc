@@ -200,6 +200,9 @@ ver. 1.6.0
         * Init GUI to have a jog button per joint and not only per axis
         * change GUI appearance according to motion mode
 
+ver. 1.5.6.5
+- merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
+
 ver. 1.5.6.4
 - bugfix: if toggle button user tabs was active and the user changed the mode
   (Manual,MDI or AUTO) the user tabs button staid active, but the screen

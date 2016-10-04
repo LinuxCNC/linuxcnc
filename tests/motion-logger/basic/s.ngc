@@ -1,0 +1,23 @@
+; the G0 commands here are just to see the sequencing of commands coming out of task
+g0 x1
+s123
+
+g0 x1.5
+s234
+
+g0 x2
+; this M3 will result in the first SPINDLE_ON sent to Motion
+m3
+
+g0 x3
+; this will update the spindle speed via another SPINDLE_ON
+s321
+s432
+
+g0 x4
+m5
+
+s1234
+
+g0 x5
+m2
