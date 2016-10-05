@@ -2284,7 +2284,8 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,  [GTK_VER=`pkg-config gtk+-2.0 --modversion`],
+    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,
+	[ AC_DEFINE(HAVE_GTK, 1, Use GTK) ],
         [ AC_MSG_ERROR([no gtk+-2.0 found; use --disable-gtk])])
     PKG_CHECK_MODULES(GNOMEPRINT, libgnomeprintui-2.2,
         [
@@ -2295,7 +2296,7 @@ if test "$BUILD_GTK" = "yes"; then
 fi
 
 AC_SUBST(HAVE_GNOMEPRINT)
-AC_SUBST(GTK_VER)
+AC_SUBST(HAVE_GTK)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GLIB_LIBS)

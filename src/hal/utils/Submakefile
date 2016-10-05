@@ -41,7 +41,7 @@ USERSRCS += $(HALRMTSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/halrmt
 
-ifneq ($(GTK_VERSION),)
+ifdef HAVE_GTK
 HALMETERSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c
