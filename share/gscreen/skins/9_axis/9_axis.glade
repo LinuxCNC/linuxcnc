@@ -721,7 +721,7 @@
                         <child>
                           <object class="GtkImage" id="image6">
                             <property name="visible">True</property>
-                            <property name="pixbuf">../gscreen/images/linuxcnc-wizard.gif</property>
+                            <property name="pixbuf">../../images/linuxcnc-wizard.gif</property>
                           </object>
                           <packing>
                             <property name="right_attach">3</property>
@@ -2149,7 +2149,7 @@ Readout</property>
                     <child>
                       <object class="GtkImage" id="image5">
                         <property name="visible">True</property>
-                        <property name="pixbuf">../gscreen/images/coolant_mist_plain.gif</property>
+                        <property name="pixbuf">../../images/coolant_mist_plain.gif</property>
                       </object>
                     </child>
                   </object>
@@ -2165,7 +2165,7 @@ Readout</property>
                     <child>
                       <object class="GtkImage" id="image4">
                         <property name="visible">True</property>
-                        <property name="pixbuf">../gscreen/images/coolant_flood_plain.gif</property>
+                        <property name="pixbuf">../../images/coolant_flood_plain.gif</property>
                       </object>
                     </child>
                   </object>
@@ -2531,7 +2531,7 @@ Rotary</property>
                     <child>
                       <object class="GtkImage" id="image7">
                         <property name="visible">True</property>
-                        <property name="pixbuf">../gscreen/images/tool_clear.gif</property>
+                        <property name="pixbuf">../../images/tool_clear.gif</property>
                       </object>
                     </child>
                   </object>
