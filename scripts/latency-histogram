@@ -701,7 +701,7 @@ proc update_chart {thd} {
     set ::LH($thd,latency_sdev,us) [format %.1f \
                [expr 1e-3 * sqrt($variance)]]
     } msg] {
-    puts msg=$msg
+    puts "msg=$msg (variance=$variance)"
   }
 
   set ::LH($thd,pextra) [hal getp $::LH($thd,name).pextra]
