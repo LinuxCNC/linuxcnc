@@ -6,8 +6,6 @@
 # $USERPREFIX is exported from autoconfig
 #####################################################################
 
-echo "USERPREFIX = $USERPREFIX"
-
 if [ ! -f "$USERPREFIX/scripts/machinekit" ]; then
     if [ ! -L "$USERPREFIX/scripts/machinekit" ]; then
         ln -s $USERPREFIX/scripts/linuxcnc $USERPREFIX/scripts/machinekit
