@@ -25,15 +25,8 @@ gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), uni
 
 import Image
 
-try:
-    import numpy.numarray as numarray
-    import numpy.core
-    olderr = numpy.core.seterr(divide='ignore')
-    plus_inf = (numarray.array((1.,))/0.)[0]
-    numpy.core.seterr(**olderr)
-except ImportError:
-    import numarray, numarray.ieeespecial
-    plus_inf = numarray.ieeespecial.inf
+import numpy.core
+plus_inf = numpy.core.Inf
 
 from rs274.author import Gcode
 import rs274.options
@@ -63,7 +56,7 @@ def make_tool_shape(f, wdia, resp):
     dia = int(wdia*res+.5)
     wrad = wdia/2.
     if dia < 2: dia = 2
-    n = numarray.array([[plus_inf] * dia] * dia, type="Float32")
+    n = numpy.array([[plus_inf] * dia] * dia, dtype=numpy.float32)
     hdia = dia / 2.
     l = []
     for x in range(dia):
@@ -275,9 +268,9 @@ class Converter:
             tw, th = rough.shape
             w1 = w + tw
             h1 = h + th
-            nim1 = numarray.zeros((w1, h1), 'Float32') + base_image.min()
+            nim1 = numpy.zeros((w1, h1), dtype=numpy.float32) + base_image.min()
             nim1[tw/2:tw/2+w, th/2:th/2+h] = base_image
-            self.image = numarray.zeros((w,h), type="Float32")
+            self.image = numpy.zeros((w,h), dtype=numpy.float32)
             for j in range(0, w):
                 progress(j,w)
                 for i in range(0, h):
@@ -760,7 +753,7 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numarray.fromstring(im.tostring(), 'UInt8', (h, w)).astype('Float32')
+    nim = numpy.fromstring(im.tostring(), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']
@@ -786,7 +779,7 @@ def main():
         tw, th = tool.shape
         w1 = w + 2*tw
         h1 = h + 2*th
-        nim1 = numarray.zeros((w1, h1), 'Float32') + pixel
+        nim1 = numpy.zeros((w1, h1), dtype=numpy.float32) + pixel
         nim1[tw:tw+w, th:th+h] = nim
         nim = nim1
         w, h = w1, h1
