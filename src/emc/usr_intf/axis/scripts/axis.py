@@ -2488,6 +2488,9 @@ class TclCommands(nf.TclCommands):
             if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
                 print "home_joint <%s> Use joint mode for homing"%jora
                 return
+            if jora in duplicate_coord_letters:
+                print "\nIndividual axis homing disallowed for duplicated letter:<%s> "%jora
+                return
             jnum = trajcoordinates.index(jora)
         else:
             jnum = int(jora)
@@ -3359,11 +3362,17 @@ def aletter_for_jnum(jnum):
         return guess
 
 num_joints = s.joints
+gave_individual_homing_message = ""
 for jnum in range(num_joints):
     if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
         ja_name = "Axis"
         ja_id = aletter_for_jnum(jnum)
-        if ja_id == "NOALETTER": continue
+        if ja_id.lower() in duplicate_coord_letters:
+            if ja_id not in gave_individual_homing_message:
+                print "\nNote:\nIndividual axis homing is not currently supported for"
+                print "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"%ja_id
+                gave_individual_homing_message = gave_individual_homing_message + ja_id
+            continue # no menu item for this individual axis letter
         widgets.homemenu.add_command(
                command=lambda jnum=jnum: commands.home_joint_number(jnum))
         widgets.unhomemenu.add_command(
