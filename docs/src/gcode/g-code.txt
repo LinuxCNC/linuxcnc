@@ -1,6 +1,5 @@
-[[cha:g-codes]] (((G Codes)))
-
 = G Codes
+[[cha:g-codes]] (((G Codes)))
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
