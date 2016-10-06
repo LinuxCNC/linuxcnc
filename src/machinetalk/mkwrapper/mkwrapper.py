@@ -347,7 +347,7 @@ class LinuxCNCWrapper():
         self.ioSubscribed = False
         self.ioFullUpdate = False
         self.ioFirstrun = True
-        self.ioLoadToolTable = True
+        self.ioToolTableCount = 0
         self.taskSubscribed = False
         self.taskFullUpdate = False
         self.taskFirstrun = True
@@ -609,6 +609,7 @@ class LinuxCNCWrapper():
         with codecs.open(self.toolTablePath, 'r', encoding='utf-8') as file:
             lines = file.readlines()
 
+        # parsing pocket number and comment, not emc status object
         toolMap = {}
         regex = re.compile(r'(?:.*T(\d+))(?:.*P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
         for line in lines:
@@ -1027,9 +1028,6 @@ class LinuxCNCWrapper():
         modified |= self.update_proto_position(self.status.io, self.statusTx.io,
                                                'tool_offset', stat.tool_offset)
 
-        if self.ioLoadToolTable:  # reload tool table
-            del self.status.io.tool_table[:]
-
         txToolResult = EmcToolData()
         toolTableChanged = False
         tableIndex = 0
@@ -1081,10 +1079,23 @@ class LinuxCNCWrapper():
 
             tableIndex += 1
 
+        # cleanup dead entries
+        while tableIndex < len(self.status.io.tool_table):
+            del self.status.io.tool_table[-1]
+
+        # check if new tool table is smaller
+        # if so we need to send empty messages (only index) to the subscribers
+        if tableIndex < self.ioToolTableCount:
+            for i in range(tableIndex, self.ioToolTableCount):
+                txToolResult.Clear()
+                txToolResult.index = i
+                self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
+            toolTableChanged = True
+        self.ioToolTableCount = tableIndex
+
         if toolTableChanged:
             # update pocket and comment from tool table file
             self.load_tool_table(self.status.io, self.statusTx.io)
-            self.ioLoadToolTable = False
             modified = True
         del txToolResult
 
@@ -2008,7 +2019,6 @@ class LinuxCNCWrapper():
                 self.command.load_tool_table()
                 if self.rx.HasField('ticket'):
                     self.wait_complete(identity, self.rx.ticket)
-                self.ioLoadToolTable = True
 
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
