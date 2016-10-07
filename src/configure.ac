@@ -148,6 +148,7 @@ else
     AC_SUBST(CC_FOR_BUILD,$CC)
 fi
 
+AC_PROG_CXX
 AC_PROG_CPP()
 AC_CHECK_TOOL(OBJCOPY, objcopy)
 AC_CHECK_TOOL(LD, ld)
@@ -2318,7 +2319,6 @@ AC_SUBST(GLIB_CFLAGS)
 ##############################################################################
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-AC_PROG_CXX
 
 # make this optional - it will likely only result in warnings
 AX_CXX_COMPILE_STDCXX_11(noext,optional)
