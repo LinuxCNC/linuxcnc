@@ -1,4 +1,4 @@
-[[cha:hal-user-interface]](((HAL User Interface)))
+[[cha:hal-user-interface]]
 
 = HAL User Interface
 

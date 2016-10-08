@@ -1,4 +1,4 @@
-[[cha:important-user-concepts]](((User Concepts)))
+[[cha:important-user-concepts]]
 
 = Important User Concepts
 

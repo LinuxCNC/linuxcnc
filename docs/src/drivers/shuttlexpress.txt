@@ -1,4 +1,4 @@
-[[cha:shuttlexpress]](((ShuttleXpress)))
+[[cha:shuttlexpress]]
 
 = ShuttleXpress
 

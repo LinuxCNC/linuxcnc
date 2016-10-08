@@ -1,4 +1,4 @@
-[[cha:keystick-gui]] (((GUI,KEYSTICK)))
+[[cha:keystick-gui]]
 
 = KEYSTICK GUI
 

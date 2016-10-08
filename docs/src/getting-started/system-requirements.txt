@@ -1,8 +1,8 @@
-[[cha:system-requirements]] (((System Requirements)))
+[[cha:system-requirements]]
 
 = System Requirements
 
-== Minimum Requirements (((Minimum Requirements)))
+== Minimum Requirements
 
 The minimum system to run LinuxCNC and Ubuntu may vary depending on the
 exact usage. Stepper systems in general require faster threads to

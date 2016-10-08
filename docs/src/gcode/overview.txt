@@ -1,4 +1,4 @@
-[[cha:g-code-overview]](((G Code Overview)))
+[[cha:g-code-overview]]
 
 = G Code Overview
 

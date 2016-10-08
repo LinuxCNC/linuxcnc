@@ -4,7 +4,6 @@
 = LinuxCNC et HAL
 
 [[cha:LinuxCNC-et-HAL]]
-(((LinuxCNC et HAL)))
 
 Voir également la man page 'motion(9)'.
 

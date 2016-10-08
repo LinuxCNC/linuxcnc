@@ -1,4 +1,4 @@
-[[cha:rs274ngc-programs]](((RS274/NGC Programs)))
+[[cha:rs274ngc-programs]]
 
 = RS274/NGC Differences
 

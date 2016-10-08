@@ -1,4 +1,4 @@
-[[cha:touchy-gui]](((GUI,Touchy)))
+[[cha:touchy-gui]]
 
 = Touchy GUI
 

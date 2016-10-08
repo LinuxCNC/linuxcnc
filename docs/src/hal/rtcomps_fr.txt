@@ -3,7 +3,7 @@
 
 = Les composants temps réel 
 
-[[cha:Composants-temps-reel]] (((composants-temps-reel)))
+[[cha:Composants-temps-reel]]
 
 
 [[sec:Stepgen]]

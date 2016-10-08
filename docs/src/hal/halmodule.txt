@@ -1,4 +1,4 @@
-[[cha:halmodule]](((Userspace Python Components)))
+[[cha:halmodule]]
 
 = Creating Userspace Python Components
 

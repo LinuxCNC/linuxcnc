@@ -2,7 +2,7 @@
 
 = Petite FAQ Linux
 
-[[cha:FAQ-Linux]] (((FAQ Linux)))
+[[cha:FAQ-Linux]]
 
 
 Voici quelques commandes et techniques de base pour l'utilisateur

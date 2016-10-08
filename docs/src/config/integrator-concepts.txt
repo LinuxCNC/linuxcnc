@@ -1,4 +1,4 @@
-[[cha:integrator-concepts]](((Integrator Concepts)))
+[[cha:integrator-concepts]]
 
 = Integrator Concepts
 

@@ -1,4 +1,4 @@
-[[cha:starting-linuxcnc]](((Starting LinuxCNC)))
+[[cha:starting-linuxcnc]]
 
 = Starting LinuxCNC
 

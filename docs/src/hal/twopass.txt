@@ -1,4 +1,4 @@
-[[cha:hal-twopass]](((Hal, Twopass)))
+[[cha:hal-twopass]]
 
 = HAL TWOPASS
 

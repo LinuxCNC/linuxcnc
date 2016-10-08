@@ -3,7 +3,7 @@
 
 = Port parallèle
 
-[[cha:Parport]] (((Pilote parport)))
+[[cha:Parport]]
 
 == Parport
 

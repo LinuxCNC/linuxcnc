@@ -3,7 +3,7 @@
 
 = La programmation en Ladder 
 
-[[cha:classicladder-introduction]] (((Classicladder Introduction)))
+[[cha:classicladder-introduction]]
 
 == Introduction
 

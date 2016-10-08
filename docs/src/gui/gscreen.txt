@@ -1,4 +1,4 @@
-[[cha:gscreen]](((Gscreen GUI)))
+[[cha:gscreen]]
 
 = Gscreen
 

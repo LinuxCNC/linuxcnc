@@ -1,6 +1,6 @@
 = Configuración de motores a pasos
 
-[[cha:stepper-quickstart]] (((Stepper Quickstart)))
+[[cha:stepper-quickstart]]
 
 ////
 ATTENTION TRANSLATORS before translating this document copy the base document

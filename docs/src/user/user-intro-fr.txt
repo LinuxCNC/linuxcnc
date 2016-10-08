@@ -3,7 +3,7 @@
 
 = LinuxCNC
 
-[[cha:linuxcnc-user-introduction]] (((LinuxCNC User Introduction)))
+[[cha:linuxcnc-user-introduction]]
 
 == Introduction
 

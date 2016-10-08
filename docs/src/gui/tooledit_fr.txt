@@ -4,7 +4,6 @@
 = Éditeur graphique de table d'outils
 
 [[cha:editeur-tooledit]] 
-(((IGU Tool Edit)))
 
 == Versions requises pour l'éditeur d'outils
 [NOTE]

@@ -1,4 +1,4 @@
-[[cha:getting-linuxcnc]] (((Getting LinuxCNC)))
+[[cha:getting-linuxcnc]]
 
 = Getting LinuxCNC
 

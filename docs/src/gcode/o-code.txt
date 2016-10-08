@@ -1,4 +1,4 @@
-[[cha:o-codes]](((O Codes)))
+[[cha:o-codes]]
 
 = O Codes
 

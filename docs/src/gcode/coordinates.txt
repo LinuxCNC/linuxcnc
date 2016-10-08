@@ -1,6 +1,6 @@
 = Coordinate Systems
 
-[[cha:coordinate-system]] (((Coordinate System)))
+[[cha:coordinate-system]]
 
 == Introduction
 

@@ -1,4 +1,4 @@
-[[cha:updating-linuxcnc]] (((Updating LinuxCNC)))
+[[cha:updating-linuxcnc]]
 
 = Updating LinuxCNC
 

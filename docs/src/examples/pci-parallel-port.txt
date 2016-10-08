@@ -1,4 +1,4 @@
-[[cha:pci-parallel-port]](((PCI Parallel Port)))
+[[cha:pci-parallel-port]]
 
 = PCI Parallel Port
 

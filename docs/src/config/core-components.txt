@@ -1,6 +1,6 @@
 = Core Components
 
-[[cha:core-components]] (((Core Components)))
+[[cha:core-components]]
 
 See also the man pages 'motion(9)'.
 

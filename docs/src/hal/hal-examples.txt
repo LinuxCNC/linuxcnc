@@ -1,4 +1,4 @@
-[[cha:hal-examples]](((HAL Examples)))
+[[cha:hal-examples]]
 
 = HAL Examples
 

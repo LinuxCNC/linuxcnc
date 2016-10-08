@@ -1,4 +1,4 @@
-[[cha:basic-hal-reference]] (((Basic HAL Reference)))
+[[cha:basic-hal-reference]]
 
 = Basic HAL Reference
 

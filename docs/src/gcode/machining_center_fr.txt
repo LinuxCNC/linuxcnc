@@ -3,7 +3,7 @@
 
 = Aperçu global d'une machine CNC
 
-[[cha:Apercu-machine-CNC]] (((Aperçu machine CNC)))
+[[cha:Apercu-machine-CNC]]
 
 Cette section donne une description des différents organes constituant une
 machine à commande numérique (CNC).

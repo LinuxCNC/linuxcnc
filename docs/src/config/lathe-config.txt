@@ -1,6 +1,6 @@
 = Lathe Configuration
 
-[[cha:lathe-configuration]] (((Lathe Configuration)))
+[[cha:lathe-configuration]]
 
 == Default Plane
 

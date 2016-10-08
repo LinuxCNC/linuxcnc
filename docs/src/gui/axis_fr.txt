@@ -3,7 +3,7 @@
 
 = L'interface graphique AXIS
 
-[[cha:Axis]] (((Axis)))
+[[cha:Axis]]
 
 == Introduction
 

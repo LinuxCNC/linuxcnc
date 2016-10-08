@@ -1,4 +1,4 @@
-[[cha:stepper-config]] (((Stepper Configuration)))
+[[cha:stepper-config]]
 
 = Stepper Configuration
 

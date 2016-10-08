@@ -3,7 +3,7 @@
 
 = L'interface graphique MINI
 
-[[cha:Mini]] (((Mini)))
+[[cha:Mini]]
 
 == Introduction
 

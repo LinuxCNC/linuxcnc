@@ -1,4 +1,4 @@
-[[cha:other-codes]] (((Other Codes)))
+[[cha:other-codes]]
 
 = Other Codes
 

@@ -3,7 +3,7 @@
 
 = L'interface Halui
 
-[[cha:Halui]] (((HAL User Interface)))
+[[cha:Halui]]
 
 == Introduction[[sec:HaluiIntroduction]]
 

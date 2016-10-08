@@ -1,4 +1,4 @@
-[[cha:gmoccapy]](((GUI, GMOCCAPY)))
+[[cha:gmoccapy]]
 
 = GMOCCAPY
 

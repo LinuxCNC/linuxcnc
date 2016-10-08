@@ -3,7 +3,7 @@
 
 = Systèmes de coordonnées et décalages
 
-[[cha:Systemes-de-coordonnees]] (((Systèmes de coordonnées)))
+[[cha:Systemes-de-coordonnees]]
 
 
 == Introduction

@@ -1,4 +1,4 @@
-[[cha:pncconf-wizard]](((Mesa Configuration Wizard)))
+[[cha:pncconf-wizard]]
 
 = Mesa Configuration Wizard
 
