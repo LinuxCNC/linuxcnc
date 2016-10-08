@@ -1605,7 +1605,7 @@ $(RTLIBDIR)/%.so:
 	$(Q)$(LD) -d -r -o $(OBJDIR)/$*.tmp $^
 	@# use the .rtapi_export string table to generate a ld version script
 	@# explicitly defining the EXPORT_SYMBOL syms as global, and everything else as local:
-	$(Q)objcopy -j .rtapi_export -O binary $(OBJDIR)/$*.tmp $(OBJDIR)/$*.exported
+	$(Q)$(OBJCOPY) -j .rtapi_export -O binary $(OBJDIR)/$*.tmp $(OBJDIR)/$*.exported
 	$(Q)(echo '{ global : ';  tr -s '\0' <$(OBJDIR)/$*.exported | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > $(OBJDIR)/$*.ver
 	@# link the final object using this version script:
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$(OBJDIR)/$*.ver -o $@ $^ $(EXTRA_LDFLAGS)

@@ -137,7 +137,6 @@ AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
-AC_PATH_PROG(ARCHCMD, arch)
 
 AC_PROG_CC
 AC_SUBST([CROSS_COMPILING],[$cross_compiling])
@@ -161,6 +160,10 @@ AC_CANONICAL_BUILD  # $build, build_cpu, build_vendor, and build_os
 # locate pkg-config, including cross-compiler variations
 if test "$cross_compiling" = yes; then
    AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
+   # Find .pc files in non-arch-specific locations when
+   # cross-compiling; this is a workaround until Debian Multi-Arch:
+   # support is more complete
+   export PKG_CONFIG_PATH=/usr/lib/pkgconfig
 else
    # The multi-arch version can choke on non-multi-arch packages, since it
    # (intentionally) doesn't look in `/usr/lib/pkgconfig`.
@@ -542,17 +545,6 @@ KSOURCE_LOCATION_HINTS=$(echo \
 #
 # Platforms. set by --with-platform-{pc,beaglebone,chip,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
-
-ARCHITECTURE=`$ARCHCMD`
-#
-# Architecture. Use output of arch(1).
-#
-# FIXME this will break 32-bit builds on 64-bit systems.  Need an
-# expert to figure out host/target arch, e.g. --host=i686-pc-linux-gnu
-# even when --build=x86_64-pc-linux-gnu
-#
-# This will cause issues on build servers that build for multiple
-# arches
 
 # xenomai equivalent of pkg-config
 XENO_CONFIG=
@@ -1541,7 +1533,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
     # this CFLAG
-    if test "$ARCHITECTURE" != x86_64; then
+    if test "$host_cpu" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
@@ -1857,8 +1849,6 @@ if test "$USE_PORTABLE_PARPORT_IO" = yes; then
    AC_DEFINE(USE_PORTABLE_PARPORT_IO, [], [use ppdev ioctl instead of inb/outb])
 fi
 AC_SUBST(USE_PORTABLE_PARPORT_IO)
-
-AC_SUBST(ARCHITECTURE)
 
 # Platform
 if $TARGET_PLATFORM_PC; then
@@ -2294,7 +2284,8 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,  [GTK_VER=`pkg-config gtk+-2.0 --modversion`],
+    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,
+	[ AC_DEFINE(HAVE_GTK, 1, Use GTK) ],
         [ AC_MSG_ERROR([no gtk+-2.0 found; use --disable-gtk])])
     PKG_CHECK_MODULES(GNOMEPRINT, libgnomeprintui-2.2,
         [
@@ -2305,7 +2296,7 @@ if test "$BUILD_GTK" = "yes"; then
 fi
 
 AC_SUBST(HAVE_GNOMEPRINT)
-AC_SUBST(GTK_VER)
+AC_SUBST(HAVE_GTK)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GLIB_LIBS)
