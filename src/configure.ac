@@ -1521,7 +1521,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     CPPFLAGS="$CPPFLAGS $($XENOMAI_THREADS_RTS --cflags)"
     AC_CHECK_LIB($XENOMAI_SKIN, rt_task_create,,
         with_xenomai=no; with_xenomai_kernel=no)
-    AC_CHECK_HEADER($XENOMAI_SKIN/task.h,,
+    AC_CHECK_HEADERS($XENOMAI_SKIN/task.h,,
         with_xenomai=no; with_xenomai_kernel=no)
     LIBS="$LIBS_hold"
     CFLAGS="$CFLAGS_hold"
@@ -3067,7 +3067,7 @@ Install this version and specify --with-tcl and --with-tk if necessary])
     # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
     AX_BOOST_PYTHON_EMC
 
-    AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
+    AC_CHECK_HEADERS($INCLUDEPY/Python.h,[],
 	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of Machinekit that depend on Python])])
 
     AC_MSG_CHECKING(for site-package location)
