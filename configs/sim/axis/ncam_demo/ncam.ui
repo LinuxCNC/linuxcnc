@@ -9,7 +9,7 @@
 			<object class="GtkVBox" id="vbox2">
 				<property name="visible">True</property>
 				<child>
-					<object class="Features" id="features">
+					<object class="NCam" id="ncam">
 						<property name="visible">True</property>
 					</object>
 				</child>

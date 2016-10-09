@@ -1,0 +1,6 @@
+NativeCAM is a powerfull help to create gcode scripts by selecting the type of shape and setting parameters value
+
+select mill-mm config for metric
+or mill for inch/imperial
+
+lathe and plasma not supported yet

@@ -1,0 +1,20 @@
+T1 P1 D0.0625 ;1/16 end mill 
+T2 P2 D0.125 ;1/8 end mill 
+T3 P3 D0.25 ;1/4 end mill 
+T4 P4 D0.3125 ;5/16 end mill 
+T5 P5 D0.375 ;3/8 end mill 
+T6 P6 D0.5 ;1/2 end mill 
+T7 P7 D0.625 ;5/8 end mill 
+T8 P8 D0.75 ;3/4 end mill 
+T21 P21 D0.125 ;Drill 1/16 - 1/8 
+T22 P22 D0.203 ;Drill 9/64 - 13/64 
+T23 P23 D0.297 ;Drill 7/32 - 19/64 
+T24 P24 D0.406 ;Drill 5/16 - 13/32 
+T25 P25 D0.5 ;Drill 27/64 - 1/2 
+T31 P31 D0.228 ;Drill # 1 -  #25 
+T32 P32 D0.149 ;Drill #26 - #40 
+T33 P33 D0.098 ;Drill #41 - #60 
+T41 P41 D0.295 ;Drill A - M 
+T42 P42 D0.339 ;Drill N - R 
+T43 P43 D0.413 ;Drill S - Z 
+T20 P20 D0.125 ;Center drill 
