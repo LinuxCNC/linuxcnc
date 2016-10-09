@@ -1,0 +1,39 @@
+o<line> sub
+(author unknown)
+(CALL #<x1>, #<y1>, #<x2>, #<y2>, #<debug>, p_len, p_phi, p_del_x, p_del_y)
+
+	#<_line_del_x> = [#3 - #1]
+	#<_line_del_y> = [#4 - #2]
+	#<_line_len>   = SQRT[#<_line_del_x> * #<_line_del_x> + #<_line_del_y> * #<_line_del_y>]
+
+	o<l01> if [ABS[#<_line_del_x>] GE 0.000001]
+		 #<_line_phi> = [[360 + ATAN[#<_line_del_y>] / [#<_line_del_x>]] MOD 360]
+	o<l01> else
+		o<l02> if [#<_line_del_y> GE 0]
+			#<_line_phi> =  90
+		o<l02> else
+			#<_line_phi> = 270
+		o<l02> endif
+	o<l01> endif
+
+	#<_line_cos> = COS[#<_line_phi>]
+	#<_line_sin> = SIN[#<_line_phi>]
+	
+	o<dbg01> if [#5]
+		(print,)
+		(print,"line" call,  tracking = #5)
+		(print,  x1,y1 = #1,#2  x2,y2 = #3,#4)
+		(print,  _line_len = #<_line_len>  _line_phi = #<_line_phi>)
+		(print,  _line_cos = #<_line_cos>  _line_sin = #<_line_sin>)
+	o<dbg01> endif
+
+	o11 if [[#6 GT 30] AND [#7 GT 30]]
+		#[#6] = #<_line_len>
+		#[#7] = #<_line_phi>
+	o11 endif
+
+	o12 if [[#8 GT 30] AND [#9 GT 30]]
+		#[#8] = #<_line_del_x>
+		#[#9] = #<_line_del_y>
+	o12 endif
+o<line> endsub

@@ -1,0 +1,260 @@
+(will find exit point to avoid gouging or/and move away from the edge)
+(author : Fernand Veilleux)
+o<exit> sub
+(CALL #1 = data ptr, #2 = rec_no, #3 = exit mode)
+(exit mode : -3 = exit at end force arc, -2 = exit at end w/ arc if possible, -1 = exit at end w/o arc)
+(      1 = exit before end w/o arc, 2 = exit before end w/ arc if possible, 3 = exit before end force arc)
+
+	#<debug> = 0
+	
+	o17 if [#<_ccomp> LT 410]
+		o<exit> return
+	o17 endif
+
+	o15 if [#5410 EQ 0]
+		(print,)
+		(print,"exit" subroutine not executed : no tool selected or diameter not defined in tool table)
+		o<exit> return
+	o15 endif
+	
+	#<cur>      = [#1 + #2 * 8 + 1] (ptr to line/arc just traced)
+	
+	o10 if [#2 EQ [#[#1] - 1]] (last one)
+		#<nxt>  = [#1 + 1]
+	o10 else
+		#<nxt>  = [#<cur> + 8]
+	o10 endif
+	#<to_dir>   = #[#<nxt> + 2]
+
+	o16 if [#<to_dir> EQ 0] (last item dir 0 is not closed)
+		o<exit> return
+	o16 endif
+
+	#<exit_mode> = ABS[#3]
+	
+	#<from_dir>  = #[#<cur> + 2]
+	#<from_cx>   = #[#<cur> + 3]
+	#<from_cy>   = #[#<cur> + 4]
+
+	#<to_x>      = #[#<nxt>]
+	#<to_y>      = #[#<nxt> + 1]
+	#<to_cx>     = #[#<nxt> + 3]
+	#<to_cy>     = #[#<nxt> + 4]
+
+	o11 if [#2 EQ 0] (first one)	
+		#<prv>   = [#1 + [#[#1] * 8] - 7]
+	o11 else
+		#<prv>   = [#<cur> - 8]
+	o11 endif
+	#<from_x>    = #[#<prv>]
+	#<from_y>    = #[#<prv> + 1]
+	
+	#<exit_dir>  = 0
+	
+	#<cmp>         = FIX[#<_ccomp> / 10]
+	#<tool_radius> = [#5410 * 0.501]
+
+	o<dbg> if [#<debug>]
+		(print,)
+		(print,"exit CALL",  tracking = #<debug>)
+		(print,   at X#<_cut_current_x>, Y#<_cut_current_y>   ptr = #1, rec_no = #2)
+		(print,   exit mode = #<exit_mode>)
+		(print,   from x,y  = #<from_x>, #<from_y>,  dir = #<from_dir>,  cx,cy = #<from_cx>, #<from_cy>)
+		(print,   next x,y  = #<to_x>, #<to_y>,  dir = #<to_dir>,  cx,cy = #<to_cx>, #<to_cy>)
+	o<dbg> endif
+		
+	#<rot> = 0
+
+	o12 if [#<to_dir> EQ 1]
+		o13 if [#<from_dir> EQ 1]
+			o<angle> CALL [#<from_x>] [#<from_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>] ;[-11]
+
+			o24 if [[[#<_angle_phi> GE 179.999999] AND [#<cmp> EQ 41]] OR [[#<_angle_phi> LE 180.000001] AND [#<cmp> EQ 42]]]
+				o18 if [[#<exit_mode> EQ 3] OR [[#<exit_mode> EQ 2] AND [#<_angle_phi> EQ 180]]]
+					o<select> CALL [40] [#<cmp> - 41] [1] [-1]
+					o<rotate_xy> CALL [#<_cut_current_x> + #5410 * 0.65] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi23> + 90 * #40]
+					#<to_cx> = #<_rotated_x>
+					#<to_cy> = #<_rotated_y>
+					o<rotate_xy> CALL [#<to_cx> + #5410 * 0.65] [#<to_cy>] [#<to_cx>] [#<to_cy>] [#<_angle_phi23> - 55 * #40]
+					#<exit_x> = #<_rotated_x>
+					#<exit_y> = #<_rotated_y>
+					#<exit_dir> = [6 / [#<cmp> - 39]]
+				o18 else
+					#<element1> = [#<tool_radius> / [TAN[#<_angle_angle> / 2]]]
+					#<exit_x>   = [#<_cut_current_x> + #<element1> * #<_angle_cos23>]
+					#<exit_y>   = [#<_cut_current_y> + #<element1> * #<_angle_sin23>]
+					#<exit_dir> = #<to_dir>
+				o18 endif
+			o24 endif
+			
+		o13 else
+			o<angle> CALL [#<from_cx>] [#<from_cy>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>] ;[325]
+
+			o14 if [#<from_dir> EQ 2]
+				o19 if [[#<cmp> EQ 42] AND [[#<_angle_phi> LT 90] OR [#<_angle_phi> GT 270]]] (right compensation)
+					#<rot>   = -90
+					#<len>   = -#<tool_radius>
+					#<rot_e> = -90
+				o19 elseif [[#<cmp> EQ 41] AND [#<_angle_phi> GT 90]] (41 left compensation)
+					#<rot>   = 90
+					#<len>   = #<tool_radius>
+					#<rot_e> = -90
+				o19 endif
+			o14 else (from_dir == 3)
+				o20 if [[#<cmp> EQ 42] AND [#<_angle_phi> LT 270]] (right compensation)
+					#<rot>   = -90
+					#<len>   = #<tool_radius>
+					#<rot_e> = 90
+				o20 elseif [[#<cmp> EQ 41] AND [[#<_angle_phi> LT 90] OR [#<_angle_phi> GT 270]]] (41 left compensation)
+					#<rot>   = 90
+					#<len>   = -#<tool_radius>
+					#<rot_e> = 90
+				o20 endif
+			o14 endif
+			
+			o27 if [#<rot>]
+				(Create a parallel line to first one)
+				o<rotate_xy> CALL [#<_cut_current_x> + #<tool_radius>] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi23> + #<rot>] [0] [50] [51]
+				o<rotate_xy> CALL [#<to_x> + #<tool_radius>] [#<to_y>] [#<to_x>] [#<to_y>] [#<_angle_phi23> + #<rot>] [0]
+
+				(find intersection with previous arc with radius adjusted to tool radius)
+				o<isect_line_arc> CALL [#50] [#51] [#<_rotated_x>] [#<_rotated_y>] [#<from_cx>] [#<from_cy>] [#<_angle_len21> + #<len>] [#50] [#51] [0] [54] [55]
+
+				(find matching position on the first line and this is the exit point)
+				o<rotate_xy> CALL [#54 + #<len>] [#55] [#54] [#55] [#<_angle_phi23> + #<rot_e>]
+				#<exit_x> = #<_rotated_x>
+				#<exit_y> = #<_rotated_y>
+				#<exit_dir> = #<to_dir>
+			o27 endif
+			
+		o13 endif
+
+	o12 else (to dir == 2 or 3)
+	
+		o28 if [#<from_dir> EQ 1]
+			o<angle> CALL [#<from_x>] [#<from_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] ;[965]
+
+			o31 if [#<to_dir> EQ 2]
+				o25 if [[#<cmp> EQ 42] AND [[#<_angle_phi> LT 89.999999] OR [#<_angle_phi> GT 270.000001]]] (right compensation)
+					#<rot>   = 90
+					#<len>   = -#<tool_radius>
+				o25 elseif [[#<cmp> EQ 41] AND [#<_angle_phi> GT 90.000001]] (41 left compensation)
+					#<rot>   = -90
+					#<len>   = #<tool_radius>
+				o25 endif
+			o31 else (to_dir == 3)
+				o26 if [[#<cmp> EQ 42] AND [[#<_angle_phi> GT 90.000001] AND [#<_angle_phi> LT 269.999999]]] (right compensation)
+					#<rot>   = 90
+					#<len>   = #<tool_radius>
+				o26 elseif [[#<cmp> EQ 41] AND [[#<_angle_phi> LT 89.999999] OR [#<_angle_phi> GT 270.000001]]] (41 left compensation)
+					#<rot>   = -90
+					#<len>   = -#<tool_radius>
+				o26 endif
+			o31 endif
+
+			o32 if [#<rot>]
+				(Create a parallel line to first one)
+				o<rotate_xy> CALL [#<_cut_current_x> + #<tool_radius>] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi21> + #<rot>] [0] [50] [51]
+				o<rotate_xy> CALL [#<from_x> + #<tool_radius>] [#<from_y>] [#<from_x>] [#<from_y>] [#<_angle_phi21> + #<rot>] ;[02]
+
+				(find intersection with previous arc with radius adjusted to tool radius)
+				o<isect_line_arc> CALL [#50] [#51] [#<_rotated_x>] [#<_rotated_y>] [#<to_cx>] [#<to_cy>] [#<_angle_len23> + #<len>] [#50] [#51] [0] [50] [51]
+
+				(find matching position on the arc and this is the real exit point)
+				o<line> CALL [#50] [#51] [#<to_cx>] [#<to_cy>] ;[04]
+				o<rotate_xy> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] [[#<_line_phi> - #<_angle_phi23>] / 1] ;[05]
+				#<exit_x>   = #<_rotated_x>
+				#<exit_y>   = #<_rotated_y>
+				#<exit_dir> = #<to_dir>
+				
+			o32 endif
+			
+		o28 else (from_dir == 2 or 3)
+
+			o<angle> CALL [#<from_cx>] [#<from_cy>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] ;[-1203]
+			
+			#<len_to>   = 0
+			o34 if [#<to_dir> EQ 2]
+				o35 if [#<from_dir> EQ 2]
+					o36 if [[#<exit_mode> EQ 2] AND [#<cmp> EQ 42] AND [#<_angle_phi> EQ 0] AND [#<_angle_len23> GT [#5410 * 0.65]]]
+						o<rotate_xy> CALL [#<_cut_current_x> + #5410 * 0.65] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi23>]
+						#<to_cx> = #<_rotated_x>
+						#<to_cy> = #<_rotated_y>
+						o<rotate_xy> CALL [#<to_cx> + #5410 * 0.65] [#<to_cy>] [#<to_cx>] [#<to_cy>] [#<_angle_phi23> + 135]
+						#<exit_x> = #<_rotated_x>
+						#<exit_y> = #<_rotated_y>
+						#<exit_dir> = 2
+
+					o36 elseif [[#<cmp> EQ 42] AND [#<_angle_phi> GE 180.000001]] (right compensation)
+						#<len_to>   = -#<tool_radius>
+						#<len_from> = -#<tool_radius>
+					o36 elseif [[#<cmp> EQ 41] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LT 179.999999]]](left compensation)
+						#<len_to>   =  #<tool_radius>
+						#<len_from> =  #<tool_radius>
+					o36 endif
+				o35 else (from_dir == 3)
+					o37 if [[#<cmp> EQ 42] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]] (right compensation)
+						#<len_to>   = -#<tool_radius>
+						#<len_from> =  #<tool_radius>
+					o37 elseif [[#<cmp> EQ 41] AND [#<_angle_phi> GE 180.000001]] (left compensation)
+						#<len_to>   =  #<tool_radius>
+						#<len_from> = -#<tool_radius>
+					o37 endif
+				o35 endif
+			o34 else (to_dir == 3)
+				o38 if [#<from_dir> EQ 2]
+					o39 if [[#<cmp> EQ 42] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]] (right compensation)
+						#<len_to>   =  #<tool_radius>
+						#<len_from> = -#<tool_radius>
+					o39 elseif [[#<cmp> EQ 41] AND [#<_angle_phi> GE 180.000001]] (left compensation)
+						#<len_to>   = -#<tool_radius>
+						#<len_from> =  #<tool_radius>
+						#<rot> = 0
+					o39 endif
+				o38 else (from_dir == 3)
+					o40 if [[#<exit_mode> EQ 2] AND [#<cmp> EQ 41] AND [#<_angle_phi> EQ 0] AND [#<_angle_len23> GT [#5410 * 0.65]]]
+						o<rotate_xy> CALL [#<_cut_current_x> + #5410 * 0.65] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi23>]
+						#<to_cx> = #<_rotated_x>
+						#<to_cy> = #<_rotated_y>
+						o<rotate_xy> CALL [#<to_cx> + #5410 * 0.65] [#<to_cy>] [#<to_cx>] [#<to_cy>] [#<_angle_phi23> - 135]
+						#<exit_x> = #<_rotated_x>
+						#<exit_y> = #<_rotated_y>
+						#<exit_dir> = 3
+					o40 elseif [[#<cmp> EQ 42] AND [#<_angle_phi> GE 180.000001]] (right compensation)
+						#<len_to>   =  #<tool_radius>
+						#<len_from> =  #<tool_radius>
+					o40 elseif [[#<cmp> EQ 41] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]] (left compensation)
+						#<len_to>   = -#<tool_radius>
+						#<len_from> = -#<tool_radius>
+					o40 endif
+				o38 endif
+			o34 endif
+			
+			o41 if [#<len_to> NE 0]
+				o<isect_arcs> CALL [#<from_cx>] [#<from_cy>] [#<_angle_len21> + #<len_from>] [#<to_cx>] [#<to_cy>] [#<_angle_len23> + #<len_to>] [#<_cut_current_x>] [#<_cut_current_y>] [0] [50] [51]
+				o<line> CALL [#50] [#51] [#<to_cx>] [#<to_cy>] ;[4]
+				o<rotate_xy> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] [#<_line_phi> - #<_angle_phi23> + #<rot>] ;[5]
+				#<exit_x> = #<_rotated_x>
+				#<exit_y> = #<_rotated_y>
+				#<exit_dir> = #<to_dir>
+
+			o41 endif
+		o28 endif
+
+	o12 endif
+	
+	o21 if [#<exit_dir> GT 0]
+		#<exit_i>   = [#<to_cx> - #<_cut_current_x>]
+		#<exit_j>   = [#<to_cy> - #<_cut_current_y>]
+		o<g123> CALL [#<exit_x>] [#<exit_y>] [#<exit_dir>] [#<exit_i>] [#<exit_j>]
+		o<dbg00> if [#<debug>]
+			(print,)
+			(print,exit x,y = #<exit_x>, #<exit_y>,  dir = #<exit_dir>,  cx,cy = #<to_cx>, #<to_cy>,  i,j = #<exit_i>, #<exit_j>,  cmp = #<cmp>)
+		o<dbg00> endif
+	o21 else
+		o<dbg01> if [#<debug>]
+			(print,*** no action from "exit CALL" ***)
+		o<dbg01> endif
+	o21 endif
+	
+o<exit> endsub

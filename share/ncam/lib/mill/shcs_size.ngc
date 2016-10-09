@@ -1,0 +1,217 @@
+(return size of bolt and counterbore)
+o<shcs_size> sub (CALL [screw number] [scr_f] [scr_m] [scr_n] [washer dia] [washer thickness] [bore depth option] [user depth] [cut_start] [piece_bottom])
+	
+	#<screw-no>       = #[1 + #1]
+	#<washer_d>       = #5
+	#<washer_t>       = #6
+	#<bore_depth_opt> = #7
+	#<user_depth>     = #8
+	#<cut_start>      = #9
+	#<piece_bottom>   = #10
+
+	#<_bdia_factor> = 1.05 (body diameter factor)
+	#<_bore_factor> = 1.1  (head diameter hole)
+	#<_shcs_min_pct>= 0.85 (min material ratio vs body diameter)
+	
+	(bdia = screw body diameter AND head height, hdia = head diameter)
+	
+	(metric)
+	o<screw-no> if [#<screw-no> EQ 1]
+		#<bdia> = [1.6]
+		#<hdia> = [3.5]
+	o<screw-no> else if [#<screw-no> EQ 2]
+		#<bdia> = [2.0]
+		#<hdia> = [4.4]
+	o<screw-no> else if [#<screw-no> EQ 3]
+		#<bdia> = [2.5]
+		#<hdia> = [5.4]
+	o<screw-no> else if [#<screw-no> EQ 4]
+		#<bdia> = [2.6]
+		#<hdia> = [6.0]
+	o<screw-no> else if [#<screw-no> EQ 5]
+		#<bdia> = [3.0]
+		#<hdia> = [6.5]
+	o<screw-no> else if [#<screw-no> EQ 6]
+		#<bdia> = [4.0]
+		#<hdia> = [8.25]
+	o<screw-no> else if [#<screw-no> EQ 7]
+		#<bdia> = [5.0]
+		#<hdia> = [9.75]
+	o<screw-no> else if [#<screw-no> EQ 8]
+		#<bdia> = [6.0]
+		#<hdia> = [11.2]
+	o<screw-no> else if [#<screw-no> EQ 9]
+		#<bdia> = [8.0]
+		#<hdia> = [14.5]
+	o<screw-no> else if [#<screw-no> EQ 10]
+		#<bdia> = [10.0]
+		#<hdia> = [17.5]
+	o<screw-no> else if [#<screw-no> EQ 11]
+		#<bdia> = [12.0]
+		#<hdia> = [19.5]
+	o<screw-no> else if [#<screw-no> EQ 12]
+		#<bdia> = [14.0]
+		#<hdia> = [22.5]
+	o<screw-no> else if [#<screw-no> EQ 13]
+		#<bdia> = [16.0]
+		#<hdia> = [25.5]
+	o<screw-no> else if [#<screw-no> EQ 14]
+		#<bdia> = [18.0]
+		#<hdia> = [28.5]
+	o<screw-no> else if [#<screw-no> EQ 15]
+		#<bdia> = [20.0]
+		#<hdia> = [31.5]
+	o<screw-no> else if [#<screw-no> EQ 16]
+		#<bdia> = [24.0]
+		#<hdia> = [37.5]
+	o<screw-no> else if [#<screw-no> EQ 17]
+		#<bdia> = [30.0]
+		#<hdia> = [47.5]
+	o<screw-no> else if [#<screw-no> EQ 18]
+		#<bdia> = [36.0]
+		#<hdia> = [56.5]
+	o<screw-no> else if [#<screw-no> EQ 19]
+		#<bdia> = [42.0]
+		#<hdia> = [66.0]
+	o<screw-no> else if [#<screw-no> EQ 20]
+		#<bdia> = [48.0]
+		#<hdia> = [75.0]
+	
+	(fractionnal)
+	o<screw-no> else if [#<screw-no> EQ 31]
+		#<bdia> = [0.250]
+		#<hdia> = [0.438]
+	o<screw-no> else if [#<screw-no> EQ 32]
+		#<bdia> = [0.312]
+		#<hdia> = [0.531]
+	o<screw-no> else if [#<screw-no> EQ 33]
+		#<bdia> = [0.375]
+		#<hdia> = [0.625]
+	o<screw-no> else if [#<screw-no> EQ 34]
+		#<bdia> = [0.438]
+		#<hdia> = [0.719]
+	o<screw-no> else if [#<screw-no> EQ 35]
+		#<bdia> = [0.5]
+		#<hdia> = [0.813]
+	o<screw-no> else if [#<screw-no> EQ 36]
+		#<bdia> = [0.562]
+		#<hdia> = [0.906]
+	o<screw-no> else if [#<screw-no> EQ 37]
+		#<bdia> = [0.625]
+		#<hdia> = [1.0]
+	o<screw-no> else if [#<screw-no> EQ 38]
+		#<bdia> = [0.75]
+		#<hdia> = [1.187]
+	o<screw-no> else if [#<screw-no> EQ 39]
+		#<bdia> = [0.875]
+		#<hdia> = [1.375]
+	o<screw-no> else if [#<screw-no> EQ 40]
+		#<bdia> = [1.0]
+		#<hdia> = [1.625]
+	o<screw-no> else if [#<screw-no> EQ 41]
+		#<bdia> = [1.125]
+		#<hdia> = [1.812]
+	o<screw-no> else if [#<screw-no> EQ 42]
+		#<bdia> = [1.25]
+		#<hdia> = [2.0]
+	o<screw-no> else if [#<screw-no> EQ 43]
+		#<bdia> = [1.5]
+		#<hdia> = [2.375]
+	o<screw-no> else if [#<screw-no> EQ 44]
+		#<bdia> = [1.75]
+		#<hdia> = [2.75]
+	o<screw-no> else if [#<screw-no> EQ 45]
+		#<bdia> = [2.0]
+		#<hdia> = [3.125]
+	
+	(numbered)
+	o<screw-no> else if [#<screw-no> EQ 51]
+		#<bdia> = [0.060]
+		#<hdia> = [0.125]
+	o<screw-no> else if [#<screw-no> EQ 52]
+		#<bdia> = [0.073]
+		#<hdia> = [0.157]
+	o<screw-no> else if [#<screw-no> EQ 53]
+		#<bdia> = [0.086]
+		#<hdia> = [0.188]
+	o<screw-no> else if [#<screw-no> EQ 54]
+		#<bdia> = [0.099]
+		#<hdia> = [0.219]
+	o<screw-no> else if [#<screw-no> EQ 55]
+		#<bdia> = [0.112]
+		#<hdia> = [0.219]
+	o<screw-no> else if [#<screw-no> EQ 56]
+		#<bdia> = [0.125]
+		#<hdia> = [0.250]
+	o<screw-no> else if [#<screw-no> EQ 57]
+		#<bdia> = [0.138]
+		#<hdia> = [0.282]
+	o<screw-no> else if [#<screw-no> EQ 58]
+		#<bdia> = [0.164]
+		#<hdia> = [0.313]
+	o<screw-no> else if [#<screw-no> EQ 59]
+		#<bdia> = [0.190]
+		#<hdia> = [0.375]
+	o<screw-no> else if [#<screw-no> EQ 60]
+		#<bdia> = [0.216]
+		#<hdia> = [0.406]
+	o<screw-no> else
+		(debug,SHCS screw selected is not in list)
+		(print,)
+		(print,SHCS screw selected is not in list)
+		(AXIS,notify,SHCS screw selected is not in list, exiting)
+	o<screw-no> endif
+	
+	o<shcs-units> if [#<_metric>]
+		o<shcs-inch-screw> if [#<screw-no> GT 30]
+			#<bdia> = [#<bdia> * 25.4]
+			#<hdia> = [#<hdia> * 25.4]
+ 		o<shcs-inch-screw> endif
+ 	o<shcs-units> else
+		o<shcs-metric-screw> if [#<screw-no> LT 30]
+			#<bdia> = [#<bdia> / 25.4]
+			#<hdia> = [#<hdia> / 25.4]
+ 		o<shcs-metric-screw> endif
+ 	o<shcs-units> endif
+
+ 	#<_shcs_body_dia> = [#<bdia> * #<_bdia_factor>]
+ 	#<_shcs_bore_dia> = [#<hdia> * #<_bore_factor>]
+	o<screw-no-wd> if [#<washer_d> GT #<hdia>]
+		#<_shcs_bore_dia> = [#<washer_d> * #<_bore_factor>]
+	o<screw-no-wd> endif
+
+ 	#<head_height> = [#<bdia> + #<washer_t>]
+ 	#<lowest_bore>  = [#<piece_bottom> + #<bdia> * #<_shcs_min_pct>]
+	#<highest_bore> = [#<cut_start> - #<head_height>]
+	
+	o<shcs-depth> if [#<bore_depth_opt> EQ 0] (user defined)
+		#<_shcs_bore_depth> = #<user_depth>
+		o<shcs-depth_1> if [#<user_depth> LT #<lowest_bore>]
+			#<t> = [#<lowest_bore> - #<user_depth>]
+			(print,)
+			(print,Depth of cut #<user_depth> is lower than minimum required of #<lowest_bore> by #<t>)
+		o<shcs-depth_1> endif
+		o<shcs-depth_2> if [#<user_depth> GT #<highest_bore>]
+			#<t> = [#<cut_start> - #<user_depth>]
+			#<t1> = [#<head_height> - #<t>]
+			(print,)
+			(print,Screw head will not sink completely in bore by #<t1>, depth of bore is #<t>, head height is #<head_height>)
+		o<shcs-depth_2> endif
+	o<shcs-depth> elseif [#<bore_depth_opt> EQ 1] (clear surface)
+		#<_shcs_bore_depth> = #<highest_bore>	
+		o<shcs-depth_3> if [#<lowest_bore> GT #<highest_bore>]
+			#<t> = [#<lowest_bore> - #<highest_bore>]
+			(print,)
+			(print,Depth of cut #<highest_bore> is lower than minimum required of #<lowest_bore> by #<t>)
+		o<shcs-depth_3> endif
+	o<shcs-depth> else (deepest)
+		#<_shcs_bore_depth> = #<lowest_bore>
+		o<shcs-depth_4> if [#<lowest_bore> GT #<highest_bore>]
+			#<t> = [#<cut_start> - #<lowest_bore>]
+			#<t1> = [#<head_height> - #<t>]
+			(print,)
+			(print,Screw head will not sink completely in bore by #<t1>, depth of bore is #<t>, head height is #<head_height>)
+		o<shcs-depth_4> endif
+	o<shcs-depth> endif
+
+o<shcs_size> endsub		

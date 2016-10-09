@@ -1,0 +1,65 @@
+o<poly_mill> sub
+(CALL data ptr[1], cut_start[2], cut_depth[3], compensation[4], show final cut[5], x[6], y[7], rot[8], tool eng pct[9])
+(Author : Fernand Veilleux)
+
+(validate params first)
+	o<poly_valid_1> if [#3 GT #2]
+		(debug,Polyline: Invalid cut_depth - EXITING)
+		(print,Polyline: Invalid cut_depth - EXITING)
+		(AXIS,notify,Polyline: Invalid cut_depth - EXITING)
+		M2
+	o<poly_valid_1> endif
+
+(set local params value)
+	#<pds>        = #1
+	#<cut_start>  = #2
+	#<cut_depth>  = #3
+	#<comp>       = #4
+	#<show_final> = #5
+	#<x>          = #6
+	#<y>          = #7
+	#<rot>        = #8
+	#<tool_eng>   = #9
+
+	(get and save current coords system offsets)
+	#<old_coord_system> = [#<_coord_system> / 10]
+	o<get_offsets> CALL
+	#<offset_x> = #<_offsets_x>
+	#<offset_y> = #<_offsets_y>
+	#<offset_z> = #<_offsets_z>
+	#<offset_r> = #<_offsets_r>
+
+	(change coords system)
+	G#<_off_rot_coord_system>
+
+	(apply to new offsets)
+	G10 L2 P#5220 X[#<offset_x> + #<x>] Y[#<offset_y> + #<y>] Z#<_offsets_z> R[#<_offsets_r> + #<rot>]
+	
+	o<set_feed_rate_and_speed> CALL [#<tool_eng>]
+	o<entry> CALL [#<pds>] [0] [#<comp>] [#<cut_start>] [-1]
+
+	o<wh_00> while [#<_depth_reached> NE 0]
+		o<set_next_cut_level> CALL [#<cut_depth>]
+		o<trace> CALL [#<pds>] [#<cut_depth>] [1]
+		o<if_04> if [[#<_depth_reached> NE 0] AND [#<_poly_closed> EQ 0]]
+			o<entry> CALL [#<pds>] [0] [#<comp>] [#<_cut_current_z>] [#<_depth_reached>]
+		o<if_04> endif
+	o<wh_00> endwhile
+
+	/o<if_01> if [#<_show_final_cuts> AND #<show_final>]
+		/o<if_02> if [#<_show_bottom_cut>]
+			/o<entry> CALL [#<pds>] [0] [40] [#<cut_depth>]
+			/o<trace> CALL [#<pds>] [#<cut_depth>]
+		/o<if_02> endif
+		/o<entry> CALL [#<pds>] [0] [40] [#<cut_start>]
+		/o<trace> CALL [#<pds>] [#<cut_start>]
+	/o<if_01> endif
+
+	G0 Z#<_z_clear>
+	G40
+
+	(restore coordinate system)
+	G#<old_coord_system>
+	G10 L2 P#5220 X#<offset_x> Y#<offset_y> Z#<offset_z> R#<offset_r>
+	
+o<poly_mill> endsub

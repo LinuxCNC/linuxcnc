@@ -1,0 +1,94 @@
+(Author : Fernand Veilleux)
+(find the intersections of line and arc)
+(used to find cx,cy for rounding where arc and line meet)
+(selects x,y that are closest to ref_x/ref_y)
+
+o<isect_line_arc> sub
+(CALL line x1[1], line y1[2] line x2[3], line y2[4], cx[5] cy[6] radius[7] ref_x[8] ref_y[9] debug[10] px[11] py[12])
+;(print,isect_line_arc #1 #2 #3 #4 #5 #6 #7 #8 #9 #10 #11)
+
+	o10 if [#10]
+		(print,)
+		(print,isect_line_arc : finding intersection of 1 arc/circle and a line,    tracking = #10)
+		(print,line : X#1, Y#2  to  X#3, Y#4)
+		(print,arc  : cx,cy = #4,#5   radius = #6)
+	o10 endif
+
+	#<dx> = [#3 - #1]
+	#<dy> = [#4 - #2]
+
+	#<A>  = [#<dx> * #<dx> + #<dy> * #<dy>]
+	#<B>  = [2 * [#<dx> * [#1 - #5] + #<dy> * [#2 - #6]]]
+	#<C>  = [[#1 - #5] * [#1 - #5] + [#2 - #6] * [#2 - #6] - [#7 * #7]]
+
+	#<det> = ABS[#<B> * #<B> - 4 * #<A> * #<C>]
+	o<isect_if> if [[#<A> LE 0.000001] OR [#<det> LE -0.000001]]
+		#<_isect_count> = 0
+		
+		o10 if [#10]
+			(print,)
+			(print,arc and line do not intersect)
+		o10 endif
+		
+	o<isect_if> else if [#<det> EQ 0] (tangent 90°)
+		#<_isect_count>      = 1
+		#<t> = [-#<B> / [2 * #<A>]]
+		#<_isect_x> = [#1 + #<t> * #<dx>]
+		#<_isect_y> = [#2 + #<t> * #<dy>]
+		
+		o<if01> if [[#11 GT 30] AND [#12 GT 30]]
+			#[#11] = #<_isect_x>
+			#[#12] = #<_isect_y>
+		o<if01> endif
+
+		o<debug01> if [#10]
+			(print,)
+			(print,1 intersection found at X#<_isect_x>, Y#<_isect_y>)
+		o<debug01> endif
+		
+	o<isect_if> else (they can meet at 2 places)
+		#<_isect_count> = 2
+		#<t>  = [[SQRT[#<det>] - #<B>] / [2 * #<A>]]
+		#<x1> = [#1 + #<t> * #<dx>]
+		#<y1> = [#2 + #<t> * #<dy>]
+		#<t>  = [[- SQRT[#<det>] - #<B>] / [2 * #<A>]]
+		#<x2> = [#1 + #<t> * #<dx>]
+		#<y2> = [#2 + #<t> * #<dy>]
+		
+		o<line> CALL [#<x1>] [#<y1>] [#<x2>] [#<y2>]
+		#<t>  = [#<_line_len> / 2]
+
+		o<debug03> if [#10]
+			(print,)
+			(print,2 intersections found at : X#<x1>, Y#<y1>  and  X#<x2>, Y#<y2>)
+		o<debug03> endif
+
+		o<line> CALL [#8] [#9] [#<x1>] [#<y1>] [#10]
+		#<len0> = #<_line_len>
+		o<line> CALL [#8] [#9] [#<x2>] [#<y2>] [#10]
+			
+		o<if000> if [#<len0> LE #<_line_len>]
+			#<_isect_x> = #<x1>
+			#<_isect_y> = #<y1>
+		o<if000> else
+			#<_isect_x> = #<x2>
+			#<_isect_y> = #<y2>
+		o<if000> endif
+			
+		o<debug02> if [#10]
+			o11 if [#<len0> GT #<_line_len>]
+				#16 = [#<len0> - #<_line_len>]
+			o11 else
+				#16 = [#<_line_len> - #<len0>]
+			o11 endif
+			(print,result : X#<_isect_x>, Y#<_isect_y> is closer to reference X#8, Y#9 by #16)
+		o<debug02> endif
+		
+		o<if02> if [[#11 GT 30] AND [#12 GT 30]]
+			#[#11] = #<_isect_x>
+			#[#12] = #<_isect_y>
+		o<if02> endif
+		
+	o<isect_if> endif
+
+o<isect_line_arc> endsub

@@ -1,0 +1,171 @@
+(info: circle of any kind)
+(author : Fernand Veilleux)
+o<circle> sub
+(CALL cx cy diam flat rotation option cut_dir cut_start cut_depth preview finalPass_dir finalCut)
+
+(validate params first)
+	o<valid01> if [#8 LT #9]
+		(debug,Circle: Invalid cut start or depth - EXITING)
+		(print,)
+		(print,Circle: Invalid cut start or depth - EXITING)
+		(AXIS,notify,Circle: Invalid cut start or depth - EXITING)
+		o<circle> return
+	o<valid01> endif
+	
+	o<valid02> if [#4 GE #3]
+		(debug,Circle: Invalid flat versus diameter and tool - EXITING)
+		(print,)
+		(print,Circle: Invalid flat versus diameter and tool - EXITING)
+		(AXIS,notify,Circle: Invalid flat versus diameter and tool - EXITING)
+		o<circle> return
+	o<valid02> endif
+
+(set local params value)
+	#<cx>           =  #1
+	#<cy>           =  #2
+	#<final_rad>    = [#3 / 2]
+	#<flat>         =  #4
+	#<rot>          =  #5 (flat angle rotation)
+	
+	o<tool_dia> if [#5410 EQ 0] (no tool loaded, will cut on the line)
+		#<cut_opt>  =   2
+	o<tool_dia> else
+		#<cut_opt>  =  #6 (Inside normal=0:Pocket=1:On the line=2:Outside=3)
+	o<tool_dia> endif
+
+	#<dir>          =  #7 (Clockwise=2:Counter-Clockwise=3)
+	#<cut_start>    =  #8
+	#<cut_depth>    =  #9
+	#<preview>      = #10
+	
+	o<cut_opt_00> if [#<cut_opt> EQ 2] (no finishing pass possible when on the line...)
+		#<fin_dir>  = 0
+	o<cut_opt_00> else
+		#<fin_dir>  = #11
+	o<cut_opt_00> endif
+	
+	o234 if [#<fin_dir> EQ 0] (...and no final cut size)
+		#41 = 0
+	o234 else
+		o<get_max> CALL [41] [2] [#12] [#<_stepover_min>]
+	o234 endif
+
+(change coords system to offset/rotate)
+	#<old_coord_system> = [#<_coord_system> / 10]
+	o<get_offsets> CALL
+	#<saved_offset_x> = #<_offsets_x>
+	#<saved_offset_y> = #<_offsets_y>
+	#<saved_offset_z> = #<_offsets_z>
+	#<saved_offset_r> = #<_offsets_r>
+
+	(calc new offsets and change coords system)
+	G#<_off_rot_coord_system>
+	o<rotate_xy> CALL [#<_offsets_x> + #<cx>] [#<_offsets_y> + #<cy>] [#<_offsets_x>] [#<_offsets_y>] [#<_offsets_r>]
+	G10 L2 P#5220 X#<_rotated_x> Y#<_rotated_y> Z#<_offsets_z> R[#<_offsets_r> + #<rot>]
+
+	o<set_spindle_rpm> CALL [#<_rpm_normal>]
+
+(roughing cut)
+	o<if_roughing> if [#<_tool_usage> LE 1]
+
+		o<roughing_0> if [#<cut_opt> EQ 3] (outside)
+			#<init_radius> = [#<final_rad> + #41]
+		o<roughing_0> elseif [#<cut_opt> EQ 2] (on the line)
+			#<init_radius> = #<final_rad>
+		o<roughing_0> else (inside or pocket)
+			#<init_radius> = [#<final_rad> - #41]
+		o<roughing_0> endif
+
+		o<if01> if [[#<cut_opt> EQ 1] AND [[#5410 * 0.98] GE [#<init_radius> - #<flat> / 2]]]
+			#<cut_opt> = 0  (cut inside normal)
+		o<if01> endif
+
+		o<if_pocket> if [#<cut_opt> EQ 1]
+			(calc additionnal data for pocket)
+			#<min_move>     = [#5410 * 1.1]
+			#<exp_cycles>   = FUP[[#<init_radius> - #<flat> / 2 - #5410 * 0.95] / [#5410 * #<_stepover_normal>]]
+			#<start_radius> = [#5410 * 0.85 + #<flat> / 2]
+			#<step_over>    = [[#<init_radius> - #<start_radius>] / #<exp_cycles>]
+			
+			#<t> = [#<step_over> / #5410 * 100]
+			(print,circle stepover = #<t> %)
+
+			(calculate data)
+			#<exp_cycle> = 0
+			#<data>      = #<_mill_data_start>
+
+			o<loop01> while [#<exp_cycle> LE #<exp_cycles>]
+				o<circle_create> CALL [#<data>] [#<start_radius> + #<step_over> * #<exp_cycle>] [#<flat>] [#<dir>]
+				#<exp_cycle> = [#<exp_cycle> + 1]
+				#<data>      = [#<data> + #[#<data>] * 8 + 1]
+			o<loop01> endwhile
+
+			#<_cut_current_z> = #<cut_start>
+			o<while_pocket> while [#<_cut_current_z> GT #<cut_depth>]
+				#<data>     = #<_mill_data_start>
+				o<set_feed_rate_and_speed> CALL [1.0]
+				o<entry> CALL [#<data>] [#<dir>] [#<cut_opt>] [#<_cut_current_z>] [-1]
+				o<set_next_cut_level> CALL [#<cut_depth>]
+				o<wh010p> while [#<_depth_reached> NE 0]
+					o<trace> CALL [#<data>] [#<_cut_loop_final_z>]; [1]
+				o<wh010p> endwhile
+
+;				o<set_feed_rate_and_speed> CALL [#<t> / 100]
+				o<entry> CALL [#<data>] [#<dir>] [#<cut_opt>] [#<_cut_current_z>] [-1]
+				#<exp_cycle> = 1
+				o<expand_loop> while [#<exp_cycle> LE #<exp_cycles>]
+					#<data>    = [#<data> + #[#<data>] * 8 + 1]
+
+					o<g123> CALL [#<_cut_current_x> + #<min_move>] [0] [#<dir>] [#<min_move> / 2]
+					#<enter_x> = #[#<data> + [#[#<data>] - 1] * 8 + 1]
+					o<g123> CALL [#<enter_x>] [0] [#<dir>] [[#<enter_x> - #<_cut_current_x>] / 2]
+
+					o<select> CALL [38] [FIX[#<exp_cycle> / #<exp_cycles>]] [0] [-2]
+					o<trace> CALL [#<data>] [#<_cut_loop_final_z>] [#38]
+					#<exp_cycle> = [#<exp_cycle> + 1]
+				o<expand_loop> endwhile
+			o<while_pocket> endwhile
+
+		o<if_pocket> else
+			o<circle_create> CALL [#<_mill_data_start>] [#<init_radius>] [#<flat>] [#<dir>]
+			o<set_feed_rate_and_speed> CALL [1]
+			o<entry> CALL [#<_mill_data_start>] [#<dir>] [#<cut_opt>] [#<cut_start>] [-1]
+
+			o<wh010> while [#<_depth_reached> NE 0]
+				o<set_next_cut_level> CALL [#<cut_depth>]
+				o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [1]
+			o<wh010> endwhile
+		o<if_pocket> endif
+
+	o<if_roughing> endif
+
+(finishing cut)
+	o<finishing_tool> if [#<fin_dir> AND [#<_tool_usage> NE 1]]
+		o<circle_create> CALL [#<_mill_data_start>] [#<final_rad>] [#<flat>] [#<fin_dir>]
+		o<set_feed_rate_and_speed> CALL [#41 * #5410]
+		o<entry> CALL [#<_mill_data_start>] [#<fin_dir>] [#<cut_opt>] [#<cut_start>] [-1]
+		o<wh01> while [#<_depth_reached> NE 0]
+			o<set_next_cut_level> CALL [#<cut_depth>]
+			o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [2]
+		o<wh01> endwhile
+	o<finishing_tool> endif
+
+(draw reference lines)
+	/o<preview> if [#<_show_final_cuts> AND #<preview>]
+		/o<circle_create> CALL [#<_mill_data_start>] [#<final_rad>] [#<flat>] [#<dir>]
+		/o<pv_b> if [#<_show_bottom_cut>]
+			/o<entry> CALL [#<_mill_data_start>] [#<dir>] [2] [#<cut_depth>]
+			/o<trace> CALL [#<_mill_data_start>] [#<cut_depth>]
+		/o<pv_b> endif
+		/o<entry> CALL [#<_mill_data_start>] [#<dir>] [2] [#<cut_start>]
+		/o<trace> CALL [#<_mill_data_start>] [#<cut_start>]
+	/o<preview> endif
+
+(exit)
+	G0 Z#<_z_clear>
+	G40
+
+(restore coordinate system)
+	G#<old_coord_system>
+	G10 L2 P#5220 X#<saved_offset_x> Y#<saved_offset_y> Z#<saved_offset_z> R#<saved_offset_r>
+o<circle> endsub

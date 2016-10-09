@@ -1,0 +1,188 @@
+(create a ellipse)
+(author : Fernand Veilleux)
+o<ellipse> sub
+(CALL [#cx] [#cy] [#xr] [#yr] [#rotation]  [#<rot_x>] [#<rot_y>] [#segments] [#cut_opt] [#dir] [cut_start] [cut_depth] [preview] [final_dir] [final_step_over])
+
+(validate params first)
+	o<valid02> if [#11 LT #12]
+		(debug,Ellipse: bad cut start or depth - EXITING)
+		(print,)
+		(print,Ellipse: bad cut start or depth - EXITING)
+		(AXIS,notify,Ellipse: bad cut start or depth - EXITING)
+		o<ellipse> return
+	o<valid02> endif
+
+(set local params value)
+	#<cx>           =  #1
+	#<cy>           =  #2
+	#<xr>           =  #3
+	#<yr>           =  #4
+	#<rotation>     =  #5
+	#<off_center_x> =  #6
+	#<off_center_y> =  #7
+	#<segments>     =  #8
+	
+	o<tool_dia> if [#5410 EQ 0] (no tool loaded, will cut on the line)
+		#<cut_opt> =  2
+	o<tool_dia> else
+		#<cut_opt> =  #9 (Inside normal=0:Pocket=1:On the line=2:Outside=3)
+	o<tool_dia> endif
+
+	#<dir>         = #10 (Clockwise=2:Counter-Clockwise=3)
+	#<cut_start>   = #11
+	#<cut_depth>   = #12
+	#<preview>     = #13
+
+	o<cut_opt_00> if [#<cut_opt> EQ 2] (no finishing pass possible when on the line...)
+		#<fin_dir> = 0
+	o<cut_opt_00> else
+		#<fin_dir> = #14
+	o<cut_opt_00> endif
+
+	o234 if [#<fin_dir> EQ 0] (...and no final cut size)
+		#41 = 0
+	o234 else
+		o<get_max> CALL [41] [2] [#15] [#5410 * #<_stepover_min> / 2]
+	o234 endif
+	
+(change coords system to offset/rotate)
+	#<old_coord_system> = [#<_coord_system> / 10]
+	o<get_offsets> CALL
+	#<saved_offset_x> = #<_offsets_x>
+	#<saved_offset_y> = #<_offsets_y>
+	#<saved_offset_z> = #<_offsets_z>
+	#<saved_offset_r> = #<_offsets_r>
+
+	(calc new offsets and change coords system)
+	o<rotate_xy> CALL [#<cx> + #<off_center_x>] [#<cy> + #<off_center_y>] [#<cx>] [#<cy>] [#<rotation>]
+	o<rotate_xy> CALL [#<_offsets_x> + #<_rotated_x>] [#<_offsets_y> + #<_rotated_y>] [#<_offsets_x>] [#<_offsets_y>] [#<_offsets_r>]
+	G#<_off_rot_coord_system>
+	G10 L2 P#5220 X[#<_rotated_x>] Y[#<_rotated_y>] Z#<_offsets_z> R[#<_offsets_r> + #<rotation>]
+
+	o<set_spindle_rpm> CALL [#<_rpm_normal>]
+	
+(roughing cut)
+	o<if_roughing> if [#<_tool_usage> LE 1]
+		(calculate data for roughing)
+			o<roughing_0> if [#<cut_opt> EQ 3] (outside)
+				#<x_rad> = [#<xr> + #41]
+				#<y_rad> = [#<yr> + #41]
+			o<roughing_0> elseif [#<cut_opt> EQ 2] (on the line)
+				#<x_rad> = #<xr>
+				#<y_rad> = #<yr>
+			o<roughing_0> else (inside or pocket)
+				#<x_rad> = [#<xr> - #41]
+				#<y_rad> = [#<yr> - #41]
+			o<roughing_0> endif
+			
+			o<if011> if [[#<cut_opt> EQ 1] AND [[[#5410 * 0.98] GE #<x_rad>] OR [[#5410 * 0.98] GE #<y_rad>]]]
+				#<cut_opt> = 0  (cut inside normal)
+			o<if011> endif
+
+		o<if_pocket> if [#<cut_opt> EQ 1] (pocket)
+			(calc additionnal data for pocket)
+			#<min_move> = [#5410 * 1.1]
+			#<step_over_min> = [#5410 * #<_stepover_min>]
+			#<start_radius> = [#5410 * 0.85]
+			o<get_max> CALL [38] [2] [#<x_rad>] [#<y_rad>]
+
+			#<exp_cycles>  = FUP[[#38 - #<start_radius>] / [#5410 * #<_stepover_normal>] / 1.7]
+			#<step_over>   = [[#38 - #<start_radius>] / #<exp_cycles>]
+			
+			#<t> = [#<step_over> / #5410 * 100]
+			(print,ellipse stepover = #<t> %)
+
+			(calc data and mill)
+			#<_cut_current_z> = #<cut_start>
+			
+			o<while_pocket> while [#<_cut_current_z> GT #<cut_depth>]
+				#<exp_cycle> = 0
+				o<loop01> while [#<exp_cycle> LE #<exp_cycles>]
+					o11 if [#<exp_cycle> EQ #<exp_cycles>]
+						#<x_r> = #<x_rad>
+						#<y_r> = #<y_rad>
+						o13 if [#<fin_dir> EQ 0]
+							#<l_seg> = #<segments>
+						o13 else
+							#<l_seg> = FIX[[#<segments> + 10] / 2]
+						o13 endif
+						#<exit_mode> = -3 (will force an arc to clear workpiece at the end of the loop)
+					o11 elseif [#<exp_cycle> EQ [#<exp_cycles> - 1]]
+						#<x_r> = [#<start_radius> + [#<x_rad> - #<start_radius>] * #<exp_cycle> / #<exp_cycles>]
+						#<y_r> = [#<start_radius> + [#<y_rad> - #<start_radius>] * #<exp_cycle> / #<exp_cycles>]
+						o14 if [#<fin_dir> EQ 0]
+							#<l_seg> = FIX[[#<segments> + 10] / 2]
+						o14 endif
+						#<exit_mode> = 0 (do NOT call exit : segments lines are too short to clear)
+					o11 else
+						#<x_r> = [#<start_radius> + [#<x_rad> - #<start_radius>] * #<exp_cycle> / #<exp_cycles>]
+						#<y_r> = [#<start_radius> + [#<y_rad> - #<start_radius>] * #<exp_cycle> / #<exp_cycles>]
+						#<l_seg> = 10
+						#<exit_mode> = 0 (do NOT call exit : segments lines are too short to clear)
+					o11 endif
+
+					o<ellipse_create> CALL [#<_mill_data_start>] [#<x_r>] [#<y_r>] [#<dir>] [#<l_seg>]
+					o12 if [#<exp_cycle> EQ 0]
+						o<set_feed_rate_and_speed> CALL [1.0]
+						o<entry> CALL [#<_mill_data_start>] [#<dir>] [#<cut_opt>] [#<_cut_current_z>] [-1]
+						o<set_next_cut_level> CALL [#<cut_depth>]
+					o12 else
+						o<g123> CALL [0] [#<_cut_current_y> + #<min_move>] [#<dir>] [0] [#<min_move> / 2] [0] [0] [0]; [1]
+						#<enter_y> = #[#<_mill_data_start> + [#[#<_mill_data_start>] - 1] * 8 + 2]
+						o<g123> CALL [0] [#<enter_y>] [#<dir>] [0] [[#<enter_y> - #<_cut_current_y>] / 2] [0] [0] [0]; [2]
+						o<set_feed_rate_and_speed> CALL [#<t> / 100]
+					o12 endif
+					
+					#<_depth_reached> = -1
+					o<wh010p> while [#<_depth_reached> NE 0]
+						o<trace> CALL [#<_mill_data_start>] [#<_cut_loop_final_z>] [#<exit_mode>]
+					o<wh010p> endwhile
+					#<exp_cycle> = [#<exp_cycle> + 1]
+					
+				o<loop01> endwhile
+			o<while_pocket> endwhile
+		
+		o<if_pocket> else
+			o<ellipse_create> CALL [#<_mill_data_start>] [#<x_rad>] [#<y_rad>] [#<dir>] [#<segments>]
+			o<set_feed_rate_and_speed> CALL [1]
+			o<entry> CALL [#<_mill_data_start>] [#<dir>] [#<cut_opt>] [#<cut_start>] [-1]
+
+			o<wh010> while [#<_depth_reached> NE 0]
+				o<set_next_cut_level> CALL [#<cut_depth>]
+				o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [0] (do NOT call exit : segments lines are too short to clear)
+			o<wh010> endwhile
+
+		o<if_pocket> endif
+	o<if_roughing> endif
+
+(finishing cut)
+	o<finishing_tool> if [#<fin_dir> AND [#<_tool_usage> NE 1]]
+		o<ellipse_create> CALL [#<_mill_data_start>] [#<xr>] [#<yr>] [#<fin_dir>] [#<segments>]
+		o<set_feed_rate_and_speed> CALL [#41 * #5410]
+		o<entry> CALL [#<_mill_data_start>] [#<fin_dir>] [#<cut_opt>] [#<cut_start>] [-3] ;?
+		o<wh01> while [#<_depth_reached> NE 0]
+			o<set_next_cut_level> CALL [#<cut_depth>]
+			o<trace> CALL [#<_mill_data_start>] [#<cut_depth>] [3] (will force an arc to clear workpiece when completed)
+		o<wh01> endwhile
+
+	o<finishing_tool> endif
+
+(draw reference lines)
+	/o<preview> if [#<_show_final_cuts> AND #<preview>]
+		/o<ellipse_create> CALL [#<_mill_data_start>] [#<xr>] [#<yr>] [#<dir>] [15]
+		/o<pv_b> if [#<_show_bottom_cut>]
+			/o<entry> CALL [#<_mill_data_start>] [#<dir>] [2] [#<cut_depth>]
+			/o<trace> CALL [#<_mill_data_start>] [#<cut_depth>]
+		/o<pv_b> endif
+		/o<entry> CALL [#<_mill_data_start>] [#<dir>] [2] [#<cut_start>]
+		/o<trace> CALL [#<_mill_data_start>] [#<cut_start>]
+	/o<preview> endif
+
+(exit)
+	G0 Z#<_z_clear>
+	G40
+
+(restore previous coordinate system)
+	G#<old_coord_system>
+	G10 L2 P#5220 X#<saved_offset_x> Y#<saved_offset_y> Z#<saved_offset_z> R#<saved_offset_r>
+o<ellipse> endsub

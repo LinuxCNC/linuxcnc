@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkActionGroup" id="actiongroup1">
+    <child>
+      <object class="GtkAction" id="actionSave">
+        <property name="label" translatable="yes">Save  project</property>
+        <property name="tooltip" translatable="yes">Save as xml file</property>
+        <property name="stock_id">gtk-save</property>
+        <signal name="activate" handler="menu_save_xml_activate" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionOpen">
+        <property name="label" translatable="yes">Open  project</property>
+        <property name="tooltip" translatable="yes">Open a saved xml file</property>
+        <property name="stock_id">gtk-open</property>
+        <signal name="activate" handler="menu_open_activate" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionNew">
+        <property name="label" translatable="yes">New project</property>
+        <property name="tooltip" translatable="yes">Create a new job</property>
+        <property name="stock_id">gtk-new</property>
+        <signal name="activate" handler="menu_new_activate" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionPaste">
+        <property name="label" translatable="yes">Paste</property>
+        <property name="tooltip" translatable="yes">Paste from clipboard</property>
+        <property name="stock_id">gtk-paste</property>
+        <signal name="activate" handler="edit_paste" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionCopy">
+        <property name="label" translatable="yes">Copy</property>
+        <property name="tooltip" translatable="yes">Copy selected subroutine to clipboard</property>
+        <property name="stock_id">gtk-copy</property>
+        <signal name="activate" handler="edit_copy" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionCut">
+        <property name="label" translatable="yes">Cut</property>
+        <property name="tooltip" translatable="yes">Cut selected subroutine to clipboard</property>
+        <property name="stock_id">gtk-cut</property>
+        <signal name="activate" handler="edit_cut" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionRemoveItem">
+        <property name="label" translatable="yes">Remove from items</property>
+        <property name="tooltip" translatable="yes">Remove from Group</property>
+        <property name="stock_id">gtk-unindent</property>
+        <signal name="activate" handler="remove_from_item_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Left" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionAppendItem">
+        <property name="label" translatable="yes">Add to items</property>
+        <property name="tooltip" translatable="yes">Add to Group</property>
+        <property name="stock_id">gtk-indent</property>
+        <signal name="activate" handler="add_to_item_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Right" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionMoveDn">
+        <property name="label" translatable="yes">Move down</property>
+        <property name="tooltip" translatable="yes">Move down one row</property>
+        <property name="stock_id">gtk-go-down</property>
+        <signal name="activate" handler="move_down_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Down" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionMoveUp">
+        <property name="label" translatable="yes">Move up</property>
+        <property name="tooltip" translatable="yes">Move up one row</property>
+        <property name="stock_id">gtk-go-up</property>
+        <signal name="activate" handler="move_up_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Up" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionRedo">
+        <property name="label" translatable="yes">Redo</property>
+        <property name="tooltip" translatable="yes">Cancel last Undo</property>
+        <property name="stock_id">gtk-redo</property>
+        <signal name="activate" handler="redo_clicked" swapped="no"/>
+      </object>
+      <accelerator key="z" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionUndo">
+        <property name="label" translatable="yes">Undo</property>
+        <property name="tooltip" translatable="yes">Undo last operation</property>
+        <property name="stock_id">gtk-undo</property>
+        <signal name="activate" handler="undo_clicked" swapped="no"/>
+      </object>
+      <accelerator key="z" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionDelete">
+        <property name="label" translatable="yes">Remove selected subroutine</property>
+        <property name="tooltip" translatable="yes">Remove selected subroutine</property>
+        <property name="stock_id">gtk-remove</property>
+        <signal name="activate" handler="delete_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Delete" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionDuplicate">
+        <property name="label" translatable="yes">Duplicate selected subroutine</property>
+        <property name="tooltip" translatable="yes">Duplicate selected subroutine</property>
+        <property name="stock_id">gtk-copy</property>
+        <signal name="activate" handler="duplicate_clicked" swapped="no"/>
+      </object>
+      <accelerator key="d" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionCollapse">
+        <property name="label" translatable="yes">Collapse all other nodes</property>
+        <property name="tooltip" translatable="yes">Collapse all other nodes</property>
+        <property name="stock_id">gtk-zoom-out</property>
+        <signal name="activate" handler="action_collapse" swapped="no"/>
+      </object>
+      <accelerator key="k" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="actionAdd">
+        <property name="label" translatable="yes">Add a subroutine</property>
+        <property name="stock_id">gtk-add</property>
+        <signal name="activate" handler="add_button_clicked" swapped="no"/>
+      </object>
+      <accelerator key="Insert" modifiers="GDK_CONTROL_MASK"/>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="adj_digits">
+    <property name="lower">1</property>
+    <property name="upper">6</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="col_width_adj">
+    <property name="lower">100</property>
+    <property name="upper">400</property>
+    <property name="value">200</property>
+    <property name="step_increment">10</property>
+    <property name="page_increment">50</property>
+    <signal name="value-changed" handler="col_width_adj_value_changed" swapped="no"/>
+  </object>
+  <object class="GtkAdjustment" id="timeout_adj">
+    <property name="lower">0.10000000000000001</property>
+    <property name="upper">10</property>
+    <property name="value">1</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">0.5</property>
+  </object>
+  <object class="GtkAdjustment" id="tv_w_adj">
+    <property name="lower">150</property>
+    <property name="upper">500</property>
+    <property name="value">250</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <signal name="value-changed" handler="tv_w_adj_value_changed" swapped="no"/>
+  </object>
+  <object class="GtkAdjustment" id="width_adj">
+    <property name="lower">200</property>
+    <property name="upper">1000</property>
+    <property name="value">425</property>
+    <property name="step_increment">10</property>
+    <property name="page_increment">50</property>
+    <signal name="value-changed" handler="on_scale_change_value" swapped="no"/>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Native-CAM</property>
+    <child>
+      <object class="GtkVBox" id="MainBox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkToolbar" id="toolbar1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="toolbar_style">icons</property>
+            <property name="icon_size_set">True</property>
+            <child>
+              <object class="GtkToolButton" id="quickSaveBtn">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Save current work</property>
+                <property name="label" translatable="yes">Save current work</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-save</property>
+                <signal name="clicked" handler="save_work" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_build">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Build</property>
+                <property name="use_underline">True</property>
+                <property name="icon_name">gnome-run</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separatortoolitem2">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_add">
+                <property name="related_action">actionAdd</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">toolbutton1</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_duplicate">
+                <property name="related_action">actionDuplicate</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Duplicate selected subroutine</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-copy</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_delete">
+                <property name="related_action">actionDelete</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Remove selected subroutine</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-remove</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="toolbutton8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_undo">
+                <property name="related_action">actionUndo</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Undo</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-undo</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_redo">
+                <property name="related_action">actionRedo</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Redo</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-redo</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="toolbutton9">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_move_up">
+                <property name="related_action">actionMoveUp</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Move Up</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-go-up</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_move_down">
+                <property name="related_action">actionMoveDn</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Move Down</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-go-down</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separatortoolitem1">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_add_to_item">
+                <property name="related_action">actionAppendItem</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Add to items</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-indent</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_remove_from_item">
+                <property name="related_action">actionRemoveItem</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Remove from items</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-unindent</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="separatortoolitem3">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="btn_collapse">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">toolbutton</property>
+                <property name="use_underline">True</property>
+                <property name="icon_name">gtk-zoom-out</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkVBox" id="vbox4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkHPaned" id="hpaned1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="position">200</property>
+                <property name="position_set">True</property>
+                <child>
+                  <object class="GtkVPaned" id="ncam_pane">
+                    <property name="width_request">180</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="position">100</property>
+                    <property name="position_set">True</property>
+                    <child>
+                      <object class="GtkFrame" id="frame1">
+                        <property name="width_request">150</property>
+                        <property name="height_request">150</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">out</property>
+                        <child>
+                          <object class="GtkScrolledWindow" id="feat_scrolledwindow">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">automatic</property>
+                            <property name="vscrollbar_policy">automatic</property>
+                            <property name="shadow_type">in</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label_item">
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame2">
+                        <property name="width_request">150</property>
+                        <property name="height_request">150</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">out</property>
+                        <child>
+                          <object class="GtkScrolledWindow" id="params_scroll">
+                            <property name="width_request">125</property>
+                            <property name="height_request">125</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">automatic</property>
+                            <property name="vscrollbar_policy">automatic</property>
+                            <property name="shadow_type">in</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label_item">
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">False</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="frame3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">out</property>
+                <child>
+                  <object class="GtkVBox" id="addVBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkToolbar" id="add_toolbar">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="icon_size">5</property>
+                        <property name="icon_size_set">True</property>
+                        <child>
+                          <object class="GtkToolButton" id="btnCancelAdd">
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Cancel add</property>
+                            <property name="label" translatable="yes">Cancel add</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-cancel</property>
+                            <signal name="clicked" handler="btn_cancel_add_clicked" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="add_ini_btn">
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Add cfg file</property>
+                            <property name="label" translatable="yes">Add cfg file</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-open</property>
+                            <signal name="clicked" handler="btn_cancel_add_clicked" swapped="no"/>
+                            <signal name="clicked" handler="menu_open_cfg_activate" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="add_import_btn">
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Import XML file</property>
+                            <property name="label" translatable="yes">Import XML file</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-revert-to-saved</property>
+                            <signal name="clicked" handler="btn_cancel_add_clicked" swapped="no"/>
+                            <signal name="clicked" handler="menu_import_activate" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="scrolledwindow1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkIconView" id="add_iconview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="columns">2</property>
+                            <property name="tooltip_column">5</property>
+                            <signal name="key-press-event" handler="on_add_iconview_key_press" swapped="no"/>
+                            <signal name="selection-changed" handler="catalog_activate" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+                <child type="label_item">
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="hint_label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">0</property>
+            <property name="xpad">5</property>
+            <property name="use_markup">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

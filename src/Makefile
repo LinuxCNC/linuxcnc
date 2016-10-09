@@ -429,9 +429,9 @@ TARGETS += ../bin/halshow
 	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/bin/halshow.tcl")>>$@
 	$(Q)chmod +x $@
 
-TARGETS +=../bin/features
-../bin/features: Makefile ../lib/python/gladevcp/features.py
-	$(Q)cp ../lib/python/gladevcp/features.py ../bin/features
+TARGETS +=../bin/ncam
+../bin/ncam: Makefile ../lib/python/gladevcp/ncam.py
+	$(Q)cp ../lib/python/gladevcp/ncam.py ../bin/ncam
 	$(Q)chmod +x $@
 
 # And make userspace depend on $(TARGETS)
@@ -574,13 +574,13 @@ install-dirs:
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
 		$(DESTDIR)$(datadir)/linuxcnc/hallib \
-		$(DESTDIR)$(datadir)/features/graphics \
-		$(DESTDIR)$(datadir)/features/catalogs \
-		$(DESTDIR)$(datadir)/features/xml \
-		$(DESTDIR)$(datadir)/features/scripts \
-		$(DESTDIR)$(datadir)/features/support \
-		$(DESTDIR)$(datadir)/features/cfg \
-		$(DESTDIR)$(datadir)/features/lib \
+		$(DESTDIR)$(datadir)/ncam/graphics \
+		$(DESTDIR)$(datadir)/ncam/catalogs \
+		$(DESTDIR)$(datadir)/ncam/xml \
+		$(DESTDIR)$(datadir)/ncam/scripts \
+		$(DESTDIR)$(datadir)/ncam/support \
+		$(DESTDIR)$(datadir)/ncam/cfg \
+		$(DESTDIR)$(datadir)/ncam/lib \
 
 
 install-kernel-indep: install-dirs
@@ -698,8 +698,8 @@ install-python: install-dirs
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
 
-	$(EXE) ../lib/python/gladevcp/features.py $(DESTDIR)$(bindir)/features
-	$(TREE) ../share/features/* $(DESTDIR)$(datadir)/features/
+	$(EXE) ../lib/python/gladevcp/ncam.py $(DESTDIR)$(bindir)/ncam
+	$(TREE) ../share/ncam/* $(DESTDIR)$(datadir)/ncam/
 endif
 
 install-kernel-dep:

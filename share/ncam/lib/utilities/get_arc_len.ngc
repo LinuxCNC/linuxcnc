@@ -1,0 +1,37 @@
+o<get_arc_len> sub
+(author : Fernand Veilleux)
+(CALL x1[1], y1[2], cx[3], cy[4], x2[5], y2[6] radius[7], dir[8], compensation[9])
+	
+	o<angle> CALL [#1] [#2] [#3] [#4] [#5] [#6]
+	
+	o<if03> if [#7 LE 0]
+		#7 = #<_angle_len21>
+	o<if03> endif
+	
+	o<if00> if [#8 EQ 2] (CW)
+		o<if01> if [#9 EQ 42]
+			#<radius> = [#7 - #5410 / 2]
+		o<if01> elseif [#9 EQ 41]
+			#<radius> = [#7 + #5410 / 2]
+		o<if01> else
+			#<radius> = #7
+		o<if01> endif
+		#<_arc_rotation> = [360 - #<_angle_phi>]
+	o<if00> else (CCW)
+		o<if02> if [#9 EQ 42]
+			#<radius> = [#7 + #5410 / 2]
+		o<if02> elseif [#9 EQ 41]
+			#<radius> = [#7 - #5410 / 2]
+		o<if02> else
+			#<radius> = #7
+		o<if02> endif
+		#<_arc_rotation> = #<_angle_phi>
+	o<if00> endif
+	
+	#<_arc_len> = ABS[#<radius> * 6.283185 * #<_arc_rotation> / 360]
+	o10 if [#<_arc_rotation> GE 180]
+		#<_arc_max_chord> = [2 * #<radius>]
+	o10 else
+		#<_arc_max_chord> = [2 * #<radius> * SIN[#<_arc_rotation> / 2]]
+	o10 endif
+o<get_arc_len> endsub

@@ -1,0 +1,8 @@
+o<set_feed_rate_and_speed> sub
+(author : Fernand Veilleux)
+(CALL engagement_ratio)
+	o<get_feed_rate_and_speed> CALL [#1]
+	
+	o<set_spindle_rpm> CALL [#<_selected_speed>]
+	F#<_selected_feed>
+o<set_feed_rate_and_speed> endsub

@@ -1,0 +1,87 @@
+(Author : Fernand Veilleux)
+(used to find cx,cy for rounding where 2 arcs meet and entry point for tool compensation)
+(o<isect_arcs> CALL cx1[1], cy1[2], radius1[3], cx2[4], cy2[5], radius2[6], ref_x[7], ref_y[8] debug[9] px[10] py[11])
+(will return closest x,y relative to ref_x, ref_y)
+
+o<isect_arcs> sub
+	o<line> CALL [#1] [#2] [#4] [#5]
+
+	o10 if [#9]
+		(print,)
+		(print,isect_arcs : finding intersection of 2 arcs/circles,    tracking = #9)
+		(print,arc 1 : cx,cy = #1,#2   radius = #3)
+		(print,arc 2 : cx,cy = #4,#5   radius = #6)
+	o10 endif
+
+	o<outside00> if [[#<_line_len> GT [#3 + #6]] OR [ABS[#3 - #6] GT #<_line_len>]]
+		#<_isect_count> = 0
+		
+		o<debug00> if [#9]
+			(print,)
+			(print,arcs/circles do not intersect)
+		o<debug00> endif
+		
+		o<isect_arcs> return
+		
+	o<outside00> elseif [#<_line_len> EQ [#3 + #6]] (just touching)
+		#<_isect_count> = 1
+		#<_isect_x> = [#1 + [#4 - #1] * #3 / [#3 + #6]]
+		#<_isect_y> = [#2 + [#5 - #2] * #3 / [#3 + #6]]
+		
+		o<debug01> if [#9]
+			(print,)
+			(print,1 intersection found at X#<_isect_x>, Y#<_isect_y>)
+		o<debug01> endif
+		
+		o<if01> if [[#10 GT 30] AND [#11 GT 30]]
+			#[#10] = #<_isect_x>
+			#[#11] = #<_isect_y>
+		o<if01> endif
+		
+	o<outside00> else
+		#<_isect_count> = 2
+		#<len_3>   = #<_line_len>
+		#<phi_3>   = #<_line_phi>
+
+		#<v1>      = [#3 * #3 + #<len_3> * #<len_3> - #6 * #6]
+		#<v2>      = [2 * #3 * #<len_3>]
+		#<angle_1> = ACOS[#<v1> / #<v2>]
+
+		o<rotate_xy> CALL [#1 + #3] [#2] [#1] [#2] [#<phi_3> - #<angle_1>] [0]
+		#<x1>   = #<_rotated_x>
+		#<y1>   = #<_rotated_y>
+		
+		o<line> CALL [#7] [#8] [#<_rotated_x>] [#<_rotated_y>]
+		#<len1> = #<_line_len>
+
+		o<rotate_xy> CALL [#1 + #3] [#2] [#1] [#2] [#<phi_3> + #<angle_1>] [0]
+		o<line> CALL [#7] [#8] [#<_rotated_x>] [#<_rotated_y>]
+		
+		o<debug03> if [#9]
+			(print,)
+			(print,2 intersections found at : X#<x1>, Y#<y1>  and  X#<_rotated_x>, Y#<_rotated_y>)
+		o<debug03> endif
+
+		o<if000> if [#<len1> LE #<_line_len>]
+			#<_isect_x> = #<x1>
+			#<_isect_y> = #<y1>
+		o<if000> else
+			#<_isect_x> = #<_rotated_x>
+			#<_isect_y> = #<_rotated_y>
+		o<if000> endif
+
+		o<if02> if [[#10 GT 30] AND [#11 GT 30]]
+			#[#10] = #<_isect_x>
+			#[#11] = #<_isect_y>
+		o<if02> endif
+		
+		o<debug02> if [#9]
+			o11 if [#<len1> GT #<_line_len>]
+				#16 = [#<len1> - #<_line_len>]
+			o11 else
+				#16 = [#<_line_len> - #<len1>]
+			o11 endif
+			(print,result : X#<_isect_x>, Y#<_isect_y> is closer to reference X#7, Y#8 by #16)
+		o<debug02> endif
+	o<outside00> endif
+o<isect_arcs> endsub

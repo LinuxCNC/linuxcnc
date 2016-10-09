@@ -1,0 +1,27 @@
+o<get_offsets> sub
+(authors : Nick Drobchenko, Fernand Veilleux)
+(get_offsets returns current offsets)
+	#<offset> = [#5220 * 20]
+	#<_offsets_r> = [#[5210 + #<offset>]] (There's no G92 offset for R)
+	o<get_offsets_if> if [#5210 EQ 1] (Add 92 offset) (In #[5201+#5220*20], 5201 because #5220 starts from 1)
+		#<_offsets_x> = [#[5201 + #<offset>] + #5211]
+		#<_offsets_y> = [#[5202 + #<offset>] + #5212]
+		#<_offsets_z> = [#[5203 + #<offset>] + #5213]
+		#<_offsets_a> = [#[5204 + #<offset>] + #5214]
+		#<_offsets_b> = [#[5205 + #<offset>] + #5215]
+		#<_offsets_c> = [#[5206 + #<offset>] + #5216]
+		#<_offsets_u> = [#[5207 + #<offset>] + #5217]
+		#<_offsets_v> = [#[5208 + #<offset>] + #5218]
+		#<_offsets_w> = [#[5209 + #<offset>] + #5219]
+	o<get_offsets_if> else
+		#<_offsets_x> = #[5201 + #<offset>]
+		#<_offsets_y> = #[5202 + #<offset>]
+		#<_offsets_z> = #[5203 + #<offset>]
+		#<_offsets_a> = #[5204 + #<offset>]
+		#<_offsets_b> = #[5205 + #<offset>]
+		#<_offsets_c> = #[5206 + #<offset>]
+		#<_offsets_u> = #[5207 + #<offset>]
+		#<_offsets_v> = #[5208 + #<offset>]
+		#<_offsets_w> = #[5209 + #<offset>]
+	o<get_offsets_if> endif
+o<get_offsets> endsub

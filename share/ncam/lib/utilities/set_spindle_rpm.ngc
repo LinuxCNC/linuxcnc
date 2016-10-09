@@ -1,0 +1,13 @@
+o<set_spindle_rpm> sub
+(author : Fernand Veilleux)
+	o<if00> if [#<_spindle_dir> GT 0]
+		o<if01> if [#1 GT #<_rpm>]
+			M#<_spindle_dir> S#1 M#<_cooling_mode>
+			G4 P#<_spindle_speed_up_delay>
+		o<if01> else
+			M#<_spindle_dir> S#1 M#<_cooling_mode>
+		o<if01> endif
+	o<if00> else
+		S#1
+	o<if00> endif
+o<set_spindle_rpm> endsub

@@ -1,0 +1,257 @@
+(will set compensation and bring cutter to x, y then z, ready to start cutting)
+(author : Fernand Veilleux)
+o<entry> sub
+(CALL with data ptr[1] dir[2] comp or opt[3] cut_start[4] _depth_reached[5])
+
+	#<ptr>               = [#1 + #[#1] * 8 - 7] ;[#1 + [#[#1] - 1] * 8 + 1] 
+	#<dir>               = #2 (2:cw, 3:ccw)
+	#<opt>               = #3 (Inside = 0, Pocket = 1, On the line = 2 or 40, Outside = 3, left = 41, right = 42)
+	#<_cut_current_z>    = #4 (this is cut_start)
+	#<_cut_loop_final_z> = #4
+	#<_depth_reached>    = #5
+
+	#<_cut_current_x>    = #[#<ptr>] (entry x)
+	#<_cut_current_y>    = #[#<ptr> + 1] (entry y)
+	#<_poly_closed>      = #[#<ptr> + 2] (last item dir 0 is not closed)
+	
+	#<to_x>              = #[#1 + 1]
+	#<to_y>              = #[#1 + 2]
+	#<to_dir>            = #[#1 + 3]
+	#<to_cx>             = #[#1 + 4]
+	#<to_cy>             = #[#1 + 5]
+
+	F#<_feed_normal>
+	o<comp0> if [#<_z> LT #<_z_clear>]
+		G0 Z#<_z_clear>
+	o<comp0> endif	
+	G40
+	
+	#<tool_radius> = [#5410 * 0.501]
+	
+	o16 if [#<opt> LE 1] (inside or pocket)
+		o17 if [#<dir> EQ 2]
+			#<opt> = 42
+		o17 else
+			#<opt> = 41
+		o17 endif
+		
+	o16 elseif [#<opt> EQ 2] (on the line)
+			#<opt> = 40
+			
+	o16 elseif [#<opt> EQ 3] (outside)
+		o18 if [#<dir> EQ 2]
+			#<opt> = 41
+		o18 else
+			#<opt> = 42
+		o18 endif
+		
+	o16 endif
+	
+	o<comp00> if [[#<opt> EQ 40] OR [#<tool_radius> EQ 0]] (no compensation)
+		G0 X#<_cut_current_x> Y#<_cut_current_y>
+
+	o<comp00> else
+		#<rot> = 0
+		o23 if [#<_poly_closed>]
+			#<from_dir> = #[#<ptr> + 2]
+			#<from_cx>  = #[#<ptr> + 3]
+			#<from_cy>  = #[#<ptr> + 4]
+			#<ptr>      =  [#<ptr> - 8]
+			#<from_x>   = #[#<ptr>]
+			#<from_y>   = #[#<ptr> + 1]
+		o23 else
+			o<line> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>]
+			o<rotate_xy> CALL [#<_cut_current_x> + 1] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_line_phi> + 180]
+			#<from_x>   = #<_rotated_x>
+			#<from_y>   = #<_rotated_y>
+			#<from_dir> = 1
+			#<from_cx>  = #<to_cx>
+			#<from_cy>  = #<to_cy>
+		o23 endif
+		
+		o12 if [#<to_dir> EQ 1]
+			o13 if [#<from_dir> EQ 1]
+				o<angle> CALL [#<from_x>] [#<from_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>] ;[-11]
+
+				o24 if [[[#<_angle_phi> GT 180] AND [#<opt> EQ 41]] OR [[#<_angle_phi> LT 180] AND [#<opt> EQ 42]]]
+					#<element1>       = [#<tool_radius> / [TAN[#<_angle_angle> / 2]]]
+					#<_cut_current_x> = [#<_cut_current_x> + #<element1> * #<_angle_cos23>]
+					#<_cut_current_y> = [#<_cut_current_y> + #<element1> * #<_angle_sin23>]
+				o24 endif
+			o13 else
+				o<angle> CALL [#<from_cx>] [#<from_cy>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_x>] [#<to_y>] ;[-13]
+
+				o14 if [#<from_dir> EQ 2]
+					o19 if [[#<opt> EQ 42] AND [[#<_angle_phi> LT 90] OR [#<_angle_phi> GT 270]]] (right compensation)
+						#<rot>   = -90
+						#<len>   = -#<tool_radius>
+						#<rot_e> = -90
+					o19 elseif [[#<opt> EQ 41] AND [#<_angle_phi> GT 90]] (41 left compensation)
+						#<rot>   = 90
+						#<len>   = #<tool_radius>
+						#<rot_e> = -90
+					o19 endif
+				o14 else (from_dir == 3)
+					o20 if [[#<opt> EQ 42] AND [#<_angle_phi> LT 270]] (right compensation)
+						#<rot>   = -90
+						#<len>   = #<tool_radius>
+						#<rot_e> = 90
+					o20 elseif [[#<opt> EQ 41] AND [[#<_angle_phi> LT 90] OR [#<_angle_phi> GT 270]]] (41 left compensation)
+						#<rot>   = 90
+						#<len>   = -#<tool_radius>
+						#<rot_e> = 90
+					o20 endif
+				o14 endif
+				
+				o27 if [#<rot>]
+					(Create a parallel line to first one)
+					o<rotate_xy> CALL [#<_cut_current_x> + #<tool_radius>] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi23> + #<rot>] [0] [50] [51]
+					o<rotate_xy> CALL [#<to_x> + #<tool_radius>] [#<to_y>] [#<to_x>] [#<to_y>] [#<_angle_phi23> + #<rot>] [0]
+
+					(find intersection with previous arc with radius adjusted to tool radius)
+					o<isect_line_arc> CALL [#50] [#51] [#<_rotated_x>] [#<_rotated_y>] [#<from_cx>] [#<from_cy>] [#<_angle_len21> + #<len>] [#50] [#51] [0] [54] [55]
+
+					(find matching position on the first line and this is the entry point)
+					o<rotate_xy> CALL [#54 + #<len>] [#55] [#54] [#55] [#<_angle_phi23> + #<rot_e>]
+					#<_cut_current_x> = #<_rotated_x>
+					#<_cut_current_y> = #<_rotated_y>
+				o27 endif
+			o13 endif
+			#<i> = [#<tool_radius> * #<_angle_cos23>]
+			#<j> = [#<tool_radius> * #<_angle_sin23>]
+
+		o12 else (to_dir == 2 or 3)
+			o28 if [#<from_dir> EQ 1]
+				o<angle> CALL [#<from_x>] [#<from_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] ;[121]
+
+				o31 if [#<to_dir> EQ 2]
+					o21 if [[#<opt> EQ 42] AND [[#<_angle_phi> LT 90] OR [#<_angle_phi> GT 270]]] (right compensation)
+						#<rot>   = 90
+						#<len>   = -#<tool_radius>
+					o21 elseif [[#<opt> EQ 41] AND [#<_angle_phi> GT 90]] (41 left compensation)
+						#<rot>   = -90
+						#<len>   = #<tool_radius>
+					o21 endif
+				o31 else (to_dir == 3)
+					o22 if [[#<opt> EQ 42] AND [[#<_angle_phi> GT 90] AND [#<_angle_phi> LT 270]]] (right compensation)
+						#<rot>   = 90
+						#<len>   = #<tool_radius>
+					o22 elseif [[#<opt> EQ 41] AND [[#<_angle_phi> LT 90] OR [#<_angle_phi> GT 270]]] (41 left compensation)
+						#<rot>   = -90
+						#<len>   = -#<tool_radius>
+					o22 endif
+				o31 endif
+
+				o32 if [#<rot>]
+					(Create a parallel line to first one)
+					o<rotate_xy> CALL [#<_cut_current_x> + #<tool_radius>] [#<_cut_current_y>] [#<_cut_current_x>] [#<_cut_current_y>] [#<_angle_phi21> + #<rot>] [0] [50] [51]
+					o<rotate_xy> CALL [#<from_x> + #<tool_radius>] [#<from_y>] [#<from_x>] [#<from_y>] [#<_angle_phi21> + #<rot>] ;[02]
+
+					(find intersection with previous arc with radius adjusted to tool radius)
+					o<isect_line_arc> CALL [#50] [#51] [#<_rotated_x>] [#<_rotated_y>] [#<to_cx>] [#<to_cy>] [#<_angle_len23> + #<len>] [#<_cut_current_x>] [#<_cut_current_y>] [0] [50] [51]
+
+					(find matching position on the arc and this is the real entry point)
+					o<line> CALL [#50] [#51] [#<to_cx>] [#<to_cy>] ;[04]
+					o<rotate_xy> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] [[#<_line_phi> - #<_angle_phi23>] / 1] ;[05]
+					#<_cut_current_x> = #<_rotated_x>
+					#<_cut_current_y> = #<_rotated_y>
+					#<i> = [#<tool_radius> * COS[#<_line_phi> + 90]]
+					#<j> = [#<tool_radius> * SIN[#<_line_phi> + 90]]
+
+				o32 else
+					#<i> = [#<tool_radius> * COS[#<_angle_phi23> + 90]]
+					#<j> = [#<tool_radius> * SIN[#<_angle_phi23> + 90]]
+					
+				o32 endif
+			
+			o28 else (from_dir == 2 or 3)
+				o<angle> CALL [#<from_cx>] [#<from_cy>] [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] ;[-1203]
+				
+				( ********** DO NOT USE ?.0 VALUES TO AVOID ERRORS WITH ACOS IN isect_arcs ********** )
+				#<len_to>   = 0
+				o34 if [#<to_dir> EQ 2]
+					o35 if [#<from_dir> EQ 2]
+						o36 if [[#<opt> EQ 42] AND [#<_angle_phi> GE 180.000001]] (right compensation)
+							#<len_to>   = -#<tool_radius>
+							#<len_from> = -#<tool_radius>
+						o36 elseif [[#<opt> EQ 41] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]](left compensation)
+							#<len_to>   =  #<tool_radius>
+							#<len_from> =  #<tool_radius>
+						o36 endif
+					o35 else (from_dir == 3)
+						o37 if [[#<opt> EQ 42] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]] (right compensation)
+							#<len_to>   = -#<tool_radius>
+							#<len_from> =  #<tool_radius>
+						o37 elseif [[#<opt> EQ 41] AND [#<_angle_phi> GE 180.000001]] (left compensation)
+							#<len_to>   =  #<tool_radius>
+							#<len_from> = -#<tool_radius>
+						o37 endif
+					o35 endif
+				o34 else (to_dir == 3)
+					o38 if [#<from_dir> EQ 2]
+						o39 if [[#<opt> EQ 42] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]] (right compensation)
+							#<len_to>   =  #<tool_radius>
+							#<len_from> = -#<tool_radius>
+						o39 elseif [[#<opt> EQ 41] AND [#<_angle_phi> GE 180.000001]] (left compensation)
+							#<len_to>   = -#<tool_radius>
+							#<len_from> =  #<tool_radius>
+							#<rot> = 0
+						o39 endif
+					o38 else (from_dir == 3)
+						o40 if [[#<opt> EQ 42] AND [#<_angle_phi> GE 180.000001]] (right compensation)
+							#<len_to>   =  #<tool_radius>
+							#<len_from> =  #<tool_radius>
+						o40 elseif [[#<opt> EQ 41] AND [[#<_angle_phi> GE 0.000001] AND [#<_angle_phi> LE 179.999999]]] (left compensation)
+							#<len_to>   = -#<tool_radius>
+							#<len_from> = -#<tool_radius>
+						o40 endif
+					o38 endif
+				o34 endif
+				
+				o41 if [#<len_to> NE 0]
+					o<isect_arcs> CALL [#<from_cx>] [#<from_cy>] [#<_angle_len21> + #<len_from>] [#<to_cx>] [#<to_cy>] [#<_angle_len23> + #<len_to>] [#<_cut_current_x>] [#<_cut_current_y>] [0] [50] [51]
+					o<line> CALL [#50] [#51] [#<to_cx>] [#<to_cy>] ;[4]
+					o<rotate_xy> CALL [#<_cut_current_x>] [#<_cut_current_y>] [#<to_cx>] [#<to_cy>] [#<_line_phi> - #<_angle_phi23> + #<rot>] ;[5]
+					#<_cut_current_x> = #<_rotated_x>
+					#<_cut_current_y> = #<_rotated_y>
+
+					#<i> = [#<tool_radius> * COS[#<_line_phi> + 90]]
+					#<j> = [#<tool_radius> * SIN[#<_line_phi> + 90]]
+
+				o41 else
+					#<i> = [#<tool_radius> * COS[#<_angle_phi23> + 90]]
+					#<j> = [#<tool_radius> * SIN[#<_angle_phi23> + 90]]
+				o41 endif
+				
+			o28 endif
+			
+			o42 if [#<to_dir> EQ 3]
+				#<i> = -#<i>
+				#<j> = -#<j>
+			o42 endif
+			
+		o12 endif
+		
+		(compute pre-entry points)
+		o26 if [#<opt> EQ 41]
+			#<px>  = [#<_cut_current_x> - #<i> - #<j>]
+			#<py>  = [#<_cut_current_y> + #<i> - #<j>]
+			#<entry_dir> = 3
+		o26 else
+			#<px>  = [#<_cut_current_x> - #<i> + #<j>]
+			#<py>  = [#<_cut_current_y> - #<i> - #<j>]
+			#<entry_dir> = 2
+		o26 endif
+		
+		G0 X#<px> Y#<py>  (preentry)
+		G#<opt>
+		G#<entry_dir> X#<_cut_current_x> Y#<_cut_current_y> I#<i> J#<j>
+
+	o<comp00> endif
+
+	G0 Z[#<_cut_current_z> + #<_rapid_z>]
+	G1 Z#<_cut_current_z> F#<_feed_vertical>
+
+	F#<_selected_feed>
+	
+o<entry> endsub

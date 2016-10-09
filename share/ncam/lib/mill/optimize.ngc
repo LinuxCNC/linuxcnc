@@ -1,0 +1,126 @@
+o<optimize> sub
+(author : Fernand Veilleux)
+(re-view all the control points of a figure and insert new points as needed)
+(CALL src[1] compensation,option[2] dir[3] stepover[4]) ; stepover is in unit not percent
+
+	o1 if [#5410 EQ 0]
+;		(print,)
+;		(print,can not optimize : no tool selected or tool diameter not defined)
+		o<optimize> return
+	o1 endif
+	
+	#<src>          = #1
+	
+	o16 if [#2 LE 1] (inside or pocket)
+		o17 if [#3 EQ 2]
+			#<comp> = 42
+		o17 else
+			#<comp> = 41
+		o17 endif
+
+	o16 elseif [#2 EQ 2] (on the line)
+			#<comp> = 40
+
+	o16 elseif [#2 EQ 3] (outside)
+		o18 if [#3 EQ 2]
+			#<comp> = 41
+		o18 else
+			#<comp> = 42
+		o18 endif
+	o16 endif
+
+	#<rec_count>    = #[#1]
+	#<dest>         = [#1 + #<rec_count> * 11] (work destination; 11 = length of record to optimize)
+
+	#<tool_radius> = [#5410 / 2]
+
+	#<rec_counter>  = 0 (loop counter)
+	#<opt_counter>  = 0 (optimized record counter)
+
+	#<ramp_down_len> = [#5410 / #<_ramp_down_ratio>] 
+	
+	o<get_min> CALL [42] [2] [#4] [#5410]
+;	#<step_ovr> = [#<_depth_step> / #<_ramp_down_ratio>]
+	#<sto_factor> = [#42 / #5410]
+	
+	
+;	(print,)
+;	(print,rec count = #<rec_count>)
+;	(print,ramp_down_len = #<ramp_down_len>  sto_factor = #<sto_factor>  step_ovr = #<step_ovr>  tool_rad = #<tool_radius>)
+
+	o10 while [0]; [#<src_counter> LE #<count>]
+		(optimizing)
+		o11 if [cur dir EQ 1]
+			o110 if [to_dir EQ 1]
+
+
+			o110 else (to_dir == 2 or 3)
+
+			o110 endif
+
+		o11 else (cur dir == 2 or 3)
+			o120 if [to_dir EQ 1]
+
+
+			o120 else (to_dir == 2 or 3)
+
+			o120 endif
+		o11 endif
+
+		(copy to dest)
+
+
+		(add to counter)
+		#<src_counter> = [#<src_counter> + 1]
+	o10 endwhile
+
+	#<count> = 0
+	(copy back to src)
+	o50 while [0];[#<count> LE #<opt_counter>]
+
+
+		#<count> = [#<count> + 1]
+	o50 endwhile
+
+	
+		
+;		o<loop00_1> if [#<s_dir> EQ 1] (a line...)
+;			o<loop00_11> if [#<next_dir> EQ 1]
+;				(print,   a line followed by a line)
+;				o<angle> CALL [#<from_x>] [#<from_y>] [#<to_x>] [#<to_y>] [#<next_x>] [#<next_y>] [1]
+;				#<temp> = [[#<tool_rad> - #42] / #<tool_rad>]
+;				(print,temp = #<temp>)
+;				#<tool_eng> = [[[COS[ASIN[#<temp>] + #<_angle_angle>] * #<tool_rad>] + #<tool_rad>]]
+;				(print,tool_eng = #<tool_eng>)
+;				#<temp> = [#<tool_eng> / #<tool_rad> / 2]
+;				(print,real engagement = #<temp>)
+;				o<if03> if [#<lines_len> LE #48] 
+;					o<if04> if [#48 LE #<_angle_len21>]
+				
+;			o<loop00_11> else
+;				(print,   a line followed by an arc)
+;				#<next_cx> = #[#<ori_pointer> + 11 + #<off_cx>]
+;				#<next_cy> = #[#<ori_pointer> + 11 + #<off_cy>]
+;				o<angle> CALL [#<from_x>] [#<from_y>] [#<to_x>] [#<to_y>] [#<next_cx>] [#<next_cy>] [1]
+;				#<L_1> = [SIN[#<_angle_angle>] * #<_angle_len23>]
+;				#<L_2> = [#<L_1> - #<tool_rad>]
+;				(print,L_1,L_2   #<L_1>, #<L_2>)
+;				#<angle_1> = [ACOS[#<L_2>] / [#<_angle_len23> - #<tool_rad>]]
+;				(print,angle_1 = #<angle_1>)
+
+;	l = L - rayon de l'outil
+;	angle 1 =  acos(l / (rayon arc - rayon outil))
+;					(print,step_ovr = #<step_ovr>)
+;					#<radius_1> = [#<_angle_len23> - #<step_ovr>]
+;					#<radius_2> = [#<_angle_len23> - #<tool_rad>]
+;					(print,radiuses 1,2 = #<radius_1>,  #<radius_2>)
+;					#<angle_2>  = ACOS[[#<radius_1> * #<radius_1> + #<radius_2> * #<radius_2> - #<tool_rad> * #<tool_rad>] / [2 * #<radius_1> * #<radius_2>]]
+;					(print,angle 2 = #<angle_2>)
+	
+;	angle C = acos(((rayon de arc - engagement)² + (rayon de l'arc - rayon outil)² − rayon outil²) / 2(rayon de arc - engagement)(rayon de l'arc - rayon outil))
+;	angle = angle C + angle B
+;					#<tool_eng> = [[#<L_1> - [COS[#<angle_1> + #<angle_2>] * #<radius_1>]] / [#<tool_rad> * 2]]
+;	engagement max = (L - ((cos(angle) * (rayon de arc - engagement))) / (tool radius * 2))
+			
+
+o<optimize> endsub

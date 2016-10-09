@@ -1,0 +1,23 @@
+o<poly_link_dir> sub
+(author : Fernand Veilleux)
+(CALL return to ptr[1], style[2] lines_rel[3] from[4] to[5] default[6])
+
+	o<if00> if [#2 EQ 1] (rounded)
+		o<if_rel11> if [[#3 GE #4] AND [#3 LE #5]]
+			#[#1] = #6
+		o<if_rel11> else
+			#[#1] = [6 / #6]
+		o<if_rel11> endif
+		
+	o<if00> elseif [#2 EQ 2] (chamfered)
+		#[#1] = 1
+		
+	o<if00> else (3 for inverted)
+		o<if_rel12> if [[#3 GE #4] AND [#3 LE #5]]
+			#[#1] = [6 / #6]
+		o<if_rel12> else
+			#[#1] = #6
+		o<if_rel12> endif
+	o<if00> endif
+	
+o<poly_link_dir> endsub

@@ -1,0 +1,47 @@
+o<drill_single> sub
+(CALL [x] [y] [start] [depth] [drill_diameter] [drill_point_len] [preview] [auto] [debug])
+	o<debug> if [#9]
+		(print,)
+		(print,enter "drill-single",  tracking = #9)
+		(print,  x = #1, y = #2, start= #3, depth = #4, mode = #<_drill_mode>)
+	o<debug> endif
+	
+	o<valid> if [#4 GT #3]
+		(debug,Drill: depth is higher than start - EXITING)
+		(print,)
+		(print,Drill: depth is higher than start - EXITING)
+		(AXIS,notify,Drill: depth is higher than start - EXITING)
+		o<drill_single> return
+	o<valid> endif
+	
+	o<comp0> if [#<_z> LT #<_z_clear>]
+		G0 Z#<_z_clear>
+	o<comp0> endif	
+
+	G0 X#1 Y#2
+	G0 Z[#3 + #<_rapid_z>]
+	o<auto> if [#8] (auto)
+		F#<_drill_feed>
+		o<100> if [#<_drill_mode> EQ 73]
+			G73 Z[#4 - #6] R[#3 + #<_drill_retract>] Q#<_drill_q>
+		o<100> elseif [#<_drill_mode> EQ 81]
+			G81 Z[#4 - #6] R[#3 + #<_drill_retract>]
+		o<100> elseif [#<_drill_mode> EQ 82]
+			G82 Z[#4 - #6] R[#3 + #<_drill_retract>] P#<_drill_dwell>
+		o<100> elseif [#<_drill_mode> EQ 83]
+			G83 Z[#4 - #6] R[#3 + #<_drill_retract>] Q#<_drill_q>
+		o<100> endif
+		G80
+	o<auto> else (pause for manual drilling)
+		M0
+	o<auto> endif	
+	/ o<preview> if [#<_show_final_cuts> AND #7]
+	/ 	G0 X[#1 + #5 / 2] Y#2 Z#3
+	/ 	G2 X[#1 + #5 / 2] Y#2 I[-#5 / 2]
+	/ 	o<preview1> if [#<_show_bottom_cut>]
+	/ 		G0 Z#4
+	/ 		G2 X[#1 + #5 / 2] Y#2 I[-#5 / 2]
+	/ 	o<preview1> endif
+	/ o<preview> endif
+	G0 Z#<_z_clear>
+o<drill_single> endsub

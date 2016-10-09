@@ -1,0 +1,51 @@
+o<angle> sub
+(author : Fernand Veilleux)
+(CALL x1, y1, x2, y2, x3, y3, debug)
+(for two vectors #2-#1 and #2-#3 having a common vertex #2)
+(angle relative from #1 to #3 CCW up to 360, angle is max 180°, bisector is absolute)
+
+	o01 if [#7]
+		(print,)
+		(print,"angle" call,  tracking = #7)
+		o02 if [#7 LT 0]
+			#8 = -#7
+		o02 endif		
+	o01 endif
+	
+	o<line> CALL [#3] [#4] [#1] [#2] [#8]
+		#<_angle_len21> = #<_line_len>
+		#<_angle_phi21> = #<_line_phi>
+		#<_angle_cos21> = #<_line_cos>
+		#<_angle_sin21> = #<_line_sin>
+		
+	o<line> CALL [#3] [#4] [#5] [#6] [#8]
+		#<_angle_len23> = #<_line_len>
+		#<_angle_phi23> = #<_line_phi>
+		#<_angle_cos23> = #<_line_cos>
+		#<_angle_sin23> = #<_line_sin>
+
+	o<line> CALL [#1] [#2] [#5] [#6] [#8]
+		#<_angle_len13> = #<_line_len>
+		#<_angle_phi13> = #<_line_phi>
+		#<_angle_cos13> = #<_line_cos>
+		#<_angle_sin13> = #<_line_sin>
+		
+	#<_angle_phi> = [[360 + #<_angle_phi23> - #<_angle_phi21>] MOD 360]
+	o<l03> if [#<_angle_phi> GT 180]
+		#<_angle_angle> = [360 - #<_angle_phi>]
+		#<_angle_bisector> = [[#<_angle_phi23> + [#<_angle_angle> / 2]] MOD 360]
+	o<l03> else
+		#<_angle_angle> = #<_angle_phi>
+		#<_angle_bisector> = [[#<_angle_phi21> + [#<_angle_angle> / 2]] MOD 360]
+	o<l03> endif
+
+	o<debug01> if [#7]
+		o10 if [#8]
+			(print,)
+		o10 endif
+		(print,summary :)
+		(print,  lines phi   = #<_angle_phi> deg)
+		(print,  angle       = #<_angle_angle>)
+		(print,  bisector at   #<_angle_bisector> deg)
+	o<debug01> endif
+o<angle> endsub

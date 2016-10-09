@@ -1,0 +1,15 @@
+o<set_next_cut_level> sub
+(author : Fernand Veilleux)
+(CALL cut_depth)
+	o<lvl_1> if [#<_cut_current_z> GT #1]
+		#<_cut_loop_final_z> = [#<_cut_current_z> + #<_depth_step>]
+		o<too_low> if [#<_cut_loop_final_z> LT #1]
+			#<_cut_loop_final_z> = #1
+		o<too_low> endif
+		o<plunge> if [#<_penetration_mode>] (plunge)
+			G1 Z#<_cut_loop_final_z> F#<_feed_vertical>
+			#<_cut_current_z> = #<_cut_loop_final_z>
+		o<plunge> endif
+	o<lvl_1> endif
+	
+o<set_next_cut_level> endsub

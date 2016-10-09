@@ -1,0 +1,31 @@
+o<polygon_create> sub
+(author : Fernand Veilleux)
+(calc all the points of a polygon around X0, Y0 either cw or ccw starting at X0, Y-#2)
+(#1 is data_start)
+(#2 is radius)
+(#3 is edges count)
+(#4 is dir)
+
+	#[#1]     =  0
+	#<radius> = #2
+	#<edges>  = #3
+	
+	#<entry_x> = [[COS[180 / #<edges>]] * #<radius>]
+	#<half_p>  = [180 / #<edges>] (half of point to point angle)
+	#<step_angle> = [360 / #<edges>]
+
+	o<if01> if [#4 EQ 2]
+		#<step_angle> = -#<step_angle>
+		#<half_p> = -#<half_p>
+	o<if01> endif
+
+	#<count> = 1
+	o<rg_polygon> while [#<count> LE #<edges>]
+		#15 = [#<step_angle> * #<count> - #<half_p> - 90]
+		o<add_mill_data> CALL [#1] [#<radius> * COS[#15]] [#<radius> * SIN[#15]] [1]
+		#15 = [#<step_angle> * #<count> - 90]
+		o<add_mill_data> CALL [#1] [#<entry_x> * COS[#15]] [#<entry_x> * SIN[#15]] [1]
+		#<count> = [#<count> + 1]
+	o<rg_polygon> endwhile
+	
+o<polygon_create> endsub

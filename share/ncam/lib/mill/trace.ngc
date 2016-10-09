@@ -1,0 +1,40 @@
+(from lib/essentials.ngc file)
+
+o<trace> sub
+(author : Fernand Veilleux)
+(#1 is where data starts)
+(#2 is full cut depth or partial for pocket expanding)
+(#3 is exit mode)
+(for data offsets, view add_mill_data.ngc)
+
+	#<pointer>   = [#1 + 1] (sequence pointer)
+	#<rec_count> = #[#1] (record count)
+
+	o<exit00> if [[#<_depth_reached> EQ -1] AND [#<_cut_current_z> LE #2]]
+		#<_depth_reached> = 0
+	o<exit00> endif
+
+	#<counter> = 0 (counter and debug)
+	o<loop01> while [#<counter> LT #<rec_count>]
+		#<counter> = [#<counter> + 1]
+		o<g123> CALL [#[#<pointer>]] [#[#<pointer> + 1]] [#[#<pointer> + 2]] [#[#<pointer> + 3] - #<_cut_current_x>] [#[#<pointer> + 4] - #<_cut_current_y>] [0] [0] [0] ;[#<counter>]
+		o<exit01> if [#3 GT 0]
+			o<if04> if [#<_depth_reached> EQ #<counter>]
+				#<_depth_reached> = 0
+				o<exit> CALL [#1] [#<counter> - 1] [#3]
+				o<trace> return
+				
+			o<if04> elseif [[#<_depth_reached> EQ -1] AND [#<_cut_current_z> LE #2]]
+				#<_depth_reached> = #<counter>
+				#3 = 0
+			o<if04> endif
+			
+		o<exit01> endif
+
+		#<pointer> = [#<pointer> + 8]
+	o<loop01> endwhile
+
+	o<if02> if [[#<_depth_reached> EQ 0.0] AND [#3 LT 0]]
+		o<exit> CALL [#1] [#<counter> - 1] [#3]
+	o<if02> endif
+o<trace> endsub
