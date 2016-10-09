@@ -352,7 +352,7 @@ endif
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES))
 ifeq ($(BUILD_PYTHON),yes)
-INCLUDE += -I$(INCLUDEPY)
+INCLUDE += $(PYTHON_CPPFLAGS)
 endif
 
 # trap build errors by making it possible to compare configure SHA vs build SHA

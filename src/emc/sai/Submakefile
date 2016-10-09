@@ -25,4 +25,4 @@ LIBREADLINE=-lreadline
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) $(PROFILE_LDFLAGS) \
-	-o $@ $^ $(ULFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(LIBREADLINE)
+	-o $@ $^ $(ULFLAGS) -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(LIBREADLINE)

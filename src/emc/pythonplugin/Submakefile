@@ -29,7 +29,7 @@ TARGETS += ../lib/libpyplugin.so.0
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
-	    -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+	    -lstdc++ -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS)
 
 
 ../include/%.h: ./emc/pythonplugin/%.h
