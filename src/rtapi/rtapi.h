@@ -824,6 +824,8 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
     const posix_spawn_file_actions_t *file_actions,
     const posix_spawnattr_t *attrp,
     char *const argv[], char *const envp[]);
+
+int rtapi_do_as_root(int (*fn)(void *), void *arg);
 #endif
 
 extern int rtapi_is_kernelspace(void);

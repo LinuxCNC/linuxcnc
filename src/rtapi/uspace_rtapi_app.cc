@@ -1211,3 +1211,8 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
     setreuid(euid, euid);
     return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }
+
+int rtapi_do_as_root(int (*fn)(void *), void *arg) {
+    WITH_ROOT;
+    return fn(arg);
+}
