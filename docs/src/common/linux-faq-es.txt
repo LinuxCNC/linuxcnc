@@ -1,4 +1,4 @@
-﻿= Linux FAQ
+= Linux FAQ
 
 [[cha:linux-faq]] (((Linux FAQ)))
 
