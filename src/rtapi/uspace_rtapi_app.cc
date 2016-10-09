@@ -52,7 +52,26 @@
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
 
-int WithRoot::level;
+std::atomic<int> WithRoot::level;
+static uid_t euid, ruid;
+
+WithRoot::WithRoot() {
+    if(!level++) {
+        if(seteuid(euid) < 0) {
+            perror("seteuid (root)");
+            exit(1);
+        }
+    }
+}
+
+WithRoot::~WithRoot() {
+    if(!--level) {
+        if(seteuid(ruid) < 0) {
+            perror("seteuid (user)");
+            exit(1);
+        }
+    }
+}
 
 namespace
 {
@@ -455,7 +474,12 @@ int main(int argc, char **argv) {
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
-    setfsuid(getuid());
+    ruid = getuid();
+    euid = geteuid();
+    if(seteuid(ruid) < 0) {
+        perror("setuid (user)");
+        exit(1);
+    } 
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
@@ -668,9 +692,7 @@ static int harden_rt()
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
-    }
-    setfsuid(getuid());
-    if(fd >= 0) {
+    } else {
         int r;
         r = write(fd, "\0\0\0\0", 4);
         if (r != 4) {

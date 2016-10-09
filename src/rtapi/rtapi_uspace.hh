@@ -20,12 +20,13 @@
 #include <sys/fsuid.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <atomic>
 
 struct WithRoot
 {
-    WithRoot() { if(!level) setfsuid(geteuid()); level++; }
-    ~WithRoot() { --level; if(!level) setfsuid(getuid()); }
-    static int level;
+    WithRoot();
+    ~WithRoot();
+    static std::atomic<int> level;
 };
 
 struct RtapiApp
