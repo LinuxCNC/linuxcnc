@@ -2,8 +2,9 @@
 
 = Basic HAL Reference
 
-[[sec:hal-commands]]
+This document provides a reference to the basics of HAL.
 
+[[sec:hal-commands]]
 == HAL Commands 
 
 More detailed information can be found in the man page for halcmd: run
