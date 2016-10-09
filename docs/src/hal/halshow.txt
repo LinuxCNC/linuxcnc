@@ -1,4 +1,4 @@
-[[cha:halshow]](((Halshow)))
+[[cha:halshow]]
 
 = Halshow
 

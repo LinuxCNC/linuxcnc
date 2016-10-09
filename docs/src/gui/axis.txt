@@ -1,4 +1,4 @@
-[[cha:axis-gui]](((GUI,Axis)))
+[[cha:axis-gui]]
 
 = AXIS GUI
 

@@ -3,7 +3,7 @@
 
 = Tours
 
-[[cha:Configuration-tour]] (((Configuration tour)))
+[[cha:Configuration-tour]]
 
 == Plan par défaut
 

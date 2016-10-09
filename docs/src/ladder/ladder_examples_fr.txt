@@ -1,6 +1,6 @@
 == Ladder Examples 
 
-[[cha:classicladder-examples]] (((Classicladder Examples)))
+[[cha:classicladder-examples]]
 
 === Wrapping Counter
 

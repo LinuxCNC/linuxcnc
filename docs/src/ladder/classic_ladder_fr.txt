@@ -1,6 +1,6 @@
 = Classicladder Programming
 
-[[cha:classicladder-programming]] (((Classicladder Programming)))
+[[cha:classicladder-programming]]
 
 == Ladder Concepts
 

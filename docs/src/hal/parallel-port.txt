@@ -1,4 +1,4 @@
-[[cha:parport]] (((Parallel Port Driver)))
+[[cha:parport]]
 
 = Parallel Port Driver
 

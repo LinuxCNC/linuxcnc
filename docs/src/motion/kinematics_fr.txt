@@ -3,7 +3,7 @@
 
 = La cinématique dans LinuxCNC
 
-[[cha:Cinematique]] (((Cinématique)))
+[[cha:Cinematique]]
 
 == Introduction
 

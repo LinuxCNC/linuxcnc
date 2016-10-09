@@ -1,4 +1,4 @@
-[[cha:linuxcnc-history]](((LinuxCNC History)))
+[[cha:linuxcnc-history]]
 
 = LinuxCNC History
 

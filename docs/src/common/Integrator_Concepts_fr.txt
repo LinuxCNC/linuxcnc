@@ -3,7 +3,7 @@
 
 = Concepts importants pour l'intégrateur
 
-[[cha:concepts-integrateur]] (((Concepts intégrateur)))
+[[cha:concepts-integrateur]]
 
 == Système pas à pas
 

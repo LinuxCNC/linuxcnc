@@ -3,7 +3,7 @@
 
 = Les fonctionnalités de Halshow
 
-[[cha:halshow]] (((Halshow)))
+[[cha:halshow]]
 
 == Le script Halshow
 

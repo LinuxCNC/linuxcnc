@@ -3,7 +3,7 @@
 
 = Les compensations d'outil
 
-[[cha:compensation-outil]] (((Compensation d'outil)))
+[[cha:compensation-outil]]
 
 == Compensation de longueur d'outil
 

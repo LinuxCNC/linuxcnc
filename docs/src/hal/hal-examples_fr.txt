@@ -3,7 +3,7 @@
 
 = Exemples pour HAL 
 
-[[Exemples-pour-HAL]] (((Exemples pour HAL)))
+[[Exemples-pour-HAL]]
 
 Tous ces exemples s'appuient sur une configuration créée par Stepconf, 
 elle a deux threads, _base-thread_ et _servo-thread_. 

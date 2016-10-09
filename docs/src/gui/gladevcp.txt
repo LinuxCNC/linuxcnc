@@ -1,4 +1,4 @@
-[[cha:glade-vcp]] (((Glade Virtual Control Panel)))
+[[cha:glade-vcp]]
 
 = Glade Virtual Control Panel
 

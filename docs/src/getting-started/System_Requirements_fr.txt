@@ -2,7 +2,7 @@
 
 = Quelle configuration est requise ?
 
-[[cha:Configuration-requise]] (((Configuration requise)))
+[[cha:Configuration-requise]]
 
 == Configuration minimale
 

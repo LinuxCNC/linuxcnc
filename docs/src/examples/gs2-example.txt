@@ -1,4 +1,4 @@
-[[cha:gs2-spindle]](((GS2 Spindle)))
+[[cha:gs2-spindle]]
 
 = GS2 Spindle
 

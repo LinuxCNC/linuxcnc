@@ -1,4 +1,4 @@
-[[cha:hal-introduction]] (((HAL Introduction)))
+[[cha:hal-introduction]]
 
 = HAL Introduction
 

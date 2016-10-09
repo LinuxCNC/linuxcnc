@@ -3,7 +3,7 @@
 
 = Contrôle de la broche
 
-[[cha:Controle-broche]] (((Contrôle de la broche)))
+[[cha:Controle-broche]]
 
 == Vitesse broche en 0-10V (((Vitesse broche en 0-10V)))
 

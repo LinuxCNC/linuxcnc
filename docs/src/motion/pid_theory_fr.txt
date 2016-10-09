@@ -3,7 +3,7 @@
 
 = Réglages d'une boucle PID
 
-[[cha:Regulation-PID]] (((Régulation à PID)))
+[[cha:Regulation-PID]]
 
 == Régulation à PID
 

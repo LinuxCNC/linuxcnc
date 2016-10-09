@@ -3,7 +3,7 @@
 
 = Particularités des tours
 
-[[cha:Tour-Specifiques]] (((Particularités des tours)))
+[[cha:Tour-Specifiques]]
 
 Ce chapitre va regrouper les informations spécifiques aux tours, il
 est encore en cours de rédaction.

@@ -1,4 +1,4 @@
-[[cha:classicladder-introduction]](((Classicladder Introduction)))
+[[cha:classicladder-introduction]]
 
 = Classicladder Introduction
 

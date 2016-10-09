@@ -1,6 +1,6 @@
-﻿= Linux FAQ
+= Linux FAQ
 
-[[cha:linux-faq]] (((Linux FAQ)))
+[[cha:linux-faq]]
 
 Estos son algunos comandos básicos y técnicas para nuevos usuarios de
 linux. Información más completa se puede encontrar en la web o mediante

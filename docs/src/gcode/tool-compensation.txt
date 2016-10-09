@@ -1,4 +1,4 @@
-[[cha:tool-compensation]] (((Tool Compensation)))
+[[cha:tool-compensation]]
 
 = Tool Compensation
 

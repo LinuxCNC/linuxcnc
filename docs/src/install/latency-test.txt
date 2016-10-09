@@ -1,4 +1,4 @@
-[[cha:latency-test]] (((Latency Test)))
+[[cha:latency-test]]
 
 = Latency Test
 

@@ -3,7 +3,7 @@
 
 = Configuration de LinuxCNC
 
-[[cha:ini-configuration]] (((INI Configuration)))
+[[cha:ini-configuration]]
 
 == Script de lancement
 

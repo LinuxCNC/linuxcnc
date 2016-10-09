@@ -1,4 +1,4 @@
-[[cha:hal-tutorial]] (((HAL Tutorial)))
+[[cha:hal-tutorial]]
 
 = HAL Tutorial
 

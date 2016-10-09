@@ -1,4 +1,4 @@
-[[cha:haltcl]] (((HALTCL Files)))
+[[cha:haltcl]]
 
 = HALTCL Files
 

@@ -1,4 +1,4 @@
-[[cha:hal-component-generator]] (((HAL Component Generator)))
+[[cha:hal-component-generator]]
 
 = The HAL Component Generator
 

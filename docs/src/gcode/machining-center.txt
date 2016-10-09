@@ -1,4 +1,4 @@
-[[cha:cnc-machine-overview]] (((CNC Machine Overview)))
+[[cha:cnc-machine-overview]]
 
 = CNC Machine Overview
 

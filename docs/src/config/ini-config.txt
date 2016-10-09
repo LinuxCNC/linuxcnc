@@ -1,4 +1,4 @@
-[[cha:ini-configuration]] (((INI Configuration)))
+[[cha:ini-configuration]]
 
 = INI Configuration
 

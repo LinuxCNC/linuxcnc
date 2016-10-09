@@ -3,7 +3,7 @@
 
 = Réglages des pas à pas
 
-[[cha:Reglages-de-pas-a-pas]] (((Réglages des pas à pas)))
+[[cha:Reglages-de-pas-a-pas]]
 
 == Obtenir le meilleur pilotage logiciel possible
 

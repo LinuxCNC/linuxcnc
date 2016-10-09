@@ -1,4 +1,4 @@
-[[cha:halui-examples]](((Halui Examples)))
+[[cha:halui-examples]]
 
 = Halui Examples
 

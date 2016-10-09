@@ -3,7 +3,7 @@
 
 = Concepts importants pour l'utilisateur
 
-[[cha:Concepts-pour-utilisateur]] (((Concepts pour l'utilisateur)))
+[[cha:Concepts-pour-utilisateur]]
 
 == La configuration machine
 

@@ -3,7 +3,7 @@
 
 = Tout le G-code de LinuxCNC
 
-[[cha:Le-G-code]] (((Le G-code)))
+[[cha:Le-G-code]]
 
 == Conventions d'écriture du G-code
 

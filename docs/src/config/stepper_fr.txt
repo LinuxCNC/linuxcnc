@@ -3,7 +3,7 @@
 
 = Configuration d'un système pas/direction (dir/step)
 
-[[cha:config-steppers]] (((Configuration pas/direction)))
+[[cha:config-steppers]]
 
 
 [[sec:Introduction]]

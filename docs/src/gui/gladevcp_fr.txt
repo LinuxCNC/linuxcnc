@@ -3,7 +3,7 @@
 
 = Création d'interfaces graphiques avec GladeVCP
 
-[[cha:GladeVCP]] (((GladeVCP)))
+[[cha:GladeVCP]]
 
 
 == Qu'est-ce que GladeVCP?

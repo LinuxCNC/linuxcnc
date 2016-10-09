@@ -3,7 +3,7 @@
 
 = Les composants de HAL
 
-[[cha:Composants-de-HAL]] (((Les composants de HAL)))
+[[cha:Composants-de-HAL]]
 
 == Composants de commandes et composants de l'espace utilisateur
 
