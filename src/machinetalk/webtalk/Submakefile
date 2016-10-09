@@ -74,7 +74,7 @@ $(call TOOBJSDEPS, $(EXAMPLE_PLUGIN_SRCS)) : EXTRAFLAGS += \
 ../lib/webtalk/plugins/example.o: $(call TOOBJS, $(EXAMPLE_PLUGIN_SRCS))
 	@mkdir -p $(dir $@)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ -shared
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^ -shared
 
 USERSRCS += $(EXAMPLE_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/example.o
@@ -113,7 +113,7 @@ $(call TOOBJSDEPS, $(ZWS_PLUGIN_SRCS)) : EXTRAFLAGS += \
 ../lib/webtalk/plugins/zws.o: $(call TOOBJS, $(ZWS_PLUGIN_SRCS))
 	@mkdir -p $(dir $@)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ -shared
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^ -shared
 
 USERSRCS += $(ZWS_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/zws.o
@@ -130,7 +130,7 @@ $(call TOOBJSDEPS, $(PBZWS_PLUGIN_SRCS)) : EXTRAFLAGS += \
 ../lib/webtalk/plugins/pbzws.o: $(call TOOBJS, $(PBZWS_PLUGIN_SRCS))
 	@mkdir -p $(dir $@)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ -shared
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^ -shared
 
 USERSRCS += $(PBZWS_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/pbzws.o

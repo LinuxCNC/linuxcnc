@@ -160,9 +160,9 @@ OBJDIR := objects/$(RTDIR_EXT)
 DEPDIR := depends/$(RTDIR_EXT)
 RTLIBDIR := ../rtlib/$(RTDIR_EXT)
 
-DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
+DEP = $(1) $(CPPFLAGS) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
 
-cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+cc-option = $(shell if $(CC) $(CPPFLAGS) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(KERNELRELEASE),)
@@ -380,9 +380,9 @@ CXXFLAGS := $(INCLUDE) $(CXXFLAGS) \
 	 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
 
 ifeq ($(RUN_IN_PLACE),yes)
-LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
+LDFLAGS += -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
-LDFLAGS := -Wl,-rpath-link,../lib
+LDFLAGS += -Wl,-rpath-link,../lib
 endif
 LDFLAGS += -Wl,--no-as-needed
 
@@ -391,7 +391,7 @@ $(sort $(CUSEROBJS)) : objects/%.o: %.c
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
-	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) \
+	$(Q)$(CC) -c $(CPPFLAGS) $(CFLAGS) $(EXTRAFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
@@ -408,7 +408,7 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
-	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) \
+	$(Q)$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(EXTRAFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
@@ -1615,14 +1615,14 @@ $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c
 	$(ECHO) Depending $<
 	$(Q)$(call DEP,$(CC),$@ \
 		$(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) \
-		$(DEBUG) $(EXTRA_CFLAGS) $<)
+		$(DEBUG) $(CPPFLAGS) $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(CPPFLAGS) $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
 
 endif # end BUILD_SYS=user-dso
 

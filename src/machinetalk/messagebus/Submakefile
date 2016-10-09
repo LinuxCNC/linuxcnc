@@ -22,7 +22,7 @@ $(call TOOBJSDEPS, $(MESSAGEBUS_SRCS)) : EXTRAFLAGS += $(MESSAGEBUS_CXX_CFLAGS)
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmachinetalk-npb.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(MESSAGEBUS_CXX_LDFLAGS)
 
 USERSRCS += $(MESSAGEBUS_SRCS)
