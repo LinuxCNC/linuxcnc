@@ -1086,4 +1086,9 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
     return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }
 
+int rtapi_do_as_root(int (*fn)(void *), void *arg) {
+    WITH_ROOT;
+    return fn(arg);
+}
+
 #include "rtapi/uspace_common.h"
