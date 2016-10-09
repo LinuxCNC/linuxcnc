@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: John Morris <john@dovetail-automata.com>
 Build-Depends: debhelper (>= 6),
     autoconf (>= 2.63), automake, libboost-python-dev, libgl1-mesa-dev,
-    libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0),
+    libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0), libudev-dev,
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
     libxmu-headers, python (>= 2.6.6-3~), python-dev (>= 2.6.6-3~),
     cython (>= 0.19), dh-python,
