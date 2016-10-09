@@ -105,10 +105,6 @@ AC_CANONICAL_BUILD  # $build, build_cpu, build_vendor, and build_os
 # locate pkg-config, including cross-compiler variations
 if test "$cross_compiling" = yes; then
    AC_CHECK_TOOL(PKG_CONFIG, pkg-config)
-   # Find .pc files in non-arch-specific locations when
-   # cross-compiling; this is a workaround until Debian Multi-Arch:
-   # support is more complete
-   export PKG_CONFIG_PATH=/usr/lib/pkgconfig
 else
    # The multi-arch version can choke on non-multi-arch packages, since it
    # (intentionally) doesn't look in `/usr/lib/pkgconfig`.
