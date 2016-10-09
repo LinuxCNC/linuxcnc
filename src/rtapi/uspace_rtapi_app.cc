@@ -61,21 +61,35 @@
 std::atomic<int> WithRoot::level;
 static uid_t euid, ruid;
 
+static void priv_info(const char *m) {
+#ifdef RTAPI_DEBUG_PRIV
+    uid_t r, e, s;
+    if(getresuid(&r, &e, &s) < 0)
+        printf("%s: %s\n", m, strerror(errno));
+    else
+        printf("%s: ruid=%d euid=%d suid=%d\n", m, (int)r, (int)e, (int)s);
+#endif
+}
+
 WithRoot::WithRoot() {
     if(!level++) {
+        priv_info("before  WithRoot");
         if(seteuid(euid) < 0) {
             perror("seteuid (root)");
             exit(1);
         }
+        priv_info("after   WithRoot");
     }
 }
 
 WithRoot::~WithRoot() {
     if(!--level) {
+        priv_info("before ~WithRoot");
         if(seteuid(ruid) < 0) {
             perror("seteuid (user)");
             exit(1);
         }
+        priv_info("after  ~WithRoot");
     }
 }
 
@@ -1199,6 +1213,7 @@ int rtapi_spawn_as_root(pid_t *pid, const char *path,
 {
     WITH_ROOT;
     setreuid(euid, euid);
+    priv_info("before posix_spawn");
     return posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
 
@@ -1209,6 +1224,7 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
 {
     WITH_ROOT;
     setreuid(euid, euid);
+    priv_info("before posix_spawnp");
     return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }
 
