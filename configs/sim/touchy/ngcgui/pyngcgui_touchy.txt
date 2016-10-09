@@ -1,4 +1,4 @@
-pyngcgui_touchy
+pyngcgui_touchy.ini
 
 Demonstrate gladevcp apps:
    pyngcgui     -- subroutine app
