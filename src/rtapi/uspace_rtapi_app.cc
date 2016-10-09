@@ -1066,6 +1066,24 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
     return App().run_threads(fd, callback);
 }
 
+int rtapi_spawn_as_root(pid_t *pid, const char *path,
+    const posix_spawn_file_actions_t *file_actions,
+    const posix_spawnattr_t *attrp,
+    char *const argv[], char *const envp[])
+{
+    WITH_ROOT;
+    setreuid(euid, euid);
+    return posix_spawn(pid, path, file_actions, attrp, argv, envp);
+}
 
+int rtapi_spawnp_as_root(pid_t *pid, const char *path,
+    const posix_spawn_file_actions_t *file_actions,
+    const posix_spawnattr_t *attrp,
+    char *const argv[], char *const envp[])
+{
+    WITH_ROOT;
+    setreuid(euid, euid);
+    return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
+}
 
 #include "rtapi/uspace_common.h"
