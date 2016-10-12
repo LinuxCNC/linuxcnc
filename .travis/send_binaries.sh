@@ -5,7 +5,7 @@
 # After a successful package build, upload build result to an SFTP
 # server if available
 
-if [ "${CMD}" = "run_tests" ]; then
+if [ "${CMD}" != "deb" ]; then
     echo "Skipping package upload for command '${CMD}'" >&2
     exit 0
 elif [ "${TRAVIS_TEST_RESULT}" -ne 0 ]; then
