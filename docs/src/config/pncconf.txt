@@ -36,7 +36,7 @@ TIP: PNCconf's help page should have the most up to date info and has additional
 
 .PnCConf Splash
 
-image::images/pncconf-splash.png[]
+image::images/pncconf-splash.png[alt="PnCConf Configuration Wizard"]
 
 == Create or Edit
 
@@ -58,7 +58,7 @@ Selector 'LinuxCNC' found in CNC menu and selecting your config name.
 
 .PnCConf Basic
 
-image::images/pncconf-basic.png[]
+image::images/pncconf-basic.png[alt="PnCConf Basic machine information"]
 
 Machine Basics::
 If you use a name with spaces PNCconf will replace the spaces with underscore 
@@ -195,7 +195,7 @@ overrides.
 
 .GUI External
 
-image::images/pncconf-external.png[]
+image::images/pncconf-external.png[alt="GUI External"]
 
 If you select a Joystick for jogging, You will need it always connected for LinuxCNC 
 to load. To use the analog sticks for useful jogging you probably need to add 
@@ -246,7 +246,7 @@ Here you can set defaults for the display screens, add virtual control panels
 
 .GUI Configuration
 
-image::images/pncconf-gui.png[]
+image::images/pncconf-gui.png[alt="GUI Configuration"]
 
 Front-end GUI Options::
 
@@ -365,7 +365,7 @@ and select what and how many components are available.
 
 .Mesa Configuration
 
-image::images/pncconf-mesa-config.png[]
+image::images/pncconf-mesa-config.png[alt="Mesa Configuration"]
 
 Parport address is used only with Mesa parport card, the 7i43. An on board 
 parallel port usually uses 0x278 or 0x378 though you should be able to find the 
@@ -422,7 +422,7 @@ PNCconf allows one to create custom signal names for use in custom HAL files.
 
 .Mesa I/O C2
 
-image::images/pncconf-mesa-io2.png[]
+image::images/pncconf-mesa-io2.png[alt="Mesa I/O C2"]
 
 On this tab with this firmware the components are setup for a 7i33 daughter 
 board, usually used with closed loop servos. Note the component numbers of the 
@@ -431,7 +431,7 @@ daughter board requirements.
 
 .Mesa I/O C3
 
-image::images/pncconf-mesa-io3.png[]
+image::images/pncconf-mesa-io3.png[alt="Mesa I/O C3"]
 
 On this tab all the pins are GPIO. Note the 3 digit numbers - they will match 
 the HAL pin number. GPIO pins can be selected as input or output and can be 
@@ -439,7 +439,7 @@ inverted.
 
 .Mesa I/O C4
 
-image::images/pncconf-mesa-io4.png[]
+image::images/pncconf-mesa-io4.png[alt="Mesa I/O C4"]
 
 On this tab there are a mix of step generators and GPIO.
 Step generators output and direction pins can be inverted. Note that inverting a
@@ -448,7 +448,7 @@ what your controller expects.
 
 == Parport configuration
 
-image::images/pncconf-parport.png[]
+image::images/pncconf-parport.png[alt="Parport configuration"]
 
 The parallel port can be used for simple I/O similar to Mesa's GPIO pins.
 
@@ -456,7 +456,7 @@ The parallel port can be used for simple I/O similar to Mesa's GPIO pins.
 
 .Axis Drive Configuration
 
-image::images/pncconf-axis-drive.png[]
+image::images/pncconf-axis-drive.png[alt="Axis Drive Configuration"]
 
 This page allows configuring and testing of the motor and/or encoder combination
 . If using a servo motor an open loop test is available, if using a stepper a 
@@ -563,7 +563,7 @@ more help.
 
 .Axis Scale Calculation
 
-image::images/pncconf-scale-calc.png[]
+image::images/pncconf-scale-calc.png[alt="Axis Scale Calculation"]
 
 The scale settings can be directly entered or one can use the 'calculate scale' 
 button to assist. Use the check boxes to select appropriate calculations. Note 
@@ -574,7 +574,7 @@ scale press apply otherwise push cancel and enter the scale directly.
 
 .Axis Configuration
 
-image::images/pncconf-axis-config.png[]
+image::images/pncconf-axis-config.png[alt="Axis Configuration"]
 
 Also refer to the diagram tab for two examples of
 home and limit switches. These are two examples of
@@ -757,7 +757,7 @@ Use Backlash Compensation::
 
 .AXIS Help Diagram
 
-image::images/pncconf-diagram-lathe.png[]
+image::images/pncconf-diagram-lathe.png[alt="AXIS Help Diagram"]
 
 The diagrams should help to demonstrate an example of limit switches and 
 standard axis movement directions.
@@ -781,7 +781,7 @@ selected on previous pages!
 
 .Spindle Configuration
 
-image::images/pncconf-spindle-config.png[]
+image::images/pncconf-spindle-config.png[alt="Spindle Configuration"]
 
 This page is similar to the axis motor configuration page.
 
@@ -831,7 +831,7 @@ classicladder for serial modbus. See the
   
 .Advanced Options
 
-image::images/pncconf-advanced.png[]
+image::images/pncconf-advanced.png[alt="Advanced Options"]
 
 == HAL Components
 
@@ -842,7 +842,7 @@ allowing user needed components.
 
 .HAL Components
 
-image::images/pncconf-hal.png[]
+image::images/pncconf-hal.png[alt="HAL Components"]
 
 The first selection is components that pncconf uses internally.
 You may configure pncconf to load extra instances of the components for your 
