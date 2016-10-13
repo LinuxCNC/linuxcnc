@@ -160,10 +160,16 @@ OBJDIR := objects/$(RTDIR_EXT)
 DEPDIR := depends/$(RTDIR_EXT)
 RTLIBDIR := ../rtlib/$(RTDIR_EXT)
 
-DEP = $(1) $(CPPFLAGS) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
+DEP = $(1) $(CPPFLAGS) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && \
+	mv -f "$(3)".tmp "$(3)"
 
-cc-option = $(shell if $(CC) $(CPPFLAGS) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+cc-option = $(shell \
+    if $(CC) $(CPPFLAGS) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+	    > /dev/null 2>&1; then \
+	echo "$(1)"; \
+    else \
+	echo "$(2)"; \
+    fi ;)
 
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
