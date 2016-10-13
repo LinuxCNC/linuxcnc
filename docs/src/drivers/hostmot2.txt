@@ -249,7 +249,7 @@ configuration used above.
 
 .5i20 HAL Pins[[cap:5i20-HAL-Pins]]
 
-image::images/5i20-halpins.png[]
+image::images/5i20-halpins.png[alt="5i20 HAL Pins"]
 
 == Configurations
 
