@@ -105,7 +105,7 @@ Que signifie _boucle fermée_ ? Regardons un schéma simplifié et
 la façon dont un système de servomoteur fonctionne.
 
 .Boucle fermée
-image::images/servo-feedback_fr.png[]
+image::images/servo-feedback_fr.png[alt="Boucle fermée"]
 
 Ce diagramme montre que le signal de consigne (de commande) et le signal 
 de retour pilotent l'amplificateur sommateur, ensuite celui-ci pilote 
@@ -142,7 +142,7 @@ voulons contrôler est l'actuelle position de l'axe et le point de
 consigne qui est la position commandée l'axe.
 
 .Boucle PID
-image::images/pid-feedback_fr.png[]
+image::images/pid-feedback_fr.png[alt="Boucle PID"]
 
 En ajustant trois composantes (proportionnelle, intégrale et dérivée) 
 dans l'algorithme du contrôleur PID, nous pouvons concevoir 
