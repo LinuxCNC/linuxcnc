@@ -1750,7 +1750,7 @@ The G98 to the second line above means that the return move will be to
 the value of Z in the first line since it is higher that the R value
 specified.
 
-image::images/eight.png[align="center", alt="Twelve Holes in a Square"]
+image::images/eight.png[align="center"]
 
 
 .Twelve Holes in a Square
@@ -1774,7 +1774,7 @@ N1090 Z0
 N1100 M2 (program end)
 ----
 
-image::images/twelve.png[align="center", alt="Here we produce 12 holes using five lines of code in the canned motion mode"]
+image::images/twelve.png[align="center"]
 
 The second reason to use a canned cycle is that they all produce
 preliminary moves and returns that you can anticipate and control
@@ -1904,7 +1904,7 @@ The following moves take place:
 
 . a rapid move parallel to the Z-axis to (Z3)
 
-image::images/G81ex1.png[align="center", alt="Example 2 - Relative Position G81"]
+image::images/G81ex1.png[align="center"]
 
 .Example 2 - Relative Position G81
 
@@ -1952,7 +1952,7 @@ The third repeat consists of 3 moves. The X position is reset to
 
 . a rapid move parallel to the Z-axis to (X13, Y17, Z4.8)
 
-image::images/G81ex2.png[align="center", alt="Example 3 - Relative Position G81"]
+image::images/G81ex2.png[align="center"]
 
 .Example 3 - Relative Position G81
 
@@ -1968,7 +1968,7 @@ nothing for the motion but since the initial value of Z is less than
 the value specified in R, there will be an initial Z move during the
 preliminary moves.
 
-image::images/G81.png[align="center", alt="Example 4 - Absolute G81 R > Z"]
+image::images/G81.png[align="center"]
 
 .Example 4 - Absolute G81 R > Z
 
@@ -1983,7 +1983,7 @@ initial Z0 and R1.8 and rapid moves to that location. After that initial Z
 move, the repeat feature works the same as it did in example 3 with the
 final Z depth being 0.6 below the R value.
 
-image::images/G81a.png[align="center", alt="Example 5 - Relative position R > Z"]
+image::images/G81a.png[align="center"]
 
 .Example 5 - Relative position R > Z
 
