@@ -89,7 +89,7 @@ or Ubuntu Lucid.
 | Ubuntu Lucid   | `deb http://linuxcnc.org lucid base 2.7-rtai`
 |====
 
-image::images/upgrading-to-2.7.png[align="left"]
+image::images/upgrading-to-2.7.png[align="left", alt="Setting apt sources"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
