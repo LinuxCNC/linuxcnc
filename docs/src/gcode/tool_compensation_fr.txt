@@ -34,7 +34,7 @@ avec 'Tn M6'.
 
 .Toucher et table d'outils[[cap:Touch-Off-Tool]]
 
-image::images/ToolTable-TouchOff_fr.png[]
+image::images/ToolTable-TouchOff_fr.png[alt="Toucher et table d'outils"]
 
 === Utilisation de G10 L1/L10/L11
 
@@ -282,7 +282,7 @@ différents endroits, dépendants du mouvement suivant.
 
 .Point final de la compensation[[cap:Compensation-End-Point]]
 
-image::images/comp-path_fr.png[]
+image::images/comp-path_fr.png[alt="Point final de la compensation"]
 
 === Vue générale
 
@@ -308,7 +308,7 @@ de compensation et de l'arrondi de l'outil.
 
 .Mouvement d'entrée[[cap:Entry-Move]]
 
-image::images/comp02.png[]
+image::images/comp02.png[alt="Mouvement d'entrée"]
 
 ==== Mouvement en Z
 
@@ -332,13 +332,13 @@ désactivée.
 
 .Profil extérieur[[cap:Outside-Profile]]
 
-image::images/outside-comp_fr.png[]
+image::images/outside-comp_fr.png[alt="Profil extérieur"]
 
 ==== Profil intérieur
 
 .Profil intérieur[[cap:Inside-Profile]]
 
-image::images/inside-comp_fr.png[]
+image::images/inside-comp_fr.png[alt="Profil intérieur"]
 
 
 == Deux exposés sur les compensations d'outil
