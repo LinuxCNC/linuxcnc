@@ -1,4 +1,4 @@
-pyngcgui config for touchy lathe config
+pyngcgui_touchy_lathe.ini
 
 Demonstrate gladevcp apps:
    pyngcgui     -- subroutine app

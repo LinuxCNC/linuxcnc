@@ -4,13 +4,14 @@ The principal Axis gui sim ini files:
 
 axis.ini             basic demo (in)
 axis_9axis.ini       9 axes
+axis_foam.ini        foam cutter
 axis_mm.ini          basic demo (mm)
-canterp              demo for a non-gcode interpreter
+canterp.ini          demo for a non-gcode interpreter
 gantry.ini           gantry demo
 gantry_mm.ini        gantry demo (mm)
 histogram_demo.ini   hal-histogram examples
 historical_lathe.ini configured with 3 joints (XYZ with Y unused)
-ini_hal_demo         ini hal pins demo
+ini_hal_demo.ini     ini hal pins demo
 lathe.ini            lathe demo
 ldelta.ini           linear delta robot
 ldelta_demo.ini      linear delta with jog guis
