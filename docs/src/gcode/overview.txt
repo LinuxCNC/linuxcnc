@@ -909,7 +909,7 @@ distance from the XY zero position increased with each line.
 
 .Polar Spiral
 
-image::images/polar01.png[align="center"]
+image::images/polar01.png[align="center", alt="Polar Spiral"]
 
 The following code will produce our square pattern.
 
@@ -927,7 +927,7 @@ end point distance is the same for each line.
 
 .Polar Square
 
-image::images/polar02.png[align="center"]
+image::images/polar02.png[align="center", alt="Polar Square"]
 
 It is an error if:
 
@@ -1265,15 +1265,4 @@ material removal rate.
   on the same line.
 * 'File ended with no percent sign or program end' - Every G code file must
   end in a M2 or M30 or be wrapped with the percent sign %.
-
-
-
-
-
-
-
-
-
-
-
 
