@@ -798,7 +798,7 @@ celle à laquelle vous vous attendiez, parce-que avons ajouté
 
 .Spirale polaire[[fig:Spirale-polaire]]
 
-image::images/polar01.png[]
+image::images/polar01.png[alt="Spirale polaire"]
 
 Le code suivant va produire notre modèle carré. 
 ----
@@ -815,7 +815,7 @@ chaque ligne. La distance du point final est la même pour chaque ligne.
 
 .Carré polaire[[fig:Carre-polaire]]
 
-image::images/polar02.png[]
+image::images/polar02.png[alt="Carré polaire"]
 
 C'est une erreur si:
 
