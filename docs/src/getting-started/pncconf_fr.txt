@@ -57,13 +57,13 @@ pncconf
 
 .Écran d'accueil de PnCConf
 
-image::images/pncconf-splash_fr.png[]
+image::images/pncconf-splash_fr.png[alt="Écran d'accueil de PnCConf"]
 
 == Créer ou éditer une configuration
 
 .Créer ou éditer
 
-image::images/pncconf-file_fr.png[]
+image::images/pncconf-file_fr.png[alt="Créer ou éditer"]
 
 Il est possible de créer une nouvelle configuration ou d'en modifier une
 existante.
@@ -83,7 +83,7 @@ la liste.
 
 .Informations machine
 
-image::images/pncconf-basic_fr.png[]
+image::images/pncconf-basic_fr.png[alt="Informations machine"]
 
 _Éléments de base_
 
@@ -254,7 +254,7 @@ manuelle de déplacement des axes (jog) ou des curseurs des correcteurs de vites
 
 .Contrôles externes
 
-image::images/pncconf-external_fr.png[]
+image::images/pncconf-external_fr.png[alt="Contrôles externes"]
 
 Si une manette de jeu externe est sélectionnée pour le jog, il faudra
 toujours la connecter à LinuxCNC avant de démarrer celui-ci. Si la manette est
@@ -313,7 +313,7 @@ d'LinuxCNC.
 
 .Configuration des GUI
 
-image::images/pncconf-gui_fr.png[]
+image::images/pncconf-gui_fr.png[alt="Configuration des GUI"]
 
 _Options des interfaces graphiques_
 
@@ -436,7 +436,7 @@ le paramétrage des composants nécessaires à la machine.
 
 .Configuration Mesa
 
-image::images/pncconf-mesa-config_fr.png[]
+image::images/pncconf-mesa-config_fr.png[alt="Configuration Mesa"]
 
 Adresse du port parallèle MESA::
      Un port parallèle est utilisé seulement avec la carte Mesa 7i43.
@@ -506,7 +506,7 @@ des cartes Mesa. PNCconf permet de créer des noms de signaux personnalisés
 
 .Réglages des E/S Mesa C2
 
-image::images/pncconf-mesa-io2_fr.png[]
+image::images/pncconf-mesa-io2_fr.png[alt="Réglages des E/S Mesa C2"]
 Sur cet onglet, avec ce micro logiciel, les composants sont liés à l'installation
 d'une carte fille 7i33, généralement utilisée avec des servomoteurs en boucle fermée.
 Noter que les numéros de composant des codeurs, des compteurs et des pilotes PWM
@@ -515,7 +515,7 @@ l'architecture des cartes filles.
 
 .Réglages des E/S Mesa C3
 
-image::images/pncconf-mesa-io3_fr.png[]
+image::images/pncconf-mesa-io3_fr.png[alt="Réglages des E/S Mesa C3"]
 Sur cet onglet, il n'y a que des broches GPIO. Noter les numéros à trois
 chiffres, ils correspondent au numéros des _HAL pins_. Les broches GPIO
 peuvent être sélectionnées comme des entrées ou des sorties et elles peuvent
@@ -523,7 +523,7 @@ peuvent être sélectionnées comme des entrées ou des sorties et elles peuvent
 
 .Réglages des E/S Mesa C4
 
-image::images/pncconf-mesa-io4_fr.png[]
+image::images/pncconf-mesa-io4_fr.png[alt="Réglages des E/S Mesa C4"]
 Sur cet onglet, il y a un mélange entre des broches GPIO et des générateurs de pas.
 Les sorties générateur de pas et de direction peuvent être inversées.
 Noter que l'inversion d'un signal Step Gen modifie les délais de pas,
@@ -531,7 +531,7 @@ il doivent correspondre à ce que le contrôleur attend.
 
 _Configuration des ports parallèles_
 
-image::images/pncconf-parport_fr.png[]
+image::images/pncconf-parport_fr.png[alt="Configuration des ports parallèles"]
 
 Les ports parallèles peuvent être utilisés pour de simples E/S similaires aux
 broches GPIO Mesa.
@@ -541,7 +541,7 @@ broches GPIO Mesa.
 
 .Configuration des axes
 
-image::images/pncconf-axis-drive_fr.png[]
+image::images/pncconf-axis-drive_fr.png[alt="Configuration des axes"]
 
 Cette page permet de configurer et tester un moteur combiné ou non à un codeur.
 Si un servomoteur est utilisé, un test en boucle ouverte est disponible.
@@ -661,7 +661,7 @@ forum pour avoir de l'aide.
 
 .Calcul de l'échelle d'axe
 
-image::images/pncconf-scale-calc_fr.png[]
+image::images/pncconf-scale-calc_fr.png[alt="Calcul de l'échelle d'axe"]
 Les paramètres d'échelle peuvent être saisis directement ou, on peut utiliser le
 bouton _calculer échelle_ pour être assisté. Utiliser alors les cases à cocher
 pour sélectionner les calculs appropriés. Noter que _Dents des poulies_ exige
@@ -673,7 +673,7 @@ l'assistant.
 
 .Configuration des axes
 
-image::images/pncconf-axis-config_fr.png[]
+image::images/pncconf-axis-config_fr.png[alt="Configuration des axes"]
 
 Se référer également à l'onglet diagramme pour deux exemples de disposition des
 contacts de fin de course d'origine machine et de limites. Ce sont deux exemples
@@ -840,7 +840,7 @@ Utiliser la compensation de jeu::
 
 .Dessin d'aide à l'identification des axes et fins de course
 
-image::images/pncconf-diagram-lathe_fr.png[]
+image::images/pncconf-diagram-lathe_fr.png[alt="Dessin d'aide à l'identification des axes et fins de course"]
 
 Ce dessin devrait aider à comprendre un exemple de positionnement des contacts
 de fin de course et les directions standards sur un tour.
@@ -865,7 +865,7 @@ ont été sélectionnés, alors cette page est disponible pour les configurer.
 
 .Configuration de la broche
 
-image::images/pncconf-spindle-config_fr.png[]
+image::images/pncconf-spindle-config_fr.png[alt="Configuration de la broche"]
 
 Cette page est semblable à la page de configuration des moteurs d'axe mais il y a
 quelques différences: À moins que l'on ait choisi un moteur pas à pas pour la
@@ -921,7 +921,7 @@ classicladder dans le manuel.
 
 .Options avancées
 
-image::images/pncconf-advanced_fr.png[]
+image::images/pncconf-advanced_fr.png[alt="Options avancées"]
 
 == Composants de HAL
 
@@ -932,7 +932,7 @@ définir ses propres composants.
 
 .Composants de HAL
 
-image::images/pncconf-hal_fr.png[]
+image::images/pncconf-hal_fr.png[alt="Composants de HAL"]
 
 La première sélection est prévue pour les composants que pncconf utilise en interne.
 Il est possible de configurer pncconf pour qu'il charge les instances additionnelles
@@ -1026,7 +1026,4 @@ Fichiers HAL Personnalisés::
     contrôlée.
 
 // vim: set syntax=asciidoc:
-
-
-
 
