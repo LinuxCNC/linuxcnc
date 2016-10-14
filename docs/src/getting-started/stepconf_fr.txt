@@ -31,7 +31,7 @@ pour que les boutons sur le bas des pages soient apparents.
 
 .La page d'accueil de stepconf
 
-image::images/stepconf-config_fr.png[]
+image::images/stepconf-config_fr.png[alt="La page d'accueil de stepconf"]
 
 * _Créer une nouvelle configuration_ - 
 Créera une configuration nouvelle.
@@ -57,7 +57,7 @@ configuration.
 
 .Page d'informations sur la machine
 
-image::images/stepconf-basic_fr.png[]
+image::images/stepconf-basic_fr.png[alt="Page d'informations sur la machine"]
 
 * _Nom de la machine_ - 
 (((Nom de la machine)))
@@ -171,7 +171,7 @@ automatique est prévu dans un fichier personnalisé HAL.
 
 .Configuration avancée
 
-image::images/stepconf-advanced_fr.png[]
+image::images/stepconf-advanced_fr.png[alt="Configuration avancée"]
 
 
 * _Inclure l'interface Halui_ - 
@@ -198,7 +198,7 @@ Voir le manuel de l'intégrateur pour plus d'information sur ClassicLadder.
 
 .Page de réglage du port parallèle
 
-image::images/stepconf-pinout_fr.png[]
+image::images/stepconf-pinout_fr.png[alt="Page de réglage du port parallèle"]
 
 * _Sorties (PC vers machine)_ - 
 Pour chacune des broches, choisir le signal correspondant au brochage entre
@@ -241,7 +241,7 @@ maxi des pas affichée sur la page des informations machine.
 
 .Page de configuration des axes
 
-image::images/stepconf-axis_fr.png[]
+image::images/stepconf-axis_fr.png[alt="Page de configuration des axes"]
 
 * _Nombre de pas moteur par tour_ - 
 (((Nombre de pas par tour)))
@@ -374,7 +374,7 @@ Plus de détails à ce sujet sont disponibles dans le manuel de l'intégrateur.
 
 .Tester cet axe
 
-image::images/stepconf-test_fr.png[]
+image::images/stepconf-test_fr.png[alt="Tester cet axe"]
 
 Tester cet axe et un test simple pour définir les signaux de directions et de
 pas, ainsi que les valeurs d'accélération et de vitesse.
@@ -440,7 +440,7 @@ accélération maximale pour cet axe.
 
 .Page configuration de la broche[[cap:Page-Configuration-de-la-broche]]
 
-image::images/stepconf-spindle_fr.png[]
+image::images/stepconf-spindle_fr.png[alt="Page configuration de la broche"]
 
 Ces options ne sont accessibles que quand _PWM broche_,
 _Phase A codeur broche_ ou _index broche_ sont configurés dans le
@@ -648,13 +648,13 @@ de commande souple.
 
 .Contacts normalement fermés[[cap:Contacts-Normalement-Fermes]]
 
-image::images/switch-nc-series_fr.png[]
+image::images/switch-nc-series_fr.png[alt="Contacts normalement fermés"]
 
 Câblage de contacts NC en série (schéma simplifié)
 
 .Contacts normalement ouverts[[cap:Contacts-Normalement-Ouverts]]
 
-image::images/switch-no-parallel_fr.png[]
+image::images/switch-no-parallel_fr.png[alt="Contacts normalement ouverts"]
 
 Câblage de contacts NO en parallèle (schéma simplifié)
 
