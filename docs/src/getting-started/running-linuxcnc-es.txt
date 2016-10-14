@@ -24,7 +24,7 @@ De ventana de selección de configuración.
 
 .LinuxCNC seleccion de configuración[[cap:LinuxCNC-Configuration-Selector]]
 
-image::images/configuration-selector.png[]
+image::images/configuration-selector.png[alt="LinuxCNC seleccion de configuración"]
 
 De click en cualquiera de las configuraciones que se indican
 para mostrar información específica al respecto.
