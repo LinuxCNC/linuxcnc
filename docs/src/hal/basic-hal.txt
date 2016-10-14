@@ -17,7 +17,7 @@ and it will be added to the watch window.
 
 .HAL Configuration Window
 
-image::images/HAL_Configuration.png[align="center"]
+image::images/HAL_Configuration.png[align="center", alt="HAL Configuration Window"]
 
 === loadrt
 
@@ -129,7 +129,7 @@ additional pins, as long as the rules above are obeyed.
 
 .Signal Direction
 
-image::images/signal-direction.png[align="center"]
+image::images/signal-direction.png[align="center", alt="Signal Direction"]
 
 This example shows the signal xStep with the source being
 stepgen.0.out and with two readers, parport.0.pin-02-out and
