@@ -374,7 +374,7 @@ G2 X1 Y1 I1 F10 (arc en sens horaire dans le plan XY)
 [[fig:G2-Exemple]]
 .Exemple avec G2
 
-image::images/g2_fr.png[align="center"]
+image::images/g2_fr.png[align="center", alt="Exemple avec G2"]
 
 Dans cet autre exemple, nous pouvons voir les différences de décalages
 pour Y selon que nous faisons un mouvement G2 ou un mouvement G3.
@@ -393,7 +393,7 @@ G3 X0 Y0 I1 J-0.5 F25 (arc en sens anti-horaire dans le plan XY)
 [[fig:G2-G3-Exemple]]
 .Exemple avec G2-G3
 
-image::images/g2-3_fr.png[align="center"]
+image::images/g2-3_fr.png[align="center", alt="Exemple avec G2-G3"]
 
 Voici un exemple au format centre pour usiner une hélice:
 ----
@@ -623,7 +623,7 @@ M2
 
 .Simple sortie NURBS
 
-image:images/nurbs01.png[align="center"]
+image:images/nurbs01.png[align="center", alt="Simple sortie NURBS"]
 
 D'autres informations sur NURBS sont disponibles ici:
 
@@ -1629,7 +1629,7 @@ spécifié par L2 E0.045. Les lignes blanches sont les mouvements de coupe.
 
 .Parcours d'outil de l'exemple[[fig:G76-cycle-de-filetage]]
 
-image::images/g76-01.png[]
+image::images/g76-01.png[alt="Parcours d'outil de l'exemple"]
 
 [[sec:G81-a-G89]]
 == Les cycles de perçage G81 à G89
