@@ -6,7 +6,7 @@ Vismach is a set of Python functions that can be used to create and animate
 models of machines. Vismach displays the model in a 3D viewport and the model
 parts are animated as the values of associated HAL pins change.
 
-image::images/vismach.png[align="center"]
+image::images/vismach.png[align="center", alt="Vismach displays the model in a 3D viewport"]
 
 The Vismach viewport view can be manipulated as follows
 
