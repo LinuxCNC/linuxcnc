@@ -107,7 +107,7 @@ by the user are offered for copying to the user's directory.
 
 .LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]
 
-image::images/configuration-selector.png[]
+image::images/configuration-selector.png[alt="LinuxCNC Configuration Selector"]
 
 Click any of the listed configurations 
 to display specific information about it. 
