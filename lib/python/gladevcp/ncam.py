@@ -1261,7 +1261,7 @@ class Feature():
         self.attr = conf["SUBROUTINE"]
 
         self.attr["src"] = src
-        self.attr["name"] = _(self.get_name())
+        self.attr["name"] = self.get_name()
 
         # get order
         if "order" not in self.attr :
@@ -1574,16 +1574,16 @@ class Preferences():
         self.opt_eng2 = read_str(config, 'optimizing', 'engagement2', '0.30')
         self.opt_eng3 = read_str(config, 'optimizing', 'engagement3', '0.80')
 
-        self.opt_ff1 = read_str(config, 'optimizing', 'feedfactor1', '1.50')
-        self.opt_ff2 = read_str(config, 'optimizing', 'feedfactor2', '1.30')
-        self.opt_ff3 = read_str(config, 'optimizing', 'feedfactor3', '1.00')
-        self.opt_ff4 = read_str(config, 'optimizing', 'feedfactor4', '0.80')
+        self.opt_ff1 = read_str(config, 'optimizing', 'feedfactor1', '1.60')
+        self.opt_ff2 = read_str(config, 'optimizing', 'feedfactor2', '1.40')
+        self.opt_ff3 = read_str(config, 'optimizing', 'feedfactor3', '1.25')
+        self.opt_ff4 = read_str(config, 'optimizing', 'feedfactor4', '1.00')
         self.opt_ff0 = read_str(config, 'optimizing', 'feedfactor0', '1.00')
 
-        self.opt_sf1 = read_str(config, 'optimizing', 'speedfactor1', '1.00')
-        self.opt_sf2 = read_str(config, 'optimizing', 'speedfactor2', '1.00')
-        self.opt_sf3 = read_str(config, 'optimizing', 'speedfactor3', '1.00')
-        self.opt_sf4 = read_str(config, 'optimizing', 'speedfactor4', '0.80')
+        self.opt_sf1 = read_str(config, 'optimizing', 'speedfactor1', '1.25')
+        self.opt_sf2 = read_str(config, 'optimizing', 'speedfactor2', '1.25')
+        self.opt_sf3 = read_str(config, 'optimizing', 'speedfactor3', '1.25')
+        self.opt_sf4 = read_str(config, 'optimizing', 'speedfactor4', '1.00')
         self.opt_sf0 = read_str(config, 'optimizing', 'speedfactor0', '1.00')
 
         self.create_defaults()
@@ -2599,7 +2599,7 @@ Notes:
                 icon.set_from_pixbuf(get_pixbuf(f.get_attr("icon"),
                         quick_access_icon_size))
                 button = gtk.ToolButton(icon, label = f.get_attr("name"))
-                button.set_tooltip_markup(f.get_attr("help"))
+                button.set_tooltip_markup(_(f.get_attr("help")))
                 button.connect("clicked", self.quick_access_tb_clicked, src_file)
                 self.quick_access_buttons[src_file] = button
 
@@ -2607,7 +2607,7 @@ Notes:
                 icon.set_from_pixbuf(get_pixbuf(f.get_attr("icon"),
                         quick_access_icon_size))
                 button1 = gtk.ToolButton(icon, label = f.get_attr("name"))
-                button1.set_tooltip_markup(f.get_attr("help"))
+                button1.set_tooltip_markup(_(f.get_attr("help")))
                 button1.connect("clicked", self.quick_access_tb_clicked, src_file)
                 self.quick_access_topbuttons[src_file] = button1
 
@@ -2911,6 +2911,7 @@ Notes:
         self.treeview2.append_column(col)
 
         self.treeview2.set_tooltip_column(1)
+        self.treeview2.set_model(self.treestore)
         self.treeview2.set_model(self.details_filter)
         self.params_scroll.add(self.treeview2)
         self.treeview2.connect('key-press-event', self.tv2_kp_event)
@@ -3291,6 +3292,7 @@ Notes:
                 a_filter.set_visible_column(3)
                 self.details_filter = a_filter
 
+                self.treeview2.set_model(self.treestore)
                 self.treeview2.set_model(self.details_filter)
                 self.treeview2.expand_all()
 
@@ -3692,10 +3694,12 @@ Notes:
 
 
         treestore = gtk.TreeStore(object, str, gobject.TYPE_BOOLEAN, gobject.TYPE_BOOLEAN)
-        recursive(treestore, treestore.get_iter_root(), xml)
+        if xml is not None :
+            recursive(treestore, treestore.get_iter_root(), xml)
         self.treestore = treestore
         self.master_filter = self.treestore.filter_new()
         self.master_filter.set_visible_column(2)
+        self.treeview.set_model(self.treestore)
         self.treeview.set_model(self.master_filter)
         self.set_expand()
 
@@ -3787,7 +3791,7 @@ Notes:
                         while children is not None :
                             ca = self.treestore.get_value(children, 0).get_attr('call')
                             if ca == '#param_' + opt[0] :
-                                renderer.set_tooltip(self.treestore.get_value(children, 0).get_tooltip())
+                                renderer.set_tooltip(_(self.treestore.get_value(children, 0).get_tooltip()))
                                 dt = self.treestore.get_value(children, 0).get_type()
                                 renderer.set_edit_datatype(dt)
                                 val = self.treestore.get_value(children, 0).get_value()
@@ -3818,16 +3822,17 @@ Notes:
         self.focused_widget.grab_focus()
 
     def delete_clicked(self, *arg) :
-        if self.iter_next :
+        if self.iter_next is not None :
             next_path = self.master_filter.get_path(self.selected_feature_itr)
-        elif self.iter_previous :
+        elif self.iter_previous is not None :
             next_path = self.master_filter.get_path(self.iter_previous)
-        elif self.selected_feature_parent_itr :
+        elif self.selected_feature_parent_itr is not None :
             next_path = self.master_filter.get_path(self.selected_feature_parent_itr)
         else :
             next_path = None
 
-        self.treestore.remove(self.selected_feature_ts_itr)
+        if self.selected_feature_ts_itr is not None :
+            self.treestore.remove(self.selected_feature_ts_itr)
 
         if next_path is not None :
             self.treeview.set_cursor(next_path)
@@ -3962,6 +3967,8 @@ Notes:
         else :
             self.treeview.grab_focus()
 
+        return False
+
     def action(self, xml = None) :
         if xml is None :
             xml = self.treestore_to_xml()
@@ -3970,13 +3977,12 @@ Notes:
         self.undo_list = self.undo_list[max(0, len(self.undo_list) - UNDO_MAX_LEN):]
         self.undo_list.append(etree.tostring(xml))
         self.undo_pointer = len(self.undo_list) - 1
+
         self.update_do_btns()
 
     def update_do_btns(self):
         self.set_do_buttons_state()
         if self.auto_refresh.get_active() :
-            if self.timeout is not None :
-                gobject.source_remove(self.timeout)
             self.timeout = gobject.timeout_add(int(self.pref.timeout_value * 1000),
                     self.autorefresh_call)
 
@@ -4028,7 +4034,7 @@ Notes:
     def save_default_template(self, *args):
         xml = self.treestore_to_xml()
         etree.ElementTree(xml).write(os.path.join(NCAM_DIR, CATALOGS_DIR, self.catalog_dir, \
-                                                   DEFAULT_TEMPLATE), pretty_print = True)
+                                               DEFAULT_TEMPLATE), pretty_print = True)
 
     def menu_new_activate(self, *args):
         global UNIQUE_ID
@@ -4122,13 +4128,13 @@ Notes:
         cell.set_param_value(model.get_value(itr, 0).get_value())
 
         if data_type in ['combo', 'combo-user', 'list']:
-            cell.set_options(model.get_value(itr, 0).get_options())
+            cell.set_options(_(model.get_value(itr, 0).get_options()))
 
         elif data_type in NUMBER_TYPES:
             cell.set_max_value(get_float(model.get_value(itr, 0).get_max_value()))
             cell.set_min_value(get_float(model.get_value(itr, 0).get_min_value()))
             cell.set_digits(model.get_value(itr, 0).get_digits())
-            cell.set_tooltip(model.get_value(itr, 0).get_tooltip())
+            cell.set_tooltip(_(model.get_value(itr, 0).get_tooltip()))
             cell.set_not_zero(model.get_value(itr, 0).get_not_zero())
 
         elif data_type == 'tool' :
@@ -4155,7 +4161,7 @@ Notes:
             val = self.tools.get_text(val)
 
         if data_type == 'combo':
-            options = f.get_attr('options')
+            options = _(f.get_attr('options'))
             for option in options.split(":") :
                 opt = option.split('=')
                 if opt[1] == val :
@@ -4174,17 +4180,19 @@ Notes:
                         opt = dg.split('=')
                         if (opt[1] == val) :
                             try :
-                                itr_n = self.treestore.iter_parent(model.convert_iter_to_child_iter(itr))
+                                itr_n = model.convert_iter_to_child_iter(itr)
+                                itr_n = self.treestore.iter_parent(itr_n)
                                 itr_n = self.treestore.iter_children(itr_n)
                                 loop = True
                                 while loop and (itr_n is not None) :
                                     f = self.treestore.get_value(itr_n, 0)
-                                    if f.get_attr('call') == '#param_' + opt[0] :
+                                    ca = f.get_attr('call')
+                                    if ca == '#param_' + opt[0] :
                                         found = True
                                         data_type = f.get_type()
                                         if data_type == 'list':
                                             link_val = f.get_value()
-                                            options = f.get_attr('options')
+                                            options = _(f.get_attr('options'))
                                             for option in options.split(":") :
                                                 opt = option.split('=')
                                                 if opt[1] == link_val :
@@ -4194,6 +4202,9 @@ Notes:
                                                     break
                                         else :
                                             val = f.get_value()
+                                            loop = False
+                                            stop = True
+                                            break
 
                                     itr_n = self.treestore.iter_next(itr_n)
                             except :
@@ -4254,8 +4265,16 @@ Notes:
     def treestore_to_xml(self) :
         self.get_expand()
         xml = etree.Element(XML_TAG)
-        self.treestore_to_xml_recursion(self.treestore.get_iter_root(), xml)
-        return xml
+        itr = self.treestore.get_iter_root()
+        if itr is not None :
+            try :
+                self.treestore_to_xml_recursion(itr, xml)
+                return xml
+            except Exception, detail :
+                print('Error in treestore_to_xml\n%(err_details)s' % {'err_details':detail})
+                mess_dlg('Error in treestore_to_xml\n%(err_details)s' % {'err_details':detail})
+        else :
+            return xml
 
     def set_expand(self) :
         def treestore_set_expand(model, path, itr, self) :

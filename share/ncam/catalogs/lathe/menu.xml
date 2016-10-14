@@ -1,25 +1,21 @@
 <xml>
 	
-	<group name="Cutting" icon="od.png">
-		<sub name="Face" tool_tip="Cut face" src="lathe/face.cfg" icon="lathe-facing.png"/>			
+	<group name="Parameters" icon="od.png">
 		<sub name="Cutting params" tool_tip="Set cutting params" src="lathe/cutting-params.cfg" icon="threading-params.png"/>		
+        <sub name="Threading params" tool_tip="Set thread cutting params" src="lathe/threading-params.cfg" icon="threading-params.png"/>
 	</group>
-
-	<group name="Threading" icon="threading.png">
-		<sub name="Thread" tool_tip="Cuts regular threads" src="lathe/thread-adv.cfg" icon="threading.png"/>
-		<sub name="Threading params" tool_tip="Set thread cutting params" src="lathe/threading-params.cfg" icon="threading-params.png"/>		
+    <group name="Tool" icon="lathe-tool.png">
+        <sub name="Change tool" tool_tip="Change cutter" src="lathe/tool-change.cfg" icon="lathe-tool-change.png"/>
+    </group>
+	<group name="Cutting" icon="threading.png">
+		<sub name="Threads" tool_tip="Cuts regular threads" src="lathe/thread-adv.cfg" icon="threading.png"/>
+        <sub name="Face" tool_tip="Cut face" src="lathe/face.cfg" icon="lathe-facing.png"/>
 	</group>
-			
-	<group name="Tool" icon="lathe-tool.png">
-		<sub name="Set lathe cuting params" tool_tip="All said" src="lathe/cutting-params.cfg" icon="lathe-cutting-params.png"/>
-		<sub name="Change tool" tool_tip="Change cutter" src="lathe/tool-change.cfg" icon="lathe-tool-change.png"/>
-	</group>
-  <group name='Miscellaneous' icon='misc.png'>
-      <sub name='Task' tool_tip='Master feature' icon="gcode.png" src="fv_task.cfg"/>
-      <sub name='Insert a G Code file' tool_tip='Include a custom gcode file' icon="gcode.png" src="i_gcode.cfg"/>
-      <sub name='Custom G Code' tool_tip='Write custom gcode' icon="gcode.png" src="fv_gcode.cfg"/>
-      <sub name='Change Units' tool_tip='Change from inch to metric or inverse' icon="rect.png" src="fv_change-units.cfg"/>
-  </group>
+    <group name='Miscellaneous' icon='misc.png'>
+        <sub name='Insert a G Code file' tool_tip='Include a custom gcode file' icon="gcode.png" src="i_gcode.cfg"/>
+        <sub name='Custom G Code' tool_tip='Write custom gcode' icon="gcode.png" src="gcode.cfg"/>
+        <sub name='Change Units' tool_tip='Change from inch to metric or inverse' icon="rect.png" src="change-units.cfg"/>
+    </group>
 
 </xml>
 
