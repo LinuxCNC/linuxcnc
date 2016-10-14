@@ -17,7 +17,7 @@ $(call TOOBJSDEPS, $(ENCDEC_SRCS)) : EXTRAFLAGS += $(ENCDEC_CXX_CFLAGS)
 ../bin/encdec: $(call TOOBJS, $(ENCDEC_SRCS)) \
 	$(PB2CXX_PROTOLIB)  ../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(ENCDEC_CXX_LDFLAGS)
 
 #----
@@ -33,7 +33,7 @@ $(call TOOBJSDEPS, $(POSITION_SRCS)) : EXTRAFLAGS += $(POSITION_CXX_CFLAGS)
 ../bin/position: $(call TOOBJS, $(POSITION_SRCS)) \
 	 ../lib/libmtalk.so $(PB2CXX_PROTOLIB)  ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(POSITION_CXX_LDFLAGS)
 
 #---
@@ -49,7 +49,7 @@ $(call TOOBJSDEPS, $(NPDECODE_SRCS)) : EXTRAFLAGS += $(NPDECODE_CFLAGS)
 ../bin/npbdecode: $(call TOOBJS, $(NPDECODE_SRCS)) \
 	$(NPBC_PROTOLIB)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(NPDECODE_LDFLAGS) $(NPDECODE_LDFLAGS)
 
 
@@ -63,7 +63,7 @@ $(call TOOBJSDEPS, $(RTPRINTF_SRCS)) : EXTRAFLAGS += $(RTPRINTF_CCFLAGS)
 ../bin/rtprintf: $(call TOOBJS, $(RTPRINTF_SRCS)) \
 	../lib/libmachinetalk-npb.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RTPRINTF_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(RTPRINTF_LDFLAGS)
 
 
 RAWREAD_SRCS :=  $(PBEX)/rawread.c \
@@ -75,7 +75,7 @@ $(call TOOBJSDEPS, $(RAWREAD_SRCS)) : EXTRAFLAGS += $(RAWREAD_CCFLAGS)
 
 ../bin/rawread: $(call TOOBJS, $(RAWREAD_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RAWREAD_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(RAWREAD_LDFLAGS)
 
 ../include/%.h: ./$(PBEX)/%.h
 	@mkdir -p $(dir $@)
@@ -98,7 +98,7 @@ $(call TOOBJSDEPS, $(UNIONREAD_SRCS)) : EXTRAFLAGS += $(UNIONREAD_CCFLAGS)
 
 ../bin/unionread: $(call TOOBJS, $(UNIONREAD_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(UNIONREAD_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(UNIONREAD_LDFLAGS)
 
 ../include/%.h: ./$(PBEX)/%.h
 	@mkdir -p $(dir $@)
@@ -112,7 +112,7 @@ $(call TOOBJSDEPS, $(PBEX)/sizes.c) : EXTRAFLAGS +=
 
 ../bin/sizes: $(call TOOBJS, $(PBEX)/sizes.c)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS)
 
 USERSRCS += \
 	 $(RTPRINTF_SRCS) \
@@ -159,7 +159,7 @@ $(call TOOBJSDEPS, $(LINMOVE_SRCS)) : EXTRAFLAGS += $(LINMOVE_CXX_CFLAGS)
 ../bin/linmove: $(call TOOBJS, $(LINMOVE_SRCS)) \
 	../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(LINMOVE_CXX_LDFLAGS) $(PBJSONLIB)
 
 USERSRCS += $(LINMOVE_SRCS)
