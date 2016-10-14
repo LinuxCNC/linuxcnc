@@ -17,7 +17,7 @@ dans la fenêtre watch.
 
 .Fenêtre de configuration de HAL
 
-image::images/HAL_Configuration.png[]
+image::images/HAL_Configuration.png[alt="Fenêtre de configuration de HAL"]
 
 === loadrt
 
@@ -122,7 +122,7 @@ connecter des pins additionnelles, tant que les règles précédentes sont obser
 
 .Direction du signal[[cap:Signal-Direction]]
 
-image::images/signal-direction.png[align="left"]
+image::images/signal-direction.png[align="left", alt="Direction du signal"]
 
 Voici un exemple qui montre le signal xStep avec la source qui est stepgen.0.out
 et avec deux lecteurs, parport.0.pin-02-out etparport.0.pin-08-out. Simplement
