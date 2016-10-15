@@ -80,9 +80,9 @@ See the man page for more options. See section <<sec:halmeter,Halmeter>>.
   
 .Halmeter
 
-image::images/hal-meter01.png[]
+image::images/hal-meter01.png[alt="Halmeter"]
 
-image::images/hal-meter02.png[]
+image::images/hal-meter02.png[alt="Halmeter"]
 
 == Halshow
 
@@ -189,7 +189,7 @@ Example (with LinuxCNC running):
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
-image::images/sim_pin.png[]
+image::images/sim_pin.png[alt="sim_pin is a command line utility to display and update any number of writable pins, parameters or signals"]
 
 == Simulate Probe
 
@@ -199,7 +199,8 @@ motion.probe-input.  Usage:
 simulate_probe &
 ----
 
-image::images/simulate_probe.png[]
+image::images/simulate_probe.png[alt="simulate_probe is a simple gui to simulate activation of the pin
+motion.probe-input"]
 
 == Hal Histogram
 
@@ -229,5 +230,5 @@ Notes:
      For a base thread, this may require using:
      loadrt motmod ... base_thread_fp=1
 ----
-image::images/hal-histogram.png[]
+image::images/hal-histogram.png[alt="hal-histogram is a command line utility to display histograms for hal pins"]
 
