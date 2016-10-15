@@ -91,7 +91,7 @@ of hardware system integration, but who do not know how to connect the
 hardware to LinuxCNC. See the <<sec:halui-remote-start,Remote Start
 Example>> section in the HAL UI Examples documentation.
 
-image::images/remote-start.png[]
+image::images/remote-start.png[alt="Remote Start Example"]
 
 The traditional hardware design as described above ends at the edge of
 the main control. Outside the control are a bunch of relatively simple
