@@ -47,7 +47,7 @@ There are five main components to the LinuxCNC software:
 
 .Simple LinuxCNC Controlled Machine
 
-image::images/whatstep1.png[align="center"]
+image::images/whatstep1.png[align="center", alt="Simple LinuxCNC Controlled Machine"]
 
 The above figure shows a simple block diagram showing
 what a typical 3-axis LinuxCNC system might look like. This diagram shows a
@@ -68,26 +68,26 @@ interfaces:
 
 <<cha:axis-gui,'Axis'>>, the standard keyboard GUI interface.
 
-image::../gui/images/axis.png[align="center"]
+image::../gui/images/axis.png[align="center", alt="Axis, the standard keyboard GUI interface"]
 
 <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
-image::../gui/images/touchy.png[align="center"]
+image::../gui/images/touchy.png[align="center", alt="Touchy, a touch screen GUI"]
 
 <<cha:gscreen,'Gscreen'>>, a configurable base touch screen GUI.
 
-image::../gui/images/gscreen-mill.png[align="center"]
+image::../gui/images/gscreen-mill.png[align="center", alt="Gscreen, a configurable base touch screen GUI"]
 
 <<cha:gmoccapy,'gmoccapy'>>, a touch screen GUI based on Gscreen.
 
-image::../gui/images/gmoccapy_3_axis.png[align="center"]
+image::../gui/images/gmoccapy_3_axis.png[align="center", alt="gmoccapy, a touch screen GUI based on Gscreen"]
 
 <<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides 'fill in the blanks'
    programming of G code. It also supports concatenation of subroutine files
    to enable you to build a complete G code file without programming. The
    following screen shot shows NGCGUI imbedded into Axis.
 
-image::../gui/images/ngcgui.png[align="center"]
+image::../gui/images/ngcgui.png[align="center", alt="NGCGUI, a subroutine GUI that provides fill in the blanks programming of G code"]
 
 === Additional Features
 
@@ -108,14 +108,14 @@ image::../gui/images/ngcgui.png[align="center"]
 
 .PyVCP with Axis
 
-image::../gui/images/axis-pyvcp.png[align="center"]
+image::../gui/images/axis-pyvcp.png[align="center", alt="PyVCP with Axis"]
 
 * 'GladeVCP' - a glade based virtual control panel that can be added to
    the Axis GUI or be stand alone.
 
 .GladeVCP with Axis
 
-image::../gui/images/axis-gladevcp.png[align="center"]
+image::../gui/images/axis-gladevcp.png[align="center", alt="GladeVCP with Axis"]
 
 See the <<cha:pyvcp,PyVCP chapter>> and the<<cha:glade-vcp,GladeVCP chapter>> for more information on Virtual Control Panels.
 
