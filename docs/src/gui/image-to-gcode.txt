@@ -2,7 +2,7 @@
 
 = Image to G Code
 
-image::images/image-to-gcode.png[align="center"]
+image::images/image-to-gcode.png[align="center", alt="Image to G Code"]
 
 == What is a depth map?
 
@@ -179,5 +179,5 @@ offset is 0.1 inches.
 
 .Roughing passes and final pass
 
-image::images/i2g-roughing.png[]
+image::images/i2g-roughing.png[alt="Roughing passes and final pass"]
 
