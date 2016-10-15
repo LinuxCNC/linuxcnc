@@ -33,4 +33,4 @@ The configuration files are saved in linuxcnc/configs directory.
 
 .Configuration Selector
 
-image::images/configuration-selector.png[align="center"]
+image::images/configuration-selector.png[align="center", alt="LinuxCNC Configuration Selector"]
