@@ -487,7 +487,7 @@ sélectionner l'item à observer.
 .Fenêtre de sélection de halmeter
 (((Fenêtre de sélection)))
 
-image::images/halmeter-select_fr.png[]
+image::images/halmeter-select_fr.png[alt="Fenêtre de sélection de halmeter"]
 
 Ce dialogue contient trois onglets. Le premier onglet affiche toutes
 les HAL pins du système. La seconde affiche tous les signaux et le
@@ -500,7 +500,7 @@ dans une fenêtre semblable à la figure ci-dessous.
 .Affichage de la valeur
 (((Affichage de la valeur)))
 
-image::images/halmeter-1_fr.png[]
+image::images/halmeter-1_fr.png[alt="Affichage de la valeur"]
 
 Pour modifier ce qui est affiché sur halmeter pressez le bouton
 _Sélectionner_ qui vous ramènera à la fenêtre de sélection précédente.
@@ -877,7 +877,7 @@ dialogue _Fonction temps réel non liée_ visible sur la figure ci-dessous:
 .Dialogue _Fonction temps réel non liée_
 (((Fonction non liée)))
 
-image::images/halscope-01_fr.png[]
+image::images/halscope-01_fr.png[alt="Dialogue Fonction temps réel non liée"]
 
 C'est dans ce dialogue que vous définissez le taux d'échantillonnage
 de l'oscilloscope. Pour le moment nous voulons un échantillon par
@@ -892,7 +892,7 @@ dialogue disparaît et la fenêtre initiale du scope s'ouvre, comme ci-dessous.
 .Fenêtre initiale du scope
 (((Fenêtre initiale)))
 
-image::images/halscope-02_fr.png[]
+image::images/halscope-02_fr.png[alt="Fenêtre initiale du scope"]
 
 === Branchement des sondes du scope
 
@@ -915,7 +915,7 @@ Ce dialogue est très similaire à celui utilisé par halmeter.
 .Dialogue de sélection des sources
 (((Sélection de la source)))
 
-image::images/halscope-03_fr.png[]
+image::images/halscope-03_fr.png[alt="Dialogue de sélection des sources"]
 
 Nous aimerions bien regarder les signaux que nous avons défini
 précédemment, pour cela, cliquons sur l'onglet _Signaux_ et le dialogue
@@ -931,7 +931,7 @@ Lorsque l'on clique sur _X-vel_, la fenêtre se ferme et le canal a
 .Sélection du signal
 (((Sélection du signal)))
 
-image::images/halscope-04_fr.png[]
+image::images/halscope-04_fr.png[alt="Sélection du signal"]
 
 Le bouton du canal _1_ est pressé, le numéro du canal 1 et le nom 
 _X-vel_ apparaissent sous la rangée de boutons. L'affichage indique
@@ -942,7 +942,7 @@ l'écran, mais celui qui est actif sera en surbrillance.
 .halscope
 (((halscope)))
 
-image::images/halscope-05_fr.png[]
+image::images/halscope-05_fr.png[alt="halscope"]
 
 Les différents contrôles comme la position verticale et l'amplitude
 sont toujours relatifs au canal 1. Pour ajouter un signal sur le canal
@@ -975,7 +975,7 @@ figure ci-dessous.
 .Capture d'ondes
 (((Capture d'onde)))
 
-image::images/halscope-06_fr.png[]
+image::images/halscope-06_fr.png[alt="Capture d'ondes"]
 
 === Ajustement vertical
 
@@ -993,7 +993,7 @@ grands ajustements le bouton _Offset_ peut être utilisé.
 .Ajustement vertical
 (((Ajustement vertical)))
 
-image::images/halscope-07_fr.png[]
+image::images/halscope-07_fr.png[alt="Ajustement vertical"]
 
 Le grand bouton _Canal sélectionné_ en bas, indique que le canal 1 est
 actuellement le canal sélectionné et qu'il correspond au signal
@@ -1016,7 +1016,7 @@ où n est le numéro du canal venant d'être choisi comme déclencheur.
 .Dialogue des sources de déclenchement
 (((Dialogue des sources de déclenchement)))
 
-image::images/halscope-08_fr.png[]
+image::images/halscope-08_fr.png[alt="Dialogue des sources de déclenchement"]
 
 Après avoir défini la source de déclenchement, il est possible
 d'ajuster le niveau de déclenchement avec les curseurs du groupe 
@@ -1044,7 +1044,7 @@ déclenchement, l'écran doit ressembler à la figure ci-dessous.
 .Formes d'ondes avec déclenchement
 (((Formes d'onde)))
 
-image::images/halscope-09_fr.png[]
+image::images/halscope-09_fr.png[alt="Formes d'ondes avec déclenchement"]
 
 === Ajustement horizontal
 
@@ -1068,7 +1068,7 @@ environ 0.20 seconde.
 .Dialogue de choix d'échantillonnage
 (((Choix d'échantillonnage)))
 
-image::images/halscope-10_fr.png[]
+image::images/halscope-10_fr.png[alt="Dialogue de choix d'échantillonnage"]
 
 === Plus de canaux
 
@@ -1097,7 +1097,7 @@ X-vel assez plate et les impulsions de pas très resserrées.
 .Observer les impulsions de pas
 (((Observer les impulsions)))
 
-image::images/halscope-11_fr.png[]
+image::images/halscope-11_fr.png[alt="Observer les impulsions de pas"]
 
 === Plus d'échantillons
 
