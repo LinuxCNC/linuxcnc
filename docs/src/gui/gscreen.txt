@@ -16,10 +16,10 @@ Gscreen you use the Glade editor. Gscreen is not restricted to adding a custom
 panel on the right or a custom tab it is fully editable.
 
 .Gscreen Mill Base Screen
-image::images/gscreen-mill.png["Gscreen Mill",align="center"]
+image::images/gscreen-mill.png[align="center", alt="Gscreen Mill Base Screen"]
 
 .Gscreen Lathe Base Screen
-image::images/gscreen-lathe.png[align='center']
+image::images/gscreen-lathe.png[align="center", alt="Gscreen Lathe Base Screen"]
 
 Gscreen is based on 'Glade' (the editor), 'PyGTK' (the widget toolkit), and
 'GladeVCP' (LinuxCNC's connection to Glade and PyGTK). GladeVCP has some
@@ -185,7 +185,7 @@ Remember, if you use a custom screen option YOU are responsible for fixing it
 
 == Building a simple clean-sheet custom screen
 
-image::images/tester.png[align="center"]
+image::images/tester.png[align="center", alt="simple usable screen"]
 
 Lets build a simple usable screen. Build this in the Glade editor (if using a
 RIP package run it from a terminal after using . scripts/rip-environment ).
@@ -209,7 +209,7 @@ RIP package run it from a terminal after using . scripts/rip-environment ).
 * The buttons in this example are regular buttons not HAL buttons. We don't
   need the HAL pins.
 
-image::images/tester_editor.png[align="center"]
+image::images/tester_editor.png[align="center", alt="Glade editor tester.glade"]
 
 In this screen we are using VCP_actions to communicate to LinuxCNC the actions
 we want. This allows us standard functions without adding python code in the
