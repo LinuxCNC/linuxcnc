@@ -25,7 +25,7 @@ If both the inputs to the `and2.0` component are on the
 `and2.0.out` will be on and this will start the program.
 
 .Remote Start Example
-image::images/remote-start.png[]
+image::images/remote-start.png[alt="Remote Start Example"]
 
 The hal commands needed to accomplish the above are:
 
