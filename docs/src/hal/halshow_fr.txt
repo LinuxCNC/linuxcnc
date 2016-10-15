@@ -31,7 +31,7 @@ MONTRER et WATCH.
 [[cap:Fenetre-Halshow]]
 .La fenêtre de Halshow
 
-image::images/halshow-1_fr.png[]
+image::images/halshow-1_fr.png[alt="La fenêtre de Halshow"]
 
 L'arborescence montre toutes les parties principales de HAL. En face
 de chacune d'entre elles, se trouve un petit signe + ou - dans une
@@ -45,7 +45,7 @@ complète depuis le menu _Arborescence_.
 [[cap:onglet-Montrer]]
 .L'onglet Montrer
 
-image::images/halshow-3.png[]
+image::images/halshow-3.png[alt="L'onglet Montrer"]
 
 === Zone de l'onglet MONTRER
 
@@ -167,7 +167,7 @@ que cette commande a été exécutée.
 [[cap:Commande-addf]]
 .Commande Addf
 
-image::images/halshow-2_fr.png[]
+image::images/halshow-2_fr.png[alt="Commande Addf"]
 
 Ensuite, nous devons connecter ce bloc à quelque chose. Mais comment
 savoir quelles pins sont disponibles? La réponse se trouve dans
@@ -238,7 +238,7 @@ machine ne sera pas mise en marche.
 .L'onglet WATCH
 (((L'onglet watch)))
 
-image::images/halshow-4.png[]
+image::images/halshow-4.png[alt="L'onglet WATCH"]
 
 Les cercles de deux couleurs, simili Leds, sont toujours bruns foncé
 quand un signal est faux. Elle sont jaunes quand le signal est vrai.
