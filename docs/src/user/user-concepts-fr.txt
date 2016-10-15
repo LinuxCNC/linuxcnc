@@ -24,13 +24,13 @@ et deux cames mobiles pour l'actionner. Dans ce cas les limites seront inversée
 point de vue du sens de déplacement de l'outil.
 
 .Configuration typique d'une fraiseuse
-image::images/mill-diagram.png[align="left"]
+image::images/mill-diagram.png[align="left", alt="Configuration typique d'une fraiseuse"]
 
 Le dessin suivant montre les directions de déplacement de l'outil et la position
 des fins de course de limite sur un tour classique.
 
 .Configuration typique d'un tour
-image::images/lathe-diagram.png[align="left"]
+image::images/lathe-diagram.png[align="left", alt="Configuration typique d'un tour"]
 
 == Contrôle de trajectoire
 
@@ -167,7 +167,7 @@ programmée.
 
 .Détecteur Naive Cam
 
-image::images/naive-cam.png[]
+image::images/naive-cam.png[alt="Détecteur Naive Cam"]
 
 === Planification des mouvements
 
