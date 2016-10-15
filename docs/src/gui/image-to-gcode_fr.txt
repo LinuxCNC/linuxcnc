@@ -3,7 +3,7 @@
 
 = Image-to-gcode: Usiner un depth maps
 
-image::images/image-to-gcode.png[]
+image::images/image-to-gcode.png[alt="Image-to-gcode: Usiner un depth maps"]
 
 == Qu'est-ce qu'un _depth map_?
 
@@ -185,5 +185,5 @@ pouces et Roughing Offset de 0.1 pouces.
 
 .Passes d'ébauche[[cap:Passes-Ebauche]]
 
-image::images/i2g-roughing.png[]
+image::images/i2g-roughing.png[alt="Passes d'ébauche"]
 
