@@ -40,7 +40,7 @@ Une fenêtre comme ci-dessous devrait s'ouvrir:
 
 .Test de latence de HAL
 
-image::../config/images/latency.png[]
+image::../config/images/latency.png[alt="Test de latence de HAL"]
 
 Alors que le test est en cours d'exécution, il faut charger l'ordinateur au
 maximum. Déplacer les fenêtres sur l'écran. Surfer sur le Web. Écouter de la
