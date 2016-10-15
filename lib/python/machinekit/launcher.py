@@ -265,10 +265,10 @@ def set_machinekit_ini(ini):
 
 
 # ensure mklauncher is running
-def ensure_mklaucher():
+def ensure_mklauncher():
     try:
         subprocess.check_output(['pgrep', 'mklauncher'])
         return
     except subprocess.CalledProcessError:
         pass
-    launcher.start_process('mklauncher .')
+    start_process('mklauncher .')
