@@ -16,7 +16,7 @@ counting backwards.
 
 .Wrapping Counter[[fig:Wrapping-Counter]]
 
-image::images/wrapping-counter.png[]
+image::images/wrapping-counter.png[alt="Wrapping Counter"]
 
 === Reject Extra Pulses
 
@@ -31,7 +31,7 @@ output until it times out.
 
 .Reject Extra Pulse[[fig:Reject-Extra-Pulse]]
 
-image::images/extra-pulse-reject.png[]
+image::images/extra-pulse-reject.png[alt="Reject Extra Pulse"]
 
 === External E-Stop
 
@@ -59,7 +59,7 @@ Next we run our config and build the ladder as shown here.
 
 .E-Stop Section Display[[cap:E-Stop-Section-Display]]
 
-image::images/EStop_Section_Display.png[]
+image::images/EStop_Section_Display.png[alt="E-Stop Section Display"]
 
 After building the ladder select Save As and save the ladder as
 estop.clp
@@ -132,7 +132,7 @@ Now start up your config and it should look like this.
 
 .AXIS E-Stop[[cap:AXIS-E-Stop]]
 
-image::images/axis_cl-estop.png[]
+image::images/axis_cl-estop.png[alt="AXIS E-Stop"]
 
 Note that in this example like in real life you must clear the remote
 E-Stop (simulated by the checkbox) before the AXIS E-Stop or the
@@ -147,7 +147,7 @@ the timer preset based on if an input is on or off.
 
 .Timer/Operate Example[[cap:Timer/Operate-Example]]
 
-image::images/Tmr_Section_Display.png[]
+image::images/Tmr_Section_Display.png[alt="Timer/Operate Example"]
 
 In this case %I0 is true so the timer preset value is 10. If %I0 was
 false the timer preset would be 5.
