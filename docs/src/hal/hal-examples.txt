@@ -98,7 +98,7 @@ from either the abs.0.out pin or the X-IPM signal.
 
 .Velocity Example[[cap:Velocity-Example]]
 
-image::images/velocity-01.png[]
+image::images/velocity-01.png[alt="Velocity Example"]
 
 == Soft Start
 
@@ -172,7 +172,7 @@ then use the Pos slider in the Vertical box to set the positions.
 
 .Softstart[[cap:Softstart]]
 
-image::images/softstart-scope.png[]
+image::images/softstart-scope.png[alt="Softstart"]
 
 To see the effect of changing the set point values of any of the
 components you can change them in the terminal window. To see what
