@@ -48,7 +48,7 @@ You should see something like this:
 
 .HAL Latency Test
 
-image::../config/images/latency.png[align="center"]
+image::../config/images/latency.png[align="center", alt="HAL Latency Test"]
 
 While the test is running, you should 'abuse' the computer. 
 Move windows around on the screen. Surf the web. Copy some large files 
@@ -115,7 +115,7 @@ Options:
       --relative (relative clock time (default))
       --actual   (actual clock time)
 ----
-image::../config/images/latency-plot.png[]
+image::../config/images/latency-plot.png[alt="latency-plot makes a strip chart recording for a base and a servo thread"]
 
 
 latency-histogram displays a histogram of latency (jitter) for
@@ -148,7 +148,7 @@ Notes:
   with special end bars.  Use --show to show count for
   the off-chart [pos|neg] bin
 ----
-image::../config/images/latency-histogram.png[]
+image::../config/images/latency-histogram.png[alt="latency-histogram displays a histogram of latency (jitter) for a base and servo thread"]
 
 // vim: set syntax=asciidoc:
 
