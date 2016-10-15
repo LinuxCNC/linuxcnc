@@ -10,7 +10,7 @@ Tk and OpenGL to display its user interface.
 
 .AXIS Window
 
-image::images/axis.png[align="center"]
+image::images/axis.png[align="center", alt="AXIS Window"]
 
 == Getting Started
 
@@ -310,43 +310,43 @@ So be familiar with your machine's design and interpret the display as needed.
 
 From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
-* image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)
+* image:images/tool_estop.gif[alt="Toggle Emergency Stop"] Toggle Emergency Stop [F1] (also called E-Stop)
 
-* image:images/tool_power.gif[] Toggle Machine Power [F2]
+* image:images/tool_power.gif[alt="Toggle Machine Power"] Toggle Machine Power [F2]
 
-* image:images/tool_open.gif[] Open G Code file [O]
+* image:images/tool_open.gif[alt="Open G Code file"] Open G Code file [O]
 
-* image:images/tool_reload.gif[] Reload current file [Ctrl-R]
+* image:images/tool_reload.gif[alt="Reload current file"] Reload current file [Ctrl-R]
 
-* image:images/tool_run.gif[] Begin executing the current file [R]
+* image:images/tool_run.gif[alt="Begin executing the current file"] Begin executing the current file [R]
 
-* image:images/tool_step.gif[] Execute next line [T]
+* image:images/tool_step.gif[alt="Execute next line"] Execute next line [T]
 
-* image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
+* image:images/tool_pause.gif[alt="Pause Execution - Resume Execution"] Pause Execution [P] Resume Execution [S]
 
-* image:images/tool_stop.gif[] Stop Program Execution [ESC]
+* image:images/tool_stop.gif[alt="Stop Program Execution"] Stop Program Execution [ESC]
 
-* image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
+* image:images/tool_blockdelete.gif[alt="Toggle Skip lines"] Toggle Skip lines with "/" [Alt-M-/]
 
-* image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
+* image:images/tool_optpause.gif[alt="Toggle Optional Pause"] Toggle Optional Pause [Alt-M-1]
 
-* image:images/tool_zoomin.gif[] Zoom In
+* image:images/tool_zoomin.gif[alt="Zoom In"] Zoom In
 
-* image:images/tool_zoomout.gif[] Zoom Out
+* image:images/tool_zoomout.gif[alt="Zoom Out"] Zoom Out
 
-* image:images/tool_axis_z.gif[] Top view
+* image:images/tool_axis_z.gif[alt="Top view"] Top view
 
-* image:images/tool_axis_z2.gif[] Rotated Top view
+* image:images/tool_axis_z2.gif[alt="Rotated Top view"] Rotated Top view
 
-* image:images/tool_axis_x.gif[] Side view
+* image:images/tool_axis_x.gif[alt="Side view"] Side view
 
-* image:images/tool_axis_y.gif[] Front view
+* image:images/tool_axis_y.gif[alt="Front view"] Front view
 
-* image:images/tool_axis_p.gif[] Perspective view
+* image:images/tool_axis_p.gif[alt="Perspective view"] Perspective view
 
-* image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
+* image:images/tool_rotate.gif[alt="Toggle between Drag and Rotate Mode"] Toggle between Drag and Rotate Mode [D]
 
-* image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
+* image:images/tool_clear.gif[alt="Clear live backplot"] Clear live backplot [Ctrl-K]
 
 
 === Graphical Display Area
@@ -355,9 +355,9 @@ From left to right in the Axis display, the toolbar buttons (keyboard shortcuts 
 
 In the upper-left corner of the program display is the coordinate position
 display for each axis. To the right of the number an origin symbol
-image:images/axis-homed.png[] is shown if the axis has been homed.
+image:images/axis-homed.png[alt="origin symbol is shown if the axis has been homed"] is shown if the axis has been homed.
 
-A limit symbol image:images/axis-limit.png[] is shown on the right side of the
+A limit symbol image:images/axis-limit.png[alt="limit symbol"] is shown on the right side of the
 coordinate position number if the axis is on one of its limit switches.
 
 To properly interpret the coordinate position numbers, refer to the 'Position:'
@@ -366,7 +366,7 @@ displayed number is in the machine coordinate system. If it is
 'Relative Actual', then the displayed number is in the offset coordinate
 system. When the coordinates displayed are relative and an offset has been set,
 the display will include a cyan 'machine origin'
-image:images/axis-machineorigin.png[] marker.
+image:images/axis-machineorigin.png[alt="cyan machine origin"] marker.
 
 If the position is 'Commanded', then the exact coordinate given in a G code
 command is displayed. If it is 'Actual', then it is the position the machine
@@ -411,7 +411,7 @@ and the program requires 3.83 inches of X travel.
 To move the program so it's within the machine's travel in this case, 
 jog to the left and Touch Off X again.
 
-image::images/axis-outofrange.png[align="center"]
+image::images/axis-outofrange.png[align="center",alt="The extents of the program in x axis are shown"]
 
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is
@@ -480,7 +480,7 @@ the text display will automatically scroll to show the current line.
 
 .Current and Selected Lines
 
-image::images/axis-currentandselected.png[align="center"]
+image::images/axis-currentandselected.png[align="center", alt="Current and Selected Lines"]
 
 === Manual Control
 
@@ -552,7 +552,7 @@ resulting value is shown as a number.
 
 .Touch Off
 
-image::images/touchoff.png[align="center"]
+image::images/touchoff.png[align="center", alt="Touch Off"]
 
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture' 
 options in the Machine menu.
@@ -593,7 +593,7 @@ running, the MDI controls are unavailable.
 
 .The MDI tab
 
-image::images/axis-mdi.png[align="center"]
+image::images/axis-mdi.png[align="center", alt="MDI tab"]
 
 * 'History' - This shows MDI commands that have been typed earlier in this session.
 
@@ -697,7 +697,7 @@ Show LinuxCNC Status
 
 .LinuxCNC Status Window
 
-image::images/axis-emc-status.png[align="center"]
+image::images/axis-emc-status.png[align="center", alt="LinuxCNC Status Window"]
 
 The name of each item is shown in the left column. The current value
 is shown in the right column. If the value has recently changed, it is
@@ -765,7 +765,7 @@ program a G1 with no move after the T<n>.
 
 .The Manual Toolchange Window
 
-image::images/manual-tool-change.png[align="center"]
+image::images/manual-tool-change.png[align="center", alt="The Manual Toolchange Window"]
 
 == Python modules 
 
@@ -802,7 +802,7 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 
 .Lathe Tool Shape
 
-image:images/axis-lathe-tool.png[align="center"]
+image::images/axis-lathe-tool.png[align="center", alt="Lathe Tool Shape"]
 
 == Using AXIS in Foam Cutting mode
 
@@ -815,7 +815,7 @@ set the Z coordinates of these planes, which default to 0 and 1.5 machine units.
 
 .Foam cutting mode
 
-image:images/axis-foam.png[align="center"]
+image::images/axis-foam.png[align="center", alt="Foam cutting mode"]
 
 
 == Advanced Configuration
@@ -866,7 +866,7 @@ series of holes along the circumference of a circle.
 
 .Circular Holes
 
-image::images/holes.png[align="center"]
+image::images/holes.png[align="center", alt="Circular Holes"]
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form
