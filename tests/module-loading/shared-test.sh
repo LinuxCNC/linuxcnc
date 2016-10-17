@@ -1,6 +1,7 @@
 #!/bin/bash
 
 outpipe=pipe-stdout
+trap "rm -f $outpipe" 0 1 2 3 9 15 EXIT
 mkfifo $outpipe
 
 tee hal-output < $outpipe | egrep $(cat PIN_NAME_REGEX) | wc -l \
