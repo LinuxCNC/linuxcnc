@@ -12,7 +12,6 @@
 #endif
 
 hal_comp_t *halpr_alloc_comp_struct(void);
-static void free_comp_struct(hal_comp_t * comp);
 
 #ifdef RTAPI
 static int init_hal_data(void);
@@ -20,171 +19,195 @@ static int create_instance(const hal_funct_args_t *fa);
 static int delete_instance(const hal_funct_args_t *fa);
 #endif
 
-int hal_xinitf(const int type,
-	       const int userarg1,
-	       const int userarg2,
-	       const hal_constructor_t ctor,
-	       const hal_destructor_t dtor,
-	       const char *fmt, ...)
-{
-    va_list ap;
-    char hal_name[HAL_NAME_LEN + 1];
-
-    CHECK_NULL(fmt);
-    va_start(ap, fmt);
-    int sz = rtapi_vsnprintf(hal_name, sizeof(hal_name), fmt, ap);
-    if(sz == -1 || sz > HAL_NAME_LEN) {
-        HALERR("invalid length %d for name starting with '%s'",
-	       sz, hal_name);
-        return -EINVAL;
-    }
-    return hal_xinit(type, userarg1, userarg2, ctor, dtor, hal_name);
-}
-
 int hal_xinit(const int type,
 	      const int userarg1,
 	      const int userarg2,
 	      const hal_constructor_t ctor,
 	      const hal_destructor_t dtor,
-	      const char *name)
+	      const char *name) {
+    hal_comp_t *c = halg_xinitf(1, type, userarg1, userarg2, ctor, dtor, name);
+    return c == NULL ? _halerrno : hh_get_id(&c->hdr);
+}
+
+hal_comp_t *halg_xinitf(const int use_halmutex,
+			const int type,
+			const int userarg1,
+			const int userarg2,
+			const hal_constructor_t ctor,
+			const hal_destructor_t dtor,
+			const char *fmt, ...)
 {
-    int comp_id, retval;
+    va_list ap;
+    PCHECK_NULL(fmt);
+    va_start(ap, fmt);
+    hal_comp_t *comp =  halg_xinitfv(use_halmutex,
+				     type,
+				     userarg1,
+				     userarg2,
+				     ctor,
+				     dtor,
+				     fmt, ap);
+    va_end(ap);
+    return comp;
+}
+
+hal_comp_t *halg_xinitfv(const int use_hal_mutex,
+			 const int type,
+			 const int userarg1,
+			 const int userarg2,
+			 const hal_constructor_t ctor,
+			 const hal_destructor_t dtor,
+			 const char *fmt,
+			 va_list ap)
+{
+    PCHECK_NULL(fmt);
+    PCHECK_STRLEN(fmt, HAL_MAX_NAME_LEN);
+    char buf[HAL_MAX_NAME_LEN + 1];
+    char *name = fmt_ap(buf, sizeof(buf), fmt, ap);
+    PCHECK_NULL(name);
 
     rtapi_set_logtag("hal_lib");
-    CHECK_STRLEN(name, HAL_NAME_LEN);
+    int comp_id, retval;
 
     // sanity: these must have been inited before by the
     // respective rtapi.so/.ko module
-    CHECK_NULL(rtapi_switch);
+    PCHECK_NULL(rtapi_switch);
 
     if ((dtor != NULL) && (ctor == NULL)) {
-	HALERR("component '%s': NULL constructor doesnt make"
-	       " sense with non-NULL destructor", name);
-	return -EINVAL;
+	HALFAIL_NULL(EINVAL,"component '%s': NULL constructor doesnt make"
+		     " sense with non-NULL destructor", name);
     }
 
     // RTAPI initialisation already done
     HALDBG("initializing component '%s' type=%d arg1=%d arg2=%d/0x%x",
 	   name, type, userarg1, userarg2, userarg2);
 
-    if ((lib_module_id < 0) && (type != TYPE_HALLIB)) {
-	// if hal_lib not inited yet, do so now - recurse
-#ifdef RTAPI
-	retval = hal_xinit(TYPE_HALLIB, 0, 0, NULL, NULL, "hal_lib");
-#else
-	retval = hal_xinitf(TYPE_HALLIB, 0, 0, NULL, NULL, "hal_lib%ld",
-			    (long) getpid());
-#endif
-	if (retval < 0)
-	    return retval;
-    }
-
-    // tag message origin field since ulapi autoload re-tagged them temporarily
-    rtapi_set_logtag("hal_lib");
-
-    /* copy name to local vars, truncating if needed */
-    char rtapi_name[RTAPI_NAME_LEN + 1];
-    char hal_name[HAL_NAME_LEN + 1];
-
-    rtapi_snprintf(hal_name, sizeof(hal_name), "%s", name);
-    rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_%s", hal_name);
-
-    /* do RTAPI init */
-    comp_id = rtapi_init(rtapi_name);
-    if (comp_id < 0) {
-	HALERR("rtapi init(%s) failed", rtapi_name);
-	return -EINVAL;
-    }
-
-    // recursing? init HAL shm
-    if ((lib_module_id < 0) && (type == TYPE_HALLIB)) {
-	// recursion case, we're initing hal_lib
-
-	// get HAL shared memory from RTAPI
-	int shm_id = rtapi_shmem_new(HAL_KEY,
-				     comp_id,
-				     global_data->hal_size);
-	if (shm_id < 0) {
-	    HALERR("hal_lib:%d failed to allocate HAL shm %x, rc=%d",
-		   comp_id, HAL_KEY, shm_id);
-	    rtapi_exit(comp_id);
-	    return -EINVAL;
-	}
-	// retrieve address of HAL shared memory segment
-	void *mem;
-	retval = rtapi_shmem_getptr(shm_id, &mem, 0);
-	if (retval < 0) {
-	    HALERR("hal_lib:%d failed to acquire HAL shm %x, id=%d rc=%d",
-		   comp_id, HAL_KEY, shm_id, retval);
-	    rtapi_exit(comp_id);
-	    return -EINVAL;
-	}
-	// set up internal pointers to shared mem and data structure
-	hal_shmem_base = (char *) mem;
-	hal_data = (hal_data_t *) mem;
-
-#ifdef RTAPI
-	// only on RTAPI hal_lib initialization:
-	// initialize up the HAL shm segment
-	retval = init_hal_data();
-	if (retval) {
-	    HALERR("could not init HAL shared memory rc=%d", retval);
-	    rtapi_exit(lib_module_id);
-	    lib_module_id = -1;
-	    return -EINVAL;
-	}
-	retval = hal_proc_init();
-	if (retval) {
-	    HALERR("could not init /proc files");
-	    rtapi_exit(lib_module_id);
-	    lib_module_id = -1;
-	    return -EINVAL;
-	}
-#endif
-	// record hal_lib comp_id
-	lib_module_id = comp_id;
-	// and the HAL shm segmed id
-	lib_mem_id = shm_id;
-
-    }
-    // global_data MUST be at hand now:
-    HAL_ASSERT(global_data != NULL);
-
-    // paranoia
-    HAL_ASSERT(hal_shmem_base != NULL);
-    HAL_ASSERT(hal_data != NULL);
-    HAL_ASSERT(lib_module_id > -1);
-    HAL_ASSERT(lib_mem_id > -1);
-    if (lib_module_id < 0) {
-	HALERR("giving up");
-	return -EINVAL;
-    }
-
     {
-	hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
+	// in this phase it is not guaranteed that the hal library is loaded,
+	// and the hal shm segment is available; therefore, whatever the
+	// argument says, we cannot lock the hal mutex since it resides
+	// in the very shm segment the hal lib initialisation will attach.
+	WITH_HAL_MUTEX_IF(use_hal_mutex && (hal_data != NULL));
 
-	/* get mutex before manipulating the shared data */
-	rtapi_mutex_get(&(hal_data->mutex));
+	if ((lib_module_id < 0) && (type != TYPE_HALLIB)) {
+	    // if hal_lib not inited yet, do so now - recurse
+	    hal_comp_t *hallib;
+#ifdef RTAPI
+	    hallib = halg_xinitf(0, TYPE_HALLIB, 0, 0, NULL, NULL, "hal_lib");
+#else
+	    hallib = halg_xinitf(0, TYPE_HALLIB, 0, 0, NULL, NULL, "hal_lib%ld",
+				(long) getpid());
+#endif
+	    if (hallib == NULL)
+		return NULL;
+	}
+
+	// tag message origin field since ulapi autoload re-tagged them temporarily
+	rtapi_set_logtag("hal_lib");
+
+	/* copy name to local vars, truncating if needed */
+	char rtapi_name[RTAPI_NAME_LEN + 1];
+
+	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_%s", name);
+
+	/* do RTAPI init */
+	comp_id = rtapi_init(rtapi_name);
+	if (comp_id < 0) {
+	    HALFAIL_NULL(comp_id, "rtapi init(%s) failed", rtapi_name);
+	}
+
+	// recursing? init HAL shm
+	if ((lib_module_id < 0) && (type == TYPE_HALLIB)) {
+	    // recursion case, we're initing hal_lib
+
+	    // get HAL shared memory from RTAPI
+	    int shm_id = rtapi_shmem_new(HAL_KEY,
+					 comp_id,
+					 global_data->hal_size);
+	    if (shm_id < 0) {
+		rtapi_exit(comp_id);
+		HALFAIL_NULL(shm_id,
+			     "hal_lib:%d failed to allocate HAL shm %x, rc=%d",
+			     comp_id, HAL_KEY, shm_id);
+	    }
+	    // retrieve address of HAL shared memory segment
+	    void *mem;
+	    retval = rtapi_shmem_getptr(shm_id, &mem, 0);
+	    if (retval < 0) {
+		rtapi_exit(comp_id);
+		HALFAIL_NULL(retval,
+			     "hal_lib:%d failed to acquire HAL shm %x, id=%d rc=%d",
+			     comp_id, HAL_KEY, shm_id, retval);
+	    }
+	    // set up internal pointers to shared mem and data structure
+	    hal_shmem_base = (char *) mem;
+	    hal_data = (hal_data_t *) mem;
+
+#ifdef RTAPI
+	    // only on RTAPI hal_lib initialization:
+	    // initialize up the HAL shm segment
+	    retval = init_hal_data();
+	    if (retval) {
+		rtapi_exit(lib_module_id);
+		lib_module_id = -1;
+		HALFAIL_NULL(retval,
+			     "could not init HAL shared memory rc=%d", retval);
+	    }
+	    retval = hal_proc_init();
+	    if (retval) {
+		rtapi_exit(lib_module_id);
+		lib_module_id = -1;
+		HALFAIL_NULL(retval, "could not init /proc files");
+	    }
+#endif
+	    // record hal_lib comp_id
+	    lib_module_id = comp_id;
+	    // and the HAL shm segmed id
+	    lib_mem_id = shm_id;
+
+	}
+	// global_data MUST be at hand now:
+	HAL_ASSERT(global_data != NULL);
+
+	// paranoia
+	HAL_ASSERT(hal_shmem_base != NULL);
+	HAL_ASSERT(hal_data != NULL);
+	HAL_ASSERT(lib_module_id > -1);
+	HAL_ASSERT(lib_mem_id > -1);
+	if (lib_module_id < 0) {
+	    HALFAIL_NULL(lib_module_id, "giving up");
+	}
+    }
+    // from here on, the hal and global data segments are
+    // guaranteed to be mapped, so it is safe to lock as
+    // directed by use_hal_mutex
+    {
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
+
+	hal_comp_t *comp;
+
 	/* make sure name is unique in the system */
-	if (halpr_find_comp_by_name(hal_name) != 0) {
+	if (halpr_find_comp_by_name(name) != 0) {
 	    /* a component with this name already exists */
-	    HALERR("duplicate component name '%s'", hal_name);
 	    rtapi_exit(comp_id);
-	    return -EINVAL;
+	    HALFAIL_NULL(EBUSY, "duplicate component name '%s'", name);
 	}
-	/* allocate a new component structure */
-	comp = halpr_alloc_comp_struct();
-	if (comp == 0) {
-	    HALERR("insufficient memory for component '%s'", hal_name);
+
+	comp = halg_create_objectf(false, sizeof(hal_comp_t),
+				   HAL_COMPONENT, 0, name);
+	if (comp == NULL) {
 	    rtapi_exit(comp_id);
-	    return -ENOMEM;
+	    return NULL;
 	}
+
+	// fixup comp_id which comes from
+	// rtapi_init(), not rtapi_next_handle()
+	hh_set_id(&comp->hdr, comp_id);
 
 	/* initialize the comp structure */
 	comp->userarg1 = userarg1;
 	comp->userarg2 = userarg2;
-	comp->comp_id = comp_id;
-	comp->type = type;
+	comp->type = type;  // subtype (RT, USER, REMOTE)
 	comp->ctor = ctor;
 	comp->dtor = dtor;
 #ifdef RTAPI
@@ -199,115 +222,96 @@ int hal_xinit(const int type,
 	comp->last_unbound = 0;
 	comp->shmem_base = hal_shmem_base;
 	comp->insmod_args = 0;
-	rtapi_snprintf(comp->name, sizeof(comp->name), "%s", hal_name);
-	/* insert new structure at head of list */
-	comp->next_ptr = hal_data->comp_list_ptr;
-	hal_data->comp_list_ptr = SHMOFF(comp);
 
-    }
-    // scope exited - mutex released
+	// make it visible
+	halg_add_object(false, (hal_object_ptr)comp);
 
-    // finish hal_lib initialisation
-    // in ULAPI this will happen after the recursion on hal_lib%d unwinds
+	// scope exited - mutex released
 
-    if (type == TYPE_HALLIB) {
+	// finish hal_lib initialisation
+	// in ULAPI this will happen after the recursion on hal_lib%d unwinds
+
+	if (type == TYPE_HALLIB) {
 #ifdef RTAPI
-	// only on RTAPI hal_lib initialization:
-	// export the instantiation support userfuncts
-	hal_export_xfunct_args_t ni = {
-	    .type = FS_USERLAND,
-	    .funct.u = create_instance,
-	    .arg = NULL,
-	    .owner_id = lib_module_id
-	};
-	if ((retval = hal_export_xfunctf( &ni, "newinst")) < 0)
-	    return retval;
+	    // only on RTAPI hal_lib initialization:
+	    // export the instantiation support userfuncts
+	    hal_export_xfunct_args_t ni = {
+		.type = FS_USERLAND,
+		.funct.u = create_instance,
+		.arg = NULL,
+		.owner_id = lib_module_id
+	    };
+	    if ((retval = halg_export_xfunctf(0,  &ni, "newinst")) < 0)
+		return NULL;
 
-	hal_export_xfunct_args_t di = {
-	    .type = FS_USERLAND,
-	    .funct.u = delete_instance,
-	    .arg = NULL,
-	    .owner_id = lib_module_id
-	};
-	if ((retval = hal_export_xfunctf( &di, "delinst")) < 0)
-	    return retval;
+	    hal_export_xfunct_args_t di = {
+		.type = FS_USERLAND,
+		.funct.u = delete_instance,
+		.arg = NULL,
+		.owner_id = lib_module_id
+	    };
+	    if ((retval = halg_export_xfunctf(0, &di, "delinst")) < 0)
+		return NULL;
 #endif
-	retval = hal_ready(lib_module_id);
-	if (retval)
-	    HALERR("hal_ready(%d) failed rc=%d", lib_module_id, retval);
-	else
-	    HALDBG("%s initialization complete", hal_name);
-	return retval;
-    }
+	    retval = halg_ready(0, lib_module_id);
+	    if (retval)
+		HALFAIL_NULL(retval,
+			     "hal_ready(%d) failed rc=%d", lib_module_id, retval);
 
-    HALDBG("%s component '%s' id=%d initialized%s",
-	   (ctor != NULL) ? "instantiable" : "legacy",
-	   hal_name, comp_id,
-	   (dtor != NULL) ? ", has destructor" : "");
-    return comp_id;
+	    HALDBG("%s component '%s' id=%d initialized%s",
+		   (ctor != NULL) ? "instantiable" : "singleton",
+		   name, comp_id,
+		   (dtor != NULL) ? ", has destructor" : "");
+
+	}
+	return comp;
+    }
+    return NULL;
 }
 
-
-int hal_exit(int comp_id)
+int halg_exit(const int use_hal_mutex, int comp_id)
 {
-    int *prev, next, comptype;
-    char name[HAL_NAME_LEN + 1];
+    int comptype;
 
     CHECK_HALDATA();
 
-    HALDBG("removing component %d", comp_id);
-
     {
-	hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
+	hal_comp_t *comp = halpr_find_comp_by_id(comp_id);
 
-	/* grab mutex before manipulating list */
-	rtapi_mutex_get(&(hal_data->mutex));
-	/* search component list for 'comp_id' */
-	prev = &(hal_data->comp_list_ptr);
-	next = *prev;
-	if (next == 0) {
-	    /* list is empty - should never happen, but... */
-	    HALERR("no components defined");
-	    return -EINVAL;
+	if (comp == NULL) {
+	    HALFAIL_RC(EINVAL, "no such component with id %d", comp_id);
 	}
-	comp = SHMPTR(next);
-	while (comp->comp_id != comp_id) {
-	    /* not a match, try the next one */
-	    prev = &(comp->next_ptr);
-	    next = *prev;
-	    if (next == 0) {
-		/* reached end of list without finding component */
-		HALERR("no such component with id %d", comp_id);
-		return -EINVAL;
-	    }
-	    comp = SHMPTR(next);
-	}
+
+	HALDBG("removing component %d '%s'", comp_id, ho_name(comp));
 
 	// record type, since we're about to zap the comp in free_comp_struct()
+	// which would be a dangling reference
 	comptype = comp->type;
 
-	/* save component name for later */
-	rtapi_snprintf(name, sizeof(name), "%s", comp->name);
-	/* get rid of the component */
+	// get rid of the component
+	// this frees all dependent objects before releasing the comp
+	// descriptor per se: functs, pins, params, instances, and in
+	// turn, dependent objects of instances
 	free_comp_struct(comp);
 
-	// unlink the comp only now as free_comp_struct() must
-	// determine ownership of pins/params/functs and this
-	// requires access to the current comp, too
-	// since this is all under lock it should not matter
-	*prev = comp->next_ptr;
+    } // scope exit - HAL mutex released
 
-	// add it to free list
-	comp->next_ptr = hal_data->comp_free_ptr;
-	hal_data->comp_free_ptr = SHMOFF(comp);
-
-	// scope exit - mutex released
-    }
-
-    // if unloading the hal_lib component, destroy HAL shm
+    // if unloading the hal_lib component, destroy HAL shm.
+    // this must happen without the HAL mutex, because the
+    // HAL mutex lives in the very shm segment which we're
+    // about to release, which will it make impossible to
+    // release the mutex (and leave the HAL shm locked
+    // for other processes
     if (comptype == TYPE_HALLIB) {
 	int retval;
-
+	HALDBG("hal_errorcount()=%d", hal_errorcount(0));
+	HALDBG("_halerrno=%d", _halerrno);
+#ifdef RTAPI
+	report_memory_usage();
+	// just assure everything still intact
+	HALDBG("hal_sweep: %d objects freed", hal_sweep());
+#endif
 	/* release RTAPI resources */
 	retval = rtapi_shmem_delete(lib_mem_id, comp_id);
 	if (retval) {
@@ -332,95 +336,31 @@ int hal_exit(int comp_id)
 	// the standard case
 	rtapi_exit(comp_id);
     }
-
-    //HALDBG("component '%s' id=%d removed", name, comp_id);
     return 0;
 }
 
+int halg_ready(const int use_hal_mutex, int comp_id)
+{
+    WITH_HAL_MUTEX_IF(use_hal_mutex);
 
-int hal_ready(int comp_id) {
-    int next;
-    hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
-
-    rtapi_mutex_get(&(hal_data->mutex));
-
-    /* search component list for 'comp_id' */
-    next = hal_data->comp_list_ptr;
-    if (next == 0) {
-	/* list is empty - should never happen, but... */
-	HALERR("BUG: no components defined - %d", comp_id);
-	return -EINVAL;
+    hal_comp_t *comp = halpr_find_comp_by_id(comp_id);
+    if (comp == NULL) {
+	HALFAIL_RC(EINVAL, "component %d not found", comp_id);
     }
 
-    comp = SHMPTR(next);
-    while (comp->comp_id != comp_id) {
-	/* not a match, try the next one */
-	next = comp->next_ptr;
-	if (next == 0) {
-	    /* reached end of list without finding component */
-	    HALERR("component %d not found", comp_id);
-	    return -EINVAL;
-	}
-	comp = SHMPTR(next);
-    }
     if(comp->state > COMP_INITIALIZING) {
-	HALERR("component '%s' id %d already ready (state %d)",
-	       comp->name, comp->comp_id, comp->state);
-        return -EINVAL;
+	HALFAIL_RC(EINVAL, "component '%s' id %d already ready (state %d)",
+	       ho_name(comp), ho_id(comp), comp->state);
     }
     comp->state = (comp->type == TYPE_REMOTE ?  COMP_UNBOUND : COMP_READY);
     return 0;
 }
 
-char *hal_comp_name(int comp_id)
+const char *hal_comp_name(int comp_id)
 {
-    hal_comp_t *comp;
-    char *result = NULL;
-    rtapi_mutex_get(&(hal_data->mutex));
-    comp = halpr_find_comp_by_id(comp_id);
-    if(comp) result = comp->name;
-    rtapi_mutex_give(&(hal_data->mutex));
-    return result;
-}
-
-hal_comp_t *halpr_find_comp_by_name(const char *name)
-{
-    int next;
-    hal_comp_t *comp;
-
-    /* search component list for 'name' */
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if (strcmp(comp->name, name) == 0) {
-	    /* found a match */
-	    return comp;
-	}
-	/* didn't find it yet, look at next one */
-	next = comp->next_ptr;
-    }
-    /* if loop terminates, we reached end of list with no match */
-    return 0;
-}
-
-hal_comp_t *halpr_find_comp_by_id(int id)
-{
-    int next;
-    hal_comp_t *comp;
-
-    /* search list for 'comp_id' */
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if (comp->comp_id == id) {
-	    /* found a match */
-	    return comp;
-	}
-	/* didn't find it yet, look at next one */
-	next = comp->next_ptr;
-    }
-    /* if loop terminates, we reached end of list without finding a match */
-    return 0;
+    WITH_HAL_MUTEX();
+    hal_comp_t *comp = halpr_find_comp_by_id(comp_id);
+    return (comp == NULL) ? NULL : ho_name(comp);
 }
 
 // use only for owner_ids of pins, params or functs
@@ -439,52 +379,31 @@ hal_comp_t *halpr_find_owning_comp(const int owner_id)
 	return NULL;
     }
 
+    HAL_ASSERT(ho_object_type(inst) == HAL_INST);
+
     // found the instance. Retrieve its owning comp:
-    comp =  halpr_find_comp_by_id(inst->comp_id);
+    comp =  halpr_find_comp_by_id(ho_owner_id(inst));
     if (comp == NULL) {
 	// really bad. an instance which has no owning comp?
 	HALERR("BUG: instance %s/%d's comp_id %d refers to a non-existant comp",
-	       inst->name, inst->inst_id, inst->comp_id);
+	       ho_name(inst), ho_id(inst), ho_owner_id(inst));
     }
+
+    HAL_ASSERT(ho_object_type(comp) == HAL_COMPONENT);
+
     return comp;
 }
 
 
-hal_comp_t *halpr_alloc_comp_struct(void)
+int free_comp_struct(hal_comp_t * comp)
 {
-    hal_comp_t *p;
 
-    /* check the free list */
-    if (hal_data->comp_free_ptr != 0) {
-	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->comp_free_ptr);
-	/* unlink it from the free list */
-	hal_data->comp_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
-    } else {
-	/* nothing on free list, allocate a brand new one */
-	p = shmalloc_dn(sizeof(hal_comp_t));
+    // dont exit if the comp is still reference, eg a remote comp
+    // served by haltalk:
+    if (ho_referenced(comp)) {
+	HALFAIL_RC(EBUSY, "not exiting comp %s - still referenced (refcnt=%d)",
+	       ho_name(comp), ho_refcnt(comp));
     }
-    if (p) {
-	/* make sure it's empty */
-	p->next_ptr = 0;
-	p->comp_id = 0;
-	p->type = TYPE_INVALID;
-	p->state = COMP_INVALID;
-	p->shmem_base = 0;
-	p->name[0] = '\0';
-    }
-    return p;
-}
-
-static void free_comp_struct(hal_comp_t * comp)
-{
-    int *prev, next;
-#ifdef RTAPI
-    hal_funct_t *funct;
-#endif /* RTAPI */
-    hal_pin_t *pin;
-    hal_param_t *param;
 
     /* can't delete the component until we delete its "stuff" */
     /* need to check for functs only if a realtime component */
@@ -492,88 +411,54 @@ static void free_comp_struct(hal_comp_t * comp)
     // first unlink and destroy all functs, so an RT thread
     // cant trample on the comp while it's being destroyed
 
-    /* search the function list for this component's functs */
-    prev = &(hal_data->funct_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	funct = SHMPTR(next);
-	hal_comp_t *owner = halpr_find_owning_comp(funct->owner_id);
-	if (owner == comp) {
-	    /* this function belongs to our component, unlink from list */
-	    *prev = funct->next_ptr;
-	    /* and delete it */
-	    free_funct_struct(funct);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(funct->next_ptr);
-	}
-	next = *prev;
-    }
+    foreach_args_t args =  {
+	// search for functs owned by this comp
+	.type = HAL_FUNCT,
+	.owner_id  = ho_id(comp),
+    };
+    halg_foreach(0, &args, yield_free);
+
     // here, technically all the comp's functs are
     // delf'd and not visible anymore
 
     // now that the funct is gone,
     // exit all the comp's instances
-    next = hal_data->inst_list_ptr;
-    while (next != 0) {
-	hal_inst_t *inst = SHMPTR(next);
-	next = inst->next_ptr;
-	if (inst->comp_id == comp->comp_id) {
-	    // this instance is owned by this comp
-	    free_inst_struct(inst);
-	}
-    }
+    foreach_args_t iargs =  {
+	// search for insts owned by this comp
+	.type = HAL_INST,
+	.owner_id  = ho_id(comp),
+    };
+    halg_foreach(0, &iargs, yield_free);
+
     // here all insts, their pins, params and functs are gone.
 
 #endif /* RTAPI */
 
     // now work the legacy pins and params which are
     // directly owned by the comp.
+    foreach_args_t pinargs =  {
+	// wipe pins owned by this comp
+	.type = HAL_PIN,
+	.owner_id  = ho_id(comp),
+    };
+    halg_foreach(0, &pinargs, yield_free);
 
-    /* search the pin list for this component's pins */
-    prev = &(hal_data->pin_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if (pin->owner_id == comp->comp_id) {
-	    /* this pin belongs to our component, unlink from list */
-	    *prev = pin->next_ptr;
-	    /* and delete it */
-	    free_pin_struct(pin);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(pin->next_ptr);
-	}
-	next = *prev;
-    }
-    /* search the parameter list for this component's parameters */
-    prev = &(hal_data->param_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (param->owner_id == comp->comp_id) {
-	    /* this param belongs to our component, unlink from list */
-	    *prev = param->next_ptr;
-	    /* and delete it */
-	    free_param_struct(param);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(param->next_ptr);
-	}
-	next = *prev;
-    }
+    foreach_args_t paramargs =  {
+	// wipe params owned by this comp
+	.type = HAL_PARAM,
+	.owner_id  = ho_id(comp),
+    };
+    halg_foreach(0, &paramargs, yield_free);
 
-    /* now we can delete the component itself */
-    /* clear contents of struct */
-    comp->comp_id = 0;
-    comp->type = TYPE_INVALID;
-    comp->state = COMP_INVALID;
-    comp->last_bound = 0;
-    comp->last_unbound = 0;
-    comp->last_update = 0;
-    comp->shmem_base = 0;
-    comp->name[0] = '\0';
+    foreach_args_t plugargs =  {
+	.type = HAL_PLUG,
+	.owner_id  = ho_id(comp),
+    };
+    halg_foreach(0, &plugargs, yield_free);  // free plugs
 
+    //  now we can delete the component itself.
+    halg_free_object(false, (hal_object_ptr)comp);
+    return 0;
 }
 
 #ifdef RTAPI
@@ -593,27 +478,23 @@ static int create_instance(const hal_funct_args_t *fa)
 #endif
 
     if (argc < 2) {
-	HALERR("need component name and instance name");
-	return -EINVAL;
+	HALFAIL_RC(EINVAL, "need component name and instance name");
     }
     const char *cname = argv[0];
     const char *iname = argv[1];
 
     hal_comp_t *comp = halpr_find_comp_by_name(cname);
     if (!comp) {
-	HALERR("no such component '%s'", cname);
-	return -EINVAL;
+	HALFAIL_RC(EINVAL,"no such component '%s'", cname);
     }
     if (!comp->ctor) {
-	HALERR("component '%s' not instantiable", cname);
-	return -EINVAL;
+	HALFAIL_RC(EINVAL,"component '%s' not instantiable", cname);
     }
     hal_inst_t *inst = halpr_find_inst_by_name(iname);
     if (inst) {
-	HALERR("instance '%s' already exists", iname);
-	return -EBUSY;
+	HALFAIL_RC(EBUSY,"instance '%s' already exists", iname);
     }
-    return comp->ctor(argc, argv);
+    return comp->ctor(iname, argc - 2, &argv[2]);
 }
 
 static int delete_instance(const hal_funct_args_t *fa)
@@ -627,19 +508,18 @@ static int delete_instance(const hal_funct_args_t *fa)
     for (i = 0; i < argc; i++)
 	HALDBG("    argv[%d] = \"%s\"", i, argv[i]);
     if (argc < 1) {
-	HALERR("no instance name given");
-	return -EINVAL;
+	HALFAIL_RC(EINVAL,"no instance name given");
     }
-    return hal_inst_delete(argv[0]);
+    return halg_inst_delete(1, argv[0]);
 }
 
 
 /** init_hal_data() initializes the entire HAL data structure,
     by the RT hal_lib component
+    must be called with hal mutex held
 */
 int init_hal_data(void)
 {
-
     /* has the block already been initialized? */
     if (hal_data->version != 0) {
 	/* yes, verify version code */
@@ -650,8 +530,6 @@ int init_hal_data(void)
 	    return -1;
 	}
     }
-    /* no, we need to init it, grab the mutex unconditionally */
-    rtapi_mutex_try(&(hal_data->mutex));
 
     // some heaps contain garbage, like xenomai
     memset(hal_data, 0, global_data->hal_size);
@@ -660,44 +538,26 @@ int init_hal_data(void)
     hal_data->version = HAL_VER;
 
     /* initialize everything */
-    hal_data->comp_list_ptr = 0;
-    hal_data->pin_list_ptr = 0;
-    hal_data->sig_list_ptr = 0;
-    hal_data->param_list_ptr = 0;
-    hal_data->funct_list_ptr = 0;
-    hal_data->thread_list_ptr = 0;
-    hal_data->vtable_list_ptr = 0;
-    hal_data->base_period = 0;
-    hal_data->threads_running = 0;
-    hal_data->oldname_free_ptr = 0;
-    hal_data->comp_free_ptr = 0;
-    hal_data->pin_free_ptr = 0;
-    hal_data->sig_free_ptr = 0;
-    hal_data->param_free_ptr = 0;
-    hal_data->funct_free_ptr = 0;
-    hal_data->vtable_free_ptr = 0;
+    dlist_init_entry(&(hal_data->halobjects));
+    dlist_init_entry(&(hal_data->funct_entry_free));
+    dlist_init_entry(&(hal_data->threads));
 
-    list_init_entry(&(hal_data->funct_entry_free));
-    hal_data->thread_free_ptr = 0;
+    hal_data->base_period = 0;
     hal_data->exact_base_period = 0;
 
-    hal_data->group_list_ptr = 0;
-    hal_data->member_list_ptr = 0;
-    hal_data->ring_list_ptr = 0;
-    hal_data->inst_list_ptr = 0;
+    hal_data->threads_running = 0;
+    hal_data->default_ringsize = HAL_DEFAULT_RINGSIZE;
 
-    hal_data->group_free_ptr = 0;
-    hal_data->member_free_ptr = 0;
-    hal_data->ring_free_ptr = 0;
-    hal_data->inst_free_ptr = 0;
+    hal_data->dead_beef = HAL_VALUE_POISON;
+    hal_data->str_alloc = 0;
+    hal_data->str_freed = 0;
+    hal_data->rt_alignment_loss = 0;
 
     RTAPI_ZERO_BITMAP(&hal_data->rings, HAL_MAX_RINGS);
-    // silly 1-based shm segment id allocation FIXED
-    // yeah, 'user friendly', how could one possibly think zero might be a valid id
     RTAPI_BIT_SET(hal_data->rings,0);
 
     /* set up for shmalloc_xx() */
-    hal_data->shmem_bot = sizeof(hal_data_t);
+    hal_data->shmem_bot = SHMOFF(&hal_data->arena);
     hal_data->shmem_top = global_data->hal_size;
     hal_data->lock = HAL_LOCK_NONE;
 
@@ -706,8 +566,11 @@ int init_hal_data(void)
 	hal_data->epsilon[i] = 0.0;
     hal_data->epsilon[0] = DEFAULT_EPSILON;
 
-    /* done, release mutex */
-    rtapi_mutex_give(&(hal_data->mutex));
+    // initialize the HAL heap
+    rtapi_heap_init(&hal_data->heap, "hal heap");
+    rtapi_heap_setflags(&hal_data->heap, global_data->hal_heap_flags);
+    hal_heap_addmem((size_t) (global_data->hal_size / HAL_HEAP_INITIAL));
+
     return 0;
 }
 #endif

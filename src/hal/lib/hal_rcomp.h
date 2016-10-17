@@ -11,9 +11,9 @@ typedef struct {
     int magic;
     hal_comp_t *comp;
     int n_pins;
-    hal_pin_t  **pin;           // all members (nesting resolved)
-    unsigned long *changed;     // bitmap
-    hal_data_u    *tracking;    // tracking values of monitored pins
+    const hal_pin_t  **pin;
+    unsigned long *changed;      // bitmap
+    hal_data_u    *tracking;     // tracking values of monitored pins
     void *user_data;             // uninterpreted by HAL code
     unsigned long user_flags;    // uninterpreted by HAL code
 } hal_compiled_comp_t;
@@ -31,15 +31,17 @@ typedef enum {
     // values to be accepted.
 
     RCOMP_ACCEPT_VALUES_ON_BIND = 1,
-
 } rcompflags_t;
 
-typedef int(*comp_report_callback_t)(int,  hal_compiled_comp_t *,
-				     hal_pin_t *pin,
-				     hal_data_u *value,
+typedef int(*comp_report_callback_t)(const int phase,
+				     const hal_compiled_comp_t *cc,
+				     const hal_pin_t  *pin,
+				     const hal_data_u *value,
 				     void *cb_data);
 
-extern int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp);
+int halg_compile_comp(const int use_hal_mutex,
+		      const char *name,
+		      hal_compiled_comp_t **ccomp);
 extern int hal_ccomp_match(hal_compiled_comp_t *ccomp);
 extern int hal_ccomp_report(hal_compiled_comp_t *ccomp,
 			    comp_report_callback_t report_cb,

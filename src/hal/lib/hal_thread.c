@@ -2,13 +2,12 @@
 
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_atomics.h"
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
 #include "hal_internal.h"
 
 #ifdef RTAPI
-static hal_thread_t *alloc_thread_struct(void);
-
 
 /** 'thread_task()' is a function that is invoked as a realtime task.
     It implements a thread, by running down the thread's function list
@@ -19,6 +18,11 @@ static void thread_task(void *arg)
     hal_thread_t *thread = arg;
     hal_funct_entry_t *funct_root, *funct_entry;
     long long int end_time;
+    hal_s32_t delta, act_period;
+
+    thread->cycles = 0;
+    thread->mean = 0.0;
+    thread->m2 = 0.0;
 
     // thread execution times collected here, doubles as
     // param struct for xthread functs
@@ -27,25 +31,33 @@ static void thread_task(void *arg)
 	.argc = 0,
 	.argv = NULL,
     };
-    bool do_wait = ((thread->flags & TF_NOWAIT) == 0);
-
-    // first time around after start threads,
-    // use nominal period as actual period
-    fa.last_start_time = rtapi_get_time() - thread->period;
 
     while (1) {
 	if (hal_data->threads_running > 0) {
+
 	    /* point at first function on function list */
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
-	    /* execution time logging */
-	    fa.thread_start_time = fa.start_time = end_time =rtapi_get_time();
-	    fa.actual_period = fa.thread_start_time - fa.last_start_time;
+
+	    // the thread release point
+	    fa.start_time = rtapi_get_time();
+
+	    // expose current invocation period as pin (includes jitter)
+	    act_period = fa.start_time - fa.last_start_time;
+	    set_s32_pin(thread->curr_period, act_period);
+
+	    fa.last_start_time = fa.thread_start_time = fa.start_time;
 
 	    /* run thru function list */
 	    while (funct_entry != funct_root) {
 		/* point to function structure */
 		fa.funct = SHMPTR(funct_entry->funct_ptr);
+
+		// issue a read barrier if set in funct_entry or
+		// funct object header
+		if (funct_entry->rmb || ho_rmb(fa.funct)) {
+		    rtapi_smp_rmb();
+		}
 
 		/* call the function */
 		switch (funct_entry->type) {
@@ -59,38 +71,61 @@ static void thread_task(void *arg)
 		    // bad - a mistyped funct
 		    ;
 		}
-		/* capture execution time */
+		// capture execution time of this funct
 		end_time = rtapi_get_time();
+
 		/* update execution time data */
-		*(fa.funct->runtime) = (hal_s32_t)(end_time - fa.start_time);
-		if ( *(fa.funct->runtime) > fa.funct->maxtime) {
-		    fa.funct->maxtime = *(fa.funct->runtime);
-		    fa.funct->maxtime_increased = 1;
+		delta = end_time - fa.start_time;
+		set_s32_pin(fa.funct->f_runtime, delta);
+		if ( delta > get_s32_pin(fa.funct->f_maxtime)) {
+		    set_s32_pin(fa.funct->f_maxtime, delta);
+		    set_bit_pin(fa.funct->f_maxtime_increased, 1);
 		} else {
-		    fa.funct->maxtime_increased = 0;
+		    set_bit_pin(fa.funct->f_maxtime_increased, 0);
 		}
+
+		// issue a write barrier if set in funct_entry or
+		// funct object header
+		if (funct_entry->wmb || ho_wmb(fa.funct)) {
+		    rtapi_smp_wmb();
+		}
+
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
 		/* prepare to measure time for next funct */
 		fa.start_time = end_time;
 	    }
-	    /* update thread execution time */
-	    thread->runtime = (hal_s32_t)(end_time - fa.thread_start_time);
-	    if (thread->runtime > thread->maxtime) {
-		thread->maxtime = thread->runtime;
+	    // update thread execution time in this period
+	    hal_s32_t rt = (end_time - fa.thread_start_time);
+	    set_s32_pin(thread->runtime, rt);
+	    if (rt > get_s32_pin(thread->maxtime)) {
+		set_s32_pin(thread->maxtime, rt);
 	    }
-	    fa.last_start_time = fa.thread_start_time;
 	} else {
-	    // give some breathing time if not threads_running
-	    rtapi_wait();
-	    // if threads were stopped when the thread was created,
-	    // start the first cycle by using the nominal thread period
-	    fa.last_start_time = rtapi_get_time() - thread->period;
-	    continue;
+	    // threads_running flag false:
+
+	    // nothing to do, so just update actual period
+
+	    if (fa.last_start_time > 0) // avoids spike on first iteration
+		act_period = rtapi_get_time() - fa.last_start_time;
+	    else
+		act_period = thread->period;
+	    set_s32_pin(thread->curr_period, act_period);
+
+	    // support actual period measurement (get the starting value right)
+	    fa.last_start_time = rtapi_get_time();
 	}
+
+	// update variance to derive a jitter ballpark figure
+	// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+	thread->cycles++;
+	double x = (double)act_period;
+	double tdelta = x - thread->mean;
+	thread->mean += tdelta/thread->cycles;
+	thread->m2 += tdelta * (x - thread->mean);
+
 	/* wait until next period */
-	if (do_wait)
-	    rtapi_wait();
+	rtapi_wait(thread->flags);
     }
 }
 
@@ -98,7 +133,7 @@ static void thread_task(void *arg)
 
 int hal_create_xthread(const hal_threadargs_t *args)
 {
-    int next, prev_priority;
+    int prev_priority;
     int retval, n;
     hal_thread_t *new, *tptr;
     long prev_period, curr_period;
@@ -113,45 +148,31 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	   args->uses_fp);
 
     if (args->period_nsec == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: create_thread called "
-			"with period of zero");
-	return -EINVAL;
+	HALFAIL_RC(EINVAL,"create_thread called "
+		   "with period of zero");
     }
     {
-	int  cmp  __attribute__((cleanup(halpr_autorelease_mutex)));
+	WITH_HAL_MUTEX();
 
-	/* get mutex before accessing shared data */
-	rtapi_mutex_get(&(hal_data->mutex));
+	if (halg_find_object_by_name(0, HAL_THREAD, args->name).thread) {
+	    HALFAIL_RC(EINVAL, "duplicate thread name %s", args->name);
+	}
 
-	/* make sure name is unique on thread list */
-	next = hal_data->thread_list_ptr;
-	while (next != 0) {
-	    tptr = SHMPTR(next);
-	    cmp = strcmp(tptr->name, args->name);
-	    if (cmp == 0) {
-		/* name already in list, can't insert */
-		HALERR("duplicate thread name %s", args->name);
-		return -EINVAL;
-	    }
-	    /* didn't find it yet, look at next one */
-	    next = tptr->next_ptr;
-	}
-	/* allocate a new thread structure */
-	new = alloc_thread_struct();
-	if (new == 0) {
-	    /* alloc failed */
-	    HALERR("insufficient memory to create thread");
-	    return -ENOMEM;
-	}
+	// allocate thread descriptor
+	if ((new = halg_create_objectf(0, sizeof(hal_thread_t),
+				       HAL_THREAD, 0, args->name)) == NULL)
+	    return _halerrno;
+
+	dlist_init_entry(&(new->funct_list));
+
 	/* initialize the structure */
 	new->uses_fp = args->uses_fp;
 	new->cpu_id = args->cpu_id;
-	new->handle = rtapi_next_handle();
 	new->flags = args->flags;
-	rtapi_snprintf(new->name, sizeof(new->name), "%s", args->name);
+
 	/* have to create and start a task to run the thread */
-	if (hal_data->thread_list_ptr == 0) {
+	if (dlist_empty(&hal_data->threads)) {
+
 	    /* this is the first thread created */
 	    /* is timer started? if so, what period? */
 	    curr_period = rtapi_clock_set_period(0);
@@ -159,15 +180,13 @@ int hal_create_xthread(const hal_threadargs_t *args)
 		/* not running, start it */
 		curr_period = rtapi_clock_set_period(args->period_nsec);
 		if (curr_period < 0) {
-		    HALERR("clock_set_period returned %ld",
+		    HALFAIL_RC(EINVAL, "clock_set_period returned %ld",
 				    curr_period);
-		    return -EINVAL;
 		}
 	    }
 	    /* make sure period <= desired period (allow 1% roundoff error) */
 	    if (curr_period > (args->period_nsec + (args->period_nsec / 100))) {
-		HALERR("clock period too long: %ld", curr_period);
-		return -EINVAL;
+		HALFAIL_RC(EINVAL, "clock period too long: %ld", curr_period);
 	    }
 	    if(hal_data->exact_base_period) {
 		hal_data->base_period = args->period_nsec;
@@ -181,22 +200,22 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	} else {
 	    /* there are other threads, slowest (and lowest
 	       priority) is at head of list */
-	    tptr = SHMPTR(hal_data->thread_list_ptr);
+
+	    tptr = dlist_first_entry(&hal_data->threads, hal_thread_t, thread);
+	    // tptr = SHMPTR(hal_data->thread_list_ptr);
 	    prev_period = tptr->period;
 	    prev_priority = tptr->priority;
 	}
 	if ( args->period_nsec < hal_data->base_period) {
-	    HALERR("new thread period %ld is less than clock period %ld",
+	    HALFAIL_RC(EINVAL, "new thread period %ld is less than clock period %ld",
 		   args->period_nsec, hal_data->base_period);
-	    return -EINVAL;
 	}
 	/* make period an integer multiple of the timer period */
 	n = (args->period_nsec + hal_data->base_period / 2) / hal_data->base_period;
 	new->period = hal_data->base_period * n;
 	if ( new->period < prev_period ) {
-	    HALERR("new thread period %ld is less than existing thread period %ld",
+	    HALFAIL_RC(EINVAL, "new thread period %ld is less than existing thread period %ld",
 		   args->period_nsec, prev_period);
-	    return -EINVAL;
 	}
 	/* make priority one lower than previous */
 	new->priority = rtapi_prio_next_lower(prev_priority);
@@ -211,31 +230,40 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	    .stacksize = global_data->hal_thread_stack_size,
 	    .uses_fp = new->uses_fp,
 	    .cpu_id =new->cpu_id,
-	    .name = new->name,
+	    .name = (char *)ho_name(new),
 	    .flags = new->flags,
 	};
 	retval = rtapi_task_new(&rargs);
 	if (retval < 0) {
-	    HALERR("could not create task for thread %s", args->name);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "could not create task for thread %s", args->name);
 	}
 	new->task_id = retval;
+	new->runtime._sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_OUT,
+						      NULL, lib_module_id,
+						      "%s.time", args->name));
+	new->maxtime._sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_IO, NULL,
+						      lib_module_id,
+						      "%s.tmax", args->name));
+	new->curr_period._sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_OUT, NULL,
+							 lib_module_id,
+							 "%s.curr-period", args->name));
+
+	// expose nominal period for a start
+	set_s32_pin(new->curr_period, new->period);
+
 	/* start task */
 	retval = rtapi_task_start(new->task_id, new->period);
 	if (retval < 0) {
-	    HALERR("could not start task for thread %s: %d", args->name, retval);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "could not start task for thread %s: %d", args->name, retval);
 	}
 	/* insert new structure at head of list */
-	new->next_ptr = hal_data->thread_list_ptr;
-	hal_data->thread_list_ptr = SHMOFF(new);
+	dlist_add_before(&new->thread, &hal_data->threads);
 
-	// exit block protected by scoped lock
-    }
+	// make it visible
+	halg_add_object(false, (hal_object_ptr)new);
 
-    /* init time logging variables */
-    new->runtime = 0;
-    new->maxtime = 0;
+    } // exit block protected by scoped lock
+
 
     HALDBG("thread %s id %d created prio=%d",
 	   args->name, new->task_id, new->priority);
@@ -255,68 +283,45 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
     return hal_create_xthread(&args);
 }
 
-extern int hal_thread_delete(const char *name)
+static int delete_thread_cb(hal_object_ptr o, foreach_args_t *args)
 {
-    int *prev, next;
-
-    CHECK_HALDATA();
-    CHECK_LOCK(HAL_LOCK_CONFIG);
-    CHECK_STR(name);
-
-    HALDBG("deleting thread '%s'", name);
-    {
-	hal_thread_t *thread __attribute__((cleanup(halpr_autorelease_mutex)));
-
-	/* get mutex before accessing shared data */
-	rtapi_mutex_get(&(hal_data->mutex));
-	/* search for the signal */
-	prev = &(hal_data->thread_list_ptr);
-	next = *prev;
-	while (next != 0) {
-	    thread = SHMPTR(next);
-	    if (strcmp(thread->name, name) == 0) {
-		/* this is the right thread, unlink from list */
-		*prev = thread->next_ptr;
-		/* and delete it */
-		free_thread_struct(thread);
-		/* done */
-		return 0;
-	    }
-	    /* no match, try the next one */
-	    prev = &(thread->next_ptr);
-	    next = *prev;
-	}
-    }
-    /* if we get here, we didn't find a match */
-    HALERR("thread '%s' not found",   name);
-    return -EINVAL;
+    free_pin_struct(hal_ptr(o.thread->runtime._sp));
+    free_pin_struct(hal_ptr(o.thread->maxtime._sp));
+    free_thread_struct(o.thread);
+    return 0;
 }
 
-// internal use from hal_lib.c:rtapi_app_exit() only
-int hal_exit_threads(void)
+// delete a named thread, or all threads if name == NULL
+int halg_exit_thread(const int use_hal_mutex, const char *name)
 {
     CHECK_HALDATA();
     CHECK_LOCK(HAL_LOCK_RUN);
 
     hal_data->threads_running = 0;
     {
-	hal_thread_t *thread __attribute__((cleanup(halpr_autorelease_mutex)));
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
 
-	rtapi_mutex_get(&(hal_data->mutex));
-
-	while (hal_data->thread_list_ptr != 0) {
-	    /* point to a thread */
-	    thread = SHMPTR(hal_data->thread_list_ptr);
-	    /* unlink from list */
-	    hal_data->thread_list_ptr = thread->next_ptr;
-	    /* and delete it */
-	    free_thread_struct(thread);
+	foreach_args_t args =  {
+	    .type = HAL_THREAD,
+	    .name = (char *)name
+	};
+	int ret = halg_foreach(0, &args, delete_thread_cb);
+	if (name && (ret == 0)) {
+	    HALFAIL_RC(EINVAL, "thread '%s' not found",   name);
 	}
+	HALDBG("%d thread%s exited", ret, ret == 1 ? "":"s");
 	// all threads stopped & deleted
     }
-    HALDBG("all threads exited");
     return 0;
 }
+
+extern int hal_thread_delete(const char *name)
+{
+    CHECK_STR(name);
+    HALDBG("deleting thread '%s'", name);
+    return halg_exit_thread(1, name);
+}
+
 #endif /* RTAPI */
 
 
@@ -340,55 +345,7 @@ int hal_stop_threads(void)
     return 0;
 }
 
-
-hal_thread_t *halpr_find_thread_by_name(const char *name)
-{
-    int next;
-    hal_thread_t *thread;
-
-    /* search thread list for 'name' */
-    next = hal_data->thread_list_ptr;
-    while (next != 0) {
-	thread = SHMPTR(next);
-	if (strcmp(thread->name, name) == 0) {
-	    /* found a match */
-	    return thread;
-	}
-	/* didn't find it yet, look at next one */
-	next = thread->next_ptr;
-    }
-    /* if loop terminates, we reached end of list with no match */
-    return 0;
-}
-
 #ifdef RTAPI
-static hal_thread_t *alloc_thread_struct(void)
-{
-    hal_thread_t *p;
-
-    /* check the free list */
-    if (hal_data->thread_free_ptr != 0) {
-	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->thread_free_ptr);
-	/* unlink it from the free list */
-	hal_data->thread_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
-    } else {
-	/* nothing on free list, allocate a brand new one */
-	p = shmalloc_dn(sizeof(hal_thread_t));
-    }
-    if (p) {
-	/* make sure it's empty */
-	p->next_ptr = 0;
-	p->uses_fp = 0;
-	p->period = 0;
-	p->priority = 0;
-	p->task_id = 0;
-	list_init_entry(&(p->funct_list));
-	p->name[0] = '\0';
-    }
-    return p;
-}
 
 void free_thread_struct(hal_thread_t * thread)
 {
@@ -397,29 +354,24 @@ void free_thread_struct(hal_thread_t * thread)
 
     /* if we're deleting a thread, we need to stop all threads */
     hal_data->threads_running = 0;
+
     /* and stop the task associated with this thread */
     rtapi_task_pause(thread->task_id);
     rtapi_task_delete(thread->task_id);
-    /* clear contents of struct */
-    thread->uses_fp = 0;
-    thread->period = 0;
-    thread->priority = 0;
-    thread->task_id = 0;
+
     /* clear the function entry list */
     list_root = &(thread->funct_list);
-    list_entry = list_next(list_root);
+    list_entry = dlist_next(list_root);
     while (list_entry != list_root) {
 	/* entry found, save pointer to it */
 	funct_entry = (hal_funct_entry_t *) list_entry;
 	/* unlink it, point to the next one */
-	list_entry = list_remove_entry(list_entry);
+	list_entry = dlist_remove_entry(list_entry);
 	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
-
-    thread->name[0] = '\0';
-    /* add thread to free list */
-    thread->next_ptr = hal_data->thread_free_ptr;
-    hal_data->thread_free_ptr = SHMOFF(thread);
+    // remove from priority list
+    dlist_remove_entry(&thread->thread);
+    halg_free_object(false, (hal_object_ptr) thread);
 }
 #endif /* RTAPI */
