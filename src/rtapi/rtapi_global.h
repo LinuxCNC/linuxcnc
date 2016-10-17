@@ -11,7 +11,7 @@
     threadstyle (both kernel threads and userland threads have uniform
     access)
 
-    The realtime ULAPI - the support code used by RT components
+    The userland API - ULAPI - the API used by userland components
 
     The userland HAL and RT support API's - arbitrary user processes
     like halcmd, or userland HAL drivers and components
@@ -31,10 +31,10 @@
 
     Support data:
 
-    a global counter for the next module ID (next_handle) which is
+    a global atomic counter for the next module ID (next_handle) which is
     needed by userland threadstyles since they do not arrays for modules.
     (this was formerly Jeff Epler's 'uuid' mechanism). next_handle can
-    also be used to generated integer ID's unique throughout an RTAPI
+    also be used to generated unique integer ID's unique throughout an RTAPI
     instance.
 
     Other possible uses of global_data include, but are not limited to,
@@ -64,31 +64,43 @@
 #include "rtapi_shmkeys.h"
 #include "rtapi_bitops.h"     // rtapi_atomic_type
 #include "rtapi_exception.h"  // thread status descriptors
-#include "ring.h"             // ring buffer ops & structures
 #include "rtapi_heap.h"       // shared memory allocator
 #include "rtapi_heap_private.h"
 
 
 #define MESSAGE_RING_SIZE (4096 * 128)
+#define GLOBAL_HEAP_SIZE  (4096 * 64)
 
 // the universally shared global structure
 typedef struct {
     unsigned magic;
-    int layout_version; 
+    int layout_version;
     unsigned long mutex;
+    // sizeof(global_data) + global heap, as adjusted by allocation and alignment
+    size_t global_segment_size;
 
     // this is set once on startup by rtapi_msgd and is to be considered a constant
     // throughout the session:
     int instance_id;
-    int rtapi_thread_flavor; 
+    int rtapi_thread_flavor;
 
     // runtime parameters
-    int rt_msg_level;              // message level for RT 
-    int user_msg_level;            // message level for non-RT 
+    int rt_msg_level;              // message level for RT
+    int user_msg_level;            // message level for non-RT
     rtapi_atomic_type next_handle;               // next unique ID
     int hal_size;                  // make HAL data segment size configurable
     int hal_thread_stack_size;     // stack size passed to rtapi_task_new()
                                    // in hal_create_thread()
+
+    // alignment of HAL descriptors:
+    // set to 0 for rtapi_heap defaults (8), or RTAPI_CACHELINE (typically 64)
+    // the latter improves cache-friendliness at the cost of memory usage
+    int hal_descriptor_alignment;
+
+    // per-heap flags
+    // use RTAPIHEAP_TRACE_FREE|RTAPIHEAP_TRACE_MALLOC
+    // to track memory problems
+    int hal_heap_flags;
 
     // service uuid - the unique machinekit instance identifier
     // set once by rtapi_msgd, visible to all of HAL and RTAPI since
@@ -105,18 +117,22 @@ typedef struct {
     int error_ring_full;
     int error_ring_locked;
 
-    ringheader_t rtapi_messages;   // ringbuffer for RTAPI messages
-    char buf[SIZE_ALIGN(MESSAGE_RING_SIZE)];
-    ringtrailer_t rtapi_messages_trailer;
+    // ringbuffer for RTAPI messages
+    // an offset relative to global_data si
+    // type = *ringheader_t
+    int rtapi_messages_ptr;
 
+    // global heap
     struct rtapi_heap heap;
     //size_t heap_size;
-#define GLOBAL_HEAP_SIZE (512*512)
-    unsigned char arena[GLOBAL_HEAP_SIZE] __attribute__((aligned(16)));
+
+    unsigned char arena[0] __attribute__((aligned(RTAPI_CACHELINE)));
 
 } global_data_t;
 
-#define GLOBAL_LAYOUT_VERSION 42   // bump on layout changes of global_data_t
+extern global_data_t *global_data;
+
+#define GLOBAL_LAYOUT_VERSION 44   // bump on layout changes of global_data_t
 
 // use global_data->magic to reflect rtapi_msgd state
 #define GLOBAL_INITIALIZING  0x0eadbeefU
@@ -125,6 +141,5 @@ typedef struct {
 
 #define GLOBAL_DATA_PERMISSIONS	0666
 
-extern global_data_t *global_data;
 
 #endif // _RTAPI_GLOBAL_H

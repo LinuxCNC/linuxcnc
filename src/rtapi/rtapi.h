@@ -63,7 +63,7 @@
   RTAPI_SERIAL should be bumped with changes that break compatibility
   with previous versions.
 */
-#define RTAPI_SERIAL 2
+#define RTAPI_SERIAL 3
 #include "config.h"
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
@@ -73,10 +73,16 @@
 #error "Can't define both RTAPI and ULAPI!"
 #endif
 
-#include <stddef.h> // provides NULL
+#ifdef __cplusplus
+#define RTAPI_BEGIN_DECLS extern "C" {
+#define RTAPI_END_DECLS }
+#else
+#define RTAPI_BEGIN_DECLS
+#define RTAPI_END_DECLS
+#endif
 
+#include <stddef.h> // provides NULL, offset_of
 #include "rtapi_int.h"
-
 
 /* LINUX_VERSION_CODE for rtapi_{module,io}.c */
 #ifdef MODULE
@@ -89,21 +95,76 @@
 #endif
 
 #include <rtapi_errno.h>
+
+// need RTAPI_CACHELINE for rtapi_global.h
+RTAPI_BEGIN_DECLS
+#ifdef HAVE_CK
+#include <ck_pr.h>
+#endif
+
+#ifdef CK_MD_CACHELINE
+#define RTAPI_CACHELINE CK_MD_CACHELINE
+#else
+#define RTAPI_CACHELINE  (64)
+#endif
+RTAPI_END_DECLS
+
 #include <rtapi_global.h>
+#include <rtapi_heap.h>
 #include <rtapi_exception.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
-#ifdef __cplusplus
-#define RTAPI_BEGIN_DECLS extern "C" {
-#define RTAPI_END_DECLS }
-#else
-#define RTAPI_BEGIN_DECLS
-#define RTAPI_END_DECLS
-#endif
 
 RTAPI_BEGIN_DECLS
 
+#ifndef MODULE
+#ifndef container_of
+#define container_of(ptr, type, member)					\
+	({								\
+		const __typeof__(((type *)0)->member) *__mptr = (ptr);	\
+		(type *)((char *)__mptr - offsetof(type, member));	\
+	})
+#endif
+#endif
+
+#ifndef likely
+#define likely(x)	__builtin_expect(!!(x), 1)
+#define unlikely(x)	__builtin_expect(!!(x), 0)
+#endif
+
+#if SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG
+typedef unsigned long rtapi_uintptr_t;
+#elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG_LONG
+typedef unsigned long long rtapi_uintptr_t;
+#else
+#error "failed to define type for rtapi_uintptr_t"
+#endif
+
+static inline int is_aligned(const void *pointer, size_t byte_count) {
+    return (rtapi_uintptr_t)pointer % byte_count == 0;
+}
+
+#define RTAPI_DECONST_PTR(X)  CK_CC_DECONST_PTR(X)
+
+#ifdef USE__PTRDIFF
+// ptrdiff_t would be the right type for pointer arithmetic results
+// and hence shared memory offsets
+// however this leads to 8-byte offsets on amd64, which is overkill
+typedef ptrdiff_t   shmoff_t;
+
+#else
+// good enough for mk purposes
+typedef __s32       shmoff_t;
+
+#endif
+
+static inline void *shm_ptr(const void *base, const shmoff_t offset) {
+    return ((char *)base + offset);
+}
+static inline shmoff_t shm_off(const void *base, const void *p) {
+    return ((char *)p - (char *)base);
+}
 
 
 /***********************************************************************
@@ -151,6 +212,59 @@ typedef int (*rtapi_next_handle_t)(void);
 #define rtapi_next_handle()			\
     rtapi_switch->rtapi_next_handle()
 extern int _rtapi_next_handle(void);
+
+
+/***********************************************************************
+*                      shared memory allocator                         *
+************************************************************************/
+typedef void * (*rtapi_malloc_t)(struct rtapi_heap *h, size_t nbytes);
+#define rtapi_malloc(h, nbytes) \
+    rtapi_switch->rtapi_malloc(h, nbytes)
+
+typedef void * (*rtapi_malloc_aligned_t)(struct rtapi_heap *h,
+					 size_t nbytes,
+					 size_t align);
+#define rtapi_malloc_aligned(h, nbytes, align)		\
+    rtapi_switch->rtapi_malloc_aligned(h, nbytes, align)
+
+typedef void * (*rtapi_calloc_t)(struct rtapi_heap *h, size_t n, size_t size);
+#define rtapi_calloc(h, n, size)			\
+    rtapi_switch->rtapi_calloc(h, n, size)
+
+typedef void * (*rtapi_realloc_t)(struct rtapi_heap *h, void *p, size_t size);
+#define rtapi_realloc(h, p, size)		\
+    rtapi_switch->rtapi_realloc(h, p size)
+
+typedef void   (*rtapi_free_t)(struct rtapi_heap *h, void *p);
+#define rtapi_free(h, p) \
+    rtapi_switch->rtapi_free(h, p)
+
+typedef size_t (*rtapi_allocsize_t)(struct rtapi_heap *h, const void *p);
+#define rtapi_allocsize(h, p)			\
+    rtapi_switch->rtapi_allocsize(h, p)
+
+typedef int  (*rtapi_heap_init_t)(struct rtapi_heap *h, const char *name);
+#define rtapi_heap_init(h, n)			\
+    rtapi_switch->rtapi_heap_init(h, n)
+
+// any memory added to the heap must lie above the rtapi_heap structure:
+typedef int  (*rtapi_heap_addmem_t)(struct rtapi_heap *h, void *space, size_t size);
+#define rtapi_heap_addmem(h, s, size)		\
+    rtapi_switch->rtapi_heap_addmem(h, s, size)
+
+typedef size_t  (*rtapi_heap_status_t)(struct rtapi_heap *h, struct rtapi_heap_stat *hs);
+#define rtapi_heap_status(h, hs) \
+    rtapi_switch->rtapi_heap_status(h, hs)
+
+typedef int (*rtapi_heap_setflags_t)(struct rtapi_heap *h, int flags);
+#define rtapi_heap_setflags(h, flags) \
+        rtapi_switch->rtapi_heap_setflags(h, flags)
+
+typedef size_t (*rtapi_heap_walk_freelist_t)(struct rtapi_heap *h,
+					     chunk_t cb, void *user);
+#define rtapi_heap_walk_freelist(h, cb, u)	\
+    rtapi_switch->rtapi_heap_walk_freelist(h, cb, u)
+
 
 
 /***********************************************************************
@@ -237,6 +351,8 @@ void rtapi_print_loc(const int level,
 		     const char *fmt, ...)
     __attribute__((format(printf,5,6)));
 
+// returns the string the last rtapi_print_loc() call formatted to
+const char *rtapi_last_msg(void);
 
 // checking & logging shorthands
 #define RTAPIERR(fmt, ...)					\
@@ -322,8 +438,6 @@ extern int rtapi_get_msg_level(void);
 typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
 				   va_list ap);
 
-// message handler which writes to ringbuffer if global is available
-extern void vs_ring_write(msg_level_t level, const char *format, va_list ap);
 
 typedef void (*rtapi_set_msg_handler_t)(rtapi_msg_handler_t);
 
@@ -342,11 +456,14 @@ typedef enum {
 	MSG_ULAPI = 2,
 } msg_origin_t;
 
-typedef enum {
-    MSG_ASCII    = 0,  // printf conversion already applied
-    MSG_STASHF   = 1,  // Jeff's stashf.c argument encoding
-    MSG_PROTOBUF = 2,  // encoded as protobuf RTAPI_Message
-} msg_encoding_t;
+// low-level message handler which writes to ringbuffer if global is available
+// else to stderr/printk
+int vs_ringlogfv(const msg_level_t level,
+		 const int pid,
+		 const msg_origin_t origin,
+		 const char *tag,
+		 const char *format,
+		 va_list ap);
 
 #define TAGSIZE 16
 
@@ -355,7 +472,6 @@ typedef struct {
     int pid;                 // if User RT or ULAPI; 0 for kernel
     int level;               // as passed in to rtapi_print_msg()
     char tag[TAGSIZE];       // eg program or module name
-    msg_encoding_t encoding; // how to interpret buf
     char buf[0];             // actual message
 } rtapi_msgheader_t;
 
@@ -416,6 +532,49 @@ typedef struct {
 #endif
 	}
     }
+
+// support for conditional scoped mutex use
+struct _mutex_cleanup {
+  int cond;
+  rtapi_atomic_type *m;
+};
+
+// conditional scoped lock helper
+static inline void _autorelease_mutex_if(struct  _mutex_cleanup *c) {
+    if (c->cond) // release lock if condition was true
+	rtapi_mutex_give(c->m);
+}
+
+#define _WITH_MUTEX_IF(mptr, unique, c)					\
+    struct _mutex_cleanup RTAPI_PASTE(__scope_protector_, unique)	\
+	 __attribute__((cleanup(_autorelease_mutex_if))) = {		\
+	.cond = c,							\
+	.m = mptr,							\
+    };									\
+    if (c) rtapi_mutex_get(mptr);
+
+#define WITH_MUTEX_IF(h, intval) _WITH_MUTEX_IF(h, __LINE__, intval)
+#define WITH_MUTEX(h) _WITH_MUTEX_IF(h,__LINE__,1)
+
+// using the generic conditional scope lock:
+//
+// unconditional scope lock usage:
+//
+// {   // begin critical section
+//     WITH_MUTEX(&mutex);
+//     .. in criticial region, lock held
+//     any scope exit will release the  mutex
+// }
+// lock automatically released, by whatever exit path from the block
+//
+// conditional scope lock usage:
+//
+// {
+//     WITH_MUTEX_IF(&mutex, condition)
+//     /* lock held here iff condition */
+// }
+// lock automatically released if condition was true,
+// by whatever exit path from the block
 
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
@@ -571,9 +730,8 @@ extern long long int _rtapi_get_clocks(void);
 typedef void (*taskcode_t) (void*);
 
 typedef enum {
-    TF_NONRT  = RTAPI_BIT(0),   // into low-prio class, no RT prio
-    TF_NOWAIT  = RTAPI_BIT(1),  // skip rtapi_wait() in thread_task
-
+    TF_NONRT    = RTAPI_BIT(0), // into low-prio class, no RT prio
+    TF_NOWAIT   = RTAPI_BIT(1), // skip rtapi_wait() in thread_task
 } rtapi_thread_flags_t;
 
 // argument structure for rtapi_task_new():
@@ -673,10 +831,10 @@ extern int _rtapi_task_start(int task_id, unsigned long int period_nsec);
     undefined.  The function will return at the beginning of the
     next period.  Call only from within a realtime task.
 */
-typedef void (*rtapi_wait_t)(void);
-#define rtapi_wait()				\
-    rtapi_switch->rtapi_wait()
-extern void _rtapi_wait(void);
+typedef int (*rtapi_wait_t)(int);
+#define rtapi_wait(flag)				\
+    rtapi_switch->rtapi_wait(flag)
+extern int _rtapi_wait(const int flag);
 
 /** 'rtapi_task_resume() starts a task in free-running mode. 'task_id'
     is a task ID from a call to rtapi_task_new().  The task must be in
@@ -945,6 +1103,17 @@ typedef struct {
 #else
     rtapi_dummy_t rtapi_task_update_stats;
 #endif
+    rtapi_malloc_t       rtapi_malloc;
+    rtapi_malloc_aligned_t       rtapi_malloc_aligned;
+    rtapi_calloc_t       rtapi_calloc;
+    rtapi_realloc_t      rtapi_realloc;
+    rtapi_free_t         rtapi_free;
+    rtapi_allocsize_t    rtapi_allocsize;
+    rtapi_heap_init_t    rtapi_heap_init;
+    rtapi_heap_addmem_t  rtapi_heap_addmem;
+    rtapi_heap_status_t  rtapi_heap_status;
+    rtapi_heap_setflags_t rtapi_heap_setflags;
+    rtapi_heap_walk_freelist_t rtapi_heap_walk_freelist;
 
 } rtapi_switch_t;
 
@@ -1040,11 +1209,19 @@ extern int ulapi_loaded(void);
 #endif
 
 #define RTAPI_STRINGIFY(x)    #x
+#define RTAPI_PASTE(a, b)     a##b
+
+// compile-time assert
+#define rtapi_ct_assert(cond, failure) _Static_assert(cond, failure)
 
 #if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_UINT(var,descr)    \
+  MODULE_PARM(var,"u");	    \
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_LONG(var,descr)   \
@@ -1073,6 +1250,10 @@ extern int ulapi_loaded(void);
 
 #define RTAPI_IP_INT(var,descr)    \
   INSTANCE_PARM(var,"i");            \
+  INSTANCE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_UINT(var,descr)    \
+  INSTANCE_PARM(var,"u");            \
   INSTANCE_PARM_DESC(var,descr);
 
 #define RTAPI_IP_LONG(var,descr)   \
@@ -1104,6 +1285,10 @@ extern int ulapi_loaded(void);
   module_param(var, int, 0);       \
   MODULE_PARM_DESC(var,descr);
 
+#define RTAPI_MP_UINT(var,descr)    \
+  module_param(var, uint, 0);       \
+  MODULE_PARM_DESC(var,descr);
+
 #define RTAPI_MP_LONG(var,descr)   \
   module_param(var, long, 0);      \
   MODULE_PARM_DESC(var,descr);
@@ -1133,6 +1318,10 @@ extern int ulapi_loaded(void);
 
 #define RTAPI_IP_INT(var,descr)    \
   module_param(var, int, RTAPI_IP_MODE);       \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_IP_UINT(var,descr)    \
+  module_param(var, uint, RTAPI_IP_MODE);       \
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_IP_LONG(var,descr)   \

@@ -35,9 +35,9 @@
 #include <sys/utsname.h>
 #include <limits.h>		/* PATH_MAX */
 #include <stdlib.h>		/* exit() */
+#include <string.h>		/* exit() */
 #include <grp.h>                // getgroups
-#include <spawn.h>              // posix_spawn
-#include <sys/wait.h>           // wait_pid
+
 #include <elf.h>                // get_rpath()
 #include <link.h>
 
@@ -162,35 +162,35 @@ flavor_t flavors[] = {
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_POSIX_ID,
+      .flavor_id = RTAPI_POSIX_ID,
       .flags = POSIX_FLAVOR_FLAGS // FLAVOR_USABLE
     },
     { .name = "sim", // alias for above- old habíts die hard
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_POSIX_ID,
+      .flavor_id = RTAPI_POSIX_ID,
       .flags = POSIX_FLAVOR_FLAGS
     },
     { .name = RTAPI_RT_PREEMPT_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_RT_PREEMPT_ID,
+      .flavor_id = RTAPI_RT_PREEMPT_ID,
       .flags = RTPREEMPT_FLAVOR_FLAGS
     },
      { .name = RTAPI_XENOMAI_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_XENOMAI_ID,
+      .flavor_id = RTAPI_XENOMAI_ID,
       .flags = XENOMAI_FLAVOR_FLAGS
     },
     { .name = RTAPI_RTAI_KERNEL_NAME,
       .mod_ext = ".ko",
       .so_ext = ".so",
       .build_sys = "kbuild",
-      .id = RTAPI_RTAI_KERNEL_ID,
+      .flavor_id = RTAPI_RTAI_KERNEL_ID,
       .flags = RTAI_KERNEL_FLAVOR_FLAGS
     },
 
@@ -198,7 +198,7 @@ flavor_t flavors[] = {
       .mod_ext = ".ko",
       .so_ext = ".so",
       .build_sys = "kbuild",
-      .id = RTAPI_XENOMAI_KERNEL_ID,
+      .flavor_id = RTAPI_XENOMAI_KERNEL_ID,
       .flags =  XENOMAI_KERNEL_FLAVOR_FLAGS
     },
 
@@ -206,12 +206,12 @@ flavor_t flavors[] = {
       .mod_ext = "",
       .so_ext = "",
       .build_sys = "n/a",
-      .id = RTAPI_NOTLOADED_ID,
+      .flavor_id = RTAPI_NOTLOADED_ID,
       .flags = 0
     },
 
     { .name = NULL, // list sentinel
-      .id = -1,
+      .flavor_id = -1,
       .flags = 0
     }
 };
@@ -231,7 +231,7 @@ flavor_ptr flavor_byid(int flavor_id)
 {
     flavor_ptr f = flavors;
     while (f->name) {
-	if (flavor_id == f->id)
+	if (flavor_id == f->flavor_id)
 	    return f;
 	f++;
     }
@@ -473,8 +473,7 @@ int run_module_helper(const char *format, ...)
     return system(mod_helper);
 }
 
-// whatever is written is printf-style
-int rtapi_fs_write(const char *path, const char *format, ...)
+int procfs_cmd(const char *path, const char *format, ...)
 {
     va_list args;
     int fd;
@@ -491,33 +490,6 @@ int rtapi_fs_write(const char *path, const char *format, ...)
 	return retval;
     } else
 	return -ENOENT;
-}
-
-// filename is printf-style
-int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...)
-{
-    char fname[4096];
-    va_list args;
-
-    va_start(args, name);
-    size_t len = vsnprintf(fname, sizeof(fname), name, args);
-    va_end(args);
-
-    if (len < 1)
-	return -EINVAL; // name too short
-
-    int fd, rc;
-    if ((fd = open(fname, O_RDONLY)) >= 0) {
-	rc = read(fd, buf, maxlen);
-	close(fd);
-	if (rc < 0)
-	    return -errno;
-	char *s = strchr(buf, '\n');
-	if (s) *s = '\0';
-	return strlen(buf);
-    } else {
-	return -errno;
-    }
 }
 
 const char *rtapi_get_rpath(void)
@@ -556,7 +528,6 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
     char *p = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (p == NULL) {
 	perror("mmap");
-	close(fd);
 	return -1;
     }
 
@@ -712,43 +683,3 @@ int rtapi_get_tags(const char *mod_name)
     free(caps);
     return result;
 }
-
-
-// lifted from hm2_ether.c by Michael Geszkiewicz  and Jeff Epler
-int run_shell(char *format, ...)
-{
-    char command[PATH_MAX];
-    va_list args;
-    int retval;
-
-    va_start(args, format);
-    retval = vsnprintf(command, sizeof(command), format, args);
-    va_end(args);
-
-    if (retval < 0) {
-	perror("vsnprintf");
-	return retval;
-    }
-    char *const argv[] = {"sh", "-c", command, NULL};
-    pid_t pid;
-    retval = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(retval < 0)
-	perror("posix_spawn");
-
-    int status;
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status))
-	return WEXITSTATUS(status);
-    else if (WIFSTOPPED(status))
-	return WTERMSIG(status)+128;
-    else
-	return status;
-}
-
-// those are ok to use from userland RT modules:
-#if defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
-EXPORT_SYMBOL(run_shell);
-EXPORT_SYMBOL(is_module_loaded);
-EXPORT_SYMBOL(rtapi_fs_read);
-EXPORT_SYMBOL(rtapi_fs_write);
-#endif

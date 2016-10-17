@@ -4032,26 +4032,7 @@ int do_newinst_cmd(char *comp, char *inst, char *args[])
     if (retval == -1) {
         halcmd_error("Error in module tags search");
         return retval;
-<<<<<<< HEAD
 	} 
-=======
-    } else {
-        if ((retval & HC_SINGLETON) == HC_SINGLETON)
-            singleton = true;
-    }
-
-    //  If a singleton is created via a direct loadrt, it will have the same name
-    //  as the component.  If created by newinst, it could have any name.
-    //  Try to prevent more than one singleton being created using newinst afterwards.
-    if (singleton) {
-	WITH_HAL_MUTEX();
-        hal_comp_t *existing_comp = halpr_find_comp_by_name(comp);
-        if (inst_name_exists(0, comp) || inst_count(0, existing_comp)) {
-	    halcmd_error("Singleton components cannot have multiple instances\n\n");
-	    return -1;
-	}
-    }
->>>>>>> 0dc5222... Update all src/hal/utils/hal* files
 
     retval = rtapi_newinst(rtapi_instance, comp, inst, (const char **)args);
     if (retval) {

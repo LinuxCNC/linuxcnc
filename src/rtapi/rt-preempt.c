@@ -158,8 +158,11 @@ static void rtapi_set_task(task_data *t) {
     pthread_once(&task_key_once, rtapi_key_alloc);
     pthread_setspecific(task_key, (void *)t);
 
-    // set this thread's name so it can be identified in ps/top
-    if (prctl(PR_SET_NAME, t->name) < 0) {
+    // set this thread's name so it can be identified in ps -L/top
+    // to see the thread in top, run 'top -H' (threads mode)
+    // to see the thread in ps:
+    // ps H -C rtapi:0 -o 'pid tid cmd comm'
+    if (prctl(PR_SET_NAME, t->name, 0, 0, 0) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_set_task: prctl(PR_SETNAME,%s) failed: %s\n",
 			t->name,strerror(errno));
@@ -191,6 +194,7 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     return task_id;
 }
 
+
 void _rtapi_task_delete_hook(task_data *task, int task_id) {
     int err;
     void *returncode;
@@ -198,20 +202,10 @@ void _rtapi_task_delete_hook(task_data *task, int task_id) {
     /* Signal thread termination and wait for the thread to exit. */
     if (!extra_task_data[task_id].deleted) {
 	extra_task_data[task_id].deleted = 1;
-
-	// pthread_cancel() will get the thread out of any blocking system
-	// calls listed under 'Cancellation points' in man 7 pthreads
-	// read(), poll() being important ones
-	err = pthread_cancel(extra_task_data[task_id].thread);
-	if (err)
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "pthread_cancel() on RT thread '%s': %d %s\n",
-			    task->name, err, strerror(err));
 	err = pthread_join(extra_task_data[task_id].thread, &returncode);
 	if (err)
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "pthread_join() on RT thread '%s': %d %s\n",
-			    task->name, err, strerror(err));
+	    rtapi_print_msg
+		(RTAPI_MSG_ERR, "pthread_join() on realtime thread failed\n");
     }
     /* Free the thread stack. */
     free(extra_task_data[task_id].stackaddr);
@@ -407,12 +401,15 @@ void _rtapi_task_stop_hook(task_data *task, int task_id) {
     extra_task_data[task_id].destroyed = 1;
 }
 
-int _rtapi_wait_hook(void) {
+int _rtapi_wait_hook(const int flags) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
 
     if (extra_task_data[task_id(task)].deleted)
 	pthread_exit(0);
+
+    if (flags & TF_NOWAIT)
+	return 0;
 
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
 		    &extra_task_data[task_id(task)].next_time, NULL);

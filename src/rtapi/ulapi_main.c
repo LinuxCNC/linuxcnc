@@ -31,7 +31,7 @@
 #include "rtapi_global.h"       /* global_data_t */
 #include "rtapi_common.h"
 #include "rtapi_compat.h"
-#include "rtapi/shmdrv/shmdrv.h"
+#include "shmdrv.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -61,10 +61,10 @@ int ulapi_main(int instance, int flavor, global_data_t *global)
     // has a disjoint symbol namespace from hal_lib
     global_data = global;
 
-    rtapi_print_msg(RTAPI_MSG_DBG,"ULAPI:%d %s %s init\n",
-		    rtapi_instance,
-		    rtapi_get_handle()->thread_flavor_name,
-		    GIT_VERSION);
+    /* rtapi_print_msg(RTAPI_MSG_DBG,"ULAPI:%d %s %s init\n", */
+    /* 		    rtapi_instance, */
+    /* 		    rtapi_get_handle()->thread_flavor_name, */
+    /* 		    GIT_VERSION); */
 
 
     if (rtapi_switch->thread_flavor_flags & FLAVOR_RTAPI_DATA_IN_SHM) {
@@ -77,8 +77,8 @@ int ulapi_main(int instance, int flavor, global_data_t *global)
 				     rtapi_instance, (void **) &rtapi_data, 0))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "ULAPI:%d ERROR: cannot attach rtapi"
-			    " segment key=0x%x %s\n",
-			    rtapi_instance, rtapikey, strerror(-retval));
+			    " segment key=0x%x %d\n",
+			    rtapi_instance, rtapikey, retval);
 	}
 	if (size != sizeof(rtapi_data_t)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -109,9 +109,9 @@ int ulapi_main(int instance, int flavor, global_data_t *global)
 
 int ulapi_exit(int instance)
 {
-    rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d %s exit\n",
-		    instance,
-		    GIT_VERSION);
+    /* rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d %s exit\n", */
+    /* 		    instance, */
+    /* 		    GIT_VERSION); */
 
     if (rtapi_switch->thread_flavor_flags & FLAVOR_RTAPI_DATA_IN_SHM) {
 	// detach RTAPI segment
@@ -119,8 +119,8 @@ int ulapi_exit(int instance)
 	if (retval) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "ULAPI:%d ERROR: shm_common_detach(rtapi_data)"
-			    " failed: %s\n",
-			    rtapi_instance,  strerror(-retval));
+			    " failed: %d\n",
+			    rtapi_instance, retval);
 	}
 	rtapi_data = NULL;
     }
