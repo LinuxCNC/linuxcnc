@@ -263,10 +263,11 @@ SUBDIRS := \
 	emc \
 	emc/pythonplugin \
 	\
-	module_helper \
-	\
 	po \
 
+ifeq ($(HAVE_KERNEL_THREADS),yes)
+SUBDIRS += module_helper
+endif
 
 # moved to src/rtapi/Submakefile
 # ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
@@ -748,7 +749,9 @@ ifeq ($(HAVE_KERNEL_THREADS),yes)
 CHECK_KFLAV_SWITCH=-k
 endif
 setuid:
+ifeq ($(HAVE_KERNEL_THREADS),yes)
 	$(call fix_perms,../libexec/linuxcnc_module_helper)
+endif
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(BUILD_THREAD_FLAVORS),\
@@ -1007,7 +1010,9 @@ endif
 
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+ifeq ($(HAVE_KERNEL_THREADS),yes)
 	$(SETUID) ../libexec/linuxcnc_module_helper $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+endif
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
