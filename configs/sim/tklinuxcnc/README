@@ -1,6 +1,6 @@
 Sim files using tklinuxcnc gui:
 
-delta.ini
+ldelta.ini
   -delta robot with linear joints
 
 servo_sim.ini
