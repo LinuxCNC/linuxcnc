@@ -6,8 +6,8 @@ setrmb in0
 setwmb in1
 
 
-newinst lutnv2 or2.0  inputs=2 function=0xe
-newinst lutnv2 and2.0 inputs=2 function=0x8
+newinst lutnv2 or2.0  pincount=2 functn=0xe
+newinst lutnv2 and2.0 pincount=2 functn=0x8
 
 net in0 and2.0.in0 or2.0.in0
 net in1 and2.0.in1 or2.0.in1
