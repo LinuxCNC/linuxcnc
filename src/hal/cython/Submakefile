@@ -51,7 +51,7 @@ TARGETS += ../lib/python/machinekit/rtapi.so
 	 $(patsubst %.c,objects/%.o,$(RTAPISO_CSRCS)) \
 	 $(patsubst %.cc,objects/%.o,$(RTAPISO_CXXSRCS)) \
 	../lib/liblinuxcnchal.so.0 \
-	../lib/libmachinetalk-pb2++.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
 	../lib/libmtalk.so.0
 	$(ECHO) Linking $($@)
 	@mkdir -p $(dir $@)

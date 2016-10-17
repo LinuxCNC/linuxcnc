@@ -20,7 +20,9 @@ cdef extern from "hal_rcomp.h":
 
     int hal_ccomp_args(hal_compiled_comp_t *ccomp, int *arg1, int *arg2)
     int hal_ccomp_free(hal_compiled_comp_t *cc)
-    int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
+    int halg_compile_comp(const int use_hal_mutex,
+                          const char *name,
+                          hal_compiled_comp_t **ccomp)
     int hal_ccomp_match(hal_compiled_comp_t *ccomp)
 
     # acquiring and binding remote components
@@ -28,6 +30,3 @@ cdef extern from "hal_rcomp.h":
     int hal_unbind(const char *comp)
     int hal_acquire(const char *comp, int pid)
     int hal_release(const char *comp_name)
-
-# cdef inline int comp_callback(int phase, hal_compiled_comp_t * cc, hal_pin_t *pin,hal_data_u *value,void *user_data):
-#     (<object>user_data)(phase, cc, pin, value)

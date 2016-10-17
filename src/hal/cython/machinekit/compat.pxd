@@ -18,7 +18,7 @@ cdef extern from "rtapi_compat.h":
         const char *mod_ext
         const char *so_ext
         const char *build_sys
-        int id
+        int flavor_id
         unsigned long flags
 
     int c_is_module_loaded "is_module_loaded" (const char *module)

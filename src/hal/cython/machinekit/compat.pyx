@@ -24,8 +24,8 @@ cdef class Flavor:
     property build_sys:
         def __get__(self): return self._f.build_sys
 
-    property id:
-        def __get__(self): return self._f.id
+    property flavorid:
+        def __get__(self): return self._f.flavor_id
 
     property flags:
         def __get__(self): return self._f.flags

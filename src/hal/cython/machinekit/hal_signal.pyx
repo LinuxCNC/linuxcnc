@@ -1,25 +1,33 @@
-from .hal_priv cimport hal_data_u
-from .hal_util cimport hal2py, py2hal, shmptr, valid_dir, valid_type
+from .hal_priv cimport hal_data_u, hal_valid_dir, hal_valid_type
+from .hal_util cimport hal2py, py2hal, shmptr
 
-cdef class Signal:
-    cdef hal_sig_t *_sig
+cdef int _pin_by_signal_cb(hal_pin_t *pin,
+                           hal_sig_t *sig,
+                           void *user):
+    arg =  <object>user
+    arg.append(hh_get_name(&pin.hdr))
+    return 0
+
+
+cdef class Signal(HALObject):
     cdef int _handle
     cdef hal_data_u *_storage
 
     def _alive_check(self):
-        if self._handle != self._sig.handle:
+        if self._handle != hh_get_id(&self._o.sig.hdr):
             # the underlying HAL signal was deleted.
             raise RuntimeError("link: underlying HAL signal already deleted")
 
-    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED, init=None, wrap=True):
+    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED,
+                 init=None, wrap=True, lock=True):
         hal_required()
         # if no type given, wrap existing signal
         if type == HAL_TYPE_UNSPECIFIED:
-
-            with HALMutex():
-                self._sig = halpr_find_sig_by_name(name)
-                if self._sig == NULL:
-                    raise RuntimeError("signal '%s' does not exist" % name)
+            self._o.sig = halg_find_object_by_name(lock,
+                                                   hal_const.HAL_SIGNAL,
+                                                   name).sig
+            if self._o.sig == NULL:
+                raise RuntimeError("signal '%s' does not exist" % name)
 
         else:
             if name in signals:
@@ -33,24 +41,25 @@ cdef class Signal:
                                        % (describe_hal_type(signal.type),
                                           describe_hal_type(type)))
             else:
-                r = hal_signal_new(name, type)
+                r = halg_signal_new(lock, name, type)
                 if r:
                     raise RuntimeError("Failed to create signal %s: %s" % (name, hal_lasterror()))
 
-            with HALMutex():
-                self._sig = halpr_find_sig_by_name(name)
-                if self._sig == NULL:
-                    raise RuntimeError("BUG: couldnt lookup signal %s" % name)
+            self._o.sig = halg_find_object_by_name(lock,
+                                                   hal_const.HAL_SIGNAL,
+                                                   name).sig
+            if self._o.sig == NULL:
+                raise RuntimeError("BUG: couldnt lookup signal %s" % name)
 
-        self._storage = <hal_data_u *>shmptr(self._sig.data_ptr)
-        self._handle = self._sig.handle  # memoize for liveness check
+        self._storage = sig_value(self._o.sig)
+        self._handle = self.id  # memoize for liveness check
         if init:
             self.set(init)
 
     def link(self, *pins):
         self._alive_check()
         for p in pins:
-            net(self._sig.name, p)
+            net(self.name, p)
 
     def __iadd__(self, pins):
         self._alive_check()
@@ -83,111 +92,117 @@ cdef class Signal:
 
     def delete(self):
         # this will cause a handle mismatch if later operating on a deleted signal wrapper
-        r = hal_signal_delete(self._sig.name)
+        r = hal_signal_delete(self.name)
         if (r < 0):
-            raise RuntimeError("Fail to delete signal %s: %s" % (self._name, hal_lasterror()))
+            raise RuntimeError("Fail to delete signal %s: %s" % (self.name, hal_lasterror()))
 
     def set(self, v):
         self._alive_check()
-        if self._sig.writers > 0:
+        if self._o.sig.writers > 0:
             raise RuntimeError("Signal %s already as %d writer(s)" %
-                                      (self._sig.name, self._sig.writers))
-        return py2hal(self._sig.type, self._storage, v)
+                                      (hh_get_name(&self._o.sig.hdr), self._o.sig.writers))
+        return py2hal(self._o.sig.type, self._storage, v)
 
     def get(self):
         self._alive_check()
-        return hal2py(self._sig.type, self._storage)
-
+        return hal2py(self._o.sig.type, self._storage)
 
     def pins(self):
         ''' return a list of Pin objects linked to this signal '''
-        cdef hal_pin_t *p = NULL
-
         self._alive_check()
-        # need to do this two-step due to HALmutex
-        # pins.__get_item__ will aquire the lock, and if we do so again
-        # by calling  pins.__get_item_ we'll produce a deadlock
-        # solution: collect the names under mutex, then collect wrappers from names
         pinnames = []
         with HALMutex():
-            p = halpr_find_pin_by_sig(self._sig,p)
-            while p != NULL:
-                pinnames.append(p.name)
-                p = halpr_find_pin_by_sig(self._sig, p)
-
-        pinlist = []
-        for n in pinnames:
-            pinlist.append(pins[n])
-        return pinlist
-
-
-    property name:
-        def __get__(self):
-            self._alive_check()
-            return self._sig.name
+            # collect pin names
+            halg_foreach_pin_by_signal(0,self._o.sig, _pin_by_signal_cb,
+                                       <void *>pinnames)
+            # now the wrapped objects, all under the HAL mutex held:
+            pinlist = []
+            for n in pinnames:
+                pinlist.append(pins.__getitem_unlocked__(n))
+            return pinlist
 
     property writername:
         def __get__(self):
             cdef char *name
             self._alive_check()
-            return modifier_name(self._sig, HAL_OUT)
+            # [] or ['writer']
+            s = modifier_name(self._o.sig, HAL_OUT)
+            if s:
+                return s[0]
+            return None
 
     property bidirname:
         def __get__(self):
             cdef char *name
             self._alive_check()
-            return modifier_name(self._sig, HAL_IO)
-
-    property type:
-        def __get__(self):
-             self._alive_check()
-             return self._sig.type
+            s =  modifier_name(self._o.sig, HAL_IO)
+            if s:
+                return s
+            return None
 
     property readers:
         def __get__(self):
              self._alive_check()
-             return self._sig.readers
+             return self._o.sig.readers
 
     property writers:
         def __get__(self):
              self._alive_check()
-             return self._sig.writers
+             return self._o.sig.writers
+
+    property type:
+        def __get__(self):
+             self._alive_check()
+             return self._o.sig.type
 
     property bidirs:
         def __get__(self):
             self._alive_check()
-            return self._sig.bidirs
+            return self._o.sig.bidirs
 
-    property handle:
-        def __get__(self):
-            self._alive_check()
-            return self._sig.handle
 
     def __repr__(self):
         return "<hal.Signal %s %s %s>" % (self.name,
                                           describe_hal_type(self.type),
                                           self.get())
 
+cdef int _find_writer(hal_object_ptr o,  foreach_args_t *args):
+    cdef hal_pin_t *pin
+    pin = o.pin
+    if signal_of(pin) == args.user_ptr1 and pin.dir == args.user_arg1:
+        result =  <object>args.user_ptr2
+        result.append(hh_get_name(o.hdr))
+        if pin.dir == HAL_OUT:
+            return 1  # stop iteration, there can only be one writer
+    return 0 # continue
 
+# find the names of pins which modify a given signal
+# can be a name on dir == HAL_OUT or a list of names on HAL_IO
 cdef modifier_name(hal_sig_t *sig, int dir):
-     cdef hal_pin_t *pin
-     cdef int next
+    names = []
+    cdef foreach_args_t args = nullargs
+    args.type = hal_const.HAL_PIN
+    args.user_arg1 = dir
+    args.user_ptr1 = <void *>sig
+    args.user_ptr2 = <void *>names
 
-     with HALMutex():
-         next = hal_data.pin_list_ptr
-         while next != 0:
-             pin = <hal_pin_t *>shmptr(next)
-             if <hal_sig_t *>shmptr(pin.signal) == sig and pin.dir == dir:
-                 return pin.name
-             next = pin.next_ptr
-     return None
+    rc = halg_foreach(1, &args, _find_writer)
+    return names
 
 
-cdef _newsig(char *name, int type, init=None):
-    if not valid_type(type):
+cdef _newsig(char *name, hal_type_t type, init=None):
+    if not hal_valid_type(type):
         raise TypeError("newsig: %s - invalid type %d " % (name, type))
-    return Signal(name, type, init=init, wrap=False)
+    return Signal(name, type=type, init=init, wrap=False)
 
 def newsig(name, type, init=None):
     _newsig(name, type, init)
     return signals[name] # add to sigdict
+
+def delsig(name):
+    signals[name].delete() # deletes HAL descriptor
+    del signals[name]      # deletes wrapper
+
+
+_wrapdict[hal_const.HAL_SIGNAL] = Signal
+signals = HALObjectDict(hal_const.HAL_SIGNAL)
