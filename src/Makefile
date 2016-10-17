@@ -526,6 +526,7 @@ HEADERS := \
     hal/lib/hal_ring.h \
     hal/lib/vtable.h \
     hal/drivers/hal_spi.h \
+    hal/drivers/hal_gpiomap.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
