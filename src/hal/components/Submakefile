@@ -13,36 +13,28 @@ CONVERTERS :=  \
     conv_float_s32.comp conv_float_u32.comp \
     conv_bit_s32.comp conv_bit_u32.comp \
     conv_s32_float.comp conv_s32_bit.comp conv_s32_u32.comp \
-    conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
-
+    conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp \
+    conv_float_s64.comp conv_float_u64.comp \
+    conv_bit_s64.comp conv_bit_u64.comp \
+    conv_s64_float.comp conv_s64_bit.comp conv_s64_u64.comp \
+    conv_u64_float.comp conv_u64_bit.comp conv_u64_s64.comp \
+    conv_u64_s64.comp conv_u64_u32.comp conv_s64_s32.comp conv_s64_u32.comp
 COMPS := $(sort $(wildcard hal/components/*.comp) \
 	$(addprefix hal/components/, $(CONVERTERS)))
-
-USER_COMP_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
-
-COMP_DOCPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.asciidoc, \
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../man/man9/%.9comp, \
 	$(COMPS))
 
-USER_COMP_DOCPAGES := $(patsubst hal/user_comps/%.comp, ../man/man9/%.asciidoc, \
-	$(USER_COMP_COMPS))
-
 MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
-
-MSG_COMP_DOCPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
-	../man/man9/%.asciidoc, $(MSG_COMPS))
+MSG_COMP_MANPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
+	../man/man9/%.9comp, $(MSG_COMPS))
 
 DRIVER_COMPS := $(wildcard hal/drivers/*.comp)
-
-DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.asciidoc, \
+DRIVER_COMP_MANPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.9comp, \
 	$(COMP_DRIVERS))
 
-docpages: $(COMP_DOCPAGES) $(DRIVER_COMP_DOCPAGES) $(MSG_COMP_DOCPAGES) $(USER_COMP_DOCPAGES)
-
-ifeq ($(BUILD_DOCS),yes)
-    TARGETS += docpages
-    .PHONY: docpages
-endif
-
+manpages: $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
+TARGETS += manpages
+.PHONY: manpages
 ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
 -include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak,\
 	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
@@ -56,38 +48,21 @@ obj-m += $(patsubst hal/drivers/%.comp, %.o, \
 	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))))
 endif
 
-$(COMP_DOCPAGES): ../man/man9/%.asciidoc: hal/components/%.comp  ../bin/comp
-	$(ECHO) Making comp docpage $(notdir $@)
+$(COMP_MANPAGES): ../man/man9/%.9comp: hal/components/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document \
-	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
-	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
-	-o $@ $<
+	$(Q)../bin/comp --document -o $@ $<
 
-$(USER_COMP_DOCPAGES): ../man/man9/%.asciidoc: hal/user_comps/%.comp  ../bin/comp
-	$(ECHO) Making comp docpage $(notdir $@)
+$(DRIVER_COMP_MANPAGES): ../man/man9/%.9comp: hal/drivers/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document \
-	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
-	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
-	-o $@ $<
+	$(Q)../bin/comp --document -o $@ $<
 
-$(DRIVER_COMP_DOCPAGES): ../man/man9/%.asciidoc: hal/drivers/%.comp ../bin/comp
-	$(ECHO) Making driver comp docpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document  \
-	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
-	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
-	-o $@ $<
-
-$(MSG_COMP_DOCPAGES): ../man/man9/%.asciidoc: \
+$(MSG_COMP_MANPAGES): ../man/man9/%.9comp: \
 		machinetalk/msgcomponents/%.comp ../bin/comp
-	$(ECHO) Making message comp docpage $(notdir $@)
+	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document  \
-	--frontmatter="edit-repo: $(EDIT_REPO)" 	\
-	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
-	-o $@ $<
+	$(Q)../bin/comp --document -o $@ $<
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors
@@ -136,6 +111,10 @@ endif # BUILD_ALL_FLAVORS == yes
 # endif
 # endif
 
+clean: clean-comp-manpages
+clean-comp-manpages:
+	-rm -f $(COMP_MANPAGES) $(DRIVER_COMP_MANPAGES) $(MSG_COMP_MANPAGES)
+
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
 
@@ -151,6 +130,14 @@ USERSRCS += $(HALSAMPLERSRCS)
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler
+
+HALSAMPLERLATSRCS := hal/components/sampler_latency_usr.c
+USERSRCS += $(HALSAMPLERLATSRCS)
+
+../bin/hallatencysampler: $(call TOOBJS, $(HALSAMPLERLATSRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/hallatencysampler
 
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
@@ -192,6 +179,63 @@ hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkc
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
 
+############ added u64 s64
+    
+hal/components/conv_float_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh float s64 "" -9223372036854775807-1 9223372036854775807 < $< > $@
+    
+hal/components/conv_float_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh float u64 "" 0 9223372036854775807 < $< > $@
+    
+hal/components/conv_bit_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh bit s64 // < $< > $@
+    
+hal/components/conv_bit_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh bit u64 // < $< > $@
+
+hal/components/conv_s64_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s64 float // < $< > $@
+
+hal/components/conv_s64_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s64 bit "" 0 1 < $< > $@
+
+hal/components/conv_u64_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u64 float // < $< > $@
+
+hal/components/conv_u64_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u64 bit "" -1 1 < $< > $@
+
+hal/components/conv_u64_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u64 s64 "" -1 9223372036854775807 < $< > $@
+
+hal/components/conv_s64_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s64 u64 "" 0 0 < $< > $@
+
+hal/components/conv_u64_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u64 s64 "" 0 2147483647 < $< > $@
+
+hal/components/conv_s64_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s64 s32 "" -2147483647-1 2147483647 < $< > $@
+
+hal/components/conv_u64_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u64 u32 "" 0 2147483647 < $< > $@
+
+hal/components/conv_s64_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s64 u32 "" 0 2147483647 < $< > $@
 
 # build instructions for the delayline module
 obj-m += delayline.o
