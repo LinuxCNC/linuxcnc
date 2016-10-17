@@ -1,0 +1,54 @@
+
+component hbridge "generate driving signals for 2 PWM generators to drive an H-Bridge";
+description """
+Together with 2 PWM's, this comp can be used to drive a DC motor through an H-bridge.
+If the H-bridge needs a PWM signal at full speed (e.g. for charge pumps), limit the
+output value by setting maxout.
+See also: http://en.wikipedia.org/wiki/H_bridge .
+
+Two output pins, up and down. For positive inputs, the PWM/PDM driving signal appears on up, while down is low. For negative inputs, the driving signal on down, while up is low. Suitable for driving the two sides of an H-bridge to generate a bipolar output.
+
+""";
+
+pin in float  command "target speed, < 0: reverse, > 0: forward";
+pin out float down   "driving value for PWM1, 0..maxout";
+pin out float up     "driving value for PWM2, 0..maxout";
+pin out bit   enable-out "output to enable both half-bridges";
+pin in  bit   enable "let motor free run if false";
+pin in  bit   brake  "brake motor if true; needs enable to be true";
+
+pin io float maxout = 1.0 "limit for the up and down pins";
+function _ fp;
+license "GPL v2";
+;;
+#define MINIMUM(x, y) (((x) > (y))?(y):(x))
+
+FUNCTION(_)
+{
+    if (enable) {
+	if (brake) {
+	    // motor DC brake
+	    up = 0.0;
+	    down = 0.0;
+	    enable_out = true;
+	} else {
+	    // normal forward/reverse operation
+	    hal_float_t negcmd = command * - 1.0;
+	    if (command < 0.0) {
+		up = 0.0;
+		down = MINIMUM(negcmd, maxout);
+	    } else {
+		up = MINIMUM(command, maxout);
+		down = 0.0;
+	    }
+	    enable_out = true;
+	}
+    } else {
+	// let motor run freely
+	up = 0.0;
+	down = 0.0;
+	enable_out = false;
+    }
+
+	return 0;
+}

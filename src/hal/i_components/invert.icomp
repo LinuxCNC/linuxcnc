@@ -1,0 +1,43 @@
+//   This is a component for Machinekit
+//   Copyright 2008 Stephen Wille Padnos <swpadnos at sourceforge dot net>
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component invert """Compute the inverse of the input signal
+The output will be the mathematical inverse of the input, ie \\fBout\\fR = 1/\\fBin\\fR.
+The parameter \\fBdeadband\\fR can be used to control how close to 0 the denominator can be
+before the output is clamped to 0.  \\fBdeadband\\fR must be at least 1e-8, and must be positive.""";
+
+pin in float in "Analog input value" ;
+pin out float out "Analog output value";
+pin io float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR" ;
+
+function _;
+license "GPL";
+;;
+
+#include "rtapi_math.h"
+
+FUNCTION(_)
+{
+    hal_float_t tmp = in;
+    if (deadband < 1e-12) deadband = 1e-12;
+    if ( tmp > -deadband && tmp < 0.0)
+	out = -1.0/deadband;
+    else if (tmp >= 0.0 && tmp < deadband)
+	out = 1.0/deadband;
+    else
+	out = 1.0/tmp;
+
+return 0;
+}

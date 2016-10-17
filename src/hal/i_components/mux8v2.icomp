@@ -1,0 +1,85 @@
+component mux8v2    "Select from one of eight input values";
+pin_ptr in bit sel0;
+pin_ptr in bit sel1;
+pin_ptr in bit sel2 """\
+Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
+""";
+pin_ptr out float out """\
+Follows the value of one of the \\fBin\\fIN\\fR values according to the three \\fBsel\\fR values
+.RS
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin0\\fR
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin1\\fR
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin2\\fR
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin3\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin4\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin5\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin6\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin7\\fR
+.RE
+""";
+pin_ptr in float in0;
+pin_ptr in float in1;
+pin_ptr in float in2;
+pin_ptr in float in3;
+pin_ptr in float in4;
+pin_ptr in float in5;
+pin_ptr in float in6;
+pin_ptr in float in7;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if(gb(sel0))
+        {
+        if(gb(sel1))
+            {
+            if(gb(sel2))
+                sf(out, gf(in7));
+            else
+                sf(out, gf(in3));
+            }
+        else
+            {
+            if(gb(sel2))
+                sf(out, gf(in5));
+            else
+                sf(out, gf(in1));
+            }
+        }
+    else
+        {
+        if(gb(sel1))
+            {
+            if(gb(sel2))
+                sf(out, gf(in6));
+            else
+                sf(out, gf(in2));
+            }
+        else
+            {
+            if(gb(sel2))
+                sf(out, gf(in4));
+            else
+                sf(out, gf(in0));
+            }
+        }
+
+return 0;
+}

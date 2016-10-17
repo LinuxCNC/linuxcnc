@@ -1,0 +1,10 @@
+component bin2grayv2 "convert a number to the gray-code representation";
+description """Converts a number into gray-code""";
+pin_ptr in u32 in "binary code in";
+pin_ptr out u32 out "gray code out";
+license "GPL";
+author "andy pugh";
+function _ nofp;
+;;
+    su(out, (gu(in) >> 1) ^ gu(in));
+    return 0;

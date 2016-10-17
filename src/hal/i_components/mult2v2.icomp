@@ -1,0 +1,13 @@
+component mult2v2       "Product of two inputs";
+pin_ptr in float in0;
+pin_ptr in float in1;
+pin_ptr out float out   "out = in0 * in1";
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    sf(out, (gf(in0) * gf(in1)));
+
+return 0;
+}

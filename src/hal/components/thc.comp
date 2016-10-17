@@ -25,27 +25,39 @@ pass the Z position and feed back untouched.
 If not enabled pass the Z position and feed back untouched.
 
 Physical Connections
+<<<<<<< HEAD:src/hal/components/thc.comp
 
+=======
+.br
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thc.icomp
 Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
-
+.br
 THC Frequency Signal => Encoder #0, pin A (Input)
-
+.br
 Plasma Torch Arc OK Signal => input pin
-
+.br
 output pin => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
+<<<<<<< HEAD:src/hal/components/thc.comp
 
+=======
+.br
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thc.icomp
 encoder.nn.velocity => thc.encoder-vel (tip voltage)
-
+.br
 motion.spindle-on => output pin (start the arc)
-
+.br
 thc.arc-ok <= motion.digital-in-00 <= input pin (arc ok signal)
 
 HAL Motion Connections
+<<<<<<< HEAD:src/hal/components/thc.comp
 
+=======
+.br
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thc.icomp
 thc.requested-vel <= motion.requested-vel
-
+.br
 thc.current-vel <= motion.current-vel
 
 """;
@@ -82,8 +94,13 @@ param rw float voltage_tol "The deviation of Tip Voltage before correction takes
 param rw float correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
+<<<<<<< HEAD:src/hal/components/thc.comp
 variable float offset = 0.0;
 variable float last_z_in = 0.0;
+=======
+variable hal_float_t offset = 0.0;
+variable hal_float_t last_z_in = 0.0;
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thc.icomp
 
 function _;
 

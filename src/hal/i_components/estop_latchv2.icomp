@@ -1,0 +1,46 @@
+component estop_latchv2 """
+ESTOP latch which sets ok-out true and fault-out false only if ok-in is true, 
+fault-in is false, and a rising edge is seen on reset.  
+While ok-out is true, watchdog toggles, and can be used for chargepumps or similar needs.
+""";
+pin_ptr in bit ok_in;
+pin_ptr in bit fault_in;
+pin_ptr in bit reset;
+pin_ptr out bit ok_out;
+pin_ptr out bit fault_out;
+pin_ptr out bit watchdog;
+function _ nofp;
+variable hal_bit_t old_reset;
+
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    // check inputs 
+    if ( gb(ok_in) && !gb(fault_in))
+        {
+	// no fault conditions, check for reset edge 
+	    if ( gb(reset) && !old_reset )
+	        {
+	    // got a rising edge, indicate "OK" on outputs 
+	        sb(ok_out, true);
+	        sb(fault_out, false);
+	        }
+	    if( gb(ok_out) )
+	        {
+	    // toggle watchdog 
+	        sb(watchdog, !gb(watchdog));
+	        }
+        }
+    else
+        {
+	// fault condition exists, trip 
+	    sb(ok_out, false);
+	    sb(fault_out, true);
+        }
+    // store state of reset input for next pass (for edge detect) 
+    old_reset = gb(reset);
+
+	return 0;
+}

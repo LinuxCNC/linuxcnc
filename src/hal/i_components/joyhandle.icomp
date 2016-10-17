@@ -1,0 +1,103 @@
+//   This is a component for Machinekit
+//   Copyright 2008 Paul Willutzki <paul[at]willutzki[dot]de>
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component joyhandle "sets nonlinear joypad movements, deadbands and scales";
+pin in float in;
+pin out float out;
+pin io float power = 2.0;
+pin io float deadband = 0.0;
+pin io float scale = 1.0;
+pin io float offset = 0.0;
+pin io bit inverse = false;
+
+description """
+The component \\fBjoyhandle\\fR uses the following formula for a non linear joypad movements:
+
+\\fBy = (scale * (a*x^power + b*x)) + offset\\fR
+
+The parameters a and b are adjusted in such a way, that the function starts at (deadband,offset) and ends at (1,scale+offset).
+
+Negative values will be treated point symetrically to origin. Values -deadband < x < +deadband will be set to zero.
+
+Values x > 1 and x < -1 will be skipped to \\(+-(scale+offset). Invert transforms the function to a progressive movement.
+
+With power one can adjust the nonlinearity (default = 2). Default for deadband is 0.
+
+Valid values are: power >= 1.0 (reasonable values are 1.x .. 4-5, take higher power-values for higher deadbands (>0.5), if you want to start with a nearly horizontal slope), 0 <= deadband < 0.99 (reasonable 0.1).
+
+An additional offset component can be set in special cases (default = 0).
+
+All values can be adjusted for each instance separately.
+""";
+
+function _;
+license "GPL";
+;;
+#include <rtapi_math.h>
+
+FUNCTION(_)
+{
+hal_float_t p,a,b,alin,clin,xm,ym,xinv,yinv;
+
+if (power < 1.0) power =1.0;
+
+if (deadband >= 0.99) deadband = 0.99;
+else if (deadband <= 0.0) deadband = 0.0;
+
+p = power - 1.0;
+a = -1.0/(rtapi_pow(deadband,p)-1.0);
+b = 1.0 - a;
+alin = -scale/(deadband-1.0);
+clin = 1.0 *(scale+offset-alin);
+
+if (in >= 1.0) out = scale + offset;
+else if ((in <= deadband) && (in >= (-1.0 *deadband))) out = 0.0;
+else if (in <= -1.0) out = -scale - offset;
+else if ((in > deadband) && (in < 1.0))
+    {
+	if (power == 1.0) out=alin*in + clin;
+	else {
+		if (inverse == 0) out = scale*(a*rtapi_pow(in,power) + b*in) + offset;
+		else {
+			xm = (deadband+1.0) / 2.0;
+			ym = alin*xm + clin;
+			xinv = 2.0 * xm-in;
+			yinv = scale*(a*rtapi_pow(xinv,power) + b*xinv) + offset;
+			out = 2.0 * ym-yinv;
+		     }
+	     }
+     }
+else if ((in < (-1.0 *deadband)) && (in > -1.0))
+    {
+	if (power == 1.0) out=-1.0*(alin*-1.0*in + clin);
+	else {
+		if (inverse == 0) out = -1.0 *(scale*(a*rtapi_pow((-1.0*in),power) - b*in) + offset);
+		else {
+			xm = (deadband+1.0)/2.0;
+			ym = alin*xm + clin;
+			xinv = 2.0 * xm+in;
+			yinv = scale*(a*rtapi_pow(xinv,power) + b*xinv) + offset;
+			out =-2.0 *ym-yinv;
+		     }
+	     }
+     }
+else out = 0.0;
+
+return 0;
+
+
+// out = scale*(a*rtapi_pow(in,power) + b*in) + offset;
+}

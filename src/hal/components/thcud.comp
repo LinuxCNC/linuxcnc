@@ -16,6 +16,7 @@ pass the Z position and feed back untouched.
 
 If not enabled pass the Z position and feed back untouched.
 
+<<<<<<< HEAD:src/hal/components/thcud.comp
 Typical Physical Connections using a Parallel Port
 
 Parallel Pin 12 <= THC controller Plasma Up
@@ -51,10 +52,50 @@ In the xml file you need something like:
     <halpin>"thc-enable"</halpin>
   </checkbutton>
   </pyvcp>
+=======
+Physical Connections typical
+paraport.0.pin-12-in <= THC controller Plasma Up
+paraport.0.pin-13-in <= THC controller Plasma Down
+parport.0.pin-15-in  <= Plasma Torch Arc Ok Signal
+parport.0.pin-16-out => Plasma Torch Start Arc Contacts
+
+HAL Plasma Connections
+thc.torch-up <= paraport.0.pin-12-in
+thc.torch-down <= paraport.0.pin-13-in
+motion.spindle-on => parport.0.pin-16-out (start the arc)
+thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+
+HAL Motion Connections
+thc.requested-vel <= motion.requested-vel
+thc.current-vel <= motion.current-vel
+
+Pyvcp Connections
+In the xml file you need something like:
+
+<checkbutton>
+  <text>"THC Enable"</text>
+  <halpin>"thc-enable"</halpin>
+</checkbutton>
+<spinbox>
+  <width>"5"</width>
+  <halpin>"vel-tol"</halpin>
+  <min_>.01</min_>
+  <max_>1</max_>
+  <resolution>0.01</resolution>
+  <initval>0.2</initval>
+  <format>"1.2f"</format>
+  <font>("Arial",10)</font>
+</spinbox>
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thcud.icomp
 
 Connect the Pyvcp pins in the postgui.hal file like this:
 
 net thc-enable thcud.enable <= pyvcp.thc-enable
+<<<<<<< HEAD:src/hal/components/thcud.comp
+=======
+
+""";
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thcud.icomp
 
 
 """;
@@ -87,8 +128,13 @@ param rw float velocity_tol "The deviation percent from planned velocity";
 param rw float correction_vel "The Velocity to move Z to correct";
 
 // Global Variables
+<<<<<<< HEAD:src/hal/components/thcud.comp
 variable float offset = 0.0;
 variable float last_z_in = 0.0;
+=======
+variable hal_float_t offset = 0.0;
+variable hal_float_t last_z_in = 0.0;
+>>>>>>> 91b1622... Replace all instantiated components, add new ones and add v2 versions:src/hal/i_components/thcud.icomp
 
 function _;
 

@@ -1,0 +1,102 @@
+
+component mux16 	"Select from one of sixteen input values";
+description """\
+pin in bit use_graycode
+This signifies the input will use Gray code instead of binary.
+Gray code is a good choice when using physical switches because
+for each increment only one select input changes at a time.
+
+pin in bit suppress_no_input
+This suppresses changing the output if all select lines are false.
+This stops unwanted jumps in output between transitions of input.
+but make in00 unavaliable.
+
+pin in float debounce_time
+sets debouce time in seconds.  eg. .10 = a tenth of a second
+input must be stable this long before outputs changes. This
+helps to ignore 'noisy' switches.
+
+pin in bit sel#[4]
+Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
+
+pin out float out_f
+pin out s32 out_s
+Follows the value of one of the \\fBin\\fIN\\fR values according to the four \\fBsel\\fR values
+and whether use-graycode is active.
+
+The s32 value will be trunuated and limited to the max and min values of signed values.
+.RS
+.TP
+\\fBsel3=false\\fR, \\fBsel2=false\\fR, \\fBsel1=false\\fR, \\fBsel0=false\\fR
+\\fBout\\fR follows \\fBin0\\fR
+.TP
+\\fBsel3=false\\fR, \\fBsel2=false\\fR, \\fBsel1=false\\fR, \\fBsel0=true\\fR
+\\fBout\\fR follows \\fBin1\\fR
+.TP
+etc.
+.RE
+""";
+
+pin in bit use_graycode;
+pin in bit suppress_no_input;
+pin in float debounce_time;
+pin in bit sel#[4];
+pin out float out_f;
+pin out s32 out_s;
+
+pin out float elapsed "Current value of the internal debounce timer\n for debugging.";
+pin out s32 selected "Current value of the internal selection variable after conversion\n for debugging";
+pin in float in##[16] "array of selectable outputs";
+
+variable hal_float_t delaytime;
+variable hal_s32_t lastnum;
+variable hal_bit_t running;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    hal_s32_t i,num = 0;
+    hal_bit_t internal[4];
+
+    if(suppress_no_input) {
+        if (sel(0) + sel(1) + sel(2) + sel(3) == false) {
+            return 0;
+        }
+    }
+    if (use_graycode) {
+        internal[0] = sel(3);
+        internal[1] = sel(2);
+        internal[2] = sel(1);
+        internal[3] = sel(0);
+        for(i = 1; i < 4; i++){
+            internal[i] = internal[i] ^ internal[i - 1];
+        }
+        selected = num = internal[3]+(internal[2]*2) + (internal[1]*4) + (internal[0]*8);
+    }else{
+        selected = num = (sel(0))+(sel(1)*2) + (sel(2)*4) + (sel(3)*8);
+    }
+    if(debounce_time) {
+        if (num != lastnum) {
+            if (!running) {
+                running = true;
+                delaytime = 0.0;
+            }
+            if (delaytime < debounce_time) {
+                delaytime += fperiod;
+                elapsed = delaytime;
+                return 0;
+            }else{
+            running = false;
+            lastnum = num;
+            out_s = out_f = in(num);
+            return 0;
+            }
+        }
+    }
+    /* select the output */
+    out_s = out_f = in(num);
+
+return 0;
+
+}

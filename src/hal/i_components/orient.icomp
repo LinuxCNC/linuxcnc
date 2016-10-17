@@ -1,0 +1,95 @@
+component orient "Provide a PID command input for orientation mode based on current spindle position, target angle and orient mode";
+
+pin in  bit   enable      "enable angular output for orientation mode";
+pin in  s32   mode        "0: rotate - shortest move; 1: always rotate clockwise; 2: always rotate counterclockwise";
+pin in  float position    "spindle position input, unit 1 rev";
+pin in  float angle       "orient target position in degrees, 0 <= angle < 360";
+pin out float command     "target spindle position, input to PID command";
+pin out float poserr      "in degrees - aid for PID tuning";
+
+variable hal_bit_t   last_enable = false;
+
+option fp yes;
+
+function _ "Update \\fBcommand\\fR based on \\fBenable\\fR, \\fBposition\\fR, \\fBmode\\fR and \\fBangle\\fR.";
+author "Michael Haberler";
+
+
+description """
+This component is designed to support a spindle orientation PID loop by providing a
+command value, and fit with the motion spindle-orient support pins to support the M19 code.
+
+The spindle is assumed to have stopped in an arbitrary position. The spindle
+encoder position is linked to the  \\fBposition\\fR pin.
+The  current value of the position pin is sampled on a positive edge on the \\fBenable\\fR pin, and
+\\fBcommand\\fR is computed and set as follows: floor(number of
+full spindle revolutions
+in the \\fBposition\\fR sampled on positive edge)
+plus \\fBangle\\fR/360 (the fractional revolution) +1/-1/0 depending on \\fBmode\\fR.
+
+The \\fBmode\\fR pin is interpreted as follows:
+
+0: the spindle rotates in the direction with the lesser angle,
+which may be clockwise or counterclockwise.
+
+1: the spindle rotates always rotates clockwise to the new angle.
+
+2: the spindle rotates always rotates counterclockwise to the new angle.
+
+
+.SH HAL USAGE
+
+On \\fBmotion.spindle-orient\\fR disconnect the spindle control and connect to the orient-pid
+loop:
+
+loadrt orient names=orient
+.br
+loadrt pid    names=orient-pid
+.br
+net orient-angle  motion.spindle-orient-angle orient.angle
+.br
+net orient-mode   motion.spindle-orient-mode  orient.mode
+.br
+net orient-enable motion.spindle-orient       orient.enable orient-pid.enable
+.br
+net spindle-pos    ...encoder..position orient.position orient-pid.feedback
+.br
+net orient-command orient.command orient-pid.command
+.br
+
+""";
+
+license "GPL";
+;;
+#include <rtapi_math.h>
+
+FUNCTION(_)
+{
+hal_float_t target_angle;
+hal_float_t latched_position;
+
+    if (enable)
+        {
+	if (enable ^ last_enable)
+	    {       // positive edge on enable
+            latched_position = position; // sample now
+            target_angle =  angle/360.0;
+            switch (mode)
+                {
+            case 0: // shortest move
+                command = rtapi_floor(latched_position+0.5-target_angle) + target_angle;
+                break;
+            case 1: // always cw
+                command = rtapi_ceil(latched_position-target_angle)  + target_angle;
+                break;
+            case 2: // always ccw
+                command = rtapi_floor(latched_position-target_angle) + target_angle ;
+                break;
+	            }
+	        }
+	    poserr = (position - command) * 360.0;
+        }
+    last_enable = enable;
+
+return 0;
+}

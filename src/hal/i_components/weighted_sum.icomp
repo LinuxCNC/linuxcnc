@@ -1,0 +1,81 @@
+/********************************************************************
+* Description: weighted_sum
+*   Weighted summer for HAL
+*
+*   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
+*
+* This component is a "weighted summer".  It has a (user specified)
+* number of HAL_BIT input pins, and a HAL_S32 parameter corresponding
+* to each bit input.
+* There is one HAL_S32 output.  The output value is the sum of the
+* parameters for which the corresponding bit input is true.
+*
+* The default value for the parameters is 2^n, where n is the bit number.
+* Default behavior results in a binary -> unsigned conversion.
+*
+* There is one array parameter at module load time, the number of bits for
+* each weighted summer.  There is a limit of 8 weighted summers, and each
+* may have up to 16 input bits.
+*
+*********************************************************************
+*
+* Author: Stephen Wille Padnos (swpadnos AT sourceforge DOT net)
+*       Based on a work by John Kasunich
+*
+*	Converted to icomp by ArcEye <arceye@mgware.co.uk>
+* License: GPL Version 2
+* Created on: May 17, 2006
+* System: Linux
+*
+* Copyright (c) 2006 All rights reserved.
+*
+********************************************************************/
+
+
+
+
+component weighted_sum "Weighted Summer for Machinekit HAL";
+
+pin in bit in##[pincount] "The ## inputs of weighted summer";
+
+pin in bit hold "When TRUE, the sum output does not change. \
+	When FALSE, the sum output tracks the bit inputs according to the weights and offset.";
+
+pin out s32 sum "The output of the weighted summer";
+
+pin io s32 weight##[pincount] "The weight of the input of weighted summer ##. The default value is 2^m.";
+
+pin io s32 offset;
+
+variable hal_s32_t running_total = 0;
+
+instanceparam int pincount = 8;
+
+option MAXCOUNT 16;
+
+license "GPL";
+
+function process_wsums fp;
+;;
+
+
+FUNCTION(process_wsums)
+{
+hal_s32_t b;
+    
+    if (!hold) 
+	{
+	running_total = offset;
+	for (b=0 ; b < local_pincount ; b++) 
+	    {
+	    if (in(b))
+		running_total += weight(b);
+	    }
+	}
+    sum = running_total;
+
+    return 0;
+}
+
+
+

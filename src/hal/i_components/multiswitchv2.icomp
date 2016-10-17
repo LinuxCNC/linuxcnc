@@ -1,0 +1,79 @@
+/*******************************************************************************
+
+Machinekit HAL component to implement Multistate toggle switch
+Authors ArcEye 15122011 schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
+License GPL
+Copyright 2011
+
+example Hal linkages required:-
+################################
+loadrt multiswitch cfg=4,6,8
+addf multiswitch.0 servo-thread
+...
+net toggle-switch multiswitch.0.toggle <= parport.N.pin-nn-out
+net state1 multiswitch.0.state1 => parport.N.pin-nn-in
+net state1 multiswitch.0.state2 => parport.N.pin-nn-in
+net state1 multiswitch.0.state3 => parport.N.pin-nn-in
+
+If you require an "all off" state, then make the component one bit oversize and
+don't connect the extra pin.
+
+*******************************************************************************/
+
+component multiswitchv2           """This component toggles between a specified number of output bits""";
+
+pin_ptr in bit up = false           "Receives signal to toggle up";
+pin_ptr in bit down = false         "Receives signal to toggle down";
+
+pin_ptr io u32 top-position  "Number of positions";
+pin_ptr io s32 position      "Current state (may be set in the HAL)";
+
+pin_ptr out bit bit-##[pincount] = false       "Output bits";
+
+instanceparam int pincount = 6;
+
+option MAXCOUNT 32;
+
+function _ ;
+option extra_inst_setup yes;
+//option count_function yes;
+
+variable hal_s32_t old_up = 0;
+variable hal_s32_t old_down = 0;
+
+author "ArcEye arceye@mgware.co.uk / Andy Pugh andy@bodgesoc.org";
+license "GPL2";
+;;
+
+
+FUNCTION(_)
+{
+    hal_s32_t i;
+
+    // debounce
+    if (gb(up) && !old_up) 
+        incs(position); 
+    if (gb(down) && !old_down) 
+        decs(position);
+    old_up = gb(up);
+    old_down = gb(down);
+
+    if (gs(position) < 0) 
+        ss(position, gu(top_position));
+    if (gs(position) > gu(top_position)) 
+        ss(position, 0);
+
+    for (i = 0 ; i < local_pincount; i++)
+        {
+        sb(bit(i), (i == gs(position)));
+        }
+
+return 0;
+
+}
+
+EXTRA_INST_SETUP()
+{
+    su(top_position, local_pincount - 1);
+    return 0;
+}

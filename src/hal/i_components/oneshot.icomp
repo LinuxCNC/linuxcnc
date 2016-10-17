@@ -1,0 +1,89 @@
+//   This is a component for Machinekit
+//   Copyright 2006 John Kasunich <jmkasunich@users.sourceforge.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component oneshot "one-shot pulse generator";
+
+description """creates a variable-length output pulse when the input changes
+state. This function needs to run in a thread which supports floating point
+(typically the servo thread). This means that the pulse length has to be a
+multiple of that thread period, typically 1mS.
+For a similar function that can run in the base thread, and which offers higher
+resolution, see "edge".""";
+
+pin in bit in "Trigger input";
+pin out bit out "Active high pulse";
+pin out bit out_not "Active low pulse";
+pin in float width=0 "Pulse width in seconds";
+pin out float time_left "Time left in current output pulse";
+
+pin in bit retriggerable=true "Allow additional edges to extend pulse";
+pin in bit rising=true "Trigger on rising edge";
+pin in bit falling=false "Trigger on falling edge";
+
+variable hal_float_t timer;
+variable hal_bit_t old_in;
+
+option extra_inst_setup yes;
+
+function _ "Produce output pulses from input edges";
+license "GPL";
+;;
+
+EXTRA_INST_SETUP()
+{
+    timer = 0.0;
+    old_in = false;
+    return 0;
+}
+
+FUNCTION(_)
+{
+    hal_bit_t new, trigger, old;
+
+    new = in;
+    old = old_in;
+    trigger = false;
+    /* detect edges */
+    if ( new && (!old) && rising ) trigger = 1;
+    if ( old && (!new) && falling ) trigger = 1;
+    old_in = new;
+    /* is a pulse already running? */
+    if ( timer > 0.0 ) {
+	if ( ! retriggerable ) {
+	    /* ignore edges during pulse */
+	    trigger = false;
+	}
+	/* decrement timer */
+	timer -= (hal_float_t) ( period * 0.000000001 );
+	if ( timer < 0.0 ) timer = 0.0;
+    }
+    if ( trigger ) {
+	/* (re)start pulse */
+	timer = width;
+    }
+    /* drive outputs */
+    time_left = timer;
+    if ( timer > 0.0 ) {
+	out = true;
+	out_not = false;
+    } else {
+	out = false;
+	out_not = true;
+    }
+
+return 0;
+}

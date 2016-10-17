@@ -1,0 +1,29 @@
+component nearv2 "Determine whether two values are roughly equal.";
+pin_ptr in float in1_;
+pin_ptr in float in2_;
+pin_ptr io float scale=1.0;
+pin_ptr io float difference=0.0;
+pin_ptr out bit out """
+\\fBout\\fR is true if \\fBin1\\fR and \\fBin2\\fR are within a factor of
+\\fBscale\\fR (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR
+if their absolute difference is no greater than \\fBdifference\\fR (i.e.,
+|in1-in2| <= difference).  \\fBout\\fR is false otherwise.""";
+function _;
+license "GPL";
+;;
+#include "rtapi_math.h"
+FUNCTION(_)
+{
+    hal_float_t in1 = gf(in1_), in2 = gf(in2_);
+    if(in1 < 0.0) {
+        in1 = -in1;
+        in2 = -in2;
+    }
+    if((gf(scale) > 1 && in1 / gf(scale) <= in2 && in2 <= in1 * gf(scale)) || 
+        rtapi_fabs(in1-in2) <= gf(difference))
+        sb(out, true);
+    else
+        sb(out, false);
+
+return 0;
+}

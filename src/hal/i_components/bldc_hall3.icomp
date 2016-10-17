@@ -1,0 +1,261 @@
+component bldc_hall3
+"""3-wire BLDC motor driver using Hall sensors and trapezoidal commutation.
+The functionality of this component is now included in the generic "bldc"
+component. This component is likely to be removed in a future release""";
+
+pin in bit hall1 "Hall sensor signal 1";
+pin in bit hall2 "Hall sensor signal 2";
+pin in bit hall3 "Hall sensor signal 3";
+pin in float value "PWM master amplitude input";
+pin in bit dir
+"""Forwards / reverse selection. Negative PWM amplitudes will also
+reverse the motor and there will generally be a pattern that runs the motor in
+each direction too.""";
+
+pin out float A-value "Output amplitude for phase A";
+pin out float B-value "Output amplitude for phase B";
+pin out float C-value "Output amplitude for phase C";
+
+pin io u32 pattern=25
+"""Commutation pattern to use, from 0 to 47. Default is type 25.
+Every plausible combination is included. The table shows the excitation pattern
+along the top, and the pattern code on the left hand side. The table entries
+are the hall patterns in H1, H2, H3 order.
+Common patterns are:
+0 (30 degree commutation) and 26, its reverse.
+17 (120 degree).
+18 (alternate 60 degree).
+21 (300 degree, Bodine).
+22 (240 degree).
+25 (60 degree commutation).
+
+Note that a number of incorrect commutations will have non-zero net torque
+which might look as if they work, but don't really.
+
+If your motor lacks documentation it might be worth trying every pattern.
+
+.ie '\*[.T]'html' \\{\\
+.HTML \\
+<STYLE> \\
+#pattern TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
+#pattern TH { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
+#pattern TD.W { text-align: right; } \\
+</STYLE> \\
+<TABLE ID="pattern" STYLE="border: 1px solid black; border-collapse: collapse"> \\
+<COL SPAN=7 STYLE="margin: .2ex"><COL SPAN=1 STYLE="border-left: 1px solid black"> \\
+<TR><TD>&nbsp;<TH COLSPAN=6 CLASS=W>Phases, Source - Sink \\
+<TR><TH CLASS=W>pat<TH CLASS=W>B-A<TH CLASS=W>C-A<TH CLASS=W>C-B<TH CLASS=W>A-B<TH CLASS=W>A-C<TH CLASS=W>B-C \\
+<TR><TH>0<TD>000<TD>001<TD>011<TD>111<TD>110<TD>100 \\
+<TR><TH>1<TD>001<TD>000<TD>010<TD>110<TD>111<TD>101 \\
+<TR><TH>2<TD>000<TD>010<TD>011<TD>111<TD>101<TD>100 \\
+<TR><TH>3<TD>001<TD>011<TD>010<TD>110<TD>100<TD>101 \\
+<TR><TH>4<TD>010<TD>011<TD>001<TD>101<TD>100<TD>110 \\
+<TR><TH>5<TD>011<TD>010<TD>000<TD>100<TD>101<TD>111 \\
+<TR><TH>6<TD>010<TD>000<TD>001<TD>101<TD>111<TD>110 \\
+<TR><TH>7<TD>011<TD>001<TD>000<TD>100<TD>110<TD>111 \\
+<TR><TH>8<TD>000<TD>001<TD>101<TD>111<TD>110<TD>010 \\
+<TR><TH>9<TD>001<TD>000<TD>100<TD>110<TD>111<TD>011 \\
+<TR><TH>10<TD>000<TD>010<TD>110<TD>111<TD>101<TD>001 \\
+<TR><TH>11<TD>001<TD>011<TD>111<TD>110<TD>100<TD>000 \\
+<TR><TH>12<TD>010<TD>011<TD>111<TD>101<TD>100<TD>000 \\
+<TR><TH>13<TD>011<TD>010<TD>110<TD>100<TD>101<TD>001 \\
+<TR><TH>14<TD>010<TD>000<TD>100<TD>101<TD>111<TD>011 \\
+<TR><TH>15<TD>011<TD>001<TD>101<TD>100<TD>110<TD>010 \\
+<TR><TH>16<TD>000<TD>100<TD>101<TD>111<TD>011<TD>010 \\
+<TR><TH>17<TD>001<TD>101<TD>100<TD>110<TD>010<TD>011 \\
+<TR><TH>18<TD>000<TD>100<TD>110<TD>111<TD>011<TD>001 \\
+<TR><TH>19<TD>001<TD>101<TD>111<TD>110<TD>010<TD>000 \\
+<TR><TH>20<TD>010<TD>110<TD>111<TD>101<TD>001<TD>000 \\
+<TR><TH>21<TD>011<TD>111<TD>110<TD>100<TD>000<TD>001 \\
+<TR><TH>22<TD>010<TD>110<TD>100<TD>101<TD>001<TD>011 \\
+<TR><TH>23<TD>011<TD>111<TD>101<TD>100<TD>000<TD>010 \\
+<TR><TH>24<TD>100<TD>101<TD>111<TD>011<TD>010<TD>000 \\
+<TR><TH>25<TD>101<TD>100<TD>110<TD>010<TD>011<TD>001 \\
+<TR><TH>26<TD>100<TD>110<TD>111<TD>011<TD>001<TD>000 \\
+<TR><TH>27<TD>101<TD>111<TD>110<TD>010<TD>000<TD>001 \\
+<TR><TH>28<TD>110<TD>111<TD>101<TD>001<TD>000<TD>010 \\
+<TR><TH>29<TD>111<TD>110<TD>100<TD>000<TD>001<TD>011 \\
+<TR><TH>30<TD>110<TD>100<TD>101<TD>001<TD>011<TD>010 \\
+<TR><TH>31<TD>111<TD>101<TD>100<TD>000<TD>010<TD>011 \\
+<TR><TH>32<TD>100<TD>101<TD>001<TD>011<TD>010<TD>110 \\
+<TR><TH>33<TD>101<TD>100<TD>000<TD>010<TD>011<TD>111 \\
+<TR><TH>34<TD>100<TD>110<TD>010<TD>011<TD>001<TD>101 \\
+<TR><TH>35<TD>101<TD>111<TD>011<TD>010<TD>000<TD>100 \\
+<TR><TH>36<TD>110<TD>111<TD>011<TD>001<TD>000<TD>100 \\
+<TR><TH>37<TD>111<TD>110<TD>010<TD>000<TD>001<TD>101 \\
+<TR><TH>38<TD>110<TD>100<TD>000<TD>001<TD>011<TD>111 \\
+<TR><TH>39<TD>111<TD>101<TD>001<TD>000<TD>010<TD>110 \\
+<TR><TH>40<TD>100<TD>000<TD>001<TD>011<TD>111<TD>110 \\
+<TR><TH>41<TD>101<TD>001<TD>000<TD>010<TD>110<TD>111 \\
+<TR><TH>42<TD>100<TD>000<TD>010<TD>011<TD>111<TD>101 \\
+<TR><TH>43<TD>101<TD>001<TD>011<TD>010<TD>110<TD>100 \\
+<TR><TH>44<TD>110<TD>010<TD>011<TD>001<TD>101<TD>100 \\
+<TR><TH>45<TD>111<TD>011<TD>010<TD>000<TD>100<TD>101 \\
+<TR><TH>46<TD>110<TD>010<TD>000<TD>001<TD>101<TD>111 \\
+<TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \\
+</TABLE>
+\\}
+.el \\{\\
+
+.TS
+box tab(;);
+cb s s s s s s
+cb|cb cb cb cb cb cb
+c | c  c  c  c c r.
+Phases, Source - Sink
+_
+pat;B-A;C-A;C-B;A-B;A-C;B-C
+_
+0;000;001;011;111;110;100
+1;001;000;010;110;111;101
+2;000;010;011;111;101;100
+3;001;011;010;110;100;101
+4;010;011;001;101;100;110
+5;011;010;000;100;101;111
+6;010;000;001;101;111;110
+7;011;001;000;100;110;111
+8;000;001;101;111;110;010
+9;001;000;100;110;111;011
+10;000;010;110;111;101;001
+11;001;011;111;110;100;000
+12;010;011;111;101;100;000
+13;011;010;110;100;101;001
+14;010;000;100;101;111;011
+15;011;001;101;100;110;010
+16;000;100;101;111;011;010
+17;001;101;100;110;010;011
+18;000;100;110;111;011;001
+19;001;101;111;110;010;000
+20;010;110;111;101;001;000
+21;011;111;110;100;000;001
+22;010;110;100;101;001;011
+23;011;111;101;100;000;010
+24;100;101;111;011;010;000
+25;101;100;110;010;011;001
+26;100;110;111;011;001;000
+27;101;111;110;010;000;001
+28;110;111;101;001;000;010
+29;111;110;100;000;001;011
+30;110;100;101;001;011;010
+31;111;101;100;000;010;011
+32;100;101;001;011;010;110
+33;101;100;000;010;011;111
+34;100;110;010;011;001;101
+35;101;111;011;010;000;100
+36;110;111;011;001;000;100
+37;111;110;010;000;001;101
+38;110;100;000;001;011;111
+39;111;101;001;000;010;110
+40;100;000;001;011;111;110
+41;101;001;000;010;110;111
+42;100;000;010;011;111;101
+43;101;001;011;010;110;100
+44;110;010;011;001;101;100
+45;111;011;010;000;100;101
+46;110;010;000;001;101;111
+47;111;011;001;000;100;110
+.TE
+\\}
+""";
+
+description """
+This component produces a 3-wire bipolar output. This suits upstream drivers
+that interpret a negative input as a low-side drive and positive as a high-side
+drive. This includes the Hostmot2 3pwmgen function, which is likely to be the
+most common application of this component.
+""";
+
+see_also """
+bldc_hall6 6-wire unipolar driver for BLDC motors.
+""";
+
+license "GPL";
+
+author "Andy Pugh";
+
+function _ "Interpret Hall sensor patterns and set 3-phase amplitudes";
+
+;;
+
+/*dir H1 H2 H3 pattern
+000  001  010  011  100  101  110  111 */
+static hal_u32_t P[]={
+024, 014, 000, 012, 021, 000, 041, 042,
+014, 024, 012, 000, 000, 021, 042, 041,
+024, 000, 014, 012, 021, 041, 000, 042,
+000, 024, 012, 014, 041, 021, 042, 000,
+000, 012, 024, 014, 041, 042, 021, 000,
+012, 000, 014, 024, 042, 041, 000, 021,
+014, 012, 024, 000, 000, 042, 021, 041,
+012, 014, 000, 024, 042, 000, 041, 021,
+024, 014, 021, 000, 000, 012, 041, 042,
+014, 024, 000, 021, 012, 000, 042, 041,
+024, 021, 014, 000, 000, 041, 012, 042,
+021, 024, 000, 014, 041, 000, 042, 012,
+021, 000, 024, 014, 041, 042, 000, 012,
+000, 021, 014, 024, 042, 041, 012, 000,
+014, 000, 024, 021, 012, 042, 000, 041,
+000, 014, 021, 024, 042, 012, 041, 000,
+024, 000, 021, 041, 014, 012, 000, 042,
+000, 024, 041, 021, 012, 014, 042, 000,
+024, 021, 000, 041, 014, 000, 012, 042,
+021, 024, 041, 000, 000, 014, 042, 012,
+021, 041, 024, 000, 000, 042, 014, 012,
+041, 021, 000, 024, 042, 000, 012, 014,
+000, 041, 024, 021, 012, 042, 014, 000,
+041, 000, 021, 024, 042, 012, 000, 014,
+021, 000, 041, 042, 024, 014, 000, 012,
+000, 021, 042, 041, 014, 024, 012, 000,
+021, 041, 000, 042, 024, 000, 014, 012,
+041, 021, 042, 000, 000, 024, 012, 014,
+041, 042, 021, 000, 000, 012, 024, 014,
+042, 041, 000, 021, 012, 000, 014, 024,
+000, 042, 021, 041, 014, 012, 024, 000,
+042, 000, 041, 021, 012, 014, 000, 024,
+000, 012, 041, 042, 024, 014, 021, 000,
+012, 000, 042, 041, 014, 024, 000, 021,
+000, 041, 012, 042, 024, 021, 014, 000,
+041, 000, 042, 012, 021, 024, 000, 014,
+041, 042, 000, 012, 021, 000, 024, 014,
+042, 041, 012, 000, 000, 021, 014, 024,
+012, 042, 000, 041, 014, 000, 024, 021,
+042, 012, 041, 000, 000, 014, 021, 024,
+014, 012, 000, 042, 024, 000, 021, 041,
+012, 014, 042, 000, 000, 024, 041, 021,
+014, 000, 012, 042, 024, 021, 000, 041,
+000, 014, 042, 012, 021, 024, 041, 000,
+000, 042, 014, 012, 021, 041, 024, 000,
+042, 000, 012, 014, 041, 021, 000, 024,
+012, 042, 014, 000, 000, 041, 024, 021,
+042, 012, 000, 014, 041, 000, 021, 024};
+
+FUNCTION(_){
+    hal_u32_t i;
+    hal_float_t V;
+    if (pattern > 47){
+        rtapi_print_msg(RTAPI_MSG_ERR,
+        "Only step patterns 0-47 are allowed, you have requested pattern %i\n",
+        pattern);
+        pattern = 0;
+        return 0;
+    }
+
+    i  = (pattern << 3) + (hall1 << 2) + (hall2 << 1) + hall3;
+
+    if (dir) V = -value;
+    else V = value;
+
+    if (P[i] & 040) A_value =V;
+    else if (P[i] & 004) A_value = -V;
+    else A_value = 0;
+
+    if (P[i] & 020) B_value = V;
+    else if (P[i] & 002) B_value = -V;
+    else B_value = 0;
+
+    if (P[i] & 010) C_value = V;
+    else if (P[i] & 001) C_value = -V;
+    else C_value = 0;
+
+return 0;
+}
