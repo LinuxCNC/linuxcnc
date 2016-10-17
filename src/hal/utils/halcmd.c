@@ -186,7 +186,7 @@ void halcmd_shutdown(void) {
 
 struct halcmd_command halcmd_commands[] = {
     {"addf",    FUNCT(do_addf_cmd),    A_TWO | A_PLUS },
-    {"alias",   FUNCT(do_alias_cmd),   A_THREE },
+    //    {"alias",   FUNCT(do_alias_cmd),   A_THREE },
     {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
     {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
     {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
@@ -213,13 +213,14 @@ struct halcmd_command halcmd_commands[] = {
     {"sets",    FUNCT(do_sets_cmd),    A_TWO },
     {"sete",    FUNCT(do_sete_cmd),    A_TWO },
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
+    {"sweep",   FUNCT(do_sweep_cmd),   A_ONE | A_OPTIONAL },
     {"shutdown",FUNCT(do_shutdown_cmd), A_ZERO },
     {"sleep",   FUNCT(do_sleep_cmd),  A_ONE },
     {"source",  FUNCT(do_source_cmd),  A_ONE | A_TILDE },
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
     {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
-    {"unalias", FUNCT(do_unalias_cmd), A_TWO },
+    //    {"unalias", FUNCT(do_unalias_cmd), A_TWO },
     {"unecho",  FUNCT(do_unecho_cmd),  A_ZERO },
     {"unlinkp", FUNCT(do_unlinkp_cmd), A_ONE },
     {"unload",  FUNCT(do_unload_cmd),  A_ONE },
@@ -228,17 +229,24 @@ struct halcmd_command halcmd_commands[] = {
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
     {"waitusr", FUNCT(do_waitusr_cmd), A_TWO | A_OPTIONAL  },
 
-    {"newthread",FUNCT(do_newthread_cmd), A_ONE |  A_PLUS},
+    {"newthread",FUNCT(do_newthread_cmd), A_TWO |  A_PLUS},
     {"newg",    FUNCT(do_newg_cmd),    A_ONE |  A_PLUS},
     {"delg",    FUNCT(do_delg_cmd),    A_ONE },
     {"newm",    FUNCT(do_newm_cmd),    A_TWO | A_OPTIONAL | A_PLUS},
     {"delm",    FUNCT(do_delm_cmd),    A_TWO },
 
+    {"setrmb", FUNCT(do_setrmb_cmd), A_ONE },
+    {"setwmb", FUNCT(do_setwmb_cmd), A_ONE },
+
+    {"clearrmb", FUNCT(do_clear_rmb_cmd), A_ONE },
+    {"clearwmb", FUNCT(do_clear_wmb_cmd), A_ONE },
+
+
     {"newring", FUNCT(do_newring_cmd), A_TWO |  A_PLUS},
     {"delring", FUNCT(do_delring_cmd), A_ONE },
     {"ringdump", FUNCT(do_ringdump_cmd), A_ONE },
-    {"ringread", FUNCT(do_ringread_cmd), A_TWO | A_OPTIONAL },
-    {"ringwrite", FUNCT(do_ringwrite_cmd), A_TWO},
+    {"ringflush", FUNCT(do_ringflush_cmd), A_ONE},
+    {"ringwrite", FUNCT(do_ringwrite_cmd), A_ONE | A_OPTIONAL |  A_PLUS},
     {"newcomp", FUNCT(do_newcomp_cmd), A_ONE |  A_PLUS},
     {"newpin",  FUNCT(do_newpin_cmd), A_THREE |  A_PLUS},
     {"ready",   FUNCT(do_ready_cmd),    A_ONE | A_OPTIONAL },

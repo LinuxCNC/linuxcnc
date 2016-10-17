@@ -10,7 +10,7 @@
 #include <avahi-common/malloc.h>
 
 
-#include <machinetalk/protobuf/message.pb.h>
+#include <message.pb.h>
 #include <google/protobuf/text_format.h>
 
 using namespace google::protobuf;

@@ -259,6 +259,17 @@ int main(int argc, char **argv)
 
     if ( halcmd_startup(0, uri, service_uuid) != 0 ) return 1;
 
+    {
+	char cmdline[200];
+	cmdline[0] = '\0';
+	int i;
+	for (i=1; i < argc; i++) {
+	    strcat(cmdline, argv[i]);
+	    strcat(cmdline, " ");
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, "--halcmd %s", cmdline);
+    }
+
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
     if (srcfile == NULL) {
@@ -312,6 +323,9 @@ int main(int argc, char **argv)
 	}
     }
     /* all done */
+    if (!scriptmode && srcfile == stdin && isatty(0)) {
+	halcmd_save_history();
+    }
     halcmd_shutdown();
     if ( errorcount > 0 ) {
 	return 1;

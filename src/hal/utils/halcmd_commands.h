@@ -46,7 +46,7 @@
 #define MAX_ARGS 20 // max number of args to automatic instantiation by names
 
 extern int do_addf_cmd(char *funct, char *thread, char *tokens[]);
-extern int do_alias_cmd(char *pinparam, char *name, char *alias);
+//extern int do_alias_cmd(char *pinparam, char *name, char *alias);
 extern int do_unalias_cmd(char *pinparam, char *name);
 extern int do_delf_cmd(char *funct, char *thread);
 extern int do_echo_cmd();
@@ -97,8 +97,13 @@ extern int do_delm_cmd(char *group, char *member);
 extern int do_newring_cmd(char *ring, char *ring_size, char *tokens[]);
 extern int do_delring_cmd(char *ring);
 extern int do_ringdump_cmd(char *ring);
-extern int do_ringwrite_cmd(char *ring,char *content);
-extern int do_ringread_cmd(char *ring, char *tokens[]);
+extern int do_ringwrite_cmd(char *ring, char *tokens[]);
+extern int do_ringflush_cmd(char *ring);
+
+int do_setrmb_cmd(char *object);
+int do_setwmb_cmd(char *object);
+int do_clear_rmb_cmd(char *object);
+int do_clear_wmb_cmd(char *object);
 
 extern int do_newcomp_cmd(char *comp, char *args[]);
 extern int do_newpin_cmd(char *comp, char *pin, char *type, char *args[]);
@@ -112,15 +117,17 @@ extern int do_callfunc_cmd(char *func, char *args[]);
 extern int do_newinst_cmd(char *comp, char *inst, char *args[]);
 extern int do_delinst_cmd(char *inst);
 
-extern bool module_loaded(char *mod_name);
-extern bool inst_name_exists(char *name);
+extern bool module_loaded(const int use_halmutex, char *mod_name);
+extern bool inst_name_exists(const int use_halmutex, char *name);
 
 // shutdown the RTAPI stack
 extern int do_shutdown_cmd(void);
+// HAL object garbage collector
+extern int do_sweep_cmd(char *flags);
 // ping the RTAPI stack
 extern int do_ping_cmd(void);
 // create a new named RT thread
-extern int do_newthread_cmd(char *name, char *tokens[]);
+extern int do_newthread_cmd(char *name, char *period, char *tokens[]);
 // delete an RT thread
 extern int do_delthread_cmd(char *name);
 
@@ -128,7 +135,5 @@ pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
 
 extern int scriptmode, comp_id;
-
-// bool autoloading;
 
 #endif
