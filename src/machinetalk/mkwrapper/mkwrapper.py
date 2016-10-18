@@ -1060,7 +1060,7 @@ class LinuxCNCWrapper():
                                                         'increments', value)
 
             axis = self.status.config.axis[index]
-            axisModified |= self.update_proto_value(axis, txAxis, 'axis_type', statAxis['axisType'])
+            axisModified |= self.update_proto_value(axis, txAxis, 'axis_type', statAxis['axis_type'])
 
             for name in ['backlash', 'max_ferror', 'max_position_limit',
                          'min_ferror', 'min_position_limit']:
