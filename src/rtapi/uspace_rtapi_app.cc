@@ -1199,9 +1199,8 @@ void rtapi_timespec_advance(struct timespec &result, const struct timespec &src,
 }
 
 int rtapi_open_as_root(const char *filename, int mode) {
-    setfsuid(geteuid());
+    WITH_ROOT;
     int r = open(filename, mode);
-    setfsuid(getuid());
     if(r < 0) return -errno;
     return r;
 }
