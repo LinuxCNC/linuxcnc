@@ -41,44 +41,79 @@ enum HalParamDirection {
     HAL_RW = 192;
 }
 
+enum HalFunctType {
+    FS_LEGACY_THREADFUNC = 0;  // legacy API
+    FS_XTHREADFUNC = 1;        // extended API
+    FS_USERLAND = 2;           // userland-callable, with argc/arv vector
+}
+
 enum ObjectType {
-    // option allow_alias = true; // for src/hal.h enum
-    // doesnt work with ptotoc-c
-    // NB: leading underscore to disambiguate
+    //  the following tags correspond to hal.h:hal_object_type
+    HAL_OBJECT_INVALID = 0;
     HAL_PIN           = 1;
     HAL_SIGNAL        = 2;
     HAL_PARAM         = 3;
     HAL_THREAD        = 4;
     HAL_FUNCT         = 5;
-    HAL_ALIAS         = 6;
-    HAL_COMP_RT       = 7;
-    HAL_COMP_USER     = 8;
-    HAL_COMP_REMOTE   = 9;
-    HAL_RING          = 10;
-    HAL_GROUP         = 11;
-
-    HAL_MEMBER_SIGNAL = 12;
-    HAL_MEMBER_GROUP  = 13;
-    HAL_MEMBER_PIN    = 14;
-    HAL_MEMBER_PARAM  = 15;
-
-    RING_RECORD       = 16;
-    RING_STREAM       = 17;
-
-
-    HAL_VTABLE        = 18;
-    HAL_INST          = 19;
-
-    RING_MULTIFRAME   = 20;
+    HAL_COMPONENT     = 6;
+    HAL_VTABLE        = 7;
+    HAL_INST          = 8;
+    HAL_RING          = 9;
+    HAL_GROUP         = 10;
+    HAL_MEMBER        = 11;
+    HAL_PLUG          = 12;
 
     // used at all?
-    VALUE             = 120;
-    INSTANCE          = 121;
-    ORIGINATOR        = 122;
-    NAMED_VALUE       = 125;
-
-    OT_ERROR          = 130;
+    // VALUE             = 120;
+    // INSTANCE          = 121;
+    // ORIGINATOR        = 122;
+    // NAMED_VALUE       = 125;
+    // OT_ERROR          = 130;
 }
+
+enum msgidType {
+    // all "option (nanopb_msgopt).msgid = <values> MUST be less than MSGID_MAX
+    MSGID_MAX = 4000;
+
+    // the empty zeromq frame which delimits route from payload
+    MSGID_ROUTE_DELIMITER = 4001;
+
+    // inband error message - use if a comp needs to signal an error with zeroMQ framing etc
+    MSGID_ERROR_MSG = 4002;
+
+    // an uninterpreted blob:
+    MSGID_BLOB = 4003;
+    // an uninterpreted string:
+    MSGID_STRING = 4004;
+
+    // when using multiframe rings with zeromq router/dealer, routing elements are
+    // tagged MSGID_HOP
+    MSGID_HOP = 4005;
+}
+
+enum socketType {
+    ST_ZMQ_PAIR = 0;
+    ST_ZMQ_PUB = 1;
+    ST_ZMQ_SUB = 2;
+    ST_ZMQ_REQ = 3;
+    ST_ZMQ_REP = 4;
+    ST_ZMQ_DEALER = 5;
+    ST_ZMQ_ROUTER = 6;
+    ST_ZMQ_PULL = 7;
+    ST_ZMQ_PUSH = 8;
+    ST_ZMQ_XPUB = 9;
+    ST_ZMQ_XSUB = 10;
+    ST_ZMQ_STREAM = 11;
+
+    ST_ZMQ_INVALID = 15;
+};
+
+enum securityMechanism {
+    SM_ZMQ_NONE = -1;
+    SM_ZMQ_NULL = 0;
+    SM_ZMQ_PLAIN = 1;
+    SM_ZMQ_CURVE = 2;
+};
 
 enum RCS_STATUS {
     UNINITIALIZED_STATUS = -1;
@@ -344,10 +379,6 @@ enum ContainerType {
     // generic error reply. note field contains explanation.
     MT_ERROR = 360;
 
-    // generic full update and incremental update
-    MT_FULL_UPDATE = 370;
-    MT_INCREMENTAL_UPDATE = 371;
-
     // task/client comms
     MT_TASK_REPLY     = 400;
     MT_TICKET_UPDATE  = 401;
@@ -598,7 +629,6 @@ enum ContainerType {
     MT_EMC_TOOL_LOAD_TOOL_TABLE		= 11107;
     MT_EMC_TOOL_SET_OFFSET		= 11108;
     MT_EMC_TOOL_SET_NUMBER		= 11109;
-    MT_EMC_TOOL_UPDATE_TOOL_TABLE = 11110;
     MT_EMC_TOOL_STAT		= 11199;
     MT_EMC_AUX_ESTOP_ON		= 11206;
     MT_EMC_AUX_ESTOP_OFF		= 11207;
@@ -704,7 +734,7 @@ enum InterpreterStateType {
     INTERP_RUNNING     = 2;
     INTERP_SYNC_WAIT   = 3;
     INTERP_PAUSED      = 4;
-    INTERP_QUEUE_WAIT  = 5;
+    INTERP_QEUEUE_WAIT = 5;
     INTERP_ABORT_WAIT  = 6;
     INTERP_STATE_UNSET = 99; // to ease change tracking
 };
