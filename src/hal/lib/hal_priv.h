@@ -357,7 +357,7 @@ typedef struct hal_param {
 
 } hal_param_t;
 
-hal_param_t MK_DEPRECATED;
+//hal_param_t MK_DEPRECATED;
 
 
 static inline const hal_type_t sig_type(const hal_sig_t *sig) {
