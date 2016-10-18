@@ -786,7 +786,7 @@ static int harden_rt()
 
 static RtapiApp *makeApp()
 {
-    if(geteuid() != 0 || harden_rt() < 0)
+    if(euid != 0 || harden_rt() < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
         return new Posix(SCHED_OTHER);
