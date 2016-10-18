@@ -1157,7 +1157,7 @@ def adocument(filename, outfilename, frontmatter):
             print >>f, fm
         print >>f, "edit-path: src/%s" % (filename)
         print >>f, "generator: instcomp"
-    print >>f, "description: This page was generated from src/%s. Do not edit directly, edit the source." % filename
+	print >>f, "description: This page was generated from src/%s. Do not edit directly, edit the source." % filename
         print >>f, "---"
         print >>f, ":skip-front-matter:\n"
 
@@ -1266,7 +1266,7 @@ def adocument(filename, outfilename, frontmatter):
                 print >>f, " )"
             print >>f, ""
             if doc:
-            print >>f, doc
+        	print >>f, doc
             print >>f, ""    
 
     print >>f, "=== PINS"
@@ -1281,7 +1281,7 @@ def adocument(filename, outfilename, frontmatter):
         if value:
             print >>f, "(default: _%s_)" % value
 
-    print >>f, "( OR"
+	print >>f, "( OR"
 
         print >>f, "*<newinstname>.%s*" % to_hal(name),
         print >>f, type, dir,
@@ -1293,7 +1293,7 @@ def adocument(filename, outfilename, frontmatter):
         else:
             print >>f, ")"
         if doc:
-        print >>f, " - %s\n" % doc
+    	    print >>f, " - %s\n" % doc
         print >>f, ""    
 
     if instanceparams:
@@ -1305,7 +1305,7 @@ def adocument(filename, outfilename, frontmatter):
             if value:
                 print >>f, "(default: _%s_)" % value
             if doc:
-        print >>f, " - %s\n" % doc
+    		print >>f, " - %s\n" % doc
         print >>f, ""
         
     if moduleparams:
@@ -1504,23 +1504,23 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".icomp") and mode == DOCUMENT:
-        adocument(f, outfile, frontmatter)
+    		adocument(f, outfile, frontmatter)
             elif f.endswith(".icomp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
                     outfile = os.path.join(tempdir, basename + ".asciidoc")
                     adocument(f, outfile, frontmatter)
                     cmd = "mank -f %s -p %s -s" % (basename, tempdir)
-            os.system(cmd)
+        	    os.system(cmd)
                 finally:
-            shutil.rmtree(tempdir)
+        	    shutil.rmtree(tempdir)
             elif f.endswith(".icomp") and mode == INSTALLDOC:
-        manpath = os.path.join(BASE, "share/man/man9")
+    		manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
-                manpath = os.path.join(BASE, "man/man9")
-                outfile = os.path.join(manpath, basename + ".asciidoc")
-            print "INSTALLDOC", outfile
-        adocument(f, outfile, frontmatter)
+            	    manpath = os.path.join(BASE, "man/man9")
+            	    outfile = os.path.join(manpath, basename + ".asciidoc")
+        	print "INSTALLDOC", outfile
+    		adocument(f, outfile, frontmatter)
             elif f.endswith(".icomp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:

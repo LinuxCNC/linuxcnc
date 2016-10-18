@@ -33,14 +33,6 @@ $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) -lm -lstdc++
 TARGETS += ../bin/halcmd
 
-HALRMTSRCS := hal/utils/halrmt.c
-USERSRCS += $(HALRMTSRCS)
-
-../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lpthread
-TARGETS += ../bin/halrmt
-
 ifdef HAVE_GTK
 HALMETERSRCS := \
     hal/utils/meter.c \
