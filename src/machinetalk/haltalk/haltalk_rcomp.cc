@@ -20,13 +20,19 @@
 #include "halpb.hh"
 #include "pbutil.hh"
 
-static int collect_unbound_comps(hal_compstate_t *cs,  void *cb_data);
-static int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
-			  hal_pin_t *pin,
-			  hal_data_u *vp,
-			  void *cb_data);
-static int add_pins_to_items(int phase,  hal_compiled_comp_t *cc,
-			     hal_pin_t *pin, hal_data_u *vp, void *cb_data);
+static int
+comp_report_cb(const int phase,
+	       const  hal_compiled_comp_t *cc,
+	       const hal_pin_t *pin,
+	       const hal_data_u *vp,
+	       void *cb_data);
+
+static int
+add_pins_to_items(const int phase,
+		  const hal_compiled_comp_t *cc,
+		  const hal_pin_t *pin,
+		  const hal_data_u *vp,
+		  void *cb_data);
 
 // handle timer event for a rcomp - report any changes in comp
 int
@@ -136,46 +142,44 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     return 0;
 }
 
-
-int
-scan_comps(htself_t *self)
+static int scan_component(hal_object_ptr o, foreach_args_t *args)
 {
+    htself_t *self = (htself_t *)args->user_ptr1;
+    hal_comp_t *comp = o.comp;
     int retval;
-    int nfail = 0;
 
-    // this needs to be done in two steps due to HAL locking:
-    // 1. collect remote component names and populate dict keys
-    // 2. acquire and compile remote components
-    hal_retrieve_compstate(NULL, collect_unbound_comps, self);
+    // collect any unbound, un-aquired remote comps
+    // which we dont know about yet
+    if ((comp->type == TYPE_REMOTE) &&
+	(comp->pid == 0) &&
+	(comp->state == COMP_UNBOUND) &&
+	(self->rcomps.count(ho_name(comp)) == 0)) {
 
-    for (compmap_iterator c = self->rcomps.begin();
-	 c != self->rcomps.end(); c++) {
+	const char *name = ho_name(comp);
 
-	if (c->second != NULL) // already compiled
-	    continue;
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s: found unbound remote comp '%s'",
+			self->cfg->progname, name);
 
-	const char *name = c->first.c_str();
-
-	if ((retval = hal_acquire(name, self->pid)) < 0) {
+	if ((retval = halg_acquire(false, ho_name(comp), self->pid)) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "%s: hal_acquire(%s) failed: %s",
+			    "%s: halg_acquire(%s) failed: %s",
 			    self->cfg->progname,
 			    name, strerror(-retval));
-	    nfail++;
-	    continue;
+	    args->user_arg1++; // errorcount returned
+	    return 0; // indicate continue iteration
 	}
 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: acquired '%s'",
 			self->cfg->progname, name);
 
 	hal_compiled_comp_t *cc;
-	if ((retval = hal_compile_comp(name, &cc))) {
+	if ((retval = halg_compile_comp(false, name, &cc))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "%s: scan_comps:hal_compile_comp(%s) failed - skipping component: %s",
+			    "%s: scan_comps:hal_compile_comp(%s) failed"
+			    " - skipping component: %s",
 			    self->cfg->progname,
 			    name, strerror(-retval));
-	    nfail++;
-	    self->rcomps.erase(c);
-	    continue;
+	    args->user_arg1++;
+	    return 0; // indicate continue iteration
 	}
 	// add pins to items dict
 	hal_ccomp_report(cc, add_pins_to_items, self, true);
@@ -194,10 +198,33 @@ scan_comps(htself_t *self)
 
 	self->rcomps[name] = rc; // all prepared, timer not yet started
 
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s: component '%s' - using %d mS poll interval",
+	rtapi_print_msg(RTAPI_MSG_DBG,
+			"%s: component '%s' - using %d mS poll interval",
 			self->cfg->progname, name, msec);
+	args->user_arg2++;
     }
-    return nfail;
+    return 0;
+}
+
+int
+scan_comps(htself_t *self)
+{
+    foreach_args_t args = {};
+    args.type = HAL_COMPONENT;
+    args.user_ptr1 = (void *)self;
+
+    // run this under HAL mutex locked in a single transaction:
+    halg_foreach(true, &args, scan_component);
+
+    rtapi_print_msg(RTAPI_MSG_DBG,"adopted %d comps(s)\n",
+		    args.user_arg2);
+
+    if (args.user_arg1 > 0) { // error counter
+	rtapi_print_msg(RTAPI_MSG_DBG,"%d comps(s) failed to adopt\n",
+			args.user_arg1);
+	return -args.user_arg1;
+    }
+    return 0;
 }
 
 int release_comps(htself_t *self)
@@ -251,36 +278,17 @@ int release_comps(htself_t *self)
 	}
     }
     return -nfail;
+
 }
 
 // ----- end of public functions ----
 
 static int
-collect_unbound_comps(hal_compstate_t *cs,  void *cb_data)
-{
-    htself_t *self = (htself_t *) cb_data;;
-
-    // collect any unbound, un-aquired remote comps
-    // which we dont know about yet
-    if ((cs->type == TYPE_REMOTE) &&
-	(cs->pid == 0) &&
-	(cs->state == COMP_UNBOUND) &&
-	(self->rcomps.count(cs->name) == 0)) {
-
-	self->rcomps[cs->name] = NULL;
-
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s: found unbound remote comp '%s'",
-			self->cfg->progname, cs->name);
-    }
-    return 0;
-}
-
-
-static
-int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
-		   hal_pin_t *pin,
-		   hal_data_u *vp,
-		   void *cb_data)
+comp_report_cb(const int phase,
+	       const  hal_compiled_comp_t *cc,
+	       const hal_pin_t *pin,
+	       const hal_data_u *vp,
+	       void *cb_data)
 {
     rcomp_t *rc = (rcomp_t *) cb_data;
     htself_t *self =  rc->self;
@@ -296,14 +304,16 @@ int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
 
     case REPORT_PIN: // per-reported-pin action
 	p = self->tx.add_pin();
-	p->set_handle(pin->handle);
-	if (hal_pin2pb(pin, p))
+	p->set_handle(ho_id(pin));
+	if (hal_pin2pb((hal_pin_t *)pin, p))
 		rtapi_print_msg(RTAPI_MSG_ERR, "bad type %d for pin '%s'\n",
-				pin->type, pin->name);
+				pin->type, ho_name(pin));
 	break;
 
     case REPORT_END: // finalize & send
-	retval = send_pbcontainer(cc->comp->name, self->tx, self->mksock[SVC_HALRCOMP].socket);
+	retval = send_pbcontainer(ho_name(cc->comp),
+				  self->tx,
+				  self->mksock[SVC_HALRCOMP].socket);
 	assert(retval == 0);
 	break;
     }
@@ -311,22 +321,27 @@ int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
 }
 
 static int
-add_pins_to_items(int phase,  hal_compiled_comp_t *cc,
-		  hal_pin_t *pin,
-		  hal_data_u *vp,
+add_pins_to_items(const int phase,
+		  const hal_compiled_comp_t *cc,
+		  const hal_pin_t *pin,
+		  const hal_data_u *vp,
 		  void *cb_data)
 {
     if (phase != REPORT_PIN) return 0;
 
     htself_t *self = (htself_t *) cb_data;;
-    itemmap_iterator it = self->items.find(pin->handle);
+    itemmap_iterator it = self->items.find(ho_id(pin));
 
     if (it == self->items.end()) { // not in handle map
-	halitem_t *hi = new halitem_t();
-	hi->type = HAL_PIN;
-	hi->o.pin = pin;
-	hi->ptr = SHMPTR(pin->data_ptr_addr);
-	self->items[pin->handle] = hi;
+	hal_object_ptr o;
+	o.pin = (hal_pin_t *)pin;
+	self->items[ho_id(pin)] = o;
+
+	// halitem_t *hi = new halitem_t();
+	// hi->type = HAL_PIN;
+	// hi->o.pin = pin;
+	// // 	hi->ptr = SHMPTR(pin->data_ptr_addr);
+	// self->items[ho_id(pin)] = hi;
     }
     return 0;
 }
