@@ -304,36 +304,36 @@ void write_fp(void *arg, long period) {
 
     switch (inst->in_type * 8 + inst->out_type) {
     case 012: //HAL_BIT => HAL_FLOAT
-        inst->output->f = inst->inputs[s]->b ? 1.0 : 0.0; //
+        inst->output->_f = inst->inputs[s]->_b? 1.0 : 0.0; //
         break;
     case 021: //HAL_FLOAT => HAL_BIT
-        inst->output->b =
-                (inst->inputs[s]->f > EPS || inst->inputs[s]->f < -EPS) ? 1 : 0;
+        inst->output->_b=
+                (inst->inputs[s]->_f > EPS || inst->inputs[s]->_f < -EPS) ? 1 : 0;
         break;
     case 022: //HAL_FLOAT => HAL_FLOAT
-        inst->output->f = inst->inputs[s]->f;
+        inst->output->_f = inst->inputs[s]->_f;
         break;
     case 023: //HAL_FLOAT => HAL_S32
-        if (inst->inputs[s]->f > MAX_S32) {
-            inst->output->s = MAX_S32;
-        } else if (inst->inputs[s]->f < -MAX_S32) {
-            inst->output->s = -MAX_S32;
+        if (inst->inputs[s]->_f > MAX_S32) {
+            inst->output->_s = MAX_S32;
+        } else if (inst->inputs[s]->_f < -MAX_S32) {
+            inst->output->_s = -MAX_S32;
         } else {
-            inst->output->s = inst->inputs[s]->f;
+            inst->output->_s = inst->inputs[s]->_f;
         }
         break;
     case 024: //HAL_FLOAT => HAL_U32
-        if (inst->inputs[s]->f > MAX_U32) {
-            inst->output->u = MAX_U32;
-        } else if (inst->inputs[s]->f < 0) {
-            inst->output->u = 0;
+        if (inst->inputs[s]->_f > MAX_U32) {
+            inst->output->_u = MAX_U32;
+        } else if (inst->inputs[s]->_f < 0) {
+            inst->output->_u = 0;
         }
         break;
     case 032: //HAL_S32 => HAL_FLOAT
-        inst->output->f = inst->inputs[s]->s;
+        inst->output->_f = inst->inputs[s]->_s;
         break;
     case 042: //HAL_U32 => HAL_FLOAT
-        inst->output->f = (unsigned int) inst->inputs[s]->u;
+        inst->output->_f = (unsigned int) inst->inputs[s]->_u;
         break;
     }
 }
@@ -364,33 +364,33 @@ void write_nofp(void *arg, long period) {
         s = inst->size - 1;
     switch (inst->in_type * 8 + inst->out_type) {
     case 011: //HAL_BIT => HAL_BIT
-        inst->output->b = inst->inputs[s]->b;
+        inst->output->_b= inst->inputs[s]->_b;
         break;
     case 013: //HAL_BIT => HAL_S32
-        inst->output->s = inst->inputs[s]->b;
+        inst->output->_s = inst->inputs[s]->_b;
         break;
     case 014: //HAL_BIT => HAL_U32
-        inst->output->u = inst->inputs[s]->b;
+        inst->output->_u = inst->inputs[s]->_b;
         break;
     case 031: //HAL_S32 => HAL_BIT
-        inst->output->b = inst->inputs[s]->s == 0 ? 0 : 1;
+        inst->output->_b= inst->inputs[s]->_s == 0 ? 0 : 1;
         break;
     case 033: //HAL_S32 => HAL_S32
-        inst->output->s = inst->inputs[s]->s;
+        inst->output->_s = inst->inputs[s]->_s;
         break;
     case 034: //HAL_S32 => HAL_U32
-        inst->output->u = (inst->inputs[s]->s > 0) ? inst->inputs[s]->s : 0;
+        inst->output->_u = (inst->inputs[s]->_s > 0) ? inst->inputs[s]->_s : 0;
         break;
     case 041: //HAL_U32 => HAL_BIT
-        inst->output->b = inst->inputs[s]->u == 0 ? 0 : 1;
+        inst->output->_b= inst->inputs[s]->_u == 0 ? 0 : 1;
         break;
     case 043: //HAL_U32 => HAL_S32
-        inst->output->s =
-                ((unsigned int) inst->inputs[s]->u > MAX_S32) ?
-                        MAX_S32 : inst->inputs[s]->u;
+        inst->output->_s =
+                ((unsigned int) inst->inputs[s]->_u > MAX_S32) ?
+                        MAX_S32 : inst->inputs[s]->_u;
         break;
     case 044: //HAL_U32 => HAL_U32
-        inst->output->u = inst->inputs[s]->u;
+        inst->output->_u = inst->inputs[s]->_u;
         break;
     }
 }
