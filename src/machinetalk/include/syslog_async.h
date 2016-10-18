@@ -61,8 +61,7 @@ BEGIN_DECLS
 void openlog_async(const char *ident, int option, int facility);
 void closelog_async(void);
 int setlogmask_async(int mask);
-
-
+int async_log_open(void); // return 0 if log not opened yet
 
 /*
    syslog_async() and vsyslog_async() are identical to syslog() and vsyslog()

@@ -81,6 +81,11 @@ static int mksock(int type)
   return fd;
 }
 
+int async_log_open(void)
+{
+    return log_fd != -1;
+}
+
 void openlog_async(const char *ident, int option, int facility)
 {
   if (ident)
