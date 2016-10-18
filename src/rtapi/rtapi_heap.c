@@ -30,6 +30,16 @@
 #include <unistd.h>
 #endif
 
+// low-level message handler which writes to ringbuffer if global is available
+// else to stderr/printk
+int vs_ringlogfv(const msg_level_t level,
+    const int pid,
+    const msg_origin_t origin,
+    const char *tag,
+    const char *format,
+    va_list ap);
+
+
 
 // this is straight from the malloc code in:
 // K&R The C Programming Language, Edition 2, pages 185-189
@@ -60,7 +70,7 @@ heap_print(struct rtapi_heap *h, int level, const char *fmt, ...)
 #endif
     va_list ap;
     va_start(ap, fmt);
-    vs_ringlogfv(level, _pid, MSG_ORIGIN, h->name, fmt, ap);
+    //vs_ringlogfv(level, _pid, MSG_ORIGIN, h->name, fmt, ap);
     va_end(ap);
 }
 
