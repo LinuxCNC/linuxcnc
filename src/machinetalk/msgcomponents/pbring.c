@@ -4,24 +4,25 @@
 #include "hal.h"		/* HAL public API decls */
 #include "hal_ring.h"
 #include "hal_priv.h"
+#include "hal_accessor.h"
 
 // the nanopb library and compiled message definitions are brought in once by
 // 'halcmd loadrt pbmsgs' (message descriptors for parsing and generating pb msgs)
 // the nanopb library functions per se are now linked into hal_lib.so
+//#include <machinetalk/include/pb-machinekit.h>
 #include <machinetalk/include/pb-linuxcnc.h>
 #include <machinetalk/nanopb/pb_decode.h>
 #include <machinetalk/nanopb/pb_encode.h>
 #include <machinetalk/include/container.h>
 
 typedef struct {
-    hal_u32_t *underrun;	// number of thread invocations with no new command available
-    hal_u32_t *received;	// number of commands received
-    hal_u32_t *sent;	        // number of responses sent
-    hal_u32_t *sendfailed;	// number of messages failed to send
-    hal_u32_t *decodefail;	// number of messages which failed to protobuf decode
-    ringbuffer_t to_rt_rb;      // incoming ringbuffer
-    ringbuffer_t from_rt_rb;    // outgoing ringbuffer
-    machinetalk_Container rx, tx;
+    u32_pin_ptr underrun;	// number of thread invocations with no new command available
+    u32_pin_ptr received;	// number of commands received
+    u32_pin_ptr sent;	        // number of responses sent
+    u32_pin_ptr sendfailed;	// number of messages failed to send
+    u32_pin_ptr decodefail;	// number of messages which failed to protobuf decode
+    hal_plug_t  *to_rt_rb, *from_rt_rb; // incoming+outging rings
+    pb_Container rx, tx;
 } pbring_inst_t;
 
 enum {
@@ -41,6 +42,12 @@ MODULE_LICENSE("GPL");
 
 // marks this comp as instantiable so halcmd/cython API can do the right thing:
 RTAPI_TAG(HAL, HC_INSTANTIABLE);
+
+static char *wring = NULL;
+RTAPI_IP_STRING(wring, "a ring this instance should plug to as a writer");
+
+static char *rring = NULL;
+RTAPI_IP_STRING(rring, "a ring this instance should plug to as a reader");
 
 static int txnoencode = 0;
 RTAPI_MP_INT(txnoencode, "pass unencoded machinetalk_Container struct instead of pb message");
@@ -79,7 +86,7 @@ bool npb_encode_string(pb_ostream_t *stream, const pb_field_t *field, void * con
 // return 0 on success or < 0 on failure; see rtmsg_errors_t
 //
 static int npb_send_msg(const void *msg, const pb_field_t *fields,
-			ringbuffer_t *rb,  const hal_funct_args_t *fa)
+			hal_plug_t *p,  const hal_funct_args_t *fa)
 {
     void *buffer;
     int retval;
@@ -96,7 +103,7 @@ static int npb_send_msg(const void *msg, const pb_field_t *fields,
     size = sstream.bytes_written;
 
     // preallocate memory in ringbuffer
-    if ((retval = record_write_begin(rb, (void **)&buffer, size)) != 0) {
+    if ((retval = record_write_begin(plug_rb(p), (void **)&buffer, size)) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: record_write_begin(%zu) failed: %d\n",
 			fa_funct_name(fa), size, retval);
@@ -116,7 +123,7 @@ static int npb_send_msg(const void *msg, const pb_field_t *fields,
     }
 
     // send it off
-    if ((retval = record_write_end(rb, buffer, rstream.bytes_written))) {
+    if ((retval = record_write_end(plug_rb(p), buffer, rstream.bytes_written))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: record_write_end(%zu) failed: %d\n",
 			fa_funct_name(fa), size, retval);
@@ -127,8 +134,11 @@ static int npb_send_msg(const void *msg, const pb_field_t *fields,
 
 static int decode_msg(pbring_inst_t *p,  pb_istream_t *stream,  const hal_funct_args_t *fa)
 {
-    if (!pb_decode(stream, machinetalk_Container_fields, &p->rx)) {
-	*(p->decodefail) += 1;
+    if (!pb_decode(stream, pb_Container_fields, &p->rx)) {
+
+	// addto etc needs a shorthand
+	set_u32_pin(p->decodefail, get_u32_pin(p->decodefail) + 1);
+
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: pb_decode(Container) failed: '%s'\n",
 			fa_funct_name(fa), PB_GET_ERROR(stream));
 	return -1;
@@ -150,13 +160,13 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 {
     pbring_inst_t *p = (pbring_inst_t *) arg;
 
-    ring_size_t cmdsize = record_next_size(&p->to_rt_rb);
+    ringsize_t cmdsize = record_next_size(plug_rb(p->to_rt_rb));
     if (cmdsize < 0) {
 	// command ring empty
-	*(p->underrun) += 1;
+	set_u32_pin(p->underrun, get_u32_pin(p->underrun) + 1);
 	return 0;
     }
-    const void *cmdbuffer = record_next(&p->to_rt_rb);
+    const void *cmdbuffer = record_next(plug_rb(p->to_rt_rb));
     pb_istream_t stream = pb_istream_from_buffer((void *) cmdbuffer, cmdsize);
     int retval;
 
@@ -186,12 +196,15 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 		.a = 3.14
 	    }
 	};
-	if ((retval = npb_send_msg(&p->tx, machinetalk_Container_fields,
-				   &p->from_rt_rb, 0))) {
+	if ((retval = npb_send_msg(&p->tx, pb_Container_fields,
+				   p->from_rt_rb, 0))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,"error reply failed %d", retval);
-	    *(p->sendfailed) +=1;
+
+	    set_u32_pin(p->sendfailed, get_u32_pin(p->sendfailed) + 1);
+
 	} else
-	    *(p->sent) += 1;
+	    set_u32_pin(p->sent, get_u32_pin(p->sent) + 1);
+
     } else {
 	char errmsg[255];
 
@@ -207,25 +220,26 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 	    .note.arg = (void *) errmsg
 	};
 	int retval;
-	if ((retval = npb_send_msg(&p->tx, machinetalk_Container_fields,
-				   &p->from_rt_rb, 0))) {
+	if ((retval = npb_send_msg(&p->tx, pb_Container_fields,
+				   p->from_rt_rb, 0))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,"error reply failed %d", retval);
-	    *(p->sendfailed) += 1;
+	    set_u32_pin(p->sendfailed, get_u32_pin(p->sendfailed) + 1);
 	} else
-	    *(p->sent) += 1;
+	    set_u32_pin(p->sent, get_u32_pin(p->sent) + 1);
     }
-    record_shift(&p->to_rt_rb);
-    *(p->received) += 1;
+    record_shift(plug_rb(p->to_rt_rb));
+    set_u32_pin(p->received, get_u32_pin(p->received) + 1);
     return 0;
 }
 
-
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const int argc, const char**argv)
+static int instantiate(const char *name, const int argc, const char**argv)
 {
-    const char *name = argv[1];
     struct inst_data *inst;
-    int retval, inst_id;
+    int inst_id;
+
+    if ((wring == NULL) || (rring == NULL))
+	HALFAIL_RC(ENOENT, "need both rring=<> and wring=<> instance parameters");
 
     // allocate a named instance, and some HAL memory for the instance data
     if ((inst_id = hal_inst_create(name, comp_id,
@@ -234,42 +248,35 @@ static int instantiate(const int argc, const char**argv)
 	return inst_id; // HAL library will log the failure cause
 
     pbring_inst_t *p = (pbring_inst_t *)inst;
-    if ((retval = hal_pin_u32_newf(HAL_OUT, &(p->underrun),
-				   inst_id, "%s.underrun", name)))
-	return retval;
-    if ((retval = hal_pin_u32_newf(HAL_OUT, &(p->received),
-				   inst_id, "%s.received", name)))
-	return retval;
-    if ((retval = hal_pin_u32_newf(HAL_OUT, &(p->sent),
-				   inst_id, "%s.sent", name)))
-	return retval;
-    if ((retval = hal_pin_u32_newf(HAL_OUT, &(p->sendfailed),
-				   inst_id, "%s.sendfailed", name)))
-	return retval;
-    if ((retval = hal_pin_u32_newf(HAL_OUT, &(p->decodefail),
-				   inst_id, "%s.decodefail", name)))
-	return retval;
-    *(p->underrun) = 0;
-    *(p->received) = 0;
-    *(p->sent) = 0;
-    *(p->sendfailed) = 0;
-    *(p->decodefail) = 0;
 
-    unsigned flags;
-    if ((retval = hal_ring_attachf(&(p->to_rt_rb), &flags,  "%s.in", name)) < 0)
-	return retval;
-    if ((flags & RINGTYPE_MASK) != RINGTYPE_RECORD) {
-	HALERR("ring %s.in not a record mode ring: mode=%d",name, flags & RINGTYPE_MASK);
-	return -EINVAL;
-    }
-    if ((retval = hal_ring_attachf(&(p->from_rt_rb), &flags,  "%s.out", name)) < 0)
-	return retval;
-    if ((flags & RINGTYPE_MASK) != RINGTYPE_RECORD) {
-	HALERR("ring %s.out not a record mode ring: mode=%d",name, flags & RINGTYPE_MASK);
-	return -EINVAL;
-    }
-    p->to_rt_rb.header->reader = inst_id;
-    p->from_rt_rb.header->writer = inst_id;
+#define ALLOC_PIN(pin, type, dir)					\
+    p->pin = halx_pin_##type##_newf(HAL_IN, inst_id, "%s." #pin, name);	\
+    if (type##_pin_null(p->pin))\
+	return _halerrno;
+
+    ALLOC_PIN(underrun, u32, HAL_OUT);
+    ALLOC_PIN(received, u32, HAL_OUT);
+    ALLOC_PIN(sent, u32, HAL_OUT);
+    ALLOC_PIN(sendfailed, u32, HAL_OUT);
+    ALLOC_PIN(decodefail, u32, HAL_OUT);
+
+    plug_args_t rargs = {
+	.type = PLUG_READER,
+	.flags = RINGTYPE_RECORD,
+	.ring_name = rring,
+	.owner_name = (char *) name
+    };
+    if ((p->to_rt_rb = halg_plug_new(1, &rargs)) == NULL)
+	return _halerrno;
+
+    plug_args_t wargs = {
+	.type = PLUG_WRITER,
+	.flags = RINGTYPE_RECORD,
+	.ring_name = wring,
+	.owner_name = (char *) name
+    };
+    if ((p->from_rt_rb = halg_plug_new(1, &wargs)) == NULL)
+	return _halerrno;
 
     // exporting as extended thread function:
     hal_export_xfunct_args_t update_xf = {
@@ -283,31 +290,12 @@ static int instantiate(const int argc, const char**argv)
     return hal_export_xfunctf(&update_xf, "%s.update", name);
 }
 
-static int delete(const char *name, void *inst, const int inst_size)
-{
-    pbring_inst_t *p = (pbring_inst_t *)inst;
-    int retval;
-    char ringname[HAL_NAME_LEN + 1];
-
-    rtapi_snprintf(ringname, sizeof(ringname), "%s.in", name);
-    p->to_rt_rb.header->reader = 0;
-    if ((retval = hal_ring_detach(ringname, &p->to_rt_rb)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: hal_ring_detach(%s) failed: %d\n",
-			name, ringname, retval);
-    }
-    p->from_rt_rb.header->writer = 0;
-    rtapi_snprintf(ringname, sizeof(ringname), "%s.out", name);
-    if ((retval = hal_ring_detach(ringname, &p->from_rt_rb)) < 0)
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: hal_ring_detach(%s) failed: %d\n",
-			name, ringname, retval);
-    return retval;
-}
 
 int rtapi_app_main(void)
 {
-    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, delete, compname);
+
+    // NB no delete - nothing to be done - plugs deallocate like pins/params/functs
+    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, NULL, compname);
     if (comp_id  < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_xinit(%s) failed: %d\n",

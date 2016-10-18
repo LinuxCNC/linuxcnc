@@ -103,7 +103,8 @@ void rtapi_app_exit(void)
 {
     int retval;
     rb.header->writer = 0;
-    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+//    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+    if ((retval = hal_ring_detach(&rb)) < 0)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
 			name, ring, retval);

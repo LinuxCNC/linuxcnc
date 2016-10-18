@@ -39,7 +39,8 @@ static char *name = "ringread";
 
 FUNCTION(_) {
     ringvec_t vec[2];
-    ring_size_t rsize;
+//    ring_size_t rsize;
+    ringsize_t rsize;
     const void *data;
 
     if (rb.header->type == RINGTYPE_STREAM) {
@@ -71,7 +72,7 @@ FUNCTION(_) {
 	if (circular) {
 	    char buf[MAXSIZE];
 	    int result;
-	    size_t size;
+	    ringsize_t size;
 
 	    result = record_iter_read(&ri, &data, &size);
 	    switch (result) {
@@ -167,7 +168,8 @@ void rtapi_app_exit(void)
 {
     int retval;
     rb.header->reader = 0;
-    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+//    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+    if ((retval = hal_ring_detach(&rb)) < 0)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
 			name, ring, retval);
