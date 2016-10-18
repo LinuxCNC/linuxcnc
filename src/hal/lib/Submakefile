@@ -1,9 +1,10 @@
 HALLIBDIR := hal/lib
-
+PBDIR := ../include/machinetalk/protobuf
 INCLUDES += $(HALLIBDIR)
+INCLUDES += $(PBDIR)
+LIBS := ../lib
 
-
-../include/%.h: ./$(HALLIBDIR)/%.h
+../include/%.h: ./$(HALLIBDIR)/%.h $(PBDIR)/%.h
 	cp $^ $@
 
 # link in basic nanonpb support routines
@@ -60,7 +61,7 @@ $(HALLIB).0: \
 	$(call TOOBJS, $(HALLIBMTALK_SRCS)) \
 	$(call TOOBJS, $(LIBINISRCS)) \
 	$(call TOOBJS, machinetalk/lib/syslog_async.c) \
-	../lib/libmkprotobuf.so
+	$(LIBS)/libmachinetalk-pb2++.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@

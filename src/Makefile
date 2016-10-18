@@ -513,7 +513,7 @@ HEADERS := \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
-    hal/lib/config_module.h \
+#    hal/lib/config_module.h \
     hal/lib/hal_group.h \
     hal/lib/hal.h \
     hal/lib/hal_internal.h \
@@ -526,7 +526,7 @@ HEADERS := \
     hal/lib/hal_ring.h \
     hal/lib/vtable.h \
     hal/drivers/hal_spi.h \
-    hal/drivers/hal_gpiomap.h \
+#    hal/drivers/hal_gpiomap.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -1213,8 +1213,8 @@ endif
 # Subdirectory: rtapi/examples (unneeded?)
 
 # Subdirectory: hal/components
-obj-$(CONFIG_BOSS_PLC) += boss_plc.o
-boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
+#obj-$(CONFIG_BOSS_PLC) += boss_plc.o
+#boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o $(MATHSTUB)
 obj-$(CONFIG_COUNTER) += counter.o
@@ -1235,14 +1235,14 @@ obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
 threads-objs := hal/components/threads.o $(MATHSTUB)
-obj-$(CONFIG_SUPPLY) += supply.o
-supply-objs := hal/components/supply.o $(MATHSTUB)
+#obj-$(CONFIG_SUPPLY) += supply.o
+#supply-objs := hal/components/supply.o $(MATHSTUB)
 obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o $(MATHSTUB)
-obj-$(CONFIG_WATCHDOG) += watchdog.o
-watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
-obj-$(CONFIG_MODMATH) += modmath.o
-modmath-objs := hal/components/modmath.o $(MATHSTUB)
+#obj-$(CONFIG_WATCHDOG) += watchdog.o
+#watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
+#obj-$(CONFIG_MODMATH) += modmath.o
+#modmath-objs := hal/components/modmath.o $(MATHSTUB)
 obj-$(CONFIG_STREAMER) += streamer.o
 streamer-objs := hal/components/streamer.o $(MATHSTUB)
 obj-$(CONFIG_SAMPLER) += sampler.o
