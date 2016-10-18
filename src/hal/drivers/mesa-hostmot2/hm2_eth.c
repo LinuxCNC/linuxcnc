@@ -118,8 +118,8 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 static int shell(char *command) {
     char *const argv[] = {"sh", "-c", command, NULL};
     pid_t pid;
-    int res = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(res < 0) perror("posix_spawn");
+    int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if(res < 0) perror("rtapi_spawn_as_root");
     int status;
     waitpid(pid, &status, 0);
     if(WIFEXITED(status)) return WEXITSTATUS(status);
@@ -150,7 +150,6 @@ static bool chain_exists() {
 static int iptables_state = -1;
 static bool use_iptables() {
     if(iptables_state == -1) {
-        if(geteuid() != 0) return (iptables_state = 0);
         if(!chain_exists()) {
             int res = shell("/sbin/iptables -N " CHAIN);
             if(res != EXIT_SUCCESS) {
@@ -307,6 +306,16 @@ static int fetch_hwaddr(const char *board_ip, int sockfd, unsigned char buf[6]) 
     return 0;
 }
 
+int ioctl_siocsarp(void *arg) {
+    hm2_eth_t *board = (hm2_eth_t *)arg;
+    return ioctl(board->sockfd, SIOCSARP, &board->req);
+}
+
+int ioctl_siocdarp(void *arg) {
+    hm2_eth_t *board = (hm2_eth_t *)arg;
+    return ioctl(board->sockfd, SIOCDARP, &board->req);
+}
+
 static int init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
 
@@ -367,7 +376,7 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
         return ret;
     }
 
-    ret = ioctl(board->sockfd, SIOCSARP, &board->req);
+    ret = rtapi_do_as_root(ioctl_siocsarp, board);
     if(ret < 0) {
         perror("ioctl SIOCSARP");
         board->req.arp_flags &= ~ATF_PERM;
@@ -390,7 +399,7 @@ static int close_board(hm2_eth_t *board) {
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
-        int ret = ioctl(board->sockfd, SIOCDARP, &board->req);
+        int ret = rtapi_do_as_root(ioctl_siocdarp, board);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
     int ret = shutdown(board->sockfd, SHUT_RDWR);

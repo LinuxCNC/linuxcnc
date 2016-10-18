@@ -58,7 +58,40 @@
 #include <string.h>
 #include <boost/lockfree/queue.hpp>
 
-int WithRoot::level;
+std::atomic<int> WithRoot::level;
+static uid_t euid, ruid;
+
+static void priv_info(const char *m) {
+#ifdef RTAPI_DEBUG_PRIV
+    uid_t r, e, s;
+    if(getresuid(&r, &e, &s) < 0)
+        printf("%s: %s\n", m, strerror(errno));
+    else
+        printf("%s: ruid=%d euid=%d suid=%d\n", m, (int)r, (int)e, (int)s);
+#endif
+}
+
+WithRoot::WithRoot() {
+    if(!level++) {
+        priv_info("before  WithRoot");
+        if(seteuid(euid) < 0) {
+            perror("seteuid (root)");
+            exit(1);
+        }
+        priv_info("after   WithRoot");
+    }
+}
+
+WithRoot::~WithRoot() {
+    if(!--level) {
+        priv_info("before ~WithRoot");
+        if(seteuid(ruid) < 0) {
+            perror("seteuid (user)");
+            exit(1);
+        }
+        priv_info("after  ~WithRoot");
+    }
+}
 
 namespace
 {
@@ -499,7 +532,12 @@ int main(int argc, char **argv) {
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
-    setfsuid(getuid());
+    ruid = getuid();
+    euid = geteuid();
+    if(seteuid(ruid) < 0) {
+        perror("setuid (user)");
+        exit(1);
+    } 
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
@@ -734,9 +772,7 @@ static int harden_rt()
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
-    }
-    setfsuid(getuid());
-    if(fd >= 0) {
+    } else {
         int r;
         r = write(fd, "\0\0\0\0", 4);
         if (r != 4) {
@@ -750,7 +786,7 @@ static int harden_rt()
 
 static RtapiApp *makeApp()
 {
-    if(geteuid() != 0 || harden_rt() < 0)
+    if(euid != 0 || harden_rt() < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
         return new Posix(SCHED_OTHER);
@@ -1163,9 +1199,35 @@ void rtapi_timespec_advance(struct timespec &result, const struct timespec &src,
 }
 
 int rtapi_open_as_root(const char *filename, int mode) {
-    setfsuid(geteuid());
+    WITH_ROOT;
     int r = open(filename, mode);
-    setfsuid(getuid());
     if(r < 0) return -errno;
     return r;
+}
+
+int rtapi_spawn_as_root(pid_t *pid, const char *path,
+    const posix_spawn_file_actions_t *file_actions,
+    const posix_spawnattr_t *attrp,
+    char *const argv[], char *const envp[])
+{
+    WITH_ROOT;
+    setreuid(euid, euid);
+    priv_info("before posix_spawn");
+    return posix_spawn(pid, path, file_actions, attrp, argv, envp);
+}
+
+int rtapi_spawnp_as_root(pid_t *pid, const char *path,
+    const posix_spawn_file_actions_t *file_actions,
+    const posix_spawnattr_t *attrp,
+    char *const argv[], char *const envp[])
+{
+    WITH_ROOT;
+    setreuid(euid, euid);
+    priv_info("before posix_spawnp");
+    return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
+}
+
+int rtapi_do_as_root(int (*fn)(void *), void *arg) {
+    WITH_ROOT;
+    return fn(arg);
 }
