@@ -1402,10 +1402,12 @@ systems.
 == G61, G61.1 Exact Path Mode
 (((G61 G61.1 G64 Path Mode)))
 
-* 'G61' - exact path mode. G61 visits the programmed point exactly,
-          even though that means temporarily coming to a complete stop.
+* 'G61' - Exact path mode, movement exactly as programed. Moves will slow or
+stop as needed to reach every programed point. If two sequential moves are
+exactly co-linear movement will not stop.
 
-* 'G61.1' - exact stop mode. Same as G61
+* 'G61.1' - Exact stop mode, movement will stop at the end of each programed
+segment.
 
 [[gcode:g64]]
 == G64 Path Blending
