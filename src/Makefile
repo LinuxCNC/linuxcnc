@@ -137,11 +137,15 @@ modules:  userspace
 	        $(MAKE) modules threads=$(f);\
 	    )\
 	)
+
+ifeq ($(HAVE_KERNEL_THREADS),yes)
+    @test -f ../libexec/linuxcnc_module_helper -a \
+    	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
+	    ! -u ../libexec/linuxcnc_module_helper \) \
+        && need_setuid=1; 
+endif
+
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
-	@test -f ../libexec/linuxcnc_module_helper -a \
-		\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
-		    ! -u ../libexec/linuxcnc_module_helper \) \
-	    && need_setuid=1; \
 	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
 	    test -f ../libexec/rtapi_app_$$f -a \
 		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
