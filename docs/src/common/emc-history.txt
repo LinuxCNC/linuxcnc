@@ -104,6 +104,12 @@ The rebranding effort will include the linuxcnc.org website, the IRC
 channels, and versions of the software and documentation starting with
 2.5.0. Rebranding will begin right away.
 
-A paper written from NIST's perspective on the history of EMC and its
-transition to open source is available
-http://www.nist.gov/manuscript-publication-search.cfm?pub_id=821651[here].
+NIST published a paper describing the
+https://www.nist.gov/node/704046[RS274NGC] language and the abstract
+machining center it controls, as well as an early implementation of EMC.
+The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf
+
+NIST also published a paper on the history of EMC and its
+transition to https://www.nist.gov/node/702276[open
+source].  The paper is also available at
+http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf
