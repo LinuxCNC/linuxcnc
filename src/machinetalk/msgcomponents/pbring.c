@@ -235,47 +235,6 @@ static int instantiate(const char *name, const int argc, const char**argv)
 {
     struct inst_data *inst;
     int inst_id, retval;
-/*
-    if ((wring == NULL) || (rring == NULL))
-	HALFAIL_RC(ENOENT, "need both rring=<> and wring=<> instance parameters");
-
-    // allocate a named instance, and some HAL memory for the instance data
-    if ((inst_id = hal_inst_create(name, comp_id,
-				   sizeof(pbring_inst_t),
-				   (void **)&inst)) < 0)
-	return inst_id; // HAL library will log the failure cause
-
-    pbring_inst_t *p = (pbring_inst_t *)inst;
-
-#define ALLOC_PIN(pin, type, dir)					\
-    p->pin = halx_pin_##type##_newf(HAL_IN, inst_id, "%s." #pin, name);	\
-    if (type##_pin_null(p->pin))\
-	return _halerrno;
-
-    ALLOC_PIN(underrun, u32, HAL_OUT);
-    ALLOC_PIN(received, u32, HAL_OUT);
-    ALLOC_PIN(sent, u32, HAL_OUT);
-    ALLOC_PIN(sendfailed, u32, HAL_OUT);
-    ALLOC_PIN(decodefail, u32, HAL_OUT);
-
-    plug_args_t rargs = {
-	.type = PLUG_READER,
-	.flags = RINGTYPE_RECORD,
-	.ring_name = rring,
-	.owner_name = (char *) name
-    };
-    if ((p->to_rt_rb = halg_plug_new(1, &rargs)) == NULL)
-	return _halerrno;
-
-    plug_args_t wargs = {
-	.type = PLUG_WRITER,
-	.flags = RINGTYPE_RECORD,
-	.ring_name = wring,
-	.owner_name = (char *) name
-    };
-    if ((p->from_rt_rb = halg_plug_new(1, &wargs)) == NULL)
-	return _halerrno;
-*/
 
     // allocate a named instance, and some HAL memory for the instance data
     if ((inst_id = hal_inst_create(name, comp_id,
@@ -289,19 +248,19 @@ static int instantiate(const char *name, const int argc, const char**argv)
     if (u32_pin_null(p->underrun))
         return _halerrno;
     
-    p->underrun = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.received", name);
+    p->received = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.received", name);
     if (u32_pin_null(p->received))
         return _halerrno;
     
-    p->underrun = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.sent", name);
+    p->sent = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.sent", name);
     if (u32_pin_null(p->sent))
         return _halerrno;
     
-    p->underrun = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.sendfailed", name);
+    p->sendfailed = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.sendfailed", name);
     if (u32_pin_null(p->sendfailed))
         return _halerrno;
     
-    p->underrun = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.decodefail", name);
+    p->decodefail = halx_pin_u32_newf(HAL_OUT, inst_id, "%s.decodefail", name);
     if (u32_pin_null(p->decodefail))
         return _halerrno;
 
