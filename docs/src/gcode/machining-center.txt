@@ -146,11 +146,11 @@ rate unobtainable, all axes are slowed to maintain the desired path.
 
 === Feed Rate
 
-The rate at which the controlled point or the axes move is nominally a
-steady rate which may be set by the user. In the Interpreter, the
-interpretation of the feed rate is as follows unless 'inverse time
-feed' or 'feed per revolution' modes are being used see Section 
-<<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>.
+The rate at which the controlled point moves is nominally a steady
+rate which may be set by the user. In the Interpreter, the feed
+rate is interpreted as follows (unless 'inverse time feed' or 'feed
+per revolution' modes are being used, in which case see Section
+<<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
    cartesian system, and all other axes (ABCUVW) move so as to start and

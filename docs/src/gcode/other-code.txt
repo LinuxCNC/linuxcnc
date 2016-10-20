@@ -10,9 +10,9 @@
 (inches or millimeters) per minute.
 
 The application of the feed rate is as described in the
-<<sub:feed-rate,Feed Rate>> Section, unless inverse time feed rate
-mode is in effect, in which case the feed rate is as described in the
-<<gcode:g93-g94-g95,G93 G94 G95>> Section.
+<<sub:feed-rate,Feed Rate>> Section, unless 'inverse time feed rate mode'
+or 'feed per revolution mode' are in effect, in which case the feed rate
+is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> Section.
 
 [[sec:set-spindle-speed]]
 == S: Set Spindle Speed
