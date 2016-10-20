@@ -172,7 +172,7 @@ typedef union {
     hal_thread_t *thread;
     hal_vtable_t *vtable;
     hal_ring_t   *ring;
-    hal_plug_t   *plug;
+//    hal_plug_t   *plug;
     void         *any;
 
 } hal_object_ptr;

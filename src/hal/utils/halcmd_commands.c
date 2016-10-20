@@ -2751,7 +2751,7 @@ static void print_mem_status()
     count_objects("members\t", HAL_MEMBER);
     count_objects("functs\t", HAL_FUNCT);
     count_objects("rings\t", HAL_RING);
-    count_objects("plugs\t", HAL_PLUG);
+//    count_objects("plugs\t", HAL_PLUG);
     count_objects("instances", HAL_INST);
     halcmd_output("(some figures do not fully add up as some usage is unaccounted for)\n");
 }
@@ -3237,7 +3237,7 @@ static void print_ring_names(char **patterns)
     halg_foreach(1, &args, print_name);
     halcmd_output("\n");
 }
-
+/*
 static int print_plug_entry(hal_object_ptr o, foreach_args_t *args)
 {
 
@@ -3250,6 +3250,7 @@ static int print_plug_entry(hal_object_ptr o, foreach_args_t *args)
     }
     return 0;
 }
+*/
 
 static int print_ring_entry(hal_object_ptr o, foreach_args_t *args)
 {
@@ -3299,11 +3300,11 @@ static int print_ring_entry(hal_object_ptr o, foreach_args_t *args)
 	    halcmd_error("%s: rtapi_ring_detach(%d) failed ",
 			 ho_name(rptr), rptr->ring_id);
 	}
-	foreach_args_t args =  {
-	    .type = HAL_PLUG,
-	    .user_arg1 = ho_id(rptr),
-	};
-	halg_foreach(false, &args, print_plug_entry);
+//	foreach_args_t args =  {
+//	    .type = HAL_PLUG,
+//	    .user_arg1 = ho_id(rptr),
+//	};
+//	halg_foreach(false, &args, print_plug_entry);
     }
  done:
     return 0;

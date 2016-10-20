@@ -109,9 +109,9 @@ int yield_free(hal_object_ptr o, foreach_args_t *args)
 	halg_free_object(false, (hal_object_ptr)o);
 	break;
 
-    case HAL_PLUG:
-	halg_plug_delete(false, o.plug);
-	break;
+//    case HAL_PLUG:
+//	halg_plug_delete(false, o.plug);
+//	break;
 
     default:
 	HALBUG("type %d not supported (object type=%d)",

@@ -310,7 +310,7 @@ int halg_ring_detach(const int use_hal_mutex,
 /***********************************************************************
 *                     Public HAL plug functions                        *
 ************************************************************************/
-
+/*
 hal_plug_t *halg_plug_new(const int use_hal_mutex,
 			  plug_args_t *args)
 
@@ -470,7 +470,7 @@ int halg_plug_delete(const int use_hal_mutex,
     }
 }
 
-
+*/
 /***********************************************************************
 *                    Internal HAL ring support functions               *
 ************************************************************************/

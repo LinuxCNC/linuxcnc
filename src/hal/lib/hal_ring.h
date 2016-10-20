@@ -42,6 +42,7 @@ typedef struct hal_ring {
 //
 // represents a HAL plug object
 // plug roles
+/*
 typedef enum {
     PLUG_READER  = 1,
     PLUG_WRITER  = 2,
@@ -84,6 +85,8 @@ hal_plug_t *halg_plug_new(const int use_hal_mutex,
 
 int halg_plug_delete(const int use_hal_mutex,
 		     hal_plug_t *plug);
+*/
+
 
 // some components use a fifo and a scratchpad shared memory area,
 // like sampler.c and streamer.c. ringbuffer_t supports this through
