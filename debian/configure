@@ -164,7 +164,8 @@ Ubuntu-1[12].*) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
 	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
-        echo "configuration may be wrong!"
+        echo "detected dependencies may be incomplete or wrong"
+        echo "please consider fixing it and submitting a pull request"
 	;;
 esac
 
