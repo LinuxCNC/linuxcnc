@@ -1637,7 +1637,7 @@ class App:
                 return True
             else:
                 return False
-        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+        elif hal.is_kernelspace and hal.kernel_version != actual_kernel:
             self.warning_dialog(self._p.MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
             if self.debugstate:
                 return True
