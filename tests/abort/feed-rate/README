@@ -1,0 +1,4 @@
+This test starts LinuxCNC, sets the feed rate (in G94 and G95), then
+Aborts and verifies that the expected feed rate is active.
+
+In 2.6.12 and 2.7.7 this test replicates Github Issue #180.
