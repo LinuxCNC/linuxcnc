@@ -2683,11 +2683,19 @@ double GET_EXTERNAL_FEED_RATE()
 {
     double feed;
 
-    // convert from internal to program units
-    // it is wrong to use emcStatus->motion.traj.velocity here, as that is the traj speed regardless of G0 / G1
-    feed = TO_PROG_LEN(currentLinearFeedRate);
-    // now convert from per-sec to per-minute
-    feed *= 60.0;
+    if (feed_mode) {
+        // We're in G95 "Units per Revolution" mode, so
+        // currentLinearFeedRate is the FPR and we should just return
+        // it, unchanged.
+        feed = currentLinearFeedRate;
+    } else {
+        // We're in G94 "Units per Minute" mode so unhork
+        // currentLinearFeedRate before returning it, by converting
+        // from internal to program units, and from "per second" to
+        // "per minute".
+        feed = TO_PROG_LEN(currentLinearFeedRate);
+        feed *= 60.0;
+    }
 
     return feed;
 }
