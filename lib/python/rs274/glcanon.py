@@ -1016,6 +1016,7 @@ class GlCanonDraw:
             glPopMatrix()
 
         if self.get_show_limits():
+            glTranslatef(*[-x for x in self.to_internal_units(s.tool_offset)[:3]])
             glLineWidth(1)
             glColor3f(1.0,0.0,0.0)
             glLineStipple(1, 0x1111)
@@ -1063,6 +1064,7 @@ class GlCanonDraw:
             glEnd()
             glDisable(GL_LINE_STIPPLE)
             glLineStipple(2, 0x5555)
+            glTranslatef(*self.to_internal_units(s.tool_offset)[:3])
 
         if self.get_show_live_plot():
             glDepthFunc(GL_LEQUAL)
