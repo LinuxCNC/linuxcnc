@@ -41,6 +41,7 @@ bits = [
     (linuxcnc.DEBUG_MOTION_TIME, _('Motion Time')),
     (linuxcnc.DEBUG_INTERP, _('Interpreter')),
     (linuxcnc.DEBUG_INTERP_LIST, _('Interpreter List')),
+    (linuxcnc.DEBUG_STATE_TAGS, _('State Tags')),
 ]
 
 def showdebug(value):
