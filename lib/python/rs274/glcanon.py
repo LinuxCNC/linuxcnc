@@ -421,8 +421,8 @@ class GlCanonDraw:
         self.no_joint_display = False
         self.kinstype = "UNKNOWN"
         self.trajcoordinates = "unknown"
-        self.dro_in = "% 6.4f"
-        self.dro_mm = "% 6.3f"
+        self.dro_in = "% 9.4f"
+        self.dro_mm = "% 9.3f"
         if os.environ["INI_FILE_NAME"]:
             self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
             if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
@@ -1513,12 +1513,12 @@ class GlCanonDraw:
             if self.get_show_metric():
                 format = "% 6s:" + self.dro_mm
                 droformat = " " + format + "  DTG %1s:" + self.dro_mm
-                offsetformat = "% 5s %1s:" + self.dro_mm + " G92 %1s:" + self.dro_mm
+                offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
                 rotformat = "% 5s %1s:" + self.dro_mm
             else:
                 format = "% 6s:" + self.dro_in
                 droformat = " " + format + "  DTG %1s:" + self.dro_in
-                offsetformat = "% 5s %1s:" + self.dro_in + " G92 %1s:" + self.dro_in
+                offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
                 rotformat = "% 5s %1s:" + self.dro_in
             diaformat = " " + format
 
