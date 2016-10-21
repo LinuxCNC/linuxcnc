@@ -26,6 +26,8 @@ typedef struct {
     u32_pin_ptr decodefail;	// number of messages which failed to protobuf decode
     ringbuffer_t to_rt_rb;      // incoming ringbuffer
     ringbuffer_t from_rt_rb;    // outgoing ringbuffer
+    hal_ring_t *in;
+    hal_ring_t *out;
     pb_Container rx, tx;
 } pbring_inst_t;
 
@@ -271,14 +273,18 @@ static int instantiate(const char *name, const int argc, const char**argv)
     set_u32_pin(p->decodefail, 0);
 
     unsigned flags;
-    if ((retval = hal_ring_attachf(&(p->to_rt_rb), &flags,  "%s.in", name)) < 0)
+    // create rings
+    p->in = halg_ring_newfv(0, 1024, 512, RINGTYPE_RECORD, NULL, NULL);
+    p->out = halg_ring_newfv(0, 1024, 512, RINGTYPE_RECORD, NULL, NULL);
+    // attach them
+    if ((retval = halg_ring_attachf(0, &(p->to_rt_rb), &flags, "record-1")) < 0)
         return retval;
     if ((flags & RINGTYPE_MASK) != RINGTYPE_RECORD) 
         {
         HALERR("ring %s.in not a record mode ring: mode=%d",name, flags & RINGTYPE_MASK);
         return -EINVAL;
         }
-    if ((retval = hal_ring_attachf(&(p->from_rt_rb), &flags,  "%s.out", name)) < 0)
+    if ((retval = halg_ring_attachf(0, &(p->from_rt_rb), &flags, "record-2")) < 0)
         return retval;
     if ((flags & RINGTYPE_MASK) != RINGTYPE_RECORD) 
         {
@@ -307,12 +313,12 @@ int retval;
 char ringname[HAL_NAME_LEN + 1];
 
     p->to_rt_rb.header->reader = 0;
-    if ((retval = hal_ring_detach(&p->to_rt_rb)) < 0) 
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s: hal_ring_detach(%s) failed: %d\n", name, ringname, retval);
+    if ((retval = halg_ring_detach(0, &p->to_rt_rb)) < 0) 
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: halg_ring_detach(%s) failed: %d\n", name, ringname, retval);
     
     p->from_rt_rb.header->writer = 0;
-    if ((retval = hal_ring_detach(&p->from_rt_rb)) < 0)
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s: hal_ring_detach(%s) failed: %d\n", name, ringname, retval);
+    if ((retval = halg_ring_detach(0, &p->from_rt_rb)) < 0)
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: halg_ring_detach(%s) failed: %d\n", name, ringname, retval);
     
     return retval;
 }
