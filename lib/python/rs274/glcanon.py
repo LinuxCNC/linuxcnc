@@ -863,18 +863,24 @@ class GlCanonDraw:
 
         glLineWidth(1)
         glColor3f(*self.colors['grid'])
+
+        s = self.stat
+        tlo_offset = permutation(self.to_internal_units(s.tool_offset)[:3])
+        g5x_offset = permutation(self.to_internal_units(s.g5x_offset)[:3])[:2]
+        g92_offset = permutation(self.to_internal_units(s.g92_offset)[:3])[:2]
+
         lim_min, lim_max = self.soft_limits()
         lim_min = permutation(lim_min)
         lim_max = permutation(lim_max)
+
+        lim_min = tuple(a-b for a,b in zip(lim_min, tlo_offset))
+        lim_max = tuple(a-b for a,b in zip(lim_max, tlo_offset))
 
         lim_pts = (
                 (lim_min[0], lim_min[1]),
                 (lim_max[0], lim_min[1]),
                 (lim_min[0], lim_max[1]),
                 (lim_max[0], lim_max[1]))
-        s = self.stat
-        g5x_offset = permutation(self.to_internal_units(s.g5x_offset)[:3])[:2]
-        g92_offset = permutation(self.to_internal_units(s.g92_offset)[:3])[:2]
         if self.get_show_relative():
             cos_rot = math.cos(rotation)
             sin_rot = math.sin(rotation)
