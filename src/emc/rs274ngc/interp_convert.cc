@@ -1769,7 +1769,8 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
 #ifdef DEBUG_EMC
   enqueue_COMMENT("interpreter: cutter radius compensation off");
 #endif
-  if(settings->cutter_comp_side && settings->cutter_comp_radius > 0.0) {
+  if(settings->cutter_comp_side && settings->cutter_comp_radius > 0.0 &&
+     !settings->cutter_comp_firstmove) {
       double cx, cy, cz;
       comp_get_current(settings, &cx, &cy, &cz);
       CHP(move_endpoint_and_flush(settings, cx, cy));
