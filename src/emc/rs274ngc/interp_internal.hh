@@ -326,6 +326,7 @@ enum phases  {
     STEP_IJK_DISTANCE_MODE,
     STEP_RETRACT_MODE,
     STEP_MODAL_0,
+    STEP_G92_IS_APPLIED,
     STEP_MOTION,
     STEP_MGROUP4,
     MAX_STEPS
@@ -404,9 +405,10 @@ typedef struct block_struct
 #define GM_CONTROL_MODE   13
 #define GM_SPINDLE_MODE  14
 #define GM_LATHE_DIAMETER_MODE  15
+#define GM_G92_IS_APPLIED 16
 
 
-  int g_modes[16];
+  int g_modes[17];
   bool h_flag;
   int h_number;
   bool i_flag;
