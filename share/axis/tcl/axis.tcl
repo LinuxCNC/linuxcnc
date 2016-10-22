@@ -1223,17 +1223,6 @@ setup_widget_accel $_tabs_mdi.go [_ Go]
 vspace $_tabs_mdi.vs2 \
 	-height 12
 
-label $_tabs_mdi.gcodel
-setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
-
-text $_tabs_mdi.gcodes \
-	-height 2 \
-	-width 40 \
-	-wrap word
-
-$_tabs_mdi.gcodes insert end {}
-$_tabs_mdi.gcodes configure -state disabled
-
 vspace $_tabs_mdi.vs3 \
 	-height 12
 
@@ -1248,19 +1237,6 @@ grid $_tabs_mdi.commandl \
 	-column 0 \
 	-row 3 \
 	-sticky w
-
-# Grid widget $_tabs_mdi.gcodel
-grid $_tabs_mdi.gcodel \
-	-column 0 \
-	-row 6 \
-	-sticky w
-
-# Grid widget $_tabs_mdi.gcodes
-grid $_tabs_mdi.gcodes \
-	-column 0 \
-	-row 7 \
-	-columnspan 2 \
-	-sticky new
 
 # Grid widget $_tabs_mdi.go
 grid $_tabs_mdi.go \
@@ -1388,6 +1364,17 @@ pack ${pane_bottom}.t.text \
 pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
+
+label ${pane_top}.gcodel
+setup_widget_accel ${pane_top}.gcodel [_ "Active G-Codes:"]
+
+text ${pane_top}.gcodes \
+	-height 2 \
+	-width 40 \
+	-wrap word
+
+${pane_top}.gcodes insert end {}
+${pane_top}.gcodes configure -state disabled
 
 frame ${pane_top}.ajogspeed
 label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
@@ -1659,6 +1646,9 @@ grid ${pane_top}.maxvel \
 	-column 0 \
 	-row 7 \
 	-sticky new
+
+grid ${pane_top}.gcodel -column 0 -row 8 -sticky nw
+grid ${pane_top}.gcodes -column 0 -row 9 -sticky new
 
 # Grid widget .info
 grid .info \
