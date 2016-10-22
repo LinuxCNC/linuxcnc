@@ -5363,9 +5363,8 @@ msgid "Ha_l Scope"
 msgstr "HA_L-Scope..."
 
 #: share/axis/tcl/axis.tcl:182
-#, fuzzy
 msgid "Sho_w LinuxCNC Status"
-msgstr "EM_C-Status..."
+msgstr "Linu_xCNC Status anzeigen..."
 
 #: share/axis/tcl/axis.tcl:186 ../share/axis/tcl/axis.tcl:184
 msgid "Set _Debug Level"
@@ -5437,7 +5436,7 @@ msgstr "_Draufsicht"
 
 #: share/axis/tcl/axis.tcl:269 ../share/axis/tcl/axis.tcl:255
 msgid "_Rotated Top view"
-msgstr "Draufsicht _gedreht"
+msgstr "Draufsicht gedre_ht"
 
 #: share/axis/tcl/axis.tcl:276 ../share/axis/tcl/axis.tcl:262
 msgid "_Side view"
@@ -5461,16 +5460,15 @@ msgstr "_mm"
 
 #: share/axis/tcl/axis.tcl:313 ../share/axis/tcl/axis.tcl:299
 msgid "S_how program"
-msgstr "V_orschau anzeigen"
+msgstr "Vors_chau anzeigen"
 
 #: share/axis/tcl/axis.tcl:318 ../share/axis/tcl/axis.tcl:304
 msgid "Show program r_apids"
 msgstr "_Eilgangpfad anzeigen"
 
 #: share/axis/tcl/axis.tcl:323
-#, fuzzy
 msgid "Alpha-_blend program"
-msgstr "Programm öffnen"
+msgstr "Alpha Blending anwenden (_j)"
 
 #: share/axis/tcl/axis.tcl:328 ../share/axis/tcl/axis.tcl:309
 msgid "Sho_w live plot"
@@ -5484,10 +5482,21 @@ msgstr "_Werkzeug anzeigen"
 msgid "Show e_xtents"
 msgstr "_Bemaßung anzeigen"
 
-#: share/axis/tcl/axis.tcl:343
-#, fuzzy
+#: share/axis/tcl/axis.tcl:342
+msgid "_Grid"
+msgstr "_Gitternetz"
+
+#: share/axis/tcl/axis.tcl:428
+msgid "_Off"
+msgstr "Ausblenden (_x)"
+
+#: share/axis/tcl/axis.tcl:434
+msgid "_Custom"
+msgstr "Benutzerdefiniert... (_y)"
+
+#: share/axis/tcl/axis.tcl:347
 msgid "Show o_ffsets"
-msgstr "_Bemaßung anzeigen"
+msgstr "_Offsets anzeigen"
 
 #: share/axis/tcl/axis.tcl:348 ../share/axis/tcl/axis.tcl:324
 msgid "Sh_ow machine limits"
@@ -5501,10 +5510,9 @@ msgstr "Geschwi_ndigkeit anzeigen"
 msgid "Show _distance to go"
 msgstr "Verf_ahrweg anzeigen"
 
-#: share/axis/tcl/axis.tcl:363 ../share/axis/tcl/axis.tcl:339
-#, fuzzy
+#: share/axis/tcl/axis.tcl:367 ../share/axis/tcl/axis.tcl:339
 msgid "Large coordinate fo_nt"
-msgstr "Große S_chrift für Koordinaten"
+msgstr "Gro_ße Schrift für Koordinatenanzeige"
 
 #: share/axis/tcl/axis.tcl:366 ../share/axis/tcl/axis.tcl:342
 msgid "Ctrl-K"
@@ -5709,6 +5717,10 @@ msgstr "Schrittgeschwindigkeit:"
 #: share/axis/tcl/axis.tcl:1600 ../share/axis/tcl/axis.tcl:1556
 msgid "Max Velocity:"
 msgstr "Maximale Geschwindigkeit:"
+
+#: share/axis/tcl/axis.tcl:1525 ../share/axis/tcl/axis.tcl:1525
+msgid "Rapid Override::"
+msgstr "Eilgangübersteuerung:"
 
 #: share/axis/tcl/axis.tcl:1629 ../share/axis/tcl/axis.tcl:1585
 msgid "Spindle Override:"
