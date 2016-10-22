@@ -374,3 +374,50 @@ proc sim_spindle {} {
   addf sim_spindle  servo-thread
 } ;# sim_spindle
 
+proc save_hal_cmds {savefilename {options ""} } {
+  set tmpfile /tmp/save_hal_cmds_tmp
+  set date [clock format [clock seconds]]
+  set script [info script]
+  set fd [open $savefilename w] ;# overwrite any existing file
+  puts $fd "# $date
+#
+# This file:    $savefilename
+# Created by:   $script
+# With options: $::argv
+# From inifile: $::env(INI_FILE_NAME)
+# 
+# This file contains the hal commands produced by [file tail $script]
+# (and any hal commands executed prior to its execution).
+#
+# To use $savefilename in the original inifile (or a copy of it),
+# edit to change:
+#     \[HAL\]
+#     HALFILE = LIB:basic_sim.tcl parameters
+# to:
+#     \[HAL\]
+#     HALFILE = $savefilename
+#
+# Note: Inifile Variables substitutions specified in the inifile
+#       and interpreted by halcmd are automatically substituted
+#       in the created halfile ($savefilename).
+#       
+"
+  if {[lsearch $options use_hal_manualtoolchange] >= 0} {
+    puts $fd "# user space components"
+    puts $fd "loadusr -W hal_manualtoolchange"
+    puts $fd ""
+  }
+  close $fd
+    
+  hal save all $tmpfile
+
+  set fd [open $savefilename a]
+  set ftmp [open $tmpfile r]
+  while {![eof $ftmp]} {
+    gets $ftmp line
+    puts $fd $line
+  } ;# while
+  close $ftmp
+  file delete $tmpfile
+  close $fd
+} ;# save_hal_cmds
