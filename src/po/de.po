@@ -5482,6 +5482,7 @@ msgstr "_Werkzeug anzeigen"
 msgid "Show e_xtents"
 msgstr "_Bemaßung anzeigen"
 
+#: share/axis/tcl/axis.tcl:343
 #: share/axis/tcl/axis.tcl:342
 msgid "_Grid"
 msgstr "_Gitternetz"
@@ -5510,7 +5511,8 @@ msgstr "Geschwi_ndigkeit anzeigen"
 msgid "Show _distance to go"
 msgstr "Verf_ahrweg anzeigen"
 
-#: share/axis/tcl/axis.tcl:367 ../share/axis/tcl/axis.tcl:339
+#: share/axis/tcl/axis.tcl:363 ../share/axis/tcl/axis.tcl:339
+#: share/axis/tcl/axis.tcl:367
 msgid "Large coordinate fo_nt"
 msgstr "Gro_ße Schrift für Koordinatenanzeige"
 
@@ -5719,7 +5721,7 @@ msgid "Max Velocity:"
 msgstr "Maximale Geschwindigkeit:"
 
 #: share/axis/tcl/axis.tcl:1525 ../share/axis/tcl/axis.tcl:1525
-msgid "Rapid Override::"
+msgid "Rapid Override:"
 msgstr "Eilgangübersteuerung:"
 
 #: share/axis/tcl/axis.tcl:1629 ../share/axis/tcl/axis.tcl:1585
