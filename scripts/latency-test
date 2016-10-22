@@ -91,7 +91,7 @@ cat > lat.xml <<EOF
 <table>
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring linuxcnc.
+"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
@@ -136,7 +136,7 @@ cat > lat.xml <<EOF
 <table>
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring linuxcnc.
+"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
