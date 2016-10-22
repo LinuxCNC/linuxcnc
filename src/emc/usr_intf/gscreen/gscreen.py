@@ -619,7 +619,7 @@ class Gscreen:
         if os.path.exists(localtheme):
             self.data.local_theme = 'Link to %s_theme'% self.skinname
             # create systemlink because one can't store themes in an arbitrary folder.
-            if not os.path.exists(userthemedir+'/%s'%self.data.local_theme):
+            if os.path.exists(userthemedir+'/%s'%self.data.local_theme):
                 os.symlink(localtheme,userthemedir+'/%s'%self.data.local_theme)
             settings = gtk.settings_get_default()
             settings.set_string_property("gtk-theme-name", self.data.local_theme, "")
