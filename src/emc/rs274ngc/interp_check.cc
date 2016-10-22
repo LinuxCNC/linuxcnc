@@ -108,7 +108,6 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
           (settings->distance_mode == MODE_INCREMENTAL))),
         NCE_CANNOT_USE_G53_INCREMENTAL);
   } else if (mode0 == G_92) {
-  } else if ((mode0 == G_92_1) || (mode0 == G_92_2) || (mode0 == G_92_3)) {
   } else
     ERS(NCE_BUG_BAD_G_CODE_MODAL_GROUP_0);
   return INTERP_OK;
