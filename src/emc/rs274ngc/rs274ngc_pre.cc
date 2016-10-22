@@ -1988,6 +1988,8 @@ int Interp::synch()
 
   // read_inputs(&_setup); // input/probe/toolchange 
 
+  write_settings(&_setup);
+
   return INTERP_OK;
 }
 
