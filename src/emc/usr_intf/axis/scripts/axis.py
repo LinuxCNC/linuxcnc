@@ -1353,6 +1353,7 @@ for j in range(linuxcnc.MAX_JOINTS):
                           Radiobutton,
                           tabs_manual + ".joints.joint"+str(j)) )
 widgets = nf.Widgets(root_window,*widget_list)
+
 # Work around an apparent regression in python-tk which causes the value
 # associated with the Y axis button to be changed to the string "True",
 # related to the interpretation of the string "y" as true in a boolean
