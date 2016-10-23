@@ -2,6 +2,7 @@
 
 import linuxcnc
 import sys
+import time
 
 
 #
@@ -16,6 +17,8 @@ e = linuxcnc.error_channel()
 #
 # Immediately abort!  Github Issue #49 
 #
+
+time.sleep(1)
 
 print "UI abort"
 sys.stdout.flush()
