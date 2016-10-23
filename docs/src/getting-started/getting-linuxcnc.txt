@@ -238,7 +238,7 @@ uname -v
 
 . Open Applications Menu > System > Synaptic Package Manager search for
   'linux-image' and right click on 'linux-image-3.2.0-4-686-pae' and select
-  'Mark for Complete Removal do the same for'linux-image-686-pae'. Reboot.
+  'Mark for Complete Removal'. Do the same for 'linux-image-686-pae'. Reboot.
 
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
