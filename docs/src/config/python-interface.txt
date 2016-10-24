@@ -383,7 +383,7 @@ else:
 ----
 
 *velocity*:: '(returns float)' -
-default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
+This property is defined, but it does not have a useful interpretation.
 
 === The `axis` dictionary [[sec:the-axis-dictionary]]
 
