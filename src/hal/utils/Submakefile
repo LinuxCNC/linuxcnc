@@ -12,7 +12,7 @@ $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 ../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcnchal.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so.0 \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
@@ -25,7 +25,7 @@ $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS))  $(call TOOBJS, $(HALCMDCCSRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcnchal.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so.0 \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
@@ -41,7 +41,7 @@ USERSRCS += $(HALRMTSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/halrmt
 
-ifneq ($(GTK_VERSION),)
+ifdef HAVE_GTK
 HALMETERSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c

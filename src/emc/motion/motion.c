@@ -58,7 +58,7 @@ static long servo_period_nsec = 1000000;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static int servo_cpu = -1;		/* explicitly bind to CPU */
 RTAPI_MP_INT(servo_cpu, "CPU of servo thread");
-static long traj_period_nsec = 0;	/* trajectory planner period */
+long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
 int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
 RTAPI_MP_INT(num_joints, "number of joints");
@@ -152,8 +152,8 @@ static int init_comm_buffers(void);
 static int init_threads(void);
 
 /* functions called by init_threads() */
-static int setTrajCycleTime(double secs);
-static int setServoCycleTime(double secs);
+int setTrajCycleTime(double secs);
+int setServoCycleTime(double secs);
 
 // init the shared state handling between tp and motion
 static int init_shared(tp_shared_t *tps,
@@ -1226,56 +1226,77 @@ static int init_threads(void)
     int retval;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() starting...\n");
+    int nothreads = ((base_period_nsec == 0) && (servo_period_nsec == 0));
+    if (!nothreads) {
 
-    /* if base_period not specified, assume same as servo_period */
-    if (base_period_nsec == 0) {
-	base_period_nsec = servo_period_nsec;
-    }
-    if (traj_period_nsec == 0) {
-	traj_period_nsec = servo_period_nsec;
-    }
-    /* servo period must be greater or equal to base period */
-    if (servo_period_nsec < base_period_nsec) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: bad servo period %ld nsec\n", servo_period_nsec);
-	return -1;
-    }
-    /* convert desired periods to floating point */
-    base_period_sec = base_period_nsec * 0.000000001;
-    servo_period_sec = servo_period_nsec * 0.000000001;
-    /* calculate period ratios, round to nearest integer */
-    servo_base_ratio = (servo_period_sec / base_period_sec) + 0.5;
-    /* revise desired periods to be integer multiples of each other */
-    servo_period_nsec = base_period_nsec * servo_base_ratio;
-    /* create HAL threads for each period */
-    /* only create base thread if it is faster than servo thread */
-    if (servo_base_ratio > 1) {
-
-	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp, base_cpu);
-	if (retval < 0) {
+	/* if base_period not specified, assume same as servo_period */
+	if (base_period_nsec == 0) {
+	    base_period_nsec = servo_period_nsec;
+	}
+	if (traj_period_nsec == 0) {
+	    traj_period_nsec = servo_period_nsec;
+	}
+	/* servo period must be greater or equal to base period */
+	if (servo_period_nsec < base_period_nsec) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"MOTION: failed to create %ld nsec base thread\n",
-		base_period_nsec);
+			    "MOTION: bad servo period %ld nsec\n", servo_period_nsec);
 	    return -1;
 	}
-    }
-    retval = hal_create_thread("servo-thread", servo_period_nsec, 1, servo_cpu);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create %ld nsec servo thread\n",
-	    servo_period_nsec);
-	return -1;
+	/* convert desired periods to floating point */
+	base_period_sec = base_period_nsec * 0.000000001;
+	servo_period_sec = servo_period_nsec * 0.000000001;
+	/* calculate period ratios, round to nearest integer */
+	servo_base_ratio = (servo_period_sec / base_period_sec) + 0.5;
+	/* revise desired periods to be integer multiples of each other */
+	servo_period_nsec = base_period_nsec * servo_base_ratio;
+	/* create HAL threads for each period */
+	/* only create base thread if it is faster than servo thread */
+	if (servo_base_ratio > 1) {
+
+	    retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp, base_cpu);
+	    if (retval < 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"MOTION: failed to create %ld nsec base thread\n",
+				base_period_nsec);
+		return -1;
+	    }
+	}
+	retval = hal_create_thread("servo-thread", servo_period_nsec, 1, servo_cpu);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "MOTION: failed to create %ld nsec servo thread\n",
+			    servo_period_nsec);
+	    return -1;
+	}
+    } else {
+	rtapi_print_msg(RTAPI_MSG_INFO,
+			"MOTION: not creating threads as both servo and base period are 0\n");
     }
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+    hal_export_xfunct_args_t mot_args = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = emcmotController,
+        .arg = 0,
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = mot_comp_id
+    };
+
+    retval = hal_export_xfunctf(&mot_args, "motion-controller");
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");
 	return -1;
     }
-    retval = hal_export_funct("motion-command-handler", emcmotCommandHandler, 0	/* arg 
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+    hal_export_xfunct_args_t cmd_args = {
+        .type = FS_XTHREADFUNC,
+        .funct.x = emcmotCommandHandler,
+        .arg = 0,
+        .uses_fp = 1,
+        .reentrant = 0,
+        .owner_id = mot_comp_id
+    };
+    retval = hal_export_xfunctf(&cmd_args, "motion-command-handler");
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export command handler function\n");
@@ -1294,12 +1315,13 @@ static int init_threads(void)
 	return -1;
     }
 #endif
-
-    // if we don't set cycle times based on these guesses, emc doesn't
-    // start up right
-    setServoCycleTime(servo_period_nsec * 1e-9);
-    setTrajCycleTime(traj_period_nsec * 1e-9);
-
+    if (!nothreads) {
+	// if we don't set cycle times based on these guesses, emc doesn't
+	// start up right
+	// if no threads, postponed until first invocation of emcmotCommandHandler
+	setServoCycleTime(servo_period_nsec * 1e-9);
+	setTrajCycleTime(traj_period_nsec * 1e-9);
+    }
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() complete\n");
     return 0;
 }
@@ -1312,7 +1334,7 @@ void emcmotSetCycleTime(unsigned long nsec ) {
     setServoCycleTime(nsec * servo_mult * 1e-9);
 }
 /* call this when setting the trajectory cycle time */
-static int setTrajCycleTime(double secs)
+int setTrajCycleTime(double secs)
 {
     static int t;
 
@@ -1350,7 +1372,7 @@ static int setTrajCycleTime(double secs)
 }
 
 /* call this when setting the servo cycle time */
-static int setServoCycleTime(double secs)
+int setServoCycleTime(double secs)
 {
     static int t;
 

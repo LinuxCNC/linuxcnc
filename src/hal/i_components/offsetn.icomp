@@ -15,7 +15,12 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-component offsetn "Adds an offset to an input, and subtracts it from the feedback value, 1 - 9 pins sets";
+component offsetn "Adds and subtracts an offset";
+
+description
+"""
+Adds an offset to an input and subtracts it from the feedback value, 1 to 9 pin sets
+""";
 
 pin in float #.offset[pincount] "The offset value";
 

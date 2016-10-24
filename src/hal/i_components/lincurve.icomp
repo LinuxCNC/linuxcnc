@@ -1,17 +1,14 @@
 component lincurve "one-dimensional lookup table";
 
 description
-"""Performs a 1-dimensional lookup and interpolation. The x-val
+"""
+Performs a 1-dimensional lookup and interpolation. The x-val
 parameters must be monotonic, though identical adjacent values are allowed.
 (for example 0,0,0,10) for a 4-element curve.
 
 For input values less than the x-val-00 breakpoint the y-val-00 is returned.
 For x greater than the largest x-val-NN the yval corresponding to x-max is
 returned (ie, no extrapolation is performed.)
-
-Sample usage: loadrt lincurve-inst
-              newinst lincurve newone pincount=4 iprefix=lincurve4
-for a 4-element curve.
 
 The axis breakpoints should be set in the lincurve.x-val-NN parameters using
 "setp", as should the corresponding y values.

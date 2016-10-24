@@ -1,4 +1,4 @@
-component lutn "";
+component lutn "Arbitrary N-input logic function based on a look-up table";
 
     // Input Pins
 pin in bit in-##[pincount];

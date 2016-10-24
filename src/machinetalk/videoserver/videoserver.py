@@ -41,7 +41,7 @@ class VideoServer(threading.Thread):
         self.debug = debug
 
         self.videoDevices = {}
-        self.cfg = ConfigParser.ConfigParser()
+        self.cfg = ConfigParser.ConfigParser(defaults={'arguments': ''})
         self.cfg.read(self.inifile)
         if self.debug:
             print (("video devices:", self.cfg.sections()))
@@ -53,6 +53,7 @@ class VideoServer(threading.Thread):
             videoDevice.quality = self.cfg.get(n, 'quality')
             videoDevice.device = self.cfg.get(n, 'device')
             videoDevice.bufferSize = self.cfg.getint(n, 'bufferSize')
+            videoDevice.arguments = self.cfg.get(n, 'arguments')
             self.videoDevices[n] = videoDevice
             if self.debug:
                 print (("framerate:", videoDevice.framerate))
@@ -60,6 +61,7 @@ class VideoServer(threading.Thread):
                 print (("quality:", videoDevice.quality))
                 print (("device:", videoDevice.device))
                 print (("bufferSize:", videoDevice.bufferSize))
+                print (("arguments:", videoDevice.arguments))
 
     def startVideo(self, deviceId):
         videoDevice = self.videoDevices[deviceId]
@@ -91,6 +93,10 @@ class VideoServer(threading.Thread):
         libpath = '/usr/local/lib/'
         os.environ['LD_LIBRARY_PATH'] = libpath
 
+        arguments = ""
+        if videoDevice.arguments is not '':
+            arguments = ' ' + videoDevice.arguments
+
         command = ['mjpg_streamer -i \"' + libpath + 'input_uvc.so -n' +
                    ' -f ' + str(videoDevice.framerate) +
                    ' -r ' + videoDevice.resolution +
@@ -98,7 +104,8 @@ class VideoServer(threading.Thread):
                    ' -d ' + videoDevice.device +
                    '" -o \"' + libpath + 'output_zmqserver.so --address ' +
                    videoDevice.zmqUri +
-                   ' --buffer_size ' + str(videoDevice.bufferSize) + '\"']
+                   ' --buffer_size ' + str(videoDevice.bufferSize) + '\"' +
+                   arguments]
 
         if self.debug:
             print (("command:", command))

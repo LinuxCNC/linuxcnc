@@ -13,7 +13,7 @@ $(call TOOBJSDEPS, $(PASM_SRCS)) : EXTRAFLAGS=-Wall -D_UNIX_
 
 ../bin/pasm: $(call TOOBJS, $(PASM_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^
 
 USERSRCS += $(PASM_SRCS)
 TARGETS += $(PASM_HOST)

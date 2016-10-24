@@ -40,61 +40,6 @@ py_val=`$PYTHON -c "dnl
 AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
 ])
 
-# Python module import test
-#
-# adapted from AX_BOOST_PYTHON_MURRAYC
-# http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
-m4_define([AX_BOOST_PYTHON_EMC],
-[
-AC_LANG_PUSH([C++])
-saved_CPPFLAGS=$CPPFLAGS
-saved_LIBS=$LIBS
-# Note that this requires PYTHON_CPPFLAGS
-# Note that this expects boost/ to be at some top-level such as /usr/include/
-# We couldn't check for anything else anyway because there's no pkg-config file to tell us where it is
-CPPFLAGS="$PYTHON_CPPFLAGS $saved_CPPFLAGS"
-AC_CACHE_CHECK([whether the Boost::Python headers are available],
-               [ac_cv_boost_python],
-               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <boost/python/module.hpp>
-using namespace boost::python;
-BOOST_PYTHON_MODULE(test) { (void)0; }
-]], [])],
-    [ac_cv_boost_python=yes], [ac_cv_boost_python=no])])
-
-AS_IF([test "x$ac_cv_boost_python" = xyes],
-[
-  BOOST_PYTHON_LIBS=
-  ax_python_lib=boost_python
-  AC_ARG_WITH([boost-python],
-              [AS_HELP_STRING([--with-boost-python],
-                              [specify the boost python shared library to use. For instance, --with-boost-python=boost_python-py25. Defaults to boost-python. If you use this then you should probably set PYTHON too, to avoid using multiple python versions.])],
-  [if test "x$with_boost_python" != xno; then
-    ax_python_lib=$with_boost_python
-    ax_boost_python_lib=boost_python-$with_boost_python
-  fi])
-  AC_MSG_CHECKING([for boost::python shared library])
-  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
-  do
-    # Note that this requires LIBPYTHON from configure.ac
-    LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
-    AC_LINK_IFELSE(
-      [AC_LANG_PROGRAM([[#include <boost/python.hpp>]], [[boost::python::object test_object;]])],
-      [BOOST_PYTHON_LIBS="-l$ax_lib"; break])
-  done
-  AS_IF([test "x$BOOST_PYTHON_LIBS" != x], [ax_result=$BOOST_PYTHON_LIBS], [ax_result=])
-  AC_MSG_RESULT([$ax_result])
-])
-CPPFLAGS=$saved_CPPFLAGS
-LIBS=$saved_LIBS
-AC_LANG_POP([C++])
-AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
-      [AC_DEFINE([HAVE_BOOST_PYTHON], [1],
-                 [define if the Boost::Python headers and library are available])],
-      [AC_MSG_ERROR([[boost::python is required to build $PACKAGE_NAME]])])
-AC_SUBST([BOOST_PYTHON_LIBS])
-])
-
 # Cython Python Bindings generator
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
@@ -137,7 +82,6 @@ AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
-AC_PATH_PROG(ARCHCMD, arch)
 
 AC_PROG_CC
 AC_SUBST([CROSS_COMPILING],[$cross_compiling])
@@ -148,6 +92,7 @@ else
     AC_SUBST(CC_FOR_BUILD,$CC)
 fi
 
+AC_PROG_CXX
 AC_PROG_CPP()
 AC_CHECK_TOOL(OBJCOPY, objcopy)
 AC_CHECK_TOOL(LD, ld)
@@ -535,22 +480,12 @@ KSOURCE_LOCATION_HINTS=$(echo \
 # TARGET_PLATFORM_PC
 # TARGET_PLATFORM_SOCFPGA
 # TARGET_PLATFORM_BEAGLEBONE
+# TARGET_PLATFORM_CHIP
 # TARGET_PLATFORM_RASPBERRY
 # TARGET_PLATFORM_ZEDBOARD
 #
-# Platforms. set by --with-platform-{pc,beaglebone,socfpga,raspberry,zedboard}
+# Platforms. set by --with-platform-{pc,beaglebone,chip,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
-
-ARCHITECTURE=`$ARCHCMD`
-#
-# Architecture. Use output of arch(1).
-#
-# FIXME this will break 32-bit builds on 64-bit systems.  Need an
-# expert to figure out host/target arch, e.g. --host=i686-pc-linux-gnu
-# even when --build=x86_64-pc-linux-gnu
-#
-# This will cause issues on build servers that build for multiple
-# arches
 
 # xenomai equivalent of pkg-config
 XENO_CONFIG=
@@ -563,7 +498,7 @@ XENO_CONFIG=
 # Configure several basic features:                                          #
 # - some etc/linuxcnc/machinekit.ini  values                                 #
 # - the MKUUID instance UUID                                                 #
-# - Platform (PC, Raspberry Pi, BeagleBone,SocFpga, Zedboard)                        #
+# - Platform (PC, Raspberry Pi, CHIP, BeagleBone,SocFpga, Zedboard)                        #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
 # - emcweb UI                                                                #
@@ -674,6 +609,35 @@ AC_ARG_WITH(platform-beaglebone,
 	esac
     ])
 
+AC_ARG_WITH(platform-chip,
+    [AS_HELP_STRING(
+        [--with-platform-chip],
+	[Build for Chip platform (default for ARM arch)])],
+    [
+        case $with_platform_chip in
+	    (y*)
+	    	TARGET_PLATFORM_CHIP=true
+		platform_specified=true
+		platform_chip_reason="$cmdl_enab_msg"
+		;;
+	    (*)
+	    	TARGET_PLATFORM_CHIP=false
+		platform_chip_reason="$cmdl_disab_msg"
+		;;
+	esac
+    ],
+    [
+        case $host_cpu in
+	    (arm*)
+	        TARGET_PLATFORM_CHIP=unk
+		;;
+	    (*)
+	        TARGET_PLATFORM_CHIP=false
+		platform_chip_reason="$arch_disab_msg"
+		;;
+	esac
+    ])
+
 AC_ARG_WITH(platform-raspberry,
     [AS_HELP_STRING(
         [--with-platform-raspberry],
@@ -747,6 +711,10 @@ if $platform_specified; then
 	TARGET_PLATFORM_BEAGLEBONE=false
 	platform_beaglebone_reason="$cmdl_notspec_msg"
     fi
+    if test $TARGET_PLATFORM_CHIP = unk; then
+	TARGET_PLATFORM_CHIP=false
+	platform_chip_reason="$cmdl_notspec_msg"
+    fi
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
 	TARGET_PLATFORM_RASPBERRY=false
 	platform_raspberry_reason="$cmdl_notspec_msg"
@@ -771,6 +739,10 @@ else
         TARGET_PLATFORM_BEAGLEBONE=true
 	platform_beaglebone_reason="$arch_enab_msg"
     fi
+    if test $TARGET_PLATFORM_CHIP = unk; then
+        TARGET_PLATFORM_CHIP=true
+	platform_chip_reason="$arch_enab_msg"
+    fi
     if test $TARGET_PLATFORM_RASPBERRY = unk; then
         TARGET_PLATFORM_RASPBERRY=true
 	platform_raspberry_reason="$arch_enab_msg"
@@ -787,6 +759,9 @@ AC_MSG_RESULT([$platform_pc_reason])
 
 AC_MSG_CHECKING(platform-beaglebone)
 AC_MSG_RESULT([$platform_beaglebone_reason])
+
+AC_MSG_CHECKING(platform-chip)
+AC_MSG_RESULT([$platform_chip_reason])
 
 AC_MSG_CHECKING(platform-socfpga)
 AC_MSG_RESULT([$platform_socfpga_reason])
@@ -1483,11 +1458,12 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     CFLAGS_hold="$CFLAGS"
     CPPFLAGS_hold="$CPPFLAGS"
     LIBS="$LIBS $($XENOMAI_THREADS_RTS --ldflags)"
+    AC_PRUNE_DEFAULT_LDFLAGS(LIBS)
     CFLAGS="$CFLAGS $($XENOMAI_THREADS_RTS --cflags)"
     CPPFLAGS="$CPPFLAGS $($XENOMAI_THREADS_RTS --cflags)"
     AC_CHECK_LIB($XENOMAI_SKIN, rt_task_create,,
         with_xenomai=no; with_xenomai_kernel=no)
-    AC_CHECK_HEADER($XENOMAI_SKIN/task.h,,
+    AC_CHECK_HEADERS($XENOMAI_SKIN/task.h,,
         with_xenomai=no; with_xenomai_kernel=no)
     LIBS="$LIBS_hold"
     CFLAGS="$CFLAGS_hold"
@@ -1499,7 +1475,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
     # this CFLAG
-    if test "$ARCHITECTURE" != x86_64; then
+    if test "$host_cpu" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
@@ -1517,6 +1493,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
+    AC_PRUNE_DEFAULT_LDFLAGS(flags)
     XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
     XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
 fi
@@ -1816,8 +1793,6 @@ if test "$USE_PORTABLE_PARPORT_IO" = yes; then
 fi
 AC_SUBST(USE_PORTABLE_PARPORT_IO)
 
-AC_SUBST(ARCHITECTURE)
-
 # Platform
 if $TARGET_PLATFORM_PC; then
    AC_DEFINE(TARGET_PLATFORM_PC, [], [build for PC platform])
@@ -1836,6 +1811,12 @@ if $TARGET_PLATFORM_BEAGLEBONE; then
    target_platform_beaglebone_val=yes
 fi
 AC_SUBST(TARGET_PLATFORM_BEAGLEBONE,$target_platform_beaglebone_val)
+
+if $TARGET_PLATFORM_CHIP; then
+   AC_DEFINE(TARGET_PLATFORM_CHIP, [], [build for Chip platform])
+   target_platform_chip_val=yes
+fi
+AC_SUBST(TARGET_PLATFORM_CHIP,$target_platform_chip_val)
 
 if $TARGET_PLATFORM_RASPBERRY; then
    AC_DEFINE(TARGET_PLATFORM_RASPBERRY, [], [build for Raspberry Pi platform])
@@ -2246,8 +2227,13 @@ AC_ARG_ENABLE(gtk,
     [BUILD_GTK=yes])
 
 if test "$BUILD_GTK" = "yes"; then
-    PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,  [GTK_VER=`pkg-config gtk+-2.0 --modversion`],
-        [ AC_MSG_ERROR([no gtk+-2.0 found; use --disable-gtk])])
+    PKG_CHECK_MODULES([GTK], [gtk+-2.0 >= 2.4.0],
+	[
+    	    AC_DEFINE(HAVE_GTK, [1], [gtk > 2.4 available HAVE_GTK set])
+	    HAVE_GTK=yes
+	],
+	[ AC_MSG_ERROR([no gtk+-2.0 found; use --disable-gtk])]
+	[ AC_PRUNE_DEFAULT_LDFLAGS(GTK_LIBS) ] )
     PKG_CHECK_MODULES(GNOMEPRINT, libgnomeprintui-2.2,
         [
 	    GTK_CFLAGS="$GTK_CFLAGS $GNOMEPRINT_CFLAGS"
@@ -2257,7 +2243,7 @@ if test "$BUILD_GTK" = "yes"; then
 fi
 
 AC_SUBST(HAVE_GNOMEPRINT)
-AC_SUBST(GTK_VER)
+AC_SUBST(HAVE_GTK)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GLIB_LIBS)
@@ -2271,7 +2257,6 @@ AC_SUBST(GLIB_CFLAGS)
 ##############################################################################
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-AC_PROG_CXX
 
 # make this optional - it will likely only result in warnings
 AX_CXX_COMPILE_STDCXX_11(noext,optional)
@@ -2313,22 +2298,25 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-if test $INSMOD = "none"
-then
-    AC_MSG_ERROR([insmod not found])
-fi
+if test -n "${rtai_kernels}${xenomai_kernels}${shmdrv_kernels}"; then
+    # Kernel module tools only needed for kthreads
+    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+    if test $INSMOD = "none"
+    then
+	AC_MSG_ERROR([insmod not found])
+    fi
 
-AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-if test $RMMOD = "none"
-then
-    AC_MSG_ERROR([rmmod not found])
-fi
+    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+    if test $RMMOD = "none"
+    then
+	AC_MSG_ERROR([rmmod not found])
+    fi
 
-AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-if test $LSMOD = "none"
-then
-    AC_MSG_ERROR([lsmod not found])
+    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+    if test $LSMOD = "none"
+    then
+	AC_MSG_ERROR([lsmod not found])
+    fi
 fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
@@ -2408,159 +2396,157 @@ then
     AC_MSG_ERROR([python not found])
 fi
 
+AC_MSG_CHECKING(whether pydot capability required)
+AC_ARG_ENABLE(pydot,
+    [  --enable-pydot      enable python-pydot graphing],
+    [
+    PYDOT=yes
+    AC_PYTHON_MODULE(pydot, failed to import pydot
+     - python-pydot package missing? )
+
+    AC_PATH_PROG(XDOT, xdot, "none")
+    if test $XDOT = "none"
+    then
+        AC_MSG_ERROR([xdot not found - xdot package not installed?])
+    fi
+
+        AC_MSG_RESULT([checked for python-pydot and xdot])
+    ],
+    [
+      AC_MSG_RESULT([not checking for python-pydot and xdot])
+    ])
+
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
-    [  --enable-build-documentation[=format]   Build documentation.
-                          Format may be "pdf" or "html" if only one format is desired.],
+    [  --enable-build-documentation   Build asciidoc documentation.],
     [
-        case "$enableval" in
-        Y*|y*|html,pdf|pdf,html)
-            BUILD_DOCS=yes
-            BUILD_DOCS_PDF=yes
-            BUILD_DOCS_HTML=yes
-            AC_MSG_RESULT([PDF and HTML requested])
-        ;;
-        html)
-            BUILD_DOCS=yes
-            BUILD_DOCS_PDF=no
-            BUILD_DOCS_HTML=yes
-            AC_MSG_RESULT([HTML requested])
-	;;
-        pdf)
-            BUILD_DOCS=yes
-            BUILD_DOCS_PDF=yes
-            BUILD_DOCS_HTML=no
-            AC_MSG_RESULT([PDF requested])
-	;;
-        *)
-            BUILD_DOCS=no
-            AC_MSG_RESULT([no])
-        ;;
-    esac
+        BUILD_DOCS=yes
+        AC_MSG_RESULT([ASCIIDOC build requested])
     ],
     [
         BUILD_DOCS=no
         AC_MSG_RESULT([no])
     ])
 
+# don't need this crap, our asciidocs are generated or already present
 # Programs required for building all documentation
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    if ( test "none" = "$PYTHON" ) ; then
-        AC_MSG_ERROR([no python, documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
-    if ( test "none" = "$ASCIIDOC" ) ; then
-	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(A2X,a2x,"none")
-    if ( test "none" = "$A2X" ) ; then
-	AC_MSG_ERROR([no a2x, documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([asciidoc version])
-    set -- `asciidoc --version`; ASCIIDOC_VER=$2
-    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
-
-    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
-        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
-Documentation cannot be built.
-On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
-On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
-On other systems, do what you need to install asciidoc version 8.5 or newer.])
-    fi
-    AC_MSG_RESULT([$ASCIIDOC_VER])
-
-    AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`mktemp --suffix=.asciidoc`
-    cat > $temp_asciidoc <<EOF
-:lang: fr
-:ascii-ids:
-
-....
-umläut nuß
-....
-EOF
-    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
-    then
-        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
-        AC_MSG_RESULT(yes)
-    else
-        A2X_LATEX_ENCODING=""
-        AC_MSG_RESULT(no)
-    fi
-    AC_SUBST(A2X_LATEX_ENCODING)
-    rm -f $temp_asciidoc ${temp_asciidoc%.asciidoc}.pdf
-
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([dblatex version])
-    set -- `dblatex --version`; DBLATEX_VER=$3
-    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
-        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
-Documentation cannot be built.])
-    fi
-    AC_MSG_RESULT([$DBLATEX_VER])
-
-
-    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
-    fi
-
-
-    AC_PATH_PROG(CONVERT,convert,"none")
-    if ( test "none" = "$CONVERT" ) ; then
-	AC_MSG_ERROR([no convert, documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(GS,gs,"none")
-    if ( test "none" = "$GS" ) ; then
-	AC_MSG_ERROR([no gs, documentation cannot be built])
-    fi
-fi
+#if ( test "$BUILD_DOCS" = "yes" ) ; then
+#    if ( test "none" = "$PYTHON" ) ; then
+#        AC_MSG_ERROR([no python, documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
+#    if ( test "none" = "$ASCIIDOC" ) ; then#
+#	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(A2X,a2x,"none")
+#    if ( test "none" = "$A2X" ) ; then
+#	AC_MSG_ERROR([no a2x, documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([asciidoc version])
+#    set -- `asciidoc --version`; ASCIIDOC_VER=$2
+#    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
+#
+#    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
+#        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
+#Documentation cannot be built.
+#On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
+#On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
+#On other systems, do what you need to install asciidoc version 8.5 or newer.])
+#    fi
+#    AC_MSG_RESULT([$ASCIIDOC_VER])
+#
+#    AC_MSG_CHECKING([whether to specify latex.encoding])
+#    temp_asciidoc=`mktemp --suffix=.asciidoc`
+#    cat > $temp_asciidoc <<EOF
+#:lang: fr
+#:ascii-ids:
+#
+#....
+#umläut nuß
+#....
+#EOF
+#    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
+#    then
+#        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
+#        AC_MSG_RESULT(yes)
+#    else
+#        A2X_LATEX_ENCODING=""
+#        AC_MSG_RESULT(no)
+#    fi
+#    AC_SUBST(A2X_LATEX_ENCODING)
+#    rm -f $temp_asciidoc ${temp_asciidoc%.asciidoc}.pdf
+#
+#    AC_PATH_PROG(DBLATEX,dblatex,"none")
+#    if ( test "none" = "$DBLATEX" ) ; then
+#	AC_MSG_ERROR([no dblatex, documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([dblatex version])
+#    set -- `dblatex --version`; DBLATEX_VER=$3
+#    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+#
+#    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
+#        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
+#Documentation cannot be built.])
+#    fi
+#    AC_MSG_RESULT([$DBLATEX_VER])
+#
+#
+#    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+#    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+#	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
+#    fi
+#
+#
+#    AC_PATH_PROG(CONVERT,convert,"none")
+#    if ( test "none" = "$CONVERT" ) ; then
+#	AC_MSG_ERROR([no convert, documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(GS,gs,"none")
+#    if ( test "none" = "$GS" ) ; then
+#	AC_MSG_ERROR([no gs, documentation cannot be built])
+#    fi
+#fi
 
 # Programs required only for building the PDF documentation
-if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(PDFLATEX,pdflatex,"none")
-    if ( test "none" = "$PDFLATEX" ) ; then
-	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
-    fi
-fi
-
+#if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
+#    AC_PATH_PROG(DBLATEX,dblatex,"none")
+#    if ( test "none" = "$DBLATEX" ) ; then
+#	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(PDFLATEX,pdflatex,"none")
+#    if ( test "none" = "$PDFLATEX" ) ; then
+#	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
+#    fi
+#fi
+#
 # Programs required only for building the HTML documentation
-if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
-    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
-    if ( test "none" = "$XSLTPROC" ) ; then
-	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
-    fi
-
-    AC_PATH_PROG(DVIPNG,dvipng,"none")
-    if ( test "none" = "$DVIPNG" ) ; then
-	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([for HTML support in groff])
-    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
-    else
-        AC_MSG_RESULT(yes)
-    fi
-fi
+#if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
+#    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
+#    if ( test "none" = "$XSLTPROC" ) ; then
+#	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
+#    fi
+#
+#    AC_PATH_PROG(DVIPNG,dvipng,"none")
+#    if ( test "none" = "$DVIPNG" ) ; then
+#	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([for HTML support in groff])
+#    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
+#        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
+#    else
+#        AC_MSG_RESULT(yes)
+#    fi
+#fi
 AC_SUBST(BUILD_DOCS)
-AC_SUBST(BUILD_DOCS_PDF)
-AC_SUBST(BUILD_DOCS_HTML)
+#AC_SUBST(BUILD_DOCS_PDF)
+#AC_SUBST(BUILD_DOCS_HTML)
 
 ##############################################################################
 # Section 4 - Important headers, functions and gloabl defines.               #
@@ -2734,11 +2720,13 @@ SC_PATH_TCLCONFIG
 SC_LOAD_TCLCONFIG
 TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
 TCL_LIBS="$TCL_STUB_LIB_SPEC"
+AC_PRUNE_DEFAULT_LDFLAGS(TCL_LIBS)
 
 SC_PATH_TKCONFIG
 SC_LOAD_TKCONFIG
 TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
 TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+AC_PRUNE_DEFAULT_LDFLAGS(TK_LIBS)
 
 AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
      [path="$TCL_EXEC_PREFIX/bin:$PATH"])
@@ -2977,16 +2965,8 @@ if test "$BUILD_PYTHON" = "yes"; then
 	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of Machinekit that depend on Python])
     fi
 
-    AC_MSG_CHECKING([python version])
-    if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
-    then
-	AC_MSG_ERROR(Python version too old (2.4 or newer required))
-    fi
-    AC_MSG_RESULT(OK)
-
-    AC_MSG_CHECKING([version of python libraries])
-    LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
-    AC_MSG_RESULT($LIBPYTHON)
+    AX_PYTHON_DEVEL(>= 2.6)
+    AC_PRUNE_DEFAULT_LDFLAGS(PYTHON_LIBS)
 
     AC_MSG_CHECKING([match between tk and Tkinter versions])
 
@@ -3004,35 +2984,9 @@ Install this version and specify --with-tcl and --with-tk if necessary])
     fi
     AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
-    AC_MSG_CHECKING(location of Python header files)
-    INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
-    AC_MSG_RESULT($INCLUDEPY)
-
-    AC_MSG_CHECKING([for Python headers])
-    AS_IF([test "x$PYTHON_CPPFLAGS" = x],
-    [
-	_PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
-  	_PYTHON_SYSCONFIG([[get_python_inc(True)]],
-  	[test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
-    ])
-    AC_MSG_RESULT([$PYTHON_CPPFLAGS])
-    AC_SUBST(PYTHON_CPPFLAGS)
-
-    AC_MSG_CHECKING([for Python libraries])
-    AS_IF([test "x$PYTHON_LIBS" = x],
-    [
-	_PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
-    ])
-    AC_MSG_RESULT([$PYTHON_LIBS])
-    AC_SUBST(PYTHON_LIBS)
-
     # Get the CFLAGS and LIBS for boost::python.
-    # This does an AC_SUBST() of BOOST_PYTHON_LIBS
-    # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
-    AX_BOOST_PYTHON_EMC
-
-    AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
-	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of Machinekit that depend on Python])])
+    AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
+    AX_BOOST_PYTHON
 
     AC_MSG_CHECKING(for site-package location)
     SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
@@ -3059,13 +3013,10 @@ Install this version and specify --with-tcl and --with-tk if necessary])
 fi
 
 AC_SUBST([BUILD_PYTHON])
-AC_SUBST([LIBPYTHON])
-AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
 if test "$BUILD_EMCWEB" = yes; then
    # these are needed for the emcweb interface only
-   AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
    AX_BOOST_SERIALIZATION()
    AX_BOOST_THREAD()
    AX_BOOST_SYSTEM()
@@ -3077,7 +3028,6 @@ fi
 ##############################################################################
 AC_CONFIG_FILES([../scripts/gen-rtapi.ini.sh])
 AC_CONFIG_FILES([../scripts/check-build-vs-configure-sha], [chmod +x ../scripts/check-build-vs-configure-sha])
-AC_CONFIG_FILES([../man/man1/linuxcnc.1])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])

@@ -6,7 +6,7 @@
 #include <libwebsockets.h>
 
 #include <google/protobuf/text_format.h>
-#include <machinetalk/generated/message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 using namespace google::protobuf;
 
 #include "webtalk.hh"

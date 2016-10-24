@@ -1,0 +1,94 @@
+.\" Copyright (c) 2016 ArcEye <arceye@mgware.co.uk>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH machinekit "1"  "2016-08-09" "Machinekit Documentation" 
+.SH NAME
+\fBmachinekit \- Accessing Machinekit Manual Pages\fR
+
+.SH DESCRIPTION
+
+All Machinekit documentation has been reorganised.
+
+This stub is to assist users to find the information they are seeking.
+
+.SH WEBSITE
+
+troff man page builds have been deprecated as part of Machinekit
+
+The first port of call for manual pages (and all documentation) should be the website.
+
+\fBhttp://www.machinekit.io\fR
+
+From the right hand side bar - which is visible from anywhere in the 'Documentation' section, select either
+
+\fBhttp://www.machinekit.io/docs/man/man1/\fR  For information on utilities and GUIs
+
+\fBhttp://www.machinekit.io/docs/man/man3/\fR  For information on the hal and rtapi APIs
+
+\fBhttp://www.machinekit.io/docs/man/man9/\fR  For information on components and drivers
+
+.SH MANUAL PAGES PACKAGE
+
+To cater for terminal viewing locally, a second option is available
+
+A Package called \fB'machinekit-manual-pages'\fR is now automatically created as part of the website build process.
+
+This is available from deb.machinekit.io as per any other package.
+
+The manual pages will then be available at /usr/share/doc/machinekit/man
+
+You can display the pages easily with the asciidoctor plugin for firefox
+
+\fBhttps://addons.mozilla.org/en-GB/firefox/addon/asciidoctorjs-live-preview/\fR
+
+or for chrome
+
+\fBhttps://chrome.google.com/webstore/detail/asciidoctorjs-live-preview/iaalpfgpbocpdfblpnhhgllgbdbchmia?hl=en\fR
+
+Alternately, for a terminal display of manual pages, the Machinekit package now contains a script called \fBmank\fR.
+
+Invoking \fB'mank debounce'\fR for instance, will display the manual page for the component \fBdebounce\fR
+
+\fBmank\fR uses \fBasciidoctor\fR and \fBelinks\fR and will prompt for their installation if not present.
+
+They were not made dependencies of the machinekit package deliberately, as the overwhelming majority of users are likely
+
+to simply use the web site and never install the local manual pages.
+
+(NB If you are a developer and use the --view-doc option to (inst)comp, you will need asciidoctor and elinks for that to operate.)
+
+.SH NOTE
+
+Remember that many programs and utilities have their own help system.
+
+Also try <program-name> -h or --help
+
+.SH AUTHOR
+This man page written by ArcEye, as part of the Machinekit project.
+
+.SH REPORTING BUGS
+Report bugs to https://groups.google.com/forum/#!forum/machinekit
+
+.SH LICENCE
+GPL2 or higher.

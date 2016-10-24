@@ -47,7 +47,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
-	    -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) -ldl
+	    -lstdc++ -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) -ldl
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@
@@ -75,7 +75,7 @@ $(call TOOBJSDEPS, $(PREVIEWMODULESRCS)) : EXTRAFLAGS += -Ihal/haltalk $(CZMQ_CF
 PREVIEWMODULE := ../lib/python/preview.so
 $(PREVIEWMODULE): $(call TOOBJS, $(PREVIEWMODULESRCS)) \
 	../lib/librs274.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS)  $(PROTOBUF_LIBS)

@@ -38,8 +38,12 @@ component weighted_sum "Weighted Summer for Machinekit HAL";
 
 pin in bit in##[pincount] "The ## inputs of weighted summer";
 
-pin in bit hold "When TRUE, the sum output does not change. \
-	When FALSE, the sum output tracks the bit inputs according to the weights and offset.";
+pin in bit hold 
+"""
+When TRUE, the sum output does not change.
+
+When FALSE, the sum output tracks the bit inputs according to the weights and offset.
+""";
 
 pin out s32 sum "The output of the weighted summer";
 

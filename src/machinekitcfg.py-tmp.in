@@ -141,7 +141,6 @@ class Config(object):
         self.TARGET_PLATFORM_SOCFPGA = "@TARGET_PLATFORM_SOCFPGA@"
         self.TARGET_PLATFORM_BEAGLEBONE = "@TARGET_PLATFORM_BEAGLEBONE@"
         self.TARGET_PLATFORM_RASPBERRY = "@TARGET_PLATFORM_RASPBERRY@"
-        self.ARCHITECTURE="@ARCHITECTURE@"
 
         self.USERMODE_PCI="@USERMODE_PCI@"
 
@@ -166,7 +165,7 @@ class Config(object):
         self.GLIB_LIBS = "@GLIB_LIBS@"
 
         # local flags for GTK include
-        self.GTK_VERSION = "@GTK_VER@"
+        self.HAVE_GTK = "@HAVE_GTK@"
         self.GTK_CFLAGS = "@GTK_CFLAGS@"
         self.GTK_LIBS = "@GTK_LIBS@"
         self.HAVE_GNOMEPRINT = "@HAVE_GNOMEPRINT@"

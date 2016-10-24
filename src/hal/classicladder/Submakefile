@@ -1,4 +1,4 @@
-ifneq ($(GTK_VERSION),)
+ifdef HAVE_GTK
 CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
 	arrays.c \

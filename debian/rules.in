@@ -17,7 +17,7 @@
 # For cross-compiling
 include /usr/share/dpkg/architecture.mk
 ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-	set DEB_BUILD_OPTIONS=nocheck 
+DEB_BUILD_OPTIONS += nocheck
 endif
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
@@ -119,7 +119,6 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	rm -f \
 	    lib/python/machinekit/config.py \
 	    lib/python/nf.py \
-	    man/man1/linuxcnc.1 \
 	    scripts/check-build-vs-configure-sha \
 	    scripts/gen-rtapi.ini.sh \
 	    scripts/gen-rtapi.ini.sh.in \
@@ -191,7 +190,7 @@ endif
 	fi
 
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
-	
+
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
@@ -215,7 +214,6 @@ binary-arch: build install
 
 #	# delete files that should be in machinekit-dev package
 	rm -f debian/machinekit/usr/bin/comp
-	rm -f debian/machinekit/usr/share/man/man1/comp.1.gz
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
 

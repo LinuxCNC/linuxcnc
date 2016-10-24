@@ -13,7 +13,8 @@ import argparse
 from urlparse import urlparse
 import shutil
 import subprocess
-
+import re
+import codecs
 import ConfigParser
 import linuxcnc
 from machinekit import service
@@ -24,13 +25,13 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
 from google.protobuf.message import DecodeError
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
-from status_pb2 import *
-from preview_pb2 import *
-from motcmds_pb2 import *
-from object_pb2 import ProtocolParameters
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.config_pb2 import *
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.status_pb2 import *
+from machinetalk.protobuf.preview_pb2 import *
+from machinetalk.protobuf.motcmds_pb2 import *
+from machinetalk.protobuf.object_pb2 import ProtocolParameters
 
 
 def printError(msg):
@@ -346,6 +347,7 @@ class LinuxCNCWrapper():
         self.ioSubscribed = False
         self.ioFullUpdate = False
         self.ioFirstrun = True
+        self.ioToolTableCount = 0
         self.taskSubscribed = False
         self.taskFullUpdate = False
         self.taskFirstrun = True
@@ -395,6 +397,10 @@ class LinuxCNCWrapper():
 
             # initialize total line count
             self.totalLines = 0
+            # initialize tool table path
+            self.toolTablePath = self.ini.find('EMCIO', 'TOOL_TABLE') or ''
+            if self.toolTablePath is not '':
+                self.toolTablePath = os.path.abspath(os.path.expanduser(self.toolTablePath))
             # If specified in the ini, try to open the  default file
             openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
             openFile = openFile.strip('"')  # quote signs are allowed
@@ -595,6 +601,56 @@ class LinuxCNCWrapper():
             self.totalLines = sum(1 for line in f)
         return filePath
 
+    def load_tool_table(self, io, txIo):
+        if self.toolTablePath is '':
+            return
+
+        lines = []
+        with codecs.open(self.toolTablePath, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        # parsing pocket number and comment, not emc status object
+        toolMap = {}
+        regex = re.compile(r'(?:.*T(\d+))(?:.*P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
+        for line in lines:
+            match = regex.match(line)
+            if match:
+                id = int(match.group(1))
+                pocket = match.group(2)
+                comment = match.group(3)
+                if pocket == '':
+                    pocket = 0
+                toolMap[id] = {'pocket': int(pocket), 'comment': comment}
+
+        for i, toolResult in enumerate(io.tool_table):
+            txToolResult = None
+            for result in txIo.tool_table:
+                if result.index == toolResult.index:
+                    txToolResult = result
+            if not txToolResult:
+                txToolResult = txIo.tool_table.add()
+                txToolResult.CopyFrom(toolResult)
+            id = toolResult.id
+            if id in toolMap:
+                toolResult.pocket = toolMap[id]['pocket']
+                toolResult.comment = toolMap[id]['comment']
+                txToolResult.pocket = toolMap[id]['pocket']
+                txToolResult.comment = toolMap[id]['comment']
+
+    def update_tool_table(self, toolTable):
+        if self.toolTablePath is '':
+            return False
+
+        with codecs.open(self.toolTablePath, 'w', encoding='utf-8') as file:
+            for tool in toolTable:
+                line = 'T%d P%d D%f X%+f Y%+f Z%+f A%+f B%+f C%+f U%+f V%+f W%+f I%+f J%+f Q%d ;%s\n' \
+                % (tool.id, tool.pocket, tool.diameter, tool.offset.x, tool.offset.y, tool.offset.z,
+                   tool.offset.a, tool.offset.b, tool.offset.c, tool.offset.u, tool.offset.v, tool.offset.w,
+                   tool.frontangle, tool.backangle, tool.orientation, tool.comment)
+                file.write(line)
+
+        return True
+
     def notEqual(self, a, b):
         threshold = 0.0001
         return abs(a - b) > threshold
@@ -720,16 +776,15 @@ class LinuxCNCWrapper():
 
         if self.configFirstrun:
             self.status.config.default_acceleration = 0.0
-            self.status.config.angular_units = 0.0
+            self.status.config.angular_units = ANGULAR_UNITS_DEGREES
             self.status.config.axes = 0
             self.status.config.axis_mask = 0
             self.status.config.cycle_time = 0.0
             self.status.config.debug = 0
             self.status.config.kinematics_type = KINEMATICS_IDENTITY
-            self.status.config.linear_units = 0.0
+            self.status.config.linear_units = LINEAR_UNITS_MM
             self.status.config.max_acceleration = 0.0
             self.status.config.max_velocity = 0.0
-            self.status.config.program_units = CANON_UNITS_INCHES
             self.status.config.default_velocity = 0.0
             self.status.config.position_offset = EMC_CONFIG_RELATIVE_OFFSET
             self.status.config.position_feedback = EMC_CONFIG_ACTUAL_FEEDBACK
@@ -855,16 +910,37 @@ class LinuxCNCWrapper():
                 timeUnitsConverted = TIME_UNITS_MINUTE
             modified |= self.update_config_value('time_units', timeUnitsConverted)
 
+            linearUnits = str(self.ini.find('TRAJ', 'LINEAR_UNITS') or 'mm')
+            if linearUnits in ['mm', 'metric']:
+                linearUnitsConverted = LINEAR_UNITS_MM
+            elif linearUnits in ['in', 'inch', 'imperial']:
+                linearUnitsConverted = LINEAR_UNITS_INCH
+            elif linearUnits in ['cm']:
+                linearUnitsConverted = LINEAR_UNITS_CM
+            else:
+                linearUnitsConverted = LINEAR_UNITS_MM
+            modified |= self.update_config_value('linear_units', linearUnitsConverted)
+
+            angularUnits = str(self.ini.find('TRAJ', 'ANGULAR_UNITS') or 'deg')
+            if angularUnits in ['deg', 'degree']:
+                angularUnitsConverted = ANGULAR_UNITS_DEGREES
+            elif angularUnits in ['rad', 'radian']:
+                angularUnitsConverted = ANGULAR_UNITS_RADIAN
+            elif angularUnits in ['grad', 'gon']:
+                angularUnitsConverted = ANGULAR_UNTIS_GRAD
+            else:
+                angularUnitsConverted = ANGULAR_UNITS_DEGREES
+            modified |= self.update_config_value('angular_units', angularUnitsConverted)
+
             modified |= self.update_config_value('remote_path', self.directory)
 
             name = str(self.ini.find('EMC', 'MACHINE') or '')
             modified |= self.update_config_value('name', name)
 
-        for name in ['axis_mask', 'debug', 'kinematics_type', 'program_units',
-                     'axes']:
+        for name in ['axis_mask', 'debug', 'kinematics_type', 'axes']:
             modified |= self.update_config_value(name, getattr(stat, name))
 
-        for name in ['cycle_time', 'linear_units', 'angular_units']:
+        for name in ['cycle_time']:
             modified |= self.update_config_float(name, getattr(stat, name))
 
         modified |= self.update_config_float('default_acceleration', stat.acceleration)
@@ -881,13 +957,12 @@ class LinuxCNCWrapper():
             if len(self.status.config.axis) == index:
                 self.status.config.axis.add()
                 self.status.config.axis[index].index = index
-                self.status.config.axis[index].axisType = EMC_AXIS_LINEAR
+                self.status.config.axis[index].axis_type = EMC_AXIS_LINEAR
                 self.status.config.axis[index].backlash = 0.0
                 self.status.config.axis[index].max_ferror = 0.0
                 self.status.config.axis[index].max_position_limit = 0.0
                 self.status.config.axis[index].min_ferror = 0.0
                 self.status.config.axis[index].min_position_limit = 0.0
-                self.status.config.axis[index].units = 0.0
                 self.status.config.axis[index].home_sequence = -1
                 self.status.config.axis[index].max_velocity = 0.0
                 self.status.config.axis[index].max_acceleration = 0.0
@@ -912,10 +987,10 @@ class LinuxCNCWrapper():
                                                         'increments', value)
 
             axis = self.status.config.axis[index]
-            axisModified |= self.update_proto_value(axis, txAxis, 'axisType', statAxis['axisType'])
+            axisModified |= self.update_proto_value(axis, txAxis, 'axis_type', statAxis['axisType'])
 
             for name in ['backlash', 'max_ferror', 'max_position_limit',
-                         'min_ferror', 'min_position_limit', 'units']:
+                         'min_ferror', 'min_position_limit']:
                 axisModified |= self.update_proto_float(axis, txAxis, name, statAxis[name])
 
             if axisModified:
@@ -954,32 +1029,31 @@ class LinuxCNCWrapper():
                                                'tool_offset', stat.tool_offset)
 
         txToolResult = EmcToolData()
+        toolTableChanged = False
+        tableIndex = 0
         for index, statToolResult in enumerate(stat.tool_table):
             txToolResult.Clear()
             resultModified = False
 
-            if (statToolResult.id == -1) and (index > 0):  # last tool in table
-                break
+            if (index == 0):  # TODO: consider [EMCIO]RANDOM_TOOL_CHANGER
+                continue
 
-            if len(self.status.io.tool_table) == index:
+            if (statToolResult.id == -1):
+                break  # last tool in table, except index = 0 (spindle !)
+
+            if len(self.status.io.tool_table) == tableIndex:
                 self.status.io.tool_table.add()
-                self.status.io.tool_table[index].index = index
-                self.status.io.tool_table[index].id = 0
-                self.status.io.tool_table[index].xOffset = 0.0
-                self.status.io.tool_table[index].yOffset = 0.0
-                self.status.io.tool_table[index].zOffset = 0.0
-                self.status.io.tool_table[index].aOffset = 0.0
-                self.status.io.tool_table[index].bOffset = 0.0
-                self.status.io.tool_table[index].cOffset = 0.0
-                self.status.io.tool_table[index].uOffset = 0.0
-                self.status.io.tool_table[index].vOffset = 0.0
-                self.status.io.tool_table[index].wOffset = 0.0
-                self.status.io.tool_table[index].diameter = 0.0
-                self.status.io.tool_table[index].frontangle = 0.0
-                self.status.io.tool_table[index].backangle = 0.0
-                self.status.io.tool_table[index].orientation = 0
+                self.status.io.tool_table[tableIndex].index = tableIndex
+                self.status.io.tool_table[tableIndex].id = 0
+                self.status.io.tool_table[tableIndex].offset.MergeFrom(self.zero_position())
+                self.status.io.tool_table[tableIndex].diameter = 0.0
+                self.status.io.tool_table[tableIndex].frontangle = 0.0
+                self.status.io.tool_table[tableIndex].backangle = 0.0
+                self.status.io.tool_table[tableIndex].orientation = 0
+                self.status.io.tool_table[tableIndex].comment = ""
+                self.status.io.tool_table[tableIndex].pocket = 0
 
-            toolResult = self.status.io.tool_table[index]
+            toolResult = self.status.io.tool_table[tableIndex]
 
             for name in ['id', 'orientation']:
                 value = getattr(statToolResult, name)
@@ -990,15 +1064,39 @@ class LinuxCNCWrapper():
                 resultModified |= self.update_proto_float(toolResult, txToolResult,
                                                           name, value)
 
-            for axis in ['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']:
+            position = range(0, 9)
+            for i, axis in enumerate(['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']):
                 value = getattr(statToolResult, axis + 'offset')
-                resultModified |= self.update_proto_float(toolResult, txToolResult,
-                                                          axis + 'Offset', value)
+                position[i] = value
+            resultModified |= self.update_proto_position(toolResult, txToolResult,
+                                                         'offset', position)
 
             if resultModified:
-                txToolResult.index = index
+                txToolResult.index = tableIndex
                 self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
+                toolTableChanged = True
+
+            tableIndex += 1
+
+        # cleanup dead entries
+        while tableIndex < len(self.status.io.tool_table):
+            del self.status.io.tool_table[-1]
+
+        # check if new tool table is smaller
+        # if so we need to send empty messages (only index) to the subscribers
+        if tableIndex < self.ioToolTableCount:
+            for i in range(tableIndex, self.ioToolTableCount):
+                txToolResult.Clear()
+                txToolResult.index = i
+                self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
+            toolTableChanged = True
+        self.ioToolTableCount = tableIndex
+
+        if toolTableChanged:
+            # update pocket and comment from tool table file
+            self.load_tool_table(self.status.io, self.statusTx.io)
+            modified = True
         del txToolResult
 
         if self.ioFullUpdate:
@@ -1045,9 +1143,10 @@ class LinuxCNCWrapper():
             self.status.interp.command = ""
             self.status.interp.interp_state = EMC_TASK_INTERP_IDLE
             self.status.interp.interpreter_errcode = 0
+            self.status.interp.program_units = CANON_UNITS_INCH
             self.interpFirstrun = False
 
-        for name in ['command', 'interp_state', 'interpreter_errcode']:
+        for name in ['command', 'interp_state', 'interpreter_errcode', 'program_units']:
             modified |= self.update_interp_value(name, getattr(stat, name))
 
         txObjItem = EmcStatusGCode()
@@ -1444,6 +1543,14 @@ class LinuxCNCWrapper():
         self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
 
+    def send_command_completed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+
+    def send_command_executed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+
     def command_completion_process(self, event):
         self.command.wait_complete()  # wait for emcmodule
         event.set()  # inform the listening thread
@@ -1455,15 +1562,13 @@ class LinuxCNCWrapper():
                                 args=(event,)).start()
         # wait until the command is completed
         event.wait()
-        self.txCommand.reply_ticket = ticket
-        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+        self.send_command_completed(identity, ticket)
 
         if self.debug:
             print('command #%i from %s completed' % (ticket, identity))
 
     def wait_complete(self, identity, ticket):
-        self.txCommand.reply_ticket = ticket
-        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+        self.send_command_executed(identity, ticket)
 
         if self.debug:
             print('waiting for command #%ifrom %s to complete' % (ticket, identity))
@@ -1635,11 +1740,6 @@ class LinuxCNCWrapper():
                 else:
                     self.send_command_wrong_params(identity)
 
-            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
-                self.command.load_tool_table()
-                if self.rx.HasField('ticket'):
-                        self.wait_complete(identity, self.rx.ticket)
-
             elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('velocity'):
@@ -1700,7 +1800,11 @@ class LinuxCNCWrapper():
                             if self.rx.HasField('ticket'):
                                 self.wait_complete(identity, self.rx.ticket)
                         elif self.rx.interp_name == 'preview':
+                            if self.rx.HasField('ticket'):
+                                self.send_command_executed(identity, self.rx.ticket)
                             self.preview.program_open(fileName)
+                            if self.rx.HasField('ticket'):
+                                self.send_command_completed(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
@@ -1911,19 +2015,25 @@ class LinuxCNCWrapper():
                 else:
                     self.send_command_wrong_params(identity)
 
+            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
+                self.command.load_tool_table()
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
+
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('tool_data') \
-                and self.rx.emc_command_params.tool_data.index \
-                and self.rx.emc_command_params.tool_data.zOffset \
-                and self.rx.emc_command_params.tool_data.xOffset \
-                and self.rx.emc_command_params.tool_data.diameter \
-                and self.rx.emc_command_params.tool_data.frontangle \
-                and self.rx.emc_command_params.tool_data.backangle \
-                and self.rx.emc_command_params.tool_data.orientation:
+                and self.rx.emc_command_params.tool_data.HasField('offset') \
+                and self.rx.emc_command_params.tool_data.HasField('index') \
+                and self.rx.emc_command_params.tool_data.offset.HasField('z') \
+                and self.rx.emc_command_params.tool_data.offset.HasField('x') \
+                and self.rx.emc_command_params.tool_data.HasField('diameter') \
+                and self.rx.emc_command_params.tool_data.HasField('frontangle') \
+                and self.rx.emc_command_params.tool_data.HasField('backangle') \
+                and self.rx.emc_command_params.tool_data.HasField('orientation'):
                     toolno = self.rx.emc_command_params.tool_data.index
-                    z_offset = self.rx.emc_command_params.tool_data.zOffset
-                    x_offset = self.rx.emc_command_params.tool_data.xOffset
+                    z_offset = self.rx.emc_command_params.tool_data.offset.z
+                    x_offset = self.rx.emc_command_params.tool_data.offset.x
                     diameter = self.rx.emc_command_params.tool_data.diameter
                     frontangle = self.rx.emc_command_params.tool_data.frontangle
                     backangle = self.rx.emc_command_params.tool_data.backangle
@@ -1932,6 +2042,17 @@ class LinuxCNCWrapper():
                         frontangle, backangle, orientation)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
+                else:
+                    self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TOOL_UPDATE_TOOL_TABLE:
+                if self.rx.HasField('emc_command_params'):
+                    if self.rx.HasField('ticket'):
+                        self.send_command_executed(identity, self.rx.ticket)
+                    if not self.update_tool_table(self.rx.emc_command_params.tool_table):
+                        self.add_error('Cannot update tool table')
+                    if self.rx.HasField('ticket'):
+                        self.send_command_completed(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 

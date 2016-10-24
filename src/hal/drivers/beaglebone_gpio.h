@@ -5,6 +5,13 @@
 #define CONTROL_MODULE_END_ADDR	0x44E11FFF
 #define CONTROL_MODULE_SIZE	(CONTROL_MODULE_END_ADDR - CONTROL_MODULE_START_ADDR)
 
+#define CM_PER_ADDR 0x44E00000
+#define CM_PER_LEN 1024
+#define CM_PER_GPIO1_CLKCTRL_OFFSET 0xAC
+#define CM_PER_GPIO_CLKCTRL_MODMODE_MASK     0x00000003
+#define CM_PER_GPIO_CLKCTRL_MODMODE_ENABLED  0x00000002
+#define CM_PER_GPIO_CLKCTRL_MODMODE_DISABLED 0x00000000
+
 #define PIN_RX_DISABLED 0
 #define PIN_RX_ENABLED  (1<<5)
 
@@ -77,7 +84,7 @@ bb_gpio_pin p8_pins[47] = {
 	{ NULL, 1,  6, 0x818, 0 }, // pin 3, gpmc_ad6
 	{ NULL, 1,  7, 0x81C, 0 }, // pin 4, gpmc_ad7
 	{ NULL, 1,  2, 0x808, 0 }, // pin 5, gpmc_ad2
-	{ NULL, 1,  3, 0x803, 0 }, // pin 6, gpmc_ad3
+	{ NULL, 1,  3, 0x80C, 0 }, // pin 6, gpmc_ad3
 	{ NULL, 2,  2, 0x890, 0 }, // pin 7, gpmc_advn_ale
 	{ NULL, 2,  3, 0x894, 0 }, // pin 8, gpmc_oen_ren
 	{ NULL, 2,  5, 0x89C, 0 }, // pin 9, gpmc_ben0_cle

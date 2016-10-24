@@ -20,7 +20,7 @@ don't connect the extra pin.
 
 *******************************************************************************/
 
-component multiswitch           """This component toggles between a specified number of output bits""";
+component multiswitch "Switch toggles between a specified number of output bits";
 
 pin in bit up = false           "Receives signal to toggle up";
 pin in bit down = false         "Receives signal to toggle down";

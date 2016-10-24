@@ -1,5 +1,8 @@
 component stats "compute mean and variance of a value";
-// http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+see_also
+"""
+http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+""";
 pin in float in;
 pin in bit enable "";
 pin out float mean;
@@ -23,7 +26,7 @@ FUNCTION(_)
     if (enable) {
 	n += 1;
 	delta = in - mean;
-	mean = mean + (hal_float_t)delta/n;
+	mean = mean + delta/(hal_float_t)n;
 	m2 = m2 + delta * (in - mean);
 	variance = m2/(hal_float_t)(n-1);
     }

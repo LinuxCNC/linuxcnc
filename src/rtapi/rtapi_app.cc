@@ -67,7 +67,7 @@
 #include <czmq.h>
 #include <google/protobuf/text_format.h>
 
-#include <machinetalk/generated/message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 #include <pbutil.hh>  // note_printf(pb::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
@@ -327,7 +327,7 @@ static int do_kmodinst_args(const string &comp,
 			param_name.c_str());
 	    return -ENOENT;
 	}
-	int retval = procfs_cmd(path.c_str(), param_value.c_str());
+	int retval = rtapi_fs_write(path.c_str(), param_value.c_str());
 	if (retval < 0) {
 	    note_printf(pbreply, "newinst %s: setting param %s to %s failed:  %d - %s",
 			comp.c_str(),
@@ -363,15 +363,48 @@ static void usrfunct_error(const int retval,
 		func.c_str(), s.c_str(), retval, strerror(-retval));
 }
 
-// split arg array into key=value, others
+// separate instance args of the legacy type (name=value)
+// from any other non-legacy params which should go into newinst argv
+//
+// given an args array like:
+// foo=bar baz=123 -- blah=fasel --foo=123 -c
+//
+// '--' is skipped and is the separator between legacy args
+// and any others passed to newinst as argc/argv
+//
+// the above arguments are split into
+// kvpairs:   foo=bar baz=123
+// leftovers:     blah=fasel --foo=123 -c
+//
+// scenario 2 - kv pairs followed by getop-style options:
+// foo=bar baz=123 --baz --fasel=123 -c blah=4711
+//
+// the above arguments are split into
+// kvpairs:   foo=bar baz=123
+// leftovers:  --baz --fasel=123 -c blah=4711
+//
+// i.e. any argument following an option starting with '--' is
+// treated as leftovers argument, even if it has a key=value syntax
+//
 static void separate_kv(pbstringarray_t &kvpairs,
-		    pbstringarray_t &leftovers,
-		    const pbstringarray_t &args)
+			pbstringarray_t &leftovers,
+			const pbstringarray_t &args)
 {
-    for(int i = 0; i < args.size(); i++) {
+    bool extra = false;
+    string prefix = "--";
+    for (int i = 0; i < args.size(); i++) {
         string s(args.Get(i));
 	remove_quotes(s);
-        if (s.find('=') == string::npos)
+	if (s == prefix) { // standalone separator '--'
+	    extra = true;
+	    continue; // skip this argument
+	}
+	// no separator, but an option starting with -- like '--foo'
+	// pass this, and any following arguments and options to leftovers
+	if (std::equal(prefix.begin(), prefix.end(), s.begin()))
+	    extra = true;
+
+        if (extra)
 	    leftovers.Add()->assign(s);
 	else
 	    kvpairs.Add()->assign(s);
@@ -391,10 +424,10 @@ static int do_newinst_cmd(int instance,
 	string s = pbconcat(args);
 	retval = do_kmodinst_args(comp,args,pbreply);
 	if (retval) return retval;
-	return procfs_cmd(PROCFS_RTAPICMD,"call newinst %s %s %s",
-			  comp.c_str(),
-			  instname.c_str(),
-			  s.c_str());
+	return rtapi_fs_write(PROCFS_RTAPICMD,"call newinst %s %s %s",
+			      comp.c_str(),
+			      instname.c_str(),
+			      s.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
@@ -453,7 +486,7 @@ static int do_delinst_cmd(int instance,
 
 
     if (kernel_threads(flavor)) {
-	return procfs_cmd(PROCFS_RTAPICMD,"call delinst %s", instname.c_str());
+	return rtapi_fs_write(PROCFS_RTAPICMD,"call delinst %s", instname.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
@@ -481,7 +514,7 @@ static int do_callfunc_cmd(int instance,
 
     if (kernel_threads(flavor)) {
 	string s = pbconcat(args);
-	return procfs_cmd(PROCFS_RTAPICMD,"call %s %s", func.c_str(), s.c_str());
+	return rtapi_fs_write(PROCFS_RTAPICMD,"call %s %s", func.c_str(), s.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
@@ -622,6 +655,11 @@ static int do_load_cmd(int instance,
 // shut down the stack in reverse loading order
 static void exit_actions(int instance)
 {
+    void *w = modules["hal_lib"];
+    int (*exit_threads)(void) =
+		DLSYM<int(*)(void)>(w,"hal_exit_threads");
+    exit_threads();
+
     pb::Container reply;
     size_t index = loading_order.size() - 1;
     for(std::vector<std::string>::reverse_iterator rit = loading_order.rbegin();
@@ -867,12 +905,12 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_flags());
 
 	if (kernel_threads(flavor)) {
-	    int retval =  procfs_cmd(PROCFS_RTAPICMD,"newthread %s %d %d %d %d",
-				     pbreq.rtapicmd().threadname().c_str(),
-				     pbreq.rtapicmd().threadperiod(),
-				     pbreq.rtapicmd().use_fp(),
-				     pbreq.rtapicmd().cpu(),
-				     pbreq.rtapicmd().flags());
+	    int retval =  rtapi_fs_write(PROCFS_RTAPICMD,"newthread %s %d %d %d %d",
+					 pbreq.rtapicmd().threadname().c_str(),
+					 pbreq.rtapicmd().threadperiod(),
+					 pbreq.rtapicmd().use_fp(),
+					 pbreq.rtapicmd().cpu(),
+					 pbreq.rtapicmd().flags());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 
 	} else {
@@ -910,8 +948,8 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	assert(pbreq.rtapicmd().has_instance());
 
 	if (kernel_threads(flavor)) {
-	    int retval =  procfs_cmd(PROCFS_RTAPICMD, "delthread %s",
-					   pbreq.rtapicmd().threadname().c_str());
+	    int retval =  rtapi_fs_write(PROCFS_RTAPICMD, "delthread %s",
+					 pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 	} else {
 	    void *w = modules["hal_lib"];
@@ -920,14 +958,26 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		pbreply.set_retcode(-1);
 		break;
 	    }
-	    int (*delete_thread)(const char *) =
-		DLSYM<int(*)(const char *)>(w,"hal_thread_delete");
-	    if (delete_thread == NULL) {
-		pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
-		pbreply.set_retcode(-1);
-		break;
+	    int retval;
+	    if (pbreq.rtapicmd().threadname() == "all") {
+		int (*exit_threads)(void) =
+		    DLSYM<int(*)(void)>(w,"hal_exit_threads");
+		if (exit_threads == NULL) {
+		    pbreply.add_note("symbol 'hal_exit_threads' not found in hal_lib");
+		    pbreply.set_retcode(-1);
+		    break;
+		}
+		retval = exit_threads();
+	    } else {
+		int (*delete_thread)(const char *) =
+		    DLSYM<int(*)(const char *)>(w,"hal_thread_delete");
+		if (delete_thread == NULL) {
+		    pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
+		    pbreply.set_retcode(-1);
+		    break;
+		}
+		retval = delete_thread(pbreq.rtapicmd().threadname().c_str());
 	    }
-	    int retval = delete_thread(pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval);
 	}
 	break;
@@ -944,7 +994,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     // log accumulated notes
     for (int i = 0; i < pbreply.note_size(); i++) {
 	rtapi_print_msg(pbreply.retcode() ? RTAPI_MSG_ERR : RTAPI_MSG_DBG,
-			pbreply.note(i).c_str());
+			"%s", pbreply.note(i).c_str());
     }
 
     // TODO: extract + attach error message
@@ -1224,7 +1274,7 @@ static int mainloop(size_t  argc, char **argv)
 	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
 		 RUNDIR, instance_id, "rtapi", service_uuid);
 	mode_t prev = umask(S_IROTH | S_IWOTH | S_IXOTH);
-	if ((z_port = zsocket_bind(z_command, uri )) < 0) {
+	if ((z_port = zsocket_bind(z_command, "%s", uri )) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,  "cannot bind IPC socket '%s' - %s\n",
 			    uri, strerror(errno));
 	    global_data->rtapi_app_pid = 0;

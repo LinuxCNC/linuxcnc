@@ -1,0 +1,211 @@
+// some clues taken from Derek Molloy:
+// https://github.com/derekmolloy/exploringBB.git
+
+component adxl345 "read an ADXL345 3-axis accelerometer";
+
+description
+"""
+reads the X,Y,Z acceleration values from an ADXL345 via the i2c bus.
+
+computes the roll, pitch and yaw rotations about the X, Y and Z axis. See also: https://en.wikipedia.org/wiki/Aircraft_principal_axes
+
+Options:
+    -t msec       polling interval in msec, default 10ms
+    -b number     use /dev/i2c-<number>, default /dev/i2c-0
+    -g range      gravity range, default 3 - +/- 16g
+                  0: +/- 2g
+                  1: +/- 4g
+                  2: +/- 8g
+                  3: +/- 16g
+    -N            normal resolution (10bit), default 13bit
+""";
+
+option userspace yes;
+option singleton yes;
+option extra_link_args "-lrtapi_math";
+
+pin out signed x-accel "X acceleration value";
+pin out signed y-accel "Y acceleration value";
+pin out signed z-accel "Z acceleration value";
+pin out float roll  "rotation about X axis, -180..180 deg";
+pin out float pitch "rotation about Y axis, -180..180 deg";
+pin out float yaw   "rotation about Z axis, -180..180 deg";
+
+license "GPL";
+;;
+#include <rtapi_math.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <linux/limits.h>
+#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+
+enum RANGE {
+    PLUSMINUS_2_G 		= 0,  // plus/minus 2g
+    PLUSMINUS_4_G 		= 1,  // plus/minus 4g
+    PLUSMINUS_8_G 		= 2,  // plus/minus 8g
+    PLUSMINUS_16_G 		= 3   // plus/minus 16g
+};
+
+// The resolution of the sensor. High is only available in +/- 16g range.
+enum RESOLUTION {
+    NORMAL = 0,                         // NORMAL 10-bit resolution
+    HIGH = 1                            // HIGH 13-bit resolution
+};
+
+#define POWER_CTL      0x2D   //Power-saving features control
+#define DATA_FORMAT    0x31   //Data format control
+#define DATAX0         0x32   //X-axis Data 0
+#define DATAX1         0x33   //X-axis Data 1
+#define DATAY0         0x34   //Y-axis Data 0
+#define DATAY1         0x35   //Y-axis Data 1
+#define DATAZ0         0x36   //Z-axis Data 0
+#define DATAZ1         0x37   //Z-axis Data 1
+#define BUFFER_SIZE    0x40
+
+static int usec = 10000;
+static int bus = 0;    // /dev/i2c-0
+static int device = 0x53;
+static int range = PLUSMINUS_16_G;
+static int resolution = HIGH;
+static unsigned char buffer[BUFFER_SIZE];
+
+static inline int reg_value(const unsigned char msb,
+			    const unsigned char lsb)
+{
+    return (short)((msb << 8)| lsb);
+}
+
+static int i2c_open(const int bus, const int device)
+{
+    char fname[PATH_MAX];
+    rtapi_snprintf(fname, sizeof fname, "/dev/i2c-%d", bus);
+
+    int fd = open(fname, O_RDWR);
+    if (fd < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to open '%s': %s",
+			__FUNCTION__, fname, strerror(errno));
+	return fd;
+    }
+
+    if (ioctl(fd, I2C_SLAVE, device) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to connect to i2c device 0x%x",
+			__FUNCTION__, device);
+	return -errno;
+    }
+    return fd;
+}
+
+static int i2c_write(const int fd, const unsigned char value)
+{
+    if (write(fd, &value, 1) != 1) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to write to i2c device: %s",
+			__FUNCTION__, strerror(errno));
+	return 1;
+    }
+    return 0;
+}
+
+static int i2c_write_at(const int fd, const unsigned addr,
+			const unsigned char value)
+{
+    unsigned char buffer[2];
+    buffer[0] = addr;
+    buffer[1] = value;
+    if (write(fd, buffer, 2) != 2) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to write to i2c device: %s",
+			__FUNCTION__, strerror(errno));
+	return 1;
+    }
+    return 0;
+}
+
+static int i2c_readregs(const int fd, const unsigned count,
+			const unsigned from, unsigned char *buffer)
+{
+    int n;
+    if (i2c_write(fd, from))
+	return 1;
+    if ((n = read(fd, buffer, count)) != count) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: failed to read %d bytes - got %d: %s",
+			__FUNCTION__, count, n, strerror(errno));
+	return 1;
+    }
+    return 0;
+}
+
+void user_mainloop(void)
+{
+    int fd;
+    int flags, opt;
+
+    while ((opt = getopt(argc, argv, "b:t:g:N")) != -1) {
+	switch (opt) {
+	case 'b':
+	    bus =  atoi(optarg);
+	    break;
+	case 'g':
+	    range = atoi(optarg);
+	    break;
+	case 'N':
+	    resolution = NORMAL;
+	    break;
+	case 't':
+	    usec = atoi(optarg) * 1000;
+	    break;
+	default:
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "Usage: %s [-t msec] [-b i2c bus number] [-g range] [-N]\n",
+			    argv[0]);
+	    exit(EXIT_FAILURE);
+	}
+    }
+
+    double gravity_range;
+    switch (range) {
+    case PLUSMINUS_16_G: gravity_range = 32.0; break;
+    case PLUSMINUS_8_G: gravity_range = 16.0; break;
+    case PLUSMINUS_4_G: gravity_range = 8.0; break;
+    default: gravity_range = 4.0; break;
+    }
+    double res = 1024.0;
+    if (resolution == HIGH)
+	res = 8192.0; //13-bit resolution
+    double factor = gravity_range/res;
+
+    if ((fd = i2c_open(bus, device)) < 0)
+	exit(EXIT_FAILURE);
+
+    if (i2c_write_at(fd, POWER_CTL, 0x08) < 0)
+	exit(EXIT_FAILURE);
+
+    char data_format = (resolution << 3) | range;
+    if (i2c_write_at(fd, DATA_FORMAT, data_format) < 0)
+	exit(EXIT_FAILURE);
+
+    while(1) {
+	usleep(usec);
+	FOR_ALL_INSTS() {
+	    if (i2c_readregs(fd, BUFFER_SIZE, 0, buffer)) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"%s: failed to read %d from i2c device: %s",
+				__FUNCTION__, BUFFER_SIZE, strerror(errno));
+		break;
+	    }
+	    x_accel = reg_value(buffer[DATAX1], buffer[DATAX0]);
+	    y_accel = reg_value(buffer[DATAY1], buffer[DATAY0]);
+	    z_accel = reg_value(buffer[DATAZ1], buffer[DATAZ0]);
+	    double accXg = x_accel * factor;
+	    double accYg = y_accel * factor;
+	    double accZg = z_accel * factor;
+	    double accXSquared = accXg * accXg ;
+	    double accYSquared = accYg * accYg ;
+	    double accZSquared = accZg * accZg ;
+	    pitch = 180 * rtapi_atan(accXg / rtapi_sqrt(accYSquared + accZSquared)) / M_PI;
+	    roll =  180 * rtapi_atan(accYg / rtapi_sqrt(accXSquared + accZSquared)) / M_PI;
+	    yaw =   180 * rtapi_atan(accZg / rtapi_sqrt(accXSquared + accZSquared))/M_PI;
+	}
+    }
+}

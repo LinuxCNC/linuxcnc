@@ -61,7 +61,7 @@ loaded = False
 pins = []
 
 if not os.path.isfile(filename):
-    sys.stderr.write('Error: File does not exist.\n');
+    sys.stderr.write('Error: File does not exist.\n')
     sys.exit(1)
 
 cfg = ConfigParser.ConfigParser()

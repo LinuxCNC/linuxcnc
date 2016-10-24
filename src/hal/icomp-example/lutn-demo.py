@@ -1,3 +1,6 @@
+
+# regression test for lutn-demo
+
 import time,os,ConfigParser
 from machinekit import rtapi,hal
 from machinekit.nosetests.realtime import setup_module,teardown_module
@@ -12,9 +15,8 @@ cfg.read(os.getenv("MACHINEKIT_INI"))
 uuid = cfg.get("MACHINEKIT", "MKUUID")
 rt = rtapi.RTAPIcommand(uuid=uuid)
 
-rt.loadrt("lutn");
-rt.newinst("lutn","or2.0", "inputs=2", "function=0xe" )
-rt.newinst("lutn","and2.0", "inputs=2", "function=0x8" )
+rt.newinst("lutn-demo","or2.0", "inputs=2", "function=0xe" )
+rt.newinst("lutn-demo","and2.0", "inputs=2", "function=0x8" )
 
 hal.net("in0","and2.0.in0","or2.0.in0")
 hal.net("in1","and2.0.in1","or2.0.in1")
@@ -22,7 +24,7 @@ hal.net("in1","and2.0.in1","or2.0.in1")
 in0 = hal.signals["in0"]
 in1 = hal.signals["in1"]
 
-rt.newthread("fast",1000000, use_fp=True)
+rt.newthread("fast",1000000, fp=True)
 hal.addf("or2.0.funct","fast")
 hal.addf("and2.0.funct","fast")
 hal.start_threads()

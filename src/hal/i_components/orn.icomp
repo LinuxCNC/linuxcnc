@@ -1,6 +1,8 @@
 component orn "N input OR gate";
-description """\ \\fBout\\fR is computed from the result of logic or applied
-to all input pins. """;
+description """
+*out* is computed from the result of logic or applied
+to all input pins. 
+""";
 
 // Input Pins
 pin in bit in#.[pincount];

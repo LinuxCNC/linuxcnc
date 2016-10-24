@@ -11,7 +11,7 @@
  *
  ********************************************************************/
 component pid "HAL component that provides Proportional \
-    Integeral/Derivative control loops.  It is a realtime component.";
+    Integeral/Derivative control loops.";
 description """
     HAL component that provides Proportional/
     Integeral/Derivative control loops.  It is a realtime component.

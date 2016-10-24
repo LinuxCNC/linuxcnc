@@ -1,6 +1,6 @@
 
 component mux16 	"Select from one of sixteen input values";
-description """\
+description """
 pin in bit use_graycode
 This signifies the input will use Gray code instead of binary.
 Gray code is a good choice when using physical switches because
@@ -17,24 +17,22 @@ input must be stable this long before outputs changes. This
 helps to ignore 'noisy' switches.
 
 pin in bit sel#[4]
-Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
+Together, these determine which *inN* value is copied to *out*.
 
 pin out float out_f
 pin out s32 out_s
-Follows the value of one of the \\fBin\\fIN\\fR values according to the four \\fBsel\\fR values
+Follows the value of one of the *inN* values according to the four *sel* values
 and whether use-graycode is active.
 
 The s32 value will be trunuated and limited to the max and min values of signed values.
-.RS
-.TP
-\\fBsel3=false\\fR, \\fBsel2=false\\fR, \\fBsel1=false\\fR, \\fBsel0=false\\fR
-\\fBout\\fR follows \\fBin0\\fR
-.TP
-\\fBsel3=false\\fR, \\fBsel2=false\\fR, \\fBsel1=false\\fR, \\fBsel0=true\\fR
-\\fBout\\fR follows \\fBin1\\fR
-.TP
+
+    sel3=false, sel2=false, sel1=false, sel0=false
+    out follows in0
+
+    sel3=false, sel2=false, sel1=false, sel0=true
+    out follows in1
+
 etc.
-.RE
 """;
 
 pin in bit use_graycode;

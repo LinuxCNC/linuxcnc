@@ -225,8 +225,10 @@ static void update_status(void);
   the amp enable/disable are inhibited
   */
 
-void emcmotController(void *arg, long period)
+extern int emcmotController(void *arg,  const hal_funct_args_t *fa)
 {
+    long period = fa_period(fa);
+
     // - overrun detection -
     // maintain some records of how long it's been between calls.  The
     // first time we see a delay that's much longer than the records show
@@ -244,7 +246,7 @@ void emcmotController(void *arg, long period)
     static long int cycles[CYCLE_HISTORY];
     static int priming = 1;
 
-    long long int now = rtapi_get_clocks();
+    long long int now = fa_start_time(fa);
     long int this_run = (long int)(now - last);
     emcmot_hal_data->last_period = this_run;
 #ifdef HAVE_CPU_KHZ
@@ -344,6 +346,7 @@ check_stuff ( "after update_status()" );
     first_pass = 0;
 
 /* end of controller function */
+    return 0;
 }
 
 /***********************************************************************

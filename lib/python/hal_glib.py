@@ -17,8 +17,8 @@ import socket
 from servicediscovery import ServiceDiscovery
 import avahi
 
-from message_pb2 import Container
-from types_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.types_pb2 import *
 
 class GPin(gobject.GObject, hal.Pin):
     __gtype_name__ = 'GPin'

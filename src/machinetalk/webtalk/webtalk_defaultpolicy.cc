@@ -42,8 +42,11 @@ int default_policy(wtself_t *self,
 	    const char *identity = NULL;
 	    wss->txmode = LWS_WRITE_BINARY;
 	    UriQueryListA *q = wss->queryList;
+#ifdef LWS_NEW_API
+	    int fd = lws_get_socket_fd(wss->wsiref);
+#else
 	    int fd = libwebsocket_get_socket_fd(wss->wsiref);
-
+#endif
 	    while (q != NULL) {
 		lwsl_uri("%s %d: key='%s' value='%s'\n",
 			   __func__, fd, q->key,q->value);

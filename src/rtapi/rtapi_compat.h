@@ -99,7 +99,19 @@ extern long int simple_strtol(const char *nptr, char **endptr, int base);
 // HAL return values are reflected in the return value to write()
 //
 #define PROCFS_RTAPICMD "/proc/rtapi/hal/rtapicmd"
-extern int procfs_cmd(const char *path, const char *format, ...);
+
+// whatever is written is printf-style
+int rtapi_fs_write(const char *path, const char *format, ...);
+
+// read a string from a sysfs entry.
+// strip trailing newline.
+// returns length of string read (>= 0)
+// or <0: -errno from open or read.
+// filename is printf-style
+int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...);
+
+
+int run_shell(char *format, ...);
 
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();
@@ -196,7 +208,6 @@ const char *get_cap(const char *const fname, const char *cap);
 // given a module name and the flavor set, return the integer
 // capability mask of tags.
 int rtapi_get_tags(const char *mod_name);
-
 
 SUPPORT_END_DECLS
 

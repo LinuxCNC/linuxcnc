@@ -59,10 +59,18 @@ mainloop( wtself_t *self)
     if (self->cfg->trap_signals)
 	zloop_poller(self->netopts.z_loop, &signal_poller, handle_signal, self);
 
+#ifdef LWS_NEW_API
+        if ((self->wsctx = lws_create_context(&self->cfg->info)) == NULL) {
+	lwsl_err("lws_create_context failed\n");
+	return -1;
+    }
+#else
     if ((self->wsctx = libwebsocket_create_context(&self->cfg->info)) == NULL) {
 	lwsl_err("libwebsocket_create_context failed\n");
 	return -1;
     }
+#endif
+
     if (self->cfg->service_timer > 0)
 	self->service_timer = zloop_timer(self->netopts.z_loop,
 					  self->cfg->service_timer,
@@ -85,9 +93,11 @@ mainloop( wtself_t *self)
 
     if (self->service_timer)
 	zloop_timer_end (self->netopts.z_loop, self->service_timer);
-
+#ifdef LWS_NEW_API
+    lws_context_destroy(self->wsctx);
+#else
     libwebsocket_context_destroy(self->wsctx);
-
+#endif
     syslog_async(LOG_INFO,
 		 "%s: exiting mainloop (%s)\n",
 		 self->cfg->progname,
@@ -197,7 +207,11 @@ read_config(wtconf_t *conf)
     if (flag) conf->info.options |= LWS_SERVER_OPTION_DISABLE_OS_CA_CERTS;
 
     iniFindInt(inifp, "EXTENSIONS",  conf->section, &flag);
+#ifdef LWS_NEW_API
+    if (flag) conf->info.extensions = lws_get_internal_extensions();
+#else
     if (flag) conf->info.extensions = libwebsocket_get_internal_extensions();
+#endif
     iniFindInt(inifp, "TIMER", conf->section, &conf->service_timer);
 
     str_inidefault(&conf->index_html, inifp, "INDEX_HTML", conf->section);

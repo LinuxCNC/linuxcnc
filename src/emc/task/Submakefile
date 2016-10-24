@@ -42,5 +42,5 @@ USERSRCS += $(MILLTASKSRCS)
 	../lib/libpyplugin.so.0 \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+	$(Q)$(CXX) -o $@ $^ $(LDFLAGS) -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS)
 TARGETS += ../bin/milltask

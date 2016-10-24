@@ -246,13 +246,18 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcncshm.so \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -Wl,--no-as-needed -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
-	    -o $@ $^ $(RT_LDFLAGS) \
-	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) $(LTTNG_UST_LIBS) -lstdc++ -ldl -luuid
+	$(Q)$(CXX) -Wl,--no-as-needed \
+	    -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    $(RTAPI_APP_RPATH) \
+	    -o $@ \
+	    $^ \
+	    $(LDFLAGS) $(RT_LDFLAGS) \
+	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) $(LTTNG_UST_LIBS) \
+	    -lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
 
@@ -364,7 +369,7 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 	../lib/liblinuxcncshm.so \
 	../lib/liblinuxcncini.so \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so
+	../lib/libmachinetalk-pb2++.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RTAPI_MSGD_LDFLAGS) -lrt

@@ -90,17 +90,14 @@ proc is_uniq {list_name} {
 } ;# is_uniq
 
 proc pin_exists {name} {
-  set line [lindex [split [show pin $name] \n] 2]
-  if {"$line" == ""} {
-    return 0 ;# fail
+  set line [show pexists $name]
+  if {"$line" != "Exists"} {
+    puts stderr "FAILED: show pexists $name, returned $line"
+    return 0 ; #fail
   }
-  if [catch {scan $line "%d %s %s %s%s" owner type dir value pinname} msg] {
-     return 0 ;# fail
-  } else {
-     #puts stderr "OK:$owner $type $dir $value $pinname"
-     return 1 ;# ok
-  }
-} ;# pin_exists
+  puts stderr "PASSED: show pexists $name, returned $line"
+  return 1; # pass
+} ; #pin_exists
 
 proc connect_pins {} {
   foreach bname [lsort [array names ::XHC_HB04_BUTTONS]] {

@@ -2,8 +2,11 @@
 
 #include "webtalk.hh"
 
-
+#ifdef LWS_NEW_API
+struct lws_protocols *protocols;
+#else
 struct libwebsocket_protocols *protocols;
+#endif
 
 #ifdef EXPERIMENTAL_ZWS_SUPPORT
 #define NPROTOS 6
@@ -13,10 +16,17 @@ struct libwebsocket_protocols *protocols;
 
 void init_protocols(void)
 {
+#ifdef LWS_NEW_API
+    // size must be number of protos + 1 - libwebsockets requires a zero delimiter struct
+    struct lws_protocols *p = protocols = 
+	(struct lws_protocols *) calloc(NPROTOS,
+					sizeof (struct lws_protocols));
+#else
     // size must be number of protos + 1 - libwebsockets requires a zero delimiter struct
     struct libwebsocket_protocols *p = protocols = 
 	(struct libwebsocket_protocols *) calloc(NPROTOS,
 						 sizeof (struct libwebsocket_protocols));
+#endif
     assert(p != 0);
 
     //  first protocol must always be HTTP handler

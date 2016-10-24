@@ -1,11 +1,19 @@
-component div2 """Quotient of two inputs
-The output will be quotient of the two inputs, ie \\fBout\\fR = \\fBin0\\fR/\\fBin1\\fR.
-The parameter \\fBdeadband\\fR can be used to control how close to 0 the denominator can be
-before the output is clamped to 0.  \\fBdeadband\\fR must be at least 1e-8, and must be positive.""";
+component div2 "Quotient of two inputs";
+description
+"""
+Quotient of two inputs
+
+The output will be quotient of the two inputs, ie *out* = *in0* / *in1*.
+
+The parameter *deadband* can be used to control how close to 0 the denominator can be
+before the output is clamped to 0.  
+
+*deadband* must be at least 1e-8, and must be positive.
+""";
 pin in float in0 "dividend";
 pin in float in1 "divisor";
 pin out float out "out = in0 / in1";
-pin io float deadband "The \\fBout\\fR will be zero if \\fBin1\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR";
+pin io float deadband "The *out* will be zero if *in1* is between - *deadband* and + *deadband*";
 function _;
 license "GPL";
 ;;

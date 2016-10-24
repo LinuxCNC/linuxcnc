@@ -408,18 +408,23 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
                     "invalid\n", pin->bit_num );
             return -EINVAL;
         }
-        switch (hm2->idrom.port_width) {
-            case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
-                pin->port_pin = ((i % 24) * 2) + 1;
-                break;
-            case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
-                pin->port_pin = DB25[i % 17];
-                break;
-            case 32:      /* 5I21 punt on this for now */
-                pin->port_pin = i + 1;
-                break;
-            default:
-                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+        if(hm2->fwid.dmsg == NULL) {
+            switch (hm2->idrom.port_width) {
+                case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
+                    pin->port_pin = ((i % 24) * 2) + 1;
+                    break;
+                case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
+                    pin->port_pin = DB25[i % 17];
+                    break;
+                case 32:      /* 5I21 punt on this for now */
+                    pin->port_pin = i + 1;
+                    break;
+                default:
+                    HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+            }
+        }
+        else {
+            pin->port_pin = i + 1;
         }
         
         addr += 4;
@@ -588,6 +593,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
 
     // encoder and pwmgen just get all their enabled instances' pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
+
     // Abs encoders are all packed together, not necessarily contiguously
     hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, MAX_ABSENCS);
     hm2_pins_allocate_all(hm2, HM2_GTAG_BISS, MAX_ABSENCS);
@@ -602,9 +608,9 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_TX ,  hm2->pktuart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->sserial.num_instances);
     // muxed encoder gets the sel pins
-    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->muxed_encoder.num_instances);
     // and about half as many I/Os as you'd expect
-    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->muxed_encoder.num_instances+1)/2);
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
 }
 

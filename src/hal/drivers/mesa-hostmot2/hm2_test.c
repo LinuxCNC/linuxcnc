@@ -96,7 +96,9 @@ static int hm2_test_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int s
 }
 
 
-static int hm2_test_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_test_program_fpga(hm2_lowlevel_io_t *this,
+				 const bitfile_t *bitfile,
+				 const struct firmware *fw) {
     return 0;
 }
 

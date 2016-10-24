@@ -1,4 +1,6 @@
-image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Build Status", link="https://travis-ci.org/machinekit/machinekit"]
+Travis: image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Travis Build Status", link="https://travis-ci.org/machinekit/machinekit"]
+
+Manpages: image:https://jenkins.machinekit.io/buildStatus/icon?job=machinekit-manpages[]
 
 
 == DISCLAIMER
@@ -28,22 +30,11 @@ ubiquitous platforms like phones or tablets.
 
 == Getting Machinekit
 
-The easiest way to get up-and-running is to install Debian Wheezy and get the
-binary packages. Please go to
-link:http://www.machinekit.io/docs/packages-debian/[machinekit.io/docs/packages-debian/]
-for further instructions
+The easiest way to get up-and-running is to install Debian Wheezy and get the binary packages. 
 
-== The Build Process
+Please go to link:http://www.machinekit.io/[www.machinekit.io] for this and all other information, 
+including documentation.
 
-
-Refer to the link:http://www.machinekit.io/docs/building-from-source/[machinekit.io/docs/building-from-source/]
-for information about building from source and running the software.
-
-== Documentation
-
-The Machinekit documentation set is evolving. Please see 
-link:http://www.machinekit.io[machinekit.io] and the
-link:http://github.com/machinekit/machinekit-docs[Machinekit documentation].
 
 History
 -------

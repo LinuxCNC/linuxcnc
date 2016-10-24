@@ -58,6 +58,7 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
+      | "special_format_doc" String ";"   {{ special_format_doc(String) }}            
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
       | "include" Header ";"   {{ include(Header) }}
@@ -129,6 +130,8 @@ def _parse(rule, text, filename=None):
 def parse(filename):
     initialize()
     f = open(filename).read()
+    if '\r' in f:
+	raise SystemExit, "Error: Mac or DOS style line endings in file %s" % filename
     a, b = f.split("\n;;\n", 1)
     p = _parse('File', a + "\n\n", filename)
     if not p: raise SystemExit, 1
@@ -171,6 +174,9 @@ def comp(name, doc):
 
 def description(doc):
     docs.append(('descr', doc));
+
+def special_format_doc(doc):
+    docs.append(('sf_doc', doc));
 
 def license(doc):
     docs.append(('license', doc));
@@ -280,8 +286,9 @@ def to_noquotes(name):
 
 ##################### Start ########################################
 
-def prologue(f):
 
+def prologue(f):
+    ## userspace left in for possible future use - serves no purpose currently
     if options.get("userspace"):
         raise SystemExit, "Error: instcomp does not support userspace components"
 
@@ -523,7 +530,7 @@ static int comp_id;
 
 
 
-    print >>f, "struct inst_data\n    {"
+    print >>f, "struct inst_data {\n"
 
     for name, type, array, dir, value in pins:
         if array:
@@ -548,7 +555,7 @@ static int comp_id;
             print >>f, "    %s %s;" % (type, name)
     ##local copy used in function and set to default value
     print >>f, "    int localpincount;"
-    print >>f, "    };"
+    print >>f, "};"
 
 ############## extra headers and forward defines of functions  ##########################
 
@@ -569,7 +576,7 @@ static int comp_id;
         print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
         names[name] = 1
 
-    print >>f, "static int instantiate(const char *name, const int argc, const char**argv);\n"
+    print >>f, "static int instantiate(const int argc, const char**argv);\n"
     if options.get("extra_inst_cleanup"):
         print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
 
@@ -667,18 +674,17 @@ static int comp_id;
         print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"export_halobjs() ip->localpincount set to %d\", ip->localpincount);"
 
     for name, fp in functions:
-        print >>f, "    // exporting an extended thread function:"
-        print >>f, "    hal_export_xfunct_args_t %s_xf = " % to_c(name)
-        print >>f, "        {"
+        print >>f, "    // export an extended thread function:"
+        print >>f, "    hal_export_xfunct_args_t %s_xf = { " % to_c(name)
         print >>f, "        .type = FS_XTHREADFUNC,"
         print >>f, "        .funct.x = %s," % to_c(name)
         print >>f, "        .arg = ip,"
         print >>f, "        .uses_fp = %d," % int(fp)
         print >>f, "        .reentrant = 0,"
         print >>f, "        .owner_id = owner_id"
-        print >>f, "        };\n"
+        print >>f, "    };\n"
 
-        strng = " rtapi_snprintf(buf, sizeof(buf),\"%s"
+        strng = "    rtapi_snprintf(buf, sizeof(buf),\"%s"
         if (len(functions) == 1) and name == "_":
             strng += "\", name);"
         else :
@@ -696,18 +702,20 @@ static int comp_id;
 ###########################  instantiate() ###############################################################
 
     print >>f, "\n// constructor - init all HAL pins, params, funct etc here"
-    print >>f, "static int instantiate(const char *name, const int argc, const char**argv)\n{"
-    print >>f, "struct inst_data *ip;"
-    print >>f, "int r;"
+    print >>f, "static int instantiate(const int argc, const char**argv)\n{"
+    print >>f, "    const char *name  __attribute__((unused)) = argv[1];";
+
+    print >>f, "    struct inst_data *ip;"
+    print >>f, "    int r;"
     if options.get("extra_inst_setup"):
-            print >>f, "int k;"
-    print >>f, "\n// allocate a named instance, and some HAL memory for the instance data"
-    print >>f, "int inst_id = hal_inst_create(name, comp_id, sizeof(struct inst_data), (void **)&ip);\n"
+            print >>f, "    int k;"
+    print >>f, "\n    // allocate a named instance, and some HAL memory for the instance data"
+    print >>f, "    int inst_id = hal_inst_create(name, comp_id, sizeof(struct inst_data), (void **)&ip);\n"
     print >>f, "    if (inst_id < 0)\n        return -1;\n"
 
-    print >>f, "// here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data)."
+    print >>f, "    // here ip is guaranteed to point to a blob of HAL memory of size sizeof(struct inst_data)."
     print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"%s inst=%s argc=%d\",__FUNCTION__, name, argc);\n"
-    print >>f, "// Debug print of params and values"
+    print >>f, "    // Debug print of params and values"
 
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
@@ -732,7 +740,8 @@ static int comp_id;
                     print >>f, "    hal_print_msg(RTAPI_MSG_DBG,\"ip->localpincount set to %d\", pin_param_value);"
 
 
-    print >>f, "\n// These pins - params - functs will be owned by the instance, and can be separately exited with delinst"
+    print >>f, "\n    // These pins - params - functs will be owned by the instance"
+    print >>f, "    // which can be separately exited with delinst"
 
     print >>f, "    if(strlen(iprefix))"
     print >>f, "        r = export_halobjs(ip, inst_id, iprefix);"
@@ -744,12 +753,12 @@ static int comp_id;
             print >>f, "    if(k != 0)"
             print >>f, "        return k;\n"
 
-    print >>f, "    if(r == 0)"
-    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
-    print >>f, "    else"
-    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
+    # print >>f, "    if(r == 0)"
+    # print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
+    # print >>f, "    else"
+    # print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
     if have_count:
-        print >>f, "//reset pincount to -1 so that instantiation without it will result in DEFAULTCOUNT"
+        print >>f, "    //reset pincount to -1 so that instantiation without it will result in DEFAULTCOUNT"
         print >>f, "    pincount = -1;\n"
 
     print >>f, "    return r;\n}"
@@ -757,7 +766,7 @@ static int comp_id;
 ##############################  rtapi_app_main  ######################################################
 
     print >>f, "\nint rtapi_app_main(void)\n{"
-    print >>f, "// Debug print of params and values"
+    print >>f, "    // Debug print of params and values"
     for name, mptype, value in instanceparams:
         if (mptype == 'int'):
             strg = "    hal_print_msg(RTAPI_MSG_DBG,\"%s: int instance param: %s=%d\",__FUNCTION__,"
@@ -779,15 +788,14 @@ static int comp_id;
 ################  stub to allow 'base component to have function if req later ####
 #
 #    print >>f, "    // exporting an extended thread function:"
-#    print >>f, "    hal_export_xfunct_args_t xtf = "
-#    print >>f, "        {"
+#    print >>f, "    hal_export_xfunct_args_t xtf = {"
 #    print >>f, "        .type = FS_XTHREADFUNC,"
 #    print >>f, "        .funct.x = (void *) funct,"
 #    print >>f, "        .arg = \"x-instance-data\","
 #    print >>f, "        .uses_fp = 0,"
 #    print >>f, "        .reentrant = 0,"
 #    print >>f, "        .owner_id = comp_id"
-#    print >>f, "        };\n"
+#    print >>f, "    };\n"
 #
 #    print >>f, "    if (hal_export_xfunctf(&xtf,\"%s.funct\", compname))"
 #    print >>f, "        return -1;"
@@ -934,6 +942,7 @@ def build_rt(tempdir, filename, mode, origfilename):
             raise SystemExit, "Error: Unable to copy module from temporary directory"
 
 ######################  docs man pages etc  ###########################################
+# ArcEye 13042016 - changed output to asciidoc
 
 def finddoc(section=None, name=None):
     for item in docs:
@@ -952,7 +961,7 @@ def to_hal_man_unnumbered(s):
     s = s.replace("_", "-")
     s = s.rstrip("-")
     s = s.rstrip(".")
-    s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
+    s = re.sub("#+", lambda m: "_" + "M" * len(m.group(0)) + "_", s)
     return s
 
 
@@ -961,35 +970,47 @@ def to_hal_man(s):
     s = s.replace("_", "-")
     s = s.rstrip("-")
     s = s.rstrip(".")
-    s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
+    s = re.sub("#+", lambda m: "_" + "M" * len(m.group(0)) + "_", s)
     return s
 
-def document(filename, outfilename):
+##############################################################################
+# asciidoc
+############
+
+def adocument(filename, outfilename, frontmatter):
     if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9comp"
+        outfilename = os.path.splitext(filename)[0] + ".asciidoc"
 
     a, b = parse(filename)
     f = open(outfilename, "w")
 
-    print >>f, ".TH %s \"9\" \"%s\" \"Machinekit Documentation\" \"HAL Component\"" % (comp_name.upper(), time.strftime("%F"))
-    print >>f, ".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n"
+    if frontmatter:
+        print >>f, "---"
+        for fm in frontmatter:
+            print >>f, fm
+        print >>f, "edit-path: src/%s" % (filename)
+        print >>f, "generator: instcomp"
+	print >>f, "description: This page was generated from src/%s. Do not edit directly, edit the source." % filename
+        print >>f, "---"
+        print >>f, ":skip-front-matter:\n"
 
-    print >>f, ".SH INSTANTIABLE COMPONENTS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-    print >>f, ".B All instantiable components can be loaded in two manners\n"
-    print >>f, ".LP"
-    print >>f, ".B Using loadrt with or without count= | names= parameters as per legacy components\n"
-    print >>f, ".LP"
-    print >>f, ".B Using newinst, which names the instance and allows further parameters and arguments,\n"
-    print >>f, ".LP"
-    print >>f, ".B primarily pincount= which can set the number of pins created for that instance (where applicable)\n"
-    print >>f, ".HP"
+    print >>f, "= Machinekit Documentation"
 
-    print >>f, ".RE"
-    print >>f, ".SH NAME"
-    print >>f, ".HP"
-    print >>f, ".HP"
+    print >>f, ""
+    print >>f, "== HAL Component -- %s" % (comp_name.upper())
+    print >>f, ""
+    print >>f, "=== INSTANTIABLE COMPONENTS -- General"
+    print >>f, ""
+    print >>f, "All instantiable components can be loaded in two manners"
+    print >>f, ""
+    print >>f, "[%hardbreaks]"    
+    print >>f, "Using *loadrt* with or without _count=_ | _names=_ parameters as per legacy components"
+    print >>f, "Using *newinst*, which names the instance and allows further parameters and arguments"
+    print >>f, "primarily _pincount=_ which can set the number of pins created for that instance (where applicable)"
+    print >>f, ""
+
+    print >>f, "=== NAME"
+    print >>f, ""
     doc = finddoc('component')
     if doc and doc[2]:
         if '\n' in doc[2]:
@@ -997,37 +1018,35 @@ def document(filename, outfilename):
         else:
             firstline = doc[2]
             rest = ''
-        print >>f, "%s \\- %s" % (doc[1], firstline)
+        print >>f, "==== %s -- %s" % (doc[1], firstline)
     else:
         rest = ''
-        print >>f, "%s" % doc[1]
-
-    print >>f, ".SH SYNOPSIS"
-    print >>f, ".HP"
-    print >>f, ".HP"
+        print >>f, "==== %s" % doc[1]
+    print >>f, ""
+    
+    print >>f, "=== SYNOPSIS"
+    print >>f, ""
     if rest:
-        print >>f, rest
+        print >>f, "*%s*" % rest
     else:
         rest = ''
-        print >>f, "%s" % doc[1]
-
-    print >>f, ".SH USAGE SYNOPSIS"
-    print >>f, ".HP"
-    print >>f, ".HP"
-
+        print >>f, "*%s*" % doc[1]
+    print >>f, ""    
+    
+    print >>f, "=== USAGE SYNOPSIS"
+    print >>f, ""
     if rest:
-        print >>f, rest
-        print >>f, ".HP"
+        print >>f, "*%s*" % rest
+        print >>f, ""                    
     else:
-        print >>f, ".B loadrt %s " % comp_name
-        print >>f, ".LP"
-        print >>f, ".B newinst %s <newinstname> [ pincount=\\fIN\\fB | iprefix=\\fIprefix\\fB ]" % comp_name
-        print >>f, ".B                             [instanceparamX=\\fIX\\fB | argX=\\fIX\\fB ]"
-        print >>f, ".HP"
+        print >>f, "[%hardbreaks]"    
+        print >>f, "*loadrt %s*" % comp_name
+        print >>f, "OR"
+        print >>f, "*newinst %s <newinstname>* [ *pincount*=_N_ | *iprefix*=_prefix_ ] [*instanceparamX*=_X_ | *argX*=_X_ ]" % comp_name
+        print >>f, ""       
         print >>f, "( args in [ ] denote possible args and parameters, may not be used in all components )"
-        print >>f, ".HP"
         for type, name, default, doc in modparams:
-            print >>f, "[%s=\\fIN\\fB]" % name,
+            print >>f, "[%s=_N_]" % name,
         print >>f
 
         hasparamdoc = False
@@ -1035,141 +1054,134 @@ def document(filename, outfilename):
             if doc: hasparamdoc = True
 
         if hasparamdoc:
-            print >>f, ".RS 4"
+    	    print >>f, ""
+            print >>f, "* modparams:"
             for type, name, default, doc in modparams:
-                print >>f, ".TP"
-                print >>f, "\\fB%s\\fR" % name,
+                print >>f, ""
+                print >>f, "** *%s*" % name,
                 if default:
                     print >>f, "[default: %s]" % default
                 else:
                     print >>f
                 print >>f, doc
-            print >>f, ".RE"
+            print >>f, ""
 
     doc = finddoc('descr')
     if doc and doc[1]:
-        print >>f, ".SH DESCRIPTION"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== DESCRIPTION"
+        print >>f, ""
         print >>f, "%s" % doc[1]
+        print >>f, ""            
+
+    doc = finddoc('sf_doc')
+    if doc and doc[1]:
+        print >>f, "=== EXTRA INFO"
+        print >>f, ""
+        print >>f, "%s" % doc[1]
+        print >>f, ""
 
     if functions:
-        print >>f, ".SH FUNCTIONS"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== FUNCTIONS"
+        print >>f, ""
         for _, name, fp, doc in finddocs('funct'):
-            print >>f, ".TP"
             if name != None and name != "_":
-                print >>f, "\\fB%s.N.%s.funct\\fR" % (comp_name, name) ,
+                print >>f, "*%s.N.%s.funct*" % (comp_name, name) ,
             else :
-                print >>f, "\\fB%s.N.funct\\fR" % comp_name ,
+                print >>f, "*%s.N.funct*" % comp_name ,
     	    print >>f, "\n( OR"
             if name != None and name != "_":
-                print >>f, "\\fB<newinstname>.%s.funct\\fR"  % name ,
+                print >>f, "*<newinstname>.%s.funct*"  % name ,
             else :
-                print >>f, "\\fB<newinstname>.funct\\fR" ,
+                print >>f, "*<newinstname>.funct*" ,
             if fp:
                 print >>f, "(requires a floating-point thread) )"
             else:
                 print >>f, " )"
-            print >>f, ".HP"
-            print >>f, doc
+            print >>f, ""
+            if doc:
+        	print >>f, doc
+            print >>f, ""    
 
-    lead = ".TP"
-    print >>f, ".SH PINS"
-    print >>f, ".HP"
-    print >>f, ".HP"
+    print >>f, "=== PINS"
+    print >>f, ""    
     for _, name, type, array, dir, doc, value in finddocs('pin'):
-        print >>f, lead
-        print >>f, ".B %s.N.%s \\fR" % (comp_name, name),
+        print >>f, ""
+        print >>f, "*%s.N.%s*" % (comp_name, name),
         print >>f, type, dir,
         if array:
             sz = name.count("#")
             print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
         if value:
-            print >>f, "\\fR(default: \\fI%s\\fR)" % value
-        else:
-            print >>f, "\\fR"
+            print >>f, "(default: _%s_)" % value
+
 	print >>f, "( OR"
 
-        print >>f, ".B <newinstname>.%s \\fR" % name,
+        print >>f, "*<newinstname>.%s*" % name,
         print >>f, type, dir,
         if array:
             sz = name.count("#")
             print >>f, " (%s=%s..%s)" % ("M" * sz, "0" * sz , array),
         if value:
-            print >>f, "\\fR(default: \\fI%s\\fR) )\n" % value
+            print >>f, "(default: _%s_) )" % value
         else:
-            print >>f, "\\fR )\n"
+    	    print >>f, ")"
         if doc:
-    	    print >>f, ".HP"
-            print >>f, doc
-
-    lead = ".TP"
+	    print >>f, " - %s\n" % doc
+        print >>f, ""    
 
     if instanceparams:
-        print >>f, ".SH INST_PARAMETERS"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== INST_PARAMETERS"
+        print >>f, ""
         for _, name, type, doc, value in finddocs('instanceparam'):
-            print >>f, lead
-            print >>f, ".B %s\\fR" % name,
+            print >>f, "*%s*" % name,
             print >>f, type,
             if value:
-                print >>f, "\\fR(default: \\fI%s\\fR)" % value
-            else:
-                print >>f, "\\fR"
+                print >>f, "(default: _%s_)" % value
             if doc:
-                print >>f, doc
-                lead = ".TP"
-            else:
-                lead = ".TQ"
-
+		print >>f, " - %s\n" % doc
+        print >>f, ""
+        
     if moduleparams:
-        print >>f, ".SH MODULE_PARAMETERS"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== MODULE_PARAMETERS"
+        print >>f, ""
         for _, name, type, doc, value in finddocs('moduleparam'):
-            print >>f, lead
-            print >>f, ".B %s\\fR" % name,
+            print >>f, "*%s*" % name,
             print >>f, type,
             if value:
-                print >>f, "\\fR(default: \\fI%s\\fR)" % value
-            else:
-                print >>f, "\\fR"
+                print >>f, "(default: _%s_)" % value
             if doc:
-                print >>f, doc
-                lead = ".TP"
-            else:
-                lead = ".TQ"
-
+                print >>f, " - %s\n" % doc
+        print >>f, ""    
+    
     doc = finddoc('see_also')
     if doc and doc[1]:
-        print >>f, ".SH SEE ALSO"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== SEE ALSO"
+        print >>f, ""
         print >>f, "%s" % doc[1]
-
+        print >>f, ""    
+    
     doc = finddoc('notes')
     if doc and doc[1]:
-        print >>f, ".SH NOTES"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== NOTES"
+        print >>f, ""
         print >>f, "%s" % doc[1]
+        print >>f, ""    
 
     doc = finddoc('author')
     if doc and doc[1]:
-        print >>f, ".SH AUTHOR"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== AUTHOR"
+        print >>f, ""
         print >>f, "%s" % doc[1]
-
+        print >>f, ""    
+        
     doc = finddoc('license')
     if doc and doc[1]:
-        print >>f, ".SH LICENSE"
-        print >>f, ".HP"
-        print >>f, ".HP"
+        print >>f, "=== LICENCE"
+        print >>f, ""
         print >>f, "%s" % doc[1]
+        print >>f, ""    
+
+
 
 ###########################################################
 
@@ -1228,8 +1240,8 @@ def process(filename, mode, outfilename):
                     g,h = q.split("{")
                     c += g
                     c += "{"
-                    c += "\nlong period __attribute__((unused)) = fa_period(fa);\n"
-                    c += "struct inst_data *ip = arg;\n\n"
+                    c += "\n    long period __attribute__((unused)) = fa_period(fa);\n"
+                    c += "    struct inst_data *ip = arg;\n\n"
                     c += h
                     insert = False
                 else :
@@ -1242,8 +1254,8 @@ def process(filename, mode, outfilename):
         # if the code is loose because there is just one function
         elif len(functions) == 1:
             f.write("FUNCTION(%s)\n{\n" % functions[0][0])
-            f.write("long period __attribute__((unused)) = fa_period(fa);\n")
-            f.write("struct inst_data *ip = arg;\n\n")
+            f.write("    long period __attribute__((unused)) = fa_period(fa);\n")
+            f.write("    struct inst_data *ip = arg;\n\n")
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
             f.write("\n}\n")
@@ -1259,11 +1271,11 @@ def process(filename, mode, outfilename):
         shutil.rmtree(tempdir)
 
 def usage(exitval=0):
-    print """%(name)s: Build, compile, and install LinuxCNC HAL components
+    print """%(name)s: Build, compile, and install Machinekit HAL components
 
 Usage:
-           %(name)s [--compile|--preprocess|--document|--view-doc] compfile...
-    [sudo] %(name)s [--install|--install-doc] compfile...
+           %(name)s [ --compile (-c) | --preprocess (-p) | --document (-d) | --view-doc (-v) ] compfile...
+    [sudo] %(name)s [ --install (-i) |--install-doc (-j) ] compfile...
            %(name)s --print-modinc
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
@@ -1276,18 +1288,17 @@ def main():
     require_license = True
     mode = PREPROCESS
     outfile = None
+    frontmatter = []
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
-                           ['install', 'compile', 'preprocess', 'outfile=',
+        opts, args = getopt.getopt(sys.argv[1:], "f:lijcpdo:h?",
+                           ['frontmatter=', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
-
+    
     for k, v in opts:
-        if k in ("-u", "--userspace"):
-            raise SystemExit, "Error: instcomp does not support userspace components"
         if k in ("-i", "--install"):
             mode = INSTALL
         if k in ("-c", "--compile"):
@@ -1298,7 +1309,7 @@ def main():
             mode = DOCUMENT
         if k in ("-j", "--install-doc"):
             mode = INSTALLDOC
-        if k in ("-j", "--view-doc"):
+        if k in ("-v", "--view-doc"):
             mode = VIEWDOC
         if k in ("--print-modinc",):
             mode = MODINC
@@ -1308,6 +1319,8 @@ def main():
             if len(args) != 1:
                 raise SystemExit, "Error: Cannot specify -o with multiple input files"
             outfile = v
+        if k in ("-f", "--frontmatter"):
+            frontmatter.append(v)
         if k in ("-?", "-h", "--help"):
             usage(0)
 
@@ -1325,22 +1338,23 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".icomp") and mode == DOCUMENT:
-                document(f, outfile)
+		adocument(f, outfile, frontmatter)
             elif f.endswith(".icomp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".9comp")
-                    document(f, outfile)
-                    os.spawnvp(os.P_WAIT, "man", ["man", outfile])
+                    outfile = os.path.join(tempdir, basename + ".asciidoc")
+                    adocument(f, outfile, frontmatter)
+                    cmd = "mank -f %s -p %s -s" % (basename, tempdir)
+		    os.system(cmd)
                 finally:
-                    shutil.rmtree(tempdir)
+		    shutil.rmtree(tempdir)
             elif f.endswith(".icomp") and mode == INSTALLDOC:
-                manpath = os.path.join(BASE, "share/man/man9")
+		manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
-                    manpath = os.path.join(BASE, "man/man9")
-                outfile = os.path.join(manpath, basename + ".9comp")
-                print "INSTALLDOC", outfile
-                document(f, outfile)
+	            manpath = os.path.join(BASE, "man/man9")
+    	        outfile = os.path.join(manpath, basename + ".asciidoc")
+        	print "INSTALLDOC", outfile
+		adocument(f, outfile, frontmatter)
             elif f.endswith(".icomp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:

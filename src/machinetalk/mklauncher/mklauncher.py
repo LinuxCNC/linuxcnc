@@ -10,15 +10,18 @@ import math
 import subprocess
 import fcntl
 import shlex
+import dbus
+
+from operator import attrgetter
 
 from machinekit import service
 from machinekit import config
 
 from google.protobuf.message import DecodeError
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
-from object_pb2 import ProtocolParameters
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.config_pb2 import *
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.object_pb2 import ProtocolParameters
 
 if sys.version_info >= (3, 0):
     import configparser
@@ -67,21 +70,19 @@ class Mklauncher:
             'type': '',
             'manufacturer': '',
             'model': '',
-            'variant': ''
+            'variant': '',
+            'priority': '0'
         }
 
-        index = 0
+        launchers = []
         for rootDir in self.launcherDirs:
             for root, _, files in os.walk(rootDir):
                 if iniName in files:
                     iniFile = os.path.join(root, iniName)
                     cfg = configparser.ConfigParser(configDefaults)
                     cfg.read(iniFile)
-                    launcher = Launcher()
                     for section in cfg.sections():
-                        launcher.Clear()
-                        launcher.index = index
-                        index += 1
+                        launcher = Launcher()
                         # descriptive data
                         launcher.name = cfg.get(section, 'name')
                         launcher.description = cfg.get(section, 'description')
@@ -90,6 +91,7 @@ class Mklauncher:
                         info.manufacturer = cfg.get(section, 'manufacturer')
                         info.model = cfg.get(section, 'model')
                         info.variant = cfg.get(section, 'variant')
+                        launcher.priority = cfg.getint(section, 'priority')
                         launcher.info.MergeFrom(info)
                         # command data
                         launcher.command = cfg.get(section, 'command')
@@ -112,8 +114,14 @@ class Mklauncher:
                             image.encoding = CLEARTEXT
                             image.blob = fileBuffer
                             launcher.image.MergeFrom(image)
-                        self.container.launcher.add().CopyFrom(launcher)
-                        self.txContainer.launcher.add().CopyFrom(launcher)
+                        launchers.append(launcher)
+
+        # sort using the priority attribute before distribution
+        launchers = sorted(launchers, key=attrgetter('priority'), reverse=True)
+        for index, launcher in enumerate(launchers):
+            launcher.index = index
+            self.container.launcher.add().CopyFrom(launcher)
+            self.txContainer.launcher.add().MergeFrom(launcher)
 
         if self.debug:
             print(self.container)
@@ -356,6 +364,18 @@ class Mklauncher:
     def write_stdin_process(self, index, data):
         self.processes[index].stdin.write(data)
 
+    def shutdown_system(self):
+        try:
+            systemBus = dbus.SystemBus()
+            ckService = systemBus.get_object('org.freedesktop.ConsoleKit',
+                                             '/org/freedesktop/ConsoleKit/Manager')
+            ckInterface = dbus.Interface(ckService, 'org.freedesktop.ConsoleKit.Manager')
+            stopMethod = ckInterface.get_dbus_method("Stop")
+            stopMethod()
+            return True
+        except:
+            return False
+
     def send_command_wrong_params(self, identity, note='wrong parameters'):
         self.txCommand.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
@@ -429,8 +449,9 @@ class Mklauncher:
             self.send_command_msg(identity, MT_ERROR)
 
         elif self.rx.type == MT_LAUNCHER_SHUTDOWN:
-            self.txCommand.note.append("shutdown not allowed")
-            self.send_command_msg(identity, MT_ERROR)
+            if not self.shutdown_system():
+                self.txCommand.note.append("cannot shutdown system: DBus error")
+                self.send_command_msg(identity, MT_ERROR)
 
         else:
             self.txCommand.note.append("unknown command")

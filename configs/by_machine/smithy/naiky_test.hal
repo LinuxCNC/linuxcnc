@@ -12,8 +12,9 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwm
 
 loadusr -Wn naiky pyvcp -c naiky naiky.xml
 
-# create realtime thread
-loadrt threads name1=base-thread period1=50000 name2=servo-thread period2=1000000
+# create realtime threads
+newthread base-thread  50000
+newthread servo-thread 1000000
 
 loadrt encoder num_chan=1
 

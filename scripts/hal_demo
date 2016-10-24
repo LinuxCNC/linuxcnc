@@ -96,8 +96,8 @@ if [ $1 = parport1 ] ; then
     bin/halcmd show comp
     echo "Hit enter to create a 1mS thread"
     read
-    echo "$ bin/halcmd loadrt threads name1=parport.thread period1=1000000"
-    bin/halcmd loadrt threads name1=parport.thread period1=1000000
+    echo "$ bin/halcmd newthread parport.thread 1000000"
+    bin/halcmd newthread parport.thread 1000000
     echo "Hit enter see the threads and functions"
     read
     echo "$ bin/halcmd show thread"
@@ -220,8 +220,8 @@ if [ $1 = siggen ] ; then
     bin/halcmd show comp
     echo "Hit enter to create a 1mS thread"
     read
-    echo "$ bin/halcmd loadrt threads name1=siggen.thread period1=1000000"
-    bin/halcmd loadrt threads name1=siggen.thread period1=1000000
+    echo "$ bin/halcmd newthread siggen.thread 1000000"
+    bin/halcmd loadrt newthread siggen.thread 1000000
     echo "Hit enter see the threads and functions"
     read
     echo "$ bin/halcmd show thread"
@@ -294,7 +294,7 @@ if [ $1 = scope ] ; then
     read
     echo "First we load the siggen demo (not echoed)"
     bin/halcmd loadrt siggen
-    bin/halcmd loadrt threads name1=siggen.thread period1=1000000
+    bin/halcmd newthread siggen.thread 1000000
     bin/halcmd addf siggen.0.update siggen.thread
     bin/halcmd start
     bin/halcmd setp siggen.0.frequency 10
