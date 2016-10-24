@@ -162,7 +162,7 @@ struct hal_funct;
 struct hal_thread;
 struct hal_vtable;
 struct hal_ring;
-//struct hal_plug;
+struct hal_plug;
 
 typedef struct hal_comp hal_comp_t;
 typedef struct hal_inst hal_inst_t;
@@ -175,7 +175,7 @@ typedef struct hal_funct hal_funct_t;
 typedef struct hal_thread hal_thread_t;
 typedef struct hal_vtable hal_vtable_t;
 typedef struct hal_ring hal_ring_t;
-//typedef struct hal_plug hal_plug_t;
+typedef struct hal_plug hal_plug_t;
 
 
 // works like

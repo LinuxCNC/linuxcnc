@@ -145,8 +145,8 @@ void free_inst_struct(hal_inst_t * inst)
     args.type = HAL_PARAM;
     halg_foreach(0, &args, yield_free);  // free params
 
-//    args.type = HAL_PLUG;
-//    halg_foreach(0, &args, yield_free);  // free plugs
+    args.type = HAL_PLUG;
+    halg_foreach(0, &args, yield_free);  // free plugs
 
     // free frozen argv if any
     if (inst->frozen_argv) {

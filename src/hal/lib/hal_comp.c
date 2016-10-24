@@ -450,11 +450,11 @@ int free_comp_struct(hal_comp_t * comp)
     };
     halg_foreach(0, &paramargs, yield_free);
 
-//    foreach_args_t plugargs =  {
-//	.type = HAL_PLUG,
-//	.owner_id  = ho_id(comp),
-//    };
-//    halg_foreach(0, &plugargs, yield_free);  // free plugs
+    foreach_args_t plugargs =  {
+	.type = HAL_PLUG,
+	.owner_id  = ho_id(comp),
+    };
+    halg_foreach(0, &plugargs, yield_free);  // free plugs
 
     //  now we can delete the component itself.
     halg_free_object(false, (hal_object_ptr)comp);
