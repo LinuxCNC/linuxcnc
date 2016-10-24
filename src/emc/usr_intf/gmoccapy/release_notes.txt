@@ -1,3 +1,27 @@
+ver. 1.5.6.5
+- merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
+
+ver. 1.5.6.4
+- bugfix: if toggle button user tabs was active and the user changed the mode
+  (Manual,MDI or AUTO) the user tabs button staid active, but the screen
+  layout changed to the corresponding mode, letting the button pressed.
+- if embedded tabs was set in the INI file, the toggle button user tabs 
+  got active, even if no tab was configured for "ntb_user_tabs", changed this
+  and sorted the code to be together with the rest of user tabs
+
+ver. 1.5.6.3
+- bugfix: In _init_IconFileSelection the icon size was fixed with 48 
+  so changes the user makes to the glade file was not been taken care of
+- In glade file a signal on_btn_load_state_changed was set, but no handler present, 
+  leading to a error message on start in the terminal, erased the signal
+
+ver. 1.5.6.2.2
+- halui spindle override bug, caused by a race conflict
+  Thanks to pippin88 and dinkata to help solving his one
+
+ver. 1.5.6.2.1
+- bug in initialize optional stops
+
 ver. 1.5.6.2
 - bugfix: run from line was trying to set an entry in the alarm page, whitch
   I drobed in 1.5.6 
@@ -31,7 +55,7 @@ ver. 1.5.5.4
 ver. 1.5.5.3
 - deleted the working area limit pin, as this can be realized better
   with standard hal pin and did not work well with gmoccapy
-- settings page, all preview settings are now in one frame
+- settings page, all previes settings are now in one frame
 - updated the documentation
 - new serbian translation files, and corrected the language code 
   was rs.po instead sr.po
@@ -183,7 +207,7 @@ ver. 1.4.2
 ver. 1.4.1
 - corrected brocken layout style, as the jog-increment buttons has not 
   been modified to change there background color, getting only dark grey 
-  instead of yellow, if they where active. Now they follow the gmoccapy style.
+  instead of yellow, if they where active. No the follow the gmoccapy style.
 - the number of digits of the DRO can now be set on the settings page, so 
   users of fragil machines can reduce the digits.
 
