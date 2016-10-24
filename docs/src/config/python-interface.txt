@@ -238,7 +238,6 @@ axis limit masks. minHardLimit=1,
 maxHardLimit=2, minSoftLimit=4, maxSoftLimit=8.
 
 *linear_units*:: '(returns float)' -
-******
 reflects [TRAJ]LINEAR_UNITS ini value.
 
 *lube*:: '(returns integer)' -
@@ -384,7 +383,6 @@ else:
 ----
 
 *velocity*:: '(returns float)' -
-********
 default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
 
 === The `axis` dictionary [[sec:the-axis-dictionary]]
