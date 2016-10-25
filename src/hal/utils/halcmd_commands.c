@@ -51,7 +51,7 @@
 #include "halcmd_rtapiapp.h"
 #include "rtapi_hexdump.h"
 
-#include <types.npb.h>
+#include <../include/machinetalk/protobuf/types.npb.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1592,6 +1592,9 @@ int XXXXdo_unloadrt_cmd(char *mod_name)
     while ((name = zlist_pop(vtables)) != NULL)
 	zlist_append(components, name);
 
+    if (all)
+	do_delthread_cmd("all");
+
     /* we now have a list of components to do in-order, unload them */
     retval1 = 0;
     while ((name = zlist_pop(components)) != NULL) {
@@ -2407,7 +2410,7 @@ static int print_objects(char **patterns)
 }
 
 #include "rtapi_global.h"
-#include "shmdrv.h"
+#include "rtapi/shmdrv/shmdrv.h"
 static int print_mutexes(char **patterns)
 {
     extern global_data_t *global_data;
@@ -3251,7 +3254,6 @@ static int print_plug_entry(hal_object_ptr o, foreach_args_t *args)
     return 0;
 }
 
-
 static int print_ring_entry(hal_object_ptr o, foreach_args_t *args)
 {
     hal_ring_t *rptr = o.ring;
@@ -3287,6 +3289,7 @@ static int print_ring_entry(hal_object_ptr o, foreach_args_t *args)
 	    halcmd_output(" rmutex");
 	if (rh->use_wmutex )
 	    halcmd_output(" wmutex");
+	halcmd_output(rh->alloc_halmem ? " halmem" : " shmseg");
 	if (rh->type == RINGTYPE_STREAM)
 	    halcmd_output(" free:%u ",
 			  stream_write_space(rh));
@@ -3357,6 +3360,8 @@ int do_newring_cmd(char *ring, char *ring_size, char **opt)
 	    mode |=  USE_RMUTEX;
 	}  else if  (!strcasecmp(s,"wmutex")) {
 	    mode |=  USE_WMUTEX;
+	}  else if  (!strcasecmp(s,"halmem")) {
+	    mode |=  ALLOC_HALMEM;
 	}  else if  (!strcasecmp(s,"record")) {
 	    // default
 	}  else if  (!strcasecmp(s,"stream")) {
@@ -4345,33 +4350,46 @@ int do_setexact_cmd() {
 }
 
 // create a new named RT thread
-int do_newthread_cmd(char *name, char *period, char *args[])
+int do_newthread_cmd(char *name, char *args[])
 {
     int i, retval;
     bool use_fp = false;
     int cpu = -1;
-    const char *s;
-    int per = atoi(period);
+    char *s;
+    int per = 1000000;
     int flags = 0;
 
     for (i = 0; ((s = args[i]) != NULL) && strlen(s); i++) {
 	if (sscanf(s, "cpu=%d", &cpu) == 1)
 	    continue;
-	if (strcmp(s, "fp") == 0)
+	if (strcmp(s, "fp") == 0) {
 	    use_fp = true;
-	if (strcmp(s, "nofp") == 0)
+	    continue;
+	}
+	if (strcmp(s, "nofp") == 0) {
 	    use_fp = false;
-	if (strcmp(s, "posix") == 0)
+	    continue;
+	}
+	if (strcmp(s, "posix") == 0) {
 	    flags |= TF_NONRT;
-	if (strcmp(s, "nowait") == 0)
+	    continue;
+	}
+	if (strcmp(s, "nowait") == 0) {
 	    flags |= TF_NOWAIT;
+	    continue;
+	}
+	char *cp = s;
+	per = strtol(s, &cp, 0);
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    halcmd_error("value '%s' invalid for period\n", s);
+	    retval = -EINVAL;
+	}
     }
-
     if ((per < 10000) && !(flags & TF_NOWAIT))
 	halcmd_warning("a period < 10uS is unlikely to work\n");
+
     if ((flags & (TF_NOWAIT|TF_NONRT)) == TF_NOWAIT){
-	halcmd_error("specifying 'nowait' without 'posix' will likely lock up RT\n");
-	return -EINVAL;
+	halcmd_info("specifying 'nowait' without 'posix' makes it easy to lock up RT\n");
     }
 
     retval = rtapi_newthread(rtapi_instance, name, per, cpu, (int)use_fp, flags);

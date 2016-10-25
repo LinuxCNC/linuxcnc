@@ -194,7 +194,6 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     return task_id;
 }
 
-
 void _rtapi_task_delete_hook(task_data *task, int task_id) {
     int err;
     void *returncode;
@@ -202,10 +201,20 @@ void _rtapi_task_delete_hook(task_data *task, int task_id) {
     /* Signal thread termination and wait for the thread to exit. */
     if (!extra_task_data[task_id].deleted) {
 	extra_task_data[task_id].deleted = 1;
+
+	// pthread_cancel() will get the thread out of any blocking system
+	// calls listed under 'Cancellation points' in man 7 pthreads
+	// read(), poll() being important ones
+	err = pthread_cancel(extra_task_data[task_id].thread);
+	if (err)
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "pthread_cancel() on RT thread '%s': %d %s\n",
+			    task->name, err, strerror(err));
 	err = pthread_join(extra_task_data[task_id].thread, &returncode);
 	if (err)
-	    rtapi_print_msg
-		(RTAPI_MSG_ERR, "pthread_join() on realtime thread failed\n");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "pthread_join() on RT thread '%s': %d %s\n",
+			    task->name, err, strerror(err));
     }
     /* Free the thread stack. */
     free(extra_task_data[task_id].stackaddr);

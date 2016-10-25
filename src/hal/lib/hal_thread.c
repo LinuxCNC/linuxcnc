@@ -79,9 +79,11 @@ static void thread_task(void *arg)
 		set_s32_pin(fa.funct->f_runtime, delta);
 		if ( delta > get_s32_pin(fa.funct->f_maxtime)) {
 		    set_s32_pin(fa.funct->f_maxtime, delta);
+#ifdef ENABLE_TMAX_INC
 		    set_bit_pin(fa.funct->f_maxtime_increased, 1);
 		} else {
 		    set_bit_pin(fa.funct->f_maxtime_increased, 0);
+#endif
 		}
 
 		// issue a write barrier if set in funct_entry or
@@ -114,6 +116,9 @@ static void thread_task(void *arg)
 
 	    // support actual period measurement (get the starting value right)
 	    fa.last_start_time = rtapi_get_time();
+
+	    rtapi_wait(thread->flags);
+	    continue;
 	}
 
 	// update variance to derive a jitter ballpark figure
@@ -287,6 +292,7 @@ static int delete_thread_cb(hal_object_ptr o, foreach_args_t *args)
 {
     free_pin_struct(hal_ptr(o.thread->runtime._sp));
     free_pin_struct(hal_ptr(o.thread->maxtime._sp));
+    free_pin_struct(hal_ptr(o.thread->curr_period._sp));
     free_thread_struct(o.thread);
     return 0;
 }
@@ -322,6 +328,10 @@ extern int hal_thread_delete(const char *name)
     return halg_exit_thread(1, name);
 }
 
+int hal_exit_threads(void)
+{
+    return halg_exit_thread(1, NULL);
+}
 #endif /* RTAPI */
 
 

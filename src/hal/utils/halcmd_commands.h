@@ -127,7 +127,7 @@ extern int do_sweep_cmd(char *flags);
 // ping the RTAPI stack
 extern int do_ping_cmd(void);
 // create a new named RT thread
-extern int do_newthread_cmd(char *name, char *period, char *tokens[]);
+extern int do_newthread_cmd(char *name, char *tokens[]);
 // delete an RT thread
 extern int do_delthread_cmd(char *name);
 

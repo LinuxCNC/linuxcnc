@@ -229,7 +229,7 @@ struct halcmd_command halcmd_commands[] = {
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
     {"waitusr", FUNCT(do_waitusr_cmd), A_TWO | A_OPTIONAL  },
 
-    {"newthread",FUNCT(do_newthread_cmd), A_TWO |  A_PLUS},
+    {"newthread",FUNCT(do_newthread_cmd), A_ONE |  A_PLUS},
     {"newg",    FUNCT(do_newg_cmd),    A_ONE |  A_PLUS},
     {"delg",    FUNCT(do_delg_cmd),    A_ONE },
     {"newm",    FUNCT(do_newm_cmd),    A_TWO | A_OPTIONAL | A_PLUS},
