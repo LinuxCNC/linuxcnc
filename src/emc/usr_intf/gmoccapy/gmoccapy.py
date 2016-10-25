@@ -86,7 +86,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.1"
+_RELEASE = " 1.5.6.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -222,7 +222,7 @@ class gmoccapy( object ):
         self._init_user_messages()
 
         # set the title of the window, to show the release
-        self.widgets.window1.set_title( "gmoccapy for linuxcnc %s" % _RELEASE )
+        self.widgets.window1.set_title( "gmoccapy %s" % _RELEASE )
         self.widgets.lbl_version.set_label( "<b>gmoccapy\n%s</b>" % _RELEASE )
 
         panel = gladevcp.makepins.GladePanel( self.halcomp, XMLNAME, self.builder, None )
@@ -415,7 +415,7 @@ class gmoccapy( object ):
         self.widgets.ntb_jog.set_current_page( 0 )
         self.widgets.tbtn_optional_blocks.set_active( self.prefs.getpref( "blockdel", False ) )
         self.command.set_block_delete( self.widgets.tbtn_optional_blocks.get_active() )
-        self.widgets.tbtn_optional_stops.set_active( not self.prefs.getpref( "opstop", False ) )
+        self.widgets.tbtn_optional_stops.set_active( self.prefs.getpref( "opstop", False ) )
         self.command.set_optional_stop( self.widgets.tbtn_optional_stops.get_active() )
         self.widgets.chk_show_dro.set_active( self.prefs.getpref( "enable_dro", False ) )
         self.widgets.chk_show_offsets.set_active( self.prefs.getpref( "show_offsets", False ) )
@@ -429,51 +429,58 @@ class gmoccapy( object ):
         view = self.prefs.getpref( "gremlin_view", "rbt_view_p", str )
         self.widgets[view].set_active( True )
 
-        # if the INI Config is valid, lets check further on, what to do
-        if self.get_ini_info.get_embedded_tabs()[1]:
-            if "ntb_preview" in self.get_ini_info.get_embedded_tabs()[1]:
-                self.widgets.ntb_preview.set_property( "show-tabs", True )
-
-            # This is normaly only used for the plasma screen layout
-            if "box_coolant_and_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["box_spindle", "box_cooling"]
-                for widget in widgetlist:
-                    self.widgets[widget].hide()
-                self.widgets.tbtn_user_tabs.set_sensitive( False )
-
-            if "box_cooling" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_cooling"]
-                for widget in widgetlist:
-                    self.widgets[widget].hide()
-
-            if "box_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_spindle"]
-                for widget in widgetlist:
-                    self.widgets[widget].hide()
-
-            if "box_vel_info" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_max_vel", "frm_feed_override"]
-                for widget in widgetlist:
-                    self.widgets[widget].hide()
-
-            if "box_custom_1" in self.get_ini_info.get_embedded_tabs()[1]:
-                self.widgets.box_custom_1.show()
-
-            if "box_custom_2" in self.get_ini_info.get_embedded_tabs()[1]:
-                self.widgets.box_custom_2.show()
-
-            if "box_custom_3" in self.get_ini_info.get_embedded_tabs()[1]:
-                self.widgets.box_custom_3.show()
-
-            if "box_custom_4" in self.get_ini_info.get_embedded_tabs()[1]:
-                self.widgets.box_custom_4.show()
-
-            if "box_tool_and_code_info" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
-                for widget in widgetlist:
-                    self.widgets[widget].hide()
-                self.widgets.btn_tool.set_sensitive( False )
-                self.widgets.tbtn_user_tabs.set_sensitive( False )
+#        tab_locations = self.get_ini_info.get_embedded_tabs()[1] 
+#        # if the INI Config is valid, lets check further on, what to do
+#        if tab_locations:
+#            # make sure the user tabs button is disabled
+#            # if no ntb_user_tabs in location is given
+#            if "ntb_user_tabs" in tab_locations:
+#                self.widgets.tbtn_user_tabs.set_sensitive( True )
+#            else:
+#                self.widgets.tbtn_user_tabs.set_sensitive( False )
+#            
+#            if "ntb_preview" in tab_locations:
+#                self.widgets.ntb_preview.set_property( "show-tabs", True )
+#
+#            # This is normaly only used for the plasma screen layout
+#            if "box_coolant_and_spindle" in tab_locations:
+#                widgetlist = ["box_spindle", "box_cooling"]
+#                for widget in widgetlist:
+#                    self.widgets[widget].hide()
+#
+#            if "box_cooling" in tab_locations:
+#                widgetlist = ["frm_cooling"]
+#                for widget in widgetlist:
+#                    self.widgets[widget].hide()
+#
+#            if "box_spindle" in tab_locations:
+#                widgetlist = ["frm_spindle"]
+#                for widget in widgetlist:
+#                    self.widgets[widget].hide()
+#
+#            if "box_vel_info" in tab_locations:
+#                widgetlist = ["frm_max_vel", "frm_feed_override"]
+#                for widget in widgetlist:
+#                    self.widgets[widget].hide()
+#
+#            if "box_custom_1" in tab_locations:
+#                self.widgets.box_custom_1.show()
+#
+#            if "box_custom_2" in tab_locations:
+#                self.widgets.box_custom_2.show()
+#
+#            if "box_custom_3" in tab_locations:
+#                self.widgets.box_custom_3.show()
+#
+#            if "box_custom_4" in tab_locations:
+#                self.widgets.box_custom_4.show()
+#
+#            if "box_tool_and_code_info" in tab_locations:
+#                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
+#                for widget in widgetlist:
+#                    self.widgets[widget].hide()
+#                self.widgets.btn_tool.set_sensitive( False )
+#                self.widgets.tbtn_user_tabs.set_sensitive( False )
 
         # get if run from line should be used
         rfl = self.prefs.getpref( "run_from_line", "no_run", str )
@@ -927,7 +934,7 @@ class gmoccapy( object ):
         # register all tabs, so they will be closed together with the GUI
         atexit.register( self._kill_dynamic_childs )
 
-        tab_names, tab_location, tab_cmd = self.get_ini_info.get_embedded_tabs()
+        tab_names, tab_locations, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
             print ( _( "**** GMOCCAPY INFO ****" ) )
             print ( _( "**** Invalid embeded tab configuration ****" ) )
@@ -935,7 +942,7 @@ class gmoccapy( object ):
             return
 
         try:
-            for t, c, name in zip( tab_names, tab_cmd, tab_location ):
+            for t, c, name in zip( tab_names, tab_cmd, tab_locations ):
                 nb = self.widgets[name]
                 xid = self._dynamic_tab( nb, t )
                 if not xid: continue
@@ -945,6 +952,7 @@ class gmoccapy( object ):
                 nb.show_all()
         except:
             print( _( "ERROR, trying to initialize the user tabs or panaels, check for typos" ) )
+        self.set_up_user_tab_widgets(tab_locations)
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab( self, widget, text ):
@@ -962,6 +970,58 @@ class gmoccapy( object ):
     def _kill_dynamic_childs( self ):
         for child in self._dynamic_childs.values():
             child.terminate()
+
+    def set_up_user_tab_widgets(self, tab_locations):
+        print(tab_locations)
+        if tab_locations:
+            # make sure the user tabs button is disabled
+            # if no ntb_user_tabs in location is given
+            if "ntb_user_tabs" in tab_locations:
+                self.widgets.tbtn_user_tabs.set_sensitive( True )
+            else:
+                self.widgets.tbtn_user_tabs.set_sensitive( False )
+            
+            if "ntb_preview" in tab_locations:
+                self.widgets.ntb_preview.set_property( "show-tabs", True )
+
+            # This is normaly only used for the plasma screen layout
+            if "box_coolant_and_spindle" in tab_locations:
+                widgetlist = ["box_spindle", "box_cooling"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_cooling" in tab_locations:
+                widgetlist = ["frm_cooling"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_spindle" in tab_locations:
+                widgetlist = ["frm_spindle"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_vel_info" in tab_locations:
+                widgetlist = ["frm_max_vel", "frm_feed_override"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_custom_1" in tab_locations:
+                self.widgets.box_custom_1.show()
+
+            if "box_custom_2" in tab_locations:
+                self.widgets.box_custom_2.show()
+
+            if "box_custom_3" in tab_locations:
+                self.widgets.box_custom_3.show()
+
+            if "box_custom_4" in tab_locations:
+                self.widgets.box_custom_4.show()
+
+            if "box_tool_and_code_info" in tab_locations:
+                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+                self.widgets.btn_tool.set_sensitive( False )
 
 # Dynamic tabs handling End
 # =============================================================
@@ -1182,9 +1242,6 @@ class gmoccapy( object ):
     # Icon file selection stuff
     def _init_IconFileSelection( self ):
         self.widgets.IconFileSelection1.set_property( "start_dir", self.get_ini_info.get_program_prefix() )
-
-        iconsize = 48
-        self.widgets.IconFileSelection1.set_property( "icon_size", iconsize )
 
         file_ext = self.get_ini_info.get_file_ext()
         filetypes = ""
@@ -1631,9 +1688,12 @@ class gmoccapy( object ):
 
     def on_hal_status_mode_manual( self, widget ):
         self.widgets.rbt_manual.set_active( True )
-        # setup page will be activated, if we don't leave, the pages will be reset with this call
-        if self.widgets.tbtn_setup.get_active() == True:
+        # if setup page is activated, we must leave here, otherwise the pages will be reset
+        if self.widgets.tbtn_setup.get_active():
             return
+        # if we are in user tabs, we must reset the button
+        if self.widgets.tbtn_user_tabs.get_active():
+            self.widgets.tbtn_user_tabs.set_active(False)
         self.widgets.ntb_main.set_current_page( 0 )
         self.widgets.ntb_button.set_current_page( 0 )
         self.widgets.ntb_info.set_current_page( 0 )
@@ -1660,6 +1720,9 @@ class gmoccapy( object ):
             self._show_error( ( 13, _( "It is not possible to change to MDI Mode at the moment" ) ) )
             return
         else:
+            # if we are in user tabs, we must reset the button
+            if self.widgets.tbtn_user_tabs.get_active():
+                self.widgets.tbtn_user_tabs.set_active(False)
             if self.widgets.chk_use_kb_on_mdi.get_active():
                 self.widgets.ntb_info.set_current_page( 1 )
             else:
@@ -1681,6 +1744,9 @@ class gmoccapy( object ):
             self._show_error( ( 13, _( "It is not possible to change to Auto Mode at the moment" ) ) )
             return
         else:
+            # if we are in user tabs, we must reset the button
+            if self.widgets.tbtn_user_tabs.get_active():
+                self.widgets.tbtn_user_tabs.set_active(False)
             self.widgets.ntb_main.set_current_page( 0 )
             self.widgets.ntb_button.set_current_page( 2 )
             self.widgets.ntb_info.set_current_page( 0 )
@@ -2623,11 +2689,12 @@ class gmoccapy( object ):
                 self.widgets.tbtn_setup.set_active( False )
 
     def on_tbtn_setup_toggled( self, widget, data = None ):
+        
         # first we set to manual mode, as we do not allow changing settings in other modes
         # otherwise external halui commands could start a program while we are in settings
         self.command.mode( linuxcnc.MODE_MANUAL )
         self.command.wait_complete()
-
+        
         if widget.get_active():
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
             self.widgets.rbt_manual.set_sensitive( False )
@@ -2680,6 +2747,9 @@ class gmoccapy( object ):
             self.widgets.ntb_button.set_current_page( 0 )
             self.widgets.ntb_info.set_current_page( 0 )
             self.widgets.ntb_jog.set_current_page( 0 )
+            # if we are in user tabs, we must reset the button
+            if self.widgets.tbtn_user_tabs.get_active():
+                self.widgets.tbtn_user_tabs.set_active(False)
 
     # Show or hide the user tabs
     def on_tbtn_user_tabs_toggled( self, widget, data = None ):
@@ -2790,7 +2860,7 @@ class gmoccapy( object ):
         else:
             speed = self.stat.spindle_speed
         self.widgets.active_speed_label.set_label( "%.0f" % abs( speed ) )
-        self.on_adj_spindle_value_changed( self.widgets.adj_spindle )
+        self.widgets.lbl_spindle_act.set_text( "S %d" % int(speed * self.spindle_override) )
 
     def on_rbt_forward_clicked( self, widget, data = None ):
         if widget.get_active():
