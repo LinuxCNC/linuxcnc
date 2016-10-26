@@ -323,10 +323,9 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
 * 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
     <<cha:pyvcp,PyVCP Chapter>> for more information.
 
-* 'LATHE = 1' - This displays in lathe mode with a top view and with Radius and
-    Diameter on the DRO.
+* 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 
-* 'FOAM = 1' - Change the display for foam-cutter mode.
+* 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
 
 * 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
     of a sequence of axis letters, optionally preceded by a "-" sign.
