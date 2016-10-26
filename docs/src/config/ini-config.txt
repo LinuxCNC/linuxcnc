@@ -367,14 +367,23 @@ the following line:
 
 * 'PROGRAM_EXTENSION = .NGC XYZ Post Processor'
 
-The following lines add support for the image-to-gcode converter
-included with LinuxCNC:
+The following lines add support for the image-to-G code converter
+included with LinuxCNC.
 
 * 'PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image'
+* 'PROGRAM_EXTENSION = .gcode 3D Printer
 ** 'png = image-to-gcode'
 ** 'gif = image-to-gcode'
 ** 'jpg = image-to-gcode'
-    
+
+An example of a custom G code converter located in the linuxcnc directory.
+
+* 'PROGRAM_EXTENSION = .gcode 3D Printer
+** 'gcode = /home/mill/linuxcnc/convert.py'
+
+NOTE: The program file assoiated with an extension must have either the full
+path to the program or be located in a directory that is on the system path.
+
 It is also possible to specify an interpreter:
 
 * 'PROGRAM_EXTENSION = .py Python Script'
