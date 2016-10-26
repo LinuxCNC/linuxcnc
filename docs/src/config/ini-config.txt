@@ -371,7 +371,6 @@ The following lines add support for the image-to-G code converter
 included with LinuxCNC.
 
 * 'PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image'
-* 'PROGRAM_EXTENSION = .gcode 3D Printer
 ** 'png = image-to-gcode'
 ** 'gif = image-to-gcode'
 ** 'jpg = image-to-gcode'
