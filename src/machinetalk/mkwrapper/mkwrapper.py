@@ -1194,6 +1194,7 @@ class LinuxCNCWrapper():
             self.status.motion.feed_hold_enabled = False
             self.status.motion.feed_override_enabled = False
             self.status.motion.feedrate = 0.0
+            self.status.motion.rapidrate = 0.0
             self.status.motion.g5x_index = ORIGIN_G54
             self.status.motion.g5x_offset.MergeFrom(self.zero_position())
             self.status.motion.g92_offset.MergeFrom(self.zero_position())
@@ -1236,7 +1237,7 @@ class LinuxCNCWrapper():
             modified |= self.update_motion_value(name, getattr(stat, name))
 
         for name in ['current_vel', 'delay_left', 'distance_to_go',
-                     'feedrate', 'rotation_xy', 'spindle_speed',
+                     'feedrate',  'rapidrate', 'rotation_xy', 'spindle_speed',
                      'spindlerate', 'max_acceleration', 'max_velocity']:
             modified |= self.update_motion_float(name, getattr(stat, name))
 
@@ -1679,6 +1680,16 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('scale'):
                     feedrate = self.rx.emc_command_params.scale
                     self.command.feedrate(feedrate)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
+                else:
+                    self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_RAPID_SCALE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('scale'):
+                    rapidrate = self.rx.emc_command_params.scale
+                    self.command.rapidrate(rapidrate)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
