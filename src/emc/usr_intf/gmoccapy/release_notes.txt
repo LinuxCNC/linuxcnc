@@ -1,3 +1,7 @@
+ver. 1.5.6.6
+- check at start if there is a INI entry for DEFAULT_SPINDLE_SPEED
+  and set the gmoccapy settings accordingly.
+
 ver. 1.5.6.5
 - merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
 

@@ -119,6 +119,14 @@ class GetIniInfo:
             temp = 15.0
         return float(temp) * 60
 
+    def get_default_spindle_speed(self):
+        # check for override settings
+        temp = self.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
+        if not temp:
+            temp = 300
+            print("**** GMOCCAPY GETINIINFO **** \n No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
+        return float(temp)
+
     def get_max_spindle_override(self):
         # check for override settings
         temp = self.inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")
