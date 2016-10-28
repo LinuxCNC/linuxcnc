@@ -239,8 +239,8 @@ User Manual.
   select. 1.0 means 100% of the programmed spindle speed.
 
 * 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
-  is started in manual mode. This is not the minimum speed. In AXIS this
-  defaults to 1 RPM if this setting is not present.
+  is started in manual mode. if this setting is not present, this
+  defaults to 1 RPM for AXIS and 300 RPM for gmoccapy.
 
 * 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code
   files and the location for user-defined M-codes. This location is searched
@@ -293,15 +293,18 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     The value is interpreted the same way as 'INCREMENTS'.
 
 * 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts. Use
-   a blank string "" and no file will be loaded at start up.
+   a blank string "" and no file will be loaded at start up. gmoccapy will not use this setting, as it
+   offers a coresponding entry on its settings page.
 
 * 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G code 
     from the AXIS menu. This must be configured for this menu item to
-    work. Another valid entry is gnome-terminal -e vim.
+    work. Another valid entry is gnome-terminal -e vim. This entry does not apply to gmoccapy, as gmoccapy 
+    has an integrated editor.
 
 * 'TOOL_EDITOR = tooledit' - The editor to use when editing the tool table (for example by
     selecting "File > Edit tool table..." in Axis). Other valid
-    entries are "gedit", "gnome-terminal -e vim", and "gvim".
+    entries are "gedit", "gnome-terminal -e vim", and "gvim". This entry does not apply to gmoccapy, as gmoccapy 
+    has an integrated editor.
 
 * 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
     <<cha:pyvcp,PyVCP Chapter>> for more information.
@@ -348,7 +351,7 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
 === [FILTER] Section
 
-AXIS has the ability to send loaded files through a filter program.
+AXIS and gmoccapy have the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure
 the file ends with M2, or something as complicated as detecting whether
 the input is a depth image, and generating g-code to mill the shape it
@@ -610,8 +613,8 @@ For more information see the <<cha:hal-twopass,Hal TWOPASS>> chapter.
 
 * 'POSTGUI_HALFILE = example2.hal' - Execute 'example2.hal' after the GUI has created
   its HAL pins.  Some GUIs create hal pins and support the use of a postgui halfile
-  to use them.  GUIs that support postgui halfiles include Touchy, Axis, Gscreen, and
-  Gmoccapy.
+  to use them. GUIs that support postgui halfiles include Touchy, Axis, Gscreen, and
+  gmoccapy.
 
   See section <<sec:pyvcp-with-axis,pyVCP with Axis>> Section for more information.
 
@@ -800,7 +803,8 @@ small, tight corners, since you're limited by cornering acceleration.
     nontrivial kinematics (e.g., scarakins) this will generally be the
     number of controlled joints.
 
-* 'JOINTS = 3' - (This config variable is used by the Axis GUI only,
+* 'JOINTS = 3' - (This config variable is used by the Axis and gmoccapy 
+    (from release 2.0) GUI only,
     not by the trajectory planner in the motion controller.)  Specifies
     the number of joints (motors) in the system.  For example, an XYZ
     machine with a single motor for each axis has 3 joints.  A gantry
@@ -815,18 +819,18 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
     Possible choices are (in, inch, imperial, metric, mm).
-     This does not affect the linear units in NC code (the G20 and G21
+    This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
 * 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
     Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
     (2pi per circle), 'grad', or 'gon' (400 per circle).
-     This does not affect the angular units of NC code. In RS274NGC, A-, B-
+    This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
 * 'DEFAULT_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in 
-  machine units per second. The value shown in 'Axis' equals
-  machine units per minute.
+    machine units per second. The value shown in 'Axis' equals
+    machine units per minute.
 
 * 'DEFAULT_ACCELERATION = 2.0' - In machines with nontrivial kinematics, the acceleration used
     for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
