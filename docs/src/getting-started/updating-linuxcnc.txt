@@ -6,7 +6,7 @@ Updating LinuxCNC for example from 2.7.0 to 2.7.1 and your PC is connected to
 the internet is an automatic process. You will see an update prompt after a
 minor release along with other software updates. If you don't have an internet
 connection to your PC see
-<<getting-started:update-no-network,Updating without Network>>
+<<getting-started:update-no-network,Updating without Network>>.
 
 == Upgrade to the new version
 
@@ -15,8 +15,8 @@ version 2.6. It assumes that you have an existing 2.6 install that you
 want to update to 2.7.
 
 To upgrade LinuxCNC to version 2.7 from a version older than 2.6, you have to
-first link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[upgrade to 2.6]
-, then follow these instructions to upgrade to 2.7.
+first link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[upgrade to 2.6],
+then follow these instructions to upgrade to 2.7.
 
 If you do not have an old (pre-2.7) version of LinuxCNC to upgrade,
 then you're best off making a fresh install of 2.7 as described in the
