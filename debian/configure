@@ -141,7 +141,7 @@ fi
 PYTHON_PACKAGING=dh_pysupport
 
 case $DISTRIB_NAME in
-Ubuntu-16.04) # Ubuntu Xenial (LTS)
+Ubuntu-16.04|LinuxMint-18|LinuxMint-18.*) # Ubuntu Xenial (LTS) or LinuxMint 18 (LTS)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,dh-python
 	TCLTK_VERSION=8.6
 	PYTHON_PACKAGING=dh_python2
