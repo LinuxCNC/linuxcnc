@@ -92,7 +92,6 @@ class GetIniInfo:
             return False
         return True
 
-
     def get_jog_vel(self):
         # get default jog velocity
         # must convert from INI's units per second to gscreen's units per minute
@@ -271,9 +270,6 @@ class GetIniInfo:
             print( message )
             subroutines_paths = self.get_program_prefix()
         if not subroutines_paths:
-            message = _( "**** GMOCCAPY GETINIINFO ****\n" )
-            message += _( "**** we checked for DISPLAY PROGRAM_PREFIX ****" )
-            message += _( "**** but could not find that entry easer, will disable macros ****" )
             return False
         return subroutines_paths
 
