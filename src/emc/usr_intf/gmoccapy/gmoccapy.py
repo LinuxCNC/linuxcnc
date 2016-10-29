@@ -45,6 +45,7 @@ import gettext            # to extract the strings to be translated
 from gladevcp.gladebuilder import GladeBuilder
 
 from time import strftime   # needed for the clock in the GUI
+from __builtin__ import next
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook( exc_type, exc_obj, exc_tb ):
@@ -86,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.6"
+_RELEASE = " 1.5.6.7"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1826,21 +1827,9 @@ class gmoccapy( object ):
 
     # What to do if a macro button has been pushed
     def _on_btn_macro_pressed( self, widget = None, data = None ):
+        print (data)
         o_codes = data.split()
-        subroutines_path = self.get_ini_info.get_subroutine_path()
-        if not subroutines_path:
-            message = _( "**** GMOCCAPY ERROR ****" )
-            message += _( "\n**** No subroutine folder or program prefix is given in the ini file **** \n" )
-            message += _( "**** so the corresponding file could not be found ****" )
-            dialogs.warning_dialog( self, _( "Important Warning" ), message )
-            return
-        file = subroutines_path + "/" + o_codes[0] + ".ngc"
-        if not os.path.isfile( file ):
-            message = _( "**** GMOCCAPY ERROR ****" )
-            message += _( "\n**** File %s of the macro could not be found ****\n" % [o_codes[0] + ".ngc"] )
-            message += _( "**** we searched in subdirectory %s ****" % subroutines_path )
-            dialogs.warning_dialog( self, _( "Important Warning" ), message )
-            return
+
         command = str( "O<" + o_codes[0] + "> call" )
         for code in o_codes[1:]:
             parameter = dialogs.entry_dialog( self, data = None, header = _( "Enter value:" ),
@@ -2147,19 +2136,23 @@ class gmoccapy( object ):
     # check if macros are in the INI file and add them to MDI Button List
     def _add_macro_button( self ):
         macros = self.get_ini_info.get_macros()
+
+        # There are no macro entries in INI File
+        if not macros:
+            return
+
         num_macros = len( macros )
         if num_macros > 9:
-            message = _( "**** GMOCCAPY INFO ****" )
-            message += _( "\n**** found more than 9 macros, only the first 9 will be used ****" )
+            message = _( "**** GMOCCAPY INFO ****\n" )
+            message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
             print( message )
             num_macros = 9
         for increment in range( 0, num_macros ):
             name = macros[increment]
-            # shorten the name if it is to long
-            if len( name ) > 11:
-                lbl = name[0:10]
-            else:
-                lbl = macros[increment]
+            lbl = name.split()[0]
+            # shorten / break line of the name if it is to long
+            if len( lbl ) > 11:
+                lbl = lbl[0:10] + "\n" + lbl[11:20]
             btn = gtk.Button( lbl, None, False )
             btn.connect( "pressed", self._on_btn_macro_pressed, name )
             btn.position = increment

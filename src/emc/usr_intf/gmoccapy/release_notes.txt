@@ -1,3 +1,9 @@
+ver. 1.5.6.7
+- reading of subroutine paths did not take care of ":" separeted paths
+  so it was not possible to use NativeCAM together with gmoccapy macros
+  I corrected that misbehavior of gmoccapy. That change was used to
+  clear some macro code and I transfered some checking to get_ini_info
+
 ver. 1.5.6.6
 - check at start if there is a INI entry for DEFAULT_SPINDLE_SPEED
   and set the gmoccapy settings accordingly.
