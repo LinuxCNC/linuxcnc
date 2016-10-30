@@ -81,6 +81,8 @@ class Combi_DRO(gtk.VBox):
                     8, 96, 25, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'toggle_readout' : (gobject.TYPE_BOOLEAN, 'Enable toggling readout with click', 'The DRO will toggle between Absolut , Relativ and DTG with each mouse click.',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'cycle_time' : (gobject.TYPE_INT, 'Cycle Time', 'Time, in milliseconds, that display will sleep between polls',
+                    100, 1000, 150, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
 
@@ -117,6 +119,7 @@ class Combi_DRO(gtk.VBox):
         self.unit_convert = 1
         self._auto_units = True
         self.toggle_readout = True
+        self.cycle_time = 150
 
         # Make the GUI and connect signals
         self.eventbox = gtk.EventBox()
@@ -165,9 +168,6 @@ class Combi_DRO(gtk.VBox):
 
         self.show_all()
 
-        # add the timer at a period of 100 ms
-        gobject.timeout_add(100, self._periodic)
-
         # This try is only needed because while working with glade
         # linuxcnc may not be working
         try:
@@ -185,6 +185,10 @@ class Combi_DRO(gtk.VBox):
             self.machine_units = _MM
         else:
             self.machine_units = _INCH
+
+        # add the timer at a period of 100 ms
+        gobject.timeout_add(self.cycle_time, self._periodic)
+
 
     # make an pango attribute to be used with several labels
     def _set_attributes(self, bgcolor, fgcolor, size, weight):
@@ -252,6 +256,8 @@ class Combi_DRO(gtk.VBox):
                     self._set_labels()
                 if name == "toggle_readout":
                     self.toggle_readout = value
+                if name == "cycle_time":
+                    self.cycle_time = value
                 if name in ('metric_units', 'actual', 'diameter'):
                     setattr(self, name, value)
                     self.queue_draw()

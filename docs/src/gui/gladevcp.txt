@@ -1481,6 +1481,13 @@ toggle_readout::
     Value must be bool +    
     default is TRUE
 
+cycle_time::
+    The time the DRO waits between two polls,
+    the value must be an integer in the range of 100 to 1000, +
+    default is 150, this setting should only be changed if you use more +
+    than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that +
+    the DRO slows down the main application too much.
+
 Direct program control::
     Using gobject to set the above listed properties:
 
