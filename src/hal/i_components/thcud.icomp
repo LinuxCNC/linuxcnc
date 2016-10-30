@@ -59,8 +59,6 @@ author "John Thornton";
 
 license "GPLv2 or greater";
 
-option singleton yes;
-
 // Input Pins
 pin in bit torch_up "Connect to an input pin";
 pin in bit torch_down "Connect to input pin";

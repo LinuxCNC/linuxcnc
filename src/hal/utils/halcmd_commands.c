@@ -1190,7 +1190,7 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
     char arg_section[MAX_CMD_LEN+1];
     char buff[MAX_CMD_LEN+1];
     int  n = 0, x = 0, w = 0, p = 0, retval;
-    bool instantiable = false, singleton = false;
+    bool instantiable = false;
     char *cp1, *cp2;
     char *argv[] = { NULL};
     // MAX_ARGS defined in halcmd_commands.h - currently 20
@@ -1215,8 +1215,6 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 	if((retval & HC_INSTANTIABLE) == HC_INSTANTIABLE )
 	    instantiable = true;
 	// extra test for other tags below
-	if((retval & HC_SINGLETON) == HC_SINGLETON)
-	    singleton = true;
     }
 
     // if not instantiable and not called from do_newinst_cmd(),
@@ -1227,13 +1225,12 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
     }
 
     // from here on: only instantiable comps to be considered
-    // a singleton might be instantiable too (once only)
     //
     // if we come here we were called from do_newinst_cmd()
     if (!(args[0] != NULL && strlen(args[0]))) {
 	// no args case: treat as count=1
 	// if no args just create a single instance
-	// with default number 0, unless singleton.
+	// with default number 0.
 
 	// if the module isnt loaded yet, do so now:
 	// XXX - autoload setting? I guess this is assumed
@@ -1242,23 +1239,11 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 	    if((retval = (loadrt(mod_name, argv))) )
 		return retval;
 	}
-	// determine instance name:
-	if (singleton) {
-	    // a singleton instantiable comp will have a single instance
-	    // with the same name as the component.
-	    sprintf(buff, "%s", mod_name);
-	    hal_comp_t *existing_comp = halpr_find_comp_by_name(mod_name);
-	    if (inst_name_exists(buff) || inst_count(existing_comp)) {
-		halcmd_error("\nError singleton component '%s' already exists\n", buff);
-		return -1;
-	    }
-	} else {
-	    // find unused instance name
-	    w = 0;
-	    sprintf(buff, "%s.%d", mod_name, w);
-	    while(inst_name_exists(buff))
-		sprintf(buff, "%s.%d", mod_name, ++w);
-	}
+	// find unused instance name
+	w = 0;
+	sprintf(buff, "%s.%d", mod_name, w);
+	while(inst_name_exists(buff))
+	    sprintf(buff, "%s.%d", mod_name, ++w);
 	// now instantiate with this name
 	retval = do_newinst_cmd(mod_name, buff, argv);
 	if ( retval != 0 ) {
@@ -1272,7 +1257,8 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 
     strcpy(arg_string, args[0]);
     // handle count=N
-    if ((strncmp(arg_string, "count=", 6) == 0) && !singleton) {
+    if (strncmp(arg_string, "count=", 6) == 0)
+	{
 	strcpy(arg_section, &arg_string[6]);
 	n = strtol(arg_section, &cp1, 10);
 	if (n > 0) {
@@ -1298,7 +1284,8 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 	}
     } // count=N
     // handle names="..."
-    else if ((strncmp(arg_string, "names=", 6) == 0) && !singleton) {
+    else if (strncmp(arg_string, "names=", 6) == 0)
+	{
 	strcpy(arg_section, &arg_string[6]);
 	cp1 = strtok(arg_section, ",");
 	list_index = 0;
@@ -1336,8 +1323,7 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
     } else {
 	// invalid parameter
 	halcmd_error("\nInvalid argument '%s' to instantiated component\n"
-		     "NB. Use of personality or cfg is deprecated\n"
-		     "Singleton components cannot have multiple instances\n\n",
+		     "NB. Use of personality or cfg is deprecated\n",
 		     args[x]);
 	return -1;
     }
@@ -3738,7 +3724,6 @@ int do_newinst_cmd(char *comp, char *inst, char *args[])
     int retval;
     cstatus_t status = classify_comp(comp);
     char *argv[] = { NULL};
-    bool singleton = false;
 
     switch (status) {
     case CS_NOT_LOADED:
@@ -3776,22 +3761,7 @@ int do_newinst_cmd(char *comp, char *inst, char *args[])
     if (retval == -1) {
         halcmd_error("Error in module tags search");
         return retval;
-    } else {
-        if ((retval & HC_SINGLETON) == HC_SINGLETON)
-            singleton = true;
-    }
-
-    //  If a singleton is created via a direct loadrt, it will have the same name
-    //  as the component.  If created by newinst, it could have any name.
-    //  Try to prevent more than one singleton being created using newinst afterwards.
-    if (singleton) {
-	WITH_HAL_MUTEX();
-        hal_comp_t *existing_comp = halpr_find_comp_by_name(comp);
-        if (inst_name_exists(comp) || inst_count(existing_comp)) {
-	    halcmd_error("Singleton components cannot have multiple instances\n\n");
-	    return -1;
-	}
-    }
+	} 
 
     retval = rtapi_newinst(rtapi_instance, comp, inst, (const char **)args);
     if (retval) {
