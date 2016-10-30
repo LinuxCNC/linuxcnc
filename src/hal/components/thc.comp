@@ -1,9 +1,9 @@
 component thc "Torch Height Control";
 
-description
+description 
 """
 Torch Height Control
-Mesa THC > Encoder > Machinekit THC component
+Mesa THC > encoder > Machinekit THC component
 
 The Mesa THC sends a frequency based on the voltage detected to the encoder.
 The velocity from the encoder is converted to volts with the velocity scale
@@ -24,7 +24,7 @@ pass the Z position and feed back untouched.
 
 If not enabled pass the Z position and feed back untouched.
 
-*Physical Connections*
+Physical Connections
 
 Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
 
@@ -34,7 +34,7 @@ Plasma Torch Arc OK Signal => input pin
 
 output pin => Plasma Torch Start Arc Contacts
 
-*HAL Plasma Connections*
+HAL Plasma Connections
 
 encoder.nn.velocity => thc.encoder-vel (tip voltage)
 
@@ -42,17 +42,19 @@ motion.spindle-on => output pin (start the arc)
 
 thc.arc-ok <= motion.digital-in-00 <= input pin (arc ok signal)
 
-*HAL Motion Connections*
+HAL Motion Connections
 
 thc.requested-vel <= motion.requested-vel
 
 thc.current-vel <= motion.current-vel
 
 """;
-
+ 
 author "John Thornton";
 
 license "GPLv2 or greater";
+
+option singleton yes;
 
 // Input Pins
 pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
@@ -70,17 +72,18 @@ pin out float z_pos_out "Z Motor Position Command Out";
 pin out float z_fb_out "Z Position Feedback to Axis";
 pin out float volts "The Calculated Volts";
 pin out bit vel_status "When the THC thinks we are at requested speed";
+pin out float offset_value "The Current Offset";
 
 // Parameters
-pin io float vel_scale "The scale to convert the Velocity signal to Volts";
-pin io float scale_offset "The offset of the velocity input at 0 volts";
-pin io float velocity_tol "The deviation percent from planned velocity";
-pin io float voltage_tol "The deviation of Tip Voltage before correction takes place";
-pin io float correction_vel "The amount of change in user units per period to move Z to correct";
+param rw float vel_scale "The scale to convert the Velocity signal to Volts";
+param rw float scale_offset "The offset of the velocity input at 0 volts";
+param rw float velocity_tol "The deviation percent from planned velocity";
+param rw float voltage_tol "The deviation of Tip Voltage before correction takes place";
+param rw float correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
-variable hal_float_t offset;
-variable hal_float_t last_z_in;
+variable float offset = 0.0;
+variable float last_z_in = 0.0;
 
 function _;
 
@@ -88,42 +91,41 @@ function _;
 
 #include "rtapi_math.h"
 
-FUNCTION(_)
-{
-
+FUNCTION(_) {
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
-    if(volts < 0.0){volts = 0.0;} // make sure volts is not negative
+    if(volts < 0){volts = 0;} // make sure volts is not negative
+    offset_value = offset;
 
     if(enable){
-        hal_float_t min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
-        if(current_vel > 0.0 && current_vel >= min_velocity){vel_status = 1;}
-        else {vel_status = false;}
-
+        float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
+        if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
+        else {vel_status =0;}
+        
         if(torch_on && arc_ok && vel_status){ // allow correction
             if((volts + voltage_tol) > volts_requested){
                 offset -= correction_vel;
             }
             if((volts - voltage_tol) < volts_requested){
                 offset += correction_vel;
-            }
-            last_z_in = 0.0;
+            }    
+            last_z_in = 0;
         }
         if(!torch_on){ // remove any offset
-            hal_float_t z_diff;
+            float z_diff;
             z_diff = z_pos_in - last_z_in;
-            if(z_diff > 0.0 && offset != 0.0){ // torch is moving up
-                if(offset > 0.0){ // positive offset
+            if(z_diff > 0 && offset != 0){ // torch is moving up
+                if(offset > 0){ // positive offset
                     if(offset > z_diff){ // remove some
                         offset -= z_diff;
                     }
-                    else {offset = 0.0;}
+                    else {offset = 0;}
                 }
-                if(offset < 0.0){ // negative offset
+                if(offset < 0){ // negative offset
                     if(offset < z_diff){ // remove some
                         offset += z_diff;
                     }
-                    else {offset = 0.0;}
+                    else {offset = 0;}
                 }
             }
             last_z_in = z_pos_in;
@@ -135,5 +137,5 @@ FUNCTION(_)
         z_pos_out = z_pos_in;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
-return 0;
 }
+

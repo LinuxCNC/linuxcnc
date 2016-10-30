@@ -857,7 +857,7 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, ""
         for _, name, fp, doc in finddocs('funct'):
     	    if name != None and name != "_":
-                print >>f, "*%s.N.%s*" % (comp_name, name) 
+                print >>f, "*%s.N.%s*" % (comp_name, to_hal(name)) 
             else :
                 print >>f, "*%s.N*" % comp_name 
             if fp:
@@ -871,7 +871,7 @@ def adocument(filename, outfilename, frontmatter):
     print >>f, "=== PINS"
     print >>f, ""    
     for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
-        print >>f, "*%s*" % name,
+        print >>f, "*%s*" % to_hal(name),
         print >>f, type, dir,
         if array:
             sz = name.count("#")
@@ -894,7 +894,7 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, "=== PARAMETERS"
         print >>f, ""
         for _, name, type, array, dir, doc, value, personality in finddocs('param'):
-            print >>f, "*%s*" % name,
+            print >>f, "*%s*" % to_hal(name),
             print >>f, type, dir,
             if array:
                 sz = name.count("#")
