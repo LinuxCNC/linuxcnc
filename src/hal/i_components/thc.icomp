@@ -54,8 +54,6 @@ author "John Thornton";
 
 license "GPLv2 or greater";
 
-option singleton yes;
-
 // Input Pins
 pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
 pin in float current_vel "Connect to motion.current-vel";
@@ -92,6 +90,7 @@ function _;
 
 FUNCTION(_)
 {
+
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
     if(volts < 0.0){volts = 0.0;} // make sure volts is not negative
@@ -136,6 +135,5 @@ FUNCTION(_)
         z_pos_out = z_pos_in;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
-
 return 0;
 }

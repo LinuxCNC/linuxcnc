@@ -116,7 +116,7 @@ Thus existing configs will still work for the most part using loadrt (see Notes 
 
 This includes the sim configs included with machinekit
 
-The singleton component is supported by changes to halcmd, which will prevent more than one instance being loaded
+The singleton component is deprecated - just make sure you only load one if they clash
 
 Notes
 
@@ -254,9 +254,6 @@ The differing options are:
 * *'instanceparam [int / string] param_name = <value>'*
     Instanceparams that may be passed to the component at newinst
     If value not set, will be set to 0 or "\0" respectively
-
-*   *'singleton'*   will only allow one instance to be loaded anywhere within a single session
-    This is contrary to the basic premise of instantiated components, but implemented for compatibility
 
 *   *'option MAXCOUNT'*
 
