@@ -38,6 +38,17 @@ class GetIniInfo:
             print("**** GMOCCAPY GETINIINFO **** \n Error, no INI File given !!")
             sys.exit()
 
+    def get_cycle_time(self):
+        temp = self.inifile.find("DISPLAY", "CYCLE_TIME")
+        try:
+            return int(temp)
+        except:
+            message = ("**** GMOCCAPY GETINIINFO **** \n")
+            message += ("Wrong entry [DISPLAY] CYCLE_TIME in INI File!\n")            
+            message += ("Will use gmoccapy default 150")
+            print(message)
+            return 150
+
     def get_postgui_halfile(self):
         postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
         if not postgui_halfile:

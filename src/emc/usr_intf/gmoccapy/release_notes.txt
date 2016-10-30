@@ -1,3 +1,8 @@
+ver. 1.5.6.8
+- gmoccapy poll time for the GUI was hard coded till now, I changed that
+  to take care of the INI File settings. If no or a wrong entry is in the 
+  INI file a default value of 150 will be used.
+
 ver. 1.5.6.7
 - reading of subroutine paths did not take care of ":" separeted paths
   so it was not possible to use NativeCAM together with gmoccapy macros

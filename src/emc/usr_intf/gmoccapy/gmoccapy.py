@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.7"
+_RELEASE = " 1.5.6.8"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -673,7 +673,9 @@ class gmoccapy( object ):
         # will block the UI as well, so everything goes through event handlers (aka callbacks)
         # The gobject.timeout_add() function sets a function to be called at regular intervals
         # the time between calls to the function, in milliseconds
-        gobject.timeout_add( 100, self._periodic )  # time between calls to the function, in milliseconds
+        # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
+        cycle_time = self.get_ini_info.get_cycle_time()
+        gobject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
     def _get_axis_list( self ):
         temp = self.get_ini_info.get_coordinates()
