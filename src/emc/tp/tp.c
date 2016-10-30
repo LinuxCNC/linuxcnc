@@ -205,8 +205,7 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
     } else if (aborting) {
         tc_debug_print("aborting\n");
         return 0.0;
-    } else if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE ||
-            tc->synchronized == TC_SYNC_POSITION ) {
+    } else if (tc->synchronized == TC_SYNC_POSITION ) {
         return 1.0;
     } else if (tc->is_blending) {
         //KLUDGE: Don't allow feed override to keep blending from overruning max velocity

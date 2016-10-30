@@ -429,6 +429,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_SET_SCALE_TYPE:
 	((EMC_TRAJ_SET_SCALE *) buffer)->update(cms);
 	break;
+    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
+	((EMC_TRAJ_SET_RAPID_SCALE *) buffer)->update(cms);
+	break;
     case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	((EMC_TRAJ_SET_SPINDLE_SCALE *) buffer)->update(cms);
 	break;
@@ -732,6 +735,8 @@ const char *emc_symbol_lookup(long type)
 	return "EMC_TRAJ_SET_ROTATION";
     case EMC_TRAJ_SET_SCALE_TYPE:
 	return "EMC_TRAJ_SET_SCALE";
+    case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
+	return "EMC_TRAJ_SET_RAPID_SCALE";
     case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	return "EMC_TRAJ_SET_SPINDLE_SCALE";
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
@@ -1823,6 +1828,14 @@ void EMC_INIT::update(CMS * cms)
 *	on Sat Oct 11 13:45:16 UTC 2003
 */
 void EMC_TRAJ_SET_SCALE::update(CMS * cms)
+{
+
+    EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(scale);
+
+}
+
+void EMC_TRAJ_SET_RAPID_SCALE::update(CMS * cms)
 {
 
     EMC_TRAJ_CMD_MSG::update(cms);

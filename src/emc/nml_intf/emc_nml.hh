@@ -613,6 +613,18 @@ class EMC_TRAJ_SET_SCALE:public EMC_TRAJ_CMD_MSG {
     double scale;
 };
 
+class EMC_TRAJ_SET_RAPID_SCALE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_RAPID_SCALE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_RAPID_SCALE_TYPE,
+					  sizeof(EMC_TRAJ_SET_RAPID_SCALE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    double scale;
+};
+
 class EMC_TRAJ_SET_SPINDLE_SCALE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_SPINDLE_SCALE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_SPINDLE_SCALE_TYPE,
@@ -986,6 +998,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int id;			// id of the currently executing motion
     bool paused;			// non-zero means motion paused
     double scale;		// velocity scale factor
+    double rapid_scale;		// rapid scale factor
     double spindle_scale;	// spindle velocity scale factor
 
     EmcPose position;		// current commanded position

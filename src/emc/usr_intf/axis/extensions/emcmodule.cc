@@ -334,6 +334,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"id", T_INT, O(motion.traj.id), READONLY},
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
+    {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY},
     {(char*)"spindlerate", T_DOUBLE, O(motion.traj.spindle_scale), READONLY},
     
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY},
@@ -775,6 +776,16 @@ static PyObject *maxvel(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *feedrate(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SCALE m;
+    if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *rapidrate(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_RAPID_SCALE m;
     if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
     m.serial_number = next_serial(s);
     s->c->write(m);
@@ -1353,6 +1364,7 @@ static PyMethodDef Command_methods[] = {
     {"mdi", (PyCFunction)mdi, METH_VARARGS},
     {"mode", (PyCFunction)mode, METH_VARARGS},
     {"feedrate", (PyCFunction)feedrate, METH_VARARGS},
+    {"rapidrate", (PyCFunction)rapidrate, METH_VARARGS},
     {"maxvel", (PyCFunction)maxvel, METH_VARARGS},
     {"spindleoverride", (PyCFunction)spindleoverride, METH_VARARGS},
     {"spindle", (PyCFunction)spindle, METH_VARARGS},
