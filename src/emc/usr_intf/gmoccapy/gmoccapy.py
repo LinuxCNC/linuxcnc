@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.3"
+_RELEASE = " 2.1.6"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -591,7 +591,9 @@ class gmoccapy(object):
         # will block the UI as well, so everything goes through event handlers (aka callbacks)
         # The gobject.timeout_add() function sets a function to be called at regular intervals
         # the time between calls to the function, in milliseconds
-        gobject.timeout_add(100, self._periodic)  # time between calls to the function, in milliseconds
+        # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
+        cycle_time = self.get_ini_info.get_cycle_time()
+        gobject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
     def set_motion_mode(self, state):
         # 1:teleop, 0: joint
@@ -611,7 +613,11 @@ class gmoccapy(object):
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
-        self.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300, float)
+
+        # if there is a INI Entry for default spindle speed, we will use that one as default
+        # but if there is a setting in our preference file, that one will beet the INI entry
+        default_spindle_speed = self.get_ini_info.get_default_spindle_speed()
+        self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
 
         # if it's a lathe config, set the tooleditor style
         self.lathe_mode = self.get_ini_info.get_lathe()
@@ -1969,23 +1975,11 @@ class gmoccapy(object):
         gtk.main_quit()
 
     # What to do if a macro button has been pushed
-    def _on_btn_macro_pressed(self, widget=None, data=None):
+    def _on_btn_macro_pressed( self, widget = None, data = None ):
         o_codes = data.split()
-        subroutines_path = self.get_ini_info.get_subroutine_path()
-        if not subroutines_path:
-            message = _("**** GMOCCAPY ERROR ****")
-            message += _("\n**** No subroutine folder or program prefix is given in the ini file **** \n")
-            message += _("**** so the corresponding file could not be found ****")
-            dialogs.warning_dialog(self, _("Important Warning"), message)
-            return
-        file = subroutines_path + "/" + o_codes[0] + ".ngc"
-        if not os.path.isfile(file):
-            message = _("**** GMOCCAPY ERROR ****")
-            message += _("\n**** File %s of the macro could not be found ****\n" % [o_codes[0] + ".ngc"])
-            message += _("**** we searched in subdirectory %s ****" % subroutines_path)
-            dialogs.warning_dialog(self, _("Important Warning"), message)
-            return
-        command = str("O<" + o_codes[0] + "> call")
+
+        command = str( "O<" + o_codes[0] + "> call" )
+
         for code in o_codes[1:]:
             parameter = dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
                                              label=_("Set parameter %s to:") % code, integer=False)
@@ -2312,21 +2306,26 @@ class gmoccapy(object):
     # check if macros are in the INI file and add them to MDI Button List
     def _add_macro_button(self):
         macros = self.get_ini_info.get_macros()
-        num_macros = len(macros)
+
+        # There are no macro entries in INI File
+        if not macros:
+            return
+
+        num_macros = len( macros )
         if num_macros > 9:
-            message = _("**** GMOCCAPY INFO ****")
-            message += _("\n**** found more than 9 macros, only the first 9 will be used ****")
-            print(message)
+            message = _( "**** GMOCCAPY INFO ****\n" )
+            message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
+            print( message )
+
             num_macros = 9
         for increment in range(0, num_macros):
             name = macros[increment]
-            # shorten the name if it is to long
-            if len(name) > 11:
-                lbl = name[0:10]
-            else:
-                lbl = macros[increment]
-            btn = gtk.Button(lbl, None, False)
-            btn.connect("pressed", self._on_btn_macro_pressed, name)
+            lbl = name.split()[0]
+            # shorten / break line of the name if it is to long
+            if len( lbl ) > 11:
+                lbl = lbl[0:10] + "\n" + lbl[11:20]
+            btn = gtk.Button( lbl, None, False )
+            btn.connect( "pressed", self._on_btn_macro_pressed, name )
             btn.position = increment
             # we add the button to a list to be able later to see what macro to execute
             self.macrobuttons.append(btn)

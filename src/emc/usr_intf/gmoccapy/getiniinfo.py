@@ -38,6 +38,17 @@ class GetIniInfo:
             print("**** GMOCCAPY GETINIINFO **** \nError, no INI File given !!")
             sys.exit()
 
+    def get_cycle_time(self):
+        temp = self.inifile.find("DISPLAY", "CYCLE_TIME")
+        try:
+            return int(temp)
+        except:
+            message = ("**** GMOCCAPY GETINIINFO **** \n")
+            message += ("Wrong entry [DISPLAY] CYCLE_TIME in INI File!\n")            
+            message += ("Will use gmoccapy default 150")
+            print(message)
+            return 150
+
     def get_postgui_halfile(self):
         postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
         if not postgui_halfile:
@@ -120,6 +131,14 @@ class GetIniInfo:
             temp = 10.0
             print("**** GMOCCAPY GETINIINFO **** \nNo MAX_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing default value of 600 units / min")
         return float(temp) * 60
+
+    def get_default_spindle_speed(self):
+        # check for default spindle speed settings
+        temp = self.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
+        if not temp:
+            temp = 300
+            print("**** GMOCCAPY GETINIINFO **** \n No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
+        return float(temp)
 
     def get_max_spindle_override(self):
         # check for override settings
@@ -235,15 +254,45 @@ class GetIniInfo:
         return xpos, ypos, zpos, maxprobe
 
     def get_macros(self):
-        return self.inifile.findall("MACROS", "MACRO")
-
-    def get_subroutine_path(self):
-        subroutines_path = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
-        if not subroutines_path:
-            subroutines_path = self.get_program_prefix()
-        if not subroutines_path:
+        # lets look in the ini File, if there are any entries
+        macros = self.inifile.findall("MACROS", "MACRO")
+        # If there are no entries we will return False
+        if not macros:
             return False
-        return subroutines_path
+
+        # we need the subroutine paths to check where to search for the macro files
+        subroutine_paths = self.get_subroutine_paths()
+        if not subroutine_paths:
+            return False
+
+        # we do check, if the corresponding files to the macros do exist
+        checked_macros =[]
+        for macro in macros:
+            found = False
+            for path in subroutine_paths.split(":"):
+                file = path + "/" + macro.split()[0] + ".ngc"
+                if os.path.isfile( file ):
+                    checked_macros.append(macro)
+                    found = True
+                    break
+            if not found: # report error!
+                message = ( "\n**** GMOCCAPY INFO ****\n" )
+                message += ( "File %s of the macro %s could not be found ****\n" %((str(macro.split()[0]) + ".ngc"),[macro])  )
+                message += ("we searched in subdirectories: %s" %subroutine_paths.split(":"))
+                print (message)
+
+        return checked_macros
+
+    def get_subroutine_paths(self):
+        subroutines_paths = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
+        if not subroutines_paths:
+            message = _( "**** GMOCCAPY GETINIINFO ****\n" )
+            message += _( "**** No subroutine folder or program prefix is given in the ini file **** \n" )
+            print( message )
+            subroutines_paths = self.get_program_prefix()
+        if not subroutines_paths:
+            return False
+        return subroutines_paths
 
     def get_axis_2_min_limit(self):
         # needed to calculate the offset for automated tool measurement

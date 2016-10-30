@@ -1,3 +1,7 @@
+ver. 2.1.6
+- merged the changes I made to 1.5.6.5 to 1.5.6.8
+  details see below
+
 ver. 2.1.5
 - halui spindle override bug, caused by a race conflict
   Thanks to pippin88 and dinkata to help solving his one
@@ -199,6 +203,21 @@ ver. 1.6.0
 - ToDo: * Add widget to change motion mode
         * Init GUI to have a jog button per joint and not only per axis
         * change GUI appearance according to motion mode
+
+ver. 1.5.6.8
+- gmoccapy poll time for the GUI was hard coded till now, I changed that
+  to take care of the INI File settings. If no or a wrong entry is in the 
+  INI file a default value of 150 will be used.
+
+ver. 1.5.6.7
+- reading of subroutine paths did not take care of ":" separeted paths
+  so it was not possible to use NativeCAM together with gmoccapy macros
+  I corrected that misbehavior of gmoccapy. That change was used to
+  clear some macro code and I transfered some checking to get_ini_info
+
+ver. 1.5.6.6
+- check at start if there is a INI entry for DEFAULT_SPINDLE_SPEED
+  and set the gmoccapy settings accordingly.
 
 ver. 1.5.6.5
 - merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
