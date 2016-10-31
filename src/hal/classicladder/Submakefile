@@ -1,3 +1,4 @@
+ifdef WORKING
 ifdef HAVE_GTK
 CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
@@ -49,4 +50,5 @@ USERSRCS += $(CLASSICLADDERSRCS)
 	@$(CC) $(LDFLAGS) $(CFLAGS) $(ULFLAGS) -o $@ $^ $(GTK_LIBS) -lpthread
 
 TARGETS += ../bin/classicladder
+endif
 endif
