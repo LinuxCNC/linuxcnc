@@ -133,15 +133,39 @@ RTAPI_BEGIN_DECLS
 #define unlikely(x)	__builtin_expect(!!(x), 0)
 #endif
 
-// fix this, not detecting either
-#if SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG
-typedef unsigned long rtapi_uintptr_t;
-#elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG_LONG
-typedef unsigned long long rtapi_uintptr_t;
-#else
-typedef unsigned long rtapi_uintptr_t;
-//#error "failed to define type for rtapi_uintptr_t"
+/////////////////////////////////////////////////////////////////
+// These should be in types.h but not found here               //
+// __LP64__ is defined by gcc compiler for 64 bit builds       //
+
+#if !defined(SIZEOF_VOID_P)
+    #if defined(__LP64__)
+        #define SIZEOF_VOID_P 8
+    #else
+	#define SIZEOF_VOID_P 4
+    #endif
 #endif
+
+#if !SIZEOF_UNSIGNED_LONG
+    #undef SIZEOF_UNSIGNED_LONG
+    #define SIZEOF_UNSIGNED_LONG 4
+#endif
+
+#if !SIZEOF_UNSIGNED_LONG_LONG
+    #undef SIZEOF_UNSIGNED_LONG_LONG
+    #define SIZEOF_UNSIGNED_LONG_LONG 8
+#endif
+
+// now this works
+
+#if SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG
+    typedef unsigned long rtapi_uintptr_t;
+#elif SIZEOF_VOID_P == SIZEOF_UNSIGNED_LONG_LONG
+    typedef unsigned long long rtapi_uintptr_t;
+#else
+    #error "failed to define type for rtapi_uintptr_t"
+#endif
+
+//////////////////////////////////////////////////////////////////
 
 static inline int is_aligned(const void *pointer, size_t byte_count) {
     return (rtapi_uintptr_t)pointer % byte_count == 0;
