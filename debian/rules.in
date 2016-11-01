@@ -24,11 +24,6 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 endif
 
 
-debian/control:
-	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
-	sed -e 's/@@KVERSION@@/$(kernel_version)/g' \
-	    debian/control.in >> debian/control
-
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
