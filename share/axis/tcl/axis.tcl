@@ -1369,7 +1369,7 @@ label ${pane_top}.gcodel
 setup_widget_accel ${pane_top}.gcodel [_ "Active G-Codes:"]
 
 text ${pane_top}.gcodes \
-	-height 2 \
+	-height 3 \
 	-width 40 \
 	-wrap word
 

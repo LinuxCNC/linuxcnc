@@ -102,6 +102,7 @@ struct state_tag_t {
     // Machine settings 
     float feed;
     float speed;
+    int call_level;
 
     // Any G / M code states that doesn't pack nicely into a single bit
     // These are an array mostly because it's easier to pass an

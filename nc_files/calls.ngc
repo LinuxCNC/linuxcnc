@@ -1,0 +1,15 @@
+f60 g0 x0 y0 z0
+
+g1 x1
+
+o2 sub
+g1 x3
+o2 endsub
+
+o1 sub
+g1 x2
+o2 call
+o1 endsub
+
+o1 call
+m2

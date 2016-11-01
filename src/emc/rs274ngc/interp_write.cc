@@ -200,6 +200,7 @@ int Interp::write_settings(setup_pointer settings)       //!< pointer to machine
   vals[0] = settings->sequence_number;  /* 0 sequence number */
   vals[1] = settings->feed_rate;        /* 1 feed rate       */
   vals[2] = settings->speed;    /* 2 spindle speed   */
+  vals[3] = settings->call_level;
 
   return INTERP_OK;
 }
@@ -314,6 +315,7 @@ int Interp::write_state_tag(block_pointer block,
 
     state.feed = settings->feed_rate;        /* 1 feed rate       */
     state.speed = settings->speed;    /* 2 spindle speed   */
+    state.call_level = settings->call_level;
 
     return 0;
 }

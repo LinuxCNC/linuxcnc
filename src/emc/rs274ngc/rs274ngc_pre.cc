@@ -2146,6 +2146,7 @@ int Interp::active_modes(int *g_codes,
     settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
     settings[1] = tag.feed;
     settings[2] = tag.speed;
+    settings[3] = tag.call_level;
 
     return INTERP_OK;
 }

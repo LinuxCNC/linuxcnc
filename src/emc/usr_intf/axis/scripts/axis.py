@@ -896,6 +896,7 @@ class LivePlotter:
         if feed_str.endswith(".0"): feed_str = feed_str[:-2]
         active_codes.append(feed_str)
         active_codes.append("S%.0f" % self.stat.settings[2])
+	active_codes.append("CL%.0f" % self.stat.settings[3])
 
         codes = " ".join(active_codes)
         widgets.code_text.configure(state="normal")
