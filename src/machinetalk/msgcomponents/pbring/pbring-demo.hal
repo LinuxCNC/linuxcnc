@@ -9,7 +9,7 @@ newring second.in 16384
 newring second.out 16384
 
 # instantiate pbring, as needed
-# which will make it attach to <instname>.{in, out} respectively
+# which will make it attach to <instname>.{i, out} respectively
 newinst pbring first
 newinst pbring second
 
@@ -18,7 +18,7 @@ newthread servo 1000000 fp
 addf first.update  servo
 addf second.update servo
 
-start
+#start
 
 
 # NB: you can now exit an instance selectively by

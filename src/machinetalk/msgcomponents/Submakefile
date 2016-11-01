@@ -27,13 +27,13 @@ pbmsgs-objs := \
 	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o
 
 
-obj-m += pbring.o
-pbring-objs := $(MSGCOMP_DIR)/pbring.o
+#obj-m += pbring.o
+#pbring-objs := $(MSGCOMP_DIR)/pbring.o
 
 
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 $(RTLIBDIR)/pbmsgs$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbmsgs-objs))
-$(RTLIBDIR)/pbring$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbring-objs))
+#$(RTLIBDIR)/pbring$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbring-objs))
 endif
 
 

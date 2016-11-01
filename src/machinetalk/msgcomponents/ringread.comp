@@ -39,7 +39,6 @@ static char *name = "ringread";
 
 FUNCTION(_) {
     ringvec_t vec[2];
-//    ring_size_t rsize;
     ringsize_t rsize;
     const void *data;
 
@@ -95,7 +94,7 @@ FUNCTION(_) {
 		// good to consume buffer
 		rtapi_print_msg(RTAPI_MSG_ERR,
 				"circular: %s(%s): reclen=%zu '%.*s', writer=%d\n",
-				name, ring, size, (int) size, buf,
+				name, ring, (size_t)size, (int) size, buf,
 				rb.header->writer);
 		break;
 	    }
@@ -133,7 +132,7 @@ int rtapi_app_main(void)
 			name, comp_id);
 	return -1;
     }
-    if ((retval = hal_ring_attach(ring, &rb,NULL))) {
+    if ((retval = hal_ring_attachf(&rb, NULL, ring))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
 			name, ring, retval);
@@ -143,11 +142,11 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 		    "%s: attached ring '%s' size=%zu type=%d"
 		    " rmutex=%d wmutex=%d reader=%d writer=%d scratchpad=%zu\n",
-		    name, ring, rb.header->size,
+		    name, ring, (size_t)rb.header->size,
 		    rb.header->type,
 		    ring_use_rmutex(&rb), ring_use_wmutex(&rb),
 		    rb.header->reader, rb.header->writer,
-		    ring_scratchpad_size(&rb));
+		    (size_t)ring_scratchpad_size(&rb));
 
     rb.header->reader = comp_id;
     rb.header->reader_instance = rtapi_instance;

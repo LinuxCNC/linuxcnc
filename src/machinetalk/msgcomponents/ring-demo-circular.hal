@@ -15,7 +15,7 @@ setp ringwrite.circular 1
 # slow square signal on ringwrite.write
 # every edge on ringwrite.write causes a message to be queued
 loadrt charge_pump
-net square-wave charge-pump.out ringwrite.write
+net square-wave charge_pump.0.out ringwrite.write
 
 # 1ms/1s
 newthread fast 1000000    fp
@@ -27,8 +27,8 @@ addf ringread  fast
 # the 'enqueue a message' function
 addf ringwrite fast
 
-addf charge-pump slow
+addf charge_pump.0 slow
 start
 
 # get going
-setp charge-pump.enable 1
+setp charge_pump.0.enable 1
