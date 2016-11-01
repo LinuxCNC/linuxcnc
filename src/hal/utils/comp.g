@@ -857,7 +857,7 @@ def adocument(filename, outfilename, frontmatter):
         print >>f, ""
         for _, name, fp, doc in finddocs('funct'):
     	    if name != None and name != "_":
-                print >>f, "*%s.N.%s*" % (comp_name, to_hal(name)) 
+                print >>f, "*%s.N.%s*" % (comp_name, to_hal(name))
             else :
                 print >>f, "*%s.N*" % comp_name 
             if fp:
