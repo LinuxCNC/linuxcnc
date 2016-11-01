@@ -391,7 +391,7 @@ def prologue(f):
 
     print >>f, "RTAPI_TAG(HAL,HC_INSTANTIABLE);"
     if options.get("singleton"):
-        print "option singleton is deprecated"
+        print "The singleton component is deprecated\njust make sure you only load one if they clash"
     print >>f
     if (pin_ptrs):
         print >>f, "RTAPI_TAG(HAL,HC_SMP_SAFE);"

@@ -1302,7 +1302,7 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 
 	// no args case: treat as count=1
 	// if no args just create a single instance
-	// with default number 0.
+	// with default number 0
 
 	// if the module isnt loaded yet, do so now:
 	// XXX - autoload setting? I guess this is assumed
@@ -1312,23 +1312,12 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 		return retval;
 	}
 	// determine instance name:
-	if (singleton) {
-	    WITH_HAL_MUTEX();
-	    // a singleton instantiable comp will have a single instance
-	    // with the same name as the component.
-	    sprintf(buff, "%s", mod_name);
-	    hal_comp_t *existing_comp = halpr_find_comp_by_name(mod_name);
-	    if (inst_name_exists(0, buff) || inst_count(0, existing_comp)) {
-		halcmd_error("\nError singleton component '%s' already exists\n", buff);
-		return -1;
-	    }
-	} else {
-	    // find unused instance name
-	    w = 0;
-	    sprintf(buff, "%s.%d", mod_name, w);
-	    while(inst_name_exists(1, buff))
-		sprintf(buff, "%s.%d", mod_name, ++w);
-	}
+        // find unused instance name
+        w = 0;
+        sprintf(buff, "%s.%d", mod_name, w);
+        while(inst_name_exists(1, buff))
+    	    sprintf(buff, "%s.%d", mod_name, ++w);
+
 	// now instantiate with this name
 	retval = do_newinst_cmd(mod_name, buff, argv);
 	if ( retval != 0 ) {
@@ -1343,8 +1332,7 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 
     strcpy(arg_string, args[0]);
     // handle count=N
-    if (strncmp(arg_string, "count=", 6) == 0)
-	{
+    if (strncmp(arg_string, "count=", 6) == 0) {
 	strcpy(arg_section, &arg_string[6]);
 	n = strtol(arg_section, &cp1, 10);
 	if (n > 0) {
@@ -1370,8 +1358,7 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
 	}
     } // count=N
     // handle names="..."
-    else if (strncmp(arg_string, "names=", 6) == 0)
-	{
+    else if (strncmp(arg_string, "names=", 6) == 0) {
 	strcpy(arg_section, &arg_string[6]);
 	cp1 = strtok(arg_section, ",");
 	list_index = 0;
@@ -1409,7 +1396,7 @@ static int loadrt_cmd(const bool instantiate, // true if called from do_newinst
     } else {
 	// invalid parameter
 	halcmd_error("\nInvalid argument '%s' to instantiated component\n"
-		     "NB. Use of personality or cfg is deprecated\n",
+		     "NB. Use of personality or cfg is deprecated\n\n",
 		     args[x]);
 	return -1;
     }
@@ -4038,7 +4025,7 @@ int do_newinst_cmd(char *comp, char *inst, char *args[])
     if (retval == -1) {
         halcmd_error("Error in module tags search");
         return retval;
-	} 
+    }
 
     retval = rtapi_newinst(rtapi_instance, comp, inst, (const char **)args);
     if (retval) {
