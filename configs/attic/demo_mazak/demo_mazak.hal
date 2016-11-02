@@ -92,7 +92,8 @@ loadrt mux4 count=1
 loadrt wcomp count=2
 loadrt scale count=3
 loadrt modmath mod_dir=2
-loadrt charge_pump
+# keeps old configs going
+loadrt charge_pump names=charge-pump
 loadrt tristate_bit
 loadrt tristate_float count=3
 loadrt conv_s32_float
