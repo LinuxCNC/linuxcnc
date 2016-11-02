@@ -96,6 +96,14 @@ fi
 # shell juju to transform it into a proper dependency list
 XENOMAI_DEV="$(apt-cache search -n libxenomai-dev | head -1 | awk '{print $1}')"
 if [ ! -z "$XENOMAI_DEV" ]; then
+    if [ `apt-cache showsrc libxenomai-dev 2>/dev/null | wc -l` -eq 0 ]; then
+        cat 1>&2 <<-EOF
+	Package libxenomai-dev exists, but information about its source package
+	is not available.  This most likely means that you do not have the
+	right deb-src lines in /etc/apt, or that you need to "apt-get update".
+	EOF
+	exit 99
+    fi
     XENOMAI_ARCHITECTURE="$(apt-cache showsrc libxenomai-dev \
         | grep ^Architecture: \
         | head -1 \
