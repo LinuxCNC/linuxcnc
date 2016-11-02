@@ -15,6 +15,9 @@
 #include "hal_priv.h"		/* HAL private API decls */
 #include "hal_ring.h"	        /* ringbuffer declarations */
 
+#define MODE_RECORD 0
+#define MODE_STREAM 1
+
 volatile int go, done, rdone = 0;
 static int comp_id;		/* component ID */
 struct timeval t1, t2;
@@ -178,7 +181,7 @@ void *consumer(void *arg)
 {
     consinfo_t *c = arg;
     const value_t *vp;
-    ring_size_t size;
+    ringsize_t size;
 
     if (conf.verbose)
 	printf("consumer %d start\n",c->id);
@@ -285,12 +288,12 @@ int main(int argc, char **argv)
     assert((pi = calloc(sizeof(prodinfo_t),conf.n_producers)) != NULL);
     assert((ep = calloc(sizeof(int),conf.n_producers)) != NULL);
 
-    if ((retval = hal_ring_new(ringname, conf.size, 0, comp_id, conf.mode | conf.alloc))) {
+    if ((retval = hal_ring_newf( conf.size, 0, conf.mode, ringname))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"ringbench: failed to create new ring %s: %d\n",
 			ringname, retval);
     }
-    if ((retval = hal_ring_attach(ringname, &rb, comp_id, NULL))) {
+    if ((retval = hal_ring_attachf(&rb, NULL, ringname))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"ringbench: failed to attach to ring %s: %d\n",
 			ringname, retval);
@@ -351,7 +354,7 @@ int main(int argc, char **argv)
 	    printf("p %d: ctr=%d ep=%d\n",i,pi[i].ctr,ep[i]);
 	assert(pi[i].ctr == ep[i]);
     }
-    hal_ring_detach(ringname, &rb);
+    hal_ring_detach( &rb);
     hal_exit(comp_id);
     exit(0);
 }
