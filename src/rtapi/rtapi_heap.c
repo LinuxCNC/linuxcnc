@@ -30,17 +30,6 @@
 #include <unistd.h>
 #endif
 
-// low-level message handler which writes to ringbuffer if global is available
-// else to stderr/printk
-int vs_ringlogfv(const msg_level_t level,
-    const int pid,
-    const msg_origin_t origin,
-    const char *tag,
-    const char *format,
-    va_list ap);
-
-
-
 // this is straight from the malloc code in:
 // K&R The C Programming Language, Edition 2, pages 185-189
 // adapted to use offsets relative to the heap descriptor

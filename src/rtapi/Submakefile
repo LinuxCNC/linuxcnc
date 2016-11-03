@@ -349,7 +349,8 @@ TARGETS += ../libexec/kdetect
 RTAPI_MSGD_SRCS =  \
 	rtapi/rtapi_msgd.cc \
 	rtapi/rtapi_heap.c \
-	rtapi/rtapi_compat.c
+	rtapi/rtapi_compat.c \
+	rtapi/rtapi_support.c
 
 RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
