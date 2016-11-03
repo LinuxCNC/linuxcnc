@@ -70,7 +70,7 @@ heap_print(struct rtapi_heap *h, int level, const char *fmt, ...)
 #endif
     va_list ap;
     va_start(ap, fmt);
-    //vs_ringlogfv(level, _pid, MSG_ORIGIN, h->name, fmt, ap);
+    vs_ringlogfv(level, _pid, MSG_ORIGIN, h->name, fmt, ap);
     va_end(ap);
 }
 
