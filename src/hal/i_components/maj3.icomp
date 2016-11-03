@@ -1,0 +1,47 @@
+//   This is a 'majority-of-3' component for Machinekit
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component maj3 "Compute the majority of 3 inputs";
+
+pin in bit in1;
+pin in bit in2;
+pin in bit in3;
+pin out bit out;
+
+pin io bit invert;
+
+function _ nofp;
+
+license "GPL";
+;;
+
+MODULE_AUTHOR("Jeff Epler");
+MODULE_DESCRIPTION("'Majority of 3' block for EMC HAL");
+
+FUNCTION(_)
+{
+    hal_s32_t sum = 0;
+    if (in1) sum++;
+    if (in2) sum++;
+    if (in3) sum++;
+    if(invert)
+        out = sum < 2;
+    else
+        out = sum >= 2;
+
+return 0;
+}

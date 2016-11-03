@@ -1,0 +1,18 @@
+component minmax "Track the minimum and maximum values of the input to the outputs";
+pin in float in;
+pin in bit reset "When reset is asserted, 'in' is copied to the outputs";
+pin out float max_;
+pin out float min_;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if(reset) { max_ = min_ = in; }
+    else {
+        if(in > max_) max_ = in;
+        if(in < min_) min_ = in;
+    }
+
+return 0;
+}

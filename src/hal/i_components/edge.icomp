@@ -1,0 +1,72 @@
+//   This is a component for Machinekit
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component edge "Edge detector";
+
+pin in bit in;
+pin out bit out "Goes high when the desired edge is seen on 'in'";
+pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
+
+pin io bit both=false "If true, selects both edges.  Otherwise, selects one edge according to in-edge";
+pin io bit in_edge=true "If both is false, selects the one desired edge: true means falling, false means rising";
+pin io s32 out_width_ns=0 "Time in nanoseconds of the output pulse";
+
+pin out s32 time_left_ns "Time left in this output pulse";
+pin out bit last_in "Previous input value";
+variable hal_bit_t first = true;
+
+function _ nofp "Produce output pulses from input edges";
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    hal_bit_t new_in = in;
+    if (time_left_ns > 0)
+        {
+        time_left_ns -= period;
+        }
+    if ( !first )
+        {
+        hal_bit_t rise = new_in && !last_in;
+        hal_bit_t fall = !new_in && last_in;
+        hal_bit_t desired_edge =
+            both ? rise || fall
+                    : in_edge ? fall : rise;
+        if(desired_edge)
+            {
+            time_left_ns = out_width_ns;
+            out = 1;
+            }
+        else if(time_left_ns > 0)
+            {
+            out = true;
+            }
+        else
+            {
+            time_left_ns = 0;
+            out = false;
+            }
+        }
+    else
+        {
+        first = false;
+        }
+    last_in = new_in;
+    out_invert = !out;
+
+return 0;
+}

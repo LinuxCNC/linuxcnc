@@ -1,0 +1,12 @@
+component constant "Use a parameter to set the value of a pin";
+pin out float out;
+pin io float value;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    out = value;
+
+    return 0;
+}

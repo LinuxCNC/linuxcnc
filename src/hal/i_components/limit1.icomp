@@ -1,0 +1,17 @@
+component limit1 "Limit the output signal to fall between min and max";
+pin in float in;
+pin out float out;
+pin in float min_=-1e20;
+pin in float max_=1e20;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    hal_float_t tmp = in;
+    if(tmp < min_) tmp = min_;
+    if(tmp > max_) tmp = max_;
+    out = tmp;
+
+return 0;
+}

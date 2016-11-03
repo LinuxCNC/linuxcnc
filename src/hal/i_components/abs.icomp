@@ -1,0 +1,44 @@
+//   This is a component for Machinekit
+//   Copyright 2006 John Kasunich <jmkasunich at sourceforge dot net>
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component abs "Compute the absolute value and sign of the input signal";
+
+pin in float in "Analog input value" ;
+pin out float out "Analog output value, always positive";
+pin out bit sign "Sign of input, false for positive, true for negative" ;
+pin out bit is_positive "true if input is positive, false if input is 0 or negative";
+pin out bit is_negative "true if input is negative, false if input is 0 or positive";
+
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+    hal_float_t tmp = in;
+    if ( tmp >= 0.0 ) {
+	sign = false;
+	out = tmp;
+    } else {
+	sign = true;
+	out = -tmp;
+    }
+
+    if (tmp > 0.000001) is_positive = true;
+    else is_positive = false;
+
+    if (tmp < -0.000001) is_negative = true;
+    else is_negative = false;
+
+    return 0;
+}
