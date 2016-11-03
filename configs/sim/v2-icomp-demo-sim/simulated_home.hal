@@ -1,10 +1,10 @@
 #loadrt or2 names=or2_0
-newinst i_or2 or2_0
+newinst or2v2 or2_0
 
 #loadrt comp names=comp_x,comp_y,comp_z
-newinst i_comp comp_x
-newinst i_comp comp_y
-newinst i_comp comp_z
+newinst compv2 comp_x
+newinst compv2 comp_y
+newinst compv2 comp_z
 
 net Xhomeswpos => comp_x.in0
 net Yhomeswpos => comp_y.in0

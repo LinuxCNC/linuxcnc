@@ -1,0 +1,9 @@
+v2-instantiated component demo
+
+axis_mm.ini
+
+Demo of using v2 instantiated components from a simple newinst <compname> command
+
+This demo adds nothing special, the standard axis and axis_mm sims work normally
+
+

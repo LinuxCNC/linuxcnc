@@ -8,22 +8,22 @@ loadrt tp
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # load 6 differentiators (for velocity and accel signals
-# Previously loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
+# Could still use loadrt ddtv2 names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
 
-newinst i_ddt ddt_x
-newinst i_ddt ddt_xv
-newinst i_ddt ddt_y
-newinst i_ddt ddt_yv
-newinst i_ddt ddt_z
-newinst i_ddt ddt_zv
+newinst ddtv2 ddt_x
+newinst ddtv2 ddt_xv
+newinst ddtv2 ddt_y
+newinst ddtv2 ddt_yv
+newinst ddtv2 ddt_z
+newinst ddtv2 ddt_zv
 
 
 # load additional blocks
 # Previously loadrt hypot names=vel_xy,vel_xyz
 
-#loadrt i_hypot
-newinst i_hypot vel_xy
-newinst i_hypot vel_xyz
+#loadrt hypot
+newinst hypotv2 vel_xy
+newinst hypotv2 vel_xyz
 
 
 # add motion controller functions to servo thread

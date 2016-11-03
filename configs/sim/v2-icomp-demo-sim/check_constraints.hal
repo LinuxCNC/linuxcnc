@@ -1,6 +1,6 @@
 # HAL config file to check vel/acc constraints
 #
-loadrt wcomp names=wcomp_xacc,wcomp_xvel,wcomp_yacc,wcomp_yvel,wcomp_zacc,wcomp_zvel
+loadrt wcompv2 names=wcomp_xacc,wcomp_xvel,wcomp_yacc,wcomp_yvel,wcomp_zacc,wcomp_zvel
 
 addf wcomp_xacc servo-thread
 addf wcomp_xvel servo-thread
@@ -36,7 +36,7 @@ setp wcomp_zacc.min -50.001
 setp wcomp_zvel.max 5.001
 setp wcomp_zvel.min -5.001
 
-loadrt match8 names=match_all
+loadrt match8v2 names=match_all
 
 addf match_all servo-thread
 

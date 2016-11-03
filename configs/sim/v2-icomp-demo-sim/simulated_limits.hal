@@ -2,15 +2,15 @@
 #
 # first install nine comparators
 # loadrt wcomp names=wcomp_xmin,wcomp_xmax,wcomp_xhome,wcomp_ymin,wcomp_ymax,wcomp_yhome,wcomp_zmin,wcomp_zmax,wcomp_zhome
-newinst i_wcomp wcomp_xmin
-newinst i_wcomp wcomp_xmax
-newinst i_wcomp wcomp_xhome
-newinst i_wcomp wcomp_ymin
-newinst i_wcomp wcomp_ymax
-newinst i_wcomp wcomp_yhome
-newinst i_wcomp wcomp_zmin
-newinst i_wcomp wcomp_zmax
-newinst i_wcomp wcomp_zhome
+newinst wcompv2 wcomp_xmin
+newinst wcompv2 wcomp_xmax
+newinst wcompv2 wcomp_xhome
+newinst wcompv2 wcomp_ymin
+newinst wcompv2 wcomp_ymax
+newinst wcompv2 wcomp_yhome
+newinst wcompv2 wcomp_zmin
+newinst wcompv2 wcomp_zmax
+newinst wcompv2 wcomp_zhome
 
 
 # add comparators to servo thread so they will be evaluated
