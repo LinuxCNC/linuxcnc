@@ -124,11 +124,6 @@ public:
  int set_tool_parameters();
  int on_abort(int reason, const char *message);
 
- // program_end_cleanup() resets Interp settings, and enqueues (on the
- // interp_list) Canon calls to reset Canon state after a program ends
- // (either by executing M2 or M30, or by Abort.
- void program_end_cleanup(setup_pointer settings);
-
     void set_loglevel(int level);
 
     // for now, public - for boost.python access
