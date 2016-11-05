@@ -768,6 +768,90 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
 
+linuxcnc (1:2.6.13) unstable; urgency=medium
+
+  * docs: clean up shuttlexpress manpage & asciidocs
+  * docs: remove note about defunct weblate service
+  * docs: fix link to the install ISO files
+  * docs: improve contributing intructions
+  * docs: change max AIOs in motion manpage from 16 to 64
+
+  * sample configs: improved comments in Pico configs
+  * sample configs: update tool table format
+  * sample configs: let manual-example trigger a gladevcp bug
+
+  * axis gui: work around python-tk "True" bug
+  * gmoccapy gui: fix bug in halui.spindle-override.increase
+  * gmoccapy: fix bug in initialize optional stops
+  * gmoccapy: fix bug caused due to rests of alarm page
+  * gmoccapy: fix keyboard jogging bug
+  * gmoccapy: small bug fix in hal jogging and fixed a typo
+  * gmoccapy: deleted alarm entry and added new settings for combi_dro
+  * tklinuxcnc gui: fix Help->About error (rebranding)
+  * gremlin: lathe-mode preview moving bug fix
+
+  * halui: correctly report "mode.is_joint"
+  * halui: check for errors in a non-crazy way
+  * gladevcp: fix hal_sourceview file creation mode
+  * gladevcp: fix mdi error with tiny values
+  * gladevcp: fix icon select bug in Iconview
+
+  * stepgen component: handle up to 16 channels
+  * wj200 driver: fix startup crash with later versions of libmodbus
+  * lcd component: stop processing when page_num is too high
+  * lcd component: missing call to hal_ready
+  * add gantry.comp
+  * include udev rule file for ShuttleXpress USB jog pendant
+
+  * linuxcnc python module: add doc string for stat.settings
+
+  * interp: after synching settings from canon, update all copies
+  * interp: Fix subs breaking when placed after main program
+  * interp: don't drop remap level at prog exit
+  * interp: Fix incorrect `_setup.sequence_number` after remaps
+  * interp: consistently set feed rate to 0 on M2/M30
+  * interp: don't return potentially stacked data
+
+  * canon: return correct feed rate in G95 mode
+
+  * task: only turn off the spindle once, when entering Estop
+  * task: fix startup regression regarding coordinate systems and more
+  * task: don't call emcTaskPlanInit() redundantly
+  * task: don't redundantly call emcAbortCleanup() in emcIoAbort()
+  * task: fixup indentation
+
+  * motion: when motion disables, mark all joints as "in position"
+
+  * glcanon: fix "is_lathe() is a function" bug
+  * linuxcncsrv: ioctl(FIONREAD) wants int*, not ulong*
+  * interp list: log calls to clear() when debugging is enabled
+  * rtapi (sim): flush stdout/stderr after rtapi_print()
+  * hal: fix header file comments describing HAL thread & funct times
+  * rip-environment: rebranding
+
+  * platform-is-supported: detect os in a more portable way
+  * motion-logger: handle SPINDLE_ON/SPINDLE_OFF better
+  * tests: add an abort-vs-feed-rate test (skipped)
+  * tests: add a motion-logger S-word test
+  * tests: add Z axis to `interp/g10/g10-l1-l10` tests
+  * tests: add a test of early exit from cutter comp (skipped)
+  * tests: add a test for M30 and remapped command interaction
+  * tests: add a test demonstrating a remap bug
+  * tests: add a test validating the startup state of the Status buffer
+  * tests: add a test of initial coord system and RS274NGC_STARTUP_CODE
+  * tests: add a hard limit test
+  * tests: fixup `nested-remaps-oword` test
+  * tests: remove `g10-l1` test, identical to `g10-l1-10`
+  * tests: longer timeout in halui mdi test
+  * tests: add comments to motion-logger/basic 'expected' file
+
+  * tests: fix cut/paste errors in rs274ngc-startup and startup-state
+  * tests: rs274ngc-startup test: wait for Task to start up
+  * tests: throw a valid exception on timeout in startup-state test
+  * tests: interp test of subs after main program
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 04 Nov 2016 07:55:00 -0600
+
 linuxcnc (1:2.6.12) unstable; urgency=low
 
   * docs: add more github info to Contributing to LinuxCNC
