@@ -611,7 +611,7 @@ class LinuxCNCWrapper():
 
         # parsing pocket number and comment, not emc status object
         toolMap = {}
-        regex = re.compile(r'(?:.*T(\d+))(?:.*P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
+        regex = re.compile(r'(?:.*?T(\d+))(?:.*?P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
         for line in lines:
             match = regex.match(line)
             if match:
