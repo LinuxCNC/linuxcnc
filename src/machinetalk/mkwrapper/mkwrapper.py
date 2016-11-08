@@ -348,6 +348,7 @@ class LinuxCNCWrapper():
         self.ioFullUpdate = False
         self.ioFirstrun = True
         self.ioToolTableCount = 0
+        self.ioToolTableLoaded = False
         self.taskSubscribed = False
         self.taskFullUpdate = False
         self.taskFirstrun = True
@@ -1093,9 +1094,10 @@ class LinuxCNCWrapper():
             toolTableChanged = True
         self.ioToolTableCount = tableIndex
 
-        if toolTableChanged:
+        if toolTableChanged or self.ioToolTableLoaded:
             # update pocket and comment from tool table file
             self.load_tool_table(self.status.io, self.statusTx.io)
+            self.ioToolTableLoaded = False
             modified = True
         del txToolResult
 
@@ -2028,6 +2030,7 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
                 self.command.load_tool_table()
+                self.ioToolTableLoaded = True
                 if self.rx.HasField('ticket'):
                     self.wait_complete(identity, self.rx.ticket)
 
