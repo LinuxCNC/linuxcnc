@@ -274,6 +274,7 @@ PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
 
 # --- misc supporting files ----
 ../lib/python/$(NAMESPACEDIR)/nanopb_generator.py: $(NANOPB)/generator/nanopb_generator.py
+	@mkdir -p ../lib/python/$(NAMESPACEDIR)/
 	cp $^ $@
 
 ../lib/python/$(NAMESPACEDIR)/__init__.py:
