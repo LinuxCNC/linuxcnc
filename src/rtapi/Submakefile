@@ -1,16 +1,22 @@
 INCLUDES += rtapi rtapi_export
 
-# this covers the userpci and shmdrv directories too, in a bit cludgy way
-../include/%.h: ./rtapi/%.h
-	cp  $^ $@
-
-../include/%.hh: ./rtapi/%.hh
-	cp  $^ $@
-
-../include/%.h: ./rtapi/shmdrv/%.h
+copy_all_rtapi:
+	cp -f ./rtapi/*.h* ../include/
 	mkdir -p ../include/shmdrv
-	cp  $^ $@
+	cp -f ./rtapi/shmdrv/*.h* ../include/shmdrv
+	rm -f ../include/rtmon-test.hal
+	rm -f ../include/procfs_macros.h
 
+#../include/rtapi.h: copy_all_rtai
+
+#	cp -f .rtapi/*.h* ../include/
+
+#../include/%.hh: ./rtapi/%.hh
+#	cp  $^ $@
+#
+#../include/%.h: ./rtapi/shmdrv/%.h
+#	mkdir -p ../include/shmdrv
+#	cp  $^ $@
 
 ##########################################
 # Separate sources hack
@@ -30,8 +36,6 @@ rtapi/$(threads)/%: rtapi/.flavor-$(threads)-link-create-stamp
 rtapi/.flavor-$(threads)-link-create-stamp:
 	ln -s . rtapi/$(threads)
 	@touch $@
-
-
 
 ##########################################
 # Clean up
@@ -131,7 +135,7 @@ $(ULAPI_AUTOLOAD_LIB).0: $(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
 	    -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ -ldl $(RT_LDFLAGS)
 
-TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0
+TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0 copy_all_rtapi
 
 ##################################################################
 #                 rtapi_app - now all thread styles
@@ -261,7 +265,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
 
-modules:  ../libexec/rtapi_app_$(threads)
+modules:  ../libexec/rtapi_app_$(threads) 
 ##################################################################
 #                 USERLAND THREAD STYLES
 ##################################################################

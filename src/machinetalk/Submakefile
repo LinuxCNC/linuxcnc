@@ -313,7 +313,17 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	@rm -f $@
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
+#########################################################################
 # protoc generated headers are exported to ../include
+
+copy_all_protoc:
+	mkdir -p ../include/$(NAMESPACEDIR)
+	cp -f ./$(PBGEN)/$(NAMESPACEDIR)/*.h* ../include/$(NAMESPACEDIR)
+	mkdir -p ../include/$(MACHINETALK)
+	cp -f ./$(NANOPB)/*.h* ../include/$(MACHINETALK)
+	cp -f ./$(NANOPB)/*.h* ../include
+	cp -f ./*.h* ../include
+
 ../include/$(NAMESPACEDIR)/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
@@ -323,6 +333,7 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	cp $^ $@
 
 # as are the nanop library headers
+
 ../include/$(MACHINETALK)/%.h: ./$(NANOPB)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
@@ -338,6 +349,8 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 ../include/%.hh: ./$(MACHINETALK)/include/%.hh
 	@mkdir -p $(dir $@)
 	cp $^ $@
+
+#######################################################################
 
 # those will be compiled
 USERSRCS +=  $(NANOPB_C_SRCS) \
@@ -366,7 +379,7 @@ INCLUDES += $(MTINCLUDES)
 TARGETS += $(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS)
 TARGETS += $(MT_INSTALL_INCS)
 TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
-	$(PROTOCXXLIB) $(PROTOCXXLIB).0
+	$(PROTOCXXLIB) $(PROTOCXXLIB).0 copy_all_protoc
 
 clean: machinetalk-clean
 machinetalk-clean:

@@ -4,8 +4,14 @@ INCLUDES += $(HALLIBDIR)
 INCLUDES += $(PBDIR)
 LIBS := ../lib
 
-../include/%.h: ./$(HALLIBDIR)/%.h $(PBDIR)/%.h
-	cp $^ $@
+copy_all_hal_lib:
+	cp -f ./$(HALLIBDIR)/*.h* ../include/
+	cp -f ./$(PBDIR)/*.h* ../include/
+
+TARGETS += copy_all_hal_lib
+
+#../include/%.h: ./$(HALLIBDIR)/%.h $(PBDIR)/%.h
+#	cp $^ $@
 
 # link in basic nanonpb support routines
 HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \

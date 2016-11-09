@@ -1,6 +1,11 @@
 INCLUDES += libnml/os_intf
 
-../include/%.h: ./libnml/os_intf/%.h
-	cp $^ $@
-../include/%.hh: ./libnml/os_intf/%.hh
-	cp $^ $@
+copy_all_os_intf:
+	cp -f ./libnml/os_intf/*.h* ../include/
+
+TARGETS += copy_all_os_intf
+
+#../include/%.h: ./libnml/os_intf/%.h
+#	cp $^ $@
+#../include/%.hh: ./libnml/os_intf/%.hh
+#	cp $^ $@

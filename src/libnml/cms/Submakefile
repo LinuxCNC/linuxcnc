@@ -1,6 +1,11 @@
 INCLUDES += libnml/cms
 
-../include/%.h: ./libnml/cms/%.h
-	cp $^ $@
-../include/%.hh: ./libnml/cms/%.hh
-	cp $^ $@
+copy_all_cms:
+	cp -f ./libnml/cms/*.h* ../include/
+
+TARGETS += copy_all_cms
+
+#../include/%.h: ./libnml/cms/%.h
+#	cp $^ $@
+#../include/%.hh: ./libnml/cms/%.hh
+#	cp $^ $@
