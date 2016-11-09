@@ -1,4 +1,4 @@
-newthread fast 100000
+newthread fast 100000 fp
 loadrt near count=2
 setp near.0.scale 1.5
 setp near.1.difference 1.5

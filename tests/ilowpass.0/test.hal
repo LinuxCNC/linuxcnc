@@ -1,4 +1,4 @@
-newthread thread1 1000000
+newthread thread1 1000000 fp
 loadrt ilowpass
 addf ilowpass.0 thread1
 setp ilowpass.0.scale 100000

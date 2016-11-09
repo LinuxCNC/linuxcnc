@@ -1,5 +1,5 @@
 
-newthread millisecond 1000000
+newthread millisecond 1000000 fp
 
 loadrt multiclick count=2
 loadrt sampler depth=100 cfg=bbbbbbbbbsbbbbbbbbbs

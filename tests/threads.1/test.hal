@@ -1,6 +1,6 @@
-newthread thread1 1000000
+newthread thread1 1000000 fp
 loadrt and2 count=1
 addf and2.0 thread1
 start
 loadusr -w sleep 1
-getp and2.0.tmax
+getp and2.0.funct.tmax

@@ -4,7 +4,7 @@ loadrt sampler cfg=bb depth=4096
 loadusr -Wn halsampler halsampler -N halsampler -n 3500
 
 loadrt stepgen step_type=0
-newthread fast 100000
+newthread fast 100000 fp
 
 net n0 stepgen.0.dir sampler.0.pin.0
 net n1 stepgen.0.step sampler.0.pin.1

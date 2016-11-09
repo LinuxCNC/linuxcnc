@@ -3,7 +3,7 @@ loadusr -Wn halsampler halsampler -N halsampler -t -n 64
 
 loadrt timedelay
 loadrt not
-newthread thread 1953125
+newthread thread 1953125 fp
 
 # Thread period is 1/512 second.
 # on-delay is 1/128 + 1/1024 second, or 4.5 periods.

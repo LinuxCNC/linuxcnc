@@ -1,2 +1,2 @@
-and2.0 delinst m.q m.r newinst or2.0 or2.1 or2.2 
-and2.0.in0 and2.0.in1 and2.0.out and2.0.time m.q.in0 m.q.in1 m.q.out m.q.sel m.q.time m.r.in0 m.r.in1 m.r.out m.r.sel m.r.time or2.0.in0 or2.0.in1 or2.0.out or2.0.time or2.1.in0 or2.1.in1 or2.1.out or2.1.time or2.2.in0 or2.2.in1 or2.2.out or2.2.time 
+and2.0.funct delinst m.q.funct m.r.funct newinst or2.0.funct or2.1.funct or2.2.funct 
+and2.0.funct.time and2.0.funct.tmax and2.0.funct.tmax-inc and2.0.in0 and2.0.in1 and2.0.out m.q.funct.time m.q.funct.tmax m.q.funct.tmax-inc m.q.in0 m.q.in1 m.q.out m.q.sel m.r.funct.time m.r.funct.tmax m.r.funct.tmax-inc m.r.in0 m.r.in1 m.r.out m.r.sel or2.0.funct.time or2.0.funct.tmax or2.0.funct.tmax-inc or2.0.in0 or2.0.in1 or2.0.out or2.1.funct.time or2.1.funct.tmax or2.1.funct.tmax-inc or2.1.in0 or2.1.in1 or2.1.out or2.2.funct.time or2.2.funct.tmax or2.2.funct.tmax-inc or2.2.in0 or2.2.in1 or2.2.out 
