@@ -271,7 +271,7 @@ coordinate system you wish to clear the offset in.
  -  Using the 'Touch Off' button in Axis sets an offset for the chosen
    User Coordinate System.
 
-=== When You're Lost
+=== When You Are Lost
 
 If you're having trouble getting 0,0,0 on the DRO when you think you
 should, you may have some offsets programmed in and need to remove
