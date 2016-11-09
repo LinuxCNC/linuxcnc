@@ -409,7 +409,7 @@ proc save_hal_cmds {savefilename {options ""} } {
   }
   close $fd
     
-  hal save all $tmpfile
+  hal save allu $tmpfile ;# save all (with unconnected pin values)
 
   set fd [open $savefilename a]
   set ftmp [open $tmpfile r]
