@@ -4,7 +4,70 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
-linuxcnc (1:2.7.7) UNRELEASED; urgency=medium
+linuxcnc (1:2.7.8) unstable; urgency=medium
+
+  * docs: fix pdf duplicate history listing
+  * docs: use out-of-date French translation of Updating LinuxCNC
+  * docs: fix broken links in Spanish translation of html index
+  * docs: fix broken links in French translation of html index
+  * docs: INI File settings added some gmoccapy stuff
+  * docs: punctuation fixes in Updating LinuxCNC
+  * docs: add more info about program extensions
+  * docs: add links to both NIST papers
+  * docs: clarify feed rate info
+  * docs: update g61 for the new trajectory planner
+  * docs: remove byte-order-mark from linux-faq-es.txt
+  * docs: elbpcom manpage fix: default address is 192.168.1.121
+  * docs: add info about tool_table and example code
+  * docs: add info about python module return types and constants
+  * docs: fix asciidoc markup
+  * docs build system: accept id tags in more elements
+  * docs build system: add missing dependency
+  * docs build system: remove obsolete makefile rules
+
+  * gmoccapy: use INI Entry CYCLE_TIME as poll interval
+  * gmoccapy: cosmetic and double entry
+  * gmoccapy: subroutine bug solved
+  * gmoccapy: check for INI entry DEFAULT_SPINDLE_SPEED
+  * gmoccapy: bug fix halui spindle override
+  * gmoccapy: bug in halui.spindle-override.increase
+
+  * GladeVCP - CombiDRO - new property cycle time
+
+  * canon: return correct feed rate in G95 mode
+
+  * glcanon: make the grid stay in the machine limits box
+  * glcanon: fix position of the machine limits box
+  * glcanon: fix red boxed constraint numbers in AXIS preview
+
+  * linuxcnc python module: add doc string for s.settings
+  * twopass bugfix: support all ini var substitutions
+  * image-to-gcode: compensate for incompatible changes in numpy
+
+  * latency-histogram: more info in error message
+
+  * interp: fix bug 160, surprise motion after g41/no move/g40
+  * interp: revert "move end-of-program cleanup code to its own function"
+  * interp: after synching settings from canon, update all copies of the info
+  * interp: fix incorrect `_setup.sequence_number` after remaps
+
+  * task: fix race condition queueing MDI queue busters
+
+  * tests: add an abort-vs-feed-rate test
+  * tests: add a motion-logger S-word test
+  * tests: add `mdi-while-queuebuster-waitflag` test
+  * tests: add Z axis to `interp/g10/g10-l1-l10` tests
+  * tests: remove `g10-l1` test, identical to `g10-l1-10`
+  * tests: specify var filename in interp compile test
+  * tests: add a test of early exit from cutter comp
+  * tests: add a test demonstrating a remap bug
+  * tests: do what the README says in `nested-remaps-oword` test
+
+  * remove note about defunct weblate service
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 08 Nov 2016 20:42:02 -0700
+
+linuxcnc (1:2.7.7) unstable; urgency=medium
 
   * docs: fix example scrips so they work when copied and pasted
   * docs: fix minor mux_generic(9) manpage quibbles
