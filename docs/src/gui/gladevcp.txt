@@ -2195,7 +2195,6 @@ details.
 HAL widgets come with a pre-defined signal called 'hal-pin-changed'. See the
 <<gladevcp:hal-pin-changed-signal,Hal Widgets section>> for details. 
 
-
 === Programming model
 
 The overall approach is as follows:
@@ -2261,6 +2260,38 @@ def get_handlers(halcomp,builder,useropts):
 
 Now, 'on_this_signal' will be available as signal handler to your
 widget tree.
+
+.GladeVCP-specific signals
+
+For GladevCP panel which respond to HAL inputs it may be important that the handler
+code can tell that the GladeVCP panel is currently active and displayed. For
+example a panel inside the Touchy interface might well need to perform an action
+when the switch connected to touchy.cycle-start is operated (in the same way
+that the native tabs respond differently to the same button.)
+To make this possible a signal is sent from the GUI (at the time of writing, only
+Touchy) to the embedded tab. The signal is of type "Gladevcp" and the two messages
+sent are "Visible" and "Hidden". (Note that the signals  have a fixed length of 20
+characters so only the first characters should be used in any comparison, hence
+the [:7] below.) A sample handler for these signals is:
+
+[source, python]
+----------------------------------
+    # This catches our messages from another program
+    def event(self,w,event):
+        print event.message_type,event.data
+        if event.message_type == 'Gladevcp':
+            if event.data[:7] == 'Visible':
+                self.active = True
+            else:
+                self.active = False
+
+    # connect to client-events from the host GUI
+    def on_map_event(self, widget, data=None):
+        top = widget.get_toplevel()
+        print "map event"
+        top.connect('client-event', self.event)
+----------------------------------
+
 
 .The get_handlers protocol
 
