@@ -2833,10 +2833,13 @@ int do_help_cmd(char *command)
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
 	printf("  of HAL commands.  State can later be restored by using\n");
 	printf("  \"halcmd -f filename\".\n");
-	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'netl', 'param',\n");
-	printf("  or 'thread'.  ('linka' and 'neta' show arrows for pin\n");
-	printf("  direction.)  If 'type' is omitted or 'all', does the\n");
-	printf("  equivalent of 'comp', 'netl', 'param', and 'thread'.\n");
+	printf("  Type can be 'comp', 'alias', 'sig[u]', 'signal', 'link[a]'\n");
+        printf("  'net[a]', 'netl', 'netla', netal', 'param', 'parameter,\n");
+	printf("  or 'thread'.\n");
+        printf("  (A final 'a' character (like 'neta' means show arrows for pin direction.)\n");
+        printf("  If 'type' is omitted (or type is 'all'), does the equivalent of:\n");
+	printf("  'comp', 'alias', 'sigu', 'netla', 'param', and 'thread'.\n\n");
+        printf("  See the man page ($man halcmd) for save option details\n");
     } else if (strcmp(command, "start") == 0) {
 	printf("start\n");
 	printf("  Starts all realtime threads.\n");
