@@ -13,6 +13,22 @@ shift
 FILES="$@"
 
 # it'd be nice to build-depend on checklinks, but it's not available in Lucid
+echo "env:"
+env
+echo
+
+echo "which checklink:"
+which checklink
+echo
+
+echo "ls -la /usr/bin/checklink:"
+ls -la /usr/bin/checklink
+echo
+
+echo "checklink:"
+checklink
+echo
+
 if [ -z $(which checklink) ]; then
     echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2
     exit 0
