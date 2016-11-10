@@ -1779,7 +1779,7 @@ void SET_SPINDLE_MODE(double css_max) {
     canon.css_maximum = fabs(css_max);
 }
 
-void START_SPINDLE_CLOCKWISE()
+void START_SPINDLE_CLOCKWISE(int wait_for_atspeed)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
@@ -1798,10 +1798,11 @@ void START_SPINDLE_CLOCKWISE()
 	emc_spindle_on_msg.speed = canon.spindle_dir * canon.spindleSpeed;
 	canon.css_numerator = 0;
     }
+    emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_on_msg);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE()
+void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
@@ -1820,6 +1821,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 	emc_spindle_on_msg.speed = canon.spindle_dir * canon.spindleSpeed;
 	canon.css_numerator = 0;
     }
+    emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_on_msg);
 }
 
@@ -2176,6 +2178,7 @@ void ENABLE_FEED_OVERRIDE()
     set_fo_enable_msg.mode = 1;
     interp_list.append(set_fo_enable_msg);
 }
+
 
 //refers to adaptive feed override (HAL input, usefull for EDM for example)
 void DISABLE_ADAPTIVE_FEED()
