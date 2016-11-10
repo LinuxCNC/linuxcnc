@@ -2,6 +2,38 @@
 
 = Integrator Concepts
 
+== File Locations
+
+LinuxCNC looks for the configuration and G code files in a specific place.
+
+* The LinuxCNC directory is located at '/home/user-name/linuxcnc'.
+* The Configuration directories are located at '/home/user-name/linuxcnc/configs'.
+**  Configuration files are located at '/home/user-name/linuxcnc/configs/name-of-config'.
+* G code files are located at /home/user-name/linuxcnc/nc_files'.
+* Optional locations for some files can be configured in the INI file. See the +
+ <<sec:display-section,DISPLAY>> section and the <<sec:rs274ngc-section,RS274NGC>> +
+ section.
+
+Each configuration directory requires at least the following files:
+
+* An INI file .ini
+* At least one HAL file .hal
+* A Variables file .var
+* A Tool Table file .tbl
+
+Other files may be required for some GUI's
+
+For example for a configuration called Mill and a user name Fred the directory
+and file structure would look like this.
+
+* '/home/fred/linuxcnc'
+* '/home/fred/linuxcnc/nc_files'
+* '/home/fred/linuxcnc/configs/mill'
+** '/home/fred/linuxcnc/configs/mill/mill.ini'
+** '/home/fred/linuxcnc/configs/mill/mill.hal'
+** '/home/fred/linuxcnc/configs/mill/mill.var'
+** '/home/fred/linuxcnc/configs/mill/tool.tbl'
+
 == Stepper Systems
 
 === Base Period
