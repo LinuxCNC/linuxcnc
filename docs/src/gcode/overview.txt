@@ -614,37 +614,37 @@ can be added easily without changes to the source code.
     Return 1 if feed hold switch is enabled (M53 P1), else 0.
 
 * '#<_feed>' -
-    Return the current feed value (F).
+    Return the current value of F, not the actual feed rate.
 
 * '#<_rpm>' -
-    Return the current spindle speed (S).
+    Return the current value of S, not the actual spindle speed.
 
 * '#<_x>' -
-    Return current X coordinate. Same as #5420.
+    Return current reletative X coordinate including all offsets. Same as #5420.
 
 * '#<_y>' -
-    Return current Y coordinate. Same as #5421.
+    Return current reletative Y coordinate including all offsets. Same as #5421.
 
 * '#<_z>' -
-    Return current Z coordinate. Same as #5422.
+    Return current reletative Z coordinate including all offsets. Same as #5422.
 
 * '#<_a>' -
-    Return current A coordinate. Same as #5423.
+    Return current reletative A coordinate including all offsets. Same as #5423.
 
 * '#<_b>' -
-    Return current B coordinate. Same as #5424.
+    Return current reletative B coordinate including all offsets. Same as #5424.
 
 * '#<_c>' -
-    Return current C coordinate. Same as #5425.
+    Return current reletative C coordinate including all offsets. Same as #5425.
 
 * '#<_u>' -
-    Return current U coordinate. Same as #5426.
+    Return current reletative U coordinate including all offsets. Same as #5426.
 
 * '#<_v>' -
-    Return current V coordinate. Same as #5427.
+    Return current reletative V coordinate including all offsets. Same as #5427.
 
 * '#<_w>' -
-    Return current W coordinate. Same as #5428.
+    Return current reletative W coordinate including all offsets. Same as #5428.
 
 * '#<_current_tool>' -
     Return number of the current tool in spindle. Same as #5400.
