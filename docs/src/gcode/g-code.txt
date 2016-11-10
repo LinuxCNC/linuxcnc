@@ -88,11 +88,13 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
+|<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
 |<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
 |<<gcode:g80,G80>>                  |Cancel Motion Modes
 |<<gcode:g81,G81>>                  |Drilling Cycle
 |<<gcode:g82,G82>>                  |Drilling Cycle with Dwell
 |<<gcode:g83,G83>>                  |Drilling Cycle with Peck
+|<<gcode:g84,G84>>                  |Right-hand Tapping Cycle with Dwell
 |<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
 |<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
 |<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
@@ -1484,6 +1486,37 @@ It is an error if:
 * the Q number is negative or zero.
 * the R number is not specified
 
+
+[[gcode:g74]]
+== G74 Left-hand Tapping Cycle, Dwell
+(((G74 Left-hand Tapping Cycle Dwell)))
+
+----
+G74 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+
+The 'G74' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
+
+    1. Preliminary motion, as described in the
+       <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
+
+    2. Disable Feed and Speed Overrides.
+
+    3. Move the Z-axis at the current feed rate to the Z position.
+
+    4. Stop Spindle.
+
+    5. Start spindle rotation clockwise.
+
+    6. Dwell for the P number of seconds.
+
+    7. Move the Z-axis at the current feed rate to clear Z
+
+    8. Restore Feed and Speed override enables to previous state
+
+The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+In example S100 F125 gives pitch of 1.25MM per revolution.
+
 [[gcode:g76]]
 == G76 Threading Cycle
 (((G76 Threading Cycle)))
@@ -2052,10 +2085,35 @@ It is an error if:
 
 * the Q number is negative or zero.
 
-== G84 Right-Hand Tapping Cycle
+[[gcode:g84]]
+== G84 Right-hand Tapping Cycle, Dwell
+(((G84 Right-hand Tapping Cycle Dwell)))
 
-This code is currently unimplemented in LinuxCNC. It is accepted, but the
-behavior is undefined. See section <<gcode:g33.1,G33.1>>
+----
+G84 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+
+The 'G84' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
+
+    1. Preliminary motion, as described in the
+       <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
+
+    2. Disable Feed and Speed Overrides.
+
+    3. Move the Z-axis at the current feed rate to the Z position.
+
+    4. Stop spindle
+
+    5. Start spindle rotation counterclockwise.
+
+    6. Dwell for the P number of seconds.
+
+    7. Move the Z-axis at the current feed rate to clear Z
+
+    8. Restore Feed and Speed override enables to previous state
+
+The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+In example S100 F125 gives pitch of 1.25MM per revolution.
 
 [[gcode:g85]]
 == G85 Boring Cycle, Feed Out

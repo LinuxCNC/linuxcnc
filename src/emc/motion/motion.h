@@ -259,6 +259,7 @@ extern "C" {
 	double  orientation;    /* angle for spindle orient */
 	char    direction;      /* CANON_DIRECTION flag for spindle orient */
 	double  timeout;        /* of wait for spindle orient to complete */
+	unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move
 	unsigned char tail;	/* flag count for mutex detect */
         int arcBlendOptDepth;
         int arcBlendEnable;
