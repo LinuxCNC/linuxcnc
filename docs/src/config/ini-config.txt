@@ -264,7 +264,10 @@ The following [DISPLAY] items are used by GladeVCP, see the
 
 
 [NOTE]
-The following [DISPLAY] items are for the AXIS interface only, many of them are used also from gmoccapy, see the <<cha:gmoccapy,gmoccapy>> document for details.
+The following [DISPLAY] items are for the AXIS interface only, see the
+<<cha:axis-gui,AXIS GUI>> document for details.
+Many of them are used also from gmoccapy, see the
+<<cha:gmoccapy,gmoccapy>> document for details.
 
 * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
    <<sec:traj-section,machine units>> per second.
@@ -341,6 +344,9 @@ The following [DISPLAY] items are for the AXIS interface only, many of them are 
     will save the MDI history in *.axis_mdi_history* in the user's home
     directory. This is useful if you have multiple configurations on one
     computer.
+
+* 'USER_COMMAND_FILE = mycommands.py' -- The name of an optional, configuration-specific
+  python file sourced by the axis gui instead of the user-specific file `~/.axisrc`.
 
 [NOTE]
 The following [DISPLAY] item is used by the TKLinuxCNC interface only.

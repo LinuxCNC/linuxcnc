@@ -897,11 +897,11 @@ this causes the built-in options to be created at the option level
 'widgetDefault', so that X Resources (which are level 'userDefault')
 can override them.
 
-=== ~./axisrc
+=== ~/.axisrc
 
-If it exists, the contents of '~/.axisrc'  are executed as Python
+If it exists, the contents of `~/.axisrc`  are executed as Python
 source code just before the AXIS GUI is
-displayed. The details of what may be written in the axisrc are subject
+displayed. The details of what may be written in the `~/.axisrc` are subject
 to change during the development cycle.
 
 The following adds Control-Q as a keyboard shortcut for Quit.
@@ -916,6 +916,24 @@ The following stops the "Do you really want to quit" dialog.
 ----
 root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .") 
 ----
+
+=== USER_COMMAND_FILE
+
+A configuration-specific python file may be specified with an ini file
+setting '[DISLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
+this file is sourced just before the AXIS GUI is displayed.  This file
+is specific to an ini file configuration not the user's home directory.
+When this file is specified, an existing `~/.axisrc` file is ignored.
+
+=== user_live_update()
+
+The axis gui includes a no-op (placeholder) function named
+'user_live_update()' that is executed at the conclusion of the update()
+function of its LivePlotter class.  This function may be implemented
+within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
+python script to make custom, periodic actions.  The details of what may
+be accomplished in this function are dependent on the axis gui
+implementation and subject to change during the development cycle.
 
 === External Editor
 
