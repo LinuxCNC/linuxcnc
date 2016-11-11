@@ -2030,9 +2030,10 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
                 self.command.load_tool_table()
+                self.command.wait_complete()  # we need to wait for stat to be updated
                 self.ioToolTableLoaded = True
                 if self.rx.HasField('ticket'):
-                    self.wait_complete(identity, self.rx.ticket)
+                    self.send_command_completed(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
