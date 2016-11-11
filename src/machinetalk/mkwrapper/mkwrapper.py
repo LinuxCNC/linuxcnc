@@ -383,6 +383,7 @@ class LinuxCNCWrapper():
             self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or "linuxcnc.var"
             self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
             self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            self.randomToolChanger = self.ini.find("EMCIO", "RANDOM_TOOL_CHANGER") or 0
 
             # setup program extensions
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
@@ -1036,10 +1037,10 @@ class LinuxCNCWrapper():
             txToolResult.Clear()
             resultModified = False
 
-            if (index == 0):  # TODO: consider [EMCIO]RANDOM_TOOL_CHANGER
+            if (index == 0 and not self.randomToolChanger):
                 continue
 
-            if (statToolResult.id == -1):
+            if (statToolResult.id == -1 and not self.randomToolChanger):
                 break  # last tool in table, except index = 0 (spindle !)
 
             if len(self.status.io.tool_table) == tableIndex:
@@ -2030,9 +2031,10 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
                 self.command.load_tool_table()
+                self.command.wait_complete()  # we need to wait for stat to be updated
                 self.ioToolTableLoaded = True
                 if self.rx.HasField('ticket'):
-                    self.wait_complete(identity, self.rx.ticket)
+                    self.send_command_completed(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
