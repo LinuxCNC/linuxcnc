@@ -4,24 +4,19 @@
 
 == File Locations
 
-LinuxCNC looks for the configuration and G code files in a specific place.
+LinuxCNC looks for the configuration and G code files in a specific place. The
+location depends on how you run LinuxCNC.
+
+=== Installed
+
+If your running LinuxCNC from the LiveCD or you installed via a deb and use the
+configuration picker 'LinuxCNC' from the menu LinuxCNC looks in the following
+directories:
 
 * The LinuxCNC directory is located at '/home/user-name/linuxcnc'.
 * The Configuration directories are located at '/home/user-name/linuxcnc/configs'.
 **  Configuration files are located at '/home/user-name/linuxcnc/configs/name-of-config'.
 * G code files are located at /home/user-name/linuxcnc/nc_files'.
-* Optional locations for some files can be configured in the INI file. See the +
- <<sec:display-section,DISPLAY>> section and the <<sec:rs274ngc-section,RS274NGC>> +
- section.
-
-Each configuration directory requires at least the following files:
-
-* An INI file .ini
-* At least one HAL file .hal
-* A Variables file .var
-* A Tool Table file .tbl
-
-Other files may be required for some GUI's
 
 For example for a configuration called Mill and a user name Fred the directory
 and file structure would look like this.
@@ -33,6 +28,40 @@ and file structure would look like this.
 ** '/home/fred/linuxcnc/configs/mill/mill.hal'
 ** '/home/fred/linuxcnc/configs/mill/mill.var'
 ** '/home/fred/linuxcnc/configs/mill/tool.tbl'
+
+=== Command Line
+
+If you run LinuxCNC from the command line and specify the name and location of
+the INI file the file locations can be in a different place. To view the
+options for running LinuxCNC from the command line run 'linuxcnc -h'.
+
+[NOTE]
+Optional locations for some files can be configured in the INI file. See the
+<<sec:display-section,DISPLAY>> section and the <<sec:rs274ngc-section,RS274NGC>>
+section.
+
+
+== Files
+
+Each configuration directory requires at least the following files:
+
+* An INI file .ini
+* A HAL file .hal or HALTCL file .tcl specified in the 
+  <<sec:hal-section,HAL>> section of the INI file.
+
+[NOTE]Other files may be required for some GUI's.
+
+Optionally you can also have:
+
+* A Variables file .var
+** If you omit a .var file in a directory but include
+   [<<sec:rs274ngc-section,RS274NGC>>] PARAMETER_FILE=somefilename.var, the file
+   will be created for you when LinuxCNC starts.
+** If you omit a .var file  and  omit the item [RS274NGC] PARAMETER_FILE, a var
+   file named rs274ngc.var will be created when LinuxCNC starts. There may be
+   some confusing messages if [RS274NGC]PARAMETER_FILE is omitted.
+* A Tool Table file .tbl if [<<sec:emcmot-section,EMCMOT>>]TOOL_TABLE has been
+  specified in the INI file. Some configurations do not need a tool table.
 
 == Stepper Systems
 
