@@ -620,31 +620,31 @@ can be added easily without changes to the source code.
     Return the current value of S, not the actual spindle speed.
 
 * '#<_x>' -
-    Return current reletative X coordinate including all offsets. Same as #5420.
+    Return current relative X coordinate including all offsets. Same as #5420.
 
 * '#<_y>' -
-    Return current reletative Y coordinate including all offsets. Same as #5421.
+    Return current relative Y coordinate including all offsets. Same as #5421.
 
 * '#<_z>' -
-    Return current reletative Z coordinate including all offsets. Same as #5422.
+    Return current relative Z coordinate including all offsets. Same as #5422.
 
 * '#<_a>' -
-    Return current reletative A coordinate including all offsets. Same as #5423.
+    Return current relative A coordinate including all offsets. Same as #5423.
 
 * '#<_b>' -
-    Return current reletative B coordinate including all offsets. Same as #5424.
+    Return current relative B coordinate including all offsets. Same as #5424.
 
 * '#<_c>' -
-    Return current reletative C coordinate including all offsets. Same as #5425.
+    Return current relative C coordinate including all offsets. Same as #5425.
 
 * '#<_u>' -
-    Return current reletative U coordinate including all offsets. Same as #5426.
+    Return current relative U coordinate including all offsets. Same as #5426.
 
 * '#<_v>' -
-    Return current reletative V coordinate including all offsets. Same as #5427.
+    Return current relative V coordinate including all offsets. Same as #5427.
 
 * '#<_w>' -
-    Return current reletative W coordinate including all offsets. Same as #5428.
+    Return current relative W coordinate including all offsets. Same as #5428.
 
 * '#<_current_tool>' -
     Return number of the current tool in spindle. Same as #5400.
