@@ -496,7 +496,14 @@ Low order bits (see "h")
 g: (Gray-code). This is a modifier that indicates that the following
 format string is gray-code encoded. This is only valid for encoders (e, h l) and 
 unsigned (u) data types.
- 
+.TP
+m: (Multi-turn). This is a modifier that indicates that the following
+format string is a multi-turn encoder. This is only valid for encoders (e, h l).
+A jump in encoder position of more than half the full scale is interpreted as a
+full turn and the counts are wrapped. With a multi-turn encoder this is only
+likely to be a data glitch and will lead to a permanent offset. This flag
+endures that such encoders will never wrap.
+
 .TP
 Parameters:
 Two parameters is universally created for all SSI instances
