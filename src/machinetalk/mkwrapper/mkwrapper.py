@@ -12,6 +12,7 @@ import signal
 import argparse
 from urlparse import urlparse
 import shutil
+import tempfile
 import subprocess
 import re
 import codecs
@@ -136,35 +137,65 @@ class FileService(threading.Thread):
         self.shutdown.set()
 
 
-class Canon():
-    def __init__(self, parameterFile="", debug=False):
-        self.debug = debug
-        self.aborted = multiprocessing.Value('b', False, lock=False)
-        self.parameterFile = parameterFile
+class PreviewCanonData():
+    def __init__(self):
+        self.tools = []
+        self.randomToolchanger = False
+        self.parameterFile = ""
+        self.axisMask = 0x0
+        self.blockDelete = False
+        self.angularUnits = 1.0
+        self.linearUnits = 1.0
 
-    def do_cancel(self):
-        if self.debug:
-            print("setting abort flag")
-        self.aborted.value = True
+
+class PreviewCanon():
+    def __init__(self, canon, debug=False):
+        self.c = canon
+        self.debug = debug
 
     def check_abort(self):
         if self.debug:
             print("check_abort")
-        return self.aborted.value
+        return False
 
-    def reset(self):
-        self.aborted.value = False
+    def change_tool(self, pocket):
+        if self.c.randomToolchanger:
+            self.c.tools[0], self.c.tools[pocket] = self.c.tools[pocket], self.c.tools[0]
+        elif pocket == 0:
+            self.c.tools[0] = (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+        else:
+            self.c.tools[0] = self.c.tools[pocket]
+
+    def get_tool(self, pocket):
+        if pocket >= 0 and pocket < len(self.c.tools):
+            return self.c.tools[pocket]
+        return (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+
+    def get_external_angular_units(self):
+        return self.c.angularUnits or 1.0
+
+    def get_external_length_units(self):
+        return self.c.linearUnits or 1.0
+
+    def get_axis_mask(self):
+        return self.c.axisMask
+
+    def get_block_delete(self):
+        return self.c.blockDelete
 
 
 # Preview class works concurrently using multiprocessing
 # Queues are used for communication
 class Preview():
-    def __init__(self, parameterFile="", initcode="", debug=False):
+    def __init__(self, stat, randomToolchanger=False, parameterFile="", initcode="", debug=False):
         self.debug = debug
         self.filename = ""
         self.unitcode = ""
         self.initcode = initcode
-        self.canon = Canon(parameterFile=parameterFile, debug=debug)
+        self.stat = stat
+        self.parameterFile = parameterFile
+        self.randomToolchanger = randomToolchanger
+        self.canon = None
         self.preview = None
         self.errorCallback = None
 
@@ -178,6 +209,7 @@ class Preview():
         self.isStarted = multiprocessing.Value('b', False, lock=False)
         self.isBound = multiprocessing.Value('b', False, lock=False)
         self.isRunning = multiprocessing.Value('b', False, lock=False)
+        self.aborted = multiprocessing.Value('b', False, lock=False)
         self.inqueue = multiprocessing.Queue()  # used to send data to the process
         self.outqueue = multiprocessing.Queue()  # used to get data from the process
         self.process = multiprocessing.Process(target=self.run)
@@ -193,7 +225,7 @@ class Preview():
         return self.outqueue.get()
 
     def abort(self):
-        self.canon.do_cancel()
+        self.aborted.value = True
 
     def program_open(self, filename):
         if os.path.isfile(filename):
@@ -219,10 +251,27 @@ class Preview():
         if not self.isBound.value:
             raise Exception('Preview is not bound')
 
+        # create temp dir
+        tempdir = tempfile.mkdtemp()
+
+        # prepare Canon data
+        canon = PreviewCanonData()
+        tools = []
+        for entry in self.stat.tool_table:
+            tools.append(tuple(entry))
+        canon.tools = tools
+        temp_parameter = os.path.join(tempdir, os.path.basename(self.parameterFile))
+        if os.path.exists(self.parameterFile):
+            shutil.copy(self.parameterFile, temp_parameter)
+        canon.parameterFile = temp_parameter
+        canon.randomToolchanger = self.randomToolchanger
+        canon.axisMask = self.stat.axis_mask
+        canon.blockDelete = self.stat.block_delete
+        canon.angularUnits = self.stat.angular_units
+        canon.linearUnits = self.stat.linear_units
+
         # put everything on the process queue
-        self.inqueue.put((self.filename, self.unitcode, self.initcode))
-        # reset canon
-        self.canon.reset()
+        self.inqueue.put((self.filename, self.unitcode, self.initcode, canon))
         # release the dragon
         self.previewEvent.set()
         self.previewCompleteEvent.wait()
@@ -232,6 +281,9 @@ class Preview():
             if self.errorCallback is not None:
                 self.errorCallback(error, line)
             self.errorEvent.clear()
+
+        # cleanup temp dir
+        shutil.rmtree(tempdir)
 
     def run(self):
         import preview  # must be imported in new process to work properly
@@ -271,7 +323,11 @@ class Preview():
 
     def do_preview(self):
         # get all stuff that is modified at runtime
-        (filename, unitcode, initcode) = self.inqueue.get()
+        (filename, unitcode, initcode, canonData) = self.inqueue.get()
+        # make abort possible
+        canon = PreviewCanon(canonData, self.debug)
+        self.aborted.value = False
+        canon.check_abort = lambda : self.aborted.value
         if self.debug:
             print("Preview starting")
             print("Filename: " + filename)
@@ -281,7 +337,7 @@ class Preview():
             # here we do all the actual work...
             (result, last_sequence_number) = self.preview.parse(
                 filename,
-                self.canon,
+                canon,
                 unitcode,
                 initcode)
 
@@ -290,14 +346,18 @@ class Preview():
                 error = " gcode error: %s " % (self.preview.strerror(result))
                 line = last_sequence_number - 1
                 if self.debug:
-                    printError("preview: " + self.filename)
+                    printError("preview: " + filename)
                     printError(error + " on line " + str(line))
                 # pass error through queue
                 self.outqueue.put((error, str(line)))
                 self.errorEvent.set()
 
         except Exception as e:
-            printError("preview exception " + str(e))
+            error = "preview error: " + str(e)
+            if self.debug:
+                printError(error)
+            self.outqueue.put((error, "0"))
+            self.errorEvent.set()
 
         if self.debug:
             print("Preview exiting")
@@ -382,6 +442,9 @@ class LinuxCNCWrapper():
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
             self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or "linuxcnc.var"
             self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
+            self.interpInitcode = self.ini.find("EMC", "RS274NGC_STARTUP_CODE") or ""
+            if self.interpInitcode == "":
+                self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             self.randomToolChanger = self.ini.find("EMCIO", "RANDOM_TOOL_CHANGER") or 0
 
@@ -452,7 +515,9 @@ class LinuxCNCWrapper():
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
-        self.preview = Preview(parameterFile=self.interpParameterFile,
+        self.preview = Preview(stat=self.stat,
+                               randomToolchanger=self.randomToolChanger,
+                               parameterFile=self.interpParameterFile,
                                initcode=self.interpInitcode,
                                debug=self.debug)
         (self.previewDsname, self.previewstatusDsname) = \
