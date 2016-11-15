@@ -49,14 +49,14 @@ same line as those in group 1 (except g80) because they would be
 competing for the coordinate values. Others in group 0 may be used on
 the same line as those in group 1.
 
-A total of 52 G-codes are implemented.
+A total of 53 G-codes are implemented.
 
 The groups are:
 group  0 = {g4,g10,g28,g30,g52,g53,g92,g92.1,g92.2,g92.3} - NON-MODAL
             dwell, setup, return to ref1, return to ref2,
             local coordinate system, motion in machine coordinates,
             set and unset axis offsets
-group  1 = {g0,g1,g2,g3,g33,g33.1,g38.2,g38.3,g38.4,g38.5,g73,g76,g80,
+group  1 = {g0,g1,g2,g3,g33,g33.1,g38.2,g38.3,g38.4,g38.5,g73,g71,g76,g80,
             g81,g82,g83,g84,g85,g86,g87,g88,g89} - motion
 group  2 = {g17,g17.1,g18,g18.1,g19,g19.1}   - plane selection
 group  3 = {g90,g91}       - distance mode
@@ -110,7 +110,7 @@ const int Interp::_gees[] = {
 /* 640 */  13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 660 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 680 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 700 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+/* 700 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 720 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 740 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 760 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,

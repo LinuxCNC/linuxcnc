@@ -345,6 +345,33 @@ int Interp::_execute(const char *command)
       logDebug("skipping to: %s", _setup.skipping_o);
       return INTERP_OK;
     }
+  if(_setup.g71_skipping) {
+      if( (eblock->motion_to_be == G_0) || (eblock->motion_to_be == G_1) || (eblock->motion_to_be == G_2) || (eblock->motion_to_be == G_3) || (eblock->motion_to_be == G_71)) {
+          if(_setup.g71_reading) {
+              logDebug("Pushing back block with motion code: %i", eblock->motion_to_be);
+              _setup.g71_blocks.push_back(*eblock);
+              if(eblock->n_number == _setup.g71_end_block) {
+                  logDebug("Found end block N%i", eblock->n_number);
+                  if (_setup.file_pointer) { // only seek if it was open
+                      fseek(_setup.file_pointer, _setup.g71_block_offset, SEEK_SET);
+                  }
+                  _setup.g71_block_offset = eblock->offset;
+        	      _setup.sequence_number = 0;
+                  _setup.g71_skipping = false;
+                  _setup.g71_reading = false;
+              }
+              return INTERP_OK;
+          } else if(eblock->n_number != _setup.g71_start_block) {
+              logDebug("skipping to line N%i for G71 pre-read", _setup.g71_start_block);
+              return INTERP_OK;
+          } else {
+              _setup.g71_blocks.push_back(*eblock);
+              logDebug("Found start block N%i", eblock->n_number);
+              _setup.g71_reading = true;
+              return INTERP_OK;
+          }
+      }
+  }
 
   for (n = 0; n < _setup.parameter_occurrence; n++)
   {  // copy parameter settings from parameter buffer into parameter table
@@ -1168,6 +1195,15 @@ int Interp::init()
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.offset_map.clear();
+
+  // initialization stuff for g71 control - TODO: merge with o word control?
+  _setup.g71_start_block = -1;
+  _setup.g71_end_block = -1;
+  _setup.g71_blocks.clear();
+  _setup.lathe_cycle_profile.clear();
+  _setup.g71_skipping = false;
+  _setup.g71_reading = false;
+
 
   _setup.lathe_diameter_mode = false;
   _setup.parameters[5599] = 1.0; // enable (DEBUG, ) output

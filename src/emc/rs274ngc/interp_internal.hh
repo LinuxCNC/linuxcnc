@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <set>
 #include <map>
+#include <vector>
 #include <bitset>
 #include "canon.hh"
 #include "emcpos.h"
@@ -229,6 +230,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_61   610
 #define G_61_1 611
 #define G_64   640
+#define G_71   710
 #define G_73   730
 #define G_74   740
 #define G_76   760
@@ -589,6 +591,19 @@ typedef struct offset_struct {
 typedef std::map<const char *, offset, nocase_cmp> offset_map_type;
 typedef std::map<const char *, offset, nocase_cmp>::iterator offset_map_iterator;
 
+
+typedef struct lathe_canned_cycle_profile_struct {
+  int move;
+  double startx;
+  double startz;
+  double endx;
+  double endz;
+  double centrex;
+  double centrez;
+  double radius;
+} lcc_profile;
+
+
 /*
 
 The current_x, current_y, and current_z are the location of the tool
@@ -733,6 +748,17 @@ struct setup
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int call_state;                  //  enum call_states - inidicate Py handler reexecution
   offset_map_type offset_map;      // store label x name, file, line
+
+  /* stuff for lathe canned cycles (g70/g71) control - TODO: See if this should/can be merged in with o word control */
+  int g71_start_block;
+  int g71_end_block;
+  bool g71_skipping;
+  bool g71_reading;
+  std::vector<block> g71_blocks;
+  std::vector<lcc_profile> lathe_cycle_profile;
+  // TODO: vector blocks
+  long g71_block_offset; // use an offset object?
+  
 
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled

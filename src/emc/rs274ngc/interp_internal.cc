@@ -124,6 +124,7 @@ Returned Value:
    4. A g-code (other than 0 or 1, for which we are allowing all axes
       missing) from group 1 which can use axis values is in the block,
       but no axis value is given: NCE_ALL_AXES_MISSING_WITH_MOTION_CODE
+   4a. TODO: Cleanup description or behaviour. G71 roughing cycle is group 1 but has no acceptable axis values.
    5. Axis values are given, but there is neither a g-code in the block
       nor an active previously given modal g-code that uses axis values:
       NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM
@@ -182,6 +183,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
       CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
 	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
+    } else if (mode1 == G_71) {
+        CHKS((axis_flag), _("Cannot use axis commands with G71"));
     } else {
       CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);

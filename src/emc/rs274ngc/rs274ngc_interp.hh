@@ -336,6 +336,9 @@ public:
                             double u_end, double v_end, double w_end);
  int convert_threading_cycle(block_pointer block, setup_pointer settings,
                              double end_x, double end_y, double end_z);
+ bool lathe_roughing_cycle_generate_profile(setup_pointer settings, double *min_x, double *max_x, double *min_z, double *max_z);
+ int convert_lathe_roughing_cycle(block_pointer block, setup_pointer settings,
+                             double end_x, double end_y, double end_z);
  int convert_tool_change(setup_pointer settings);
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
