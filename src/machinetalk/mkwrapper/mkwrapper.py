@@ -252,8 +252,6 @@ class Preview():
         if not self.isBound.value:
             raise Exception('Preview is not bound')
 
-        self.isRunning.value = True
-
         # create temp dir
         tempdir = tempfile.mkdtemp()
 
@@ -273,10 +271,7 @@ class Preview():
         canon.angularUnits = self.stat.angular_units
         canon.linearUnits = self.stat.linear_units
 
-        self.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
         # put everything on the process queue
-        while not self.inqueue.empty():
-            self.inqueue.get_nowait()
         self.inqueue.put((self.filename, self.unitcode, self.initcode, canon))
         # release the dragon
         self.previewCompleteEvent.clear()
@@ -291,8 +286,6 @@ class Preview():
 
         # cleanup temp dir
         shutil.rmtree(tempdir)
-
-        self.isRunning.value = False
 
     def run(self):
         import preview  # must be imported in new process to work properly
