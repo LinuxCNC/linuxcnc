@@ -251,6 +251,8 @@ class Preview():
         if not self.isBound.value:
             raise Exception('Preview is not bound')
 
+        self.isRunning.value = True
+
         # create temp dir
         tempdir = tempfile.mkdtemp()
 
@@ -270,9 +272,13 @@ class Preview():
         canon.angularUnits = self.stat.angular_units
         canon.linearUnits = self.stat.linear_units
 
+        self.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
         # put everything on the process queue
+        while not self.inqueue.empty():
+            self.inqueue.get_nowait()
         self.inqueue.put((self.filename, self.unitcode, self.initcode, canon))
         # release the dragon
+        self.previewCompleteEvent.clear()
         self.previewEvent.set()
         self.previewCompleteEvent.wait()
         # handle error events
@@ -284,6 +290,8 @@ class Preview():
 
         # cleanup temp dir
         shutil.rmtree(tempdir)
+
+        self.isRunning.value = False
 
     def run(self):
         import preview  # must be imported in new process to work properly
@@ -310,12 +318,9 @@ class Preview():
         # and the process
         while not self.shutdownEvent.is_set():
             if self.previewEvent.wait(timeout=0.1):
-                self.previewCompleteEvent.clear()
-                self.isRunning.value = True
                 self.do_preview()
                 self.previewCompleteEvent.set()
                 self.previewEvent.clear()
-                self.isRunning.value = False
 
         if self.debug:
             print('Preview process exited')
@@ -1718,7 +1723,6 @@ class LinuxCNCWrapper():
                         if self.rx.HasField('ticket'):
                             self.wait_complete(identity, self.rx.ticket)
                     elif self.rx.interp_name == 'preview':
-                        self.preview.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
                         self.preview.start()
                 else:
                     self.send_command_wrong_params(identity)
