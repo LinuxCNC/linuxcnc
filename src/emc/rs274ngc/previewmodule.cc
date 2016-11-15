@@ -540,17 +540,16 @@ void SET_FEED_MODE(int mode) {
 void CHANGE_TOOL(int pocket) {
     maybe_new_line();
     if(interp_error) return;
-    // PyObject *result =
-    //     callmethod(callback, "change_tool", "i", pocket);
-    // if(result == NULL) interp_error ++;
-    // Py_XDECREF(result);
+    PyObject *result =
+        callmethod(callback, "change_tool", "i", pocket);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
 
     pb::Preview *p = output.add_preview();
     p->set_type(pb::PV_CHANGE_TOOL);
     //    p->set_line_number(line_number);
     p->set_pocket(pocket);
     send_preview(p_client);
-
 }
 
 void CHANGE_TOOL_NUMBER(int pocket) {
@@ -692,14 +691,14 @@ int  GET_EXTERNAL_TC_REASON() {return 0;}
 extern bool GET_BLOCK_DELETE(void) {
     int bd = 0;
     if(interp_error) return 0;
-    // PyObject *result =
-    //     callmethod(callback, "get_block_delete", "");
-    // if(result == NULL) {
-    //     interp_error++;
-    // } else {
-    //     bd = PyObject_IsTrue(result);
-    // }
-    // Py_XDECREF(result);
+    PyObject *result =
+        callmethod(callback, "get_block_delete", "");
+    if(result == NULL) {
+        interp_error++;
+    } else {
+        bd = PyObject_IsTrue(result);
+    }
+    Py_XDECREF(result);
     return bd;
 }
 
@@ -825,15 +824,21 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
 
-    // PyObject *result =
-    //     callmethod(callback, "get_tool", "i", pocket);
-    // if(result == NULL ||
-    //    !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
-    //                       &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
-    //                       &t.diameter, &t.frontangle, &t.backangle, &t.orientation))
-    //         interp_error ++;
+    PyObject *result = callmethod(callback, "get_tool", "i", pocket);
+    PyErr_Clear(); // necessary because ParseTuple fails
+    int ok = PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno,
+                              &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
+                              &t.offset.a, &t.offset.b, &t.offset.c,
+                              &t.offset.u, &t.offset.v, &t.offset.w,
+                              &t.diameter, &t.frontangle, &t.backangle,
+                              &t.orientation);
 
-    // Py_XDECREF(result);
+    if (result == NULL || !ok)
+    {
+        interp_error ++;
+    }
+
+    Py_XDECREF(result);
     return t;
 }
 
@@ -873,13 +878,13 @@ int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
-    // PyObject *result =
-    //     callmethod(callback, "get_axis_mask", "");
-    // if(!result) { interp_error ++; return 7 /* XYZABC */; }
-    // if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
-    // int mask = PyInt_AsLong(result);
-    // Py_DECREF(result);
-    return 0x3f; // XYZABC mask;
+    PyObject *result =
+        callmethod(callback, "get_axis_mask", "");
+    if(!result) { interp_error ++; return 7 /* XYZABC */; }
+    if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
+    int mask = PyInt_AsLong(result);
+    Py_DECREF(result);
+    return mask; // XYZABC mask;
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
@@ -925,32 +930,32 @@ static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
 }
 
 double GET_EXTERNAL_ANGLE_UNITS() {
-    // PyObject *result =
-    //     callmethod(callback, "get_external_angular_units", "");
-    // if(result == NULL) interp_error++;
+    PyObject *result =
+        callmethod(callback, "get_external_angular_units", "");
+    if(result == NULL) interp_error++;
 
     double dresult = 1.0;
-    // if(!result || !PyFloat_CheckAndError("get_external_angle_units", result)) {
-    //     interp_error++;
-    // } else {
-    //     dresult = PyFloat_AsDouble(result);
-    // }
-    // Py_XDECREF(result);
+    if(!result || !PyFloat_CheckAndError("get_external_angle_units", result)) {
+        interp_error++;
+    } else {
+        dresult = PyFloat_AsDouble(result);
+    }
+    Py_XDECREF(result);
     return dresult;
 }
 
 double GET_EXTERNAL_LENGTH_UNITS() {
-    // PyObject *result =
-    //     callmethod(callback, "get_external_length_units", "");
-    // if(result == NULL) interp_error++;
+    PyObject *result =
+        callmethod(callback, "get_external_length_units", "");
+    if(result == NULL) interp_error++;
 
     double dresult = 0.03937007874016;
-    // if(!result || !PyFloat_CheckAndError("get_external_length_units", result)) {
-    //     interp_error++;
-    // } else {
-    //     dresult = PyFloat_AsDouble(result);
-    // }
-    // Py_XDECREF(result);
+    if(!result || !PyFloat_CheckAndError("get_external_length_units", result)) {
+        interp_error++;
+    } else {
+        dresult = PyFloat_AsDouble(result);
+    }
+    Py_XDECREF(result);
     return dresult;
 }
 
@@ -960,7 +965,7 @@ static bool check_abort() {
     if(!result) return 1;
     if(PyObject_IsTrue(result)) {
         Py_DECREF(result);
-	PyErr_Format(PyExc_KeyboardInterrupt, "Load aborted");
+        PyErr_Format(PyExc_KeyboardInterrupt, "Load aborted");
         return 1;
     }
     Py_DECREF(result);
