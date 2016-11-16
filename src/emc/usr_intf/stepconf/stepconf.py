@@ -85,19 +85,19 @@ if not os.path.isfile(wizard):
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 linuxcncicon = os.path.join(icondir, "machinekiticon.png")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/etc/machinekit/machinekit-wizard.gif")
+    linuxcncicon = os.path.join("/etc/linuxcnc/machinekit-wizard.gif")
 if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/usr/share/machinekit/machinekiticon.png")
+    linuxcncicon = os.path.join("/usr/share/linuxcnc/machinekiticon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "machinekit", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "machinekit", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "machinekit", "examples", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc", "examples", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = "/usr/share/machinekit/examples/sample-configs/common"
+    distdir = "/usr/share/linuxcnc/examples/sample-configs/common"
 
 
 from stepconf import pages
@@ -760,7 +760,7 @@ class StepconfApp:
         ncfiles = os.path.expanduser("~/machinekit/nc_files")
         if not os.path.exists(ncfiles):
             makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "machinekit", "ncfiles")
+            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
             if not os.path.exists(examples):
                 examples = os.path.join(BASE, "nc_files")
             if os.path.exists(examples):
