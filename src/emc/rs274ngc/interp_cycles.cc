@@ -290,7 +290,13 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
        CHKS((motion == G_84), _("Spindle turning counterclockwise in G84"));
     }
 
-    switch (plane) {
+    int save_feed_override_enable;
+    int save_spindle_override_enable;
+
+    save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
+    save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
+
+   switch (plane) {
 
     case CANON_PLANE_XY:
        DISABLE_FEED_OVERRIDE();
@@ -351,6 +357,11 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
        ERS("G%c4 for plane %s not implemented",
            op, plane_name(plane));
     }
+   if(save_feed_override_enable)
+    ENABLE_FEED_OVERRIDE();
+   if(save_spindle_override_enable)
+    ENABLE_SPEED_OVERRIDE();
+
     return INTERP_OK;
 
 #if 0
@@ -888,8 +899,6 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance;
   double current_cc = settings->current_z;
-  int save_feed_override_enable;
-  int save_spindle_override_enable;
 
   plane = CANON_PLANE_XY;
   if (settings->motion_mode != motion) {
@@ -952,8 +961,6 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1059,14 +1066,6 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-  if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
-  else
-    DISABLE_FEED_OVERRIDE();
-  if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE();
-  else
-    DISABLE_SPEED_OVERRIDE();
 
     return INTERP_OK;
 }
@@ -1095,8 +1094,6 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance;
   double current_cc = settings->w_current;
-  int save_feed_override_enable;
-  int save_spindle_override_enable;
 
   plane = CANON_PLANE_UV;
   if (settings->motion_mode != motion) {
@@ -1141,8 +1138,6 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1247,14 +1242,6 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-  if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
-  else
-    DISABLE_FEED_OVERRIDE();
-  if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE();
-  else
-    DISABLE_SPEED_OVERRIDE();
 
   return INTERP_OK;
 }
@@ -1330,8 +1317,6 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save the current tolerance, to restore it lateron
   double current_cc = settings->current_x;
-  int save_feed_override_enable;
-  int save_spindle_override_enable;
 
   plane = CANON_PLANE_YZ;
   if (settings->motion_mode != motion) {
@@ -1376,8 +1361,6 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1482,14 +1465,6 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-  if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
-  else
-    DISABLE_FEED_OVERRIDE();
-  if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE();
-  else
-    DISABLE_SPEED_OVERRIDE();
 
   return INTERP_OK;
 }
@@ -1517,8 +1492,6 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save the current tolerance, to restore it lateron
   double current_cc = settings->u_current;
-  int save_feed_override_enable;
-  int save_spindle_override_enable;
 
   plane = CANON_PLANE_VW;
   if (settings->motion_mode != motion) {
@@ -1563,8 +1536,6 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1669,14 +1640,6 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-  if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
-  else
-    DISABLE_FEED_OVERRIDE();
-  if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE();
-  else
-    DISABLE_SPEED_OVERRIDE();
 
   return INTERP_OK;
 }
@@ -1761,8 +1724,6 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save current path-following tolerance, to restore it lateron
   double current_cc = settings->current_y;
-  int save_feed_override_enable;
-  int save_spindle_override_enable;
 
   plane = CANON_PLANE_XZ;
   if (settings->motion_mode != motion) {
@@ -1807,8 +1768,6 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1913,14 +1872,6 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-  if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
-  else
-    DISABLE_FEED_OVERRIDE();
-  if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE();
-  else
-    DISABLE_SPEED_OVERRIDE();
 
   return INTERP_OK;
 }
@@ -1947,8 +1898,6 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save current path-following tolerance, to restore it lateron
   double current_cc = settings->v_current;
-  int save_spindle_override_enable;
-  int save_feed_override_enable;
 
   plane = CANON_PLANE_UW;
   if (settings->motion_mode != motion) {
@@ -1993,8 +1942,6 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -2099,14 +2046,6 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-  if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
-  else
-    DISABLE_FEED_OVERRIDE();
-  if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE();
-  else
-    DISABLE_SPEED_OVERRIDE();
 
   return INTERP_OK;
 }
