@@ -422,7 +422,7 @@ typedef struct block_struct
   bool l_flag;
   int line_number;
   int saved_line_number;  // value of sequence_number when a remap was encountered
-  int n_number;
+  double n_number;
   int motion_to_be;
   int m_count;
   int m_modes[11];
@@ -601,6 +601,8 @@ typedef struct lathe_canned_cycle_profile_struct {
   double centrex;
   double centrez;
   double radius;
+  double feed_rate;
+  double spindle_speed;
 } lcc_profile;
 
 
@@ -750,13 +752,17 @@ struct setup
   offset_map_type offset_map;      // store label x name, file, line
 
   /* stuff for lathe canned cycles (g70/g71) control - TODO: See if this should/can be merged in with o word control */
-  int g71_start_block;
-  int g71_end_block;
+  /* A couple of canned cycles, notably G70 and G71, requires access to an arbitrary profile defined by a series of blocks.
+     The following variables are used for when an additional re-pread is not avoidable, and should only be used in that case.
+     As a result of how the pre-read works, individual blocks are not executed, merely copied to a vector, and should be used with caution
+     It is the authors intention to refactor to use O-word subs to define the profile, so that most of these are no longer required */
+  double arb_profile_start_block;
+  double arb_profile_end_block;
   bool g71_skipping;
   bool g71_reading;
-  std::vector<block> g71_blocks;
+  int arb_profile_line_number;
+  std::vector<block> arb_profile_blocks;
   std::vector<lcc_profile> lathe_cycle_profile;
-  // TODO: vector blocks
   long g71_block_offset; // use an offset object?
   
 

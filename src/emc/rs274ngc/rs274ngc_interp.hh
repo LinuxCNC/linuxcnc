@@ -435,7 +435,8 @@ public:
                   double *parameters);
  int read_l(char *line, int *counter, block_pointer block,
                   double *parameters);
- int read_n_number(char *line, int *counter, block_pointer block);
+ int read_n_number(char *line, int *counter, block_pointer block,
+                  double *parameters);
  int read_m(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_o(char *line, int *counter, block_pointer block,

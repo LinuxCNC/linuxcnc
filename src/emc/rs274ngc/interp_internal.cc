@@ -184,7 +184,10 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
 	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
     } else if (mode1 == G_71) {
-        CHKS((axis_flag), _("Cannot use axis commands with G71"));
+        CHKS(((block->x_flag) || (block->y_flag) ||
+                (block->z_flag) || (block->a_flag) ||
+                (block->b_flag) || (block->c_flag) ||
+                (block->v_flag)), _("Cannot use axis commands with G71"));
     } else {
       CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
@@ -281,7 +284,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->l_number = -1;
   block->l_flag = false;
   block->line_number = -1;
-  block->n_number = -1;
+  block->n_number = -1.0l;
   block->motion_to_be = -1;
   block->m_count = 0;
   for (n = 0; n < 11; n++) {

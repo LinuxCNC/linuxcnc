@@ -346,30 +346,35 @@ int Interp::_execute(const char *command)
       return INTERP_OK;
     }
   if(_setup.g71_skipping) {
-      if( (eblock->motion_to_be == G_0) || (eblock->motion_to_be == G_1) || (eblock->motion_to_be == G_2) || (eblock->motion_to_be == G_3) || (eblock->motion_to_be == G_71)) {
+      if( (eblock->motion_to_be == G_0) || (eblock->motion_to_be == G_1) || (eblock->motion_to_be == G_2) || 
+      (eblock->motion_to_be == G_3) || ((eblock->motion_to_be >= G_71) && (eblock->motion_to_be >= G_80)) ) {
           if(_setup.g71_reading) {
-              logDebug("Pushing back block with motion code: %i", eblock->motion_to_be);
-              _setup.g71_blocks.push_back(*eblock);
-              if(eblock->n_number == _setup.g71_end_block) {
-                  logDebug("Found end block N%i", eblock->n_number);
+              logDebug("Pushing back block with motion code: %f", eblock->motion_to_be);
+              _setup.arb_profile_blocks.push_back(*eblock);
+              if(fabs(eblock->n_number - _setup.arb_profile_end_block) < 0.0001l) {
+                  logDebug("Found end block N%f", eblock->n_number);
+                  long tmp_offset = eblock->offset;
                   if (_setup.file_pointer) { // only seek if it was open
+                      tmp_offset = ftell(_setup.file_pointer);
                       fseek(_setup.file_pointer, _setup.g71_block_offset, SEEK_SET);
                   }
-                  _setup.g71_block_offset = eblock->offset;
+                  _setup.g71_block_offset = tmp_offset;
         	      _setup.sequence_number = 0;
                   _setup.g71_skipping = false;
                   _setup.g71_reading = false;
               }
               return INTERP_OK;
-          } else if(eblock->n_number != _setup.g71_start_block) {
-              logDebug("skipping to line N%i for G71 pre-read", _setup.g71_start_block);
+          } else if(fabs(eblock->n_number - _setup.arb_profile_start_block) > 0.0001l) {
+              logDebug("skipping to line N%f for G71 pre-read", _setup.arb_profile_start_block);
               return INTERP_OK;
           } else {
-              _setup.g71_blocks.push_back(*eblock);
-              logDebug("Found start block N%i", eblock->n_number);
+              _setup.arb_profile_blocks.push_back(*eblock);
+              logDebug("Found start block N%f", eblock->n_number);
               _setup.g71_reading = true;
               return INTERP_OK;
           }
+      } else if ((_setup.g71_reading)){
+            CHKS((1),"Invalid block found in arbitrary profile motion: %f %f %i %i", eblock->motion_to_be, eblock->n_number, _setup.g71_skipping, _setup.g71_reading);
       }
   }
 
@@ -1197,9 +1202,9 @@ int Interp::init()
   _setup.offset_map.clear();
 
   // initialization stuff for g71 control - TODO: merge with o word control?
-  _setup.g71_start_block = -1;
-  _setup.g71_end_block = -1;
-  _setup.g71_blocks.clear();
+  _setup.arb_profile_start_block = -1;
+  _setup.arb_profile_end_block = -1;
+  _setup.arb_profile_blocks.clear();
   _setup.lathe_cycle_profile.clear();
   _setup.g71_skipping = false;
   _setup.g71_reading = false;

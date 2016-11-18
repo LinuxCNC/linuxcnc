@@ -669,7 +669,7 @@ Returned Value: int
 Side effects:
    The number read from the line is put into what integer_ptr points at.
 
-Called by: read_n_number
+Called by: 
 
 This reads an explicit unsigned (positive) integer from a string,
 starting from the position given by *counter. It expects to find one
@@ -780,7 +780,7 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
     counter++;
 
   if (line[counter] == 'n') {
-    CHP(read_n_number(line, &counter, block));
+    CHP(read_n_number(line, &counter, block, parameters));
   }
 
   if (line[counter] == 'o')
@@ -995,23 +995,24 @@ line number to be too large.
 
 int Interp::read_n_number(char *line, //!< string: line of RS274    code being processed 
                           int *counter,       //!< pointer to a counter for position on the line 
-                          block_pointer block)        //!< pointer to a block being filled from the line 
+                          block_pointer block,        //!< pointer to a block being filled from the line 
+                          double *parameters)
 {
-  int value;
+  double value;
 
   CHKS(((line[*counter] != 'n') && (line[*counter] != 'o')),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHP(read_integer_unsigned(line, counter, &value));
+  CHP(read_real_value(line, counter, &value, parameters));
   /* This next test is problematic as many CAM systems will exceed this !
   CHKS((value > 99999), NCE_LINE_NUMBER_GREATER_THAN_99999); */
   block->n_number = value;
 
   // accept & ignore fractional line numbers
-  if (line[*counter] == '.') {
-      *counter = (*counter + 1);
-      CHP(read_integer_unsigned(line, counter, &value));
-  }
+//  if (line[*counter] == '.') {
+//      *counter = (*counter + 1);
+//      CHP(read_integer_unsigned(line, counter, &value));
+//  }
   return INTERP_OK;
 }
 
@@ -2651,6 +2652,7 @@ Called by:
    read_integer_value
    read_j
    read_k
+   read_n
    read_p
    read_parameter_setting
    read_q
