@@ -162,6 +162,25 @@ void bcm2835_gpio_fsel(uint8_t pin, uint8_t mode)
   bcm2835_peri_set_bits(paddr, value, mask);
 }
 
+static int setup_gpiomem_access(void)
+{
+  if ((mem_fd = open("/dev/gpiomem", O_RDWR|O_SYNC)) < 0) {
+    rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: can't open /dev/gpiomem:  %d - %s", errno, strerror(errno));
+    return -1;
+  }
+
+  gpio = mmap(NULL, BCM2835_BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, mem_fd, 0);
+
+  if (gpio == MAP_FAILED) {
+    close(mem_fd);
+    mem_fd = -1;
+    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_GPIO: mmap failed: %d - %s\n", errno, strerror(errno));
+    return -1;
+  }
+
+  return 0;
+}
+
 static int  setup_gpio_access(int rev, int ncores)
 {
   // open /dev/mem 
@@ -284,8 +303,10 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    if (setup_gpio_access(rev, ncores))
-      return -1;
+    if (setup_gpiomem_access()) {
+      if (setup_gpio_access(rev, ncores))
+        return -1;
+    }
 
     comp_id = hal_init("hal_gpio");
     if (comp_id < 0) {
