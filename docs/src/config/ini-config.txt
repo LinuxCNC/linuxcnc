@@ -156,14 +156,13 @@ component pin.
 
 To use the custom variables in G-code, use the global variable syntax
 `#<_ini[section]variable>`. The following example shows a simple
-touch-off routine for a router or mill using a probe plate.
+Z-axis touch-off routine for a router or mill using a probe plate.
 
 .G-code Example
 [source,{ngc}]
 ---------------------------------------------------------------------
 G91
-F#<_ini[probe]z_feedrate>
-G38.2 Z#<_ini[probe]z_safe_distance>
+G38.2 Z#<_ini[probe]z_safe_distance> F#<_ini[probe]z_feedrate>
 G90
 G1 Z#5063
 G10 L20 P0 Z#<_ini[probe]z_offset>
@@ -173,7 +172,7 @@ G10 L20 P0 Z#<_ini[probe]z_offset>
 ====
 Referring to INI-file variables from G-code is currently an experimental
 feature. To enable it, specify the appropriate FEATURES bitmask value in
-the RS274NGC section of the INI file, e.g.
+the <<sec:rs274ngc-section,RS274NGC>> section of the INI file, e.g.
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -182,8 +181,8 @@ the RS274NGC section of the INI file, e.g.
 FEATURES=4
 ---------------------------------------------------------------------
 
-See <<cha:remap#ini-features,Optional Interpreter Features>> in the
-<<cha:remap,Remap Extending G-Code>> Chapter for details.
+See <<remap:ini-features,Optional Interpreter Features>> in the
+<<cha:remap,Remap Extending G-Code>> chapter for details.
 ====
 
 
@@ -558,8 +557,8 @@ The first executable M1xx found in the search is used for each M1xx.
 * 'FEATURES = 0' - An integer value representing the bitmask of optional
     features to be enabled. These are typically non-backward-compatible and
     experimental in nature. See
-    <<cha:remap#ini-features,Optional Interpreter Features>> in the
-    <<cha:remap,Remap Extending G-Code>> Chapter for details.
+    <<remap:ini-features,Optional Interpreter Features>> in the
+    <<cha:remap,Remap Extending G-Code>> chapter for details.
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
