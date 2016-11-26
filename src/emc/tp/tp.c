@@ -2528,7 +2528,7 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     // spindle position so the next synced move can be in
     // the right place.
     if(tc->synchronized != TC_SYNC_NONE) {
-        tp->spindle.offset += tc->target / tc->uu_per_rev;
+        tp->spindle.offset += (tc->target - tc->sync_offset) / tc->uu_per_rev;
     } else {
         tp->spindle.offset = 0.0;
     }
@@ -2749,7 +2749,6 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     double spindle_pos = getSpindleProgress(emcmotStatus->spindleRevs,
             emcmotStatus->spindle.direction);
     tc_debug_print("Spindle at %f\n",spindle_pos);
-    double oldrevs = tp->spindle.revs;
 
     if ((tc->motion_type == TC_RIGIDTAP) && (tc->coords.rigidtap.state == RETRACTION ||
                 tc->coords.rigidtap.state == FINAL_REVERSAL)) {
@@ -2760,8 +2759,9 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
 
     double pos_desired = (tp->spindle.revs - tp->spindle.offset) * tc->uu_per_rev;
+
     double pos_error = pos_desired - tc->progress;
-    tc_debug_print(" pos_desired %f, progress %f, pos_error %f, expected error %f", pos_desired, tc->progress, pos_error, tp->spindle.revs - oldrevs);
+    tc_debug_print(" pos_desired %f, progress %f, pos_error %f", pos_desired, tc->progress, pos_error);
 
     if(nexttc) {
         tc_debug_print(" nexttc_progress %f", nexttc->progress);
@@ -2769,17 +2769,19 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
     tc_debug_print("\n");
 
-    const double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
+    const double avg_spindle_vel = emcmotStatus->spindleSpeedIn / 60.0; //KLUDGE convert to rps
     if(tc->sync_accel) {
         // detect when velocities match, and move the target accordingly.
         // acceleration will abruptly stop and we will be on our new target.
         // FIX: this is driven by TP cycle time, not the segment cycle time
-        double avg_spindle_vel = tp->spindle.revs / ( dt * tc->sync_accel++);
+        // Experiment: try syncing with averaged spindle speed
         double avg_target_vel = avg_spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= avg_target_vel) {
             tc_debug_print("Hit accel target in pos sync\n");
             // move target so as to drive pos_error to 0 next cycle
             tp->spindle.offset = tp->spindle.revs - tc->progress / tc->uu_per_rev;
+            tc->sync_offset = tc->progress;
+            tc_debug_print("Spindle offset %f\n", tp->spindle.offset);
             tc->sync_accel = 0;
             tc->target_vel = avg_target_vel;
         } else {
@@ -2790,8 +2792,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     } else {
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
-        double spindle_vel = (tp->spindle.revs - oldrevs) / dt;
-        double target_vel = spindle_vel * tc->uu_per_rev;
+        double target_vel = avg_spindle_vel * tc->uu_per_rev;
 
         /*
          * Correct for position errors when tracking spindle motion.

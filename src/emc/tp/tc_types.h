@@ -116,6 +116,7 @@ typedef struct {
     double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
     double nominal_length;
+    double sync_offset;     // When did we sync up with the spindle?
 
     //Velocity
     double reqvel;          // vel requested by F word, calc'd by task
