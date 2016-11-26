@@ -1107,8 +1107,8 @@ o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
 ---------------------------------------------------------------------
-NB: ini and HAL variable expansion need explicit enabling with
-<<remap:ini-features,FEATURE>>.
+NOTE: ini and HAL variable expansion need explicit enabling with the
+<<remap:ini-features,FEATURES>> mask.
 
 If more fine grained recovery action is needed, use the idiom
 laid out in the previous example:
