@@ -182,8 +182,8 @@ the RS274NGC section of the INI file, e.g.
 FEATURES=4
 ---------------------------------------------------------------------
 
-See <<cha:remap#ini-features,Optional Interpreter Features>> in
-<<cha:remap,Remap Extending G-Code>> for details.
+See <<cha:remap#ini-features,Optional Interpreter Features>> in the
+<<cha:remap,Remap Extending G-Code>> Chapter for details.
 ====
 
 
