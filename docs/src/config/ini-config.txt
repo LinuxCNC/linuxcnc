@@ -568,6 +568,12 @@ The first executable M1xx found in the search is used for each M1xx.
 The maximum number of USER_M_PATH directories is defined at compile
 time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
+* 'FEATURES = 0' - An integer value representing the bitmask of optional
+    features to be enabled. These are typically non-backward-compatible and
+    experimental in nature. See
+    <<cha:remap#ini-features,Optional Interpreter Features>> in the
+    <<cha:remap,Remap Extending G-Code>> Chapter for details.
+
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
