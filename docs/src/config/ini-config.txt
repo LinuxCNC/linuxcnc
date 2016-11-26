@@ -552,8 +552,14 @@ A search is made for each possible user defined function, typically
 +
 The first executable M1xx found in the search is used for each M1xx.
 
-* 'USER_DEFINED_FUNCTION_MAX_DIRS=5'. The maximum number of directories defined
-   at compile time. 
+* 'USER_DEFINED_FUNCTION_MAX_DIRS = 5' - The maximum number of directories defined
+    at compile time.
+
+* 'FEATURES = 0' - An integer value representing the bitmask of optional
+    features to be enabled. These are typically non-backward-compatible and
+    experimental in nature. See
+    <<cha:remap#ini-features,Optional Interpreter Features>> in the
+    <<cha:remap,Remap Extending G-Code>> Chapter for details.
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
