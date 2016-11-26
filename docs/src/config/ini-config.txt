@@ -119,17 +119,8 @@ names and variable names as shown. In the following example the variable
 Most sample configurations use custom sections and variables to put all of the
 settings into one location for convenience.
 
-To use a custom section variable in your HAL file add the section and
-variable to the INI file.
-
-.Custom Section Example
-----
-[OFFSETS]
-OFFSET_1 = 0.1234
-----
-
-To add a custom variable to a LinuxCNC section simply include the variable
-in that section.
+To add a custom variable to an existing LinuxCNC section, simply include
+the variable in that section.
 
 .Custom Variable Example
 ----
@@ -139,18 +130,62 @@ TYPE = LINEAR
 SCALE = 16000
 ----
 
-To use the custom variables in your HAL file put the section and variable
-name in place of the value. 
+To introduce a custom section with its own variables, add the section
+and variables to the INI file.
+
+.Custom Section Example
+----
+[PROBE]
+Z_FEEDRATE = 50
+Z_OFFSET = 12
+Z_SAFE_DISTANCE = -10
+----
+
+To use the custom variables in your HAL file, put the section and
+variable name in place of the value. 
 
 .HAL Example
 ----
-setp offset.1.offset [OFFSETS]OFFSET_1
+setp offset.1.offset [PROBE]Z_OFFSET
 setp stepgen.0.position-scale [JOINT_0]SCALE
 ----
 
 [NOTE]
 The value stored in the variable must match the type specified by the
 component pin.
+
+To use the custom variables in G-code, use the global variable syntax
+`#<_ini[section]variable>`. The following example shows a simple
+touch-off routine for a router or mill using a probe plate.
+
+.G-code Example
+[source,{ngc}]
+---------------------------------------------------------------------
+G91
+F#<_ini[probe]z_feedrate>
+G38.2 Z#<_ini[probe]z_safe_distance>
+G90
+G1 Z#5063
+G10 L20 P0 Z#<_ini[probe]z_offset>
+---------------------------------------------------------------------
+
+[NOTE]
+====
+Referring to INI-file variables from G-code is currently an experimental
+feature. To enable it, specify the appropriate FEATURES bitmask value in
+the RS274NGC section of the INI file, e.g.
+
+[source,{ini}]
+---------------------------------------------------------------------
+[RS274NGC]
+...
+FEATURES=4
+---------------------------------------------------------------------
+
+See <<remap:ini-features,Optional Interpreter Features>> in
+<<remap#,Remap Extending G-Code>> for details.
+====
+
 
 === Include Files
 
