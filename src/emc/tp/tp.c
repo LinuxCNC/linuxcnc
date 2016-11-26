@@ -68,6 +68,8 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
 STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const,
         TC_STRUCT * const tc,
         double normal_acc_scale);
+
+STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc);
 /**
  * @section tpcheck Internal state check functions.
  * These functions compartmentalize some of the messy state checks.
@@ -82,9 +84,14 @@ STATIC int tpAdjustAccelForTangent(TP_STRUCT const * const,
  */
 STATIC int tcCheckLastParabolic(TC_STRUCT * const tc,
         TC_STRUCT const * const prev_tc) {
+    if (!tc) {return TP_ERR_FAIL;}
+
     if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("prev segment parabolic, flagging blend_prev\n");
+        tp_debug_print("Found parabolic blend between %d and %d, flagging blend_prev\n",
+                       prev_tc->id, tc->id);
         tc->blend_prev = 1;
+    } else {
+        tc->blend_prev = 0;
     }
     return TP_ERR_OK;
 }
@@ -956,9 +963,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     tp_debug_print("Passed all tests, updating segments\n");
 
-    //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
-
     //TODO refactor to pass consume to connect function
     if (param.consume) {
         //Since we're consuming the previous segment, pop the last line off of the queue
@@ -1115,7 +1119,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tcSetLineXYZ(tc, &line2_temp);
 
     //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
     return TP_ERR_OK;
 }
@@ -1174,8 +1177,6 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", tc->id);
         return TP_ERR_FAIL;
     }
-
-
 
     int res_param = blendComputeParameters(&param);
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
@@ -1284,10 +1285,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     tcSetCircleXYZ(prev_tc, &circ1_temp);
     tcSetCircleXYZ(tc, &circ2_temp);
 
-    //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-
     return TP_ERR_OK;
 }
 
@@ -1433,6 +1431,46 @@ STATIC int tpSetupSyncedIO(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 }
 
+STATIC int tcUpdateArcLengthFit(TC_STRUCT * const tc)
+{
+    if (!tc) {return -1;}
+
+    switch (tc->motion_type) {
+    case TC_CIRCULAR:
+        findSpiralArcLengthFit(&tc->coords.circle.xyz, &tc->coords.circle.fit);
+        break;
+    case TC_LINEAR:
+    case TC_RIGIDTAP:
+    case TC_SPHERICAL:
+    default:
+        break;
+    }
+    return 0;
+}
+
+STATIC int tpFinalizeAndEnqueue(TP_STRUCT * const tp, TC_STRUCT * const tc)
+{
+    //TODO refactor this into its own function
+    TC_STRUCT *prev_tc;
+    prev_tc = tcqLast(&tp->queue);
+    handleModeChange(prev_tc, tc);
+    if (emcmotConfig->arcBlendEnable){
+        tpHandleBlendArc(tp, tc);
+        tcUpdateArcLengthFit(tc);
+    }
+    tcFlagEarlyStop(prev_tc, tc);
+    // KLUDGE order is important here, the parabolic blend check has to
+    // happen after all other steps that affect the terminal condition
+    tcCheckLastParabolic(tc, prev_tc);
+    tcFinalizeLength(prev_tc);
+
+    int retval = tpAddSegmentToQueue(tp, tc, true);
+    //Run speed optimization (will abort safely if there are no tangent segments)
+    tpRunOptimization(tp);
+
+    return retval;
+}
+
 
 /**
  * Adds a rigid tap cycle to the motion queue.
@@ -1484,14 +1522,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     // Force exact stop mode after rigid tapping regardless of TP setting
     tcSetTermCond(&tc, TC_TERM_COND_STOP);
 
-    TC_STRUCT *prev_tc;
-    //Assume non-zero error code is failure
-    prev_tc = tcqLast(&tp->queue);
-    tcFinalizeLength(prev_tc);
-    tcFlagEarlyStop(prev_tc, &tc);
-    int retval = tpAddSegmentToQueue(tp, &tc, true);
-    tpRunOptimization(tp);
-    return retval;
+    return tpFinalizeAndEnqueue(tp, &tc);
 }
 
 STATIC blend_type_t tpCheckBlendArcType(TP_STRUCT const * const tp,
@@ -1880,6 +1911,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     if (res_create == TP_ERR_OK) {
         //Need to do this here since the length changed
+        tcCheckLastParabolic(&blend_tc, prev_tc);
         tpAddSegmentToQueue(tp, &blend_tc, false);
     } else {
         return res_create;
@@ -1938,22 +1970,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     // For linear move, set rotary axis settings 
     tc.indexrotary = indexrotary;
 
-    //TODO refactor this into its own function
-    TC_STRUCT *prev_tc;
-    prev_tc = tcqLast(&tp->queue);
-    handleModeChange(prev_tc, &tc);
-    if (emcmotConfig->arcBlendEnable){
-        tpHandleBlendArc(tp, &tc);
-    }
-    tcCheckLastParabolic(&tc, prev_tc);
-    tcFinalizeLength(prev_tc);
-    tcFlagEarlyStop(prev_tc, &tc);
-
-    int retval = tpAddSegmentToQueue(tp, &tc, true);
-    //Run speed optimization (will abort safely if there are no tangent segments)
-    tpRunOptimization(tp);
-
-    return retval;
+    return tpFinalizeAndEnqueue(tp, &tc);
 }
 
 
@@ -2030,22 +2047,7 @@ int tpAddCircle(TP_STRUCT * const tp,
             v_max_actual,
             acc);
 
-    TC_STRUCT *prev_tc;
-    prev_tc = tcqLast(&tp->queue);
-
-    handleModeChange(prev_tc, &tc);
-    if (emcmotConfig->arcBlendEnable){
-        tpHandleBlendArc(tp, &tc);
-        findSpiralArcLengthFit(&tc.coords.circle.xyz, &tc.coords.circle.fit);
-    }
-    tcCheckLastParabolic(&tc, prev_tc);
-    tcFinalizeLength(prev_tc);
-    tcFlagEarlyStop(prev_tc, &tc);
-
-    int retval = tpAddSegmentToQueue(tp, &tc, true);
-
-    tpRunOptimization(tp);
-    return retval;
+    return tpFinalizeAndEnqueue(tp, &tc);
 }
 
 
