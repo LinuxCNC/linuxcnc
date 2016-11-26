@@ -2692,13 +2692,14 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             return TP_ERR_WAITING;
     }
 
-    // Temporary debug message
-    tp_debug_print("Activate tc id = %d target_vel = %f req_vel = %f final_vel = %f length = %f\n",
+    tp_debug_print("Activate tc id = %d target_vel = %f req_vel = %f final_vel = %f length = %f max_acc = %f term_cond = %d\n",
             tc->id,
             tc->target_vel,
             tc->reqvel,
             tc->finalvel,
-            tc->target);
+            tc->target,
+            tc->maxaccel,
+            tc->term_cond);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
@@ -2707,7 +2708,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tc->on_final_decel = 0;
 
     if (TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
-        tp_debug_print("Setting up position sync\n");
+        tp_debug_print(" Setting up position sync\n");
         // if we aren't already synced, wait
         tp->spindle.waiting_for_index = tc->id;
         // ask for an index reset
@@ -2745,7 +2746,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     double spindle_pos = getSpindleProgress(emcmotStatus->spindleRevs,
             emcmotStatus->spindle.direction);
-    tp_debug_print("Spindle at %f\n",spindle_pos);
+    tc_debug_print("Spindle at %f\n",spindle_pos);
     double oldrevs = tp->spindle.revs;
 
     if ((tc->motion_type == TC_RIGIDTAP) && (tc->coords.rigidtap.state == RETRACTION ||
@@ -3244,15 +3245,15 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             emcmotStatus->spindleSync = 0;
             break;
         case TC_SYNC_VELOCITY:
-            tp_debug_print("sync velocity\n");
+            tc_debug_print("sync velocity\n");
             tpSyncVelocityMode(tp, tc, nexttc);
             break;
         case TC_SYNC_POSITION:
-            tp_debug_print("sync position\n");
+            tc_debug_print("sync position\n");
             tpSyncPositionMode(tp, tc, nexttc);
             break;
         default:
-            tp_debug_print("unrecognized spindle sync state!\n");
+            tc_debug_print("unrecognized spindle sync state!\n");
             break;
     }
 
