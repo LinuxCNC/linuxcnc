@@ -1550,6 +1550,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     block->o_type = O_endrepeat;
   else if(CMP("return"))
     block->o_type = O_return;
+  else if(CMP("profile"))
+    block->o_type = O_profile;
+  else if(CMP("endprofile"))
+    block->o_type = O_endprofile;	
   else
     block->o_type = O_none;
 
@@ -1563,6 +1567,8 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     case O_endsub:
     case O_call:
     case O_return:
+	case O_profile:
+	case O_endprofile:
 	block->o_name = strstore(oNameBuf);
 	logDebug("global case:|%s|", block->o_name);
 	break;
@@ -1748,6 +1754,14 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if(block->o_type == O_endrepeat)
       {
           block->o_type = O_endrepeat;
+      }
+  else if(block->o_type == O_profile)
+      {
+          block->o_type = O_profile;
+      }
+  else if(block->o_type == O_endprofile)
+      {
+          block->o_type = O_endprofile;
       }
   else
     {

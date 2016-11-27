@@ -157,22 +157,24 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define RELATIONAL_OP_LAST  16
 
 // O code
-#define O_none      0
-#define O_sub       1
-#define O_endsub    2
-#define O_call      3
-#define O_do        4
-#define O_while     5
-#define O_if        6
-#define O_elseif    7
-#define O_else      8
-#define O_endif     9
-#define O_break    10
-#define O_continue 11
-#define O_endwhile 12
-#define O_return   13
-#define O_repeat   14
-#define O_endrepeat 15
+#define O_none        0
+#define O_sub         1
+#define O_endsub      2
+#define O_call        3
+#define O_do          4
+#define O_while       5
+#define O_if          6
+#define O_elseif      7
+#define O_else        8
+#define O_endif       9
+#define O_break      10
+#define O_continue   11
+#define O_endwhile   12
+#define O_return     13
+#define O_repeat     14
+#define O_endrepeat  15  
+#define O_profile    18
+#define O_endprofile 19
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -230,7 +232,9 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_61   610
 #define G_61_1 611
 #define G_64   640
+#define G_70   700
 #define G_71   710
+#define G_72   720
 #define G_73   730
 #define G_74   740
 #define G_76   760
@@ -605,6 +609,16 @@ typedef struct lathe_canned_cycle_profile_struct {
   double spindle_speed;
 } lcc_profile;
 
+typedef struct arbitrary_profile_struct {
+  const char *name;
+  std::vector<block> blocks;
+  std::vector<lcc_profile> lathe_cycle_profile;
+  bool profile_defined;
+}arbitrary_profile;
+
+typedef std::map<const char *, arbitrary_profile, nocase_cmp> arbitrary_profile_map_type;
+typedef std::map<const char *, arbitrary_profile, nocase_cmp>::iterator arbitrary_profile_map_iterator;
+
 
 /*
 
@@ -742,6 +756,7 @@ struct setup
   int executed_if;                   // true if executed in current if
   const char *skipping_o;                  // o_name we are skipping for (or zero)
   const char *skipping_to_sub;             // o_name of sub skipping to (or zero)
+
   int skipping_start;                // start of skipping (sequence)
   double test_value;                 // value for "if", "while", "elseif"
   double return_value;               // optional return value for "return", "endsub"
@@ -751,20 +766,13 @@ struct setup
   int call_state;                  //  enum call_states - inidicate Py handler reexecution
   offset_map_type offset_map;      // store label x name, file, line
 
-  /* stuff for lathe canned cycles (g70/g71) control - TODO: See if this should/can be merged in with o word control */
   /* A couple of canned cycles, notably G70 and G71, requires access to an arbitrary profile defined by a series of blocks.
      The following variables are used for when an additional re-pread is not avoidable, and should only be used in that case.
-     As a result of how the pre-read works, individual blocks are not executed, merely copied to a vector, and should be used with caution
-     It is the authors intention to refactor to use O-word subs to define the profile, so that most of these are no longer required */
-  double arb_profile_start_block;
-  double arb_profile_end_block;
-  bool g71_skipping;
-  bool g71_reading;
-  int arb_profile_line_number;
-  std::vector<block> arb_profile_blocks;
-  std::vector<lcc_profile> lathe_cycle_profile;
-  long g71_block_offset; // use an offset object?
-  
+     As a result of how the pre-read works, individual blocks are not executed, merely copied to a vector, and should be used with caution */
+  /* reading_profile defines whether an o profile block is being converted */
+  int reading_profile;	
+  arbitrary_profile_map_type arbitrary_profile_map;
+  arbitrary_profile_map_iterator arbitrary_profile_current; // The profile that is currently in use
 
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled

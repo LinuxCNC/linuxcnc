@@ -183,6 +183,11 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
       CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
 	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
+    } else if (mode1 == G_70) {
+        CHKS(((block->x_flag) || (block->y_flag) ||
+                (block->z_flag) || (block->a_flag) ||
+                (block->b_flag) || (block->c_flag) ||
+                (block->v_flag)), _("Cannot use axis commands with G71"));
     } else if (mode1 == G_71) {
         CHKS(((block->x_flag) || (block->y_flag) ||
                 (block->z_flag) || (block->a_flag) ||
