@@ -2761,10 +2761,13 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     double pos_desired = (tp->spindle.revs - tp->spindle.offset) * tc->uu_per_rev;
     double pos_error = pos_desired - tc->progress;
+    tc_debug_print(" pos_desired %f, progress %f, pos_error %f, expected error %f", pos_desired, tc->progress, pos_error, tp->spindle.revs - oldrevs);
 
     if(nexttc) {
+        tc_debug_print(" nexttc_progress %f", nexttc->progress);
         pos_error -= nexttc->progress;
     }
+    tc_debug_print("\n");
 
     const double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
     if(tc->sync_accel) {
