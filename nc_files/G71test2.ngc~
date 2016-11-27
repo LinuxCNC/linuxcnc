@@ -1,0 +1,18 @@
+G18 G21 G91.1
+T02 M06 G43
+S2000 M03
+(Bottom to top, right to left)
+(G1 X30 Z5 F1000)
+G0 X5 Z1.0 (Start Position before commanding the cycle)
+G71 P1 Q8 D3 F900 J1 L1 I0.5 K0.5
+
+N1 G0 X25
+N2 G1 Z-10
+N3 G3 X20 Z-15 R5.5
+N4 G1 Z-20
+N5 G2 X15 Z-25 R5.5
+N6 G1 X12
+N7 G1 X10 Z-28
+N8 G1 X5
+M2
+
