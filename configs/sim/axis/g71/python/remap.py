@@ -18,7 +18,17 @@ def lineno():
     """Returns the current line number in our program."""
     frame =  inspect.currentframe()
     return frame.f_back.f_lineno
-    
+
+def add_to_list(list, mode, ps, qs, pe, se, r, pc, qc):
+    #static double oldx for C++ version
+    if len(list) > 0:
+        t0, t1, t2, t3, t4, t5, t6, t7, t8, dummy = list.pop()
+        list.append((t0, t1, t2, t3, t4, t5, t6, t7, t8, pe))
+    list.append((mode, ps, qs, pe, se, r, pc, qc, add_to_list.oldx, 0))
+    add_to_list.oldx = ps
+
+add_to_list.oldx = 0
+
 def g7x(self, g7xmode, **words):
     print words
     s.poll()
@@ -28,13 +38,13 @@ def g7x(self, g7xmode, **words):
         print "G71 reference P %(p)i but O%(p)i SUB not in file" % words
         return INTERP_ERROR
     gcode = gcode[0].split('\n')
-    
+
     # Be agnostic about plane. 
     # P and Q are the plane coordinate letters I and J the centre offsets
     # These are used in the Regex to find the axis letters
     # for G71 P is increment direction (x), Q is feed direction (y)
     # for G72 Q is increment direction (y), P is feed direction (x)  
-    
+
     planes={170:('X','Y','I','J'), 180:('X','Z','I','K'), 190:('Y','Z','J','K'),
             171:('U','V','',''), 181:('U','W','',''), 191:('V','W','','')}
     axes={'X':0, 'Y':1, 'Z':2, 'A':3, 'B':4, 'C':5, 'U':6, 'V':8, 'W':9}
@@ -47,8 +57,8 @@ def g7x(self, g7xmode, **words):
         Q, P, J, I = planes[self.params['_plane']]
     else:
         print "well, that's odd"
-        exit() 
-    
+        exit()
+
     print P,Q,I,J
     
     # list is a list of lines and arcs. Arcs are split at the cardinal points
@@ -60,11 +70,13 @@ def g7x(self, g7xmode, **words):
     # list[n][5] = arc radius
     # list[n][6] = arc centre P
     # list[n][7] = arc centre Q
+    # list[n][8] = last x
+    # list[n][9] = next x (for dealing properly with passing through a node)
 
     list = []
     mode = 0
     x, y, x0, y0 = 0, 0, 0, 0
-    
+
     if 'd' in words:
         dword = abs(words['d'])
     else:
@@ -78,9 +90,10 @@ def g7x(self, g7xmode, **words):
     for block in gcode:
         x = x0
         y = y0
-        cmds = dict(re.findall('[^;](\w)\s*([-+,\.\d]+)', block.upper(), re.S | re.I))
+        cmds = dict(re.findall('(\w)\s*([-+,\.\d]+)', block.upper(), re.S | re.I))
+        print cmds
         if 'G' in cmds:
-            if cmds['G'] in ('0', '1', '2', '3'):
+            if cmds['G'] in ('0', '1', '2', '3', '00', '01', '02', '03'):
                 mode = int(cmds['G'])
             else:
                 print "invalid G-code G%s" % cmds['G']
@@ -88,6 +101,7 @@ def g7x(self, g7xmode, **words):
             del cmds['G']
         if P in cmds:
             x = float(cmds[P])
+            if self.params['_lathe_diameter_mode']: x = x / 2
             del cmds[P]
         if Q in cmds:
             y = float(cmds[Q])
@@ -97,7 +111,7 @@ def g7x(self, g7xmode, **words):
             x0 = x
             y0 = y
         elif mode == 1:
-            list.append((1,x0,y0,x,y,0,0,0))
+            add_to_list(list, 1,x0,y0,x,y,0,0,0)
         elif mode in (2,3):
             #calculate centre point and radius for all arc styles
             cx, cy = x0, y0
@@ -127,17 +141,17 @@ def g7x(self, g7xmode, **words):
                     yc = (y0 + y) / 2 + e * h * u
                 
             else:
-                #FIXME Check for G91.1
+                G901 = not self.params['_ijk_absolute_mode']
                 if I in cmds:
-                    xc = x0 + float(cmds[I])
+                    xc = x0 + float(cmds[I]) if G901 else float(cmds[I])
                     del cmds[I]
                 if J in cmds:
-                    yc = y0 + float(cmds[J])
+                    yc = y0 + float(cmds[J]) if G901 else float(cmds[J])
                     del cmds[J]
                 r = math.sqrt((xc - x0)**2 + (yc - y0)**2)
                 r2 = math.sqrt((xc - x)**2 + (yc - y)**2)
                 if abs(r - r2) > 0.001:
-                    print "impossible arc centre"
+                    print "impossible arc centre", r, r2
                     exit()
             
             # add cardinal points to arcs
@@ -161,7 +175,7 @@ def g7x(self, g7xmode, **words):
                 while nesw > a2:
                     x1 = xc + r * math.sin(nesw)
                     y1 = yc + r * math.cos(nesw)
-                    list.append((mode, x0, y0, x1, y1, r, xc, yc))
+                    add_to_list(list, mode, x0, y0, x1, y1, r, xc, yc)
                     x0, y0 = x1, y1
                     nesw -= d90
                     
@@ -172,21 +186,21 @@ def g7x(self, g7xmode, **words):
                 while nesw < a2:
                     x1 = xc + r * math.sin(nesw)
                     y1 = yc + r * math.cos(nesw)
-                    list.append((mode, x0, y0, x1, y1, r, xc, yc))
+                    add_to_list(list, mode, x0, y0, x1, y1, r, xc, yc)
                     x0, y0 = x1, y1
                     nesw += d90
             else:
                 print "E == 0 for an arc?"
                 exit()
                 
-            list.append((mode, x0, y0, x, y, r, xc, yc))
+            add_to_list(list, mode, x0, y0, x, y, r, xc, yc)
                  
         if len(cmds) > 0:
             print "invalid words in block ", cmds
         
         x0 = x
         y0 = y
-        
+
     # And now we have a nice list of profiles to analyse. 
     """
     P     Block Number of contour beginning (uses N word in beginning block)
@@ -220,14 +234,26 @@ def g7x(self, g7xmode, **words):
     # Still to be decided: How to handle a profile that isn't open to the right
     # But probably means initialising has_start intelligently
     cuts = []
+    pcount = 0
     
     while (x >= xe) == ((x + dword) >= xe):
         x = x + dword
-        pocket_id = pcount = 0
+        pocket_id = 0
         has_start = True
         y0 = ys # current cut-start point
         for block in list:
             #Find all lines and arcs which span the feed line
+
+            # Special treatment for hitting a node exactly.
+            # look for a direction change at this node
+            # I think it is actually safe to check for float equality here
+            if x == block[1]:
+                if (x - block[3]) * (x - block[8]) > 0:
+                    continue
+            if x == block[3]:
+                 if (x - block[1]) * (x - block[9]) > 0:
+                    continue
+
             if (x >= block[1]) != (x > block[3]):
                 if block[0] == 1: # G1 move
                     #intercept of cut line with path segment
@@ -235,7 +261,6 @@ def g7x(self, g7xmode, **words):
                     if block[1] == block[3]:
                         # This is a spcial case as one segment has to be both 
                         # an exit and entry point.
-                        print "special", has_start, block[2], block[4], y0
                         y = block[2]
                         if has_start: pocket_id -= 1
                         has_start = False
@@ -271,7 +296,6 @@ def g7x(self, g7xmode, **words):
                 
                 if has_start:
                     cuts.append((pocket_id, x, y0, y))
-                    print cuts[-1]
                     has_start = False
                     pcount = max(pcount, pocket_id)
                 else:
