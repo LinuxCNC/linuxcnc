@@ -26,12 +26,14 @@ net spindle-pos sim_spindle_encoder.out => motion.spindle-revs
 # simulate spindle mass
 setp spindle_mass.gain .07
 
-# spindle speed control
+# Limit spindle speed by our maximum value
 net spindle-speed-cmd  motion.spindle-speed-out => limit_speed.in
-net spindle-speed-limited limit_speed.out => sim_spindle.velocity-cmd spindle_mass.in
 
-# for spindle velocity estimate
-net spindle-rpm-filtered spindle_mass.out motion.spindle-speed-in near_speed.in2
+# Simulate spindle mass with a low-pass filter on the velocity command
+net spindle-speed-limited limit_speed.out => spindle_mass.in
+
+# Feed the simulated spindle speed into the sim spindle to generate a position signal
+net spindle-rpm-filtered spindle_mass.out => sim_spindle.velocity-cmd motion.spindle-speed-in near_speed.in2
 
 # at-speed detection
 setp near_speed.scale 1.1
