@@ -11,7 +11,10 @@ import re
 import math
 import rs274
 
+from pdb import set_trace as bp
+
 s = linuxcnc.stat()
+
 
 ## {{{ http://code.activestate.com/recipes/145297/ (r1)
 def lineno():
@@ -19,18 +22,30 @@ def lineno():
     frame =  inspect.currentframe()
     return frame.f_back.f_lineno
 
-def add_to_list(list, mode, ps, qs, pe, se, r, pc, qc):
+def add_to_list(list, mode, ps, qs, pe, qe, r, pc, qc):
     #static double oldx for C++ version
+    global oldx
+    global pmax
+    global maxx
+    global miny
+    
     if len(list) > 0:
-        t0, t1, t2, t3, t4, t5, t6, t7, t8, dummy = list.pop()
-        list.append((t0, t1, t2, t3, t4, t5, t6, t7, t8, pe))
-    list.append((mode, ps, qs, pe, se, r, pc, qc, add_to_list.oldx, 0))
-    add_to_list.oldx = ps
-
-add_to_list.oldx = 0
+        t0, t1, t2, t3, t4, t5, t6, t7, t8, dummy, pocket = list.pop()
+        list.append((t0, t1, t2, t3, t4, t5, t6, t7, t8, pe, pocket))
+        print list[-1]
+    # Spot "peaks" to change pocket numbers
+    if (oldx <= ps) and (pe < ps): pmax += 1
+    list.append((mode, ps, qs, pe, qe, r, pc, qc, oldx, 0, pmax))
+    maxx = max(maxx, ps, pe)
+    miny = min(miny, qs, qe)
+    oldx = ps
+    
+oldx = 0.0
+pmax = 1
+maxx = 0
+miny = 0
 
 def g7x(self, g7xmode, **words):
-    print words
     s.poll()
     regex= r'\O0*%(p)i\s*SUB(.*)O0*%(p)i\s*ENDSUB' % words
     gcode = re.findall(regex,open(s.file).read(), re.M | re.S | re.I)
@@ -72,6 +87,7 @@ def g7x(self, g7xmode, **words):
     # list[n][7] = arc centre Q
     # list[n][8] = last x
     # list[n][9] = next x (for dealing properly with passing through a node)
+    # list[n][10]= pocket number
 
     list = []
     mode = 0
@@ -91,7 +107,6 @@ def g7x(self, g7xmode, **words):
         x = x0
         y = y0
         cmds = dict(re.findall('(\w)\s*([-+,\.\d]+)', block.upper(), re.S | re.I))
-        print cmds
         if 'G' in cmds:
             if cmds['G'] in ('0', '1', '2', '3', '00', '01', '02', '03'):
                 mode = int(cmds['G'])
@@ -165,11 +180,13 @@ def g7x(self, g7xmode, **words):
             
             a1 = math.atan2(x0 - xc, y0 - yc)
             a2 = math.atan2(x - xc, y - yc)
-            print xc, yc, math.degrees(a1), math.degrees(a2)
             
             d90 = math.pi/2
             if e > 0: # G2 arc Anticlocwise in this CS
                 nesw = d90 * math.floor(a1 / d90)
+                # sometimes we start on a cardinal point
+                if abs(nesw - a1) < 0.001:
+                    nesw -= d90
                 if a2 > a1:
                     a2 -= 2 * math.pi
                 while nesw > a2:
@@ -181,6 +198,8 @@ def g7x(self, g7xmode, **words):
                     
             elif e < 0: # G3 arc Clockwise in this CS
                 nesw = d90 * math.ceil(a1 / d90)
+                if abs(nesw - a1) < 0.001:
+                    nesw += d90
                 if a2 < a1:
                     a2 += 2 * math.pi
                 while nesw < a2:
@@ -232,15 +251,19 @@ def g7x(self, g7xmode, **words):
     # Make a list of cuts of the form:
     # (pocket-sequence, x level, start y, end y)
     # Still to be decided: How to handle a profile that isn't open to the right
-    # But probably means initialising has_start intelligently
+    # But probably means initialising current_pocket intelligently
     cuts = []
-    pcount = 0
     
     while (x >= xe) == ((x + dword) >= xe):
+        current_pocket = 1
         x = x + dword
-        pocket_id = 0
-        has_start = True
         y0 = ys # current cut-start point
+
+        # start by cutting down to the profile
+        if x >= maxx:
+            cuts.append((current_pocket, x, y0, miny))
+            continue
+            
         for block in list:
             #Find all lines and arcs which span the feed line
 
@@ -248,10 +271,10 @@ def g7x(self, g7xmode, **words):
             # look for a direction change at this node
             # I think it is actually safe to check for float equality here
             if x == block[1]:
-                if (x - block[3]) * (x - block[8]) > 0:
+                if (x - block[3]) * (x - block[8]) >= 0:
                     continue
             if x == block[3]:
-                 if (x - block[1]) * (x - block[9]) > 0:
+                 if (x - block[1]) * (x - block[9]) >= 0:
                     continue
 
             if (x >= block[1]) != (x > block[3]):
@@ -259,14 +282,12 @@ def g7x(self, g7xmode, **words):
                     #intercept of cut line with path segment
                     # t is the normalised length along the line
                     if block[1] == block[3]:
-                        # This is a spcial case as one segment has to be both 
-                        # an exit and entry point.
-                        y = block[2]
-                        if has_start: pocket_id -= 1
-                        has_start = False
-                    else:
+                        # line exactly along the path
+                        continue
+                    else: 
                         t = (x - block[1])/(block[3] - block[1])
                         y = block[2] + t * (block[4] - block[2])
+                    
                 elif block[0] in (2, 3): # Arc moves here
                     y1 = None # An arc can't be parallel to the cut
                     # a circle is x^2 + y^2 = r^2
@@ -294,18 +315,16 @@ def g7x(self, g7xmode, **words):
                 # At this point we have found an intersection of the cut line
                 # with the profile at the point x,y
                 
-                if has_start:
-                    cuts.append((pocket_id, x, y0, y))
-                    has_start = False
-                    pcount = max(pcount, pocket_id)
+                if current_pocket:
+                    cuts.append((current_pocket, x, y0, y))
+                    current_pocket = 0
                 else:
                     y0 = y
-                    has_start = True
-                    pocket_id += 1
+                    current_pocket = block[10]
 
     #And now make the cuts
     
-    for p in range(0, pcount + 1):
+    for p in range(0, pmax + 1):
         for c in cuts:
             if c[0] == p:
                 pose[axes[Q]] = c[2]
