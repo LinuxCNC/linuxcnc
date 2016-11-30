@@ -22,6 +22,11 @@ from hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
 from hal_actions import _EMC_ActionBase, ensure_mode
+# path to TCL for external programs eg. halshow
+try:
+    TCLPATH = os.environ['LINUXCNC_TCL_DIR']
+except:
+    pass
 
 class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     __gtype_name__ = 'EMC_MDIHistory'
@@ -61,6 +66,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
         self.tv.connect('cursor-changed', self.select)
+        self.tv.connect('key_press_event', self.on_key_press_event)
+        self.tv.connect('button_press_event', self.on_button_press_event)
 
         self.pack_start(scroll, True)
         self.pack_start(self.entry, False)
@@ -94,6 +101,15 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
     def submit(self, *a):
         cmd = self.entry.get_text()
+        if cmd == 'HALMETER':
+            self.load_halmeter()
+            return
+        elif cmd == 'STATUS':
+            self.load_status()
+            return
+        elif cmd == 'HALSHOW':
+            self.load_halshow()
+            return
         if not cmd:
             return
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
@@ -114,7 +130,29 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.entry.grab_focus()
 
     def select(self, w):
+        self.entry.set_text('')
+
+    def on_key_press_event(self,w,event):
         idx = w.get_cursor()[0]
         if idx is None:
-            return
+            return True
+        if gtk.gdk.keyval_name(event.keyval) == 'Return':
+            self.entry.set_text(self.model[idx][0])
+            self.entry.grab_focus()
+            return True
+
+    def on_button_press_event(self,w,event):
+        idx = w.get_cursor()[0]
+        if idx is None:
+            return True
         self.entry.set_text(self.model[idx][0])
+
+    def load_halmeter(self):
+        p = os.popen("halmeter &")
+    def load_status(self):
+        p = os.popen("linuxcnctop  > /dev/null &","w")
+    def load_halshow(self):
+        try:
+            p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
+        except:
+            self.entry.set_text('ERROR loading halshow')
