@@ -618,6 +618,7 @@ class Gscreen:
         # check for a local theme gtkrc file
         localtheme = os.path.join(CONFIGPATH,'%s_theme'%self.skinname)
         if os.path.exists(localtheme):
+            print 'local theme path found'
             self.data.local_theme = 'Link to %s_theme'% self.skinname
             # make ~/.themes - quietly ignore the error if it exists
             try:
@@ -1822,7 +1823,11 @@ class Gscreen:
             method = self.keylookup.convert(keyname)
             if method:
                 try:
-                    return self.handler_instance[method](state,SHIFT,CNTRL,ALT)
+                    try:
+                        return self.handler_instance[method](state,SHIFT,CNTRL,ALT)
+                    except:
+                        self.show_try_errors()
+                        return self.handler_instance.keybindings[method](state,SHIFT,CNTRL,ALT)
                 except:
                     self.show_try_errors()
                     return self[method](state,SHIFT,CNTRL,ALT) 
