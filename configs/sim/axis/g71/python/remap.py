@@ -337,7 +337,6 @@ def g7x(self, g7xmode, **words):
                     if (y - block[2]) * (y - block[4]) > 0:
                         print "Well, that's me stumped"
                         print x, y, block[2], block[4], xc, yc, r
-                        bp()
                         continue
                 else: 
                     print "what the heck? Not G0, G1 G2 or G3?"

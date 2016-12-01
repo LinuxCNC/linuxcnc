@@ -4,7 +4,7 @@ S2000 M03
 (Bottom to top, right to left)
 (G1 X30 Z5 F1000)
 G0 X25 Z1.0 (Start Position before commanding the cycle)
-G71 P100 Q8 D1 F900 J1 L1 I0.5 K0.5 R0.5
+G71 P100 Q8 D1 F900 J0 L0 I0.5 K0.5 R0.5
 
 O0100 SUB
  G0 X5 Z1
