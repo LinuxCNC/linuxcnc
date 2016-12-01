@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.6"
+_RELEASE = " 2.1.6.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3118,6 +3118,7 @@ class gmoccapy(object):
             self.widgets.rbt_reverse.set_active(True)
         elif not self.widgets.rbt_stop.get_active():
             self.widgets.rbt_stop.set_active(True)
+
         # this is needed, because otherwise a command S0 would not set active btn_stop
         if not abs(self.stat.spindle_speed):
             self.widgets.rbt_stop.set_active(True)
@@ -3185,6 +3186,9 @@ class gmoccapy(object):
             rpm_out = 0
         self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
 
+        if "G96" in self.active_gcodes and self.stat.interp_state != linuxcnc.INTERP_IDLE:
+            return
+
         if command == "stop":
             self.command.spindle(0)
             self.widgets.lbl_spindle_act.set_label("S 0")
@@ -3238,11 +3242,10 @@ class gmoccapy(object):
             else:
                 value_to_set = spindle_override * 100
             widget.set_value(value_to_set)
-            self.spindle_override = value_to_set
+            self.spindle_override = value_to_set / 100
             self.command.spindleoverride(value_to_set / 100)
         except:
             pass
-        self.widgets.lbl_spindle_act.set_text("S %d" % real_spindle_speed)
 
     def on_adj_start_spindle_RPM_value_changed(self, widget, data=None):
         self.spindle_start_rpm = widget.get_value()

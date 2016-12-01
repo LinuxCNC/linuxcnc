@@ -1,3 +1,10 @@
+ver. 2.1.6.1
+- bug handling of G96 CSS, related to the update of the
+  real spindle speed label
+  Thanks to Hakan for reporting this
+- Jumping spindle speed label due to a calculation error between
+  two functions, and double setting of a label, Solved!
+
 ver. 2.1.6
 - merged the changes I made to 1.5.6.5 to 1.5.6.8
   details see below
