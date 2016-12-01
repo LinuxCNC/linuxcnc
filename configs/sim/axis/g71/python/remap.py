@@ -30,60 +30,90 @@ class data:
     Tword = 0     # Tool for cycle
     pmax =  1     # top pocket number
     max_depth =  0.0   # maximum depth of profile
-    min_depth =  0     # minimum depth of profile
     miny =  0.0   # minimum y coordinate of profile
     mode = -1     # rapid/feed mode
-    x_begin = 0.0
-    y_begin = 0.0
-    x_end = 0.0
-    y_end = 0.0
 
 d = data()
 
-# Direction-aware versions of > < >= <=
+# Direction-aware versions of > < >= <= max() min()
 def GTx(a,b):
-    return (a > b) if x_dir > 0 else (a < b)
+    return (a > b) if d.Dword < 0 else (a < b)
 def LTx(a,b):
-    return (a < b) if x_dir > 0 else (a > b)
+    return (a < b) if d.Dword < 0 else (a > b)
 def GTEx(a,b):
-    return (a >= b) if x_dir > 0 else (a <= b)
+    return (a >= b) if d.Dword < 0 else (a <= b)
 def LTEx(a,b):
-    return (a >= b) if x_dir > 0 else (a <= b)
-
+    return (a >= b) if d.Dword <= 0 else (a <= b)
+def MINx(*vals):
+    return min(vals) if d.Dword <= 0 else max(vals)
+def MAXx(*vals):
+    return max(vals) if d.Dword <= 0 else min(vals)
 def nearly_equal(x, y):
     return True if abs(x - y) < 1e-8 else False
+def between(l1, x, l2):
+    if l1 > l2:
+        if x >= l2 and x <= l1:
+            return True
+    else:
+        if x >= l1 and x <= l2:
+            return True
+    return False
 
+    
+# add_to_list() is where G-code line segments are added to the list
+# Each consists of a set of curve type, beginning and end coordinates 
+# and a pocket number. The pocket number is +ve integer on curve segments 
+# that are a metal-to-air transition, 0 on air-to-metal
+# horizontal line segments are completely ignored
+
+# d.list is a list of lines and arcs. Arcs are split at the cardinal points
+# d.list[n][0] = motion mode (1,2,3)
+# d.list[n][1] = start P (code variable x)
+# d.list[n][2] = start Q (code variable y)
+# d.list[n][3] = end P
+# d.list[n][4] = end Q
+# d.list[n][5] = arc radius
+# d.list[n][6] = arc centre P
+# d.list[n][7] = arc centre Q
+# d.list[n][8]= pocket number
+
+# ****** All logic is written for top-right quadrant for consistency ******
+
+# This code assumes that the cut runs in the same left-right direction as the profile
+# if that assumption changes, this code will need to know that. 
+ 
 def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
     #static double oldx for C++ version
-    global oldx
-    oldp = d.pmax
-
-    # Spot "peaks" to change pocket numbers
-    if GTEx(oldx, ps) and LTx(pe,ps): d.pmax += 1
-
-    # populate the previous segment with this segment's pocket number
-    if len(d.list) > 0:
-        t0, t1, t2, t3, t4, t5, t6, t7, t8, dummy, pocket = d.list.pop()
-        d.list.append((t0, t1, t2, t3, t4, t5, t6, t7, t8, d.pmax, pocket))
-        print d.list[-1]
-        
-    d.list.append((mode, ps, qs, pe, qe, r, pc, qc, oldp, 0, d.pmax))
-    if LTx(d.min_depth, ps): d.min_depth = ps
-    if LTx(d.min_depth, pe): d.min_depth = pe
-    if GTx(d.max_depth, ps): d.max_depth = ps
-    if GTx(d.max_depth, pe): d.max_depth = pe
-    print "max", d.max_depth, "min", d.min_depth
+    global oldp
+    d.max_depth = MINx(d.max_depth, pe + d.Jword, ps + d.Jword)
     # This needs a similar directionality fix
     d.miny = min(d.miny, qs, qe)
-    oldx = ps
 
-oldx = 0
+    if nearly_equal(ps, pe):
+        return # Just ignore horizontal lines
+    elif LTx(pe, ps):
+        if oldp > 0:
+            p = oldp
+        else:
+            d.pmax += 1
+            p = d.pmax
+    elif GTx(pe, ps):
+        p = 0
+
+    oldp = p
+
+    # X-allowance is added as a profile shift here (including the centre point, even for G0/G1
+    # Z-allowance as a delta to cut start and end later
+    d.list.append((mode, ps + d.Jword, qs, pe + d.Jword, qe, r, pc + d.Jword, qc, p))
+    print d.list[-1]
+
+oldp = 0
 
 def g7x(self, g7xmode, **words):
     global x_dir
     d.list = []
     d.mode = -1
-    d.pmax = 1
+    d.pmax = 0
     d.miny = 1.0e10
     s.poll()
 
@@ -122,25 +152,6 @@ def g7x(self, g7xmode, **words):
     d.y_begin = pose[axes[Q]]
 
     print P,Q,I,J
-    
-    # d.list is a list of lines and arcs. Arcs are split at the cardinal points
-    # d.list[n][0] = motion mode (1,2,3)
-    # d.list[n][1] = start P (code variable x)
-    # d.list[n][2] = start Q (code variable y)
-    # d.list[n][3] = end P
-    # d.list[n][4] = end Q
-    # d.list[n][5] = arc radius
-    # d.list[n][6] = arc centre P
-    # d.list[n][7] = arc centre Q
-    # d.list[n][8] = last x  (May be unused, CHECK)
-    # d.list[n][9] = next x (for dealing properly with passing through a node)
-    # d.list[n][10]= pocket number
-    
-    # X-allowance is added as a profile shift.
-    # Z-allowance as a delta to cut start and end
-
-    mode = 0
-    x, y, x0, y0 = 0, 0, 0, 0
 
     if 'd' in words:
         d.Dword = abs(words['d'])
@@ -158,50 +169,38 @@ def g7x(self, g7xmode, **words):
 
     x = d.x_begin
     y = d.y_begin
+    d.max_depth = d.x_begin
+
+    mode = -1
 
     for block in gcode:
+        oldx = x
+        oldy = y
         cmds = dict(re.findall('(\w)\s*([-+,\.\d]+)', block.upper(), re.S | re.I))
 
         if P in cmds:
             x = float(cmds[P])
-            print "x = ", x
             if self.params['_lathe_diameter_mode']: x = x / 2
-            del cmds[P]
         if Q in cmds:
             y = float(cmds[Q])
-            print "y  ", y
-            del cmds[Q]
 
         if 'G' in cmds:
             if cmds['G'] in ('0', '1', '2', '3', '00', '01', '02', '03'):
                 mode = int(cmds['G'])
+                if d.mode < 0: # Then this is the first block, and sets the cut direction 
+                    d.mode = mode
+                    mode = 0 # turn off offsetting on the entry line
+                    if x < oldx: d.Dword = -1 * d.Dword
+                    print "direction set to ", d.Dword, "oldx", oldx, "new x", x
             else:
                 print "invalid G-code G%s" % cmds['G']
                 exit()
-            del cmds['G']
 
-            if d.mode < 0: # Then this is the first block
-                # By convention the first move of the block defines the increment path. 
-                d.mode = mode
-                d.x_end = x
-                d.y_end = y
-                x_dir = 1 if d.x_end < d.x_begin else -1
-                print "direction set to ", x_dir, "d.x_end", d.x_end, "d.x_begin", d.x_begin
-                d.Dword = d.Dword * -x_dir #slightly inconsistent sign/dir perhaps?
-                d.min_depth =  0
-                d.max_depth =  1e9 * x_dir 
-                x0 = x
-                y0 = y
-                continue
-
-        if mode == 0:
-            x0 = x
-            y0 = y
-        elif mode == 1:
-            add_to_list(d, 1, x0 + d.Jword, y0, x + d.Jword, y, 0, 0, 0)
-        elif mode in (2,3):
+        if mode in (0, 1):
+            add_to_list(d, mode, oldx, oldy, x, y, 0, 0, 0)
+        elif mode in (2, 3):
             #calculate centre point and radius for all arc styles
-            delta = math.sqrt((x - x0)**2 + (y - y0)**2)
+            delta = math.sqrt((x - oldx)**2 + (y - oldy)**2)
             # e is the winding direction
             e = 1 if mode == 2 else -1  
             e = e * flip         
@@ -211,10 +210,9 @@ def g7x(self, g7xmode, **words):
                     exit()
                 #http://math.stackexchange.com/questions/27535
                 r = float(cmds['R'])
-                del cmds['R']
-                u = (x - x0) / delta
-                v = (y - y0) / delta
-                if delta > 2 * r:
+                u = (x - oldx) / delta
+                v = (y - oldy) / delta
+                if delta > abs(2 * r):
                     print "Circle radius too small for end points"
                     return INTERP_ERROR
                 h = math.sqrt(r**2 - (delta**2 / 4))
@@ -223,25 +221,25 @@ def g7x(self, g7xmode, **words):
                 # but negative R is troublesome later
                 if r < 0:
                     r = abs(r)
-                    xc = (x0 + x) / 2 + e * h * v
-                    yc = (y0 + y) / 2 - e * h * u
+                    xc = (oldx + x) / 2 + e * h * v
+                    yc = (oldy + y) / 2 - e * h * u
                 else:
-                    xc = (x0 + x) / 2 - e * h * v
-                    yc = (y0 + y) / 2 + e * h * u
+                    xc = (oldx + x) / 2 - e * h * v
+                    yc = (oldy + y) / 2 + e * h * u
                 
             else:
                 G901 = not self.params['_ijk_absolute_mode']
                 if I in cmds:
-                    xc = x0 + float(cmds[I]) if G901 else float(cmds[I])
+                    xc = oldx + float(cmds[I]) if G901 else float(cmds[I])
                     del cmds[I]
                 if J in cmds:
-                    yc = y0 + float(cmds[J]) if G901 else float(cmds[J])
+                    yc = oldy + float(cmds[J]) if G901 else float(cmds[J])
                     del cmds[J]
-                r = math.sqrt((xc - x0)**2 + (yc - y0)**2)
+                r = math.sqrt((xc - oldx)**2 + (yc - oldy)**2)
                 r2 = math.sqrt((xc - x)**2 + (yc - y)**2)
                 if abs(r - r2) > 0.001:
                     print "impossible arc centre", r, r2
-                    exit()
+                    return INTERP_ERROR
             
             # add cardinal points to arcs
             # There is scope for some confusion here about directions. 
@@ -252,7 +250,7 @@ def g7x(self, g7xmode, **words):
             # So, in the geometry here, CW and ACW are reversed compared to the 
             # G2 G3 convention. 
             
-            a1 = math.atan2(x0 - xc, y0 - yc)
+            a1 = math.atan2(oldx - xc, oldy - yc)
             a2 = math.atan2(x - xc, y - yc)
             
             d90 = math.pi/2
@@ -263,8 +261,8 @@ def g7x(self, g7xmode, **words):
                 while nesw > a2:
                     x1 = xc + r * math.sin(nesw)
                     y1 = yc + r * math.cos(nesw)
-                    add_to_list(d, mode, x0 + d.Jword, y0, x1 + d.Jword, y1, r, xc + d.Jword, yc)
-                    x0, y0 = x1, y1
+                    add_to_list(d, mode, oldx, oldy, x1, y1, r, xc, yc)
+                    oldx, oldy = x1, y1
                     nesw -= d90
                     
             elif e < 0: # G3 arc Clockwise in this CS
@@ -274,60 +272,53 @@ def g7x(self, g7xmode, **words):
                 while nesw < a2:
                     x1 = xc + r * math.sin(nesw)
                     y1 = yc + r * math.cos(nesw)
-                    add_to_list(d, mode, x0 + d.Jword, y0, x1 + d.Jword, y1, r, xc + d.Jword, yc)
-                    x0, y0 = x1, y1
+                    add_to_list(d, mode, oldx, oldy, x1, y1, r, xc, yc)
+                    oldx, oldy = x1, y1
                     nesw += d90
             else:
                 print "E == 0 for an arc?"
                 exit()
                 
-            add_to_list(d, mode, x0 + d.Jword, y0, x + d.Jword, y, r, xc + d.Jword, yc)
+            add_to_list(d, mode, oldx, oldy, x, y, r, xc, yc)
                  
-        if len(cmds) > 0:
-            print "invalid words in block ", cmds
-        
-        # Starting point of next segment
-        x0 = x
-        y0 = y
 
     # Make a d.list of cuts of the form:
     # (pocket-sequence, x level, start y, end y)
-    # Still to be decided: How to handle a profile that isn't open to the right
-    # But probably means initialising current_pocket intelligently
     cuts = []
     x = d.x_begin
     while GTx(x + d.Dword, d.max_depth):
-
         x = x + d.Dword
-        y0 = d.y_begin # current cut-start point
-
-        #decide if we are starting inside or outside the material
-        current_pocket = 1 if GTx(x, d.x_end + d.Jword) else 0
+        y0 = d.y_begin + 1 # current cut-start point
+        pocket = -1
 
         # start by cutting down to the profile
-        if GTEx(x, d.min_depth):
-            cuts.append((current_pocket, x, d.y_begin, d.miny))
-            continue
+ #       if GTEx(x, d.min_depth):
+ #           cuts.append((1, x, d.y_begin, d.miny))
+ #           continue
         
+        intercept = False
         for block in d.list:
+            #[0]G-code [1]xs [2]ys [3]xe [4]ye [5]r [6]xc [7]yc [8]pocket
             #Find all lines and arcs which span the feed line
 
             # Special treatment for hitting a node exactly.
             # when you hit a node exactly it is the start of one segment and the
-            # end of another, So we get some zero-length cuts, ignored later
-            if nearly_equal(x, block[1]):
-                if nearly_equal(x, block[3]): # completly ignore lines parallel to, and on, the cut
-                        continue
-                y = block[2]
-            elif nearly_equal(x, block[3]):
-                y = block[4]
-            elif ((x > block[1]) != (x > block[3])):
-                if block[0] == 1: # G1 move
+            # end of another, So we get some zero-length cuts to ignore
+            #if nearly_equal(x, block[1]) and not nearly_equal(y, block[2]):
+           #     y = block[2]
+            #    intercept = True
+            #    print "intercept 1, y = ", y, block
+           # elif nearly_equal(x, block[3]) and not nearly_equal(y, block[4]):
+           #     y = block[4]
+           #     intercept = True
+           #     print "intercept 3, y = ", y, block
+            if ((x >= block[1]) != (x >= block[3])):
+                intercept = True
+                if block[0] in (0, 1): #  straight line
                     #intercept of cut line with path segment
                     # t is the normalised length along the line 
                     t = (x - block[1])/(block[3] - block[1])
                     y = block[2] + t * (block[4] - block[2])
-                    
                 elif block[0] in (2, 3): # Arc moves here
                     # a circle is x^2 + y^2 = r^2
                     # (x - xc)^2 + (y - yc)^2 = r^2
@@ -338,12 +329,12 @@ def g7x(self, g7xmode, **words):
                     r = block[5]
                     xc = block[6]
                     yc = block[7]
-                    # if the conditions are equal then it is the wrong solution
-                    dy = math.sqrt(r**2 - (x - xc)**2)
+                    # The "abs" is a sign that there is a problem with rounding somewhere
+                    dy = math.sqrt(abs(r**2 - (x - xc)**2))
                     y = yc + dy
-                    if (y >= block[2]) == (y > block[4]):
+                    if (y - block[2]) * (y - block[4]) > 0:
                         y = yc - dy
-                    if (y >= block[2]) == (y > block[4]):
+                    if (y - block[2]) * (y - block[4]) > 0:
                         print "Well, that's me stumped"
                         print x, y, block[2], block[4], xc, yc, r
                         bp()
@@ -352,23 +343,20 @@ def g7x(self, g7xmode, **words):
                     print "what the heck? Not G0, G1 G2 or G3?"
                     return INTERP_ERROR
 
-            else: # Nothing found
-                continue
-
-            # At this point we have found an intersection of the cut line
-            # with the profile section 'block' at the point x,y
-            
-            if current_pocket and not nearly_equal(y, y0): # Ignore points on top of each other
-                st = y0 - d.Lword if current_pocket > 1 else y0
-                en = y + d.Lword
-                # skip cuts that are "squeezed-out" by L
-                if st > en:
-                    cuts.append((current_pocket, x, st, en))
-                    print cuts[-1]
-                current_pocket = 0
-            elif current_pocket == 0:
-                y0 = y
-                current_pocket = block[10]
+            if intercept:
+                intercept = False
+                #if nearly_equal(y, y0): # Ignore points on top of each otherdy
+                #    print y, y0
+                #    print "nearly-equal, I thought that problem was gone"
+                #    continue
+                if block[8] == 0: # end-of pocket intecept
+                    y1 = y if block[0] == 0 else y + d.Lword
+                    # skip cuts that are "squeezed-out" by L
+                    if y0 > y1:
+                        cuts.append((pocket, x, y0, y1))
+                else:
+                    pocket = block[8]
+                    y0 = y if block[0] == 0 else y - d.Lword
 
     #And now make the cuts
     
@@ -383,7 +371,7 @@ def g7x(self, g7xmode, **words):
                 emccanon.STRAIGHT_FEED(p, *pose)
                 pose[axes[Q]] = c[3]
                 emccanon.STRAIGHT_FEED(p, *pose)
-                pose[axes[P]] = c[1] + d.Rword if x_dir > 0 else c[1] - d.Rword
+                pose[axes[P]] = c[1] + d.Rword if d.Dword < 0 else c[1] - d.Rword
                 pose[axes[Q]] = c[3] + d.Rword
                 emccanon.STRAIGHT_TRAVERSE(p, *pose)
                 # pre-load the retract in case end of pocket

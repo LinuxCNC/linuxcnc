@@ -1,0 +1,31 @@
+G18 
+G8
+G21 G91.1
+T02 M06 G43
+S2000 M03
+(Bottom to top, right to left)
+
+G0 X35 Z0 (Start Position before commanding the cycle)
+G71 P100 D0.5 F900 J.5 L1 I0 K0 R0.1
+
+O100 SUB
+    g1 X30
+    g1 z-10 x15
+    g1 z-15 x20
+    g1 z-20 x15
+    g1 z-25 x17.5
+    g1 z-30 x15
+    g3 z-35 x25 R10
+    g1 z-45 x22.5
+    g1 z-50 x25
+    g2 z-60 x25 r7
+    g2 z-70 x25 r6
+    g1 z-75 x30
+    g0 X35
+O100 ENDSUB
+
+F500
+O100 call
+
+M2
+%
