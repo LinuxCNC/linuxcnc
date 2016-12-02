@@ -109,6 +109,33 @@ def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
 
 oldp = 0
 
+def find_intercept(block, x, default_index):
+    if ((x >= block[1]) != (x >= block[3])):
+        if block[0] in (0, 1): #  straight line
+            #intercept of cut line with path segment
+            # t is the normalised length along the line 
+            t = (x - block[1])/(block[3] - block[1])
+            y = block[2] + t * (block[4] - block[2])
+        elif block[0] in (2, 3): # Arc moves here
+            # a circle is x^2 + y^2 = r^2
+            # (x - xc)^2 + (y - yc)^2 = r^2
+            # (y - yc) = sqrt(r^2 - (x - xc)^2)
+            # 2 solutions for a line through a circle
+            # because we split the arcs into <= 90 degree sections it 
+            # is easy to check which solution is between the arc ends
+            r = block[5]
+            xc = block[6]
+            yc = block[7]
+            # The "abs" is a sign that there is a problem with rounding somewhere
+            dy = math.sqrt(abs(r**2 - (x - xc)**2))
+            y = yc + dy
+            if (y - block[2]) * (y - block[4]) > 0:
+                y = yc - dy
+            if (y - block[2]) * (y - block[4]) > 0:
+                return False, block[default_index]
+        return True, y
+    return False, block[default_index]
+
 def g7x(self, g7xmode, **words):
     global x_dir
     d.list = []
@@ -124,6 +151,9 @@ def g7x(self, g7xmode, **words):
     pose = [self.params['_X'], self.params['_Y'], self.params['_Z'],
             self.params['_A'], self.params['_B'], self.params['_C'], 
             self.params['_U'], self.params['_V'], self.params['_W']]
+
+    for p in self.params():
+        print p
 
     regex= r'\O0*%(p)i\s*SUB(.*)O0*%(p)i\s*ENDSUB' % words
     gcode = re.findall(regex,open(s.file).read(), re.M | re.S | re.I)
@@ -163,9 +193,16 @@ def g7x(self, g7xmode, **words):
     else:
         d.Rword = d.Dword        
     if 'j' in words: d.Jword = words['j']   
-    if 'l' in words: d.Lword = words['l']
+    if 'l' in words: d.Lword = words['l'] / 1000.0
     if 'i' in words: d.Iword = words['i']
     if 'k' in words: d.Kword = words['k']
+
+    if 't' in words:
+        emccanon.CHANGE_TOOL(int(words['t']))
+
+    s.poll()
+    frontangle = self.params[5411]
+    backangle = self.params[5412]
 
     x = d.x_begin
     y = d.y_begin
@@ -290,91 +327,63 @@ def g7x(self, g7xmode, **words):
         x = x + d.Dword
         y0 = d.y_begin + 1 # current cut-start point
         pocket = -1
-
-        # start by cutting down to the profile
- #       if GTEx(x, d.min_depth):
- #           cuts.append((1, x, d.y_begin, d.miny))
- #           continue
-        
+    
         intercept = False
         for block in d.list:
             #[0]G-code [1]xs [2]ys [3]xe [4]ye [5]r [6]xc [7]yc [8]pocket
             #Find all lines and arcs which span the feed line
 
-            # Special treatment for hitting a node exactly.
-            # when you hit a node exactly it is the start of one segment and the
-            # end of another, So we get some zero-length cuts to ignore
-            #if nearly_equal(x, block[1]) and not nearly_equal(y, block[2]):
-           #     y = block[2]
-            #    intercept = True
-            #    print "intercept 1, y = ", y, block
-           # elif nearly_equal(x, block[3]) and not nearly_equal(y, block[4]):
-           #     y = block[4]
-           #     intercept = True
-           #     print "intercept 3, y = ", y, block
-            if ((x >= block[1]) != (x >= block[3])):
-                intercept = True
-                if block[0] in (0, 1): #  straight line
-                    #intercept of cut line with path segment
-                    # t is the normalised length along the line 
-                    t = (x - block[1])/(block[3] - block[1])
-                    y = block[2] + t * (block[4] - block[2])
-                elif block[0] in (2, 3): # Arc moves here
-                    # a circle is x^2 + y^2 = r^2
-                    # (x - xc)^2 + (y - yc)^2 = r^2
-                    # (y - yc) = sqrt(r^2 - (x - xc)^2)
-                    # 2 solutions for a line through a circle
-                    # because we split the arcs into <= 90 degree sections it 
-                    # is easy to check which solution is between the arc ends
-                    r = block[5]
-                    xc = block[6]
-                    yc = block[7]
-                    # The "abs" is a sign that there is a problem with rounding somewhere
-                    dy = math.sqrt(abs(r**2 - (x - xc)**2))
-                    y = yc + dy
-                    if (y - block[2]) * (y - block[4]) > 0:
-                        y = yc - dy
-                    if (y - block[2]) * (y - block[4]) > 0:
-                        print "Well, that's me stumped"
-                        print x, y, block[2], block[4], xc, yc, r
-                        continue
-                else: 
-                    print "what the heck? Not G0, G1 G2 or G3?"
-                    return INTERP_ERROR
+            intercept, y = find_intercept(block, x, 0)
 
             if intercept:
                 intercept = False
-                #if nearly_equal(y, y0): # Ignore points on top of each otherdy
-                #    print y, y0
-                #    print "nearly-equal, I thought that problem was gone"
-                #    continue
-                if block[8] == 0: # end-of pocket intecept
-                    y1 = y if block[0] == 0 else y + d.Lword
+                if block[8] == 0: # end-of pocket intercept
+                    valid, exit = find_intercept(block, x - d.Dword, 4)
+                    if block[0] == 0:
+                        y1 = y
+                    else:
+                        y1 = y + d.Lword
+                        exit += d.Lword
                     # skip cuts that are "squeezed-out" by L
-                    if y0 > y1:
-                        cuts.append((pocket, x, y0, y1))
+                    if y0 > y1: 
+                        # detect gouging, but not for G0 moves
+                        if valid and block[0] != 0 and  math.degrees(math.atan2(-d.Dword,exit - y1)) <  frontangle:
+                            print "gougey error front"
+                        cuts.append((pocket, x, y0, y1, entry, exit))
                 else:
                     pocket = block[8]
-                    y0 = y if block[0] == 0 else y - d.Lword
+                    valid, entry = find_intercept(block, x - d.Dword, 2)
+                    if block[0] == 0:
+                        y0 = y
+                    else:
+                        y0 = y - d.Lword
+                        entry -= d.Lword
+                        if valid and math.degrees(math.atan2(-d.Dword,entry - y0)) > backangle:
+                            print "gougey error back", math.degrees(math.atan2(-d.Dword,entry - y0)),backangle 
+                    
 
     #And now make the cuts
     
+    lastcut = cuts[0]
     for p in range(0, d.pmax + 1):
-        for c in cuts:
+        for c in cuts:            
+            #[0]pocket[1]x [2]ys [3]ye [4]entry [5]exit
             if c[0] == p:
-                pose[axes[Q]] = c[2]
+                pose[axes[Q]] = c[4]
                 emccanon.STRAIGHT_TRAVERSE(p, *pose)
                 pose[axes[P]] = c[1] - d.Dword
                 emccanon.STRAIGHT_TRAVERSE(p, *pose) 
                 pose[axes[P]] = c[1]
+                pose[axes[Q]] = c[2]
                 emccanon.STRAIGHT_FEED(p, *pose)
                 pose[axes[Q]] = c[3]
                 emccanon.STRAIGHT_FEED(p, *pose)
-                pose[axes[P]] = c[1] + d.Rword if d.Dword < 0 else c[1] - d.Rword
-                pose[axes[Q]] = c[3] + d.Rword
-                emccanon.STRAIGHT_TRAVERSE(p, *pose)
+                pose[axes[P]] = c[1] - d.Dword
+                pose[axes[Q]] = c[5]
+                emccanon.STRAIGHT_FEED(p, *pose)
                 # pre-load the retract in case end of pocket
                 pose[axes[Q]] = c[2]
+                lastcut = c
                 
         emccanon.STRAIGHT_TRAVERSE(5, *pose)         
         pose[axes[P]] = d.x_begin
