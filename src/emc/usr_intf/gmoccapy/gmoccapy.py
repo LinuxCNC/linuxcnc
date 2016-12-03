@@ -3186,6 +3186,8 @@ class gmoccapy(object):
             rpm_out = 0
         self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
 
+        # if we change the spindle speed, beeing in G96 we will avoid the requiered
+        # speed changes, as we do not get information from task about that!
         if "G96" in self.active_gcodes and self.stat.interp_state != linuxcnc.INTERP_IDLE:
             return
 
