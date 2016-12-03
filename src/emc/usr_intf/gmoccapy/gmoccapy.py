@@ -86,7 +86,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = "1.5.6.2.2"
+_RELEASE = "1.5.6.2.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2819,8 +2819,9 @@ class gmoccapy( object ):
         if self.stat.task_state == linuxcnc.STATE_ESTOP:
             return
 
-        # if we do not check this, we will get an error in auto mode
-        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+        # if we do not check this, we will get an error in auto mode and G96 would not run as MDI sub
+        # call, as in the following code the speed will be set to the commanded value not the variable value
+        if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
                 if self.stat.spindle_direction > 0:
                     self.widgets.rbt_forward.set_sensitive( True )
@@ -2902,7 +2903,6 @@ class gmoccapy( object ):
             self.command.spindleoverride( value_to_set / 100 )
         except:
             pass
-        self.widgets.lbl_spindle_act.set_text( "S %d" % real_spindle_speed )
 
     def on_adj_start_spindle_RPM_value_changed( self, widget, data = None ):
         self.spindle_start_rpm = widget.get_value()
