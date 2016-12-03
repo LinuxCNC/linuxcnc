@@ -30,6 +30,10 @@ ver. 1.5.6.3
 - In glade file a signal on_btn_load_state_changed was set, but no handler present, 
   leading to a error message on start in the terminal, erased the signal
 
+ver. 1.5.6.2.3
+- bug in handling a subroutine call from MDI, containing 
+  G96 code. Thanks to Hakan for reporting this.
+
 ver. 1.5.6.2.2
 - halui spindle override bug, caused by a race conflict
   Thanks to pippin88 and dinkata to help solving his one
