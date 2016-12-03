@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.6.1"
+_RELEASE = " 2.1.6.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3159,8 +3159,10 @@ class gmoccapy(object):
         if self.stat.task_state == linuxcnc.STATE_ESTOP:
             return
 
-        # if we do not check this, we will get an error in auto mode
-        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+        # if we do not check this, we will get an error in auto mode and sub
+        # calls from MDI containing i.e. G96 would not run, as the speed will
+        # be setted to the commanded value due the next code part
+        if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
                 if self.stat.spindle_direction > 0:
                     self.widgets.rbt_forward.set_sensitive(True)
@@ -3185,11 +3187,6 @@ class gmoccapy(object):
         except:
             rpm_out = 0
         self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
-
-        # if we change the spindle speed, beeing in G96 we will avoid the requiered
-        # speed changes, as we do not get information from task about that!
-        if "G96" in self.active_gcodes and self.stat.interp_state != linuxcnc.INTERP_IDLE:
-            return
 
         if command == "stop":
             self.command.spindle(0)

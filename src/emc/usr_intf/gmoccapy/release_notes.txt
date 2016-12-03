@@ -1,3 +1,6 @@
+ver. 2.1.6.2
+- better solution for the G96 bug
+
 ver. 2.1.6.1
 - bug handling of G96 CSS, related to the update of the
   real spindle speed label
