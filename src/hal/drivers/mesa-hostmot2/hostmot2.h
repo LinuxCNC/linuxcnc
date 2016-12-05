@@ -76,6 +76,10 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 // idrom addresses & constants
 //
 
+#define DE0_NANO_SOC_ADC_BASE 0x0200
+#define DE0_NANO_SOC_ADC_DATA 0x0204
+#define NUM_ADC_SAMPLES 8
+
 #define HM2_ADDR_IOCOOKIE  (0x0100)
 #define HM2_IOCOOKIE       (0x55AACAFE)
 
@@ -1067,6 +1071,20 @@ typedef struct {
 } hm2_raw_t;
 
 
+//
+// nano adc access
+//
+
+typedef struct {
+    struct {
+        struct {
+            hal_u32_t *status_set_reg;
+            hal_u32_t *num_samples_reg;
+            hal_u32_t *sample[NUM_ADC_SAMPLES];
+        } pin;
+    } hal;
+} de0_nano_soc_adc_t;
+
 
 
 //
@@ -1108,6 +1126,7 @@ typedef struct {
         int num_dplls;
         char sserial_modes[4][8];
         int enable_raw;
+        int enable_adc;
         char *firmware;
 	int skip_fwid;  // skip applying the fwid proto message if set
     } config;
@@ -1157,6 +1176,7 @@ typedef struct {
     hm2_led_t led;
     hm2_fwid_t fwid;
     hm2_raw_t *raw;
+    de0_nano_soc_adc_t *nano_soc_adc;
 
     struct list_head list;
 } hostmot2_t;
@@ -1165,6 +1185,9 @@ typedef struct {
 //
 // misc little helper functions
 //
+
+void de0_nano_soc_adc_read(hostmot2_t *hm2);
+void de0_nano_soc_adc_write(hostmot2_t *hm2);
 
 // this one just returns TRUE if the MD is good, FALSE if not
 int hm2_md_is_consistent(
@@ -1461,6 +1484,13 @@ int hm2_raw_setup(hostmot2_t *hm2);
 void hm2_raw_read(hostmot2_t *hm2);
 void hm2_raw_write(hostmot2_t *hm2);
 
+
+//
+// adc functions
+//
+
+int hm2_adc_setup(hostmot2_t *hm2);
+void de0_nano_soc_adc_read(hostmot2_t *hm2);
 
 
 

@@ -98,6 +98,7 @@ static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_dpll_process_tram_read(hm2, period);
     hm2_raw_read(hm2);
+    de0_nano_soc_adc_read(hm2);
     return 0;
 }
 
@@ -359,6 +360,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_dplls = -1;
     hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
+    hm2->config.enable_adc = 0;
     hm2->config.firmware = NULL;
 
     if (config_string == NULL) return 0;
@@ -469,6 +471,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "enable_raw", 10) == 0) {
             hm2->config.enable_raw = 1;
 
+        } else if (strncmp(token, "enable_adc", 10) == 0) {
+            hm2->config.enable_adc = 1;
+
 	} else if (strncmp(token, "nofwid", 6) == 0) {
             hm2->config.skip_fwid = 1;
 
@@ -507,6 +512,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_dplls=%d\n",    hm2->config.num_dplls);
     HM2_DBG("    num_leds=%d\n",    hm2->config.num_leds);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
+    HM2_DBG("    enable_adc=%d\n",   hm2->config.enable_adc);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
     argv_free(argv);
@@ -1507,6 +1513,15 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     r = hm2_raw_setup(hm2);
+    if (r != 0) {
+        goto fail1;
+    }
+
+    //
+    // the "adc" interface lets you read the de0 nano soc builtin adc from HAL
+    //
+
+    r = hm2_adc_setup(hm2);
     if (r != 0) {
         goto fail1;
     }
