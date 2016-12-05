@@ -419,7 +419,7 @@ class GlCanonDraw:
         self.cached_tool = -1
         self.initialised = 0
         self.no_joint_display = False
-        self.kinstype = "UNKNOWN"
+        self.kinsmodule = "UNKNOWN"
         self.trajcoordinates = "unknown"
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
@@ -442,13 +442,13 @@ class GlCanonDraw:
                 else:
                     self.dro_mm = temp
 
-    def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinstype="trivkins",msg=""):
+    def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinsmodule="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
-        self.kinstype = kinstype
+        self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
         if (msg != ""):
-            print "init_glcanondraw %s coords=%s kinstype=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinstype,self.no_joint_display)
+            print "init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display)
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -1036,7 +1036,7 @@ class GlCanonDraw:
               and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
             ):
             return self.jnum_for_aletter(aletter,
-                                         self.kinstype,
+                                         self.kinsmodule,
                                          self.trajcoordinates)
         else:
             return -1 # no icon display
@@ -1445,9 +1445,9 @@ class GlCanonDraw:
             return True
         return False
 
-    def jnum_for_aletter(self,aletter,kinstype,trajcoordinates):
+    def jnum_for_aletter(self,aletter,kinsmodule,trajcoordinates):
         aletter = aletter.upper()
-        if "trivkins" in kinstype:
+        if "trivkins" in kinsmodule:
             return trajcoordinates.index(aletter)
         else:
             guess = trajcoordinates.index(aletter)

@@ -1096,9 +1096,6 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
-        self.widgets.gremlin.init_glcanondraw(
-             trajcoordinates = self.get_ini_info.get_trajcoordinates(),
-             kinstype = self.get_ini_info.get_kinstype())
         self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
 
     # init the preview

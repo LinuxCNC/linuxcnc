@@ -321,9 +321,3 @@ class GetIniInfo:
                     return None
             messages = zip(message_text, message_type, message_pinname)
             return messages
-
-    def get_trajcoordinates(self):
-        return self.inifile.find("TRAJ", "COORDINATES")
-
-    def get_kinstype(self):
-        return self.inifile.find("KINS", "KINEMATICS")
