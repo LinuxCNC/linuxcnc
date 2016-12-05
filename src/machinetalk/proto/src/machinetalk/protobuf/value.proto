@@ -6,7 +6,7 @@ import "machinetalk/protobuf/types.proto";
 // see README.msgid
 // msgid base: 1500
 
-package pb;
+package machinetalk;
 
 
 // a value for 'passing around'.

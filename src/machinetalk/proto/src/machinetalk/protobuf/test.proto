@@ -3,7 +3,7 @@
 import "machinetalk/protobuf/emcclass.proto";
 import "machinetalk/protobuf/nanopb.proto";
 
-package pb;
+package machinetalk;
 
 // see README.msgid
 // msgid base: 1300

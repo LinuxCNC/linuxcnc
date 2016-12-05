@@ -7,7 +7,7 @@ import "machinetalk/protobuf/motcmds.proto";
 // see README.msgid
 // msgid base: 1100
 
-package pb;
+package machinetalk;
 
 /**
  *  Types for EMC task execution state.

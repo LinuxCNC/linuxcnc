@@ -3,7 +3,7 @@ import "machinetalk/protobuf/nanopb.proto";
 // see README.msgid
 // msgid base: 200
 
-package pb;
+package machinetalk;
 
 enum ApplicationType {
     QT5_QML    = 1;
