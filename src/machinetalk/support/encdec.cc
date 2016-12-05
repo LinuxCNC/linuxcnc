@@ -16,7 +16,7 @@
 
 #include <json2pb.hh>
 
-using namespace pb;
+using namespace machinetalk;
 using namespace std;
 using namespace google::protobuf;
 

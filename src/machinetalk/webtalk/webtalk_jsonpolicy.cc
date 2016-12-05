@@ -20,7 +20,7 @@ json_policy(wtself_t *self,
     lwsl_debug("%s op=%d\n",__func__,  type);
     zmsg_t *m;
     zframe_t *f;
-    static pb::Container c; // fast; threadsafe???
+    static machinetalk::Container c; // fast; threadsafe???
 
     switch (type) {
 
@@ -69,11 +69,11 @@ json_policy(wtself_t *self,
 		    case ZMQ_SUB:
 			// inspect message for inband subscribe/unsubscribe
 			for (int i = 0; i < c.note_size(); i++) {
-				if (c.type() == pb::MT_ZMQ_SUBSCRIBE) {
+				if (c.type() == machinetalk::MT_ZMQ_SUBSCRIBE) {
 				lwsl_fromws("%s: subscribe to '%s'\n", __func__, c.note(i).c_str());
 				zsocket_set_subscribe (wss->socket, c.note(i).c_str());
 			    }
-			    if (c.type() == pb::MT_ZMQ_UNSUBSCRIBE) {
+			    if (c.type() == machinetalk::MT_ZMQ_UNSUBSCRIBE) {
 				lwsl_fromws("%s: unsubscribe from '%s'\n", __func__, c.note(i).c_str());
 				zsocket_set_unsubscribe (wss->socket, c.note(i).c_str());
 			    }

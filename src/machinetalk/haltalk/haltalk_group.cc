@@ -60,7 +60,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		 gi != self->groups.end(); gi++) {
 
 		group_t *g = gi->second;
-		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
+		self->tx.set_type(machinetalk::MT_HALGROUP_FULL_UPDATE);
 		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
@@ -86,7 +86,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	    groupmap_iterator gi = self->groups.find(topic);
 	    if (gi != self->groups.end()) {
 		group_t *g = gi->second;
-		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
+		self->tx.set_type(machinetalk::MT_HALGROUP_FULL_UPDATE);
 		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
@@ -108,7 +108,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		}
 	    } else {
 		// non-existant topic, complain.
-		self->tx.set_type(pb::MT_STP_NOGROUP);
+		self->tx.set_type(machinetalk::MT_STP_NOGROUP);
 		note_printf(self->tx, "no such group: '%s', currently %d valid groups",
 			    topic, self->groups.size());
 		if (self->groups.size())
@@ -259,13 +259,13 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 {
     group_t *grp = (group_t *) cb_data;
     htself_t *self = grp->self;
-    pb::Signal *signal;
+    machinetalk::Signal *signal;
     int retval;
 
     switch (phase) {
 
     case REPORT_BEGIN:	// report initialisation
-	self->tx.set_type(pb::MT_HALGROUP_INCREMENTAL_UPDATE);
+	self->tx.set_type(machinetalk::MT_HALGROUP_INCREMENTAL_UPDATE);
 	// the serial enables detection of lost updates
 	// for a client to recover from a lost update:
 	// unsubscribe + re-subscribe which will cause
@@ -310,7 +310,7 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 int ping_groups(htself_t *self)
 {
     for (groupmap_iterator g = self->groups.begin(); g != self->groups.end(); g++) {
-	self->tx.set_type(pb::MT_PING);
+	self->tx.set_type(machinetalk::MT_PING);
 	int retval = send_pbcontainer(g->first.c_str(), self->tx,
 				      self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);

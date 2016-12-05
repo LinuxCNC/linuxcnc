@@ -41,7 +41,7 @@ static const char *istat_topic = "status";
 static int batch_limit = 100;
 static const char *p_client = "preview"; //NULL; // single client for now
 
-static pb::Container istat, output;
+static machinetalk::Container istat, output;
 
 static size_t n_containers, n_messages, n_bytes;
 
@@ -52,13 +52,13 @@ static size_t n_containers, n_messages, n_bytes;
 int _task = 0; // control preview behaviour when remapping
 
 // publish an interpreter status change.
-static void publish_istat(pb::InterpreterStateType state)
+static void publish_istat(machinetalk::InterpreterStateType state)
 {
-    static pb::InterpreterStateType last_state = pb::INTERP_STATE_UNSET;
+    static machinetalk::InterpreterStateType last_state = machinetalk::INTERP_STATE_UNSET;
     int retval;
 
     if (state ^ last_state) {
-	istat.set_type(pb::MT_INTERP_STAT);
+	istat.set_type(machinetalk::MT_INTERP_STAT);
 	istat.set_interp_state(state);
     istat.set_interp_name("preview");
 
@@ -80,7 +80,7 @@ static void send_preview(const char *client, bool flush = false)
     if ((output.preview_size() > batch_limit) || flush) {
 	n_containers++;
 	n_bytes += output.ByteSize();
-	output.set_type(pb::MT_PREVIEW);
+	output.set_type(machinetalk::MT_PREVIEW);
 	retval = send_pbcontainer(client, output, z_preview);
 	assert(retval == 0);
     }
@@ -89,16 +89,16 @@ static void send_preview(const char *client, bool flush = false)
 // send preview start message
 static void preview_start()
 {
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_PREVIEW_START);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_PREVIEW_START);
     send_preview(p_client);
 }
 
 // send preview end message
 static void preview_end()
 {
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_PREVIEW_END);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_PREVIEW_END);
     send_preview(p_client);
 }
 
@@ -135,7 +135,7 @@ static int z_init(void)
 #endif
 
     note_printf(istat, "interpreter startup pid=%d", getpid());
-    publish_istat(pb::INTERP_IDLE);
+    publish_istat(machinetalk::INTERP_IDLE);
 
     return 0;
 }
@@ -330,8 +330,8 @@ void ARC_FEED(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_ARC_FEED);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_ARC_FEED);
     p->set_line_number(line_number);
     p->set_first_end(first_end);
     p->set_second_end(second_end);
@@ -340,7 +340,7 @@ void ARC_FEED(int line_number,
     p->set_rotation(rotation);
     p->set_axis_end_point(axis_end_point);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_a(a_position);
     pos->set_b(b_position);
     pos->set_c(c_position);
@@ -366,11 +366,11 @@ void STRAIGHT_FEED(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_STRAIGHT_FEED);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_STRAIGHT_FEED);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -399,11 +399,11 @@ void STRAIGHT_TRAVERSE(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_STRAIGHT_TRAVERSE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_STRAIGHT_TRAVERSE);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -429,12 +429,12 @@ void SET_G5X_OFFSET(int g5x_index,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_G5X_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_G5X_OFFSET);
     //    p->set_line_number(line_number);
     p->set_g5_index(g5x_index);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -460,11 +460,11 @@ void SET_G92_OFFSET(double x, double y, double z,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_G92_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_G92_OFFSET);
     //    p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -485,8 +485,8 @@ void SET_XY_ROTATION(double t) {
     //     callmethod(callback, "set_xy_rotation", "f", t);
     // if(result == NULL) interp_error ++;
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_G92_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_G92_OFFSET);
     //    p->set_line_number(line_number);
     p->set_xy_rotation(t);
     send_preview(p_client);
@@ -499,8 +499,8 @@ void SELECT_PLANE(CANON_PLANE pl) {
     maybe_new_line();
     // if(interp_error) return;
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SELECT_PLANE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SELECT_PLANE);
     p->set_plane(pl);
     send_preview(p_client);
 
@@ -518,8 +518,8 @@ void SET_TRAVERSE_RATE(double rate) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_TRAVERSE_RATE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_TRAVERSE_RATE);
     //    p->set_line_number(line_number);
     p->set_rate(rate);
     send_preview(p_client);
@@ -545,8 +545,8 @@ void CHANGE_TOOL(int pocket) {
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_CHANGE_TOOL);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_CHANGE_TOOL);
     //    p->set_line_number(line_number);
     p->set_pocket(pocket);
     send_preview(p_client);
@@ -570,8 +570,8 @@ void SET_FEED_RATE(double rate) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_FEED_RATE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_FEED_RATE);
     //    p->set_line_number(line_number);
     p->set_rate(rate);
     send_preview(p_client);
@@ -586,8 +586,8 @@ void DWELL(double time) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_DWELL);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_DWELL);
     //    p->set_line_number(line_number);
     p->set_time(time);
     send_preview(p_client);
@@ -602,8 +602,8 @@ void MESSAGE(char *comment) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_MESSAGE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_MESSAGE);
     //    p->set_line_number(line_number);
     p->set_text(comment);
     send_preview(p_client);
@@ -623,8 +623,8 @@ void COMMENT(const char *comment) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_COMMENT);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_COMMENT);
     //    p->set_line_number(line_number);
     p->set_text(comment);
     send_preview(p_client);
@@ -645,11 +645,11 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_USE_TOOL_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_USE_TOOL_OFFSET);
     //    p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(offset.tran.x);
     pos->set_y(offset.tran.y);
     pos->set_z(offset.tran.z);
@@ -751,11 +751,11 @@ void STRAIGHT_PROBE(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_STRAIGHT_PROBE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_STRAIGHT_PROBE);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -778,11 +778,11 @@ void RIGID_TAP(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_RIGID_TAP);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_RIGID_TAP);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -1012,15 +1012,15 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_u = _pos_v = _pos_w = 0;
 
     note_printf(istat, "open '%s'", f);
-    publish_istat(pb::INTERP_RUNNING);
+    publish_istat(machinetalk::INTERP_RUNNING);
     preview_start();
     interp_new.init();
     interp_new.open(f);
     maybe_new_line();
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SOURCE_CONTEXT);
-    p->set_stype(pb::ST_NGC_FILE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SOURCE_CONTEXT);
+    p->set_stype(machinetalk::ST_NGC_FILE);
     p->set_filename(f);
     p->set_line_number(interp_new.sequence_number());
 
@@ -1051,7 +1051,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 out_error:
     preview_end();
     send_preview(p_client, true);
-    publish_istat(pb::INTERP_IDLE);
+    publish_istat(machinetalk::INTERP_IDLE);
 
     if(pinterp) pinterp->close();
     if(interp_error) {
