@@ -4,7 +4,7 @@ import "machinetalk/protobuf/value.proto";
 // see README.msgid
 // msgid base: 1000
 
-package pb;
+package machinetalk;
 
 message RTAPI_Message {
 

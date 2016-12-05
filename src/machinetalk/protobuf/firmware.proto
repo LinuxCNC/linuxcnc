@@ -18,7 +18,7 @@ import "machinetalk/protobuf/nanopb.proto";
 // see README.msgid
 // msgid base: 380
 
-package pb;
+package machinetalk;
 
 /// describes a connector
 message Connector {

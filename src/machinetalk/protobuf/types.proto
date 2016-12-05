@@ -4,7 +4,7 @@ import "machinetalk/protobuf/nanopb.proto";
 // see README.msgid
 // msgid base: 1400
 
-package pb;
+package machinetalk;
 
 enum ValueType {
     //  the following tags correspond to hal.h: hal_type_t;
