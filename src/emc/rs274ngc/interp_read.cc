@@ -1623,6 +1623,15 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    _setup.value_returned = 0;
 	}
     }
+  else if (	block->o_type == O_endprofile)
+	{
+	if ((_setup.skipping_o != 0) &&
+	    (0 != strcmp(_setup.skipping_o, block->o_name))) {
+	    return INTERP_OK;
+	}
+    block->o_type = O_endprofile;
+
+	}
   else if(_setup.defining_sub == 1)
     {
       // we can not evaluate expressions -- so just skip on out
@@ -1758,10 +1767,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if(block->o_type == O_profile)
       {
           block->o_type = O_profile;
-      }
-  else if(block->o_type == O_endprofile)
-      {
-          block->o_type = O_endprofile;
       }
   else
     {

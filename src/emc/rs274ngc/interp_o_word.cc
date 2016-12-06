@@ -670,7 +670,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	logOword("skipping to line: |%s|", settings->skipping_o);
 	return INTERP_OK;
     }
-    if (settings->skipping_to_sub && (block->o_type != O_sub)) {
+    if (settings->skipping_to_sub && ( (block->o_type != O_sub) && (block->o_type != O_profile) ) )  {
 	logOword("skipping to sub: |%s|", settings->skipping_to_sub);
 	return INTERP_OK;
     }
@@ -723,36 +723,27 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	// not the definition
 	// if we were skipping, no longer
 	if (settings->skipping_o) {
-	    logOword("sub(o_|%s|) was skipping to here", settings->skipping_o);
+	    logOword("profile(o_|%s|) was skipping to here", settings->skipping_o);
 	    // skipping to a sub means that we must define this now
 	    CHP(control_save_offset( block, settings));
-	    logOword("no longer skipping to:|%s|", settings->skipping_o);
+	    logOword("no longer skipping to profile:|%s|", settings->skipping_o);
 	    settings->skipping_o = NULL; // this IS our block number
 	}
 	settings->skipping_to_sub = NULL; // this IS our block number
 
-	if (settings->call_level != 0) {
-	    logOword("call:%f:%f:%f",
-		     settings->parameters[1],
-		     settings->parameters[2],
-		     settings->parameters[3]);
-	} else {// Start of a profile
-
-		logOword("started a profile defn: %s",block->o_name);   
-	    CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
-	    CHP(control_save_offset( block, settings));
-	    // Inform _execute that we are reading a profile.
-		settings->reading_profile = 1;
-		settings->sub_name = block->o_name;
-		// assign the o-name, create the appropriate object if required
-        settings->arbitrary_profile_map[block->o_name].name = block->o_name;
-		settings->arbitrary_profile_current = settings->arbitrary_profile_map.find(block->o_name); 
-		// If a previous definition is still held in memory, this should be cleared
-		settings->arbitrary_profile_map[block->o_name].blocks.clear();
-		settings->arbitrary_profile_map[block->o_name].lathe_cycle_profile.clear();
-		settings->arbitrary_profile_map[block->o_name].profile_defined = 0;
-	}
-			
+	logOword("started a profile defn: %s",block->o_name);   
+	CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
+	// Inform _execute that we are reading a profile.
+	settings->reading_profile = 1;
+	settings->sub_name = block->o_name;
+	// assign the o-name, create the appropriate object if required
+    settings->arbitrary_profile_map[block->o_name].name = block->o_name;
+	settings->arbitrary_profile_current = settings->arbitrary_profile_map.find(block->o_name); 
+	// If a previous definition is still held in memory, this should be cleared
+	settings->arbitrary_profile_map[block->o_name].blocks.clear();
+	settings->arbitrary_profile_map[block->o_name].lathe_cycle_profile.clear();
+	settings->arbitrary_profile_map[block->o_name].profile_defined = 0;
+				
     break;
 	case O_endprofile:
 		// Finished reading in profile

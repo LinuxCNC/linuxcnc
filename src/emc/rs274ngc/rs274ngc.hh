@@ -65,20 +65,20 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 
 #undef DEBUG_EMC
 
-#define _logDebug(mask,dlflags,level, fmt, args...) fprintf(stderr, fmt "\n", ## args)
+//#define _logDebug(mask,dlflags,level, fmt, args...) fprintf(stderr, fmt "\n", ## args)
 
-//#define _logDebug(mask,dlflags,level, fmt, args...)	\
-//    do {						\
-//	if (((mask & _setup.debugmask) &&		\
-//	     (level < _setup.loggingLevel)) ||		\
-//            (mask & EMC_DEBUG_UNCONDITIONAL)) {		\
-//	    doLog(dlflags,				\
-//		  __FILE__,				\
-//		  __LINE__ ,				\
-//		  fmt "\n",				\
-//		  ## args);				\
-//        }						\
-//    } while(0)
+#define _logDebug(mask,dlflags,level, fmt, args...)	\
+    do {						\
+	if (((mask & _setup.debugmask) &&		\
+	     (level < _setup.loggingLevel)) ||		\
+            (mask & EMC_DEBUG_UNCONDITIONAL)) {		\
+	    doLog(dlflags,				\
+		  __FILE__,				\
+		  __LINE__ ,				\
+		  fmt "\n",				\
+		  ## args);				\
+        }						\
+    } while(0)
 
 //#define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,LOG_FILENAME,1,fmt, ## args)
 #define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,0,1,fmt, ## args)

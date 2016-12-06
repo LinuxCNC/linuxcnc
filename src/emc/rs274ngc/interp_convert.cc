@@ -4706,6 +4706,7 @@ int Interp::convert_threading_cycle(block_pointer block,
 
 
 // Make a single roughing pass - only called form Interp::convert_lathe_roughing_cycle
+
 int lathe_type1_roughing_pass(int line_number, setup_pointer settings , double end_z, double x, double retract, bool xpos, bool zpos, bool rapid_return) {
     double x_r = (xpos) ? retract : -retract;
     double z_r = (zpos) ? -retract : retract;
@@ -4768,6 +4769,76 @@ bool does_ray_intersect_arc(std::vector<lcc_profile>::iterator block, double ray
     }
     return false;
 }
+#define FPEQ(a,b) fabs(a-b) < 0.0000001f
+
+bool does_ray_intersect_block(std::vector<lcc_profile>::iterator block, std::pair<double, double> origin, std::pair<double, double> direction, std::pair<double, double> *intersection){
+	double tmp;
+	if ((block->move == G_0) || (block->move == G_1) ) {
+		// Looking for a ray-line intersection
+		if ((FPEQ(direction.first, 1.0f)) && (FPEQ(direction.second, 0.0f))) {
+			// ray is parallel to x
+			if (FPEQ(block->startx, block->endx)) {
+				if (FPEQ(block->startx, origin.first)) {
+					intersection->second = block->endz;
+					intersection->first = origin.first;
+					return true;
+				}
+				return false;
+			}
+		} else if ((FPEQ(direction.first, 0.0f)) && (FPEQ(direction.second, 1.0f))) {
+			// ray is parallel to z
+			if (FPEQ(block->startz, block->endz)) {
+				if (FPEQ(block->startz, origin.second)) {
+					intersection->first = block->endx;
+					intersection->second = origin.second;
+					return true;
+				}
+				return false;
+			}
+		} else {
+			// ray is at an angle. Expensive method time
+		}
+	} else if ((block->move == G_2) || (block->move == G_3) ) {
+		
+		// Looking for a ray-arc intersection
+		if ((FPEQ(direction.first, 1.0f)) && (FPEQ(direction.second, 0.0f))) {
+			// ray is parallel to x
+			tmp = pow(block->radius,2) - pow((origin.first-(block->centrex)),2);
+			if (((origin.first <= (block->endx)) && ((block->startx) <= origin.first)) || ((origin.first >= (block->endx)) && ((block->startx) >= origin.first))) {
+				if (tmp >= 0.0l) {
+					if (block->startx > block->endx)
+    	        	    intersection->second = !(block->move == G_2) ? (block->centrez) - sqrt(tmp) :  sqrt(tmp) + (block->centrez);
+		            else
+    		            intersection->second = (block->move == G_2) ? (block->centrez) - sqrt(tmp) :  sqrt(tmp) + (block->centrez);
+					intersection->first = origin.first;
+		   	        return true;
+				} else {
+					return false;
+				}
+			}
+			
+		} else if ((FPEQ(direction.first, 0.0f)) && (FPEQ(direction.second, 1.0f))) {
+			// ray is parallel to z
+			tmp = pow(block->radius,2) - pow((origin.second-(block->centrez)),2);
+			if (((origin.second <= (block->endz)) && ((block->startz) <= origin.second)) || ((origin.second >= (block->endz)) && ((block->startz) >= origin.second))) {
+				if (tmp >= 0.0l) {
+					if (block->startz > block->endz)
+    	        	    intersection->first = !(block->move == G_2) ? (block->centrex) - sqrt(tmp) :  sqrt(tmp) + (block->centrex);
+		            else
+    		            intersection->first = (block->move == G_2) ? (block->centrex) - sqrt(tmp) :  sqrt(tmp) + (block->centrex);
+					intersection->second = origin.second;
+		   	        return true;
+				} else {
+					return false;
+				}
+			}
+		} else {
+			// ray is at an angle. Expensive method time
+			// BP TODO: Expensive method
+		}
+	return false;	
+	}
+}
 
 bool Interp::lathe_roughing_cycle_generate_profile(setup_pointer settings, double *min_x, double *max_x, double *min_z, double *max_z) {
     std::vector<block>::iterator it = settings->arbitrary_profile_current->second.blocks.begin();
@@ -4816,6 +4887,7 @@ bool Interp::lathe_roughing_cycle_generate_profile(setup_pointer settings, doubl
             tmp_profile.radius = 0;
         }
         logDebug("Pushing back profile block with move: G%d", tmp_profile.move);
+		// BP TODO: If a move isn't defined, the previous command should be used?
         settings->arbitrary_profile_current->second.lathe_cycle_profile.push_back(tmp_profile);
     }
 
@@ -4831,40 +4903,53 @@ int Interp::convert_lathe_roughing_cycle(block_pointer eblock,
     bool clearance_moves_rapid = false;
     double epsilon = 0.000001f; // TODO: Macro for equality comparisons between doubles - there is probably one somewhere in the EMC source tree already
 	char oNameBuf[LINELEN+1];
-	
-						
+
+
+	// OK. Refactor this function completely.
+	// Should cover G70, G71, G72
+	// For G71/G72 - generate a local profile and offset by thickness + overthickness
+	// 				 generate roughing moves using cutter comp
+	//				 apply negative offset of overthickness (or regenerate profile and offset by thickness)
+	//				 run (pre) finish path
+	// For G70
+	//				 run finish path
 
     // Perform basic sanity checks.
     CHKS((settings->cutter_comp_side),
-         (_("Cannot use G71 roughing cycle with cutter radius compensation on")));
-    CHKS((!(eblock->p_flag) || /* !(eblock->q_flag) ||*/ !(eblock->f_flag) || !(eblock->d_flag)),
-        (_("G71 roughing cycle requires at least P, Q, F and D words")));
+         (_("Cannot use G71 roughing cycle with cutter radius compensation on. Yet.")));
+    CHKS((!(eblock->p_flag) || !(eblock->f_flag) || !(eblock->d_flag)),
+        (_("G71 roughing cycle requires at least P, F and D words")));
     CHKS((eblock->p_number <= 0),
             (_("In G71, P must be greater than 0")));
-   // CHKS((eblock->q_number <= 0),
-   //         (_("In G71, Q must be greater than 0")));
     CHKS((eblock->f_number <= 0.0f),
             (_("In G71, F must be greater than 0")));
     CHKS((eblock->d_number_float <= 0.0),
             (_("In G71, D must be greater than 0")));
-    /*CHKS((eblock->q_number <= eblock->p_number),
-            (_("In G71, end block Q must be greater than starting block P"))); */
 	
     // BP TODO: Can we change P-number to an int, or does it need to be floating point elsewhere
-	sprintf(oNameBuf, "%d", (int) eblock->p_number);	
+	sprintf(oNameBuf, "%d", (int) eblock->p_number);
+						
 	logDebug("Beginning a G71 Profile. Profile number: %s", oNameBuf);
-
-	// Is the profile already read in?
+	// Is the profile already read in - Find it, or fail.
 	if(settings->arbitrary_profile_map.find(oNameBuf) == settings->arbitrary_profile_map.end()){
-		logDebug("Didn't find the profile. Bugger");
-		return INTERP_OK;      
-		
-	} else {
-		logDebug("Found it! WHOOOOOOOO");
-
+		logDebug("G71 Profile not in memory, searching");
+		// profile not found. rewind to start of block (so that the correct offset is passed)
+		fseek(settings->file_pointer, eblock->offset, SEEK_SET);
+		eblock->o_name = oNameBuf;
+		eblock->call_type = CT_NGC_OWORD_SUB;
+		// Chec
+		// if (settings->call_state == CS_NORMAL)
+	         CHP(enter_context(settings, eblock));
+	    CHP(execute_call(settings, (&settings->sub_context[settings->call_level]),
+			 (&settings->sub_context[settings->call_level])->call_type)); 
+		if(settings->arbitrary_profile_map.find(oNameBuf) == settings->arbitrary_profile_map.end()){
+			CHKS((1),"G71: Profile o|%s| could not be found", eblock->p_number);
+			return INTERP_ERROR;
+		}
+		//control_back_to(eblock, settings);
+		return INTERP_OK;
 	}
 
-    // eblock->line_number = settings->arb_profile_line_number;
     STRAIGHT_TRAVERSE(eblock->line_number, settings->current_x, 0, settings->current_z, AABBCC);
     logDebug("Read in settings. Current z %f\n%s ", settings->current_z, settings->blocktext);
     double min_x = settings->current_x, max_x, min_z = settings->current_z, max_z, tmp, omega;
@@ -4959,13 +5044,13 @@ int Interp::convert_lathe_roughing_cycle(block_pointer eblock,
                 if(does_ray_intersect_line(it2, x_position, (ot_x+t_x), (ot_z+t_z), true, &tmp)) {
                     logDebug("Straight Move from z %f to %f", settings->current_z, tmp);
                     STRAIGHT_FEED(eblock->line_number, x_position, 0, settings->current_z, AABBCC);
-                    lathe_type1_roughing_pass(eblock->line_number, settings, tmp, x_position ,0.1f ,x_positive,z_positive, clearance_moves_rapid);
+                    lathe_type1_roughing_pass(eblock->line_number, settings, tmp, x_position ,retract ,x_positive,z_positive, clearance_moves_rapid);
                     it2=settings->arbitrary_profile_current->second.lathe_cycle_profile.end();
                 } 
             } else if((it2->move == G_2) || (it2->move == G_3)) {
                 if(does_ray_intersect_arc(it2, x_position, (ot_x+t_x), (ot_z+t_z), true, &tmp)){
                     STRAIGHT_FEED(eblock->line_number, x_position, 0, settings->current_z, AABBCC);
-                    lathe_type1_roughing_pass(eblock->line_number, settings, tmp, x_position ,0.1f ,x_positive,z_positive, clearance_moves_rapid);
+                    lathe_type1_roughing_pass(eblock->line_number, settings, tmp, x_position ,retract ,x_positive,z_positive, clearance_moves_rapid);
                     it2=settings->arbitrary_profile_current->second.lathe_cycle_profile.end();
                 }
                 
