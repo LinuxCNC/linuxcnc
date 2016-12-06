@@ -3,7 +3,7 @@ import "machinetalk/protobuf/nanopb.proto";
 // see README.msgid
 // msgid base: 300
 
-package pb;
+package machinetalk;
 
 // this encoding method of encoding supports NULL values
 // using code needs to inspect the has_<name> property

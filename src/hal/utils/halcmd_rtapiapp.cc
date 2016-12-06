@@ -15,7 +15,7 @@
 
 using namespace google::protobuf;
 
-static pb::Container command, reply;
+static machinetalk::Container command, reply;
 
 static zctx_t *z_context;
 static void *z_command;
@@ -23,7 +23,7 @@ static int timeout = 5000;
 static std::string errormsg;
 int proto_debug;
 
-int rtapi_rpc(void *socket, pb::Container &tx, pb::Container &rx)
+int rtapi_rpc(void *socket, machinetalk::Container &tx, machinetalk::Container &rx)
 {
     zframe_t *request = zframe_new (NULL, tx.ByteSize());
     assert(request);
@@ -67,9 +67,9 @@ int rtapi_callfunc(int instance,
 		   const char *func,
 		   const char **args)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_CALLFUNC);
+    command.set_type(machinetalk::MT_RTAPI_APP_CALLFUNC);
     cmd = command.mutable_rtapicmd();
     cmd->set_func(func);
     cmd->set_instance(instance);
@@ -91,9 +91,9 @@ int rtapi_newinst(int instance,
 		  const char *instname,
 		  const char **args)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_NEWINST);
+    command.set_type(machinetalk::MT_RTAPI_APP_NEWINST);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
 
@@ -115,9 +115,9 @@ int rtapi_newinst(int instance,
 int rtapi_delinst(int instance,
 		  const char *instname)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_DELINST);
+    command.set_type(machinetalk::MT_RTAPI_APP_DELINST);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
     cmd->set_instname(instname);
@@ -128,9 +128,9 @@ int rtapi_delinst(int instance,
 
 }
 
-static int rtapi_loadop(pb::ContainerType type, int instance, const char *modname, const char **args)
+static int rtapi_loadop(machinetalk::ContainerType type, int instance, const char *modname, const char **args)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
     command.set_type(type);
     cmd = command.mutable_rtapicmd();
@@ -151,20 +151,20 @@ static int rtapi_loadop(pb::ContainerType type, int instance, const char *modnam
 
 int rtapi_loadrt(int instance, const char *modname, const char **args)
 {
-    return rtapi_loadop(pb::MT_RTAPI_APP_LOADRT, instance, modname, args);
+    return rtapi_loadop(machinetalk::MT_RTAPI_APP_LOADRT, instance, modname, args);
 }
 
 int rtapi_unloadrt(int instance, const char *modname)
 {
-    return rtapi_loadop(pb::MT_RTAPI_APP_UNLOADRT, instance, modname, NULL);
+    return rtapi_loadop(machinetalk::MT_RTAPI_APP_UNLOADRT, instance, modname, NULL);
 }
 
 int rtapi_shutdown(int instance)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
 
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_EXIT);
+    command.set_type(machinetalk::MT_RTAPI_APP_EXIT);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
 
@@ -177,9 +177,9 @@ int rtapi_shutdown(int instance)
 
 int rtapi_ping(int instance)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_PING);
+    command.set_type(machinetalk::MT_RTAPI_APP_PING);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
 
@@ -191,9 +191,9 @@ int rtapi_ping(int instance)
 
 int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp, int flags)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_NEWTHREAD);
+    command.set_type(machinetalk::MT_RTAPI_APP_NEWTHREAD);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
     cmd->set_threadname(name);
@@ -210,9 +210,9 @@ int rtapi_newthread(int instance, const char *name, int period, int cpu, int use
 
 int rtapi_delthread(int instance, const char *name)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_DELTHREAD);
+    command.set_type(machinetalk::MT_RTAPI_APP_DELTHREAD);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
     cmd->set_threadname(name);

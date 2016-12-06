@@ -28,7 +28,7 @@ static int process_get(htself_t *self, zmsg_t *from, void *socket);
 static int process_set(htself_t *self, bool halrcomp, zmsg_t *from, void *socket);
 static int describe_pin_by_name(htself_t *self, const char *name);
 static int describe_signal_by_name(htself_t *self, const char *name);
-static int apply_initial_values(htself_t *self, const pb::Component *pbcomp);
+static int apply_initial_values(htself_t *self, const machinetalk::Component *pbcomp);
 
 int
 handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
@@ -70,19 +70,19 @@ handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 static int
 process_ping(htself_t *self, zmsg_t *from, void *socket)
 {
-    self->tx.set_type( pb::MT_PING_ACKNOWLEDGE);
+    self->tx.set_type( machinetalk::MT_PING_ACKNOWLEDGE);
     self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
     return send_pbcontainer(from, self->tx, socket);
 }
 
 // validate name, number, type and direction of pins and params
 // of the existing HAL component 'name' against the component described in
-// pb::Component c.
+// machinetalk::Component c.
 // any errors are added as c.note strings.
 // Returns the number of notes added (= errors).
 // Acquires the HAL mutex.
 static int
-validate_component(const char *name, const pb::Component *pbcomp, pb::Container &e)
+validate_component(const char *name, const machinetalk::Component *pbcomp, machinetalk::Container &e)
 {
     hal_pin_t *hp __attribute__((cleanup(halpr_autorelease_mutex)));
     rtapi_mutex_get(&(hal_data->mutex));
@@ -112,7 +112,7 @@ validate_component(const char *name, const pb::Component *pbcomp, pb::Container 
 
     for (int i = 0; i < npbpins; i++) {
 
-	const pb::Pin &p = pbcomp->pin().Get(i);;
+	const machinetalk::Pin &p = pbcomp->pin().Get(i);;
 
 	// basic syntax - required attributes
 	if (!p.has_name()) {
@@ -149,7 +149,7 @@ validate_component(const char *name, const pb::Component *pbcomp, pb::Container 
     // same for params:
     for (int i = 0; i < npbparams; i++) {
 
-	const pb::Param &p = pbcomp->param().Get(i);;
+	const machinetalk::Param &p = pbcomp->param().Get(i);;
 
 	// basic syntax - required attributes
 	if (!p.has_name()) {
@@ -195,7 +195,7 @@ validate_component(const char *name, const pb::Component *pbcomp, pb::Container 
 // the rcomp will be taken into service once its name is subscribed to.
 // accumulate any errors in self->tx.note.
 static rcomp_t *
-create_rcomp(htself_t *self,  const pb::Component *pbcomp,
+create_rcomp(htself_t *self,  const machinetalk::Component *pbcomp,
 	     zmsg_t *from, void *socket)
 {
     int arg1 = 0, arg2 = 0, retval;
@@ -229,7 +229,7 @@ create_rcomp(htself_t *self,  const pb::Component *pbcomp,
 
     // create the pins
     for (int i = 0; i < pbcomp->pin_size(); i++) {
-	const pb::Pin &p = pbcomp->pin(i);
+	const machinetalk::Pin &p = pbcomp->pin(i);
 	hi = new halitem_t();
 	if (hi == NULL) {
 	    note_printf(self->tx, "new halitem_t() failed");
@@ -299,7 +299,7 @@ create_rcomp(htself_t *self,  const pb::Component *pbcomp,
 
 static int
 process_rcomp_bind(htself_t *self, zmsg_t *from,
-		   const pb::Component *pbcomp, void *socket)
+		   const machinetalk::Component *pbcomp, void *socket)
 {
     int retval = 0;
     const char *cname = NULL;
@@ -307,7 +307,7 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
     std::string s;
 
     // assume failure until proven otherwise
-    self->tx.set_type( pb::MT_HALRCOMP_BIND_REJECT);
+    self->tx.set_type( machinetalk::MT_HALRCOMP_BIND_REJECT);
     self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
 
     // fail if comp.name not present
@@ -324,7 +324,7 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
     // validate pinlist attributes if pins are present -
     // to create a pin, it must have, name, type, direction
     for (int i = 0; i < pbcomp->pin_size(); i++) {
-	const pb::Pin &p = pbcomp->pin(i);
+	const machinetalk::Pin &p = pbcomp->pin(i);
 	if (!(p.has_name() &&
 	      p.has_type() &&
 	      p.has_dir())) {
@@ -422,11 +422,11 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
     if (rc) {
 	// a valid component, either existing or new.
 
-	pb::Component *c  __attribute__((cleanup(halpr_autorelease_mutex))) = self->tx.add_comp();
+	machinetalk::Component *c  __attribute__((cleanup(halpr_autorelease_mutex))) = self->tx.add_comp();
 	rtapi_mutex_get(&(hal_data->mutex));
 	hal_comp_t *comp = halpr_find_comp_by_name(cname);
 	assert(comp != NULL);
-	self->tx.set_type(pb::MT_HALRCOMP_BIND_CONFIRM);
+	self->tx.set_type(machinetalk::MT_HALRCOMP_BIND_CONFIRM);
 	self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
 	retval = halpr_describe_component(comp, c);
 	assert(retval == 0);
@@ -438,17 +438,17 @@ static int
 dispatch_request(htself_t *self, zmsg_t *from, void *socket)
 {
     int retval = 0;
-    pb::ContainerType type = self->rx.type();
+    machinetalk::ContainerType type = self->rx.type();
 
     // rtapi_print_msg(RTAPI_MSG_INFO, "%s: rcommand type %d",
     // 		    self->cfg->progname, type);
     switch (type) {
 
-    case pb::MT_PING:
+    case machinetalk::MT_PING:
 	retval = process_ping(self, from, socket);
 	break;
 
-    case pb::MT_HALRCOMP_BIND:
+    case machinetalk::MT_HALRCOMP_BIND:
 	// check for component submessages, and fail if none present
 	if (self->rx.comp_size() == 0) {
         zframe_t *o = zmsg_first (from);  // freed with msg
@@ -459,33 +459,33 @@ dispatch_request(htself_t *self, zmsg_t *from, void *socket)
 	}
 	// bind them all
 	for (int i = 0; i < self->rx.comp_size(); i++) {
-	    const pb::Component *pbcomp = &self->rx.comp(i);
+	    const machinetalk::Component *pbcomp = &self->rx.comp(i);
 	    retval = process_rcomp_bind(self, from, pbcomp,  socket);
 	}
 	break;
 
     // HAL object set/get ops
-    case pb::MT_HALRCOMMAND_SET:
-    case pb::MT_HALRCOMP_SET:
+    case machinetalk::MT_HALRCOMMAND_SET:
+    case machinetalk::MT_HALRCOMP_SET:
 	// XXX: param missing
-	retval = process_set(self, type == pb::MT_HALRCOMP_SET, from, socket);
+	retval = process_set(self, type == machinetalk::MT_HALRCOMP_SET, from, socket);
 	break;
 
-    case pb::MT_HALRCOMMAND_GET:
+    case machinetalk::MT_HALRCOMMAND_GET:
 	// XXX: param missing
 	retval = process_get(self, from, socket);
 	break;
 
-    case pb::MT_HALRCOMMAND_DESCRIBE:
-	self->tx.set_type(pb::MT_HALRCOMMAND_DESCRIPTION);
+    case machinetalk::MT_HALRCOMMAND_DESCRIBE:
+	self->tx.set_type(machinetalk::MT_HALRCOMMAND_DESCRIPTION);
 	retval = process_describe(self, from, socket);
 	break;
 
 	// NIY - fall through:
-    case pb::MT_HALRCOMMAND_CREATE:
-    case pb::MT_HALRCOMMAND_DELETE:
+    case machinetalk::MT_HALRCOMMAND_CREATE:
+    case machinetalk::MT_HALRCOMMAND_DELETE:
     default:
-	self->tx.set_type(pb::MT_HALRCOMMAND_ERROR);
+	self->tx.set_type(machinetalk::MT_HALRCOMMAND_ERROR);
 	note_printf(self->tx, "rcommand %d: not implemented", self->rx.type());
     send_pbcontainer(from, self->tx, socket);
     zframe_t *o = zmsg_first (from);  // freed with msg
@@ -504,7 +504,7 @@ process_set(htself_t *self, bool halrcomp, zmsg_t *from, void *socket)
 
     // work the pins
     for (int i = 0; i < self->rx.pin_size(); i++) {
-	const pb::Pin &p = self->rx.pin(i);
+	const machinetalk::Pin &p = self->rx.pin(i);
 	// required fields
 	if (!p.has_type()) {
 	    note_printf(self->tx,
@@ -583,7 +583,7 @@ process_set(htself_t *self, bool halrcomp, zmsg_t *from, void *socket)
 
     // work the signals
     for (int i = 0; i < self->rx.signal_size(); i++) {
-	const pb::Signal &s = self->rx.signal(i);
+	const machinetalk::Signal &s = self->rx.signal(i);
 	// required fields
 	if (!s.has_type()) {
 	    note_printf(self->tx,
@@ -653,14 +653,14 @@ process_set(htself_t *self, bool halrcomp, zmsg_t *from, void *socket)
     // XXX: add param handling here
 
     if (self->tx.note_size()) {
-	self->tx.set_type(halrcomp ? pb::MT_HALRCOMP_SET_REJECT :
-			  pb:: MT_HALRCOMMAND_SET_REJECT);
+	self->tx.set_type(halrcomp ? machinetalk::MT_HALRCOMP_SET_REJECT :
+			  machinetalk:: MT_HALRCOMMAND_SET_REJECT);
 	return send_pbcontainer(from, self->tx, socket);
     }
 
     // otherwise reply only if explicitly required:
     if (self->rx.has_reply_required() && self->rx.reply_required()) {
-	self->tx.set_type(halrcomp ? pb::MT_HALRCOMP_ACK : pb::MT_HALRCOMMAND_ACK);
+	self->tx.set_type(halrcomp ? machinetalk::MT_HALRCOMP_ACK : machinetalk::MT_HALRCOMMAND_ACK);
 	return send_pbcontainer(from, self->tx, socket);
     }
     return 0;
@@ -672,7 +672,7 @@ process_get(htself_t *self, zmsg_t *from, void *socket)
     itemmap_iterator it;
 
     for (int i = 0; i < self->rx.pin_size(); i++) {
-	const pb::Pin &p = self->rx.pin(i);
+	const machinetalk::Pin &p = self->rx.pin(i);
 	if (p.has_handle()) {
 	    int handle = p.handle();
 	    it = self->items.find(handle);
@@ -686,7 +686,7 @@ process_get(htself_t *self, zmsg_t *from, void *socket)
 		}
 		hal_pin_t *hp = hi->o.pin;
 		assert(hp != NULL);
-		pb::Pin *pbpin = self->tx.add_pin();
+		machinetalk::Pin *pbpin = self->tx.add_pin();
 		// reply with just value and handle
 		pbpin->set_handle(hp->handle);
 		hal_pin2pb(hp, pbpin);
@@ -702,7 +702,7 @@ process_get(htself_t *self, zmsg_t *from, void *socket)
 	}
     }
     for (int i = 0; i < self->rx.signal_size(); i++) {
-	const pb::Signal &s = self->rx.signal(i);
+	const machinetalk::Signal &s = self->rx.signal(i);
 	if (s.has_handle()) {
 	    int handle = s.handle();
 	    it = self->items.find(handle);
@@ -716,7 +716,7 @@ process_get(htself_t *self, zmsg_t *from, void *socket)
 		}
 		hal_sig_t *hs = hi->o.signal;
 		assert(hs != NULL);
-		pb::Signal *pbsignal = self->tx.add_signal();
+		machinetalk::Signal *pbsignal = self->tx.add_signal();
 		// reply with just value and handle
 		pbsignal->set_handle(hs->handle);
 		hal_sig2pb(hs, pbsignal);
@@ -733,8 +733,8 @@ process_get(htself_t *self, zmsg_t *from, void *socket)
     }
     // XXX: add param handling here
 
-    self->tx.set_type(self->tx.note_size() ? pb::MT_HALRCOMMAND_GET_REJECT :
-		      pb::MT_HALRCOMMAND_ACK);
+    self->tx.set_type(self->tx.note_size() ? machinetalk::MT_HALRCOMMAND_GET_REJECT :
+		      machinetalk::MT_HALRCOMMAND_ACK);
     return send_pbcontainer(from, self->tx, socket);
 }
 
@@ -764,7 +764,7 @@ int describe_pin_by_name(htself_t *self, const char *name)
 	// printf("add pin %s to items\n", hp->name);
     }
     // add binding in reply - includes handle
-    pb::Pin *pbpin = self->tx.add_pin();
+    machinetalk::Pin *pbpin = self->tx.add_pin();
     return halpr_describe_pin(hp, pbpin); // full decoration
 }
 
@@ -794,7 +794,7 @@ int describe_signal_by_name(htself_t *self, const char *name)
 	// printf("add signal %s to items\n", hs->name);
     }
     // add binding in reply - includes handle
-    pb::Signal *pbsignal = self->tx.add_signal();
+    machinetalk::Signal *pbsignal = self->tx.add_signal();
     return halpr_describe_signal(hs, pbsignal);
 }
 
@@ -802,10 +802,10 @@ int describe_signal_by_name(htself_t *self, const char *name)
 // MT_HALRCOMP_BIND message
 // apply to HAL_OUT and HAL_IO pins
 static int
-apply_initial_values(htself_t *self, const pb::Component *pbcomp)
+apply_initial_values(htself_t *self, const machinetalk::Component *pbcomp)
 {
     for (int i = 0; i < pbcomp->pin_size(); i++) {
-	const pb::Pin &p = pbcomp->pin(i);
+	const machinetalk::Pin &p = pbcomp->pin(i);
 	{
 	    hal_pin_t *hp __attribute__((cleanup(halpr_autorelease_mutex)));
 	    rtapi_mutex_get(&(hal_data->mutex));

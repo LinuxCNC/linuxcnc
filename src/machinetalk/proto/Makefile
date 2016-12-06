@@ -26,7 +26,8 @@ ECHO := @echo
 
 DESTDIR := /usr/local
 # all protobuf definitions live here
-NAMESPACEDIR := machinetalk/protobuf
+PROJECT := machinetalk
+NAMESPACEDIR := $(PROJECT)/protobuf
 SRCDIR := src
 SRCDIRINV := $(shell realpath --relative-to=$(SRCDIR) .)
 PROTODIR := $(SRCDIR)/$(NAMESPACEDIR)
@@ -70,9 +71,9 @@ OBJDIR := $(BUILDDIR)/objects
 # see note on PBDEP_OPT below
 vpath %.proto  $(PROTODIR):$(GPBINCLUDE):$(DESCDIR)/compiler
 
-# machinetalk/proto/*.proto derived Python bindings
+# $(PROJECT)/proto/*.proto derived Python bindings
 PROTO_PY_TARGETS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(PYGEN)/%_pb2.py}
-PROTO_PY_EXTRAS := $(PYGEN)/setup.py $(PYGEN)/machinetalk/__init__.py $(PYGEN)/machinetalk/protobuf/__init__.py
+PROTO_PY_EXTRAS := $(PYGEN)/setup.py $(PYGEN)/$(PROJECT)/__init__.py $(PYGEN)/$(PROJECT)/protobuf/__init__.py
 
 # generated C++ includes
 PROTO_CXX_INCS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(CXXGEN)/%.pb.h}
@@ -81,7 +82,7 @@ PROTO_CXX_INCS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(CXXGEN)/%.pb.h}
 PROTO_CXX_SRCS  :=  ${PROTO_SPECS:$(SRCDIR)/%.proto=$(CXXGEN)/%.pb.cc}
 
 # generated doc file
-DOC_TARGET := $(DOCGEN)/machinetalk-protobuf.$(DOCEXT)
+DOC_TARGET := $(DOCGEN)/$(PROJECT)-protobuf.$(DOCEXT)
 
 # ---- generate dependcy files for .proto files
 #

@@ -25,7 +25,7 @@
 int __attribute__((weak)) print_container;
 
 int
-send_pbcontainer(const std::string &dest, pb::Container &c, void *socket)
+send_pbcontainer(const std::string &dest, machinetalk::Container &c, void *socket)
 {
     int retval = 0;
     zmsg_t *msg = zmsg_new();
@@ -38,7 +38,7 @@ send_pbcontainer(const std::string &dest, pb::Container &c, void *socket)
 
 // send_pbcontainer: destination can contain multiple routing points
 int
-send_pbcontainer(zmsg_t *dest, pb::Container &c, void *socket)
+send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
 {
     int retval = 0;
     zframe_t *f;
@@ -90,7 +90,7 @@ send_pbcontainer(zmsg_t *dest, pb::Container &c, void *socket)
 
 
 int
-note_printf(pb::Container &c, const char *fmt, ...)
+note_printf(machinetalk::Container &c, const char *fmt, ...)
 {
     va_list ap;
     int n;

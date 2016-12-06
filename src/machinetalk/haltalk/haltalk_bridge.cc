@@ -114,9 +114,9 @@ prepare_discovery(htself_t *self)
     int retval;
 
     // bridge->sdiscover = sd_new(0, self->cfg->bridge_target_instance);
-    // retval = sd_add(bridge->sdiscover,  pb::ST_HAL_RCOMMAND, 0, pb::SA_ZMQ_PROTOBUF);
+    // retval = sd_add(bridge->sdiscover,  machinetalk::ST_HAL_RCOMMAND, 0, machinetalk::SA_ZMQ_PROTOBUF);
     // assert(retval == 0);
-    // retval = sd_add(bridge->sdiscover,  pb::ST_STP_HALRCOMP, 0, pb::SA_ZMQ_PROTOBUF);
+    // retval = sd_add(bridge->sdiscover,  machinetalk::ST_STP_HALRCOMP, 0, machinetalk::SA_ZMQ_PROTOBUF);
     // assert(retval == 0);
     // sd_log(bridge->sdiscover, self->cfg->debug > 1);
 

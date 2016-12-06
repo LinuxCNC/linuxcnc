@@ -211,8 +211,8 @@ typedef struct wtself {
     bool interrupted;
     pid_t pid;
 
-    pb::Container rx; // any ParseFrom.. function does a Clear() first
-    pb::Container tx; // tx must be Clear()'d after or before use
+    machinetalk::Container rx; // any ParseFrom.. function does a Clear() first
+    machinetalk::Container tx; // tx must be Clear()'d after or before use
 
     zlist_t *policies;
 #ifdef LWS_NEW_API

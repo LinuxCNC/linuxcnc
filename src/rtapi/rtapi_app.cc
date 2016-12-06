@@ -68,7 +68,7 @@
 #include <google/protobuf/text_format.h>
 
 #include <machinetalk/protobuf/message.pb.h>
-#include <pbutil.hh>  // note_printf(pb::Container &c, const char *fmt, ...)
+#include <pbutil.hh>  // note_printf(machinetalk::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
 
@@ -171,7 +171,7 @@ static int do_one_item(char item_type_char,
 		       const string &param_value,
 		       void *vitem,
 		       int idx,
-		       pb::Container &pbreply)
+		       machinetalk::Container &pbreply)
 {
     char *endp;
     switch(item_type_char) {
@@ -218,7 +218,7 @@ void remove_quotes(string &s)
 static int do_module_args(void *module,
 			  pbstringarray_t args,
 			  const string &symprefix,
-			  pb::Container &pbreply)
+			  machinetalk::Container &pbreply)
 {
     for(int i = 0; i < args.size(); i++) {
         string s(args.Get(i));
@@ -301,7 +301,7 @@ static int do_module_args(void *module,
 // overwrite the previous value via sysfs
 static int do_kmodinst_args(const string &comp,
 			  pbstringarray_t args,
-			  pb::Container &pbreply)
+			  machinetalk::Container &pbreply)
 {
     for (int i = 0; i < args.size(); i++) {
         string s(args.Get(i));
@@ -355,7 +355,7 @@ static const char **pbargv(const pbstringarray_t &args)
 static void usrfunct_error(const int retval,
 			   const string &func,
 			   pbstringarray_t args,
-			   pb::Container &pbreply)
+			   machinetalk::Container &pbreply)
 {
     if (retval >= 0) return;
     string s = pbconcat(args);
@@ -415,7 +415,7 @@ static int do_newinst_cmd(int instance,
 			  string comp,
 			  string instname,
 			  pbstringarray_t args,
-			  pb::Container &pbreply)
+			  machinetalk::Container &pbreply)
 {
     int retval = -1;
 
@@ -479,7 +479,7 @@ static int do_newinst_cmd(int instance,
 
 static int do_delinst_cmd(int instance,
 			  string instname,
-			  pb::Container &pbreply)
+			  machinetalk::Container &pbreply)
 {
     int retval = -1;
     string s;
@@ -508,7 +508,7 @@ static int do_delinst_cmd(int instance,
 static int do_callfunc_cmd(int instance,
 			   string func,
 			   pbstringarray_t args,
-			   pb::Container &pbreply)
+			   machinetalk::Container &pbreply)
 {
     int retval = -1;
 
@@ -539,7 +539,7 @@ static int do_callfunc_cmd(int instance,
 static int do_load_cmd(int instance,
 		       string name,
 		       pbstringarray_t args,
-		       pb::Container &pbreply)
+		       machinetalk::Container &pbreply)
 {
     void *w = modules[name];
     char module_name[PATH_MAX];
@@ -619,7 +619,7 @@ static int do_load_cmd(int instance,
     }
 }
 
- static int do_unload_cmd(int instance, string name, pb::Container &reply)
+ static int do_unload_cmd(int instance, string name, machinetalk::Container &reply)
 {
     void *w = modules[name];
     int retval = 0;
@@ -660,7 +660,7 @@ static void exit_actions(int instance)
 		DLSYM<int(*)(void)>(w,"hal_exit_threads");
     exit_threads();
 
-    pb::Container reply;
+    machinetalk::Container reply;
     size_t index = loading_order.size() - 1;
     for(std::vector<std::string>::reverse_iterator rit = loading_order.rbegin();
 	rit != loading_order.rend(); ++rit, --index) {
@@ -714,7 +714,7 @@ static int init_actions(int instance)
 	    m = strtok(NULL,  "\t ");
 	}
     }
-    pb::Container reply;
+    machinetalk::Container reply;
     retval =  do_load_cmd(instance, "rtapi", pbstringarray_t(), reply);
     if (retval)
 	return retval;
@@ -795,7 +795,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     zframe_t *request_frame  = zmsg_pop (r);
     static bool force_exit = false;
 
-    pb::Container pbreq, pbreply;
+    machinetalk::Container pbreq, pbreply;
 
     if (!pbreq.ParseFromArray(zframe_data(request_frame),
 			      zframe_size(request_frame))) {
@@ -812,10 +812,10 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	}
     }
 
-    pbreply.set_type(pb::MT_RTAPI_APP_REPLY);
+    pbreply.set_type(machinetalk::MT_RTAPI_APP_REPLY);
 
     switch (pbreq.type()) {
-    case pb::MT_RTAPI_APP_PING:
+    case machinetalk::MT_RTAPI_APP_PING:
 	char buffer[LINELEN];
 	snprintf(buffer, sizeof(buffer),
 		 "pid=%d flavor=%s gcc=%s git=%s",
@@ -824,14 +824,14 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	pbreply.set_retcode(0);
 	break;
 
-    case pb::MT_RTAPI_APP_EXIT:
+    case machinetalk::MT_RTAPI_APP_EXIT:
 	assert(pbreq.has_rtapicmd());
 	exit_actions(pbreq.rtapicmd().instance());
 	force_exit = true;
 	pbreply.set_retcode(0);
 	break;
 
-    case pb::MT_RTAPI_APP_CALLFUNC:
+    case machinetalk::MT_RTAPI_APP_CALLFUNC:
 
 	assert(pbreq.has_rtapicmd());
 	assert(pbreq.rtapicmd().has_func());
@@ -842,7 +842,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 					      pbreply));
 	break;
 
-    case pb::MT_RTAPI_APP_NEWINST:
+    case machinetalk::MT_RTAPI_APP_NEWINST:
 	assert(pbreq.has_rtapicmd());
 	assert(pbreq.rtapicmd().has_comp());
 	assert(pbreq.rtapicmd().has_instname());
@@ -854,7 +854,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 					   pbreply));
 	break;
 
-    case pb::MT_RTAPI_APP_DELINST:
+    case machinetalk::MT_RTAPI_APP_DELINST:
 
 	assert(pbreq.has_rtapicmd());
 	assert(pbreq.rtapicmd().has_instname());
@@ -865,7 +865,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	break;
 
 
-    case pb::MT_RTAPI_APP_LOADRT:
+    case machinetalk::MT_RTAPI_APP_LOADRT:
 	assert(pbreq.has_rtapicmd());
 	assert(pbreq.rtapicmd().has_modname());
 	assert(pbreq.rtapicmd().has_instance());
@@ -875,7 +875,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 					pbreply));
 	break;
 
-    case pb::MT_RTAPI_APP_UNLOADRT:
+    case machinetalk::MT_RTAPI_APP_UNLOADRT:
 	assert(pbreq.rtapicmd().has_modname());
 	assert(pbreq.rtapicmd().has_instance());
 
@@ -884,7 +884,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 					  pbreply));
 	break;
 
-    case pb::MT_RTAPI_APP_LOG:
+    case machinetalk::MT_RTAPI_APP_LOG:
 	assert(pbreq.has_rtapicmd());
 	if (pbreq.rtapicmd().has_rt_msglevel()) {
 	    global_data->rt_msg_level = pbreq.rtapicmd().rt_msglevel();
@@ -895,7 +895,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	pbreply.set_retcode(0);
 	break;
 
-    case pb::MT_RTAPI_APP_NEWTHREAD:
+    case machinetalk::MT_RTAPI_APP_NEWTHREAD:
 	assert(pbreq.has_rtapicmd());
 	assert(pbreq.rtapicmd().has_threadname());
 	assert(pbreq.rtapicmd().has_threadperiod());
@@ -942,7 +942,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	}
 	break;
 
-    case pb::MT_RTAPI_APP_DELTHREAD:
+    case machinetalk::MT_RTAPI_APP_DELTHREAD:
 	assert(pbreq.has_rtapicmd());
 	assert(pbreq.rtapicmd().has_threadname());
 	assert(pbreq.rtapicmd().has_instance());

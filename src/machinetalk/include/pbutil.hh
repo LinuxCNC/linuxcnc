@@ -29,8 +29,8 @@ typedef ::google::protobuf::RepeatedPtrField< ::std::string> pbstringarray_t;
 // send a protobuf - encoded Container message
 // optionally prepend destination field
 // log any failure to RTAPI
-int send_pbcontainer(const std::string &dest, pb::Container &c, void *socket);
-int send_pbcontainer(zmsg_t *dest, pb::Container &c, void *socket);
+int send_pbcontainer(const std::string &dest, machinetalk::Container &c, void *socket);
+int send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket);
 
 // add an printf-formatted string to the 'note' repeated string in a
 // Container
@@ -39,7 +39,7 @@ int send_pbcontainer(zmsg_t *dest, pb::Container &c, void *socket);
 // MAX_NOTESIZE-4 and the string "..." appended, indicating truncation
 #define MAX_NOTESIZE 4096
 int
-note_printf(pb::Container &c, const char *fmt, ...);
+note_printf(machinetalk::Container &c, const char *fmt, ...);
 
 // fold a RepeatedPtrField into a std::string, separated by delim
 std::string pbconcat(const pbstringarray_t &args, const std::string &delim = " ", const std::string &quote = "");

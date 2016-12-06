@@ -93,16 +93,16 @@ int hm2_fwid_parse_md(hostmot2_t *hm2, int md_index) {
 	buf =  hm2->llio->fwid_msg;
     }
 
-    hm2->fwid.dmsg = (pb_Firmware *)kmalloc(sizeof(pb_Firmware), GFP_KERNEL);
+    hm2->fwid.dmsg = (machinetalk_Firmware *)kmalloc(sizeof(machinetalk_Firmware), GFP_KERNEL);
     if (hm2->fwid.dmsg == NULL) {
-	HM2_ERR("out of memory allocating pb_Firmware\n");
+	HM2_ERR("out of memory allocating machinetalk_Firmware\n");
 	r = -ENOMEM;
 	goto fail0;
     }
 
     // this is the actual decoding step:
     pb_istream_t stream = pb_istream_from_buffer(buf,  rawsize);
-    if (!pb_decode(&stream, pb_Firmware_fields, hm2->fwid.dmsg)) {
+    if (!pb_decode(&stream, machinetalk_Firmware_fields, hm2->fwid.dmsg)) {
 	HM2_ERR("pb_decode(Firmware) failed: '%s'\n", PB_GET_ERROR(&stream));
 	r = -EINVAL;
 	goto fail2;
@@ -110,7 +110,7 @@ int hm2_fwid_parse_md(hostmot2_t *hm2, int md_index) {
     if (hm2->llio->fwid_len == 0)
 	kfree(buf);
 
-    pb_Firmware *fw = hm2->fwid.dmsg;
+    machinetalk_Firmware *fw = hm2->fwid.dmsg;
     if (fw->has_board_name)
 	HM2_DBG("board_name = '%s'", fw->board_name);
     if (fw->has_build_sha)
@@ -126,7 +126,7 @@ int hm2_fwid_parse_md(hostmot2_t *hm2, int md_index) {
 
     size_t n;
     for (n = 0; n < fw->connector_count; n++) {
-	pb_Connector *conn = &fw->connector[n];
+	machinetalk_Connector *conn = &fw->connector[n];
 	if (conn->has_name) {
 	    HM2_DBG("connector %zu name = '%s'", n, conn->name);
 	    hm2->llio->ioport_connector_name[n] = conn->name;

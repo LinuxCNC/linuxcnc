@@ -565,8 +565,8 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
     size_t payload_length;
     int retval;
     char *cp;
-    pb::Container container;
-    pb::LogMessage *logmsg;
+    machinetalk::Container container;
+    machinetalk::LogMessage *logmsg;
     zframe_t *z_pbframe;
     int current_interval = msg_poll;
 
@@ -601,7 +601,7 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 
 	    if (logpub.socket) {
 		// publish protobuf-encoded log message
-		container.set_type(pb::MT_LOG_MESSAGE);
+		container.set_type(machinetalk::MT_LOG_MESSAGE);
 
 		struct timespec timestamp;
 		clock_gettime(CLOCK_REALTIME, &timestamp);
@@ -609,9 +609,9 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 		container.set_tv_nsec(timestamp.tv_nsec);
 
 		logmsg = container.mutable_log_message();
-		logmsg->set_origin((pb::MsgOrigin)msg->origin);
+		logmsg->set_origin((machinetalk::MsgOrigin)msg->origin);
 		logmsg->set_pid(msg->pid);
-		logmsg->set_level((pb::MsgLevel) msg->level);
+		logmsg->set_level((machinetalk::MsgLevel) msg->level);
 		logmsg->set_tag(msg->tag);
 		logmsg->set_text(msg->buf, strlen(msg->buf));
 
