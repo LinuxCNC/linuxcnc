@@ -32,22 +32,23 @@ class data:
     max_depth =  0.0   # maximum depth of profile
     miny =  0.0   # minimum y coordinate of profile
     mode = -1     # rapid/feed mode
+    warning = ""
 
 d = data()
 
 # Direction-aware versions of > < >= <= max() min()
-def GTx(a,b):
-    return (a > b) if d.Dword < 0 else (a < b)
-def LTx(a,b):
-    return (a < b) if d.Dword < 0 else (a > b)
-def GTEx(a,b):
-    return (a >= b) if d.Dword < 0 else (a <= b)
-def LTEx(a,b):
-    return (a >= b) if d.Dword <= 0 else (a <= b)
-def MINx(*vals):
-    return min(vals) if d.Dword <= 0 else max(vals)
-def MAXx(*vals):
-    return max(vals) if d.Dword <= 0 else min(vals)
+def GT(q, a, b):
+    return (a > b) if q > 0 else (a < b)
+def LT(q, a, b):
+    return (a < b) if q > 0 else (a > b)
+def GTE(a, b):
+    return (q, a >= b) if q > 0 else (a <= b)
+def LTE(a,b):
+    return (q, a >= b) if q > 0 else (a <= b)
+def MIN(q, *vals):
+    return min(q, vals) if q >=0 else max(vals)
+def MAX(q, *vals):
+    return max(q, vals) if q >= 0 else min(vals)
 def nearly_equal(x, y):
     return True if abs(x - y) < 1e-8 else False
 def between(l1, x, l2):
@@ -85,19 +86,19 @@ def between(l1, x, l2):
 def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
     #static double oldx for C++ version
     global oldp
-    d.max_depth = MINx(d.max_depth, pe + d.Jword, ps + d.Jword)
+    d.max_depth = MIN(-d.Dword, d.max_depth, pe + d.Jword, ps + d.Jword)
     # This needs a similar directionality fix
     d.miny = min(d.miny, qs, qe)
 
     if nearly_equal(ps, pe):
         return # Just ignore horizontal lines
-    elif LTx(pe, ps):
+    elif LT(-d.Dword, pe, ps):
         if oldp > 0:
             p = oldp
         else:
             d.pmax += 1
             p = d.pmax
-    elif GTx(pe, ps):
+    elif GT(-d.Dword, pe, ps):
         p = 0
 
     oldp = p
@@ -142,6 +143,7 @@ def g7x(self, g7xmode, **words):
     d.mode = -1
     d.pmax = 0
     d.miny = 1.0e10
+    d.warning = ""
     s.poll()
 
     planes={170:('X','Y','I','J'), 180:('X','Z','I','K'), 190:('Y','Z','J','K'),
@@ -151,9 +153,6 @@ def g7x(self, g7xmode, **words):
     pose = [self.params['_X'], self.params['_Y'], self.params['_Z'],
             self.params['_A'], self.params['_B'], self.params['_C'], 
             self.params['_U'], self.params['_V'], self.params['_W']]
-
-    for p in self.params():
-        print p
 
     regex= r'\O0*%(p)i\s*SUB(.*)O0*%(p)i\s*ENDSUB' % words
     gcode = re.findall(regex,open(s.file).read(), re.M | re.S | re.I)
@@ -168,10 +167,10 @@ def g7x(self, g7xmode, **words):
     # for G71 P is increment direction (x), Q is feed direction (y)
     # for G72 Q is increment direction (y), P is feed direction (x)  
 
-    if g7xmode == 71:
+    if g7xmode in (710, 711):
         flip = 1
         P, Q, I, J = planes[self.params['_plane']]
-    elif g7xmode == 72:
+    elif g7xmode in (720, 721):
         flip = -1
         Q, P, J, I = planes[self.params['_plane']]
     else:
@@ -201,14 +200,15 @@ def g7x(self, g7xmode, **words):
         emccanon.CHANGE_TOOL(int(words['t']))
 
     s.poll()
-    frontangle = self.params[5411]
-    backangle = self.params[5412]
 
     x = d.x_begin
     y = d.y_begin
     d.max_depth = d.x_begin
 
     mode = -1
+
+    # This code duplicates the standard LinuxCNC arc and line code, but without tool radius compensation
+    # It _should_ call the base LinuxCNC code to assure that G71 gets the same answers as the finishing pass. 
 
     for block in gcode:
         oldx = x
@@ -235,6 +235,7 @@ def g7x(self, g7xmode, **words):
 
         if mode in (0, 1):
             add_to_list(d, mode, oldx, oldy, x, y, 0, 0, 0)
+
         elif mode in (2, 3):
             #calculate centre point and radius for all arc styles
             delta = math.sqrt((x - oldx)**2 + (y - oldy)**2)
@@ -250,8 +251,8 @@ def g7x(self, g7xmode, **words):
                 u = (x - oldx) / delta
                 v = (y - oldy) / delta
                 if delta > abs(2 * r):
-                    print "Circle radius too small for end points"
-                    return INTERP_ERROR
+                    return "G71/G72: Circle radius too small for end points"
+
                 h = math.sqrt(r**2 - (delta**2 / 4))
                 
                 # negative R means choose the alternate arc
@@ -275,8 +276,7 @@ def g7x(self, g7xmode, **words):
                 r = math.sqrt((xc - oldx)**2 + (yc - oldy)**2)
                 r2 = math.sqrt((xc - x)**2 + (yc - y)**2)
                 if abs(r - r2) > 0.001:
-                    print "impossible arc centre", r, r2
-                    return INTERP_ERROR
+                    return "G71: inconsistent arc centre", r, r2
             
             # add cardinal points to arcs
             # There is scope for some confusion here about directions. 
@@ -289,6 +289,8 @@ def g7x(self, g7xmode, **words):
             
             a1 = math.atan2(oldx - xc, oldy - yc)
             a2 = math.atan2(x - xc, y - yc)
+
+            
             
             d90 = math.pi/2
             if e > 0: # G2 arc Anticlocwise in this CS
@@ -318,14 +320,30 @@ def g7x(self, g7xmode, **words):
                 
             add_to_list(d, mode, oldx, oldy, x, y, r, xc, yc)
                  
+    # Determine if the profile runs left-right or right-left
+    # frontangle/backangle is absolute, so we need to switch them for left-to-right
+    # +1 is left-to-right so conventional turning is -1 type. 
+
+    s.poll
+    if d.list[-1][4] < d.list[0][2]:
+        y_dir = -1.0
+        frontangle = self.params[5411]
+        backangle = self.params[5412]
+    else:
+        y_dir = +1.0
+        frontangle = self.params[5412]
+        backangle = self.params[5411]
+
+
+
 
     # Make a d.list of cuts of the form:
-    # (pocket-sequence, x level, start y, end y)
+    # (pocket-sequence, x level, start y, end y, entry-y, exit-y)
     cuts = []
     x = d.x_begin
-    while GTx(x + d.Dword, d.max_depth):
+    while GT(-d.Dword, x + d.Dword, d.max_depth):
         x = x + d.Dword
-        y0 = d.y_begin + 1 # current cut-start point
+        y0 = d.y_begin - y_dir # notional cut-start point, outside the profile
         pocket = -1
     
         intercept = False
@@ -342,29 +360,43 @@ def g7x(self, g7xmode, **words):
                     if block[0] == 0:
                         y1 = y
                     else:
-                        y1 = y + d.Lword
-                        exit += d.Lword
+                        y1 = y - d.Lword * y_dir
+                        exit -= d.Lword * y_dir
                     # skip cuts that are "squeezed-out" by L
-                    if y0 > y1: 
-                        # detect gouging, but not for G0 moves
-                        if valid and block[0] != 0 and  math.degrees(math.atan2(-d.Dword,exit - y1)) <  frontangle:
-                            print "gougey error front"
+                    if LT(y_dir, y0 , y1): 
                         cuts.append((pocket, x, y0, y1, entry, exit))
+                        # detect gouging, but not for G0 moves
+                        cutangle = math.degrees(math.atan2(-d.Dword, (exit - y1))) % 360
+                        print "exit, ", cutangle
+                        # In / out swap GT / LT. Left / right swaps GT / LT _and_  front / back  
+                        if valid and block[0] != 0 and  LT(d.Dword * y_dir, cutangle, frontangle):
+                            d.warning = ("G71: The programmed profile has an exit ramp angle of %s and can not be cut \
+                                          with the active tool frontangle of %s"
+                                         % (cutangle,  frontangle))
                 else:
+                    # don't do pockets if Type1 mode has been forced (G71.1, G72.1)
+                    if g7xmode in (711, 721) and block[8] > 1:
+                        break
                     pocket = block[8]
+                    
                     valid, entry = find_intercept(block, x - d.Dword, 2)
                     if block[0] == 0:
                         y0 = y
                     else:
-                        y0 = y - d.Lword
-                        entry -= d.Lword
-                        if valid and math.degrees(math.atan2(-d.Dword,entry - y0)) > backangle:
-                            print "gougey error back", math.degrees(math.atan2(-d.Dword,entry - y0)),backangle 
-                    
+                        y0 = y + d.Lword * y_dir
+                        entry += d.Lword * y_dir
+                        cutangle = math.degrees(math.atan2(-d.Dword, (entry - y0))) % 360
+                        print "entry,", cutangle
+                        if valid and GT(d.Dword * y_dir, cutangle, backangle):
+                            d.warning = ("G71: The programmed profile has an entry ramp angle of %s and can not be cut \
+                                          with the active tool backangle of %s"
+                                         % (cutangle,  backangle))
+
 
     #And now make the cuts
     
     lastcut = cuts[0]
+
     for p in range(0, d.pmax + 1):
         for c in cuts:            
             #[0]pocket[1]x [2]ys [3]ye [4]entry [5]exit
@@ -395,9 +427,25 @@ def g7x(self, g7xmode, **words):
     return INTERP_OK
 
 def g71(self, **words):
-    g7x(self, 71, **words)
+    g7x(self, 710, **words)
+    #return d.warning if d.warning != "" else INTERP_OK
+    if d.warning != "": print d.warning 
+    return INTERP_OK
     
-def g72(self, **words):
-    g7x(self, 72, **words)
-    
+def g711(self, **words):
+    g7x(self, 711, **words)
+    #return d.warning if d.warning != "" else INTERP_OK
+    if d.warning != "": print d.warning 
+    return INTERP_OK
 
+def g72(self, **words):
+    g7x(self, 720, **words)
+    #return d.warning if d.warning != "" else INTERP_OK
+    if d.warning != "": print d.warning 
+    return INTERP_OK
+    
+def g721(self, **words):
+    g7x(self, 721, **words)
+    #return d.warning if d.warning != "" else INTERP_OK
+    if d.warning != "": print d.warning 
+    return INTERP_OK
