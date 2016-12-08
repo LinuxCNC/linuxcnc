@@ -121,7 +121,7 @@ SUBDIRS := \
     hal/user_comps/huanyang-vfd \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
+    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtscreen \
     emc/usr_intf/gmoccapy \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
@@ -675,6 +675,7 @@ install-python: install-dirs
 	$(EXE) ../bin/image-to-gcode $(DESTDIR)$(bindir)
 	$(EXE) ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtscreen $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)
