@@ -80,6 +80,7 @@ class GComponent:
 class _GStat(gobject.GObject):
     '''Emits signals based on linuxcnc status '''
     __gsignals__ = {
+        'periodic': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-estop': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-on': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -101,6 +102,7 @@ class _GStat(gobject.GObject):
         'interp-waiting': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
 
         'jograte-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'jogincrement-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
 
         'program-pause-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'optional-stop-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
@@ -132,12 +134,20 @@ class _GStat(gobject.GObject):
         'rpm-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'radius-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'diameter-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'flood-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'mist-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
 
         'm-code-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'g-code-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'metric-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'user-system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+
+        'mdi-line-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'reload-mdi-history': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'load-file-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'focus-overlay-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_STRING,
+                            gobject.TYPE_PYOBJECT)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -167,8 +177,11 @@ class _GStat(gobject.GObject):
             self.merge()
         except:
             pass
+
         gobject.timeout_add(100, self.update)
-        self._current_jog_rate = 15
+        self.current_jog_rate = 15
+        self.current_jog_distance = 0
+        self.current_jog_distance_text =''
         self._is_all_homed = False
 
     def merge(self):
@@ -236,12 +249,21 @@ class _GStat(gobject.GObject):
         self.old['diameter'] = diameter
 
         # active M codes
-        active_mcodes = ''
+        active_mcodes = []
+        mcodes = ''
         for i in sorted(self.stat.mcodes[1:]):
             if i == -1: continue
-            active_mcodes = active_mcodes + ("M%s "%i)
+            active_mcodes.append("M%d"%i )
+        for i in active_mcodes:
+            mcodes = mcodes + ("%s "%i)
             #active_mcodes.append("M%s "%i)
-        self.old['m-code'] = active_mcodes
+        self.old['m-code'] = mcodes
+        flood = mist = False
+        for num,i in enumerate(active_mcodes):
+            if i == 'M8': flood = True
+            elif i == 'M7': mist = True
+        self.old['flood'] = flood
+        self.old['mist'] = mist
 
     def update(self):
         try:
@@ -254,8 +276,9 @@ class _GStat(gobject.GObject):
 
         state_old = old.get('state', 0)
         state_new = self.old['state']
-        if not state_old:
+        if state_new != state_old:
             if state_new > linuxcnc.STATE_ESTOP:
+                print 'estop-reset'
                 self.emit('state-estop-reset')
             else:
                 self.emit('state-estop')
@@ -293,7 +316,7 @@ class _GStat(gobject.GObject):
         if block_delete_new != block_delete_old:
             self.emit('block-delete-changed',block_delete_new)
         # optional_stop
-        optional_stop_old = old.get('optionaL-stop', None)
+        optional_stop_old = old.get('optional-stop', None)
         optional_stop_new = self.old['optional-stop']
         if optional_stop_new != optional_stop_old:
             self.emit('optional-stop-changed',optional_stop_new)
@@ -308,10 +331,12 @@ class _GStat(gobject.GObject):
             # still be emitted if aborting a program shortly after it ran an
             # external file subroutine, but that is fixed by not updating the
             # file name if call level != 0 in the merge() function above.
+            # do avoid that a signal is emited in that case, causing
+            # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.emit('file-loaded', file_new)
 
-        #ToDo : Find a way to avoid signal when the line changed due to 
+        #ToDo : Find a way to avoid signal when the line changed due to
         #       a remap procedure, because the signal do highlight a wrong
         #       line in the code
         # current line
@@ -402,6 +427,19 @@ class _GStat(gobject.GObject):
         feed_hold_new = self.old['feed-hold']
         if feed_hold_new != feed_hold_old:
             self.emit('feed-hold-enabled-changed',feed_hold_new)
+        #############################
+        # Gcodes
+        #############################
+        # G codes
+        g_code_old = old.get('g-code', None)
+        g_code_new = self.old['g-code']
+        if g_code_new != g_code_old:
+            self.emit('g-code-changed',g_code_new)
+        # metric mode g21
+        metric_old = old.get('metric', None)
+        metric_new = self.old['metric']
+        if metric_new != metric_old:
+            self.emit('metric-mode-changed',metric_new)
         # G5x (active user system)
         g5x_index_old = old.get('g5x-index', None)
         g5x_index_new = self.old['g5x-index']
@@ -442,22 +480,27 @@ class _GStat(gobject.GObject):
         diam_new = self.old['diameter']
         if diam_new != diam_old:
             self.emit('diameter-mode',diam_new)
+        ####################################
+        # Mcodes
+        ####################################
         # M codes
         m_code_old = old.get('m-code', None)
         m_code_new = self.old['m-code']
         if m_code_new != m_code_old:
             self.emit('m-code-changed',m_code_new)
-        # G codes
-        g_code_old = old.get('g-code', None)
-        g_code_new = self.old['g-code']
-        if g_code_new != g_code_old:
-            self.emit('g-code-changed',g_code_new)
-        # metric mode g21
-        metric_old = old.get('metric', None)
-        metric_new = self.old['metric']
-        if metric_new != metric_old:
-            self.emit('metric-mode-changed',metric_new)
+        # mist mode M7
+        mist_old = old.get('mist', None)
+        mist_new = self.old['mist']
+        if mist_new != mist_old:
+            self.emit('mist-changed',mist_new)
+        # flood M8
+        flood_old = old.get('flood', None)
+        flood_new = self.old['flood']
+        if flood_new != flood_old:
+            self.emit('flood-changed',flood_new)
+
         # AND DONE... Return true to continue timeout
+        self.emit('periodic')
         return True
 
     def forced_update(self):
@@ -468,7 +511,13 @@ class _GStat(gobject.GObject):
             # Reschedule
             return True
         self.merge()
-
+        state_new = self.old['state']
+        if state_new > linuxcnc.STATE_ESTOP:
+            self.emit('state-estop-reset')
+        else:
+            self.emit('state-estop')
+        self.emit('state-off')
+        self.emit('interp-idle')
         # override limts
         or_limits_new = self.old['override-limits']
         self.emit('override-limits-changed',or_limits_new)
@@ -511,9 +560,15 @@ class _GStat(gobject.GObject):
         # diameter mode g7
         diam_new = self.old['diameter']
         self.emit('diameter-mode',diam_new)
+
         # M codes
         m_code_new = self.old['m-code']
         self.emit('m-code-changed',m_code_new)
+        flood_new = self.old['flood']
+        self.emit('flood-changed',flood_new)
+        mist_new = self.old['mist']
+        self.emit('mist-changed',mist_new)
+
         # G codes
         g_code_new = self.old['g-code']
         self.emit('g-code-changed',g_code_new)
@@ -523,6 +578,11 @@ class _GStat(gobject.GObject):
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
+        # Spindle requested speed
+        spindle_spd_new = self.old['spindle-speed']
+        self.emit('requested-spindle-speed-changed', spindle_spd_new)
+        self.emit('jograte-changed', self.current_jog_rate)
+        self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)
 
     # ********** Helper function ********************
     def get_position(self):
@@ -547,25 +607,48 @@ class _GStat(gobject.GObject):
             x = xr
             y = yr
 
-        x -= self.stat.g92_offset[0] 
-        y -= self.stat.g92_offset[1] 
-        z -= self.stat.g92_offset[2] 
-        a -= self.stat.g92_offset[3] 
-        b -= self.stat.g92_offset[4] 
-        c -= self.stat.g92_offset[5] 
-        u -= self.stat.g92_offset[6] 
-        v -= self.stat.g92_offset[7] 
-        w -= self.stat.g92_offset[8] 
+        x -= self.stat.g92_offset[0]
+        y -= self.stat.g92_offset[1]
+        z -= self.stat.g92_offset[2]
+        a -= self.stat.g92_offset[3]
+        b -= self.stat.g92_offset[4]
+        c -= self.stat.g92_offset[5]
+        u -= self.stat.g92_offset[6]
+        v -= self.stat.g92_offset[7]
+        w -= self.stat.g92_offset[8]
 
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg
 
-    def set_jograte(self,upm):
-        self._current_jog_rate = upm
-        self.emit('jograte-changed', upm)
+    # check for requied modes
+    # fail if mode is 0
+    # fail if machine is busy
+    # true if all ready in mode
+    # None if possible to change
+    def check_for_modes(self, *modes):
+        def running(s):
+            return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
+        self.stat.poll()
+        premode = self.stat.task_mode
+        if not modes: return (None, premode)
+        if  self.stat.task_mode in modes: return (True, premode)
+        if running( self.stat): return (None, premode)
+        return (False, premode)
+
+    def get_current_mode(self):
+        return self.old['mode']
 
     def get_jograte(self):
-        return self._current_jog_rate
+        return self.current_jog_rate
+
+    def set_jog_rate(self,upm):
+        self.current_jog_rate = upm
+        self.emit('jograte-changed', upm)
+
+    def set_jog_increments(self, distance, text):
+        self.current_jog_distance = distance
+        self.current_jog_distance_text = text
+        self.emit('jogincrement-changed', distance, text)
 
     def is_all_homed(self):
         return self._is_all_homed
@@ -578,8 +661,15 @@ class _GStat(gobject.GObject):
 
     def is_auto_mode(self):
         self.stat.poll()
-        print self.old['mode']  , linuxcnc.MODE_AUTO
-        return self.old['state']  == linuxcnc.MODE_AUTO
+        #print 'is auto mode?',self.old['mode']  == linuxcnc.MODE_AUTO
+        return self.old['mode']  == linuxcnc.MODE_AUTO
+
+    def is_file_loaded(self):
+        self.stat.poll()
+        if self.stat.file:
+            return True
+        else:
+            return False
 
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
@@ -618,7 +708,7 @@ class _GStat(gobject.GObject):
             if axisnum in (3,4,5):
                 rate = self.angular_jog_velocity
             else:
-                rate = self._current_jog_rate/60
+                rate = self.current_jog_rate/60
             if distance == 0:
                 self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
             else:
