@@ -46,9 +46,9 @@ def GTE(a, b):
 def LTE(a,b):
     return (q, a >= b) if q > 0 else (a <= b)
 def MIN(q, *vals):
-    return min(q, vals) if q >=0 else max(vals)
+    return min(vals) if q >=0 else max(vals)
 def MAX(q, *vals):
-    return max(q, vals) if q >= 0 else min(vals)
+    return max(vals) if q >= 0 else min(vals)
 def nearly_equal(x, y):
     return True if abs(x - y) < 1e-8 else False
 def between(l1, x, l2):
@@ -106,7 +106,6 @@ def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
     # X-allowance is added as a profile shift here (including the centre point, even for G0/G1
     # Z-allowance as a delta to cut start and end later
     d.list.append((mode, ps + d.Jword, qs, pe + d.Jword, qe, r, pc + d.Jword, qc, p))
-    print d.list[-1]
 
 oldp = 0
 
@@ -367,7 +366,6 @@ def g7x(self, g7xmode, **words):
                         cuts.append((pocket, x, y0, y1, entry, exit))
                         # detect gouging, but not for G0 moves
                         cutangle = math.degrees(math.atan2(-d.Dword, (exit - y1))) % 360
-                        print "exit, ", cutangle
                         # In / out swap GT / LT. Left / right swaps GT / LT _and_  front / back  
                         if valid and block[0] != 0 and  LT(d.Dword * y_dir, cutangle, frontangle):
                             d.warning = ("G71: The programmed profile has an exit ramp angle of %s and can not be cut \
@@ -386,7 +384,6 @@ def g7x(self, g7xmode, **words):
                         y0 = y + d.Lword * y_dir
                         entry += d.Lword * y_dir
                         cutangle = math.degrees(math.atan2(-d.Dword, (entry - y0))) % 360
-                        print "entry,", cutangle
                         if valid and GT(d.Dword * y_dir, cutangle, backangle):
                             d.warning = ("G71: The programmed profile has an entry ramp angle of %s and can not be cut \
                                           with the active tool backangle of %s"
