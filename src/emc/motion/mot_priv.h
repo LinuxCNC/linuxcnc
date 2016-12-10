@@ -147,7 +147,8 @@ typedef struct {
     hal_float_t *spindle_speed_out_rps_abs;	/* spindle speed output absolute*/
     hal_float_t *spindle_speed_cmd_rps;	/* spindle speed command without SO applied */
     hal_float_t *spindle_speed_in;	/* spindle speed measured */
-    
+    hal_float_t *spindle_speed_in_estimate;	/* spindle speed measured */
+
     // spindle orient
     hal_float_t *spindle_orient_angle;	/* out: desired spindle angle, degrees */
     hal_s32_t   *spindle_orient_mode;	/* out: 0: least travel; 1: cw; 2: ccw */

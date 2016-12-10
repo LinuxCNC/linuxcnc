@@ -375,6 +375,13 @@ static void process_probe_inputs(void) {
     old_probeVal = emcmotStatus->probeVal;
 }
 
+// TODO generalize to higher order diff with an array
+static double backward_difference(double curr, double prev, double dt)
+{
+    return (curr - prev) / dt;
+}
+
+
 static void process_inputs(void)
 {
     int joint_num;
@@ -382,8 +389,13 @@ static void process_inputs(void)
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
+
     /* read spindle angle (for threading, etc) */
+    double prev_revs = emcmotStatus->spindleRevs;
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
+    *emcmot_hal_data->spindle_speed_in_estimate = backward_difference(emcmotStatus->spindleRevs,
+                                                                      prev_revs,
+                                                                      emcmotConfig->trajCycleTime / 60.0);
     emcmotStatus->spindleSpeedIn = *emcmot_hal_data->spindle_speed_in;
     emcmotStatus->spindle_is_atspeed = *emcmot_hal_data->spindle_is_atspeed;
     /* compute net feed and spindle scale factors */
