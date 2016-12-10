@@ -2328,6 +2328,25 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
 
 
 /**
+ * Helper function to compare commanded and actual spindle velocity.
+ * If the signs of velocity don't match, then the spindle is reversing direction.
+ */
+static inline bool spindleReversing()
+{
+    return (signum(emcmotStatus->spindle_fb.velocity_rpm) != signum(emcmotStatus->spindle_cmd.velocity_rpm_out));
+}
+
+static inline bool cmdReverseSpindle()
+{
+    static bool reversed = false;
+    // Flip sign on commanded velocity
+    emcmotStatus->spindle_cmd.velocity_rpm_out *= -1;
+    // (Optional) set an internal flag so we know if the spindle is reversed from the user command
+    reversed = !reversed;
+    return reversed;
+}
+
+/**
  * Handle special cases for rigid tapping.
  * This function deals with updating the goal position and spindle position
  * during a rigid tap cycle. In particular, the target and spindle goal need to
@@ -2336,26 +2355,24 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
 STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
         TC_STRUCT * const tc) {
 
-    static double old_spindlepos;
-    double new_spindlepos = emcmotStatus->spindle_fb.position_rev;
-    if (emcmotStatus->spindle_cmd.velocity_rpm < 0) new_spindlepos = -new_spindlepos;
+    double spindle_pos = emcmotStatus->spindle_fb.position_rev;
 
     switch (tc->coords.rigidtap.state) {
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
-                emcmotStatus->spindle.velocity_rpm *= -1.0;
+                cmdReverseSpindle();
                 tc->coords.rigidtap.state = REVERSING;
             }
             break;
         case REVERSING:
             tc_debug_print("REVERSING\n");
-            if (new_spindlepos < old_spindlepos) {
+            if (spindleReversing()) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
                 // we've stopped, so set a new target at the original position
-                tc->coords.rigidtap.spindlerevs_at_reversal = new_spindlepos + tp->spindle.offset;
+                tc->coords.rigidtap.spindlerevs_at_reversal = spindle_pos + tp->spindle.offset;
 
                 pmCartLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
@@ -2368,19 +2385,19 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
 
                 tc->coords.rigidtap.state = RETRACTION;
             }
-            old_spindlepos = new_spindlepos;
-            tc_debug_print("Spindlepos = %f\n", new_spindlepos);
+            tc_debug_print("Spindlepos = %f\n", spindle_pos);
             break;
         case RETRACTION:
             tc_debug_print("RETRACTION\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
-                emcmotStatus->spindle.velocity_rpm *= -1;
+                // Flip spindle direction againt to start final reversal
+                cmdReverseSpindle();
                 tc->coords.rigidtap.state = FINAL_REVERSAL;
             }
             break;
         case FINAL_REVERSAL:
             tc_debug_print("FINAL_REVERSAL\n");
-            if (new_spindlepos > old_spindlepos) {
+            if (spindleReversing()) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
                 pmCartLinePoint(aux, tc->progress, &start);
@@ -2394,7 +2411,6 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
 
                 tc->coords.rigidtap.state = FINAL_PLACEMENT;
             }
-            old_spindlepos = new_spindlepos;
             break;
         case FINAL_PLACEMENT:
             tc_debug_print("FINAL_PLACEMENT\n");
