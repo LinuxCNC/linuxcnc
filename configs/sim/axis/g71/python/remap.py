@@ -84,8 +84,10 @@ def between(l1, x, l2):
 # if that assumption changes, this code will need to know that. 
  
 def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
-    #static double oldx for C++ version
-    global oldp
+    #static double oldpok for C++ version
+    global oldpok # +ve start of pocket, -ve end of pocket
+    pok = 0
+
     d.max_depth = MIN(-d.Dword, d.max_depth, pe + d.Jword, ps + d.Jword)
     # This needs a similar directionality fix
     d.miny = min(d.miny, qs, qe)
@@ -93,24 +95,26 @@ def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
     if nearly_equal(ps, pe):
         return # Just ignore horizontal lines
     elif LT(-d.Dword, pe, ps):
-        if oldp > 0:
-            p = oldp
+        if oldpok > 0:
+            pok = oldpok
         else:
             d.pmax += 1
-            p = d.pmax
+            pok = d.pmax
     elif GT(-d.Dword, pe, ps):
-        p = 0
+        pok = -abs(oldpok)
 
-    oldp = p
+    oldpok = pok
 
     # X-allowance is added as a profile shift here (including the centre point, even for G0/G1
     # Z-allowance as a delta to cut start and end later
-    d.list.append((mode, ps + d.Jword, qs, pe + d.Jword, qe, r, pc + d.Jword, qc, p))
+    d.list.append((mode, ps + d.Jword, qs, pe + d.Jword, qe, r, pc + d.Jword, qc, pok))
+    print d.list[-1]
 
-oldp = 0
+#note for translation to C++, global (static) inialisation outside the defining function
+oldpok = 0
 
-def find_intercept(block, x, default_index):
-    if ((x >= block[1]) != (x >= block[3])):
+def find_intercept(block, x):
+    if between(block[1], x, block[3]):
         if block[0] in (0, 1): #  straight line
             #intercept of cut line with path segment
             # t is the normalised length along the line 
@@ -132,15 +136,16 @@ def find_intercept(block, x, default_index):
             if (y - block[2]) * (y - block[4]) > 0:
                 y = yc - dy
             if (y - block[2]) * (y - block[4]) > 0:
-                return False, block[default_index]
-        return True, y
-    return False, block[default_index]
+                return 0, 0
+        return block[8], y
+    return 0, 0
 
 def g7x(self, g7xmode, **words):
     global x_dir
     d.list = []
     d.mode = -1
     d.pmax = 0
+    oldpok = 0
     d.miny = 1.0e10
     d.warning = ""
     s.poll()
@@ -322,21 +327,25 @@ def g7x(self, g7xmode, **words):
     # Determine if the profile runs left-right or right-left
     # frontangle/backangle is absolute, so we need to switch them for left-to-right
     # +1 is left-to-right so conventional turning is -1 type. 
+    # Use a max(0.0001, ...) to avoid divide by zero with the tan
 
     s.poll
     if d.list[-1][4] < d.list[0][2]:
         y_dir = -1.0
-        frontangle = self.params[5411]
-        backangle = self.params[5412]
+        frontangle = max(0.0001, self.params[5411])
+        backangle = max(0.0001, self.params[5412])
     else:
         y_dir = +1.0
-        frontangle = self.params[5412]
-        backangle = self.params[5411]
+        frontangle = max(0.0001, self.params[5412])
+        backangle = max(0.0001, self.params[5411])
 
 
 
 
     # Make a d.list of cuts of the form:
+
+    print "tool = ", self.params[5400]
+
     # (pocket-sequence, x level, start y, end y, entry-y, exit-y)
     cuts = []
     x = d.x_begin
@@ -346,53 +355,80 @@ def g7x(self, g7xmode, **words):
         pocket = -1
     
         intercept = False
-        for block in d.list:
+        for k in range(0, len(d.list)):
+            block = d.list[k]
             #[0]G-code [1]xs [2]ys [3]xe [4]ye [5]r [6]xc [7]yc [8]pocket
             #Find all lines and arcs which span the feed line
 
-            intercept, y = find_intercept(block, x, 0)
+            intercept, y = find_intercept(block, x)
 
-            if intercept:
-                intercept = False
-                if block[8] == 0: # end-of pocket intercept
-                    valid, exit = find_intercept(block, x - d.Dword, 4)
-                    if block[0] == 0:
-                        y1 = y
-                    else:
-                        y1 = y - d.Lword * y_dir
-                        exit -= d.Lword * y_dir
-                    # skip cuts that are "squeezed-out" by L
-                    if LT(y_dir, y0 , y1): 
-                        cuts.append((pocket, x, y0, y1, entry, exit))
-                        # detect gouging, but not for G0 moves
-                        cutangle = math.degrees(math.atan2(-d.Dword, (exit - y1))) % 360
-                        # In / out swap GT / LT. Left / right swaps GT / LT _and_  front / back  
-                        if valid and block[0] != 0 and  LT(d.Dword * y_dir, cutangle, frontangle):
-                            d.warning = ("G71: The programmed profile has an exit ramp angle of %s and can not be cut \
-                                          with the active tool frontangle of %s"
-                                         % (cutangle,  frontangle))
-                else:
-                    # don't do pockets if Type1 mode has been forced (G71.1, G72.1)
-                    if g7xmode in (711, 721) and block[8] > 1:
+            if intercept < 0 and pocket > 0: # end-of pocket intercept
+                for j in range(k, len(d.list), 1):
+                    p, exit = find_intercept(d.list[j], x - d.Dword)
+                    if p == block[8]: 
                         break
-                    pocket = block[8]
+                    if p != 0:
+                        exit = MAX(d.Dword * y_dir, exit, y - d.Dword * y_dir)
+                        break
+                else: #if ( ! valid) outside loop in C
+                    # 45 degree default lead-out if nothing to hit (unlikely)
+                    exit = y - y_dir * d.Dword
                     
-                    valid, entry = find_intercept(block, x - d.Dword, 2)
-                    if block[0] == 0:
-                        y0 = y
-                    else:
-                        y0 = y + d.Lword * y_dir
-                        entry += d.Lword * y_dir
-                        cutangle = math.degrees(math.atan2(-d.Dword, (entry - y0))) % 360
-                        if valid and GT(d.Dword * y_dir, cutangle, backangle):
-                            d.warning = ("G71: The programmed profile has an entry ramp angle of %s and can not be cut \
-                                          with the active tool backangle of %s"
-                                         % (cutangle,  backangle))
+                if block[0] == 0:
+                    y1 = y
+                    exit = y
+                else:
+                    y1 = y - d.Lword * y_dir
+                    exit -= d.Lword * y_dir
+                # skip cuts that are "squeezed-out" by L
+                if LT(y_dir, y0 , y1): 
+                    cuts.append((pocket, x, y0, y1, entry, exit))
+                    print cuts[-1]
+                    # detect gouging, but not for G0 moves
+                    cutangle = math.degrees(math.atan2(-d.Dword, (exit - y1))) % 360
+                    # In / out swap GT / LT. Left / right swaps GT / LT _and_  front / back  
+                    if p != 0 and block[0] != 0 and self.params[5400] != 0 and LT(d.Dword * y_dir, cutangle, frontangle):
+                        d.warning = (("G71: The programmed profile has an exit ramp angle of %s and can not be cut "
+                                      "with the active tool frontangle of %s") % (cutangle,  frontangle))
+
+            elif intercept > 0: # start of pocket intercept 
+                # don't do pockets if Type1 mode has been forced (G71.1, G72.1)
+                if g7xmode in (711, 721) and intercept > 1:
+                    break
+                pocket = intercept
+                for j in range(k, 0, -1):
+                    p, entry = find_intercept(d.list[j], x - d.Dword)
+                    if p == pocket:
+                        break
+                    if p != 0:
+                        entry = MIN(d.Dword * y_dir, entry, y - d.Dword / math.tan(math.radians(backangle)))
+                        break
+                else: #if ( ! valid) outside loop in C
+                    # backangle default lead-in if nothing to hit
+                    entry = y - d.Dword / math.tan(math.radians(backangle))
+                
+                if block[0] == 0:
+                    y0 = y
+                    entry = y
+                else:
+                    y0 = y + d.Lword * y_dir
+                    entry += d.Lword * y_dir
+                    cutangle = math.degrees(math.atan2(-d.Dword, (entry - y0))) % 360
+                    if p != 0 and self.params[5400] != 0 and GT(d.Dword * y_dir, cutangle, backangle):
+                        d.warning = (("G71: The programmed profile has an entry ramp angle of %s and can not be cut "
+                                       "with the active tool backangle of %s") % (cutangle,  backangle))
 
 
-    #And now make the cuts
+    #And now make the cuts. If there are any
+
+    if len(cuts) == 0:
+        d.warning = ("The combination of the start point, initial move and profile blocks "
+                     "do not result in any machinable cuts being found")
+        return
     
     lastcut = cuts[0]
+
+    print "max pocket", d.pmax
 
     for p in range(0, d.pmax + 1):
         for c in cuts:            
@@ -425,24 +461,17 @@ def g7x(self, g7xmode, **words):
 
 def g71(self, **words):
     g7x(self, 710, **words)
-    #return d.warning if d.warning != "" else INTERP_OK
-    if d.warning != "": print d.warning 
-    return INTERP_OK
+    return d.warning if d.warning != "" else INTERP_OK
     
 def g711(self, **words):
     g7x(self, 711, **words)
-    #return d.warning if d.warning != "" else INTERP_OK
-    if d.warning != "": print d.warning 
-    return INTERP_OK
+    return d.warning if d.warning != "" else INTERP_OK
 
 def g72(self, **words):
     g7x(self, 720, **words)
-    #return d.warning if d.warning != "" else INTERP_OK
-    if d.warning != "": print d.warning 
-    return INTERP_OK
+    return d.warning if d.warning != "" else INTERP_OK
     
 def g721(self, **words):
     g7x(self, 721, **words)
-    #return d.warning if d.warning != "" else INTERP_OK
-    if d.warning != "": print d.warning 
-    return INTERP_OK
+    return d.warning if d.warning != "" else INTERP_OK
+
