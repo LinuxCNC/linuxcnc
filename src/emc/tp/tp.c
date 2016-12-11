@@ -2880,7 +2880,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
          */
         double a_max = tpGetScaledAccel(tp, tc);
         // Make correction term non-negative
-        double v_sq = pmSq(target_vel) + pos_error * a_max;
+        double v_sq = pmSq(target_vel) + pos_error * a_max * emcmotStatus->spindle_tracking_gain;
         tc->target_vel = pmSqrt(fmax(v_sq, 0.0));
         tc_debug_print("in position sync, target_vel = %f\n", tc->target_vel);
     }

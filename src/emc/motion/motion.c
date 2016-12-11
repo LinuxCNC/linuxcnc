@@ -324,6 +324,10 @@ static int init_hal_io(void)
 
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->spindle_is_atspeed), mot_comp_id, "motion.spindle-at-speed")) < 0) goto error;
     *emcmot_hal_data->spindle_is_atspeed = 1;
+
+    if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->spindle_tracking_gain), mot_comp_id, "motion.spindle-tracking-gain")) < 0) goto error;
+    *emcmot_hal_data->spindle_tracking_gain = 1.0;
+
     if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->adaptive_feed), mot_comp_id, "motion.adaptive-feed")) < 0) goto error;
     *(emcmot_hal_data->adaptive_feed) = 1.0;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_hold), mot_comp_id, "motion.feed-hold")) < 0) goto error;
