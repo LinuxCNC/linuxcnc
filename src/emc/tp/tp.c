@@ -2179,13 +2179,13 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
     double tc_finalvel = tpGetRealFinalVel(tp, tc, nexttc);
 
     /* Debug Output */
-    tc_debug_print("tc state: vr = %f, vf = %f, maxvel = %f\n",
+    tc_debug_print("tc state: vr = %f, vf = %f, maxvel = %f, ",
             tc_target_vel, tc_finalvel, tc->maxvel);
-    tc_debug_print("          currentvel = %f, fs = %f, tc = %f, term = %d\n",
+    tc_debug_print("currentvel = %f, fs = %f, dt = %f, term = %d, ",
             tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
-    tc_debug_print("          acc = %f,T = %f, P = %f\n", acc,
+    tc_debug_print("acc = %f, T = %f, P = %f, ", acc,
             tc->target, tc->progress);
-    tc_debug_print("          motion type %d\n", tc->motion_type);
+    tc_debug_print("motion_type = %d\n", tc->motion_type);
 
     if (tc->on_final_decel) {
         rtapi_print(" on final decel\n");
@@ -2223,30 +2223,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
     double dx = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
 
-    double discr_term1 = pmSq(tc_finalvel);
-    double discr_term2 = maxaccel * (2.0 * dx - tc->currentvel * tc->cycle_time);
-    double tmp_adt = maxaccel * tc->cycle_time * 0.5;
-    double discr_term3 = pmSq(tmp_adt);
-
-    double discr = discr_term1 + discr_term2 + discr_term3;
-
-    // Descriminant is a little more complicated with final velocity term. If
-    // descriminant < 0, we've overshot (or are about to). Do the best we can
-    // in this situation
-#ifdef TP_PEDANTIC
-    if (discr < 0.0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                "discriminant %f < 0 in velocity calculation!\n", discr);
-    }
-#endif
-    //Start with -B/2 portion of quadratic formula
-    double maxnewvel = -tmp_adt;
-
-    //If the discriminant term brings our velocity above zero, add it to the total
-    //We can ignore the calculation otherwise because negative velocities are clipped to zero
-    if (discr > discr_term3) {
-        maxnewvel += pmSqrt(discr);
-    }
+    double maxnewvel = findTrapezoidalDesiredVel(maxaccel, dx, tc_finalvel, tc->currentvel, tc->cycle_time);
 
     // Find bounded new velocity based on target velocity
     // Note that we use a separate variable later to check if we're on final decel
@@ -2832,7 +2809,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         // Multiply by user feed rate to get equivalent desired position
         double pos_desired = spindle_displacement * tc->uu_per_rev;
         double pos_error = pos_desired - (tc->progress - tc->progress_at_sync);
-        tc_debug_print(" pos_desired %f, progress %f, pos_error %f", pos_desired, tc->progress, pos_error);
+        tc_debug_print(" pos_desired %f, progress %f", pos_desired, tc->progress);
 
         if(nexttc) {
             // If we're in a parabolic blend, the next segment will be active too,
@@ -2840,12 +2817,12 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
             tc_debug_print(" nexttc_progress %f", nexttc->progress);
             pos_error -= nexttc->progress;
         }
-        tc_debug_print("\n");
-
+        tc_debug_print(", pos_error %f\n", pos_error);
 
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
-        double target_vel = spindle_vel * tc->uu_per_rev;
+        // This is the velocity we should be at when the position error is c0
+        double v_final = spindle_vel * tc->uu_per_rev;
 
         /*
          * Correct for position errors when tracking spindle motion.
@@ -2868,21 +2845,39 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
          * momentarily increase the velocity, then decrease back to the nonimal
          * velocity.
          *
-         * The area under the "blip" is x_err, given the tracking velocity v_0
-         * and maximum axis acceleration a_max.
-         *
-         * x_err = (v_0 + v_p) * t / 2 , t = 2 * (v_p - v_0) / a_max
-         *
-         * Substitute, rearrange and solve:
-         *
-         * v_p = sqrt( v_0^2 + x_err * a_max)
-         *
+         * In effect, this is the trapezoidal velocity planning problem, if:
+         * 1) remaining distance dx = x_err
+         * 2) "final" velocity = v_0
+         * 3) max velocity / acceleration from motion segment
          */
-        double a_max = tpGetScaledAccel(tp, tc);
-        // Make correction term non-negative
-        double v_sq = pmSq(target_vel) + pos_error * a_max * emcmotStatus->spindle_tracking_gain;
-        tc->target_vel = pmSqrt(fmax(v_sq, 0.0));
-        tc_debug_print("in position sync, target_vel = %f\n", tc->target_vel);
+        double a_max = tpGetScaledAccel(tp, tc) * emcmotStatus->spindle_tracking_gain;
+        double v_max = tc->maxvel;
+
+        switch(emcmotStatus->pos_tracking_mode) {
+        case 2:
+        {
+            double v_sq_alt = pmSq(v_final) + pos_error * a_max;
+            double v_target_alt = pmSqrt(fmax(v_sq_alt, 0.0));
+            tc->target_vel = v_target_alt;
+            break;
+        }
+        case 1:
+        {
+            double v_sq = a_max * pos_error;
+            double v_target_stock = signum(v_sq) * pmSqrt(fabs(v_sq)) + v_final;
+            tc->target_vel = v_target_stock;
+            break;
+        }
+        case 0:
+        default:
+        {
+            double v_target_trapz = fmin(findTrapezoidalDesiredVel(a_max, pos_error, v_final, tc->currentvel, tc->cycle_time), v_max);
+            tc->target_vel = v_target_trapz;
+            break;
+        }
+        }
+
+        tc_debug_print("in position sync, target_vel = %f, ideal_vel = %f, vel_err = %f\n", tc->target_vel, v_final, v_final - tc->target_vel);
     }
 
     //Finally, clip requested velocity at zero
