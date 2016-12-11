@@ -18,6 +18,7 @@ s = linuxcnc.stat()
 class data:
     # I see this as a C-struct
     list = []
+    retracts = []
     Pword = 0     # Block Number of contour beginning (uses N word in beginning block)
     Dword = 0     # Roughing Depth per cut
     Rword = 0     # Retraction from each cut
@@ -100,6 +101,7 @@ def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
         else:
             d.pmax += 1
             pok = d.pmax
+            d.retracts.append(MIN(-d.Dword, d.x_begin, ps - d.Dword + d.Jword))
     elif GT(-d.Dword, pe, ps):
         pok = -abs(oldpok)
 
@@ -144,6 +146,7 @@ def find_intercept(block, x):
 def g7x(self, g7xmode, **words):
     global x_dir
     d.list = []
+    d.retracts = []
     d.mode = -1
     d.pmax = 0
     oldpok = 0
@@ -184,6 +187,7 @@ def g7x(self, g7xmode, **words):
 
     d.x_begin = pose[axes[P]]
     d.y_begin = pose[axes[Q]]
+    d.retracts.append(d.x_begin)
 
     print P,Q,I,J
 
@@ -233,10 +237,8 @@ def g7x(self, g7xmode, **words):
                     d.mode = mode
                     mode = 0 # turn off offsetting on the entry line
                     if x < oldx: d.Dword = -1 * d.Dword
-                    print "direction set to ", d.Dword, "oldx", oldx, "new x", x
             else:
-                print "invalid G-code G%s" % cmds['G']
-                exit()
+                return "invalid G-code G%s" % cmds['G']
 
         if mode in (0, 1):
             add_to_list(d, mode, oldx, oldy, x, y, 0, 0, 0)
@@ -371,7 +373,6 @@ def g7x(self, g7xmode, **words):
                 for j in range(k, len(d.list), 1):
                     p, exit, angle = find_intercept(d.list[j], x - d.Dword)
                     if p != 0:
-                        print "using angle ", math.degrees(tanangle), y_dir
                         break
                 exit = MIN(y_dir, exit, y - d.Dword / math.tan(tanangle))
 
@@ -430,7 +431,11 @@ def g7x(self, g7xmode, **words):
 
     print "max pocket", d.pmax
 
+    print  d.retracts
+
     for p in range(0, d.pmax + 1):
+        pose[axes[P]] = d.retracts[p]
+        emccanon.STRAIGHT_TRAVERSE(2, *pose)    
         for c in cuts:            
             #[0]pocket[1]x [2]ys [3]ye [4]entry [5]exit
             if c[0] == p:
@@ -447,14 +452,13 @@ def g7x(self, g7xmode, **words):
                 pose[axes[Q]] = c[5]
                 emccanon.STRAIGHT_FEED(p, *pose)
                 # pre-load the retract in case end of pocket
-                pose[axes[Q]] = c[2]
+                #pose[axes[Q]] = c[2]
                 lastcut = c
                 
-        emccanon.STRAIGHT_TRAVERSE(5, *pose)         
-        pose[axes[P]] = d.x_begin
-        emccanon.STRAIGHT_TRAVERSE(2, *pose)        
+        emccanon.STRAIGHT_TRAVERSE(5, *pose)             
           
     pose[axes[P]] = d.x_begin
+    emccanon.STRAIGHT_TRAVERSE(2, *pose)    
     pose[axes[Q]] = d.y_begin   
     emccanon.STRAIGHT_TRAVERSE(2, *pose)    
     return INTERP_OK

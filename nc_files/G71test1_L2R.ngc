@@ -1,5 +1,5 @@
 G18 G21 G91.1
-T04 M06 G43
+T0 M06 G43
 S2000 M03
 (Bottom to top, right to left)
 (G1 X30 Z5 F1000)

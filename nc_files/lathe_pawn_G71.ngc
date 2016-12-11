@@ -1,15 +1,15 @@
 G18 
 G8
 G21 G91.1
-T02 M06 G43
+T2 M06 G43
 S2000 M03
 (Bottom to top, right to left)
 (G1 X30 Z5 F1000)
-G0 X15 Z3 (Start Position before commanding the cycle)
+G0 X15 Z3.041 (Start Position before commanding the cycle)
 G71 P100 D.6 F900 J.5 L500 I0 K0 R3
 
 O100 SUB
-    G1 X0.202 Z3.041
+    G0 X0.202 Z3.041
     G02 X1.081 Z0.919 I3.0 K0.0
     G01 X3.0 Z-1.0
     Z-4.0
@@ -28,7 +28,6 @@ O100 SUB
     G01 X12.0 Z-36.1
     Z-38.1
     G00 X15.0
-    Z10.0
 O100 ENDSUB
 
 F500
