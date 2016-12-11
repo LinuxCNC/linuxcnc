@@ -108,7 +108,6 @@ def add_to_list(d, mode, ps, qs, pe, qe, r, pc, qc):
     # X-allowance is added as a profile shift here (including the centre point, even for G0/G1
     # Z-allowance as a delta to cut start and end later
     d.list.append((mode, ps + d.Jword, qs, pe + d.Jword, qe, r, pc + d.Jword, qc, pok))
-    print d.list[-1]
 
 #note for translation to C++, global (static) inialisation outside the defining function
 oldpok = 0
@@ -120,6 +119,7 @@ def find_intercept(block, x):
             # t is the normalised length along the line 
             t = (x - block[1])/(block[3] - block[1])
             y = block[2] + t * (block[4] - block[2])
+            angle = math.atan2(block[3] - block[1], block[4] - block[2]) % math.pi
         elif block[0] in (2, 3): # Arc moves here
             # a circle is x^2 + y^2 = r^2
             # (x - xc)^2 + (y - yc)^2 = r^2
@@ -136,9 +136,10 @@ def find_intercept(block, x):
             if (y - block[2]) * (y - block[4]) > 0:
                 y = yc - dy
             if (y - block[2]) * (y - block[4]) > 0:
-                return 0, 0
-        return block[8], y
-    return 0, 0
+                return 0, 0, 0
+            angle = (math.pi/2 - math.atan2(x - xc, yc - y)) % math.pi
+        return block[8], y, angle
+    return 0, 0, 0
 
 def g7x(self, g7xmode, **words):
     global x_dir
@@ -327,19 +328,21 @@ def g7x(self, g7xmode, **words):
     # Determine if the profile runs left-right or right-left
     # frontangle/backangle is absolute, so we need to switch them for left-to-right
     # +1 is left-to-right so conventional turning is -1 type. 
-    # Use a max(0.0001, ...) to avoid divide by zero with the tan
+    # Use a max(1, ...) to avoid divide by zero with the tan
 
     s.poll
     if d.list[-1][4] < d.list[0][2]:
         y_dir = -1.0
-        frontangle = max(0.0001, self.params[5411])
-        backangle = max(0.0001, self.params[5412])
+        frontangle = max(1, self.params[5411])
+        backangle = max(1, self.params[5412])
     else:
         y_dir = +1.0
-        frontangle = max(0.0001, self.params[5412])
-        backangle = max(0.0001, self.params[5411])
+        frontangle = max(1, self.params[5412])
+        backangle = max(1, self.params[5411])
 
-
+    if self.params[5400] == 0: # no tool
+        frontangle = 135
+        backangle = 45
 
 
     # Make a d.list of cuts of the form:
@@ -353,26 +356,25 @@ def g7x(self, g7xmode, **words):
         x = x + d.Dword
         y0 = d.y_begin - y_dir # notional cut-start point, outside the profile
         pocket = -1
-    
-        intercept = False
+        p = 0
+        entry = y0
+        exit = d.miny
+
         for k in range(0, len(d.list)):
             block = d.list[k]
             #[0]G-code [1]xs [2]ys [3]xe [4]ye [5]r [6]xc [7]yc [8]pocket
             #Find all lines and arcs which span the feed line
 
-            intercept, y = find_intercept(block, x)
+            intercept, y, tanangle = find_intercept(block, x)
 
             if intercept < 0 and pocket > 0: # end-of pocket intercept
                 for j in range(k, len(d.list), 1):
-                    p, exit = find_intercept(d.list[j], x - d.Dword)
-                    if p == block[8]: 
-                        break
+                    p, exit, angle = find_intercept(d.list[j], x - d.Dword)
                     if p != 0:
-                        exit = MAX(d.Dword * y_dir, exit, y - d.Dword * y_dir)
+                        print "using angle ", math.degrees(tanangle), y_dir
                         break
-                else: #if ( ! valid) outside loop in C
-                    # 45 degree default lead-out if nothing to hit (unlikely)
-                    exit = y - y_dir * d.Dword
+                exit = MIN(y_dir, exit, y - d.Dword / math.tan(tanangle))
+
                     
                 if block[0] == 0:
                     y1 = y
@@ -382,8 +384,10 @@ def g7x(self, g7xmode, **words):
                     exit -= d.Lword * y_dir
                 # skip cuts that are "squeezed-out" by L
                 if LT(y_dir, y0 , y1): 
+                    # sometimes we find a second terminator curve further down the profile, so replace the old one
+                    if len(cuts) > 0 and cuts[-1][0] == pocket and cuts[-1][1] == x:
+                        cuts.pop()
                     cuts.append((pocket, x, y0, y1, entry, exit))
-                    print cuts[-1]
                     # detect gouging, but not for G0 moves
                     cutangle = math.degrees(math.atan2(-d.Dword, (exit - y1))) % 360
                     # In / out swap GT / LT. Left / right swaps GT / LT _and_  front / back  
@@ -391,21 +395,17 @@ def g7x(self, g7xmode, **words):
                         d.warning = (("G71: The programmed profile has an exit ramp angle of %s and can not be cut "
                                       "with the active tool frontangle of %s") % (cutangle,  frontangle))
 
-            elif intercept > 0: # start of pocket intercept 
+            elif intercept > 0 and intercept != pocket: # start of pocket intercept 
                 # don't do pockets if Type1 mode has been forced (G71.1, G72.1)
                 if g7xmode in (711, 721) and intercept > 1:
                     break
                 pocket = intercept
                 for j in range(k, 0, -1):
-                    p, entry = find_intercept(d.list[j], x - d.Dword)
-                    if p == pocket:
-                        break
+                    p, entry, angle = find_intercept(d.list[j], x - d.Dword)
                     if p != 0:
-                        entry = MIN(d.Dword * y_dir, entry, y - d.Dword / math.tan(math.radians(backangle)))
                         break
-                else: #if ( ! valid) outside loop in C
-                    # backangle default lead-in if nothing to hit
-                    entry = y - d.Dword / math.tan(math.radians(backangle))
+                entry = MAX(y_dir, entry, y - d.Dword / math.tan(tanangle))
+
                 
                 if block[0] == 0:
                     y0 = y
