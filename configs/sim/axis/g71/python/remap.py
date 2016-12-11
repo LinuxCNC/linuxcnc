@@ -374,7 +374,8 @@ def g7x(self, g7xmode, **words):
                     p, exit, angle = find_intercept(d.list[j], x - d.Dword)
                     if p != 0:
                         break
-                exit = MIN(y_dir, exit, y - d.Dword / math.tan(tanangle))
+                if math.tan(tanangle) != 0:
+                    exit = MIN(y_dir, exit, y - d.Dword / math.tan(tanangle))
 
                     
                 if block[0] == 0:
@@ -405,7 +406,8 @@ def g7x(self, g7xmode, **words):
                     p, entry, angle = find_intercept(d.list[j], x - d.Dword)
                     if p != 0:
                         break
-                entry = MAX(y_dir, entry, y - d.Dword / math.tan(tanangle))
+                if math.tan(tanangle) != 0:
+                    entry = MAX(y_dir, entry, y - d.Dword / math.tan(tanangle))
 
                 
                 if block[0] == 0:
