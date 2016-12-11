@@ -395,7 +395,7 @@ static void process_inputs(void)
     emcmotStatus->spindle_fb.position_rev = *emcmot_hal_data->spindle_revs;
     *emcmot_hal_data->spindle_speed_in_estimate = backward_difference(emcmotStatus->spindle_fb.position_rev,
                                                                       prev_revs,
-                                                                      emcmotConfig->trajCycleTime / 60.0);
+                                                                      emcmotConfig->trajCycleTime) * 60.0;
     emcmotStatus->spindle_fb.velocity_rpm = *emcmot_hal_data->spindle_speed_in;
     emcmotStatus->spindle_is_atspeed = *emcmot_hal_data->spindle_is_atspeed;
     /* compute net feed and spindle scale factors */
