@@ -659,6 +659,7 @@ typedef enum {
 
 	spindle_cmd_status spindle_cmd;	/* Spindle command output from motion */
 	spindle_fb_status spindle_fb;	/* Spindle feedback input to motion */
+    double spindle_tracking_gain; // external control of position trakcing aggressiveness
 	
 	int synch_di[EMCMOT_MAX_DIO]; /* inputs to the motion controller, queried by g-code */
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by g-code */

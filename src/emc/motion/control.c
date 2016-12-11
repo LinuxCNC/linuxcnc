@@ -398,6 +398,9 @@ static void process_inputs(void)
                                                                       emcmotConfig->trajCycleTime / 60.0);
     emcmotStatus->spindle_fb.velocity_rpm = *emcmot_hal_data->spindle_speed_in;
     emcmotStatus->spindle_is_atspeed = *emcmot_hal_data->spindle_is_atspeed;
+    // Minimum gain is zero (no position error correction), maximum gain is 1 (correct at maximum acceleration)
+    emcmotStatus->spindle_tracking_gain = fmax(fmin(*emcmot_hal_data->spindle_tracking_gain, 1.0), 0.0);
+
     /* compute net feed and spindle scale factors */
     if ( emcmotStatus->motion_state == EMCMOT_MOTION_COORD ) {
 	/* use the enables that were queued with the current move */
