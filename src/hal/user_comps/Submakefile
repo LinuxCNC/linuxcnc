@@ -24,6 +24,19 @@ $(call TOOBJSDEPS, $(GS2_SRCS)) : EXTRAFLAGS += $(GS2_CCFLAGS)
 USERSRCS += $(GS2_SRCS)
 TARGETS += ../bin/gs2_vfd
 
+HY_GT_SRCS := hal/user_comps/hy_gt_vfd.c
+HY_GT_LDFLAGS := $(LIBMODBUS_LIBS)
+HY_GT_CCFLAGS := $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(HY_GT_SRCS)) : EXTRAFLAGS += $(HY_GT_CCFLAGS)
+
+../bin/hy_gt_vfd: $(call TOOBJS, $(HY_GT_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(HY_GT_LDFLAGS)
+
+USERSRCS += $(HY_GT_SRCS)
+TARGETS += ../bin/hy_gt_vfd
+
 endif # HAVE_LIBMODBUS
 
 
