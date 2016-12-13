@@ -86,20 +86,19 @@ def generate_proto(source, require = True):
       sys.exit(-1)
 
 def create_init(path):
-  if not os.path.exists(path):
-    os.mkdir(path)
+    if not os.path.exists(path):
+	os.mkdir(path)
 
-  initfile = os.path.join(path, '__init__.py')
-  if not os.path.exists(initfile):
-    content = "__import__('pkg_resources').declare_namespace(__name__)\n"
-    with open(initfile, 'w') as f:
-      f.write(content)
+    initfile = os.path.join(path, '__init__.py')
+    if not os.path.exists(initfile):
+	content = "__import__('pkg_resources').declare_namespace(__name__)\n"
+	with open(initfile, 'w') as f:
+    	    f.write(content)
 
 class clean(_clean):
   def run(self):
     # delete _init_ files
     shutil.rmtree(PROJECT)
-
     # Delete generated files in the code tree.
     for (dirpath, dirnames, filenames) in os.walk("."):
       for filename in filenames:
@@ -113,13 +112,11 @@ class clean(_clean):
 class build_py(_build_py):
   def run(self):
     source_path = '../src/%s/protobuf/' % PROJECT
-
     # Generate necessary .proto file if it doesn't exist.
     for entry in os.listdir(source_path):
-      filepath = os.path.join(source_path, entry)
-      if os.path.isfile(filepath) and filepath.endswith('.proto'):
-          generate_proto(filepath)
-
+        filepath = os.path.join(source_path, entry)
+        if os.path.isfile(filepath) and filepath.endswith('.proto'):
+            generate_proto(filepath)
     # _build_py is an old-style class, so super() doesn't work.
     _build_py.run(self)
 
