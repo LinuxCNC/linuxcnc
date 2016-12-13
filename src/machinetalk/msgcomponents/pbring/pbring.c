@@ -21,7 +21,7 @@ typedef struct {
     hal_u32_t *decodefail;	// number of messages which failed to protobuf decode
     ringbuffer_t to_rt_rb;      // incoming ringbuffer
     ringbuffer_t from_rt_rb;    // outgoing ringbuffer
-    pb_Container rx, tx;
+    machinetalk_Container rx, tx;
 } pbring_inst_t;
 
 enum {
@@ -43,19 +43,19 @@ MODULE_LICENSE("GPL");
 RTAPI_TAG(HAL, HC_INSTANTIABLE);
 
 static int txnoencode = 0;
-RTAPI_MP_INT(txnoencode, "pass unencoded pb_Container struct instead of pb message");
+RTAPI_MP_INT(txnoencode, "pass unencoded machinetalk_Container struct instead of pb message");
 
 static int rxnodecode = 0;
-RTAPI_MP_INT(rxnodecode, "expect unencoded pb_Container struct instead of pb message");
+RTAPI_MP_INT(rxnodecode, "expect unencoded machinetalk_Container struct instead of pb message");
 
 
-static void rtapi_format_pose(char *buf, unsigned long int size,  pb_EmcPose *p)
+static void rtapi_format_pose(char *buf, unsigned long int size,  machinetalk_EmcPose *p)
 {
     unsigned sz = size;
     char *b = buf; // FIXME guard against buffer overflow
     int n;
 
-    pb_PmCartesian *c = &p->tran;
+    machinetalk_PmCartesian *c = &p->tran;
     if (c->has_x) { n = rtapi_snprintf(b, sz, "x=%f ", c->x); b += n; }
     if (c->has_y) { n = rtapi_snprintf(b, sz, "y=%f ", c->y); b += n; }
     if (c->has_z) { n = rtapi_snprintf(b, sz, "z=%f ", c->z); b += n; }
@@ -127,7 +127,7 @@ static int npb_send_msg(const void *msg, const pb_field_t *fields,
 
 static int decode_msg(pbring_inst_t *p,  pb_istream_t *stream,  const hal_funct_args_t *fa)
 {
-    if (!pb_decode(stream, pb_Container_fields, &p->rx)) {
+    if (!pb_decode(stream, machinetalk_Container_fields, &p->rx)) {
 	*(p->decodefail) += 1;
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: pb_decode(Container) failed: '%s'\n",
 			fa_funct_name(fa), PB_GET_ERROR(stream));
@@ -165,14 +165,14 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 	// process command here
 	// prepare reply
 	p->tx.has_motstat = true;
-	p->tx.type =  pb_ContainerType_MT_MOTSTATUS;
+	p->tx.type =  machinetalk_ContainerType_MT_MOTSTATUS;
 	p->tx.note.funcs.encode = npb_encode_string;
 	p->tx.note.arg = "hi there!";
 
-	p->tx.motstat = (pb_MotionStatus) {
+	p->tx.motstat = (machinetalk_MotionStatus) {
 	    .commandEcho = p->rx.motcmd.command,
 	    .commandNumEcho = p->rx.motcmd.commandNum,
-	    .commandStatus = pb_cmd_status_t_EMCMOT_COMMAND_OK,
+	    .commandStatus = machinetalk_cmd_status_t_EMCMOT_COMMAND_OK,
 	    .has_carte_pos_fb = true,
 	    .carte_pos_fb = {
 		.tran = {
@@ -201,13 +201,13 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 		       cmdsize,
 		       PB_GET_ERROR(&stream));
 
-	p->tx = (pb_Container) {
-	    .type = pb_ContainerType_MT_MOTSTATUS, // FIXME
+	p->tx = (machinetalk_Container) {
+	    .type = machinetalk_ContainerType_MT_MOTSTATUS, // FIXME
 	    .note.funcs.encode = npb_encode_string,
 	    .note.arg = (void *) errmsg
 	};
 	int retval;
-	if ((retval = npb_send_msg(&p->tx, pb_Container_fields,
+	if ((retval = npb_send_msg(&p->tx, machinetalk_Container_fields,
 				   &p->from_rt_rb, 0))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,"error reply failed %d", retval);
 	    *(p->sendfailed) += 1;

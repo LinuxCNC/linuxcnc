@@ -14,12 +14,12 @@ int halpr_describe_pin(hal_pin_t *pin, machinetalk::Pin *pbpin)
     return 0;
 }
 
-int halpr_describe_param(hal_param_t *param, pb::Param *pbparam)
+int halpr_describe_param(hal_param_t *param, machinetalk::Param *pbparam)
 {
     pbparam->set_name(ho_name(param));
     pbparam->set_handle(ho_id(param));
-    pbparam->set_type((pb::ValueType) param->type);
-    pbparam->set_dir((pb::HalParamDirection) param->dir);
+    pbparam->set_type((machinetalk::ValueType) param->type);
+    pbparam->set_dir((machinetalk::HalParamDirection) param->dir);
     assert(hal_param2pb(param, pbparam) == 0);
     return 0;
 }
@@ -27,17 +27,17 @@ int halpr_describe_param(hal_param_t *param, pb::Param *pbparam)
 int pbadd_owned(hal_object_ptr o, foreach_args_t *args)
 {
     int type = hh_get_object_type(o.hdr);
-    pb::Component *pbcomp = (pb::Component *)args->user_ptr1;
+    machinetalk::Component *pbcomp = (machinetalk::Component *)args->user_ptr1;
     switch (type) {
     case HAL_PARAM:
 	{
-	    pb::Param *pbparam = pbcomp->add_param();
+	    machinetalk::Param *pbparam = pbcomp->add_param();
 	    halpr_describe_param(o.param, pbparam);
 	}
 	break;
     case HAL_PIN:
 	{
-	    pb::Pin *pbpin = pbcomp->add_pin();
+	    machinetalk::Pin *pbpin = pbcomp->add_pin();
 	    halpr_describe_pin(o.pin, pbpin);
 	}
 	break;

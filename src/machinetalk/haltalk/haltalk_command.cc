@@ -237,7 +237,7 @@ create_rcomp(htself_t *self,  const machinetalk::Component *pbcomp,
 
     // create the pins
     for (int i = 0; i < pbcomp->pin_size(); i++) {
-	const pb::Pin &p = pbcomp->pin(i);
+	const machinetalk::Pin &p = pbcomp->pin(i);
 #if 0
 	hi = new halitem_t();
 	if (hi == NULL) {
