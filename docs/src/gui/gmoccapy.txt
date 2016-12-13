@@ -1382,25 +1382,25 @@ This are videos showing gmoccapy in action, unfortunately the videos don't
 show the latest version of gmoccapy, but the way to use it will not change
 much in the future. I will try to actualize the videos as soon as possible.
 
-.Basic Usage
+=== Basic Usage
 
 https://www.youtube.com/watch?v=O5B-s3uiI6g
 
-.Simulated Jog Wheels
+=== Simulated Jog Wheels
 
 http://youtu.be/ag34SGxt97o
 
-.Settings Page
+=== Settings Page
 
 https://www.youtube.com/watch?v=AuwhSHRJoiI
 
-.Simulated Hardware Button
+=== Simulated Hardware Button
 
 Deutsch = http://www.youtube.com/watch?v=DTqhY-MfzDE
 
 English = http://www.youtube.com/watch?v=ItVWJBK9WFA
 
-.User Tabs
+=== User Tabs
 
 http://www.youtube.com/watch?v=rG1zmeqXyZI
 
