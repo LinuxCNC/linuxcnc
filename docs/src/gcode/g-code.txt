@@ -87,6 +87,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
 |<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
+|<<gcode:g71,g72,G71,G72>>          |Multi-pass lathe roughing cycles
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
 |<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
 |<<gcode:g80,G80>>                  |Cancel Motion Modes
@@ -1454,6 +1455,148 @@ G64 P0.015 (set path following to be within 0.015 of the actual path)
 
 It is a good idea to include a path control specification in the preamble
 of each G code file.
+
+[[gcode:g71]]
+== G71 Lathe Roughing Cycle (Turning)
+(((G71 Lathe Roughing Cycle (Turning)))
+
+----
+G71 P- D- R- J- L- I- K- F- S- T-
+----
+* 'P' - the O-word block where the finished profile can be found
+* 'D' - depth of cut per pass
+* 'R' - retract distance (may not be used)
+* 'J' - extra material to leave in the radial direction during the roughing passes
+* 'L' - extra material to leave on the axial direction during the roughing passes
+* 'I' - radial thickness to leave after pre-finishing pass
+* 'K' - axial thickness to leave after pre-finishing pass
+* 'F' - the feed rate to use during the roughing cycle.
+* 'S' - the spindle RPM or CSS rate to use during the cycle
+* 'T' - the tool to use for the cycle. 
+
+The G71 lathe roughing cycle will machine the material to a profile defined by a
+set of G0, G1, G2 and G3 moves defined in an O-word block either in the current
+file or stored in a separate file somewhere in the SUBROUTINE_PATH set in the
+INI file. 
+
+The cycle starts are the current position prior to the G71 command. The command
+defines a P-number which should correspond to an O-profile block in the G-code
+file. For example G71 P100... would interpret all the moves between O100 PROFILE
+and O100 ENDPROFILE as defining a profile to be machined. 
+
+[NOTE]
+The profiles shown here are for a front-toolpost lathe. The code would be
+identical for a back-toolpost machine.
+
+image::images/G71_RL.svg[align="center", caption="G71 External cycle, right to left"]
+
+The first move of the Onnn PROFILE block should be a rapid (G0) or feed (G1)
+move to the beginning of the profile to be machined. A G0 move will not be
+offset by the L word (this is true at any point in the block). Whether this move
+is G0 or G1 determines if the feed moves to the start of each cut are at rapid
+or feed  rate (FIXME: Is this true?) The first move can be seen as the starting
+line from which all subsequent cuts will originate.
+Cutting will proceed from the entry move line to the end of the profile in the
+direction in which the profile is defined. A final move to at least the same
+diameter as the start point. This should be a G1 if it is to receive an L-offset
+or a G0 otherwise. 
+
+If the profile is defined in the opposite direction then the cuts will be left
+to right. 
+
+image::images/G71_LR.svg[align="center", caption="G71 External cycle, left to right"]
+
+.Internal Profiles
+Internal profiles are made in much the same way, the only difference being that
+the initial move of the block is from a smaller to larger diameter. 
+
+image::images/G71_Int_RL.svg[align="center", caption="G71 Internal cycle, Right to Left"]
+
+The cycle is capable of machining an internal left-to-right profile, though it
+would be a very unusual operation in practice. 
+
+.Type I and Type II cycles
+The behaviour of G71 in LinuxCNC defaults to what is termed "Type II" G71 in
+that it will machine pockets in the material. This is a more useful cycle than
+Type1 which does not attempt to do this. Any profile that is machinable by a
+Type I cycle is equally well machined with a Type II. 
+If it is required to disable the machining of pockets then Type I behavior is
+available by using the G71.1 code instead
+
+image::images/G71_1.svg[align="center", caption="G71.1 External cycle. Pockets not machined"]
+
+.Gouge Detection
+The system uses the tool frontangle and backangle from the tool table to
+determine if it is possible to cut the programmed profile with the selected
+tool. An error will be displayed in this situation.
+
+[HINT]
+To view the profile as it would be cut if the tool geometery was correct
+set the tool number to zero in the G71 line with a "T0" parameter.
+
+.Plane Selection
+In the typical lathe configuration, working in the G18 plane, the G71 cycle
+will feed in the Z direction and take cut increments in the X direction. 
+The behaviour in other planes is shown in the table.
+
+[width="40%",frame="topbot",options="header"]
+|=============================
+|Plane | Cut | Feed
+|G17 |X |Y
+|G18 |X |Z
+|G19 |Y |Z
+|G17.1 |U |V
+|G18.1 |U |W
+|G19.1 |V |W
+|=============================
+
+
+[[gcode:g72]]
+== G72 Lathe Roughing Cycle (Facing)
+(((G72 Lathe Roughing Cycle (Facing)))
+
+----
+G72 P- D- R- J- L- I- K- F- S- T-
+----
+* 'P' - the O-word block where the finished profile can be found
+* 'D' - depth of cut per pass
+* 'R' - retract distance (may not be used)
+* 'J' - extra material to leave in the axial direction during the roughing passes
+* 'L' - extra material to leave on the radial direction during the roughing passes
+* 'I' - axial thickness to leave after pre-finishing pass
+* 'K' - radial thickness to leave after pre-finishing pass
+* 'F' - the feed rate to use during the roughing cycle.
+* 'S' - the spindle RPM or CSS rate to use during the cycle
+* 'T' - the tool to use for the cycle. 
+
+
+The G72 Cycle works identically to the <<gcode:g71,G71 cycle>> except that the
+axes used for feed and cut are swapped, as are the effects of J and L and of
+K and I. Depending on the start and end points of the cycle the cuts can either
+be made out to in:
+
+image::images/G72_Ext.svg[align="center", caption="G72 External cycle"]
+
+Or in to out:
+
+image::images/G72_Int.svg[align="center", caption="G72 Internal cycle"]
+
+The allocation of feed and cut axes depends on the selected plane according to
+this table:
+
+[width="40%",frame="topbot",options="header"]
+|=============================
+|Plane | Cut | Feed
+|G17 |Y |X
+|G18 |Z |X
+|G19 |Z |Y
+|G17.1 |V |U
+|G18.1 |W |U
+|G19.1 |W |V
+|=============================
+
+In common with G71 a G72.1 cycle is available to disable the machining of
+pockets. 
 
 [[gcode:g73]]
 == G73 Drilling Cycle with Chip Breaking

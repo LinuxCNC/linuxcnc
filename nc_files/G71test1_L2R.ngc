@@ -1,5 +1,5 @@
 G18 G21 G91.1
-T0 M06 G43
+T04 M06 G43
 S2000 M03
 (Bottom to top, right to left)
 (G1 X30 Z5 F1000)
@@ -14,7 +14,7 @@ O0100 SUB
  G3 X15 Z25 R5.5
  G1 X18
  G1 X20 Z28
- G1 X25
+ G0 X25
 O100 ENDSUB
 
 O100 call
