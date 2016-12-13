@@ -207,6 +207,9 @@ def g7x(self, g7xmode, **words):
 
     if 't' in words:
         emccanon.CHANGE_TOOL(int(words['t']))
+        tool = words['t']
+    else:
+        tool = self.params[5400] # Not sure why the CHANGE_TOOL above is not effective
 
     s.poll()
 
@@ -342,7 +345,7 @@ def g7x(self, g7xmode, **words):
         frontangle = max(1, self.params[5412])
         backangle = max(1, self.params[5411])
 
-    if self.params[5400] == 0: # no tool
+    if tool == 0: # no tool
         frontangle = 135
         backangle = 45
 
