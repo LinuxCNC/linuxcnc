@@ -425,6 +425,9 @@ After pushing the '*execute macro button*', you will be asked to enter the
 values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values
 have been given.
 
+[NOTE]
+If you would like to use a macro without any movement, see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>
+
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
 [[gmoccapy:traj-section]]
@@ -1414,7 +1417,7 @@ Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk
 
 Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4
 
-== Known problems
+== Known problems 
 
 === Strange numbers in the info area
 
@@ -1425,3 +1428,41 @@ image::images/strange_numbers.png[align="left"]
 You have made your config file using an older version of StepConfWizard.
 It has made a wrong entry in the INI file under the [TRAJ] named
 MAX_LINEAR_VELOCITY = xxx. Change that entry to MAX_VELOCITY = xxx 
+
+=== Not ending macro [[sub:NOT_ENDING_MACROS]]
+
+If you use a macro without movement, like this one:
+
+---------
+ o<zeroxy> sub
+
+G92.1
+G92.2
+G40
+
+G10 L20 P0 X0 Y0
+
+o<zeroxy> endsub 
+m2
+---------
+
+gmoccapy will not see the end of the macro, because the interpreter needs to 
+change its state to IDLE, but the macro does not even set the interpreter to
+a new state. To avoid that just add a G4 P0.1 line to get the needed signal. 
+The correct macro would be:
+
+---------
+ o<zeroxy> sub
+
+G92.1
+G92.2
+G40
+
+G10 L20 P0 X0 Y0
+
+G4 P0.1
+
+o<zeroxy> endsub 
+m2
+---------
+
