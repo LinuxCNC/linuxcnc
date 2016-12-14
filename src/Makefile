@@ -1505,6 +1505,12 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 # vtexport-objs := hal/vtable-example/vtexport.o
 # vtexport-objs += hal/vtable-example/vcode.o
 
+obj-m += jplan.o
+jplan-objs := hal/jplanner/jplan.o
+
+obj-m += interpolate.o
+interpolate-objs := hal/interpolator/interpolate.o
+
 obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o
 
@@ -1770,8 +1776,11 @@ $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
 
 $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
 $(RTLIBDIR)/ufdemo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(ufdemo-objs))
-$(RTLIBDIR)/icomp$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(icomp-objs))
+$(RTLIBDIR)/jplan$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(jplan-objs))
+$(RTLIBDIR)/interpolate$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(interpolate-objs))
+$(RTLIBDIR)/icomp$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(icomp-objs))
 $(RTLIBDIR)/lutn-demo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(lutn-demo-objs))
+
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
