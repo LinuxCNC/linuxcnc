@@ -1,0 +1,16 @@
+This test verifies that M62-M68 can be remapped through both python
+and NGC, and that calling the original M-codes is supported in the
+remap subroutine.
+
+It also serves as an example of how to do this, since esp. the M66
+python function is not trivial and must be a generator yielding
+`INTERP_EXECUTE_FINISH`.
+
+The recursive call to the original functions needs supporting code for
+mode 5 M-codes in `interp_convert.cc` `convert_m()`, and for M62-M68
+in `rs274ngc_pre.cc`, `find_remappings()`.
+
+The peculiar M66 needs special handling in the interpreter for
+`input_flag`, and to ensure that its result (in param `#5399`) is
+available within the remap, `Interp::pycall()` runs `read_inputs()`
+before returning control back to the python generator.
