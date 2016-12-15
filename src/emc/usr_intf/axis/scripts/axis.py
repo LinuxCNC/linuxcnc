@@ -394,7 +394,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.get_resources()
         self.realize()
         self.init_glcanondraw(trajcoordinates=trajcoordinates,
-                              kinstype=kinstype)
+                              kinsmodule=kinsmodule)
     def getRotateMode(self):
         return vars.rotate_mode.get()
 
@@ -3302,12 +3302,12 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-kinstype=inifile.find("KINS", "KINEMATICS").lower()
+kinsmodule=inifile.find("KINS", "KINEMATICS").lower()
 kins_is_trivkins = False
-if kinstype.split()[0] == "trivkins":
+if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
-    for item in kinstype.split():
+    for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
 
@@ -3317,7 +3317,7 @@ for i in range(len(trajcoordinates)):
     if trajcoordinates.count(trajcoordinates[i]) > 1:
         duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
 if duplicate_coord_letters != "":
-    # Can occur, for instance, with trivkins with kinstype=both).
+    # Can occur, for instance, with trivkins with kinsmodule=both).
     # In such kins, the value for a duplicated axis letter will equal the
     # value of the highest numbered joint.
     # Movements on axis gui display in joint mode (after homing) may be unexpected,
