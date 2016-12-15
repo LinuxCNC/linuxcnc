@@ -502,7 +502,7 @@ static double getActiveFeedRate(FeedRateType angular)
     if (!angular) {
         return synched ? FROM_PROG_LEN(uu_per_sec) : currentLinearFeedRate;
     } else {
-        return synched ? FROM_PROG_ANG(uu_per_sec) : currentLinearFeedRate;
+        return synched ? FROM_PROG_ANG(uu_per_sec) : currentAngularFeedRate;
     }
 }
 
