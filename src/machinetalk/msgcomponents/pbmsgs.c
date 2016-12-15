@@ -73,6 +73,17 @@ PB_DESCRIPTOR(LogMessage);
 /* PB_DESCRIPTOR(Test1); */
 /* PB_DESCRIPTOR(Test2); */
 /* PB_DESCRIPTOR(Test3); */
+//jplan messages
+PB_DESCRIPTOR(JplanJoint);
+PB_DESCRIPTOR(JplanCommand);
+
+//ros isomorphic messages
+PB_DESCRIPTOR(JointTrajectoryPoint);
+PB_DESCRIPTOR(JointTrajectory);
+PB_DESCRIPTOR(Header);
+PB_DESCRIPTOR(Time);
+
+
 
 // this likely supersedes the above exports, as it
 // contains a superset of pb_<message>_fields
@@ -91,6 +102,8 @@ msginfo_t msginfo[] = {
     TEST_MESSAGES	   \
     TYPES_MESSAGES	   \
     VALUE_MESSAGES	   \
+    JPLAN_MESSAGES         \
+    ROS_MESSAGES           \
     PB_MSGINFO_DELIMITER
 };
 

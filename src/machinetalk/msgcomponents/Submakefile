@@ -24,6 +24,8 @@ pbmsgs-objs := \
 	$(PBGEN)/$(NAMESPACEDIR)/config.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/preview.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/status.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/ros.npb.o \
+	$(PBGEN)/$(NAMESPACEDIR)/jplan.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o
 
 
