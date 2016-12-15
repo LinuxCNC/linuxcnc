@@ -678,7 +678,8 @@ For a "C" axis you will see:
 * gmoccapy.jog-c-minus
 
 [Note]
-naming of this hal pin has changed for gmoccapy2:
+naming of this hal pin has changed for gmoccapy2
+
 * gmoccapy.jog.axis.jog-x-plus
 * gmoccapy.jog.axis.jog-x-minus
 * gmoccapy.jog.axis.jog-y-plus
@@ -708,7 +709,8 @@ gmoccapy offers a hal pin to toggle between turtle and rabit jogging
 * gmoccapy.turtle-jog   (Hal Bit In)
 
 [Note]
-in gmoccayp2 it is:
+in gmoccayp2 it is
+
 * gmoccapy.jog.turtle-jog   (Hal Bit In)
 
 === Jog Increment Hal Pins
@@ -731,7 +733,8 @@ jog-inc-0 is unchangeable and will represent continuous jogging.
 * gmoccapy.jog-inc-6
 
 [Note]
-gmoccapy2 uses differnt hal pin naming:
+gmoccapy2 uses differnt hal pin naming
+
 * gmoccapy.jog.jog-inc-0
 * gmoccapy.jog.jog-inc-1
 * gmoccapy.jog.jog-inc-2
