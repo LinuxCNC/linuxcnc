@@ -126,7 +126,7 @@ static int update(void *arg, const hal_funct_args_t *fa)
 
 	    // check for a new command
 	    void *data;
-	    size_t size;
+	    ringsize_t size;
 	    if (record_read(&ip->jcmd, (const void**)&data, &size) == 0) {
 
 		// protobuf-decode it
@@ -171,10 +171,9 @@ static int update(void *arg, const hal_funct_args_t *fa)
 }
 
 
-static int instantiate_jplan(const int argc,
-			     const char**argv)
+static int instantiate_jplan(const char *name, const int argc, const char **argv)
 {
-    const char *name = argv[1];
+    //const char *name = argv[1];
     struct inst_data *ip;
     int inst_id, i;
 
@@ -240,7 +239,7 @@ static int delete_jplan(const char *name, void *inst, const int inst_size)
     int retval;
 
     if (ringbuffer_attached(&ip->jcmd)) {
-	if ((retval = hal_ring_detachf(&ip->jcmd, "%s.cmd", name)) < 0) {
+	if ((retval = hal_ring_detach(&ip->jcmd)) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: hal_ring_detach(%s.cmd) failed: %d\n",
 			    compname, name, retval);

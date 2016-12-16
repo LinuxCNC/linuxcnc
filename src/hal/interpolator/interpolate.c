@@ -29,7 +29,7 @@ struct joint {
     hal_float_t *curr_vel;	// current velocity
     hal_float_t *curr_acc;	// current acceleration
 
-	hal_bit_t   *traj_busy;      // no pending trajectory
+    hal_bit_t   *traj_busy;      // no pending trajectory
 
     double       coeff[6];      // of current segment
 };
@@ -114,7 +114,7 @@ static int update(void *arg, const hal_funct_args_t *fa)
     if (segment_completed(ip, period)) {
 		// check for a new JointTrajectoryPoint
 		void *data;
-		size_t size;
+		ringsize_t size;
 		if (record_read(&ip->traj, (const void**)&data, &size) == 0) {
 
 		    // protobuf-decode it
@@ -223,10 +223,9 @@ static int update(void *arg, const hal_funct_args_t *fa)
 }
 
 
-static int instantiate_interpolate(const int argc,
-				   const char**argv)
+static int instantiate_interpolate(const char *name, const int argc, const char **argv)
 {
-  const char *name = argv[1];
+//  const char *name = argv[1];
     struct inst_data *ip;
     int inst_id, i;
 
@@ -306,7 +305,7 @@ static int delete_interpolate(const char *name, void *inst, const int inst_size)
     int retval;
 
     if (ringbuffer_attached(&ip->traj)) {
-	if ((retval = hal_ring_detachf(&ip->traj, "%s.traj", name)) < 0) {
+	if ((retval = hal_ring_detach(&ip->traj)) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "%s: hal_ring_detach(%s.traj) failed: %d\n",
 			    compname, name, retval);
