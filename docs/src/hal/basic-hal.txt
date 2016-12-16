@@ -81,7 +81,7 @@ The syntax and an example:
 ----
 addf <function> <thread>
 
-addf mux4 servo-thread
+addf mux4.0 servo-thread
 ----
 
 === loadusr
