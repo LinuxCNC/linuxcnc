@@ -80,7 +80,7 @@
   <customwidget>
    <class>Graphics</class>
    <extends>QWidget</extends>
-   <header>linuxcnc_qt_widgets.graphics</header>
+   <header>qtvcp_widgets.graphics</header>
   </customwidget>
   <customwidget>
    <class>Lcnc_LCDNumber</class>
