@@ -73,5 +73,5 @@ class GraphicsPlugin(QPyDesignerCustomWidgetPlugin):
     # Returns the module containing the custom widget class. It may include
     # a module path.
     def includeFile(self):
-        return "linuxcnc_qt_widgets.graphics"
+        return "qtvcp_widgets.graphics"
 
