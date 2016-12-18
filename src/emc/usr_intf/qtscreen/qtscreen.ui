@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>834</width>
+    <height>557</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>10</y>
+     <width>411</width>
+     <height>541</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="Graphics" name="graphics">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>50</y>
+      <width>331</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="view" stdset="0">
+     <string>p</string>
+    </property>
+    <property name="dtg" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="Lcnc_PushButton" name="lncpushbutton">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>440</y>
+     <width>121</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>hal button</string>
+   </property>
+  </widget>
+  <widget class="Lcnc_LCDNumber" name="lnclcdnumber">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>141</width>
+     <height>61</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_estop">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>93</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>estop</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_machineon">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>93</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>machine on</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_home">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>90</y>
+     <width>93</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>home</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="jog_pos_x">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>280</y>
+     <width>41</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>X+</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="jog_neg_x">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>280</y>
+     <width>41</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>X-</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="jog_pos_y">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>240</y>
+     <width>41</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Y+</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="jog_neg_y">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>320</y>
+     <width>41</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Y-</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="jog_neg_z">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>340</y>
+     <width>51</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Z-</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="jog_pos_z">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>220</y>
+     <width>51</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Z+</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Graphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp_widgets.graphics</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_LCDNumber</class>
+   <extends>QLCDNumber</extends>
+   <header>qtvcp_widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp_widgets.simple_widgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>lncpushbutton</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>halbuttonclicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>451</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>112</x>
+     <y>387</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_estop</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>Form</receiver>
+   <slot>estop_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>133</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_machineon</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>Form</receiver>
+   <slot>machineon_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>170</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_home</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>home_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>214</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>145</x>
+     <y>229</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_x</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>97</x>
+     <y>322</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>56</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>51</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_x</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>142</x>
+     <y>296</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>161</x>
+     <y>326</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>127</x>
+     <y>292</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>133</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_z</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>173</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>263</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_z</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>194</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_z</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>172</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_z</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>131</x>
+     <y>357</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_y</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>184</x>
+     <y>138</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>170</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_y</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>327</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>184</x>
+     <y>320</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>134</x>
+     <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>halbuttonclicked()</slot>
+  <slot>estop_toggled()</slot>
+  <slot>machineon_toggled()</slot>
+  <slot>home_clicked()</slot>
+  <slot>jog_pressed()</slot>
+  <slot>jog_released()</slot>
+ </slots>
+</ui>
