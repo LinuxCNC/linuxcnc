@@ -11,6 +11,9 @@ class HandlerClass:
         self.stat = linuxcnc.stat()
         self.cmnd = linuxcnc.command()
 
+    def initialized__(self):
+        print 'INIT'
+
     def halbuttonclicked(self):
         print 'click'
 
