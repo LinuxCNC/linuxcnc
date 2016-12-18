@@ -28,35 +28,6 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="Graphics" name="graphics">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>50</y>
-      <width>331</width>
-      <height>461</height>
-     </rect>
-    </property>
-    <property name="view" stdset="0">
-     <string>p</string>
-    </property>
-    <property name="dtg" stdset="0">
-     <bool>false</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="Lcnc_PushButton" name="lncpushbutton">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>440</y>
-     <width>121</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>hal button</string>
-   </property>
   </widget>
   <widget class="Lcnc_LCDNumber" name="lnclcdnumber">
    <property name="geometry">
@@ -113,82 +84,127 @@
     <string>home</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="jog_pos_x">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>280</y>
-     <width>41</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>X+</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="jog_neg_x">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>280</y>
-     <width>41</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>X-</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="jog_pos_y">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>240</y>
-     <width>41</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Y+</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="jog_neg_y">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>320</y>
-     <width>41</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Y-</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="jog_neg_z">
+  <widget class="QFrame" name="button_frame">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>340</y>
-     <width>51</width>
-     <height>41</height>
+     <y>270</y>
+     <width>191</width>
+     <height>161</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Z-</string>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
    </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QPushButton" name="jog_neg_z">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>120</y>
+      <width>51</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z-</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="jog_pos_z">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>0</y>
+      <width>51</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Z+</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="jog_neg_y">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>100</y>
+      <width>41</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y-</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="jog_pos_y">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>20</y>
+      <width>41</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y+</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="jog_pos_x">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>60</y>
+      <width>41</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X+</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="jog_neg_x">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>60</y>
+      <width>41</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X-</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QPushButton" name="jog_pos_z">
+  <widget class="Lcnc_PushButton" name="lncpushbutton">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>220</y>
-     <width>51</width>
-     <height>41</height>
+     <x>40</x>
+     <y>470</y>
+     <width>121</width>
+     <height>27</height>
     </rect>
    </property>
    <property name="text">
-    <string>Z+</string>
+    <string>hal button</string>
+   </property>
+  </widget>
+  <widget class="Graphics" name="graphics">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>40</y>
+     <width>331</width>
+     <height>461</height>
+    </rect>
+   </property>
+   <property name="view" stdset="0">
+    <string>p</string>
+   </property>
+   <property name="dtg" stdset="0">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>

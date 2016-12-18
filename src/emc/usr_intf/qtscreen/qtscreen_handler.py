@@ -12,6 +12,10 @@ class HandlerClass:
         self.cmnd = linuxcnc.command()
         self.jog_velocity = 1.0
 
+    def initialized__(self):
+        print 'INIT'
+        self.w.button_frame.setEnabled(False)
+
     def halbuttonclicked(self):
         print 'click'
 
@@ -26,12 +30,15 @@ class HandlerClass:
         print 'machine on click',pressed
         if pressed:
             self.cmnd.state(linuxcnc.STATE_ON)
+            self.w.button_frame.setEnabled(True)
         else:
             self.cmnd.state(linuxcnc.STATE_OFF)
-                
+            self.w.button_frame.setEnabled(False)
+
     def jog_pressed(self):
         d = 1
         source = self.w.sender()
+        print source.objectName(), 'pressed'
         if '-' in source.text():
             d = -1
         if 'X' in source.text():
@@ -43,6 +50,7 @@ class HandlerClass:
 
     def jog_released(self):
         source = self.w.sender()
+        print source.objectName(), 'released'
         if 'X' in source.text():
             self.continous_jog(0, 0)
         elif 'Y' in source.text():
