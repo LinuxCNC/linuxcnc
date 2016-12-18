@@ -3,7 +3,7 @@ import sys
 import traceback
 import hal
 from PyQt4 import QtGui, uic
-from qtvcp import qt_makepins
+from qtvcp import qt_makepins, qt_makegui
 import linuxcnc
 # internationalization and localization
 import locale, gettext
@@ -36,100 +36,6 @@ def dbg(str):
     global qtscreen_debug
     if not qtscreen_debug: return
     print str
-
-class Trampoline(object):
-    def __init__(self,methods):
-        self.methods = methods
-
-    def __call__(self, *a, **kw):
-        for m in self.methods:
-            m(*a, **kw)
-
-def load_handlers(usermod,halcomp,widgets):
-    hdl_func = 'get_handlers'
-
-    def add_handler(method, f):
-        if method in handlers:
-            handlers[method].append(f)
-        else:
-            handlers[method] = [f]
-
-    handlers = {}
-    for u in usermod:
-        (directory,filename) = os.path.split(u)
-        (basename,extension) = os.path.splitext(filename)
-        if directory == '':
-            directory = '.'
-        if directory not in sys.path:
-            sys.path.insert(0,directory)
-            dbg('adding import dir %s' % directory)
-
-        try:
-            mod = __import__(basename)
-        except ImportError,msg:
-            print "module '%s' skipped - import error: %s" %(basename,msg)
-	    continue
-        dbg("module '%s' imported OK" % mod.__name__)
-        try:
-            # look for 'get_handlers' function
-            h = getattr(mod,hdl_func,None)
-
-            if h and callable(h):
-                dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
-                objlist = h(halcomp,widgets)
-            else:
-                # the module has no get_handlers() callable.
-                # in this case we permit any callable except class Objects in the module to register as handler
-                dbg("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
-                objlist =  [mod]
-            # extract callback candidates
-            for object in objlist:
-                dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
-                if isinstance(object, dict):
-                    methods = dict.items()
-                else:
-                    methods = map(lambda n: (n, getattr(object, n, None)), dir(object))
-                for method,f in methods:
-                    if method.startswith('_'):
-                        continue
-                    if callable(f):
-                        dbg("Register callback '%s' in %s" % (method, object))
-                        add_handler(method, f)
-        except Exception, e:
-            print "QTvcp: trouble looking for handlers in '%s': %s" %(basename, e)
-            traceback.print_exc()
-
-    # Wrap lists in Trampoline, unwrap single functions
-    for n,v in list(handlers.items()):
-        if len(v) == 1:
-            handlers[n] = v[0]
-        else:
-            handlers[n] = Trampoline(v)
-
-    return handlers,mod,object
-
-class MyWindow(QtGui.QMainWindow):
-    def __init__(self,filename,halcomp):
-        super(MyWindow, self).__init__()
-        self.filename = filename
-        self.halcomp = halcomp
-
-    def instance(self):
-        instance = uic.loadUi(self.filename, self)
-        #for widget in instance.children():
-        #    print widget
-
-    def load_extension(self,filename):
-        methods,self.handler_module,self.handler_instance = load_handlers([filename],self.halcomp,self)
-        #print methods
-        for i in methods:
-            #print i, methods[i]
-            self[i] = methods[i]
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-    def __setitem__(self, item, value):
-        return setattr(self, item, value)
 
 class QTscreen: 
 
@@ -187,11 +93,6 @@ class QTscreen:
             else:
                 print _("\n**** qtscreen INFO:  using STOCK glade file from: %s ****"% xmlname2)
 
-
-
-
-
-
         # initialize HAL
         try:
             self.halcomp = hal.component('qtscreen')
@@ -201,7 +102,7 @@ class QTscreen:
 
         # build the ui
         self.app = QtGui.QApplication(sys.argv)
-        window = MyWindow(xmlname,self.halcomp)
+        window = qt_makegui.MyWindow(xmlname,self.halcomp,qtscreen_debug)
         # load optional user handler file
         window.load_extension(handlername)
         # actually build the widgets
