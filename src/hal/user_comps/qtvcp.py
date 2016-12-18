@@ -100,7 +100,7 @@ def load_handlers(usermod,halcomp,widgets):
         else:
             handlers[n] = Trampoline(v)
 
-    return handlers 
+    return handlers,mod,object
 
 class MyWindow(QtGui.QMainWindow):
     def __init__(self,filename,halcomp):
@@ -114,7 +114,7 @@ class MyWindow(QtGui.QMainWindow):
         #    print widget
 
     def load_extension(self,filename):
-        methods = load_handlers([filename],self.halcomp,self)
+        methods,self.handler_module,self.handler_instance = load_handlers([filename],self.halcomp,self)
         #print methods
         for i in methods:
             #print i, methods[i]
@@ -163,7 +163,10 @@ def main():
     window.instance()
     # make QT widget HAL pins
     panel = qt_makepins.QTPanel(halcomp,xmlname,window)
-
+    # call handler file's initialized function
+    if opts.usermod:
+        if "initialized__" in dir(window.handler_instance):
+            window.handler_instance.initialized__()
     # User components are set up so report that we are ready
     halcomp.ready()
     # for window resize and or position options
