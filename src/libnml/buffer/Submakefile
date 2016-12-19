@@ -1,11 +1,6 @@
 INCLUDES += libnml/buffer
 
-copy_all_buffer:
-	cp -f ./libnml/buffer/*.h* ../include/
-
-TARGETS += copy_all_buffer
-
-#../include/%.h: ./libnml/buffer/%.h
-#	cp $^ $@
-#../include/%.hh: ./libnml/buffer/%.hh
-#	cp $^ $@
+../include/%.h: ./libnml/buffer/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/buffer/%.hh
+	cp $^ $@

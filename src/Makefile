@@ -513,7 +513,6 @@ HEADERS := \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
-#    hal/lib/config_module.h \
     hal/lib/hal_group.h \
     hal/lib/hal.h \
     hal/lib/hal_internal.h \
@@ -526,7 +525,6 @@ HEADERS := \
     hal/lib/hal_ring.h \
     hal/lib/vtable.h \
     hal/drivers/hal_spi.h \
-#    hal/drivers/hal_gpiomap.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -611,7 +609,7 @@ TARGETS += headers
 # Add headers to this list that need to go into subdirectories; their
 # respective Submakefiles will need to provide rules to copy them into
 # ../install.
-TARGETS += $(SUBDIRECTORY_HEADERS)
+headers: $(SUBDIRECTORY_HEADERS)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))

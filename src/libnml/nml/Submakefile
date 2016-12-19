@@ -1,11 +1,6 @@
 INCLUDES += libnml/nml
 
-copy_all_nml:
-	cp -f ./libnml/nml/*.h* ../include/
-
-TARGETS += copy_all_nml
-
-#../include/%.h: ./libnml/nml/%.h
-#	cp $^ $@
-#../include/%.hh: ./libnml/nml/%.hh
-#	cp $^ $@
+../include/%.h: ./libnml/nml/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/nml/%.hh
+	cp $^ $@

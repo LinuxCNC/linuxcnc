@@ -1,12 +1,9 @@
 INCLUDES += libnml/inifile
 
-copy_all_inifile:
-	cp -f ./libnml/inifile/*.h* ../include/
-
-#../include/%.h: ./libnml/inifile/%.h
-#	cp $^ $@
-#../include/%.hh: ./libnml/inifile/%.hh
-#	cp $^ $@
+../include/%.h: ./libnml/inifile/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/inifile/%.hh
+	cp $^ $@
 
 LIBINISRCS := libnml/inifile/inifile.cc
 $(call TOOBJSDEPS, $(LIBINISRCS)) : EXTRAFLAGS=-fPIC
@@ -14,7 +11,7 @@ $(call TOOBJSDEPS, $(LIBINISRCS)) : EXTRAFLAGS=-fPIC
 INIFILESRCS := libnml/inifile/inivar.cc
 
 USERSRCS += $(INIFILESRCS) $(LIBINISRCS)
-TARGETS += ../lib/liblinuxcncini.so ../lib/liblinuxcncini.so.0 copy_all_inifile
+TARGETS += ../lib/liblinuxcncini.so ../lib/liblinuxcncini.so.0
 
 ../lib/liblinuxcncini.so.0: $(call TOOBJS,$(LIBINISRCS))
 	$(ECHO) Creating shared library $(notdir $@)

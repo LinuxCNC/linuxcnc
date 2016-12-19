@@ -1,11 +1,6 @@
 INCLUDES += libnml/rcs
 
-copy_all_rcs:
-	cp -f ./libnml/rcs/*.h* ../include/
-
-TARGETS += copy_all_rcs
-
-#../include/%.h: ./libnml/rcs/%.h
-#	cp $^ $@
-#../include/%.hh: ./libnml/rcs/%.hh
-#	cp $^ $@
+../include/%.h: ./libnml/rcs/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/rcs/%.hh
+	cp $^ $@

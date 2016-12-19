@@ -1,11 +1,6 @@
 INCLUDES += libnml/linklist
 
-copy_all_linklist:
-	cp -f ./libnml/linklist/*.h* ../include
-
-TARGETS += copy_all_linklist
-
-#../include/%.h: ./libnml/linklist/%.h
-#	cp $^ $@
-#../include/%.hh: ./libnml/linklist/%.hh
-#	cp $^ $@
+../include/%.h: ./libnml/linklist/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/linklist/%.hh
+	cp $^ $@
