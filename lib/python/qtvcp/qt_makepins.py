@@ -23,41 +23,40 @@ from qtvcp_widgets.simple_widgets import _HalWidgetBase
 from hal_glib import GComponent
 
 class QTPanel():
-    def on_window_destroy(self, widget, data=None):
-        self.hal.exit()
-
-    def __init__(self,halcomp,xmlname,window):
+    def __init__(self,halcomp,xmlname,window,debug=False):
 
         self.hal = GComponent(halcomp)
         self.widgets = {}
 
         # parse for HAL objects:
-        print 'QTVCP: Parcing for hal pins'
+        if debug:
+            print 'QTVCP: Parcing for hal pins'
 
         for widget in window.children():
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
-                print 'instance found: ',idname
+                if debug:
+                    print 'HAL-ified instance found:    %s'%(idname)
                 widget.hal_init(self.hal, str(idname), widget)
                 self.widgets[idname] = widget
 
         # at the moment GComponent had a gobject timer to update HAL input pins.
         # output pins use qt signals to initiate updates
         #self.timer = gobject.timeout_add(100, self.update)                  
-        
 
     def update(self):
         for obj in self.widgets.values():
             obj.hal_update()
         return True
+
     def __getitem__(self, item):
         return self.widgets[item]
     def __setitem__(self, item, value):
         self.widgets[item] = value
     
 if __name__ == "__main__":
-    print "Gladevcp_make_pins cannot be run on its own"
-    print "It must be called by gladevcp or a python program"
-    print "that loads and displays the glade panel and creates a HAL component"
+    print "qtvcp_make_pins cannot be run on its own"
+    print "It must be called by qtscreen or a python program"
+    print "that loads and displays the QT panel and creates a HAL component"
 
 # vim: sts=4 sw=4 et
