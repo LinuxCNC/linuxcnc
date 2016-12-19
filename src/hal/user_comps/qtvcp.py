@@ -33,7 +33,15 @@ def main():
     parser = OptionParser(usage=usage)
     parser.disable_interspersed_args()
     parser.add_options(options)
-
+    # remove [-ini filepath] that linuxcnc adds if being launched as a screen
+    for i in range(len(sys.argv)):
+        print sys.argv[i]
+        if sys.argv[i] =='-ini':
+            del sys.argv[i]
+            INI = sys.argv.pop(i)
+            print 'INI=',INI
+            break
+    print sys.argv
     (opts, args) = parser.parse_args()
 
     if not args:
