@@ -494,7 +494,7 @@ static int create_instance(const hal_funct_args_t *fa)
     if (inst) {
 	HALFAIL_RC(EBUSY,"instance '%s' already exists", iname);
     }
-    return comp->ctor(iname, argc - 2, &argv[2]);
+    return comp->ctor(argc, argv);
 }
 
 static int delete_instance(const hal_funct_args_t *fa)

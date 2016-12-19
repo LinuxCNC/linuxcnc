@@ -647,7 +647,7 @@ def prologue(f):
             print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
         names[name] = 1
 
-    print >>f, "static int instantiate(const char *name, const int argc, const char**argv);\n"
+    print >>f, "static int instantiate(const int argc, const char**argv);\n"
     if options.get("extra_inst_cleanup"):
         print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
     if options.get("extra_inst_setup") :
@@ -823,8 +823,10 @@ def prologue(f):
 ###########################  instantiate() ###############################################################
 
     print >>f, "\n// constructor - init all HAL pins, funct etc here"
-    print >>f, "static int instantiate(const char *name, const int argc, const char**argv)\n{"
+    print >>f, "static int instantiate(const int argc, const char**argv)\n{"
     print >>f, "struct inst_data *ip;"
+    print >>f, "// argv[0]: component name"
+    print >>f, "const char *name = argv[1];" # instance name
     print >>f, "int r;"
     if options.get("extra_inst_setup"):
         print >>f, "int k;"
@@ -867,10 +869,10 @@ def prologue(f):
         print >>f, "    if(k != 0)"
         print >>f, "        return k;\n"
 
-    print >>f, "    if(r == 0)"
-    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
-    print >>f, "    else"
-    print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
+    #print >>f, "    if(r == 0)"
+    #print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation SUCCESSFUL\",__FUNCTION__, name);"
+    #print >>f, "    else"
+    #print >>f, "        hal_print_msg(RTAPI_MSG_DBG,\"%s - instance %s creation ABORTED\",__FUNCTION__, name);"
     if have_count:
         print >>f, "//reset pincount to -1 so that instantiation without it will result in DEFAULTCOUNT"
         print >>f, "    pincount = -1;\n"

@@ -73,8 +73,10 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
 }
 
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const char *name, const int argc, const char**argv)
+static int instantiate(const int argc, const char**argv)
 {
+    // argv[0]: component name
+    const char *name = argv[1]; // instance name
     struct inst_data *ip;
 
     // allocate a named instance, and some HAL memory for the instance data

@@ -266,7 +266,34 @@ enum comp_state {
     COMP_READY
 };
 
-typedef int (*hal_constructor_t) (const char *name, const int argc, const char**argv);
+// if a component exports a constructor via hal_export_xfunctf(), it is instantiable
+// the calling convention for hal_constructor_t is as follows:
+//
+// any instance parameters (key=value) up to the first appearance of '--' or a '--option' flag
+// are removed from the argument vector and are already applied
+// to the RTAPI_IP_* params when the constructor is called.
+//
+// the '--' separtor is skipped and not passed to the constructor.
+//
+// argv[0]: component name, string, always non-NULL
+// argv[1]: instance  name, string, always non-NULL
+// .. any other arguments ..
+//
+// other arguments are:
+// any argument passed after an '--' separator
+// any argument beginning with '--' (like a getopt_long() option)
+//
+// halcmd example 1: newinst foo bar instparm1=123 instparm2=3.14 --foo --bar baz key=value
+//
+// instance params = [instparm1=123, instparm2=3.14]
+// argv = [foo, bar, --foo, --bar, baz, key=value]
+// argc = 6
+//
+// halcmd example 2:  newinst foo bar -- instparm1=123 instparm2=3.14 --foo --bar baz key=value
+// no instparms are applied as all arguments follow the '--' separator
+// argv = [foo, bar, instparm1=123, instparm2=3.14, --foo, --bar, baz, key=value]
+// argc = 8
+typedef int (*hal_constructor_t) (const int argc, const char**argv);
 typedef int (*hal_destructor_t) (const char *name, void *inst, const int inst_size);
 
 // generic base function
