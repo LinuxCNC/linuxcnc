@@ -38,6 +38,8 @@ class modded_gremlin(gremlin.Gremlin):
         inifile = linuxcnc.ini(inifile)
         gremlin.Gremlin.__init__(self, inifile)
         self.enable_dro = True
+        self.colors['overlay_background'] = (0.0, 0.0, 0.57)
+        self.colors['back'] = (0.0, 0.0, 0.75)
 
     def setview(self, value):
         view = str(value).lower()
