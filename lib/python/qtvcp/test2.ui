@@ -37,6 +37,9 @@
       <height>391</height>
      </rect>
     </property>
+    <property name="view" stdset="0">
+     <string>p</string>
+    </property>
    </widget>
   </widget>
   <widget class="Lcnc_PushButton" name="lncpushbutton">
