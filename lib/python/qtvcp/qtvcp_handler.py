@@ -12,7 +12,7 @@ class HandlerClass:
         self.cmnd = linuxcnc.command()
 
     def initialized__(self):
-        print 'INIT'
+        print 'INIT qtvcp handler'
 
     def halbuttonclicked(self):
         print 'click'
