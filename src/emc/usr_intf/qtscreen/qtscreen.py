@@ -25,7 +25,6 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTs to Python modules')
           ]
 
-
 # to help with debugging new screens
 verbose_debug = False
 # print debug messages if debug is true
@@ -36,39 +35,90 @@ def dbg(str):
     print str
 
 class Paths():
-    def __init__(self):
+    def __init__(self,filename):
+
+        self.BASENAME = os.path.splitext(filename)[0]
+        self.VCP_UI = '%s.ui'% self.BASENAME
+        self.VCP_HANDLER = '%s_handler.py'% self.BASENAME
+        if not os.path.exists(self.VCP_HANDLER):
+            self.VCP_HANDLER = None
+
+    def add_screen_paths(self):
         # BASE is the absolute path to linuxcnc base
         # libdir is the path to qtscreen python files
-        # datadir is where the standarad GLADE files are
-        # imagedir is for icons
-        # themedir is path to system's GTK2 theme folder
+        # DATADIR is where the standarad UI files are
+        # IMAGEDIR is for icons
         self.BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
         self.libdir = os.path.join(self.BASE, "lib", "python")
-        self.datadir = os.path.join(self.BASE, "share", "linuxcnc")
-        self.imagedir = os.path.join(self.BASE, "share","qtscreen","images")
-        self.SKINPATH = os.path.join(self.BASE, "share","qtscreen","skins")
         sys.path.insert(0, self.libdir)
-        self.themedir = "/usr/share/themes"
+        self.IMAGEDIR = os.path.join(self.BASE, "share","qtscreen","images")
+        self.SKINDIR = os.path.join(self.BASE, "share","qtscreen","skins")
+        #self.themedir = "/usr/share/themes"
         self.userthemedir = os.path.join(os.path.expanduser("~"), ".themes")
-        self.xmlname = os.path.join(self.datadir,"qtscreen.ui")
-        self.xmlname2 = os.path.join(self.datadir,"qtscreen2.ui")
-        self.handlername = os.path.join(self.datadir,"qtscreen_handler.py")
+        # path to the configuration the user requested
+        self.CONFIGPATH = os.environ['CONFIG_DIR']
+
+        # check for a local translation folder
+        locallocale = os.path.join(self.CONFIGPATH,"locale")
+        if os.path.exists(locallocale):
+            self.LOCALEDIR = locallocale
+            self.DOMAIN = self.BASENAME
+            print ("**** GSCREEN INFO: CUSTOM locale name =",self.LOCALEDIR,self.BASENAME)
+        else:
+            locallocale = os.path.join(self.SKINDIR,"%s/locale"% self.BASENAME)
+            if os.path.exists(locallocale):
+                self.LOCALEDIR = locallocale
+                self.DOMAIN = self.BASENAME
+                print ("**** GSCREEN INFO: SKIN locale name =",self.LOCALEDIR,self.BASENAME)
+            else:
+                self.LOCALEDIR = os.path.join(self.BASE, "share", "locale")
+                self.DOMAIN = "linuxcnc"
+        # check for local XML file
+        # look in config folder:
+        localui = os.path.join(self.CONFIGPATH,"%s.ui"% self.BASENAME)
+        dbg("**** QTSCREEN DEBUG: checking for .ui in: %s"% localui)
+        if os.path.exists(localui):
+            print ("\n**** qtscreen INFO:  Using CUSTOM ui file from %s ****"% localui)
+            self.XML = localui
+        else:
+            # look in stock skin folder
+            localui = os.path.join(self.SKINDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
+            dbg("**** QTSCREEN DEBUG: checking for .ui in: %s"% localui)
+            if os.path.exists(localui):
+                print ("\n**** qtscreen INFO:  Using SKIN ui file from %s ****"% localui)
+                self.XML = localui
+            else:
+                # error
+                self.XML = None
+                print ("\n**** QTSCREEN ERROR:  No UI file found ****")
+                sys.exit(0)
+
+        # look for custom handler files:
+        handler_fn = "%s_handler.py"% self.BASENAME
+        local_handler_path = os.path.join(self.CONFIGPATH,handler_fn)
+        skin_handler_path = os.path.join(self.SKINDIR,"%s/%s"%(self.BASENAME,handler_fn))
+        dbg("**** QTSCREEN DEBUG: checking for handler file in: %s"% local_handler_path)
+        dbg("**** QTSCREEN DEBUG: checking for handler file in: %s"% skin_handler_path)
+        if os.path.exists(local_handler_path):
+            self.HANDLER = local_handler_path
+            print ("**** QTSCREEN INFO: Local handler file path: %s"%self.HANDLER)
+        elif os.path.exists(skin_handler_path):
+            self.HANDLER = skin_handler_path
+            dbg("**** QTSCREEN INFO: Skin handler file path: %s"%self.HANDLER)
+        else:
+            self.HANDLER = None
+            dbg("**** QTSCREEN WARNING: No handler file found")
 
 class QTscreen: 
-
     def __init__(self):
         INIPATH = None
-        PATH = Paths()
-        xmlname = PATH.xmlname
-        self.skinname = "qtscreen"
-
-        (progdir, progname) = os.path.split(sys.argv[0])
 
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
         parser.disable_interspersed_args()
         parser.add_options(options)
         # remove [-ini filepath] that linuxcnc adds if being launched as a screen
+        # keep a reference of that path
         for i in range(len(sys.argv)):
             if sys.argv[i] =='-ini':
                 # delete -ini
@@ -78,9 +128,20 @@ class QTscreen:
                 break
 
         (opts, args) = parser.parse_args()
-
+        global qtscreen_debug
+        qtscreen_debug = opts.debug
+        # a specific path has been set to load from or...
+        # no path set but -ini is present: default qtscreen screen...or
+        # oops error
         if args:
-            xmlname=args[0]
+            basepath=args[0]
+        elif INIPATH:
+            basepath = "qtscreen"
+        else:
+            sys.exit()
+
+        # set paths using basename
+        PATH = Paths(basepath)
 
         #################
         # Screen specific
@@ -92,51 +153,35 @@ class QTscreen:
             # pull info from the INI file
             self.inifile = linuxcnc.ini(INIPATH)
             self.inipath = INIPATH
-            # path to the configuration the user requested
-            # used to see if the is local GLADE files to use
-            CONFIGPATH = os.environ['CONFIG_DIR']
+            # screens require more path info
+            PATH.add_screen_paths()
 
-            # check for a local translation folder
-            locallocale = os.path.join(CONFIGPATH,"locale")
-            if os.path.exists(locallocale):
-                LOCALEDIR = locallocale
-                domain = self.skinname
-                print ("**** GSCREEN INFO: CUSTOM locale name =",LOCALEDIR,self.skinname)
-            else:
-                locallocale = os.path.join(PATH.SKINPATH,"%s/locale"%self.skinname)
-                if os.path.exists(locallocale):
-                    LOCALEDIR = locallocale
-                    domain = self.skinname
-                    print ("**** GSCREEN INFO: SKIN locale name =",LOCALEDIR,self.skinname)
-                else:
-                    LOCALEDIR = os.path.join(PATH.BASE, "share", "locale")
-                    domain = "linuxcnc"
+            # International translation
             locale.setlocale(locale.LC_ALL, '')
-            locale.bindtextdomain(domain, LOCALEDIR)
-            gettext.install(domain, localedir=LOCALEDIR, unicode=True)
-            gettext.bindtextdomain(domain, LOCALEDIR)
+            locale.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
+            gettext.install(PATH.DOMAIN, localedir=PATH.LOCALEDIR, unicode=True)
+            gettext.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
 
-            # main screen
-            # look in config folder:
-            localui = os.path.join(CONFIGPATH,"%s.ui"%self.skinname)
-            if os.path.exists(localui):
-                print _("\n**** qtscreen INFO:  Using CUSTOM ui file from %s ****"% localui)
-                xmlname = localui
-            else:
-                # look in stock skin folder
-                localui = os.path.join(PATH.SKINPATH,"%s/%s.ui"%(self.skinname,self.skinname))
-                if os.path.exists(localui):
-                    print _("\n**** qtscreen INFO:  Using SKIN ui file from %s ****"% localui)
-                    xmlname = localui
-                else:
-                    # use a stock test case
-                    print _("\n**** qtscreen INFO:  using STOCK ui file from: %s ****"% xmlname)
             # if no handler file specified, use stock test one
             if not opts.usermod:
-                opts.usermod = PATH.handlername
-            if opts.component is None:
-                opts.component = 'qtscreen' 
+                opts.usermod = PATH.HANDLER
 
+            # specify the HAL component name if missing
+            if opts.component is None:
+                opts.component = PATH.BASENAME
+            # find screen xml file
+            xmlpath = PATH.XML
+
+        #################
+        # VCP specific
+        #################
+        else:
+            xmlpath = PATH.VCP_UI
+            # If no handler file was specified, check for one using basename
+            if not opts.usermod:
+                if PATH.VCP_HANDLER:
+                    dbg('found VCP handler')
+                    opts.usermod = PATH.VCP_HANDLER
 
         ##############
         # Build ui
@@ -144,7 +189,7 @@ class QTscreen:
 
         #if there was no component name specified use the xml file name
         if opts.component is None:
-            opts.component = os.path.splitext(os.path.basename(xmlname))[0]
+            opts.component = PATH.BASENAME
 
         # initialize HAL
         try:
@@ -155,7 +200,7 @@ class QTscreen:
 
         # initialize the window
         self.app = QtGui.QApplication(sys.argv)
-        window = qt_makegui.MyWindow(xmlname,self.halcomp,opts.debug)
+        window = qt_makegui.MyWindow(xmlpath,self.halcomp,opts.debug)
 
         # load optional user handler file
         if opts.usermod:
@@ -165,7 +210,7 @@ class QTscreen:
         window.instance()
 
         # make QT widget HAL pins
-        panel = qt_makepins.QTPanel(self.halcomp,xmlname,window,opts.debug)
+        panel = qt_makepins.QTPanel(self.halcomp,xmlpath,window,opts.debug)
 
         # call handler file's initialized function
         if opts.usermod:
@@ -219,9 +264,12 @@ class QTscreen:
         if opts.theme:
             if not opts.theme in (QtGui.QStyleFactory.keys()):
                 print "**** QTscreen WARNING: %s theme not avaialbe"% opts.theme
-                print 'Available themes:',
-                for i in (QtGui.QStyleFactory.keys()):
-                    print i,
+                if opts.debug:
+                    print 'QTscreen Available themes:'
+                    theme=[]
+                    for i in (QtGui.QStyleFactory.keys()):
+                        theme.append('%s'%i)
+                    print theme
             else:
                 QtGui.qApp.setStyle(opts.theme)
         # windows theme is default for screens
@@ -242,7 +290,7 @@ class QTscreen:
         # start loop
         self.app.exec_()
         self.halcomp.exit()
-        sys.exit()
+        sys.exit(0)
 
     # finds the postgui file name and INI file path
     def postgui(self):
