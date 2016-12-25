@@ -37,6 +37,8 @@ class MyWindow(QtGui.QMainWindow):
 
     def _load_handlers(self,usermod,halcomp,widgets):
         hdl_func = 'get_handlers'
+        mod = None
+        object = None
 
         def add_handler(method, f):
             if method in handlers:
