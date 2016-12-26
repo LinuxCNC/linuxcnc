@@ -1,5 +1,6 @@
 from PyQt4 import QtCore
 from qtscreen.keybindings import Keylookup,key_pressed
+from qtvcp.qt_glib import GStat
 import linuxcnc
 
 class HandlerClass:
@@ -14,6 +15,19 @@ class HandlerClass:
         self.cmnd = linuxcnc.command()
         self.jog_velocity = 1.0
         self.klup = Keylookup()
+        self.gstat = GStat()
+        self.gstat.state_estop.connect(self.say_estop)
+        self.gstat.state_on.connect(self.on_state_on)
+        self.gstat.state_off.connect(self.on_state_off)
+
+    def say_estop(self):
+        print 'saying estop'
+    def on_state_on(self):
+        print 'on'
+        self.w.button_machineon.click(True)
+    def on_state_off(self):
+        print 'off'
+        self.w.button_machineon.click(False)
 
     def initialized__(self):
         print 'INIT'
