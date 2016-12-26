@@ -55,9 +55,9 @@ as the 'L number', and so on for any other letter.
 [width="75%", options="header", cols="2^,5<"]
 |====================================================================
 |Code                               |Description
-|<<gcode:g0,G0>>                    |Coordinated Straight Motion Rapid Rate
-|<<gcode:g1,G1>>                    |Coordinated Straight Motion Feed Rate
-|<<gcode:g2-g3,G2 G3>>              |Coordinated Helical Motion Feed Rate
+|<<gcode:g0,G0>>                    |Coordinated Motion at Rapid Rate
+|<<gcode:g1,G1>>                    |Coordinated Motion at Feed Rate
+|<<gcode:g2-g3,G2 G3>>              |Coordinated Helical Motion at Feed Rate
 |<<gcode:g4,G4>>                    |Dwell
 |<<gcode:g5,G5>>                    |Cubic Spline
 |<<gcode:g5.1,G5.1>>                |Quadratic B-Spline
@@ -75,7 +75,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g30-g30.1,G30 - G30.1>>    |Go to Predefined Position
 |<<gcode:g33,G33>>                  |Spindle Synchronized Motion
 |<<gcode:g33.1,G33.1>>              |Rigid Tapping
-|<<gcode:g38,G38.2 - G38.5>>      |Probing
+|<<gcode:g38,G38.2 - G38.5>>        |Probing
 |<<gcode:g40,G40>>                  |Cancel Cutter Compensation
 |<<gcode:g41-g42,G41 G42>>          |Cutter Compensation
 |<<gcode:g41.1-g42.1,G41.1 G42.1>>  |Dynamic Cutter Compensation
@@ -114,12 +114,10 @@ as the 'L number', and so on for any other letter.
 G0 axes
 -------------------
 
-For rapid linear (straight line) motion, program 'G0 'axes'', where
-all the axis words are optional. The 'G0' is optional if the current
-motion mode is 'G0'. This will produce coordinated linear motion to
-the destination point at the maximum rapid rate (or slower).
-It is expected that cutting will not take place when a 'G0' command is
-executing.
+For rapid motion, program 'G0 axes', where all the axis words are optional.
+The 'G0' is optional if the current motion mode is 'G0'. This will produce
+coordinated motion to the destination point at the maximum rapid rate
+(or slower). 'G0' is typically used as a positioning move.
 
 === Rapid Velocity Rate
 
@@ -164,8 +162,8 @@ G1 axes
 For linear (straight line) motion at programed <<sec:set-feed-rate,feed rate>>
 (for cutting or not), program 'G1 'axes'', where all the axis words are
 optional. The 'G1' is optional if the current motion mode is 'G1'. This will
-produce coordinated linear motion to the destination point at the current feed
-rate (or slower if the machine will not go that fast).
+produce coordinated motion to the destination point at the current feed
+rate (or slower).
 
 .G1 Example
 ----
@@ -874,21 +872,22 @@ G28 uses the values stored in <<sub:numbered-parameters,parameters>>
 5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units' as 
 specifed in the ini file. All axes defined in the ini file will be moved when
-a G28 is issued.
+a G28 is issued. If no positions are stored with G28.1 then all axes will go to
+the <<sec.machine-corrdinate-system,machine origin>>.
 
 * 'G28' - makes a <<gcode:g0,rapid move>> from the current
   position to the 'absolute' position of the values in parameters 5161-5166.
 
-* 'G28 axes' - makes a <<gcode:g0,rapid move>> to the
-  position specified by 'axes' including any offsets, then will make a rapid
-  move to the 'absolute' position of the values in parameters 5161-5166 for
-  'axes' specified. Any 'axis' not specified will not move.
+* 'G28 axes' - makes a rapid move to the position specified by
+  'axes' including any offsets, then will make a rapid move to the 'absolute'
+  position of the values in parameters 5161-5166 for all 'axes' specified. Any
+  'axis' not specified will not move.
 
 * 'G28.1' - stores the current 'absolute' position into parameters 5161-5166.
 
 .G28 Example Line
 ----
-G28 Z2.5 (rapid to Z2.5 then to location specified in the G28 stored parameters)
+G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)
 ----
 
 It is an error if :
@@ -907,7 +906,9 @@ G30 functions the same as G28 but uses the values stored in
 <<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
 final point to move to. The parameter values are 'absolute' machine
 coordinates in the native machine 'units' as specifed in the ini file.
-All axes defined in the ini file will be moved when a G30 is issued.
+All axes defined in the ini file will be moved when a G30 is issued.  If no
+positions are stored with G30.1 then all axes will go to the
+<<sec.machine-corrdinate-system,machine origin>>.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
@@ -916,16 +917,16 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the ini file.
 * 'G30' - makes a <<gcode:g0,rapid move>> from the current
   position to the 'absolute' position of the values in parameters 5181-5186.
 
-* 'G30 axes' - makes a <<gcode:g0,rapid move>> to the position specified
+* 'G30 axes' - makes a rapid move to the position specified
   by 'axes' including any offsets, then will make a rapid move to the
-  'absolute' position of the values in parameters 5181-5186 for 'axes'
+  'absolute' position of the values in parameters 5181-5186 for all 'axes'
   specified. Any 'axis' not specified will not move.
 
 * 'G30.1' - stores the current absolute position into parameters 5181-5186.
 
 .G30 Example Line
 ----
-G30 Z2.5 (rapid to Z2.5 then to the location specified in the G30 stored parameters)
+G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5i83)
 ----
 
 It is an error if :
@@ -1337,15 +1338,15 @@ used.
 G53 axes
 ----
 
-To move in the machine coordinate system, program 'G53'
-on the same line as a linear move. 'G53' is not modal and must be
-programmed on each line. 'G0' or 'G1' does not have to be programmed
-on the same line if one is currently active. 
-For example 'G53 G0 X0 Y0 Z0' will move the axes to the home
-position even if the currently
-selected coordinate system has offsets in effect.
+To move in the <<sec.machine-corrdinate-system,machine coordinate system>>,
+program 'G53' on the same line as a linear move. 'G53' is not modal and must be
+programmed on each line. 'G0' or 'G1' does not have to be programmed on the same
+line if one is currently active.
 
-.G53 Example Line
+For example 'G53 G0 X0 Y0 Z0' will move the axes to the home position even if
+the currently selected coordinate system has offsets in effect.
+
+.G53 Example
 ----
 G53 G0 X0 Y0 Z0 (rapid linear move to the machine origin)
 G53 X2 (rapid linear move to absolute coordinate X2)
