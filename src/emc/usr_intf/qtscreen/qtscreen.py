@@ -201,10 +201,14 @@ class QTscreen:
         # initialize the window
         self.app = QtGui.QApplication(sys.argv)
         window = qt_makegui.MyWindow(xmlpath,self.halcomp,opts.debug)
-
+ 
         # load optional user handler file
         if opts.usermod:
             window.load_extension(opts.usermod)
+
+        # add filter to catch keyboard events
+        myFilter = qt_makegui.MyEventFilter(window)
+        self.app.installEventFilter(myFilter)
 
         # actually build the widgets
         window.instance()
