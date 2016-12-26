@@ -1,5 +1,5 @@
 import os,sys
-from PyQt4 import QtGui, uic
+from PyQt4 import QtCore,QtGui, uic
 
 qtvcp_debug = 1
 def dbg(str):
@@ -14,6 +14,44 @@ class Trampoline(object):
     def __call__(self, *a, **kw):
         for m in self.methods:
             m(*a, **kw)
+
+class MyEventFilter(QtCore.QObject):
+    def __init__(self,window):
+        super(MyEventFilter, self).__init__()
+        self.w = window
+        self.has_key_p_handler = 'keypress_event__' in dir(self.w.handler_instance)
+        self.has_key_r_handler = 'keyrelease_event__' in dir(self.w.handler_instance)
+        self.has_process_key_handler = 'processed_key_event__' in dir(self.w.handler_instance)
+
+    def process_event(self,event,pressed):
+        shift = ctrl = False
+        if (event.modifiers() & QtCore.Qt.ShiftModifier):
+            shift = True
+        if (event.modifiers() & QtCore.Qt.ControlModifier):
+            ctrl = True
+        code = event.key()
+        key = event.text()
+        return (pressed,key,code,shift,ctrl)
+
+    def eventFilter(self, receiver, event):
+        if(event.type() == QtCore.QEvent.KeyPress):
+            if (self.has_key_p_handler):
+                return self.w.handler_instance.keypress_event__(event)
+            elif self.has_process_key_handler:
+                if event.isAutoRepeat():return True
+                if event.key() in(16777249,16777248): return True
+                p,k,c,s,ctrl = self.process_event(event,True)
+                return self.w.handler_instance.processed_key_event__(event,p,k,c,s,ctrl)
+        elif (event.type() == QtCore.QEvent.KeyRelease):
+            if (self.has_key_r_handler):
+                return self.w.handler_instance.keyrelease_event__(event)
+            elif self.has_process_key_handler:
+                if event.isAutoRepeat():return True
+                if event.key() in(16777249,16777248): return True
+                p,k,c,s,ctrl = self.process_event(event,False)
+                return self.w.handler_instance.processed_key_event__(event,p,k,c,s,ctrl)
+        #Call Base Class Method to Continue Normal Event Processing
+        return super(MyEventFilter,self).eventFilter(receiver, event)
 
 class MyWindow(QtGui.QMainWindow):
     def __init__(self,filename,halcomp,debug):
