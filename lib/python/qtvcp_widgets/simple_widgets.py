@@ -1,5 +1,5 @@
 import gobject
-from PyQt4 import QtCore,QtGui
+from PyQt4 import QtCore, QtGui
 from functools import partial
 import hal
 
@@ -67,3 +67,16 @@ class Lcnc_PushButton(QtGui.QPushButton, _HalWidgetBase):
         QtCore.QObject.connect(self.qt_object, QtCore.SIGNAL("pressed()"), partial(_f,True))
         QtCore.QObject.connect(self.qt_object, QtCore.SIGNAL("released()"), partial(_f,False))
 
+class Lcnc_QSlider(QtGui.QSlider, _HalWidgetBase):
+    def __init__(self, parent = None):
+        QtGui.QSlider.__init__(self,parent)
+    def _hal_init(self):
+        self.hal_pin_s = self.hal.newpin(str(self.hal_name+'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.hal.newpin(self.hal_name+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.hal.newpin(self.hal_name+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_scale.set(1)
+        def _f(data):
+            scale = self.hal_pin_scale.get()
+            self.hal_pin_s.set(data)
+            self.hal_pin_f.set(data*scale)
+        QtCore.QObject.connect(self.qt_object, QtCore.SIGNAL("valueChanged(int)"), partial(_f))
