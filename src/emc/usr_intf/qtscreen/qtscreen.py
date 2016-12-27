@@ -205,10 +205,9 @@ class QTscreen:
         # load optional user handler file
         if opts.usermod:
             window.load_extension(opts.usermod)
-
-        # add filter to catch keyboard events
-        myFilter = qt_makegui.MyEventFilter(window)
-        self.app.installEventFilter(myFilter)
+            # add filter to catch keyboard events
+            myFilter = qt_makegui.MyEventFilter(window)
+            self.app.installEventFilter(myFilter)
 
         # actually build the widgets
         window.instance()
