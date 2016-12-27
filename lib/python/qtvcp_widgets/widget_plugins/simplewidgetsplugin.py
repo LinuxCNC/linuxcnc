@@ -5,6 +5,7 @@ from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp_widgets.simple_widgets import Lcnc_PushButton
 from qtvcp_widgets.simple_widgets import Lcnc_CheckBox
 from qtvcp_widgets.simple_widgets import Lcnc_LCDNumber
+from qtvcp_widgets.simple_widgets import Lcnc_QSlider
 from qtvcp_widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -133,5 +134,35 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp_widgets.simple_widgets"
 
-
+####################################
+# Slider
+####################################
+class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return Lcnc_QSlider(parent)
+    def name(self):
+        return "Lcnc_QSlider"
+    def group(self):
+        return "Linuxcnc"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('Lcnc_QSlider')))
+    def toolTip(self):
+        return "HAL Slider widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="Lcnc_QSlider" name="lcnc_qslider" />\n'
+    def includeFile(self):
+        return "qtvcp_widgets.simple_widgets"
 
