@@ -162,7 +162,16 @@ class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return False
     def domXml(self):
-        return '<widget class="Lcnc_QSlider" name="lcnc_qslider" />\n'
+        return("""
+                <widget class="Lcnc_QSlider" name="lcnc_qslider">
+                    <property name=\"maximum\">
+                        <number>100</number>
+                    </property>
+                    <property name=\"orientation\">
+                        <enum>Qt::Horizontal</enum>
+                    </property>
+                </widget>
+                """)
     def includeFile(self):
         return "qtvcp_widgets.simple_widgets"
 
