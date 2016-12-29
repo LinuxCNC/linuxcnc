@@ -73,7 +73,7 @@ class ToolEdit(gtk.VBox):
         self.wTree.connect_signals( dic )
 
         self.treeview1 = self.wTree.get_object("treeview1")
-        self.treeview1.connect("key-release-event", self.onTreeNavigateKeyPress)
+        self.treeview1.connect("key-release-event", self.onTreeNavigateKeyPress, None)
 
         # for raw view 1:
 
@@ -133,12 +133,12 @@ class ToolEdit(gtk.VBox):
         model = self.view1.get_model()
         model.set_sort_func(12, compare)
         #self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
-        self.view2.connect("key-release-event", self.onTreeNavigateKeyPress)
+        self.view2.connect("key-release-event", self.onTreeNavigateKeyPress, 'wear')
         self.selection = self.view2.get_selection()
         self.selection.set_mode(gtk.SELECTION_SINGLE)
         self.view3 = self.wTree.get_object("treeview3")
         #self.view3.connect('button_press_event', self.on_treeview2_button_press_event)
-        self.view3.connect("key-release-event", self.onTreeNavigateKeyPress)
+        self.view3.connect("key-release-event", self.onTreeNavigateKeyPress, 'tool')
         self.apply = self.wTree.get_object("apply")
         self.buttonbox = self.wTree.get_object("buttonbox")
         self.tool_filter = self.wTree.get_object("tool_modelfilter")
@@ -533,49 +533,78 @@ class ToolEdit(gtk.VBox):
                 pass
 
     # define the callback for keypress events
-    def onTreeNavigateKeyPress(self, treeview, event):
+    def onTreeNavigateKeyPress(self, treeview, event, filter):
         keyname = gtk.gdk.keyval_name(event.keyval)
         path, col = treeview.get_cursor()
         columns = [c for c in treeview.get_columns()]
         colnum = columns.index(col)
 
+        if filter == 'wear':
+            store_path = self.wear_filter.convert_path_to_child_path(path)
+            path = store_path
+        elif filter == 'tool':
+            store_path = self.tool_filter.convert_path_to_child_path(path)
+            path = store_path
+
         if keyname == 'Tab' or keyname == 'Right':
 
             cont = True
+            cont2 = True
             i = 0
             while cont:
                 i += 1
                 if colnum + i < len(columns):
                     if columns[colnum + i].props.visible:
-                        next_column = columns[colnum + i]
-                        cont = False
+                        renderer = columns[colnum + i].get_cell_renderers()
+                        if renderer[0].props.editable:
+                            next_column = columns[colnum + i]
+                            cont = False
 
                 else:
-                    next_column = columns[1]
+                    i = 1
+                    while cont2:
+                        renderer = columns[i].get_cell_renderers()
+                        if renderer[0].props.editable:
+                            next_column = columns[i]
+                            cont2 = False
+                        else:
+                            i += 1
                     cont = False
 
             if keyname == 'Right':
                 renderer = columns[colnum].get_cell_renderers()
-                self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, None)
+                self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, filter)
             glib.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
         elif keyname == 'Left':
+
             cont = True
+            cont2 = True
             i = 0
             while cont:
                 i -= 1
                 if colnum + i > 0:
                     if columns[colnum + i].props.visible:
-                        next_column = columns[colnum + i]
-                        cont = False
+                        renderer = columns[colnum + i].get_cell_renderers()
+                        if renderer[0].props.editable:
+                            next_column = columns[colnum + i]
+                            cont = False
 
                 else:
-                    next_column = columns[-1]
+                    i = -1
+                    while cont2:
+                        renderer = columns[i].get_cell_renderers()
+                        if renderer[0].props.editable:
+                            next_column = columns[i]
+                            cont2 = False
+                        else:
+                            i -= 1
                     cont = False
+
             renderer = columns[colnum].get_cell_renderers()
-            self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, None)
+            self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, filter)
             glib.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
