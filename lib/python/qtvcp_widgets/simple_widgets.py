@@ -1,9 +1,9 @@
-import gobject
+
 from PyQt4 import QtCore, QtGui
 from functools import partial
 import hal
 
-hal_pin_changed_signal = ('hal-pin-changed', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
+
 
 """ Set of base classes """
 class _HalWidgetBase:
