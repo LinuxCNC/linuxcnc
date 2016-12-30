@@ -215,7 +215,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
         r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx4_addr,
                              &buff, sizeof(rtapi_u32));
         if (r < 0) {
-            HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+            HM2_ERR("UART WRITE: hm2->llio->write failure %s\n", name);
             return r;
         }
         c = c + 4;
@@ -228,7 +228,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx1_addr,
                                  &buff, sizeof(rtapi_u32));
             if (r < 0){
-                HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+                HM2_ERR("UART WRITE: hm2->llio->write failure %s\n", name);
                 return r;
             }else{
                 return c + 1;
@@ -239,7 +239,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx2_addr,
                                  &buff, sizeof(rtapi_u32));
             if (r < 0){
-                HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+                HM2_ERR("UART_WRITE: hm2->llio->write failure %s\n", name);
                 return r;
             }else{
                 return c + 2;
@@ -251,7 +251,7 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx3_addr,
                                  &buff, sizeof(rtapi_u32));
             if (r < 0){
-                HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+                HM2_ERR("UART WRITE: hm2->llio->write failure %s\n", name);
                 return r;
             }else{
                 return c + 3;
@@ -335,7 +335,7 @@ int hm2_uart_read(char *name, unsigned char data[])
             return -EINVAL;
     }
     if (r < 0) {
-        HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+        HM2_ERR("UART READ: hm2->llio->write failure %s\n", name);
         return -EINVAL;
     }
 }
