@@ -6,6 +6,7 @@ from qtvcp_widgets.simple_widgets import Lcnc_PushButton
 from qtvcp_widgets.simple_widgets import Lcnc_CheckBox
 from qtvcp_widgets.simple_widgets import Lcnc_LCDNumber
 from qtvcp_widgets.simple_widgets import Lcnc_QSlider
+from qtvcp_widgets.simple_widgets import Lcnc_GridLayout
 from qtvcp_widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -122,9 +123,9 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_lcdnumber')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('Lcnc_LCDNumber')))
     def toolTip(self):
-        return "HAL LCDNumber widget"
+        return "HAL LCD Display widget"
     def whatsThis(self):
         return ""
     def isContainer(self):
@@ -175,3 +176,34 @@ class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp_widgets.simple_widgets"
 
+####################################
+# GridLayout
+####################################
+class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return Lcnc_GridLayout(parent)
+    def name(self):
+        return "Lcnc_GridLayout"
+    def group(self):
+        return "Linuxcnc"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_gridlayout')))
+    def toolTip(self):
+        return "HAL enable/disable GridLayout widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="Lcnc_GridLayout" name="lcnc_gridlayout" />\n'
+    def includeFile(self):
+        return "qtvcp_widgets.simple_widgets"
