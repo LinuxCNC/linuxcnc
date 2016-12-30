@@ -614,7 +614,7 @@ class ToolEdit(gtk.VBox):
             model = treeview.get_model()
             # Check if currently in last row of Treeview
             if path[0] + 1 == len(model):
-                path = treeview.get_path_at_pos(0, 0)[0]
+                path = (0, )
                 # treeview.set_cursor(path, columns[colnum], True)
                 glib.timeout_add(50,
                                  treeview.set_cursor,
