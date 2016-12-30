@@ -5,7 +5,7 @@ import _hal, hal
 from PyQt4.QtCore import QObject, QTimer, pyqtSignal
 import linuxcnc
 
-class GPin(QObject, hal.Pin):
+class QPin(QObject, hal.Pin):
     value_changed = pyqtSignal()
 
     REGISTRY = []
@@ -22,7 +22,7 @@ class GPin(QObject, hal.Pin):
     def update(self):
         tmp = self.get()
         if tmp != self._prev:
-            self.emit('value-changed')
+            self.emit('value_changed')
         self._prev = tmp
 
     @classmethod
@@ -42,32 +42,32 @@ class GPin(QObject, hal.Pin):
 
     @classmethod
     def update_start(self, timeout=100):
-        if GPin.UPDATE:
+        if QPin.UPDATE:
             return
-        GPin.UPDATE = True
+        QPin.UPDATE = True
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_all)
         self.timer.start(100)
 
     @classmethod
     def update_stop(self, timeout=100):
-        GPin.UPDATE = False
+        QPin.UPDATE = False
 
-class GComponent:
+class QComponent:
     def __init__(self, comp):
-        if isinstance(comp, GComponent):
+        if isinstance(comp, QComponent):
             comp = comp.comp
         self.comp = comp
 
-    def newpin(self, *a, **kw): return GPin(_hal.component.newpin(self.comp, *a, **kw))
-    def getpin(self, *a, **kw): return GPin(_hal.component.getpin(self.comp, *a, **kw))
+    def newpin(self, *a, **kw): return QPin(_hal.component.newpin(self.comp, *a, **kw))
+    def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
 
-class _GStat(QObject):
+class _QStat(QObject):
     '''Emits signals based on linuxcnc status '''
     state_estop = pyqtSignal()
     state_estop_reset = pyqtSignal()
@@ -237,9 +237,9 @@ class _GStat(QObject):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-class GStat(_GStat):
+class QStat(_QStat):
     _instance = None
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = _GStat.__new__(cls, *args, **kwargs)
+            cls._instance = _QStat.__new__(cls, *args, **kwargs)
         return cls._instance
