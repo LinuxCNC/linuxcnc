@@ -1,3 +1,8 @@
+ver. 1.5.6.9
+- if no MACROS where given, or the paths where not correct, the Keyboard button
+  in MDI mode was not any more in the most right position, leading to wrong
+  order in horizontal hal button handling
+ 
 ver. 1.5.6.8
 - gmoccapy poll time for the GUI was hard coded till now, I changed that
   to take care of the INI File settings. If no or a wrong entry is in the 
