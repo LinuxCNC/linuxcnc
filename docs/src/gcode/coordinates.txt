@@ -11,20 +11,15 @@ These include:
 * Nine Coordinate System Offsets (G54-G59.3)
 * Global Offsets (G92)
 
+[[sec.machine-corrdinate-system]]
+
 == Machine Coordinate System
 
-Regardless of any offsets that may be in effect, putting a G53 in a block of
-code tells the interpreter to go to the real or absolute axis positions
-commanded in the block and ignore any offsets in effect. In the following
-example the machine will move to the machine coordinates set when the axes
-were homed and will ignore any coordianate system and global offsets in effect.
-
-----
-G53 G0 X0 Y0 Z0
-----
-
-G53 is not a modal command. It must be used on each line where motion
-based upon absolute machine position is desired.
+When LinuxCNC is started the postions of each axis is the machine origin. Once
+an axis homed the the machine orgin for that axis is set to the homed position.
+The machine origin is the machine coordinate system which all other coordinate
+systems are based. The <<gcode:g53,G53>> G code can be used to move in the
+machine coordinate system.
 
 == Coordinate Systems
 

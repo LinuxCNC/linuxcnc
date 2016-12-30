@@ -1372,7 +1372,8 @@ Text template for metric units::
 Text template for imperial units::
     You can use python formatting to display the position with different precision.
 Reference Type::
-    Absolute (machine origin), Relative (to current user coordinate origin - G5x)
+    Absolute <<sec.machine-corrdinate-system,(machine origin)>>, Relative
+    (to current user coordinate origin - G5x)
     or Distance-to-go (relative to current user coordinate origin)
 Joint Number::
     Used to select which axis (technically which joint) is displayed.
