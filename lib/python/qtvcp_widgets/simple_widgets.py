@@ -4,8 +4,10 @@ from functools import partial
 import hal
 
 
-
+###########################
 """ Set of base classes """
+###########################
+
 class _HalWidgetBase:
     def hal_init(self, comp, name, object):
         self.hal, self.hal_name = comp, name
@@ -39,6 +41,11 @@ class _HalScaleBase(_HalWidgetBase):
     def hal_update(self, *a):
         pass
         self.hal_pin.set(self.get_value())
+
+class _HalSensitiveBase(_HalWidgetBase):
+    def _hal_init(self):
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin.connect('value-changed', lambda s: self.setEnabled(s.value))
 
 ######################
 # REAL WIDGETS
@@ -80,3 +87,8 @@ class Lcnc_QSlider(QtGui.QSlider, _HalWidgetBase):
             self.hal_pin_s.set(data)
             self.hal_pin_f.set(data*scale)
         QtCore.QObject.connect(self.qt_object, QtCore.SIGNAL("valueChanged(int)"), partial(_f))
+
+class Lcnc_GridLayout(QtGui.QWidget, _HalSensitiveBase):
+    def __init__(self, parent = None):
+        QtGui.QGridLayout.__init__(self, parent)
+
