@@ -64,6 +64,10 @@ class Lcnc_CheckBox(QtGui.QCheckBox, _HalToggleBase):
     def __init__(self, parent = None):
         QtGui.QCheckBox.__init__(self, parent)
 
+class Lcnc_RadioButton(QtGui.QRadioButton, _HalToggleBase):
+    def __init__(self, parent = None):
+        QtGui.QRadioButton.__init__(self, parent)
+
 class Lcnc_PushButton(QtGui.QPushButton, _HalWidgetBase):
     def __init__(self, parent = None):
         QtGui.QPushButton.__init__(self, parent)

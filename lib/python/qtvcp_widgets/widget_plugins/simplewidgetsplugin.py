@@ -4,12 +4,16 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp_widgets.simple_widgets import Lcnc_PushButton
 from qtvcp_widgets.simple_widgets import Lcnc_CheckBox
+from qtvcp_widgets.simple_widgets import Lcnc_RadioButton
 from qtvcp_widgets.simple_widgets import Lcnc_LCDNumber
 from qtvcp_widgets.simple_widgets import Lcnc_QSlider
 from qtvcp_widgets.simple_widgets import Lcnc_GridLayout
 from qtvcp_widgets.qtvcp_icons import Icon
 ICON = Icon()
 
+####################################
+# PUSHBUTTON
+####################################
 class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # The __init__() method is only used to set up the plugin and define its
@@ -103,6 +107,37 @@ class CheckBoxPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp_widgets.simple_widgets"
 
+####################################
+# RADIOBUTTON
+####################################
+class RadioButtonPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return Lcnc_RadioButton(parent)
+    def name(self):
+        return "Lcnc_RadioButton"
+    def group(self):
+        return "Linuxcnc"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_radiobutton')))
+    def toolTip(self):
+        return "HAL Radiobutton widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="Lcnc_RadioButton" name="lcnc_radiobutton" />\n'
+    def includeFile(self):
+        return "qtvcp_widgets.simple_widgets"
 ####################################
 # LCD Display
 ####################################
