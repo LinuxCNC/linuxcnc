@@ -1,5 +1,6 @@
 import os,sys
 from PyQt4 import QtCore,QtGui, uic
+import traceback
 
 qtvcp_debug = 1
 def dbg(str):
