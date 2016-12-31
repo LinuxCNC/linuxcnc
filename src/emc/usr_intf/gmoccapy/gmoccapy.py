@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.6.3"
+_RELEASE = " 2.1.6.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2303,10 +2303,6 @@ class gmoccapy(object):
     # check if macros are in the INI file and add them to MDI Button List
     def _add_macro_button(self):
         macros = self.get_ini_info.get_macros()
-
-        # There are no macro entries in INI File
-        if not macros:
-            return
 
         num_macros = len( macros )
         if num_macros > 9:

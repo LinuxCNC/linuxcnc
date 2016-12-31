@@ -1,3 +1,9 @@
+ver. 2.1.6.4
+- Added the patch from ver. 1.5.6.9
+    * if no MACROS where given, or the paths where not correct, the Keyboard button
+      in MDI mode was not any more in the most right position, leading to wrong
+      order in horizontal hal button handling
+
 ver. 2.1.6.3
 - Dawey Garret changed the init_glcanondraw() behavior, making
   some changes in gmoccapy and getiniinfo. That is why I changed the 
