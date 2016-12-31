@@ -32,7 +32,7 @@
   <widget class="Lcnc_LCDNumber" name="lnclcdnumber">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>670</x>
      <y>10</y>
      <width>141</width>
      <height>61</height>
@@ -178,19 +178,6 @@
     </property>
    </widget>
   </widget>
-  <widget class="Lcnc_PushButton" name="lncpushbutton">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>470</y>
-     <width>121</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>hal button</string>
-   </property>
-  </widget>
   <widget class="Graphics" name="graphics">
    <property name="geometry">
     <rect>
@@ -207,6 +194,61 @@
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QSlider" name="horizontalSlider">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="lcdNumber">
+   <property name="geometry">
+    <rect>
+     <x>133</x>
+     <y>232</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Lcnc_GridLayout" name="lcnc_gridlayout">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>460</y>
+     <width>171</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>{0}</string>
+   </property>
+   <property name="whatsThis">
+    <string>{1}</string>
+   </property>
+   <property name="styleSheet">
+    <string>background-color: rgb(184, 184, 184);</string>
+   </property>
+   <widget class="Lcnc_PushButton" name="lncpushbutton">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>121</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>hal button</string>
+    </property>
+   </widget>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -218,6 +260,12 @@
    <class>Lcnc_LCDNumber</class>
    <extends>QLCDNumber</extends>
    <header>qtvcp_widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_GridLayout</class>
+   <extends>QGridLayout</extends>
+   <header>qtvcp_widgets.simple_widgets</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Lcnc_PushButton</class>
@@ -480,6 +528,22 @@
     <hint type="destinationlabel">
      <x>134</x>
      <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>169</x>
+     <y>249</y>
     </hint>
    </hints>
   </connection>
