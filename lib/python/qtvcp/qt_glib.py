@@ -69,6 +69,7 @@ class QComponent:
 
 class _QStat(QObject):
     '''Emits signals based on linuxcnc status '''
+    widget_update = pyqtSignal()
     state_estop = pyqtSignal()
     state_estop_reset = pyqtSignal()
     state_on = pyqtSignal()
@@ -76,6 +77,7 @@ class _QStat(QObject):
     homed = pyqtSignal(str)
     all_homed = pyqtSignal()
     not_all_homed = pyqtSignal(str)
+    override_limits_changed = pyqtSignal(list)
 
     mode_manual = pyqtSignal()
     mode_auto = pyqtSignal()
@@ -86,11 +88,40 @@ class _QStat(QObject):
     interp_paused = pyqtSignal()
     interp_reading = pyqtSignal()
     interp_waiting = pyqtSignal()
+    jograte_changed = pyqtSignal(float)
+
+    program_pause_changed = pyqtSignal(bool)
+    optional_stop_changed = pyqtSignal(bool)
+    block_delete_changed = pyqtSignal(bool)
 
     file_loaded = pyqtSignal(str)
     reload_display = pyqtSignal()
     line_changed = pyqtSignal(int)
+
     tool_in_spindle_changed = pyqtSignal(int)
+    spindle_control_changed = pyqtSignal(int)
+    current_feed_rate = pyqtSignal(float)
+    current_x_rel_position = pyqtSignal(float)
+
+    spindle_override_changed = pyqtSignal(float)
+    feed_override_changed = pyqtSignal(float)
+    rapid_override_changed = pyqtSignal(float)
+
+    feed_hold_enabled_changed = pyqtSignal(bool)
+
+    itime_mode = pyqtSignal(bool)
+    fpm_mode = pyqtSignal(bool)
+    fpr_mode = pyqtSignal(bool)
+    css_mode = pyqtSignal(bool)
+    rpm_mode = pyqtSignal(bool)
+    radius_mode = pyqtSignal(bool)
+    diameter_mode = pyqtSignal(bool)
+
+    m_code_changed = pyqtSignal(str)
+    g_code_changed = pyqtSignal(str)
+
+    metric_mode_changed = pyqtSignal(bool)
+    user_system_changed = pyqtSignal(int)
 
     STATES = { linuxcnc.STATE_ESTOP:       'state_estop'
              , linuxcnc.STATE_ESTOP_RESET: 'state_estop_reset'
@@ -121,6 +152,7 @@ class _QStat(QObject):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
         self.timer.start(100)
+        self.current_jog_rate = 15
 
     def merge(self):
         self.old['state'] = self.stat.task_state
@@ -134,6 +166,62 @@ class _QStat(QObject):
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool_in_spindle'] = self.stat.tool_in_spindle
+
+        self.old['paused']= self.stat.paused
+        self.old['spindle_or'] = self.stat.spindlerate
+        self.old['feed_or'] = self.stat.feedrate
+        self.old['rapid_or'] = self.stat.rapidrate
+        self.old['feed_hold']  = self.stat.feed_hold_enabled
+        self.old['g5x_index']  = self.stat.g5x_index
+        self.old['spindle_enabled']  = self.stat.spindle_enabled
+        self.old['spindle_direction']  = self.stat.spindle_direction
+        self.old['block_delete']= self.stat.block_delete
+        self.old['optional_stop']= self.stat.optional_stop
+        # override limits
+        or_limit_list=[]
+        for i in range(0,8):
+            or_limit_list.append( self.stat.axis[i]['override_limits'])
+        self.old['override_limits'] = or_limit_list
+        # active G codes
+        active_gcodes = []
+        codes =''
+        for i in sorted(self.stat.gcodes[1:]):
+            if i == -1: continue
+            if i % 10 == 0:
+                    active_gcodes.append("G%d" % (i/10))
+            else:
+                    active_gcodes.append("G%d.%d" % (i/10, i%10))
+        for i in active_gcodes:
+            codes = codes +('%s '%i)
+        self.old['g_code'] = codes
+        # extract specific G code modes
+        itime = fpm = fpr = css = rpm = metric = False
+        radius = diameter = False
+        for num,i in enumerate(active_gcodes):
+            if i == 'G93': itime = True
+            elif i == 'G94': fpm = True
+            elif i == 'G95': fpr = True
+            elif i == 'G96': css = True
+            elif i == 'G97': rpm = True
+            elif i == 'G21': metric = True
+            elif i == 'G7': diameter  = True
+            elif i == 'G8': radius = True
+        self.old['itime'] = itime
+        self.old['fpm'] = fpm
+        self.old['fpr'] = fpr
+        self.old['css'] = css
+        self.old['rpm'] = rpm
+        self.old['metric'] = metric
+        self.old['radius'] = radius
+        self.old['diameter'] = diameter
+
+        # active M codes
+        active_mcodes = ''
+        for i in sorted(self.stat.mcodes[1:]):
+            if i == -1: continue
+            active_mcodes = active_mcodes + ("M%s "%i)
+            #active_mcodes.append("M%s "%i)
+        self.old['m_code'] = active_mcodes
 
     def update(self):
         try:
@@ -174,6 +262,26 @@ class _QStat(QObject):
                 print "Emit", "interp_run"
                 self.interp_run.emit()
             self[self.INTERP[interp_new]].emit()
+
+
+
+        # paused
+        paused_old = old.get('paused', None)
+        paused_new = self.old['paused']
+        if paused_new != paused_old:
+            self.program_pause_changed.emit(paused_new)
+        # block delete
+        block_delete_old = old.get('block_delete', None)
+        block_delete_new = self.old['block_delete']
+        if block_delete_new != block_delete_old:
+            self.block_delete_changed.emit(block_delete_new)
+        # optional_stop
+        optional_stop_old = old.get('optionaL_stop', None)
+        optional_stop_new = self.old['optional_stop']
+        if optional_stop_new != optional_stop_old:
+            self.optional_stop_changed.emit(optional_stop_new)
+
+
 
         file_old = old.get('file', None)
         file_new = self.old['file']
@@ -230,7 +338,187 @@ class _QStat(QObject):
             else:
                 self.not_all_homed.emit(unhomed)
 
+        # override limts
+        or_limits_old = old.get('override_limits', None)
+        or_limits_new = self.old['override_limits']
+        if or_limits_new != or_limits_old:
+            self.override_limits_changed.emit(or_limits_new)
+        # current velocity
+        self.current_feed_rate.emit(self.stat.current_vel * 60.0)
+        # X relative position
+        position = self.stat.actual_position[0]
+        g5x_offset = self.stat.g5x_offset[0]
+        tool_offset = self.stat.tool_offset[0]
+        g92_offset = self.stat.g92_offset[0]
+        self.current_x_rel_position.emit(position - g5x_offset - tool_offset - g92_offset)
+        # spindle control
+        spindle_enabled_old = old.get('spindle_enabled', None)
+        spindle_enabled_new = self.old['spindle_enabled']
+        spindle_direction_old = old.get('spindle_direction', None)
+        spindle_direction_new = self.old['spindle_direction']
+        if spindle_enabled_new != spindle_enabled_old or spindle_direction_new != spindle_direction_old:
+            self.spindle_control_changed.emit( spindle_enabled_new, spindle_direction_new)
+        # spindle override
+        spindle_or_old = old.get('spindle_or', None)
+        spindle_or_new = self.old['spindle_or']
+        if spindle_or_new != spindle_or_old:
+            self.spindle_override_changed.emit(spindle_or_new * 100)
+        # feed override
+        feed_or_old = old.get('feed_or', None)
+        feed_or_new = self.old['feed_or']
+        if feed_or_new != feed_or_old:
+            self.feed_override_changed.emit(feed_or_new * 100)
+        # rapid override
+        rapid_or_old = old.get('rapid_or', None)
+        rapid_or_new = self.old['rapid_or']
+        if rapid_or_new != rapid_or_old:
+            self.rapid_override_changed.emit(rapid_or_new * 100)
+        # feed hold
+        feed_hold_old = old.get('feed_hold', None)
+        feed_hold_new = self.old['feed_hold']
+        if feed_hold_new != feed_hold_old:
+            self.feed_hold_enabled_changed.emit(feed_hold_new)
+        # G5x (active user system)
+        g5x_index_old = old.get('g5x_index', None)
+        g5x_index_new = self.old['g5x_index']
+        if g5x_index_new != g5x_index_old:
+            self.user_system_changed.emit(g5x_index_new)
+        # inverse time mode g93
+        itime_old = old.get('itime', None)
+        itime_new = self.old['itime']
+        if itime_new != itime_old:
+            self.itime_mode.emit(itime_new)
+
+
+
+
+        # feed per minute mode g94
+        fpm_old = old.get('fpm', None)
+        fpm_new = self.old['fpm']
+        if fpm_new != fpm_old:
+            self.fpm_mode.emit(fpm_new)
+        # feed per revolution mode g95
+        fpr_old = old.get('fpr', None)
+        fpr_new = self.old['fpr']
+        if fpr_new != fpr_old:
+            self.fpr_mode.emit(fpr_new)
+        # css mode g96
+        css_old = old.get('css', None)
+        css_new = self.old['css']
+        if css_new != css_old:
+            self.css_mode.emit(css_new)
+        # rpm mode g97
+        rpm_old = old.get('rpm', None)
+        rpm_new = self.old['rpm']
+        if rpm_new != rpm_old:
+            self.rpm_mode.emit(rpm_new)
+        # radius mode g8
+        radius_old = old.get('radius', None)
+        radius_new = self.old['radius']
+        if radius_new != radius_old:
+            self.radius_mode.emit(radius_new)
+        # diameter mode g7
+        diam_old = old.get('diameter', None)
+        diam_new = self.old['diameter']
+        if diam_new != diam_old:
+            self.diameter_mode.emit(diam_new)
+        # M codes
+        m_code_old = old.get('m_code', None)
+        m_code_new = self.old['m_code']
+        if m_code_new != m_code_old:
+            self.m_code_changed.emit(m_code_new)
+        # G codes
+        g_code_old = old.get('g_code', None)
+        g_code_new = self.old['g_code']
+        if g_code_new != g_code_old:
+            self.g_code_changed.emit(g_code_new)
+        # metric mode g21
+        metric_old = old.get('metric', None)
+        metric_new = self.old['metric']
+        if metric_new != metric_old:
+            self.metric_mode_changed.emit(metric_new)
+        # A widget can register for an update signal ever 100ms
+        self.widget_update.emit()
+        # AND DONE... Return true to continue timeout
         return True
+
+
+    def forced_update(self):
+        print 'forced!'
+        try:
+            self.stat.poll()
+        except:
+            # Reschedule
+            return True
+        self.merge()
+        self.jograte_changed.emit(15)
+        # override limts
+        or_limits_new = self.old['override_limits']
+        print 'override',or_limits_new
+        self.override_limits_changed.emit(or_limits_new)
+        # overrides
+        feed_or_new = self.old['feed_or']
+        self.feed_override_changed.emit(feed_or_new * 100)
+        rapid_or_new = self.old['rapid_or']
+        self.rapid_override_changed.emit(rapid_or_new  * 100)
+        spindle_or_new = self.old['spindle_or']
+        self.spindle_override_changed.emit(spindle_or_new  * 100)
+
+        # spindle speed mpde
+        css_new = self.old['css']
+        if css_new:
+            self.css_mode.emit(css_new)
+        rpm_new = self.old['rpm']
+        if rpm_new:
+            self.rpm_mode.emit(rpm_new)
+
+        # feed mode:
+        itime_new = self.old['itime']
+        if itime_new:
+            self.itime_mode.emit(itime_new)
+        fpm_new = self.old['fpm']
+        if fpm_new:
+            self.fpm_mode.emit(fpm_new)
+        fpr_new = self.old['fpr']
+        if fpr_new:
+            self.fpr_mode.emit(fpr_new)
+        # paused
+        paused_new = self.old['paused']
+        self.program_pause_changed.emit(paused_new)
+        # block delete
+        block_delete_new = self.old['block_delete']
+        self.block_delete_changed.emit(block_delete_new)
+        # optional_stop
+        optional_stop_new = self.old['optional_stop']
+        self.optional_stop_changed.emit(optional_stop_new)
+        # user system G5x
+        system_new = self.old['g5x_index']
+        if system_new:
+            self.user_system_changed.emit(system_new)
+        # radius mode g8
+        radius_new = self.old['radius']
+        self.radius_mode.emit(radius_new)
+        # diameter mode g7
+        diam_new = self.old['diameter']
+        self.diameter_mode.emit(diam_new)
+        # M codes
+        m_code_new = self.old['m_code']
+        self.m_code_changed.emit(m_code_new)
+        # G codes
+        g_code_new = self.old['g_code']
+        self.g_code_changed.emit(g_code_new)
+        # metric units G21
+        metric_new = self.old['metric']
+        if metric_new:
+            self.metric_mode_changed.emit(metric_new)
+        # tool in spindle
+        tool_new = self.old['tool_in_spindle']
+        self.tool_in_spindle_changed.emit( tool_new)
+
+
+    def set_jog_rate(self,upm):
+        self.current_jog_rate = upm
+        self.jograte_changed.emit(upm)
 
     def __getitem__(self, item):
         return getattr(self, item)
