@@ -19,6 +19,12 @@ class HandlerClass:
         self.qstat.state_estop.connect(self.say_estop)
         self.qstat.state_on.connect(self.on_state_on)
         self.qstat.state_off.connect(self.on_state_off)
+        self.qstat.jograte_changed.connect(self.on_jograte_changed)
+        self.qstat.forced_update()
+
+    def on_jograte_changed(self,rate):
+        print 'jograte =',rate
+        self.jog_velocity = rate
 
     def say_estop(self):
         print 'saying estop'
