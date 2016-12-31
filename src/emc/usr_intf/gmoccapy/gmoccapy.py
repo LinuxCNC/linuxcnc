@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.6.4"
+_RELEASE = " 2.1.6.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
