@@ -16,7 +16,7 @@ As a good example for that see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
 
 *gmoccapy 2 does support up to 5 axis and 8 joints.* As this manual does belong
-to both releases, some option may not be availible to you. If nothing special
+to both releases, some option may not be available to you. If nothing special
 has been mentioned in a chapter, than it belong to both releases. As it has been
 changed to support the joint / axis changes in LinuxCNC it does not work on 2.7
 or 2.6 branch!
@@ -36,7 +36,7 @@ published to other users. At the Moment it is available in English, German,
 Spanish, Polish, Serbian and Hungarian. Feel free to help me to introduce more 
 languages, *nieson@web.de*. If you need help, don't hesitate to ask.
 
-image::images/gmoccapy_4_axis.png[align="left"]
+image::images/gmoccapy_5_axis.png[align="left"]
 
 == Requirements
 
@@ -347,7 +347,7 @@ SUBROUTINE_PATH = macros
 ----
 
 Sets the path to search for macros and other subroutines. If you want to use
-several subroutine paths, just separets them wit ":"
+several subroutine paths, just separate them wit ":"
 
 [[gmoccapy:macros]]
 
@@ -553,7 +553,7 @@ To connect encoders the following pin are exported:
 * gmoccapy.max-velocity.counts            = HAL_S32  Maximal Velocity of the machine
 * gmoccapy.max-velocity.count-enable      = HAL_BIT  Must be True, to enable counts
 
-To connect potmeters, use the following hal pin:
+To connect potentiometers, use the following hal pin:
 
 * gmoccapy.jog-speed.direct-value         = HAL_FLOAT To adjust the jog velocity slider
 * gmoccapy.jog-speed.analog-enable        = HAL_BIT   Must be True, to allow analog inputs
@@ -586,7 +586,7 @@ This change has been done as many user ask for that.
 * gmoccapy.rapid.rapid_override.counts       = HAL_S32  Maximal Velocity of the machine
 * gmoccapy.rapid.rapid_override.count-enable = HAL_BIT  Must be True, to enable counts
 
-To connect potmeters, use the following hal pin:
+To connect potentiometers, use the following hal pin:
 
 * gmoccapy.jog.jog-velocity.direct-value     = HAL_FLOAT To adjust the jog velocity slider
 * gmoccapy.jog.jog-velocity.analog-enable    = HAL_BIT   Must be True, to allow analog inputs
@@ -704,12 +704,12 @@ divider can be set on the <<gmoccapy:turtle-jog,settings page>>.
 
 So using a touch screen it is much easier to select smaller velocities.
 
-gmoccapy offers a hal pin to toggle between turtle and rabit jogging
+gmoccapy offers a hal pin to toggle between turtle and rabbit jogging
 
 * gmoccapy.turtle-jog   (Hal Bit In)
 
 [Note]
-in gmoccayp2 it is
+in gmoccapy2 it is
 
 * gmoccapy.jog.turtle-jog   (Hal Bit In)
 
@@ -1210,7 +1210,7 @@ NOTE: Imperial will show one digit more that metric. So if you are in imperial m
 
 'toggle DRO mode' + 
 if not active, a mouse click on the DRO will not take any action. + 
-By default this checkbox is active, so every click on any DRO will toogle the DRO readout from actual to relative to DTG (distance to go). + + 
+By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). + + 
 
 Preview::
 
@@ -1426,7 +1426,15 @@ You can do that by checking the checkbox, that will hide:
  * 4'th axis Jog button
  * 4'th axis home button
  * column of 4'th axis in the offsetpage
- * column of 4'th axis in the tolleditor
+ * column of 4'th axis in the tooleditor
+
+[[gmoccapy:reload-tool-on-start]]
+
+If checked, the tool in spindle will be saved on each change in the preference 
+file, making it possible to reload the last mounted tool on start up.
+The tool will be loaded after all axis are homed, because before it is not
+allowed to execute MDI commands. If you use NO_FORCE_HOMING you can not use
+this feature, because the needed all_homed_signal will never be emitted.
 
 [[gmoccapy:message-behavior]]
 
@@ -1518,7 +1526,7 @@ offset and the tool table is showing all lathe relevant information.
 
 == Plasma Specific Section
 
-image::images/gmoccapy_plasma_1.png[align="left"]
+image::images/gmoccapy_plasma.png[align="left"]
 
 There is a very good WIKI, which is actually growing, maintained by Marius
 see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page]
