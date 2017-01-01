@@ -1,3 +1,10 @@
+ver. 2.2.0
+- gmoccapy will save the tool in spindle on every change in its
+  preference file and reload that tool with it's length offset
+  till now only tested for mill!
+  This will not work if NO_FORCE_HOMING is used, because with such
+  a configuration the signal "all_homed" will not be emitted.
+
 ver. 2.1.6.5
 - changed the expanding way of the widgets in the INFO box
   to better appearance on 16:9 screens, the tool info will 

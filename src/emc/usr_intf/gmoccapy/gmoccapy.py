@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.1.6.5"
+_RELEASE = " 2.2.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -182,6 +182,7 @@ class gmoccapy(object):
 
         self.distance = 0         # This global will hold the jog distance
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
+        self.load_tool = False    # We use this avoid mode switching on reloading the tool on start up of the GUI
         self.macrobuttons = []    # The list of all macros defined in the INI file
         self.fo_counts = 0        # need to calculate difference in counts to change the feed override slider
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
@@ -1640,6 +1641,7 @@ class gmoccapy(object):
         ]
         self._sensitize_widgets(widgetlist, True)
         self.set_motion_mode(1)
+        self.reload_tool()
 
     def on_hal_status_not_all_homed(self, widget, joints):
         self.all_homed = False
@@ -1679,6 +1681,8 @@ class gmoccapy(object):
             # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
+        if self.load_tool:
+            return
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
@@ -1732,6 +1736,8 @@ class gmoccapy(object):
         self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
+        # need to save the tool in spindle as preference, to be able to reload it on startup
+        self.prefs.putpref("tool_in_spindle", new_tool_no, int)
         self._update_toolinfo(new_tool_no)
 
     def on_hal_status_state_estop(self, widget=None):
@@ -1790,6 +1796,7 @@ class gmoccapy(object):
             self.command.wait_complete()
 
     def on_hal_status_mode_manual(self, widget):
+        print ("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
         # if setup page is activated, we must leave here, otherwise the pages will be reset
         if self.widgets.tbtn_setup.get_active():
@@ -1812,6 +1819,7 @@ class gmoccapy(object):
 
 
     def on_hal_status_mode_mdi(self, widget):
+        print ("MDI Mode", self.tool_change)
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -1853,6 +1861,7 @@ class gmoccapy(object):
 
 
     def on_hal_status_mode_auto(self, widget):
+        print ("AUTO Mode")
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to abort external commands and get back to manual mode
         # This will happen mostly, if we are in settings mode, as we do disable the mode button
@@ -2519,6 +2528,11 @@ class gmoccapy(object):
         else:
             self.widgets.btn_tool_touchoff_x.set_sensitive(True)
             self.widgets.btn_tool_touchoff_z.set_sensitive(True)
+
+        if self.load_tool:
+            self.load_tool = False
+            self.on_hal_status_interp_idle(None)
+            return
 
         if "G43" in self.active_gcodes and self.stat.task_mode != linuxcnc.MODE_AUTO:
             self.command.mode(linuxcnc.MODE_MDI)
@@ -3752,6 +3766,22 @@ class gmoccapy(object):
 
 # =========================================================
 # tool stuff
+    # This is used to reload the tool in spindle after starting the GUI
+    # This is called from the all_homed_signal
+    def reload_tool(self):
+        tool_to_load = self.prefs.getpref("tool_in_spindle", 0, int)
+        if tool_to_load == 0:
+            return
+        self.load_tool = True
+        self.tool_change = True
+
+        self.command.mode(linuxcnc.MODE_MDI)
+        self.command.wait_complete()
+
+        command = "M61 Q %d G43" %(tool_to_load)
+        self.command.mdi(command)
+        self.command.wait_complete()
+
     def on_btn_tool_clicked(self, widget, data=None):
         if self.widgets.tbtn_fullsize_preview.get_active():
             self.widgets.tbtn_fullsize_preview.set_active(False)
