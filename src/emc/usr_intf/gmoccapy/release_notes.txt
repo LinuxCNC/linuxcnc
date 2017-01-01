@@ -1,3 +1,7 @@
+ver. 2.2.0.1
+- make the reload tool option a selectable feature on the
+  settings page. It will be on by default!
+
 ver. 2.2.0
 - gmoccapy will save the tool in spindle on every change in its
   preference file and reload that tool with it's length offset

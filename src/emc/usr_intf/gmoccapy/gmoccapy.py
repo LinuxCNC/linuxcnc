@@ -393,6 +393,9 @@ class gmoccapy(object):
             self.widgets.btn_block_height.show()
             self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
 
+        # should the tool in spindle be reloaded on startup?
+        self.widgets.chk_reload_tool.set_active(self.prefs.getpref("reload_tool", True, bool))
+
         # and the rest of the widgets
         self.widgets.rbt_manual.set_active(True)
         self.widgets.ntb_jog.set_current_page(0)
@@ -614,6 +617,12 @@ class gmoccapy(object):
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
+
+        # disable reload tool on start up, if True
+        if self.no_force_homing:
+            self.widgets.chk_reload_tool.set_sensitive(False)
+            self.widgets.chk_reload_tool.set_active(False)
+            self.widgets.lbl_reload_tool.set_visible(True)
 
         # if there is a INI Entry for default spindle speed, we will use that one as default
         # but if there is a setting in our preference file, that one will beet the INI entry
@@ -1641,7 +1650,8 @@ class gmoccapy(object):
         ]
         self._sensitize_widgets(widgetlist, True)
         self.set_motion_mode(1)
-        self.reload_tool()
+        if self.widgets.chk_reload_tool.get_active():
+            self.reload_tool()
 
     def on_hal_status_not_all_homed(self, widget, joints):
         self.all_homed = False
@@ -3517,6 +3527,11 @@ class gmoccapy(object):
             self.halcomp["probevel"] = 0.0
             self.halcomp["probeheight"] = 0.0
         self.prefs.putpref("use_toolmeasurement", widget.get_active())
+
+    def on_chk_reload_tool_toggled(self, widget, data=None):
+        state = widget.get_active()
+        self.reload_tool_enabled = state
+        self.prefs.putpref("reload_tool", state)
 
     def on_btn_block_height_clicked(self, widget, data=None):
         probeheight = self.widgets.spbtn_probe_height.get_value()

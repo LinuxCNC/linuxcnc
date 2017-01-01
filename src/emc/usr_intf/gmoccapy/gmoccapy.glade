@@ -163,10 +163,10 @@
     <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
     <signal name="all-homed" handler="on_hal_status_all_homed" swapped="no"/>
     <signal name="not-all-homed" handler="on_hal_status_not_all_homed" swapped="no"/>
-    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
-    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
-    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
     <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
+    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
+    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
+    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
     <signal name="line-changed" handler="on_hal_status_line_changed" swapped="no"/>
     <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
     <signal name="mode-auto" handler="on_hal_status_mode_auto" swapped="no"/>
@@ -5476,7 +5476,7 @@ clicking on the DRO</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkVBox" id="vbox4">
+                              <object class="GtkVBox" id="vbox_tool_settings">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
@@ -5853,6 +5853,80 @@ to configure the settings.</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <object class="GtkFrame" id="frm_reload_tool">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="ali_reload_tool">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
+                                        <child>
+                                          <object class="GtkVBox" id="vbox_reload_tool">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkCheckButton" id="chk_reload_tool">
+                                                <property name="label" translatable="yes">Reload Tool on Start</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="tooltip_text" translatable="yes">If checked, the tool in spindle
+will be saved on each change
+and the last tool will be reloaded
+at start of the GUI. Also it's 
+length offset will be reloaded.
+</property>
+                                                <property name="use_action_appearance">False</property>
+                                                <property name="active">True</property>
+                                                <property name="draw_indicator">True</property>
+                                                <signal name="toggled" handler="on_chk_reload_tool_toggled" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="lbl_reload_tool">
+                                                <property name="can_focus">False</property>
+                                                <property name="xpad">4</property>
+                                                <property name="label" translatable="yes">You use NO_FORCE_HOMING,
+so the reload of a tool at start
+is not possible.</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="lbl_frm_reload_tool">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Reload Tool&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="padding">10</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -5889,6 +5963,8 @@ to configure the settings.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="tooltip_text" translatable="yes">If checked, the messages
+will be in a frame.</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="draw_indicator">True</property>
                                                 <signal name="toggled" handler="on_chk_use_frames_toggled" swapped="no"/>
@@ -5950,6 +6026,7 @@ to configure the settings.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="tooltip_text" translatable="yes">The font to use</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="font_name">Sans 10</property>
                                                 <signal name="font-set" handler="on_fontbutton_popup_font_set" swapped="no"/>
@@ -5965,6 +6042,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_max_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">The maximum messages you want to be shown	</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
@@ -5988,6 +6066,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_width_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">The width of the messages</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="progress_fraction">0.0099999997764825821</property>
@@ -6042,6 +6121,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_x_pos_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">X-position in pixel from top left corner of the screen</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
@@ -6063,6 +6143,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_y_pos_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">Y-position in pixel from top left corner of the screen</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
@@ -6088,6 +6169,8 @@ to configure the settings.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="tooltip_text" translatable="yes">Push here to launch a test message
+to test your settings.</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <signal name="pressed" handler="on_btn_launch_test_message_pressed" swapped="no"/>
                                               </object>
@@ -6126,13 +6209,18 @@ to configure the settings.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkVBox" id="vbox20">
+                              <object class="GtkVBox" id="vbox_run_from_lin">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkFrame" id="frm_run_from_line">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="tooltip_text" translatable="yes">It is not recommended to use run from line
+as LinuxCNC is handling this without 
+checking the code previous to the selected line.
+So you must take care for tool changes, speeds
+feeds and cooling, etc.</property>
                                     <property name="label_xalign">0.5</property>
                                     <child>
                                       <object class="GtkAlignment" id="ali_run_from_line">
