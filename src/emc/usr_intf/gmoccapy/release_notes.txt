@@ -1,3 +1,7 @@
+ver. 1.5.6.10
+- if no MARCO was found in INI getiniinfo returned a NONE, leading to an
+  exception in gmoccapy, corrected that.
+
 ver. 1.5.6.9
 - if no MACROS where given, or the paths where not correct, the Keyboard button
   in MDI mode was not any more in the most right position, leading to wrong

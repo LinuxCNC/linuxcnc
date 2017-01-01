@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.9"
+_RELEASE = " 1.5.6.10"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2139,7 +2139,12 @@ class gmoccapy( object ):
     def _add_macro_button( self ):
         macros = self.get_ini_info.get_macros()
 
-        num_macros = len( macros )
+        # we have to check here for NONE, as we get that if no macros are in INI file
+        if not macros:
+            num_macros = 0
+        else:
+            num_macros = len( macros )
+
         if num_macros > 9:
             message = _( "**** GMOCCAPY INFO ****\n" )
             message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
