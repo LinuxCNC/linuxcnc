@@ -2440,7 +2440,7 @@ class TclCommands(nf.TclCommands):
         if s.tool_in_spindle == 0: return
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Tool Touch Off (Tool No:%s)"%s.tool_in_spindle),
+                title=_("Tool %s TouchOff"%s.tool_in_spindle),
                 text=_("Enter %s coordinate relative to %%s:") % vars.current_axis.get().upper(),
                 default=0.0,
                 tool_only=True,
