@@ -1,3 +1,7 @@
+ver. 2.2.0.2
+- if no MACROS was given in INI file, the getiniinfo returns a NONE,
+  leading to an exception in gmoccapy, corrected that
+
 ver. 2.2.0.1
 - make the reload tool option a selectable feature on the
   settings page. It will be on by default!

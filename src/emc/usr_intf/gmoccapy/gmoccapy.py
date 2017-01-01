@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.0"
+_RELEASE = " 2.2.0.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2323,7 +2323,12 @@ class gmoccapy(object):
     def _add_macro_button(self):
         macros = self.get_ini_info.get_macros()
 
-        num_macros = len( macros )
+        # if no macros at all are found, we receieve a NONW, so we have to check:
+        if not macros:
+            num_macros = 0
+        else:
+            num_macros = len( macros )
+
         if num_macros > 9:
             message = _( "**** GMOCCAPY INFO ****\n" )
             message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
