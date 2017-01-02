@@ -498,8 +498,9 @@ A search is made for each possible user defined function, typically
 +
 The first executable M1xx found in the search is used for each M1xx.
 
-* 'USER_DEFINED_FUNCTION_MAX_DIRS=5'. The maximum number of directories defined
-   at compile time. 
+[NOTE]
+The maximum number of USER_M_PATH directories is defined at compile
+time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
