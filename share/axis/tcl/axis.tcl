@@ -1555,13 +1555,6 @@ label .info.tool \
 	-textvariable tool \
 	-width 30
 
-label .info.offset \
-	-anchor w \
-	-borderwidth 2 \
-	-relief sunken \
-	-textvariable offset \
-	-width 25
-
 label .info.position \
 	-anchor w \
 	-borderwidth 2 \
