@@ -1569,7 +1569,7 @@ Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk
 
 Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4
 
-== Known problems
+== Known problems 
 
 === Strange numbers in the info area
 
