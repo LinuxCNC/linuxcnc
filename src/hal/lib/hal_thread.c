@@ -45,6 +45,8 @@ static void thread_task(void *arg)
 	    // expose current invocation period as pin (includes jitter)
 	    act_period = fa.start_time - fa.last_start_time;
 	    set_s32_pin(thread->curr_period, act_period);
+	    // keep hostmot2 going
+	    fa.actual_period = fa.thread_start_time - fa.last_start_time;
 
 	    fa.last_start_time = fa.thread_start_time = fa.start_time;
 
