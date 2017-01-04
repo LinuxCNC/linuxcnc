@@ -513,6 +513,7 @@ HEADERS := \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
+    hal/lib/config_module.h \
     hal/lib/hal_group.h \
     hal/lib/hal.h \
     hal/lib/hal_internal.h \
