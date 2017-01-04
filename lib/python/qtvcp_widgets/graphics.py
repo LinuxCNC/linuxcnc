@@ -10,10 +10,17 @@ Chris Morley
 
 import sys
 import os
-import gtk
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import warnings
 
+# supress 'RuntimeWarning: PyOS_InputHook is not available for interactive'
+# this warning is caused by pyqt owning the Inputhook
+warnings.filterwarnings("ignore")
+import gtk
+warnings.filterwarnings("default")
+
+from PyQt4.QtCore import pyqtProperty
+from PyQt4.QtGui import QX11EmbedContainer
+from qtvcp.qt_glib import QStat
 import thread
 import gobject
 
@@ -40,6 +47,9 @@ class modded_gremlin(gremlin.Gremlin):
         self.enable_dro = True
         self.colors['overlay_background'] = (0.0, 0.0, 0.57)
         self.colors['back'] = (0.0, 0.0, 0.75)
+        self.qstat = QStat()
+        self.qstat.file_loaded.connect(self.fileloaded)
+        self.qstat.reload_display.connect(self.reloadfile)
 
     def setview(self, value):
         view = str(value).lower()
@@ -51,6 +61,20 @@ class modded_gremlin(gremlin.Gremlin):
         self.current_view = view
         if self.initialised:
             self.set_current_view()
+
+    def reloadfile(self):
+        try:
+            self.fileloaded(None,self._reload_filename)
+        except:
+            pass
+
+    def fileloaded(self,f):
+        self._reload_filename=f
+        try:
+            self._load(f)
+        except AttributeError,detail:
+               #AttributeError: 'NoneType' object has no attribute 'gl_end'
+            print 'hal_gremlin: continuing after',detail
 
     # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
@@ -191,7 +215,7 @@ class Graphics(QX11EmbedContainer):
         #self.gremlin.enable_dro = False
 
         self.gremlin.metric_units = False
-        self.setview('y')
+        self.setview('p')
 
     def embeddederror(self):
         print 'embed error'
@@ -247,5 +271,6 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     widget = Graphics()
+    widgeet,sizeHint(300,300)
     widget.show()
     sys.exit(app.exec_())
