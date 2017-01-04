@@ -4,6 +4,7 @@
 import _hal, hal
 from PyQt4.QtCore import QObject, QTimer, pyqtSignal
 import linuxcnc
+import math
 
 class QPin(QObject, hal.Pin):
     value_changed = pyqtSignal()
@@ -100,8 +101,10 @@ class _QStat(QObject):
 
     tool_in_spindle_changed = pyqtSignal(int)
     spindle_control_changed = pyqtSignal(int)
+
     current_feed_rate = pyqtSignal(float)
     current_x_rel_position = pyqtSignal(float)
+    current_position = pyqtSignal(tuple,tuple,tuple,float)
 
     spindle_override_changed = pyqtSignal(float)
     feed_override_changed = pyqtSignal(float)
@@ -351,6 +354,9 @@ class _QStat(QObject):
         tool_offset = self.stat.tool_offset[0]
         g92_offset = self.stat.g92_offset[0]
         self.current_x_rel_position.emit(position - g5x_offset - tool_offset - g92_offset)
+        feedback_dif,p,rel_p,dtg = self.get_position()
+        self.current_position.emit(p, rel_p, dtg, feedback_dif)
+
         # spindle control
         spindle_enabled_old = old.get('spindle_enabled', None)
         spindle_enabled_new = self.old['spindle_enabled']
@@ -439,8 +445,6 @@ class _QStat(QObject):
             self.metric_mode_changed.emit(metric_new)
         # A widget can register for an update signal ever 100ms
         self.widget_update.emit()
-        # AND DONE... Return true to continue timeout
-        return True
 
 
     def forced_update(self):
@@ -515,6 +519,40 @@ class _QStat(QObject):
         tool_new = self.old['tool_in_spindle']
         self.tool_in_spindle_changed.emit( tool_new)
 
+    def get_position(self):
+        p = self.stat.actual_position
+        mp = 993#p - self.stat.position
+        dtg = self.stat.dtg
+
+        x = p[0] - self.stat.g5x_offset[0] - self.stat.tool_offset[0]
+        y = p[1] - self.stat.g5x_offset[1] - self.stat.tool_offset[1]
+        z = p[2] - self.stat.g5x_offset[2] - self.stat.tool_offset[2]
+        a = p[3] - self.stat.g5x_offset[3] - self.stat.tool_offset[3]
+        b = p[4] - self.stat.g5x_offset[4] - self.stat.tool_offset[4]
+        c = p[5] - self.stat.g5x_offset[5] - self.stat.tool_offset[5]
+        u = p[6] - self.stat.g5x_offset[6] - self.stat.tool_offset[6]
+        v = p[7] - self.stat.g5x_offset[7] - self.stat.tool_offset[7]
+        w = p[8] - self.stat.g5x_offset[8] - self.stat.tool_offset[8]
+
+        if self.stat.rotation_xy != 0:
+            t = math.radians(-self.stat.rotation_xy)
+            xr = x * math.cos(t) - y * math.sin(t)
+            yr = x * math.sin(t) + y * math.cos(t)
+            x = xr
+            y = yr
+
+        x -= self.stat.g92_offset[0] 
+        y -= self.stat.g92_offset[1] 
+        z -= self.stat.g92_offset[2] 
+        a -= self.stat.g92_offset[3] 
+        b -= self.stat.g92_offset[4] 
+        c -= self.stat.g92_offset[5] 
+        u -= self.stat.g92_offset[6] 
+        v -= self.stat.g92_offset[7] 
+        w -= self.stat.g92_offset[8] 
+
+        relp = [x, y, z, a, b, c, u, v, w]
+        return mp,p,relp,dtg
 
     def set_jog_rate(self,upm):
         self.current_jog_rate = upm
@@ -530,4 +568,6 @@ class QStat(_QStat):
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _QStat.__new__(cls, *args, **kwargs)
+            print 'new', cls._instance
+        else: print 'old', cls._instance
         return cls._instance
