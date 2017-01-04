@@ -513,17 +513,22 @@ HEADERS := \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
+    hal/lib/hal_accessor.h \
     hal/lib/config_module.h \
     hal/lib/hal_group.h \
     hal/lib/hal.h \
+    hal/lib/hal_iring.h \
     hal/lib/hal_internal.h \
     hal/lib/hal_iter.h \
     hal/lib/hal_list.h \
     hal/lib/hal_logging.h \
+    hal/lib/hal_object.h \
+    hal/lib/hal_object_selectors.h \
     hal/lib/hal_parport.h \
     hal/lib/hal_priv.h \
     hal/lib/hal_rcomp.h \
     hal/lib/hal_ring.h \
+    hal/lib/hal_types.h \
     hal/lib/vtable.h \
     hal/drivers/hal_spi.h \
     libnml/buffer/locmem.hh \
@@ -572,13 +577,59 @@ HEADERS := \
     libnml/rcs/rcs_exit.hh \
     libnml/rcs/rcs_print.hh \
     libnml/rcs/rcsversion.h \
+    machinetalk/build/machinetalk/protobuf/message.pb.h \
+    machinetalk/build/machinetalk/protobuf/types.pb.h \
+    machinetalk/build/machinetalk/protobuf/canon.npb.h \
+    machinetalk/build/machinetalk/protobuf/config.pb.h \
+    machinetalk/build/machinetalk/protobuf/firmware.npb.h \
+    machinetalk/build/machinetalk/protobuf/jplan.pb.h \
+    machinetalk/build/machinetalk/protobuf/message.npb.h \
+    machinetalk/build/machinetalk/protobuf/motcmds.pb.h \
+    machinetalk/build/machinetalk/protobuf/object.npb.h \
+    machinetalk/build/machinetalk/protobuf/preview.pb.h \
+    machinetalk/build/machinetalk/protobuf/rtapicommand.npb.h \
+    machinetalk/build/machinetalk/protobuf/rtapi_message.pb.h \
+    machinetalk/build/machinetalk/protobuf/task.npb.h \
+    machinetalk/build/machinetalk/protobuf/test.pb.h \
+    machinetalk/build/machinetalk/protobuf/value.npb.h \
+    machinetalk/build/machinetalk/protobuf/canon.pb.h \
+    machinetalk/build/machinetalk/protobuf/emcclass.npb.h \
+    machinetalk/build/machinetalk/protobuf/firmware.pb.h \
+    machinetalk/build/machinetalk/protobuf/log.npb.h \
+    machinetalk/build/machinetalk/protobuf/nanopb.npb.h \
+    machinetalk/build/machinetalk/protobuf/object.pb.h \
+    machinetalk/build/machinetalk/protobuf/ros.npb.h \
+    machinetalk/build/machinetalk/protobuf/rtapicommand.pb.h \
+    machinetalk/build/machinetalk/protobuf/status.npb.h \
+    machinetalk/build/machinetalk/protobuf/task.pb.h \
+    machinetalk/build/machinetalk/protobuf/types.npb.h \
+    machinetalk/build/machinetalk/protobuf/value.pb.h \
+    machinetalk/build/machinetalk/protobuf/config.npb.h \
+    machinetalk/build/machinetalk/protobuf/emcclass.pb.h \
+    machinetalk/build/machinetalk/protobuf/jplan.npb.h \
+    machinetalk/build/machinetalk/protobuf/log.pb.h \
+    machinetalk/build/machinetalk/protobuf/motcmds.npb.h \
+    machinetalk/build/machinetalk/protobuf/nanopb.pb.h \
+    machinetalk/build/machinetalk/protobuf/preview.npb.h \
+    machinetalk/build/machinetalk/protobuf/ros.pb.h \
+    machinetalk/build/machinetalk/protobuf/rtapi_message.npb.h \
+    machinetalk/build/machinetalk/protobuf/status.pb.h \
+    machinetalk/build/machinetalk/protobuf/test.npb.h \
+    machinetalk/nanopb/pb.h \
+    machinetalk/nanopb/pb_common.h \
+    machinetalk/nanopb/pb_encode.h \
+    machinetalk/nanopb/pb_decode.h \
+    rtapi/multiframe_flag.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
+    rtapi/rtapi_atomics.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_export.h \
     rtapi/rtapi_compat.h \
+    rtapi/rtapi_hexdump.h \
     rtapi/rtapi_int.h \
+    rtapi/rtapi_kdetect.h \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math64.h \
@@ -591,6 +642,7 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
+    rtapi/rtapi_proc.h \
     rtapi/rtapi_heap.h \
     rtapi/rtapi_heap_private.h \
     rtapi/ring.h \
@@ -599,7 +651,9 @@ HEADERS := \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
-# the "headers" target installs all the header files in ../include
+
+    
+## the "headers" target installs all the header files in ../include
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 headers: $(HEADERS)
