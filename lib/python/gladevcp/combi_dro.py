@@ -341,7 +341,12 @@ class Combi_DRO(gtk.VBox):
 
     # periodic call to update the positions, every 100 ms
     def _periodic(self):
-        self.status.poll()
+        # we do not want to throw errors if linuxcnc has been killed 
+        # from external command
+        try:
+            self.status.poll()
+        except:
+            raise SystemExit, "CombiDRO can not poll linuxcnc status any more"
 
         if self.status.kinematics_type != linuxcnc.KINEMATICS_IDENTITY and not self.homed:
             self.main_dro.set_text("----.---")

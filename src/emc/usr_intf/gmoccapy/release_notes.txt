@@ -1,3 +1,10 @@
+ver. 2.2.1
+- if linuxcnc is restarted without shutting down gmoccapy, it was not possible
+  to close gmoccapy (except from comandline with killall -9 gmoccapy
+  I added a check to status.poll and now a raise SystemExit will be called.
+  as this also applies to CombiDRO a added that there too.
+  I added gmoccapy to the linuxcnc script to be killed on restart
+
 ver. 2.2.0.3
 - changed the height and width adjustments for the window size in the 
   glade file, as width was limited to 1280 pixel. 

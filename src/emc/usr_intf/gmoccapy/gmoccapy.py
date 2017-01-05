@@ -46,6 +46,7 @@ import gettext             # to extract the strings to be translated
 from gladevcp.gladebuilder import GladeBuilder
 
 from time import strftime  # needed for the clock in the GUI
+from gtk._gtk import main_quit
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -87,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.0.3"
+_RELEASE = " 2.2.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1518,7 +1519,13 @@ class gmoccapy(object):
     # every 100 milli seconds this gets called
     # check linuxcnc for status, error and then update the readout
     def _periodic(self):
-        self.stat.poll()
+        # we put the poll comand in a try, so if the linuxcnc pid is killed
+        # from an external command, we also quit the GUI
+        try:
+            self.stat.poll()
+        except:
+            raise SystemExit, "gmoccapy can not poll linuxcnc status any more"
+
         error = self.error_channel.poll()
         if error:
             self._show_error(error)
