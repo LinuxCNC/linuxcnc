@@ -3,11 +3,13 @@ import sys
 import traceback
 import hal
 from optparse import Option, OptionParser
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from qtvcp import qt_makepins, qt_makegui
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
+          , Option( '-a', action='store_true', dest='always_top', default=False
+                  , help="set the window to always be on top")
           , Option( '-d', action='store_true', dest='debug', default=False
                   , help="Enable debug output")
           , Option( '-g', dest='geometry', default="", help="""Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
@@ -254,6 +256,10 @@ class QTscreen:
                 print >> sys.stderr, "**** QTscreen ERROR:    With window resize data"
                 parser.print_usage()
                 sys.exit(1)
+
+        # always on top
+        if opts.always_top:
+            window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # maximize
         if opts.maximum:
