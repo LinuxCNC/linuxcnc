@@ -67,14 +67,14 @@ class MyWindow(QtGui.QMainWindow):
         #for widget in instance.children():
         #    print widget
 
-    def load_extension(self,handlerpath):
-        methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath],self.halcomp,self)
+    def load_extension(self,handlerpath,paths=None):
+        methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath],self.halcomp,self,paths)
         #print methods
         for i in methods:
             #print i, methods[i]
             self[i] = methods[i]
 
-    def _load_handlers(self,usermod,halcomp,widgets):
+    def _load_handlers(self,usermod,halcomp,widgets,paths):
         hdl_func = 'get_handlers'
         mod = None
         object = None
@@ -99,6 +99,7 @@ class MyWindow(QtGui.QMainWindow):
                 mod = __import__(basename)
             except ImportError,msg:
                 print "module '%s' skipped - import error: %s" %(basename,msg)
+                sys.exit(0)
 	        continue
             dbg("module '%s' imported OK" % mod.__name__)
             try:
@@ -107,7 +108,7 @@ class MyWindow(QtGui.QMainWindow):
 
                 if h and callable(h):
                     dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
-                    objlist = h(halcomp,widgets)
+                    objlist = h(halcomp,widgets,paths) # this sets the handler class signature
                 else:
                     # the module has no get_handlers() callable.
                     # in this case we permit any callable except class Objects in the module to register as handler
