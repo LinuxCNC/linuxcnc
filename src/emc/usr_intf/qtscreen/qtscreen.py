@@ -59,6 +59,7 @@ class Paths():
         self.userthemedir = os.path.join(os.path.expanduser("~"), ".themes")
         # path to the configuration the user requested
         self.CONFIGPATH = os.environ['CONFIG_DIR']
+        sys.path.insert(0, self.CONFIGPATH)
 
         # check for a local translation folder
         locallocale = os.path.join(self.CONFIGPATH,"locale")
@@ -110,6 +111,7 @@ class Paths():
         else:
             self.HANDLER = None
             dbg("**** QTSCREEN WARNING: No handler file found")
+            sys.exit(0)
 
 class QTscreen: 
     def __init__(self):
@@ -138,7 +140,7 @@ class QTscreen:
         if args:
             basepath=args[0]
         elif INIPATH:
-            basepath = "qtscreen"
+            basepath = "qt_cnc"
         else:
             sys.exit()
 
@@ -206,7 +208,7 @@ class QTscreen:
  
         # load optional user handler file
         if opts.usermod:
-            window.load_extension(opts.usermod)
+            window.load_extension(opts.usermod,PATH)
             # add filter to catch keyboard events
             myFilter = qt_makegui.MyEventFilter(window)
             self.app.installEventFilter(myFilter)

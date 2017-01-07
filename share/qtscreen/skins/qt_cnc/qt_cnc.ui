@@ -32,7 +32,7 @@
   <widget class="Lcnc_LCDNumber" name="lnclcdnumber">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>670</x>
      <y>10</y>
      <width>141</width>
      <height>61</height>
@@ -178,19 +178,6 @@
     </property>
    </widget>
   </widget>
-  <widget class="Lcnc_PushButton" name="lncpushbutton">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>470</y>
-     <width>121</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>hal button</string>
-   </property>
-  </widget>
   <widget class="Graphics" name="graphics">
    <property name="geometry">
     <rect>
@@ -207,12 +194,121 @@
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QSlider" name="jog_slider">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>60</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="lcdNumber">
+   <property name="geometry">
+    <rect>
+     <x>133</x>
+     <y>232</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Lcnc_GridLayout" name="lcnc_gridlayout">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>460</y>
+     <width>171</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>{0}</string>
+   </property>
+   <property name="whatsThis">
+    <string>{1}</string>
+   </property>
+   <property name="styleSheet">
+    <string>background-color: rgb(184, 184, 184);</string>
+   </property>
+   <widget class="Lcnc_PushButton" name="lncpushbutton">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>121</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>hal button</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="Qjoint_number" stdset="0">
+    <number>1</number>
+   </property>
+  </widget>
+  <widget class="Lcnc_DROLabel" name="lcnc_drolabel_z">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>67</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>--------------</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::PlainText</enum>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+   <property name="Qjoint_number" stdset="0">
+    <number>2</number>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
    <class>Graphics</class>
    <extends>QWidget</extends>
    <header>qtvcp_widgets.graphics</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp_widgets.drowidget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Lcnc_LCDNumber</class>
@@ -223,6 +319,12 @@
    <class>Lcnc_PushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp_widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_GridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp_widgets.simple_widgets</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -483,6 +585,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>jog_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>169</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>change_jograte()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -491,5 +625,6 @@
   <slot>home_clicked()</slot>
   <slot>jog_pressed()</slot>
   <slot>jog_released()</slot>
+  <slot>change_jograte()</slot>
  </slots>
 </ui>
