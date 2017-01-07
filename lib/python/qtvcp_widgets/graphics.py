@@ -20,7 +20,7 @@ warnings.filterwarnings("default")
 
 from PyQt4.QtCore import pyqtProperty
 from PyQt4.QtGui import QX11EmbedContainer
-from qtvcp.qt_glib import QStat
+from qtvcp.qt_glib import GStat
 import thread
 import gobject
 
@@ -47,10 +47,16 @@ class modded_gremlin(gremlin.Gremlin):
         self.enable_dro = True
         self.colors['overlay_background'] = (0.0, 0.0, 0.57)
         self.colors['back'] = (0.0, 0.0, 0.75)
-        self.qstat = QStat()
-        self.qstat.file_loaded.connect(self.fileloaded)
-        self.qstat.reload_display.connect(self.reloadfile)
+        self.qstat = GStat()
+        self.qstat.connect('file-loaded',self.fileloaded)
+        self.qstat.connect('reload-display',self.reloadfile)
+        self.qstat.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
 
+
+    def set_spindle_speed(self,w,rate):
+        if rate <1: rate = 1
+        self.spindle_speed = rate
+    
     def setview(self, value):
         view = str(value).lower()
         if self.lathe_option:
@@ -155,9 +161,9 @@ class modded_gremlin(gremlin.Gremlin):
                         droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.show_velocity:
-                if self.is_lathe:
+                if self.is_lathe():
                     pos=1
-                    posstrs.append(format % ("IPR", spd/200)) #FIXME 200 should be current RPM
+                    posstrs.append(format % ("IPR", spd/abs(self.spindle_speed)))
                 else:
                     pos=0
                     posstrs.append(format % ("Vel", spd))
