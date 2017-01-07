@@ -194,7 +194,7 @@
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QSlider" name="horizontalSlider">
+  <widget class="QSlider" name="jog_slider">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -202,6 +202,9 @@
      <width>101</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="maximum">
+    <number>60</number>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -249,6 +252,51 @@
     </property>
    </widget>
   </widget>
+  <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="Qjoint_number" stdset="0">
+    <number>1</number>
+   </property>
+  </widget>
+  <widget class="Lcnc_DROLabel" name="lcnc_drolabel_z">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>67</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>--------------</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::PlainText</enum>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+   <property name="Qjoint_number" stdset="0">
+    <number>2</number>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -257,20 +305,26 @@
    <header>qtvcp_widgets.graphics</header>
   </customwidget>
   <customwidget>
+   <class>Lcnc_DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp_widgets.drowidget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>Lcnc_LCDNumber</class>
    <extends>QLCDNumber</extends>
    <header>qtvcp_widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_GridLayout</class>
-   <extends>QGridLayout</extends>
-   <header>qtvcp_widgets.simple_widgets</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>Lcnc_PushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp_widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_GridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp_widgets.simple_widgets</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -532,7 +586,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSlider</sender>
+   <sender>jog_slider</sender>
    <signal>valueChanged(int)</signal>
    <receiver>lcdNumber</receiver>
    <slot>display(int)</slot>
@@ -547,6 +601,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>jog_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>change_jograte()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -555,5 +625,6 @@
   <slot>home_clicked()</slot>
   <slot>jog_pressed()</slot>
   <slot>jog_released()</slot>
+  <slot>change_jograte()</slot>
  </slots>
 </ui>

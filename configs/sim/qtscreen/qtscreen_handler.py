@@ -1,7 +1,10 @@
 from PyQt4 import QtCore
 from qtscreen.keybindings import Keylookup,key_pressed
-from qtvcp.qt_glib import QStat
+from qtvcp.qt_glib import GStat
 import linuxcnc
+# instantiate libraries
+KEYBIND = Keylookup()
+GSTAT = GStat()
 
 class HandlerClass:
 
@@ -13,28 +16,28 @@ class HandlerClass:
         self.w = widgets
         self.stat = linuxcnc.stat()
         self.cmnd = linuxcnc.command()
-        self.jog_velocity = 1.0
-        self.klup = Keylookup()
-        self.qstat = QStat()
-        self.qstat.state_estop.connect(self.say_estop)
-        self.qstat.state_on.connect(self.on_state_on)
-        self.qstat.state_off.connect(self.on_state_off)
-        self.qstat.jograte_changed.connect(self.on_jograte_changed)
-        self.qstat.forced_update()
+        self.jog_velocity = 10.0
+        # connect to GStat to catch linuxcnc events
+        GSTAT.connect('state-estop', self.say_estop)
+        GSTAT.connect('state-on', self.on_state_on)
+        GSTAT.connect('state-off', self.on_state_off)
+        GSTAT.connect('jograte-changed', self.on_jograte_changed)
 
-    def on_jograte_changed(self,rate):
-        print 'jograte =',rate
+    def on_jograte_changed(self, w, rate):
         self.jog_velocity = rate
 
-    def say_estop(self):
+    def change_jograte(self, rate):
+        GSTAT.set_jog_rate(float(rate))
+
+    def say_estop(self,w):
         print 'saying estop'
 
-    def on_state_on(self):
+    def on_state_on(self,w):
         print 'on'
         if not self.w.button_machineon.isChecked():
             self.w.button_machineon.click()
 
-    def on_state_off(self):
+    def on_state_off(self,w):
         print 'off'
         if self.w.button_machineon.isChecked():
             self.w.button_machineon.click()
@@ -42,12 +45,14 @@ class HandlerClass:
     def initialized__(self):
         print 'INIT'
         self.w.button_frame.setEnabled(False)
+        self.w.jog_slider.setValue(self.jog_velocity)
+        GSTAT.forced_update()
 
     def processed_key_event__(self,event,is_pressed,key,code,shift,cntrl):
         try:
-            self.klup.call(self,event,is_pressed,shift,cntrl)
+            KEYBIND.call(self,event,is_pressed,shift,cntrl)
         except AttributeError:
-            print 'no function %s in handler file for-%s'%(self.klup.convert(event),key_pressed(event))
+            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key_pressed(event))
         return True
 
     def halbuttonclicked(self):
@@ -142,8 +147,8 @@ class HandlerClass:
         if direction == 0:
             self.cmnd.jog(linuxcnc.JOG_STOP, axis)
         else:
-            rate = self.jog_velocity
-            self.cmnd.jog(linuxcnc.JOG_CONTINUOUS, axis, direction * rate)
+            speed = direction * self.jog_velocity/60
+            self.cmnd.jog(linuxcnc.JOG_CONTINUOUS, axis, speed)
 
     def home_clicked(self):
         print 'home click'
