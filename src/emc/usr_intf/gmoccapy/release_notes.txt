@@ -1,3 +1,10 @@
+ver. 2.2.2
+- When running a program, press pause, then stop, the axis will make a jump to 
+  a unknown position, (I think related to read ahead). I added a additional 
+  command.aboard(), even that this command is already called within hal action.
+  I do not know why, but this solved the issue as far as I can see.
+  Thanks to racedirector for reporting
+
 ver. 2.2.1
 - if linuxcnc is restarted without shutting down gmoccapy, it was not possible
   to close gmoccapy (except from comandline with killall -9 gmoccapy

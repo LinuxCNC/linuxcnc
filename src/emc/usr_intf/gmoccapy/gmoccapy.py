@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.1"
+_RELEASE = " 2.2.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -4163,6 +4163,7 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, widget.get_active())
 
     def on_btn_stop_clicked(self, widget, data=None):
+        self.command.abort()
         self.start_line = 0
         self.widgets.gcode_view.set_line_number(0)
         self.widgets.tbtn_pause.set_active(False)
