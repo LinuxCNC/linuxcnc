@@ -142,6 +142,7 @@ class QTscreen:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
+            print '**** QTscreen Error in path'
             sys.exit()
 
         # set paths using basename
@@ -151,6 +152,7 @@ class QTscreen:
         # Screen specific
         #################
         if INIPATH:
+            dbg('Linuxcnc Main Screen')
             import linuxcnc
             # internationalization and localization
             import locale, gettext
@@ -180,6 +182,7 @@ class QTscreen:
         # VCP specific
         #################
         else:
+            dbg('VCP screen')
             xmlpath = PATH.VCP_UI
             # If no handler file was specified, check for one using basename
             if not opts.usermod:
@@ -208,8 +211,10 @@ class QTscreen:
  
         # load optional user handler file
         if opts.usermod:
+            dbg('Loading the handler file')
             window.load_extension(opts.usermod,PATH)
             # add filter to catch keyboard events
+            dbg('Adding the key events filter')
             myFilter = qt_makegui.MyEventFilter(window)
             self.app.installEventFilter(myFilter)
 
@@ -222,9 +227,11 @@ class QTscreen:
         # call handler file's initialized function
         if opts.usermod:
             if "initialized__" in dir(window.handler_instance):
+                dbg('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
 
         # User components are set up so report that we are ready
+        dbg('Set HAL ready')
         self.halcomp.ready()
 
         # embed window in another program
@@ -294,6 +301,7 @@ class QTscreen:
             title = 'QTvcp-%s'% opts.component
         window.setWindowTitle(title)
 
+        dbg('Show window')
         window.show()
         if INIPATH:
             self.postgui()
