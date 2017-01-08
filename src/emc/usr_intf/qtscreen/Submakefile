@@ -1,7 +1,6 @@
 QTSCREEN_MODULES = preferences keybindings
 
-PYTARGETS += ../bin/qtscreen ../lib/python/qtscreen/__init__.py ../share/linuxcnc/qtscreen.ui \
-	../share/linuxcnc/qtscreen_handler.py
+PYTARGETS += ../bin/qtscreen ../lib/python/qtscreen/__init__.py 
 
 
 ../lib/python/qtscreen/__init__.py:
@@ -21,12 +20,3 @@ PYTARGETS += ../bin/qtscreen ../lib/python/qtscreen/__init__.py ../share/linuxcn
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-../share/linuxcnc/qtscreen.ui: emc/usr_intf/qtscreen/qtscreen.ui
-	$(ECHO) Copying ui file $(notdir $@)
-	$(Q)mkdir -p $(dir $@)
-	$(Q)cp -f $< $@
-
-../share/linuxcnc/qtscreen_handler.py: emc/usr_intf/qtscreen/qtscreen_handler.py
-	$(ECHO) Copying ui file $(notdir $@)
-	$(Q)mkdir -p $(dir $@)
-	$(Q)cp -f $< $@
