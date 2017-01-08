@@ -396,15 +396,22 @@ struct PM_LINE {
 struct PM_CIRCLE {
     /* ctors/dtors */
     PM_CIRCLE() {
-    };
+    }
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
     PM_CIRCLE(PM_CCONST PM_CIRCLE &);
 #endif
+    PM_CIRCLE(PM_CARTESIAN const &start,
+              PM_CARTESIAN const &end,
+              const PM_CARTESIAN &center,
+              const PM_CARTESIAN &normal,
+              int turn);
 
     /* functions */
-    int init(PM_POSE start, PM_POSE end,
-	PM_CARTESIAN center, PM_CARTESIAN normal, int turn);
-    int point(double angle, PM_POSE * point);
+    int init(PM_CARTESIAN const &start,
+             PM_CARTESIAN const &end,
+             PM_CARTESIAN const &center,
+             PM_CARTESIAN const &normal, int turn);
+    int point(double angle, PM_CARTESIAN &point) const;
 
     /* data */
     PM_CARTESIAN center;

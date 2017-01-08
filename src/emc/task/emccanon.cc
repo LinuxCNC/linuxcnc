@@ -52,6 +52,13 @@
 #define canon_debug(...)
 #endif
 
+void canon_debug_print(const char *name, PM_CARTESIAN const & cart) {
+#ifdef EMCCANON_DEBUG
+    if (!name) {name="no name";}
+    printf("%s: [%f %f %f]\n",name,cart.x, cart.y, cart.z);
+#endif
+}
+
 static int debug_velacc = 0;
 static double css_maximum, css_numerator; // both always positive
 static int spindle_dir = 0;
@@ -989,17 +996,19 @@ static void flush_segments(void) {
     drop_segments();
 }
 
-static void get_last_pos(double &lx, double &ly, double &lz) {
+static PM_CARTESIAN get_last_pos() {
+    PM_CARTESIAN out;
     if(chained_points.empty()) {
-        lx = canonEndPoint.x;
-        ly = canonEndPoint.y;
-        lz = canonEndPoint.z;
+        out.x = canonEndPoint.x;
+        out.y = canonEndPoint.y;
+        out.z = canonEndPoint.z;
     } else {
         struct pt &pos = chained_points.back();
-        lx = pos.x;
-        ly = pos.y;
-        lz = pos.z;
+        out.x = pos.x;
+        out.y = pos.y;
+        out.z = pos.z;
     }
+    return out;
 }
 
 static bool
@@ -1055,10 +1064,34 @@ see_segment(int line_number,
         flush_segments();
     }
     pt pos = {x, y, z, a, b, c, u, v, w, line_number};
+    canon_debug("  Adding to chained_points:");
+#ifdef EMCCANON_DEBUG
+    CANON_POSITION(x,y,z,a,b,c,u,v,w).print();
+    canon_debug("\n");
+#endif
     chained_points.push_back(pos);
     if(changed_abc || changed_uvw) {
         flush_segments();
     }
+}
+
+/**
+ * @overload
+ * For CANON_POSITION input
+ */
+static void
+see_segment(int line_number,
+            CANON_POSITION pos) {
+    return see_segment(line_number,
+                       pos.x,
+                       pos.y,
+                       pos.z,
+                       pos.a,
+                       pos.b,
+                       pos.c,
+                       pos.u,
+                       pos.v,
+                       pos.w);
 }
 
 void FINISH() {
@@ -1301,39 +1334,8 @@ void STOP_SPEED_FEED_SYNCH()
     synched = 0;
 }
 
-/* Machining Functions */
-static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
-    double th1 = atan2(sy-cy, sx-cx),
-           th2 = atan2(ey-cy, ex-cx),
-           r = hypot(sy-cy, sx-cx),
-           dth = th2 - th1;
-
-    if(rotation < 0) {
-        if(dth >= -1e-5) th2 -= 2*M_PI;
-        // in the edge case where atan2 gives you -pi and pi, a second iteration is needed
-        // to get these in the right order
-        dth = th2 - th1;
-        if(dth >= -1e-5) th2 -= 2*M_PI;
-    } else {
-        if(dth <= 1e-5) th2 += 2*M_PI;
-        dth = th2 - th1;
-        if(dth <= 1e-5) th2 += 2*M_PI;
-    }
-
-    double included = fabs(th2 - th1);
-    double mid = (th2 + th1) / 2;
-    mx = cx + r * cos(mid);
-    my = cy + r * sin(mid);
-    double dev = r * (1 - cos(included/2));
-    return dev;
-}
-
 /* Spline and NURBS additional functions; */
 
-static double max(double a, double b) {
-    if(a < b) return b;
-    return a;
-}
 static void unit(double *x, double *y) {
     double h = hypot(*x, *y);
     if(h != 0) { *x/=h; *y/=h; }
@@ -1377,7 +1379,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 
     if(beta1 > 0 && beta2 > 0)
       return 0;
-    double beta = max(beta1, beta2);
+    double beta = fmax(beta1, beta2);
     double alpha = beta * r;
     double ab = alpha + beta;
     double p1x = p0x + alpha * tsx, p1y = p0y + alpha * tsy,
@@ -1515,6 +1517,78 @@ static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION &
 }
 #endif
 
+double findChordHeight(double full_angle,
+                         double radius)
+{
+    // Don't bother in exact stop mode
+    if (canonMotionMode != CANON_CONTINUOUS) {
+        return false;
+    }
+
+    // Arc segments of greater than 180 deg (pi rad) have a chord height
+    // equivalent to a 180 deg segment. If we naively compute the height using
+    // the full angle, only the net angle will be used (i.e. principle angle).
+    // Therfore, an arc of 370 deg. would be treated like a 10 deg arc (wrong),
+    // and underestimate the chord height.
+    double effective_angle = fmin(fabs(full_angle), M_PI);
+    canon_debug(" effective angle = %f\n", effective_angle);
+
+    // Use the formula for the "sagitta" of the chord
+    // This measures the distance between the arc segment, and a line from the start to end point.
+    double chord_height = radius * (1.0 - cos(effective_angle / 2.0));
+
+    return chord_height;
+}
+
+bool convertArcToLines(CANON_POSITION const &end_pt,
+                       PM_CIRCLE const &circle,
+                       double full_angle,
+                       double min_chord_error,
+                       int line_number)
+{
+    // chord error ratio must be between 0 and 1
+    double err_ratio = fmax(fmin(min_chord_error / circle.radius, 1.0), 0.0);
+    //TODO check for bound error
+    double cut_angle_size = acos(1.0 - err_ratio) * 2.0;
+
+    canon_debug("to reach chord error %f, need cut angle = %f\n", min_chord_error, cut_angle_size);
+
+    int num_segments = ceil(fabs(full_angle) / cut_angle_size);
+    if (num_segments < 1 ) {
+        return false;
+    }
+    // Always split into at least two segments to preserve 2.6.x NCD behavior
+    num_segments = std::max(num_segments, 2);
+
+    canon_debug("circle angle = %f\n", circle.angle);
+    canon_debug("circle radius = %f\n", circle.radius);
+    CANON_POSITION displacement = end_pt - canonEndPoint;
+
+    for (double k = 1; k <= num_segments; ++k) {
+        double cut_ratio = k / num_segments;
+        double cut_angle = cut_ratio * fabs(full_angle);
+        canon_debug(" cut_angle = %f\n", cut_angle);
+
+        PM_CARTESIAN cut_pt;
+        circle.point(cut_angle, cut_pt);
+
+        CANON_POSITION intermed_pt(
+                    cut_pt.x,
+                    cut_pt.y,
+                    cut_pt.z,
+                    canonEndPoint.a + displacement.a * cut_ratio,
+                    canonEndPoint.b + displacement.b * cut_ratio,
+                    canonEndPoint.c + displacement.c * cut_ratio,
+                    canonEndPoint.u + displacement.u * cut_ratio,
+                    canonEndPoint.v + displacement.v * cut_ratio,
+                    canonEndPoint.w + displacement.w * cut_ratio);
+
+        see_segment(line_number,
+                    intermed_pt);
+    }
+    return true;
+}
+
 void ARC_FEED(int line_number,
               double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
@@ -1526,45 +1600,10 @@ void ARC_FEED(int line_number,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
-    canon_debug("line = %d\n", line_number);
-    canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
-
-    if( activePlane == CANON_PLANE_XY && canonMotionMode == CANON_CONTINUOUS) {
-        double mx, my;
-        double lx, ly, lz;
-        double unused;
-
-        get_last_pos(lx, ly, lz);
-
-        double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
-        double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
-        rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
-        rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
-        if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canonNaivecamTolerance) {
-            a = FROM_PROG_ANG(a);
-            b = FROM_PROG_ANG(b);
-            c = FROM_PROG_ANG(c);
-            u = FROM_PROG_LEN(u);
-            v = FROM_PROG_LEN(v);
-            w = FROM_PROG_LEN(w);
-
-            rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
-            see_segment(line_number, mx, my,
-                        (lz + ae)/2, 
-                        (canonEndPoint.a + a)/2, 
-                        (canonEndPoint.b + b)/2, 
-                        (canonEndPoint.c + c)/2, 
-                        (canonEndPoint.u + u)/2, 
-                        (canonEndPoint.v + v)/2, 
-                        (canonEndPoint.w + w)/2);
-            see_segment(line_number, fe, se, ae, a, b, c, u, v, w);
-            return;
-        }
-    }
-
-    linearMoveMsg.feed_mode = feed_mode;
-    circularMoveMsg.feed_mode = feed_mode;
-    flush_segments();
+    canon_debug("ARC_FEED:\n");
+    canon_debug(" line = %d\n", line_number);
+    canon_debug(" first_end = %f, second_end = %f\n", first_end, second_end);
+    canon_debug(" rotation = %d\n", rotation);
 
     // Start by defining 3D points for the motion end and center.
     PM_CARTESIAN end_cart(first_end, second_end, axis_end_point);
@@ -1573,19 +1612,9 @@ void ARC_FEED(int line_number,
     PM_CARTESIAN plane_x(1.0,0.0,0.0);
     PM_CARTESIAN plane_y(0.0,1.0,0.0);
 
-
-    canon_debug("start = %f %f %f\n",
-            canonEndPoint.x,
-            canonEndPoint.y,
-            canonEndPoint.z);
-    canon_debug("end = %f %f %f\n",
-            end_cart.x,
-            end_cart.y,
-            end_cart.z);
-    canon_debug("center = %f %f %f\n",
-            center_cart.x,
-            center_cart.y,
-            center_cart.z);
+    canon_debug_print("start", canonEndPoint.xyz());
+    canon_debug_print("end", end_cart);
+    canon_debug_print("center", center_cart);
 
     // Rearrange the X Y Z coordinates in the correct order based on the active plane (XY, YZ, or XZ)
     // KLUDGE CANON_PLANE is 1-indexed, hence the subtraction here to make a 0-index value
@@ -1609,20 +1638,10 @@ void ARC_FEED(int line_number,
     plane_x = circshift(plane_x, shift_ind);
     plane_y = circshift(plane_y, shift_ind);
 
-    canon_debug("normal = %f %f %f\n",
-            normal_cart.x,
-            normal_cart.y,
-            normal_cart.z);
+    canon_debug_print("normal", normal_cart);
+    canon_debug_print("plane_x", plane_x);
+    canon_debug_print("plane_y", plane_y);
 
-    canon_debug("plane_x = %f %f %f\n",
-            plane_x.x,
-            plane_x.y,
-            plane_x.z);
-
-    canon_debug("plane_y = %f %f %f\n",
-            plane_y.x,
-            plane_y.y,
-            plane_y.z);
     // Define end point in PROGRAM units and convert to CANON
     CANON_POSITION endpt(0,0,0,a,b,c,u,v,w);
     from_prog(endpt);
@@ -1643,29 +1662,15 @@ void ARC_FEED(int line_number,
     to_rotated(plane_y);
     to_rotated(normal_cart);
 
-    canon_debug("end = %f %f %f\n",
-            end_cart.x,
-            end_cart.y,
-            end_cart.z);
-
-    canon_debug("endpt = %f %f %f\n",
-            endpt.x,
-            endpt.y,
-            endpt.z);
-    canon_debug("center = %f %f %f\n",
-            center_cart.x,
-            center_cart.y,
-            center_cart.z);
-
-    canon_debug("normal = %f %f %f\n",
-            normal_cart.x,
-            normal_cart.y,
-            normal_cart.z);
+    canon_debug_print("end", end_cart);
+    canon_debug_print("endpt", endpt.xyz());
+    canon_debug_print("center", center_cart);
+    canon_debug_print("normal", normal_cart);
     // Note that the "start" point is already rotated and offset
 
     // Define displacement vectors from center to end and center to start (3D)
     PM_CARTESIAN end_rel = end_cart - center_cart;
-    PM_CARTESIAN start_rel = canonEndPoint.xyz() - center_cart;
+    PM_CARTESIAN start_rel = get_last_pos() - center_cart;
 
     // Project each displacement onto the active plane
     double p_end_1 = dot(end_rel,plane_x);
@@ -1721,18 +1726,51 @@ void ARC_FEED(int line_number,
         full_turns = rotation + 1;
     }
 
+    // Convert from rotation to the Posemath "turn" count
+    int turn = rotation - ((rotation > 0) ? 1 : 0);
+
     double angle = theta_end - theta_start;
     double full_angle = angle + 2.0 * M_PI * (double)full_turns;
     canon_debug("angle = %f\n", angle);
     canon_debug("full turns = %d\n", full_turns);
-
-	canon_debug("full_angle = %.17e\n", full_angle);
+    canon_debug("full_angle = %.17e\n", full_angle);
 
     //Use total angle to get spiral properties
     double spiral = end_radius - start_radius;
     double dr = spiral / fabs(full_angle);
     double min_radius = fmin(start_radius, end_radius);
     double effective_radius = sqrt(dr*dr + min_radius*min_radius);
+
+    // check if the arc can be degraded to a line (i.e. chord error is small enough).
+    double chord_height = findChordHeight(full_angle, effective_radius);
+        canon_debug("arc chord height = %f, NCD tolerance = %f\n", chord_height, canonNaivecamTolerance);
+    if ( chord_height < canonNaivecamTolerance) {
+
+        canon_debug("Creating circle to slice up:");
+        PM_CARTESIAN start_pos = get_last_pos();
+        canon_debug_print("start", start_pos);
+        canon_debug_print("end", end_cart);
+        canon_debug_print("center", center_cart);
+        canon_debug_print("normal", normal_cart);
+
+        PM_CIRCLE circle(start_pos,
+                         end_cart,
+                         center_cart,
+                         normal_cart,
+                         turn);
+
+        if (convertArcToLines(
+                    endpt,
+                    circle,
+                    full_angle,
+                    canonNaivecamTolerance / 2.0,
+                    line_number)) {
+            canon_debug("arc-to-line conversion successful, skipping arc creation\n");
+            return;
+        }
+
+    }
+
 
     // KLUDGE: assumes 0,1,2 for X Y Z
     // Find normal axis
@@ -1830,11 +1868,14 @@ void ARC_FEED(int line_number,
     canon_debug("a_max = %f\n",a_max);
 
     cartesian_move = 1;
+    // Need to flush any previous segments since NCD can't directly apply to arcs
+    flush_segments();
 
     if (rotation == 0) {
         // linear move
         // FIXME (Rob) Am I missing something? the P word should never be zero,
         // or we wouldn't be calling ARC_FEED
+        linearMoveMsg.feed_mode = feed_mode;
         linearMoveMsg.end = to_ext_pose(endpt);
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
         linearMoveMsg.vel = toExtVel(vel);
@@ -1846,17 +1887,14 @@ void ARC_FEED(int line_number,
             interp_list.append(linearMoveMsg);
         }
     } else {
+        circularMoveMsg.feed_mode = feed_mode;
         circularMoveMsg.end = to_ext_pose(endpt);
 
         // Convert internal center and normal to external units
         circularMoveMsg.center = to_ext_len(center_cart);
         circularMoveMsg.normal = to_ext_len(normal_cart);
 
-        if (rotation > 0)
-            circularMoveMsg.turn = rotation - 1;
-        else
-            // reverse turn
-            circularMoveMsg.turn = rotation;
+        circularMoveMsg.turn = turn;
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 

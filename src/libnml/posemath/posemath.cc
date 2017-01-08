@@ -808,39 +808,44 @@ PM_CIRCLE::PM_CIRCLE(PM_CCONST PM_CIRCLE & c)
     angle = c.angle;
     spiral = c.spiral;
 }
+
+PM_CIRCLE::PM_CIRCLE(const PM_CARTESIAN &start, const PM_CARTESIAN &end, PM_CARTESIAN const &center, PM_CARTESIAN const &normal, int turn)
+{
+    init(start, end, center, normal, turn);
+}
 #endif
 
-int PM_CIRCLE::init(PM_POSE start, PM_POSE end,
-    PM_CARTESIAN center, PM_CARTESIAN normal, int turn)
+int PM_CIRCLE::init(PM_CARTESIAN const &start, PM_CARTESIAN const &end,
+    PM_CARTESIAN const &center, PM_CARTESIAN const &normal, int turn)
 {
     PmCircle _circle;
-    PmPose _start, _end;
+    PmCartesian _start, _end;
     PmCartesian _center, _normal;
     int retval;
 
-    toPose(start, &_start);
-    toPose(end, &_end);
+    toCart(start, &_start);
+    toCart(end, &_end);
     toCart(center, &_center);
     toCart(normal, &_normal);
 
-    retval = pmCircleInit(&_circle, &_start.tran, &_end.tran, &_center, &_normal, turn);
+    retval = pmCircleInit(&_circle, &_start, &_end, &_center, &_normal, turn);
 
     toCircle(_circle, this);
 
     return retval;
 }
 
-int PM_CIRCLE::point(double angle, PM_POSE * point)
+int PM_CIRCLE::point(double angle, PM_CARTESIAN &point) const
 {
     PmCircle _circle;
-    PmPose _point;
+    PmCartesian _point;
     int retval;
 
     toCircle(*this, &_circle);
 
-    retval = pmCirclePoint(&_circle, angle, &_point.tran);
+    retval = pmCirclePoint(&_circle, angle, &_point);
 
-    toPose(_point, point);
+    toCart(_point, &point);
 
     return retval;
 }
