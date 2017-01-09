@@ -17,7 +17,7 @@ input to or2 is on the or2 output is off.
 
 For example to have two pyvcp buttons both connected to one led.
 
-* The .xml file
+.The .xml file
 ----
 <pyvcp>
   <button>
@@ -39,7 +39,7 @@ For example to have two pyvcp buttons both connected to one led.
 </pyvcp>
 ----
 
-* The Postgui.hal file
+.The postgui.hal file
 ----
 loadrt or2
 addf or2.0 servo-thread
