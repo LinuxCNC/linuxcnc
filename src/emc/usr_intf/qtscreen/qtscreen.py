@@ -39,8 +39,9 @@ def dbg(str):
 class Paths():
     def __init__(self,filename):
 
-        self.BASENAME = os.path.splitext(filename)[0]
-        self.VCP_UI = '%s.ui'% self.BASENAME
+        self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
+        print self.BASENAME
+        self.VCP_UI = '%s.ui'% os.path.splitext(filename)[0]
         self.VCP_HANDLER = '%s_handler.py'% self.BASENAME
         if not os.path.exists(self.VCP_HANDLER):
             self.VCP_HANDLER = None
