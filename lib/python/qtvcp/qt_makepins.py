@@ -20,12 +20,12 @@
 
 import gobject
 from qtvcp_widgets.simple_widgets import _HalWidgetBase
-from hal_glib import GComponent
+from qtvcp.qt_glib import QComponent
 
 class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug=False):
 
-        self.hal = GComponent(halcomp)
+        self.hal = QComponent(halcomp)
         self.widgets = {}
 
         # parse for HAL objects:

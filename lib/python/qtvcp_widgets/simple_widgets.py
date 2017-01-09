@@ -36,16 +36,16 @@ class _HalToggleBase(_HalWidgetBase):
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
-        #self.connect("value-changed", self.hal_update)
+        self.connect.value_changed.connect(lambda data: self.l_update(data))
 
-    def hal_update(self, *a):
+    def l_update(self, *a):
         pass
         self.hal_pin.set(self.get_value())
 
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
-        self.hal_pin.connect('value-changed', lambda s: self.setEnabled(s.value))
+        self.hal_pin.value_changed.connect( lambda s: self.setEnabled(s.value))
 
 ######################
 # REAL WIDGETS
@@ -56,9 +56,9 @@ class Lcnc_LCDNumber(QtGui.QLCDNumber, _HalWidgetBase):
         QtGui.QLCDNumber.__init__(self, parent)
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
-        self.hal_pin.connect('value-changed',lambda p: self.l_update(p))
-    def l_update(self,d):
-        self.display(d.get())
+        self.hal_pin.value_changed.connect(lambda data: self.l_update(data))
+    def l_update(self,data):
+        self.display(data)
 
 class Lcnc_CheckBox(QtGui.QCheckBox, _HalToggleBase):
     def __init__(self, parent = None):

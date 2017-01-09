@@ -8,7 +8,7 @@ import math
 import gobject
 
 class QPin(QObject, hal.Pin):
-    value_changed = pyqtSignal()
+    value_changed = pyqtSignal([int], [float], [bool] )
 
     REGISTRY = []
     UPDATE = False
@@ -24,7 +24,7 @@ class QPin(QObject, hal.Pin):
     def update(self):
         tmp = self.get()
         if tmp != self._prev:
-            self.emit('value_changed')
+            self.value_changed.emit(tmp)
         self._prev = tmp
 
     @classmethod
@@ -35,9 +35,10 @@ class QPin(QObject, hal.Pin):
         for p in self.REGISTRY:
             try:
                 p.update()
-            except:
+            except Exception, e:
                 kill.append(p)
                 print "Error updating pin %s; Removing" % p
+                print e
         for p in kill:
             self.REGISTRY.remove(p)
         return self.UPDATE
