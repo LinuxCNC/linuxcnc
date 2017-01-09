@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 import gtk
 warnings.filterwarnings("default")
 
-from PyQt4.QtCore import pyqtProperty
+from PyQt4.QtCore import pyqtProperty, QSize
 from PyQt4.QtGui import QX11EmbedContainer
 from qtvcp.qt_glib import GStat
 import thread
@@ -26,6 +26,7 @@ import gobject
 
 import linuxcnc
 import gremlin
+import rs274.glcanon
 
 gobject.threads_init()
 
@@ -44,6 +45,7 @@ class modded_gremlin(gremlin.Gremlin):
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         inifile = linuxcnc.ini(inifile)
         gremlin.Gremlin.__init__(self, inifile)
+        self._reload_filename = None
         self.enable_dro = True
         self.colors['overlay_background'] = (0.0, 0.0, 0.57)
         self.colors['back'] = (0.0, 0.0, 0.75)
@@ -74,13 +76,17 @@ class modded_gremlin(gremlin.Gremlin):
         except:
             pass
 
-    def fileloaded(self,f):
+    def fileloaded(self,w,f):
         self._reload_filename=f
         try:
             self._load(f)
         except AttributeError,detail:
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
             print 'hal_gremlin: continuing after',detail
+
+    @rs274.glcanon.with_context
+    def _load(self, filename):
+        return self.load(filename)
 
     # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
