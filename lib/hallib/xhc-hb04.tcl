@@ -127,7 +127,7 @@ proc connect_pins {} {
       }
     }
 
-    net pendant:$bname <= $fullbname => $thepin
+    makenet pendant:$bname <= $fullbname => $thepin
   }
 } ;# connect_pins
 
@@ -190,20 +190,20 @@ proc wheel_setup {jogmode} {
                     #        jog-counts are type s32 (~ +/-2e9)
   setp pendant_util.k $kvalue
 
-  net pendant:jog-prescale    <= xhc-hb04.jog.scale
-  net pendant:jog-prescale    => pendant_util.divide-by-k-in
+  makenet pendant:jog-prescale    <= xhc-hb04.jog.scale
+  makenet pendant:jog-prescale    => pendant_util.divide-by-k-in
 
-  net pendant:jog-scale       <= pendant_util.divide-by-k-out
+  makenet pendant:jog-scale       <= pendant_util.divide-by-k-out
   #   pendant:jog-scale connects to each axis.$axno.jog-scale
 
-  net pendant:wheel-counts     <= xhc-hb04.jog.counts
-  net pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
+  makenet pendant:wheel-counts     <= xhc-hb04.jog.counts
+  makenet pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
 
-  net pendant:is-manual <= halui.mode.is-manual
-  net pendant:is-manual => pendant_util.is-manual
+  makenet pendant:is-manual <= halui.mode.is-manual
+  makenet pendant:is-manual => pendant_util.is-manual
 
-  net pendant:jogenable-off <= xhc-hb04.jog.enable-off
-  net pendant:jogenable-off => pendant_util.jogenable-off
+  makenet pendant:jogenable-off <= xhc-hb04.jog.enable-off
+  makenet pendant:jogenable-off => pendant_util.jogenable-off
 
   set anames        {x y z a}
   set available_idx {0 1 2 3}
@@ -250,19 +250,19 @@ proc wheel_setup {jogmode} {
     setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
     set acoord [lindex $anames $idx]
-    net pendant:pos-$coord <= halui.axis.$axno.pos-feedback \
+    makenet pendant:pos-$coord <= halui.axis.$axno.pos-feedback \
                            => xhc-hb04.$acoord.pos-absolute
-    net pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
+    makenet pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
     if ![pin_exists axis.$axno.jog-scale] {
       err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
       missing axis.$axno.* pins"
     }
-    net pendant:jog-scale => axis.$axno.jog-scale
+    makenet pendant:jog-scale => axis.$axno.jog-scale
 
-    net pendant:wheel-counts                 => pendant_util.in$idx
-    net pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
+    makenet pendant:wheel-counts                 => pendant_util.in$idx
+    makenet pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
                                              => axis.$axno.jog-counts
 
     #-----------------------------------------------------------------------
@@ -278,21 +278,21 @@ proc wheel_setup {jogmode} {
 
     # This signal is named using $axno so the connection can be made
     # later when the ini pins have been created
-    net pendant:muxed-accel-$axno <= pendant_util.amux$idx-out
+    makenet pendant:muxed-accel-$axno <= pendant_util.amux$idx-out
     # a script running after task is started must connect:
-    # net pendant:muxed-accel-$axno => ini.$axno.max_acceleration
+    # makenet pendant:muxed-accel-$axno => ini.$axno.max_acceleration
 
     #-----------------------------------------------------------------------
     switch $jogmode {
       normal - vnormal {
-        net pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
+        makenet pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
                                => axis.$axno.jog-enable
       }
       plus-minus {
         # (Experimental) connect halui plus,minus pins
-        net pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
+        makenet pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
                                      => halui.jog.$axno.plus
-        net pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
+        makenet pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
                                      => halui.jog.$axno.minus
       }
     }
@@ -308,44 +308,44 @@ proc wheel_setup {jogmode} {
 
   switch $jogmode {
     normal - vnormal {
-      net pendant:jog-speed <= halui.max-velocity.value
+      makenet pendant:jog-speed <= halui.max-velocity.value
       # not used: xhc-hb04.jog.velocity
       # not used: xhc-hb04.jog.max-velocity
     }
     plus-minus {
       # (Experimental)
       # Note: the xhc-hb04 driver manages xhc-hb04.jog.velocity
-      net pendant:jog-max-velocity <= halui.max-velocity.value
-      net pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
-      net pendant:jog-speed        <= xhc-hb04.jog.velocity
-      net pendant:jog-speed        => halui.jog-speed
+      makenet pendant:jog-max-velocity <= halui.max-velocity.value
+      makenet pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
+      makenet pendant:jog-speed        <= xhc-hb04.jog.velocity
+      makenet pendant:jog-speed        => halui.jog-speed
     }
   }
 
   setp halui.feed-override.scale 0.01
-  net pendant:wheel-counts  => halui.feed-override.counts
+  makenet pendant:wheel-counts  => halui.feed-override.counts
 
   setp halui.spindle-override.scale 0.01
-  net pendant:wheel-counts  => halui.spindle-override.counts
+  makenet pendant:wheel-counts  => halui.spindle-override.counts
 
-  net pendant:feed-override-enable => halui.feed-override.count-enable \
+  makenet pendant:feed-override-enable => halui.feed-override.count-enable \
                                    <= xhc-hb04.jog.enable-feed-override
 
-  net pendant:feed-override <= halui.feed-override.value \
+  makenet pendant:feed-override <= halui.feed-override.value \
                             => xhc-hb04.feed-override
 
-  net pendant:feed-value <= motion.current-vel \
+  makenet pendant:feed-value <= motion.current-vel \
                          => xhc-hb04.feed-value
 
-  net pendant:spindle-override-enable => halui.spindle-override.count-enable \
+  makenet pendant:spindle-override-enable => halui.spindle-override.count-enable \
                                       <= xhc-hb04.jog.enable-spindle-override
 
-  net pendant:spindle-override <= halui.spindle-override.value \
+  makenet pendant:spindle-override <= halui.spindle-override.value \
                                => xhc-hb04.spindle-override
 
   set sname [existing_outpin_signame \
                 motion.spindle-speed-out-rps-abs pendant:spindle-rps]
-  net $sname <= motion.spindle-speed-out-rps-abs \
+  makenet $sname <= motion.spindle-speed-out-rps-abs \
              => xhc-hb04.spindle-rps
 } ;# wheel_setup
 
@@ -365,21 +365,21 @@ proc existing_outpin_signame {pinname newsigname} {
 
 proc std_start_pause_button {} {
   # hardcoded setup for button-start-pause
-  net    pendant:start-or-pause <= xhc-hb04.button-start-pause \
+  makenet    pendant:start-or-pause <= xhc-hb04.button-start-pause \
                                 => pendant_util.start-or-pause
 
-  net    pendant:is-idle    <= halui.program.is-idle \
+  makenet    pendant:is-idle    <= halui.program.is-idle \
                             => pendant_util.is-idle
-  net    pendant:is-paused  <= halui.program.is-paused \
+  makenet    pendant:is-paused  <= halui.program.is-paused \
                             => pendant_util.is-paused
-  net    pendant:is-running <= halui.program.is-running \
+  makenet    pendant:is-running <= halui.program.is-running \
                             => pendant_util.is-running
 
-  net    pendant:program-resume <= pendant_util.resume \
+  makenet    pendant:program-resume <= pendant_util.resume \
                                 => halui.program.resume
-  net    pendant:program-pause  <= pendant_util.pause \
+  makenet    pendant:program-pause  <= pendant_util.pause \
                                 => halui.program.pause
-  net    pendant:program-run    <= pendant_util.run  \
+  makenet    pendant:program-run    <= pendant_util.run  \
                                 => halui.program.run \
                                 => halui.mode.auto
 } ;# std_start_pause_button
@@ -389,7 +389,7 @@ proc popup_msg {msg} {
   if [catch {package require Tk
              wm withdraw .
              tk_messageBox \
-                 -title "$::progname: loadusr" \
+                 -title "$::progname" \
                  -type ok \
                  -message "$msg"
              destroy .
@@ -403,6 +403,17 @@ proc err_exit {msg} {
   puts stderr "\n$::progname: $msg\n"
   exit 1
 } ;# err_exit
+
+proc makenet {args} {
+  if [catch {eval net $args} msg] {
+     if ![info exists ::makenet_msg] {
+       set ::makenet_msg \
+          "Failed to make some required connections"
+     }
+     set sig "Signal: <[lindex $args 0]>:"
+     set ::makenet_msg "$::makenet_msg\n\n$sig\n$msg"
+  }
+} ;# makenet
 
 # begin------------------------------------------------------------------------
 set ::progname "xhc-hb04.tcl"
@@ -547,5 +558,8 @@ if { ![namespace exists ::tp] || ([::tp::passnumber] != 0) } {
   wheel_setup  $::XHC_HB04_CONFIG(jogmode)
                    # jog wheel per ini file items:
                    #     [XHC_HB04_CONFIG]coords,coefs,scales
+}
+if [info exists ::makenet_msg] {
+  popup_msg $::makenet_msg
 }
 #parray ::XHC_HB04_CONFIG
