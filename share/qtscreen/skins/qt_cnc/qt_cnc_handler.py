@@ -1,4 +1,5 @@
 from PyQt4 import QtCore
+from PyQt4 import QtGui
 from qtscreen.keybindings import Keylookup,key_pressed
 from qtvcp.qt_glib import GStat
 import linuxcnc
@@ -111,6 +112,25 @@ class HandlerClass:
         self.cmnd.mode(linuxcnc.MODE_MANUAL)
         self.cmnd.home(-1)
 
+    def loadfile_clicked(self):
+        print 'load'
+        fname = QtGui.QFileDialog.getOpenFileName(self.w, 'Open file', 
+                '/home/chris/linuxcnc/nc_files')
+        print fname
+        f = open(fname, 'r')
+        with f:        
+            data = f.read()
+        self.w.gcode.setText(data) 
+        self.cmnd.mode(linuxcnc.MODE_AUTO)
+        self.cmnd.program_open(fname)
+        GSTAT.emit('file-loaded', fname)
+
+    def runfile_clicked(self):
+        print 'run file'
+        self.cmnd.mode(linuxcnc.MODE_AUTO)
+        self.cmnd.auto(linuxcnc.AUTO_RUN,0)
+
+    # KEY BINDING CALLS
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
             self.w.button_estop.click()
