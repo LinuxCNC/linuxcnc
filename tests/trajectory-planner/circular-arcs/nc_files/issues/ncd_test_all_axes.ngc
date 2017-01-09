@@ -1,0 +1,30 @@
+G20 G90
+
+(Position tool tip at origin)
+G0 X-.1 Y0 Z0
+G1 X0 F50
+
+G64 P0.0 Q0.015
+(XY plane)
+G17
+(NCD replaces with lines)
+G2 X0.1 R1
+(Use full arc due to multi-turn)
+G2 X0 R1 P2
+
+G18
+(NCD replaces with lines)
+G2 Z0.1 R1
+(Use full arc due to multi-turn)
+G2 Z0 R1 P2
+
+G19
+(chord height large, use arc)
+G2 Y0.1 R1
+(Do the same arc again with enough chord tolerance)
+G2 Y0 R1 P2
+
+(Reset)
+G0 X0 Y0 Z0
+M2
+

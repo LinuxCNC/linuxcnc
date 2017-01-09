@@ -1,0 +1,20 @@
+G17 G90  (XY Plane, Absolute Distance Mode)
+G64 P 0.0050 Q 0.0001 (Path Blending)
+
+G20 (units in inches)
+G54 (Work Offset)
+
+F 10.00 (Feed Rate, inches/minute)
+
+(Perimeter Only, Helix in Z)
+G0 X 0.0650 Y 0.0000
+G0 Z 0.2000
+G1 Z 0.0000 F10.0
+F 3.42 (Arc Feed, inches/minute)
+G3 X 0.0643 Y 0.0095 Z -0.2000 P 15.0000 I -0.0650 J 0.0000
+G3 X 0.0643 Y 0.0095 Z -0.2000 P 1.0000 I -0.0643 J -0.0095
+F 10.00 (Feed, inches/minute)
+G0 Z 0.2000 (Z Clear)
+
+M30 (End of Program)
+
