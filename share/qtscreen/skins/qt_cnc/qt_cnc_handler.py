@@ -1,13 +1,14 @@
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 from qtscreen.keybindings import Keylookup,key_pressed
+from qtscreen.aux_program_loader import Aux_program_loader
 from qtvcp.qt_glib import GStat
 import linuxcnc
 import sys
 # instantiate libraries
 KEYBIND = Keylookup()
 GSTAT = GStat()
-
+AUX_PRGM = Aux_program_loader()
 class HandlerClass:
 
     # This will be pretty standard to gain access.
@@ -50,6 +51,7 @@ class HandlerClass:
         self.w.button_frame.setEnabled(False)
         self.w.jog_slider.setValue(self.jog_velocity)
         GSTAT.forced_update()
+        AUX_PRGM.load_status()
 
     def processed_key_event__(self,event,is_pressed,key,code,shift,cntrl):
         try:
