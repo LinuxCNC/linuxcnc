@@ -5,6 +5,7 @@ from qtscreen.aux_program_loader import Aux_program_loader
 from qtvcp.qt_glib import GStat
 import linuxcnc
 import sys
+import os
 # instantiate libraries
 KEYBIND = Keylookup()
 GSTAT = GStat()
@@ -117,7 +118,7 @@ class HandlerClass:
     def loadfile_clicked(self):
         print 'load'
         fname = QtGui.QFileDialog.getOpenFileName(self.w, 'Open file', 
-                '/home/chris/linuxcnc/nc_files')
+                os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
         print fname
         f = open(fname, 'r')
         with f:        
