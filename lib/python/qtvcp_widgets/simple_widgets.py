@@ -33,6 +33,7 @@ class _HalToggleBase(_HalWidgetBase):
         self.hal_pin.set(bool(state))
         self.hal_pin_not.set(not bool(state))
 
+# reacts to HAL pin changes
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
@@ -42,15 +43,17 @@ class _HalScaleBase(_HalWidgetBase):
         pass
         self.hal_pin.set(self.get_value())
 
+# reacts to HAL pin changes
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
-        self.hal_pin.value_changed.connect( lambda s: self.setEnabled(s.value))
+        self.hal_pin.value_changed.connect( lambda s: self.setEnabled(s))
 
 ######################
 # REAL WIDGETS
 ######################
 
+# reacts to HAL pin changes
 class Lcnc_LCDNumber(QtGui.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent = None):
         QtGui.QLCDNumber.__init__(self, parent)
