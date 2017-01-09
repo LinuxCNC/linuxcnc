@@ -19,7 +19,7 @@
      <x>210</x>
      <y>10</y>
      <width>411</width>
-     <height>541</height>
+     <height>411</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -184,7 +184,7 @@
      <x>240</x>
      <y>40</y>
      <width>331</width>
-     <height>461</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="view" stdset="0">
@@ -295,6 +295,42 @@
    </property>
    <property name="Qjoint_number" stdset="0">
     <number>2</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_load">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>100</y>
+     <width>93</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>load file</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_run">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>150</y>
+     <width>93</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>run file</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="gcode">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>433</y>
+     <width>411</width>
+     <height>111</height>
+    </rect>
    </property>
   </widget>
  </widget>
@@ -617,6 +653,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>button_load</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>loadfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>722</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_run</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>runfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>698</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>638</x>
+     <y>125</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -626,5 +694,7 @@
   <slot>jog_pressed()</slot>
   <slot>jog_released()</slot>
   <slot>change_jograte()</slot>
+  <slot>loadfile_clicked()</slot>
+  <slot>runfile_clicked()</slot>
  </slots>
 </ui>
