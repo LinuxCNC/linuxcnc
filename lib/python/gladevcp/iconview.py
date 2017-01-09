@@ -33,6 +33,8 @@ import gobject
 import os
 import mimetypes
 import gio
+import tempfile
+import errno
 
 # constants
 _ASCENDING = 0
@@ -390,6 +392,12 @@ class IconFileSelection(gtk.HBox):
         self._fill_store()
 
     def on_btn_jump_to_clicked(self, widget):
+        try:
+            testfile = tempfile.TemporaryFile(dir = self.jump_to_dir)
+            testfile.close()
+        except OSError as e:
+            if e.errno == errno.EACCES:  # 13
+                return False
         self.cur_dir = self.jump_to_dir
         self._fill_store()
 
@@ -415,8 +423,11 @@ class IconFileSelection(gtk.HBox):
             new_iter = self.model.get_iter_from_string(str(pos))
             new_path = self.model.get_path(new_iter)
         except:
-            new_iter = self.get_iter_last(self.model)
-            new_path = self.model.get_path(new_iter)
+            try:
+                new_iter = self.get_iter_last(self.model)
+                new_path = self.model.get_path(new_iter)
+            except:
+                return
         self.iconView.set_cursor(new_path)
         self.iconView.select_path(new_path)
         self.check_button_state()
@@ -551,6 +562,7 @@ class IconFileSelection(gtk.HBox):
                 if name == 'jump_to_dir':
                     self.jump_to_dir = os.path.expanduser(value)
                     self.on_btn_jump_to()
+                    # save to preferences file?
                 if name == 'filetypes':
                     self.set_filetypes(value)
                 if name == 'sortorder':
