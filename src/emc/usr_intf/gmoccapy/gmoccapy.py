@@ -2796,11 +2796,9 @@ class gmoccapy( object ):
         return False
 
     def _ignore_limits(self, pin):
-        print("Ignore_limits from hal")
         self.widgets.chk_ignore_limits.set_active(pin.get())     
 
     def on_chk_ignore_limits_toggled( self, widget, data = None ):
-        print("checkbox toggled")
         if self.widgets.chk_ignore_limits.get_active():
             if not self._check_limits():
                 self._show_error( ( 11, _( "ERROR : No limit switch is active, ignore limits will not be set." ) ) )
