@@ -28,12 +28,28 @@ class HandlerClass:
         GSTAT.connect('state-off', self.on_state_off)
         GSTAT.connect('jograte-changed', self.on_jograte_changed)
 
-    def on_jograte_changed(self, w, rate):
-        self.jog_velocity = rate
+    #############
+    # Special Functions called from QTSCREEN
+    #############
+    def initialized__(self):
+        print 'INIT'
+        self.w.button_frame.setEnabled(False)
+        self.w.jog_slider.setValue(self.jog_velocity)
+        GSTAT.forced_update()
 
-    def change_jograte(self, rate):
-        GSTAT.set_jog_rate(float(rate))
+    def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
+        if self.w.mdi_line == receiver: return False
+        try:
+            KEYBIND.call(self,event,is_pressed,shift,cntrl)
+            return True
+        except AttributeError:
+            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            #print 'from %s'% receiver
+            return False
 
+    ######################
+    # callbacks from GSTAT
+    ######################
     def say_estop(self,w):
         print 'saying estop'
 
@@ -47,24 +63,18 @@ class HandlerClass:
         if self.w.button_machineon.isChecked():
             self.w.button_machineon.click()
 
-    def initialized__(self):
-        print 'INIT'
-        self.w.button_frame.setEnabled(False)
-        self.w.jog_slider.setValue(self.jog_velocity)
-        GSTAT.forced_update()
+    def on_jograte_changed(self, w, rate):
+        self.jog_velocity = rate
+
+    ######################
+    # callbacks from form
+    ######################
+
+    def launch_status(self):
         AUX_PRGM.load_status()
 
-    def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
-        try:
-            KEYBIND.call(self,event,is_pressed,shift,cntrl)
-            return True
-        except AttributeError:
-            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            print 'from %s'% receiver
-            return False
-
-    def halbuttonclicked(self):
-        print 'click'
+    def change_jograte(self, rate):
+        GSTAT.set_jog_rate(float(rate))
 
     def estop_toggled(self,pressed):
         print 'estop click',pressed
@@ -105,13 +115,6 @@ class HandlerClass:
         elif 'Z' in source.text():
             self.continous_jog(2, 0)
 
-    def continous_jog(self, axis, direction):
-        if direction == 0:
-            self.cmnd.jog(linuxcnc.JOG_STOP, axis)
-        else:
-            speed = direction * self.jog_velocity/60
-            self.cmnd.jog(linuxcnc.JOG_CONTINUOUS, axis, speed)
-
     def home_clicked(self):
         print 'home click'
         self.cmnd.mode(linuxcnc.MODE_MANUAL)
@@ -135,7 +138,20 @@ class HandlerClass:
         self.cmnd.mode(linuxcnc.MODE_AUTO)
         self.cmnd.auto(linuxcnc.AUTO_RUN,0)
 
+    ##################
+    # functions
+    ##################
+    def continous_jog(self, axis, direction):
+        if direction == 0:
+            self.cmnd.jog(linuxcnc.JOG_STOP, axis)
+        else:
+            speed = direction * self.jog_velocity/60
+            self.cmnd.jog(linuxcnc.JOG_CONTINUOUS, axis, speed)
+
+
+    ####################
     # KEY BINDING CALLS
+    ####################
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
             self.w.button_estop.click()
