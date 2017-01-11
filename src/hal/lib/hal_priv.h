@@ -537,8 +537,6 @@ typedef struct hal_funct_args {
     hal_thread_t  *thread; // descriptor of invoking thread, NULL with FS_USERLAND
     hal_funct_t   *funct;  // descriptor of invoked funct
 
-    long actual_period;  // actually measured
-
     // argument vector for FS_USERLAND; 0/NULL for others
     int argc;
     const char **argv;
@@ -640,15 +638,7 @@ static inline long fa_period(const hal_funct_args_t *fa)
     return 0;
 }
 
-// actually measured thread period in nS, relative to last invocation
-// on first call, will expose the nominal period, measured times thereafter
-// addresses https://github.com/machinekit/machinekit/issues/657
-static inline long fa_actual_period(const hal_funct_args_t *fa)
-{
-    return fa->actual_period;
-}
-
-// the actual invocation period including jitter
+// the actual invocation period including jitter - replaces fa_actual_period()
 static inline const hal_s32_t get_s32_pin(const s32_pin_ptr p);
 static inline hal_s32_t fa_current_period(const hal_funct_args_t *fa)
 {
