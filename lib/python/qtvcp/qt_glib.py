@@ -161,6 +161,7 @@ class _GStat(gobject.GObject):
             pass
         gobject.timeout_add(100, self.update)
         self.current_jog_rate = 15
+        self._is_all_homed = False
 
     def merge(self):
         self.old['state'] = self.stat.task_state
@@ -329,8 +330,10 @@ class _GStat(gobject.GObject):
                 self.emit('homed',homed)
             if count == axis_count:
                 self.emit('all-homed')
+                self._is_all_homed = True
             else:
                 self.emit('not-all-homed',unhomed)
+                self._is_all_homed = False
         # override limts
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
@@ -548,6 +551,18 @@ class _GStat(gobject.GObject):
     def set_jog_rate(self,upm):
         self.current_jog_rate = upm
         self.emit('jograte-changed', upm)
+
+
+    def is_all_homed(self):
+        return self._is_all_homed
+
+    def machine_is_on(self):
+        return self.old['state']  > linuxcnc.STATE_OFF
+
+    def is_auto_mode(self):
+        self.stat.poll()
+        print self.old['mode']  , linuxcnc.MODE_AUTO
+        return self.old['state']  == linuxcnc.MODE_AUTO
 
     def __getitem__(self, item):
         return getattr(self, item)
