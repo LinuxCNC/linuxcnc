@@ -1,3 +1,9 @@
+ver. 2.2.3
+- added patch from gmoccapy 1.5.7
+- new hal pin gmoccapy.ignore-limits so that this function can be
+  handled from hardware switch
+  Ask by some users, done because of a wish of Timothy Snowden
+  
 ver. 2.2.2
 - When running a program, press pause, then stop, the axis will make a jump to 
   a unknown position, (I think related to read ahead). I added a additional 

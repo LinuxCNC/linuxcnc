@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.2"
+_RELEASE = " 2.2.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3092,6 +3092,9 @@ class gmoccapy(object):
             self.widgets.chk_ignore_limits.set_active(False)
         return False
 
+    def _ignore_limits(self, pin):
+        self.widgets.chk_ignore_limits.set_active(pin.get())
+
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.widgets.chk_ignore_limits.get_active():
             if not self._check_limits():
@@ -4599,6 +4602,10 @@ class gmoccapy(object):
         self.halcomp.newpin("program.length", hal.HAL_S32, hal.HAL_OUT)
         self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.HAL_OUT)
         self.halcomp.newpin("program.progress", hal.HAL_FLOAT, hal.HAL_OUT)
+
+        # make a pin to set ignore limits
+        pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
 # Hal Pin Handling End
 # =========================================================
