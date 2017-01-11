@@ -2,7 +2,10 @@ import hal
 import os
 
 # path to TCL for external programs eg. halshow
-TCLPATH = os.environ['LINUXCNC_TCL_DIR']
+try:
+    TCLPATH = os.environ['LINUXCNC_TCL_DIR']
+except:
+    pass
 
 class Aux_program_loader:
     def _init_(self):
