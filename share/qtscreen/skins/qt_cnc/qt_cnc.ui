@@ -220,38 +220,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="Lcnc_GridLayout" name="lcnc_gridlayout">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>460</y>
-     <width>171</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>{0}</string>
-   </property>
-   <property name="whatsThis">
-    <string>{1}</string>
-   </property>
-   <property name="styleSheet">
-    <string>background-color: rgb(184, 184, 184);</string>
-   </property>
-   <widget class="Lcnc_PushButton" name="lncpushbutton">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>30</y>
-      <width>121</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>hal button</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
    <property name="geometry">
     <rect>
@@ -333,12 +301,41 @@
     </rect>
    </property>
   </widget>
+  <widget class="Lcnc_MDILine" name="mdi_line">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>470</y>
+     <width>191</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="Lcnc_PushButton" name="button_status">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>430</y>
+     <width>71</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Status</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
    <class>Graphics</class>
    <extends>QWidget</extends>
    <header>qtvcp_widgets.graphics</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp_widgets.mdi_line</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Lcnc_DROLabel</class>
@@ -356,31 +353,9 @@
    <extends>QPushButton</extends>
    <header>qtvcp_widgets.simple_widgets</header>
   </customwidget>
-  <customwidget>
-   <class>Lcnc_GridLayout</class>
-   <extends>QWidget</extends>
-   <header>qtvcp_widgets.simple_widgets</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>lncpushbutton</sender>
-   <signal>clicked()</signal>
-   <receiver>Form</receiver>
-   <slot>halbuttonclicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>112</x>
-     <y>451</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>112</x>
-     <y>387</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>button_estop</sender>
    <signal>clicked(bool)</signal>
@@ -685,6 +660,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>button_status</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>launch_status()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>710</x>
+     <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>650</x>
+     <y>424</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -696,5 +687,6 @@
   <slot>change_jograte()</slot>
   <slot>loadfile_clicked()</slot>
   <slot>runfile_clicked()</slot>
+  <slot>launch_status()</slot>
  </slots>
 </ui>
