@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.6.10"
+_RELEASE = " 1.5.7"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2795,7 +2795,12 @@ class gmoccapy( object ):
             self.widgets.chk_ignore_limits.set_active( False )
         return False
 
+    def _ignore_limits(self, pin):
+        print("Ignore_limits from hal")
+        self.widgets.chk_ignore_limits.set_active(pin.get())     
+
     def on_chk_ignore_limits_toggled( self, widget, data = None ):
+        print("checkbox toggled")
         if self.widgets.chk_ignore_limits.get_active():
             if not self._check_limits():
                 self._show_error( ( 11, _( "ERROR : No limit switch is active, ignore limits will not be set." ) ) )
@@ -4213,6 +4218,10 @@ class gmoccapy( object ):
         self.halcomp.newpin( "program.length", hal.HAL_S32, hal.HAL_OUT )
         self.halcomp.newpin( "program.current-line", hal.HAL_S32, hal.HAL_OUT )
         self.halcomp.newpin( "program.progress", hal.HAL_FLOAT, hal.HAL_OUT )
+
+        # make a pin to activate ignore limits
+        pin = self.halcomp.newpin( "ignore-limits", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._ignore_limits)
 
 # Hal Pin Handling End
 # =========================================================
