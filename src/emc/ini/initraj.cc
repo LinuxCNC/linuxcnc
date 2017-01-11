@@ -51,7 +51,7 @@ extern value_inihal_data old_inihal_data;
   emcTrajSetCycleTime(double cycleTime);
   emcTrajSetVelocity(double vel);
   emcTrajSetAcceleration(double acc);
-  emcTrajSetMaxVelocity(double vel);
+  emcTrajSetMaxVelocity(double vel, double vela);
   emcTrajSetMaxAcceleration(double acc);
   emcTrajSetHome(EmcPose home);
   */
@@ -61,7 +61,7 @@ static int loadTraj(EmcIniFile *trajInifile)
     const char *inistring;
     EmcLinearUnits linearUnits;
     EmcAngularUnits angularUnits;
-    double vel;
+    double vel, vela;
     double acc;
     unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
     int t;
@@ -127,14 +127,17 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
 
         vel = 1e99; // by default, use AXIS limit
+        vela = 1e99;
         trajInifile->Find(&vel, "MAX_VELOCITY", "TRAJ");
+        trajInifile->Find(&vela, "MAX_ANGULAR_VELOCITY", "TRAJ");
 
         // set the corresponding global
         traj_max_velocity = vel;
         old_inihal_data.traj_max_velocity = vel;
+        old_inihal_data.traj_max_angular_velocity = vela;
 
         // and set dynamic value
-        if (0 != emcTrajSetMaxVelocity(vel)) {
+        if (0 != emcTrajSetMaxVelocity(vel, vela)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetMaxVelocity\n");
             }

@@ -1843,10 +1843,16 @@ class TclCommands(nf.TclCommands):
 
     def set_maxvel(newval):
         newval = float(newval)
-        if vars.metric.get(): newval = newval / 25.4
+        max_maxvel = vars.max_maxvel.get()
+        max_maxavel = vars.max_aspeed.get()
+        newaval = newval/max_maxvel * max_maxavel
+        if vars.metric.get():
+            newval = newval / 25.4
+            newaval = newaval / 25.4
         newval = from_internal_linear_unit(newval)
+        newaval = from_internal_linear_unit(newaval)
         global maxvel_blackout
-        c.maxvel(newval / 60.)
+        c.maxvel(newval / 60., newaval / 60.)
         maxvel_blackout = time.time() + 1
 
     def copy_line(*args):

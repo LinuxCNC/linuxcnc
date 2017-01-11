@@ -418,7 +418,7 @@ extern int emcTrajSetMode(int traj_mode);
 extern int emcTrajSetTeleopVector(EmcPose vel);
 extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
-extern int emcTrajSetMaxVelocity(double vel);
+extern int emcTrajSetMaxVelocity(double vel, double vela);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
 extern int emcTrajSetRapidScale(double scale);

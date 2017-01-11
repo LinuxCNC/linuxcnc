@@ -273,9 +273,10 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
      * computed in the TP, so it would disrupt position tracking to apply this
      * limit here.
      */
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
+    if ((tc->synchronized != TC_SYNC_POSITION)){
         /*tc_debug_print("Cartesian velocity limit active\n");*/
-        v_max_target = fmin(v_max_target,tp->vLimit);
+        v_max_target = fmin(v_max_target,
+			    tcPureRotaryCheck(tc) ? tp->vLimitAng : tp->vLimit);
     }
 
     // Apply maximum segment velocity limit (must always be respected)
@@ -453,6 +454,7 @@ int tpInit(TP_STRUCT * const tp)
     tp->cycleTime = 0.0;
     //Velocity limits
     tp->vLimit = 0.0;
+    tp->vLimitAng = 0.0;
     tp->ini_maxvel = 0.0;
     //Accelerations
     tp->aLimit = 0.0;
@@ -513,12 +515,12 @@ int tpSetVmax(TP_STRUCT * const tp, double vMax, double ini_maxvel)
 }
 
 /**
- * (?) Set the tool tip maximum velocity.
+ * Set the maximum velocity for linear and rotary-only moves.
  * I think this is the [TRAJ] max velocity. This should be the max velocity of
  * const the TOOL TIP, not necessarily any particular axis. This applies to
  * subsequent moves until changed.
  */
-int tpSetVlimit(TP_STRUCT * const tp, double vLimit)
+int tpSetVlimit(TP_STRUCT * const tp, double vLimit, double vLimitAng)
 {
     if (!tp) return TP_ERR_FAIL;
 
@@ -526,6 +528,11 @@ int tpSetVlimit(TP_STRUCT * const tp, double vLimit)
         tp->vLimit = 0.;
     else
         tp->vLimit = vLimit;
+
+    if (vLimitAng < 0.)
+        tp->vLimitAng = 0.;
+    else
+        tp->vLimitAng = vLimitAng;
 
     return TP_ERR_OK;
 }

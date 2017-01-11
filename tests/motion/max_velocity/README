@@ -1,0 +1,2 @@
+This checks max velocity, both linear and angular, as set by e.g. the
+'max velocity' slider in the Axis GUI.

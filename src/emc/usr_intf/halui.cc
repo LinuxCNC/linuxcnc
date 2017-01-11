@@ -335,6 +335,14 @@ DONE: - spindle-override
     FIELD(hal_bit_t,mv_increase) /* pin for increasing the MV (+=scale) */ \
     FIELD(hal_bit_t,mv_decrease) /* pin for decreasing the MV (-=scale) */ \
 \
+    FIELD(hal_s32_t,mav_counts) /* pin for the Max Angular Velocity counting */ \
+    FIELD(hal_bit_t,mav_count_enable) /* pin for the Max Angular Velocity counting enable */ \
+    FIELD(hal_bit_t,mav_direct_value) /* pin for enabling direct value option instead of counts */ \
+    FIELD(hal_float_t,mav_scale) /* scale for the Max Angular Velocity counting */ \
+    FIELD(hal_float_t,mav_value) /* current Max Angular Velocity value */ \
+    FIELD(hal_bit_t,mav_increase) /* pin for increasing the MAV (+=scale) */ \
+    FIELD(hal_bit_t,mav_decrease) /* pin for decreasing the MAV (-=scale) */ \
+\
     FIELD(hal_s32_t,fo_counts) /* pin for the Feed Override counting */ \
     FIELD(hal_bit_t,fo_count_enable) /* pin for the Feed Override counting enable */ \
     FIELD(hal_bit_t,fo_direct_value) /* pin for enabling direct value option instead of counts  */ \
@@ -827,6 +835,8 @@ int halui_hal_init(void)
 
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->mv_value), comp_id, "halui.max-velocity.value"); 
     if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->mav_value), comp_id, "halui.max-angular-velocity.value"); 
+    if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->fo_value), comp_id, "halui.feed-override.value"); 
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->ro_value), comp_id, "halui.rapid-override.value"); 
@@ -938,6 +948,22 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->mv_increase), "halui.max-velocity.increase");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->mv_decrease), "halui.max-velocity.decrease");
+    if (retval < 0) return retval;
+
+    retval = halui_export_pin_IN_s32(&(halui_data->mav_counts), "halui.max-angular-velocity.counts");
+    if (retval < 0) return retval;
+    *halui_data->mav_counts = 0;
+    retval = halui_export_pin_IN_bit(&(halui_data->mav_count_enable), "halui.max-angular-velocity.count-enable");
+    if (retval < 0) return retval;
+    *halui_data->mav_count_enable = 1;
+    retval = halui_export_pin_IN_bit(&(halui_data->mav_direct_value), "halui.max-angular-velocity.direct-value");
+    if (retval < 0) return retval;
+    *halui_data->mav_direct_value = 0;
+    retval = halui_export_pin_IN_float(&(halui_data->mav_scale), "halui.max-angular-velocity.scale");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->mav_increase), "halui.max-angular-velocity.increase");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->mav_decrease), "halui.max-angular-velocity.decrease");
     if (retval < 0) return retval;
 
     retval = halui_export_pin_IN_s32(&(halui_data->fo_counts), "halui.feed-override.counts");
@@ -1492,19 +1518,26 @@ static int sendRapidOverride(double override)
     return emcCommandSend(emc_traj_set_scale_msg);
 }
 
-static int sendMaxVelocity(double velocity)
+static int sendMaxVelocity(double velocity, double velocity_angular)
 {
     EMC_TRAJ_SET_MAX_VELOCITY mv;
 
     if (velocity < 0.0) {
         velocity = 0.0;
     }
+    if (velocity_angular < 0.0) {
+        velocity_angular = 0.0;
+    }
 
     if (velocity > maxMaxVelocity) {
         velocity = maxMaxVelocity;
     }
+    if (velocity_angular > maxMaxVelocity) {  // FIXME
+        velocity_angular = maxMaxVelocity;
+    }
 
     mv.velocity = velocity;
+    mv.velocity_angular = velocity_angular;
     return emcCommandSend(mv);
 }
 
@@ -1704,7 +1737,8 @@ static void check_hal_changes()
     hal_bit_t bit;
     int js;
     hal_float_t floatt;
-    int jog_speed_changed;
+    int jog_speed_changed, mv_mav_changed;
+    double mv_value, mav_value;
 
     local_halui_str new_halui_data_mutable;
     copy_hal_data(*halui_data, new_halui_data_mutable);
@@ -1784,19 +1818,42 @@ static void check_hal_changes()
     if (check_bit_changed(new_halui_data.program_stop, old_halui_data.program_stop) != 0)
 	sendAbort();
 
-    //max-velocity stuff
+    // max-velocity and max-angular-velocity
+    // - defaults for no change:
+    mv_mav_changed = 0;
+    mv_value = old_halui_data.mv_value;
+    mav_value = old_halui_data.mav_value;
+    // - check if max (linear) velocity counts have changed
     counts = new_halui_data.mv_counts;
     if (counts != old_halui_data.mv_counts) {
+	mv_mav_changed = 1;
         if (new_halui_data.mv_count_enable) {
             if (new_halui_data.mv_direct_value) {
-                sendMaxVelocity(counts * new_halui_data.mv_scale);
+		mv_value = counts * new_halui_data.mv_scale;
             } else {
-                sendMaxVelocity( new_halui_data.mv_value + (counts - old_halui_data.mv_counts) *
-                    new_halui_data.mv_scale);
+		mv_value = new_halui_data.mv_value +
+		    (counts - old_halui_data.mv_counts) *
+		    new_halui_data.mv_scale;
             }
         }
         old_halui_data.mv_counts = counts;
     }
+    // - check if max angular velocity counts have changed
+    if (counts != old_halui_data.mav_counts) {
+	mv_mav_changed = 1;
+        if (new_halui_data.mav_count_enable) {
+            if (new_halui_data.mav_direct_value) {
+		mav_value = counts * new_halui_data.mav_scale;
+            } else {
+		mav_value = new_halui_data.mav_value +
+		    (counts - old_halui_data.mav_counts) *
+		    new_halui_data.mav_scale;
+            }
+        }
+        old_halui_data.mav_counts = counts;
+    }
+    if (mv_mav_changed)
+	sendMaxVelocity(mv_value, mav_value);
 
     //feed-override stuff
     counts = new_halui_data.fo_counts;
@@ -1840,10 +1897,32 @@ static void check_hal_changes()
         old_halui_data.so_counts = counts;
     }
 
-    if (check_bit_changed(new_halui_data.mv_increase, old_halui_data.mv_increase) != 0)
-        sendMaxVelocity(new_halui_data.mv_value + new_halui_data.mv_scale);
-    if (check_bit_changed(new_halui_data.mv_decrease, old_halui_data.mv_decrease) != 0)
-        sendMaxVelocity(new_halui_data.mv_value - new_halui_data.mv_scale);
+    mv_mav_changed = 0;
+    mv_value = old_halui_data.mv_value;
+    mav_value = old_halui_data.mav_value;
+    if (check_bit_changed(new_halui_data.mv_increase,
+			  old_halui_data.mv_increase) != 0) {
+	mv_mav_changed = 1;
+	mv_value = new_halui_data.mv_value + new_halui_data.mv_scale;
+    }
+    if (check_bit_changed(new_halui_data.mv_decrease,
+			  old_halui_data.mv_decrease) != 0) {
+	mv_mav_changed = 1;
+	mv_value = new_halui_data.mv_value - new_halui_data.mv_scale;
+    }
+
+    if (check_bit_changed(new_halui_data.mav_increase,
+			  old_halui_data.mav_increase) != 0) {
+	mv_mav_changed = 1;
+	mav_value = new_halui_data.mav_value + new_halui_data.mav_scale;
+    }
+    if (check_bit_changed(new_halui_data.mav_decrease,
+			  old_halui_data.mav_decrease) != 0) {
+	mv_mav_changed = 1;
+	mav_value = new_halui_data.mav_value - new_halui_data.mav_scale;
+    }
+    if (mv_mav_changed)
+	sendMaxVelocity(mv_value, mav_value);
 
     if (check_bit_changed(new_halui_data.fo_increase, old_halui_data.fo_increase) != 0)
         sendFeedOverride(new_halui_data.fo_value + new_halui_data.fo_scale);
@@ -2111,6 +2190,7 @@ static void modify_hal_pins()
     *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
 
     *(halui_data->mv_value) = emcStatus->motion.traj.maxVelocity;
+    *(halui_data->mav_value) = emcStatus->motion.traj.maxAngularVelocity;
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
     *(halui_data->ro_value) = emcStatus->motion.traj.rapid_scale; //rapid override from 0 to 1 for 100%
     *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%

@@ -51,6 +51,7 @@ int ini_hal_init_pins(void);
 #define HAL_FIELDS \
     FIELD(hal_float_t,traj_default_velocity) \
     FIELD(hal_float_t,traj_max_velocity) \
+    FIELD(hal_float_t,traj_max_angular_velocity) \
     FIELD(hal_float_t,traj_default_acceleration) \
     FIELD(hal_float_t,traj_max_acceleration) \
 \

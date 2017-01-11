@@ -744,16 +744,20 @@ int emcTrajSetAcceleration(double acc)
   emcmot has no limits on max velocity, acceleration so we'll save them
   here and apply them in the functions above
   */
-int emcTrajSetMaxVelocity(double vel)
+int emcTrajSetMaxVelocity(double vel, double vela)
 {
     if (vel < 0.0) {
 	vel = 0.0;
+    }
+    if (vela < 0.0) {
+	vela = 0.0;
     }
 
     traj_max_velocity = vel;
 
     emcmotCommand.command = EMCMOT_SET_VEL_LIMIT;
     emcmotCommand.vel = vel;
+    emcmotCommand.vela = vela;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1207,6 +1211,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	stat->cycleTime = emcmotConfig.trajCycleTime;
 	stat->kinematics_type = emcmotConfig.kinematics_type;
 	stat->maxVelocity = emcmotConfig.limitVel;
+	stat->maxAngularVelocity = emcmotConfig.limitVelAng;
     }
 
     return 0;

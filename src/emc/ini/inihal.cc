@@ -134,6 +134,7 @@ int ini_hal_init(void)
 
     MAKE_FLOAT_PIN(traj_default_velocity,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_velocity,HAL_IN);
+    MAKE_FLOAT_PIN(traj_max_angular_velocity,HAL_IN);
     MAKE_FLOAT_PIN(traj_default_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_acceleration,HAL_IN);
 
@@ -152,6 +153,7 @@ int ini_hal_init_pins()
 {
     INIT_PIN(traj_default_velocity);
     INIT_PIN(traj_max_velocity);
+    INIT_PIN(traj_max_angular_velocity);
     INIT_PIN(traj_default_acceleration);
     INIT_PIN(traj_max_acceleration);
 
@@ -192,23 +194,26 @@ int check_ini_hal_items()
     const value_inihal_data &new_inihal_data = new_inihal_data_mutable;
 
     if (CHANGED(traj_default_velocity)) {
-        if (debug) SHOW_CHANGE(traj_default_velocity)
+        if (debug) SHOW_CHANGE(traj_default_velocity);
         UPDATE(traj_default_velocity);
         if (0 != emcTrajSetVelocity(0, NEW(traj_default_velocity))) {
             rcs_print("check_ini_hal_items:bad return value from emcTrajSetVelocity\n");
         }
     }
-    if (CHANGED(traj_max_velocity)) {
-        if (debug) SHOW_CHANGE(traj_max_velocity)
+    if (CHANGED(traj_max_velocity) | CHANGED(traj_max_angular_velocity)) {
+        if (debug) SHOW_CHANGE(traj_max_velocity);
+	if (debug) SHOW_CHANGE(traj_max_angular_velocity);
         UPDATE(traj_max_velocity);
-        if (0 != emcTrajSetMaxVelocity(NEW(traj_max_velocity))) {
+        UPDATE(traj_max_angular_velocity);
+        if (0 != emcTrajSetMaxVelocity(NEW(traj_max_velocity),
+				       NEW(traj_max_angular_velocity))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxVelocity\n");
             }
         }
     }
     if (CHANGED(traj_default_acceleration)) {
-        if (debug) SHOW_CHANGE(traj_default_acceleration)
+        if (debug) SHOW_CHANGE(traj_default_acceleration);
         UPDATE(traj_default_acceleration);
         if (0 != emcTrajSetAcceleration(NEW(traj_default_acceleration))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -217,7 +222,7 @@ int check_ini_hal_items()
         }
     }
     if (CHANGED(traj_max_acceleration)) {
-        if (debug) SHOW_CHANGE(traj_max_acceleration)
+        if (debug) SHOW_CHANGE(traj_max_acceleration);
         UPDATE(traj_max_acceleration);
         if (0 != emcTrajSetMaxAcceleration(NEW(traj_max_acceleration))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {

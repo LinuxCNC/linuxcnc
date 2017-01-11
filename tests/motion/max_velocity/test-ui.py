@@ -135,23 +135,6 @@ class LinuxcncControl:
                 print ("info " + text)
         return False
 
-    def get_current_tool(self):
-        self.e.poll()
-        return self.e.tool_in_spindle
-
-    def active_codes(self):
-        self.e.poll()
-        return self.s.gcodes
-    
-    def get_current_system(self):
-        g = self.active_codes()
-        for i in g:
-                if i >= 540 and i <= 590:
-                        return i/10 - 53
-                elif i >= 590 and i <= 593:
-                        return i - 584
-        return 1
-
 
 def wait_for_joint_to_stop(joint_number):
     pos_pin = 'joint-%d-position' % joint_number
@@ -169,48 +152,60 @@ def wait_for_joint_to_stop(joint_number):
     sys.exit(1)
 
 
-def close_enough(a, b, epsilon=0.000001):
+def close_enough(a, b, epsilon=0.001):
     return math.fabs(a - b) < epsilon
 
 
-def jog_joint(joint_number, counts=1, scale=0.001):
-    timeout = 5.0
-
-    start_pos = 6*[0]
-    for j in range(0,6):
-        start_pos[j] = h['joint-%d-position' % j]
-
-    target = h['joint-%d-position' % joint_number] + (counts * scale)
-
-    h['joint-%d-jog-scale' % joint_number] = scale
-    h['joint-%d-jog-enable' % joint_number] = 1
-    h['joint-%d-jog-counts' % joint_number] += counts
-
-    start_time = time.time()
-    while not close_enough(h['joint-%d-position' % joint_number], target) and (time.time() - start_time < timeout):
-        #print "joint %d is at %.9f" % (joint_number, h['joint-%d-position' % joint_number])
-        time.sleep(0.010)
-
-    h['joint-%d-jog-enable' % joint_number] = 0
-
-    print "joint jogged from %.6f to %.6f (%d counts at scale %.6f)" % (start_pos[joint_number], h['joint-%d-position' % joint_number], counts, scale)
-
-    success = True
-    for j in range(0,6):
-        pin_name = 'joint-%d-position' % j
-        if j == joint_number:
-            if not close_enough(h[pin_name], target):
-                print "joint %d didn't get to target (start=%.6f, target=%.6f, got to %.6f)" % (joint_number, start_pos[joint_number], target, h['joint-%d-position' % joint_number])
-                success = False
-        else:
-            if h[pin_name] != start_pos[j]:
-                print "joint %d moved from %.6f to %.6f but shouldnt have!" % (j, start_pos[j], h[pin_name])
-                success = False
-
-    wait_for_joint_to_stop(joint_number)
-
-    if not success:
+def reset_minmax(h):
+    h['minmax-reset'] = 1
+    time.sleep(0.1)  # Time for reset to be recognized
+    if h['XYZmax'] != 0 or h['ABCmax'] != 0:
+        print "Error:  max velocity failed to reset:  " \
+            "XYZmax=%.3f, ABCmax=%.3f" % \
+            (h['XYZmax'], h['ABCmax'])
+        # os.system('halcmd show pin')
         sys.exit(1)
+    h['minmax-reset'] = 0
+
+jointmap = { 0:'X', 1:'Y', 2:'Z', 3:'A', 4:'B', 5:'C' }
+
+def move_joints(e, h, maxvel_set, maxvel_expected=None,
+                X=0, Y=0, Z=0, A=0, B=0, C=0):
+    if maxvel_expected is None:  maxvel_expected = maxvel_set
+
+    # Setup:  reset minmax comp; set max velocity; MDI mode
+    reset_minmax(h)
+    e.c.maxvel(maxvel_set, maxvel_set)
+    e.prepare_for_mdi()
+
+    # Build and run command
+    cmd = 'G0 X%.3f Y%.3f Z%.3f A%.3f B%.3f C%.3f' % \
+          (X, Y, Z, A, B, C)
+    e.g(cmd, wait=True)
+
+    # Check that set max velocity was reached on XYZ or ABC axes,
+    # depending on whether the motion was pure rotary or not
+    pure_rotary = (X==0 and Y==0 and Z==0)
+    maxvel_pin = 'ABCmax' if pure_rotary else 'XYZmax'
+    maxvel = h[maxvel_pin]
+    print "cmd = %s" % cmd
+    print "  max %s vel: set = %6.3f, measured = %6.3f, expecting = %6.3f" % \
+        ('ang' if pure_rotary else 'lin',
+         maxvel_set, maxvel, maxvel_expected)
+    # print "  ending coords:  X=%6.3f Y=%6.3f Z=%6.3f A=%6.3f B=%6.3f C=%6.3f " % \
+    #     tuple([ h['joint-%d-position' % i] for i in range(6) ])
+    print "  cartesian max vel           X=%6.3f Y=%6.3f Z=%6.3f => %6.3f" % \
+        tuple([h['joint-%d-velocity' % i] for i in range(0,3)] + [h['XYZmax']])
+    print "  angular max vel             A=%6.3f B=%6.3f C=%6.3f => %6.3f" % \
+        tuple([h['joint-%d-velocity' % i] for i in range(3,6)] + [h['ABCmax']])
+    if not close_enough(maxvel, maxvel_expected):
+        print "Error:  max velocity %.3f != set %.3f" % \
+            (maxvel, maxvel_expected)
+        sys.exit(1)
+
+    # Go back to zero
+    e.c.maxvel(10800, 10800)
+    e.g('G0 X0 Y0 Z0 A0 B0 C0', wait=True)
 
 
 #
@@ -224,31 +219,42 @@ h.newpin("joint-0-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-0-jog-counts", hal.HAL_S32, hal.HAL_OUT)
 h.newpin("joint-0-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
 h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-0-velocity", hal.HAL_FLOAT, hal.HAL_IN)
 
 h.newpin("joint-1-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-1-jog-counts", hal.HAL_S32, hal.HAL_OUT)
 h.newpin("joint-1-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
 h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-1-velocity", hal.HAL_FLOAT, hal.HAL_IN)
 
 h.newpin("joint-2-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-2-jog-counts", hal.HAL_S32, hal.HAL_OUT)
 h.newpin("joint-2-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
 h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-2-velocity", hal.HAL_FLOAT, hal.HAL_IN)
 
 h.newpin("joint-3-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-3-jog-counts", hal.HAL_S32, hal.HAL_OUT)
 h.newpin("joint-3-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
 h.newpin("joint-3-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-3-velocity", hal.HAL_FLOAT, hal.HAL_IN)
 
 h.newpin("joint-4-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-4-jog-counts", hal.HAL_S32, hal.HAL_OUT)
 h.newpin("joint-4-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
 h.newpin("joint-4-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-4-velocity", hal.HAL_FLOAT, hal.HAL_IN)
 
 h.newpin("joint-5-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("joint-5-jog-counts", hal.HAL_S32, hal.HAL_OUT)
 h.newpin("joint-5-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
 h.newpin("joint-5-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-5-velocity", hal.HAL_FLOAT, hal.HAL_IN)
+
+h.newpin("XYZmax", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("ABCmax", hal.HAL_FLOAT, hal.HAL_IN)
+
+h.newpin("minmax-reset", hal.HAL_BIT, hal.HAL_OUT)
 
 h.ready() # mark the component as 'ready'
 
@@ -268,16 +274,80 @@ e.set_mode(linuxcnc.MODE_MANUAL)
 #
 # run the test
 #
-# These jog_joint() functions will exit with a return value of 1 if
+# These move_joints() functions will exit with a return value of 1 if
 # something goes wrong.
 #
 
-jog_joint(0, counts=1, scale=0.001)
-jog_joint(1, counts=10, scale=-0.025)
-jog_joint(2, counts=-100, scale=0.100)
-jog_joint(3, counts=100, scale=1.000)
-jog_joint(4, counts=-10, scale=0.200)
-jog_joint(5, counts=20, scale=0.300)
+# INI file max velocities:
+#   X 4.0; Y 4.1; Z 4.2; A 90.3; B 90.4; C 90.5
+#   MAX_VELOCITY 4.5; MAX_ANGULAR_VELOCITY 95.0
+
+# X-axis only, pure linear; limited by joint max 4.0 ipm
+move_joints(e, h, 9, 4, X=0.02)
+move_joints(e, h, 4, 4, X=0.02)
+move_joints(e, h, 3, 3, X=0.02)
+move_joints(e, h, 1, 1, X=0.02)
+
+# XYZ axes, pure linear; same distance, limited to hypot of lowest
+# joint max sqrt(4^2 * 3)
+move_joints(e, h, 9.000, 6.928, X=0.02, Y=0.02, Z=0.02)
+move_joints(e, h, 6.928, 6.928, X=0.02, Y=0.02, Z=0.02)
+move_joints(e, h, 4.000, 4.000, X=0.02, Y=0.02, Z=0.02)
+move_joints(e, h, 0.500, 0.500, X=0.01, Y=0.01, Z=0.01)
+
+# XYZ axes, pure linear; joint distance proportional to joint max vel,
+# limited to hypot of each joint max sqrt(4.0^2 + 4.1^2 + 4.2^2)
+move_joints(e, h, 9.000, 7.103, X=0.040, Y=0.041, Z=0.042)
+move_joints(e, h, 7.103, 7.103, X=0.040, Y=0.041, Z=0.042)
+move_joints(e, h, 4.000, 4.000, X=0.040, Y=0.041, Z=0.042)
+
+# A-axis only, pure rotary; limited by joint max 90.3
+move_joints(e, h, 99.0, 90.3, A=1)
+move_joints(e, h, 90.3, 90.3, A=1)
+move_joints(e, h, 50.0, 50.0, A=1)
+
+# ABC axes, pure rotary; same distance, limited to hypot of lowest
+# joint max sqrt(90.3^2 * 3)
+move_joints(e, h, 200.000, 156.404, A=1, B=1, C=1)
+move_joints(e, h, 156.404, 156.404, A=1, B=1, C=1)
+move_joints(e, h, 100.000, 100.000, A=1, B=1, C=1)
+
+# ABC axes, pure rotary; distance proportional to joint max vel,
+# limited to hypot of each joint max sqrt(90.3^2 + 90.4^2 + 90.5^2)
+move_joints(e, h, 200.000, 156.577, A=0.903, B=0.904, C=0.905)
+move_joints(e, h, 156.577, 156.577, A=0.903, B=0.904, C=0.905)
+move_joints(e, h, 100.000, 100.000, A=0.903, B=0.904, C=0.905)
+
+# XA axes, mixed (only linear speed checked):
+# - distance proportional to X and A max speeds
+move_joints(e, h, 9, 4, X=0.4, A=9.03)
+move_joints(e, h, 4, 4, X=0.4, A=9.03)
+move_joints(e, h, 1, 1, X=0.4, A=9.03)
+# - distance chosen so max speed limited by X max vel 4.0
+move_joints(e, h, 9, 4, X=0.4, A=1)
+move_joints(e, h, 4, 4, X=0.4, A=1)
+move_joints(e, h, 1, 1, X=0.4, A=1)
+# - distance chosen so max speed limited by A max vel 90.3
+move_joints(e, h, 9, 2, X=0.2, A=9.03)
+move_joints(e, h, 2, 2, X=0.2, A=9.03)
+move_joints(e, h, 1, 1, X=0.2, A=9.03)
+
+# XYZABC axes, mixed (only linear speed checked): - distance
+# - proportional to each joint max speeds; limited to hypot of each
+#   joint max sqrt(4.0^2 + 4.1^2 + 4.2^2)
+move_joints(e, h, 9.000, 7.103, X=0.40, Y=0.41, Z=0.42, A=9.03, B=9.04, C=9.05)
+move_joints(e, h, 7.103, 7.103, X=0.40, Y=0.41, Z=0.42, A=9.03, B=9.04, C=9.05)
+move_joints(e, h, 2.000, 2.000, X=0.40, Y=0.41, Z=0.42, A=9.03, B=9.04, C=9.05)
+# - distance chosen so max speed limited by hypot of XYZ max vel joint
+#   max sqrt(4.0^2 + 4.1^2 + 4.2^2)
+move_joints(e, h, 9.000, 7.103, X=0.40, Y=0.41, Z=0.42, A=9, B=9, C=9)
+move_joints(e, h, 7.103, 7.103, X=0.40, Y=0.41, Z=0.42, A=9, B=9, C=9)
+move_joints(e, h, 4.000, 4.000, X=0.40, Y=0.41, Z=0.42, A=9, B=9, C=9)
+# - distance chosen so max speed limited by hypot of ABC max vel joint
+#   max
+move_joints(e, h, 9.000, 3.551, X=0.200, Y=0.205, Z=0.210, A=9.03, B=9.04, C=9.05)
+move_joints(e, h, 3.551, 3.551, X=0.200, Y=0.205, Z=0.210, A=9.03, B=9.04, C=9.05)
+move_joints(e, h, 2.000, 2.000, X=0.200, Y=0.205, Z=0.210, A=9.03, B=9.04, C=9.05)
 
 sys.exit(0)
 
