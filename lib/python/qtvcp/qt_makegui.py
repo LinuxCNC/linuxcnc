@@ -36,21 +36,24 @@ class MyEventFilter(QtCore.QObject):
 
     def eventFilter(self, receiver, event):
         if(event.type() == QtCore.QEvent.KeyPress):
+            handled = False
             if (self.has_key_p_handler):
-                return self.w.handler_instance.keypress_event__(event)
+                handled = self.w.handler_instance.keypress_event__(receiver,event)
             elif self.has_process_key_handler:
                 if event.isAutoRepeat():return True
                 if event.key() in(16777249,16777248): return True
                 p,k,c,s,ctrl = self.process_event(event,True)
-                return self.w.handler_instance.processed_key_event__(event,p,k,c,s,ctrl)
+                handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
+            if handled: return True
         elif (event.type() == QtCore.QEvent.KeyRelease):
             if (self.has_key_r_handler):
-                return self.w.handler_instance.keyrelease_event__(event)
+                handled = self.w.handler_instance.keyrelease_event__(event)
             elif self.has_process_key_handler:
                 if event.isAutoRepeat():return True
                 if event.key() in(16777249,16777248): return True
                 p,k,c,s,ctrl = self.process_event(event,False)
-                return self.w.handler_instance.processed_key_event__(event,p,k,c,s,ctrl)
+                handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
+            if handled: return True
         #Call Base Class Method to Continue Normal Event Processing
         return super(MyEventFilter,self).eventFilter(receiver, event)
 

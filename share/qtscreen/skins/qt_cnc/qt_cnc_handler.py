@@ -1,6 +1,6 @@
 from PyQt4 import QtCore
 from PyQt4 import QtGui
-from qtscreen.keybindings import Keylookup,key_pressed
+from qtscreen.keybindings import Keylookup
 from qtscreen.aux_program_loader import Aux_program_loader
 from qtvcp.qt_glib import GStat
 import linuxcnc
@@ -54,12 +54,14 @@ class HandlerClass:
         GSTAT.forced_update()
         AUX_PRGM.load_status()
 
-    def processed_key_event__(self,event,is_pressed,key,code,shift,cntrl):
+    def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
+            return True
         except AttributeError:
-            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key_pressed(event))
-        return True
+            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            print 'from %s'% receiver
+            return False
 
     def halbuttonclicked(self):
         print 'click'
