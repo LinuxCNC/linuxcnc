@@ -153,6 +153,7 @@ class _GStat(gobject.GObject):
     def __init__(self, stat = None):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
+        self.cmd = linuxcnc.command()
         self.old = {}
         try:
             self.stat.poll()
@@ -563,6 +564,35 @@ class _GStat(gobject.GObject):
         self.stat.poll()
         print self.old['mode']  , linuxcnc.MODE_AUTO
         return self.old['state']  == linuxcnc.MODE_AUTO
+
+    def set_tool_touchoff(self,tool,axis,value):
+        premode = None
+        m = "G10 L10 P%d %s%f"%(tool,axis,value)
+        self.stat.poll()
+        if self.stat.task_mode != linuxcnc.MODE_MDI:
+            premode = self.stat.task_mode
+            self.cmd.mode(linuxcnc.MODE_MDI)
+            self.cmd.wait_complete()
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("g43")
+        self.cmd.wait_complete()
+        if premode:
+            self.cmd.mode(premode)
+
+    def set_axis_origin(self,axis,value):
+        premode = None
+        m = "G10 L20 P0 %s%f"%(axis,value)
+        self.stat.poll()
+        if self.stat.task_mode != linuxcnc.MODE_MDI:
+            premode = self.stat.task_mode
+            self.cmd.mode(linuxcnc.MODE_MDI)
+            self.cmd.wait_complete()
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        if premode:
+            self.cmd.mode(premode)
+        self.emit('reload-display')
 
     def __getitem__(self, item):
         return getattr(self, item)
