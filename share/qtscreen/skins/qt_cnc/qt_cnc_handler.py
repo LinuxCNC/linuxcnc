@@ -130,7 +130,8 @@ class HandlerClass:
             data = f.read()
         self.w.gcode.setText(data) 
         self.cmnd.mode(linuxcnc.MODE_AUTO)
-        self.cmnd.program_open(fname)
+        print fname
+        self.cmnd.program_open(str(fname))
         GSTAT.emit('file-loaded', fname)
 
     def runfile_clicked(self):
