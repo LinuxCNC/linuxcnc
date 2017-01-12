@@ -15,6 +15,7 @@
 # GNU General Public License for more details.
 
 import linuxcnc
+import os
 from PyQt4.QtGui import QLineEdit
 from qtvcp.qt_glib import GStat
 from qtscreen.aux_program_loader import Aux_program_loader
