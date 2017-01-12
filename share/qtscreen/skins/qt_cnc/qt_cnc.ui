@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>90</y>
+     <y>100</y>
      <width>93</width>
      <height>27</height>
     </rect>
@@ -59,7 +59,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>130</y>
+     <y>140</y>
      <width>93</width>
      <height>27</height>
     </rect>
@@ -75,7 +75,7 @@
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>90</y>
+     <y>100</y>
      <width>93</width>
      <height>27</height>
     </rect>
@@ -247,9 +247,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>67</y>
+     <y>70</y>
      <width>111</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
@@ -324,6 +324,45 @@
     <string>Status</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="zero_x">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>10</y>
+     <width>61</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zero X</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="zero_y">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>40</y>
+     <width>61</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zero Y</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="zero_z">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>70</y>
+     <width>61</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zero Z</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -395,8 +434,8 @@
    <slot>home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>214</y>
+     <x>110</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
      <x>145</x>
@@ -629,22 +668,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>button_load</sender>
-   <signal>clicked()</signal>
-   <receiver>Form</receiver>
-   <slot>loadfile_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>722</x>
-     <y>115</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>639</x>
-     <y>78</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>button_run</sender>
    <signal>clicked()</signal>
    <receiver>Form</receiver>
@@ -676,6 +699,70 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>button_load</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>loadfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>722</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zero_z</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>zero_axis()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>149</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zero_y</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>zero_axis()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>59</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zero_x</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>zero_axis()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>26</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>177</x>
+     <y>136</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -688,5 +775,6 @@
   <slot>loadfile_clicked()</slot>
   <slot>runfile_clicked()</slot>
   <slot>launch_status()</slot>
+  <slot>zero_axis()</slot>
  </slots>
 </ui>
