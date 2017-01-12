@@ -70,7 +70,7 @@ class modded_gremlin(gremlin.Gremlin):
         if self.initialised:
             self.set_current_view()
 
-    def reloadfile(self):
+    def reloadfile(self,w):
         try:
             self.fileloaded(None,self._reload_filename)
         except:
