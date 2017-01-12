@@ -1,0 +1,38 @@
+ACCESSOR_DIR := hal/accessor
+
+INCLUDES += $(ACCESSOR_DIR)
+
+
+../include/%.h: ./$(ACCESSOR_DIR)/%.h
+	cp $^ $@
+
+ifeq ($(ACCESSOR_TEST),yes)
+
+ASMCFLAGS := $(patsubst %,-I%, $(INCLUDES))
+ASMCFLAGS += -DULAPI
+ASMCFLAGS += -g  -std=c11 -O -S -fverbose-asm  -Wa,-adhln
+
+
+# create interspersed C/assembly
+/tmp/acctest.s: $(ACCESSOR_DIR)/acctest.c
+	$(CC) $(ASMCFLAGS)  $^  -o $@
+
+
+TARGETS += /tmp/acctest.s
+
+#debugging/viewing generated accessors, C-beautified:
+# apt-get install astyle
+
+CB := astyle --style=linux
+
+/tmp/hal_accessor-expanded-c.i:  hal/lib/hal_accessor.h
+	$(CC)  -E $(CFLAGS) -DULAPI   -I. -Irtapi  -Ihal/lib -x c -std=c11 $^ | $(CB) > $@
+
+/tmp/hal_accessor-expanded-c++.i:  hal/lib/hal_accessor.h
+	$(CXX) -E  $(CXXLAGS)  -DULAPI -I. -Irtapi -Ihal/lib -x c++ -std=c++11 $^ | $(CB) > $@
+
+
+TARGETS += /tmp/hal_accessor-expanded-c.i
+TARGETS += /tmp/hal_accessor-expanded-c++.i
+
+endif # ACCESSOR_TEST

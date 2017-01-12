@@ -245,6 +245,7 @@ SUBDIRS := \
 	hal/drivers/hal_pru_generic \
 	hal/simdrivers \
 	hal/cython \
+	hal/accessor \
 	\
 	emc/usr_intf/axis \
 	emc/usr_intf/touchy \

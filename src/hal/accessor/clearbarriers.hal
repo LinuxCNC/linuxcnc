@@ -1,0 +1,14 @@
+# clear memory barriers on v2and5 pins
+clearrmb v2and5.in0
+clearrmb v2and5.in1
+clearrmb v2and5.in2
+clearrmb v2and5.in3
+clearrmb v2and5.in4
+clearwmb v2and5.out
+
+# toggle the stats enable pin to clear stats
+setp v1stats.enable 0
+setp v2stats.enable 0
+sleep 1
+setp v1stats.enable 1
+setp v2stats.enable 1
