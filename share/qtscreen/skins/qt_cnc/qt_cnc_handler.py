@@ -70,6 +70,16 @@ class HandlerClass:
     # callbacks from form
     ######################
 
+    def zero_axis(self):
+        name = self.w.sender().text()
+        print name
+        if 'X' in name:
+            GSTAT.set_axis_origin('x',0)
+        elif 'Y' in name:
+            GSTAT.set_axis_origin('y',0)
+        elif 'Z' in name:
+            GSTAT.set_axis_origin('z',0)
+
     def launch_status(self):
         AUX_PRGM.load_status()
 
