@@ -560,6 +560,9 @@ class _GStat(gobject.GObject):
     def machine_is_on(self):
         return self.old['state']  > linuxcnc.STATE_OFF
 
+    def estop_is_clear(self):
+        return self.old['state'] > linuxcnc.STATE_ESTOP
+
     def is_auto_mode(self):
         self.stat.poll()
         print self.old['mode']  , linuxcnc.MODE_AUTO
