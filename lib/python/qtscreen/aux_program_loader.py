@@ -1,6 +1,6 @@
 import hal
 import os
-
+import subprocess
 # path to TCL for external programs eg. halshow
 try:
     TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -38,4 +38,23 @@ class Aux_program_loader:
     # opens the halscope
     def load_halscope(self,*args):
         p = os.popen("halscope  > /dev/null &","w")
+
+    # open linuxcnc standard tool edit program
+    def load_tooledit(self, filepath):
+        p = os.popen("tooledit %s" % (filepath))
+
+    def keyboard_onboard(self,args="",width="",height=""):
+        try:
+            self.ob = subprocess.Popen(["onboard",args,width,height],
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       close_fds=True)
+            if 'xid' in args:
+                idnum = self.ob.stdout.readline()
+                return idnum
+            else:
+                return True
+        except:
+            print 'Onboard keyboard could not be loaded by aux_program_loader'
+            return False
 
