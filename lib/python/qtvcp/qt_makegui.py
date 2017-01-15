@@ -64,6 +64,11 @@ class MyWindow(QtGui.QMainWindow):
         qtvcp_debug = debug
         self.filename = filename
         self.halcomp = halcomp
+        self.has_closing_handler = None
+
+    def closeEvent(self, event):
+        if self.has_closing_handler:
+            self.handler_instance.closing_cleanup__()
 
     def instance(self):
         instance = uic.loadUi(self.filename, self)
@@ -72,10 +77,10 @@ class MyWindow(QtGui.QMainWindow):
 
     def load_extension(self,handlerpath,paths=None):
         methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath],self.halcomp,self,paths)
-        #print methods
         for i in methods:
-            #print i, methods[i]
             self[i] = methods[i]
+        # See if the handler file has a closing function to call first
+        self.has_closing_handler = 'closing_cleanup__' in dir(self.handler_instance)
 
     def _load_handlers(self,usermod,halcomp,widgets,paths):
         hdl_func = 'get_handlers'
