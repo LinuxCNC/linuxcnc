@@ -41,7 +41,7 @@ class GraphicsPlugin(QPyDesignerCustomWidgetPlugin):
     # Returns the name of the group in Qt Designer's widget box that this
     # widget belongs to.
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - Controller"
 
     # Returns the icon used to represent the custom widget in Qt Designer's
     # widget box.

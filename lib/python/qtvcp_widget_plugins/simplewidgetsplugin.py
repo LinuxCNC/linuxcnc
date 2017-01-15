@@ -46,7 +46,7 @@ class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # Returns the name of the group in Qt Designer's widget box
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - HAL"
 
     # Returns the icon
     def icon(self):
@@ -93,7 +93,7 @@ class CheckBoxPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_CheckBox"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - HAL"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_checkbox')))
     def toolTip(self):
@@ -125,7 +125,7 @@ class RadioButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_RadioButton"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - HAL"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_radiobutton')))
     def toolTip(self):
@@ -156,7 +156,7 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_LCDNumber"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - HAL"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('Lcnc_LCDNumber')))
     def toolTip(self):
@@ -188,7 +188,7 @@ class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_QSlider"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - HAL"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('Lcnc_QSlider')))
     def toolTip(self):
@@ -229,7 +229,7 @@ class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_GridLayout"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - HAL"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_gridlayout')))
     def toolTip(self):
