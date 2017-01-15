@@ -26,7 +26,7 @@ class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_DROLabel"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - Controller"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_drolabel')))
     def toolTip(self):
@@ -58,7 +58,7 @@ class Lcnc_MDIlinePlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_MDILine"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - Controller"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_mdiLine')))
     def toolTip(self):

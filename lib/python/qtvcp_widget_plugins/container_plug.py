@@ -24,7 +24,7 @@ class StateEnableGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "State_Enable_GridLayout"
     def group(self):
-        return "Linuxcnc"
+        return "Linuxcnc - Controller"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('state_enable_gridlayout')))
     def toolTip(self):
