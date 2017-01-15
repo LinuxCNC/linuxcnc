@@ -21,7 +21,7 @@
 import gobject
 from qtvcp_widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import QComponent
-
+from PyQt4.QtCore import QObject
 class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug=False):
 
@@ -31,8 +31,7 @@ class QTPanel():
         # parse for HAL objects:
         if debug:
             print 'QTVCP: Parcing for hal pins'
-
-        for widget in window.children():
+        for widget in window.findChildren(QObject):
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
                 if debug:
