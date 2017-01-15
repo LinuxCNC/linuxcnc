@@ -71,19 +71,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="button_home">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>100</y>
-     <width>93</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>home</string>
-   </property>
-  </widget>
   <widget class="QFrame" name="button_frame">
    <property name="geometry">
     <rect>
@@ -265,32 +252,6 @@
     <number>2</number>
    </property>
   </widget>
-  <widget class="QPushButton" name="button_load">
-   <property name="geometry">
-    <rect>
-     <x>690</x>
-     <y>100</y>
-     <width>93</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>load file</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="button_run">
-   <property name="geometry">
-    <rect>
-     <x>690</x>
-     <y>150</y>
-     <width>93</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>run file</string>
-   </property>
-  </widget>
   <widget class="QTextEdit" name="gcode">
    <property name="geometry">
     <rect>
@@ -314,9 +275,9 @@
   <widget class="Lcnc_PushButton" name="button_status">
    <property name="geometry">
     <rect>
-     <x>670</x>
+     <x>660</x>
      <y>430</y>
-     <width>71</width>
+     <width>91</width>
      <height>41</height>
     </rect>
    </property>
@@ -324,57 +285,192 @@
     <string>Status</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="zero_x">
+  <widget class="State_Enable_GridLayout" name="state_enable_gridLayout">
    <property name="geometry">
     <rect>
      <x>140</x>
      <y>10</y>
      <width>61</width>
-     <height>27</height>
+     <height>91</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Zero X</string>
+   <property name="is_on_status" stdset="0">
+    <bool>true</bool>
    </property>
+   <property name="is_idle_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <property name="is_homed_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <widget class="QPushButton" name="zero_x">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>61</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zero X</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="zero_y">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>61</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zero Y</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="zero_z">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>60</y>
+      <width>61</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zero Z</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QPushButton" name="zero_y">
+  <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_2">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>40</y>
-     <width>61</width>
-     <height>27</height>
+     <x>110</x>
+     <y>100</y>
+     <width>91</width>
+     <height>31</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Zero Y</string>
+   <property name="is_on_status" stdset="0">
+    <bool>true</bool>
    </property>
+   <property name="is_idle_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <widget class="QPushButton" name="button_home">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>home</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QPushButton" name="zero_z">
+  <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_3">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>70</y>
-     <width>61</width>
-     <height>27</height>
+     <x>670</x>
+     <y>110</y>
+     <width>91</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="is_on_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <property name="is_idle_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <property name="is_homed_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <widget class="QPushButton" name="button_run">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>40</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>run file</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_load">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>load file</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_4">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>190</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="is_on_status" stdset="0">
+    <bool>false</bool>
+   </property>
+   <property name="is_idle_status" stdset="0">
+    <bool>false</bool>
+   </property>
+   <property name="is_not_idle_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <property name="is_homed_status" stdset="0">
+    <bool>false</bool>
+   </property>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop </string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>486</y>
+     <width>93</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>Zero Z</string>
+    <string>Hal meter</string>
    </property>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Graphics</class>
-   <extends>QWidget</extends>
-   <header>qtvcp_widgets.graphics</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_MDILine</class>
-   <extends>QLineEdit</extends>
-   <header>qtvcp_widgets.mdi_line</header>
-   <container>1</container>
+   <class>Lcnc_LCDNumber</class>
+   <extends>QLCDNumber</extends>
+   <header>qtvcp_widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>Lcnc_DROLabel</class>
@@ -383,14 +479,26 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_LCDNumber</class>
-   <extends>QLCDNumber</extends>
-   <header>qtvcp_widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
    <class>Lcnc_PushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp_widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp_widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Graphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp_widgets.graphics</header>
+  </customwidget>
+  <customwidget>
+   <class>State_Enable_GridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp_widgets.container_widgets</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -763,6 +871,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>launch_halmeter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>676</x>
+     <y>491</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>632</x>
+     <y>455</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>stopfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>745</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>637</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -776,5 +916,7 @@
   <slot>runfile_clicked()</slot>
   <slot>launch_status()</slot>
   <slot>zero_axis()</slot>
+  <slot>launch_halmeter()</slot>
+  <slot>stopfile_clicked()</slot>
  </slots>
 </ui>

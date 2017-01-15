@@ -10,6 +10,7 @@ import os
 KEYBIND = Keylookup()
 GSTAT = GStat()
 AUX_PRGM = Aux_program_loader()
+
 class HandlerClass:
 
     # This will be pretty standard to gain access.
@@ -83,6 +84,9 @@ class HandlerClass:
     def launch_status(self):
         AUX_PRGM.load_status()
 
+    def launch_halmeter(self):
+        AUX_PRGM.load_halmeter()
+
     def change_jograte(self, rate):
         GSTAT.set_jog_rate(float(rate))
 
@@ -148,6 +152,11 @@ class HandlerClass:
         print 'run file'
         self.cmnd.mode(linuxcnc.MODE_AUTO)
         self.cmnd.auto(linuxcnc.AUTO_RUN,0)
+
+    def stopfile_clicked(self):
+        print 'stop file'
+        self.cmnd.mode(linuxcnc.MODE_AUTO)
+        self.cmnd.abort()
 
     ##################
     # functions
