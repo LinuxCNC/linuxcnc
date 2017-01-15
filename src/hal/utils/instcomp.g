@@ -1038,30 +1038,7 @@ def prologue(f):
         print >>f, "#define local_argv(i) (ip->local_argv[i])"
 
         if (pin_ptrs):
-            print >>f, "#undef gb"
-            print >>f, "#define gb(pn1)  get_bit_pin(pn1)"
-            print >>f, "#undef gs"
-            print >>f, "#define gs(pn1)  get_s32_pin(pn1)"
-            print >>f, "#undef gu"
-            print >>f, "#define gu(pn1)  get_u32_pin(pn1)"
-            print >>f, "#undef gf"
-            print >>f, "#define gf(pn1)  get_float_pin(pn1)"
-            print >>f, "#undef sb"
-            print >>f, "#define sb(pn1, pn2)  set_bit_pin(pn1, pn2)"
-            print >>f, "#undef ss"
-            print >>f, "#define ss(pn1, pn2)  set_s32_pin(pn1, pn2)"
-            print >>f, "#undef su"
-            print >>f, "#define su(pn1, pn2)  set_u32_pin(pn1, pn2)"
-            print >>f, "#undef sf"
-            print >>f, "#define sf(pn1, pn2)  set_float_pin(pn1, pn2)"
-            print >>f, "#undef incs"
-            print >>f, "#define incs(pn1)  ss(pn1, (gs(pn1) + 1))"
-            print >>f, "#undef decs"
-            print >>f, "#define decs(pn1)  ss(pn1, (gs(pn1) - 1))"
-            print >>f, "#undef incu"
-            print >>f, "#define incu(pn1)  su(pn1, (gu(pn1) + 1))"
-            print >>f, "#undef decu"
-            print >>f, "#define decu(pn1)  su(pn1, (gu(pn1) - 1))"
+            print >>f, "#include <hal_accessor_macros.h>"
     print >>f
     print >>f
 
