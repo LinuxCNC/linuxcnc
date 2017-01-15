@@ -2059,7 +2059,7 @@ static void print_inst_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Instances:\n");
-	halcmd_output(" Inst  Comp  Size  %-*s Owner\n", 25, "Name");
+	halcmd_output(" Inst  Comp  Size  %-*s                    Owner\n", 25, "Name");
     }
     foreach_args_t args =  {
 	.type = HAL_INST,
@@ -2085,7 +2085,7 @@ static int print_vtable_entry(hal_object_ptr o, foreach_args_t *args)
 
 	hal_comp_t *comp = halpr_find_comp_by_id(ho_owner_id(vt));
 	if (comp) {
-	    halcmd_output("   %-5d %-30.30s", ho_id(comp),  ho_name(comp));
+	    halcmd_output("   %-5d %-49.49s", ho_id(comp),  ho_name(comp));
 	} else {
 	    halcmd_output("   * not owned by a component *");
 	}
@@ -2132,7 +2132,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 		halcmd_output("%5d", ho_owner_id(pin));
 
 	    if (pin->type == HAL_FLOAT) {
-		halcmd_output(" %5s %-3s  %9s  %-30.30s\t%f\t%s%s%s%s",
+		halcmd_output(" %5s %-3s  %9s  %-49.49s\t%f\t%s%s%s%s",
 			      data_type((int) pin->type),
 			      pin_data_dir((int) pin->dir),
 			      data_value((int) pin->type, dptr),
@@ -2143,7 +2143,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 			      ho_legacy(pin) ? "l" : "-",
 			      pin->flags & PIN_DO_NOT_TRACK ? "n" : "-");
 	    } else {
-		halcmd_output(" %5s %-3s  %9s  %-30.30s\t\t%s%s%s%s",
+		halcmd_output(" %5s %-3s  %9s  %-49.49s\t\t%s%s%s%s",
 			      data_type((int) pin->type),
 			      pin_data_dir((int) pin->dir),
 			      data_value((int) pin->type, dptr),
@@ -2154,7 +2154,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 			      pin->flags & PIN_DO_NOT_TRACK ? "n" : "-");
 	    }
 	} else {
-	    halcmd_output("%s %s %s %s %-30.30s",
+	    halcmd_output("%s %s %s %s %-49.49s",
 			  ho_name(comp),
 			  data_type((int) pin->type),
 			  pin_data_dir((int) pin->dir),
@@ -2180,7 +2180,7 @@ static void print_pin_info(int type, char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
-	halcmd_output("  Comp   Inst Type  Dir         Value  Name                             Epsilon Flags  linked to:\n");
+	halcmd_output("  Comp   Inst Type  Dir         Value  Name                                                     Epsilon Flags  linked to:\n");
     }
     foreach_args_t args =  {
 	.type = HAL_PIN,
@@ -2347,14 +2347,14 @@ static int print_funct_line(hal_object_ptr o, foreach_args_t *args)
 		halcmd_output("     ");
 	    else
 		halcmd_output("%5d", ho_owner_id(fptr));
-	    halcmd_output(" %08lx  %08lx  %-3s  %5d %-7s %s\n",
+	    halcmd_output(" %12.12lx  %12.12lx  %-3s  %5d %-7s %s\n",
 			  (long)fptr->funct.l,
 			  (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
 			  fptr->users,
 			  ftype(fptr->type),
 			  ho_name(fptr));
 	} else {
-	    halcmd_output("%s %08lx %08lx %s %3d %s\n",
+	    halcmd_output("%s %12.12lx %12.12lx %s %3d %s\n",
 			  ho_name(comp),
 			  (long)fptr->funct.l,
 			  (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
@@ -2368,7 +2368,7 @@ static void print_funct_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Exported Functions:\n");
-	halcmd_output("  Comp   Inst CodeAddr  Arg       FP   Users Type    Name\n");
+	halcmd_output("  Comp   Inst CodeAddr      Arg           FP   Users Type    Name\n");
     }
     foreach_args_t args =  {
 	.type = HAL_FUNCT,
