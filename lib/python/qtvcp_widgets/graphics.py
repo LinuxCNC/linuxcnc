@@ -191,7 +191,7 @@ class PyApp(gtk.Plug):
     def __init__(self,):
         super(PyApp, self).__init__(0l)
 
-        self.set_size_request(300, 300)
+        #self.set_size_request(300, 300)
         self.connect("destroy", self.on_destroy)
 
         self.plug_id = self.get_id()
@@ -203,9 +203,12 @@ class PyApp(gtk.Plug):
         self.show_all()
 
     def on_destroy(self,w):
-        gtk.gdk.threads_enter()
-        gtk.main_quit()
-        gtk.gdk.threads_leave()
+        try:
+            gtk.gdk.threads_enter()
+            gtk.main_quit()
+            gtk.gdk.threads_leave()
+        except:
+            pass
 
 # This is the QT embedding container object.
 class Graphics(QX11EmbedContainer):
@@ -283,6 +286,6 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     widget = Graphics()
-    widgeet,sizeHint(300,300)
+    widget.sizeHint(300,300)
     widget.show()
     sys.exit(app.exec_())
