@@ -23,6 +23,7 @@ import hershey
 import linuxcnc
 import array
 import gcode
+import os
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -418,16 +419,36 @@ class GlCanonDraw:
         self.cached_tool = -1
         self.initialised = 0
         self.no_joint_display = False
-        self.kinstype = "UNKNOWN"
+        self.kinsmodule = "UNKNOWN"
         self.trajcoordinates = "unknown"
+        self.dro_in = "% 9.4f"
+        self.dro_mm = "% 9.3f"
+        if os.environ["INI_FILE_NAME"]:
+            self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+            if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
+                temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
+                try:
+                    test = temp % 1.234
+                except:
+                    print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
+                else:
+                    self.dro_in = temp
+            if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
+                temp = self.inifile.find("DISPLAY", "DRO_FORMAT_MM")
+                try:
+                    test = temp % 1.234
+                except:
+                    print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
+                else:
+                    self.dro_mm = temp
 
-    def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinstype="trivkins",msg=""):
+    def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinsmodule="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
-        self.kinstype = kinstype
+        self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
         if (msg != ""):
-            print "init_glcanondraw %s coords=%s kinstype=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinstype,self.no_joint_display)
+            print "init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display)
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -685,7 +706,7 @@ class GlCanonDraw:
                 x_pos = g.min_extents[x] - 6.0*dashwidth
                 y_pos = g.min_extents[y] - pullback
 
-            bbox = self.color_limit(g.min_extents[z] < machine_limit_min[z])
+            bbox = self.color_limit(g.min_extents_notool[z] < machine_limit_min[z])
             glPushMatrix()
             f = fmt % ((g.min_extents[z]-offset[z]) * dimscale)
             glTranslatef(x_pos, y_pos, g.min_extents[z] - halfchar)
@@ -697,7 +718,7 @@ class GlCanonDraw:
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
 
-            bbox = self.color_limit(g.max_extents[z] > machine_limit_max[z])
+            bbox = self.color_limit(g.max_extents_notool[z] > machine_limit_max[z])
             glPushMatrix()
             f = fmt % ((g.max_extents[z]-offset[z]) * dimscale)
             glTranslatef(x_pos, y_pos, g.max_extents[z] - halfchar)
@@ -723,7 +744,7 @@ class GlCanonDraw:
         if view != y and g.max_extents[y] > g.min_extents[y]:
             x_pos = g.min_extents[x] - 6.0*dashwidth
 
-            bbox = self.color_limit(g.min_extents[y] < machine_limit_min[y])
+            bbox = self.color_limit(g.min_extents_notool[y] < machine_limit_min[y])
             glPushMatrix()
             f = fmt % ((g.min_extents[y] - offset[y]) * dimscale)
             glTranslatef(x_pos, g.min_extents[y] + halfchar, z_pos)
@@ -736,7 +757,7 @@ class GlCanonDraw:
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
 
-            bbox = self.color_limit(g.max_extents[y] > machine_limit_max[y])
+            bbox = self.color_limit(g.max_extents_notool[y] > machine_limit_max[y])
             glPushMatrix()
             f = fmt % ((g.max_extents[y] - offset[y]) * dimscale)
             glTranslatef(x_pos, g.max_extents[y] + halfchar, z_pos)
@@ -766,7 +787,7 @@ class GlCanonDraw:
         if view != x and g.max_extents[x] > g.min_extents[x]:
             y_pos = g.min_extents[y] - 6.0*dashwidth
 
-            bbox = self.color_limit(g.min_extents[x] < machine_limit_min[x])
+            bbox = self.color_limit(g.min_extents_notool[x] < machine_limit_min[x])
             glPushMatrix()
             f = fmt % ((g.min_extents[x] - offset[x]) * dimscale)
             glTranslatef(g.min_extents[x] - halfchar, y_pos, z_pos)
@@ -778,7 +799,7 @@ class GlCanonDraw:
             self.hershey.plot_string(f, 0, bbox)
             glPopMatrix()
 
-            bbox = self.color_limit(g.max_extents[x] > machine_limit_max[x])
+            bbox = self.color_limit(g.max_extents_notool[x] > machine_limit_max[x])
             glPushMatrix()
             f = fmt % ((g.max_extents[x] - offset[x]) * dimscale)
             glTranslatef(g.max_extents[x] - halfchar, y_pos, z_pos)
@@ -910,18 +931,24 @@ class GlCanonDraw:
 
         glLineWidth(1)
         glColor3f(*self.colors['grid'])
+
+        s = self.stat
+        tlo_offset = permutation(self.to_internal_units(s.tool_offset)[:3])
+        g5x_offset = permutation(self.to_internal_units(s.g5x_offset)[:3])[:2]
+        g92_offset = permutation(self.to_internal_units(s.g92_offset)[:3])[:2]
+
         lim_min, lim_max = self.soft_limits()
         lim_min = permutation(lim_min)
         lim_max = permutation(lim_max)
+
+        lim_min = tuple(a-b for a,b in zip(lim_min, tlo_offset))
+        lim_max = tuple(a-b for a,b in zip(lim_max, tlo_offset))
 
         lim_pts = (
                 (lim_min[0], lim_min[1]),
                 (lim_max[0], lim_min[1]),
                 (lim_min[0], lim_max[1]),
                 (lim_max[0], lim_max[1]))
-        s = self.stat
-        g5x_offset = permutation(self.to_internal_units(s.g5x_offset)[:3])[:2]
-        g92_offset = permutation(self.to_internal_units(s.g92_offset)[:3])[:2]
         if self.get_show_relative():
             cos_rot = math.cos(rotation)
             sin_rot = math.sin(rotation)
@@ -1009,7 +1036,7 @@ class GlCanonDraw:
               and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
             ):
             return self.jnum_for_aletter(aletter,
-                                         self.kinstype,
+                                         self.kinsmodule,
                                          self.trajcoordinates)
         else:
             return -1 # no icon display
@@ -1134,6 +1161,7 @@ class GlCanonDraw:
             glPopMatrix()
 
         if self.get_show_limits():
+            glTranslatef(*[-x for x in self.to_internal_units(s.tool_offset)[:3]])
             glLineWidth(1)
             glColor3f(1.0,0.0,0.0)
             glLineStipple(1, 0x1111)
@@ -1181,6 +1209,7 @@ class GlCanonDraw:
             glEnd()
             glDisable(GL_LINE_STIPPLE)
             glLineStipple(2, 0x5555)
+            glTranslatef(*self.to_internal_units(s.tool_offset)[:3])
 
         if self.get_show_live_plot():
             glDepthFunc(GL_LEQUAL)
@@ -1416,9 +1445,9 @@ class GlCanonDraw:
             return True
         return False
 
-    def jnum_for_aletter(self,aletter,kinstype,trajcoordinates):
+    def jnum_for_aletter(self,aletter,kinsmodule,trajcoordinates):
         aletter = aletter.upper()
-        if "trivkins" in kinstype:
+        if "trivkins" in kinsmodule:
             return trajcoordinates.index(aletter)
         else:
             guess = trajcoordinates.index(aletter)
@@ -1490,15 +1519,15 @@ class GlCanonDraw:
 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
-                format = "% 6s:% 9.3f"
-                droformat = " " + format + "  DTG %1s:% 9.3f"
-                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
-                rotformat = "% 5s %1s:% 9.3f"
+                format = "% 6s:" + self.dro_mm
+                droformat = " " + format + "  DTG %1s:" + self.dro_mm
+                offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
+                rotformat = "% 5s %1s:" + self.dro_mm
             else:
-                format = "% 6s:% 9.4f"
-                droformat = " " + format + "  DTG %1s:% 9.4f"
-                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
-                rotformat = "% 5s %1s:% 9.4f"
+                format = "% 6s:" + self.dro_in
+                droformat = " " + format + "  DTG %1s:" + self.dro_in
+                offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
+                rotformat = "% 5s %1s:" + self.dro_in
             diaformat = " " + format
 
             posstrs = []

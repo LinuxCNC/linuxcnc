@@ -1,6 +1,6 @@
 = Asistente de configuracion Stepconf 
 
-[[cha:stepconf-wizard]] (((Stepconf Wizard)))
+[[cha:stepconf-wizard]]
 
 == Introduction
 

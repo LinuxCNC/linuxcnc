@@ -1,4 +1,4 @@
-[[cha:hal-components]] (((HAL Components)))
+[[cha:hal-components]]
 
 = HAL Components
 

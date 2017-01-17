@@ -3,7 +3,7 @@
 
 = comp: outil pour créer les modules HAL
 
-[[cha:comp-hal-component-generator]] (((Comp HAL Component Generator)))
+[[cha:comp-hal-component-generator]]
 
 == Introduction
 

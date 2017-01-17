@@ -360,8 +360,8 @@ class INI:
         # For KINEMATICS_IDENTITY:
         #     use axis MIN,MAX values identical corresponding joint values
         if not letter == "s":
-            axis_letter = "XYZABCUVW"[num]
-            print >>file, "# Axis %s" % letter.upper()
+            axis_letter = letter.upper()
+            print >>file, "# Axis %s" % axis_letter
             print >>file, "#********************"
             print >>file, "[AXIS_%s]" % axis_letter
             print >>file, "MAX_VELOCITY = %s" % get("maxvel")

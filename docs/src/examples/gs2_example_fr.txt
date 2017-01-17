@@ -3,8 +3,6 @@
 
 = Broche avec variateur GS2
 
-(((Broche avec variateur GS2)))
-
 == Exemple
  
 Cet exemple montre les connexions demandées pour utiliser un variateur de 

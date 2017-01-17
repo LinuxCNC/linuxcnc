@@ -1,6 +1,6 @@
-[[cha:linuxcnc-history]](((LinuxCNC History)))
+[[cha:linuxcnc-history]]
 
-= LinuxCNC History
+== Origin
 
 EMC (the Enhanced Machine Controller) was created by
 http://www.nist.gov/index.html[NIST] , the National Institute of Standards
@@ -80,6 +80,8 @@ Organization was loose, but the idea of a hardware abstraction layer
 (HAL) was born and the movement to restructure the code for ease of
 development (EMC2) was proposed.
 
+== Name Change
+
 In the spring of 2011, the LinuxCNC Board of Directors was contacted by
 a law firm representing EMC Corporation (www.emc.com) about the use of
 "EMC" and "EMC2" to identify the software offered on linuxcnc.org. EMC
@@ -104,4 +106,16 @@ of Linus Torvalds in the U.S. and other countries.)
 
 The rebranding effort will include the linuxcnc.org website, the IRC
 channels, and versions of the software and documentation starting with
-2.5.0. Rebranding will begin right away.
+2.5.0.
+
+== Additional Info
+
+NIST published a paper describing the
+https://www.nist.gov/node/704046[RS274NGC] language and the abstract
+machining center it controls, as well as an early implementation of EMC.
+The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf
+
+NIST also published a paper on the history of EMC and its
+transition to https://www.nist.gov/node/702276[open
+source].  The paper is also available at
+http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf

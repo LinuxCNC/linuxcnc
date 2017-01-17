@@ -1,29 +1,32 @@
-Gscreen is a customizable operator screen for linuxcnc.
+Gscreen is a customizable operator screen for LinuxCNC.
 
 Built with python, GLADE, and GTK
 
 Usable with touchscreens or a mouse.
 These show some custom looks of Gscreen.
 
-gscreen_custom
+9axis.ini
   -9 axis screen
 
-gscreen_gaxis
+gaxis_no_plot.ini
+gscreen_gaxis.ini
   -A similar-to-AXIS demo
 
-industrial
-  -Design influenced by Industrial CNC controls.
-    (System page unlock code is '123')
+industrial.ini
+industrial_lathe.ini
+  -Design influenced by
+   Industrial CNC controls.
+   (System page unlock code is '123')
 
-tester
-    -Tester is used to load a GLADE file without
-initializing anything beyond the window.
-The glade file must be called tester.glade
-The toplevel window must be called window1
-tester_handler.py is also a template of a 
-handler file for adding python code for more
-sophisticated customizations.
-If you run this without adding a GLADE file to
-the folder, it will load a default gscreen file.
-
+tester.ini
+  -Tester is used to load a GLADE file without
+   initializing anything beyond the window.
+   The glade file must be called tester.glade
+   The toplevel window must be called window1
+   tester_handler.py is also a template of a 
+   handler file for adding python code for
+   more sophisticated customizations.
+   If you run this without adding a GLADE
+   file to the folder, it will load a default
+   gscreen file.
 

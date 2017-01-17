@@ -688,12 +688,12 @@ msgstr "Bewegung durch Enable-Eingabe angehalten."
 #: src/emc/motion/control.c:720 src/emc/motion/control.c:741
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr "Fehler: Joint %d am Endschalter"
+msgstr "Fehler: Achse/Gelenk %d am Endschalter"
 
 #: src/emc/motion/control.c:732 src/emc/motion/control.c:753
 #, c-format
 msgid "joint %d amplifier fault"
-msgstr "Verstärkerfehler an Joint %d"
+msgstr "Verstärkerfehler an Achse/Gelenk %d"
 
 #: src/emc/motion/control.c:741 src/emc/motion/control.c:762
 #, c-format
@@ -703,57 +703,57 @@ msgstr ""
 #: src/emc/motion/control.c:1423 src/emc/motion/control.c:1444
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
-msgstr "Positiver Softanschlag bei Joint %d überschritten"
+msgstr "Positiver Softanschlag bei Achse/Gelenk %d überschritten"
 
 #: src/emc/motion/control.c:1428 src/emc/motion/control.c:1449
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
-msgstr "Negativer Softanschlag bei Joint %d überschritten"
+msgstr "Negativer Softanschlag bei Achse/Gelenk %d überschritten"
 
 #: src/emc/motion/command.c:159
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr "Kann ungültigen Joint %d nicht bewegen"
+msgstr "Kann ungültige(s) Achse/Gelenk %d nicht bewegen"
 
 #: src/emc/motion/command.c:163
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Kann Joint %d nicht weiter über Bahnmaximum bewegen"
+msgstr "Kann Achse/Gelenk %d nicht weiter über Bahnmaximum bewegen"
 
 #: src/emc/motion/command.c:168
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "Kann Joint %d nicht über Bahnminimum bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über Bahnminimum bewegen"
 
 #: src/emc/motion/command.c:174
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr "Kann Joint %d nicht über max. Softanschlag bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über max. Softanschlag bewegen"
 
 #: src/emc/motion/command.c:179
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr "Kann Joint %d nicht über min. Softanschlag bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über min. Softanschlag bewegen"
 
 #: src/emc/motion/command.c:237
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
-msgstr "Bewegung %s in Zeile %d würde pos. Anschlag von Joint %d überschreiten"
+msgstr "Bewegung %s in Zeile %d würde pos. Anschlag von Achse/Gelenk %d überschreiten"
 
 #: src/emc/motion/command.c:240
 #, c-format
 msgid "%s move in MDI would exceed joint %d's positive limit"
-msgstr "Bewegung %s in MDI würde pos. Anschlag von Joint %d überschreiten"
+msgstr "Bewegung %s in MDI würde pos. Anschlag von Achse/Gelenk %d überschreiten"
 
 #: src/emc/motion/command.c:247
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
-msgstr "Bewegung %s in Zeile %d würde neg. Anschlag von Joint %d überschreiten"
+msgstr "Bewegung %s in Zeile %d würde neg. Anschlag von Achse/Gelenk %d überschreiten"
 
 #: src/emc/motion/command.c:250
 #, c-format
 msgid "%s move in MDI would exceed joint %d's negative limit"
-msgstr "Bewegung %s in MDI würde neg. Anschlag von Joint %d überschreiten"
+msgstr "Bewegung %s in MDI würde neg. Anschlag von Achse/Gelenk %d überschreiten"
 
 #: src/emc/motion/command.c:500
 msgid "all joints must be homed before going into coordinated mode"
@@ -815,7 +815,7 @@ msgstr "Bewegung nicht möglich, Enable-Eingang ist falsch"
 
 #: src/emc/motion/command.c:1213
 msgid "must be in joint mode to home"
-msgstr "Referenzfahrt nur im Joint-Modus möglich"
+msgstr "Referenzfahrt nur im Gelenk-Modus möglich"
 
 #: src/emc/motion/command.c:1224 src/emc/motion/command.c:1235
 msgid "homing sequence already in progress"
@@ -828,33 +828,33 @@ msgstr "Referenzfahrt bereits begonnen"
 #: src/emc/motion/command.c:1263
 msgid "must be in joint mode or disabled to unhome"
 msgstr ""
-"Kann nur im Joint-Modus oder abgeschaltet aus der Referenzpos. gefahren "
+"Kann nur im Gelenk-Modus oder abgeschaltet aus der Referenzpos. gefahren "
 "werden"
 
 #: src/emc/motion/command.c:1275 src/emc/motion/command.c:1298
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
 msgstr ""
-"Joint %d: Während Referenzfahrt kann nicht aus der Referenzpos. gefahren "
+"Achse/Gelenk %d: Während Referenzfahrt kann nicht aus der Referenzpos. gefahren "
 "werden"
 
 #: src/emc/motion/command.c:1279 src/emc/motion/command.c:1302
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
 msgstr ""
-"Joint %d: Während der Bewegung kann nicht aus der Referenzpos. gefahren "
+"Achse/Gelenk %d: Während der Bewegung kann nicht aus der Referenzpos. gefahren "
 "werden"
 
 #: src/emc/motion/command.c:1307
 #, c-format
 msgid "Cannot unhome inactive joint %d"
-msgstr "Inaktiver Joint %d kann nicht aus der Referenzpos. gefahren werden"
+msgstr "Inaktive(s) Achse/Gelenk %d kann nicht aus der Referenzpos. gefahren werden"
 
 #: src/emc/motion/command.c:1311
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)"
 msgstr ""
-"Joint %d: Ungültiger Joint kann nicht aus der Referenzpos. gefahren werden "
+"Achse/Gelenk %d: Ungültige(s) Achse/Gelenk kann nicht aus der Referenzpos. gefahren werden "
 "(max. %d)"
 
 #: src/emc/motion/command.c:1338
@@ -896,12 +896,12 @@ msgstr ""
 #: src/emc/motion/command.c:1556 src/emc/motion/command.c:1605
 #, c-format
 msgid "joint %d: too many compensation entries"
-msgstr "Joint %d: zu viele Kompensationseingaben"
+msgstr "Achse/Gelenk %d: zu viele Kompensationseingaben"
 
 #: src/emc/motion/command.c:1562 src/emc/motion/command.c:1611
 #, c-format
 msgid "joint %d: compensation values must increase"
-msgstr "Joint %d: Kompensationswerte müssen ansteigen"
+msgstr "Achse/Gelenk %d: Kompensationswerte müssen ansteigen"
 
 #: src/emc/motion/command.c:1591 src/emc/motion/command.c:1640
 #, c-format
@@ -961,7 +961,7 @@ msgstr "MOTION: emcmot_hal_data malloc fehlgeschlagen\n"
 #: src/emc/motion/motion.c:585 src/emc/motion/motion.c:597
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
-msgstr "MOTION: Joint %d Pin/Parameterexport fehlgeschlagen\n"
+msgstr "MOTION: Achse/Gelenk %d Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:80 src/emc/motion/homing.c:748
 #, c-format
@@ -2834,7 +2834,7 @@ msgstr "- Erwartet"
 
 #: tcl/tklinuxcnc.tcl:1239 ../tcl/tkemc.tcl:1280
 msgid "joint"
-msgstr "Achse"
+msgstr "Achse/Gelenk"
 
 #: tcl/tklinuxcnc.tcl:1240 ../tcl/tkemc.tcl:1281
 msgid "world"
@@ -5363,9 +5363,8 @@ msgid "Ha_l Scope"
 msgstr "HA_L-Scope..."
 
 #: share/axis/tcl/axis.tcl:182
-#, fuzzy
 msgid "Sho_w LinuxCNC Status"
-msgstr "EM_C-Status..."
+msgstr "Linu_xCNC Status anzeigen..."
 
 #: share/axis/tcl/axis.tcl:186 ../share/axis/tcl/axis.tcl:184
 msgid "Set _Debug Level"
@@ -5437,7 +5436,7 @@ msgstr "_Draufsicht"
 
 #: share/axis/tcl/axis.tcl:269 ../share/axis/tcl/axis.tcl:255
 msgid "_Rotated Top view"
-msgstr "Draufsicht _gedreht"
+msgstr "Draufsicht gedre_ht"
 
 #: share/axis/tcl/axis.tcl:276 ../share/axis/tcl/axis.tcl:262
 msgid "_Side view"
@@ -5461,16 +5460,15 @@ msgstr "_mm"
 
 #: share/axis/tcl/axis.tcl:313 ../share/axis/tcl/axis.tcl:299
 msgid "S_how program"
-msgstr "V_orschau anzeigen"
+msgstr "Vors_chau anzeigen"
 
 #: share/axis/tcl/axis.tcl:318 ../share/axis/tcl/axis.tcl:304
 msgid "Show program r_apids"
 msgstr "_Eilgangpfad anzeigen"
 
 #: share/axis/tcl/axis.tcl:323
-#, fuzzy
 msgid "Alpha-_blend program"
-msgstr "Programm öffnen"
+msgstr "Alpha Blending anwenden (_j)"
 
 #: share/axis/tcl/axis.tcl:328 ../share/axis/tcl/axis.tcl:309
 msgid "Sho_w live plot"
@@ -5485,9 +5483,21 @@ msgid "Show e_xtents"
 msgstr "_Bemaßung anzeigen"
 
 #: share/axis/tcl/axis.tcl:343
-#, fuzzy
+#: share/axis/tcl/axis.tcl:342
+msgid "_Grid"
+msgstr "_Gitternetz"
+
+#: share/axis/tcl/axis.tcl:428
+msgid "_Off"
+msgstr "Ausblenden (_x)"
+
+#: share/axis/tcl/axis.tcl:434
+msgid "_Custom"
+msgstr "Benutzerdefiniert... (_y)"
+
+#: share/axis/tcl/axis.tcl:347
 msgid "Show o_ffsets"
-msgstr "_Bemaßung anzeigen"
+msgstr "_Offsets anzeigen"
 
 #: share/axis/tcl/axis.tcl:348 ../share/axis/tcl/axis.tcl:324
 msgid "Sh_ow machine limits"
@@ -5502,9 +5512,9 @@ msgid "Show _distance to go"
 msgstr "Verf_ahrweg anzeigen"
 
 #: share/axis/tcl/axis.tcl:363 ../share/axis/tcl/axis.tcl:339
-#, fuzzy
+#: share/axis/tcl/axis.tcl:367
 msgid "Large coordinate fo_nt"
-msgstr "Große S_chrift für Koordinaten"
+msgstr "Gro_ße Schrift für Koordinatenanzeige"
 
 #: share/axis/tcl/axis.tcl:366 ../share/axis/tcl/axis.tcl:342
 msgid "Ctrl-K"
@@ -5532,7 +5542,7 @@ msgstr "Rela_tive Position"
 
 #: share/axis/tcl/axis.tcl:409 ../share/axis/tcl/axis.tcl:385
 msgid "Joint mode"
-msgstr "Joint-Modus"
+msgstr "Gelenk-Modus"
 
 #: share/axis/tcl/axis.tcl:416 ../share/axis/tcl/axis.tcl:392
 msgid "World mode"
@@ -5710,6 +5720,10 @@ msgstr "Schrittgeschwindigkeit:"
 msgid "Max Velocity:"
 msgstr "Maximale Geschwindigkeit:"
 
+#: share/axis/tcl/axis.tcl:1525 ../share/axis/tcl/axis.tcl:1525
+msgid "Rapid Override:"
+msgstr "Eilgangübersteuerung:"
+
 #: share/axis/tcl/axis.tcl:1629 ../share/axis/tcl/axis.tcl:1585
 msgid "Spindle Override:"
 msgstr "Spindelübersteuerung:"
@@ -5839,7 +5853,7 @@ msgstr "erwartet"
 #: share/axis/tcl/axis.tcl:2032 share/axis/tcl/axis.tcl:2203
 #: ../share/axis/tcl/axis.tcl:1989 ../share/axis/tcl/axis.tcl:2156
 msgid "Joint:"
-msgstr "Achse:"
+msgstr "Achse/Gelenk:"
 
 #: share/axis/tcl/axis.tcl:2338 ../share/axis/tcl/axis.tcl:2287
 msgid "Turn spindle counterclockwise [F10]"
@@ -9242,24 +9256,20 @@ msgid "A Both Limit + Home"
 msgstr "Beide End. + Ref. X"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:464
-#, fuzzy
 msgid "Joint select A"
-msgstr "Aktive Achse verfahren"
+msgstr "Aktive(s) Achse/Gelenk A verfahren"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:464
-#, fuzzy
 msgid "Joint select B"
-msgstr "Aktive Achse verfahren"
+msgstr "Aktive(s) Achse/Gelenk B verfahren"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:464
-#, fuzzy
 msgid "Joint select C"
-msgstr "Aktive Achse verfahren"
+msgstr "Aktive(s) Achse/Gelenk C verfahren"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:464
-#, fuzzy
 msgid "Joint select D"
-msgstr "Aktive Achse verfahren"
+msgstr "Aktive(s) Achse/Gelenk D verfahren"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:465
 msgid "Jog incr A"

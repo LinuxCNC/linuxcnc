@@ -20,6 +20,7 @@
 #include <sys/fsuid.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <atomic>
 
 inline void rtapi_timespec_add(timespec &result, const timespec &ta, const timespec &tb) {
     result.tv_sec = ta.tv_sec + tb.tv_sec;
@@ -40,9 +41,9 @@ void rtapi_timespec_advance(struct timespec &result, const struct timespec &src,
 
 struct WithRoot
 {
-    WithRoot() { if(!level) setfsuid(geteuid()); level++; }
-    ~WithRoot() { --level; if(!level) setfsuid(getuid()); }
-    static int level;
+    WithRoot();
+    ~WithRoot();
+    static std::atomic<int> level;
 };
 
 struct rtapi_task {

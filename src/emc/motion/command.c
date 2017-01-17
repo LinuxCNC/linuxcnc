@@ -1613,7 +1613,11 @@ void emcmotCommandHandler(void *arg, long period)
 		emcmotStatus->spindle.direction = -1;
 	    }
 	    emcmotStatus->spindle.brake = 0; //disengage brake
-	    emcmotStatus->atspeed_next_feed = 1;
+            emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
+
+           // check wether it's passed correctly
+           if (!emcmotStatus->atspeed_next_feed)
+               rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON without wait-for-atspeed");
 	    break;
 
 	case EMCMOT_SPINDLE_OFF:

@@ -3,7 +3,7 @@
 
 = Les O-codes
 
-[[cha:O-codes]] (((O-codes)))
+[[cha:O-codes]]
 
 == Utilisation des O-codes
 

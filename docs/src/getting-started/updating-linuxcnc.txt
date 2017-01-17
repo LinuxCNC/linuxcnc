@@ -1,4 +1,4 @@
-[[cha:updating-linuxcnc]] (((Updating LinuxCNC)))
+[[cha:updating-linuxcnc]]
 
 = Updating LinuxCNC
 
@@ -6,9 +6,9 @@ Updating LinuxCNC for example from 2.7.0 to 2.7.1 and your PC is connected to
 the internet is an automatic process. You will see an update prompt after a
 minor release along with other software updates. If you don't have an internet
 connection to your PC see
-<<getting-started:update-no-network,Updating without Network>>
+<<getting-started:update-no-network,Updating without Network>>.
 
-+== Upgrade to the new version
+== Upgrade to the new version
 
 This section describes how to upgrade LinuxCNC from version 2.7 to the
 new version.  It assumes that you have an existing 2.7 install that you
@@ -855,19 +855,61 @@ component is loaded and connected.
 additional loaded hal components to simulate the inertia of a rotating
 spindle mass.
 
-These functions are activated by default but can be excluded using
-options '-no_make_ddts, -no_simulated_home, -no_use_hal_manualtoolchange,
--no_sim_spindle'.  For example, to omit ddts:
+The functions are activated by default but can be excluded using
+options: '-no_make_ddts', '-no_simulated_home', '-no_use_hal_manualtoolchange',
+'-no_sim_spindle'.
+
+For example, to omit creation of ddts:
 
 ----
 HALFILE = LIB:basic_sim.tcl -no_make_ddts
 ----
 
-Omitting one or more of the core functions allow a user to test without
-the function or add new HALFILEs to implement or expand on the
+Omitting one or more of the core functions allows testing without without
+the function or addition of new HALFILEs to implement or expand on the
 functionality.
 
-=== Notes
+==== Equivalent Hal commands file
+
+When LIB:basic_sim.tcl is used, an equivalent halfile is created (in the
+configuration directory) to show the halcmd commands issued.   The file
+name is based on the name of the inifile with '_cmds' appended to
+the basename and a conventional '.hal' file extension. Example:
+
+----
+inifilename:            example.ini
+equivalent_halfilename: example_cmds.hal
+----
+
+The equivalent halfile file supersedes previous instances of files with
+the same filename.  Inifile variables substitutions specified in the
+inifile and interpreted by halcmd are automatically substituted in the
+created halfile.  If there are [HAL]HALFILEs specified before
+LIB:basic_sim.tcl, their halcmd commands are included too.
+
+The equivalent halfile can be used to create a new configuration based on
+the original configuration made with LIB:basic_sim.tcl with the
+following steps:
+
+1) Run the simulator configuration to create a new equivalent halfile,
+for example: 'example_cmds.hal'.
+
+To use this new equivalent halfile in the original simulator
+configuration inifile (or a copy of it), edit to change:
+
+----
+[HAL]
+HALFILE = LIB:basic_sim.tcl other_parameters
+----
+
+to:
+
+----
+[HAL]
+HALFILE = ./example_cmds.hal
+----
+
+==== Notes
 
 All components and connections made by LIB:basic_sim.tcl can be viewed
 using halcmd.  The entire hal configuration (except for userspace

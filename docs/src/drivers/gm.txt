@@ -1,4 +1,4 @@
-[[cha:gm-driver]](((General Mechatronics Driver)))
+[[cha:gm-driver]]
 
 = General Mechatronics Driver
 

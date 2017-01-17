@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import linuxcnc
+import linuxcnc_util
 import hal
 
 import math
@@ -14,12 +15,13 @@ import re
 
 retval = 0
 
+
 c = linuxcnc.command()
 s = linuxcnc.stat()
 e = linuxcnc.error_channel()
+l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 
-# FIXME: this is lame
-time.sleep(1)
+l.wait_for_linuxcnc_startup()
 
 s.poll()
 

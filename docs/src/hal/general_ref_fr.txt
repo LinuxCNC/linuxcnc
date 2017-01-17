@@ -3,7 +3,7 @@
 
 = Conventions générales
 
-[[cha:References-generales]] (((Références générales)))
+[[cha:References-generales]]
 
 == Les noms
 

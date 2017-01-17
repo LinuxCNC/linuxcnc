@@ -811,10 +811,16 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
             return -EINVAL;
         }
         
-        if (strcmp(chan->confs[i].UnitString, "gray") == 0){
+        if (chan->confs[i].Flags & 0x01){
             chan->pins[i].graycode = 1;
         } else {
             chan->pins[i].graycode = 0;
+        }
+
+        if (chan->confs[i].Flags & 0x02){
+            chan->pins[i].nowrap = 1;
+        } else {
+            chan->pins[i].nowrap = 0;
         }
 
 
@@ -1453,10 +1459,12 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 buff64 = (buff ^ buff64) - buff64;
                 previous = pin->accum;
 
-                if ((buff64 - pin->oldval) > (1 << (bitlength - 2))){
-                    pin->accum -= (1 << bitlength);
-                } else if ((pin->oldval - buff64) > (1 << (bitlength - 2))){
-                    pin->accum += (1 << bitlength);
+                if (pin->nowrap == 0){
+					if ((buff64 - pin->oldval) > (1 << (bitlength - 2))){
+						pin->accum -= (1 << bitlength);
+					} else if ((pin->oldval - buff64) > (1 << (bitlength - 2))){
+						pin->accum += (1 << bitlength);
+					}
                 }
                 pin->accum += (buff64 - pin->oldval);
 

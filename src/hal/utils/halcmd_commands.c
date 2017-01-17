@@ -90,6 +90,7 @@ static void save_signals(FILE *dst, int only_unlinked);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
 static void save_params(FILE *dst);
+static void save_unconnected_input_pin_values(FILE *dst);
 static void save_threads(FILE *dst);
 static void print_help_commands(void);
 
@@ -2380,13 +2381,17 @@ int do_save_cmd(char *type, char *filename)
     if (type == 0 || *type == '\0') {
 	type = "all";
     }
-    if (strcmp(type, "all" ) == 0) {
+    if (   (strcmp(type, "all")  == 0)
+	|| (strcmp(type, "allu") == 0) ) {
 	/* save everything */
 	save_comps(dst);
 	save_aliases(dst);
-        save_signals(dst, 1);
-        save_nets(dst, 3);
+	save_signals(dst, 1);
+	save_nets(dst, 3);
 	save_params(dst);
+	if (strcmp(type,"allu") == 0) {
+	    save_unconnected_input_pin_values(dst);
+	}
 	save_threads(dst);
     } else if (strcmp(type, "comp") == 0) {
 	save_comps(dst);
@@ -2416,6 +2421,8 @@ int do_save_cmd(char *type, char *filename)
 	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
 	save_threads(dst);
+    } else if (strcmp(type, "unconnectedinpins") == 0) {
+	save_unconnected_input_pin_values(dst);
     } else {
 	halcmd_error("Unknown 'save' type '%s'\n", type);
         if (dst != stdout) fclose(dst);
@@ -2686,6 +2693,25 @@ static void save_threads(FILE *dst)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
+static void save_unconnected_input_pin_values(FILE *dst)
+{
+    hal_pin_t *pin;
+    void *dptr;
+    int next;
+    fprintf(dst, "# unconnected pin values\n");
+    for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr)
+    {
+        pin = SHMPTR(next);
+        if (   (pin->signal == 0)
+            && ( (pin->dir == HAL_IN) || (pin->dir == HAL_IO) )
+           ) {
+            dptr = &(pin->dummysig);
+            fprintf(dst, "setp %s %s\n",
+                   pin->name, data_value((int) pin->type, dptr));
+        }
+    }
+}
+
 int do_setexact_cmd() {
     int retval = 0;
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2856,10 +2882,15 @@ int do_help_cmd(char *command)
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
 	printf("  of HAL commands.  State can later be restored by using\n");
 	printf("  \"halcmd -f filename\".\n");
-	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'netl', 'param',\n");
-	printf("  or 'thread'.  ('linka' and 'neta' show arrows for pin\n");
-	printf("  direction.)  If 'type' is omitted or 'all', does the\n");
-	printf("  equivalent of 'comp', 'netl', 'param', and 'thread'.\n");
+	printf("  Type can be 'comp', 'alias', 'sig[u]', 'signal', 'link[a]'\n");
+        printf("  'net[a]', 'netl', 'netla', netal', 'param', 'parameter,\n");
+	printf("  'unconnectedinpins', 'all, 'allu', or 'thread'.\n");
+        printf("  (A final 'a' character (like 'neta' means show arrows for pin direction.)\n");
+        printf("  If 'type' is 'allu'), does the equivalent of:\n");
+	printf("  'comp', 'alias', 'sigu', 'netla', 'param', 'unconnectedinpins' and 'thread'.\n\n");
+        printf("  If 'type' is omitted (or type is 'all'), does the equivalent of:\n");
+	printf("  'comp', 'alias', 'sigu', 'netla', 'param', and 'thread'.\n\n");
+        printf("  See the man page ($man halcmd) for save option details\n");
     } else if (strcmp(command, "start") == 0) {
 	printf("start\n");
 	printf("  Starts all realtime threads.\n");

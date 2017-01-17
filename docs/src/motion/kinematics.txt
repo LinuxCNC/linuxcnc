@@ -1,4 +1,4 @@
-[[cha:kinematics]] (((Kinematics)))
+[[cha:kinematics]]
 
 = Kinematics
 

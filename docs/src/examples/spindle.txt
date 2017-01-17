@@ -1,4 +1,4 @@
-[[cha:spindle-control]](((Spindle Control)))
+[[cha:spindle-control]]
 
 = Spindle Control
 

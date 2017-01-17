@@ -475,7 +475,7 @@ extern int emcAuxUpdate(EMC_AUX_STAT * stat);
 
 extern int emcSpindleAbort();
 extern int emcSpindleSpeed(double speed, double factor, double xoffset);
-extern int emcSpindleOn(double speed, double factor, double xoffset);
+extern int emcSpindleOn(double speed, double factor, double xoffset, int wait_for_at_speed);
 extern int emcSpindleOrient(double orientation, int direction);
 extern int emcSpindleWaitOrientComplete(double timout);
 extern int emcSpindleOff();

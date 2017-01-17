@@ -1,6 +1,6 @@
 = Ejecutando LinuxCNC
 
-[[cha:running-emc]] (((Ejecutando LinuxCNC)))
+[[cha:running-emc]]
 
 == invocación de LinuxCNC
 

@@ -1,4 +1,4 @@
-[[cha:stepper-quickstart]] (((Stepper Quickstart)))
+[[cha:stepper-quickstart]]
 
 = Stepper Quickstart
 

@@ -35,8 +35,19 @@ class GetIniInfo:
         inipath = os.environ["INI_FILE_NAME"]
         self.inifile = ini(inipath)
         if not self.inifile:
-            print("**** GMOCCAPY GETINIINFO **** \n Error, no INI File given !!")
+            print("**** GMOCCAPY GETINIINFO **** \nError, no INI File given !!")
             sys.exit()
+
+    def get_cycle_time(self):
+        temp = self.inifile.find("DISPLAY", "CYCLE_TIME")
+        try:
+            return int(temp)
+        except:
+            message = ("**** GMOCCAPY GETINIINFO **** \n")
+            message += ("Wrong entry [DISPLAY] CYCLE_TIME in INI File!\n")            
+            message += ("Will use gmoccapy default 150")
+            print(message)
+            return 150
 
     def get_postgui_halfile(self):
         postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
@@ -55,13 +66,13 @@ class GetIniInfo:
             else:
                 machinename = machinename.replace(" ", "_")
                 temp = os.path.join(CONFIGPATH, "%s.pref" % machinename)
-        print("**** GMOCCAPY GETINIINFO **** \n Preference file path: %s" % temp)
+        print("**** GMOCCAPY GETINIINFO **** \nPreference file path: %s" % temp)
         return temp
 
     def get_coordinates(self):
         temp = self.inifile.find("TRAJ", "COORDINATES")
         if not temp:
-            print("**** GMOCCAPY GETINIINFO **** \n No coordinates entry found in [TRAJ] of INI file")
+            print("**** GMOCCAPY GETINIINFO **** \nNo coordinates entry found in [TRAJ] of INI file")
             return ("XYZ")
         return temp
 
@@ -92,15 +103,24 @@ class GetIniInfo:
             return False
         return True
 
+    def get_lathe_wear_offsets(self):
+        temp = self.inifile.find("DISPLAY", "LATHE_WEAR_OFFSETS")
+        if not temp or temp == "0":
+            return False
+        return True
 
     def get_jog_vel(self):
         # get default jog velocity
         # must convert from INI's units per second to gscreen's units per minute
         temp = self.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
-            temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )/ 2
-            if not temp:
+            temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )
+            if temp:
+                temp = float(temp) / 2
+                print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing half on MAX_LINEAR_VELOCITY")
+            else:
                 temp = 3.0
+                print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing default value of 180 units / min")
         return float(temp) * 60
 
     def get_max_jog_vel(self):
@@ -109,35 +129,44 @@ class GetIniInfo:
         temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing default value of 600 units / min")
         return float(temp) * 60
+
+    def get_default_spindle_speed(self):
+        # check for default spindle speed settings
+        temp = self.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
+        if not temp:
+            temp = 300
+            print("**** GMOCCAPY GETINIINFO **** \n No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
+        return float(temp)
 
     def get_max_spindle_override(self):
         # check for override settings
         temp = self.inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")
         if not temp:
             temp = 1.0
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
         return float(temp)
 
     def get_min_spindle_override(self):
         temp = self.inifile.find("DISPLAY", "MIN_SPINDLE_OVERRIDE")
         if not temp:
             temp = 0.1
-            print("**** GMOCCAPY GETINIINFO **** \n No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
+            print("**** GMOCCAPY GETINIINFO **** \nNo MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
         return float(temp)
 
     def get_max_feed_override(self):
         temp = self.inifile.find("DISPLAY", "MAX_FEED_OVERRIDE")
         if not temp:
             temp = 1.0
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
         return float(temp)
 
     def get_max_rapid_override(self):
         temp = self.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
         if not temp:
             temp = 1.0
-            print("**** GMOCCAPY GETINIINFO **** \n No MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file \n Default settings 100 % applied!")
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_RAPID_OVERRIDE entry found in [DISPLAY] of INI file \n Default settings 100 % applied!")
         return float(temp)
 
     def get_embedded_tabs(self):
@@ -172,12 +201,12 @@ class GetIniInfo:
         # and we want to set the default path
         default_path = self.inifile.find("DISPLAY", "PROGRAM_PREFIX")
         if not default_path:
-            print("**** GMOCCAPY GETINIINFO **** \n Path %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path)
-            print("**** GMOCCAPY GETINIINFO **** \n Trying default path...")
+            print("**** GMOCCAPY GETINIINFO **** \nPath %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path)
+            print("**** GMOCCAPY GETINIINFO **** \nTrying default path...")
             default_path = "~/linuxcnc/nc_files/"
             if not os.path.exists(os.path.expanduser(default_path)):
-                print("**** GMOCCAPY GETINIINFO **** \n Default path to ~/linuxcnc/nc_files does not exist")
-                print("**** GMOCCAPY GETINIINFO **** \n setting now home as path")
+                print("**** GMOCCAPY GETINIINFO **** \nDefault path to ~/linuxcnc/nc_files does not exist")
+                print("**** GMOCCAPY GETINIINFO **** \nsetting now home as path")
                 default_path = os.path.expanduser("~/")
         return default_path
 
@@ -191,8 +220,8 @@ class GetIniInfo:
                     ext = extension.split()
                     ext_list.append(ext[0].replace(".", "*."))
         else:
-            print("**** GMOCCAPY GETINIINFO **** \n Error converting the file extensions from INI File 'FILTER','PROGRAMM_PREFIX")
-            print("**** GMOCCAPY GETINIINFO **** \n using as default '*.ngc'")
+            print("**** GMOCCAPY GETINIINFO **** \nError converting the file extensions from INI File 'FILTER','PROGRAMM_PREFIX")
+            print("**** GMOCCAPY GETINIINFO **** \nusing as default '*.ngc'")
             ext_list = ["*.ngc"]
         return ext_list
 
@@ -225,15 +254,45 @@ class GetIniInfo:
         return xpos, ypos, zpos, maxprobe
 
     def get_macros(self):
-        return self.inifile.findall("MACROS", "MACRO")
-
-    def get_subroutine_path(self):
-        subroutines_path = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
-        if not subroutines_path:
-            subroutines_path = self.get_program_prefix()
-        if not subroutines_path:
+        # lets look in the ini File, if there are any entries
+        macros = self.inifile.findall("MACROS", "MACRO")
+        # If there are no entries we will return False
+        if not macros:
             return False
-        return subroutines_path
+
+        # we need the subroutine paths to check where to search for the macro files
+        subroutine_paths = self.get_subroutine_paths()
+        if not subroutine_paths:
+            return False
+
+        # we do check, if the corresponding files to the macros do exist
+        checked_macros =[]
+        for macro in macros:
+            found = False
+            for path in subroutine_paths.split(":"):
+                file = path + "/" + macro.split()[0] + ".ngc"
+                if os.path.isfile( file ):
+                    checked_macros.append(macro)
+                    found = True
+                    break
+            if not found: # report error!
+                message = ( "\n**** GMOCCAPY INFO ****\n" )
+                message += ( "File %s of the macro %s could not be found ****\n" %((str(macro.split()[0]) + ".ngc"),[macro])  )
+                message += ("we searched in subdirectories: %s" %subroutine_paths.split(":"))
+                print (message)
+
+        return checked_macros
+
+    def get_subroutine_paths(self):
+        subroutines_paths = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
+        if not subroutines_paths:
+            message = _( "**** GMOCCAPY GETINIINFO ****\n" )
+            message += _( "**** No subroutine folder or program prefix is given in the ini file **** \n" )
+            print( message )
+            subroutines_paths = self.get_program_prefix()
+        if not subroutines_paths:
+            return False
+        return subroutines_paths
 
     def get_axis_2_min_limit(self):
         # needed to calculate the offset for automated tool measurement
@@ -253,18 +312,12 @@ class GetIniInfo:
         message_type = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
         message_pinname = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
         if len(message_text) != len(message_type) or len(message_text) != len(message_pinname):
-            print("**** GMOCCAPY GETINIINFO **** \n ERROR in user message setup")
+            print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup")
             return None
         else:
             for element in message_pinname:
                 if " " in element:
-                    print("**** GMOCCAPY GETINIINFO **** \n ERROR in user message setup \n Pinname should not contain spaces")
+                    print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup \nPinname should not contain spaces")
                     return None
             messages = zip(message_text, message_type, message_pinname)
             return messages
-
-    def get_trajcoordinates(self):
-        return self.inifile.find("TRAJ", "COORDINATES")
-
-    def get_kinstype(self):
-        return self.inifile.find("KINS", "KINEMATICS")

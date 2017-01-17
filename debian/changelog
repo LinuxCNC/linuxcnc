@@ -4,6 +4,95 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.8) unstable; urgency=medium
+
+  * docs: fix pdf duplicate history listing
+  * docs: use out-of-date French translation of Updating LinuxCNC
+  * docs: fix broken links in Spanish translation of html index
+  * docs: fix broken links in French translation of html index
+  * docs: INI File settings added some gmoccapy stuff
+  * docs: punctuation fixes in Updating LinuxCNC
+  * docs: add more info about program extensions
+  * docs: add links to both NIST papers
+  * docs: clarify feed rate info
+  * docs: update g61 for the new trajectory planner
+  * docs: remove byte-order-mark from linux-faq-es.txt
+  * docs: elbpcom manpage fix: default address is 192.168.1.121
+  * docs: add info about tool_table and example code
+  * docs: add info about python module return types and constants
+  * docs: fix asciidoc markup
+  * docs build system: accept id tags in more elements
+  * docs build system: add missing dependency
+  * docs build system: remove obsolete makefile rules
+
+  * gmoccapy: use INI Entry CYCLE_TIME as poll interval
+  * gmoccapy: cosmetic and double entry
+  * gmoccapy: subroutine bug solved
+  * gmoccapy: check for INI entry DEFAULT_SPINDLE_SPEED
+  * gmoccapy: bug fix halui spindle override
+  * gmoccapy: bug in halui.spindle-override.increase
+
+  * GladeVCP - CombiDRO - new property cycle time
+
+  * canon: return correct feed rate in G95 mode
+
+  * glcanon: make the grid stay in the machine limits box
+  * glcanon: fix position of the machine limits box
+  * glcanon: fix red boxed constraint numbers in AXIS preview
+
+  * linuxcnc python module: add doc string for s.settings
+  * twopass bugfix: support all ini var substitutions
+  * image-to-gcode: compensate for incompatible changes in numpy
+
+  * latency-histogram: more info in error message
+
+  * interp: fix bug 160, surprise motion after g41/no move/g40
+  * interp: revert "move end-of-program cleanup code to its own function"
+  * interp: after synching settings from canon, update all copies of the info
+  * interp: fix incorrect `_setup.sequence_number` after remaps
+
+  * task: fix race condition queueing MDI queue busters
+
+  * tests: add an abort-vs-feed-rate test
+  * tests: add a motion-logger S-word test
+  * tests: add `mdi-while-queuebuster-waitflag` test
+  * tests: add Z axis to `interp/g10/g10-l1-l10` tests
+  * tests: remove `g10-l1` test, identical to `g10-l1-10`
+  * tests: specify var filename in interp compile test
+  * tests: add a test of early exit from cutter comp
+  * tests: add a test demonstrating a remap bug
+  * tests: do what the README says in `nested-remaps-oword` test
+
+  * remove note about defunct weblate service
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 08 Nov 2016 20:42:02 -0700
+
+linuxcnc (1:2.7.7) unstable; urgency=medium
+
+  * docs: fix example scrips so they work when copied and pasted
+  * docs: fix minor mux_generic(9) manpage quibbles
+
+  * Axis GUI: work around python-tk "True" bug
+  * halui: correctly report "mode.is_joint"
+
+  * lcd: stop processing when page_num is too high
+  * lcd: add missing call to hal_ready
+
+  * pncconf: add ability to set gs2 vfd serial device
+
+  * Interp: support subs placed after main program
+  * Interp: don't drop remap level at prog exit
+  * Interp: fix startup regression regarding coordinate systems and more
+
+  * add test validating initial coordinate system and RS274NGC_STARTUP_CODE
+  * add test validating the startup state of the Status buffer
+  * add test for M30 and remapped command interaction
+
+  * travis-ci: Disable e-mail notifications
+  * build: include metadata for Travis CI integration
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 07 Sep 2016 19:00:54 -0600
+
 linuxcnc (1:2.7.6) unstable; urgency=medium
 
   * docs: add info about updating
@@ -741,6 +830,90 @@ linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
   * Other things!
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
+
+linuxcnc (1:2.6.13) unstable; urgency=medium
+
+  * docs: clean up shuttlexpress manpage & asciidocs
+  * docs: remove note about defunct weblate service
+  * docs: fix link to the install ISO files
+  * docs: improve contributing intructions
+  * docs: change max AIOs in motion manpage from 16 to 64
+
+  * sample configs: improved comments in Pico configs
+  * sample configs: update tool table format
+  * sample configs: let manual-example trigger a gladevcp bug
+
+  * axis gui: work around python-tk "True" bug
+  * gmoccapy gui: fix bug in halui.spindle-override.increase
+  * gmoccapy: fix bug in initialize optional stops
+  * gmoccapy: fix bug caused due to rests of alarm page
+  * gmoccapy: fix keyboard jogging bug
+  * gmoccapy: small bug fix in hal jogging and fixed a typo
+  * gmoccapy: deleted alarm entry and added new settings for combi_dro
+  * tklinuxcnc gui: fix Help->About error (rebranding)
+  * gremlin: lathe-mode preview moving bug fix
+
+  * halui: correctly report "mode.is_joint"
+  * halui: check for errors in a non-crazy way
+  * gladevcp: fix hal_sourceview file creation mode
+  * gladevcp: fix mdi error with tiny values
+  * gladevcp: fix icon select bug in Iconview
+
+  * stepgen component: handle up to 16 channels
+  * wj200 driver: fix startup crash with later versions of libmodbus
+  * lcd component: stop processing when page_num is too high
+  * lcd component: missing call to hal_ready
+  * add gantry.comp
+  * include udev rule file for ShuttleXpress USB jog pendant
+
+  * linuxcnc python module: add doc string for stat.settings
+
+  * interp: after synching settings from canon, update all copies
+  * interp: Fix subs breaking when placed after main program
+  * interp: don't drop remap level at prog exit
+  * interp: Fix incorrect `_setup.sequence_number` after remaps
+  * interp: consistently set feed rate to 0 on M2/M30
+  * interp: don't return potentially stacked data
+
+  * canon: return correct feed rate in G95 mode
+
+  * task: only turn off the spindle once, when entering Estop
+  * task: fix startup regression regarding coordinate systems and more
+  * task: don't call emcTaskPlanInit() redundantly
+  * task: don't redundantly call emcAbortCleanup() in emcIoAbort()
+  * task: fixup indentation
+
+  * motion: when motion disables, mark all joints as "in position"
+
+  * glcanon: fix "is_lathe() is a function" bug
+  * linuxcncsrv: ioctl(FIONREAD) wants int*, not ulong*
+  * interp list: log calls to clear() when debugging is enabled
+  * rtapi (sim): flush stdout/stderr after rtapi_print()
+  * hal: fix header file comments describing HAL thread & funct times
+  * rip-environment: rebranding
+
+  * platform-is-supported: detect os in a more portable way
+  * motion-logger: handle SPINDLE_ON/SPINDLE_OFF better
+  * tests: add an abort-vs-feed-rate test (skipped)
+  * tests: add a motion-logger S-word test
+  * tests: add Z axis to `interp/g10/g10-l1-l10` tests
+  * tests: add a test of early exit from cutter comp (skipped)
+  * tests: add a test for M30 and remapped command interaction
+  * tests: add a test demonstrating a remap bug
+  * tests: add a test validating the startup state of the Status buffer
+  * tests: add a test of initial coord system and RS274NGC_STARTUP_CODE
+  * tests: add a hard limit test
+  * tests: fixup `nested-remaps-oword` test
+  * tests: remove `g10-l1` test, identical to `g10-l1-10`
+  * tests: longer timeout in halui mdi test
+  * tests: add comments to motion-logger/basic 'expected' file
+
+  * tests: fix cut/paste errors in rs274ngc-startup and startup-state
+  * tests: rs274ngc-startup test: wait for Task to start up
+  * tests: throw a valid exception on timeout in startup-state test
+  * tests: interp test of subs after main program
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 04 Nov 2016 07:55:00 -0600
 
 linuxcnc (1:2.6.12) unstable; urgency=low
 

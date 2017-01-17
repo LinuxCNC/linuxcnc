@@ -1,0 +1,11 @@
+o<rm207> sub
+o<setup> if [#<_killme> GT 0]
+    (debug, rm207 running remapped m208)
+    m208
+o<setup> endif
+(debug, rm207 executing problem if)
+o<problem> if [6]
+     (debug, rm207 within problem if)
+o<problem> endif
+(debug, rm207 done executing problem if)
+o<rm207> endsub

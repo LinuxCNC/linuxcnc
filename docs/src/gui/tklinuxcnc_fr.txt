@@ -3,7 +3,7 @@
 
 = L'interface graphique TkLinuxCNC
 
-[[cha:TkLinuxCNC]] (((TkLinuxCNC)))
+[[cha:TkLinuxCNC]]
 
 == Introduction
 

@@ -69,6 +69,7 @@ MODULE_EXT=.ko
 KERNEL_DEPENDS="linux-image-$TARGET,rtai-modules-$TARGET|rtai-modules-$KERNEL_VERSION_ABI"
 KERNEL_HEADERS=linux-headers-$TARGET
 EXTRA_FILES=
+EXTRA_BUILD=
 KERNEL_VERSION=$TARGET
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
@@ -95,6 +96,14 @@ fi
 # shell juju to transform it into a proper dependency list
 XENOMAI_DEV="$(apt-cache search -n libxenomai-dev | head -1 | awk '{print $1}')"
 if [ ! -z "$XENOMAI_DEV" ]; then
+    if [ `apt-cache showsrc libxenomai-dev 2>/dev/null | wc -l` -eq 0 ]; then
+        cat 1>&2 <<-EOF
+	Package libxenomai-dev exists, but information about its source package
+	is not available.  This most likely means that you do not have the
+	right deb-src lines in /etc/apt, or that you need to "apt-get update".
+	EOF
+	exit 99
+    fi
     XENOMAI_ARCHITECTURE="$(apt-cache showsrc libxenomai-dev \
         | grep ^Architecture: \
         | head -1 \
@@ -123,7 +132,6 @@ while test $# -ne 0; do
     shift
 done
 
-# hope this works on other systems too
 DISTRIB_NAME=
 if [ "$(which lsb_release)" != "" ]; then
     DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
@@ -138,68 +146,37 @@ else
 	EXTRAS=extras
 fi
 
-PYTHON_PACKAGING=dh_pysupport
+DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, python-lxml, source-highlight, texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, w3c-linkchecker, xsltproc'
+MODUTILS_DEPENDS=kmod
+PYTHON_PACKAGING_DEPENDS=dh-python
+PYTHON_PACKAGING=dh_python2
+TCLTK_VERSION=8.6
 
 case $DISTRIB_NAME in
-Ubuntu-14.*|Ubuntu-15.04|LinuxMint-17.*) # Trusty Tahr (LTS) through Vivid
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,python-support
-	TCLTK_VERSION=8.6
-	;;
-Ubuntu-11.04|Ubuntu-12.04|Ubuntu-12.10) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev,python-support
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-10.04)
-        LIBREADLINE_DEV=libreadline5-dev
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev,python-support
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-9.10)
-        LIBREADLINE_DEV=libreadline5-dev
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev,python-support
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-8.04)
-        LIBREADLINE_DEV=libreadline5-dev
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev,python-support
-	TCLTK_VERSION=8.4
-	;;
-Debian-testing)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
-	TCLTK_VERSION=8.6
-        PYTHON_PACKAGING=dh_python2
+Debian-[89].*|Debian-testing|Raspbian-[89].*) # Jessie, Stretch
         ;;
-Debian-8.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
-	TCLTK_VERSION=8.6
-        PYTHON_PACKAGING=dh_python2
-        ;;
-Debian-7.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,libgnomeprintui2.2-dev,python-support
+Debian-7.*|Raspbian-7) # Wheezy
+        EXTRA_BUILD=libgnomeprintui2.2-dev
+        PYTHON_PACKAGING_DEPENDS=python-support
+        PYTHON_PACKAGING=dh_pysupport
 	TCLTK_VERSION=8.5
 	;;
-Debian-6.0*)
-	EXTRA_BUILD=dvipng,module-init-tools,libgnomeprintui2.2-dev,python-support
+Ubuntu-1[456].*|LinuxMint-1[78]*) # Trusty through Xenial, LinuxMint 17 and 18
+	;;
+Ubuntu-1[12].*) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
+        EXTRA_BUILD=libgnomeprintui2.2-dev
+        MODUTILS_DEPENDS=module-init-tools
+        PYTHON_PACKAGING_DEPENDS=python-support
+        PYTHON_PACKAGING=dh_pysupport
 	TCLTK_VERSION=8.5
-	;;
-Debian-5.0*)
-	EXTRA_BUILD=dvipng,module-init-tools,libgnomeprintui2.2-dev,python-support
-	TCLTK_VERSION=8.4
-	;;
-Raspbian-8.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
-	TCLTK_VERSION=8.6
-	PYTHON_PACKAGING=dh_python2
 	;;
 *)
         echo "unknown distribution: $DISTRIB_NAME"
-        echo "configuration may be wrong!"
-	EXTRA_BUILD=dvipng,kmod,libgnomeprintui2.2-dev,python-support
-	TCLTK_VERSION=8.4
+        echo "detected dependencies may be incomplete or wrong"
+        echo "please consider fixing it and submitting a pull request"
 	;;
 esac
 
-DOC_BUILD=
 TARGET_EXTRA=
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
@@ -239,44 +216,36 @@ case $TARGET in
 
         EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
     ;;
-    2.6.12-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
-    ;;
-    2.6.15-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
-    ;;
-    2.6.22.6-magma|2.6.24-16-rtai)
-        KERNEL_HEADERS="$KERNEL_HEADERS"
-    ;;
-    2.6.24-16-rtai)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
-    ;;
     2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*) ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
 
 subst () {
-sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
-    -e "s|@MODULE_EXT@|$MODULE_EXT|g" \
-    -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
-    -e "s/@KERNEL_DEPENDS@/$KERNEL_DEPENDS/g" \
-    -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
-    -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
-    -e "s|@LIBREADLINE_DEV@|$LIBREADLINE_DEV|g" \
-    -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
-    -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
-    -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
-    -e "s|@EXTRAS@|$EXTRAS|g" \
-    -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
-    -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
-    -e "s|@TARGET@|$TARGET|g" \
-    -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
-    -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
-    -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
-    -e "s|@PYTHON_PACKAGING@|$PYTHON_PACKAGING|g" \
-    -e "s|@XENOMAI_ARCHITECTURE@|$XENOMAI_ARCHITECTURE|g" \
-    -e "s|@RTAI_ARCHITECTURE@|$RTAI_ARCHITECTURE|g" \
+sed \
+    -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
+    -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
+    -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
+    -e "s#@EXTRA_FILES@#$EXTRA_FILES#g" \
+    -e "s#@EXTRA_RECOMMENDS@#$EXTRA_RECOMMENDS#g" \
+    -e "s#@EXTRAS@#$EXTRAS#g" \
+    -e "s#@KERNEL_DEPENDS@#$KERNEL_DEPENDS#g" \
+    -e "s#@KERNEL_HEADERS@#$KERNEL_HEADERS#g" \
+    -e "s#@KERNEL_VERSION@#$KERNEL_VERSION#g" \
+    -e "s#@LIBREADLINE_DEV@#$LIBREADLINE_DEV#g" \
+    -e "s#@MAIN_PACKAGE_NAME@#$MAIN_PACKAGE_NAME#g" \
+    -e "s#@MODULE_EXT@#$MODULE_EXT#g" \
+    -e "s#@MODULE_PATH@#$MODULE_PATH#g" \
+    -e "s#@MODUTILS_DEPENDS@#$MODUTILS_DEPENDS#g" \
+    -e "s#@OTHER_MAIN_PACKAGE_NAME@#$OTHER_MAIN_PACKAGE_NAME#g" \
+    -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
+    -e "s#@PYTHON_PACKAGING@#$PYTHON_PACKAGING#g" \
+    -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
+    -e "s#@PYTHON_VERSION@#$PYTHON_VERSION#g" \
+    -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
+    -e "s#@TARGET@#$TARGET#g" \
+    -e "s#@TCLTK_VERSION@#$TCLTK_VERSION#g" \
+    -e "s#@XENOMAI_ARCHITECTURE@#$XENOMAI_ARCHITECTURE#g" \
     $*
 }
 

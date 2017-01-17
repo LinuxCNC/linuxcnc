@@ -33,6 +33,10 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include "config.h"
 
+#ifdef RTAPI
+#include "rtapi_uspace.hh"
+#endif
+
 typedef struct {
   int magic;			/* to check for valid handle */
   int key;			/* key to shared memory area */
@@ -50,6 +54,9 @@ static rtapi_shmem_handle shmem_array[MAX_SHM] = {{0},};
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
+#ifdef RTAPI
+  WITH_ROOT;
+#endif
   rtapi_shmem_handle *shmem;
   int i;
 

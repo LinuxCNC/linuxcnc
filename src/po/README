@@ -21,12 +21,6 @@ When you are done, "git commit" the new .po file.  If you have push access,
 "git push".  Otherwise, format your changes as a patch with "git format-patch"
 and send it to the emc-developers mailing list.
 
-Experimental "weblate" web interface
-====================================
-
-There's an experimental web interface for translating linuxcnc:
-    http://l10n.unpythonic.net/
-
 
 Graphical tools for editing .po files
 =====================================

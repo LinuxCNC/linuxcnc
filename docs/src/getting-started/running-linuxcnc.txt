@@ -1,4 +1,4 @@
-[[cha:running-emc]] (((Running LinuxCNC)))
+[[cha:running-emc]]
 
 = Running LinuxCNC
 

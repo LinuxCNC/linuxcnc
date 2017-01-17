@@ -1,4 +1,4 @@
-[[cha:pluto-p-driver]](((Pluto P Driver)))
+[[cha:pluto-p-driver]]
 
 = Pluto P Driver
 

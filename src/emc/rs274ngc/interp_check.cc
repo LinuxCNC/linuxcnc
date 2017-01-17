@@ -302,6 +302,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
           (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) && 
           (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
           (motion != G_2) && (motion != G_3) &&
+	  (motion != G_74) && (motion != G_84) &&
           (block->m_modes[9] != 50) && (block->m_modes[9] != 51) && (block->m_modes[9] != 52) &&
           (block->m_modes[9] != 53) && (block->m_modes[5] != 62) && (block->m_modes[5] != 63) &&
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
@@ -328,7 +329,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->r_flag) {
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_76) &&
-         ((motion < G_81) || (motion > G_89)) && (motion != G_73) && 
+         ((motion < G_81) || (motion > G_89)) && (motion != G_73) &&
+	 (motion != G_74) &&
          (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
          (block->g_modes[0] != G_10) && (block->m_modes[7] != 19) ),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);

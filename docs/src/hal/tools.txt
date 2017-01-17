@@ -1,4 +1,4 @@
-[[cha:hal-tools]] (((HAL Tools)))
+[[cha:hal-tools]]
 
 = HAL Tools
 

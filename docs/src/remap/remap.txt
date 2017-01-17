@@ -1,4 +1,4 @@
-[[cha:remap]](((Remap Extending G code)))
+[[cha:remap]]
 
 = Remap Extending G code
 
