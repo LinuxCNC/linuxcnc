@@ -105,6 +105,25 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
+style = """
+GtkEntry.invalid {
+	color:  black;
+	background-color: red;
+	background: red;
+}
+
+GtkEntry.valid {
+	color:  @fg_color;
+	background-color: @bg_color;
+	background: @bg_color;
+}
+
+GtkEntry.selected {
+	color:  @fg_color;
+	background-color: @bg_color;
+	background: @bg_color;
+}
+"""
 
 from stepconf import pages
 from stepconf import build_INI
@@ -363,6 +382,10 @@ class Data:
              self[i+'latchdir'] = 0
              self[i+'scale'] = 0
 
+	     # Varibles for test axis
+             self[i+'testmaxvel'] = None
+             self[i+'testmaxacc'] = None
+
         # set xyzuv axes defaults depending on units true = imperial
         self.set_axis_unit_defaults(True)
 
@@ -520,7 +543,7 @@ class Data:
     # write stepconf's hidden preference file
     def save_preferences(self):
         filename = os.path.expanduser("~/.stepconf-preferences")
-        print filename
+        #print filename
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -1036,25 +1059,16 @@ class StepconfApp:
         for i in datalist:
             # Damn! this is a bug. GTKBuilder sets the widget name to be the builder ID.
             widget_name = Gtk.Buildable.get_name(self.w[axis+i])
+	    ctx = self.w[axis+i].get_style_context()
+
             try:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                mystyle = mystyle + '#' + widget_name + ' { background-color: red; color: red}' + os.linesep
-                mystyle = mystyle + '#' + widget_name + ':selected { background-color: red; color: @selected_fg_color; }' + os.linesep
+	        ctx.add_class('invalid')
             else:
-                mystyle = mystyle + '#' + widget_name + ' { background-color: @bg_color; color: @fg_color; }' + os.linesep
-                mystyle = mystyle + '#' + widget_name + ':selected { background-color: @selected_bg_color; color: @selected_fg_color; }' + os.linesep
-
-        # Really I have not found a better way to change the background color
-        # I hate the person who removed the get_background_color function in GTK3...
-        provider = Gtk.CssProvider()
-        provider.load_from_data(mystyle)
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
+		ctx.remove_class('invalid')
+	
     # pport functions
     # disallow some signal combinations
     def do_exclusive_inputs(self, pin,port):
@@ -1247,11 +1261,25 @@ class StepconfApp:
         if not self.check_for_rt(): return
         SIG = self._p
 
-        vel = float(self.w[axis + "maxvel"].get_text())
-        acc = float(self.w[axis + "maxacc"].get_text())
+	# Retrive user setting for maxvel and maxacc on current axis tab
+	# Test if there is some data saved
+	testvel = self.d[axis + "testmaxvel"]
+	testacc = self.d[axis + "testmaxacc"]
+	# Check if not null and not empty and not string "None"
+	if(testvel != None and testvel != "" and testvel != "None"):
+		vel = float(testvel)
+	else:
+        	vel = float(self.w[axis + "maxvel"].get_text())
+
+	# Check if not null and not empty and not string "None"
+	if(testacc != None and testacc != "" and testacc != "None"):
+		acc = float(testacc)
+	else:
+        	acc = float(self.w[axis + "maxacc"].get_text())
 
         scale = self.d[axis + "scale"]
-        maxvel = 1.5 * vel
+	maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
+        #maxvel = 1.5 * vel
         if self.d.doublestep():
                 period = int(1e9 / maxvel / scale)
         else:
@@ -1426,14 +1454,17 @@ class StepconfApp:
         self.w.run.set_active(0)
         self.w.testacc.set_value(acc)
         self.w.testvel.set_value(vel)
-        self.axis_under_test = axis
-        self.update_axis_test()
+	self.axis_under_test = axis
+	self.update_axis_test()
 
-        halrun.write("start\n"); halrun.flush()
-        self.w.dialog1.show_all()
-        result = self.w.dialog1.run()
+	halrun.write("start\n"); halrun.flush()
+	self.w.dialog1.show_all()
+	result = self.w.dialog1.run()
+	if result == Gtk.ResponseType.OK:
+		# Save test parameters
+		self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
+		self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
         self.w.dialog1.hide()
-        
         if amp_signals:
             for pin in amp_signals:
                 amp,amp_port = pin
@@ -1557,5 +1588,13 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
+
+    # Prepare Style
+    cssProvider = Gtk.CssProvider()
+    cssProvider.load_from_data(style)
+    screen = Gdk.Screen.get_default()
+    styleContext = Gtk.StyleContext()
+    styleContext.add_provider_for_screen(screen, cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
     Gtk.main()
 
