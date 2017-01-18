@@ -2046,7 +2046,7 @@ static int print_inst_line(hal_object_ptr o, foreach_args_t *args)
 		      ho_id(inst),
 		      ho_id(comp),
 		      inst->inst_size,
-		      25, // HAL_NAME_LEN,
+		      40, // HAL_NAME_LEN,
 		      ho_name(inst),
 		      20, // HAL_NAME_LEN,
 		      ho_name(comp));
@@ -2059,7 +2059,7 @@ static void print_inst_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Instances:\n");
-	halcmd_output(" Inst  Comp  Size  %-*s                    Owner\n", 25, "Name");
+	halcmd_output(" Inst  Comp  Size  Name                                              Owner\n" );
     }
     foreach_args_t args =  {
 	.type = HAL_INST,
@@ -2073,7 +2073,7 @@ static int print_vtable_entry(hal_object_ptr o, foreach_args_t *args)
 {
     hal_vtable_t *vt = o.vtable;
     if ( match(args->user_ptr1, ho_name(vt)) ) {
-	halcmd_output(" %5d  %-20.20s  %-5d   %-5d",
+	halcmd_output(" %5d  %-40.40s  %-5d   %-5d",
 		      ho_id(vt),
 		      ho_name(vt),
 		      vt->version,
@@ -2085,7 +2085,7 @@ static int print_vtable_entry(hal_object_ptr o, foreach_args_t *args)
 
 	hal_comp_t *comp = halpr_find_comp_by_id(ho_owner_id(vt));
 	if (comp) {
-	    halcmd_output("   %-5d %-49.49s", ho_id(comp),  ho_name(comp));
+	    halcmd_output("   %-5d %-40.40s", ho_id(comp),  ho_name(comp));
 	} else {
 	    halcmd_output("   * not owned by a component *");
 	}
@@ -2098,7 +2098,7 @@ static void print_vtable_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Exported vtables:\n");
-	halcmd_output("ID      Name                  Version Refcnt  Context Owner\n");
+	halcmd_output("ID      Name                                           Version Refcnt  Context Owner\n");
     }
 
     foreach_args_t args =  {
@@ -2132,7 +2132,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 		halcmd_output("%5d", ho_owner_id(pin));
 
 	    if (pin->type == HAL_FLOAT) {
-		halcmd_output(" %5s %-3s  %9s  %-49.49s\t%f\t%s%s%s%s",
+		halcmd_output(" %5s %-3s  %9s  %-40.40s\t%f\t%s%s%s%s",
 			      data_type((int) pin->type),
 			      pin_data_dir((int) pin->dir),
 			      data_value((int) pin->type, dptr),
@@ -2143,7 +2143,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 			      ho_legacy(pin) ? "l" : "-",
 			      pin->flags & PIN_DO_NOT_TRACK ? "n" : "-");
 	    } else {
-		halcmd_output(" %5s %-3s  %9s  %-49.49s\t\t%s%s%s%s",
+		halcmd_output(" %5s %-3s  %9s  %-40.40s\t\t%s%s%s%s",
 			      data_type((int) pin->type),
 			      pin_data_dir((int) pin->dir),
 			      data_value((int) pin->type, dptr),
@@ -2154,7 +2154,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 			      pin->flags & PIN_DO_NOT_TRACK ? "n" : "-");
 	    }
 	} else {
-	    halcmd_output("%s %s %s %s %-49.49s",
+	    halcmd_output("%s %s %s %s %-40.40s",
 			  ho_name(comp),
 			  data_type((int) pin->type),
 			  pin_data_dir((int) pin->dir),
@@ -2164,7 +2164,7 @@ static int print_pin_entry(hal_object_ptr o, foreach_args_t *args)
 	if (sig == 0) {
 	    halcmd_output("\n");
 	} else {
-	    halcmd_output("\t%s %s\n", data_arrow1((int) pin->dir), ho_name(sig));
+	    halcmd_output("\t      %s %s\n", data_arrow1((int) pin->dir), ho_name(sig));
 	}
 #ifdef DEBUG
 	halcmd_output("%s %d:%d sig=%p dptr=%p *dptr=%p\n",
@@ -2180,7 +2180,7 @@ static void print_pin_info(int type, char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
-	halcmd_output("  Comp   Inst Type  Dir         Value  Name                                                     Epsilon Flags  linked to:\n");
+	halcmd_output("  Comp   Inst Type  Dir         Value  Name                                            Epsilon Flags  linked to:\n");
     }
     foreach_args_t args =  {
 	.type = HAL_PIN,
@@ -2204,7 +2204,7 @@ static int print_signal_entry(hal_object_ptr o, foreach_args_t *args)
     hal_sig_t *sig = o.sig;
     if ( match(args->user_ptr1, ho_name(sig)) ) {
 	void *dptr = sig_value(sig);
-	halcmd_output("%s  %s  %s%s    %s \n",
+	halcmd_output("%s  %s  %s%s    %-20s \n",
 		      data_type((int) sig->type),
 		      data_value((int) sig->type, dptr),
 		      ho_rmb(sig) ? "r" : "-",
@@ -2225,7 +2225,7 @@ static void print_sig_info(int type, char **patterns)
 	return;
     }
     halcmd_output("Signals:\n");
-    halcmd_output("Type          Value  flags Name    linked to:\n");
+    halcmd_output("Type          Value  flags Name                   linked to:\n");
 
     foreach_args_t args =  {
 	.type = HAL_SIGNAL,
@@ -2506,7 +2506,7 @@ static int print_thread_entry(hal_object_ptr o, foreach_args_t *args)
 		     tptr->flags & TF_NONRT ? "posix ":"",
 		     tptr->flags & TF_NOWAIT ? "nowait":"");
 	halcmd_output(((scriptmode == 0) ?
-		       "%11ld  %-3s %-2d   %-20s  %8u, %8u %3ld%% %3ld%%  +/-%5.2f%% %s\n" :
+		       "%11ld  %-3s %-2d   %-40s  %8u, %8u %3ld%% %3ld%%  +/-%5.2f%% %s\n" :
 		       "%ld %s %d %s %u %u %3ld%% %3ld%% %.2f"),
 		      tptr->period,
 		      (tptr->uses_fp ? "YES" : "NO"),
@@ -2555,7 +2555,7 @@ static void print_thread_info(char **patterns)
 	halcmd_output("Realtime Threads (flavor: %s, currently %s) :\n",
 		      current_flavor->name,
 		      (hal_data->threads_running > 0) ? "running" : "stopped");
-	halcmd_output("     Period  FP CPU   Name                      "
+	halcmd_output("     Period  FP CPU   Name                                          "
 		      "Time  Max-Time util  max  jitter-95%%     flags\n");
     }
     foreach_args_t args =  {
@@ -3264,7 +3264,7 @@ static int print_ring_entry(hal_object_ptr o, foreach_args_t *args)
 	case RINGTYPE_MULTIPART: rtype = "multi"; break;
 	case RINGTYPE_STREAM:    rtype = "stream"; break;
 	}
-	halcmd_output("%-5d %-14.14s %-10u %-6.6s %d/%d %d/%d %-3d",
+	halcmd_output("%-5d %-40.40s %-10u %-6.6s %d/%d %d/%d %-3d",
 		      ho_id(rptr),
 		      ho_name(rptr),
 		      rh->size,
@@ -3304,7 +3304,7 @@ static void print_ring_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Rings:\n");
-	halcmd_output("ID    Name           Size       Type   Rdr Wrt Ref Flags \n");
+	halcmd_output("ID    Name                                     Size       Type   Rdr Wrt Ref Flags \n");
     }
     foreach_args_t args =  {
 	.type = HAL_RING,
