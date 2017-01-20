@@ -3004,7 +3004,8 @@ def jog(*args):
 
 def get_jog_mode():
     s.poll()
-    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+    if  (    (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+        and  all_homed() ):
         teleop_mode = 1
         jjogmode = False
     else:
