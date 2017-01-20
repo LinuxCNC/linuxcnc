@@ -185,9 +185,9 @@ void emcmotController(void *arg, long period)
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
-    emcmot_hal_data->last_period = this_run;
+    *(emcmot_hal_data->last_period) = this_run;
 #ifdef HAVE_CPU_KHZ
-    emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
+    *(emcmot_hal_data->last_period_ns) = this_run * 1e6 / cpu_khz;
 #endif
     // we need this for next time
     last = now;
