@@ -26,13 +26,124 @@ import sys
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QFont, QFontMetrics, QColor
 try:
-    from PyQt4.Qsci import QsciScintilla, QsciLexerPython
+    from PyQt4.Qsci import QsciScintilla, QsciLexerCustom
 except:
     print '**** QTVCP ERROR: Gcode widget can not import QsciScintilla - is package python-scintilla2 installed?'
     sys.exit(1)
 from qtvcp_widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()
+
+class GcodeLexer(QsciLexerCustom):
+    def __init__(self, parent=None):
+        super(GcodeLexer, self).__init__(parent)
+        self._styles = {
+            0: 'Default',
+            1: 'Comment',
+            2: 'Key',
+            3: 'Assignment',
+            4: 'Value',
+            }
+        for key,value in self._styles.iteritems():
+            setattr(self, value, key)
+        #self.setPaper(QColor('#ffe4e4'),3)
+        #self.setPaper(QColor(3,234,255),2)
+        font = QFont()
+        font.setFamily('Courier')
+        font.setFixedPitch(True)
+        font.setPointSize(12)
+        font.setBold(True)
+        self.setFont(font,2)
+
+    def description(self, style):
+        return self._styles.get(style, '')
+
+    def defaultColor(self, style):
+        if style == self.Default:
+            return QColor('#000000') # black
+        elif style == self.Comment:
+            return QColor('#C0C0C0') # gray
+        elif style == self.Key:
+            return QColor('#0000CC') # blue
+        elif style == self.Assignment:
+            return QColor('#CC0000') # red
+        elif style == self.Value:
+            return QColor('#00CC00') # green
+        return QsciLexerCustom.defaultColor(self, style)
+
+    def styleText(self, start, end):
+        editor = self.editor()
+        if editor is None:
+            return
+
+        # scintilla works with encoded bytes, not decoded characters.
+        # this matters if the source contains non-ascii characters and
+        # a multi-byte encoding is used (e.g. utf-8)
+        source = ''
+        if end > editor.length():
+            end = editor.length()
+        if end > start:
+            if sys.hexversion >= 0x02060000:
+                # faster when styling big files, but needs python 2.6
+                source = bytearray(end - start)
+                editor.SendScintilla(
+                    editor.SCI_GETTEXTRANGE, start, end, source)
+            else:
+                source = unicode(editor.text()
+                                ).encode('utf-8')[start:end]
+        if not source:
+            return
+
+        # the line index will also be needed to implement folding
+        index = editor.SendScintilla(editor.SCI_LINEFROMPOSITION, start)
+        if index > 0:
+            # the previous state may be needed for multi-line styling
+            pos = editor.SendScintilla(
+                      editor.SCI_GETLINEENDPOSITION, index - 1)
+            state = editor.SendScintilla(editor.SCI_GETSTYLEAT, pos)
+        else:
+            state = self.Default
+
+        set_style = self.setStyling
+        self.startStyling(start, 0x1f)
+
+        # scintilla always asks to style whole lines
+        for line in source.splitlines(True):
+            #print line
+            length = len(line)
+            graymode = False
+            msg = ('msg' in line.lower() or 'debug' in line.lower())
+            for char in str(line):
+                #print char
+                if char == ('('):
+                    graymode = True
+                    set_style(1, self.Comment)
+                    continue
+                elif char == (')'):
+                    graymode = False
+                    set_style(1, self.Comment)
+                    continue
+                elif graymode:
+                    if (msg and char.lower() in ('m','s','g',',','d','e','b','u')):
+                        set_style(1, self.Assignment)
+                        if char == ',': msg = False
+                    else:
+                        set_style(1, self.Comment)
+                    continue
+                elif char in ('%','<','>','#','='):
+                    state = self.Assignment
+                elif char in ('[',']'):
+                    state = self.Value
+                elif char.isalpha():
+                    state = self.Key
+                elif char.isdigit():
+                    state = self.Default
+                else:
+                    state = self.Default
+                set_style(1, state)
+
+            # folding implementation goes here
+            index += 1
 
 class GcodeEditor(QsciScintilla, _HalWidgetBase):
     ARROW_MARKER_NUM = 8
@@ -41,8 +152,8 @@ class GcodeEditor(QsciScintilla, _HalWidgetBase):
         super(GcodeEditor, self).__init__(parent)
         # linuxcnc defaults
         self.idle_line_reset = False
+        # don't allow editing by default
         self.setReadOnly(True)
-        #self.setEanble(False)
         # Set the default font
         font = QFont()
         font.setFamily('Courier')
@@ -77,14 +188,13 @@ class GcodeEditor(QsciScintilla, _HalWidgetBase):
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
 
-        # Set Python lexer
-        # Set style for Python comments (style number 1) to a fixed-width
-        # courier.
-        #
-        lexer = QsciLexerPython()
+        # Set custom gcode lexer
+        lexer = GcodeLexer(self)
         lexer.setDefaultFont(font)
         self.setLexer(lexer)
-        self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
+        # Set style for Python comments (style number 1) to a fixed-width
+        # courier.
+        #self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
 
         # Don't want to see the horizontal scrollbar at all
         # Use raw message to Scintilla here (all messages are documented
@@ -125,9 +235,11 @@ class GcodeEditor(QsciScintilla, _HalWidgetBase):
         pass
 
 if __name__ == "__main__":
+    from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
-    editor = SimplePythonEditor()
+    editor = GcodeEditor()
     editor.show()
+
     editor.setText(open(sys.argv[0]).read())
     app.exec_()
 
