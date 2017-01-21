@@ -4,6 +4,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp_widgets.drowidget import Lcnc_DROLabel
 from qtvcp_widgets.mdi_line import Lcnc_MDILine
+from qtvcp_widgets.gcode_widget import GcodeEditor
 
 from qtvcp_widgets.qtvcp_icons import Icon
 ICON = Icon()
@@ -71,3 +72,35 @@ class Lcnc_MDIlinePlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="Lcnc_MDILine" name="lcnc_mdiline" />\n'
     def includeFile(self):
         return "qtvcp_widgets.mdi_line"
+
+####################################
+# Gcode editor
+####################################
+class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return GcodeEditor(parent)
+    def name(self):
+        return "GcodeEditor"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcodeeditor')))
+    def toolTip(self):
+        return "Gcode display / editor Widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="GcodeEditor" name="gcodeeditor" />\n'
+    def includeFile(self):
+        return "qtvcp_widgets.gcode_widget"
