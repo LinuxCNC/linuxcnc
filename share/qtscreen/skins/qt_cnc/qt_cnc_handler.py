@@ -140,9 +140,7 @@ class HandlerClass:
                 os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
         print fname
         f = open(fname, 'r')
-        with f:        
-            data = f.read()
-        self.w.gcode.setText(data) 
+
         self.cmnd.mode(linuxcnc.MODE_AUTO)
         print fname
         self.cmnd.program_open(str(fname))

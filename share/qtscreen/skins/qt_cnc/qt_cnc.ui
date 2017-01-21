@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>834</width>
-    <height>557</height>
+    <height>716</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,100 +71,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QFrame" name="button_frame">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>270</y>
-     <width>191</width>
-     <height>161</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QPushButton" name="jog_neg_z">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>120</y>
-      <width>51</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Z-</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="jog_pos_z">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>0</y>
-      <width>51</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Z+</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="jog_neg_y">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>100</y>
-      <width>41</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Y-</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="jog_pos_y">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>20</y>
-      <width>41</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Y+</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="jog_pos_x">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>60</y>
-      <width>41</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>X+</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="jog_neg_x">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>60</y>
-      <width>41</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>X-</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="Graphics" name="graphics">
    <property name="geometry">
     <rect>
@@ -210,21 +116,32 @@
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>10</y>
-     <width>111</width>
+     <width>131</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 85, 255);
+font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
+   </property>
+   <property name="text">
+    <string>00000000</string>
    </property>
   </widget>
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>40</y>
-     <width>111</width>
+     <width>131</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 85, 255);
+font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
    </property>
    <property name="Qjoint_number" stdset="0">
     <number>1</number>
@@ -233,11 +150,15 @@
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_z">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>70</y>
-     <width>111</width>
+     <width>131</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(0, 85, 255);
+font: 18pt &quot;Courier 10 Pitch&quot;;</string>
    </property>
    <property name="text">
     <string>--------------</string>
@@ -252,16 +173,6 @@
     <number>2</number>
    </property>
   </widget>
-  <widget class="QTextEdit" name="gcode">
-   <property name="geometry">
-    <rect>
-     <x>210</x>
-     <y>433</y>
-     <width>411</width>
-     <height>111</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="Lcnc_MDILine" name="mdi_line">
    <property name="geometry">
     <rect>
@@ -270,19 +181,6 @@
      <width>191</width>
      <height>27</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="Lcnc_PushButton" name="button_status">
-   <property name="geometry">
-    <rect>
-     <x>660</x>
-     <y>430</y>
-     <width>91</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Status</string>
    </property>
   </widget>
   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout">
@@ -452,18 +350,164 @@
     </property>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="GcodeEditor" name="gcodeeditor">
    <property name="geometry">
     <rect>
-     <x>660</x>
-     <y>486</y>
-     <width>93</width>
-     <height>41</height>
+     <x>210</x>
+     <y>430</y>
+     <width>621</width>
+     <height>250</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Hal meter</string>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>580</y>
+     <width>191</width>
+     <height>101</height>
+    </rect>
    </property>
+   <property name="title">
+    <string>Monitor Programs</string>
+   </property>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>20</y>
+      <width>93</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Hal meter</string>
+    </property>
+   </widget>
+   <widget class="Lcnc_PushButton" name="button_status">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Status</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_5">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>290</y>
+     <width>191</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="is_on_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <property name="is_idle_status" stdset="0">
+    <bool>true</bool>
+   </property>
+   <widget class="QFrame" name="button_frame">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>191</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="jog_neg_z">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>120</y>
+       <width>51</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Z-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="jog_pos_z">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>0</y>
+       <width>51</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Z+</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="jog_neg_y">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>100</y>
+       <width>41</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Y-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="jog_pos_y">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>20</y>
+       <width>41</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Y+</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="jog_pos_x">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>41</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>X+</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="jog_neg_x">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>60</y>
+       <width>41</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>X-</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
@@ -476,6 +520,12 @@
    <class>Lcnc_DROLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp_widgets.drowidget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QsciScintilla</extends>
+   <header>qtvcp_widgets.gcode_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -499,6 +549,11 @@
    <extends>QWidget</extends>
    <header>qtvcp_widgets.container_widgets</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QsciScintilla</class>
+   <extends>QFrame</extends>
+   <header>Qsci/qsciscintilla.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -548,198 +603,6 @@
     <hint type="destinationlabel">
      <x>145</x>
      <y>229</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_pos_x</sender>
-   <signal>pressed()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>54</x>
-     <y>285</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>97</x>
-     <y>322</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_pos_x</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>56</x>
-     <y>291</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>51</x>
-     <y>341</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_neg_x</sender>
-   <signal>pressed()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>142</x>
-     <y>296</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>161</x>
-     <y>326</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_neg_x</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>127</x>
-     <y>292</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>133</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_pos_z</sender>
-   <signal>pressed()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>173</x>
-     <y>246</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>211</x>
-     <y>263</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_pos_z</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>163</x>
-     <y>230</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>194</x>
-     <y>199</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_neg_z</sender>
-   <signal>pressed()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>57</x>
-     <y>364</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>172</x>
-     <y>362</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_neg_z</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>54</x>
-     <y>368</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>131</x>
-     <y>357</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_pos_y</sender>
-   <signal>pressed()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>253</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>184</x>
-     <y>138</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_pos_y</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>79</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>170</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_neg_y</sender>
-   <signal>pressed()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>109</x>
-     <y>327</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>184</x>
-     <y>320</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_neg_y</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>jog_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>105</x>
-     <y>336</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>134</x>
-     <y>325</y>
     </hint>
    </hints>
   </connection>
