@@ -28,6 +28,7 @@ class HandlerClass:
         GSTAT.connect('state-on', self.on_state_on)
         GSTAT.connect('state-off', self.on_state_off)
         GSTAT.connect('jograte-changed', self.on_jograte_changed)
+        GSTAT.connect('error-message', self.on_error_message)
 
     #############
     # Special Functions called from QTSCREEN
@@ -36,6 +37,8 @@ class HandlerClass:
         print 'INIT'
         self.w.button_frame.setEnabled(False)
         self.w.jog_slider.setValue(self.jog_velocity)
+        self.w.feed_slider.setValue(100)
+        self.w.rapid_slider.setValue(100)
         GSTAT.forced_update()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -67,6 +70,9 @@ class HandlerClass:
     def on_jograte_changed(self, w, rate):
         self.jog_velocity = rate
 
+    def on_error_message(self, w, message):
+        print 'error from GSTAT:',message
+
     ######################
     # callbacks from form
     ######################
@@ -89,6 +95,12 @@ class HandlerClass:
 
     def change_jograte(self, rate):
         GSTAT.set_jog_rate(float(rate))
+
+    def change_feedrate(self, rate):
+        self.cmnd.feedrate(rate/100.0)
+
+    def change_rapidrate(self, rate):
+        self.cmnd.rapidrate(rate/100.0)
 
     def estop_toggled(self,pressed):
         print 'estop click',pressed

@@ -87,32 +87,6 @@
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QSlider" name="jog_slider">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>240</y>
-     <width>101</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="maximum">
-    <number>60</number>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="QLCDNumber" name="lcdNumber">
-   <property name="geometry">
-    <rect>
-     <x>133</x>
-     <y>232</y>
-     <width>71</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
    <property name="geometry">
     <rect>
@@ -127,7 +101,10 @@
 font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
    </property>
    <property name="text">
-    <string>00000000</string>
+    <string>   0.0000</string>
+   </property>
+   <property name="Qreference_type" stdset="0">
+    <number>1</number>
    </property>
   </widget>
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
@@ -146,6 +123,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
    <property name="Qjoint_number" stdset="0">
     <number>1</number>
    </property>
+   <property name="Qreference_type" stdset="0">
+    <number>1</number>
+   </property>
   </widget>
   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_z">
    <property name="geometry">
@@ -161,7 +141,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
 font: 18pt &quot;Courier 10 Pitch&quot;;</string>
    </property>
    <property name="text">
-    <string>--------------</string>
+    <string>   0.0000</string>
    </property>
    <property name="textFormat">
     <enum>Qt::PlainText</enum>
@@ -171,6 +151,9 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
    </property>
    <property name="Qjoint_number" stdset="0">
     <number>2</number>
+   </property>
+   <property name="Qreference_type" stdset="0">
+    <number>1</number>
    </property>
   </widget>
   <widget class="Lcnc_MDILine" name="mdi_line">
@@ -360,45 +343,6 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
     </rect>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>580</y>
-     <width>191</width>
-     <height>101</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Monitor Programs</string>
-   </property>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>20</y>
-      <width>93</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Hal meter</string>
-    </property>
-   </widget>
-   <widget class="Lcnc_PushButton" name="button_status">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>20</y>
-      <width>91</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Status</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_5">
    <property name="geometry">
     <rect>
@@ -509,6 +453,198 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
     </widget>
    </widget>
   </widget>
+  <widget class="QSlider" name="rapid_slider">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>180</y>
+     <width>91</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>100</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>180</y>
+     <width>38</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Rapid</string>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="lcdNumber_2">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>180</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="numDigits">
+    <number>3</number>
+   </property>
+   <property name="intValue" stdset="0">
+    <number>-100</number>
+   </property>
+  </widget>
+  <widget class="QSlider" name="feed_slider">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>210</y>
+     <width>91</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>200</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>210</y>
+     <width>32</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Feed</string>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="lcdNumber_3">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>210</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="numDigits">
+    <number>3</number>
+   </property>
+   <property name="intValue" stdset="0">
+    <number>-100</number>
+   </property>
+  </widget>
+  <widget class="QSlider" name="jog_slider">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>91</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>60</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="lcdNumber_4">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>240</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="numDigits">
+    <number>3</number>
+   </property>
+   <property name="intValue" stdset="0">
+    <number>-100</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>240</y>
+     <width>32</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Jog</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>530</y>
+     <width>191</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Monitor Programs</string>
+   </property>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>20</y>
+      <width>93</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Hal meter</string>
+    </property>
+   </widget>
+   <widget class="Lcnc_PushButton" name="button_status">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Status</string>
+    </property>
+   </widget>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -607,38 +743,6 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
    </hints>
   </connection>
   <connection>
-   <sender>jog_slider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>lcdNumber</receiver>
-   <slot>display(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>72</x>
-     <y>242</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>169</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>jog_slider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>Form</receiver>
-   <slot>change_jograte()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>61</x>
-     <y>242</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>187</x>
-     <y>151</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>button_run</sender>
    <signal>clicked()</signal>
    <receiver>Form</receiver>
@@ -651,22 +755,6 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
     <hint type="destinationlabel">
      <x>638</x>
      <y>125</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_status</sender>
-   <signal>clicked()</signal>
-   <receiver>Form</receiver>
-   <slot>launch_status()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>710</x>
-     <y>440</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>650</x>
-     <y>424</y>
     </hint>
    </hints>
   </connection>
@@ -735,22 +823,6 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>Form</receiver>
-   <slot>launch_halmeter()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>676</x>
-     <y>491</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>632</x>
-     <y>455</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>Form</receiver>
@@ -763,6 +835,326 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
     <hint type="destinationlabel">
      <x>637</x>
      <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_z</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>166</x>
+     <y>300</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_z</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>188</x>
+     <y>313</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_x</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>367</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>7</x>
+     <y>351</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>362</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>2</x>
+     <y>376</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_y</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>323</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>15</x>
+     <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>37</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_y</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>402</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>191</x>
+     <y>452</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>404</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>162</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_z</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>29</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>7</x>
+     <y>455</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_z</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>443</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>46</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_x</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>201</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>149</x>
+     <y>365</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>206</x>
+     <y>375</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rapid_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_2</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>176</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>feed_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_3</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>170</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_4</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>change_jograte()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>97</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>269</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>feed_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>change_feedrate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>132</x>
+     <y>235</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rapid_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Form</receiver>
+   <slot>change_rapidrate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>123</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_status</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>launch_status()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>162</x>
+     <y>521</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>launch_halmeter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>578</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>84</x>
+     <y>518</y>
     </hint>
    </hints>
   </connection>
@@ -781,5 +1173,7 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
   <slot>zero_axis()</slot>
   <slot>launch_halmeter()</slot>
   <slot>stopfile_clicked()</slot>
+  <slot>change_feedrate()</slot>
+  <slot>change_rapidrate()</slot>
  </slots>
 </ui>
