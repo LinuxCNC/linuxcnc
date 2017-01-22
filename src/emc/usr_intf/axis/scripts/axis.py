@@ -3183,7 +3183,7 @@ try:
     vars.max_maxvel.set(float(max_velocity))
 except Exception:
     print ("\nMissing required specifier:\n%s"
-           "specifier\nSee the \'INI Configuration\' documents\n"%msg)
+           "\nSee the \'INI Configuration\' documents\n"%msg)
     raise SystemExit
 
 try:
