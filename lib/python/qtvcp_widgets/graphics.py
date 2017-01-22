@@ -53,7 +53,11 @@ class modded_gremlin(gremlin.Gremlin):
         self.qstat.connect('file-loaded',self.fileloaded)
         self.qstat.connect('reload-display',self.reloadfile)
         self.qstat.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
+        self.qstat.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
 
+    def set_metric_units(self,w,state):
+        self.metric_units  = state
+        self.expose()
 
     def set_spindle_speed(self,w,rate):
         if rate <1: rate = 1
