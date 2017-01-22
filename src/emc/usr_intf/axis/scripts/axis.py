@@ -3124,8 +3124,8 @@ except:
     raise SystemExit("Missing [TRAJ]COORDINATES")
 vars.trajcoordinates.set(trajcoordinates)
 
-joint_type = [None] * linuxcnc.MAX_JOINTS
-for j in range(linuxcnc.MAX_JOINTS):
+joint_type = [None] * jointcount
+for j in range(jointcount):
     section = "JOINT_%d" % j
     joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
 
@@ -3138,7 +3138,7 @@ for a in range(linuxcnc.MAX_AXIS):
         axis_type[a] = "ANGULAR"
     else:
         axis_type[a] = "LINEAR"
-    section = "AXIS_%s" % letter
+    section = "AXIS_%s" % letter.upper()
     initype = inifile.find(section, "TYPE")
     if initype is None: continue # use default
     axis_type[a] = initype
@@ -3176,18 +3176,28 @@ max_velocity = (
 
 # Enforce these slider items (exit if missing)
 try:
-    msg = "max velocity"
+    msg = ("   [DISPLAY]MAX_LINEAR_VELOCITY\n"
+           "or [TRAJ]MAX_LINEAR_VELOCITY\n"
+           "or [AXIS_X]MAX_VELOCITY")
     vars.maxvel_speed.set(float(max_velocity)*60)
     vars.max_maxvel.set(float(max_velocity))
-    if has_linear_joint_or_axis:
-        msg = "max linear speed"
-        vars.max_speed.set(float(max_linear_speed))
 except Exception:
-    print "\nMissing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    print ("\nMissing required specifier:\n%s"
+           "specifier\nSee the \'INI Configuration\' documents\n"%msg)
     raise SystemExit
 
-if default_jog_linear_speed is None: default_jog_linear_speed = max_linear_speed
-vars.jog_speed.set(float(default_jog_linear_speed)*60)
+try:
+    if has_linear_joint_or_axis:
+        msg = ("   [DISPLAY]MAX_LINEAR_VELOCITY\n"
+               "or [TRAJ]MAX_LINEAR_VELOCITY")
+        vars.max_speed.set(float(max_linear_speed))
+        if default_jog_linear_speed is None:
+            default_jog_linear_speed = max_linear_speed
+        vars.jog_speed.set(float(default_jog_linear_speed)*60)
+except Exception:
+    print ("\nMissing required specifier (has linear joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
+    raise SystemExit
 
 # Check for these slider items (message if missing)
 try:
