@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.3"
+_RELEASE = " 2.2.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1658,6 +1658,13 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, True)
         self.set_motion_mode(1)
         if self.widgets.chk_reload_tool.get_active():
+            # if there is already a tool in spindle, the user 
+            # homed the second time, unfortunately we will then
+            # not get out of MDI mode any more
+            # That happen, because the tool in spindle did not change, so the 
+            # tool info is not updated and we self.change_tool will not be reseted
+            if self.stat.tool_in_spindle != 0:
+                return
             self.reload_tool()
 
     def on_hal_status_not_all_homed(self, widget, joints):
