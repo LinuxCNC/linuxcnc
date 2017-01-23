@@ -822,14 +822,13 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
-   are accepted in g-code. This has no effect on the mapping from G-code
-    axis names (X- Y- Z-) to joint numbers--for 'trivkins kinematics', X is
-    always joint 0, A is always joint 3, and U is always joint 6, and so
-    on. It is permitted to write an axis name twice (e.g., X Y Y Z for a
-    gantry machine) but this has no effect.  For 'trivkins kinematics',
-    joint numbers are assigned in sequence according to the 
-    trivkins parameter coordinates=.  So, for trivkins coordinates=xz,
-    joint0 corresponds to X and joint1 corresponds to Z.
+   are accepted in g-code.  It is permitted to write an axis name twice
+   (e.g., X Y Y Z for a gantry machine).
+   For the common 'trivkins kinematics', joint numbers are assigned in sequence
+   according to the trivkins parameter 'coordinates='.  So, for trivkins
+   'coordinates=xz', joint0 corresponds to X and joint1 corresponds to Z.
+   See the kinematics man page ('$ man kins') for information on
+   trivkins and other kinematics modules.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
     Possible choices are (in, inch, imperial, metric, mm).

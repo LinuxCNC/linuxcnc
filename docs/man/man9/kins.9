@@ -10,6 +10,8 @@ kins \- kinematics definitions for LinuxCNC
 .SH SYNOPSIS
 .B loadrt trivkins (use for most cartesian machines)
 .PP
+.B loadrt corexykins
+.PP
 .B loadrt genhexkins
 .PP
 .B loadrt genserkins
@@ -97,7 +99,7 @@ The kinematics type can be set with the \fBkinstype=\fR parameter:
 Example: loadrt \fBtrivkins coordinates=xyz kinstype=b\fR
 
 .PP
-Use kinstype=\fBKINEMATICS_BOTH\fR for configurations that need to move joints
+Use kinstype=\fBB\fR (KINEMATICS_BOTH) for configurations that need to move joints
 independently (joint mode) or as coordinated (teleop) movements in world coordinates.
 
 When using the axis gui with \fBKINEMATICS_BOTH\fR, the '$' key is
@@ -115,6 +117,19 @@ The above example is representative of a gantry configuration that uses
 two joints (joint1 and joint2) to move a single axis (y).  Using
 kinstype=BOTH allows the configuration to be toggled between joint
 and world modes of operation.
+
+.SS corexykins \- CoreXY Kinematics
+.TP
+.R X = 0.5*(JOINT_0 + JOINT_1)
+.TQ
+.R Y = 0.5*(JOINT_0 - JOINT_1)
+.TQ
+.R Z = JOINT_2
+.TP
+[KINS]JOINTS= must specify 3 or more joints (maximum 9)
+.TP
+If enabled by the number of [KINS]JOINTS= specified, JOINT_3,4,5,6,7,8 correspond to coordinates A,B,C,U,V,W respectively.
+
 
 .SS genhexkins \- Hexapod Kinematics
 Gives six degrees of freedom in position and orientation (XYZABC).  The
