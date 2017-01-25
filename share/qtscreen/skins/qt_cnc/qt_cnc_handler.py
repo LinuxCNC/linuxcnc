@@ -2,6 +2,8 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 from qtscreen.keybindings import Keylookup
 from qtscreen.aux_program_loader import Aux_program_loader
+from qtscreen.notify import Notify
+
 from qtvcp.qt_glib import GStat
 import linuxcnc
 import sys
@@ -10,6 +12,7 @@ import os
 KEYBIND = Keylookup()
 GSTAT = GStat()
 AUX_PRGM = Aux_program_loader()
+NOTE = Notify()
 
 class HandlerClass:
 
@@ -34,6 +37,9 @@ class HandlerClass:
     # Special Functions called from QTSCREEN
     #############
     def initialized__(self):
+        # Give notify library a reference to the statusbar 
+        NOTE.statusbar = self.w.statusBar
+        NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
         print 'INIT'
         self.w.button_frame.setEnabled(False)
         self.w.jog_slider.setValue(self.jog_velocity)
@@ -71,7 +77,7 @@ class HandlerClass:
         self.jog_velocity = rate
 
     def on_error_message(self, w, message):
-        print 'error from GSTAT:',message
+        NOTE.notify('Error',message,None,10)
 
     ######################
     # callbacks from form
