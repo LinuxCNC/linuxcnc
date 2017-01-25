@@ -381,7 +381,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	    continue;
 	}
 	
-	char *instance_env = getenv("INSTANCE");
+	char *instance_env = getenv("MK_INSTANCE");
 	if (instance_env != NULL)
 	    instance_no = atoi(instance_env);
 
