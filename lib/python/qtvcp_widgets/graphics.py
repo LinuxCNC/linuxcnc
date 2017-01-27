@@ -75,8 +75,10 @@ class modded_gremlin(gremlin.Gremlin):
             self.set_current_view()
 
     def reloadfile(self,w):
+        dist = self.get_zoom_distance()
         try:
             self.fileloaded(None,self._reload_filename)
+            self.set_zoom_distance(dist)
         except:
             pass
 
