@@ -518,7 +518,8 @@ static int instantiate(const int argc, const char**argv)
 	return -1;
 
     // read a custom fwid message if given
-    if (descriptor) {
+    if (descriptor != NULL) {
+      if ( strcmp(descriptor, "(null)" ) != 0) {
 	struct stat st;
 	if (stat(descriptor, &st)) {
 	    LL_ERR("stat(%s) failed: %s\n", descriptor,
@@ -547,6 +548,7 @@ static int instantiate(const int argc, const char**argv)
 	}
 	close(fd);
 	LL_DBG("custom descriptor '%s' size %zu", descriptor, nread);
+      }
     }
 
     r = hm2_soc_register(brd, name, config, blob, nread,
@@ -554,7 +556,7 @@ static int instantiate(const int argc, const char**argv)
     if (blob)
 	free(blob);
     if (r != 0) {
-        LL_ERR("error registering UIO driver\n");
+        LL_ERR("error registering UIO driver: %i\n",r);
         return -1;
     }
     return 0;
