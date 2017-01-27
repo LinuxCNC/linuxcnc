@@ -52,7 +52,8 @@
 #define canon_debug(...)
 #endif
 
-static void limitSpindleSpeed(double rpm);
+static bool limitSpindleSpeed(double rpm);
+static bool limitSpindleSpeedFromVel(double nominal_vel, double max_vel);
 static void resetSpindleLimit();
 static double limit_rpm = 0;
 
@@ -947,12 +948,7 @@ static void flush_segments(void) {
     canon_debug("in flush_segments: got vel %f, nominal_vel %f\n", vel, nominal_vel);
     vel = std::min(vel, nominal_vel);
 
-    if (synched && vel < nominal_vel) {
-        const static double SPINDLE_SYNCH_MARGIN = 0.05;
-        double maxSpindleRPM = vel / nominal_vel * (1.0 - SPINDLE_SYNCH_MARGIN) * spindleSpeed_rpm;
-        CANON_ERROR("In spindle-synchronized motion, maximum speed at line %d is %0.0f RPM", line_no, maxSpindleRPM);
-        limitSpindleSpeed(maxSpindleRPM);
-    }
+    limitSpindleSpeedFromVel(nominal_vel, vel);
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
@@ -1187,10 +1183,7 @@ void STRAIGHT_PROBE(int line_number,
 
     double nominal_vel = getActiveFeedRate(static_cast<FeedRateType>(!cartesian_move && angular_move));
     vel = std::min(vel, nominal_vel);
-    if (synched && vel < nominal_vel) {
-        CANON_ERROR("In spindle-synchronized motion, can't maintain required feed %0.2f (max is %0.2f) with current settings",
-                    TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
-    }
+    limitSpindleSpeedFromVel(nominal_vel, vel);
 
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     acc = accdata.acc;
@@ -1823,10 +1816,10 @@ void ARC_FEED(int line_number,
     // Limit velocity by maximum
     double nominal_vel = getActiveFeedRate(FEED_LINEAR);
     double vel = MIN(nominal_vel, v_max);
-    if (synched && v_max < nominal_vel) {
-        CANON_ERROR("Can't maintain required feed %g (max is %g) with current settings",
-                    TO_EXT_LEN(nominal_vel) * 60.0, TO_EXT_LEN(vel) * 60.0);
-    }
+
+    // Make sure spindle speed is within range (for spindle_sync motion only)
+    limitSpindleSpeedFromVel(nominal_vel, v_max);
+
     canon_debug("current F = %f\n", nominal_vel);
     canon_debug("vel = %f\n",vel);
 
@@ -1973,16 +1966,31 @@ static void resetSpindleLimit()
  * Hack way to immediately update the spindle speed without flushing segments first (typically called within flush segments as a way to limit spindle speed during threading).
  * @warning does NOT update the interpreter state.
  */
-static void limitSpindleSpeed(double rpm)
+static bool limitSpindleSpeed(double rpm)
 {
     limit_rpm = fabs(rpm);
-    if (spindleSpeed_rpm > limit_rpm) {
-        EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-        canon_debug("Reducing spindle speed to %0.0f\n",limit_rpm);
-
-        buildSpindleCmd(emc_spindle_speed_msg, limit_rpm);
-        interp_list.append(emc_spindle_speed_msg);
+    if (spindleSpeed_rpm <= limit_rpm) {
+        // spindle speed within range, do nothing
+        return false;
     }
+    EMC_SPINDLE_SPEED emc_spindle_speed_msg;
+    canon_debug("Reducing spindle speed to %0.0f\n", limit_rpm);
+
+    buildSpindleCmd(emc_spindle_speed_msg, limit_rpm);
+    interp_list.append(emc_spindle_speed_msg);
+    return true;
+}
+
+static bool limitSpindleSpeedFromVel(double nominal_vel, double max_vel)
+{
+    if (!synched || nominal_vel <= 0.0) {
+        return false;
+    }
+    const static double SPINDLE_SYNCH_MARGIN = 0.05;
+
+    // Scale down spindle RPM in proportion to the maximum allowed spindle velocity, with a safety factor
+    double maxSpindleRPM = spindleSpeed_rpm * max_vel / nominal_vel * (1.0 - SPINDLE_SYNCH_MARGIN);
+    return limitSpindleSpeed(maxSpindleRPM);
 }
 
 void STOP_SPINDLE_TURNING()
