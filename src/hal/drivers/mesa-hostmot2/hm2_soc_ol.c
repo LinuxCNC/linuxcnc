@@ -365,7 +365,7 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
 
     if (debug)
 	rtapi_print_hex_dump(RTAPI_MSG_INFO, RTAPI_DUMP_PREFIX_OFFSET,
-			     16, 1, (const void *)virtual_base, 4096, 1,
+			     16, 1, (const void *)virtual_base, 4096, 1, NULL,
 			     "hm2 regs at %p:", virtual_base);
 
     // this duplicates stuff already happening in hm2_register - no harm

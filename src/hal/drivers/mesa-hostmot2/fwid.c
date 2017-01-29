@@ -85,7 +85,7 @@ int hm2_fwid_parse_md(hostmot2_t *hm2, int md_index) {
 	// starts right after the uint32-sized size field
 	hm2->llio->read(hm2->llio, addr + 8, buf, alignedsize);
 	rtapi_print_hex_dump(RTAPI_MSG_DBG, RTAPI_DUMP_PREFIX_OFFSET,
-			     16, 1, (const void *)buf, rawsize, 1,
+			     16, 1, (const void *)buf, rawsize, 1, NULL,
 			     "fwid msg at %p:", buf);
     } else {
 	alignedsize = rawsize = hm2->llio->fwid_len; // override msg was passed
