@@ -70,8 +70,8 @@ StrConvIdVarName TableConvIdVarName[] = {
 		{ "IF%d", VAR_PHYS_FLOAT_INPUT, 0, /*sizes*/ NBR_PHYS_FLOAT_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "QF%d", VAR_PHYS_FLOAT_OUTPUT, 0, /*sizes*/ NBR_PHYS_FLOAT_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
 		{ "E%d", VAR_ERROR_BIT, 0, /*sizes*/ NBR_ERROR_BITS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
-		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "X%d.V", VAR_STEP_TIME, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 
 		{ NULL, 0, 0, /*sizes*/ 0, 0, 0, /*offsets */ 0, 0, 0, FALSE }	//END
 };

@@ -97,7 +97,7 @@ int ReadVar(int TypeVar,int Offset)
 #ifdef SEQUENTIAL_SUPPORT
 		case VAR_STEP_TIME:
 //			return Sequential->Step[ Offset ].TimeActivated/1000;
-			return VarWordArray[NBR_WORDS+Offset];
+			return VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+Offset];
 #endif
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_PRESET:
@@ -173,7 +173,7 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			break;
 #ifdef SEQUENTIAL_SUPPORT
 		case VAR_STEP_TIME:
-			VarWordArray[NBR_WORDS+NumVar] = Value;
+			VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+NumVar] = Value;
 			break;
 #endif
 #ifdef OLD_TIMERS_MONOS_SUPPORT
