@@ -3,6 +3,7 @@ from PyQt4 import QtGui
 from qtscreen.keybindings import Keylookup
 from qtscreen.aux_program_loader import Aux_program_loader
 from qtscreen.notify import Notify
+from qtscreen.message import Message
 
 from qtvcp.qt_glib import GStat
 import linuxcnc
@@ -13,6 +14,7 @@ KEYBIND = Keylookup()
 GSTAT = GStat()
 AUX_PRGM = Aux_program_loader()
 NOTE = Notify()
+MSG = Message()
 
 class HandlerClass:
 
@@ -33,14 +35,16 @@ class HandlerClass:
         GSTAT.connect('jograte-changed', self.on_jograte_changed)
         GSTAT.connect('error-message', self.on_error_message)
 
-    #############
+    ##########################################
     # Special Functions called from QTSCREEN
-    #############
+    ##########################################
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         # Give notify library a reference to the statusbar 
         NOTE.statusbar = self.w.statusBar
         NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
-        print 'INIT'
         self.w.button_frame.setEnabled(False)
         self.w.jog_slider.setValue(self.jog_velocity)
         self.w.feed_slider.setValue(100)
@@ -56,6 +60,10 @@ class HandlerClass:
             print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
             #print 'from %s'% receiver
             return False
+
+    def closing_cleanup__(self):
+        MSG.showdialog('This is a Critical message test',
+            details='There is actually nothing wrong', icon=MSG.CRITICAL, display_type=MSG.OK_TYPE)
 
     ######################
     # callbacks from GSTAT
@@ -77,7 +85,7 @@ class HandlerClass:
         self.jog_velocity = rate
 
     def on_error_message(self, w, message):
-        NOTE.notify('Error',message,None,10)
+        NOTE.notify('Error',message,QtGui.QMessageBox.Information,10)
 
     ######################
     # callbacks from form
