@@ -71,7 +71,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 				    self->cfg->progname, topic);
 
 		// not found, publish an error message on this topic
-		self->tx.set_type(pb::MT_HALRCOMP_ERROR);
+		self->tx.set_type(machinetalk::MT_HALRCOMP_ERROR);
 		note_printf(self->tx, "component '%s' does not exist", topic);
 		retval = send_pbcontainer(topic, self->tx, self->mksock[SVC_HALRCOMP].socket);
 		assert(retval == 0);
@@ -79,7 +79,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	    } else {
 		// compiled component found, schedule a full update
 		rcomp_t *g = self->rcomps[topic];
-		self->tx.set_type(pb::MT_HALRCOMP_FULL_UPDATE);
+		self->tx.set_type(machinetalk::MT_HALRCOMP_FULL_UPDATE);
 		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
@@ -284,13 +284,13 @@ int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
 {
     rcomp_t *rc = (rcomp_t *) cb_data;
     htself_t *self =  rc->self;
-    pb::Pin *p;
+    machinetalk::Pin *p;
     int retval;
 
     switch (phase) {
 
     case REPORT_BEGIN:	// report initialisation
-	self->tx.set_type(pb::MT_HALRCOMP_INCREMENTAL_UPDATE);
+	self->tx.set_type(machinetalk::MT_HALRCOMP_INCREMENTAL_UPDATE);
 	self->tx.set_serial(rc->serial++);
 	break;
 
@@ -336,7 +336,7 @@ int ping_comps(htself_t *self)
 {
     for (compmap_iterator c = self->rcomps.begin();
 	 c != self->rcomps.end(); c++) {
-	self->tx.set_type(pb::MT_PING);
+	self->tx.set_type(machinetalk::MT_PING);
 	int retval = send_pbcontainer(c->first.c_str(), self->tx,
 				      self->mksock[SVC_HALRCOMP].socket);
 	assert(retval == 0);

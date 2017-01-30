@@ -19,13 +19,13 @@ int main()
     printf("emcmot_config_t = %zu\n", sizeof(emcmot_config_t));
     printf("emcmot_debug_t = %zu\n", sizeof(emcmot_debug_t));
 
-    printf("npb Container = %zu\n", sizeof(pb_Container));
-    printf("npb Test1 = %zu\n", sizeof(pb_Test1));
-    printf("npb Value = %zu\n", sizeof(pb_Value));
+    printf("npb Container = %zu\n", sizeof(machinetalk_Container));
+    printf("npb Test1 = %zu\n", sizeof(machinetalk_Test1));
+    printf("npb Value = %zu\n", sizeof(machinetalk_Value));
 
-    printf("npb MotionCommand = %zu\n", sizeof(pb_MotionCommand));
-    printf("npb MotionStatus = %zu\n", sizeof(pb_MotionStatus));
-    pb_Container c[1];
+    printf("npb MotionCommand = %zu\n", sizeof(machinetalk_MotionCommand));
+    printf("npb MotionStatus = %zu\n", sizeof(machinetalk_MotionStatus));
+    machinetalk_Container c[1];
     //  printf("npb Task cmds = %zu\n", c->has_traj_set_g5x-c->has_tpexecute);
     printf("npb Canon cmds = %zu\n", (void *)&c[1]- (void *)&(c->has_traj_set_g5x));
 

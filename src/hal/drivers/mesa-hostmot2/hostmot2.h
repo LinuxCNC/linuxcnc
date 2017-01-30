@@ -1040,10 +1040,10 @@ typedef struct {
 
 } hm2_led_t ;
 
-struct _pb_Firmware;
+struct _machinetalk_Firmware;
 
 typedef struct {
-    struct _pb_Firmware *dmsg; // decoded protobuf message, nanopb format
+    struct _machinetalk_Firmware *dmsg; // decoded protobuf message, nanopb format
 } hm2_fwid_t ;
 
 

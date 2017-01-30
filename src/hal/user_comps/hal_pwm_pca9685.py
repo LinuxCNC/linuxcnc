@@ -31,7 +31,17 @@ def getHalName(pin):
     return "out-" + '{0:02d}'.format(pin.pin)
 
 
-parser = argparse.ArgumentParser(description='HAL component to read LSM303 Accelerometer values')
+parser = argparse.ArgumentParser(description="""
+HAL component to control the PCA9685 LED driver PWM IC
+
+pins:
+   bit out error          indicates an I2C error conditions
+   bit out no-error       inverse of the error pin
+   bit out watchdog       toggles with every cycle
+   bit in  reset          resets the I2C component on falling edge
+   bit in  out-nn.enable  enables PWM nn
+   bit in  out-nn.value   duty cycles for the PWM output nn
+""")
 parser.add_argument('-n', '--name', help='HAL component name', required=True)
 parser.add_argument('-b', '--bus_id', help='I2C bus id', default=2)
 parser.add_argument('-a', '--address', help='I2C device address', default=0x20)
@@ -43,14 +53,16 @@ updateInterval = float(args.interval)
 delayInterval = float(args.delay)
 error = True
 watchdog = True
+reset = False
+resetTriggered = False
 
 pwm = PCA9685(busId=int(args.bus_id),
                 address=int(args.address))
 
 # Create pins
 pins = []
-
-for i in range(0, 16):
+PINCOUNT = 16
+for i in range(0, PINCOUNT):
     pin = Pin()
     pin.pin = i
     pins.append(pin)
@@ -66,24 +78,32 @@ for pin in pins:
 halErrorPin = h.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
 halNoErrorPin = h.newpin("no-error", hal.HAL_BIT, hal.HAL_OUT)
 halWatchdogPin = h.newpin("watchdog", hal.HAL_BIT, hal.HAL_OUT)
+halResetPin = h.newpin("reset", hal.HAL_BIT, hal.HAL_IN)
 h.ready()
 
 halErrorPin.value = error
 halNoErrorPin.value = not error
 halWatchdogPin.value = watchdog
+halResetPin.value = reset
 
 try:
     time.sleep(delayInterval)
     while (True):
         updatePin = 0
         try:
-            if (error):
+            if (halResetPin.value != reset):
+                reset = halResetPin.value
+                if not reset:  # falling edge
+                    resetTriggered = True
+
+            if error or resetTriggered:
                 pwm.init()
                 for pin in pins:
                     pin.reset()
                 error = False
+                resetTriggered = False
 
-            updated = False
+            updated = False  # when idle update a pin to monitor the I2C state
 
             if (frequencyPin.value != frequencyValue):
                 pwm.setPwmClock(frequencyValue)
