@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*
 import os
 import sys
 from stat import *
@@ -1433,6 +1434,7 @@ class LinuxCNCWrapper():
             return
 
         kind, text = error
+        text = unicode(text, 'utf-8')
         self.txError.note.append(text)
 
         if (kind == linuxcnc.NML_ERROR):
