@@ -12346,7 +12346,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_read.cc:1147
 #, c-format
 msgid "Bad character '%c' used"
-msgstr ""
+msgstr "使用了錯誤字元 '%c'"
 
 #: src/emc/rs274ngc/interp_read.cc:1671
 msgid "Left bracket missing after 'while'"
