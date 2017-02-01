@@ -398,14 +398,8 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
     return 0;
 }
 
-static int hm2_soc_register(hm2_soc_t *brd,
-			    const char *name,
-			    const char *config,
-			    void *fwid,
-			    size_t fwid_len,
-			    int inst_id,
-			    int no_init_llio,
-			    int num)
+
+static int hm2_soc_register(hm2_soc_t *brd, void *fwid, size_t fwid_len, int inst_id)
 {
     // no directory to check state yet, so it's unknown
     brd->fpga_state = -1;
@@ -493,7 +487,7 @@ static int instantiate(const int argc, const char**argv)
     
     if(debug){
         for(x = 0; x < argc; x++){
-            LL_ERR("argv[%d] = %s\n", x, argv[x]);
+            LL_DBG("argv[%d] = %s\n", x, argv[x]);
         }
     }
 
@@ -505,6 +499,7 @@ static int instantiate(const int argc, const char**argv)
     int inst_id = hal_inst_create(name, comp_id, sizeof(hm2_soc_t), (void **)&brd);
     if (inst_id < 0)
         return -1;
+    
     /********************************************************************************
     // Initialise and fill inst array values first
     //
@@ -517,14 +512,26 @@ static int instantiate(const int argc, const char**argv)
     // Alternatively it could flag an error if it means at least one previous 
     // instance exists and this value cannot be valid ( see num )
     **********************************************************************************/
+    
     brd->name = name;
     brd->config = NULL;
     brd->descriptor = NULL;
+    brd->argc = 0;
+    brd->argv = NULL;
     // remove module and instance names
     if(argc > 2){
         brd->argc = argc - 2;
         brd->argv = &argv[2];
-    }else{
+	for(x = 0; x < brd->argc; x++){
+            if(strncmp(brd->argv[x], "config=", 7) == 0){
+                brd->config = halg_strdup(1, &brd->argv[x][7]);
+                continue;
+            }
+            if(strncmp(brd->argv[x], "descriptor=", 11) == 0)
+                brd->config = halg_strdup(1, &brd->argv[x][11]);
+        }
+    }
+    if(!brd->argc || brd->config == NULL){
         LL_ERR("Error: no config string passed.\n");
         LL_ERR("Use newinst instname <params> -- config=\"xxxxxxxxxxxxx\"\n");
         return -1;
@@ -542,16 +549,6 @@ static int instantiate(const int argc, const char**argv)
     num = -1;
     debug = 0;
     
-    if(argc){ // belt and braces should not be here if 0
-        for(x = 0; x < argc; x++){
-            if(strncmp(argv[x], "config=", 7) == 0){
-                brd->config = halg_strdup(1, &argv[x][7]);
-                continue;
-            }
-            if(strncmp(argv[x], "descriptor=", 11) == 0)
-                brd->config = halg_strdup(1, &argv[x][11]);
-        }
-    }
     // read a custom fwid message if given
     if (brd->descriptor != NULL) {
         struct stat st;
@@ -583,8 +580,7 @@ static int instantiate(const int argc, const char**argv)
         LL_DBG("custom descriptor '%s' size %zu", brd->descriptor, nread);
     }
 
-    r = hm2_soc_register(brd, name, brd->config, blob, nread,
-			 inst_id, brd->no_init_llio, brd->num);
+    r = hm2_soc_register(brd, blob, nread, inst_id);
     if (blob)
         free(blob);
     if (r != 0) {
