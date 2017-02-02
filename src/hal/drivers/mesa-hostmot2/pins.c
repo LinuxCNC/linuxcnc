@@ -290,6 +290,16 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0x6: return "Timer 4 Pin";
             }
             break;
+            
+        case HM2_GTAG_CAPSENSE:
+            switch (sec_pin) {
+                case 1: return "Charge Out Pin";
+                case 2: return "Sense 0 Pin";
+                case 3: return "Sense 1 Pin";
+                case 4: return "Sense 2 Pin";
+                case 5: return "Sense 3 Pin";
+            }
+            break;
 
         case HM2_GTAG_TWIDDLER: // Not Supported Currently
              if (sec_pin < 0x20){
@@ -612,6 +622,5 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // and about half as many I/Os as you'd expect
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->muxed_encoder.num_instances+1)/2);
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_CAPSENSE, 1);
 }
-
-

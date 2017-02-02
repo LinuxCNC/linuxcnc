@@ -186,6 +186,8 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_HM2DPLL           (26)
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
+#define HM2_GTAG_NANOADC               (132)
+#define HM2_GTAG_CAPSENSE     (136)
 
 #define HM2_GTAG_RESOLVER          (192)
 #define HM2_GTAG_SMARTSERIAL       (193)
@@ -1086,6 +1088,47 @@ typedef struct {
 } de0_nano_soc_adc_t;
 
 
+//
+// capsense sensor access
+//
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_bit_t *sensepad;
+        } pin;
+
+    } hal;
+
+} hm2_capsense_instance_t;
+
+// these hal params affect all pwmgen instances
+typedef struct {
+    struct {
+        hal_u32_t *capsense_hysteresis;
+    } param;
+} hm2_capsense_module_global_t;
+
+typedef struct {
+    int num_instances;
+    hm2_capsense_instance_t *instance;
+
+    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // that we've told the FPGA about, so we know if we need to update it
+    u32 written_capsense_hysteresis_reg;
+
+    // module-global HAL objects...
+    hm2_capsense_module_global_t *hal;
+
+    u32 capsense_data_addr;
+    u32 *capsense_data_reg;
+
+    u32 capsense_hysteresis_addr;
+    u32 *capsense_hysteresis_reg;
+} hm2_capsense_t;
+
 
 //
 // this struct hold an entry in our Translation RAM region list
@@ -1127,6 +1170,7 @@ typedef struct {
         char sserial_modes[4][8];
         int enable_raw;
         int enable_adc;
+        int num_capsensors;
         char *firmware;
 	int skip_fwid;  // skip applying the fwid proto message if set
     } config;
@@ -1177,6 +1221,7 @@ typedef struct {
     hm2_fwid_t fwid;
     hm2_raw_t *raw;
     de0_nano_soc_adc_t *nano_soc_adc;
+    hm2_capsense_t capsense;
 
     struct list_head list;
 } hostmot2_t;
@@ -1394,7 +1439,7 @@ int hm2_bspi_write_chan(char* name, int chan, u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
-                        int delay, int cpol, int cpha, int clear, int echo);
+int delay, int cpol, int cpha, int clear, int echo);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
@@ -1491,6 +1536,16 @@ void hm2_raw_write(hostmot2_t *hm2);
 
 int hm2_adc_setup(hostmot2_t *hm2);
 void de0_nano_soc_adc_read(hostmot2_t *hm2);
+
+
+//
+// capsense sensor functions
+//
+
+int hm2_capsense_parse_md(hostmot2_t *hm2, int md_index);
+//int hm2_capsense_setup(hostmot2_t *hm2);
+void hm2_capsense_read(hostmot2_t *hm2);
+//void hm2_capsense_allocate_pins(hostmot2_t *hm2);
 
 
 
