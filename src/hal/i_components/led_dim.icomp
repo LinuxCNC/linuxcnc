@@ -39,18 +39,14 @@ component led_dim "LinuxCNC HAL component for dimming LEDs";
 pin in  float in "Brightness input value -> 0 to 1";
 pin out float out "Luminance output value -> 0 to 1";
 function _  fp "Update the output value";
-description 
-"""
+description """
 Component for LED dimming according to human perception of brightness of light.
-
+.LP
 The output is calculated using the CIE 1931 formula.
 """;
-
 license "GPL";
-
 variable hal_float_t last_in = 0.0;
 ;;
-
 #include <rtapi_math.h>
 #define MIN(x,y) (x < y ? x : y)
 

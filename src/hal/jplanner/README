@@ -1,0 +1,10 @@
+A joint planner, based on src/emc/motion/simple_tp.*
+
+can take commands from a ringbuffer, or HAL pins
+
+if a ringbuffer named <inst>.cmd exists, the instance will attach to it and run in queued mode
+the pos-cmd pin will be OUT, as it is driven from the queue
+the max-vel and max-acc pins are IO and can be overridden
+
+otherwise it will create and honor the pos-cmd pin as IO since it is updated by the tp as well.
+

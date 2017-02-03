@@ -262,23 +262,26 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
         // rtapi_mutex_give(&(hal_data->mutex));
 
 	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
-            if (pin && !pin->signal) {
+            if (pin && !pin_is_linked(pin)) {
 		logOword("%s: no signal connected", hal_name);
 	    } 
-	    type = pin->type;
-	    if (pin->signal != 0) {
-		sig = (hal_sig_t *) SHMPTR(pin->signal);
-		ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
-	    } else {
-		ptr = (hal_data_u *) &(pin->dummysig);
-	    }
+	    type = pin_type(pin);
+	    sig = signal_of(pin);
+	    ptr = pin_value(pin);
+	    // if (pin->signal != 0) {
+	    // 	sig = (hal_sig_t *) SHMPTR(pin->signal);
+	    // 	ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    // } else {
+	    // 	ptr = (hal_data_u *) &(pin->dummysig);
+	    // }
 	    goto assign;
 	}
 	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
 	    if (!sig->writers) 
 		logOword("%s: signal has no writer", hal_name);
-	    type = sig->type;
-	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    type = sig_type(sig);
+	    ptr = sig_value(sig);
+	    //  ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
 	    goto assign;
 	}
 	if ((param = halpr_find_param_by_name(hal_name)) != NULL) {
@@ -293,10 +296,10 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 
     assign:
     switch (type) {
-    case HAL_BIT: *value = (double) (ptr->b); break;
-    case HAL_U32: *value = (double) (ptr->u); break;
-    case HAL_S32: *value = (double) (ptr->s); break;
-    case HAL_FLOAT: *value = (double) (ptr->f); break;
+    case HAL_BIT: *value = (double) get_bit_value(ptr); break;
+    case HAL_U32: *value = (double) get_u32_value(ptr); break;
+    case HAL_S32: *value = (double) get_s32_value(ptr); break;
+    case HAL_FLOAT: *value = (double) get_float_value(ptr); break;
     }
     logOword("%s: value=%f", hal_name, *value);
     *status = 1;

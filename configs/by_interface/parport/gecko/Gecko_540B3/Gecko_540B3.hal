@@ -9,9 +9,9 @@ loadrt probe_parport
 loadrt hal_parport cfg="0x378 out  "
 setp parport.0.reset-time 1000
 loadrt stepgen step_type=0,0,0
-loadrt charge_pump
+loadrt charge_pump names=charge-pump
 net estop-out charge-pump.enable iocontrol.0.user-enable-out
-net charge-pump <= charge-pump.out
+net chargepump <= charge-pump.out
 
 addf parport.0.read base-thread
 addf stepgen.make-pulses base-thread
@@ -34,7 +34,7 @@ net ydir => parport.0.pin-05-out
 net zstep => parport.0.pin-06-out
 setp parport.0.pin-06-out-reset 1
 net zdir => parport.0.pin-07-out
-net charge-pump => parport.0.pin-16-out
+net chargepump => parport.0.pin-16-out
 
 
 

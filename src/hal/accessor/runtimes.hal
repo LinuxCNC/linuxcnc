@@ -1,0 +1,73 @@
+# this tests the outputs of lut5 and lutnv2 against each other
+# and measures relative execution times of the thread function
+#
+# relative timing:
+# show pin ratio.out
+
+
+# generate a binary test patterin in pat5.outN
+newinst pattern pat5 pincount=5
+
+# if v1and5.out and v2and5.out do not agree, grind to a halt:
+newinst failstop fs pincount=1
+
+# lut5 has somewhat odd pin naming conventions: in-x
+newinst lut5   v1and5
+setp v1and5.function 0x80000000
+
+newinst lutnv2c v2and5 pincount=5 functn=0x80000000
+
+# for comparing v1and5.out and v2and5.out
+newinst lutnv2c xor2 pincount=2 functn=0x66666666
+
+# wire the v1 and v2 in pins to the test signal
+net test0 pat5.out0 v1and5.in-0 v2and5.in0
+net test1 pat5.out1 v1and5.in-1 v2and5.in1
+net test2 pat5.out2 v1and5.in-2 v2and5.in2
+net test3 pat5.out3 v1and5.in-3 v2and5.in3
+net test4 pat5.out4 v1and5.in-4 v2and5.in4
+
+# compare the outputs
+net v1out v1and5.out xor2.in0
+net v2out v2and5.out xor2.in1
+
+# cry wolf if they ever disagree
+net fstop fs.in0 xor2.out
+
+# compute mean, stddev, variance of funct execution time
+newinst statsv2  v1stats
+newinst statsv2  v2stats
+
+# type conversion s32->float for stats
+loadrt conv_s32_float names=v1cvt,v2cvt
+
+# compute relative times
+newinst div2 ratio
+
+net v1times32 v1and5.funct.time v1cvt.in
+net v2times32 v2and5.funct.time v2cvt.in
+
+net v1timef v1cvt.out v1stats.in
+net v2timef v2cvt.out v2stats.in
+
+net v1mean v1stats.mean ratio.in1
+net v2mean v2stats.mean ratio.in0
+
+setp v1stats.enable 1
+setp v2stats.enable 1
+
+newthread t 100000 fp
+
+addf v1and5.funct  t
+addf v2and5.funct  t
+addf v1cvt         t
+addf v2cvt         t
+addf v1stats.funct t
+addf v2stats.funct t
+addf ratio.funct   t
+addf xor2.funct    t
+addf fs.funct      t
+addf pat5.funct    t
+start
+
+

@@ -1,0 +1,75 @@
+//   This is a component for Machinekit
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component edgev2 "Edge detector";
+
+pin_ptr in bit in;
+pin_ptr out bit out             "Goes high when the desired edge is seen on 'in'";
+pin_ptr out bit out_invert      "Goes low when the desired edge is seen on 'in'";
+
+pin_ptr io bit both=false       "If true, selects both edges.  Otherwise, selects one edge according to in-edge";
+pin_ptr io bit in_edge=true     "If both is false, selects the one desired edge: true means falling, false means rising";
+pin_ptr io s32 out_width_ns=0   "Time in nanoseconds of the output pulse";
+
+pin_ptr out s32 time_left_ns    "Time left in this output pulse";
+pin_ptr out bit last_in         "Previous input value";
+
+variable hal_bit_t first = true;
+
+function _ nofp "Produce output pulses from input edges";
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+hal_bit_t new_in = gb(in);
+hal_bit_t rise, fall, desired_edge;
+
+    if (gs(time_left_ns) > 0)
+        {
+        ss(time_left_ns, gs(time_left_ns) - period);
+        }
+    if ( !first )
+        {
+        rise = new_in && !gb(last_in);
+        fall = !new_in && gb(last_in);
+        desired_edge = 
+            gb(both) ? rise || fall
+                    : gb(in_edge) ? fall : rise;
+        if(desired_edge)
+            {
+            ss(time_left_ns, gs(out_width_ns));
+            sb(out, true);
+            }
+        else if(gs(time_left_ns) > 0)
+            {
+            sb(out, true);
+            }
+        else
+            {
+            ss(time_left_ns,  0);
+            sb(out, false);
+            }
+        }
+    else
+        {
+        first = false;
+        }
+    sb(last_in, new_in);
+    sb(out_invert, !gb(out));
+
+return 0;
+}

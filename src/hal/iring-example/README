@@ -1,0 +1,5 @@
+demonstrates the HAL iring (internal ring) API
+
+used to SMP-harden components with functs which might be called by
+
+different threads WITHOUT any assumptions on rate-monotonic scheduling or priority

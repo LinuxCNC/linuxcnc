@@ -13,37 +13,37 @@ Time returns the hours, minutes, and seconds that time.N.start is true.
 
 Sample pyVCP code to display the hours:minutes:seconds.
 
-    <pyvcp>
-      <hbox>
-      <label>
-        <text>"Cycle Time"</text>
-        <font>("Helvetica",14)</font>
-      </label>
-      <u32>
-          <halpin>"time-hours"</halpin>
-          <font>("Helvetica",14)</font>
-          <format>"2d"</format>
-      </u32>
-      <label>
-        <text>":"</text>
-        <font>("Helvetica",14)</font>
-      </label>
-      <u32>
-          <halpin>"time-minutes"</halpin>
-          <font>("Helvetica",14)</font>
-          <format>"2d"</format>
-      </u32>
-      <label>
-        <text>":"</text>
-        <font>("Helvetica",14)</font>
-      </label>
-      <u32>
-          <halpin>"time-seconds"</halpin>
-          <font>("Helvetica",14)</font>
-          <format>"2d"</format>
-      </u32>
-      </hbox>
-    </pyvcp>
+<pyvcp>
+  <hbox>
+  <label>
+    <text>"Cycle Time"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32>
+      <halpin>"time-hours"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  <label>
+    <text>":"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32>
+      <halpin>"time-minutes"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  <label>
+    <text>":"</text>
+    <font>("Helvetica",14)</font>
+  </label>
+  <u32>
+      <halpin>"time-seconds"</halpin>
+      <font>("Helvetica",14)</font>
+      <format>"2d"</format>
+  </u32>
+  </hbox>
+</pyvcp>
 
 In your post-gui.hal file you might use the following to connect it up
 
@@ -56,6 +56,7 @@ In your post-gui.hal file you might use the following to connect it up
  net cycle-seconds pyvcp.time-seconds <= time.0.seconds
  net cycle-minutes pyvcp.time-minutes <= time.0.minutes
  net cycle-hours pyvcp.time-hours <= time.0.hours
+
 """;
 
 author "John Thornton";
@@ -70,9 +71,9 @@ pin out u32 seconds "Seconds";
 pin out u32 minutes "Minutes";
 pin out u32 hours "Hours";
 
-// Global Variables
-variable long totalnsec;
-variable hal_bit_t old_start;
+// Variables
+variable hal_u32_t totalsecs = 0;
+variable hal_bit_t old_start = false;
 
 function _;
 
@@ -82,16 +83,15 @@ function _;
 
 FUNCTION(_)
 {
-    hal_u32_t totalseconds;
+
     if(start && !old_start) 
-		totalnsec = 0.0;
+		totalsecs = 0;
 
     if(start){
-    totalnsec = totalnsec + period;
-    totalseconds = (hal_u32_t)(totalnsec / 1e9);
-    seconds = totalseconds % 60;
-    minutes = (totalseconds / 60) % 60;
-    hours = totalseconds / 3600;
+    totalsecs += (hal_u32_t)(period / 1e9);
+    seconds = totalsecs % 60;
+    minutes = (totalsecs / 60) % 60;
+    hours = totalsecs / 3600;
     }
     old_start = start;
 

@@ -14,24 +14,42 @@
 RTAPI_BEGIN_DECLS
 
 #include "config.h"
+#include "stdarg.h"
+#include "rtapi_bitops.h" // RTAPI_BIT
+
+// flags for _rtapi_heap_setflags()
+#define RTAPIHEAP_TRACE_MALLOC RTAPI_BIT(0)
+#define RTAPIHEAP_TRACE_FREE   RTAPI_BIT(1)
+#define RTAPIHEAP_TRIM         RTAPI_BIT(2)  //  free alignment overallocations
 
 struct rtapi_heap;
 struct rtapi_heap_stat {
+    size_t arena_size;
     size_t total_avail;
     size_t fragments;
     size_t largest;
+    size_t requested;
+    size_t allocated;
+    size_t freed;
 };
 
-void *rtapi_malloc(struct rtapi_heap *h, size_t nbytes);
-void *rtapi_calloc(struct rtapi_heap *h, size_t n, size_t size);
-void *rtapi_realloc(struct rtapi_heap *h, void *p, size_t size);
-void  rtapi_free(struct rtapi_heap *h, void *p);
-size_t rtapi_allocsize(void *p);
+void  *_rtapi_malloc_aligned(struct rtapi_heap *h, size_t nbytes, size_t align);
+void  *_rtapi_malloc(struct rtapi_heap *h, size_t nbytes);
+void  *_rtapi_calloc(struct rtapi_heap *h, size_t n, size_t size);
+void  *_rtapi_realloc(struct rtapi_heap *h, void *p, size_t size);
+void   _rtapi_free(struct rtapi_heap *h, void *p);
+size_t _rtapi_allocsize(struct rtapi_heap *h, const void *ap);
+int   _rtapi_heap_init(struct rtapi_heap *h, const char *name);
 
-int rtapi_heap_init(struct rtapi_heap *h);
 // any memory added to the heap must lie above the rtapi_heap structure:
-int rtapi_heap_addmem(struct rtapi_heap *h, void *space, size_t size);
-size_t rtapi_heap_status(struct rtapi_heap *h, struct rtapi_heap_stat *hs);
+int _rtapi_heap_addmem(struct rtapi_heap *h, void *space, size_t size);
+
+int    _rtapi_heap_setflags(struct rtapi_heap *heap, int flags);
+size_t _rtapi_heap_status(struct rtapi_heap *h, struct rtapi_heap_stat *hs);
+
+// callback for freelist iterator
+typedef void (*chunk_t)(size_t size, void *chunk, void *user);
+size_t _rtapi_heap_walk_freelist(struct rtapi_heap *h, chunk_t cb, void *user);
 
 RTAPI_END_DECLS
 

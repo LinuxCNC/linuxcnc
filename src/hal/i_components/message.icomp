@@ -1,0 +1,83 @@
+/********************************************************************
+* Description:  message.icomp
+*               Message HAL component.
+*
+* Author: Les Newell <les at sheetcam dot com>
+* Copyright (c) 2011 All rights reserved.
+* License: GPL Version 2 or later
+* 
+*   Adapted and altered for instantiated component
+*   by ArcEye <arceye@mgwareDOTcoDOTuk> 2015
+*
+*   newinst message low_warn messages="Oil Low,Coolant Low,Lunch Is Ready"
+*   setp low_warn.message-num 0 (default message anyway)
+*   setp low_warn.message-num 1
+*   setp low_warn.message-num 2
+*    
+*************************************************************************/
+ 
+component message "Display a message";
+ 
+description "Allows HAL pins to trigger a message.";
+
+pin in bit trigger = false   "signal that triggers the message";
+pin in bit force = false     "FALSE->TRUE transition forces message redisplay";
+pin io bit edge = true "Selects desired edge: TRUE = falling, FALSE = rising";
+pin in s32 message_num = 0   "Required message number";
+
+variable hal_bit_t prev_trigger = false;
+variable hal_bit_t prev_force = true;
+variable hal_bit_t prev_edge = true;
+
+option extra_inst_setup yes;
+
+function _ nofp "Display a message when triggered";
+
+license "GPL v2";
+;;
+ 
+ 
+FUNCTION(_)
+{
+hal_bit_t show = false;
+    
+    if(prev_edge != edge) // edge type has changed 
+        {
+        prev_edge = edge;
+        prev_trigger = !edge;
+        }
+    if(force != prev_force) // force type has changed 
+        {
+        prev_force = force;
+        if(force && (trigger == edge))
+            show = true;
+        }
+       
+    if(trigger != prev_trigger) // trigger has changed 
+        {
+        prev_trigger = trigger;
+        if(trigger == edge)
+            show = true;
+        }
+    if(show && message_num < local_argc)
+        {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s", local_argv(message_num));
+        }
+        
+    return 0;
+}
+
+EXTRA_INST_SETUP()
+{
+hal_s32_t i;
+    
+    // demonstrate that both argv and local_argv hold same
+    
+    for(i = 0; i < local_argc; i++)
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s", argv[i]);
+       
+    for(i = 0; i < local_argc; i++)
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s", local_argv(i));
+
+    return 0;
+}

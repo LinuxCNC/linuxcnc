@@ -730,8 +730,8 @@ PyObject *pin_has_writer(PyObject *self, PyObject *args) {
 	return NULL;
     }
 
-    if(pin->signal) {
-	hal_sig_t *signal = (hal_sig_t*)SHMPTR(pin->signal);
+    if(pin_is_linked(pin)) {
+	hal_sig_t *signal = signal_of(pin);
 	return PyBool_FromLong(signal->writers > 0);
     }
     Py_INCREF(Py_False);
@@ -900,7 +900,7 @@ PyObject *set_p(PyObject *self, PyObject *args) {
 		            "pin not writable");
 	            return NULL;
             }
-            if(pin->signal != 0) {
+            if(pin_is_linked(pin)) {
                 rtapi_mutex_give(&(hal_data->mutex));
 
                 PyErr_Format(PyExc_RuntimeError,

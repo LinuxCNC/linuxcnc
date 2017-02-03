@@ -1,0 +1,3 @@
+some basic examples for using the Cython-based bindings
+
+see also nosetests/*.py for more extensive usage examples

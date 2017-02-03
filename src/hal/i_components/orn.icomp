@@ -1,8 +1,6 @@
 component orn "N input OR gate";
-description """
-*out* is computed from the result of logic or applied
-to all input pins. 
-""";
+description """\ \\fBout\\fR is computed from the result of logic or applied
+to all input pins. """;
 
 // Input Pins
 pin in bit in#.[pincount];
@@ -26,7 +24,7 @@ FUNCTION(_)
     hal_bit_t value = false;
 
     // loop through inputs
-    for (n = 0; n < localpincount; n++)
+    for (n = 0; n < local_pincount; n++)
     {
         value = value || in_(n);
     }

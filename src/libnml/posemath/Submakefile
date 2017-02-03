@@ -1,4 +1,5 @@
 INCLUDES += libnml/posemath
+
 POSEMATHSRCS := $(addprefix libnml/posemath/, _posemath.c posemath.cc gomath.c sincos.c)
 $(call TOOBJSDEPS, $(POSEMATHSRCS)) : EXTRAFLAGS=-fPIC
 USERSRCS += $(POSEMATHSRCS) 

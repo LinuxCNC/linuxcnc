@@ -25,7 +25,7 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"
-#include "rtapi/shmdrv/shmdrv.h"
+#include "shmdrv.h"
 
 #ifdef BUILD_SYS_USER_DSO
 #include <fcntl.h>
@@ -117,7 +117,8 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     // a non-zero size was given but it didn match what we found:
     if (size && (actual_size != size)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_new:%d 0x8.8%x: requested size %ld and actual size %d dont match\n",
+			"rtapi_shmem_new:%d 0x8.8%x: requested size %ld"
+			" and actual size %d dont match\n",
 			instance, key, size, actual_size);
     }
     /* Touch each page by either zeroing the whole mem (if it's a new
@@ -463,8 +464,8 @@ int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
 	retval = shm_common_detach(shmem->size, shmem_addr_array[shmem_id]);
 	if (retval) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "ULAPI:%d ERROR: shm_common_detach(%02d) failed: %s\n",
-			    rtapi_instance, shmem_id, strerror(-retval));
+			    "ULAPI:%d ERROR: shm_common_detach(%02d) failed: %d\n",
+			    rtapi_instance, shmem_id, retval);
 	}
     }
     /* unmap the block */

@@ -13,16 +13,14 @@
 //   You should have received a copy of the GNU General Public License
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-component invert """
-Compute the inverse of the input signal
-The output will be the mathematical inverse of the input, ie *out* = 1 / *in*.
-The parameter *deadband* can be used to control how close to 0 the denominator can be
-before the output is clamped to 0.  *deadband* must be at least 1e-8, and must be positive.
-""";
+component invert """Compute the inverse of the input signal
+The output will be the mathematical inverse of the input, ie \\fBout\\fR = 1/\\fBin\\fR.
+The parameter \\fBdeadband\\fR can be used to control how close to 0 the denominator can be
+before the output is clamped to 0.  \\fBdeadband\\fR must be at least 1e-8, and must be positive.""";
 
 pin in float in "Analog input value" ;
 pin out float out "Analog output value";
-pin io float deadband "The *out* will be zero if *in* is between -*deadband* and +*deadband*" ;
+pin io float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR" ;
 
 function _;
 license "GPL";

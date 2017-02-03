@@ -2,7 +2,7 @@
 loadrt sampler depth=1000 cfg=b
 loadusr -Wn halsampler halsampler -N halsampler  -n 10
 
-newthread fast 100000
+newthread fast 100000 fp
 loadrt flipflop
 
 loadrt streamer depth=32 cfg=bbbb

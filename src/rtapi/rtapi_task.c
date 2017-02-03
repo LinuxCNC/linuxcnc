@@ -164,14 +164,14 @@ int _rtapi_task_new(const rtapi_task_args_t *args) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
-#if 0
+
     if ((args->flags & (TF_NOWAIT|TF_NONRT)) == TF_NOWAIT) {
 	rtapi_print_msg(RTAPI_MSG_ERR,"task '%s' : nowait flag invalid for RT thread\n",
 			args->name);
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
-#endif
+
     // task slot found; reserve it and release lock
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "Creating new task %d  '%s:%d': "
@@ -452,14 +452,15 @@ int _rtapi_task_pause(int task_id) {
 }
 
 #ifdef HAVE_RTAPI_WAIT_HOOK
-extern void _rtapi_wait_hook(void);
+extern int _rtapi_wait_hook(int);
 #endif
 
-void _rtapi_wait(void) {
+int _rtapi_wait(const int flag) {
 #ifdef HAVE_RTAPI_WAIT_HOOK
-    _rtapi_wait_hook();
+    return _rtapi_wait_hook(flag);
+#else
+    return 0;
 #endif
-    return;
 }
 
 #ifdef HAVE_RTAPI_TASK_RESUME_HOOK

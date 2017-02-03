@@ -1,0 +1,22 @@
+component wcompv2 "Window comparator";
+pin_ptr in float in "Value being compared";
+pin_ptr in float min_ "Low boundary for comparison";
+pin_ptr in float max_ "High boundary for comparison";
+pin_ptr out bit out "True if \\fBin\\fR is strictly between \\fBmin\\fR and \\fBmax\\fR";
+pin_ptr out bit under "True if \\fBin\\fR is less than or equal to \\fBmin\\fR";
+pin_ptr out bit over "True if \\fBin\\fR is greater than or equal to \\fBmax\\fR";
+notes "If \\fBmax\\fR <= \\fBmin\\fR then the behavior is undefined.";
+
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    hal_float_t tmp = gf(in);
+    sb(under, (tmp <= gf(min_)));
+    sb(over, (tmp >= gf(max_)));
+    sb(out, !(gb(over) || gb(under)));
+
+return 0;
+
+}

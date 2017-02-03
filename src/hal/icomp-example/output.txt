@@ -1,0 +1,135 @@
+
+mick@INTEL-i7:/usr/src/machinekit-arceye/src/hal/icomp-example$ halcmd -f lutn-demo.hal
+lutn-demo.hal:9: Realtime module 'lutnv2' loaded
+lutn-demo.hal:12: Pin 'and2.0.in0' linked to signal 'in0'
+lutn-demo.hal:12: Pin 'or2.0.in0' linked to signal 'in0'
+lutn-demo.hal:13: Pin 'and2.0.in1' linked to signal 'in1'
+lutn-demo.hal:13: Pin 'or2.0.in1' linked to signal 'in1'
+lutn-demo.hal:16: Function 'or2.0.funct' added to thread 'servo', rmb=0 wmb=0
+lutn-demo.hal:17: Function 'and2.0.funct' added to thread 'servo', rmb=0 wmb=0
+lutn-demo.hal:18: Realtime threads started
+Signals:
+Type          Value  MB Name    linked to:
+bit           FALSE  r- in0 
+                                 ==> and2.0.in0
+                                 ==> or2.0.in0
+bit           FALSE  -w in1 
+                                 ==> and2.0.in1
+                                 ==> or2.0.in1
+
+Component Pins:
+  Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+    80     90 bit   OUT         FALSE  and2.0.out                    		--	0
+    80     82 bit   OUT         FALSE  or2.0.out                     		--	0
+
+lutn-demo.hal:23: Signal 'in0' set to 1
+Signals:
+Type          Value  MB Name    linked to:
+bit            TRUE  r- in0 
+                                 ==> and2.0.in0
+                                 ==> or2.0.in0
+bit           FALSE  -w in1 
+                                 ==> and2.0.in1
+                                 ==> or2.0.in1
+
+Component Pins:
+  Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+    80     90 bit   OUT         FALSE  and2.0.out                    		--	0
+    80     82 bit   OUT         FALSE  or2.0.out                     		--	0
+
+lutn-demo.hal:27: Signal 'in1' set to 1
+Signals:
+Type          Value  MB Name    linked to:
+bit            TRUE  r- in0 
+                                 ==> and2.0.in0
+                                 ==> or2.0.in0
+bit            TRUE  -w in1 
+                                 ==> and2.0.in1
+                                 ==> or2.0.in1
+
+Component Pins:
+  Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+    80     90 bit   OUT         FALSE  and2.0.out                    		--	0
+    80     82 bit   OUT         FALSE  or2.0.out                     		--	0
+
+lutn-demo.hal:31: Signal 'in0' set to 0
+Signals:
+Type          Value  MB Name    linked to:
+bit           FALSE  r- in0 
+                                 ==> and2.0.in0
+                                 ==> or2.0.in0
+bit            TRUE  -w in1 
+                                 ==> and2.0.in1
+                                 ==> or2.0.in1
+
+Component Pins:
+  Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+    80     90 bit   OUT         FALSE  and2.0.out                    		--	0
+    80     82 bit   OUT         FALSE  or2.0.out                     		--	0
+
+lutn-demo.hal:35: Signal 'in1' set to 0
+Signals:
+Type          Value  MB Name    linked to:
+bit           FALSE  r- in0 
+                                 ==> and2.0.in0
+                                 ==> or2.0.in0
+bit           FALSE  -w in1 
+                                 ==> and2.0.in1
+                                 ==> or2.0.in1
+
+Component Pins:
+  Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+    80     90 bit   OUT         FALSE  and2.0.out                    		--	0
+    80     82 bit   OUT         FALSE  or2.0.out                     		--	0
+
+
+
+#############################################################################################################
+
+Error in barrier-propogation.hal - non english keyset
+
+barrier-propagation-demo.hal:32: Unknown 'show' type 'piń'
+
+#############################################################################################################
+
+
+mick@INTEL-i7:/usr/src/machinekit-arceye/src/hal/icomp-example$ halcmd -f barrier-propagation-demo.hal
+Signals:
+Type          Value  MB Name    linked to:
+bit           FALSE  -- s1 
+bit           FALSE  -- s2 
+
+Signals:
+Type          Value  MB Name    linked to:
+bit           FALSE  rw s1 
+bit           FALSE  rw s2 
+
+barrier-propagation-demo.hal:30: Realtime module 'lutnv2' loaded
+Component Pins:
+  Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+    80     82 s32   OUT             0  test.funct.time               		--	0
+    80     82 bit   IN          FALSE  test.in0                      		--	0
+    80     82 bit   IN          FALSE  test.in1                      		--	0
+    80     82 bit   OUT         FALSE  test.out                      		--	0
+
+barrier-propagation-demo.hal:44: Pin 'test.in0' linked to signal 's1'
+barrier-propagation-demo.hal:45: Pin 'test.out' linked to signal 's2'
+COMPONENT hal_lib id=66 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+FUNCT delinst id=69 owner=66 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+FUNCT newinst id=68 owner=66 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+COMPONENT hal_lib11531 id=74 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+COMPONENT halcmd11531 id=76 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+SIGNAL s1 id=78 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
+SIGNAL s2 id=79 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
+COMPONENT lutnv2 id=80 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+INST test id=82 owner=80 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+PIN test.funct.time id=87 owner=82 valid=1 refcnt=0 legacy=1 rmb=0 wmb=0
+PIN test.in0 id=83 owner=82 valid=1 refcnt=0 legacy=0 rmb=1 wmb=0
+PIN test.in1 id=84 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+PIN test.out id=85 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=1
+FUNCT test.funct id=86 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+PARAM test.funct.tmax id=88 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+PARAM test.funct.tmax-inc id=89 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+THREAD foo id=90 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
+
+

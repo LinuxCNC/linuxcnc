@@ -13698,7 +13698,7 @@ module.exports = require("protobufjs").newBuilder({})['import']({
                     "name": "EmcCanonUnitsType",
                     "values": [
                         {
-                            "name": "CANON_UNITS_INCHES",
+                            "name": "CANON_UNITS_INCH",
                             "id": 1
                         },
                         {
@@ -22104,7 +22104,7 @@ module.exports = require("protobufjs").newBuilder({})['import']({
                     "name": "EmcCanonUnitsType",
                     "values": [
                         {
-                            "name": "CANON_UNITS_INCHES",
+                            "name": "CANON_UNITS_INCH",
                             "id": 1
                         },
                         {
@@ -33012,7 +33012,7 @@ module.exports = require("protobufjs").newBuilder({})['import']({
                     "name": "EmcCanonUnitsType",
                     "values": [
                         {
-                            "name": "CANON_UNITS_INCHES",
+                            "name": "CANON_UNITS_INCH",
                             "id": 1
                         },
                         {

@@ -1,6 +1,6 @@
 loadrt test_define1
 loadrt test_use1
-newthread thread1 1000000
+newthread thread1 1000000 fp
 addf test-define1.0 thread1
 addf test-use1.0 thread1
 start

@@ -1,7 +1,7 @@
 # net - link signal and pins by name
 import sys
 
-from .hal_const cimport HAL_BIT, HAL_FLOAT,HAL_S32,HAL_U32, HAL_TYPE_UNSPECIFIED, HAL_IN, HAL_OUT, HAL_IO
+from .hal_const cimport HAL_BIT, HAL_FLOAT,HAL_S32,HAL_U32,HAL_S64,HAL_U64, HAL_TYPE_UNSPECIFIED, HAL_IN, HAL_OUT, HAL_IO
 
 cdef _dirdict =  { HAL_IN : "HAL_IN",
                    HAL_OUT : "HAL_OUT",
@@ -10,7 +10,9 @@ cdef _dirdict =  { HAL_IN : "HAL_IN",
 cdef _typedict = {  HAL_BIT : "HAL_BIT",
                     HAL_FLOAT : "HAL_FLOAT",
                     HAL_S32 : "HAL_S32",
-                    HAL_U32 : "HAL_U32" }
+                    HAL_U32 : "HAL_U32",
+                    HAL_S64 : "HAL_S64",
+                    HAL_U64 : "HAL_U64"   }
 
 cdef _pindir(int dir):
     return _dirdict.get(dir, "HAL_DIR_UNSPECIFIED")
@@ -109,13 +111,12 @@ def net(sig,*pinnames):
             bidirs += 1
 
     if not s:
-        s = Signal(signame, t)
+        s = Signal(signame,type=t,wrap=False)
 
     if not pinlist:
         raise RuntimeError("'net' requires at least one pin, none given")
 
     for p in pinlist:
-        #print >> sys.stderr, "------ net: link", p.name, signame
         r = hal_link(p.name, signame)
         if r:
             raise RuntimeError("Failed to link pin %s to %s: %d - %s" %

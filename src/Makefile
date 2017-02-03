@@ -245,6 +245,7 @@ SUBDIRS := \
 	hal/drivers/hal_pru_generic \
 	hal/simdrivers \
 	hal/cython \
+	hal/accessor \
 	\
 	emc/usr_intf/axis \
 	emc/usr_intf/touchy \
@@ -513,17 +514,22 @@ HEADERS := \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
+    hal/lib/hal_accessor.h \
     hal/lib/config_module.h \
     hal/lib/hal_group.h \
     hal/lib/hal.h \
+    hal/lib/hal_iring.h \
     hal/lib/hal_internal.h \
     hal/lib/hal_iter.h \
     hal/lib/hal_list.h \
     hal/lib/hal_logging.h \
+    hal/lib/hal_object.h \
+    hal/lib/hal_object_selectors.h \
     hal/lib/hal_parport.h \
     hal/lib/hal_priv.h \
     hal/lib/hal_rcomp.h \
     hal/lib/hal_ring.h \
+    hal/lib/hal_types.h \
     hal/lib/vtable.h \
     hal/drivers/hal_spi.h \
     libnml/buffer/locmem.hh \
@@ -572,13 +578,59 @@ HEADERS := \
     libnml/rcs/rcs_exit.hh \
     libnml/rcs/rcs_print.hh \
     libnml/rcs/rcsversion.h \
+    machinetalk/build/machinetalk/protobuf/message.pb.h \
+    machinetalk/build/machinetalk/protobuf/types.pb.h \
+    machinetalk/build/machinetalk/protobuf/canon.npb.h \
+    machinetalk/build/machinetalk/protobuf/config.pb.h \
+    machinetalk/build/machinetalk/protobuf/firmware.npb.h \
+    machinetalk/build/machinetalk/protobuf/jplan.pb.h \
+    machinetalk/build/machinetalk/protobuf/message.npb.h \
+    machinetalk/build/machinetalk/protobuf/motcmds.pb.h \
+    machinetalk/build/machinetalk/protobuf/object.npb.h \
+    machinetalk/build/machinetalk/protobuf/preview.pb.h \
+    machinetalk/build/machinetalk/protobuf/rtapicommand.npb.h \
+    machinetalk/build/machinetalk/protobuf/rtapi_message.pb.h \
+    machinetalk/build/machinetalk/protobuf/task.npb.h \
+    machinetalk/build/machinetalk/protobuf/test.pb.h \
+    machinetalk/build/machinetalk/protobuf/value.npb.h \
+    machinetalk/build/machinetalk/protobuf/canon.pb.h \
+    machinetalk/build/machinetalk/protobuf/emcclass.npb.h \
+    machinetalk/build/machinetalk/protobuf/firmware.pb.h \
+    machinetalk/build/machinetalk/protobuf/log.npb.h \
+    machinetalk/build/machinetalk/protobuf/nanopb.npb.h \
+    machinetalk/build/machinetalk/protobuf/object.pb.h \
+    machinetalk/build/machinetalk/protobuf/ros.npb.h \
+    machinetalk/build/machinetalk/protobuf/rtapicommand.pb.h \
+    machinetalk/build/machinetalk/protobuf/status.npb.h \
+    machinetalk/build/machinetalk/protobuf/task.pb.h \
+    machinetalk/build/machinetalk/protobuf/types.npb.h \
+    machinetalk/build/machinetalk/protobuf/value.pb.h \
+    machinetalk/build/machinetalk/protobuf/config.npb.h \
+    machinetalk/build/machinetalk/protobuf/emcclass.pb.h \
+    machinetalk/build/machinetalk/protobuf/jplan.npb.h \
+    machinetalk/build/machinetalk/protobuf/log.pb.h \
+    machinetalk/build/machinetalk/protobuf/motcmds.npb.h \
+    machinetalk/build/machinetalk/protobuf/nanopb.pb.h \
+    machinetalk/build/machinetalk/protobuf/preview.npb.h \
+    machinetalk/build/machinetalk/protobuf/ros.pb.h \
+    machinetalk/build/machinetalk/protobuf/rtapi_message.npb.h \
+    machinetalk/build/machinetalk/protobuf/status.pb.h \
+    machinetalk/build/machinetalk/protobuf/test.npb.h \
+    machinetalk/nanopb/pb.h \
+    machinetalk/nanopb/pb_common.h \
+    machinetalk/nanopb/pb_encode.h \
+    machinetalk/nanopb/pb_decode.h \
+    rtapi/multiframe_flag.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
+    rtapi/rtapi_atomics.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_export.h \
     rtapi/rtapi_compat.h \
+    rtapi/rtapi_hexdump.h \
     rtapi/rtapi_int.h \
+    rtapi/rtapi_kdetect.h \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math64.h \
@@ -591,6 +643,7 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
+    rtapi/rtapi_proc.h \
     rtapi/rtapi_heap.h \
     rtapi/rtapi_heap_private.h \
     rtapi/ring.h \
@@ -599,13 +652,20 @@ HEADERS := \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
-# Make each include file a target
-TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+
+    
+## the "headers" target installs all the header files in ../include
+.PHONY: headers
+HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+headers: $(HEADERS)
+
+# install header files as part of the build
+TARGETS += headers
 
 # Add headers to this list that need to go into subdirectories; their
 # respective Submakefiles will need to provide rules to copy them into
 # ../install.
-TARGETS += $(SUBDIRECTORY_HEADERS)
+headers: $(SUBDIRECTORY_HEADERS)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -1212,8 +1272,8 @@ endif
 # Subdirectory: rtapi/examples (unneeded?)
 
 # Subdirectory: hal/components
-obj-$(CONFIG_BOSS_PLC) += boss_plc.o
-boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
+#obj-$(CONFIG_BOSS_PLC) += boss_plc.o
+#boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o $(MATHSTUB)
 obj-$(CONFIG_COUNTER) += counter.o
@@ -1234,14 +1294,14 @@ obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
 threads-objs := hal/components/threads.o $(MATHSTUB)
-obj-$(CONFIG_SUPPLY) += supply.o
-supply-objs := hal/components/supply.o $(MATHSTUB)
+#obj-$(CONFIG_SUPPLY) += supply.o
+#supply-objs := hal/components/supply.o $(MATHSTUB)
 obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o $(MATHSTUB)
-obj-$(CONFIG_WATCHDOG) += watchdog.o
-watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
-obj-$(CONFIG_MODMATH) += modmath.o
-modmath-objs := hal/components/modmath.o $(MATHSTUB)
+#obj-$(CONFIG_WATCHDOG) += watchdog.o
+#watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
+#obj-$(CONFIG_MODMATH) += modmath.o
+#modmath-objs := hal/components/modmath.o $(MATHSTUB)
 obj-$(CONFIG_STREAMER) += streamer.o
 streamer-objs := hal/components/streamer.o $(MATHSTUB)
 obj-$(CONFIG_SAMPLER) += sampler.o
@@ -1503,6 +1563,12 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 # obj-m += vtexport.o
 # vtexport-objs := hal/vtable-example/vtexport.o
 # vtexport-objs += hal/vtable-example/vcode.o
+
+obj-m += jplan.o
+jplan-objs := hal/jplanner/jplan.o
+
+obj-m += interpolate.o
+interpolate-objs := hal/interpolator/interpolate.o
 
 obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o
@@ -1769,8 +1835,11 @@ $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
 
 $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
 $(RTLIBDIR)/ufdemo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(ufdemo-objs))
-$(RTLIBDIR)/icomp$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(icomp-objs))
+$(RTLIBDIR)/jplan$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(jplan-objs))
+$(RTLIBDIR)/interpolate$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(interpolate-objs))
+$(RTLIBDIR)/icomp$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(icomp-objs))
 $(RTLIBDIR)/lutn-demo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(lutn-demo-objs))
+
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))

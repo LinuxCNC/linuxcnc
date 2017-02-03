@@ -9,8 +9,8 @@ union halobject_union {
     hal_member_t *member;
 };
 
-typedef struct  {
-    hal_object_type type;
-    union halobject_union o;
-    void *ptr; // points to raw value if there's one (usually hal_data_u *)
-} halitem_t;
+/* typedef struct  { */
+/*     hal_object_type type; */
+/*     union halobject_union o; */
+/*     // void *ptr; // points to raw value if there's one (usually hal_data_u *) */
+/* } halitem_t; */

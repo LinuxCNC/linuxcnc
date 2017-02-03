@@ -132,30 +132,21 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Brown & Michael Haberler & Devin Hughes");
+// Instantiation param changes by Mick Grant <arceyeATmgwareDOTcoDOTuk> 01022017
 MODULE_DESCRIPTION("Low level driver for HostMot2 on SoC Based Devices");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i25");
 
-// module-level params
-static int debug;
+// module-level params - strings should be passed through argc/argv mechanism
+static int debug = 0;
 RTAPI_IP_INT(debug, "turn on extra debug output");
 
-// instance-level params
-static char *config;
-RTAPI_IP_STRING(config, "config string for the AnyIO boards (see hostmot2(9) manpage)")
-
-//static char *name = "hm2-socfpg0";
-//RTAPI_IP_STRING(name, "logical device name, default hm2-socfpg0");
-
-static char *descriptor = NULL;
-RTAPI_IP_STRING(descriptor, ".bin file with encoded fwid protobuf descriptor message");
-
-static int no_init_llio;
+static int no_init_llio = 0;
 RTAPI_IP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like num_leds");
 
-static int num;
+static int num = 0;
 RTAPI_IP_INT(num, "hm2 instance number, used for <boardname>.<num>.<pinname>");
 
-static int comp_id;
+static int comp_id = -1;
 
 /* derive configfs folder from instance name which is unique */
 static char *configfs_dir = "/sys/kernel/config/device-tree/overlays/%s";
@@ -363,9 +354,9 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
         return -EINVAL;
     }
 
-    if (debug)
-	rtapi_print_hex_dump(RTAPI_MSG_INFO, RTAPI_DUMP_PREFIX_OFFSET,
-			     16, 1, (const void *)virtual_base, 4096, 1,
+    if (brd->debug)
+        rtapi_print_hex_dump(RTAPI_MSG_INFO, RTAPI_DUMP_PREFIX_OFFSET,
+			     16, 1, (const void *)virtual_base, 4096, 1, NULL,
 			     "hm2 regs at %p:", virtual_base);
 
     // this duplicates stuff already happening in hm2_register - no harm
@@ -407,28 +398,16 @@ static int hm2_soc_mmap(hm2_soc_t *brd) {
     return 0;
 }
 
-static int hm2_soc_register(hm2_soc_t *brd,
-			    const char *name,
-			    const char *config,
-			    void *fwid,
-			    size_t fwid_len,
-			    int inst_id,
-			    int no_init_llio,
-			    int num)
+
+static int hm2_soc_register(hm2_soc_t *brd, void *fwid, size_t fwid_len, int inst_id)
 {
-
-    brd->name = name;
-    brd->config = config;
-    brd->no_init_llio = no_init_llio;
-    brd->num = num;
-
     // no directory to check state yet, so it's unknown
     brd->fpga_state = -1;
 
     // pins are owned by instance so they go away on delinst
     brd->llio.comp_id = inst_id;
 
-    if (no_init_llio) {
+    if (brd->no_init_llio) {
 	// defer to initialization in hm2_register()
 	// via fwid message
 	brd->llio.num_ioport_connectors = 0;
@@ -500,61 +479,112 @@ static int hm2_soc_munmap(hm2_soc_t *brd) {
 
 static int instantiate(const int argc, const char**argv)
 {
-    int r = 0;
+    int r = 0, x;
     size_t nread = 0;
     void *blob = NULL;
 
     LL_PRINT("loading Mesa AnyIO HostMot2 socfpga overlay driver version " HM2_SOCFPGA_VERSION "\n");
+    
+    if(debug){
+        for(x = 0; x < argc; x++){
+            LL_DBG("argv[%d] = %s\n", x, argv[x]);
+        }
+    }
 
     // argv[0]: component name
     const char *name = argv[1]; // instance name
     hm2_soc_t *brd;
 
     // allocate a named instance, and HAL memory for the instance data
-    int inst_id = hal_inst_create(name, comp_id,
-				  sizeof(hm2_soc_t),
-				  (void **)&brd);
+    int inst_id = hal_inst_create(name, comp_id, sizeof(hm2_soc_t), (void **)&brd);
     if (inst_id < 0)
-	return -1;
-
+        return -1;
+    
+    /********************************************************************************
+    // Initialise and fill inst array values first
+    //
+    // Then zero or void instparam values or they will be passed to next instance
+    // If they are boolean, just zeroing to the default is sufficient
+    //
+    // If they are a value within a value range, you should void it to -1, 
+    // so that the instantiation code can insert the default value if it finds -1
+    //
+    // Alternatively it could flag an error if it means at least one previous 
+    // instance exists and this value cannot be valid ( see num )
+    **********************************************************************************/
+    
+    brd->name = name;
+    brd->config = NULL;
+    brd->descriptor = NULL;
+    brd->argc = 0;
+    brd->argv = NULL;
+    // remove module and instance names
+    if(argc > 2){
+        brd->argc = argc - 2;
+        brd->argv = &argv[2];
+	for(x = 0; x < brd->argc; x++){
+            if(strncmp(brd->argv[x], "config=", 7) == 0){
+                brd->config = halg_strdup(1, &brd->argv[x][7]);
+                continue;
+            }
+            if(strncmp(brd->argv[x], "descriptor=", 11) == 0)
+                brd->config = halg_strdup(1, &brd->argv[x][11]);
+        }
+    }
+    if(!brd->argc || brd->config == NULL){
+        LL_ERR("Error: no config string passed.\n");
+        LL_ERR("Use newinst instname <params> -- config=\"xxxxxxxxxxxxx\"\n");
+        return -1;
+    }
+    brd->no_init_llio = no_init_llio;
+    brd->debug = debug;
+    if(num == -1){
+        LL_ERR("num set to -1 by previous instance.  Set a valid board number");
+        return -1;
+    }
+    else 
+        brd->num = num;
+    // void parameters
+    no_init_llio = 0;
+    num = -1;
+    debug = 0;
+    
     // read a custom fwid message if given
-    if (descriptor) {
-	struct stat st;
-	if (stat(descriptor, &st)) {
-	    LL_ERR("stat(%s) failed: %s\n", descriptor,
-		   strerror(errno));
-	    return -EINVAL;
-	}
-	blob = malloc(st.st_size);
-	if (blob == 0) {
-	    LL_ERR("malloc(%lu) failed: %s\n", st.st_size,
-		   strerror(errno));
-	    return -ENOMEM;
-	}
-	int fd = open(descriptor, O_RDONLY);
-	if (fd < 0) {
-	    LL_ERR("open(%s) failed: %s\n", descriptor,
-		   strerror(errno));
-	    free(blob);
-	    return -EINVAL;
-	}
-	nread = read(fd, blob, st.st_size);
-	if (nread != st.st_size) {
-	    LL_ERR("reading '%s': expected %zu got %u - %s\n",
-		   descriptor,
-		   (unsigned) st.st_size, nread, strerror(errno));
-	    return -EINVAL;
-	}
-	close(fd);
-	LL_DBG("custom descriptor '%s' size %zu", descriptor, nread);
+    if (brd->descriptor != NULL) {
+        struct stat st;
+        if (stat(brd->descriptor, &st)) {
+            LL_ERR("stat(%s) failed: %s\n", brd->descriptor,
+                strerror(errno));
+            return -EINVAL;
+        }
+        blob = malloc(st.st_size);
+        if (blob == 0) {
+            LL_ERR("malloc(%lu) failed: %s\n", st.st_size,
+                strerror(errno));
+            return -ENOMEM;
+        }
+        int fd = open(brd->descriptor, O_RDONLY);
+        if (fd < 0) {
+            LL_ERR("open(%s) failed: %s\n", brd->descriptor,
+                strerror(errno));
+            free(blob);
+            return -EINVAL;
+        }
+        nread = read(fd, blob, st.st_size);
+        if (nread != st.st_size) {
+            LL_ERR("reading '%s': expected %zu got %u - %s\n", brd->descriptor,
+                (unsigned) st.st_size, nread, strerror(errno));
+            return -EINVAL;
+        }
+        close(fd);
+        LL_DBG("custom descriptor '%s' size %zu", brd->descriptor, nread);
     }
 
-    r = hm2_soc_register(brd, name, config, blob, nread,
-			 inst_id, no_init_llio, num);
+    r = hm2_soc_register(brd, blob, nread, inst_id);
     if (blob)
-	free(blob);
+        free(blob);
     if (r != 0) {
-        LL_ERR("error registering UIO driver\n");
+        LL_ERR("error registering UIO driver: %i\n",r);
         return -1;
     }
     return 0;

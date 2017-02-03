@@ -1,7 +1,7 @@
 log rt 5
 log user 0
 
-newthread fast 100000
+newthread fast 100000 fp
 loadrt and2
 loadrt or2
 loadrt not

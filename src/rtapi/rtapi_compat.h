@@ -63,7 +63,7 @@ typedef struct {
     const char *mod_ext;	// RTAPI module extensions, .ko/.so
     const char *so_ext;		// ulapi.so module extension
     const char *build_sys;
-    int id;
+    int flavor_id;
     unsigned long flags;
 } flavor_t, *flavor_ptr;
 
@@ -112,6 +112,8 @@ int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...);
 
 
 int run_shell(char *format, ...);
+
+//extern int procfs_cmd(const char *path, const char *format, ...);
 
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();
@@ -208,6 +210,7 @@ const char *get_cap(const char *const fname, const char *cap);
 // given a module name and the flavor set, return the integer
 // capability mask of tags.
 int rtapi_get_tags(const char *mod_name);
+
 
 SUPPORT_END_DECLS
 

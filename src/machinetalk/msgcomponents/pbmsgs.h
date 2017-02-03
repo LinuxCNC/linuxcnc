@@ -30,6 +30,8 @@ typedef struct {
 #include <machinetalk/protobuf/message.npb.h>
 #include <machinetalk/protobuf/value.npb.h>
 #include <machinetalk/protobuf/test.npb.h>
-
+#include <machinetalk/protobuf/jplan.npb.h>
+#include <machinetalk/protobuf/ros.npb.h>
+ 
 
 #endif // _PBMSGS_H

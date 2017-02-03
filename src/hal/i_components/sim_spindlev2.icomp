@@ -1,0 +1,32 @@
+component sim_spindlev2 "Simulated spindle with index pulse";
+
+pin_ptr in float    velocity-cmd    "Commanded speed";
+pin_ptr out float   position-fb     "Feedback position, in revolutions";
+pin_ptr io bit      index-enable    "Reset position-fb to 0 at next full rotation";
+pin_ptr io float    scale = 1.0     "Factor applied to velocity-cmd.";
+
+license "GPL";
+
+function _;
+
+;;
+#include "rtapi_math.h"
+
+
+FUNCTION(_) {
+hal_float_t old_position = gf(position_fb);
+hal_float_t new_position = (gf(position_fb) + gf(velocity_cmd )* fperiod * gf(scale));
+
+    if(gb(index_enable) && (rtapi_floor(old_position) != rtapi_floor(new_position)))
+        {
+        sb(index_enable, false);
+        if(gf(velocity_cmd) < 0)
+            new_position = new_position - rtapi_ceil(new_position);
+        else
+            new_position = new_position - rtapi_floor(new_position);
+        }
+    sf(position_fb, new_position);
+
+   return 0;
+}
+

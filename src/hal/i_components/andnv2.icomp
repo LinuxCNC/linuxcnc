@@ -1,0 +1,34 @@
+component andnv2 "N input AND gate";
+description """\ \\fBout\\fR is computed from the result of logic AND applied
+to all input pins. """;
+
+// Input Pins
+pin_ptr in bit in#.[pincount];
+pin_ptr out bit out;
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 16;
+
+license "GPL";
+
+author "Alexander Roessler";
+
+function _ nofp;
+;;
+
+
+FUNCTION(_)
+{
+    hal_s32_t n;
+    hal_bit_t value = true;
+
+    // loop through inputs
+    for (n = 0; n < local_pincount; n++)
+    {
+        value = value && gb(in_(n));
+    }
+    sb(out, value);
+
+    return 0;
+}

@@ -6,6 +6,7 @@
 
 # made usable: Michael Haberler 6/2014
 
+
 cimport cython
 cimport hal_const
 cimport ring_const
@@ -14,7 +15,7 @@ from .rtapi cimport *
 from .hal_priv cimport *
 from .hal_rcomp cimport *
 from .hal_ring cimport *
-from .hal_iter cimport *
+from .hal_objectops cimport *
 
 from os import strerror,getpid
 
@@ -23,6 +24,12 @@ class ComponentExit(Exception):
 
 class InternalError(Exception):
     pass
+
+# hack needed to zero-init foreach_args_t
+# Cython cannot zero-init a struct
+# the following line will emit a static nullargs
+# which can be copied from to zero-init foreach_args_t
+cdef foreach_args_t nullargs
 
 
 TYPE_INVALID = hal_const.TYPE_INVALID
@@ -76,22 +83,26 @@ ALLOC_HALMEM = ring_const.ALLOC_HALMEM
 # allow out pin reads
 relaxed = True
 
+# maps type id to wrapper class
+# used in hal_objectdict.pyx
+_wrapdict = dict()
+
+include "hal_object.pyx"
+
 include "hal_pin.pyx"
-include "hal_pindict.pyx"
 include "hal_signal.pyx"
 include "hal_component.pyx"
-include "hal_compdict.pyx"
 include "hal_inst.pyx"
-include "hal_instdict.pyx"
 include "hal_threads.pyx"
 include "hal_funct.pyx"
-include "hal_sigdict.pyx"
 include "hal_epsilon.pyx"
 include "hal_net.pyx"
 include "hal_ring.pyx"
 include "hal_group.pyx"
 include "hal_loadusr.pyx"
 include "hal_rcomp.pyx"
+include "hal_objectdict.pyx"
+include "hal_data.pyx"
 
 # list of component ID's to hal_exit() on unloading the module
 cdef list _comps = []
@@ -102,11 +113,13 @@ cdef hal_required():
     if not _comps:
         # dummy comp for connecting to HAL
         p = "machinekit::hal%d" % getpid()
-        id = hal_xinit(TYPE_USER, 0, 0, NULL, NULL, p)
+        id = hal_init(p)
         if hal_data == NULL:
             raise RuntimeError("cant connect to HAL - realtime not running?")
         hal_ready(id)
         _comps.append(id)
+
+import atexit
 
 def _atexit():
     # remove all usercomps created herein, including dummy
@@ -115,9 +128,6 @@ def _atexit():
         hal_exit(c)
     _comps = []
 
-
-import atexit
-
 atexit.register(_atexit)
 
 # halcmd will send a SIGTERM on unloadusr <name>
@@ -125,7 +135,7 @@ atexit.register(_atexit)
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.default_int_handler))()
 
-
+# scoped lock decorator
 @cython.final
 cdef class HALMutex(object):
 
@@ -135,4 +145,23 @@ cdef class HALMutex(object):
 
     def __exit__(self,exc_type, exc_value, exc_tb):
         rtapi_mutex_give(&hal_data.mutex)
+        return 0
+
+# conditional version - usage:
+# with HALMutexIf(use-lock):
+#    ...stuff under conditional lock...
+@cython.final
+cdef class HALMutexIf(object):
+    cdef bool cond
+    def __init__(self, cond=True):
+        self.cond = cond
+
+    def  __enter__(self):
+        if self.cond:
+            rtapi_mutex_get(&hal_data.mutex)
+        return hal_data.mutex
+
+    def __exit__(self,exc_type, exc_value, exc_tb):
+        if self.cond:
+            rtapi_mutex_give(&hal_data.mutex)
         return 0

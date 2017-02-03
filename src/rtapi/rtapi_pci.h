@@ -41,7 +41,7 @@
 struct pci_device_id {
     __u32 vendor, device;           /* Vendor and device ID or PCI_ANY_ID*/
     __u32 subvendor, subdevice;     /* Subsystem ID's or PCI_ANY_ID */
-    __u32 class, class_mask;        /* (class,subclass,prog-if) triplet */
+    __u32 t_class, class_mask;        /* (t_class,subclass,prog-if) triplet */
 };
 
 /** FIXME: Support more thane one board! **/
@@ -60,7 +60,7 @@ struct pci_dev {
     unsigned short  device;
     unsigned short  subsystem_vendor;
     unsigned short  subsystem_device;
-    unsigned int    class;          /* 3 bytes: (base,sub,prog-if) */
+    unsigned int    t_class;          /* 3 bytes: (base,sub,prog-if) */
     struct pci_resource   
                     resource[6];    /* Device BARs */    
     void *driver_data;              /* Data private to the driver */
@@ -104,7 +104,7 @@ int pci_disable_device(struct pci_dev *dev);
           pci_resource_start((dev), (bar)) + 1))
 
 void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar);
-void iounmap(volatile void __iomem *addr);
+inline void iounmap(volatile void __iomem *addr);
 
 static inline const char *pci_name(const struct pci_dev *pdev)
 {

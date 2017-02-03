@@ -1,8 +1,13 @@
 newsig in0 bit
 newsig in1 bit
+# just to show barrier propagation in the log:
+# (the propagation is repeated for all pins on every link)
+setrmb in0
+setwmb in1
 
-newinst lutn-demo  or2.0  inputs=2 function=0xe
-newinst  lutn-demo and2.0 inputs=2 function=0x8
+
+newinst lutnv2 or2.0  inputs=2 function=0xe
+newinst lutnv2 and2.0 inputs=2 function=0x8
 
 net in0 and2.0.in0 or2.0.in0
 net in1 and2.0.in1 or2.0.in1

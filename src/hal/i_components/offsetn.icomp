@@ -49,7 +49,7 @@ FUNCTION(update_feedback)
 {
 hal_s32_t n;
 
-	for (n = 0; n < localpincount; n++)
+	for (n = 0; n < local_pincount; n++)
 		_fb_out(n) = _fb_in(n) - _offset(n);
 
 return 0;
@@ -59,7 +59,7 @@ FUNCTION(update_output)
 {
 hal_s32_t n;
 
-	for (n = 0; n < localpincount; n++)
+	for (n = 0; n < local_pincount; n++)
 		_out(n) = _in(n) + _offset(n);
 
 return 0;

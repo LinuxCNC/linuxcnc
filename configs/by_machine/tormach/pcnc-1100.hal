@@ -9,7 +9,7 @@ setp parport.0.reset-time 4000
 loadrt stepgen step_type=0,0,0,0,0 ctrl_type=p,p,p,p,v
 
 loadrt estop_latch
-net charge-pump <= estop_latch.0.watchdog
+net chargepump <= estop_latch.0.watchdog
 
 addf parport.0.read base-thread
 addf stepgen.make-pulses base-thread
@@ -82,7 +82,7 @@ net astep => parport.0.pin-09-out
 setp parport.0.pin-09-out-reset 1
 net coolant-flood => parport.0.pin-14-out
 net spindle-cw => parport.0.pin-16-out
-net charge-pump => parport.0.pin-17-out
+net chargepump => parport.0.pin-17-out
 
 net both-home-x <= parport.0.pin-10-in
 net both-home-y <= parport.0.pin-11-in

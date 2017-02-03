@@ -1,0 +1,43 @@
+# the nanopb protobuf descriptors
+# needed for protobuf de/encoding in RT
+loadrt pbmsgs
+
+# command queue for the tp instance
+newring tp.cmd 4096
+
+# newinst jplan <inst> will attach to <inst>.cmd if it exists
+# and take commands from this ring (or HAL pins)
+
+# two joint instances, tp.1 remains disabled
+newinst jplan tp count=2
+
+setp tp.0.max-vel 1000
+setp tp.0.max-acc 100
+setp tp.0.enable  1
+
+# differentiate tp.curr-vel twice to get acc, jerk
+newinst ddt acc
+newinst ddt jerk
+
+net curr-vel  acc.in tp.0.curr-vel
+net curr-acc  jerk.in acc.out
+net curr-jerk jerk.out
+
+newthread servo 1000000 fp
+
+addf tp.update  servo
+addf acc        servo
+addf jerk       servo
+
+loadusr halscope
+
+start
+
+# execute a move on joint 0
+
+setp tp.0.pos-cmd 1
+
+# now run jplan-run.py in separate window
+# to see injection of queued moves
+
+

@@ -91,6 +91,8 @@ msginfo_t msginfo[] = {
     TEST_MESSAGES	   \
     TYPES_MESSAGES	   \
     VALUE_MESSAGES	   \
+    JPLAN_MESSAGES         \
+    ROS_MESSAGES           \
     PB_MSGINFO_DELIMITER
 };
 

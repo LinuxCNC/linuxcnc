@@ -1,0 +1,34 @@
+# load the protobuf message definitions support component
+loadrt pbmsgs
+
+# create two pairs of in and out rings
+newring first.in 16384
+newring first.out 16384
+
+newring second.in 16384
+newring second.out 16384
+
+# instantiate pbring, as needed
+# which will make it attach to <instname>.{i, out} respectively
+newinst pbring first
+newinst pbring second
+
+
+newthread servo 1000000 fp
+addf first.update  servo
+addf second.update servo
+
+#start
+
+
+# NB: you can now exit an instance selectively by
+# delinst <instancename>, e.g. 'delinst first'
+# see 'halcmd show' for the effect:
+#   all pins, params and functs of this instance are gone
+#   the 'second.in' and 'second.out' rings have no reader/writer id's any more
+#   since the instance detached from them
+#
+# now try to bring it back with:
+# newinst pbring second
+# and have a look at 'halcmd show' to see what happened
+
