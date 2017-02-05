@@ -460,6 +460,7 @@ int tpClear(TP_STRUCT * const tp)
     emcmotStatus->current_vel = 0.0;
     emcmotStatus->requested_vel = 0.0;
     emcmotStatus->distance_to_go = 0.0;
+    emcmotStatus->pos_tracking_error = 0;
     ZERO_EMC_POSE(emcmotStatus->dtg);
     SET_MOTION_INPOS_FLAG(1);
 
@@ -2588,6 +2589,7 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         return TP_ERR_FAIL;
     }
 
+    emcmotStatus->pos_tracking_error = 0.0;
     if (!tc) {
         // Assume that we have no active segment, so we should clear out the status fields
         emcmotStatus->distance_to_go = 0;
@@ -3033,6 +3035,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
             break;
         }
         }
+        emcmotStatus->pos_tracking_error = pos_error;
 
         tc_debug_print("in position sync, target_vel = %f, ideal_vel = %f, vel_err = %f\n", tc->target_vel, v_final, v_final - tc->target_vel);
     }
