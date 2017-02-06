@@ -423,24 +423,27 @@ class GlCanonDraw:
         self.trajcoordinates = "unknown"
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
-        if os.environ["INI_FILE_NAME"]:
-            self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
-            if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
-                temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
-                try:
-                    test = temp % 1.234
-                except:
-                    print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
-                else:
-                    self.dro_in = temp
-            if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
-                temp = self.inifile.find("DISPLAY", "DRO_FORMAT_MM")
-                try:
-                    test = temp % 1.234
-                except:
-                    print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
-                else:
-                    self.dro_mm = temp
+        try:
+            if os.environ["INI_FILE_NAME"]:
+                self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+                if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
+                    temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
+                    try:
+                        test = temp % 1.234
+                    except:
+                        print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
+                    else:
+                        self.dro_in = temp
+                if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
+                    temp = self.inifile.find("DISPLAY", "DRO_FORMAT_MM")
+                    try:
+                        test = temp % 1.234
+                    except:
+                        print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
+                    else:
+                        self.dro_mm = temp
+        except:
+            pass
 
     def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinsmodule="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
