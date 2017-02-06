@@ -191,8 +191,8 @@ class _GStat(gobject.GObject):
 
         # override limits
         or_limit_list=[]
-        for i in range(0,8):
-            or_limit_list.append( self.stat.axis[i]['override_limits'])
+        for j in range(0, self.stat.joints):
+            or_limit_list.append( self.stat.joint[j]['override_limits'])
         self.old['override-limits'] = or_limit_list
         # active G codes
         active_gcodes = []
@@ -327,30 +327,26 @@ class _GStat(gobject.GObject):
             self.emit('tool-in-spindle-changed', tool_new)
 
         # if the homed status has changed
-        # check number of homed axes against number of available axes
+        # check number of homed joints against number of available joints
         # if they are equal send the all-homed signal
-        # else not-all-homed (with a string of unhomed joint numbers)
-        # if a joint is homed send 'homed' (with a string of homed joint numbers)
-        homed_old = old.get('homed', None)
-        homed_new = self.old['homed']
-        if homed_new != homed_old:
-            axis_count = count = 0
-            unhomed = homed = ""
-            for i,h in enumerate(homed_new):
-                if h:
-                    count +=1
-                    homed += str(i)
-                if self.stat.axis_mask & (1<<i) == 0: continue
-                axis_count += 1
-                if not h:
-                    unhomed += str(i)
-            if count:
-                self.emit('homed',homed)
-            if count == axis_count:
+        # else send the not-all-homed signal (with a string of unhomed joint numbers)
+        # if a joint is homed send 'homed' (with a string of homed joint number)
+        homed_joint_old = old.get('homed', None)
+        homed_joint_new = self.old['homed']
+        if homed_joint_new != homed_joint_old:
+            homed_joints = 0
+            unhomed_joints = ""
+            for joint in range(0, self.stat.joints):
+                if self.stat.homed[joint]:
+                    homed_joints += 1
+                    self.emit('homed', joint)
+                else:
+                    unhomed_joints += str(joint)
+            if homed_joints == self.stat.joints:
                 self.emit('all-homed')
                 self._is_all_homed = True
             else:
-                self.emit('not-all-homed',unhomed)
+                self.emit('not-all-homed', unhomed_joints)
                 self._is_all_homed = False
         # override limts
         or_limits_old = old.get('override-limits', None)
