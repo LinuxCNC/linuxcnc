@@ -4614,6 +4614,10 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
+        # make a pin to activate ignore limits
+        pin = self.halcomp.newpin( "ignore-limits", hal.HAL_BIT, hal.HAL_IN )
+        hal_glib.GPin( pin ).connect( "value_changed", self._ignore_limits)
+
 # Hal Pin Handling End
 # =========================================================
 
