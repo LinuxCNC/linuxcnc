@@ -14,7 +14,7 @@ author "Alexander Roessler";
 FUNCTION(_)
 {
     hal_s32_t i;
-    for (i=0; i < localpincount ; i++)
+    for (i=0; i < local_pincount ; i++)
     {
         if (!enable || (sel != i))
         {

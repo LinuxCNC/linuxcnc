@@ -5,7 +5,7 @@ loadusr -Wn halsampler halsampler -N halsampler -n 7
 
 loadrt streamer cfg=f depth=350
 loadrt abs
-newthread fast 100000
+newthread fast 100000 fp
 
 net in streamer.0.pin.0 => sampler.0.pin.0 abs.0.in
 net out abs.0.out => sampler.0.pin.1

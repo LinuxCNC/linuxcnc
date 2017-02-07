@@ -156,7 +156,10 @@ int _rtapi_task_start_hook(task_data *task, int task_id,
 }
 
 
-void _rtapi_wait_hook(void) {
+int _rtapi_wait_hook(const int flags) {
+
+    if (flags & TF_NOWAIT)
+	return 0;
 
     int result = rt_task_wait_period();
     if (result != 0) {

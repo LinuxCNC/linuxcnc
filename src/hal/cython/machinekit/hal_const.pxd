@@ -21,6 +21,8 @@ cdef extern from "hal.h":
         HAL_FLOAT
         HAL_S32
         HAL_U32
+        HAL_S64
+        HAL_U64
 
     ctypedef enum hal_pin_dir_t:
         HAL_DIR_UNSPECIFIED
@@ -39,6 +41,20 @@ cdef extern from "hal.h":
        FS_LEGACY_THREADFUNC
        FS_XTHREADFUNC
        FS_USERLAND
+
+    ctypedef enum hal_object_type:
+       HAL_OBJECT_INVALID
+       HAL_PIN
+       HAL_SIGNAL
+       HAL_PARAM
+       HAL_THREAD
+       HAL_FUNCT
+       HAL_COMPONENT
+       HAL_VTABLE
+       HAL_INST
+       HAL_RING
+       HAL_GROUP
+       HAL_MEMBER
 
 cdef extern from "hal_group.h":
     ctypedef enum report_phase_t:

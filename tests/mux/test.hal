@@ -1,5 +1,5 @@
 setexact_for_test_suite_only
-newthread slow 1000000
+newthread slow 1000000 fp
 loadrt mux_generic config="b2b,b2f,b2s,b2u,f2b,f2f,f2s,f2u,s2b,s2f,s2s,s2u,u2b,u2f,u2s,u2u,b2b,f5f"
 
 loadrt streamer depth=100 cfg=bu

@@ -23,6 +23,13 @@
 #define HM2_LLIO_NAME "hm2_soc_ol"
 
 #define HM2_SOC_MAX_BOARDS  2
+
+// AFAICT  hm2_soc_pins_t struct 
+// is not used, its members are 
+// not referenced anywhere
+// and the driver does not create
+// pins of these names
+
 typedef struct {
     hal_u32_t *irq_count;
     hal_u32_t *irq_missed;
@@ -36,7 +43,11 @@ typedef struct {
     int firmware_given;
     const char *name;
     const char *config;
+    const char *descriptor;
     const char *uio_dev;
+    // local copy of calling args
+    int argc;
+    const char **argv;
     void __iomem *base;
     int len;
     char *firmware;
@@ -44,5 +55,6 @@ typedef struct {
     hm2_soc_pins_t *pins;
     int no_init_llio;
     int num;
+    int debug;
 } hm2_soc_t;
 

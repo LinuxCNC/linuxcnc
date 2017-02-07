@@ -200,7 +200,11 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-void _rtapi_wait_hook(void) {
+int _rtapi_wait_hook(const int flags) {
+
+    if (flags & TF_NOWAIT)
+	return 0;
+
     unsigned long overruns = 0;
     int result =  rt_task_wait_period(&overruns);
 

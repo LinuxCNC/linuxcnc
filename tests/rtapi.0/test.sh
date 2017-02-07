@@ -4,8 +4,7 @@ rm -f rtapi_test
 gcc -g -DULAPI \
     -I../../include \
     rtapi_test.c \
-    ../../lib/liblinuxcnculapi.so -o rtapi_test
-
+    ../../lib/libmtalk.so ../../lib/liblinuxcnculapi.so -o rtapi_test
 
 realtime stop
 ./rtapi_test

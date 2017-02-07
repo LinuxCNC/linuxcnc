@@ -38,7 +38,8 @@
 #include <stdlib.h>		// exit()
 
 #include "rtapi.h"		// RTAPI realtime OS API
-#include "rtapi/shmdrv/shmdrv.h" // common shared memory API
+#include "ring.h"		// RTAPI realtime OS API
+#include "shmdrv.h" // common shared memory API
 #include "rtapi_compat.h"	// flavor support
 
 #ifdef ULAPI
@@ -51,6 +52,8 @@ static rtapi_switch_t dummy_ulapi_switch_struct;
 
 rtapi_switch_t *rtapi_switch = &dummy_ulapi_switch_struct;
 global_data_t *global_data;
+struct rtapi_heap *global_heap;
+extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 int rtapi_instance;
 flavor_ptr flavor;
 // end exported symbols:
@@ -142,6 +145,18 @@ static rtapi_switch_t dummy_ulapi_switch_struct = {
 
     .rtapi_set_exception = &_ulapi_dummy,
     .rtapi_task_update_stats = &_ulapi_dummy,
+
+    .rtapi_malloc = (rtapi_malloc_t)&_ulapi_dummy,
+    .rtapi_malloc_aligned = (rtapi_malloc_aligned_t)&_ulapi_dummy,
+    .rtapi_calloc = (rtapi_calloc_t)&_ulapi_dummy,
+    .rtapi_realloc = (rtapi_realloc_t)&_ulapi_dummy,
+    .rtapi_free = (rtapi_free_t)&_ulapi_dummy,
+    .rtapi_allocsize = (rtapi_allocsize_t)&_ulapi_dummy,
+    .rtapi_heap_init = (rtapi_heap_init_t)&_ulapi_dummy,
+    .rtapi_heap_addmem = (rtapi_heap_addmem_t)&_ulapi_dummy,
+    .rtapi_heap_status = (rtapi_heap_status_t)&_ulapi_dummy,
+    .rtapi_heap_setflags = (rtapi_heap_setflags_t)&_ulapi_dummy,
+    .rtapi_heap_walk_freelist = (rtapi_heap_walk_freelist_t)&_ulapi_dummy,
 };
 
 
@@ -203,7 +218,7 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
 	return retval;
     }
 
-    if (size != sizeof(global_data_t)) {
+    if (size < sizeof(global_data_t)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"ULAPI:%d ERROR: global segment size mismatch,"
 			" expected: %zd, actual:%d\n",
@@ -221,6 +236,14 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
     }
 
     // global data set up ok
+
+    // make the message ringbuffer accessible
+    ringbuffer_init(shm_ptr(global_data, global_data->rtapi_messages_ptr),
+		    &rtapi_message_buffer);
+    
+    // this heap is inited in rtapi_msgd.cc
+    // make it accessible in HAL
+    global_heap = &global_data->heap;
 
     // obtain handle on flavor descriptor as detected by rtapi_msgd
     flavor = flavor_byid(global_data->rtapi_thread_flavor);
@@ -292,7 +315,7 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
 
     // call the ulapi init method, passing in the global segment
     if ((retval = ulapi_main_ref(rtapi_instance,
-				 flavor->id, global_data)) < 0) {
+				 flavor->flavor_id, global_data)) < 0) {
 	// check shmdrv, permissions
 	rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL_LIB: FATAL - cannot attach to instance %d"
@@ -302,10 +325,10 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
     }
 
     // pretty bad - we loaded the wrong ulapi.so
-    if (flavor->id != rtapi_switch->thread_flavor_id) {
+    if (flavor->flavor_id != rtapi_switch->thread_flavor_id) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL_LIB: BUG: thread flavors disagree:"
 			" hal_lib.c=%d rtapi=%d\n",
-		flavor->id, rtapi_switch->thread_flavor_id);
+		flavor->flavor_id, rtapi_switch->thread_flavor_id);
     }
 
     // sanity check - may be harmless

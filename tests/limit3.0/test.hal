@@ -5,7 +5,7 @@ loadusr -Wn halsampler halsampler -N halsampler -t -n 800
 
 #loadrt limit3
 loadrt limit3
-newthread t 1000000
+newthread t 1000000 fp
 setp limit3.0.maxv 500.000000
 
 net n0 limit3.0.out sampler.0.pin.0

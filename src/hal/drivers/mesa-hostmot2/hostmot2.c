@@ -77,7 +77,7 @@ static int comp_id;
 
 static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
-    long period = fa_actual_period(fa);
+    long period = fa_current_period(fa);
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return -1;
@@ -104,7 +104,7 @@ static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {
 
 static int hm2_write(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
-    long period = fa_actual_period(fa);
+    long period = fa_current_period(fa);
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return -1;
@@ -151,7 +151,7 @@ static int hm2_read_gpio(void *void_hm2, const hal_funct_args_t *fa) {
 
 static int hm2_write_gpio(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
-    long period = fa_actual_period(fa);
+    long period = fa_current_period(fa);
 
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return -1;

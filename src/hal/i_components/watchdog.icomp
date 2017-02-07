@@ -1,0 +1,102 @@
+component watchdog   "Input watchdog for Machinekit HAL";
+
+pin in bit    input-##[pincount]    "the input bit HAL pin" ;
+pin out bit   ok-out = false  "high if all inputs are toggling, low otherwise";
+pin in bit    enable = false  "only runs while this is high ";
+pin io float  timeout-##[pincount] "maximum allowed timeb without transition";
+
+variable hal_s32_t   c_secs[pincount];     // elapsed seconds and nanoseconds
+variable hal_s32_t   c_nsecs[pincount];
+variable hal_s32_t   t_secs[pincount];     // seconds and nanoseconds for timeout
+variable hal_s32_t   t_nsecs[pincount];
+variable hal_bit_t   last[pincount];   // last value of the input pin
+
+variable hal_float_t oldtimeout[pincount]; // determine whether timeout changed
+variable hal_bit_t   old_enable = false;
+
+instanceparam int pincount = 1 "Index used by all arrays of pins and variables";
+
+option MAXCOUNT 8;
+
+function process;
+function set_timeouts;
+
+license "GPL";
+author "Stephen Wille Padnos - converted to icomp by ArcEye";
+;;
+
+FUNCTION(process)
+{
+hal_s32_t i, fault=0;
+
+    // set_timeouts has to turn on the ok_out when it detects a valid
+    // transition on enable
+    if (!enable || !ok_out)
+        return 0;
+    for (i = 0; i < local_pincount; i++)
+        {
+        if (input(i) != last(i))
+            {
+            c_secs(i) = t_secs(i);
+            c_nsecs(i) = t_nsecs(i);
+            }
+        else
+            {
+            c_nsecs(i) -= period;
+            if (c_nsecs(i) < 0)
+                {
+                c_nsecs(i) += 1000000000;
+                if (c_secs(i) > 0)
+                    c_secs(i)--;
+                else
+                    {
+                    fault=1;
+                    c_secs(i) = c_nsecs(i) = 0;
+                    }
+                }
+            }
+        last(i) = input(i);
+        }
+    if (fault)
+        ok_out = 0;
+
+    return 0;
+}
+
+FUNCTION(set_timeouts)
+{
+hal_s32_t i;
+hal_float_t temp;
+
+    for (i = 0; i < local_pincount; i++)
+        {
+        temp = timeout(i);
+        if (temp < 0)
+            temp = 0;   // no negative timeout periods
+        if (temp != oldtimeout(i))
+            {
+            // new timeout, convert to secs/ns
+            oldtimeout(i) = temp;
+            t_secs(i) = temp;
+            temp -= t_secs(i);
+            t_nsecs(i) = (1e9 * temp);
+            }
+        }
+
+    if (!ok_out)
+        {
+        if (enable && !old_enable)
+            {
+            // rising edge on enable, so we can restart
+            for (i = 0; i < local_pincount; i++)
+                {
+                c_secs(i) = t_secs(i);
+                c_nsecs(i) = t_nsecs(i);
+                }
+            ok_out = 1;
+            }
+        }
+    old_enable = enable;
+
+    return 0;
+}

@@ -1,0 +1,27 @@
+component xor2v2 "Two-input XOR (exclusive OR) gate";
+pin_ptr in bit in0;
+pin_ptr in bit in1;
+pin_ptr out bit out """\
+\\fBout\\fR is computed from the value of \\fBin0\\fR and \\fBin1\\fR according
+to the following rule:
+.RS
+.TP
+\\fBin0=true in1=false\\fR
+.TQ
+\\fBin0=false in1=true\\fR
+\\fBout=true\\fR
+.TP
+Otherwise,
+\\fBout=false\\fR""";
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if (( gb(in0) && !gb(in1) ) || ( gb(in1) && !gb(in0) ))
+        sb(out, true);
+    else
+        sb(out, false);
+
+return 0;
+}

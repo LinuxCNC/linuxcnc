@@ -60,6 +60,8 @@ typedef union {
     unsigned char d_u8;		/* variable for bit */
     __u32 d_u32;		/* variable for u32 */
     __s32 d_s32;		/* variable for s32 */
+    __u64 d_u64;		/* variable for u64 */
+    __s64 d_s64;		/* variable for s64 */
     real_t d_real;		/* variable for float */
     ireal_t d_ireal;		/* intlike variable for float */
 } scope_data_t;

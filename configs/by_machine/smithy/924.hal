@@ -26,7 +26,7 @@ loadrt classicladder_rt
 loadusr -w classicladder --nogui 924.clp
 
 # load charge pump
-loadrt charge_pump
+loadrt charge_pump names=charge-pump
 
 # load the spindle speed lowpass filter
 loadrt lowpass

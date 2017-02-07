@@ -1,0 +1,118 @@
+//   This is a component for Machinekit
+//   Copyright 2008 Paul Willutzki <paul[at]willutzki[dot]de>
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component joyhandlev2 "sets nonlinear joypad movements, deadbands and scales";
+pin_ptr in float in;
+pin_ptr out float out;
+pin_ptr io float power = 2.0;
+pin_ptr io float deadband = 0.0;
+pin_ptr io float scale = 1.0;
+pin_ptr io float offset = 0.0;
+pin_ptr io bit inverse = false;
+
+description """
+The component \\fBjoyhandle\\fR uses the following formula for a non linear joypad movements:
+
+\\fBy = (scale * (a*x^power + b*x)) + offset\\fR
+
+The parameters a and b are adjusted in such a way, that the function starts at (deadband,offset) and ends at (1,scale+offset).
+
+Negative values will be treated point symetrically to origin. Values -deadband < x < +deadband will be set to zero.
+
+Values x > 1 and x < -1 will be skipped to \\(+-(scale+offset). Invert transforms the function to a progressive movement.
+
+With power one can adjust the nonlinearity (default = 2). Default for deadband is 0.
+
+Valid values are: power >= 1.0 (reasonable values are 1.x .. 4-5, take higher power-values for higher deadbands (>0.5), if you want to start with a nearly horizontal slope), 0 <= deadband < 0.99 (reasonable 0.1).
+
+An additional offset component can be set in special cases (default = 0).
+
+All values can be adjusted for each instance separately.
+""";
+
+function _;
+license "GPL";
+;;
+#include <rtapi_math.h>
+
+FUNCTION(_)
+{
+hal_float_t p, a, b, alin, clin, xm, ym, xinv, yinv;
+
+    if (gf(power) < 1.0) 
+        sf(power, 1.0);
+
+    if (gf(deadband) >= 0.99) 
+        sf(deadband, 0.99);
+    else if (gf(deadband) <= 0.0) 
+        sf(deadband, 0.0);
+
+    p = gf(power) - 1.0;
+    a = -1.0/(rtapi_pow(gf(deadband),p)-1.0);
+    b = 1.0 - a;
+    alin = -gf(scale)/(gf(deadband)-1.0);
+    clin = 1.0 *(gf(scale)+gf(offset)-alin);
+
+    if (gf(in) >= 1.0) 
+        sf(out, gf(scale) + gf(offset));
+    else if ((gf(in) <= gf(deadband)) && (gf(in) >= (-1.0 *gf(deadband)))) 
+        sf(out, 0.0);
+    else if (gf(in) <= -1.0) 
+        sf(out, -gf(scale) - gf(offset));
+    else if ((gf(in) > gf(deadband)) && (gf(in) < 1.0))
+        {
+        if (gf(power) == 1.0) 
+            sf(out, alin * gf(in) + clin);
+        else 
+            {
+            if (gb(inverse) == 0) 
+                sf(out, gf(scale) * (a * rtapi_pow(gf(in),gf(power)) + b * gf(in)) + gf(offset));
+            else 
+                {
+                xm = (gf(deadband)+1.0) / 2.0;
+                ym = alin*xm + clin;
+                xinv = 2.0 * xm-gf(in);
+                yinv = gf(scale)*(a*rtapi_pow(xinv,gf(power)) + b*xinv) + gf(offset);
+                sf(out, 2.0 * ym - yinv);
+                }
+            }
+        }
+    else if ((gf(in) < (-1.0 *gf(deadband))) && (gf(in) > -1.0))
+        {
+        if (gf(power) == 1.0) 
+            sf(out, -1.0 * (alin*-1.0 * gf(in) + clin));
+        else 
+            {
+            if (gb(inverse) == 0) 
+                sf(out, -1.0 *(gf(scale) * (a * rtapi_pow((-1.0 * gf(in)),gf(power)) - b * gf(in)) + gf(offset)));
+            else 
+                {
+                xm = (gf(deadband)+1.0)/2.0;
+                ym = alin*xm + clin;
+                xinv = 2.0 * xm+gf(in);
+                yinv = gf(scale)*(a*rtapi_pow(xinv,gf(power)) + b*xinv) + gf(offset);
+                sf(out,-2.0 * ym - yinv);
+                }
+            }
+        }
+    else 
+        sf(out, 0.0);
+
+return 0;
+
+
+// out = scale*(a*rtapi_pow(in,gf(power)) + b*in) + gf(offset);
+}

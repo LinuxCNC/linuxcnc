@@ -61,11 +61,11 @@
 typedef struct {
     ringbuffer_t *ring;
     void * _write;      // '_write' to disambiguate from kernel write() macro
-    size_t write_size;
-    size_t write_off;
+    ringsize_t write_size;
+    ringsize_t write_off;
     const void * _read;
-    size_t read_size;
-    size_t read_off;
+    ringsize_t read_size;
+    ringsize_t read_off;
 } msgbuffer_t;
 
 // ringvec_t is defined in ring.h.
@@ -75,7 +75,7 @@ typedef struct {
 typedef struct {
     __s32 size;
     __u32 flags;
-    char data[0];  // actual frame contents
+    __u8  data[0];  // actual frame contents
 } frameheader_t;
 
 // initialize a msgbuffer from an existing ringbuffer instance.
@@ -92,9 +92,11 @@ static inline int msgbuffer_init(msgbuffer_t *mb, ringbuffer_t *ring)
 // return 0 on success.
 // return EAGAIN if there is currently insufficient space
 // return ERANGE if the write size exceeds the underlying ringbuffer size.
-static inline int frame_write_begin(msgbuffer_t *mb, void ** data, size_t size, __u32 flags)
+static inline int frame_write_begin(msgbuffer_t *mb,
+				    void ** data,
+				    ringsize_t size, __u32 flags)
 {
-    const size_t sz = size + sizeof(frameheader_t);
+    const ringsize_t sz = size + sizeof(frameheader_t);
     if (!mb->_write) {
 	// allocate in record ring
 	int r = record_write_begin(mb->ring, &mb->_write, sz);
@@ -120,7 +122,7 @@ static inline int frame_write_begin(msgbuffer_t *mb, void ** data, size_t size, 
 
 // commit a zero-copy frame write.
 // size may be less than requested in frame_write_begin().
-static inline int frame_write_end(msgbuffer_t *mb, size_t size)
+static inline int frame_write_end(msgbuffer_t *mb, ringsize_t size)
 {
     if (!mb->_write)
 	return EINVAL;
@@ -131,7 +133,7 @@ static inline int frame_write_end(msgbuffer_t *mb, size_t size)
 }
 
 // copying frame write, discrete args style
-static inline int frame_write(msgbuffer_t *mb, const void * data, size_t size, __u32 flags)
+static inline int frame_write(msgbuffer_t *mb, const void * data, ringsize_t size, __u32 flags)
 {
     void * ptr;
     int r = frame_write_begin(mb, &ptr, size, flags);
@@ -163,7 +165,10 @@ static inline int msg_write_abort(msgbuffer_t *mb)
 }
 
 // read a frame without consuming,  discrete args style
-static inline int frame_read(msgbuffer_t *mb, const void ** data, size_t * size, __u32 * flags)
+static inline int frame_read(msgbuffer_t *mb,
+			     const void ** data,
+			     ringsize_t *size,
+			     __u32 * flags)
 {
     if (!mb->_read) {
 	int r = record_read(mb->ring, &mb->_read, &mb->read_size);

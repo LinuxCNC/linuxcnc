@@ -8,7 +8,6 @@ import "machinetalk/protobuf/types.proto";
 
 package machinetalk;
 
-
 // a value for 'passing around'.
 
 message Value {

@@ -35,33 +35,20 @@
 
 component biquad "Biquad IIR filter";
 
-description """
-Biquad IIR filter. Implements the following transfer function:
-H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)
-""";
+description """Biquad IIR filter. Implements the following transfer function:
+H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)""";
 
 pin in float in "Filter input.";
 pin out float out "Filter output.";
-pin in bit enable = false 
-"""
-Filter enable. 
-When false, the in is passed to out without any filtering. 
-A transition from false to true causes filter 
-coefficients to be calculated according to parameters
-""";
+pin in bit enable = false "Filter enable. When false, the in is passed to out \
+without any filtering. A transition from false to true causes filter \
+coefficients to be calculated according to parameters";
+pin out bit valid = false "When false, indicates an error occured when caclulating \
+filter coefficients.";
 
-pin out bit valid = false 
-"""
-When false, indicates an error occured when caclulating filter coefficients.
-""";
-
-pin io u32 type_ = 0 
-"""
-Filter type determines the type of filter coefficients calculated. 
-When 0, coefficients must be loaded directly. 
-When 1, a low pass filter is created. When 2, a notch filter is created.
-""";
-
+pin io u32 type_ = 0 "Filter type determines the type of filter \
+coefficients calculated. When 0, coefficients must be loaded directly. When 1, \
+a low pass filter is created. When 2, a notch filter is created.";
 pin io float f0 = 250.0 "The corner frequency of the filter.";
 pin io float Q = 0.7071 "The Q of the filter.";
 

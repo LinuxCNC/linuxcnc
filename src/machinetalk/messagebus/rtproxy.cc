@@ -215,9 +215,8 @@ rtproxy_thread(void *arg, zctx_t *ctx, void *pipe)
 		    self->ftx++;
 		if (self->flags & TRACE_TO_RT)
 			rtapi_print_hex_dump(RTAPI_MSG_ERR, RTAPI_DUMP_PREFIX_OFFSET,
-					     16,1, data, (size > 16) ? 16: size, 1,
-					     "%s->%s size=%d t=%d c=%d: ",
-					     self->name, self->to_rt_name, size,
+					     16,1, data, (size > 16) ? 16: size, 1, NULL,
+					     "%s->%s size=%d t=%d c=%d: ", self->name, self->to_rt_name, size,
 					     flags.f.frametype, flags.f.npbtype);
 	    }
 
@@ -244,9 +243,8 @@ rtproxy_thread(void *arg, zctx_t *ctx, void *pipe)
 			       &data, &size, &flags.u) == 0) {
 		    if (self->flags &  TRACE_FROM_RT)
 			rtapi_print_hex_dump(RTAPI_MSG_ERR, RTAPI_DUMP_PREFIX_OFFSET,
-					     16,1, data, (size > 16) ? 16: size, 1,
-					     "%s->%s size=%d t=%d c=%d: ",
-					     self->from_rt_name,self->name, size,
+					     16,1, data, (size > 16) ? 16: size, 1, NULL,
+					     "%s->%s size=%d t=%d c=%d: ", self->from_rt_name,self->name, size,
 					     flags.f.frametype, flags.f.npbtype);
 		    pb_ostream_t sstream, ostream;
 

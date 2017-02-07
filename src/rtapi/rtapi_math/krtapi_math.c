@@ -34,13 +34,13 @@ MODULE_LICENSE("GPL");
 
 int __rtapi_math_init(void)
 {
-    printk(KERN_INFO "Xenomai math [rtapi_math] loaded\n");
+    printk(KERN_INFO "Machinekit math [rtapi_math] loaded\n");
     return 0;
 }
 
 void __rtapi_math_exit(void)
 {
-    printk(KERN_INFO "Xenomai math [rtapi_math]: unloaded.\n");
+    printk(KERN_INFO "Machinekit math [rtapi_math]: unloaded.\n");
 }
 
 

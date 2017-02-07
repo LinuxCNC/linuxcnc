@@ -62,10 +62,10 @@ option MAXCOUNT 7;
 
 description """
 Drives multiple physical motors (joints) from a single axis input
-
+.LP
 The `pincount' value is the number of joints to control.  Two is typical, but
 up to seven is supported (a three joint setup has been tested with hardware).
-
+.LP
 All controlled joints track the commanded position (with a per-joint offset)
 unless in the process of homing.  Homing is when the commanded position is
 moving towards the homing switches (as determined by the sign of search-vel)
@@ -74,7 +74,7 @@ homing and a joint home switch activates, the command value sent to that joint
 is "frozen" and the joint offset value is updated instead.  Once all home
 switches are active, there are no more adjustments made to the offset values
 and all joints run in lock-step once more.
-
+.LP
 For best results, set HOME_SEARCH_VEL and HOME_LATCH_VEL to the same direction
 and as slow as practical.  When a joint home switch trips, the commanded
 velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on
@@ -94,7 +94,7 @@ FUNCTION(read) {
     limit=joint_home(0);
 
     // All other joints, if configured
-    while (i < localpincount) {
+    while (i < local_pincount) {
         // Check to see if machine is in latching state
         if(!latching)
         {
@@ -121,15 +121,15 @@ FUNCTION(read) {
     // stop.  If all joints are not homed, but the current joint used
     // for feedback is, find a joint that's still active
     if ((joint_home(fb_joint) ) && (home == 0)) {
-        for (i=0; i < localpincount; i++) {
+        for (i=0; i < local_pincount; i++) {
             if (!joint_home(i)) {
-                position_fb = joint_pos_fb(i) + offset[i];
+                position_fb = joint_pos_fb(i) + offset(i);
                 fb_joint = i;
                 break;
             }
         }
     } else {
-        position_fb = joint_pos_fb(fb_joint) + offset[fb_joint];
+        position_fb = joint_pos_fb(fb_joint) + offset(fb_joint);
     }
 
 	return 0;
@@ -155,19 +155,19 @@ FUNCTION(write) {
     // If we're moving towards home and all home switches are not closed
     if ( ((delta * search_vel) > 0) && (home==0) ) {
         // Check each joint to see if it's home switch is active
-        for (i=0; i < localpincount; i++) {
+        for (i=0; i < local_pincount; i++) {
             // If home switch is active, update offset, not pos_cmd
             // so the other joints can catch up
             if (joint_home(i)) {
-                offset[i] += delta;
+                offset(i) += delta;
             }
         }
     }
 
     // Update each joint's commanded position
-    for (i=0; i < localpincount; i++) {
-        joint_pos_cmd(i) = position_cmd - offset[i];
-        joint_offset(i)  = offset[i];
+    for (i=0; i < local_pincount; i++) {
+        joint_pos_cmd(i) = position_cmd - offset(i);
+        joint_offset(i)  = offset(i);
     }
 
 	return 0;

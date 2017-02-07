@@ -43,7 +43,6 @@ import "machinetalk/protobuf/nanopb.proto";
 
 package machinetalk;
 
-
 message TaskPlanExecute {
 
     option (nanopb_msgopt).msgid = 1200; // see README.msgid

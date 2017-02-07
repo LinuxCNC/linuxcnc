@@ -36,8 +36,7 @@
  *
  ******************************************************************************/
 component safety_latch "latch for error signals";
-description 
-"""
+description """
 HAL component that implements a safety latch for error singnals
 with customizable harm, healing and latching features.
 

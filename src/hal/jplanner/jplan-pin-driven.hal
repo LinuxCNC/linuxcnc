@@ -1,0 +1,41 @@
+# the nanopb protobuf descriptors
+# needed for protobuf de/encoding in RT
+loadrt pbmsgs
+
+loadrt siggen names=cmd
+setp cmd.frequency 1  #Hz
+
+newinst out_to_io target
+net target-pos-out cmd.square target.in-float
+
+newinst jplan tp
+
+setp tp.0.max-vel 1000
+setp tp.0.max-acc 100
+setp tp.0.enable  1
+
+# follow a square signal
+net target-pos-io target.out-float tp.0.pos-cmd
+
+# differentiate tp.curr-vel twice to get acc, jerk
+newinst ddt acc
+newinst ddt jerk
+
+net curr-vel  acc.in tp.0.curr-vel
+net curr-acc  jerk.in acc.out
+net curr-jerk jerk.out
+
+newthread servo 1000000 fp
+
+addf cmd.update servo
+addf target     servo
+addf tp.update  servo
+addf acc        servo
+addf jerk       servo
+
+loadusr halscope
+
+start
+
+
+

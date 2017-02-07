@@ -1,7 +1,5 @@
 component gray2bin "convert a gray-code input to binary";
-description """
-Converts a gray-coded number into the corresponding binary value
-""";
+description """Converts a gray-coded number into the corresponding binary value""";
 pin in unsigned in "gray code in";
 pin out unsigned out "binary code out";
 license "GPL";

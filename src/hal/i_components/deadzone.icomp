@@ -1,10 +1,10 @@
 component deadzone "Return the center if within the threshold";
 pin io float center = 0.0 "The center of the dead zone";
-pin io float threshhold = 1.0 "The dead zone is center (+- (threshhold/2)";
+pin io float threshhold = 1.0 "The dead zone is \\fBcenter\\fR \\(+- (\\fBthreshhold\\fR/2)";
 pin in float in;
 pin out float out;
 
-function _ "Update *out* based on *in* and the parameters.";
+function _ "Update \\fBout\\fR based on \\fBin\\fR and the parameters.";
 
 license "GPL";
 ;;

@@ -1,0 +1,128 @@
+component latencybinsv2
+"""comp utility for scripts/latencyhistogram
+
+Usage:
+  Read availablebins pin for the number of bins available.
+  Set the maxbinnumber pin for the number of +/- bins.
+    Ensure maxbinnumber <= availablebins
+    For maxbinnumber = N, the bins are numbered:
+       -N ... 0 ... + N bins
+    (the -0 bin is not populated)
+    (total effective bins = 2*maxbinnumber +1)
+  Set nsbinsize pin for the binsize (ns)
+  Iterate:
+    Set index pin to a bin number: 0 <= index <= maxbinnumber.
+    Read check pin and verify that check pin == index pin.
+    Read pbinvalue,nbinvalue,pextra,nextra pins.
+         (pbinvalue is count for bin = +index)
+         (nbinvalue is count for bin = -index)
+         (pextra    is count for all bins > maxbinnumber)
+         (nextra    is count for all bins < maxbinnumber)
+
+   If index is out of range ( index < 0 or index > maxbinnumber)
+   then pbinvalue = nbinvalue = -1.
+   The reset pin may be used to restart.
+   The latency pin outputs the instantaneous latency.
+
+Maintainers note: hardcoded for MAXBINNUMBER==1000
+
+""";
+
+pin_ptr in  s32 maxbinnumber = 1000;  // MAXBINNUMBER
+pin_ptr in  s32 index;  //use s32 to avoid 0x hex display in hal
+pin_ptr in  bit reset;
+pin_ptr in  s32 nsbinsize;
+
+pin_ptr out s32 check;
+pin_ptr out s32 latency;
+pin_ptr out s32 pbinvalue;
+pin_ptr out s32 nbinvalue;
+pin_ptr out s32 pextra;
+pin_ptr out s32 nextra;
+
+// user may interrogate available bins to determine this compiled-in limit
+
+pin_ptr out s32 availablebins = 1000; // MAXBINNUMBER
+
+function _ nofp;
+variable __s64        last_timer = 0;
+variable hal_s32_t    last_binmax = 0;
+variable hal_s32_t    first = 1;
+variable hal_s32_t    pbins[1001]; // MAXBINNUMBER+1
+variable hal_s32_t    nbins[1001]; // MAXBINNUMBER+1
+variable hal_s32_t    binmax = 0;
+
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+__s64     now = rtapi_get_time();
+hal_s32_t lat32 = (__s32)(now - last_timer - period);
+                //(2^31-1)*1nS = 2.147 seconds max
+hal_s32_t i;
+
+    last_timer = now;
+
+    binmax =  gs(maxbinnumber);
+    if (binmax > gs(availablebins)) 
+        binmax = gs(availablebins);
+    last_binmax = binmax;
+
+    if (gb(reset)) 
+        first = 1;
+
+    if (first || binmax != last_binmax  || gs(nsbinsize) == 0 )
+    // important to avoid divide by zero
+        {
+        first = 0;
+        ss(latency, 0);
+        ss(pextra, 0); 
+        ss(nextra, 0);
+        for (i = 0; i <= binmax; i++) 
+            {
+            pbins(i) = 0; 
+            nbins(i) = 0;
+            }
+        } 
+    else 
+        {
+        ss(latency, lat32);
+        i = lat32 / gs(nsbinsize);
+        if (i >= 0) 
+            {
+            if (i > binmax) 
+                incs(pextra);
+            else 
+                pbins(i)++;
+            } 
+        else 
+            {
+            i = -i;
+            if (i > binmax) 
+                incs(nextra);
+            else 
+                nbins(i)++;
+            }
+        }
+
+    ss(check, gs(index)); // user should verify check==index for reading values
+    // -1 value indicates illegal index
+    if (gs(index) < 0) 
+        {
+        ss(pbinvalue, -1);
+        ss(nbinvalue, -1);
+        } 
+    else if (gs(index) <= binmax) 
+        {
+        ss(pbinvalue, pbins(gs(index)));
+        ss(nbinvalue, nbins(gs(index)));
+        } 
+    else 
+        {
+        ss(pbinvalue, -1);
+        ss(nbinvalue, -1);
+        }
+
+return 0;
+}

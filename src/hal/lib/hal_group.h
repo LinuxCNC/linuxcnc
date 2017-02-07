@@ -6,28 +6,28 @@
 
 RTAPI_BEGIN_DECLS
 
-typedef struct {
-    int next_ptr;		/* next member in linked list */
-    int sig_member_ptr;          /* offset of hal_signal_t  */
-    int group_member_ptr;        /* offset of hal_group_t (nested) */
-    int userarg1;                /* interpreted by using layer */
-    int handle;                 // unique ID
+
+// groups are top-level objects and have no owner,
+// hence hdr.owner_id == 0
+typedef struct hal_group {
+    halhdr_t hdr;		// common HAL object header
+    int userarg1;	        /* interpreted by using layer */
+    int userarg2;	        /* interpreted by using layer */
+} hal_group_t;
+
+// members are subordinate to a group identified by the group_id
+// in the hdr.
+// a member refers to a signal of the same name,
+// through sig_ptr (for performance reasons).
+typedef struct hal_member {
+    halhdr_t hdr;		// common HAL object header
+    int sig_ptr;                // refers to a signal descriptor
+    int userarg1;               // interpreted by using layer
     __u8 eps_index;             // index into haldata->epsilon[]; default 0
 } hal_member_t;
 
-typedef struct {
-    int next_ptr;		/* next group in free list */
-    int refcount;               /* advisory by using code */
-    int userarg1;	        /* interpreted by using layer */
-    int userarg2;	        /* interpreted by using layer */
-    int handle;                 /* immutable ID */
-    char name[HAL_NAME_LEN + 1];	/* group name */
-    int member_ptr;             /* list of group members */
-} hal_group_t;
-
-
 #define CGROUP_MAGIC  0xbeef7411
-typedef struct {
+typedef struct hal_compiled_group {
     int magic;
     hal_group_t *group;
     int n_members;
@@ -46,12 +46,11 @@ typedef int (*group_report_callback_t)(int,  hal_compiled_group_t *,
 
 typedef int (*hal_group_callback_t)(hal_group_t *group,  void *cb_data);
 
-// the following functions lock the hal mutex:
-extern int hal_group_new(const char *group, int arg1, int arg2);
-extern int hal_group_delete(const char *group);
+extern int halg_group_new(const int use_hal_mutex, const char *group, int arg1, int arg2);
+extern int halg_group_delete(const int use_hal_mutex, const char *group);
 
-extern int hal_member_new(const char *group, const char *member, int arg1, int eps_index);
-extern int hal_member_delete(const char *group, const char *member);
+extern int halg_member_new(const int use_hal_mutex, const char *group, const char *member, int arg1, int eps_index);
+extern int halg_member_delete(const int use_hal_mutex, const char *group, const char *member);
 
 extern int hal_cgroup_report(hal_compiled_group_t *cgroup,
 			     group_report_callback_t report_cb,
@@ -63,25 +62,6 @@ extern int hal_cgroup_free(hal_compiled_group_t *cgroup);
 extern int hal_ref_group(const char *group);
 // when done, a group should be unreferenced:
 extern int hal_unref_group(const char *group);
-
-
-// group iterator
-// for each defined group, call the callback function iff:
-// - a NULL group argument is give: this will cause all groups to be visited.
-// - a non-null group argument will visit exactly that group with an exact name match (no prefix matching).
-// - if the group was found, 1 is returned, else 0.
-// cb_data can be used in any fashion and it is not inspected.
-
-// callback return values:
-//    0:   this signals 'continue iterating'
-//    >0:  this signals 'stop iteration and return count'
-//    <0:  this signals an error. Stop iterating and return the error code.
-// if iteration runs to completion and the callback has never returned a
-// non-zero value, halpr_foreach_group returns the number of groups visited.
-//
-// NB: halpr_foreach_group() does not lock hal_data.
-extern int halpr_foreach_group(const char *groupname,
-			       hal_group_callback_t callback, void *cb_data);
 
 
 // group level operations:
@@ -114,7 +94,7 @@ extern int halpr_foreach_group(const char *groupname,
 static inline int hal_cgroup_timer(hal_compiled_group_t *cgroup)
 {
     if (!cgroup || !cgroup->group)
-	return -EINVAL;
+	HALFAIL_RC(EINVAL, "invalid cgroup");
     return cgroup->group->userarg1;
 }
 extern int halpr_group_compile(const char *name, hal_compiled_group_t **cgroup);
@@ -123,7 +103,7 @@ extern int hal_cgroup_match(hal_compiled_group_t *cgroup);
 // given a cgroup which returned a non-zero value from hal_cgroup_match(),
 // generate a report.
 // the report callback is called for the following phases:
-typedef enum report_phase {
+typedef enum {
     REPORT_BEGIN,
     REPORT_SIGNAL, // for cgroups only
     REPORT_PIN,    // for ccomp's only
@@ -150,41 +130,6 @@ int demo_report(int phase, hal_compiled_group_t *cgroup, hal_sig_t *sig,
 }
 #endif
 
-
-// member iterator
-// visit the group named 'group', or all groups if group was passed as NULL
-//
-// for each member in matching groups, call the callback function
-// if the member happens is a nested group:
-//   if flags & RESOLVE_NESTED_GROUPS is nonzero:
-//     all nested groups are resolved recursivel and
-//     the callback happens at the leaf (signal level)
-//   else
-//     the callback happens at the top level without nested group resolution
-//     in this case using code must be prepared to deal with a group or signal member
-//     in the callback function
-//
-//
-// cb_data can be used in any fashion and it is passed to the callback
-// uninspected and unmodified.
-//
-// callback return values are interpreted as follows:
-//    0:   this signals 'continue iterating'
-//    >0:  this signals 'stop iteration and return count'
-//    <0:  this signals a user-defined error situation;
-//         stop iterating and return the error code.
-//
-// if iteration runs to completion and the callback has never returned a
-// non-zero value, halpr_foreach_member returns the number of members visited.
-//
-// NB: halpr_foreach_member() does not lock hal_data.
-#define RESOLVE_NESTED_GROUPS 1
-#define MAX_NESTED_GROUPS 10
-
-typedef int (*hal_member_callback_t)(int level, hal_group_t **groups,
-				     hal_member_t *member, void *cb_data);
-extern int halpr_foreach_member(const char *group,
-				hal_member_callback_t callback, void *cb_data, int flags);
 
 // group execution argument conventions:
 //
@@ -239,11 +184,9 @@ extern int halpr_foreach_member(const char *group,
 //                 (abs(value - previous-value) > hal_data->epsilon[eps_index]
 
 
-
-// the following functions do NOT lock the hal mutex:
-extern hal_group_t *halpr_find_group_by_name(const char *name);
-extern hal_group_t *halpr_find_group_of_member(const char *member);
-
+static inline hal_group_t *halpr_find_group_by_name(const char *name){
+    return halg_find_object_by_name(0, HAL_GROUP, name).group;
+}
 
 
 RTAPI_END_DECLS

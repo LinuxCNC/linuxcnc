@@ -37,11 +37,8 @@
  ******************************************************************************/
 component io_muxn "Gate one of N input values";
 pin in s32 sel = 0;
-pin io float out 
-"""
-Follows the value of *in<M>* whereas M is the value of the *sel* input.
-If *sel* is not in the range of available inputs 0 is output.
-""";
+pin io float out "Follows the value of \\fBin<M>\\fR whereas M is the value of the \\fBsel\\fR input. \
+If \\fBsel\\fR is not in the range of available inputs 0 is output.";
 pin io float in#.[pincount];
 
 variable hal_s32_t last_sel = -1; // will apply input to output on start-up
@@ -58,7 +55,7 @@ author "Alexander Roessler";
 ;;
 FUNCTION(_)
 {
-    if ((sel < 0) || (sel >= localpincount))
+    if ((sel < 0) || (sel >= local_pincount))
     {
         return 0; // incorrect sel, we change nothing
     }

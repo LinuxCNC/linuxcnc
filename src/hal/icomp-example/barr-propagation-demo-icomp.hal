@@ -1,0 +1,107 @@
+# define some signals
+newsig s1 bit
+newsig s2 bit
+
+show sig
+# Signals:
+# Type          Value  MB Name    linked to:
+# bit           FALSE  -- s1
+# bit           FALSE  -- s2
+
+
+# manipulate barrier bits:
+setwmb s1
+setrmb s1
+
+# do the same on second signal
+setwmb s2
+setrmb s2
+
+show sig
+# Signals:
+# Type          Value  MB Name    linked to:
+# bit           FALSE  rw s1
+# bit           FALSE  rw s2
+
+
+
+# this newinst creates some v2 pins which support barrier propagation
+# NB no barriers initally set
+newinst lutnv2  test pincount=2 functn=0x0e
+
+show pin
+# Component Pins:
+#   Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+#     80     82 s32   OUT             0  test.funct.time               		--	0
+#     80     82 bit   IN          FALSE  test.in0                      		--	0
+#     80     82 bit   IN          FALSE  test.in1                      		--	0
+#     80     82 bit   OUT         FALSE  test.out                      		--	0
+
+
+
+# show barrier propagation by linking s1 and s2 to test.in0 and test.out
+
+net s1 test.in0
+net s2 test.out
+
+# hal/icomp-example/barrier-propagation-demo.hal:42: Pin 'test.in0' linked to signal 's1'
+# hal/icomp-example/barrier-propagation-demo.hal:43: Pin 'test.out' linked to signal 's2'
+# Component Pins:
+#   Comp   Inst Type  Dir         Value  Name                             Epsilon MB  Flags   linked to:
+#     80     82 s32   OUT             0  test.funct.time               		--	0
+#     80     82 bit   IN          FALSE  test.in0                      		r-	0	<== s1
+#     80     82 bit   IN          FALSE  test.in1                      		--	0
+#     80     82 bit   OUT         FALSE  test.out                      		-w	0	==> s2
+
+
+# log with DEBUG=5:
+
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6546:user halg_signal_new:22 HAL: creating signal 's1'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6546:user halg_signal_new:22 HAL: creating signal 's2'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6546:user halg_object_setbarriers:310 HAL: setting barriers on SIGNAL 's1': rmb: 0->0  wmb: 0->1
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6546:user halg_object_setbarriers:310 HAL: setting barriers on SIGNAL 's1': rmb: 0->1  wmb: 1->1
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6546:user halg_object_setbarriers:310 HAL: setting barriers on SIGNAL 's2': rmb: 0->0  wmb: 0->1
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6546:user halg_object_setbarriers:310 HAL: setting barriers on SIGNAL 's2': rmb: 0->1  wmb: 1->1
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_xinit:69 HAL: initializing component 'lutnv2' type=1 arg1=0 arg2=0/0x0
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_xinit:247 HAL: instantiable component 'lutnv2' id=80 initialized
+# Jul 28 20:43:18 nwheezy msgd:0: rtapi_app:6540:user lutnv2: loaded from lutnv2.so
+# Jul 28 20:43:18 nwheezy msgd:0: rtapi_app:6540:user do_newinst_cmd: instargs='inputs=2 function=0x0e'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_inst_create:60 HAL: rtapi: creating instance 'test' size 20
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt instantiate_lutn: name='test' inputs=2 function=0xe ip=0xb6c59fe8
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_pin_new:139 HAL: creating pin 'test.in0'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_pin_new:139 HAL: creating pin 'test.in1'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_pin_new:139 HAL: creating pin 'test.out'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt hal_export_xfunctfv:70 HAL: exporting function 'test.funct' type 1
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt halg_pin_new:139 HAL: creating pin 'test.funct.time'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt hal_param_new:132 HAL: creating parameter 'test.funct.tmax'
+# Jul 28 20:43:18 nwheezy msgd:0: hal_lib:6540:rt hal_param_new:132 HAL: creating parameter 'test.funct.tmax-inc'
+# Jul 28 20:40:29 nwheezy msgd:0: hal_lib:6486:user halg_link:235 HAL: linking pin 'test.in0' to 's1'
+# Jul 28 20:40:29 nwheezy msgd:0: hal_lib:6486:user propagate_barriers_cb:165 HAL: propagating barriers from signal 's1' to pin 'test.in0': rmb: 0->1  wmb: 0->0
+# Jul 28 20:40:29 nwheezy msgd:0: hal_lib:6486:user halg_link:235 HAL: linking pin 'test.out' to 's2'
+# Jul 28 20:40:29 nwheezy msgd:0: hal_lib:6486:user propagate_barriers_cb:165 HAL: propagating barriers from signal 's2' to pin 'test.out': rmb: 0->0  wmb: 0->1
+
+# one can set rmb/wmb on any hal object, just because the bits are there
+# no use case yet
+newthread foo 1000000
+setrmb foo
+setwmb foo
+
+show objects
+# COMPONENT hal_lib id=66 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# FUNCT delinst id=69 owner=66 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# FUNCT newinst id=68 owner=66 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# COMPONENT hal_lib6546 id=74 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# COMPONENT halcmd6546 id=76 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# SIGNAL s1 id=78 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
+# SIGNAL s2 id=79 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
+# COMPONENT lutnv2 id=80 owner=0 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# INST test id=82 owner=80 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# PIN test.funct.time id=87 owner=82 valid=1 refcnt=0 legacy=1 rmb=0 wmb=0
+# PIN test.in0 id=83 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# PIN test.in1 id=84 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# PIN test.out id=85 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# FUNCT test.funct id=86 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# PARAM test.funct.tmax id=88 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# PARAM test.funct.tmax-inc id=89 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
+# THREAD foo id=90 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
+#    ------------------------------------------------^^^^^^^^^^^

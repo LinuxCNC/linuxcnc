@@ -5,7 +5,7 @@ loadusr  -Wn halsampler halsampler -N halsampler  -n 3500
 
 loadrt stepgen step_type=2
 loadrt encoder num_chan=3
-newthread fast 100000
+newthread fast 100000 fp
 
 net A stepgen.0.phase-A => encoder.0.phase-A encoder.1.phase-A encoder.2.phase-A
 net B stepgen.0.phase-B => encoder.0.phase-B encoder.1.phase-B

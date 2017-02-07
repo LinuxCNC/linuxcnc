@@ -452,7 +452,7 @@ class LinuxCNCWrapper():
             if self.interpInitcode == "":
                 self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-            self.randomToolChanger = self.ini.find("EMCIO", "RANDOM_TOOLCHANGER") or 0
+            self.randomToolChanger = self.ini.find("EMCIO", "RANDOM_TOOL_CHANGER") or 0
 
             # setup program extensions
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")

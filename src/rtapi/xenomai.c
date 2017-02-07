@@ -22,9 +22,9 @@
 ********************************************************************/
 
 #include "config.h"
+#include "xenomai-common.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
-#include "xenomai-common.h"
 
 #include <sys/mman.h>			/* munlockall() */
 #include XENOMAI_INCLUDE(task.h)	/* RT_TASK, rt_task_*() */
@@ -357,7 +357,11 @@ int _rtapi_task_resume_hook(task_data *task, int task_id) {
     return rt_task_resume( &ostask_array[task_id] );
 }
 
-void _rtapi_wait_hook() {
+int _rtapi_wait_hook(const int flags) {
+
+    if (flags & TF_NOWAIT)
+	return 0;
+
     unsigned long overruns = 0;
     int result =  rt_task_wait_period(&overruns);
 

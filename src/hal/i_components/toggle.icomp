@@ -3,8 +3,8 @@ pin in bit in "button input";
 pin io bit out "on/off output";
 pin io u32 debounce = 2 "debounce delay in periods";
 
-variable hal_u32_t debounce_cntr;
-variable hal_bit_t debounced;
+variable hal_u32_t debounce_cntr = 0;
+variable hal_bit_t debounced = false;
 
 function _ nofp;
 license "GPL";

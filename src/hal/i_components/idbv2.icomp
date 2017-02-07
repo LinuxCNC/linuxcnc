@@ -1,0 +1,23 @@
+component idbv2 "Inverse Deadband";
+
+pin_ptr in float in "Input";
+pin_ptr out float out "Output";
+pin_ptr io float amount;
+
+function _ ;
+
+license "GPL";
+author "Anders Wallin";
+;;
+
+FUNCTION(_)
+{
+    if (gf(in) == 0.0)
+        sf(out, gf(in));
+    else if (gf(in) < 0.0)
+        sf(out, gf(in) - gf(amount));
+    else if (gf(in) > 0.0)
+        sf(out, gf(in) + gf(amount));
+
+    return 0;
+}

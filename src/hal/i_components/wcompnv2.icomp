@@ -1,0 +1,35 @@
+component wcompnv2                  "N-range window comparator";
+pin_ptr in float in                 "Value being compared";
+pin_ptr in float value#[pincount] "Boundary N for comparison";
+pin_ptr in s32 default_out = -1     "Default output value when input is not in range";
+pin_ptr out s32 out                 "Returns the index of the window the \\fBin\\fR is currently in";
+pin_ptr out bit under               "True if \\fBin\\fR is less than \\fBvalue0\\fR";
+pin_ptr out bit over                "True if \\fBin\\fR is greater than or equal to \\fvalue<N-1>\\fR";
+pin_ptr out bit in_range            "True if \\fBin\\fR is strictly between \\fBvalue0\\fR and \\fBvalue<N-1>\\fR";
+notes "If \\fBmax\\fR <= \\fBmin\\fR or \\fBvalue<x>\\fR are not in ascending orderthen the behavior is undefined.";
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 16;
+
+function _ fp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    hal_s32_t i;
+
+    ss(out, gs(default_out));
+    for (i=1; i < local_pincount; i++)
+    {
+        if ((gf(in) >= gf(value(i-1))) && (gf(in) < gf(value(i))))
+        {
+            ss(out, i-1);
+        }
+    }
+    sb(under, (gf(in) < gf(value(0))));
+    sb(over, (gf(in) >= gf(value(local_pincount-1))));
+    sb(in_range, !(gb(under) || gb(over)));
+
+    return 0;
+}

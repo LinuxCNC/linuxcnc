@@ -3,7 +3,7 @@ setexact_for_test_suite_only
 loadrt sampler cfg=bbb depth=500
 loadusr -Wn halsampler halsampler -N halsampler -n 10
 
-newthread fast 100000
+newthread fast 100000 fp
 loadrt edge
 
 loadrt streamer cfg=b depth=500

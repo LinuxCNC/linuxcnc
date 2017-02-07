@@ -1,8 +1,5 @@
 component bin2gray "convert a number to the gray-code representation";
-description
-"""
-Converts a number into gray-code
-""";
+description """Converts a number into gray-code""";
 pin in unsigned in "binary code in";
 pin out unsigned out "gray code out";
 license "GPL";

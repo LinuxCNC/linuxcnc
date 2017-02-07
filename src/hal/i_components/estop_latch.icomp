@@ -1,11 +1,4 @@
-component estop_latch "ESTOP latch";
-
-description """
-sets ok-out true and fault-out false"; only if ok-in is true, 
-fault-in is false and a rising edge is seen on reset.  
-
-While ok-out is true, watchdog toggles, and can be used for chargepumps or similar needs.
-""";
+component estop_latch "ESTOP latch which sets ok-out true and fault-out false only if ok-in is true, fault-in is false, and a rising edge is seen on reset.  While ok-out is true, watchdog toggles, and can be used for chargepumps or similar needs.";
 pin in bit ok_in;
 pin in bit fault_in;
 pin in bit reset;

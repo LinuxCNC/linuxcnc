@@ -44,6 +44,19 @@ PROTODIR := $(PROTOSRCDIR)/$(NAMESPACEDIR)
 NANOPB := $(MACHINETALK)/nanopb
 NPBPROTODIR :=  $(NANOPB)/generator/proto
 
+# this is a hack to get runtests to pass
+# build/header_sanity just blindly follows the breadcrumb trail for all
+# includes within headers and will not look in the subdirs nicely created
+# for some of those files, because the files that reference them, have
+# them present in the PWD in the source tree or have an INCLUDE_PATH set.
+
+../include/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
+	cp  $^ $@
+
+../include/%.h: ./$(NANOPB)/%.h
+	cp  $^ $@
+
+
 # Javascript support
 JSGEN=$(MACHINETALK)/tutorial/htdocs/js/machinetalk
 
@@ -313,6 +326,14 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	@rm -f $@
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
+# protoc generated headers are exported to ../include
+../include/%.h: ./$(NAMESPACEDIR)/$(PBGEN)/%.h
+	cp $^ $@
+
+../include/%.hh: ./$(NAMESPACEDIR)/$(PBGEN)/%.hh
+	cp $^ $@
+
+# This path is backwards isnt it?
 # protoc generated headers are exported to ../include
 ../include/$(NAMESPACEDIR)/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
 	@mkdir -p $(dir $@)

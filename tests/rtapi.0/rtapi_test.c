@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "rtapi.h"
+#include "syslog_async.h"
 
 int main()
 {

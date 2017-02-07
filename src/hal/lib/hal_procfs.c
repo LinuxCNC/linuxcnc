@@ -69,15 +69,16 @@ static ssize_t proc_write_rtapicmd(struct file *file,
     if (!strncmp(buffer,"newthread", 9)) {
 	if ((retval = sscanf(buffer, "%s %s %lu %d %d",
 			     cmd, name, &period, &fp, &cpu)) != 5) {
-	    HALERR("newthread: expecting 5 items (s:cmd s:name d:period d:fp d:cpu), got %d",
-		   retval);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL,
+		       "newthread: expecting 5 items"
+		       " (s:cmd s:name d:period d:fp d:cpu), got %d",
+		       retval);
 	}
 	if ((period > 0) &&
 	    (strlen(name) > 0)) {
 	    retval = hal_create_thread(name, period, fp, cpu);
 	    if (retval < 0) {
-		HALERR("newthread: could not create thread '%s' - error %d",
+		HALFAIL_RC(EINVAL, "newthread: could not create thread '%s' - error %d",
 		       name, retval);
 		return retval;
 	    } else {
@@ -87,12 +88,11 @@ static ssize_t proc_write_rtapicmd(struct file *file,
 	}
     } else if (!strncmp(buffer, "delthread", 9)) {
 	if ((retval = sscanf(buffer, "%s %s", cmd, name)) != 2) {
-	    HALERR("delthread: expecting 2 items: 'delthread <threadname>'");
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL,
+		       "delthread: expecting 2 items: 'delthread <threadname>'");
 	}
 	if ((retval = hal_thread_delete(name)))  {
-	    HALERR("delthread '%s' error %d", name, retval);
-	    return retval;
+	    HALFAIL_RC(EINVAL, "delthread '%s' error %d", name, retval);
 	}
 	HALINFO("delthread - thread '%s' deleted", name);
     } else {
@@ -115,9 +115,7 @@ static ssize_t proc_write_rtapicmd(struct file *file,
 		return uret;
 	    }
 	}
-
-	HALERR("unrecognized rtapicmd: '%s'", cmd);
-	return -EINVAL;
+	HALFAIL_RC(EINVAL, "unrecognized rtapicmd: '%s'", cmd);
     }
     return count;
 }

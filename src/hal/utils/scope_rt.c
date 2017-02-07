@@ -362,6 +362,12 @@ static int check_trigger(void)
     case HAL_U32:
 	compare_result = (value->d_u32 > level->d_u32);
 	break;
+    case HAL_S64:
+	compare_result = (value->d_s64 > level->d_s64);
+	break;
+    case HAL_U64:
+	compare_result = (value->d_u64 > level->d_u64);
+	break;	
     default:
 	compare_result = 0;
 	break;

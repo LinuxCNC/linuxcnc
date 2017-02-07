@@ -37,8 +37,6 @@
  */
 
 #include "config.h"
-
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -63,11 +61,15 @@
 #include <limits.h>
 #include <sys/prctl.h>
 #include <inifile.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <czmq.h>
 #include <google/protobuf/text_format.h>
 
-#include <machinetalk/protobuf/message.pb.h>
+#include <message.pb.h>
 #include <pbutil.hh>  // note_printf(machinetalk::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
@@ -78,13 +80,15 @@ using namespace google::protobuf;
 #include "rtapi_export.h"
 #include "hal.h"
 #include "hal_priv.h"
-#include "rtapi/shmdrv/shmdrv.h"
+#include "shmdrv.h"
 
 #include "mk-backtrace.h"
 #include "setup_signals.h"
 #include "mk-zeroconf.hh"
 
 #define BACKGROUND_TIMER 1000
+#define HALMOD   "hal_lib"
+#define RTAPIMOD "rtapi"
 
 using namespace std;
 
@@ -105,7 +109,13 @@ typedef int (*hal_call_usrfunct_t)(const char *name,
 				   int *ureturn);
 static hal_call_usrfunct_t call_usrfunct;
 
-static std::map<string, void*> modules;
+// all we know about a module
+typedef struct modinfo {
+    void *handle;
+    pbstringarray_t iparm; // default instance params
+} modinfo_t;
+
+static std::map<string, struct modinfo> modules;
 static std::vector<string> loading_order;
 static void remove_module(std::string name);
 
@@ -158,13 +168,13 @@ static AvahiCzmqPoll *av_loop;
 // NB: do _not_ call any rtapi_* methods before these variables are set
 // except for rtapi_msg* and friends (those do not go through the rtapi_switch).
 rtapi_switch_t *rtapi_switch;
-global_data_t *global_data; 
-
+global_data_t *global_data;
+static const char *rpath;
 static int init_actions(int instance);
 static void exit_actions(int instance);
 static int harden_rt(void);
-static void rtapi_app_msg_handler(msg_level_t level, const char *fmt, va_list ap);
 static void stderr_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
+static int record_instparms(char *fname, modinfo_t &mi);
 
 static int do_one_item(char item_type_char,
 		       const string &param_name,
@@ -196,6 +206,17 @@ static int do_one_item(char item_type_char,
 	}
 	return 0;
     }
+    case 'u': {
+	unsigned *iitem = *(unsigned**) vitem;
+	iitem[idx] = strtoul(param_value.c_str(), &endp, 0);
+	if(*endp) {
+	    note_printf(pbreply,
+			"`%s' invalid for parameter `%s'",
+			param_value.c_str(), param_name.c_str());
+	    return -1;
+	}
+	return 0;
+    }
     case 's': {
 	char **sitem = *(char***) vitem;
 	sitem[idx] = strdup(param_value.c_str());
@@ -215,7 +236,7 @@ void remove_quotes(string &s)
     s.erase(remove_copy(s.begin(), s.end(), s.begin(), '"'), s.end());
 }
 
-static int do_module_args(void *module,
+static int do_module_args(modinfo_t &mi,
 			  pbstringarray_t args,
 			  const string &symprefix,
 			  machinetalk::Container &pbreply)
@@ -231,7 +252,7 @@ static int do_module_args(void *module,
         }
         string param_name(s, 0, idx);
         string param_value(s, idx+1);
-        void *item = DLSYM<void*>(module,
+        void *item = DLSYM<void*>(mi.handle,
 				  symprefix +
 				  "address_" +
 				  param_name);
@@ -242,7 +263,7 @@ static int do_module_args(void *module,
             return -1;
         }
 	dlerror();
-        char **item_type = DLSYM<char**>(module,
+        char **item_type = DLSYM<char**>(mi.handle,
 					 symprefix +
 					 "type_" +
 					 param_name);
@@ -386,13 +407,15 @@ static void usrfunct_error(const int retval,
 // i.e. any argument following an option starting with '--' is
 // treated as leftovers argument, even if it has a key=value syntax
 //
+
 static void separate_kv(pbstringarray_t &kvpairs,
-			pbstringarray_t &leftovers,
-			const pbstringarray_t &args)
+		    pbstringarray_t &leftovers,
+		    const pbstringarray_t &args)
 {
-    bool extra = false;
-    string prefix = "--";
-    for (int i = 0; i < args.size(); i++) {
+bool extra = false;
+string prefix = "--";
+
+    for(int i = 0; i < args.size(); i++) {
         string s(args.Get(i));
 	remove_quotes(s);
 	if (s == prefix) { // standalone separator '--'
@@ -425,32 +448,44 @@ static int do_newinst_cmd(int instance,
 	retval = do_kmodinst_args(comp,args,pbreply);
 	if (retval) return retval;
 	return rtapi_fs_write(PROCFS_RTAPICMD,"call newinst %s %s %s",
-			      comp.c_str(),
-			      instname.c_str(),
-			      s.c_str());
+			  comp.c_str(),
+			  instname.c_str(),
+			  s.c_str());
     } else {
 	if (call_usrfunct == NULL) {
 	    pbreply.set_retcode(1);
-	    pbreply.add_note("this HAL library version does not support user functions - version problem?");
+	    pbreply.add_note("this HAL library version does "
+			     "not support user functions - version problem?");
 	    return -1;
 	}
-	void *w = modules[comp];
-	if (w == NULL) {
+	if (modules.count(comp) == 0) {
 	    // if newinst via halcmd, it should have been automatically loaded already
 	    note_printf(pbreply,
 			"newinst: component '%s' not loaded",
 			comp.c_str());
 	    return -1;
 	}
+	modinfo_t &mi = modules[comp];
 	dlerror();
-	string s = pbconcat(args);
 
+	string s = pbconcat(mi.iparm);
+
+	// set the default instance parameters which were recorded during
+	// initial load with record_instanceparams()
+	retval = do_module_args(mi, mi.iparm, RTAPI_IP_SYMPREFIX, pbreply);
+	if (retval < 0) {
+	    note_printf(pbreply,
+			"passing default instance args for '%s' failed: '%s'",
+			instname.c_str(), s.c_str());
+	    return retval;
+	}
+
+	s = pbconcat(args);
 	pbstringarray_t kvpairs, leftovers;
-
 	separate_kv(kvpairs, leftovers, args);
 
 	// set the instance parameters
-	retval = do_module_args(w, kvpairs, RTAPI_IP_SYMPREFIX, pbreply);
+	retval = do_module_args(mi, kvpairs, RTAPI_IP_SYMPREFIX, pbreply);
 	if (retval < 0) {
 	    note_printf(pbreply,
 			"passing args for '%s' failed: '%s'",
@@ -541,72 +576,75 @@ static int do_load_cmd(int instance,
 		       pbstringarray_t args,
 		       machinetalk::Container &pbreply)
 {
-    void *w = modules[name];
     char module_name[PATH_MAX];
-    void *module;
     int retval;
 
-    if (w == NULL) {
+    if (modules.count(name) == 0) {
 	if (kernel_threads(flavor)) {
 	    string cmdargs = pbconcat(args, " ", "'");
 	    retval = run_module_helper("insert %s %s", name.c_str(), cmdargs.c_str());
 	    if (retval) {
 		note_printf(pbreply, "couldnt insmod %s - see dmesg\n", name.c_str());
 	    } else {
-		modules[name] = (void *) -1;  // so 'if (modules[name])' works
+		modules[name] = modinfo();
 		loading_order.push_back(name);
 	    }
 	    return retval;
 	} else {
 	    strncpy(module_name, (name + flavor->mod_ext).c_str(),
 		    PATH_MAX);
-	    module = modules[name] = dlopen(module_name, RTLD_GLOBAL |RTLD_NOW);
-	    if (!module) {
-		string errmsg(dlerror());
+	    modinfo_t mi = modinfo_t();
 
-		// rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n",
-		// 		name.c_str(), errmsg.c_str());
-		const char *rpath = rtapi_get_rpath();
+	    mi.handle = dlopen(module_name, RTLD_GLOBAL |RTLD_NOW);
+	    if (!mi.handle) {
+		string errmsg(dlerror());
 		note_printf(pbreply, "%s: dlopen: %s",
 			    __FUNCTION__, errmsg.c_str());
-		note_printf(pbreply, "rpath=%s",	rpath == NULL ? "" : rpath);
-		if (rpath)
-		    free((void *)rpath);
+		note_printf(pbreply, "rpath=%s", rpath == NULL ? "" : rpath);
 		return -1;
 	    }
+	    // first load of a module. Record default instanceparams
+	    // so they can be replayed before newinst
+	    record_instparms(module_name, mi);
+
 	    // retrieve the address of rtapi_switch_struct
 	    // so rtapi functions can be called and members
 	    // accessed
+	    // RTAPIMOD only will have that, but we need that as soon as
+	    // possible so not much use in testing the name
 	    if (rtapi_switch == NULL) {
 		rtapi_get_handle_t rtapi_get_handle;
 		dlerror();
-		rtapi_get_handle = (rtapi_get_handle_t) dlsym(module,
-							      "rtapi_get_handle");
+		rtapi_get_handle = (rtapi_get_handle_t)dlsym(mi.handle,
+							     "rtapi_get_handle");
 		if (rtapi_get_handle != NULL) {
 		    rtapi_switch = rtapi_get_handle();
 		    assert(rtapi_switch != NULL);
 		}
 	    }
-	    /// XXX handle arguments
-	    int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
-	    if(!start) {
+
+	    int (*start)(void) = DLSYM<int(*)(void)>(mi.handle, "rtapi_app_main");
+	    if (!start) {
 		note_printf(pbreply, "%s: dlsym: %s\n",
 			    name.c_str(), dlerror());
 		return -1;
 	    }
 	    int result;
 
-	    result = do_module_args(module, args, RTAPI_MP_SYMPREFIX, pbreply);
-	    if(result < 0) { dlclose(module); return -1; }
+	    result = do_module_args(mi, args, RTAPI_MP_SYMPREFIX, pbreply);
+	    if (result < 0) {
+		dlclose(mi.handle);
+		return -1;
+	    }
 
 	    // need to call rtapi_app_main with as root
 	    // RT thread creation and hardening requires this
 	    if ((result = start()) < 0) {
 		note_printf(pbreply, "rtapi_app_main(%s): %d %s\n",
 			    name.c_str(), result, strerror(-result));
-		modules.erase(modules.find(name));
 		return result;
 	    }
+	    modules[name] = mi;
 	    loading_order.push_back(name);
 
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n",
@@ -621,14 +659,15 @@ static int do_load_cmd(int instance,
 
  static int do_unload_cmd(int instance, string name, machinetalk::Container &reply)
 {
-    void *w = modules[name];
+
     int retval = 0;
 
-    if (w == NULL) {
+    if (modules.count(name) == 0) {
 	note_printf(reply, "unload: '%s' not loaded\n",
 		    name.c_str());
 	return -1;
     } else {
+	modinfo_t &mi = modules[name];
 	if (kernel_threads(flavor)) {
 	    retval = run_module_helper("remove %s", name.c_str());
 	    if (retval) {
@@ -640,12 +679,12 @@ static int do_load_cmd(int instance,
 		remove_module(name);
 	    }
 	} else {
-	    int (*stop)(void) = DLSYM<int(*)(void)>(w, "rtapi_app_exit");
+	    int (*stop)(void) = DLSYM<int(*)(void)>(mi.handle, "rtapi_app_exit");
 	    if (stop)
 		stop();
+	    dlclose(mi.handle);
 	    modules.erase(modules.find(name));
 	    remove_module(name);
-	    dlclose(w);
 	}
     }
     rtapi_print_msg(RTAPI_MSG_DBG, " '%s' unloaded\n", name.c_str());
@@ -655,11 +694,6 @@ static int do_load_cmd(int instance,
 // shut down the stack in reverse loading order
 static void exit_actions(int instance)
 {
-    void *w = modules["hal_lib"];
-    int (*exit_threads)(void) =
-		DLSYM<int(*)(void)>(w,"hal_exit_threads");
-    exit_threads();
-
     machinetalk::Container reply;
     size_t index = loading_order.size() - 1;
     for(std::vector<std::string>::reverse_iterator rit = loading_order.rbegin();
@@ -684,18 +718,18 @@ static int init_actions(int instance)
 	    return -1;
 	}
 	// leftovers or running session?
-	if (is_module_loaded("rtapi")) {
+	if (is_module_loaded(RTAPIMOD)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi already loaded");
 	    return -1;
 	}
-	if (is_module_loaded("hal_lib")) {
+	if (is_module_loaded(HALMOD)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "hal_lib already loaded");
 	    return -1;
 	}
 	char *m = strtok(moddir, "\t ");
 	while (m != NULL) {
 	    char cmdline[PATH_MAX];
-	    if (!strcmp(m, "rtapi")) {
+	    if (!strcmp(m, RTAPIMOD)) {
 		snprintf(cmdline, sizeof(cmdline),
 			 "insert %s rtapi_instance=%d", m, instance_id);
 	    } else {
@@ -715,21 +749,24 @@ static int init_actions(int instance)
 	}
     }
     machinetalk::Container reply;
-    retval =  do_load_cmd(instance, "rtapi", pbstringarray_t(), reply);
+    retval =  do_load_cmd(instance, RTAPIMOD, pbstringarray_t(), reply);
     if (retval)
 	return retval;
-    if ((retval = do_load_cmd(instance, "hal_lib", pbstringarray_t(), reply)))
+    if ((retval = do_load_cmd(instance, HALMOD, pbstringarray_t(), reply)))
 	return retval;
 
     if (!kernel_threads(flavor)) {
-	// resolve the "hal_call_usrfunct" for later - callfunc, newinst & delinst need it
-	void *hallib = modules["hal_lib"];
+	// resolve the "hal_call_usrfunct" for later
+	// callfunc, newinst & delinst need it
+	modinfo_t &hallib = modules[HALMOD];
 	dlerror();
-	call_usrfunct = (hal_call_usrfunct_t) dlsym(hallib, "hal_call_usrfunct");
+	call_usrfunct = (hal_call_usrfunct_t) dlsym(hallib.handle,
+						    "hal_call_usrfunct");
 
 	if (call_usrfunct == NULL) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "cant resolve 'hal_call_usrfunct' in hal_lib - version problem?");
+			    "cant resolve 'hal_call_usrfunct' in "
+			    "hal_lib - version problem?");
 	    char *s = dlerror();
 	    if (s)
 		rtapi_print_msg(RTAPI_MSG_ERR, "dlsym(hal_call_usrfunct): '%s'", s);
@@ -764,9 +801,9 @@ static int attach_global_segment()
 	}
     } while (retval < 0);
 
-    if (size != sizeof(global_data_t)) {
+    if (size < (int) sizeof(global_data_t)) {
 	syslog_async(LOG_ERR,
-	       "rtapi_app:%d global segment size mismatch: expect %zu got %d\n",
+	       "rtapi_app:%d global segment size mismatch: expect >%zu got %d\n",
 	       instance_id, sizeof(global_data_t), size);
 	return -EINVAL;
     }
@@ -906,22 +943,23 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 
 	if (kernel_threads(flavor)) {
 	    int retval =  rtapi_fs_write(PROCFS_RTAPICMD,"newthread %s %d %d %d %d",
-					 pbreq.rtapicmd().threadname().c_str(),
-					 pbreq.rtapicmd().threadperiod(),
-					 pbreq.rtapicmd().use_fp(),
-					 pbreq.rtapicmd().cpu(),
-					 pbreq.rtapicmd().flags());
+				     pbreq.rtapicmd().threadname().c_str(),
+				     pbreq.rtapicmd().threadperiod(),
+				     pbreq.rtapicmd().use_fp(),
+				     pbreq.rtapicmd().cpu(),
+				     pbreq.rtapicmd().flags());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 
 	} else {
-	    void *w = modules["hal_lib"];
-	    if (w == NULL) {
+	    if (modules.count(HALMOD)  == 0) {
 		pbreply.add_note("hal_lib not loaded");
 		pbreply.set_retcode(-1);
 		break;
 	    }
+	    modinfo_t &mi = modules[HALMOD];
 	    int (*create_thread)(const hal_threadargs_t*) =
-		DLSYM<int(*)(const hal_threadargs_t*)>(w, "hal_create_xthread");
+		DLSYM<int(*)(const hal_threadargs_t*)>(mi.handle,
+						       "hal_create_xthread");
 	    if (create_thread == NULL) {
 		pbreply.add_note("symbol 'hal_create_thread' not found in hal_lib");
 		pbreply.set_retcode(-1);
@@ -949,35 +987,23 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 
 	if (kernel_threads(flavor)) {
 	    int retval =  rtapi_fs_write(PROCFS_RTAPICMD, "delthread %s",
-					 pbreq.rtapicmd().threadname().c_str());
+					   pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval < 0 ? retval:0);
 	} else {
-	    void *w = modules["hal_lib"];
-	    if (w == NULL) {
+	    if (modules.count(HALMOD) == 0) {
 		pbreply.add_note("hal_lib not loaded");
 		pbreply.set_retcode(-1);
 		break;
 	    }
-	    int retval;
-	    if (pbreq.rtapicmd().threadname() == "all") {
-		int (*exit_threads)(void) =
-		    DLSYM<int(*)(void)>(w,"hal_exit_threads");
-		if (exit_threads == NULL) {
-		    pbreply.add_note("symbol 'hal_exit_threads' not found in hal_lib");
-		    pbreply.set_retcode(-1);
-		    break;
-		}
-		retval = exit_threads();
-	    } else {
-		int (*delete_thread)(const char *) =
-		    DLSYM<int(*)(const char *)>(w,"hal_thread_delete");
-		if (delete_thread == NULL) {
-		    pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
-		    pbreply.set_retcode(-1);
-		    break;
-		}
-		retval = delete_thread(pbreq.rtapicmd().threadname().c_str());
+	    modinfo_t &mi = modules[HALMOD];
+	    int (*delete_thread)(const char *) =
+		DLSYM<int(*)(const char *)>(mi.handle, "hal_thread_delete");
+	    if (delete_thread == NULL) {
+		pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
+		pbreply.set_retcode(-1);
+		break;
 	    }
+	    int retval = delete_thread(pbreq.rtapicmd().threadname().c_str());
 	    pbreply.set_retcode(retval);
 	}
 	break;
@@ -994,7 +1020,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     // log accumulated notes
     for (int i = 0; i < pbreply.note_size(); i++) {
 	rtapi_print_msg(pbreply.retcode() ? RTAPI_MSG_ERR : RTAPI_MSG_DBG,
-			"%s", pbreply.note(i).c_str());
+			pbreply.note(i).c_str());
     }
 
     // TODO: extract + attach error message
@@ -1146,6 +1172,7 @@ static int mainloop(size_t  argc, char **argv)
 	memset(argv[i], '\0', strlen(argv[i]));
 
     backtrace_init(proctitle);
+    rpath = rtapi_get_rpath();
 
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>
@@ -1272,15 +1299,15 @@ static int mainloop(size_t  argc, char **argv)
     {	// always bind the IPC socket
 	char uri[LINELEN];
 	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
-		 RUNDIR, instance_id, "rtapi", service_uuid);
+		 RUNDIR, instance_id, RTAPIMOD, service_uuid);
 	mode_t prev = umask(S_IROTH | S_IWOTH | S_IXOTH);
-	if ((z_port = zsocket_bind(z_command, "%s", uri )) < 0) {
+	if ((z_port = zsocket_bind(z_command, uri )) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,  "cannot bind IPC socket '%s' - %s\n",
 			    uri, strerror(errno));
 	    global_data->rtapi_app_pid = 0;
 	    exit(EXIT_FAILURE);
 	}
-	rtapi_print_msg(RTAPI_MSG_ERR,"accepting commands at %s\n",uri);
+	rtapi_print_msg(RTAPI_MSG_DBG,"accepting commands at %s\n",uri);
 	umask(prev);
     }
     zloop_t *z_loop = zloop_new();
@@ -1300,7 +1327,8 @@ static int mainloop(size_t  argc, char **argv)
     // no remote rtapi service yet
     if (remote) {
 	if (!(av_loop = avahi_czmq_poll_new(z_loop))) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: zeroconf: Failed to create avahi event loop object.",
+	    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: zeroconf: "
+			    "Failed to create avahi event loop object.",
 			    instance_id);
 	    return -1;
 	} else {
@@ -1473,7 +1501,7 @@ static int harden_rt()
 	}
     }
 
-    if (flavor->id == RTAPI_XENOMAI_ID) {
+    if (flavor->flavor_id == RTAPI_XENOMAI_ID) {
 	int retval = user_in_xenomai_group();
 
 	switch (retval) {
@@ -1533,6 +1561,7 @@ static void usage(int argc, char **argv)
 static struct option long_options[] = {
     {"help",  no_argument,          0, 'h'},
     {"foreground",  no_argument,    0, 'F'},
+    {"stderr",  no_argument,        0, 's'},
     {"nosighdlr",   no_argument,    0, 'G'},
     {"instance", required_argument, 0, 'I'},
     {"ini",      required_argument, 0, 'i'},     // default: getenv(INI_FILE_NAME)
@@ -1541,7 +1570,6 @@ static struct option long_options[] = {
     {"debug",        no_argument,    0, 'd'},
     {"svcuuid",   required_argument, 0, 'R'},
     {"interfaces",required_argument, 0, 'n'},
-    {"stderr",    no_argument,       0, 's'},
     {0, 0, 0, 0}
 };
 
@@ -1550,18 +1578,17 @@ int main(int argc, char **argv)
     int c;
     progname = argv[0];
     inifile =  getenv("MACHINEKIT_INI");
-    int syslog_async_option = LOG_NDELAY;
-    int syslog_async_delay = 1000;
 
     uuid_generate_time(process_uuid);
     uuid_unparse(process_uuid, process_uuid_str);
+    int option = LOG_NDELAY;
 
-    rtapi_set_msg_handler(rtapi_app_msg_handler);
+
 
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "ShH:m:I:sf:r:U:NFdR:n:i:",
+	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:s",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -1617,8 +1644,7 @@ int main(int argc, char **argv)
 	    service_uuid = strdup(optarg);
 	    break;
 	case 's':
-	    syslog_async_option |= LOG_PERROR;
-	    syslog_async_delay = 0;
+	    option |= LOG_PERROR;
 	    break;
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
@@ -1633,10 +1659,10 @@ int main(int argc, char **argv)
 	}
     }
 
-    openlog_async(argv[0], syslog_async_option, LOG_LOCAL1);
-    setlogmask_async(LOG_UPTO(LOG_DEBUG));
-    // tune async syslog buffers:  max buffer size; 0 delay for stdout, else 1s
-    tunelog_async(99,syslog_async_delay);
+    openlog_async(argv[0], option, LOG_LOCAL1);
+    // setlogmask_async(LOG_UPTO(LOG_DEBUG));
+    // max out async syslog buffers for slow system in debug mode
+    tunelog_async(99,1000);
 
     if (trap_signals && (getenv("NOSIGHDLR") != NULL))
 	trap_signals = false;
@@ -1669,7 +1695,7 @@ int main(int argc, char **argv)
 #endif
 
     // the actual checking for setuid happens in harden_rt() (if needed)
-    if (getuid() != 0) {
+    if (!foreground && (getuid() > 0)) {
 	pid_t pid1;
 	pid_t pid2;
 	int status;
@@ -1693,23 +1719,6 @@ int main(int argc, char **argv)
     exit(mainloop(argc, argv));
 }
 
-
-// normally rtapi_app will log through the message ringbuffer in the
-// global data segment. This isnt available initially, and during shutdown,
-// so switch to direct syslog during these time windows so we dont
-// loose log messages, even if they cant go through the ringbuffer
-static void rtapi_app_msg_handler(msg_level_t level, const char *fmt,
-				  va_list ap)
-{
-    // during startup the global segment might not be
-    // available yet, so use stderr until then
-    if (global_data) {
-	vs_ring_write(level, fmt, ap);
-    } else {
-	vsyslog_async(rtapi2syslog(level), fmt, ap);
-    }
-}
-
 // use this handler if -F/--foreground was given
 static void stderr_rtapi_msg_handler(msg_level_t level,
 				     const char *fmt, va_list ap)
@@ -1722,3 +1731,123 @@ static void remove_module(std::string name)
     std::vector<string>::iterator invalid;
     invalid = remove( loading_order.begin(), loading_order.end(), name );
 }
+
+// instparams are set on each instantiation, but must be set
+// to default values before applying new instance params
+// because the old ones will remain in place, overriding defaults.
+//
+// the basic idea is:
+// once a module is loaded, it is scanned for instance parameter defaults
+// as stored in the .rtapi_export section.
+//
+// those are retrieved, and recorded in the per-module modinfo
+// in the same format as received via zeromq/protobuf from halcmd/cython.
+//
+// in do_newinst_cmd(), apply those defaults before the actual parameters
+// are applied.
+static int record_instparms(char *fname, modinfo_t &mi)
+{
+    if (rpath == NULL)
+	return -1;
+
+    void *section = NULL;
+    int csize = -1;
+    size_t i;
+    vector<string> tokens;
+    string pn;
+    string rp(rpath);
+
+    // find the location of the shared library - the dlopen()
+    // handle wont tell us the pathname
+    // so walk the rpath and stat
+    boost::split(tokens, rp, boost::is_any_of(":"),
+			 boost::algorithm::token_compress_on);
+
+    for(i = 0; i < tokens.size() && csize < 0; i++) {
+	pn = tokens[i]+ "/" + fname;
+	struct stat sb;
+	if (stat(pn.c_str(), &sb))
+	    continue;
+	// found it. get the params section.
+	csize = get_elf_section(pn.c_str(), ".rtapi_export" , &section);
+    }
+    if (csize < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "cant open %s\n", fname);
+	return -1;
+    }
+
+    char *s;
+    vector<string> symbols;
+    string sym;
+    for (s = (char *)section;
+	 s < ((char *)section + csize);
+	 s += strlen(s) + 1)
+	if (strlen(s))
+	    symbols.push_back(string(s));
+
+    // walk the symbols, and extract the instparam names.
+    string pat(RTAPI_IP_SYMPREFIX "address_");
+    vector<string> instparms;
+
+    for (i = 0; i < symbols.size(); i++) {
+	string ip(symbols[i]);
+	if (boost::starts_with(ip, pat)) {
+	    boost::replace_first(ip, pat,"");
+	    char **type = DLSYM<char**>(mi.handle,
+					RTAPI_IP_SYMPREFIX "type_" +
+					ip);
+	    void *addr = DLSYM<void*>(mi.handle,
+				      RTAPI_IP_SYMPREFIX "address_" +
+				      ip);
+	    // char **desc = DLSYM<char**>(mi.handle,
+	    // 				RTAPI_IP_SYMPREFIX "description_" +
+	    // 				ip);
+	    int i;
+	    unsigned u;
+	    long l;
+	    char *s;
+	    char buffer[100];
+	    string tmp;
+	    if (strlen(*type) == 1) {
+		switch (**type) {
+		case 'i':
+		    i = **((int **) addr);
+		    snprintf(buffer, sizeof(buffer),"%s=%d", ip.c_str(),i);
+		    *mi.iparm.Add() = buffer;
+		    break;
+		case 'u':
+		    u = **((unsigned **) addr);
+		    snprintf(buffer, sizeof(buffer),"%s=%u", ip.c_str(),u);
+		    *mi.iparm.Add() = buffer;
+		    break;
+		case 'l':
+		    l = **((long **) addr);
+		    snprintf(buffer, sizeof(buffer),"%s=%ld", ip.c_str(),l);
+		    *mi.iparm.Add() = buffer;
+		    break;
+		case 's':
+		    s = **(char ***) addr;
+		    snprintf(buffer, sizeof(buffer),"%s=\"%s\"", ip.c_str(),s);
+		    *mi.iparm.Add() = buffer;
+		    break;
+		default:
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    "%s: unhandled instance param type '%c'",
+				    fname, **type);
+		}
+	    } else {
+		// TBD: arrays
+	    }
+	    // rtapi_print_msg(RTAPI_MSG_INFO,
+	    // 		    "--inst param '%s' at %p type='%s' descr='%s'",
+	    // 		    ip.c_str(), addr,*type, *desc);
+	}
+
+    }
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "%s default iparms: '%s'", fname,
+		    pbconcat(mi.iparm).c_str());
+    free(section);
+    return 0;
+}
+

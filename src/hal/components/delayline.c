@@ -157,7 +157,7 @@ void rtapi_app_exit(void)
     for (n = 0; n < count; n++) {
 	if (instance[n]) {
 	    hal_delayline_t *hd = instance[n]->scratchpad;
-	    hal_ring_detachf(instance[n], "%s.samples", hd->name);
+	    hal_ring_detach(instance[n]);
 	    hal_ring_deletef("%s.samples", hd->name);
 	}
     }
@@ -197,16 +197,22 @@ static void write_sample_to_ring(void *arg, long period)
 	    switch (hd->pintype[j])
 		{
 		case HAL_BIT:
-		    hd->pins_out[j]->b = hd->pins_in[j]->b;
+		    set_bit_value(hd->pins_out[j], get_bit_value(hd->pins_in[j]));
 		    break;
 		case HAL_FLOAT:
-		    hd->pins_out[j]->f = hd->pins_in[j]->f;
+		    set_float_value(hd->pins_out[j], get_float_value(hd->pins_in[j]));
 		    break;
 		case HAL_S32:
-		    hd->pins_out[j]->s = hd->pins_in[j]->s;
+		    set_s32_value(hd->pins_out[j], get_s32_value(hd->pins_in[j]));
 		    break;
 		case HAL_U32:
-		    hd->pins_out[j]->u = hd->pins_in[j]->u;
+		    set_u32_value(hd->pins_out[j], get_u32_value(hd->pins_in[j]));
+		    break;
+		case HAL_S64:
+		    set_s64_value(hd->pins_out[j], get_s64_value(hd->pins_in[j]));
+		    break;
+		case HAL_U64:
+		    set_u64_value(hd->pins_out[j], get_u64_value(hd->pins_in[j]));
 		    break;
 		case HAL_TYPE_UNSPECIFIED:
 		    // an error - should fail loudly TBD
@@ -229,16 +235,22 @@ static void write_sample_to_ring(void *arg, long period)
 	switch (hd->pintype[j])
 	    {
 	    case HAL_BIT:
-		s->value[j].b = hd->pins_in[j]->b;
+		set_bit_value(&s->value[j], get_bit_value(hd->pins_in[j]));
 		break;
 	    case HAL_FLOAT:
-		s->value[j].f = hd->pins_in[j]->f;
+		set_float_value(&s->value[j], get_float_value(hd->pins_in[j]));
 		break;
 	    case HAL_S32:
-		s->value[j].s = hd->pins_in[j]->s;
+		set_s32_value(&s->value[j], get_s32_value(hd->pins_in[j]));
 		break;
 	    case HAL_U32:
-		s->value[j].u = hd->pins_in[j]->u;
+		set_u32_value(&s->value[j], get_u32_value(hd->pins_in[j]));
+		break;
+	    case HAL_S64:
+		set_s64_value(&s->value[j], get_s64_value(hd->pins_in[j]));
+		break;
+	    case HAL_U64:
+		set_u64_value(&s->value[j], get_u64_value(hd->pins_in[j]));
 		break;
 	    case HAL_TYPE_UNSPECIFIED:
 		// an error - should fail loudly TBD
@@ -265,16 +277,22 @@ static inline void apply(const sample_t *s, const hal_delayline_t *hd)
 	// dereferenced against their type
 	switch (hd->pintype[i])  {
 	case HAL_BIT:
-	    hd->pins_out[i]->b = s->value[i].b;
+	    set_bit_value(hd->pins_out[i], get_bit_value(&s->value[i]));
 	    break;
 	case HAL_FLOAT:
-	    hd->pins_out[i]->f = s->value[i].f;
-		break;
+	    set_float_value(hd->pins_out[i], get_float_value(&s->value[i]));
+	    break;
 	case HAL_S32:
-	    hd->pins_out[i]->s = s->value[i].s;
+	    set_s32_value(hd->pins_out[i], get_s32_value(&s->value[i]));
 	    break;
 	case HAL_U32:
-	    hd->pins_out[i]->u = s->value[i].u;
+	    set_u32_value(hd->pins_out[i], get_u32_value(&s->value[i]));
+	    break;
+	case HAL_S64:
+	    set_s64_value(hd->pins_out[i], get_s64_value(&s->value[i]));
+	    break;
+	case HAL_U64:
+	    set_u64_value(hd->pins_out[i], get_u64_value(&s->value[i]));
 	    break;
 	case HAL_TYPE_UNSPECIFIED:
 	    // an error - should fail loudly TBD
@@ -288,11 +306,11 @@ static void read_sample_from_ring(void *arg, long period)
     ringbuffer_t *rb = (ringbuffer_t *) arg;
     hal_delayline_t *hd = rb->scratchpad;
     const sample_t *s;
-    size_t size;
+    ringsize_t size;
 
     // detect rising edge on abort pin, and flush rb if so
     if (*(hd->abort) && (*(hd->abort) ^ hd->last_abort)) {
-	int dropped = record_flush(rb);
+	int dropped = record_flush_reader(rb);
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"%s: %s aborted - dropped %d samples\n",
 			cname, hd->name, dropped);
@@ -369,7 +387,7 @@ static int return_instance_samples(int n)
 static int export_delayline(int n)
 {
     int retval, nr_of_samples, i;
-    char buf[HAL_NAME_LEN + 1], *str_type;
+    char *str_type;
 
     // determine the required size of the ringbuffer
     nr_of_samples = return_instance_samples(n);
@@ -379,13 +397,12 @@ static int export_delayline(int n)
     size_t rbsize = record_space(sample_size) * max_delay[n] * RB_HEADROOM;
 
     // create the delay queue
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.samples", names[n]);
-    if ((retval = hal_ring_new(buf, rbsize,
-			       sizeof(hal_delayline_t), ALLOC_HALMEM))) {
+    if ((retval = hal_ring_newf(rbsize, sizeof(hal_delayline_t), ALLOC_HALMEM,
+				"%s.samples", names[n])) < 0) {
 	hal_print_msg(RTAPI_MSG_ERR,
-		      "%s: failed to create new ring %s: %d\n",
-		      cname, buf, retval);
-	return -1;
+		      "%s: failed to create new ring '%s.samples': %d\n",
+		      cname, names[n], retval);
+	return retval;
     }
 
     // use the per-using component ring access structure as the instance data,
@@ -393,10 +410,10 @@ static int export_delayline(int n)
     // HAL pins and other shared data
     if ((instance[n] = hal_malloc(sizeof(ringbuffer_t))) == NULL)
 	return -1;
-    if ((retval = hal_ring_attach(buf, instance[n], NULL))) {
+    if ((retval = hal_ring_attachf(instance[n], NULL, "%s.samples", names[n]))) {
 	hal_print_msg(RTAPI_MSG_ERR,
-		      "%s: attach to ring %s failed: %d\n",
-		      cname, buf, retval);
+		      "%s: attach to ring '%s.samples' failed: %d\n",
+		      cname, names[n], retval);
 	return -1;
     }
 
@@ -431,12 +448,16 @@ static int export_delayline(int n)
 	    type = HAL_FLOAT;
 	    break;
 	case 's':
-	case 'S':
 	    type = HAL_S32;
 	    break;
 	case 'u':
-	case 'U':
 	    type = HAL_U32;
+	    break;
+	case 'S':
+	    type = HAL_S64;
+	    break;
+	case 'U':
+	    type = HAL_U64;
 	    break;
 	default:
 	    hal_print_msg(RTAPI_MSG_ERR,

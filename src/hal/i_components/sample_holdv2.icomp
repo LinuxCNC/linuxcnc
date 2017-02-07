@@ -1,0 +1,14 @@
+component sample_holdv2 "Sample and Hold";
+pin_ptr in s32 in;
+pin_ptr in bit hold;
+pin_ptr out s32 out;
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+	if (!gb(hold))
+		ss(out, gs(in));
+
+return 0;
+}

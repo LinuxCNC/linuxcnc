@@ -1,36 +1,21 @@
-from .hal_priv cimport hal_shmem_base, hal_data_u, hal_data, hal_sig_t
+from .hal_priv cimport hal_shmem_base, hal_data_u, hal_data, hal_sig_t,halhdr_t
 from .rtapi cimport rtapi_atomic_type
+from libc.stdint cimport uint8_t
 
 cdef extern from "hal_group.h" :
 
-    int REPORT_BEGIN
-    int REPORT_SIGNAL
-    int REPORT_PIN
-    int REPORT_END
-
     int GROUP_REPORT_ON_CHANGE
 
-    int RESOLVE_NESTED_GROUPS
-
-    int HAL_SIGNAL
-    int HAL_GROUP
-
     ctypedef struct hal_member_t:
-        int next_ptr
-        int sig_member_ptr
-        int group_member_ptr
+        halhdr_t hdr
+        int sig_ptr
         int userarg1
-        unsigned char eps_index
-        int handle
+        uint8_t eps_index
 
     ctypedef struct  hal_group_t:
-        int next_ptr
-        int refcount
+        halhdr_t hdr
         int userarg1
         int userarg2
-        int handle
-        char *name
-        int member_ptr
 
     ctypedef struct hal_compiled_group_t:
         int magic
@@ -52,11 +37,11 @@ cdef extern from "hal_group.h" :
 
     ctypedef int (*hal_member_callback_t)(int level, hal_group_t **groups,
                                           hal_member_t *member, void *cb_data)
-    int hal_group_new(const char *group, int arg1, int arg2)
-    int hal_group_delete(const char *group)
+    int halg_group_new(const int use_hal_mutex, const char *group, int arg1, int arg2)
+    int halg_group_delete(const int use_hal_mutex, const char *group)
 
-    int hal_member_new(const char *group, const char *member, int arg1, int eps_index)
-    int hal_member_delete(const char *group, const char *member)
+    int halg_member_new(const int use_hal_mutex, const char *group, const char *member, int arg1, int eps_index)
+    int halg_member_delete(const int use_hal_mutex, const char *group, const char *member)
 
     int hal_cgroup_report(hal_compiled_group_t *cgroup,
                           group_report_callback_t report_cb,
@@ -65,7 +50,6 @@ cdef extern from "hal_group.h" :
     int hal_ref_group(const char *group)
     int hal_unref_group(const char *group)
 
-    hal_group_t *halpr_find_group_of_member(const char *name)
     hal_group_t *halpr_find_group_by_name(const char *name)
 
     int halpr_foreach_group(const char *groupname,

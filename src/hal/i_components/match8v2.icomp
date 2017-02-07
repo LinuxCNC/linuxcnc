@@ -1,0 +1,41 @@
+component match8v2 "8-bit binary match detector";
+pin_ptr in bit in = true "cascade input - if false, output is false regardless of other inputs";
+pin_ptr in bit a0;
+pin_ptr in bit a1;
+pin_ptr in bit a2;
+pin_ptr in bit a3;
+pin_ptr in bit a4;
+pin_ptr in bit a5;
+pin_ptr in bit a6;
+pin_ptr in bit a7;
+pin_ptr in bit b0;
+pin_ptr in bit b1;
+pin_ptr in bit b2;
+pin_ptr in bit b3;
+pin_ptr in bit b4;
+pin_ptr in bit b5;
+pin_ptr in bit b6;
+pin_ptr in bit b7;
+pin_ptr out bit out "true only if in is true and a[m] matches b[m] for m = 0 thru 7";
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+hal_bit_t tmp = false;
+
+    if ( !gb(in) ) goto nomatch;
+    if (( gb(a0) && !gb(b0) ) || ( gb(b0) && !gb(a0) )) goto nomatch;
+    if (( gb(a1) && !gb(b1) ) || ( gb(b1) && !gb(a1) )) goto nomatch;
+    if (( gb(a2) && !gb(b2) ) || ( gb(b2) && !gb(a2) )) goto nomatch;    
+    if (( gb(a3) && !gb(b3) ) || ( gb(b3) && !gb(a3) )) goto nomatch;
+    if (( gb(a4) && !gb(b4) ) || ( gb(b4) && !gb(a4) )) goto nomatch;
+    if (( gb(a5) && !gb(b5) ) || ( gb(b5) && !gb(a5) )) goto nomatch;
+    if (( gb(a6) && !gb(b6) ) || ( gb(b6) && !gb(a6) )) goto nomatch;
+    if (( gb(a7) && !gb(b7) ) || ( gb(b7) && !gb(a7) )) goto nomatch;
+    tmp = true;
+nomatch:
+    sb(out,tmp);
+
+return 0;
+}

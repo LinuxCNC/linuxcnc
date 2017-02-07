@@ -3,7 +3,7 @@
 
 loadrt rtmon
 loadrt rtfault
-newthread thread1 1000000
+loadrt threads
 addf rtmon   thread1
 addf rtfault thread1
 

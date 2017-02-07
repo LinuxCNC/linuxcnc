@@ -200,16 +200,39 @@ static void init_horiz_window(void)
     gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
 }
 
-static void init_acquire_function(void)
+static int list_threads(hal_object_ptr o, foreach_args_t *args)
 {
-    hal_funct_t *funct;
-    int next_thread;
-    hal_thread_t *thread;
-    hal_list_t *list_root, *list_entry;
-    hal_funct_entry_t *fentry;
-    scope_horiz_t *horiz;
+hal_funct_entry_t *fentry;
+hal_list_t *list_root = NULL;
+hal_list_t *list_entry = NULL;
+hal_funct_t *funct = NULL;
+scope_horiz_t *horiz;
+hal_thread_t *thread = o.thread;
 
     horiz = &(ctrl_usr->horiz);
+	list_root = &(thread->funct_list);
+	list_entry = dlist_next(list_root);
+
+	while (list_entry != list_root) {
+	    fentry = (hal_funct_entry_t *) list_entry;
+	    if (funct == SHMPTR(fentry->funct_ptr)) {
+			/* found a match, update structure members */
+		horiz->thread_name = (char *)ho_name(thread);
+			horiz->thread_period_ns = thread->period;
+			/* reset watchdog to give RT code some time */
+			ctrl_shm->watchdog = 1;
+			return 1; // stop iterating, we found it
+			}
+	    list_entry = dlist_next(list_entry);
+		}
+    return 0; // continue
+}
+
+
+static void init_acquire_function(void)
+{
+hal_funct_t *funct;
+
     /* set watchdog to trip immediately once heartbeat funct is called */
     ctrl_shm->watchdog = 10;
     /* is the realtime function present? */
@@ -225,36 +248,18 @@ static void init_acquire_function(void)
 	return;
     }
     /* function is in use, find out which thread it is linked to */
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_thread = hal_data->thread_list_ptr;
-    while (next_thread != 0) {
-	thread = SHMPTR(next_thread);
-	list_root = &(thread->funct_list);
-	list_entry = list_next(list_root);
-	while (list_entry != list_root) {
-	    fentry = (hal_funct_entry_t *) list_entry;
-	    if (funct == SHMPTR(fentry->funct_ptr)) {
-		/* found a match, update structure members */
-		horiz->thread_name = thread->name;
-		horiz->thread_period_ns = thread->period;
-		/* done with hal data */
-		rtapi_mutex_give(&(hal_data->mutex));
-		/* reset watchdog to give RT code some time */
-		ctrl_shm->watchdog = 1;
-		return;
-	    }
-	    list_entry = list_next(list_entry);
-	}
-	next_thread = thread->next_ptr;
-    }
-    /* didn't find a linked thread - should never get here, but... */
-    rtapi_mutex_give(&(hal_data->mutex));
+
+    foreach_args_t args =  {
+	.type = HAL_THREAD
+    };
+    halg_foreach(true, &args, list_threads);
+
     return;
 }
 
 void handle_watchdog_timeout(void)
 {
-    hal_funct_t *funct;
+hal_funct_t *funct;
 
     /* stop sampling */
     ctrl_shm->state = IDLE;
@@ -473,22 +478,58 @@ static void dialog_realtime_not_loaded(void)
     }
 }
 
+static int get_threads(hal_object_ptr o, foreach_args_t *args)
+{
+gchar **strs = (gchar**) args->user_ptr1;
+scope_horiz_t *horiz = &(ctrl_usr->horiz);
+int n = 0, sel_row = -1;
+double period = 0L;
+gchar buf[BUFLEN + 1];
+
+hal_thread_t *thread = o.thread;
+
+	// check thread period
+	if (thread->period <= 1000000000) {
+	    // period is less than 1 sec, add to list
+	    period = thread->period / 1000000000.0;
+	    // create a string for display
+	    format_time_value(buf, BUFLEN, period);
+	    strs[1] = buf;
+	    // get thread name
+	    strs[0] = (char *) ho_name(thread);
+	    // add to list
+	    gtk_clist_append(GTK_CLIST(horiz->thread_list), strs);
+	    if ((horiz->thread_name != NULL) && (strcmp(horiz->thread_name, ho_name(thread)) == 0))
+			{
+			// found the current thread, remember it's row number */
+			sel_row = n;
+			// and make sure thread_period is correct
+			horiz->thread_period_ns = thread->period;
+			}
+		}
+	if(sel_row >= 0)
+		args->user_arg1 = sel_row;
+	if(period)
+		*((double*)args->user_ptr2) = period;
+
+	return 0;
+}
+
 static void dialog_realtime_not_linked(void)
 {
-    scope_horiz_t *horiz;
-    dialog_generic_t dialog;
+scope_horiz_t *horiz;
+dialog_generic_t dialog;
+int colwidth, sel_row = -1, n;
+double period;
 
-    int next, colwidth, sel_row, n;
-    double period;
-    hal_thread_t *thread;
-    gchar *strs[2];
-    gchar buf[BUFLEN + 1];
-    GtkWidget *hbox, *label;
-    GtkWidget *button;
-    GtkWidget *buttons[5];
-    GtkWidget *scrolled_window;
-    gchar *titles[2];
-    const gchar *title, *msg;
+gchar *strs[2];
+gchar buf[BUFLEN + 1];
+GtkWidget *hbox, *label;
+GtkWidget *button;
+GtkWidget *buttons[5];
+GtkWidget *scrolled_window;
+gchar *titles[2];
+const gchar *title, *msg;
 
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name == NULL) {
@@ -572,37 +613,15 @@ static void dialog_realtime_not_linked(void)
     gtk_widget_show(horiz->thread_list);
     /* generate list of threads */
     gtk_clist_clear(GTK_CLIST(horiz->thread_list));
-    /* get mutex before traversing list */
-    rtapi_mutex_get(&(hal_data->mutex));
-    n = 0;
-    sel_row = -1;
-    next = hal_data->thread_list_ptr;
-    while (next != 0) {
-	thread = SHMPTR(next);
-	/* check thread period */
-	if (thread->period <= 1000000000) {
-	    /* period is less than 1 sec, add to list */
-	    period = thread->period / 1000000000.0;
-	    /* create a string for display */
-	    format_time_value(buf, BUFLEN, period);
-	    strs[1] = buf;
-	    /* get thread name */
-	    strs[0] = thread->name;
-	    /* add to list */
-	    gtk_clist_append(GTK_CLIST(horiz->thread_list), strs);
-	    if ((horiz->thread_name != NULL)
-		&& (strcmp(horiz->thread_name, thread->name) == 0)) {
-		/* found the current thread, remember it's row number */
-		sel_row = n;
-		/* and make sure thread_period is correct */
-		horiz->thread_period_ns = thread->period;
-	    }
-	}
-	n++;
-	next = thread->next_ptr;
-    }
-    
-    rtapi_mutex_give(&(hal_data->mutex));
+
+    foreach_args_t args =  {
+	.type = HAL_THREAD,
+	.user_ptr1 = strs,
+	.user_ptr2 = &period,
+	.user_arg1 = sel_row
+	};
+    halg_foreach(true, &args, get_threads);
+
     /* set column widths */
     colwidth =
 	gtk_clist_optimal_column_width(GTK_CLIST(horiz->thread_list), 0);
@@ -867,7 +886,7 @@ static int set_sample_thread_name(char *name)
     /* shut down any prior thread */
     deactivate_sample_thread();
     /* save info about the thread */ 
-    horiz->thread_name = thread->name;
+    horiz->thread_name = (char *)ho_name(thread);
     horiz->thread_period_ns = thread->period;
     /* calc max possible mult (to keep sample period <= 1 sec */
     max_mult = (1000000000 / horiz->thread_period_ns);
@@ -908,7 +927,7 @@ static int activate_sample_thread(void)
     /* (probably already sone, but just making sure */
     deactivate_sample_thread();
     /* hook sampling function to thread */
-    rv = hal_add_funct_to_thread("scope.sample", horiz->thread_name, -1);
+    rv = hal_add_funct_to_thread("scope.sample", horiz->thread_name, -1, 0, 0);
     if ( rv < 0 ) {
 	return rv;
     }

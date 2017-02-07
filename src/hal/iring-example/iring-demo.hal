@@ -1,0 +1,24 @@
+newthread t1 100000 posix fp
+newthread t2 200000 posix
+newthread t3 300000 posix
+
+loadrt siggen names=square
+setp square.frequency 10
+
+newinst iring ir
+
+net clock ir.toggle square.clock
+
+addf square.update t1
+addf ir.sample t2
+addf ir.update t3
+
+
+
+start
+
+# setp ir.toggle 1
+# show
+# setp ir.toggle 1
+show pin
+
