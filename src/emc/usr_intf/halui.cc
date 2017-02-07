@@ -97,6 +97,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,tool_length_offset_u) /* current applied u tool-length-offset */ \
     FIELD(hal_float_t,tool_length_offset_v) /* current applied v tool-length-offset */ \
     FIELD(hal_float_t,tool_length_offset_w) /* current applied w tool-length-offset */ \
+    FIELD(hal_float_t,tool_diameter) /* current tool diameter (0 if no tool) */ \
 \
     FIELD(hal_bit_t,spindle_start) /* pin for starting the spindle */ \
     FIELD(hal_bit_t,spindle_stop) /* pin for stoping the spindle */ \
@@ -689,6 +690,8 @@ int halui_hal_init(void)
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_v), comp_id, "halui.tool.length_offset.v");
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_diameter), comp_id, "halui.tool.diameter");
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->so_value), comp_id, "halui.spindle-override.value");
     if (retval < 0) return retval;
@@ -2137,6 +2140,22 @@ static void modify_hal_pins()
     *(halui_data->tool_length_offset_u) = emcStatus->task.toolOffset.u;
     *(halui_data->tool_length_offset_v) = emcStatus->task.toolOffset.v;
     *(halui_data->tool_length_offset_w) = emcStatus->task.toolOffset.w;
+
+    if (emcStatus->io.tool.toolInSpindle == 0) {
+        *(halui_data->tool_diameter) = 0.0;
+    } else {
+        int pocket;
+        for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket ++) {
+            if (emcStatus->io.tool.toolTable[pocket].toolno == emcStatus->io.tool.toolInSpindle) {
+                *(halui_data->tool_diameter) = emcStatus->io.tool.toolTable[pocket].diameter;
+                break;
+            }
+        }
+        if (pocket == CANON_POCKETS_MAX) {
+            // didn't find the tool
+            *(halui_data->tool_diameter) = 0.0;
+        }
+    }
 
     *(halui_data->spindle_is_on) = (emcStatus->motion.spindle.speed != 0);
     *(halui_data->spindle_runs_forward) = (emcStatus->motion.spindle.direction == 1);
