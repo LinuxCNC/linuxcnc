@@ -456,6 +456,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	HOME_SEQUENCE_START,
 	HOME_SEQUENCE_START_JOINTS,
 	HOME_SEQUENCE_WAIT_JOINTS,
+	HOME_SEQUENCE_DO_ONE_JOINT,
+	HOME_SEQUENCE_DO_ONE_SEQUENCE,
     } home_sequence_state_t;
 
     typedef enum {

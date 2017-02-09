@@ -390,11 +390,12 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
 
 === Home sequences
 
-Negative values may be used for the ini file items
+*Negative* values may be used for the ini file items
 named [JOINT_n]HOME_SEQUENCE.  Prior to joints_axes incorporation a value
 of -1 or the ommission of the item indicated no sequence was applicable.
 Now, only omission of the item is used for that purpose.
-
+See the chapter: <<cha:homing-configuration, 'Homing Configuration'>> 
+for more information.
 
 === Locking rotary indexer (updates for joints_axes)
 
