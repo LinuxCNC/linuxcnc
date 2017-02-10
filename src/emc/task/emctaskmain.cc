@@ -694,6 +694,7 @@ static void mdi_execute_abort(void)
         rcs_print("mdi_execute_abort: dropping %d queued MDI commands\n", queued_mdi_commands);
     }
     mdi_execute_queue.clear();
+    emcStatus->task.queuedMDIcommands = 0;
 
     emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 }
@@ -721,6 +722,7 @@ static void mdi_execute_hook(void)
         && (emcTaskCommand == NULL)
     ) {
 	interp_list.append(mdi_execute_queue.get());
+        emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
 	return;
     }
 
@@ -1425,6 +1427,7 @@ static int emcTaskPlan(void)
                     retval = emcTaskIssueCommand(emcCommand);
                 } else {
                     mdi_execute_queue.append(emcCommand);
+                    emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
                     retval = 0;
                 }
                 break;
