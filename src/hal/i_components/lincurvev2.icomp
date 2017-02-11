@@ -57,7 +57,7 @@ FUNCTION(_)
     while (x < gf((x_val(i)))) { i--;}
 
     f = (x - gf(x_val(i))) / ( gf(x_val(i+1)) - gf(x_val(i)) ) ;
-    sf(out_, ( gf(y_val(i)) + f) * (gf(y_val(i+1)) - gf(y_val(i)) )) ;
+    sf(out_, ( gf(y_val(i)) + f * (gf(y_val(i+1)) - gf(y_val(i)) ))) ;
     sf(out_io, gf(out_)); 
    
 return 0;
