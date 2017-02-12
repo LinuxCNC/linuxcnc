@@ -117,7 +117,8 @@ def load_hal_file(filename, ini=None):
         if ini is not None:
             from machinekit import config
             config.load_ini(ini)
-        execfile(filename)
+        globals = {}
+        execfile(filename, globals)
     else:
         command = 'halcmd'
         if ini is not None:
