@@ -1,4 +1,4 @@
-[[cha:realtime-components]] (((Realtime Components)))
+[[cha:realtime-components]]
 
 = HAL Component Descriptions
 

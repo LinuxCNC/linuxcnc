@@ -5,7 +5,7 @@ This screen is based of the design of moccagui, an GUI coded in FreePascal.
 
 gmoccapy is using Python instead.
 
-gmoccapy is designed to bring the feel of industrial controls to linuxccn users,
+gmoccapy is designed to bring the feel of industrial controls to LinuxCNC users,
 most controls can be used with a touch screen and also most are accesible through
 hal pins, so real hardware can be used.
 

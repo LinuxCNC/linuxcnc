@@ -4,8 +4,10 @@
 # By default, the script makes and connects ddts, simulated_home,
 # spindle, and hal_manualtoolchange components.
 #
-# Options are available to disable specific hal components and
-# connections
+# Options are available to 
+#   a) disable specific hal components and connections
+#   b) save a halfile equivalent to the hal commands executed by
+#      this script (and any prior executed hal commands)
 #
 # Coordinate letters and number_of_joints are determined from the usual
 # ini # file settings.
@@ -29,6 +31,7 @@
 
 #begin-----------------------------------------------------------------
 source [file join $::env(HALLIB_DIR) sim_lib.tcl]
+set save_options {}
 
 if [catch {check_ini_items} msg] {
   puts "\nbasic_sim.tcl ERROR: $msg\n"
@@ -56,7 +59,13 @@ if {[lsearch -nocase $::argv -no_simulated_home] < 0} {
 }
 if {[lsearch -nocase $::argv -no_use_hal_manualtoolchange] < 0} {
   use_hal_manualtoolchange
+  lappend save_options use_hal_manualtoolchange
 }
 if {[lsearch -nocase $::argv -no_sim_spindle] < 0} {
   sim_spindle
 }
+
+# make a halfile (inifilename_cmds.hal) with equivalent hal commands
+set savefilename \
+    ./[file rootname [file tail $::env(INI_FILE_NAME)]]_cmds.hal
+save_hal_cmds $savefilename $save_options

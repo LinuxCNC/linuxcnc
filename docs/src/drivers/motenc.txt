@@ -1,4 +1,4 @@
-[[cha:montec-driver]](((Motenc Driver)))
+[[cha:motenc-driver]]
 
 = Motenc Driver
 

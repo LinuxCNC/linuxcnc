@@ -1,5 +1,5 @@
 #    This is a component of AXIS, a front-end for LinuxCNC
-#    Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+#    Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -1328,21 +1328,14 @@ label .info.tool \
 	-anchor w \
 	-borderwidth 2 \
 	-relief sunken \
-	-textvariable tool \
+	-textvariable ::tool \
 	-width 30
-
-label .info.offset \
-	-anchor w \
-	-borderwidth 2 \
-	-relief sunken \
-	-textvariable offset \
-	-width 25
 
 label .info.position \
 	-anchor w \
 	-borderwidth 2 \
 	-relief sunken \
-	-textvariable position \
+	-textvariable ::position \
 	-width 25
 
 # Pack widget .info.task_state
@@ -1351,7 +1344,8 @@ pack .info.task_state \
 
 # Pack widget .info.tool
 pack .info.tool \
-	-side left
+	-side left \
+	-fill x -expand 1
 
 # Pack widget .info.position
 pack .info.position \
@@ -1564,7 +1558,7 @@ text .about.message \
 	.about.message configure -cursor hand2
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
-.about.message insert end [subst [_ "LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
+.about.message insert end [subst [_ "LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
 .about.message configure -state disabled
 
 button .about.ok \

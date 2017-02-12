@@ -1,6 +1,6 @@
 = Homing Configuration
 
-[[cha:homing-configuration]] (((Homing Configuration)))
+[[cha:homing-configuration]]
 
 == Overview
 

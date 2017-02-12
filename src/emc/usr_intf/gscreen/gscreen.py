@@ -769,13 +769,6 @@ class Gscreen:
         else:
             self.initialize_widgets()
 
-        try:
-            self.widgets.gremlin.init_glcanondraw(
-                trajcoordinates = self.inifile.find("TRAJ", "COORDINATES"),
-                kinstype = self.inifile.find("KINS", "KINEMATICS"))
-        except:
-            print ("**** GSCREEN NOTE: could not init_glcanondraw for gremlin")
-
         # see if there are user messages in the ini file 
         self.message_setup()
 

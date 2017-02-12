@@ -3,7 +3,7 @@
 
 = Vue générale du langage G-codes de LinuxCNC
 
-[[cha:Vue-generale-G-code]] (((Vue générale du G-code de LinuxCNC)))
+[[cha:Vue-generale-G-code]]
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}

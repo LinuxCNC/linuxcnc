@@ -1,4 +1,4 @@
-[[cha:gcode-examples]](((G Code Examples)))
+[[cha:gcode-examples]]
 
 = G Code Examples
 

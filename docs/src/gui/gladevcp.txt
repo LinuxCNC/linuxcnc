@@ -1,4 +1,4 @@
-[[cha:glade-vcp]] (((Glade Virtual Control Panel)))
+[[cha:glade-vcp]]
 
 = Glade Virtual Control Panel
 
@@ -1373,7 +1373,8 @@ Text template for metric units::
 Text template for imperial units::
     You can use python formatting to display the position with different precision.
 Reference Type::
-    Absolute (machine origin), Relative (to current user coordinate origin - G5x)
+    Absolute <<sec.machine-corrdinate-system,(machine origin)>>, Relative
+    (to current user coordinate origin - G5x)
     or Distance-to-go (relative to current user coordinate origin)
 Joint Number::
     Used to select which axis (technically which joint) is displayed.
@@ -1481,6 +1482,13 @@ toggle_readout::
     By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout() +
     Value must be bool +    
     default is TRUE
+
+cycle_time::
+    The time the DRO waits between two polls,
+    the value must be an integer in the range of 100 to 1000, +
+    default is 150, this setting should only be changed if you use more +
+    than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that +
+    the DRO slows down the main application too much.
 
 Direct program control::
     Using gobject to set the above listed properties:
@@ -2188,7 +2196,6 @@ details.
 HAL widgets come with a pre-defined signal called 'hal-pin-changed'. See the
 <<gladevcp:hal-pin-changed-signal,Hal Widgets section>> for details. 
 
-
 === Programming model
 
 The overall approach is as follows:
@@ -2254,6 +2261,38 @@ def get_handlers(halcomp,builder,useropts):
 
 Now, 'on_this_signal' will be available as signal handler to your
 widget tree.
+
+.GladeVCP-specific signals
+
+For GladevCP panel which respond to HAL inputs it may be important that the handler
+code can tell that the GladeVCP panel is currently active and displayed. For
+example a panel inside the Touchy interface might well need to perform an action
+when the switch connected to touchy.cycle-start is operated (in the same way
+that the native tabs respond differently to the same button.)
+To make this possible a signal is sent from the GUI (at the time of writing, only
+Touchy) to the embedded tab. The signal is of type "Gladevcp" and the two messages
+sent are "Visible" and "Hidden". (Note that the signals  have a fixed length of 20
+characters so only the first characters should be used in any comparison, hence
+the [:7] below.) A sample handler for these signals is:
+
+[source, python]
+----------------------------------
+    # This catches our messages from another program
+    def event(self,w,event):
+        print event.message_type,event.data
+        if event.message_type == 'Gladevcp':
+            if event.data[:7] == 'Visible':
+                self.active = True
+            else:
+                self.active = False
+
+    # connect to client-events from the host GUI
+    def on_map_event(self, widget, data=None):
+        top = widget.get_toplevel()
+        print "map event"
+        top.connect('client-event', self.event)
+----------------------------------
+
 
 .The get_handlers protocol
 

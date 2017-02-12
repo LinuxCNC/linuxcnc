@@ -90,6 +90,7 @@ static double            _traverse_rate;
 static EmcPose _tool_offset;
 static bool _toolchanger_fault;
 static int  _toolchanger_reason;
+static bool fo_enable=true, so_enable=true;
 
 /************************************************************************/
 
@@ -575,14 +576,14 @@ void SET_SPINDLE_MODE(double arg) {
   PRINT1("SET_SPINDLE_MODE(%.4f)\n", arg);
 }
 
-void START_SPINDLE_CLOCKWISE()
+void START_SPINDLE_CLOCKWISE(int wait_for_atspeed)
 {
   PRINT0("START_SPINDLE_CLOCKWISE()\n");
   _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
                                                    CANON_CLOCKWISE);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE()
+void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed)
 {
   PRINT0("START_SPINDLE_COUNTERCLOCKWISE()\n");
   _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
@@ -676,10 +677,10 @@ void DISABLE_FEED_HOLD()
 {PRINT0("DISABLE_FEED_HOLD()\n");}
 
 void DISABLE_FEED_OVERRIDE()
-{PRINT0("DISABLE_FEED_OVERRIDE()\n");}
+{PRINT0("DISABLE_FEED_OVERRIDE()\n"); fo_enable = false; }
 
 void DISABLE_SPEED_OVERRIDE()
-{PRINT0("DISABLE_SPEED_OVERRIDE()\n");}
+{PRINT0("DISABLE_SPEED_OVERRIDE()\n"); so_enable = false; }
 
 void ENABLE_ADAPTIVE_FEED()
 {PRINT0("ENABLE_ADAPTIVE_FEED()\n");}
@@ -688,10 +689,10 @@ void ENABLE_FEED_HOLD()
 {PRINT0("ENABLE_FEED_HOLD()\n");}
 
 void ENABLE_FEED_OVERRIDE()
-{PRINT0("ENABLE_FEED_OVERRIDE()\n");}
+{PRINT0("ENABLE_FEED_OVERRIDE()\n"); fo_enable = true; }
 
 void ENABLE_SPEED_OVERRIDE()
-{PRINT0("ENABLE_SPEED_OVERRIDE()\n");}
+{PRINT0("ENABLE_SPEED_OVERRIDE()\n"); so_enable = true; }
 
 void FLOOD_OFF()
 {
@@ -797,14 +798,14 @@ extern double GET_EXTERNAL_ANGLE_UNIT_FACTOR()
 /* MGS - FIXME - These functions should not be stubbed out to return constants.
 They should return variable values... */
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
-int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
+int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return fo_enable;}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return motion_tolerance;}
 double GET_EXTERNAL_LENGTH_UNITS() {return 0.03937007874016;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return so_enable;}
 void START_SPEED_FEED_SYNCH(double sync, bool vel)
 {PRINT2("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
 CANON_MOTION_MODE motion_mode;

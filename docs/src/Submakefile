@@ -426,14 +426,7 @@ depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
 
-objects/xref_es.xml: $(DOC_TARGETS_XML_ES) $(DOC_SRCDIR)/xref.py
-	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
-objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
-	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
-objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
-	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
-
-objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
+objects/%.links-stamp: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/links.xslt
 	@mkdir -p `dirname $@`
 	asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm $@; exit $$X)
 	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)

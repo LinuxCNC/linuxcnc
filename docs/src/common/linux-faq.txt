@@ -1,4 +1,4 @@
-[[cha:linux-faq]] (((Linux FAQ)))
+[[cha:linux-faq]]
 
 = Linux FAQ
 

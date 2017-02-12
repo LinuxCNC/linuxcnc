@@ -1,4 +1,4 @@
-[[cha:pico-drivers]](((Pico PPMC Driver)))
+[[cha:pico-drivers]]
 
 = Pico Drivers
 

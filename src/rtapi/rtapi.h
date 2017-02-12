@@ -812,6 +812,20 @@ RTAPI_BEGIN_DECLS
 
 #if !defined(__KERNEL__)
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
+
+#include <spawn.h>
+
+int rtapi_spawn_as_root(pid_t *pid, const char *path,
+    const posix_spawn_file_actions_t *file_actions,
+    const posix_spawnattr_t *attrp,
+    char *const argv[], char *const envp[]);
+
+int rtapi_spawnp_as_root(pid_t *pid, const char *path,
+    const posix_spawn_file_actions_t *file_actions,
+    const posix_spawnattr_t *attrp,
+    char *const argv[], char *const envp[]);
+
+int rtapi_do_as_root(int (*fn)(void *), void *arg);
 #endif
 
 extern int rtapi_is_kernelspace(void);

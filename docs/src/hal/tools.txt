@@ -1,4 +1,4 @@
-[[cha:hal-tools]] (((HAL Tools)))
+[[cha:hal-tools]]
 
 = HAL Tools
 
@@ -93,18 +93,20 @@ The WATCH tab provides a continuous display of selected pin, parameters, and
 signal items.  The File menu provides buttons to 1) save the watch items to
 a watch list and to load and existing watch list.  The watch list items can
 also be loaded automatically on startup.  For command line usage:
+
 ----
 halshow --help
 Usage:
   halshow [Options] [watchfile]
   Options:
-           --help  (this help)
-----
+           --help    (this help)
+           --fformat format_string_for_float
+           --iformat format_string_for_int
 
 Notes:
-
-Create watchfile in halshow using: 'File/Save Watch List' or
-'File/Save Watch List (multiline)'.
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
 
 LinuxCNC must be running for standalone usage
 

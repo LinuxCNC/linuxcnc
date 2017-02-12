@@ -1,6 +1,6 @@
 = Stepper Diagnostics
 
-[[cha:stepper-diagnostics]] (((Stepper Diagnostics)))
+[[cha:stepper-diagnostics]]
 
 If what you get is not what you expect many times you just got some
 experience. Learning from the experience increases your understanding

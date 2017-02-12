@@ -6,7 +6,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-[[cha:vfs11-vfd-driver]] (((VFS11 VFD Driver)))
+[[cha:vfs11-vfd-driver]]
 
 This is a userspace HAL program to control the S11 series of VFD's from
 Toshiba. 

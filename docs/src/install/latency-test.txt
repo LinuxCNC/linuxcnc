@@ -1,4 +1,4 @@
-[[cha:latency-test]] (((Latency Test)))
+[[cha:latency-test]]
 
 = Latency Test
 
@@ -119,17 +119,14 @@ image::../config/images/latency-plot.png[]
 
 
 latency-histogram displays a histogram of latency (jitter) for
-a base and servo thread.  Usage:
+a base and servo thread.
 ----
-latency-histogram --help
-
 Usage:
    latency-histogram --help | -?
 or
    latency-histogram [Options]
 
 Options:
-  --version        (show version and exit)
   --base      nS   (base  thread interval, default:   25000, min:  5000)
   --servo     nS   (servo thread interval, default: 1000000, min: 25000)
   --bbinsize  nS   (base  bin size,  default: 100
@@ -141,6 +138,7 @@ Options:
   --show           (show count of undisplayed bins)
   --nobase         (servo thread only)
   --verbose        (progress and debug)
+  --nox            (no gui, display elapsed,min,max,sdev for each thread)
 
 Notes:
   Linuxcnc and Hal should not be running, stop with halrun -U.

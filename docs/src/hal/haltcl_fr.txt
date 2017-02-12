@@ -3,7 +3,7 @@
 
 = Fichiers TCL pour HAL
 
-[[cha:hal-tcl]] (((Fichiers TCL pour HAL)))
+[[cha:hal-tcl]]
 
 Le langage de halcmd excelle pour spécifier des composants et des connexions
 mais il n'offre aucune possibilité de calcul.

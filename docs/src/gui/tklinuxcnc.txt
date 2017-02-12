@@ -1,4 +1,4 @@
-[[cha:tklinuxcnc-gui]] (((GUI,TkLinuxCNC)))
+[[cha:tklinuxcnc-gui]]
 
 = TkLinuxCNC GUI
 

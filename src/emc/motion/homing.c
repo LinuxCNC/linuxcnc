@@ -66,7 +66,12 @@ static void home_start_move(emcmot_joint_t * joint, double vel)
     } else {
 	joint->free_tp.pos_cmd = joint->pos_cmd - 2.0 * joint_range;
     }
-    joint->free_tp.max_vel = fabs(vel);
+    if (fabs(vel) < joint->vel_limit) {
+	joint->free_tp.max_vel = fabs(vel);
+    } else {
+        /* clamp on max vel for this joint */
+	joint->free_tp.max_vel = joint->vel_limit;
+    }
     /* start the move */
     joint->free_tp.enable = 1;
 }

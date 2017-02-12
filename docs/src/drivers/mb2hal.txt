@@ -1,4 +1,4 @@
-[[cha:mb2hal]](((Modbus to HAL Driver)))
+[[cha:mb2hal]]
 
 = MB2HAL
 

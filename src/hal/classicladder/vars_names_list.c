@@ -65,15 +65,15 @@ StrConvIdVarName TableConvIdVarName[] = {
 		{ "I%d", VAR_PHYS_INPUT, 0, /*sizes*/ NBR_PHYS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "Q%d", VAR_PHYS_OUTPUT, 0, /*sizes*/ NBR_PHYS_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
 		{ "W%d", VAR_MEM_WORD, 0, /*sizes*/ NBR_WORDS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
-                { "IW%d", VAR_PHYS_WORD_INPUT, 0, /*sizes*/ NBR_PHYS_WORDS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "IW%d", VAR_PHYS_WORD_INPUT, 0, /*sizes*/ NBR_PHYS_WORDS_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "QW%d", VAR_PHYS_WORD_OUTPUT, 0, /*sizes*/ NBR_PHYS_WORDS_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
-                { "IF%d", VAR_PHYS_FLOAT_INPUT, 0, /*sizes*/ NBR_PHYS_FLOAT_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "IF%d", VAR_PHYS_FLOAT_INPUT, 0, /*sizes*/ NBR_PHYS_FLOAT_INPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 		{ "QF%d", VAR_PHYS_FLOAT_OUTPUT, 0, /*sizes*/ NBR_PHYS_FLOAT_OUTPUTS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
-                { "E%d", VAR_ERROR_BIT, 0, /*sizes*/ NBR_ERROR_BITS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
-		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "E%d", VAR_ERROR_BIT, 0, /*sizes*/ NBR_ERROR_BITS_DEF, -1, -1, /*offsets */ 0, 0, 0, TRUE },
 		{ "X%d.V", VAR_STEP_TIME, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
+		{ "X%d", VAR_STEP_ACTIVITY, 0, /*sizes*/ NBR_STEPS, -1, -1, /*offsets */ 0, 0, 0, FALSE },
 
-		{ NULL, 0, 0, /*sizes*/ 0, 0, 0, /*offsets */ 0, 0, 0, FALSE }  //END
+		{ NULL, 0, 0, /*sizes*/ 0, 0, 0, /*offsets */ 0, 0, 0, FALSE }	//END
 };
 
 // use the real allocated sizes in the table now
@@ -102,11 +102,11 @@ void UpdateSizesOfConvVarNameTable( void )
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_INPUTS;
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_OUTPUTS;
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_WORDS;
-        TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_WORDS_INPUTS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_WORDS_INPUTS;
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_WORDS_OUTPUTS;
-        TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_FLOAT_INPUTS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_FLOAT_INPUTS;
 	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_PHYS_FLOAT_OUTPUTS;
-        TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_ERROR_BITS;
+	TableConvIdVarName[ ScanTable++ ].iSize1 = NBR_ERROR_BITS;
 	ScanTable++; // Nothing here (NBR_STEPS=constant!)
 	ScanTable++; // Nothing here (NBR_STEPS=constant!)
 

@@ -2,7 +2,7 @@
 
 = Configuration rapide pour moteurs pas à pas
 
-[[cha:stepper-quickstart]] (((Stepper Quickstart)))
+[[cha:stepper-quickstart]]
 
 Cette section suppose qu'une installation du logiciel à partir du CD Live a été
 faite. Après cette installation et avant de continuer, il est

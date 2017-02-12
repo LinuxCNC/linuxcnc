@@ -573,7 +573,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up LinuxCNC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of linuxcnc
-    for KILL_TASK in linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
+    for KILL_TASK in linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel gmoccapy gscreen; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi

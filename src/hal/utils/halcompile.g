@@ -38,7 +38,7 @@ parser Hal:
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
     token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
-    token TSTRING: "\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
+    token TSTRING: "r?\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
     rule File: ComponentDeclaration Declaration* "$" {{ return True }}
     rule ComponentDeclaration:

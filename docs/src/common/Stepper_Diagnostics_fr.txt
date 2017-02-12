@@ -3,7 +3,7 @@
 
 = Moteurs pas à pas
 
-[[cha:stepper-diagnostics]] (((Stepper Diagnostics)))
+[[cha:stepper-diagnostics]]
 
 Si ce que vous obtenez ne correspond pas à ce que vous espériez, la
 plupart du temps c'est juste un petit manque d'expérience. Accroître

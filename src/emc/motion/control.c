@@ -185,9 +185,9 @@ void emcmotController(void *arg, long period)
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
-    emcmot_hal_data->last_period = this_run;
+    *(emcmot_hal_data->last_period) = this_run;
 #ifdef HAVE_CPU_KHZ
-    emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
+    *(emcmot_hal_data->last_period_ns) = this_run * 1e6 / cpu_khz;
 #endif
     // we need this for next time
     last = now;
@@ -1708,8 +1708,8 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
 	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
     }
-	*(emcmot_hal_data->spindle_speed_out_abs) = fabs(*(emcmot_hal_data->spindle_speed_out));
-	*(emcmot_hal_data->spindle_speed_out_rps_abs) = fabs(*(emcmot_hal_data->spindle_speed_out_rps));
+    *(emcmot_hal_data->spindle_speed_out_abs) = fabs(*(emcmot_hal_data->spindle_speed_out));
+    *(emcmot_hal_data->spindle_speed_out_rps_abs) = fabs(*(emcmot_hal_data->spindle_speed_out_rps));
     *(emcmot_hal_data->spindle_speed_cmd_rps) = emcmotStatus->spindle.speed / 60.;
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;

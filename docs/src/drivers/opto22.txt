@@ -1,4 +1,4 @@
-[[cha:opto22-driver]](((Opto22 Driver)))
+[[cha:opto22-driver]]
 
 = Opto22 Driver
 

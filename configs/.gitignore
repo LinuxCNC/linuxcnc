@@ -12,3 +12,4 @@ position*.txt
 !common/*.hal
 *.ini.expanded
 hallib
+*_cmds.hal

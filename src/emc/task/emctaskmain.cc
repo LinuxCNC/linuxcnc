@@ -97,6 +97,9 @@ static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
 static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
 static NML *emcErrorBuffer = 0;
 
+// NML command channel data pointer
+static RCS_CMD_MSG *emcCommand = 0;
+
 // global EMC status
 EMC_STAT *emcStatus = 0;
 
@@ -136,13 +139,6 @@ int _task = 1; // control preview behaviour when remapping
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
-
-// When this flag is True (non-zero), Task will refrain from reading NML
-// input from the user interfaces, preferring instead to process Canon
-// messages from interp_list.  It's used in situations where Interp's
-// output is vital and must not be interrupted by pesky users, such as
-// when processing an Abort.
-int drain_interp_list = 0;
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
@@ -749,27 +745,11 @@ static bool allow_while_idle_type() {
   emcTaskPlan()
 
   Planner for NC code or manual mode operations
-
-  Note that early return from this function is not OK; the bottom, where
-  echo_serial_numbers are updated, must be reached for linuxcnc to operate
-  properly.
-
   */
 static int emcTaskPlan(void)
 {
-    RCS_CMD_MSG *emcCommand;
     NMLTYPE type;
     int retval = 0;
-
-    if (drain_interp_list) {
-        if ((interp_list.len() == 0) && (emcTaskCommand == NULL)) {
-            drain_interp_list = 0;
-        } else {
-            return 0;
-        }
-    }
-
-    emcCommand = emcCommandBuffer->get_address();
 
     // check for new command
     if (emcCommand->serial_number != emcStatus->echo_serial_number) {
@@ -1151,7 +1131,7 @@ static int emcTaskPlan(void)
                 case EMC_LUBE_ON_TYPE:
                 case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
-                    goto done;
+		    return retval;
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -1398,15 +1378,17 @@ static int emcTaskPlan(void)
 		retval = emcTaskIssueCommand(emcCommand);
 		break;
 
-            case EMC_TASK_PLAN_EXECUTE_TYPE:
-                // If there are no queued MDI commands and no commands
-                // in interp_list, then this new incoming MDI command
-                // can just be issued directly.  Otherwise we need to
-                // queue it and deal with it later.
+	    case EMC_TASK_PLAN_EXECUTE_TYPE:
+                // If there are no queued MDI commands, no commands in
+                // interp_list, and waitFlag isn't set, then this new
+                // incoming MDI command can just be issued directly.
+                // Otherwise we need to queue it and deal with it
+                // later.
                 if (
                     (mdi_execute_queue.len() == 0)
                     && (interp_list.len() == 0)
                     && (emcTaskCommand == NULL)
+		    && (emcTaskPlanIsWait() == 0)
                 ) {
                     retval = emcTaskIssueCommand(emcCommand);
                 } else {
@@ -1454,16 +1436,6 @@ static int emcTaskPlan(void)
 	break;
 
     }				// switch (task.state)
-
-
-done:
-    // Acknowledge receipt of the command by "echoing" the type and serial
-    // number in the emcStatus struct.
-    emcStatus->task.command_type = emcCommand->type;
-    emcStatus->task.echo_serial_number = emcCommand->serial_number;
-
-    emcStatus->command_type = emcCommand->type;
-    emcStatus->echo_serial_number = emcCommand->serial_number;
 
     return retval;
 }
@@ -1981,7 +1953,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
    case EMC_SPINDLE_ON_TYPE:
 	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
-	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset);
+	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset,
+                             spindle_on_msg->wait_for_spindle_at_speed);
 	break;
 
     case EMC_SPINDLE_OFF_TYPE:
@@ -2863,6 +2836,8 @@ static int emctask_startup()
 	rcs_print_error("can't get emcCommand buffer\n");
 	return -1;
     }
+    // get our command data structure
+    emcCommand = emcCommandBuffer->get_address();
 
     // get the NML status buffer
     if (!(emc_debug & EMC_DEBUG_NML)) {
@@ -3070,6 +3045,7 @@ static int emctask_shutdown(void)
     if (0 != emcCommandBuffer) {
 	delete emcCommandBuffer;
 	emcCommandBuffer = 0;
+	emcCommand = 0;
     }
 
     if (0 != emcStatus) {
@@ -3462,6 +3438,14 @@ int main(int argc, char *argv[])
 
 	// handle RCS_STAT_MSG base class members explicitly, since this
 	// is not an NML_MODULE and they won't be set automatically
+
+	// do task
+	emcStatus->task.command_type = emcCommand->type;
+	emcStatus->task.echo_serial_number = emcCommand->serial_number;
+
+	// do top level
+	emcStatus->command_type = emcCommand->type;
+	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||
 	    emcStatus->task.execState == EMC_TASK_EXEC_ERROR ||

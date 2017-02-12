@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="adj_dro_digits">
     <property name="lower">1</property>
@@ -23,7 +23,7 @@
   </object>
   <object class="GtkAdjustment" id="adj_height">
     <property name="lower">750</property>
-    <property name="upper">2000</property>
+    <property name="upper">3920</property>
     <property name="value">750</property>
     <property name="step_increment">1</property>
     <signal name="value-changed" handler="on_adj_height_value_changed" swapped="no"/>
@@ -109,7 +109,7 @@
   </object>
   <object class="GtkAdjustment" id="adj_width">
     <property name="lower">979</property>
-    <property name="upper">1280</property>
+    <property name="upper">3920</property>
     <property name="value">979</property>
     <property name="step_increment">1</property>
     <signal name="value-changed" handler="on_adj_width_value_changed" swapped="no"/>
@@ -150,6 +150,12 @@
   <object class="GtkFileFilter" id="filefilter1"/>
   <object class="EMC_Action_Open" id="hal_action_open"/>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
   <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
@@ -538,12 +544,6 @@
         <col id="0">test2</col>
       </row>
     </data>
-  </object>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
@@ -1343,12 +1343,6 @@
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
                                                             <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
                                                             <object class="GtkButton" id="btn_y_plus">
                                                             <property name="label">Y+</property>
                                                             <property name="width_request">50</property>
@@ -1541,6 +1535,12 @@
                                                             <property name="x_options">GTK_SHRINK</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
                                                             </child>
                                                             </object>
                                                             <packing>
@@ -2496,7 +2496,6 @@
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="GtkFrame" id="frm_cooling">
-                                            <property name="width_request">100</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="label_xalign">0.5</property>
@@ -2508,13 +2507,13 @@
                                                 <property name="yscale">0</property>
                                                 <property name="top_padding">5</property>
                                                 <property name="bottom_padding">5</property>
-                                                <property name="left_padding">5</property>
-                                                <property name="right_padding">5</property>
+                                                <property name="right_padding">2</property>
                                                 <child>
                                                   <object class="GtkTable" id="tbl_cooling">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="n_rows">2</property>
+                                                    <property name="border_width">5</property>
+                                                    <property name="n_rows">3</property>
                                                     <property name="homogeneous">True</property>
                                                     <child>
                                                       <object class="GtkToggleButton" id="tbtn_flood">
@@ -2544,10 +2543,22 @@
                                                         <signal name="toggled" handler="on_tbtn_mist_toggled" swapped="no"/>
                                                       </object>
                                                       <packing>
-                                                        <property name="top_attach">1</property>
-                                                        <property name="bottom_attach">2</property>
+                                                        <property name="top_attach">2</property>
+                                                        <property name="bottom_attach">3</property>
                                                         <property name="x_options">GTK_SHRINK</property>
                                                         <property name="y_options">GTK_SHRINK</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_spacer_collant_button">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="top_attach">1</property>
+                                                        <property name="bottom_attach">2</property>
+                                                        <property name="x_options">GTK_EXPAND</property>
+                                                        <property name="y_options">GTK_EXPAND</property>
                                                       </packing>
                                                     </child>
                                                   </object>
@@ -2565,13 +2576,13 @@
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="fill">False</property>
+                                            <property name="fill">True</property>
                                             <property name="position">0</property>
                                           </packing>
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
+                                        <property name="expand">False</property>
                                         <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
@@ -2692,9 +2703,8 @@
                                                           <object class="GtkTable" id="tbl_spindle_button">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="n_columns">3</property>
-                                                            <property name="column_spacing">8</property>
-                                                            <property name="homogeneous">True</property>
+                                                            <property name="border_width">5</property>
+                                                            <property name="n_columns">5</property>
                                                             <child>
                                                             <object class="GtkRadioButton" id="rbt_reverse">
                                                             <property name="width_request">56</property>
@@ -2743,8 +2753,8 @@
                                                             </child>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
+                                                            <property name="left_attach">4</property>
+                                                            <property name="right_attach">5</property>
                                                             <property name="x_options">GTK_SHRINK</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             </packing>
@@ -2771,17 +2781,40 @@
                                                             </child>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
+                                                            <property name="left_attach">2</property>
+                                                            <property name="right_attach">3</property>
                                                             <property name="x_options">GTK_SHRINK</property>
                                                             <property name="y_options">GTK_SHRINK</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_spacer_spindle_button_1">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="left_attach">1</property>
+                                                            <property name="right_attach">2</property>
+                                                            <property name="x_options">GTK_EXPAND</property>
+                                                            <property name="y_options">GTK_EXPAND</property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_spacer_spindle_button_2">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="left_attach">3</property>
+                                                            <property name="right_attach">4</property>
+                                                            <property name="x_options">GTK_EXPAND</property>
+                                                            <property name="y_options">GTK_EXPAND</property>
                                                             </packing>
                                                             </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">False</property>
-                                                            <property name="padding">5</property>
                                                             <property name="position">0</property>
                                                           </packing>
                                                         </child>
@@ -2853,7 +2886,7 @@
                                             </child>
                                           </object>
                                           <packing>
-                                            <property name="expand">False</property>
+                                            <property name="expand">True</property>
                                             <property name="fill">True</property>
                                             <property name="pack_type">end</property>
                                             <property name="position">0</property>
@@ -2881,8 +2914,8 @@
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
                                     <property name="pack_type">end</property>
                                     <property name="position">1</property>
                                   </packing>
@@ -3126,7 +3159,7 @@
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
+                                    <property name="expand">True</property>
                                     <property name="fill">True</property>
                                     <property name="position">3</property>
                                   </packing>
@@ -5443,7 +5476,7 @@ clicking on the DRO</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkVBox" id="vbox4">
+                              <object class="GtkVBox" id="vbox_tool_settings">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
@@ -5820,6 +5853,80 @@ to configure the settings.</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <object class="GtkFrame" id="frm_reload_tool">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="ali_reload_tool">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
+                                        <child>
+                                          <object class="GtkVBox" id="vbox_reload_tool">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkCheckButton" id="chk_reload_tool">
+                                                <property name="label" translatable="yes">Reload Tool on Start</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="tooltip_text" translatable="yes">If checked, the tool in spindle
+will be saved on each change
+and the last tool will be reloaded
+at start of the GUI. Also it's 
+length offset will be reloaded.
+</property>
+                                                <property name="use_action_appearance">False</property>
+                                                <property name="active">True</property>
+                                                <property name="draw_indicator">True</property>
+                                                <signal name="toggled" handler="on_chk_reload_tool_toggled" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="lbl_reload_tool">
+                                                <property name="can_focus">False</property>
+                                                <property name="xpad">4</property>
+                                                <property name="label" translatable="yes">You use NO_FORCE_HOMING,
+so the reload of a tool at start
+is not possible.</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="lbl_frm_reload_tool">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Reload Tool&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="padding">10</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -5856,6 +5963,8 @@ to configure the settings.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="tooltip_text" translatable="yes">If checked, the messages
+will be in a frame.</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="draw_indicator">True</property>
                                                 <signal name="toggled" handler="on_chk_use_frames_toggled" swapped="no"/>
@@ -5917,6 +6026,7 @@ to configure the settings.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="tooltip_text" translatable="yes">The font to use</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="font_name">Sans 10</property>
                                                 <signal name="font-set" handler="on_fontbutton_popup_font_set" swapped="no"/>
@@ -5932,6 +6042,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_max_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">The maximum messages you want to be shown	</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
@@ -5955,6 +6066,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_width_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">The width of the messages</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="progress_fraction">0.0099999997764825821</property>
@@ -6009,6 +6121,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_x_pos_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">X-position in pixel from top left corner of the screen</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
@@ -6030,6 +6143,7 @@ to configure the settings.</property>
                                               <object class="GtkSpinButton" id="spbtn_y_pos_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="tooltip_text" translatable="yes">Y-position in pixel from top left corner of the screen</property>
                                                 <property name="invisible_char">●</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
@@ -6055,6 +6169,8 @@ to configure the settings.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="tooltip_text" translatable="yes">Push here to launch a test message
+to test your settings.</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <signal name="pressed" handler="on_btn_launch_test_message_pressed" swapped="no"/>
                                               </object>
@@ -6093,13 +6209,18 @@ to configure the settings.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkVBox" id="vbox20">
+                              <object class="GtkVBox" id="vbox_run_from_lin">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkFrame" id="frm_run_from_line">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="tooltip_text" translatable="yes">It is not recommended to use run from line
+as LinuxCNC is handling this without 
+checking the code previous to the selected line.
+So you must take care for tool changes, speeds
+feeds and cooling, etc.</property>
                                     <property name="label_xalign">0.5</property>
                                     <child>
                                       <object class="GtkAlignment" id="ali_run_from_line">
@@ -6790,7 +6911,6 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_stop">
-                    <property name="related_action">hal_action_stop</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6809,7 +6929,6 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_pause">
-                    <property name="related_action">hal_tgl_pause</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6837,7 +6956,6 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_step">
-                    <property name="related_action">hal_action_step</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7729,7 +7847,6 @@ selected</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_reload">
-                    <property name="related_action">hal_action_reload</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -7764,7 +7881,6 @@ selected</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_save">
-                    <property name="related_action">hal_action_save</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -7786,7 +7902,6 @@ selected</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_save_as">
-                    <property name="related_action">hal_action_saveas</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>

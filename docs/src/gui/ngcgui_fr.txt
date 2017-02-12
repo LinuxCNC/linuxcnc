@@ -3,7 +3,7 @@
 
 = L'utilitaire graphique NGCGUI
 
-[[cha:ngcgui]] (((NGCGUI)))
+[[cha:ngcgui]]
 
 image::images/ngcgui_fr.png[]
 

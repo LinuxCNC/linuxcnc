@@ -1,4 +1,4 @@
-[[cha:classicladder]](((Classicladder)))
+[[cha:classicladder]]
 
 = Classicladder Programming
 

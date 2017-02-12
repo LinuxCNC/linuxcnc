@@ -1,4 +1,4 @@
-[[cha:ax5214-driver]](((AX5214H Driver)))
+[[cha:ax5214-driver]]
 
 = AX5214H Driver
 

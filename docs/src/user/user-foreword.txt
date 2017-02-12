@@ -1,4 +1,4 @@
-[[cha:user-foreword]](((User Foreword)))
+[[cha:user-foreword]]
 
 = User Foreword
 

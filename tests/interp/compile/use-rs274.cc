@@ -123,8 +123,8 @@ void STOP() {}
 void DWELL(double seconds) {}
 void SET_SPINDLE_MODE(double) {}
 void SPINDLE_RETRACT_TRAVERSE() {}
-void START_SPINDLE_CLOCKWISE() {}
-void START_SPINDLE_COUNTERCLOCKWISE() {}
+void START_SPINDLE_CLOCKWISE(int) {}
+void START_SPINDLE_COUNTERCLOCKWISE(int) {}
 void SET_SPINDLE_SPEED(double r) {}
 void STOP_SPINDLE_TURNING() {}
 void SPINDLE_RETRACT() {}
@@ -195,7 +195,7 @@ int GET_EXTERNAL_MIST() {}
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
-    snprintf(filename, max_size, "rs274.var");
+    snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
 CANON_PLANE GET_EXTERNAL_PLANE() {}
 double GET_EXTERNAL_POSITION_A() {}

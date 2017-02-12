@@ -1,4 +1,4 @@
-[[cha:tooledit-gui]] (((Tool Edit GUI)))
+[[cha:tooledit-gui]]
 
 = Tool Edit GUI
 

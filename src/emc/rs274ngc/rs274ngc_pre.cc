@@ -1988,6 +1988,8 @@ int Interp::synch()
 
   // read_inputs(&_setup); // input/probe/toolchange 
 
+  write_settings(&_setup);
+
   return INTERP_OK;
 }
 
@@ -2421,17 +2423,9 @@ int Interp::enter_remap(void)
     CONTROLLING_BLOCK(_setup).executing_remap = NULL;
 
     // remember the line where remap was discovered
-    if (_setup.remap_level == 1) {
-	logRemap("enter_remap: toplevel - saved_line_number=%d",_setup.sequence_number);
-	CONTROLLING_BLOCK(_setup).saved_line_number  =
-	    _setup.sequence_number;
-    } else {
-	logRemap("enter_remap into %d - saved_line_number=%d",
-		 _setup.remap_level,
-		 EXECUTING_BLOCK(_setup).saved_line_number);
-	CONTROLLING_BLOCK(_setup).saved_line_number  =
-	    EXECUTING_BLOCK(_setup).saved_line_number;
-    }
+    logRemap("enter_remap into %d - saved_line_number=%d",
+	     _setup.remap_level, _setup.sequence_number);
+    CONTROLLING_BLOCK(_setup).saved_line_number = _setup.sequence_number;
     _setup.sequence_number = 0;
     return INTERP_OK;
 }
@@ -2439,19 +2433,10 @@ int Interp::enter_remap(void)
 int Interp::leave_remap(void)
 {
     // restore the line number where remap was found
-    if (_setup.remap_level == 1) {
-	// dropping to top level, so pass onto _setup
-	_setup.sequence_number = CONTROLLING_BLOCK(_setup).saved_line_number;
-	logRemap("leave_remap into toplevel, restoring seqno=%d",_setup.sequence_number);
+    logRemap("leave_remap from %d propagate saved_line_number=%d",
+	     _setup.remap_level, CONTROLLING_BLOCK(_setup).saved_line_number);
 
-    } else {
-	// just dropping a nesting level
-	EXECUTING_BLOCK(_setup).saved_line_number =
-	    CONTROLLING_BLOCK(_setup).saved_line_number ;
-	logRemap("leave_remap from %d propagate saved_line_number=%d",
-		 _setup.remap_level,
-		 EXECUTING_BLOCK(_setup).saved_line_number);
-    }
+    _setup.sequence_number = CONTROLLING_BLOCK(_setup).saved_line_number;
     _setup.blocks[_setup.remap_level].executing_remap = NULL;
     _setup.remap_level--; // drop one nesting level
     if (_setup.remap_level < 0) {
@@ -2459,106 +2444,6 @@ int Interp::leave_remap(void)
     }
     return INTERP_OK;
 }
-
-
-void Interp::program_end_cleanup(setup_pointer settings) {
-    int index;
-
-    settings->current_x += settings->origin_offset_x;
-    settings->current_y += settings->origin_offset_y;
-    settings->current_z += settings->origin_offset_z;
-    settings->AA_current += settings->AA_origin_offset;
-    settings->BB_current += settings->BB_origin_offset;
-    settings->CC_current += settings->CC_origin_offset;
-    settings->u_current += settings->u_origin_offset;
-    settings->v_current += settings->v_origin_offset;
-    settings->w_current += settings->w_origin_offset;
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-
-    settings->origin_index = 1;
-    settings->parameters[5220] = 1.0;
-    settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
-    settings->origin_offset_y = USER_TO_PROGRAM_LEN(settings->parameters[5222]);
-    settings->origin_offset_z = USER_TO_PROGRAM_LEN(settings->parameters[5223]);
-    settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
-    settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
-    settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
-    settings->u_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5227]);
-    settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
-    settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
-    settings->rotation_xy = settings->parameters[5230];
-
-    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
-    settings->current_x -= settings->origin_offset_x;
-    settings->current_y -= settings->origin_offset_y;
-    settings->current_z -= settings->origin_offset_z;
-    settings->AA_current -= settings->AA_origin_offset;
-    settings->BB_current -= settings->BB_origin_offset;
-    settings->CC_current -= settings->CC_origin_offset;
-    settings->u_current -= settings->u_origin_offset;
-    settings->v_current -= settings->v_origin_offset;
-    settings->w_current -= settings->w_origin_offset;
-
-    SET_G5X_OFFSET(settings->origin_index,
-                   settings->origin_offset_x,
-                   settings->origin_offset_y,
-                   settings->origin_offset_z,
-                   settings->AA_origin_offset,
-                   settings->BB_origin_offset,
-                   settings->CC_origin_offset,
-                   settings->u_origin_offset,
-                   settings->v_origin_offset,
-                   settings->w_origin_offset);
-    SET_XY_ROTATION(settings->rotation_xy);
-
-    if (settings->plane != CANON_PLANE_XY) {
-        SELECT_PLANE(CANON_PLANE_XY);
-        settings->plane = CANON_PLANE_XY;
-    }
-
-    settings->distance_mode = MODE_ABSOLUTE;
-
-    settings->feed_mode = UNITS_PER_MINUTE;
-    SET_FEED_MODE(0);
-    settings->feed_rate = 0;
-    SET_FEED_RATE(0);
-
-    if (!settings->feed_override) {
-        ENABLE_FEED_OVERRIDE();
-        settings->feed_override = true;
-    }
-    if (!settings->speed_override) {
-        ENABLE_SPEED_OVERRIDE();
-        settings->speed_override = true;
-    }
-
-    settings->cutter_comp_side = false;
-    settings->cutter_comp_firstmove = true;
-
-    STOP_SPINDLE_TURNING();
-    settings->spindle_turning = CANON_STOPPED;
-
-    /* turn off FPR */
-    SET_SPINDLE_MODE(0);
-
-    settings->motion_mode = G_1;
-
-    if (settings->mist) {
-        MIST_OFF();
-        settings->mist = false;
-    }
-    if (settings->flood) {
-        FLOOD_OFF();
-        settings->flood = false;
-    }
-
-/*10*/
-    if (settings->disable_g92_persistence)
-	// Clear G92/G52 offset
-	for (index=5210; index<=5219; index++)
-	    settings->parameters[index] = 0;
-}
-
 
 int Interp::on_abort(int reason, const char *message)
 {
@@ -2572,9 +2457,6 @@ int Interp::on_abort(int reason, const char *message)
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.input_flag = false;
-
-    logDebug("interp: %s simulating M30\n", __func__);
-    program_end_cleanup(&_setup);
 
     if (_setup.on_abort_command == NULL)
 	return -1;

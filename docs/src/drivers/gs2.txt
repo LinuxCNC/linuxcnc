@@ -1,4 +1,4 @@
-[[cha:gs2-vfd-driver]](((GS2 VFD Driver)))
+[[cha:gs2-vfd-driver]]
 
 = GS2 VFD Driver
 

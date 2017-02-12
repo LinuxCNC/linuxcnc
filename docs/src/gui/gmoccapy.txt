@@ -1,4 +1,4 @@
-[[cha:gmoccapy]](((GUI, GMOCCAPY)))
+[[cha:gmoccapy]]
 
 = GMOCCAPY
 
@@ -9,10 +9,17 @@ but can also be used on normal screens with a mouse or hardware buttons and MPG
 wheels, as it presents HAL Pins for the most common needs. Please find more
 information in the following.
 
-It offers the possibility to display up to 4 axis, support a lathe mode for
-normal and back tool lathe and can be adapted to nearly every need, because
-gmoccapy supports embedded tabs and side panels. As a good example for that see
+It offers the possibility to display up to 4 axis, support a lathe mode for 
+normal and back tool lathe and can be adapted to nearly every need, because 
+gmoccapy supports embedded tabs and side panels. 
+As a good example for that see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
+
+*gmoccapy 2 does support up to 5 axis and 8 joints.* As this manual does belong
+to both releases, some option may not be available to you. If nothing special
+has been mentioned in a chapter, than it belong to both releases. As it has been
+changed to support the joint / axis changes in LinuxCNC it does not work on 2.7
+or 2.6 branch!
 
 It has support for integrated virtual keyboard (onboard or matchbox-keyboard),
 so there is no need for a hardware keyboard or mouse, but it can also be used
@@ -23,22 +30,27 @@ settings of the GUI without editing files.
 separated from the linuxcnc.po files, so there is no need to translate unneeded
 stuff. The files are placed in */src/po/gmoccapy*. Just copy the gmoccapy.pot
 file to something like fr.po and translate that file with gtranslator or poedit.
-After a make you got the GUI in your preference language. Please publish your
-translation, so it can be included in the official packages and be published to
-other users. At the Moment it is available in English, German, Spanish, Polish,
-Serbian and Hungarian. Feel free to help me to introduce more languages,
-*nieson@web.de*. If you need help, don't hesitate to ask.
+After rebuilding, you got the GUI in your preference language. Please publish 
+your translation, so it can be included in the official packages and be 
+published to other users. At the Moment it is available in English, German, 
+Spanish, Polish, Serbian and Hungarian. Feel free to help me to introduce more 
+languages, *nieson@web.de*. If you need help, don't hesitate to ask.
 
-image::images/gmoccapy_4_axis.png[align="left"]
+image::images/gmoccapy_5_axis.png[align="left"]
 
 == Requirements
 
-Gmoccapy has been tested on Ubuntu 10.04 and 12.04 and Debian Wheezy, with
-LinuxCNC 2.6 ,2.7, and master, if you use other versions, please inform about
+Gmoccapy has been tested on Ubuntu 10.04 and 12.04 and Debian Wheezy and 
+Jessie with 2.6, 2.7 and master, if you use other versions, please inform about 
 problems or solutions on the
 http://www.linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[LinuxCNC forum] or the
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list]
+
+Gmoccapy 2 has been tested on Debian Wheesy and Jessie with the master branch.
+It fully support joint / axis changes of LinuxCNC, making it suitable as GUI
+for Scara, Robots or any other config with more joints than axis. So it do 
+support also gantry configs.
 
 The minimum screen resolution for gmoccapy, using it without side panels is
 *979 x 750 Pixel*, so it should fit to every standard screen.
@@ -54,6 +66,9 @@ If you do have already installed an earlier LinuxCNC version, check how to
 update http://wiki.linuxcnc.org/cgi-bin/wiki.pl?UpdatingTo2.6[here].
 
 You will receive updates with the regular deb packages.
+
+Gmoccapy 2 is only included in the actual master release. To get gmoccapy 2
+you need to build from source or use http://buildbot.linuxcnc.org/[buildbot].
 
 You will get a similar screen to the following:
 The design may variate depending on your config.
@@ -79,6 +94,15 @@ You will find the following INI files included, just to show the basics: +
  * gmoccapy_tool_sensor.ini +
  * gmoccapy_with_user_tabs.ini +
  +
+in gmoccapy2 there are some additional configs
+ +
+ * gmoccapy_XYZAB.ini +
+ * gmoccapy_XYZAC.ini +
+ * gmoccapy_XYZCW.ini +
+ * gmoccapy-JA/Gantry/gantry_mm.ini +
+ * gmoccapy-JA/scara/scara.ini +
+ * gmoccapy-JA/table-rotary-tilting/xyzac-trt.ini +
+ +
 The names should explain the main intention of the different INI Files. +
 
 If you use an existing configuration of your machine, just edit your INI according to this document. +
@@ -95,8 +119,6 @@ to use gmoccapy on your machine: +
  [DISPLAY]
  DISPLAY = gmoccapy
  PREFERENCE_FILE_PATH = gmoccapy_preferences
- DEFAULT_LINEAR_VELOCITY = 166.666
- MAX_LINEAR_VELOCITY = 166.666
  MAX_FEED_OVERRIDE = 1.5
  MAX_SPINDLE_OVERRIDE = 1.2
  MIN_SPINDLE_OVERRIDE = 0.5
@@ -126,33 +148,14 @@ one file for several machines, you need to include PREFERENCE_FILE_PATH in your
 INI.
 
 ----
-DEFAULT_LINEAR_VELOCITY = 166.666
-----
-
-Sets the default linear velocity in machine units per second.
-
-[NOTE]
-If no value is given, a value of 15 will be applied. If you don't set max
-linear velocity, the default linear velocity will be reduced to the default
-value max linear velocity (60).
-
-If you don't set max velocity in TRAJ, it may be reduced as well see
-<<gmoccapy:traj-section,TRAJ section>>
-
-----
-MAX_LINEAR_VELOCITY = 166.666
-----
-
-Sets the value of the max velocity for jogging in machine units per second.
-
-[NOTE] If no value is given, a value of 60 will be applied.
-
-----
 MAX_FEED_OVERRIDE = 1.5
 ----
 
 Sets the maximum feed override, in the example given, you will be allowed to
-override the feed by 150%.
+override the feed by 150%. 
+
+[NOTE]
+If no value is given, it will be set to 1.0
 
 ----
 MAX_SPINDLE_OVERRIDE = 1.2
@@ -160,6 +163,9 @@ MIN_SPINDLE_OVERRIDE = 0.5
 ----
 
 Will allow you to change the spindle override within a limit from 50% to 120%.
+
+[NOTE]
+If no values are given, MAX will be set to 1.0 and MIN to 0.1
 
 ----
 LATHE = 1
@@ -287,11 +293,12 @@ image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
 
 .Configuration of User Created Messages
 
-Gmoccapy has the ability to create hal driven user messages. To use them you need to introduce some lines
-in the [DISPLAY] section of the INI file.
+Gmoccapy has the ability to create hal driven user messages. To use them you 
+need to introduce some lines in the [DISPLAY] section of the INI file.
 
-Here is how to set up 3 user pop up message dialogs the messages support pango markup language.
-Detailed information about the markup language can be found at https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
+Here is how to set up 3 user pop up message dialogs the messages support pango 
+markup language. Detailed information about the markup language can be found at 
+https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
 
 ----
 MESSAGE_TEXT    = The text to be displayed, may be pango markup formated
@@ -339,7 +346,8 @@ The specific hal pin conventions for these can be found under the
 SUBROUTINE_PATH = macros
 ----
 
-Sets the path to search for macros and other subroutines.
+Sets the path to search for macros and other subroutines. If you want to use
+several subroutine paths, just separate them wit ":"
 
 [[gmoccapy:macros]]
 
@@ -359,8 +367,11 @@ MACRO = go_to_position X-pos Y-pos Z-pos
 ----
 
 This will add 5 macros to the MDI button list.
-Please note, that maximal 9 macros will appear in the GUI, due to place
-reasons. But it is no error placing more in your INI file.
+
+[NOTE]
+As maximum 9 macros will appear in the GUI, due to space reasons. 
+It is no error placing more in your INI file. The macro button will be displayed
+in the order of the INI entries.
 
 image::images/gmoccapy_mdi_hidden_keyboard.png[align="left"]
 
@@ -383,8 +394,8 @@ corresponding macro button.
 
 [NOTE]
 You will find the sample macros in macros folder placed in the gmoccapy
-sim folder.
-
+sim folder. If you have given several subroutine paths, they will be searched 
+in the order of the given paths. The first file found will be used.
 
 Gmoccapy will also accept macros asking for parameters like:
 
@@ -425,6 +436,9 @@ After pushing the '*execute macro button*', you will be asked to enter the
 values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values
 have been given.
 
+[NOTE]
+If you would like to use a macro without any movement, see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>
+
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
 [[gmoccapy:traj-section]]
@@ -432,11 +446,16 @@ image::images/gmoccapy_getting_macro_info.png[align="left"]
 === The TRAJ Section
 
 ----
+DEFAULT_LINEAR_VELOCITY = 85.0
 MAX_VELOCITY = 230.000
 ----
 
-Sets the maximal velocity of the machine, this value will also take influence
-to default velocity.
+Sets the maximal velocity and the default jog velocity of the machine.
+
+[NOTE]
+If DEFAULT_LINEAR_VELOCITY is not given, half of MAX_VELOCITY will be used.
+if that value is also not given, it will default to 180
+If MAX_VELOCITY is not given, it will default to 600
 
 == HAL Pins
 
@@ -446,7 +465,9 @@ without mouse or keyboard.
 
 [NOTE]
 You will have to do all connections to gmoccapy pins in your postgui.hal file,
-because they are not available before loading the GUI completely.
+because they are not available before loading the GUI completely. It is possible
+to call several postgui hal files, making the config easier to debug. Just use 
+a postgui_call_list.hal file.
 
 === Right And Bottom Button Lists
 
@@ -477,6 +498,28 @@ and the bottom (horizontal) buttons are:
 * gmoccapy.h-button-7
 * gmoccapy.h-button-8
 * gmoccapy.h-button-9
+
+[NOTE]
+the pin name for *gmoccapy2* has changed:
+* gmoccapy.v-button.button-0
+* gmoccapy.v-button.button-1
+* gmoccapy.v-button.button-2
+* gmoccapy.v-button.button-3
+* gmoccapy.v-button.button-4
+* gmoccapy.v-button.button-5
+* gmoccapy.v-button.button-6
++
+* gmoccapy.h-button.button-0
+* gmoccapy.h-button.button-1
+* gmoccapy.h-button.button-2
+* gmoccapy.h-button.button-3
+* gmoccapy.h-button.button-4
+* gmoccapy.h-button.button-5
+* gmoccapy.h-button.button-6
+* gmoccapy.h-button.button-7
+* gmoccapy.h-button.button-8
+* gmoccapy.h-button.button-9
+
 
 As the buttons in the bottom list will change according the mode and other
 influences, the hardware buttons will activate different functions, and you
@@ -510,7 +553,7 @@ To connect encoders the following pin are exported:
 * gmoccapy.max-velocity.counts            = HAL_S32  Maximal Velocity of the machine
 * gmoccapy.max-velocity.count-enable      = HAL_BIT  Must be True, to enable counts
 
-To connect potmeters, use the following hal pin:
+To connect potentiometers, use the following hal pin:
 
 * gmoccapy.jog-speed.direct-value         = HAL_FLOAT To adjust the jog velocity slider
 * gmoccapy.jog-speed.analog-enable        = HAL_BIT   Must be True, to allow analog inputs
@@ -524,6 +567,67 @@ To connect potmeters, use the following hal pin:
 * gmoccapy.max-velocity.direct-value      = HAL_FLOAT To adjust the max velocity slider
 * gmoccapy.max-velocity.analog-enable     = HAL_BIT   Must be True, to allow analog inputs
 
+[NOTE]
+for gmoccapy2 the hal pin name has changed, as new controls has been implemented,
+max velocity does not exist any more, as rapid override has been implemented. 
+This change has been done as many user ask for that.
+
+* gmoccapy.jog.jog-velocity.counts        = HAL_S32  Jog velocity
+* gmoccapy.jog.jog-velocity.count-enable  = HAL_BIT  Must be True, to enable counts
+
+* gmoccapy.feed.feed-override.counts       = HAL_S32  feed override
+* gmoccapy.feed.feed-override.count-enable = HAL_BIT  Must be True, to enable counts
+* gmoccapy.feed.reset-feed-override        = HAL_BIT  reset the feed override to 100 %
+
+* gmoccapy.spindle.spindle-override.counts       = HAL_S32  spindle override
+* gmoccapy.spindle.spindle-override.count-enable = HAL_BIT  Must be True, to enable counts
+* gmoccapy.spindle.reset-spindle-override        = HAL_BIT  reset the spindle override to 100 %
+
+* gmoccapy.rapid.rapid_override.counts       = HAL_S32  Maximal Velocity of the machine
+* gmoccapy.rapid.rapid_override.count-enable = HAL_BIT  Must be True, to enable counts
+
+To connect potentiometers, use the following hal pin:
+
+* gmoccapy.jog.jog-velocity.direct-value     = HAL_FLOAT To adjust the jog velocity slider
+* gmoccapy.jog.jog-velocity.analog-enable    = HAL_BIT   Must be True, to allow analog inputs
+
+* gmoccapy.feed.feed-override.direct-value   = HAL_FLOAT To adjust the feed override slider
+* gmoccapy.feed.feed-override.analog-enable  = HAL_BIT   Must be True, to allow analog inputs
+
+* gmoccapy.spindle.spindle-override.direct-value  = HAL_FLOAT To adjust the spindle override slider
+* gmoccapy.spindle.spindle-override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
+
+* gmoccapy.rapid.rapid_override.direct-value  = HAL_FLOAT To adjust the max velocity slider
+* gmoccapy.rapid.rapid_override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
+
+In addition to the changed pin, gmoccapy2 offers additional hal pin to control
+the new slider widgets with momentary switches. The values how fast the increase
+or decrease will be, must be set in the glade file. In a future release it will 
+be integrated in the settings page.
+* gmoccapy.spc_jog_vel.increase     = HAL_BIT IN     as long as True the value of the slider will increase
+* gmoccapy.spc_jog_vel.decrease     = HAL_BIT IN     as long as True the value of the slider will decrease
+* gmoccapy.spc_jog_vel.scale        = HAL_FLOAT IN   A value to scale the output value (Handy to change units/min to units/sec
+* gmoccapy.spc_jog_vel.value        = HAL_FLOAT OUT  value of the widget
+* gmoccapy.spc_jog_vel.scaled-value = HAL_FLOAT OUT  scaled value of the widget
+
+* gmoccapy.spc_feed.increase     = HAL_BIT IN     as long as True the value of the slider will increase
+* gmoccapy.spc_feed.decrease     = HAL_BIT IN     as long as True the value of the slider will decrease
+* gmoccapy.spc_feed.scale        = HAL_FLOAT IN   A value to scale the output value (Handy to change units/min to units/sec
+* gmoccapy.spc_feed.value        = HAL_FLOAT OUT  value of the widget
+* gmoccapy.spc_feed.scaled-value = HAL_FLOAT OUT  scaled value of the widget
+
+* gmoccapy.spc_spindle.increase     = HAL_BIT IN     as long as True the value of the slider will increase
+* gmoccapy.spc_spindle.decrease     = HAL_BIT IN     as long as True the value of the slider will decrease
+* gmoccapy.spc_spindle.scale        = HAL_FLOAT IN   A value to scale the output value (Handy to change units/min to units/sec
+* gmoccapy.spc_spindle.value        = HAL_FLOAT OUT  value of the widget
+* gmoccapy.spc_spindle.scaled-value = HAL_FLOAT OUT  scaled value of the widget
+
+* gmoccapy.spc_rapid.increase     = HAL_BIT IN     as long as True the value of the slider will increase
+* gmoccapy.spc_rapid.decrease     = HAL_BIT IN     as long as True the value of the slider will decrease
+* gmoccapy.spc_rapid.scale        = HAL_FLOAT IN   A value to scale the output value (Handy to change units/min to units/sec
+* gmoccapy.spc_rapid.value        = HAL_FLOAT OUT  value of the widget
+* gmoccapy.spc_rapid.scaled-value = HAL_FLOAT OUT  scaled value of the widget
+
 The float pin do accept values from 0.0 to 1.0, being the percentage value
 you want to set the slider value.
 
@@ -531,8 +635,8 @@ you want to set the slider value.
 both pin, as the influences between the two has not been tested! Different
 sliders may be connected to the one or other hal connection type.
 
-[IMPORTANT] Please be aware, that for the jog velocity depends on the turtle
-button state, it will lead to different slider scales depending on the mode
+[IMPORTANT] Please be aware, jog velocity depends on the turtle button state, 
+it will lead to different slider scales depending on the mode
 (turtle or rabbit). Please take also a look to
 <<gmoccapy:jog-velocity,jog velocities and turtle-jog hal pin>> for more
 details.
@@ -573,6 +677,19 @@ For a "C" axis you will see:
 * gmoccapy.jog-c-plus
 * gmoccapy.jog-c-minus
 
+[Note]
+naming of this hal pin has changed for gmoccapy2
+
+* gmoccapy.jog.axis.jog-x-plus
+* gmoccapy.jog.axis.jog-x-minus
+* gmoccapy.jog.axis.jog-y-plus
+* gmoccapy.jog.axis.jog-y-minus
+* gmoccapy.jog.axis.jog-z-plus
+* gmoccapy.jog.axis.jog-z-minus
+* gmoccapy.jog.axis.jog-c-plus
+* gmoccapy.jog.axis.jog-c-minus
+
+
 [[gmoccapy:jog-velocity]]
 
 === Jog Velocities And Turtle-Jog Hal Pin
@@ -587,6 +704,15 @@ divider can be set on the <<gmoccapy:turtle-jog,settings page>>.
 
 So using a touch screen it is much easier to select smaller velocities.
 
+gmoccapy offers a hal pin to toggle between turtle and rabbit jogging
+
+* gmoccapy.turtle-jog   (Hal Bit In)
+
+[Note]
+in gmoccapy2 it is
+
+* gmoccapy.jog.turtle-jog   (Hal Bit In)
+
 === Jog Increment Hal Pins
 
 The jog increments are selectable through hal pins, so a select hardware
@@ -596,6 +722,7 @@ increments in your INI File, they will be not reachable from the GUI as they
 will not be displayed.
 
 If you have 6 increments in your hal you will get *7* pins:
+jog-inc-0 is unchangeable and will represent continuous jogging.
 
 * gmoccapy.jog-inc-0
 * gmoccapy.jog-inc-1
@@ -605,7 +732,17 @@ If you have 6 increments in your hal you will get *7* pins:
 * gmoccapy.jog-inc-5
 * gmoccapy.jog-inc-6
 
-jog-inc-0 is unchangeable and will represent continuous jogging.
+[Note]
+gmoccapy2 uses differnt hal pin naming
+
+* gmoccapy.jog.jog-inc-0
+* gmoccapy.jog.jog-inc-1
+* gmoccapy.jog.jog-inc-2
+* gmoccapy.jog.jog-inc-3
+* gmoccapy.jog.jog-inc-4
+* gmoccapy.jog.jog-inc-5
+* gmoccapy.jog.jog-inc-6
+
 
 [[gmoccapy:hardware-unlock]]
 
@@ -1073,7 +1210,7 @@ NOTE: Imperial will show one digit more that metric. So if you are in imperial m
 
 'toggle DRO mode' + 
 if not active, a mouse click on the DRO will not take any action. + 
-By default this checkbox is active, so every click on any DRO will toogle the DRO readout from actual to relative to DTG (distance to go). + + 
+By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). + + 
 
 Preview::
 
@@ -1170,7 +1307,9 @@ See <<gmoccapy:lathe-section,the Lathe section>>
 
  * F1 = Estop (will work even if keyboard shortcuts are disabled)
  * F2 = Machine on
-
+ * F3 = manual mode
+ * F5 = MDI mode
+ 
  * ESC = Abort
 
 There are additional keys for message handling, see
@@ -1193,8 +1332,11 @@ Default is use unlock code (default = *123*)
 Spindle::
 The start RPM sets the rpm to be used if the spindle is started and no S value has been set.
 
-The start RPM sets the rpm to be used if the spindle is started and no S value
-has been set.
+[Note]
+This value will be preseted according to your settings in 
+[DISPLAY] DEFAULT_SPINDLE_SPEED of your INI. If you change the settings on the
+settings page, that value will be default from that moment, your INI File will
+not be modified.
 
 With the MIN and MAX settings you set the limits of the spindle bar shown in
 the INFO frame on the main screen. It is no error giving wrong values. If you
@@ -1284,7 +1426,15 @@ You can do that by checking the checkbox, that will hide:
  * 4'th axis Jog button
  * 4'th axis home button
  * column of 4'th axis in the offsetpage
- * column of 4'th axis in the tolleditor
+ * column of 4'th axis in the tooleditor
+
+[[gmoccapy:reload-tool-on-start]]
+
+If checked, the tool in spindle will be saved on each change in the preference 
+file, making it possible to reload the last mounted tool on start up.
+The tool will be loaded after all axis are homed, because before it is not
+allowed to execute MDI commands. If you use NO_FORCE_HOMING you can not use
+this feature, because the needed all_homed_signal will never be emitted.
 
 [[gmoccapy:message-behavior]]
 
@@ -1376,7 +1526,7 @@ offset and the tool table is showing all lathe relevant information.
 
 == Plasma Specific Section
 
-image::images/gmoccapy_plasma_1.png[align="left"]
+image::images/gmoccapy_plasma.png[align="left"]
 
 There is a very good WIKI, which is actually growing, maintained by Marius
 see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page]
@@ -1387,25 +1537,25 @@ This are videos showing gmoccapy in action, unfortunately the videos don't
 show the latest version of gmoccapy, but the way to use it will not change
 much in the future. I will try to actualize the videos as soon as possible.
 
-.Basic Usage
+=== Basic Usage
 
 https://www.youtube.com/watch?v=O5B-s3uiI6g
 
-.Simulated Jog Wheels
+=== Simulated Jog Wheels
 
 http://youtu.be/ag34SGxt97o
 
-.Settings Page
+=== Settings Page
 
 https://www.youtube.com/watch?v=AuwhSHRJoiI
 
-.Simulated Hardware Button
+=== Simulated Hardware Button
 
 Deutsch = http://www.youtube.com/watch?v=DTqhY-MfzDE
 
 English = http://www.youtube.com/watch?v=ItVWJBK9WFA
 
-.User Tabs
+=== User Tabs
 
 http://www.youtube.com/watch?v=rG1zmeqXyZI
 
@@ -1419,7 +1569,7 @@ Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk
 
 Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4
 
-== Known problems
+== Known problems 
 
 === Strange numbers in the info area
 
@@ -1430,3 +1580,41 @@ image::images/strange_numbers.png[align="left"]
 You have made your config file using an older version of StepConfWizard.
 It has made a wrong entry in the INI file under the [TRAJ] named
 MAX_LINEAR_VELOCITY = xxx. Change that entry to MAX_VELOCITY = xxx 
+
+=== Not ending macro [[sub:NOT_ENDING_MACROS]]
+
+If you use a macro without movement, like this one:
+
+---------
+ o<zeroxy> sub
+
+G92.1
+G92.2
+G40
+
+G10 L20 P0 X0 Y0
+
+o<zeroxy> endsub 
+m2
+---------
+
+gmoccapy will not see the end of the macro, because the interpreter needs to 
+change its state to IDLE, but the macro does not even set the interpreter to
+a new state. To avoid that just add a G4 P0.1 line to get the needed signal. 
+The correct macro would be:
+
+---------
+ o<zeroxy> sub
+
+G92.1
+G92.2
+G40
+
+G10 L20 P0 X0 Y0
+
+G4 P0.1
+
+o<zeroxy> endsub 
+m2
+---------
+

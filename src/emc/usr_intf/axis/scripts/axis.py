@@ -144,7 +144,7 @@ except TclError:
     raise
 
 def General_Halt():
-    text = "Do you really want to close linuxcnc?"
+    text = "Do you really want to close LinuxCNC?"
     if not root_window.tk.call("nf_dialog", ".error", "Confirm Close", text, "warning", 1, "Yes", "No"):
         root_window.destroy()
 
@@ -394,7 +394,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.get_resources()
         self.realize()
         self.init_glcanondraw(trajcoordinates=trajcoordinates,
-                              kinstype=kinstype)
+                              kinsmodule=kinsmodule)
     def getRotateMode(self):
         return vars.rotate_mode.get()
 
@@ -2488,6 +2488,9 @@ class TclCommands(nf.TclCommands):
             if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
                 print "home_joint <%s> Use joint mode for homing"%jora
                 return
+            if jora in duplicate_coord_letters:
+                print "\nIndividual axis homing disallowed for duplicated letter:<%s> "%jora
+                return
             jnum = trajcoordinates.index(jora)
         else:
             jnum = int(jora)
@@ -2586,7 +2589,7 @@ class TclCommands(nf.TclCommands):
         if s.tool_in_spindle == 0: return
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Tool Touch Off (Tool No:%s)"%s.tool_in_spindle),
+                title=_("Tool %s TouchOff"%s.tool_in_spindle),
                 text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=True,
@@ -3001,7 +3004,8 @@ def jog(*args):
 
 def get_jog_mode():
     s.poll()
-    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+    if  (    (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+        and  all_homed() ):
         teleop_mode = 1
         jjogmode = False
     else:
@@ -3120,8 +3124,8 @@ except:
     raise SystemExit("Missing [TRAJ]COORDINATES")
 vars.trajcoordinates.set(trajcoordinates)
 
-joint_type = [None] * linuxcnc.MAX_JOINTS
-for j in range(linuxcnc.MAX_JOINTS):
+joint_type = [None] * jointcount
+for j in range(jointcount):
     section = "JOINT_%d" % j
     joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
 
@@ -3134,7 +3138,7 @@ for a in range(linuxcnc.MAX_AXIS):
         axis_type[a] = "ANGULAR"
     else:
         axis_type[a] = "LINEAR"
-    section = "AXIS_%s" % letter
+    section = "AXIS_%s" % letter.upper()
     initype = inifile.find(section, "TYPE")
     if initype is None: continue # use default
     axis_type[a] = initype
@@ -3172,18 +3176,28 @@ max_velocity = (
 
 # Enforce these slider items (exit if missing)
 try:
-    msg = "max velocity"
+    msg = ("   [DISPLAY]MAX_LINEAR_VELOCITY\n"
+           "or [TRAJ]MAX_LINEAR_VELOCITY\n"
+           "or [AXIS_X]MAX_VELOCITY")
     vars.maxvel_speed.set(float(max_velocity)*60)
     vars.max_maxvel.set(float(max_velocity))
-    if has_linear_joint_or_axis:
-        msg = "max linear speed"
-        vars.max_speed.set(float(max_linear_speed))
 except Exception:
-    print "\nMissing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    print ("\nMissing required specifier:\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
     raise SystemExit
 
-if default_jog_linear_speed is None: default_jog_linear_speed = max_linear_speed
-vars.jog_speed.set(float(default_jog_linear_speed)*60)
+try:
+    if has_linear_joint_or_axis:
+        msg = ("   [DISPLAY]MAX_LINEAR_VELOCITY\n"
+               "or [TRAJ]MAX_LINEAR_VELOCITY")
+        vars.max_speed.set(float(max_linear_speed))
+        if default_jog_linear_speed is None:
+            default_jog_linear_speed = max_linear_speed
+        vars.jog_speed.set(float(default_jog_linear_speed)*60)
+except Exception:
+    print ("\nMissing required specifier (has linear joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
+    raise SystemExit
 
 # Check for these slider items (message if missing)
 try:
@@ -3299,12 +3313,12 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-kinstype=inifile.find("KINS", "KINEMATICS").lower()
+kinsmodule=inifile.find("KINS", "KINEMATICS").lower()
 kins_is_trivkins = False
-if kinstype.split()[0] == "trivkins":
+if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
-    for item in kinstype.split():
+    for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
 
@@ -3314,7 +3328,7 @@ for i in range(len(trajcoordinates)):
     if trajcoordinates.count(trajcoordinates[i]) > 1:
         duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
 if duplicate_coord_letters != "":
-    # Can occur, for instance, with trivkins with kinstype=both).
+    # Can occur, for instance, with trivkins with kinsmodule=both).
     # In such kins, the value for a duplicated axis letter will equal the
     # value of the highest numbered joint.
     # Movements on axis gui display in joint mode (after homing) may be unexpected,
@@ -3359,11 +3373,17 @@ def aletter_for_jnum(jnum):
         return guess
 
 num_joints = s.joints
+gave_individual_homing_message = ""
 for jnum in range(num_joints):
     if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
         ja_name = "Axis"
         ja_id = aletter_for_jnum(jnum)
-        if ja_id == "NOALETTER": continue
+        if ja_id.lower() in duplicate_coord_letters:
+            if ja_id not in gave_individual_homing_message:
+                print "\nNote:\nIndividual axis homing is not currently supported for"
+                print "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"%ja_id
+                gave_individual_homing_message = gave_individual_homing_message + ja_id
+            continue # no menu item for this individual axis letter
         widgets.homemenu.add_command(
                command=lambda jnum=jnum: commands.home_joint_number(jnum))
         widgets.unhomemenu.add_command(
