@@ -211,6 +211,9 @@ BUILD_EXAMPLES=@BUILD_EXAMPLES@
 # emcweb UI
 BUILD_EMCWEB=@BUILD_EMCWEB@
 
+# webtalk
+BUILD_WEBTALK=@BUILD_WEBTALK@
+
 #  build uninished development code
 BUILD_DEV=@BUILD_DEV@
 

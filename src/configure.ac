@@ -965,6 +965,23 @@ PKG_CHECK_MODULES([LWS], libwebsockets,
 	USE_LWS=yes
    ],)
 
+AC_MSG_CHECKING(whether to build webtalk)
+AC_ARG_ENABLE(webtalk,
+    [  --enable-webtalk    build Webtalk],
+    [
+	if test "$USE_LWS" != "yes"; then
+	    AC_MSG_ERROR([Please install libwebsockets before building Webtalk.])
+	fi
+	BUILD_WEBTALK=yes
+        AC_MSG_RESULT([configuring to to build webtalk])
+    ],
+    [
+      AC_MSG_RESULT([not building webtalk])
+      BUILD_WEBTALK=no
+    ])
+
+
+
 PKG_CHECK_MODULES([SSL], libssl,
    [
         AC_DEFINE(HAVE_SSL, [], [libssl library available])
@@ -1740,7 +1757,7 @@ fi
 
 AC_SUBST(BUILD_DEV)
 AC_SUBST(BUILD_PROTO_JS)
-
+AC_SUBST(BUILD_WEBTALK)
 
 AC_SUBST(BUILD_NMLDEP)
 if test "$BUILD_NMLDEP" = yes; then
