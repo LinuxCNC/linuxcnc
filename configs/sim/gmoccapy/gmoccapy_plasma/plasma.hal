@@ -20,7 +20,7 @@
 # plasma.led-pos-limit             (bool)
 # plasma.led-neg-limit             (bool)
 # plasma.hal-lbl-corr              (float)
-# plasma.hal_lbl_cur_volt          (float)
+# plasma.hal-lbl-cur-volt          (float)
 
 
 # Hook up plasma pins using the net command

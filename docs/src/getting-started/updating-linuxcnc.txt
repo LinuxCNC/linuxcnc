@@ -569,6 +569,18 @@ Note: In prior versions of LinuxCNC (before joints_axes updates), the
       (pins were created for all 9 axes)
       See the man page ('$ man milltask') for more information
 
+== Hal Changes (Other)
+
+=== Parameter to Pin changes
+
+The following hal output pins were changed from parameters to pins
+so that they can be connected to signals:
+
+----
+   motion.servo.last-period    (servo last period in clks)
+   motion.servo.last-period_ns (kernel-dependent availability)
+----
+
 == GUIs (updates for joints_axes)
 
 === Halui

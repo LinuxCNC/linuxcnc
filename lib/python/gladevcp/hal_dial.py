@@ -142,9 +142,11 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         if event.direction == gtk.gdk.SCROLL_UP:
             self._count += 1
             self._minute_offset +=1
+            self._delta_scaled += self.scale
         if event.direction == gtk.gdk.SCROLL_DOWN:
             self._count -= 1
             self._minute_offset -=1
+            self._delta_scaled -= self.scale
         self._last_offset =  self._minute_offset
         self.redraw_canvas()
         self.emit("count_changed", self._count,self.scale,self._delta_scaled)

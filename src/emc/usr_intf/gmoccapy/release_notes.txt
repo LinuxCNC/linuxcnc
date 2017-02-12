@@ -1,3 +1,12 @@
+ver 2.2.3.1
+- solved the reload tool on start up bug after homing twice
+  if there is already a tool in spindle, the user 
+  homed the second time, unfortunately we will then
+  not get out of MDI mode any more
+  That happen, because the tool in spindle did not change, so the 
+  tool info is not updated and we self.change_tool will not be reseted
+  Thanks to timmert for reporting
+
 ver. 2.2.3
 - added patch from gmoccapy 1.5.7
 - new hal pin gmoccapy.ignore-limits so that this function can be
@@ -269,6 +278,11 @@ ver. 1.6.0
 - ToDo: * Add widget to change motion mode
         * Init GUI to have a jog button per joint and not only per axis
         * change GUI appearance according to motion mode
+
+ver. 1.5.7
+- new hal pin gmoccapy.ignore-limits so that this function can be
+  handled from hardware switch
+  Ask by some users, done because of a wish of Timothy Snowden
 
 ver. 1.5.6.10
 - if no MARCO was found in INI getiniinfo returned a NONE, leading to an

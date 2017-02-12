@@ -18,6 +18,31 @@ Halshow is in the AXIS menu under Machine/Show HAL Configuration.
 
 Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
 
+Halshow can be started from a terminal command line and specify
+formats for integer and float items (pins or signals) and identify a
+saved watchlist file to use:
+
+----
+$ halshow --help
+Usage:
+  halshow [Options] [watchfile]
+  Options:
+           --help    (this help)
+           --fformat format_string_for_float
+           --iformat format_string_for_int
+
+Notes:
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
+
+Example to limit number of decimal points for floats
+and used a file named my.halshow in the current directory:
+
+----
+$ halshow  --fformat ".5f" ./my.halshow
+----
+
 == HAL Tree Area
 
 At the left of its display as shown in figure is a tree view, somewhat like
