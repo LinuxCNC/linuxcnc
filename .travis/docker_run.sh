@@ -9,7 +9,7 @@ COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
 DISTRO=${TAG%-*}
 MARCH=${TAG#*-}
-test ${TRAVIS_PULL_REQUEST} = false && IS_PR=false || IS_PR=true
+test ${TRAVIS_PULL_REQUEST:=false} = false && IS_PR=false || IS_PR=true
 # Verbose RIP build output:  "true" or "false"
 MK_BUILD_VERBOSE=${MK_BUILD_VERBOSE:-"false"}
 # Verbose package build output:  "true" or "false"
