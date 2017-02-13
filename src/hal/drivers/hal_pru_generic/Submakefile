@@ -38,7 +38,7 @@ PRU_DBGS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.dbg,$(PRU_MAINS
 $(PRU_DEPS): objects/%.d : %.p
 	$(Q)mkdir -p $(dir $@)
 	$(ECHO) generate PRU dependency $@ from $<
-	$(Q)cpp -MM -MG -MT objects/$(patsubst %.p,%.bin,$<)  $< $@
+	$(Q)cpp -x c -MM -MG -MT objects/$(patsubst %.p,%.bin,$<) -o $@ $<
 
 objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM)
 	$(Q)mkdir -p $(RTLIBDIR)
