@@ -350,9 +350,13 @@ variable int * badexample;
 
 === Comments
 
-C++-style one-line comments (//... ) and 
+C++-style one-line comments //... 
 
-C-style multi-line comments (/* ... */) are both supported in the declaration section. 
+C-style multi-line comments /* ... */
+
+Python style multi-line comments """   """
+
+C++ and Python style are both supported by the --document builder.
 
 == Restrictions
 
@@ -462,10 +466,12 @@ configured as a userspace simulator.
 
 'halcompile' can process, compile, and install a realtime component
 in a single step, placing 'rtexample.ko' in the LinuxCNC realtime
-module directory:
+module directory.
+
+To install a module you need use sudo and provide your password when prompted.
 
 ----
-halcompile --install rtexample.comp
+sudo halcompile --install rtexample.comp
 ----
 
 Or, it can process and compile in one step, leaving 'example.ko' (or
@@ -485,11 +491,12 @@ halcompile rtexample.comp
 the '--install' and '--compile' options shown above:
 
 ----
-halcompile --install rtexample2.c
+sudo halcompile --install rtexample2.c
 ----
 
-man-format documentation can also be created from the information in
-the declaration section:
+Documentation in the man-format can also be created from the information in
+the declaration section. The man page is created in the current working
+directory.
 
 ----
 halcompile --document rtexample.comp
@@ -510,7 +517,7 @@ or copied to a standard location for manual pages.
 ----
 halcompile usrexample.comp
 halcompile --compile usrexample.comp
-halcompile --install usrexample.comp
+sudo halcompile --install usrexample.comp
 halcompile --document usrexample.comp
 ----
 
