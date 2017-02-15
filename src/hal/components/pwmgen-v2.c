@@ -187,8 +187,7 @@ static int export_pwmgen(const char *name, const int inst_id,
 			 pwmgen_t * addr, const int output_type);
 static int make_pulses(void *arg, const hal_funct_args_t *fa);
 static int update(void *arg, const hal_funct_args_t *fa);
-static int instantiate_pwmgen(const char *name, const int argc,
-			      const char**argv);
+static int instantiate_pwmgen(const int argc, const char**argv);
 static int delete_pwmgen(const char *name, void *inst, const int inst_size);
 
 /***********************************************************************
@@ -237,13 +236,17 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-static int instantiate_pwmgen(const char *name,
-			      const int argc,
-			      const char**argv)
+static int instantiate_pwmgen(const int argc, const char**argv)
 {
     pwmgen_t *p;
     int retval;
-
+    const char* name;
+    
+    if(argc >= 2)
+        name = argv[1];
+    else
+        HALFAIL_RC(EINVAL, "ERROR: insufficient args in argv");
+    
     if ((retval = hal_inst_create(name, comp_id, sizeof(pwmgen_t), (void **)&p)) < 0)
 	return retval;
 

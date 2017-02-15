@@ -504,8 +504,7 @@ static int update_freq(void *arg, const hal_funct_args_t *fa);
 static int update_pos(void *arg,  const hal_funct_args_t *fa);
 static int setup_user_step_type(void);
 static CONTROL parse_ctrl_type(const char *ctrl);
-static int instantiate_stepgen(const char *name, const int argc,
-			      const char**argv);
+static int instantiate_stepgen( const int argc, const char**argv);
 static int delete_stepgen(const char *name, void *inst, const int inst_size);
 
 
@@ -580,11 +579,15 @@ int rtapi_app_main(void)
     return 0;
 }
 
-static int instantiate_stepgen(const char *name,
-			      const int argc,
-			      const char**argv)
+static int instantiate_stepgen(const int argc, const char**argv)
 {
     int retval;
+    const char* name;
+    
+    if(argc >= 2)
+        name = argv[1];
+    else
+        HALFAIL_RC(EINVAL, "ERROR: insufficient args in argv");
 
     // validate instance parameters
     if ((step_type > MAX_STEP_TYPE) || (step_type < 0)) {
