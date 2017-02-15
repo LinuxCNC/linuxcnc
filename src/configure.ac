@@ -590,6 +590,9 @@ AC_ARG_WITH(platform-beaglebone,
 	    	TARGET_PLATFORM_BEAGLEBONE=true
 		platform_specified=true
 		platform_beaglebone_reason="$cmdl_enab_msg"
+		# see https://github.com/machinekit/machinekit/issues/629
+		ARCH_CFLAGS="-march=armv7-a -mtune=cortex-a8"
+		ARCH_CFLAGS="$ARCH_CFLAGS -mfloat-abi=hard -mfpu=neon -ffast-math"
 		;;
 	    (*)
 	    	TARGET_PLATFORM_BEAGLEBONE=false

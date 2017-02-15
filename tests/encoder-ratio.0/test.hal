@@ -1,0 +1,74 @@
+# run encoder_ratio and encoder_ratio-v2 in sync
+
+loadrt stepgen step_type=2 ctrl_type=v
+loadrt encoder_ratio names=v1
+loadrt encoder_ratio-v2 names=v2
+
+
+# gates to selectively connect master, slave to the A/B signal
+newinst andn masterA pincount=2
+newinst andn masterB pincount=2
+newinst andn slaveA  pincount=2
+newinst andn slaveB  pincount=2
+
+# differentiate to get the error signal change rate
+newinst ddt v1rate
+newinst ddt v2rate
+
+setp   v1.master-ppr 200
+setp   v1.slave-ppr  200
+setp   v1.master-teeth 50
+setp   v1.slave-teeth  50
+setp   v1.enable 1
+
+setp   v2.master-ppr 200
+setp   v2.slave-ppr  200
+setp   v2.master-teeth 50
+setp   v2.slave-teeth  50
+setp   v2.enable 1
+
+net Asig stepgen.0.phase-A => masterA.in0 slaveA.in0
+net Bsig stepgen.0.phase-B => masterB.in0 slaveB.in0
+
+net Amaster masterA.out v1.master-A v2.master-A
+net Bmaster masterB.out v1.master-B v2.master-B
+
+net Aslave  slaveA.out v1.slave-A v2.slave-A
+net Bslave  slaveB.out v1.slave-B v2.slave-B
+
+net v1Rate v1.error v1rate.in
+net v2Rate v2.error v2rate.in
+
+# both enable-* signals set: error must remain constant
+# master enabled, slave disabled: error falls at 1.0/sec (= slave not moving, falls behind)
+# master disabled, slave enabled: error rises at 1.0/sec (= slave moving but not master)
+
+net enable-master <= masterA.in1 masterB.in1
+net enable-slave  <= slaveA.in1  slaveB.in1
+
+newthread fast 100000 fp
+newthread slow 1000000000 fp   # 1sec
+
+addf stepgen.update-freq slow
+addf stepgen.make-pulses fast
+
+addf masterA.funct fast
+addf masterB.funct fast
+addf slaveA.funct fast
+addf slaveB.funct fast
+
+addf encoder-ratio.sample fast
+addf encoder-ratio.update slow
+
+addf encoder-ratio-v2.sample fast
+addf encoder-ratio-v2.update slow
+
+addf v1rate.funct slow
+addf v2rate.funct slow
+
+# this scaling makes error grow at the rate of 1.0 per second
+setp stepgen.0.velocity-cmd 1
+setp stepgen.0.position-scale 200
+setp stepgen.0.enable 1
+
+start

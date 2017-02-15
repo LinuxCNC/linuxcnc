@@ -49,13 +49,13 @@ static char *rring = NULL;
 RTAPI_IP_STRING(rring, "a ring this instance should plug to as a reader");
 
 static int txnoencode = 0;
-RTAPI_MP_INT(txnoencode, "pass unencoded machinetalk_Container struct instead of pb message");
+RTAPI_MP_INT(txnoencode, "pass unencoded pb_Container struct instead of pb message");
 
 static int rxnodecode = 0;
-RTAPI_MP_INT(rxnodecode, "expect unencoded machinetalk_Container struct instead of pb message");
+RTAPI_MP_INT(rxnodecode, "expect unencoded pb_Container struct instead of pb message");
 
 
-static void rtapi_format_pose(char *buf, unsigned long int size,  machinetalk_EmcPose *p)
+static void rtapi_format_pose(char *buf, unsigned long int size,  pb_EmcPose *p)
 {
     unsigned sz = size;
     char *b = buf; // FIXME guard against buffer overflow

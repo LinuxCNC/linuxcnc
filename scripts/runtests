@@ -136,7 +136,7 @@ run_tests () {
 		reason="checkresult exited with $exitcode"
 	    elif [ -f $testdir/expected ]; then
 		exitcode=0
-		if ! diff -u $testdir/expected $testdir/result > \
+		if ! diff --ignore-trailing-space -u $testdir/expected $testdir/result > \
 		    $TMPDIR/diff; then
 		    exitcode=1
 		    reason="result differed from expected"

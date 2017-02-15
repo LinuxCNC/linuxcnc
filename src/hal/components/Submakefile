@@ -208,7 +208,7 @@ hal/components/conv_float_s64.comp: hal/components/conv.comp.in hal/components/m
     
 hal/components/conv_float_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh float u64 "" 0 9223372036854775807 < $< > $@
+	$(Q)sh hal/components/mkconv.sh float u64 "" 0 18446744073709551615 < $< > $@
     
 hal/components/conv_bit_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
@@ -252,11 +252,11 @@ hal/components/conv_s64_s32.comp: hal/components/conv.comp.in hal/components/mkc
 
 hal/components/conv_u64_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u64 u32 "" 0 2147483647 < $< > $@
+	$(Q)sh hal/components/mkconv.sh u64 u32 "" 0 4294967295 < $< > $@
 
 hal/components/conv_s64_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s64 u32 "" 0 2147483647 < $< > $@
+	$(Q)sh hal/components/mkconv.sh s64 u32 "" 0 4294967295 < $< > $@
 
 
 # build instructions for the delayline module

@@ -75,6 +75,9 @@
 // so we can use 32bit atomics throughout (size_t on amd64 is 64bits)
 typedef __u32 ringsize_t;
 
+// backwards compat for code based upon original type
+#define ring_size_t ringsize_t
+
 // size of a record in a record ring - in record mode,
 // negative numbers are needed for skips.
 typedef __s32 rrecsize_t;
