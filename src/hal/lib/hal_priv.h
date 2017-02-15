@@ -856,6 +856,9 @@ void report_memory_usage(void);
 char *halg_strdup(const int use_hal_mutex, const char *paramptr);
 int halg_free_str(char **s);  // will set s to NULL
 
+// for rtapi_app shutdown
+int hal_exit_usercomps(char *name);
+
 #define WITH_HAL_MUTEX_IF(intval) _WITH_MUTEX_IF(&hal_data->mutex, __LINE__, intval)
 #define WITH_HAL_MUTEX() _WITH_MUTEX_IF(&hal_data->mutex, __LINE__, 1)
 

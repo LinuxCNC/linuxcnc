@@ -352,6 +352,7 @@ EXPORT_SYMBOL(halg_xinitfv);
 EXPORT_SYMBOL(hal_xinit);
 EXPORT_SYMBOL(halg_ready);
 EXPORT_SYMBOL(halg_exit);
+EXPORT_SYMBOL(hal_exit_usercomps);
 EXPORT_SYMBOL(hal_comp_name);
 
 // hal_memory.c:

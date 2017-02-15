@@ -12,9 +12,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <libwebsockets.h>
-
 #include "webtalk.hh"
+#include <libwebsockets.h>
 
 static  int example_policy(wtself_t *self,         // server instance
 			   zws_session_t *s,       // session

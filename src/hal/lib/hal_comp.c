@@ -10,6 +10,13 @@
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
 #endif
+#if defined(BUILD_SYS_USER_DSO) || (defined(RTAPI) && !defined(BUILD_SYS_KBUILD))
+#include <signal.h>
+#ifndef abs
+int abs(int x) { if(x < 0) return -x; else return x; }
+#endif
+#endif
+
 
 hal_comp_t *halpr_alloc_comp_struct(void);
 
@@ -574,3 +581,40 @@ int init_hal_data(void)
     return 0;
 }
 #endif
+
+
+// part of shutdown by rtapi_app:
+// send SIGTERM to all remaining usercomps
+static int unload_usr_cb(hal_object_ptr o, foreach_args_t *args)
+{
+    hal_comp_t *comp = o.comp;
+    if ((comp->type == TYPE_REMOTE)
+	&& comp->pid == 0) {
+	// found a disowned remote component
+	halg_exit(0, ho_id(comp));
+	return 0;
+    }
+    // an owned remote component, or a user component
+    // owned by somebody other than us receives a signal
+    if (((comp->type == TYPE_REMOTE) && (comp->pid != 0)) ||
+	((comp->type == TYPE_USER))) {
+	HALDBG("comp %s: sending SIGTERM to pid %d", ho_name(comp), comp->pid);
+
+	// found a userspace or remote component
+	// send SIGTERM to unload this component
+	// this will also exit haltalk if unloadusr of a remote
+	// comp which is being served by haltalk
+	kill(abs(comp->pid), SIGTERM);
+    }
+    return 0;
+}
+
+int hal_exit_usercomps(char *name)
+{
+    foreach_args_t args =  {
+	.type = HAL_COMPONENT,
+	.name = name,
+    };
+    halg_foreach(1, &args, unload_usr_cb);
+    return 0;
+}

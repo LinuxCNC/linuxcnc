@@ -386,10 +386,23 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(PROFILE_CFLAGS) -DULAPI $(call cc-option,
 # enable runtime comparison of GIT_CONFIG_SHA (config.h) and GIT_BUILD_SHA
 CFLAGS += -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
 
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS) \
-	 -DULAPI $(DEBUG) $(OPT) \
-	$(PROFILE_CFLAGS) \
-	 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
+# make ck_pr.h happy:
+CFLAGS += $(CK_CFLAGS)
+
+# if not initialised use innocuous switch to prevent errors
+ifeq ($(ARCH_CFLAGS),@ARCH_CFLAGS@)
+ARCH_CFLAGS := -Wunused
+endif
+
+BASE_CXXFLAGS:= $(INCLUDE) $(CXXFLAGS) \
+		$(CK_CFLAGS) \
+		$(DEBUG) $(OPT) \
+		$(PROFILE_CFLAGS) \
+		 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\" \
+		$(ARCH_CFLAGS)
+
+CXXFLAGS :=   $(BASE_CXXFLAGS) -DULAPI
+RT_CXXFLAGS :=   $(BASE_CXXFLAGS) 
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS += -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -647,6 +660,7 @@ HEADERS := \
     rtapi/rtapi_heap.h \
     rtapi/rtapi_heap_private.h \
     rtapi/ring.h \
+    rtapi/triple-buffer.h \
     rtapi/multiframe.h \
     rtapi/rtapi_mbarrier.h \
     rtapi/$(THREADS_SOURCE).h \
@@ -1195,6 +1209,7 @@ endif # KERNELRELEASE non-empty
 # what kbuild seems to require
 
 EXTRA_CFLAGS = $(RTFLAGS) \
+        $(ARCH_CFLAGS) \
 	-D__MODULE__ \
 	-I$(INCLUDE_PREFIX) \
 	-I$(INCLUDE_PREFIX)/libnml/linklist \
@@ -1276,12 +1291,20 @@ endif
 #boss_plc-objs := hal/components/boss_plc.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o $(MATHSTUB)
+
+obj-$(CONFIG_ENCODER) += encoderv2.o
+encoderv2-objs := hal/components/encoderv2.o $(MATHSTUB)
+
 obj-$(CONFIG_COUNTER) += counter.o
 counter-objs := hal/components/counter.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
 encoder_ratio-objs := hal/components/encoder_ratio.o $(MATHSTUB)
+obj-$(CONFIG_ENCODER_RATIO) += encoder_ratiov2.o
+encoder_ratiov2-objs := hal/components/encoder_ratiov2.o $(MATHSTUB)
 obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
+obj-$(CONFIG_STEPGEN) += stepgenv2.o
+stepgenv2-objs := hal/components/stepgenv2.o $(MATHSTUB)
 obj-$(CONFIG_LCD) += lcd.o
 lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
@@ -1290,6 +1313,8 @@ obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
 mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
+obj-$(CONFIG_PWMGEN) += pwmgenv2.o
+pwmgenv2-objs := hal/components/pwmgenv2.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
@@ -1703,7 +1728,14 @@ $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CPPFLAGS) $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
+
+# Rules to make .o (object) files from .cc
+$(sort $(CXXRTOBJS)) : $(OBJDIR)/%.o : %.cc $(DEPDIR)/%.d
+	$(ECHO) Compiling realtime++ $<
+	@rm -f $@
+	@mkdir -p $(dir $@)
+	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(RT_CXXFLAGS) $(EXTRA_CFLAGS) $< -o $@
 
 endif # end BUILD_SYS=user-dso
 
@@ -1737,14 +1769,18 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 $(RTLIBDIR)/classicladder_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(classicladder_rt-objs))
 $(RTLIBDIR)/boss_plc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(boss_plc-objs))
 $(RTLIBDIR)/encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-objs))
+$(RTLIBDIR)/encoderv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoderv2-objs))
 $(RTLIBDIR)/counter$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(counter-objs))
 $(RTLIBDIR)/encoder_ratio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-objs))
+$(RTLIBDIR)/encoder_ratiov2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratiov2-objs))
 $(RTLIBDIR)/stepgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgen-objs))
+$(RTLIBDIR)/stepgenv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgenv2-objs))
 $(RTLIBDIR)/lcd$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(lcd-objs))
 $(RTLIBDIR)/matrix_kb$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(matrix_kb-objs))
 $(RTLIBDIR)/mux_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(mux_generic-objs))
 $(RTLIBDIR)/freqgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(freqgen-objs))
 $(RTLIBDIR)/pwmgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-objs))
+$(RTLIBDIR)/pwmgenv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgenv2-objs))
 $(RTLIBDIR)/siggen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(siggen-objs))
 $(RTLIBDIR)/at_pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(at_pid-objs))
 $(RTLIBDIR)/threads$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(threads-objs))

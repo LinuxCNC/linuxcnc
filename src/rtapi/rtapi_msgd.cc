@@ -656,7 +656,6 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 	n_msgs++;
 	n_bytes += msg_size;
 
-
 	// strip trailing newlines
 	while ((cp = strrchr(msg->buf,'\n')))
 	    *cp = '\0';
