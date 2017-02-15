@@ -489,8 +489,8 @@ static long old_dtns;		/* update_freq funct period in nsec */
 static double dt;		/* update_freq period in seconds */
 static double recip_dt;		/* recprocal of period, avoids divides */
 
-static const char *compname = "stepgen-v2";
-static const char *prefix = "stepgen"; // less surprises on funct names
+static const char *compname = "stepgenv2";
+static const char *prefix = "stepgenv2";
 
 typedef enum CONTROL { POSITION, VELOCITY, INVALID } CONTROL;
 

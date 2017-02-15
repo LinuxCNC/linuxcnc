@@ -189,8 +189,8 @@ static const unsigned char lut[16] = {
 /* other globals */
 static int comp_id;		/* component ID */
 
-static const char *compname = "encoder_ratio-v2";
-static const char *prefix = "encoder-ratio-v2";
+static const char *compname = "encoder_ratiov2";
+static const char *prefix = "encoder-ratiov2";
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *

@@ -1,8 +1,8 @@
-# run encoder_ratio and encoder_ratio-v2 in sync
+# run encoder_ratio and encoder_ratiov2 in sync
 
-newinst stepgen-v2 stepgen.0 step_type=2 ctrl_type=v
+newinst stepgenv2 stepgen.0 step_type=2 ctrl_type=v
 newinst encoder_ratio v1
-newinst encoder_ratio-v2 v2
+newinst encoder_ratiov2 v2
 
 # gates to selectively connect master, slave to the A/B signal
 newinst andn masterA pincount=2
@@ -48,8 +48,8 @@ net enable-slave  <= slaveA.in1  slaveB.in1
 newthread fast 100000 fp
 newthread slow 1000000000 fp   # 1sec
 
-addf stepgen.update-freq slow
-addf stepgen.make-pulses fast
+addf stepgenv2.update-freq slow
+addf stepgenv2.make-pulses fast
 
 addf masterA.funct fast
 addf masterB.funct fast
@@ -59,8 +59,8 @@ addf slaveB.funct fast
 addf encoder-ratio.sample fast
 addf encoder-ratio.update slow
 
-addf encoder-ratio-v2.sample fast
-addf encoder-ratio-v2.update slow
+addf encoder-ratiov2.sample fast
+addf encoder-ratiov2.update slow
 
 addf v1rate.funct slow
 addf v2rate.funct slow

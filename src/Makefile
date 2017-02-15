@@ -1292,19 +1292,19 @@ endif
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o $(MATHSTUB)
 
-obj-$(CONFIG_ENCODER) += encoder-v2.o
-encoder-v2-objs := hal/components/encoder-v2.o $(MATHSTUB)
+obj-$(CONFIG_ENCODER) += encoderv2.o
+encoderv2-objs := hal/components/encoderv2.o $(MATHSTUB)
 
 obj-$(CONFIG_COUNTER) += counter.o
 counter-objs := hal/components/counter.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
 encoder_ratio-objs := hal/components/encoder_ratio.o $(MATHSTUB)
-obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio-v2.o
-encoder_ratio-v2-objs := hal/components/encoder_ratio-v2.o $(MATHSTUB)
+obj-$(CONFIG_ENCODER_RATIO) += encoder_ratiov2.o
+encoder_ratiov2-objs := hal/components/encoder_ratiov2.o $(MATHSTUB)
 obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
-obj-$(CONFIG_STEPGEN) += stepgen-v2.o
-stepgen-v2-objs := hal/components/stepgen-v2.o $(MATHSTUB)
+obj-$(CONFIG_STEPGEN) += stepgenv2.o
+stepgenv2-objs := hal/components/stepgenv2.o $(MATHSTUB)
 obj-$(CONFIG_LCD) += lcd.o
 lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
@@ -1313,8 +1313,8 @@ obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
 mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
-obj-$(CONFIG_PWMGEN) += pwmgen-v2.o
-pwmgen-v2-objs := hal/components/pwmgen-v2.o $(MATHSTUB)
+obj-$(CONFIG_PWMGEN) += pwmgenv2.o
+pwmgenv2-objs := hal/components/pwmgenv2.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
@@ -1769,18 +1769,18 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 $(RTLIBDIR)/classicladder_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(classicladder_rt-objs))
 $(RTLIBDIR)/boss_plc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(boss_plc-objs))
 $(RTLIBDIR)/encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-objs))
-$(RTLIBDIR)/encoder-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-v2-objs))
+$(RTLIBDIR)/encoderv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoderv2-objs))
 $(RTLIBDIR)/counter$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(counter-objs))
 $(RTLIBDIR)/encoder_ratio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-objs))
-$(RTLIBDIR)/encoder_ratio-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-v2-objs))
+$(RTLIBDIR)/encoder_ratiov2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratiov2-objs))
 $(RTLIBDIR)/stepgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgen-objs))
-$(RTLIBDIR)/stepgen-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgen-v2-objs))
+$(RTLIBDIR)/stepgenv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgenv2-objs))
 $(RTLIBDIR)/lcd$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(lcd-objs))
 $(RTLIBDIR)/matrix_kb$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(matrix_kb-objs))
 $(RTLIBDIR)/mux_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(mux_generic-objs))
 $(RTLIBDIR)/freqgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(freqgen-objs))
 $(RTLIBDIR)/pwmgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-objs))
-$(RTLIBDIR)/pwmgen-v2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-v2-objs))
+$(RTLIBDIR)/pwmgenv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgenv2-objs))
 $(RTLIBDIR)/siggen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(siggen-objs))
 $(RTLIBDIR)/at_pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(at_pid-objs))
 $(RTLIBDIR)/threads$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(threads-objs))

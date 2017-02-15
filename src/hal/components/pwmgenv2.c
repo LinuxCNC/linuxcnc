@@ -177,8 +177,8 @@ static  hal_list_t head;
 static int comp_id;		/* component ID */
 static long periodns = -1;	/* makepulses function period in nanosec */
 
-static const char *compname = "pwmgen-v2";
-static const char *prefix = "pwmgen"; // less surprises on funct names
+static const char *compname = "pwmgenv2";
+static const char *prefix = "pwmgenv2"; 
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *

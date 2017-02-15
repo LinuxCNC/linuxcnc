@@ -193,8 +193,8 @@ static const unsigned char lut_ctr[16] = {
 /* other globals */
 static int comp_id;		/* component ID */
 
-static const char *compname = "encoder-v2";
-static const char *prefix = "encoder-v2";
+static const char *compname = "encoderv2";
+static const char *prefix = "encoderv2";
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *

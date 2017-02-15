@@ -3,10 +3,10 @@ setexact_for_test_suite_only
 loadrt sampler cfg=sss depth=3500
 loadusr  -Wn halsampler halsampler -N halsampler  -n 3500
 
-newinst stepgen-v2 stepgen.0 step_type=2
-newinst encoder-v2 encoder.0
-newinst encoder-v2 encoder.1
-newinst encoder-v2 encoder.2
+newinst stepgenv2 stepgen.0 step_type=2
+newinst encoderv2 encoder.0
+newinst encoderv2 encoder.1
+newinst encoderv2 encoder.2
 
 loadrt threads name1=fast period1=100000
 
@@ -16,10 +16,10 @@ net C0 encoder.0.counts => sampler.0.pin.0
 net C1 encoder.1.counts => sampler.0.pin.1
 net C2 encoder.2.counts => sampler.0.pin.2
 
-addf stepgen.update-freq fast
-addf stepgen.make-pulses fast
-addf encoder-v2.update-counters fast
-addf encoder-v2.capture-position fast
+addf stepgenv2.update-freq fast
+addf stepgenv2.make-pulses fast
+addf encoderv2.update-counters fast
+addf encoderv2.capture-position fast
 addf sampler.0 fast
 
 setp stepgen.0.maxvel .15
