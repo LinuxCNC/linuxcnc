@@ -160,7 +160,11 @@ sim_pin is a command line utility to display and update any number of
 writable pins, parameters or signals.  Usage:
 ----
   Usage:
-         sim_pin name1 [name2 ...] &
+         sim_pin [Options] name1 [name2 ...] &
+
+  Options:
+         --help                (this text)
+         --title title_string  (window title, default: sim_pin)
 
   Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal

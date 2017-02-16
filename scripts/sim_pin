@@ -10,7 +10,11 @@ if [catch {package require Hal} msg] {
 proc usage {} {
   puts "
   Usage:
-         $::SP(progname) name1 \[name2 ...\] &
+         $::SP(progname) \[Options\] name1 \[name2 ...\] &
+
+  Options:
+         --help                (this text)
+         --title title_string  (window title, default: $::SP(progname))
 
   Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
@@ -514,13 +518,27 @@ if [catch {
     set ::SP(iprefix) "Initial="   ;# initial value prefix
     set ::SP(prefix) "Current="    ;# current value prefix
     set ::SP(pulse,ms) 200         ;# pulse duration
-    wm title . $::SP(progname)
+    set ::SP(title) $::SP(progname)
+
+    set currentarg [lindex $::argv 0]
+    while {[string first "-" $currentarg] == 0} {
+      switch -- $currentarg {
+        --help  {usage}
+        --title {set ::SP(title) [lindex $::argv 1]
+                 set ::argv [lreplace $::argv 0 0]
+                }
+      }
+      set ::argv [lreplace $::argv 0 0]
+      set currentarg [lindex $::argv 0]
+    }
 
     foreach itemname $::argv {
       if [add_item_to_gui $::SP(id) $itemname] {
         incr ::SP(id)
       }
     }
+
+    wm title . $::SP(title)
     if {$::SP(id) < 1} usage
     update_current_values
   }
