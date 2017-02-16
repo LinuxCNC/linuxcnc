@@ -142,16 +142,16 @@ proc add_number_item_to_gui {f id enable_plusminus} {
        -side left -fill x -expand 1
 
   if $enable_plusminus {
-    pack [button $f.one.p  -bg $color -fg black \
-       -text "+" \
-       -relief raised -bd 3 \
-       -command [list plus_number_item $id] ]\
-       -side left -fill x -expand 1
-
     pack [button $f.one.m  -bg $color -fg black \
        -text "-" \
        -relief raised -bd 3 \
        -command [list minus_number_item $id] ]\
+       -side left -fill x -expand 1
+
+    pack [button $f.one.p  -bg $color -fg black \
+       -text "+" \
+       -relief raised -bd 3 \
+       -command [list plus_number_item $id] ]\
        -side left -fill x -expand 1
   }
 
