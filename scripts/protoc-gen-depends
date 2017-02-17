@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+# protoc plugin to generate dependeny files
+#
+# the .d file format is rather project specific
+#
+# call example:
+#
+# /usr/bin/protoc --proto_path=/usr/include \
+# 	--proto_path=/home/mah/linuxcnc/src/machinetalk/nanopb/generator/proto \
+# 	--proto_path=/home/mah/linuxcnc/src/machinetalk/proto \
+# 	--plugin=protoc-gen-depends=./protoc-gen-depends \
+# 	--depends_out="--debug --cgen=/home/mah/linuxcnc/src/machinetalk/generated --vpath=/home/mah/linuxcnc/src/machinetalk/proto --vpath=/usr/include --vpath=/home/mah/linuxcnc/src/machinetalk/nanopb/generator/proto --pygen=/home/mah/linuxcnc/lib/python":objects \
+# 	/home/mah/linuxcnc/src/machinetalk/proto/canon.proto
+#
+# option example: --depends-out="--debug --vpath=foo --vpath=bar --cgen=baz --pygen=barf":/outputpath"
+
+from google.protobuf.compiler.plugin_pb2 import CodeGeneratorRequest,CodeGeneratorResponse
+from sys import stdin,stdout
+import shlex
+from optparse import OptionParser
+import sys
+import os, string
+
+if sys.version_info >= (3, 0):
+    # Python 3 does handle encoding differently
+    # Read all bytes (without text-encoding) from stdin to input_str
+    input_str = sys.stdin.buffer.raw.readall()
+else:
+    input_str = sys.stdin.read()
+
+req = CodeGeneratorRequest()
+req.MergeFromString(input_str)
+
+optparser = OptionParser()
+optparser.add_option("-v","--vpath", dest="vpath", metavar="DIR", action="append", default=[], help="list of directories to search for proto files.")
+optparser.add_option("-d", "--debug", dest="debug", action="store_true", default=False,
+    help="log actions to stderr")
+optparser.add_option("-c", "--cgen", dest="cgen",
+    metavar="DIR", default='.',
+    help="directory for generated C files.")
+optparser.add_option("-p", "--pygen", dest="pygen",
+    metavar="DIR", default='.',
+    help="directory for generated Python files.")
+optparser.add_option("-j", "--jsgen", dest="jsgen",
+    metavar="DIR", default='.',
+    help="directory for generated Javascript files.")
+
+args = shlex.split(req.parameter)
+options, dummy = optparser.parse_args(args)
+
+if options.debug:
+    print >> sys.stderr, "vpath=", options.vpath
+    print >> sys.stderr, "cgen=", options.cgen
+    print >> sys.stderr, "pygen=", options.pygen
+    print >> sys.stderr, "jsgen=", options.jsgen
+
+def dir_of(filename, vpath, pathsep=os.pathsep):
+    for path in vpath:
+        candidate = os.path.join(path, filename)
+        if os.path.exists(candidate): return path
+    return None
+
+res = CodeGeneratorResponse()
+
+def add_depends(fd):
+#    if options.debug: print >> sys.stderr, "fd=%s" % (str(fd))
+
+    ap = dir_of(fd.name, options.vpath)
+    if options.debug: print >> sys.stderr, "dirof(%s)=%s" % (fd.name, ap)
+
+    prefix = fd.name[0:-6]
+    depend_file = CodeGeneratorResponse.File()
+    depend_file.name = prefix + '.d'
+
+    deplist = ap + "/" + fd.name + " "
+    for f in fd.dependency:
+        deplist += dir_of(f,options.vpath) + "/" + f + " "
+
+    if options.debug:
+        print >> sys.stderr, "deps(%s)=%s" % (fd.name, deplist)
+    depend_file.content =  '{0}/{1}.pb.cc  {0}/{1}.pb.h:   {2}\n'.format(options.cgen,prefix,deplist)
+    depend_file.content += '{0}/{1}.pb-c.c {0}/{1}.pb-c.h: {2}\n'.format(options.cgen,prefix,deplist)
+    depend_file.content += '{0}/{1}.npb.c  {0}/{1}.npb.h:  {2}\n'.format(options.cgen,prefix,deplist)
+    depend_file.content += '{0}/{1}_pb2.py: {2}\n'.format(options.pygen,prefix,deplist)
+    depend_file.content += '{0}/{1}.js: {2}\n'.format(options.jsgen,prefix,deplist)
+
+    return depend_file
+
+res.file.extend([add_depends(fileDescriptor) for fileDescriptor in req.proto_file])
+
+if sys.version_info >= (3, 0):
+    # With Python 3 we write to buffer
+    stdout.buffer.write(res.SerializeToString())
+else:
+    stdout.write(res.SerializeToString())
