@@ -13,6 +13,7 @@ usr/lib/python*/*/gladevcp/*.glade
 usr/lib/python*/*/machinekit/*.so
 usr/lib/python*/*/machinetalk/protobuf/*.py
 usr/lib/python*/*/machinetalk/*.py
+usr/lib/python*/*/machinekit/nosetests/*.py
 usr/libexec/linuxcnc/pci_read
 usr/libexec/linuxcnc/pci_write
 usr/libexec/linuxcnc/inivar
