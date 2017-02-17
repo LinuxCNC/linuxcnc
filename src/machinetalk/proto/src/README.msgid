@@ -1,0 +1,59 @@
+about message type id's:
+------------------------
+
+nanopb upstream (https://code.google.com/p/nanopb/source/list) as of
+commit 62a7e4ff2b34 has introduced a key feature: it is now possible
+to associate a msgid option with each message, and have those id's
+emitted by the nanopb generator such that a descriptor mapping
+descriptors, msgid's, names, and other paramters can be automatically
+constructed.
+
+Thus we can associate an integer ID with each message, which is useful
+for runtime type checking of messages. There is no runtime overhead for
+this option.
+
+A typical usage scenario would be with multiframe ringbuffers, when
+using different protobuf messages: the multiframe flags field holds
+the type id, which is used to determine how to actually process the
+frame's content.
+
+msgid's have to be unique across all messages and all proto files. This must be maintained manually.
+
+The absolute value of the msgid option is irrelevant as it is only used as a key; uniqueness counts. msgid's need not be sequential.
+
+It is helpful to use message id' less than say a few thousand because
+it will be transported in a limited-size field in the multiframe ring
+(a uint32_t), and there should be bits available for other purposes
+like specifying the encoding (protobuf, or a deserialized nanopb C
+struct).
+
+Convention for adding msgid's:
+------------------------------
+
+Since no proto file is expected to reasonable have more than 100 message definitions, each proto file gets a base message id, recorded in a comment on the top of the file:
+
+e.g. canon.proto:
+        // msgid base: 100
+
+config.proto:
+	// msgid base: 200
+
+ans so forth.
+
+To tag a message with a msgid, proceed like so (using canon.proto as example):
+
+// make sure nanopb.proto is imported as this defines the option
+
+import "nanopb.proto";
+// msgid base: 100
+
+// for each message, add the option like so:
+message Emc_Traj_Set_G5x {
+
+    option (nanopb_msgopt).msgid = 101; // assign sequentially for all messages
+
+    required EmcPose         origin = 10;
+    required OriginIndex   g5x_index = 20;
+}
+
+
