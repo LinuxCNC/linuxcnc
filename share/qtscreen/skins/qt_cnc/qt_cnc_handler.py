@@ -186,12 +186,7 @@ class HandlerClass:
     # functions
     ##################
     def continous_jog(self, axis, direction):
-        if direction == 0:
-            self.cmnd.jog(linuxcnc.JOG_STOP, axis)
-        else:
-            speed = direction * self.jog_velocity/60
-            self.cmnd.jog(linuxcnc.JOG_CONTINUOUS, axis, speed)
-
+        GSTAT.continuous_jog(axis, direction)
 
     ####################
     # KEY BINDING CALLS
