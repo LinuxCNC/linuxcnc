@@ -6,6 +6,7 @@
 
 package machinetalk;
 
+
 import "machinetalk/protobuf/nanopb.proto";
 import "machinetalk/protobuf/types.proto";
 import "machinetalk/protobuf/object.proto";

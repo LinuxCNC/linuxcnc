@@ -74,6 +74,7 @@ vpath %.proto  $(PROTODIR):$(GPBINCLUDE):$(DESCDIR)/compiler
 # $(PROJECT)/proto/*.proto derived Python bindings
 PROTO_PY_TARGETS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(PYGEN)/%_pb2.py}
 PROTO_PY_EXTRAS := $(PYGEN)/setup.py $(PYGEN)/$(PROJECT)/__init__.py $(PYGEN)/$(PROJECT)/protobuf/__init__.py
+
 # generated C++ includes
 PROTO_CXX_INCS := ${PROTO_SPECS:$(SRCDIR)/%.proto=$(CXXGEN)/%.pb.h}
 
