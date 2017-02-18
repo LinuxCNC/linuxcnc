@@ -93,18 +93,20 @@ The WATCH tab provides a continuous display of selected pin, parameters, and
 signal items.  The File menu provides buttons to 1) save the watch items to
 a watch list and to load and existing watch list.  The watch list items can
 also be loaded automatically on startup.  For command line usage:
+
 ----
 halshow --help
 Usage:
   halshow [Options] [watchfile]
   Options:
-           --help  (this help)
-----
+           --help    (this help)
+           --fformat format_string_for_float
+           --iformat format_string_for_int
 
 Notes:
-
-Create watchfile in halshow using: 'File/Save Watch List' or
-'File/Save Watch List (multiline)'.
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
 
 LinuxCNC must be running for standalone usage
 
@@ -158,7 +160,11 @@ sim_pin is a command line utility to display and update any number of
 writable pins, parameters or signals.  Usage:
 ----
   Usage:
-         sim_pin name1 [name2 ...] &
+         sim_pin [Options] name1 [name2 ...] &
+
+  Options:
+         --help                (this text)
+         --title title_string  (window title, default: sim_pin)
 
   Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
