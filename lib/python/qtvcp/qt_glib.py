@@ -6,6 +6,14 @@ from PyQt4.QtCore import QObject, QTimer, pyqtSignal
 import linuxcnc
 import math
 import gobject
+import os
+
+# constants
+JOGJOINT  = 1
+JOGTELEOP = 0
+inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
+trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+jointcount = int(inifile.find("KINS","JOINTS"))
 
 class QPin(QObject, hal.Pin):
     value_changed = pyqtSignal([int], [float], [bool] )
@@ -529,6 +537,7 @@ class _GStat(gobject.GObject):
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
 
+    # ********** Helper function ********************
     def get_position(self):
         p = self.stat.actual_position
         mp = self.stat.position
@@ -612,11 +621,59 @@ class _GStat(gobject.GObject):
             self.cmd.mode(premode)
         self.emit('reload-display')
 
+    def continuous_jog(self, axisnum, direction, distance=0):
+        jjogmode,j_or_a = self.get_jog_info(axisnum)
+        if direction == 0:
+            self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
+        else:
+            if axisnum in (3,4,5):
+                rate = self.angular_jog_velocity
+            else:
+                rate = self.current_jog_rate/60
+            if distance == 0:
+                self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
+            else:
+                self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
+
+    def get_jjogmode(self):
+        self.stat.poll()
+        if self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+            return JOGJOINT
+        if self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
+            return JOGTELEOP
+        print "commands.py: unexpected motion_mode",self.stat.motion_mode
+        return JOGTELEOP
+
+    def jnum_for_axisnum(self,axisnum):
+        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            print ("\n%s:\n  Joint jogging not supported for"
+                   "non-identity kinematics"%__file__)
+            return -1 # emcJogCont() et al reject neg joint/axis no.s
+        jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
+        if jnum > jointcount:
+            print ("\n%s:\n  Computed joint number=%d for axisnum=%d "
+                   "exceeds jointcount=%d with trajcoordinates=%s"
+                   %(__file__,jnum,axisnum,jointcount,trajcoordinates))
+            # Note: primary gui should protect for this misconfiguration
+            # decline to jog
+            return -1 # emcJogCont() et al reject neg joint/axis no.s
+        return jnum
+
+    def get_jog_info (self,axisnum):
+        jjogmode = self.get_jjogmode()
+        j_or_a = axisnum
+        if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
+        return jjogmode,j_or_a
+
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+# used so all qtvcp widgets use the same instance of _gstat
+# this keeps them all in synch
+# if you load more then one instance of QTvcp/Qtscreen each one has
+# it's own instance of _gstat
 class GStat(_GStat):
     _instance = None
     def __new__(cls, *args, **kwargs):
