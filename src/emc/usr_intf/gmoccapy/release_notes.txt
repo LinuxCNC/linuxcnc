@@ -1,3 +1,7 @@
+ver 2.2.3.2
+- solved a bug caused due to an unappropriated merge of Sebastian Kuzminski
+  causing a hal pin to be created twice.
+
 ver 2.2.3.1
 - solved the reload tool on start up bug after homing twice
   if there is already a tool in spindle, the user 
