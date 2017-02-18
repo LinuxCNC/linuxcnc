@@ -1,3 +1,7 @@
+ver 2.2.3.3
+- check on homing for double letters and get the correct joint number
+  for homing
+
 ver 2.2.3.2
 - solved a bug caused due to an unappropriated merge of Sebastian Kuzminski
   causing a hal pin to be created twice.

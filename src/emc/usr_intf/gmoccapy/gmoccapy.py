@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.3.2"
+_RELEASE = " 2.2.3.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3037,21 +3037,27 @@ class gmoccapy(object):
     def on_btn_home_selected_clicked(self, widget, data=None):
         if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             # we can switch without any risk to joint mode and home the selected joint
+            # but if the machine is a gantry, we need to do special check, as
+            # on XYYZ machine joint 3 is not Z
+            temp = self.get_ini_info.get_coordinates().lower()
+            temp = temp.replace(' ','')
+
             if widget == self.widgets.btn_home_x:
-                axis = 0
+                axis = temp.index("x")
             elif widget == self.widgets.btn_home_y:
-                axis = 1
+                axis = temp.index("y")
             elif widget == self.widgets.btn_home_z:
-                axis = 2
+                axis = temp.index("z")
             elif widget == self.widgets.btn_home_4:
-                axis = "xyzabcuvw".index(self.axisletter_four)
+                axis = temp.index(self.axisletter_four)
             elif widget == self.widgets.btn_home_5:
-                axis = "xyzabcuvw".index(self.axisletter_five)
+                axis = temp.index(self.axisletter_five)
         else:
             for button in range(0,8):
                 if widget == self.widgets["btn_home_j%s"%button]:
                     axis = button
                     break
+
         self.set_motion_mode(0)
         self.command.home(axis)
         
