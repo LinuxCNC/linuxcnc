@@ -1453,8 +1453,11 @@ class GlCanonDraw:
         if "trivkins" in kinsmodule:
             return trajcoordinates.index(aletter)
         else:
-            guess = trajcoordinates.index(aletter)
-            return guess
+            try:
+                guess = trajcoordinates.index(aletter)
+                return guess
+            except:
+                return "XYZABCUVW".index(aletter)
 
     def posstrs(self):
 
