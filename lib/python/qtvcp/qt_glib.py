@@ -165,7 +165,9 @@ class _GStat(gobject.GObject):
             self.merge()
         except:
             pass
-        gobject.timeout_add(100, self.update)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+        self.timer.start(100)
         self.current_jog_rate = 15
         self._is_all_homed = False
 
