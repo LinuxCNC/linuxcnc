@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.3.1"
+_RELEASE = " 2.2.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -606,14 +606,21 @@ class gmoccapy(object):
         self.command.wait_complete()
 
     def _get_axis_list(self):
-        temp = self.get_ini_info.get_coordinates()
+        # begin with an empty axis list
         self.axis_list = []
-        for letter in temp:
-            if letter.lower() in self.axis_list:
-                continue
-            if not letter.lower() in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
-                continue
-            self.axis_list.append(letter.lower())
+
+        coordinates = self.get_ini_info.get_coordinates().lower()
+
+        # if there are double letters in the config, we must 
+        # disable the corresponding home button and reorder the joints / axis relations
+        for axisletter in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
+            if coordinates.count(axisletter) > 1:
+                self.widgets["btn_home_%s" % axisletter].set_sensitive(False)
+
+            if axisletter in coordinates:
+                if axisletter in self.axis_list:
+                    continue
+                self.axis_list.append(axisletter)
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -822,18 +829,6 @@ class gmoccapy(object):
             self.widgets["btn_j%s_minus"%joint].hide()
             self.widgets["btn_j%s_plus"%joint].hide()
 
-# This can be done better!!!!
-# by putting the labeld on the fly and not within the glade file
-#if num_macros < 9:
-#    for label_space in range(num_macros, 9):
-#        lbl = "lbl_sp_%s" % label_space
-#        lbl = gtk.Label(lbl)
-#        lbl.position = label_space
-#        lbl.set_text("")
-#        self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
-#        lbl.show()
-#self.widgets.hbtb_MDI.non_homogeneous = False
-            
             # and now the joint homing button
             # but only 6 joints are shown, so we leave here
             if joint == 7:
@@ -4613,10 +4608,6 @@ class gmoccapy(object):
         # make a pin to set ignore limits
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
-
-        # make a pin to activate ignore limits
-        pin = self.halcomp.newpin( "ignore-limits", hal.HAL_BIT, hal.HAL_IN )
-        hal_glib.GPin( pin ).connect( "value_changed", self._ignore_limits)
 
 # Hal Pin Handling End
 # =========================================================

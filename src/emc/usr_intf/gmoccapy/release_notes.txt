@@ -1,3 +1,13 @@
+ver 2.2.4
+- introduced a check for double axis letters in [TRAJ]COORDINATES = X Y Y Z 
+  to set the homing button of the double mentioned axis. This is to protect 
+  a gantry from being damaged homing only one joint of two.
+  Thanks to rodw for insisting to solve the misbehavior
+
+ver 2.2.3.2
+- solved a bug caused due to an unapropiate merge of Sebastian Kuzminski
+  causing a hal pin to be created twice.
+
 ver 2.2.3.1
 - solved the reload tool on start up bug after homing twice
   if there is already a tool in spindle, the user 
