@@ -25,6 +25,7 @@ import pango
 import math
 import linuxcnc
 from hal_glib import GStat
+from gmoccapy import getiniinfo
 
 # constants
 _INCH = 0
@@ -99,10 +100,11 @@ class Combi_DRO(gtk.VBox):
         super(Combi_DRO, self).__init__()
 
         # get the necessary connections to linuxcnc
-        self.joint_number = joint_number
+        self.joint_number = self.joint = joint_number
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
         self.gstat = GStat()
+        self.get_ini_info = getiniinfo.GetIniInfo()
 
         # set some default values'
         self._ORDER = ["Rel", "Abs", "DTG"]
@@ -195,7 +197,6 @@ class Combi_DRO(gtk.VBox):
         # add the timer at a period of 100 ms
         gobject.timeout_add(self.cycle_time, self._periodic)
 
-
     # make an pango attribute to be used with several labels
     def _set_attributes(self, bgcolor, fgcolor, size, weight):
         attr = pango.AttrList()
@@ -255,8 +256,22 @@ class Combi_DRO(gtk.VBox):
                     self._auto_units = value
                     self._set_labels()
                 if name == "joint_number":
-                    self.joint_number = value
+                    self.joint_number = self.joint = value
                     self.change_axisletter(_AXISLETTERS[self.joint_number])
+                    # check if LinuxCNC release does support JOINTS, if so
+                    # we have to check for corerct JOINT to watch homing state
+                    temp = self.get_ini_info.get_joints_amount()
+                    if temp:
+                        # in case of double letters, the joint / axis relation is
+                        # not 1 : 1, take care to react to the correct joint
+                        # for homing state (i.e. gantry XYYZ style)
+                        self.joint = self.joint_number
+                        temp = self.get_ini_info.get_coordinates().lower()
+                        temp = temp.replace(' ','')
+                        try:
+                            self.joint = temp.index(self.lbl_axisletter.get_text().lower())
+                        except:
+                            self.joint = value
                 if name == "font_size":
                     self.font_size = value
                     self._set_labels()
@@ -341,7 +356,7 @@ class Combi_DRO(gtk.VBox):
 
     # periodic call to update the positions, every 100 ms
     def _periodic(self):
-        # we do not want to throw errors if linuxcnc has been killed 
+        # we do not want to throw errors if linuxcnc has been killed
         # from external command
         try:
             self.status.poll()
@@ -431,7 +446,7 @@ class Combi_DRO(gtk.VBox):
     def _not_all_homed(self, widget, data = None):
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             self.status.poll()
-            self.homed = self.status.homed[self.joint_number]
+            self.homed = self.status.homed[self.joint]
         else:
             self.homed = False
         self._set_labels()
@@ -448,7 +463,7 @@ class Combi_DRO(gtk.VBox):
             return
         else:
             self.status.poll()
-            self.homed = self.status.homed[self.joint_number]
+            self.homed = self.status.homed[self.joint]
             self._set_labels()
 
     # sets the DRO explicity to inch or mm
