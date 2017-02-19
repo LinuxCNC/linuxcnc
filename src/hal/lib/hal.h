@@ -246,7 +246,7 @@ int hal_errorcount(int clear);
  * linking and unlinking of pins is possible as long as the
  * component state != COMP_INITIALIZING.
  */
-enum comp_type  {
+typedef enum {
     TYPE_INVALID = 0,
     TYPE_RT,
     TYPE_USER,
@@ -256,15 +256,15 @@ enum comp_type  {
     // which needs extra care since the HAL shm segment needs to be
     // allocated
     TYPE_HALLIB,
-};
+} comp_type_t;
 
-enum comp_state {
+typedef enum {
     COMP_INVALID = 0,
     COMP_INITIALIZING,
     COMP_UNBOUND,
     COMP_BOUND,
     COMP_READY
-};
+} comp_state_t;
 
 // if a component exports a constructor via hal_export_xfunctf(), it is instantiable
 // the calling convention for hal_constructor_t is as follows:
