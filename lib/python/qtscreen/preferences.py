@@ -16,7 +16,7 @@ import os, ConfigParser
 
 cp = ConfigParser.RawConfigParser
 cp.optionxform=str
-class preferences(cp):
+class Access(cp):
     types = {
         bool: cp.getboolean,
         float: cp.getfloat,
@@ -28,7 +28,7 @@ class preferences(cp):
     def __init__(self,path=None):
         cp.__init__(self)
         if not path:
-            path="~/.gscreen_preferences"
+            path="~/.qtscreen_preferences"
         self.fn = os.path.expanduser(path)
         self.read(self.fn)
 
