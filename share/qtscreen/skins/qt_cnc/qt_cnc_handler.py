@@ -4,17 +4,20 @@ from qtscreen.keybindings import Keylookup
 from qtscreen.aux_program_loader import Aux_program_loader
 from qtscreen.notify import Notify
 from qtscreen.message import Message
+from qtscreen.preferences import Access
 
 from qtvcp.qt_glib import GStat
 import linuxcnc
 import sys
 import os
+
 # instantiate libraries
 KEYBIND = Keylookup()
 GSTAT = GStat()
 AUX_PRGM = Aux_program_loader()
 NOTE = Notify()
 MSG = Message()
+PREFS = Access()
 
 class HandlerClass:
 
@@ -35,6 +38,20 @@ class HandlerClass:
         GSTAT.connect('jograte-changed', self.on_jograte_changed)
         GSTAT.connect('error-message', self.on_error_message)
 
+        # Read user preferences
+        self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
+        self.shutdown_check = PREFS.getpref('shutdown_check', True, bool)
+
+    def closeEvent(self, event):
+        if self.shutdown_check:
+            answer = MSG.showdialog('Do you want to shutdown now?',
+                details='You can set a preference to not see this message', 
+                icon=MSG.CRITICAL, display_type=MSG.YN_TYPE)
+            if not answer:
+                event.ignore()
+                return
+        event.accept()
+
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
@@ -44,7 +61,8 @@ class HandlerClass:
     def initialized__(self):
         # Give notify library a reference to the statusbar 
         NOTE.statusbar = self.w.statusBar
-        NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
+        if self.desktop_notify:
+            NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
         self.w.button_frame.setEnabled(False)
         self.w.jog_slider.setValue(self.jog_velocity)
         self.w.feed_slider.setValue(100)
@@ -52,7 +70,14 @@ class HandlerClass:
         GSTAT.forced_update()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
-        if self.w.mdi_line == receiver: return False
+        # when typing in MDI, we don't want keybinding to call functions
+        # so we catch and process the events directly.
+        # We do want ESC, F1 and F2 to call keybinding functions though
+        if self.w.mdi_line == receiver and code not in(16777216,16777264,16777216):
+            if is_pressed:
+                self.w.mdi_line.keyPressEvent(event)
+                event.accept()
+            return True
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
@@ -60,10 +85,6 @@ class HandlerClass:
             print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
             #print 'from %s'% receiver
             return False
-
-    def closing_cleanup__(self):
-        MSG.showdialog('This is a Critical message test',
-            details='There is actually nothing wrong', icon=MSG.CRITICAL, display_type=MSG.OK_TYPE)
 
     ######################
     # callbacks from GSTAT
