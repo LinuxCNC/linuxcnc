@@ -15,7 +15,7 @@ class Message:
         msg = QMessageBox()
         msg.setWindowModality(Qt.ApplicationModal)
         msg.setIcon(icon)
-        msg.setWindowTitle("MessageBox demo")
+        #msg.setWindowTitle("MessageBox demo")
         msg.setTextFormat(Qt.RichText)
         msg.setText('<b>%s</b>'% message)
         if more_info:
@@ -30,7 +30,11 @@ class Message:
 
         retval = msg.exec_()
         print "value of pressed message box button:", retval
-	
+        if retval == QMessageBox.No:
+            return False
+        else:
+            return True
+
     def msgbtn(self, i):
         print "Button pressed is:",i.text()
 
