@@ -76,6 +76,15 @@ class GetIniInfo:
             return ("XYZ")
         return temp
 
+    def get_joints_amount(self):
+        temp = self.inifile.find("KINS", "JOINTS")
+        if not temp:
+            print("**** GMOCCAPY GETINIINFO **** \n No JOINTS entry found in [KINS] of INI file")
+            print("Your config does not support Joint Axis branch.")
+            return (None)
+        return temp
+
+
     def get_no_force_homing(self):
         temp = self.inifile.find("TRAJ", "NO_FORCE_HOMING")
         if not temp or temp == "0":
