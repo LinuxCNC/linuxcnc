@@ -166,7 +166,7 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
     const char *errmsg;
     rtapi_get_handle_t rtapi_get_handle;
     char ulapi_lib_fname[PATH_MAX];
-    char *instance = getenv("INSTANCE");
+    char *instance = getenv("MK_INSTANCE");
     char *debug_env = getenv("ULAPI_DEBUG");
     int size = 0;
     int globalkey;

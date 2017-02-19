@@ -97,9 +97,9 @@ if test -n "$SYSLOG_TO_STDERR"; then
 fi
 
 # set the default instance, if not already set
-INSTANCE=`printf '%d' $INSTANCE`
-if [ "$INSTANCE_NAME" != "" ]  ; then
-    NAME_CMD=--instance_name="$INSTANCE_NAME"
+MK_INSTANCE=`printf '%d' $MK_INSTANCE`
+if [ "$MK_INSTANCE_NAME" != "" ]  ; then
+    NAME_CMD=--instance_name="$MK_INSTANCE_NAME"
 else
     unset NAME_CMD
 fi
@@ -134,7 +134,7 @@ CheckStatus(){
     local res=0
 
     # check if rtapi_msgd and rtapi_app are running
-    progs="msgd:${INSTANCE} rtapi:${INSTANCE}"
+    progs="msgd:${MK_INSTANCE} rtapi:${MK_INSTANCE}"
 
     for prog in $progs; do
 	if test -n "$($PIDOF $prog)"; then
@@ -180,7 +180,7 @@ Load(){
     # rtapi_msgd creates the global segment containing the error ring buffer
     # so start this first:
 
-    ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
+    ${rtapi_msgd} --instance=$MK_INSTANCE $NAME_CMD \
 	--rtmsglevel=$DEBUG \
 	--usrmsglevel=$DEBUG \
 	--halsize=$HAL_SIZE $MSGD_OPTS || \
@@ -189,7 +189,7 @@ Load(){
     # rtapi_app_<flavor> now handles the kernel module loading
     # for kthreads as needed
     if [ $DEBUG -gt 0 ] ; then
-	    ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS  || \
+	    ${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS  || \
 		(echo "rtapi_app startup failed - aborting"; exit $?)
     fi
     # wait until rtapi_app responds, meaning setup is complete
@@ -261,7 +261,7 @@ Unload(){
 
     # shutdown rtapi if it exists
 
-    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+    RTAPI_PID=`$PIDOF rtapi:$MK_INSTANCE`
     if [ "$RTAPI_PID" != "" ] ; then
 	if [ $DEBUG -gt 0 ] ; then
 	    halcmd shutdown
@@ -275,7 +275,7 @@ Unload(){
 	    # remove any linuxcnc-specific POSIX shm segments if they exist
 	    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 
-	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE`
+	INSTKEY=`printf 'linuxcnc-%d-' $MK_INSTANCE`
 	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
     fi
 
@@ -296,14 +296,14 @@ Unload(){
     sleep 2.5
 
     # and get nasty only if it didnt
-    MSGD_PID=`$PIDOF msgd:$INSTANCE`
+    MSGD_PID=`$PIDOF msgd:$MK_INSTANCE`
     if [ "$MSGD_PID" != "" ] ; then
 	kill -TERM $MSGD_PID
 	# ...and get even nastier if SIGTERM fails.  FIXME this needs
 	# to be reviewed; if we get this far, then we might need
 	# operator intervention, including debugging
 	if ! anywait $MSGD_PID; then
-	    echo "ERROR:  msgd:$INSTANCE failed to exit after SIGTERM;" >&2
+	    echo "ERROR:  msgd:$MK_INSTANCE failed to exit after SIGTERM;" >&2
 	    echo "sending SIGKILL" >&2
 	    kill -KILL $MSGD_PID
 	fi
@@ -328,23 +328,23 @@ Unload(){
 
 CheckUnloaded(){
 
-    # if msgd:$INSTANCE is still around, this might still be a running instance 
+    # if msgd:$MK_INSTANCE is still around, this might still be a running instance 
     # after all - this applies to all flavors - msgd is always there, so cop out
 
-    MSGD_PID=`$PIDOF msgd:$INSTANCE`
+    MSGD_PID=`$PIDOF msgd:$MK_INSTANCE`
     if [ "$MSGD_PID" != "" ] ; then
-	echo "instance $INSTANCE still running - process msgd:$INSTANCE present (pid $MSGD_PID) !"
+	echo "instance $MK_INSTANCE still running - process msgd:$MK_INSTANCE present (pid $MSGD_PID) !"
 	exit 1
     fi
 
-    # if msgd:$INSTANCE isnt running but rtapi:$INSTANCE is, that's bad - msgd
+    # if msgd:$MK_INSTANCE isnt running but rtapi:$MK_INSTANCE is, that's bad - msgd
     # should be last to exit
     # this is a noop in kthreads, but clearly an error in uthreads
 
-    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+    RTAPI_PID=`$PIDOF rtapi:$MK_INSTANCE`
     if [ "$RTAPI_PID" != "" ] ; then
-	echo "instance $INSTANCE inproperly shutdown!"
-	echo "msgd:$INSTANCE gone, but rtapi:$INSTANCE alive (pid $RTAPI_PID)"
+	echo "instance $MK_INSTANCE inproperly shutdown!"
+	echo "msgd:$MK_INSTANCE gone, but rtapi:$MK_INSTANCE alive (pid $RTAPI_PID)"
 	exit 1
     fi
 
@@ -355,13 +355,13 @@ CheckUnloaded(){
     # if any, determine if a process is still using it; complain if so,
     # else remove with a note
 
-    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $INSTANCE`
+    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $MK_INSTANCE`
 
     for seg in `ls $POSIXSHM 2>/dev/null` ; do
 	if pids=`fuser $seg  2>/dev/null` ; then
-	    echo instance $INSTANCE: shared memory $seg still in use by pid: $pids !
+	    echo instance $MK_INSTANCE: shared memory $seg still in use by pid: $pids !
 	else
-	    echo instance $INSTANCE: leftover shared memory $seg unused, removing
+	    echo instance $MK_INSTANCE: leftover shared memory $seg unused, removing
 	    rm -f $seg
 	fi
     done
