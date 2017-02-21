@@ -31,7 +31,7 @@ def usrcomp_status(compname, signame, thread, resetSignal='estop-reset'):
 def usrcomp_watchdog(comps, enableSignal, thread,
                      okSignal=None, errorSignal=None):
     count = len(comps)
-    watchdog = rt.loadrt('watchdog', num_inputs=count)
+    watchdog = rt.newinst('watchdog', 'watchdog', pincount=count)
     hal.addf('watchdog.set-timeouts', thread)
     hal.addf('watchdog.process', thread)
     for n, comp in enumerate(comps):
