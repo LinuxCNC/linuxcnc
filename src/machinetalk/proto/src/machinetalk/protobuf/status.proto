@@ -398,6 +398,7 @@ message EmcStatusMotion {
     optional RCS_STATUS             state                   = 47; /// Current command execution status.
     optional double                 max_velocity            = 48; /// Maximum velocity override.
     optional double                 max_acceleration        = 49; /// TODO remove
+    optional double                 rapidrate               = 50; /// Current rapid override.
 }
 
 /**
