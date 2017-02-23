@@ -533,7 +533,7 @@ static int instantiate(const int argc, const char**argv)
     }
     if(!brd->argc || brd->config == NULL){
         LL_ERR("Error: no config string passed.\n");
-        LL_ERR("Use newinst instname <params> -- config=\"xxxxxxxxxxxxx\"\n");
+        LL_ERR("Use newinst hm2_soc_ol hm2-socfpga0 <params> -- config=\"xxxxxxxxxxxxx\"\n");
         return -1;
     }
     brd->no_init_llio = no_init_llio;
