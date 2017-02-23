@@ -2,7 +2,7 @@ component conv_@IN@_@OUT@ "Convert a value from @IN@ to @OUT@";
 pin in @IN@ in_;
 pin out @OUT@ out;
 @CC@ pin out bit out_of_range "TRUE when 'in' is not in the range of @OUT@";
-@CC@ param rw bit clamp """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
+@CC@ pin io bit clamp """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
 function _ @FP@ "Update 'out' based on 'in'";
 license "GPL";
 
@@ -21,4 +21,5 @@ FUNCTION(_) {
 	out = in;
 @CC@	if(out != in) out_of_range = 1;
 @CC@    }
+    return 0;
 }
