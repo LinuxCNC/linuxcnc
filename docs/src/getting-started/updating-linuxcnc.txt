@@ -581,6 +581,21 @@ so that they can be connected to signals:
    motion.servo.last-period_ns (kernel-dependent availability)
 ----
 
+== Ongoing updates
+
+Commits to unreleased branches may make changes that affect testers
+and early-adopters of the unreleased software
+
+=== Hal pins
+
+
+Name changes:
+
+----
+was: axis.L.vel-cmd
+ is: axis.l.teleop-vel-cmd
+----
+
 == GUIs (updates for joints_axes)
 
 === Halui
