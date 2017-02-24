@@ -1,0 +1,45 @@
+o<queuebuster> sub
+  #<xmax>         = #1 (=9)
+  #<ymax>         = #2 (=3)
+  #<feed>         = #3 (=100)
+  #<ct>           = #4 (=100)
+  #<use_m6>       = #5 (=0)
+  #<use_m66>      = #6 (=0)
+  #<use_m38>      = #7 (=0)
+  #<pauseatend>   = #8 (=1)
+
+  g20 g61 g90 ;inches, exactpath,absolute
+  g0 x0y0z0
+  f#<feed>
+  o<loop> repeat [#<ct>]
+    m111
+    g1 x#<xmax> y0
+
+    o<um6> if [#<use_m6> GT 0]
+      (debug, m6 queuebuster follows)
+      t1m6      ;QB toolchange
+    o<um6> endif
+
+    o<um66> if [#<use_m66> GT 0]
+      (debug, m66 queuebuster follows)
+      m66p0l0   ;QB wait on input l0=imediate
+    o<um66> endif
+
+    o<um38> if [#<use_m38> GT 0]
+      (debug, g38.3 queuebuster follows)
+      g38.3z-.2 ; QB probe 
+      g1 z0
+    o<um38> endif
+
+    g1          y#<ymax>
+    g1 x0
+    g1 x0       y0
+    o<pas> if [#<pauseatend> GT 0]
+      (debug, Paused, s to continue)
+      m0
+    o<pas> endif
+  o<loop> endrepeat
+o<queuebuster> endsub
+
+; bad:  t0m6 g38.3 
+; ok:   m66

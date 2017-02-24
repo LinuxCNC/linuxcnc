@@ -1,0 +1,43 @@
+(info: Multiple circles at radius R, use 0 for current val)
+;Notes:
+;  1) z axis not altered (remains at current z)
+;  2) for  inside polygon cutting (fnum==0):
+;     start with rfraction negative
+;     and gradually increase rfraction to zero as program runs
+;     multiple circles
+;  3) for outside polygon cutting (fnum==1):
+;     start with rfraction positive
+;     and gradually decrease to zero as program runs multiple
+;     circles
+;
+; Alternate method for polygons:
+;  1) use #<radius>=0 and jog to safe starting position
+;  2) use #<revs>=1, run progam for one revolution
+;  3) Run program repeatedly and manually jog x (radius)
+;     before each program start to increase/decrease
+;     current radius for inside/outside polygon respectively
+
+o<circles> sub
+     #<radius> = #1 (=  1 R  0==>current)
+     #<aspeed> = #2 (=  8 aspeed: RPM)
+     #<lspeed> = #3 (= 10 lspeed: units/sec)
+       #<revs> = #4 (=  1 +/- Revolutions)
+
+      #<c> = #<_c> ;starting value
+#<ctarget> = [#<c> + #<revs> * 360]
+  #<arate> = [#<aspeed> * 360]
+
+m111 ;clear prior info messages
+o<if1> if [#<radius> EQ 0]
+       #<ref_radius> = #<_x> ;use current x
+o<if1> else
+       #<ref_radius> = #<radius>
+       f#<lspeed> g1 x#<ref_radius>
+o<if1> endif
+(debug, ref_radius=#<ref_radius>)
+
+m68 e0 q#<ref_radius> ; set ref_radius for eoffsets
+
+f#<arate> g1 c#<ctarget> ; circles at arate
+
+o<circles> endsub
