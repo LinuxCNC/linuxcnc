@@ -1,0 +1,41 @@
+;hpid_touchoff (SIMULATION)
+
+o<hpid_touchoff> sub
+  #<pierce_height> = #1
+   #<pierce_delay> = #2
+     #<cut_height> = #3
+    #<arc_timeout> = #4 
+    #<probe_speed> = #5
+   #<to_hgt_speed> = #6
+
+(debug, hpid_touchoff BEGIN)
+;---------------------------------------
+F#<probe_speed>
+;NOTE: probe with G38.n codes and set Z0 here
+;---------------------------------------
+G1 Z#<pierce_height>
+M3 S1;start torch (assert E:enable-in-a <= motion.spindle-on)
+(debug, torch on, wait #<arc_timeout>)
+
+M66 P0 L1 Q#<arc_timeout> (E:arc-ok)
+          ;P0 motion.digital-in-00
+          ;L1 wait low to high
+          ;Q5 timeout seconds
+          ;   if timeout: #5399 == -1
+#<arc_status> = #5399
+o<if1> if [#<arc_status> LT 0]
+          (debug, arc FAIL, bye)
+          M2     (terminate)
+o<if1> else
+          M64 P1 (assert E:enable-in-b <= motion.digital-out-01)
+          (debug, arc OK, continue)
+o<if1> endif
+
+(debug, pierce_delay #<pierce_delay>)
+G4 P#<pierce_delay>
+
+F#<to_hgt_speed>
+G1 Z#<cut_height>
+(debug, hpid_touchoff END)
+
+o<hpid_touchoff> endsub

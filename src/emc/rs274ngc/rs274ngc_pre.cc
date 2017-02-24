@@ -1960,18 +1960,18 @@ int Interp::synch()
 {
 
   char file_name[LINELEN];
-
-  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  _setup.current_x  = GET_EXTERNAL_POSITION_X();
+  _setup.current_y  = GET_EXTERNAL_POSITION_Y();
+  _setup.current_z  = GET_EXTERNAL_POSITION_Z();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
+  _setup.u_current  = GET_EXTERNAL_POSITION_U();
+  _setup.v_current  = GET_EXTERNAL_POSITION_V();
+  _setup.w_current  = GET_EXTERNAL_POSITION_W();
+
+  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
-  _setup.current_x = GET_EXTERNAL_POSITION_X();
-  _setup.current_y = GET_EXTERNAL_POSITION_Y();
-  _setup.current_z = GET_EXTERNAL_POSITION_Z();
-  _setup.u_current = GET_EXTERNAL_POSITION_U();
-  _setup.v_current = GET_EXTERNAL_POSITION_V();
-  _setup.w_current = GET_EXTERNAL_POSITION_W();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
@@ -1998,6 +1998,12 @@ int Interp::synch()
   // read_inputs(&_setup); // input/probe/toolchange
 
   write_settings(&_setup);
+
+#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
+  if (GET_EXTERNAL_OFFSET_APPLIED() ) {
+    return INTERP_ERROR;
+  }
+#endif
 
   return INTERP_OK;
 }

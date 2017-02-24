@@ -1,0 +1,22 @@
+
+ #1 =   10    (rpt_ct)
+ #2 =   80    (torch_setpoint)
+ #3 =    1.7  (torch_cut_hgt)
+ #4 =    1.75 (pierce_hgt)
+ #5 =    0    (pierce_dly)
+ #6 =    0    (xstart)
+ #7 =    0    (ystart)
+ #8 =   80    (width)
+ #9 =   10    (height)
+#10 =   16    (yseparation)
+#11 =    2.54 (safe_hgt)
+#12 = 1900    (feed_rate1)
+#13 =    1    (pause_secs)
+#14 =    0    (g64_to)
+#15 =    2    (arc_timeout)
+#16 =  254    (probe_speed)
+#17 =  635    (to_hgt_speed)
+#18 =  950    (feed_rate2)
+
+o<hpid_sub> call [#1][#2][#3 / 25.4][#4 / 25.4][#5][#6][#7][#8 / 25.4][#9 / 25.4][#10/25.4][#11 / 25.4][#12 / 25.4][#13][#14][#15][#16 / 25.4][#17 / 25.4][#18 / 25.4]
+m2

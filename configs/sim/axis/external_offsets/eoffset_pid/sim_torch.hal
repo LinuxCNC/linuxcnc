@@ -1,0 +1,82 @@
+# sim_torch.hal
+
+loadrt invert        names=sim:mm_per_unit
+loadrt scale         names=sim:v_per_unit,sim:tovolts
+loadrt lowpass       names=sim:torch
+loadrt oneshot       names=sim:arcwait
+
+addf sim:mm_per_unit servo-thread
+addf sim:v_per_unit  servo-thread
+addf sim:tovolts     servo-thread
+addf sim:torch       servo-thread
+addf sim:arcwait     servo-thread
+
+#---------------------------------------------------
+# Convert machine units to simulated torch volts
+# scaling:  254 volts/inch  (1v ==> 0.004 inch)
+#   equiv:   10 volts/mm    (1v ==> 0.1   mm)
+
+#net E:units-per-mm  <= elsewhere
+net  E:units-per-mm  => sim:mm_per_unit.in
+
+net  S:mm_per_unit   <= sim:mm_per_unit.out
+net  S:mm_per_unit   => sim:v_per_unit.in
+
+# default is for units==mm
+setp sim:v_per_unit.gain [AXIS_Z]HPID_SIM_VOLTS_PER_MM
+
+net  S:v_per_unit    <= sim:v_per_unit.out
+net  S:v_per_unit    => sim:tovolts.gain
+
+# simulate voltage at arc-ok:
+setp sim:tovolts.offset [AXIS_Z]HPID_SIM_TOVOLTS_OFFSET
+
+#---------------------------------------------------
+# Simulate torch voltage measurement by lowpass
+# filtering the scaled z axis external offsets
+# to simulate the measurement frequency response
+net  S:z-eoffset <= axis.z.eoffset
+net  S:z-eoffset => sim:tovolts.in
+
+net  S:scaled    <= sim:tovolts.out
+net  S:scaled    => sim:torch.in
+
+# sim:torch.gain (hal param) sets bandwidth
+# 1000Hz --> 0.9981
+#  100Hz --> 0.4663
+#   50Hz --> 0.2696
+#   20Hz --> 0.1181
+#   10Hz --> 0.0609
+#    1Hz --> 0.0063
+setp sim:torch.gain [AXIS_Z]HPID_SIM_TORCH_GAIN
+
+#---------------------------------------------------
+# trigger oneshot that represents time to make arc
+# when the torch start command is issued from gcode:
+#net E:enable-in-a  <= elsewhere
+net  E:enable-in-a  => sim:arcwait.in
+
+#---------------------------------------------------
+# simulate time (in seconds) for valid arc:
+# for success: 0 < sim:arcwait.width < arc_timeout
+setp sim:arcwait.width [AXIS_Z]HPID_SIM_TORCH_ARCWIDTH_WAIT
+
+#---------------------------------------------------
+# For real hardware (not sim) replace all above
+# with appropriate hal logic for torch-controller.
+#
+# Use appropriate (non-sim) settings for the
+# following defined signals (E:*)
+
+# measured torch voltage
+net  E:feedback     <= sim:torch.out
+#net E:feedback     => elsewhere
+
+# arc-ok (read by gcode)
+net  E:arc-ok       <= sim:arcwait.out-not
+#net E:arc-ok       => elsewhere
+
+# minimum vel for corner lockout (units/sec)
+# (use value of zero to ignore)
+sets E:minimum-vel 0.0
+#    E:minimum-vel <= elsewhere
