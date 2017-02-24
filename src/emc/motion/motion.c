@@ -485,12 +485,31 @@ static int init_hal_io(void)
            mot_comp_id, "axis.%c.teleop-vel-lim",  c)) != 0) goto error;
         if ((retval = hal_pin_bit_newf(HAL_OUT,   &(emcmot_hal_data->axis[n].teleop_tp_enable),
            mot_comp_id, "axis.%c.teleop-tp-enable",c)) != 0) goto error;
+        if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_enable),
+           mot_comp_id, "axis.%c.eoffset-enable", c)) != 0) return retval;
+        if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_clear),
+           mot_comp_id, "axis.%c.eoffset-clear", c)) != 0) return retval;
+
+        if ((retval = hal_pin_s32_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_counts),
+           mot_comp_id, "axis.%c.eoffset-counts", c)) != 0) return retval;
+        if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_scale),
+           mot_comp_id, "axis.%c.eoffset-scale", c)) != 0) return retval;
+
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].external_offset),
+           mot_comp_id, "axis.%c.eoffset", c)) != 0) return retval;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].external_offset_requested),
+           mot_comp_id, "axis.%c.eoffset-request", c)) != 0) return retval;
+
         retval = export_axis(c, axis_data);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis %c pin/param export failed\n"), c);
 	    return -1;
 	}
     }
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->eoffset_limited), mot_comp_id,
+                  "motion.eoffset-limited")) < 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->eoffset_active), mot_comp_id,
+                  "motion.eoffset-active")) < 0) goto error;
 
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,

@@ -1,0 +1,106 @@
+loadrt eoffset_pid names=zo
+loadrt sum2        names=summer
+
+# Initial PID gain settings
+# Notes: (simulation)
+#        dgain mandatory
+#        igain not useful
+setp zo.pgain 30
+setp zo.igain  0
+setp zo.dgain  0.4
+
+setp zo.k     10000
+setp zo.fnum      0
+
+# order so offset computation precedes motion-* threads
+addf summer   servo-thread 1
+addf zo       servo-thread 2
+
+#-----------------------------------------------------------
+# required standard connections TO zo
+net E:is-on           <= halui.machine.is-on
+net E:is-on           => zo.is-on
+
+net E:active          <= motion.eoffset-active
+net E:active          => zo.active
+
+#-----------------------------------------------------------
+# required standard connections FROM zo
+net E:eoffset-enable  <= zo.enable-out
+net E:eoffset-enable  => axis.z.eoffset-enable
+
+net E:clear           <= zo.clear
+net E:clear           => axis.z.eoffset-clear
+
+net E:scale           <= zo.kreciprocal
+net E:scale           => axis.z.eoffset-scale
+ 
+net E:kcounts         <= zo.kcounts 
+net E:kcounts         => axis.z.eoffset-counts
+
+#-----------------------------------------------------------
+# zo feedback (source elsewhere, mandatory)
+net E:feedback        => zo.feedback
+
+#-----------------------------------------------------------
+# zo command & request  (use M68 to set analog out pin 0
+net E:request         <= motion.analog-out-00
+net E:request         => summer.in0
+
+net E:command         <= summer.out
+net E:command         => zo.command
+
+#-----------------------------------------------------------
+# current velocity (corner lockout)
+net E:current-vel     <= motion.current-vel
+net E:current-vel     => zo.current-vel
+
+#-----------------------------------------------------------
+# Spindle commands are used to start/stop torch:
+# M3 --> torch on
+# M5 --> torch off
+net E:enable-in-a     <= motion.spindle-on
+net E:enable-in-a     => zo.enable-in-a
+
+#-----------------------------------------------------------
+# GCODE must issue this final enable using M64
+# after verifying arc and asserting E:arc-ok:
+net E:enable-in-b     <= motion.digital-out-00
+net E:enable-in-b     => zo.enable-in-b
+
+#-----------------------------------------------------------
+# signals with source elsewhere
+
+# E:arc-ok is read by GCODE using M66 prior to final enable:
+#          NOTE: M66 is a queuebuster and must be used prior
+#                to enabling external offsets
+#   E:arc-ok          <= torch controller sets somehow
+net E:arc-ok          => motion.digital-in-00
+
+# extra zo enable (a,b,c are anded together):
+# default to 1, use elsewhere as required:
+setp zo.enable-in-c   1
+net E:enable-in-c     => zo.enable-in-c
+
+#   provision for a perturbation to pid input command
+net E:perturb         => summer.in1
+
+# cornerlock minimum velocity (units/sec):
+net E:minimum-vel     => zo.minimum-vel
+
+#-----------------------------------------------------------
+# signals with sink elsewhere
+# convenience pin, use as required (sim:hpid_panel.hal):
+net E:is-off          <= zo.is-off
+
+#-----------------------------------------------------------
+# signals for sim only:
+net E:z-eoffset       <= axis.z.eoffset
+
+#-----------------------------------------------------------
+# signals for halscope usage:
+net E:error           <= zo.dbg-error
+net E:holding         <= zo.dbg-holding
+net E:state           <= zo.dbg-state
+net E:hold-request    => zo.hold-request
+net E:minimum-vel     => zo.minimum-vel

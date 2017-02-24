@@ -1,0 +1,476 @@
+component eoffset_pid "PID control of external offset";
+
+//" vim
+description
+"""
+The \\fBeoffset_pid\\fR hal component implements a state machine
+and PID (Proportional, Integral, Derivative) controller for
+managing the external offset for a single axis.  A candidate
+application is torch-height-control for a plasma cutter.
+
+The component receives a \\fBcommand\\fR input representing a
+requested torch voltage and a \\fBfeedback\\fR input representing
+measured torch voltage.  A conventional PID computation uses
+inputs \\fBpgain\\fR, \\fBigain\\fR, and \\fBdgain\\fR to
+generate an external offset control presented as an s32
+\\fBkcounts\\fR pin.
+
+Scaling is controlled by a single input pin
+\\fBk\\fR; a reciprocal output is provided at the
+\\fBkreciprocal\\fR pin.  The default value for \\fBk\\fR
+should be suitable for most configurations.
+
+Three enabling inputs \\fBenable-in-a\\fR, \\fBenable-in-b\\fR,
+and \\fBenable-in-c\\fR are 'anded' internally to enable
+offset computation by connection to the \\fBaxis.L.eoffset-enable\\fR
+pin for the controlled axis.  Disabling externel offsets
+causes any external offset to be reduced to zero (respecting
+velocity and acceleration constraints) so these pins are not
+suitable for short-term control of external offsets.
+
+Short term holding of the applied external offset is available using
+pins provided for corner lockout (\\fBminimal-vel\\fR and
+\\fBcurrent-vel\\fR).  The pin \\fBminimum-vel\\fR is used to reduce
+excessive height corrections that may occur when torch voltage increases
+due to reduction in velocity on corners.  Current offset values are
+sustained when the \\fBcurrent-vel\\fR pin value is less than the
+\\fBminimum-vel\\fR pin value.  To disable this function, set
+\\fBminimum-vel\\fR to zero.  A separate pin, \\fBhold-request\\fR,
+is available to hold the current external offset for short intervals.
+
+A number of pins require mandatory connections as listed
+in the pin descriptions.
+
+\\fBNOTES\\fR
+
+When used to regulate an axis offset, the \\fBeoffset_pid\\fR
+component servo loop is an outer loop to the \\fBLinuxCNC\\fR
+motion loop.  Since the inner loop effectively contains
+an integrator, use of the \\fBigain\\fR pin is not
+expected to be helpful and some amount of \\fBdgain\\fR may
+be required for stability.
+
+The use of the \\fBeoffset_pid\\fR component as a feedback loop
+enclosing the motion/external offset facilities of LinuxCNC is
+influenced by many factors that can affect loop stability and hence the
+effectiveness of the control.  The factors include all the inputs to the
+component itself plus a) velocity and acceleration settings of the
+controlled axis in LinuxCNC, b) settings for torch timing and voltage
+control, and importantly c) torch voltage measurement, filtering, and
+noise control.
+
+
+\\fBRESTRICTIONS\\fR
+
+Gcode commands that require synchronization of the interpreter
+and motion modules (\\fBqueuebusters\\fR) result in immediate
+\\fBtermination\\fR of motion if applied external offsets are
+nonzero.  Commands that read hal pins (\\fBM66\\fR) and probe
+commands (\\fBG38.x\\fR) require this synchronization.  Consequently,
+reading hal pins and probe moves must be completed before
+enabling external offsets by the 'anding' of the enabling
+input pins.
+
+See the Documents chapter for \\fBExternal Axis Offsets\\fR for
+more information on these and other restrictions.
+
+
+\\fBEXPERIMENTAL derivative limit function (fnum=1)\\fR
+
+The function specified with fnum=1 is an experimental
+pid derivateive gain calculation based on:
+
+"Control System Design", Karl Johan Astrom, 2002
+Eqn 6.2: limit high frequency gain of derivative term
+Eqn 6.17: derivative estimation using backward difference.
+
+For this function, use the \\fBkptd\\fR pin for derivative gain
+and \\fBnfilt\\fR to modify high frequency response for
+computation of derivative gain.
+
+This function may be deleted in the future.
+
+\\fBDEBUG PINS:\\fR
+
+Pins named \\fB*.dbg-*\\fR are for debugging and may be
+deleted in the future.
+
+\\fBEXAMPLE CONFIGURATION:\\fR
+
+An example simulation configuration for a plasma
+torch height control by pid is provided at:
+\\fBconfigs/sim/axis/external_offsets/hpid.ini\\fR.
+
+""";
+
+//" quote char for vim highlighting
+
+pin  in   bit enable_in_a  =  0     "Enable Input a";
+pin  in   bit enable_in_b  =  0     "Enable Input b";
+pin  in   bit enable_in_c  =  0     "Enable Input c";
+pin  in float minimum_vel  =  0     "units/sec (cornerlock aid)";
+
+pin  in float command      =  0     "Command Input";
+pin  in float feedback     =  0     "Feedback Input";
+
+pin  in float pgain        = 10     "Proportional gain";
+pin  in float igain        =  0     "Integral gain";
+pin  in float dgain        =  0.2   "Derivative gain";
+pin  in   bit hold_request =  0     "Hold request";
+
+pin  in   u32 k            = 10000 "Scaling Factor (if 0, use 10000)";
+pin  in   s32 fnum         =     0 "Function selector (default 0 == PID)";
+
+pin  in   bit active       = 0     "From: \\fBmotion.eoffset-active\\fR";
+pin  in   bit is_on        = 0     "From: \\fBhalui.machine.is-on\\fR";
+pin  in float current_vel  = 0     "From: \\fBmotion.current-vel\\fR";
+
+pin out   bit enable_out  "To: \\fBaxis.L.eoffset-enable\\fR";
+pin out   bit clear       "To: \\fBaxis.L.eoffset-clear\\fR";
+pin out   s32 kcounts     "To: \\fBaxis.L.eoffset-counts\\fR";
+pin out float kreciprocal "To: \\fBaxis.L.eoffset-scale\\fR (1/k)";
+
+// convenience pins (eliminate some external hal components)
+pin out   bit is_off      "invert is_on (for convenience)";
+
+// experimental (func1)
+pin  in float kptd        = 0.5 "(experimental fnum=1)typ value 0.1-5";
+pin  in float nfilt       = 15  "(experimental fnum=1)typ value 5-30";
+pin  in float olimit      = 10000000 "(experimental output limit)";
+
+pin out float dbg_eoffset "eoffset (use kcounts & kreciprocal)";
+pin out   u32 dbg_state   "state machine current state";
+pin out float dbg_error   "command-request following error";
+pin out   bit dbg_holding "holding current offset";
+
+function _;
+license "GPL";
+;;
+
+#include <rtapi_math.h>
+
+#define FINISH_DELAY 0
+#define TO_RAD       M_PI/180
+
+static int    run_ct   = 0;
+static int    delay_ct = 0;
+
+
+static double periodrecip;
+static double the_period;
+
+struct ofunc_data {
+  double p_gain;
+  double i_gain;
+  double d_gain;
+  double cmd;
+  double fb;
+  double prev_cmd;
+  double prev_fb;
+
+  //computed items:
+  double err;
+  double err_d;
+  double err_i;
+  double ovalue;
+
+  //experimental (func1)
+  double n_filt;
+  double kptd_gain;
+  double prev_diff;
+  double diff;
+};
+
+typedef int ofunc(struct ofunc_data*);
+static      ofunc func0;
+static      ofunc func1;
+
+typedef enum {
+    OFF,
+    READY,
+    STARTING,
+    RUNNING,
+    STOPPING,
+    FINISH,
+} state;
+
+#define HPID_DEBUG
+#undef  HPID_DEBUG
+#ifdef  HPID_DEBUG
+  #define LVL RTAPI_MSG_INFO
+  #define dprint(msg,n) do { \
+     rtapi_set_msg_level(LVL); \
+     rtapi_print_msg(LVL,"%20s %5d\n",msg,n); \
+  } while (0)
+#else
+  #define dprint(msg,n)
+#endif
+
+FUNCTION(_) {
+    static struct ofunc_data  the_data;
+           struct ofunc_data*     data = &the_data;
+    static state  the_state = OFF;
+    static int    do_once   = 1;
+    static int    messaged  = 0;
+    static int    err_stop  = 0;
+    static int    hold      = 0;
+    static int    old_hold  = 0;
+
+    double the_feedback;
+    int    kfactor;
+    int    enable_in;
+    ofunc* thefunc;
+
+    if (do_once) {
+       the_period   = period * 1e-9;
+       periodrecip  = 1/the_period;
+       data->err    = 0;
+       data->err_i  = 0;
+       data->err_d  = 0;
+       data->ovalue = 0;
+       data->diff   = 0; // experimental func1:
+       data->diff   = 0; // experimental func1:
+       do_once      = 0;
+    }
+
+    run_ct++;
+    if (k == 0) {
+        kfactor = 10000;
+    } else {
+        kfactor = k;
+    }
+
+    kreciprocal  = 1/((float)kfactor);
+    dbg_state    = the_state;
+    is_off       = !is_on;   // convenience pin
+    the_feedback = feedback;
+
+    if (is_off) {
+        // note: the external_offsets implementation defines
+        //       axis.L.eoffset as zero when machine is off
+        err_stop   = 0;
+        enable_out = 0;
+        clear      = 0;
+        kcounts    = 0; dbg_eoffset = 0;
+        messaged   = 0;
+        the_state  = OFF;
+        return;
+    }
+
+    enable_in = enable_in_a && enable_in_b && enable_in_c;
+
+    if  (   hold_request
+         || ( (minimum_vel > 0) && (minimum_vel > current_vel) )
+        ) {
+        hold = 1;
+    } else {
+        hold = 0;
+    }
+    dbg_holding = 0;  //report only in some states
+
+    switch (the_state) {
+    case OFF:
+        // require an enable_in 0-->1 transition to advance to READY
+        if (enable_in) {
+            if (!messaged) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                "eoffset_pid: active enable-in not honored at start");
+                messaged = 1;
+            }
+            return;
+        }
+        err_stop  = 0;
+        messaged  = 1;
+        kcounts   = 0;
+        the_state = READY;
+        dprint("OFF->READY",kcounts);
+        return;
+        break;
+    case READY:
+        if (!enable_in) {return;}
+        kcounts         = 0; dbg_eoffset = 0;
+        old_hold        = 0;
+        enable_out      = 0;
+        delay_ct        = 0;
+        data->prev_cmd  = 0;
+        data->prev_fb   = 0;
+        data->prev_cmd  = command;
+        data->prev_fb   = command;
+        data->prev_diff = 0; //experminental func1
+        the_state       = STARTING;
+        dprint("READY->STARTING",kcounts);
+        return;
+        break;
+    case STARTING:
+        // hold not honored here in order to get to the next state
+        if (enable_in) {
+            enable_out = 1;
+            the_state  = RUNNING;
+            dprint("STARTING->RUNNING",kcounts);
+            break;
+        } else {
+            enable_out = 0;
+            the_state  = READY;
+            return;
+        }
+    case RUNNING:
+        dbg_holding = hold; // report as true this state only
+        if (enable_in) {
+            if (hold) {
+                old_hold   = hold;
+                data->err  = 0;
+                dbg_error  = 0;
+                kcounts    = 0; // expects integral action in inner loop
+                enable_out = 0; // relies on motion/control.c holding if:
+                                //    axis.L.eoffset-enable == 0 
+                the_state  = RUNNING;
+                return;
+            }
+            if (!hold && old_hold) {
+                // end of hold interval
+                old_hold        = hold;
+                the_feedback    = command;
+                data->prev_cmd  = command;
+                data->prev_fb   = command;
+                data->err_i     = 0;
+                data->prev_diff = 0; //experminental func1
+            }
+            enable_out = 1;
+            the_state  = RUNNING;
+        } else {
+            /*
+            ** When the enable_in pin is deasserted, kcounts are set to
+            ** zero and the simple trajectory planner removes the offset to
+            ** within its stopping criterion.  Under some conditions, a
+            ** residual offset may remain.  Connecting the clear pin to
+            ** axis.L.eoffset-clear forces the axis->ext_offset_tp.pos_cmd
+            ** to zero to remove any residual with no modifications to
+            ** simple_tp.c
+            */
+            enable_out = 1;  // if may have been holding
+            clear      = 1;
+            kcounts    = 0; dbg_eoffset = 0;
+            delay_ct   = run_ct;
+            the_state  = STOPPING;
+            dprint("RUNNING->STOPPING",kcounts);
+            return;
+        }
+        break;
+    case STOPPING:
+        if (active) {
+            the_state = STOPPING;
+        } else {
+            // !active ==> stopping criterion met
+            delay_ct  = run_ct;
+            the_state = FINISH;
+            dprint("STOPPING->FINISH",kcounts);
+        }
+        return;
+        break;
+    case FINISH:
+        // provision for delay if needed
+        if (run_ct < (FINISH_DELAY + delay_ct) ) {
+            the_state  = FINISH;
+        } else {
+            enable_out = 0;
+            if (err_stop) {
+                the_state = OFF;
+                dprint("FINISH->OFF",kcounts);
+            } else {
+                the_state = READY;
+                dprint("FINISH->READY",kcounts);
+            }
+        }
+        clear = 0;
+        return;
+        break;
+    } //switch (the_state)
+
+    switch (fnum) {
+      case  0: thefunc = func0; break;
+      case  1: thefunc = func1; break;
+      default: thefunc = func0; break;
+    }
+    // current values:
+    data->p_gain    = pgain;
+    data->i_gain    = igain;
+    data->d_gain    = dgain;
+    data->cmd       = command;
+    data->fb        = the_feedback;
+    data->n_filt    = nfilt; // for experimental func1:
+    data->kptd_gain = kptd;  // for experimental func1:
+
+    // calculations:
+    if (thefunc(data) ) {
+        // thefunc returned nonzero (problem)
+        err_stop      = 1;
+        data->ovalue  = 0;
+        kcounts       = 0; dbg_eoffset = 0;
+        the_state     = STOPPING;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+           "eoffset_pid: stopping:func%d problem\n",fnum);
+        return;
+    }
+
+    // items for next iteration:
+    data->prev_cmd  = command;
+    data->prev_fb   = the_feedback;
+    data->prev_diff = data->diff; //experminental func1
+
+    // results:
+    if (data->ovalue >  olimit) { data->ovalue =  olimit; }
+    if (data->ovalue < -olimit) { data->ovalue = -olimit; }
+    kcounts     = kfactor * data->ovalue; // offset counts
+    dbg_eoffset = kcounts * kreciprocal;  // debug pin
+    dbg_error   = data->err;              // debug pin
+} // _()
+
+static int func0 (struct ofunc_data* d)
+{
+    // PID
+    if (   (d->p_gain < 0)
+        || (d->i_gain < 0)
+        || (d->d_gain < 0) ) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+           "eoffset_pid: negative gain\n");
+        return -1;
+    }
+    d->err     = d->cmd - d->fb;
+    d->err_d   = ( (d->cmd - d->fb) - (d->prev_cmd  - d->prev_fb) )
+               * periodrecip;
+    d->err_i  += d->err    * the_period;
+    d->ovalue  = d->p_gain * d->err
+               + d->i_gain * d->err_i
+               + d->d_gain * d->err_d;
+    return 0;
+}
+
+static int func1 (struct ofunc_data* d)
+{
+    // PID with backward difference
+    //     and limit to derivative freq response
+    if (   (d->p_gain    <= 0)  // is divisor
+        || (d->i_gain    <  0)
+        || (d->d_gain    <  0)
+        || (d->kptd_gain <  0)
+       ) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+           "eoffset_pid: bad gain setting\n");
+        return -1;
+    }
+    d->err     = d->cmd - d->fb;
+
+    //ref: Astrom 6.17:
+    d->diff    = (d->kptd_gain/d->p_gain)
+               / (d->kptd_gain/d->p_gain + d->n_filt * the_period)
+               * (  d->prev_diff
+                  - d->p_gain * d->n_filt * (d->fb - d->prev_fb)
+                 );
+
+    d->err_i  += d->err    * the_period;
+    d->ovalue  = d->p_gain * d->err
+               + d->i_gain * d->err_i
+               +             d->diff; //gain term included
+
+    return 0;
+}

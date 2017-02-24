@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "hal.h"
 #include "rtapi.h"
 #include "inihal.hh"
+#include "iniaxis.hh"
 
 static int debug=0;
 static int comp_id;
@@ -389,7 +390,9 @@ int check_ini_hal_items(int numjoints)
         if (CHANGED_IDX(axis_max_velocity,idx) ) {
             if (debug) SHOW_CHANGE_IDX(axis_max_velocity,idx);
             UPDATE_IDX(axis_max_velocity,idx);
-            if (0 != emcAxisSetMaxVelocity(idx,NEW(axis_max_velocity[idx]))) {
+            if (0 != emcAxisSetMaxVelocity(idx,
+                  (1 - ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_velocity[idx]),
+                  (    ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_velocity[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxVelocity\n");
                 }
@@ -398,7 +401,9 @@ int check_ini_hal_items(int numjoints)
         if (CHANGED_IDX(axis_max_acceleration,idx) ) {
             if (debug) SHOW_CHANGE_IDX(axis_max_acceleration,idx);
             UPDATE_IDX(axis_max_acceleration,idx);
-            if (0 != emcAxisSetMaxAcceleration(idx,NEW(axis_max_acceleration[idx]))) {
+            if (0 != emcAxisSetMaxAcceleration(idx,
+                  (1 - ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_acceleration[idx]),
+                  (    ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
                 }

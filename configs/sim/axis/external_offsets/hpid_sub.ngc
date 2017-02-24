@@ -1,0 +1,76 @@
+(info: Test pattern for torch tuning)
+;Note: spindle hal pins used to control torch
+o<hpid_sub> sub
+        #<rpt_ct> =  #1 (=10)
+#<torch_setpoint> =  #2 (=80)
+ #<torch_cut_hgt> =  #3 (=0.080)
+    #<pierce_hgt> =  #4 (=0.080)
+    #<pierce_dly> =  #5 (=0)
+
+        #<xstart> =  #6 (=0)
+        #<ystart> =  #7 (=0)
+        #<width>  =  #8 (=0.5)
+        #<height> =  #9 (=3)
+   #<xseparation> = #10 (=0.5)
+      #<safe_hgt> = #11 (=0.100)
+
+     #<feed_rate> = #12 (=100)
+    #<pause_secs> = #13 (=1)
+       #<g64_tol> = #14 (=0)
+
+   #<arc_timeout> = #15 (= 2)
+   #<probe_speed> = #16 (=10)
+  #<to_hgt_speed> = #17 (=25)
+
+M111 ;clear notifications
+
+G20             ;Units: Inches
+G40             ;Cancel Cutter Comp
+G90             ;Absolute Mode
+G64 P#<g64_tol> ;Continuous mode + path tolerance
+
+       #<x0> = #<xstart>
+       #<y0> = #<ystart>
+       #<ct> = 0
+       G0 X#<x0> Y#<y0> Z#<safe_hgt>
+o<rpt> repeat [#<rpt_ct>]
+            #<ct> = [#<ct> + 1]
+            #<x1> = [#<x0>]
+            #<x2> = [#<x1> + #<width>]
+            #<y1> = [#<y0>]
+            #<y2> = [#<y0> + #<height>]
+            M111 ;clear notifications
+            G0 X#<x1> Y#<y1> Z#<safe_hgt>
+
+            M68 E0 Q#<torch_setpoint>
+            M65 P0 ;deassert enable-in-b
+
+            ;hpid_touchoff subroutine (typical sequence):
+            ;   probe to surface
+            ;   set Z0
+            ;   start torch using M3 (--> assert enable-in-a)
+            ;   wait for arc (M66)
+            ;      fail:    M2
+            ;      success: M64 (--> assert enable-in-b)
+            ;   dwell for pierce delay (G4)
+            ;   move to cut_height (G1)
+o<hpid_touchoff> call [#<pierce_hgt>][#<pierce_dly>][#<torch_cut_hgt>][#<arc_timeout>][#<probe_speed>][#<to_hgt_speed>]
+            F#<feed_rate>
+            G1 X #<x1> Y #<y1>
+            G1 X #<x2> Y #<y1>
+            G1 X #<x2> Y #<y2>
+            G1 X #<x1> Y #<y2>
+            G1 X #<x1> Y #<y1>
+            M68 E0 Q0  ;set torch-volts 0
+            M5         ;torch off
+            M65 P0     ;deassert enable-in-b
+            (debug, torch off)
+            G92.1           ;Cancel offsets
+            G0 Z#<safe_hgt>
+            (debug, finish ct=#<ct>)
+            G4 P#<pause_secs>
+            #<x0> = [#<x0> + #<width>  + #<xseparation>]
+            #<y0> = [#<y0>]
+o<rpt> endrepeat
+
+o<hpid_sub> endsub

@@ -68,6 +68,18 @@
 #include "tp_debug.h"
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
+/*
+* External offsets behavior for teleop jogging with non-zero eoffset:
+*   Default behavior will not allow teleop jogs to reach soft limits
+*   (in direction opposite to applied offset) if external offsets are
+*   applied.
+*
+*   ALT_EOFFSET_BEHAVIOR:
+*   Alternate behavior allows teleop jogging to soft limits
+*   when non-zero external offsets are applied
+*/
+#undef  ALT_EOFFSET_BEHAVIOR
+#define ALT_EOFFSET_BEHAVIOR
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -194,6 +206,12 @@ static int check_axis_constraint(double target, int id, char *move_type,
     int in_range = 1;
     double nl = axes[axis_no].min_pos_limit;
     double pl = axes[axis_no].max_pos_limit;
+
+    double eps = 1e-308;
+
+    if (    (fabs(target) < eps)
+         && (fabs(axes[axis_no].min_pos_limit) < eps)
+         && (fabs(axes[axis_no].max_pos_limit) < eps) ) { return 1;}
 
     if(target < nl) {
         in_range = 0;
@@ -578,6 +596,13 @@ void emcmotCommandHandler(void *arg, long period)
 	       transition */
 	    /* set the emcmotDebug->coordinating flag to defer transition to
 	       controller cycle */
+
+#if 0   // disallow in task,rs274ngc not here
+	    if (emcmotStatus->external_offsets_applied) {
+	        reportError("Cannot begin COORD motion with external offsets");
+	        break;
+	    }
+#endif
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
@@ -799,11 +824,37 @@ void emcmotCommandHandler(void *arg, long period)
             } else {
                 // TELEOP  JOG_CONT
                 if (GET_MOTION_ERROR_FLAG()) { break; }
-	        if (emcmotCommand->vel > 0.0) {
-		    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
-	        } else {
-		    axis->teleop_tp.pos_cmd = axis->min_pos_limit;
-	        }
+#ifndef ALT_EOFFSET_BEHAVIOR
+                if (emcmotCommand->vel > 0.0) {
+                    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
+                } else {
+                    axis->teleop_tp.pos_cmd = axis->min_pos_limit;
+                }
+#else
+{               axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
+                if (   axis->ext_offset_tp.enable
+                    && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
+                    /* here: set pos_cmd to a big number so that with combined
+                    *        teleop jog plus external offsets the soft limits
+                    *        can always be reached
+                    *  a fixed epsilon is used here for convenience
+                    *  it is not the same as the epsilon used as a stopping 
+                    *  criterion in control.c
+                    */
+                    if (emcmotCommand->vel > 0.0) {
+                        axis->teleop_tp.pos_cmd =  1e12;
+                    } else {
+                        axis->teleop_tp.pos_cmd = -1e12; // 1T halscope limit
+                    }
+                } else {
+                    if (emcmotCommand->vel > 0.0) {
+                        axis->teleop_tp.pos_cmd = axis->max_pos_limit;
+                    } else {
+                        axis->teleop_tp.pos_cmd = axis->min_pos_limit;
+                    }
+                }
+}
+#endif
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
 	        axis->teleop_tp.max_acc = axis->acc_limit;
 	        axis->kb_ajog_active = 1;
@@ -890,13 +941,25 @@ void emcmotCommandHandler(void *arg, long period)
 	        } else {
 		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
 	        }
-	        /* don't jog past limits */
-	        if (tmp1 > axis->max_pos_limit) {
-		    break;
-	        }
-	        if (tmp1 < axis->min_pos_limit) {
-		    break;
-	        }
+#ifndef ALT_EOFFSET_BEHAVIOR
+                /* don't jog past limits */
+                if (tmp1 > axis->max_pos_limit) { break; }
+                if (tmp1 < axis->min_pos_limit) { break; }
+#else
+{               axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
+                // a fixed epsilon is used here for convenience
+                // it is not the same as the epsilon used as a stopping 
+                // criterion in control.c
+                if (   axis->ext_offset_tp.enable
+                    && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
+                    // external_offsets: soft limit enforcement is in control.c
+                } else {
+                    if (tmp1 > axis->max_pos_limit) { break; }
+                    if (tmp1 < axis->min_pos_limit) { break; }
+                }
+}
+#endif
+
 	        axis->teleop_tp.pos_cmd = tmp1;
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
 	        axis->teleop_tp.max_acc = axis->acc_limit;
@@ -1009,6 +1072,7 @@ void emcmotCommandHandler(void *arg, long period)
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Linear")) {
+		reportError(_("invalid params in linear command"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1763,6 +1827,7 @@ void emcmotCommandHandler(void *arg, long period)
 		break;
 	    }
 	    axis->vel_limit = emcmotCommand->vel;
+	    axis->ext_offset_vel_limit = emcmotCommand->ext_offset_vel;
             break;
 
         case EMCMOT_SET_AXIS_ACC_LIMIT:
@@ -1775,6 +1840,7 @@ void emcmotCommandHandler(void *arg, long period)
 		break;
 	    }
 	    axis->acc_limit = emcmotCommand->acc;
+	    axis->ext_offset_acc_limit = emcmotCommand->ext_offset_acc;
             break;
 
         case EMCMOT_SET_AXIS_LOCKING_JOINT:

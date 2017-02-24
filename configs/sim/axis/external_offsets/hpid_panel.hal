@@ -1,0 +1,79 @@
+#-------------------------------------------------
+# pyvcp displays from signals created in hpid.hal
+net E:eoffset-enable  => pyvcp.eoffset-enable
+net E:feedback        => pyvcp.feedback-f
+net E:torch-enable    => pyvcp.torch-is-on
+net E:active          => pyvcp.eoffset-active
+
+#-------------------------------------------------
+# panel controls to test dynamic response
+# with a perturbing waveform:
+loadrt flipflop names=ff1
+loadrt not      names=nota
+loadrt siggen   names=sig
+loadrt mux4     names=mux
+
+setp   ff1.data       0
+setp   sig.frequency  0.5
+setp   sig.amplitude  5.0
+setp   sig.offset     0.0
+
+addf   nota           servo-thread
+addf   ff1            servo-thread
+addf   sig.update     servo-thread
+addf   mux            servo-thread
+
+#   E:is-off          <= elsewhere
+net E:is-off          => ff1.reset
+
+net P:perturb-start   <= pyvcp.perturb-start
+net P:perturb-start   => ff1.set
+
+net P:perturb-stop    <= pyvcp.perturb-stop
+net P:perturb-stop    => ff1.clk
+
+net P:limited         <= motion.eoffset-limited
+net P:limited         => pyvcp.eoffset-limited
+
+net P:paused          <= halui.program.is-paused
+net P:paused          => pyvcp.paused
+
+net P:sigenable       <= ff1.out
+net P:sigenable       => pyvcp.perturb-is-on
+net P:sigenable       => nota.in
+
+net P:sigreset        <= nota.out
+net P:sigreset        => sig.reset
+
+net P:mux-in0         <= sig.sine
+net P:mux-in0         <= mux.in0
+
+net P:mux-in1         <= sig.square
+net P:mux-in1         <= mux.in1
+
+net P:mux-in2         <= sig.triangle
+net P:mux-in2         <= mux.in2
+
+net P:mux-in3         <= sig.sawtooth
+net P:mux-in3         <= mux.in3
+
+net P:sel0            <= pyvcp.sel0
+net P:sel0            => mux.sel0
+
+net P:sel1            <= pyvcp.sel1
+net P:sel1            => mux.sel1
+
+net P:amplitude       <= pyvcp.amplitude
+net P:amplitude       => sig.amplitude
+
+net P:frequency       <= pyvcp.frequency
+net P:frequency       => sig.frequency
+
+net E:perturb         <= mux.out
+#   E:perturb         => elsewhere (hpid.hal)
+
+#   E:hold-request    => elsewhere (hpid.hal)
+net E:hold-request    <= pyvcp.hold-request
+
+#   E:minimum-vel     => elsewhere (hpid.hal)
+net E:minimum-vel     <= pyvcp.minimum-vel

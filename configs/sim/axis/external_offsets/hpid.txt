@@ -1,0 +1,178 @@
+hpid.ini - height (Z axis) PID control using external offsets (torch height control)
+
+For info on the compoent, see the man page ($ man eoffset_pid)
+
+Usage:
+  1) Estop OFF  (F1)
+  2) Machine ON (F2)
+  3) HOME All   (Ctrl-Home)
+  4) Run        (R)
+
+The Minimum velocity (in inches/sec) for corner lockout may be specified with a spinbox.  Use a value of zero to disable.  The hold button requests momentary holding of the external offset.
+
+The Perturb On/Off buttons control a signal generator that dynamically alters the requested torch-volts.  The signal generator's waveform, frequency and amplitude may be set with pyvcp widgets.  The introduced perturbations are useful for tuning the PID settings and may be used when the program is running or paused.
+
+Testing while paused requires setting the hal pin zo.minimal-vel to zero to prevent min-velocity 'holding' of current offset value.  Pausing with perturbations is useful in simulations but may not be practical for real hardware where non-interrupted motion is important.  However, perturbations may be used in hardware testing dynamic response of the regulator loop (see below).
+
+For testing, sim_pin entry widgets are provided for numerous hal pins and signals using ini file settings like:
+
+[APPLICATIONS]
+APP = sim_pin ...
+
+These ini file settings may be disabled by adding a initial comment character (#):
+
+#APP = sim_pin ...
+
+The hpid.ini (height control by pid) uses the hal component zo (an instance of eoffset_pid.comp) to control torch height by regulating torch voltage.
+
+The torch controller is simulated (sim_torch.hal) by connecting the z axis external offset output (axis.z.eoffset) to a scale component (sim:tovolts) and scaling by a factor of 1000 so that a 0.1 inch z offset height corresponds to a 100 volt torch voltage.  The simulated torch voltage is passed through a lowpass filter component (sim:torch) to simulate the bandwidth-limited measurement of torch voltage.  The bandwidth is set by the filter gain setting pin (sim:torch.gain).  (See the lowpass filter man page for the relationship of lowpass gain and filter bandwidth).  The delay to achieve arc-ok is simulated by a oneshot component (sim:arcwait), the delay time is set by the pin sim:arcwait.width.
+
+To test, the [DISPLAY]OPEN_FILE=hpid_demo.ngc gcode file calls an ngcgui subroutine hpid_sub.ngc.  An ngcgui tab is also included to set parameters and make gcode files with other settings for testing.
+
+The hpid_sub.ngc subroutine accepts inputs to repeat an arbitrary number (#<rpt_ct>) of simple patterns with fixed width and height and horizontal separation.   Before starting a pattern, a touchoff subroutine (hpid_touchoff.ngc) is called to start the simulated torch using a spindle (M3 S1) command.  Settings can be altered for important items like torch_setpoint, torch_cut_hgt, pierce_hgt, pierce_dly, etc.
+
+The simulation hpid_touchoff.ngc subroutine omits probing to the surface -- a real touchoff routine would likely include this step to probe the surface and establish an appropriate z axis zero reference.
+
+The eoffset_pid component has three enable inputs (zo.enable-in-a,b,c) that are 'anded' together internally.  The sim config uses the 'a' and 'b' enables, the 'c' input could be used for other enabling requirements.  The disabling of an external offset will return all external offsets to zero (respecting velocity and acceleration constraints) and is NOT a suitable method for short-term disabling of offset motion.  The zo.hold-request pin can be used to sustain the current offset for short time intervals.
+
+Provision is made to accomodate velocity reduction at corners (corner lockout) by using pins zo.minimal-vel and zo.current-vel.  The pin zo.current-vel is connected to a pin measuring current velocity with signal E:current-vel (sourced by motion.current-vel).   The pin zo.minimal-vel (signal E:minimal-vel) sets a threshold.   The current eoffset is sustained with no additional corrections based on torch voltage when the zo.current-vel is less than the zo.minimal-vel.
+
+The required sequence of gcode commands that relate to hardware control and hal connections are:
+
+hpid_sub.ngc:
+  M68 -- read torch voltage setpoint
+         (pin motion.analog-out-00)
+         (signal: E:request)
+  M65 -- deassert secondary enable
+         (signal: E:enable-in-b)
+  
+    hpid_touchoff.ngc:
+      M3 --- Start torch
+             (pin: motion.spindle-on)
+             (signal: E:enable-in-a)
+      M66 -- Wait for arc-ok
+             (signal: E:arc-ok)
+      M2 --- Stop if no arc-ok within timeout
+      M64 -- Assert secondary enable
+             (pin: motion.digital-in-00)
+             (signal: E:enable-in-b)
+      G4  -- Dwell for pierce-delay
+
+hpid_sub.ngc:
+  (run the pattern making program to conclusion)
+  M68 -- return torch voltage setpoint to 0
+         (pin motion.analog-out-00)
+         (signal: E:request)
+  M5 --- Stop torch (spindle command)
+         (pin: motion.spindle-on)
+         (signal E:enable-in-a)
+         
+Note that a handshake is required to enable external offsets:
+
+Gcode commands start the torch, wait for arc-ok, and if succesful assert the secondary enable (signal: E:enable-in-b).   Since M66 is a 'queuebuster' command, it must be used PRIOR to enabling the z external offset (See the Restrictions section in the Docs chapter on External Axis Offsets).
+
+
+The eoffset_pid component (named 'zo' in the sim config) works to null the error between its command and feedback.  The feedback loop uses:
+
+   1) zo.command --- torch voltage setpoint controlled by gcode
+   2) zo.feedback -- from sim_torch.hal using a scaled, lowpass component
+
+The main issues with a real hardware implementation will be:
+
+  1) Electrical noise & filtering.
+
+     Noise is always problematic for high voltage circuitry and requires good design practices for grounding and shielding.  It is especially important to provide an analog anti-aliasing filter prior to the analog-to-digital conversion.   The sampling of the voltage typically occurs at a 1KHz rate (1mS servo thread period).  The analog anti-aliasing filter must attenuate noise components above the Nyquist frequency (500 Hz) but excessive filtering will compromise stability of the feedback loop.   Oversampling (using smaller servo thread periods) may allow for simpler analog anti-aliasing filters but requires a system with very low-latency.   Note that modifications of the servo thread period will usually require retuning of the servo implementations for any joint using PID control.
+
+An excellent and readable reference: http://www.stablesimulations.com/technotes/alias.html
+
+  2) Tuning the feedback loop.
+
+     The LinuxCNC motion subsystem for z axis control is *inside* the servo loop that regulates torch voltage by control of the z axis external offset.  The input to zo.command is subject to the z axis velocity and acceleration constraints.  The transfer function properties of the entire Linuxcnc motion control for the z axis affect the stability of the outer torch-voltage control loop.
+
+  3) Height regulation at low velocities.
+
+     At XY corners, velocity reduction causes an increase in torch voltage which is corrected by servo action to decrease the torch height.  If this correction is unstable (due to non-linear voltage-height relationship as speed changes for example), the torch can crash to the surface.
+
+     To address this behavior, a hal pin 'zo.current-vel' is provided to monitor the current velocity provided by the motion module output on 'motion.current-vel' pin.  Offset correction is suspended when the zo.current-vel is below the threshold set by the 'zo.minimum-vel' hal pin.
+
+
+TUNING
+
+The pid gain settings are made available on sim_pin gui entry boxes: zo.pgain, zo.igain, zo.dgain.
+
+The ini file settings:
+
+    [AXIS_Z]MAX_ACCELERATION
+    [AXIS_Z]MAX_VELOCITY
+    [AXIS_Z]OFFSET_AV_RATIO
+
+control the LinuxCNC motion subsystem response.  These should be set based on known limits of the hardware being simulated.  The first two items (ini.z.max_acceleration, ini.z.max_velocity) are made available in sim_pin gui entry boxes for experimentation.
+
+For the sim config, the torch-controller bandwidth is set by the lowpass filter gain parameter (torch-height.gain) that is also available as a sim_pin entry box.  The bandwidth limit represents both the frequency response of the z (height) coordinate and the measurement of torch voltage.  Note that very small bandwidths (excessive filtering or slow z response) will make tuning difficult or impossible.  Similarly, if a motor (not a stepper) is used for the z axis, its tuning may affect the tuning of the outer feedback loop that controls the z axis external offset.
+
+To examine/modify servo tuning, start the hpid_demo.ngc gcode program and observe the E:command and E:feedback signals with halscope (automatically started, use 'Roll' mode).  The sequence -- torch-on, cut pattern, torch-off -- repeats, so it is possible to observe the response for different PID gain settings and change them with the sim_pin guis.
+
+With the sim config, some dgain is always required to prevent oscillation,  igain is not useful.
+
+For the sim config, it is convenient to pause the program once the torch is on and perturb the command input to see the dynamic response when settings are changed. (Note: sets E:minimal-vel to zero is required).  The convenience of pausing the program is not likely feasible with real hardware since the plasma torch needs to be kept in motion.
+
+The reason for perturbing the zo.command is that the height pid servo is a regulator whose job is to accept a nominally constant voltage command input and regulate the torch-voltage output.  Since both input and output are expected to be constant, it is not always easy to observe or tune the loop response.  In the real world, disturbances (height changes like a warped or corrugated material) will require good dynamic response.  Perturbing the command input is an alternate and practical method to oberve and tune the system dynamic response.
+
+The perturbation signal generator controlled by pyvcp panel buttons (On/Off) and associated controls for amplitude, frequency, and waveform.  Waveforms available are:
+
+   sel1 sel0
+      0    0  sine wave
+      0    1  square wave
+      1    0  triangle wave
+      1    1  sawtooth wave
+
+A sine wave perturbation is convenient to observe tracking of command and feedback inputs.
+
+The square wave is most commonly used to investigate system overshoot, undershoot, or oscillation for step changes in the command input.
+
+#----------------------------------------------------------
+Hardware (non-simulation) implementations
+
+The halfile LIB:basic_sim.tcl is for simulation configurations and should be replaced with an appropriate halfile for real hardware.
+
+Use [HAL]HALFILE=hpid.hal as-is to make most of the required connections.  This file defines signals that need additional connections which should be made in a separate HALFILE similar in purpose to the sim_torch.hal file.
+
+  1) The signal E:arc-ok must be connected to a pin indicating satisfactory arc status.
+
+  2) The signal E:feedback must be connected to a pin representing measured torch voltage.
+
+  3) The signal E:minimum-vel should be set (sets -- setsignal) to the required minimum velocity for corner lockout.
+
+  4) The signal E:perturb is available for connection to a perturbation signal (as with the sim configuration)
+
+  5) The signal E:is-off (inversion of halui.machine.is-on) is available for conection elsewhere if needed.
+
+#----------------------------------------------------------
+The HALFILES hpid_panel.hal is not required but may be used to enable a perturbation signal generator or as a starting point for a custom pyvcp panel.
+
+#----------------------------------------------------------
+The HALFILE sim_torch.hal should be replaced with a halfile that handles all hardware-specific torch controller logic and makes these connections:
+
+   net  E:arc-ok      <= indicator_of_arc_status
+   net  E:feedback    <= measure_of_torch-voltage
+   sets E:minimum-vel    value_in_units_per_second
+
+The ngc subroutine files hpid_touchoff.ngc and hpid_sub.ngc should be adapted as-required for hardware-specific usage.
+
+#----------------------------------------------------------
+Alternate PID calculation
+
+The defalt PID calc (zo.fnum=0) uses a simple difference for calculation of the error derivative and will exaggerate noise on  the input feedback.   The noise can be reduced by low pass filtering of the measurement but (see above) too much filtering will destabilize the voltage control servo loop.
+
+An alternative PID calc (zo.fnum=1) computes the error derivative using a backwards difference and limits the gain at high frequencies.  To use this alternative PID calc:
+
+  1) use zo.fnum=1
+  2) instead of zo.dgain, use zo.kpt for tuning
+  3) use zo.nfilt (values typically between 5 and 20)
+
+Example using sim_pin from the commandline:
+$ sim_pin zo.fnum zo.kptd zo.nfilt &
+
+or in the ini file:
+[APPLICATIONS]
+APP = sim_pin zo.fnum zo.kptd zo.nfilt

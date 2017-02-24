@@ -991,6 +991,16 @@ The <letter> specifies one of: X Y Z A B C U V W
     Example: loadrt motmod ... unlock_joints_mask=0x38
     creates  unlock  pins for joints 3,4,5
 
+* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of
+   hal input pins for external axis offsets:
+
+   'axis.<letter>.eoffset-enable'
+   'axis.<letter>.eoffset-counts'
+   'axis.<letter>.eoffset-scale'
+
+See the chapter: <<cha:external-offsets, 'External Axis Offsets'>> for
+usage information.
+
 [[sec:joint-section]](((INI File, JOINT Section)))
 
 === [JOINT_<num>] Section

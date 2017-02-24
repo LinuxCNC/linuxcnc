@@ -46,7 +46,8 @@ When FALSE (the default), the jogwheel operates in position mode. The axis will 
 
 .TP
 \fBaxis.\fIL\fB.pos-cmd\fR OUT FLOAT
-The axis commanded position. There may be several offsets between the axis and motor coordinates: backlash compensation, screw error compensation, and home offsets.
+The axis commanded position. There may be several offsets between the axis and motor coordinates: backlash compensation, screw error compensation, and home offsets.  External offsets are
+reported separately (axis.\fBL\fR.eoffset).
 
 .TP
 \fBaxis.\fIL\fB.kb-jog-active\fR OUT BIT
@@ -69,6 +70,38 @@ The axis's commanded velocity
 
 .TP
 \fBaxis.\fIL\fB.wheel-jog-active\fR OUT BIT
+
+.TP
+\fBaxis.\fIL\fB.eoffset-enable\fR IN BIT
+Enable for external offset (also requires ini file
+setting for [AXIS_L]OFFSET_AV_RATIO)
+
+.TP
+\fBaxis.\fIL\fB.eoffset-clear\fR IN BIT
+Clear external offset request
+
+.TP
+\fBaxis.\fIL\fB.eoffset-counts\fR IN s32
+Counts input for external offset.
+The eoffset-counts are transferred to an internal
+register.  The applied external offset is the
+product of the register counts and the eoffset-scale
+value.  The register is \fBreset to zero at each machine
+startup\fR.  If the machine is turned off with an external
+offset active, the eoffset-counts pin should be set
+to zero before restarting.
+
+.TP
+\fBaxis.\fIL\fB.eoffset-scale\fR IN FLOAT
+Scale for external offset.
+
+.TP
+\fBaxis.\fIL\fB.eoffset\fR OUT FLOAT
+Current external offset.
+
+.TP
+\fBaxis.\fIL\fB.eoffset-request\fR OUT FLOAT
+Debug pin for requested external offset.
 
 .SH JOINT PINS
 (\fBN\fR is the joint number (\fB0\fR ... \fBnum_joints-1\fR))
@@ -140,6 +173,8 @@ Should be driven TRUE if the positive limit switch for this joint is tripped.
 .TP
 \fBjoint.\fIN\fB.unlock\fR OUT BIT
 TRUE if the axis is a locked rotary and a move is commanded.
+
+.SH  OTHER PINS
 
 .TP
 \fBmotion.adaptive-feed\fR IN FLOAT 
@@ -327,6 +362,15 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 .TQ
 \fBmotion.tooloffset.w\fR OUT FLOAT
 Current tool offset in all 9 axes.
+
+.TQ
+\fBmotion.eoffset-active\fR OUT BIT
+Indicates external offsets are active (non-zero)
+
+.TQ
+\fBmotion.eoffset-limited\fR OUT BIT
+Indicates motion with external offsets was limited by
+a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
 
 .SH UNLOCK PINS
 The pins for unlocking a joint are enabled with

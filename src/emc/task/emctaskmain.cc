@@ -60,7 +60,6 @@
 #include <locale.h>
 #include "usrmotintf.h"
 
-
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
 #include <fpu_control.h>
@@ -83,6 +82,8 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "taskclass.hh"
 #include "motion.h"             // EMCMOT_ORIENT_*
 #include "inihal.hh"
+
+static int stop_if_eoffsets_at_synch = 0;
 
 static emcmot_config_t emcmotConfig;
 
@@ -550,6 +551,8 @@ interpret_again:
 				emcTaskPlanSetWait();
 				// and resynch interp WM
 				emcTaskQueueCommand(&taskPlanSynchCmd);
+
+                                stop_if_eoffsets_at_synch = 1;
 			    } else if (execRetval != 0) {
 				// end of file
 				emcStatus->task.interpState =
@@ -969,8 +972,14 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
 
-		// otherwise we can't handle it
+	    case EMC_TASK_PLAN_RUN_TYPE:
+                if (GET_EXTERNAL_OFFSET_APPLIED()) {
+                    // err here, fewer err reports
+		    retval = -1;
+		}
+		break;
 
+		// otherwise we can't handle it
 	    default:
 		emcOperatorError(0, _("can't do that (%s:%d) in manual mode"),
 				 emc_symbol_lookup(type),(int) type);
@@ -1381,6 +1390,13 @@ static int emcTaskPlan(void)
 		break;
 
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
+                // mdi with pre-existing external offset:
+                // too many issues (loops, sub calls, queue busters)
+                // just deny
+                if (GET_EXTERNAL_OFFSET_APPLIED()) {
+                    emcOperatorError(0,"Cannot start MDI with External Offsets");
+                    break;
+                }
                 // If there are no queued MDI commands, no commands in
                 // interp_list, and waitFlag isn't set, then this new
                 // incoming MDI command can just be issued directly.
@@ -2108,6 +2124,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// now queue up command to resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 	    }
+#if 0
+            if  (   GET_EXTERNAL_OFFSET_APPLIED()
+                 && (   (mode_msg->mode == EMC_TASK_MODE_AUTO)
+                     || (mode_msg->mode == EMC_TASK_MODE_MDI) ) ) {
+                 fprintf(stderr,"Starting with EXTERNAL OFFSETS applied\n");
+            }
+#endif
+
 	    retval = emcTaskSetMode(mode_msg->mode);
 	}
 	break;
@@ -2526,8 +2550,16 @@ static int emcTaskExecute(void)
 	stepping = 0;
 	steppingWait = 0;
 
-	// now queue up command to resynch interpreter
-	emcTaskQueueCommand(&taskPlanSynchCmd);
+        if (GET_EXTERNAL_OFFSET_APPLIED()) {
+            if (   stop_if_eoffsets_at_synch
+                || emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+                        emcOperatorError(0,"Stopping at synch() with External Offsets");
+            }
+        } else {
+	    // now queue up command to resynch interpreter
+            emcTaskQueueCommand(&taskPlanSynchCmd);
+        }
+        stop_if_eoffsets_at_synch = 0;
 
 	retval = -1;
 	break;

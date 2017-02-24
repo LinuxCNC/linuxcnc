@@ -575,6 +575,21 @@ int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 
+int GET_EXTERNAL_OFFSET_APPLIED() {return 0;}
+EmcPose GET_EXTERNAL_OFFSETS() {
+    EmcPose e;
+    e.tran.x = 0;
+    e.tran.y = 0;
+    e.tran.z = 0;
+    e.a      = 0;
+    e.b      = 0;
+    e.c      = 0;
+    e.u      = 0;
+    e.v      = 0;
+    e.w      = 0;
+    return e;
+};
+
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
     PyObject *result =
@@ -1032,5 +1047,4 @@ initgcode(void) {
     PyObject_SetAttrString(m, "MIN_ERROR",
             PyInt_FromLong(INTERP_MIN_ERROR));
 }
-
 // vim:ts=8:sts=4:sw=4:et:

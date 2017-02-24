@@ -278,6 +278,8 @@ include::motion/5-axis-kinematics.txt[]
 
 include::motion/pid-theory.txt[]
 
+include::motion/external-offsets.txt[]
+
 include::code/rs274.txt[]
 
 :leveloffset: 0

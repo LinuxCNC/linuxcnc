@@ -2943,6 +2943,14 @@ int GET_EXTERNAL_AXIS_MASK() {
     return emcStatus->motion.traj.axis_mask;
 }
 
+int GET_EXTERNAL_OFFSET_APPLIED(void) {
+    return emcGetExternalOffsetApplied();
+}
+
+EmcPose GET_EXTERNAL_OFFSETS() {
+    return emcGetExternalOffsets();
+}
+
 CANON_PLANE GET_EXTERNAL_PLANE()
 {
     return canon.activePlane;
