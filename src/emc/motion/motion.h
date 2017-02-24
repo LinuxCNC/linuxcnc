@@ -600,7 +600,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     
     typedef struct {
 	double pos_cmd;		/* commanded axis position */
-	double vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* comanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
 	double vel_limit;	/* upper limit of axis speed */
@@ -614,7 +614,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     } emcmot_axis_t;
 
     typedef struct {
-        double vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* comanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
     } emcmot_axis_status_t;
