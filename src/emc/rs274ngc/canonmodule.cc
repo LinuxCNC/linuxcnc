@@ -242,4 +242,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     // def("enqueue_ARC_FEED", &enqueue_ARC_FEED);
     // def("enqueue_M_USER_COMMAND ", &enqueue_M_USER_COMMAND);
     // def("enqueue_START_CHANGE", & enqueue_START_CHANGE);
+    def("GET_EXTERNAL_OFFSET_APPLIED",&GET_EXTERNAL_OFFSET_APPLIED);
+    def("GET_EXTERNAL_OFFSETS",&GET_EXTERNAL_OFFSETS);
+
 }

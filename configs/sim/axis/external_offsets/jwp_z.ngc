@@ -1,0 +1,35 @@
+#<xmax>  =  10
+#<ymax>  =   5
+#<zsafe> =   0.5
+#<feed>  = 100
+
+#<x1>    = [0.25 * #<xmax>]
+#<y1>    = [0.66 * #<ymax>]
+
+#<x2>    = [0.50 * #<xmax>]
+#<y2>    = [0.33 * #<ymax>]
+
+#<x3>    = [0.75 * #<xmax>]
+#<y3>    = [0.33 * #<ymax>]
+
+m111 ;clear notifications
+g61
+g0 x0 y0 z#<zsafe>
+(debug, Enter offsets only when paused, s to continue)
+m0
+m111
+
+f #<feed>
+g0                         z0
+g1 x #<x1>      y #<y1>
+g1 x #<x2>      y #<y2>
+g1 x #<x3>      y #<y3>
+g1 x #<xmax>    y #<ymax>
+
+g0 z#<zsafe>
+(debug, Program End: Clear offsets, s to continue)
+m0
+g0 x0 y0
+
+m111 ;clear notifications
+m2
