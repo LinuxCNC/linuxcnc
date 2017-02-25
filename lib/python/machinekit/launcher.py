@@ -29,7 +29,7 @@ def check_command(command):
 
 # checks the whole Machinekit installation
 def check_installation():
-    commands = ['realtime', 'configserver', 'halcmd', 'haltalk', 'webtalk']
+    commands = ['realtime', 'configserver', 'halcmd', 'haltalk']
     for command in commands:
         check_command(command)
 
