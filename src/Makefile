@@ -531,6 +531,7 @@ HEADERS := \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
     hal/lib/hal_accessor.h \
+    hal/lib/hal_accessor_macros.h \
     hal/lib/config_module.h \
     hal/lib/hal_group.h \
     hal/lib/hal.h \
