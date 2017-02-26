@@ -581,19 +581,19 @@ so that they can be connected to signals:
    motion.servo.last-period_ns (kernel-dependent availability)
 ----
 
-== Ongoing updates
+== Interface changes for joints_axes
 
-Commits to unreleased branches may make changes that affect testers
-and early-adopters of the unreleased software
+=== python linuxcnc module
 
-=== Hal pins
-
-
-Name changes:
+The jog() interface includes a 'joint-flag' to specify joint (True)
+or teleop (False) jogging:
 
 ----
-was: axis.L.vel-cmd
- is: axis.l.teleop-vel-cmd
+jog(command, joint-flag, axis-or-joint-number, velocity[, distance]])
+
+jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number)
+jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity)
+jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 ----
 
 == GUIs (updates for joints_axes)
@@ -953,5 +953,19 @@ connections.
 The sim config 'Sample Configurations/sim/axis/minimal_xyz.ini'
 demonstrates a working xyz configuration that uses LIB:basic_sim.tcl
 with a minimal number of ini file settings.
+
+== Ongoing updates to development branch
+
+Commits to unreleased branches may make changes that affect testers
+and early-adopters of the unreleased software.
+
+=== Hal pins
+
+Name changes:
+
+----
+was: axis.L.vel-cmd
+ is: axis.l.teleop-vel-cmd
+----
 
 // vim: set syntax=asciidoc:
