@@ -28,7 +28,7 @@ from PyQt4.QtGui import QFont, QFontMetrics, QColor
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerCustom
 except:
-    print '**** QTVCP ERROR: Gcode widget can not import QsciScintilla - is package python-scintilla2 installed?'
+    print '**** QTVCP ERROR: Gcode widget can not import QsciScintilla - is package python-qscintilla2 installed?'
     sys.exit(1)
 from qtvcp_widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
