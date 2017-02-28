@@ -38,9 +38,9 @@ size_t rtapi_print_freelist(struct rtapi_heap *h)
     rtapi_malloc_hdr_t *p, *prevp, *freep = heap_ptr(h,h->free_p);
     prevp = freep;
     for (p = heap_ptr(h,prevp->s.next); ; prevp = p, p = heap_ptr(h,p->s.next)) {
-	if (p->s.size) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "%d at %p", p->s.size * sizeof(rtapi_malloc_hdr_t),(void *)(p + 1));
-	    free += p->s.size;
+	if (p->s.tag.size) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%d at %p", p->s.tag.size * sizeof(rtapi_malloc_hdr_t),(void *)(p + 1));
+	    free += p->s.tag.size;
 	}
 	if (p == freep) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "end of free list %p",p);
