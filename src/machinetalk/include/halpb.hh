@@ -118,7 +118,7 @@ static inline int hal_pbpin2u(const machinetalk::Pin *p, hal_data_u *vp)
 	set_s32_value(vp, p->hals32());
 	break;
     case HAL_U32:
-	set_s32_value(vp, p->hals32());
+	set_u32_value(vp, p->halu32());
 	break;
     }
     return 0;
