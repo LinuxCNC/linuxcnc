@@ -73,6 +73,12 @@ extern char *logpath;
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
+void cleanup(char *uuid_ptr)
+{
+    if(uuid_ptr != NULL)
+        free(uuid_ptr);
+}
+
 int main(int argc, char **argv)
 {
     int c, fd;
@@ -85,6 +91,7 @@ int main(int argc, char **argv)
     char *cf=NULL, *cw=NULL, *cl=NULL;
     char *uri = NULL; // NULL - use service discovery
     char *service_uuid = NULL; // must have a global uuid
+    int strdupped_uuid = 0;
 
     inifile = getenv("MACHINEKIT_INI");
     /* use default if not specified by user */
@@ -176,7 +183,11 @@ int main(int argc, char **argv)
                     halcmd_startup(1, uri, service_uuid);
                     propose_completion(cl, cf, n);
                 }
-                if (comp_id >= 0) halcmd_shutdown();
+                if (comp_id >= 0){
+                    if(strdupped_uuid)
+                        cleanup(service_uuid);
+                    halcmd_shutdown();
+                }
                 exit(0);
                 break;
 #ifndef NO_INI
@@ -225,7 +236,10 @@ int main(int argc, char **argv)
     if (service_uuid == NULL) {
 	const char *s;
 	if ((s = iniFind(inifp, "MKUUID", "MACHINEKIT"))) {
-	    service_uuid = strdup(s);
+	    // this was not freed anywhere
+    	    service_uuid = strdup(s);
+    	    // set flag so we know to use cleanup()
+    	    strdupped_uuid = 1;
 	}
     }
     if (service_uuid == NULL) {
@@ -257,8 +271,11 @@ int main(int argc, char **argv)
         }
     }
 
-    if ( halcmd_startup(0, uri, service_uuid) != 0 ) return 1;
-
+    if ( halcmd_startup(0, uri, service_uuid) != 0 ){
+        if(strdupped_uuid)
+            cleanup(service_uuid);
+        return 1;
+    }
     {
 	char cmdline[200];
 	cmdline[0] = '\0';
@@ -326,6 +343,8 @@ int main(int argc, char **argv)
     if (!scriptmode && srcfile == stdin && isatty(0)) {
 	halcmd_save_history();
     }
+    if(strdupped_uuid)
+        cleanup(service_uuid);
     halcmd_shutdown();
     if ( errorcount > 0 ) {
 	return 1;
