@@ -2765,7 +2765,7 @@ double GET_EXTERNAL_FEED_RATE()
         // We're in G95 "Units per Revolution" mode, so
         // currentLinearFeedRate is the FPR and we should just return
         // it, unchanged.
-        feed = currentLinearFeedRate;
+        feed = uuPerRev_vel;
     } else {
         // We're in G94 "Units per Minute" mode so unhork
         // currentLinearFeedRate before returning it, by converting
