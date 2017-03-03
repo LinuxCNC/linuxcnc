@@ -12,8 +12,11 @@ enum ValueType {
     HAL_FLOAT = 2;
     HAL_S32   = 3;
     HAL_U32   = 4;
-    STRING    = 5;
-    BYTES     = 6;
+    HAL_S64   = 5;
+    HAL_U64   = 6;
+    // STRING and BYTES not currently used
+    STRING    = 7;
+    BYTES     = 8;
 
     INT32     = 20;
     UINT32    = 30;
