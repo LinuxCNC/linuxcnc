@@ -337,8 +337,7 @@ Many of them are used also from gmoccapy, see the
     load and result in a more sluggish display. Smaller values give a less
     accurate preview, but take less time to load and may result in a faster
     display. The default value of 64 means a circle of up to 3 inches will
-    be displayed to within 1 mil (.03%).footnote:[In LinuxCNC 2.4 and earlier,
-    the default value was 128.]
+    be displayed to within 1 mil (.03%).
 
 * 'MDI_HISTORY_FILE =' - The name of a local MDI history file. If this is not specified Axis
     will save the MDI history in *.axis_mdi_history* in the user's home
