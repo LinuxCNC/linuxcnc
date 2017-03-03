@@ -25,6 +25,9 @@
 
 struct CANON_TOOL_TABLE {
     int toolno;
+    // FIXME: we need to add the tool table's pocket number here if
+    // we want #<_current_pocket> and #<_selected_pocket> to have
+    // meaningful values
     EmcPose offset;
     double diameter;
     double frontangle;
