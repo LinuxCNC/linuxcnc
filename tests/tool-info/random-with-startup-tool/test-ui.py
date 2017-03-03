@@ -51,23 +51,23 @@ def verify_interp_vars(state, current_tool, current_pocket, selected_tool, selec
 
     expected = "current_tool=%.6f current_pocket=%.6f selected_tool=%.6f selected_pocket=%.6f" % (current_tool, current_pocket, selected_tool, selected_pocket)
 
-    result = e.poll()
-    if result == None:
-        print "nothing from polling error channel"
-        sys.exit(1)
-
-    (type, msg) = result
-    if type == linuxcnc.OPERATOR_DISPLAY:
-        if msg != expected:
-            print "state='%s', unexpected interp variables" % state
-            print "result:", msg
-            print "expected:", expected
+    while True:
+        result = e.poll()
+        if result == None:
+            print "nothing from polling error channel"
             sys.exit(1)
-    else:
-        print "state='%s', unexpected error type" % state
-        print "unknown type:", type
-        print "msg:", msg
-        sys.exit(1)
+
+        (type, msg) = result
+        if type == linuxcnc.OPERATOR_DISPLAY:
+            if msg == expected:
+		# success!
+		break
+	    print "state='%s', unexpected interp variables" % state
+	    print "result:", msg
+	    print "expected:", expected
+	    sys.exit(1)
+        else:
+            print "state='%s', ignoring unexpected error type %d: %s" % (state, type, msg)
 
     print "state='%s', got expected interp variables:" % state
     print "    current_tool=%.6f" % current_tool
