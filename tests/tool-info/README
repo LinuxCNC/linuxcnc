@@ -1,0 +1,10 @@
+This test runs LinuxCNC and verifies that all three sources of tool info
+are correct.  The three sources are:
+
+* the Status buffer
+
+* IO's HAL pins
+
+* Interp's system variables (like #<_current_pocket>)
+
+In 2.7.8 this test replicates Github Issue #239.
