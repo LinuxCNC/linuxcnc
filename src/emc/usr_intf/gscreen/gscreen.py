@@ -33,6 +33,7 @@ import gtk.glade
 import gobject
 import hal
 import sys,os,subprocess
+import errno
 from optparse import Option, OptionParser
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
@@ -571,6 +572,12 @@ class Gscreen:
         localtheme = os.path.join(CONFIGPATH,'%s_theme'%self.skinname)
         if os.path.exists(localtheme):
             self.data.local_theme = 'Link to %s_theme'% self.skinname
+            # make ~/.themes - quietly ignore the error if it exists
+            try:
+                os.makedirs(userthemedir)
+            except OSError as exception:
+                if exception.errno != errno.EEXIST:
+                    raise
             # create systemlink because one can't store themes in an arbitrary folder.
             if not os.path.exists(userthemedir+'/%s'%self.data.local_theme):
                 os.symlink(localtheme,userthemedir+'/%s'%self.data.local_theme)
