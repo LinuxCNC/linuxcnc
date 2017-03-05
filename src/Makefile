@@ -1031,6 +1031,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk/protobuf
 	$(DIR) $(DESTDIR)$(SITEPY)/fdm
+	$(DIR) $(DESTDIR)$(SITEPY)/fdm/config
 	$(DIR) $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(DIR) $(DESTDIR)$(SITEPY)/drivers
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
@@ -1047,6 +1048,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
 	$(FILE) ../lib/python/fdm/*.py $(DESTDIR)$(SITEPY)/fdm
+	$(FILE) ../lib/python/fdm/config/*.py $(DESTDIR)$(SITEPY)/fdm/config
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
 	$(EXE) ../bin/stepconf $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pncconf $(DESTDIR)$(bindir)
