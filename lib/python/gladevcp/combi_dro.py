@@ -25,7 +25,6 @@ import pango
 import math
 import linuxcnc
 from hal_glib import GStat
-from gmoccapy import getiniinfo
 
 # constants
 _INCH = 0
