@@ -14,6 +14,8 @@ usr/lib/python*/*/machinekit/*.so
 usr/lib/python*/*/machinetalk/protobuf/*.py
 usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
+usr/lib/python*/*/fdm/*.py
+usr/lib/python*/*/fdm/config/*.py
 usr/libexec/linuxcnc/pci_read
 usr/libexec/linuxcnc/pci_write
 usr/libexec/linuxcnc/inivar
