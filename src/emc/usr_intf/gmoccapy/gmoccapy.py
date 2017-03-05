@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.4"
+_RELEASE = " 2.2.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -610,17 +610,40 @@ class gmoccapy(object):
         self.axis_list = []
 
         coordinates = self.get_ini_info.get_coordinates().lower()
+        coordinates = coordinates.replace(' ','')
 
-        # if there are double letters in the config, we must 
-        # disable the corresponding home button and reorder the joints / axis relations
+        # if there are double letters in the config, we must disable the
+        # corresponding home button and reorder the joints / axis relations
         for axisletter in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
-            if coordinates.count(axisletter) > 1:
-                self.widgets["btn_home_%s" % axisletter].set_sensitive(False)
-
             if axisletter in coordinates:
                 if axisletter in self.axis_list:
                     continue
                 self.axis_list.append(axisletter)
+
+        if len(coordinates) != len(self.axis_list):
+            # there are more joints than axis, normaly this means we have
+            # a gantry machine, or a very special one
+            if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                print("identity kinematics with more joints than axis")
+            print("**************************************************")
+            print("Coordinates = ", coordinates, len(coordinates))
+            print("Axis List = ", self.axis_list, len(self.axis_list))
+            print("**************************************************")
+            gantry = False
+            for axisletter in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
+                if coordinates.count(axisletter) > 1:
+                    #self.widgets["btn_home_%s" % axisletter].set_sensitive(False)
+                    # OK we have a special case here, we need to take care off
+                    # i.e. a Gantry XYYZ config
+                    gantry = True
+            if gantry:
+                for axis in self.axis_list:
+                    if axis == self.axisletter_four:
+                        self.widgets.Combi_DRO_4.set_joint(coordinates.index(axis.lower()))
+                    elif axis == self.axisletter_five:
+                        self.widgets.Combi_DRO_5.set_joint(coordinates.index(axis.lower()))
+                    else:    
+                        self.widgets["Combi_DRO_%s"%axis].set_joint(coordinates.index(axis.lower()))
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -732,7 +755,6 @@ class gmoccapy(object):
             self.widgets.lbl_replace_set_value_5.hide()
             self.axisletter_five = self.axis_list[-1]
             self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
-#            self.widgets.Combi_DRO_5.set_property("joint_number", self.stat.joints -1 )
             self.widgets.Combi_DRO_5.set_property("joint_number", self.axisnumber_five)
             self.widgets.Combi_DRO_5.change_axisletter(self.axisletter_five.upper())
 
@@ -3033,7 +3055,7 @@ class gmoccapy(object):
         if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             # we can switch without any risk to joint mode and home the selected joint
             # but if the machine is a gantry, we need to do special check, as
-            # on XYYZ machine joint 3 is not Z
+            # on XYYZ machine joint 2 is not Z
             temp = self.get_ini_info.get_coordinates().lower()
             temp = temp.replace(' ','')
 

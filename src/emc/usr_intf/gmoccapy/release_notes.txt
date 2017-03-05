@@ -1,3 +1,11 @@
+ver 2.2.5
+- this repairs the parts I broke on glade applications and the former used
+  code in CombiDRO moved in a similar mode to gmoccapy. Now after the merge of
+  sequential homing branch it is easier to use a gantry config with gmoccapy.
+  There is still need to adapt the "on_btn_homing_selected" part of the GUI, as
+  now a XYZC config will not allow homing of C, as the joints are not ordered
+  correctly
+
 ver 2.2.4
 - introduced a check for double axis letters in [TRAJ]COORDINATES = X Y Y Z 
   to set the homing button of the double mentioned axis. This is to protect 
