@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.5"
+_RELEASE = " 2.2.5.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -608,42 +608,54 @@ class gmoccapy(object):
     def _get_axis_list(self):
         # begin with an empty axis list
         self.axis_list = []
+        self.joint_axis_dic = {}
 
         coordinates = self.get_ini_info.get_coordinates().lower()
         coordinates = coordinates.replace(' ','')
 
         # if there are double letters in the config, we must disable the
         # corresponding home button and reorder the joints / axis relations
-        for axisletter in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
+        for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
             if axisletter in coordinates:
                 if axisletter in self.axis_list:
                     continue
                 self.axis_list.append(axisletter)
+                self.joint_axis_dic[axisletter] = joint
+        print(self.joint_axis_dic)   
 
         if len(coordinates) != len(self.axis_list):
+            self.joint_axis_dic = {}
             # there are more joints than axis, normaly this means we have
             # a gantry machine, or a very special one
             if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
                 print("identity kinematics with more joints than axis")
-            print("**************************************************")
-            print("Coordinates = ", coordinates, len(coordinates))
-            print("Axis List = ", self.axis_list, len(self.axis_list))
-            print("**************************************************")
-            gantry = False
+                print("**************************************************")
+                print("Coordinates = ", coordinates, len(coordinates))
+                print("Axis List = ", self.axis_list, len(self.axis_list))
+                print("**************************************************")
+            self.gantry = False
             for axisletter in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
                 if coordinates.count(axisletter) > 1:
                     #self.widgets["btn_home_%s" % axisletter].set_sensitive(False)
                     # OK we have a special case here, we need to take care off
                     # i.e. a Gantry XYYZ config
-                    gantry = True
-            if gantry:
+                    self.gantry = True
+            if self.gantry:
                 for axis in self.axis_list:
                     if axis == self.axisletter_four:
                         self.widgets.Combi_DRO_4.set_joint(coordinates.index(axis.lower()))
+                        self.joint_axis_dic[axis] = coordinates.index(axis.lower())
                     elif axis == self.axisletter_five:
                         self.widgets.Combi_DRO_5.set_joint(coordinates.index(axis.lower()))
+                        self.joint_axis_dic[axis] =  coordinates.index(axis.lower())
                     else:    
                         self.widgets["Combi_DRO_%s"%axis].set_joint(coordinates.index(axis.lower()))
+                        self.joint_axis_dic[axis] =  coordinates.index(axis.lower())
+                print(self.joint_axis_dic)
+            else:
+                for joint, axisletter in enumerate(coordinates):
+                    self.joint_axis_dic[axisletter] = joint
+                print(self.joint_axis_dic)   
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -3056,19 +3068,16 @@ class gmoccapy(object):
             # we can switch without any risk to joint mode and home the selected joint
             # but if the machine is a gantry, we need to do special check, as
             # on XYYZ machine joint 2 is not Z
-            temp = self.get_ini_info.get_coordinates().lower()
-            temp = temp.replace(' ','')
-
             if widget == self.widgets.btn_home_x:
-                axis = temp.index("x")
+                axis = self.joint_axis_dic["x"]
             elif widget == self.widgets.btn_home_y:
-                axis = temp.index("y")
+                axis = self.joint_axis_dic["y"]
             elif widget == self.widgets.btn_home_z:
-                axis = temp.index("z")
+                axis = self.joint_axis_dic["z"]
             elif widget == self.widgets.btn_home_4:
-                axis = temp.index(self.axisletter_four)
+                axis = self.joint_axis_dic[self.axisletter_four]
             elif widget == self.widgets.btn_home_5:
-                axis = temp.index(self.axisletter_five)
+                axis = self.joint_axis_dic[self.axisletter_five]
         else:
             for button in range(0,8):
                 if widget == self.widgets["btn_home_j%s"%button]:

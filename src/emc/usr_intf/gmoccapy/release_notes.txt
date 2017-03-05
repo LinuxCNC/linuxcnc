@@ -1,3 +1,10 @@
+ver 2.2.5.1
+- added a new dictionary self.joint_axis_dic to maintain the relation between 
+  joints and axis. This was tested with gantry and non identical configs. There
+  might be configs out there witch won't work with gmoccapy.
+  I found that the only way to get gantry XYYZ and i.e. XYZCW config to work
+  with the homing button and the DRO settings
+
 ver 2.2.5
 - this repairs the parts I broke on glade applications and the former used
   code in CombiDRO moved in a similar mode to gmoccapy. Now after the merge of
