@@ -111,7 +111,10 @@ class _GStat(gobject.GObject):
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+<<<<<<< e4ae7e717ffcc587dc5c59b9e85a455450771434
         'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+=======
+>>>>>>> gladevcp/qtvcp -upgrade hal_glib and have qtvcp use it
         'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
@@ -167,6 +170,7 @@ class _GStat(gobject.GObject):
             self.merge()
         except:
             pass
+
         gobject.timeout_add(100, self.update)
         self._current_jog_rate = 15
         self._is_all_homed = False
@@ -181,7 +185,6 @@ class _GStat(gobject.GObject):
         if self.stat.call_level == 0:
             self.old['file']  = self.stat.file
         self.old['paused']= self.stat.paused
-        self.old['file']  = self.stat.file
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
@@ -303,11 +306,8 @@ class _GStat(gobject.GObject):
         if file_new != file_old:
             # if interpreter is reading or waiting, the new file
             # is a remap procedure, with the following test we
-            # partly avoid emitting a signal in that case, which would cause
-            # a reload of the preview and sourceview widgets.  A signal could
-            # still be emitted if aborting a program shortly after it ran an
-            # external file subroutine, but that is fixed by not updating the
-            # file name if call level != 0 in the merge() function above.
+            # do avoid that a signal is emited in that case, causing 
+            # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.emit('file-loaded', file_new)
 
@@ -324,11 +324,6 @@ class _GStat(gobject.GObject):
         tool_new = self.old['tool-in-spindle']
         if tool_new != tool_old:
             self.emit('tool-in-spindle-changed', tool_new)
-
-        motion_mode_old = old.get('motion-mode', None)
-        motion_mode_new = self.old['motion-mode']
-        if motion_mode_new != motion_mode_old:
-            self.emit('motion-mode-changed', motion_mode_new)
 
         # if the homed status has changed
         # check number of homed joints against number of available joints
@@ -485,7 +480,6 @@ class _GStat(gobject.GObject):
         self.emit('css-mode',css_new)
         rpm_new = self.old['rpm']
         self.emit('rpm-mode',rpm_new)
-
         # feed mode:
         itime_new = self.old['itime']
         self.emit('itime-mode',itime_new)
