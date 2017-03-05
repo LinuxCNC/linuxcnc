@@ -1,24 +1,24 @@
-T1 P1 D4.500000 Z-2.667780 ;4.5 mm 3 flute cutter                                 
-T2 P2 D25.000000 Z-17.295477 ;25 mm cutter                                   
-T3 P3 D7.500000 Z+1.229786 ;7.5 mm 3 flute cutter                                   
-T4 P4 D4.000000 Z-10.256000 ;4 mm Drill                                   
-T5 P5 D5.000000 Z-10.254000 ;5 mm Drill                                   
-T6 P6 D6.000000 Z-11.120000 ;6 mm Carbide burr                                   
-T7 P7 D6.500000 Z-14.589000 ;6.5 mm HSS burr                                   
-T8 P8 D12.000000 Z-14.458000 ;Cutter with 2 faces                                   
-T9 P9 D16.000000 Z-16.527474 ;Cutter with 3 faces                                   
-T10 P10 D165.000000 Z-12.112000 ;Facer with carbide inserts                                   
-T11 P11 D10.000000 Z-14.258000 ;Centering drill                                   
-T12 P12 D4.000000 Z+13.214000 ;3d taster elektronisch                                    
-T13 P13 D13.000000 Z-14.388000 ;3-Schneider Schaftfräser                                    
-T14 P14 D10.000000 Z-12.256000 ;3 Schneiden Stufenbohrer 5.5 auf 10                                    
-T15 P15 D10.000000 Z-14.888000 ;Bohrer TiN beschichtet                                   
-T16 P16 D12.500000 Z-14.583000 ;Stufenbohrer 6.8 auf 12.5 - 3 Schneiden                                    
-T17 P17 D6.500000 Z-14.254000 ;Stufenbohrer 4.2 auf 6.5 mit 45 Grad Übergang                                    
-T18 P18 D4.000000 Z-16.595000 ;Schaftfräser 4 Schneider                                    
-T19 P19 D11.000000 Z-15.235000 ;Bohrer                                    
-T20 P20 D50.100000 Z-16.235000 ;Messerkopf 4 Platten                                    
-T21 P21 D7.800000 Z-14.587000 ;Bohrer poliert                                    
-T22 P22 D16.150000 Z-18.253000 ;Messerkopf Zweischneider                                    
-T23 P23 D3.300000 Z-14.254000 ;Bohrer poliert                                    
-T24 P24 D12.020000 Z-14.256000 ;Fräser nachgeschliffen, nicht beschichtet                               
+T1 P1 D4.500000 Z-2.667780 ;4.5 mm 3 flute cutter
+T2 P2 D25.000000 Z-17.295477 ;25 mm cutter
+T3 P3 D7.500000 Z+1.229786 ;7.5 mm 3 flute cutter
+T4 P4 D4.000000 Z-10.256000 ;4 mm Drill
+T5 P5 D5.000000 Z-10.254000 ;5 mm Drill
+T6 P6 D6.000000 Z-11.120000 ;6 mm Carbide burr
+T7 P7 D6.500000 Z-14.589000 ;6.5 mm HSS burr
+T8 P8 D12.000000 Z-14.458000 ;Cutter with 2 faces
+T9 P9 D16.000000 Z-16.527474 ;Cutter with 3 faces
+T10 P10 D165.000000 Z-12.112000 ;Facer with carbide inserts
+T11 P11 D10.000000 Z-14.258000 ;Centering drill
+T12 P12 D4.000000 Z+13.214000 ;3d taster elektronisch
+T13 P13 D13.000000 Z-14.388000 ;3-Schneider Schaftfräser
+T14 P14 D10.000000 Z-12.256000 ;3 Schneiden Stufenbohrer 5.5 auf 10
+T15 P15 D10.000000 Z-14.888000 ;Bohrer TiN beschichtet
+T16 P16 D12.500000 Z-14.583000 ;Stufenbohrer 6.8 auf 12.5 - 3 Schneiden
+T17 P17 D6.500000 Z-14.254000 ;Stufenbohrer 4.2 auf 6.5 mit 45 Grad Übergang
+T18 P18 D4.000000 Z-16.595000 ;Schaftfräser 4 Schneider
+T19 P19 D11.000000 Z-15.235000 ;Bohrer
+T20 P20 D50.100000 Z-16.235000 ;Messerkopf 4 Platten
+T21 P21 D7.800000 Z-14.587000 ;Bohrer poliert
+T22 P22 D16.150000 Z-18.253000 ;Messerkopf Zweischneider
+T23 P23 D3.300000 Z-14.254000 ;Bohrer poliert
+T24 P24 D12.020000 Z-14.256000 ;Fräser nachgeschliffen, nicht beschichtet
