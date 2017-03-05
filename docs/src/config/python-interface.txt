@@ -606,12 +606,12 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `home(int)`::
 	home a given joint.
 
-`jog(command-constant, int, bool[, float[, float]])`::
+`jog(command-constant, bool, int[, float[, float]])`::
 	Syntax: +
-	jog(command, axis-or-joint-number, joint-flag[, velocity[, distance]]) +
-	jog(linuxcnc.JOG_STOP, axis-or-joint-number, joint-flag) +
-	jog(linuxcnc.JOG_CONTINUOUS, axis-or-joint-number, joint-flag, velocity) +
-	jog(linuxcnc.JOG_INCREMENT, axis-or-joint-number, joint-flag, velocity, distance)
+	jog(command, joint-flag, axis-or-joint-number, velocity[, distance]]) +
+	jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number) +
+	jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity) +
+	jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 	Command Constants;;
 	JOG_STOP +
 	JOG_CONTINUOUS +

@@ -562,7 +562,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int axis_mask)
         if(!(axis_mask & (1 << axis_num))) continue;
         axis = &(emcmotStatus.axis_status[axis_num]);
 
-        stat[axis_num].velocity = axis->vel_cmd;
+        stat[axis_num].velocity = axis->teleop_vel_cmd;
         stat[axis_num].minPositionLimit = axis->min_pos_limit;
         stat[axis_num].maxPositionLimit = axis->max_pos_limit;
     }

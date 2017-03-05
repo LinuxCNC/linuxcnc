@@ -213,7 +213,12 @@ if version == "$Revision$" or version < "1.0":
     newini.write("[TRAJ]\n")
     if section != None:
         if not re.search("MAX_LINEAR_VELOCITY", section):
-            section = re.sub("MAX_VELOCITY", "MAX_LINEAR_VELOCITY", section)
+            if re.search("MAX_VELOCITY", section):
+                section = re.sub("MAX_VELOCITY", "MAX_LINEAR_VELOCITY", section)
+            else:
+                mv = re.findall("MAX_VELOCITY[\s=]+(\d*(\.\d+)?)", inistring, re.MULTILINE)
+                section = ("\n# this value based on fastest single axis" +
+                          "\nMAX_LINEAR_VELOCITY = %s" % max(mv)[0] + section)
         if not re.search("DEFAULT_LINEAR_VELOCITY", section):
             section = re.sub("DEFAULT_VELOCITY", "DEFAULT_LINEAR_VELOCITY", section)
         if not re.search("MAX_LINEAR_ACCELERATION", section):
@@ -405,7 +410,7 @@ if version == "$Revision$" or version < "1.0":
 
     # converts @axN@ pattern to axis.L and splits any malformed setp from mpg
     subs2 = {
-    '^\s*setp\s+(\S+)\s+(\S+)\s+(\S+)\s*$':
+    '^\s*setp\s+(joint\S+)\s+(axis\S+)\s+(\S+)\s*$':
                                  'setp \\1 \\3\nsetp \\2 \\3\n',
     '@ax0@':                     'axis.%s' % coordinates[0].lower(),
     '@ax1@':                     'axis.%s' % coordinates[1].lower(),

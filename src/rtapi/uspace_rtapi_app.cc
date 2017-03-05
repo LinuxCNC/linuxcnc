@@ -1213,7 +1213,10 @@ int rtapi_spawn_as_root(pid_t *pid, const char *path,
     WITH_ROOT;
     setreuid(euid, euid);
     priv_info("before posix_spawn");
-    return posix_spawn(pid, path, file_actions, attrp, argv, envp);
+    int r = posix_spawn(pid, path, file_actions, attrp, argv, envp);
+    setresuid(ruid, ruid, (pid_t)-1);
+    priv_info("after posix_spawnp");
+    return r;
 }
 
 int rtapi_spawnp_as_root(pid_t *pid, const char *path,
@@ -1224,7 +1227,10 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
     WITH_ROOT;
     setreuid(euid, euid);
     priv_info("before posix_spawnp");
-    return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
+    int r = posix_spawnp(pid, path, file_actions, attrp, argv, envp);
+    setresuid(ruid, ruid, (pid_t)-1);
+    priv_info("after posix_spawnp");
+    return r;
 }
 
 int rtapi_do_as_root(int (*fn)(void *), void *arg) {

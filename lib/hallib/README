@@ -29,6 +29,7 @@ core_stepper.hal           xyz stepper config
 gantrysim.hal              gantrykins config, 4 joints: X Y Y Z
 lathe.hal                  simulate spindle with encoder,sim_encoder
 locking_indexer.hal        simulate locking rotary using timedelay comp
+wheeljogpins.tcl           enable wheel jog pins for joints & axes
 moveoff_external.hal       Simulate external control connections for
                              a moveoff component
 servo_sim.hal              simulate servo (pid) xyz using lowpass comp

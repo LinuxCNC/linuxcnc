@@ -55,6 +55,7 @@ DOC_SRCS_EN := \
 	config/stepper-quickstart.txt \
 	drivers/ax5214h.txt \
 	drivers/vfs11.txt \
+	drivers/mitsub_vfd.txt \
 	drivers/gm.txt \
 	drivers/gs2.txt \
 	drivers/hostmot2.txt \

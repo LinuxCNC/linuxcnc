@@ -34,6 +34,8 @@ proc usage {} {
          The bit pushbutton mode can be specifed on the command
          line by formatting the item name:
              namei/mode=\[toggle | pulse | hold\]
+         If the bit item mode begins with an uppercase letter,
+         the radio buttons for selecting other modes are not shown
 "
   exit 1
 } ;# usage
@@ -42,8 +44,14 @@ proc add_item_to_gui {id itemname} {
   set l [split $itemname /]
   set itemname [lindex $l 0]
   set itemargs [lindex $l 1]
+  set ::SP($id,onemode) 0
   if { [string first "mode=" "$itemargs"] == 0} {
-    set ::SP($id,mode) [string tolower [lindex [split $itemargs =] 1]]
+    set themode [lindex [split $itemargs =] 1]
+    set firstchar [string range "$themode" 0 0]
+    if {[string first "$firstchar" "PTH"] >= 0} {
+      set ::SP($id,onemode) 1
+    }
+    set ::SP($id,mode) [string tolower $themode]
   } else {
     set ::SP($id,mode) "default"
   }
@@ -85,7 +93,7 @@ proc add_item_to_gui {id itemname} {
 } ;# add_item_to_gui
 
 proc add_bit_item_to_gui {f id} {
-  switch $::SP($id,mode) {
+  switch -nocase $::SP($id,mode) {
     pulse   -
     hold    -
     toggle  {}
@@ -114,25 +122,27 @@ proc add_bit_item_to_gui {f id} {
        -fill x -expand 1
   set ::SP($id,label) $f.l
 
-  pack [radiobutton $f.p -text OnePulse \
-       -anchor w \
-       -value "pulse" \
-       -command [list bit_mode $id] \
-       -variable ::SP($id,mode)] \
-       -fill x -expand 0
-  pack [radiobutton $f.t -text ToggleValue \
-       -anchor w \
-       -value "toggle" \
-       -command [list bit_mode $id] \
-       -variable ::SP($id,mode)] \
-       -fill x -expand 0
-  pack [radiobutton $f.h -text "1 WhilePressed" \
-       -anchor w \
-       -value "hold" \
-       -command [list bit_mode $id] \
-       -variable ::SP($id,mode)] \
-       -fill x -expand 0
-   pack $f -side top -fill x -expand 0
+  if {!$::SP($id,onemode)} {
+    pack [radiobutton $f.p -text OnePulse \
+         -anchor w \
+         -value "pulse" \
+         -command [list bit_mode $id] \
+         -variable ::SP($id,mode)] \
+         -fill x -expand 0
+    pack [radiobutton $f.t -text ToggleValue \
+         -anchor w \
+         -value "toggle" \
+         -command [list bit_mode $id] \
+         -variable ::SP($id,mode)] \
+         -fill x -expand 0
+    pack [radiobutton $f.h -text "1 WhilePressed" \
+         -anchor w \
+         -value "hold" \
+         -command [list bit_mode $id] \
+         -variable ::SP($id,mode)] \
+         -fill x -expand 0
+  }
+  pack $f -side top -fill x -expand 0
 } ;# add_bit_item_to_gui
 
 proc add_number_item_to_gui {f id enable_plusminus} {
@@ -332,7 +342,7 @@ proc item_info {itemname id} {
 } ;# item_info
 
 proc bit_mode {id} {
-  switch $::SP($id,mode) {
+  switch -nocase $::SP($id,mode) {
     pulse   {$::SP($id,button) config -text Pulse}
     hold    {$::SP($id,button) config -text "1 while pressed"}
     toggle  -
@@ -386,7 +396,7 @@ proc item_show {id} {
 proc b_press {id} {
   set value [get_item $id]
   switch $::SP($id,itemtype) {
-    bit {switch $::SP($id,mode) {
+    bit {switch -nocase $::SP($id,mode) {
           "hold"   {item_set $id}
           "toggle" {   if $value {
                          item_unset $id
@@ -428,7 +438,7 @@ proc b_press {id} {
 } ;# b_press
 
 proc b_release {id} {
-  switch $::SP($id,mode) {
+  switch -nocase $::SP($id,mode) {
     "hold"   {item_unset $id}
     "toggle" {}
     "pulse"  {item_unset $id}
