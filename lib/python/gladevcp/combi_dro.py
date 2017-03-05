@@ -104,7 +104,6 @@ class Combi_DRO(gtk.VBox):
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
         self.gstat = GStat()
-        self.get_ini_info = getiniinfo.GetIniInfo()
 
         # set some default values'
         self._ORDER = ["Rel", "Abs", "DTG"]
@@ -258,20 +257,6 @@ class Combi_DRO(gtk.VBox):
                 if name == "joint_number":
                     self.joint_number = self.joint = value
                     self.change_axisletter(_AXISLETTERS[self.joint_number])
-                    # check if LinuxCNC release does support JOINTS, if so
-                    # we have to check for corerct JOINT to watch homing state
-                    temp = self.get_ini_info.get_joints_amount()
-                    if temp:
-                        # in case of double letters, the joint / axis relation is
-                        # not 1 : 1, take care to react to the correct joint
-                        # for homing state (i.e. gantry XYYZ style)
-                        self.joint = self.joint_number
-                        temp = self.get_ini_info.get_coordinates().lower()
-                        temp = temp.replace(' ','')
-                        try:
-                            self.joint = temp.index(self.lbl_axisletter.get_text().lower())
-                        except:
-                            self.joint = value
                 if name == "font_size":
                     self.font_size = value
                     self._set_labels()
@@ -525,15 +510,25 @@ class Combi_DRO(gtk.VBox):
     # i.e. to use an axis as R or D insteadt of X on a lathe
     def change_axisletter(self, letter):
         '''
-        changes the automaticaly given axisletter
-        very usefull to change an lathe DRO from X to R or D
+        changes the automatically given axis-letter
+        very useful to change an lathe DRO from X to R or D
 
-        Combi_DRO.change_axisletter(letter)
+        Combi_DRO.change_axis-letter(letter)
 
         letter = string
 
         '''
         self.lbl_axisletter.set_text(letter)
+
+    def set_joint(self, joint):
+        '''
+        changes the joint, not the joint number. This is handy for special
+        cases, like Gantry configs, i.e. XYYZ, where joint 0 = X, joint 1 = Y1
+        joint 2 = Y2 and joint 3 = Z, so the Z axis can be set to joint_number 2
+        giving the axis letter Z and joint 3 being in this case the corresponding
+        joint, joint 3 instead of 2
+        '''
+        self.joint = joint
 
     # returns the order of the DRO, mainly used to mantain them consistent
     # the order will also be transmitted with the clicked signal
