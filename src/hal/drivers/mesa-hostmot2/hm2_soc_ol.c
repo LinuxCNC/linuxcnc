@@ -528,7 +528,7 @@ static int instantiate(const int argc, const char**argv)
                 continue;
             }
             if(strncmp(brd->argv[x], "descriptor=", 11) == 0)
-                brd->config = halg_strdup(1, &brd->argv[x][11]);
+                brd->descriptor = halg_strdup(1, &brd->argv[x][11]);
         }
     }
     if(!brd->argc || brd->config == NULL){

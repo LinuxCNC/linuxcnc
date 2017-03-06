@@ -619,7 +619,7 @@ def prologue(f):
             print >>f, "    int local_%s;" % to_c(name)
 
     print >>f, "    int local_argc;"
-    print >>f, "    const char **local_argv;"
+    print >>f, "    char **local_argv;"
 
     ##local copy used in function and set to default value
     if have_numpins:
@@ -648,8 +648,8 @@ def prologue(f):
         names[name] = 1
 
     print >>f, "static int instantiate(const int argc, const char**argv);\n"
-    if options.get("extra_inst_cleanup"):
-        print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
+    # we always have a delete function now - to free local_argv
+    print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
     if options.get("extra_inst_setup") :
         print >>f, "static int extra_inst_setup(struct inst_data* ip, const char *name, int argc, const char**argv);\n"
     if options.get("extra_inst_cleanup"):
@@ -787,7 +787,7 @@ def prologue(f):
     for name, mptype, doc, value in instanceparams:
         if ((mptype == 'int') or (mptype == "u32")) and (name != "pincount"):
             print >>f, "    ip->local_%s = %s;" % (to_c(name), to_c(name))
-    print >>f, "\n    ip->local_argv = argv;"
+    print >>f, "\n    ip->local_argv = halg_dupargv(1, argc, argv);\n"
     print >>f, "    ip->local_argc = argc;\n"
 
     for name, fp in functions:
@@ -882,15 +882,8 @@ def prologue(f):
 ##############################  rtapi_app_main  ######################################################
 
     print >>f, "\nint rtapi_app_main(void)\n{"
-    print >>f, "// Debug print of params and values"
-
-    if options.get("extra_inst_cleanup"):
-        # or instance_string_clean:
-        print >>f, "    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, delete, compname);"
-    else :
-        print >>f, "    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, NULL, compname);"
-
-    print >>f, "    if (comp_id < 0)"
+    print >>f, "    comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate, delete, compname);\n"
+    print >>f, "    if (comp_id < 0)\n"
     print >>f, "        return -1;\n"
 
 ################  stub to allow 'base component to have function if req later ####
@@ -922,21 +915,22 @@ def prologue(f):
     print >>f, "}\n"
 
 #########################   delete()  ####################################################################
-    if options.get("extra_inst_cleanup"):
-        print >>f, "// custom destructor - normally not needed"
-        print >>f, "// pins, pin_ptrs, and functs are automatically deallocated regardless if a"
-        print >>f, "// destructor is used or not (see below)"
-        print >>f, "//"
-        print >>f, "// some objects like vtables, rings, threads are not owned by a component"
-        print >>f, "// interaction with such objects may require a custom destructor for"
-        print >>f, "// cleanup actions"
-        print >>f, "// NB: if a customer destructor is used, it is called"
-        print >>f, "// - after the instance's functs have been removed from their respective threads"
-        print >>f, "//   (so a thread funct call cannot interact with the destructor any more)"
-        print >>f, "// - any pins and params of this instance are still intact when the destructor is"
-        print >>f, "//   called, and they are automatically destroyed by the HAL library once the"
-        print >>f, "//   destructor returns\n"
-        print >>f, "static int delete(const char *name, void *inst, const int inst_size)\n{\n"
+    print >>f, "// Custom destructor - delete()"
+    print >>f, "// pins, pin_ptrs, and functs are automatically deallocated regardless if a"
+    print >>f, "// destructor is used or not (see below)"
+    print >>f, "//"
+    print >>f, "// Some objects like vtables, rings, threads are not owned by a component"
+    print >>f, "// interaction with such objects may require a custom destructor for"
+    print >>f, "// cleanup actions"
+    print >>f, "// Also allocated memory that hal_lib will know nothing about ie local_argv"
+    print >>f, "//"
+    print >>f, "// NB: if a customer destructor is used, it is called"
+    print >>f, "// - after the instance's functs have been removed from their respective threads"
+    print >>f, "//   (so a thread funct call cannot interact with the destructor any more)"
+    print >>f, "// - any pins and params of this instance are still intact when the destructor is"
+    print >>f, "//   called, and they are automatically destroyed by the HAL library once the"
+    print >>f, "//   destructor returns\n\n"
+    print >>f, "static int delete(const char *name, void *inst, const int inst_size)\n{\n"
 
 #################  how to print contents of params if required #####################################################
 #
@@ -953,11 +947,16 @@ def prologue(f):
 #            print >>f, strg
 #####################################################################################################################
 
-        if options.get("extra_inst_cleanup"):
-            print >>f, "    return extra_inst_cleanup(name, inst, inst_size);"
-        else:
-            print >>f, "    return 0;\n"
-        print >>f, "}\n"
+    if options.get("extra_inst_cleanup"):
+        print >>f, "    return extra_inst_cleanup(name, inst, inst_size);"
+    else:
+	print >>f, "    struct inst_data *ip = inst;\n"
+	print >>f, "    HALDBG(\"Entering delete() : inst=%s size=%d %p local_argv = %p\\n\", name, inst_size, inst, ip->local_argv);\n"
+	print >>f, "    HALDBG(\"Before free ip->local_argv[0] = %s\\n\", ip->local_argv[0]);\n"
+        print >>f, "   	halg_free_argv(1, ip->local_argv);\n"
+        print >>f, "    HALDBG(\"Now ip->local_argv[0] = %s\\n\", ip->local_argv[0]);\n"
+    print >>f, "    return 0;\n"
+    print >>f, "}\n"
 
 ######################  preliminary defines before user FUNCTION(_) ######################################
 
