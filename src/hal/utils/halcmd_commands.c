@@ -74,6 +74,7 @@ const char *logpath = "/var/log/linuxcnc.log";
 
 static int unloadrt_comp(const char *mod_name);
 static void print_comp_info(char **patterns);
+static void print_pin_exists(int type, char **patterns);
 static void print_inst_info(char **patterns);
 static void print_vtable_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
@@ -1046,6 +1047,9 @@ int do_show_cmd(char *type, char **patterns)
     } else if (strcmp(type, "pin") == 0) {
 	int type = get_type(&patterns);
 	print_pin_info(type, patterns);
+    } else if (strcmp(type, "pexists") == 0) {
+	int type = get_type(&patterns);
+	print_pin_exists(type, patterns);
     } else if (strcmp(type, "sig") == 0) {
 	int type = get_type(&patterns);
 	print_sig_info(type, patterns);
@@ -2189,6 +2193,47 @@ static void print_pin_info(int type, char **patterns)
     };
     halg_foreach(true, &args, print_pin_entry);
     halcmd_output("\n");
+}
+
+
+static int pin_match(hal_object_ptr o, foreach_args_t *args)
+{
+hal_pin_t *pin = o.pin;
+
+    if ( tmatch(args->user_arg1, pin->type) && match(args->user_ptr1, ho_name(pin)) ) {
+	args->user_arg2 = 999;
+	return 1; // stop iterating
+    }
+
+    return 0; // continue iterating
+}
+
+
+
+// This function is a temporary measure to keep the xhc-hb04 pendant working.
+// xhc-hb04.tcl uses commandline halcmd outputs against tests which are fixed
+// in expectation of a particular return. (ie from linuxcnc circa 2014)
+// Changes to halcmd print routines broke xhc-hb04.
+// This will tell the tcl code if a pin exists, removing the need for the
+// previous convoluted parsing of the stdout output.
+// 06032017 updated for halg_foreach() use
+
+static void print_pin_exists(int type, char **patterns)
+{
+
+    foreach_args_t args =  {
+	.type = HAL_PIN,
+	.user_arg1 = type,
+	.user_ptr1 = patterns,
+	.user_arg2 = 0
+    };
+
+    halg_foreach(true, &args, pin_match);
+    if(args.user_arg2 == 999)
+	halcmd_output("Exists\n");
+    else
+	halcmd_output("Imaginary\n");
+
 }
 
 static int linked_pin_callback(hal_pin_t *pin, hal_sig_t *sig, void *user)
