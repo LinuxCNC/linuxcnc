@@ -817,17 +817,19 @@ RTAPI_BEGIN_DECLS
   MODULE_PARM(var,"s");            \
   MODULE_PARM_DESC(var,descr);
 
-#define RTAPI_MP_ARRAY_INT(var,num,descr)          \
-  MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "i");  \
+#define RTAPI_MP_ARRAY(type, var, num, descr)      \
+  MODULE_PARM(var,type);                           \
+  MODULE_INFO2(int, size, var, num);               \
   MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_INT(var,num,descr)          \
+  RTAPI_MP_ARRAY("i", var, num, descr);
 
 #define RTAPI_MP_ARRAY_LONG(var,num,descr)         \
-  MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "l");  \
-  MODULE_PARM_DESC(var,descr);
+  RTAPI_MP_ARRAY("l", var, num, descr);
 
 #define RTAPI_MP_ARRAY_STRING(var,num,descr)       \
-  MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
-  MODULE_PARM_DESC(var,descr);
+  RTAPI_MP_ARRAY("s", var, num, descr);
 
 #else /* kernel */
 

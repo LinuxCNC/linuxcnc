@@ -170,29 +170,19 @@ static int do_comp_args(void *module, vector<string> args) {
                     s.c_str());
             return -1;
         }
-        string item_type_string = *item_type;
 
-        if(item_type_string.size() > 1) {
-            int a, b;
-            char item_type_char;
-            int r = sscanf(item_type_string.c_str(), "%d-%d%c",
-                    &a, &b, &item_type_char);
-            if(r != 3)
-                r = sscanf(item_type_string.c_str(), "%d-(%d)%c",
-                    &a, &b, &item_type_char);
-            if(r != 3) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unknown parameter `%s' (corrupt array type information '%s' r=%d)\n",
-                    s.c_str(), item_type_string.c_str(), r);
-                return -1;
-            }
+        int*max_size_ptr=DLSYM<int*>(module, "rtapi_info_size_" + param_name);
+
+        char item_type_char = **item_type;
+        if(max_size_ptr) {
+            int max_size = *max_size_ptr;
             size_t idx = 0;
             int i = 0;
             while(idx != string::npos) {
-                if(i == b) {
+                if(i == max_size) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                             "%s: can only take %d arguments\n",
-                            s.c_str(), b);
+                            s.c_str(), max_size);
                     return -1;
                 }
                 size_t idx1 = param_value.find(",", idx);
@@ -203,7 +193,6 @@ static int do_comp_args(void *module, vector<string> args) {
                 idx = idx1 == string::npos ? idx1 : idx1 + 1;
             }
         } else {
-            char item_type_char = item_type_string[0];
             int result = do_one_item(item_type_char, s, param_value, item);
             if(result != 0) return result;
         }
