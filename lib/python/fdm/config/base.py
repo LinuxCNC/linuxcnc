@@ -31,16 +31,16 @@ def usrcomp_status(compname, signame, thread, resetSignal='estop-reset'):
 def usrcomp_watchdog(comps, enableSignal, thread,
                      okSignal=None, errorSignal=None):
     count = len(comps)
-    watchdog = rt.newinst('watchdog', 'watchdog', pincount=count)
-    hal.addf('watchdog.set-timeouts', thread)
-    hal.addf('watchdog.process', thread)
+    watchdog = rt.newinst('watchdog', 'watchdog.usrcomp', pincount=count)
+    hal.addf('%s.set-timeouts' % watchdog.name, thread)
+    hal.addf('%s.process' % watchdog.name, thread)
     for n, comp in enumerate(comps):
         compname = comp[0]
         comptime = comp[1]
         sigIn = hal.newsig('%s-watchdog' % compname, hal.HAL_BIT)
         hal.Pin('%s.watchdog' % compname).link(sigIn)
-        watchdog.pin('input-%i' % n).link(sigIn)
-        watchdog.pin('timeout-%i' % n).set(comptime)
+        watchdog.pin('input-%02i' % n).link(sigIn)
+        watchdog.pin('timeout-%02i' % n).set(comptime)
     watchdog.pin('enable-in').link(enableSignal)
 
     if not okSignal:
