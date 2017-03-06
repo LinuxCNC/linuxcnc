@@ -4,80 +4,78 @@
 
 == Intro
 
-QTscreen is an infrastructure to display a custom screen or VCP panel in LinuxCNC.
-QTscreen can display a UI file built with the QT Designer screen editor or
-combine this with python programming to create a GUI screen for running a
-CNC machine.
+QTscreen is an infrastructure to display a custom screen or VCP panel in LinuxCNC. +
+It displays a UI file built with the QT Designer screen editor or combines this + 
+with python programming to create a GUI screen for running a CNC machine. +
+QTscreen is customizable - you can add different buttons and status LEDs etc. +
 
-QTscreen is customizable if you want different buttons and status LEDs.
-QTscreen is not restricted to adding a custompanel on the right or a custom 
-tab it is fully editable.
+.QT_cnc - 3 Axis Sample 
+image::images/qt_cnc.png["QTscreen Mill",align="left"]
 
-.QTscreen Mill Base Screen
-image::images/QTscreen-mill.png["QTscreen Mill",align="center"]
+== Overview
 
+There are two files that can be used, individually or in combination to add +
+customizations. Local UI files and handler files. Normally QTscreen uses +
+the stock UI and handler file. +
+You can specify QTscreen to use 'local' UI and handler files. +
+One is not restricted to adding a custom panel on the right or a custom tab. +
+QTscreen leverages 'QT Designer' (the editor) and 'PyQT4' (the widget toolkit). +
+QTvcp has some special widgets and actions added just for LinuxCNC. +
 
+=== QTDesigner UI File
 
-QTscreen is based on 'QT Designer' (the editor) and 'PyQT4' (the widget toolkit).
-GladeVCP has some special widgets and actions added just for LinuxCNC.
-A widget is just the generic name used for the buttons, sliders, labels etc of the Pyqt4 toolkit.
+A designer file is a text file organized in the XML standard that describes the +
+layout and the widgets of the screen. Pyqt4 uses this file to build the display +
+and react to those widgets. The QTDesigner editor makes it relatively easy to build +
+and edit this file. +
 
-=== Designer File
+=== Local designer Files
 
-A designer file is a text file organized in the XML standard that describes the
-layout and the widgets of the screen. Pyqt4 uses this file to actually display
-and react to those widgets. The QTDesigner editor makes it relatively easy to build
-and edit this file.
-
-=== Overview
-
-There are two files that can be used, individually or in combination to add
-customizations. Local glade files and handler files. Normally QTscreen uses
-the stock UI file and a handler file.
-You can specify QTscreen to use 'local' Glade and handler files. QTscreen looks
-in the folder that holds all the configuration files for the configuration you
-selected.
-
-.Local designer Files
-
-If present, local glade files in the configuration folder will be loaded instead
-of the stock Glade files. Local Glade files allow you to use your customized
-designs rather then the default screens.
-QTscreen will look for MYNAME.ui and MYNAME_handler.py in the config folder.
+If present, local UI files in the configuration folder will be loaded instead +
+of the stock UI files. Local UI files allow you to use your customized +
+designs rather then the default screens. +
+QTscreen will look for MYNAME.ui and MYNAME_handler.py in the config folder. +
 
 
-.Modifying Stock Skins
-later
+=== Modifying Stock Screens
+If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
 
-.Handler Files
+=== Handler Files
 
-A handler file is a file containing python code, which QTscreen adds to it's
-default routines. A handler file allows one to modify defaults, or add logic
-to a QTscreen skin without having to modify QTscreen proper. 
-If present a handler file will be loaded.
-only one file is allowed. QTscreen looks for the handler file.
-In this way you can have custom
-behavior.
+A handler file is a file containing python code, which QTscreen adds to it's +
+default routines. A handler file allows one to modify defaults, or add logic +
+to a QTscreen skin without having to modify QTscreen proper.  +
+If present a handler file will be loaded. +
+Only one file is allowed. QTscreen looks for the handler file. +
+In this way you can have custom behavior.
 
-.Themes
+=== Libraries
 
-Themes are a way to modify the look and feel of the widgets on the screen.
-For instance the color or size of buttons and sliders can be changed using
-themes.
+Qtscreen as built does little more then display the screen and react to widgets. +
+For more prebuilt behaviours there are available libraries. +
+(found in lib/python/qtscreen in RIP linuxcnc install) +
 
-=== Build a Qtscreen Panel
+aux_program_loader +
+keybindings +
+message +
+preferences +
+notify +
 
-QTscreen is just a big complicated GladeVCP panel, with python code to control
-it. To customize it we need the Glade file loaded in the Glade editor.
+=== Themes
 
+Themes are a way to modify the look and feel of the widgets on the screen. +
+For instance the color or size of buttons and sliders can be changed using 
+themes. +
+The Windows theme is default for screens. System theme is default for panels. +
+to see available themes load qtscreen with -d -t SHOWTHEMES +
 
+=== INI Settings
 
-== INI Settings
-
+If you are using this to make a CNC control screen: +
 Under the [DISPLAY] heading:
 
 ----
-DISPLAY = qtscreen -c tester
+DISPLAY = qtscreen <screen_name>
   options:
     -d debugging on
     -a set window always on top
@@ -86,11 +84,93 @@ DISPLAY = qtscreen -c tester
     -m maximise window
     -f fullscreen the window
     -t theme. Default is system theme
-
+    <screen_name> is the base name of the .ui and _handler.py files.
+    If <screen_name> is missing the default screen will be loaded.
 ----
-QTscreen assumes the Glade file and
-the handler file use this same name. The optional second screen will be the
-same name with a 2 (eg. tester2.glade) There is no second handler file allowed.
-It will only be loaded if it is present. QTscreen will search the LinuxCNC
-configuration file that was launched first for the files, then in the systen
-skin folder.
+QTscreen assumes the UI file and the handler file use this same base name. +
+QTscreen will search the LinuxCNC configuration file that was launched first for the files,  +
+then in the systen skin folder. the skin folder holds standard screens. +
+
+=== Build a Qtscreen Panel
+
+To build a panel or scrreen use QTDesigner to build a design you like. +
+Save this UI file to your configuration folder with a name of your choice, ending with .ui +
+
+== QTvcp Widgets
+
+Qtscreen uses QTvcp widgets for linuxcnc intergration.
+
+=== Widget Overview
+
+Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
+You are free to use any available widgets in the QTDesigner editor. +
+There are also special widgets made for linuxcnc that make intergration easier. +
+This are split in two heading on the right side of the editor. +
+One is for HAL only widgets. +
+The other is for cnc control widgets. +
+you are free to mix them in any way on your panel. +
+
+=== DRO Widget
+
+todo +
+It is based on pyQT4's QLabel
+
+=== State Enable Widgets
+
+This is a container that other widgets can be placed in. +
+It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
+It can selectably react to machine on, interpeter idle, estop off, all-homed +
+It is based on pyQT4's QGridLayout +
+
+=== MDI line Widget
+
+More todo +
+There are Embedded commands available from this Widget. +
+Type, in all captitals, any of these commands to load the respective program: +
+HALMETER +
+HALSHOW +
+HALSCOPE +
+STATUS +
+CALIBRATION +
+CLASSICLADDER +
+It is based on pyQT4's QLineEdit +
+
+=== Gcode Widget
+
+todo +
+It is based on pyQT4's QsciScintilla +
+
+=== Graphics Widget
+
+todo +
+It is based on pyQT4's QX11EmbedContainer and contains a pyGTK Gremlin Object. +
+
+=== LCD Number Widget
+
+todo +
+It is based on pyQT4's QLCDNumber
+
+=== Checkbox Widget
+
+todo +
+It is based on pyQT4's QCheckButton
+
+=== Radio Button Widget
+
+todo +
+It is based on pyQT4's QRadioButton
+
+=== Push Button Widget
+
+todo +
+It is based on pyQT4's QpushButton
+
+=== Slider Widget
+
+todo +
+It is based on pyQT4's QSlider
+
+=== Grid Layout Widget
+
+todo +
+It is based on pyQT4's QGridLayout
