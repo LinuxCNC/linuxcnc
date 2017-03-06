@@ -11,10 +11,10 @@ FUNCTION(_) {
     hal_@IN@_t in = in_;
 @CC@    if(clamp) {
 #if @MAX@ != 0
-@CC@	if(in > @MAX@) { out = @MAX@; out_of_range = 1; return; }
+@CC@	if(in > @MAX@) { out = @MAX@; out_of_range = 1; return 0; }
 #endif
 #if @MIN@ != -1
-@CC@	if(in < @MIN@) { out = @MIN@; out_of_range = 1; return; }
+@CC@	if(in < @MIN@) { out = @MIN@; out_of_range = 1; return 0; }
 #endif
 @CC@	out = in; out_of_range = 0;
 @CC@    } else {
