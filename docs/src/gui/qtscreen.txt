@@ -1,0 +1,96 @@
+[[cha:qtscreen]]
+
+= QTscreen
+
+== Intro
+
+QTscreen is an infrastructure to display a custom screen or VCP panel in LinuxCNC.
+QTscreen can display a UI file built with the QT Designer screen editor or
+combine this with python programming to create a GUI screen for running a
+CNC machine.
+
+QTscreen is customizable if you want different buttons and status LEDs.
+QTscreen is not restricted to adding a custompanel on the right or a custom 
+tab it is fully editable.
+
+.QTscreen Mill Base Screen
+image::images/QTscreen-mill.png["QTscreen Mill",align="center"]
+
+
+
+QTscreen is based on 'QT Designer' (the editor) and 'PyQT4' (the widget toolkit).
+GladeVCP has some special widgets and actions added just for LinuxCNC.
+A widget is just the generic name used for the buttons, sliders, labels etc of the Pyqt4 toolkit.
+
+=== Designer File
+
+A designer file is a text file organized in the XML standard that describes the
+layout and the widgets of the screen. Pyqt4 uses this file to actually display
+and react to those widgets. The QTDesigner editor makes it relatively easy to build
+and edit this file.
+
+=== Overview
+
+There are two files that can be used, individually or in combination to add
+customizations. Local glade files and handler files. Normally QTscreen uses
+the stock UI file and a handler file.
+You can specify QTscreen to use 'local' Glade and handler files. QTscreen looks
+in the folder that holds all the configuration files for the configuration you
+selected.
+
+.Local designer Files
+
+If present, local glade files in the configuration folder will be loaded instead
+of the stock Glade files. Local Glade files allow you to use your customized
+designs rather then the default screens.
+QTscreen will look for MYNAME.ui and MYNAME_handler.py in the config folder.
+
+
+.Modifying Stock Skins
+later
+
+.Handler Files
+
+A handler file is a file containing python code, which QTscreen adds to it's
+default routines. A handler file allows one to modify defaults, or add logic
+to a QTscreen skin without having to modify QTscreen proper. 
+If present a handler file will be loaded.
+only one file is allowed. QTscreen looks for the handler file.
+In this way you can have custom
+behavior.
+
+.Themes
+
+Themes are a way to modify the look and feel of the widgets on the screen.
+For instance the color or size of buttons and sliders can be changed using
+themes.
+
+=== Build a Qtscreen Panel
+
+QTscreen is just a big complicated GladeVCP panel, with python code to control
+it. To customize it we need the Glade file loaded in the Glade editor.
+
+
+
+== INI Settings
+
+Under the [DISPLAY] heading:
+
+----
+DISPLAY = qtscreen -c tester
+  options:
+    -d debugging on
+    -a set window always on top
+    -c HAL component name. Default is to use the UI file name.
+    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET
+    -m maximise window
+    -f fullscreen the window
+    -t theme. Default is system theme
+
+----
+QTscreen assumes the Glade file and
+the handler file use this same name. The optional second screen will be the
+same name with a 2 (eg. tester2.glade) There is no second handler file allowed.
+It will only be loaded if it is present. QTscreen will search the LinuxCNC
+configuration file that was launched first for the files, then in the systen
+skin folder.
