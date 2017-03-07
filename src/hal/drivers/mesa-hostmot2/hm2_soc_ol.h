@@ -42,8 +42,8 @@ typedef struct {
     int uio_fd;
     int firmware_given;
     const char *name;
-    const char *config;
-    const char *descriptor;
+    char *config;
+    char *descriptor;
     const char *uio_dev;
     // local copy of calling args
     int argc;

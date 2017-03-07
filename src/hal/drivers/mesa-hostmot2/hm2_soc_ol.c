@@ -595,6 +595,13 @@ static int delete(const char *name, void *inst, const int inst_size)
     hm2_soc_t *brd = (hm2_soc_t *)inst;
     char buf[MAXNAMELEN];
 
+    // explicitly free locally allocated strings in case realtime
+    // continues to run after shutdown of this driver
+    if(brd->config != NULL)
+	halg_free_single_str(brd->config);
+    if(brd->descriptor != NULL)
+	halg_free_single_str(brd->descriptor);
+
     hm2_unregister(&brd->llio);
     int r = hm2_soc_munmap(brd);
     rtapi_snprintf(buf, sizeof(buf), configfs_dir, name);

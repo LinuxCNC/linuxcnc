@@ -854,7 +854,10 @@ int halg_signal_propagate_barriers(const int use_hal_mutex,
 void report_memory_usage(void);
 
 char *halg_strdup(const int use_hal_mutex, const char *paramptr);
-int halg_free_str(char **s);  // will set s to NULL
+int halg_free_str(char **s);  // will set *s to NULL
+char **halg_dupargv(const bool use_hal_mutex, const int argc, const char **argv);
+int halg_free_argv(const bool use_hal_mutex, char **argv);
+int halg_free_single_str(char *s);
 
 // for rtapi_app shutdown
 int hal_exit_usercomps(char *name);
