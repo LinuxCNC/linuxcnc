@@ -207,6 +207,14 @@ int halg_free_str(char **s)
     return 0;
 }
 
+int halg_free_single_str(char *s)
+{
+    CHECK_NULL(s);
+    hal_data->str_freed += strlen(s) + 1;
+    rtapi_free(global_heap, s);
+    s = NULL;
+    return 0;
+}
 
 char **halg_dupargv(const bool use_hal_mutex,
 		    const int argc,

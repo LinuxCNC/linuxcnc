@@ -361,6 +361,7 @@ EXPORT_SYMBOL(halg_strdup);
 EXPORT_SYMBOL(halg_free_str);
 EXPORT_SYMBOL(halg_dupargv);
 EXPORT_SYMBOL(halg_free_argv);
+EXPORT_SYMBOL(halg_free_single_str);
 
 // hal_pin.c:
 // EXPORT_SYMBOL(halg_pin_new);
