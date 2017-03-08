@@ -176,10 +176,15 @@ proc name_is_usable_nodename {node} {
 } ;# name_is_usable_nodename {node}
 
 proc ok_to_copy_config {filename} {
-    # The following test determines when to copy files to a user directory:
-    # If the directory for the selected file is not writable,
-    # then it is presumed to be a system dir running from an install (by
-    # a deb install typically) so copy the configuration to user directory.
+    # The following tests determines when to copy files to a user directory:
+    # 1) If the directory for the selected file is not writable,
+    #    then it is presumed to be a system dir running from an install (by
+    #    a deb install typically) so copy the configuration to user directory.
+    #
+    # 2) if the directory is included in ::user_aux_dirs (as
+    #    specified by the environmental variable LINUXCNC_AUX_EXAMPLES),
+    #    then the config is copied to user directory to avoid overwriting
+    #    a developmental source directory.
     #
     # Otherwise, it is presumed to be a Run-In-Place directory and
     # copying to another directory is not wanted.
@@ -189,12 +194,20 @@ proc ok_to_copy_config {filename} {
     # This forces copying to the user directory so that the copied
     # configs can be tested.
 
+    set forcecopy 0
     if {    [info exists ::env(debug_pickconfig)] \
          && [string first $::myconfigs_node $filename]} {
       set forcecopy 1
-    } else {
-      set forcecopy 0
     }
+
+    if { [info exists ::user_aux_dirs] } {
+      foreach dir $::user_aux_dirs {
+        if {[file dirname $filename] == "$dir" } {
+          set forcecopy 1
+        }
+      }
+    }
+
     if {   ![file writable [file dirname $filename]]
         || $forcecopy
        } {
@@ -305,6 +318,36 @@ set ::myconfigs_node   $linuxcnc::USER_CONFIG_DIR
 # order convention for items in the linuxcnc::USER_CONFIG_DIR list:
 set ::sampleconfigs [lindex $::configs_dir_list end] ;# last item
 
+# check for auxiliary applications example configs installed in
+# known directory defined by: linuxcnc::LINUXCNC_AUX_ExAMPLES
+set aux_examples $linuxcnc::LINUXCNC_AUX_EXAMPLES
+set ::aux_dir_list {}
+if [file isdirectory $aux_examples] {
+    foreach auxdir [glob $aux_examples/*] {
+        puts stderr "pickconfig: installed aux examples: $auxdir"
+        lappend ::configs_dir_list $auxdir
+        lappend ::aux_dir_list     $auxdir
+    }
+}
+# user may specify auxiliary config directories using the environmental
+# variable LINUXCNC_AUX_CONFIGS (a colon (:) separated path)
+# This is useful for testing auxiliary apps without using a deb install
+if [info exists ::env(LINUXCNC_AUX_CONFIGS)] {
+    foreach auxdir [split $::env(LINUXCNC_AUX_CONFIGS) :] {
+        if {   [file isdirectory $auxdir] \
+            && [file readable $auxdir] } {
+            set normauxdir [file normalize $auxdir]
+            puts stderr "pickconfig: user aux examples: $normauxdir"
+            lappend ::configs_dir_list $normauxdir
+            lappend ::user_aux_dirs    $normauxdir ;# forcecopy
+        } else {
+            puts stderr "pickconfig: LINUXCNC_AUX_CONFIGS invalid directory:"
+            puts stderr "    $auxdir"
+            puts stderr "continuing"
+        }
+    }
+}
+
 set ::last_ini "none"
 set ::last_ini [initialize_config]
 
@@ -403,7 +446,11 @@ proc describe {dir} {
         set ::sampleconfigs_node $dir
 	return [msgcat::mc "Sample Configurations"]
     }
-    return $dir/
+    if {[lsearch $::aux_dir_list $dir] >= 0} {
+        return [file tail $dir]
+    } else {
+        return $dir
+    }
 }
 
 proc treeopen {args} {
@@ -574,7 +621,8 @@ proc prompt_copy configname {
         break
       }
       # if chosendir not found at level 0, try subdirs
-      if {0 != [string first "$d" $configname]} {
+      # note: expect $d ($::configs_dir_list) in normalized form
+      if {0 != [string first "$d/" $configname]} {
         continue
       } else {
         # found chosendir as a subdir
@@ -615,10 +663,9 @@ proc prompt_copy configname {
         file mkdir $ncfiles ;# tcl: ok if it exists
         set refname  $linuxcnc::NCFILES_DIR
         set linkname [file join $ncfiles examples]
-        if {[file exists $linkname]} {
-          # tcl wont overwrite any existing link, so remove
-          file delete $linkname
-        }
+
+        # tcl wont overwrite any existing link, so remove
+        catch {file delete $linkname}
         file link -symbolic $linkname $refname
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH

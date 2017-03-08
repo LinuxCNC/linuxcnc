@@ -37,6 +37,8 @@ namespace eval linuxcnc {
     unset _dir
     variable USER_CONFIG_DIR [lindex $CONFIG_DIR 0]
     variable _langinit 1
+    variable LINUXCNC_AUX_GLADEVCP @LINUXCNC_AUX_GLADEVCP@
+    variable LINUXCNC_AUX_EXAMPLES @LINUXCNC_AUX_EXAMPLES@
 }
 
 if {[string first $::linuxcnc::BIN_DIR: $env(PATH)] != 0} {
