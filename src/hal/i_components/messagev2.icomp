@@ -9,7 +9,7 @@
 *   Adapted and altered for instantiated component
 *   by ArcEye <arceye@mgwareDOTcoDOTuk> 2015
 *
-*   newinst message low_warn messages="Oil Low,Coolant Low,Lunch Is Ready"
+*   newinst message low_warn -- "Oil Low" "Coolant Low" "Lunch Is Ready"
 *   setp low_warn.message-num 0 (default message anyway)
 *   setp low_warn.message-num 1
 *   setp low_warn.message-num 2
