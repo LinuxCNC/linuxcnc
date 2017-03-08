@@ -27,6 +27,7 @@ DOC_SRCS_EN := \
 	code/style-guide.txt \
 	code/nml-messages.txt \
 	code/rs274.txt \
+	code/adding-configs.txt \
 	code/contributing-to-linuxcnc.txt \
 	common/emc-history.txt \
 	common/glossary.txt \

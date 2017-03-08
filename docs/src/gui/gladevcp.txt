@@ -2708,3 +2708,51 @@ arise. For details, see the `keyboard_forward()` function in
 
 The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
 link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
+
+== Auxiliary Gladevcp Applications
+
+Support is provided for independently installed gladevcp applications
+that conform to system directory placements as defined by the
+LINUXCNC_AUX_GLADEVCP and LINUXCNC_AUX_EXAMPLES items reported by
+the script linuxcnc_var:
+
+====
+  $ linuxcnc_var LINUXCNC_AUX_GLADEVCP
+  /usr/share/linuxcnc/aux_gladevcp
+  $ linuxcnc_var LINUXCNC_AUX_EXAMPLES
+  /usr/share/linuxcnc/aux_examples
+====
+
+The system directory defined by LINUXCNC_AUX_GLADEVCP
+(/usr/share/linuxcnc/aux_gladevcp) specifies the location for
+a gladevcp-compatible python file(s) and related subdirectories.
+The python file is imported at gladevcp startup and made
+available to subsequent gladevcp applications including 
+embedded usage in supporting guis.
+
+The system directory defined by LINUXCNC_AUX_EXAMPLES
+(/usr/share/linuxcnc/aux_examples) specifies the location
+of example configuration subdirectories used for auxiliary
+applications.  See the getting-started/running-linuxcnc
+section for 'Adding Configuration Selection Items'.
+
+For testing, a runtime specification of auxiliary applications
+may be specified using the exported environmental variable:
+GLADEVCP_EXTRAS.  This variable should be a path list of one or
+more configuration directories separated by a (:). Typically,
+this variable would be set in a shell starting linuxcnc or in
+a user’s ~/.profile startup script. Example:
+
+====
+  export GLADEVCP_EXTRAS=~/mygladevcp:/opt/othergladevcp
+====
+
+Files found in directories specified with the environmental
+variable GLADEVCP_EXTRAS supersede identically-named files within
+subdirectories of the system directory specified by
+LINUXNC_AUX_GLADEVCP (e.g., /usr/share/linuxcnc/aux_gladevcp).
+This provision allows a developer to test an application
+by exporting GLADEVCP_EXTRAS to specify a private application
+directory without removing a system-installed application directory.
+Messages inidicating rejected duplicates are printed to
+stdout.
