@@ -3,7 +3,6 @@
 //
 
 component charge_pump "Create a square-wave for the 'charge pump' input of some controller boards";
-option singleton yes;
 
 pin out bit out "Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE";
 pin out bit out-2 "Square wave at half the frequency of 'out'";
