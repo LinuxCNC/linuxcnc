@@ -3203,12 +3203,14 @@ except Exception:
 # Check for these slider items (message if missing)
 try:
     if has_angular_joint_or_axis:
-        msg = "max angular speed"
+        msg = ("    [DISPLAY]MAX_ANGULAR_VELOCITY\n"
+               "or  [TRAJ]MAX_ANGULAR_VELOCITY")
         vars.max_aspeed.set(float(max_angular_speed))
         if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
         vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
 except Exception:
-    print "\nWarning: Missing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    print ("\nWarning: Missing required specifier (has angular joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
     max_angular_speed = 1
     default_jog_angular_speed = 1
     vars.max_aspeed.set(float(max_angular_speed))
