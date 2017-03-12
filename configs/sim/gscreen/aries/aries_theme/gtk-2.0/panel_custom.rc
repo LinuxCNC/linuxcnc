@@ -1,0 +1,103 @@
+#################### PANEL BACKGROUND #########################xx
+
+
+style "panel-black"
+{
+  xthickness            			= 1
+  ythickness            			= 1
+
+  bg_pixmap[NORMAL]		= "Panel/bg.png"
+  bg_pixmap[INSENSITIVE]		= "<parent>"
+  bg_pixmap[PRELIGHT]		= "<parent>"
+  bg_pixmap[SELECTED]		= "<parent>"
+  bg_pixmap[ACTIVE]			= "<parent>"
+}
+
+##################### PANEL BUTTONS ###############################
+
+
+style "panelbuttons-black" = "default"
+{
+
+  fg[NORMAL]		= "#ffffff" # very dark brown
+  fg[PRELIGHT]		= "#ffffff" # text on buttons (hover)
+  fg[ACTIVE]		= "#ffffff" # text on unfocused tabs
+  fg[SELECTED]		= "#ffffff" # selected text on lists
+  fg[INSENSITIVE]	= "#ffffff" # greyed "unused" text
+
+  xthickness	= 2
+  ythickness	= 1
+
+  GtkWidget::focus_padding = 2
+
+	engine "pixmap" {
+
+
+		image
+		{
+			function		= BOX
+			recolorable	= TRUE
+			state			= NORMAL
+			file			= "Panel/panelbutton1.png"
+			border		= { 4, 4, 4, 4 }
+			stretch		= TRUE
+		}
+		image
+		{
+			function		= BOX
+			recolorable	= TRUE
+			state			= PRELIGHT
+			file			= "Panel/panelbutton2.png"
+			border		= { 4, 4, 4, 4 }
+			stretch		= TRUE
+		}
+
+		image
+		{
+			function		= BOX
+			recolorable	= TRUE
+			shadow		= OUT
+			state			= PRELIGHT
+			file			= "Panel/panelbutton3.png"
+			border		= { 4, 4, 4, 4 }
+			stretch		= TRUE
+		}
+
+		image
+		{
+			function		= BOX
+			recolorable	= TRUE
+			shadow		= IN
+			state			= PRELIGHT
+			file			= "Panel/panelbutton2.png"
+			border		= { 4, 4, 4, 4 }
+			stretch		= TRUE
+			#overlay_file	= "panelbutton2.png"
+			#overlay_border	= { 4, 4, 4, 4 }
+			#overlay_stretch	= TRUE
+		}
+
+		image
+		{
+			function		= BOX
+			recolorable	= TRUE
+			state			= ACTIVE
+			file			= "Panel/panelbutton3.png"
+			border		= { 4, 4, 4, 4 }
+			stretch		= TRUE
+		}
+
+		image
+		{
+			function		= BOX
+			recolorable	= TRUE
+			state			= INSENSITIVE
+			file			= "Panel/panelbutton3.png"
+			border		= { 4, 4, 4, 4 }
+			stretch		= TRUE
+		}
+
+	}
+
+}
+

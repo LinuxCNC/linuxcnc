@@ -1,0 +1,82 @@
+########################### Menu & Menuitem black #############################
+
+style "menu-black"			= "default"
+{
+  text[PRELIGHT]	= "#ffffff"
+  fg[NORMAL]		= "#ffffff"
+  fg[ACTIVE]		= "#ffffff"
+  fg[PRELIGHT]		= "#ffffff"
+  fg[SELECTED]		= "#ffffff"
+  fg[INSENSITIVE]	= "#eeeeee"
+#bg_pixmap[NORMAL]       = "Menu-Menubar/menu-overlay.png"
+xthickness			= 6
+ythickness			= 6
+  engine "pixmap"
+  {
+    image
+    {
+      function			= BOX
+     recolorable    		= TRUE
+      detail				= "menu"
+      file				= "Menu-Menubar/menu-alt.png"
+      border			= { 7, 7, 7, 7 } #{ 34, 3, 3, 3 }
+      stretch			= TRUE
+    }
+  }
+}
+
+style "menuitem-black"	= "default"
+{
+  xthickness			= 1
+  fg[PRELIGHT] = "#ffffff"
+  text[PRELIGHT] = "#ffffff"
+
+
+  engine "pixmap"
+  {
+    image
+    {
+      function			= BOX
+      recolorable		= TRUE
+     file				= "Menu-Menubar/menu_hilight.png"
+
+      border			= { 2, 2, 2, 2 }
+      stretch			= TRUE
+    }
+    image
+    {
+      function			= ARROW
+      recolorable		= TRUE
+      state				= NORMAL
+      overlay_file		= "Arrows/arrow-right-norm.png"
+      overlay_stretch	= FALSE
+      arrow_direction	= RIGHT
+    }
+  image
+    {
+      function			= ARROW
+      recolorable		= TRUE
+      state				= PRELIGHT
+      overlay_file		= "Arrows/arrow-right.png"
+      overlay_stretch	= FALSE
+      arrow_direction	= RIGHT
+    }
+
+  }
+}
+
+style "tearoffmenuitem-black"	= "menuitem"
+{
+  engine "pixmap"
+  {
+    image
+    {
+      function			= ARROW
+      file				= "Arrows/arrow-left.png"
+      stretch			= TRUE
+      arrow_direction	= LEFT
+    }
+
+  }
+}
+

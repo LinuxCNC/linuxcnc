@@ -1,0 +1,27 @@
+#################### MENUBAR ###################
+
+style "toolbar-clear-alt-1"
+{
+#font_name = "Segoe UI Bold 9"
+#font_name = "Sans 8"
+  fg[NORMAL] = "#ffffff"
+  text[NORMAL] = "#ffffff"
+  fg[PRELIGHT] = "#C7DBFC"
+  fg[ACTIVE] = "#C7DBFC"
+
+  xthickness			= 1
+  ythickness			= 2
+
+	engine "pixmap"
+	{
+		image
+		{
+			function	= BOX
+			file		= "Toolbar/toolbar.png"
+			border	= { 2, 2, 2, 2 }
+			stretch	= TRUE
+    		}
+ 	}
+}
+
+
