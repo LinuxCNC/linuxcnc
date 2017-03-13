@@ -5,7 +5,7 @@
 == Intro
 
 QTscreen is an infrastructure to display a custom screen or VCP panel in LinuxCNC. +
-It displays a UI file built with the QT Designer screen editor or combines this + 
+It displays a UI file built with the QTDesigner screen editor or combines this + 
 with python programming to create a GUI screen for running a CNC machine. +
 QTscreen is customizable - you can add different buttons and status LEDs etc. +
 
@@ -15,8 +15,7 @@ image::images/qt_cnc.png["QTscreen Mill",align="left"]
 == Overview
 
 There are two files that can be used, individually or in combination to add +
-customizations. Local UI files and handler files. Normally QTscreen uses +
-the stock UI and handler file. +
+customizations. Normally QTscreen uses the stock UI and handler file. +
 You can specify QTscreen to use 'local' UI and handler files. +
 One is not restricted to adding a custom panel on the right or a custom tab. +
 QTscreen leverages 'QT Designer' (the editor) and 'PyQT4' (the widget toolkit). +
@@ -29,17 +28,6 @@ layout and the widgets of the screen. Pyqt4 uses this file to build the display 
 and react to those widgets. The QTDesigner editor makes it relatively easy to build +
 and edit this file. +
 
-=== Local designer Files
-
-If present, local UI files in the configuration folder will be loaded instead +
-of the stock UI files. Local UI files allow you to use your customized +
-designs rather then the default screens. +
-QTscreen will look for MYNAME.ui and MYNAME_handler.py in the config folder. +
-
-
-=== Modifying Stock Screens
-If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
-
 === Handler Files
 
 A handler file is a file containing python code, which QTscreen adds to it's +
@@ -47,8 +35,146 @@ default routines. A handler file allows one to modify defaults, or add logic +
 to a QTscreen skin without having to modify QTscreen proper.  +
 If present a handler file will be loaded. +
 Only one file is allowed. QTscreen looks for the handler file. +
-In this way you can have custom behavior.
+In this way you can have custom behavior. +
+Here is a sample handler file. +
+It's broken up in sections for ease of discussion. +
 
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+from PyQt4 import QtGui
+from qtscreen.keybindings import Keylookup
+from qtvcp.qt_glib import GStat
+import linuxcnc
+import sys
+import os
+
+###########################################
+# **** instantiate libraries section **** #
+###########################################
+
+KEYBIND = Keylookup()
+GSTAT = GStat()
+
+###################################
+# **** HANDLER CLASS SECTION **** #
+###################################
+
+class HandlerClass:
+
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+        self.hal = halcomp
+        self.w = widgets
+        self.stat = linuxcnc.stat()
+        self.cmnd = linuxcnc.command()
+        self.jog_velocity = 10.0
+
+        # connect to GStat to catch linuxcnc events
+        GSTAT.connect('state-on', self.on_state_on)
+        GSTAT.connect('state-off', self.on_state_off)
+
+    #######################################
+    # **** Special Functions SECTION **** #
+    #######################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    # you could still make arbritrary HAL pins here
+    def initialized__(self):
+        GSTAT.forced_update()
+
+    def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
+        # when typing in MDI, we don't want keybinding to call functions
+        # so we catch and process the events directly.
+        # We do want ESC, F1 and F2 to call keybinding functions though
+        if self.w.mdi_line == receiver and code not in(16777216,16777264,16777216):
+            if is_pressed:
+                self.w.mdi_line.keyPressEvent(event)
+                event.accept()
+            return True
+        try:
+            KEYBIND.call(self,event,is_pressed,shift,cntrl)
+            return True
+        except AttributeError:
+            print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            #print 'from %s'% receiver
+            return False
+
+    #####################################
+    # **** GSTAT CALLBACKS SECTION **** #
+    #####################################
+
+    def on_state_on(self,w):
+        print 'machine on'
+
+    def on_state_off(self,w):
+        print 'machine off'
+
+    #####################################
+    # **** QTFORM CALLBACK SECTION **** #
+    #####################################
+
+    def zero_axis(self):
+        name = self.w.sender().text()
+        print name
+        if 'X' in name:
+            GSTAT.set_axis_origin('x',0)
+        elif 'Y' in name:
+            GSTAT.set_axis_origin('y',0)
+        elif 'Z' in name:
+            GSTAT.set_axis_origin('z',0)
+
+    #######################################
+    # **** GENERAL FUNCTIONS SECTION **** #
+    #######################################
+
+    def continous_jog(self, axis, direction):
+        GSTAT.continuous_jog(axis, direction)
+
+    #################################
+    # **** KEY BINDING SECTION **** #
+    #################################
+    def on_keycall_ESTOP(self,event,state,shift,cntrl):
+        if state:
+            self.w.button_estop.click()
+    def on_keycall_POWER(self,event,state,shift,cntrl):
+        if state:
+            self.w.button_machineon.click()
+    def on_keycall_HOME(self,event,state,shift,cntrl):
+        if state:
+            self.w.button_home.click()
+
+    ###########################
+    # **** CLOSING EVENT **** #
+    ###########################
+    def closeEvent(self, event):
+        event.accept()
+
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+################################
+# required handler boiler code #
+################################
+
+def get_handlers(halcomp,widgets,paths):
+     return [HandlerClass(halcomp,widgets,paths)]
+----
 === Libraries
 
 Qtscreen as built does little more then display the screen and react to widgets. +
@@ -95,6 +221,114 @@ then in the systen skin folder. the skin folder holds standard screens. +
 
 To build a panel or scrreen use QTDesigner to build a design you like. +
 Save this UI file to your configuration folder with a name of your choice, ending with .ui +
+
+==== Local Files
+
+If present, local UI files in the configuration folder will be loaded instead +
+of the stock UI files. Local UI files allow you to use your customized +
+designs rather then the default screens. +
+QTscreen will look for MYNAME.ui and MYNAME_handler.py in the config folder. +
+
+
+==== Modifying Stock Screens
+If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
+
+== Libraries modules
+
+libraries are prebuilt python modules that give added features to QTvcp. +
+In this way you can select what features you want - yet don't have to build common ones yourself. +
+
+=== GSTAT
+
+GSTAT is a library that sends GObject messages based on linuxcnc's current state. +
+It also has some functions to do things such as jogging. +
+You connect a function call to the GSTAT message you are interested in. +
+QTvcp will call this function when the message is sent from GSTAT. +
+
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.qt_glib import GStat
+----
+To instantiate the module so you can use it add this python code to your instantiate section: +
+[source,python]
+----
+GSTAT = GStat()
+----
+To connect to messages use GObject syntact. For example to catch machine on and off messages, +
+place these commands into the INITIALIZE section: +
+[source,python]
+----
+        GSTAT.connect('state-on', self.on_state_on)
+        GSTAT.connect('state-off', self.on_state_off)
+----
+In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
+When linuxcnc is in machine off state the function self.on_state_off will be called. +
+
+=== aux_program_loader
+
+This module allows an easy way to load auxillery programs linuxcnc often uses. +
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtscreen.aux_program_loader import Aux_program_loader 
+----
+To instantiate the module so you can use it add this python code to your instaiate section: +
+[source,python]
+----
+AUX_PRGM = Aux_program_loader() +
+----
+
+==== HALmeter
+
+----
+    Halmeter is used to display one HAL pin data.
+    load a halmeter with AUX_PRGM.load_halmeter()
+----
+
+==== classicladder user program
+
+Todo
+
+==== linuxcnc status program
+
+Todo
+
+==== HALshow configure display program
+
+Todo
+
+==== HALscope program
+
+Todo
+
+==== tooledit program
+
+Todo
+
+==== calibration
+
+Todo
+
+==== onboard keyboard
+
+Todo
+
+=== Keybindings
+
+This module is used to allow each keypress to control a behaivor such as jogging.
+
+=== messages
+
+This modules is used to display pop up dialog messages on the screen.
+
+=== notify
+
+This module is used to send messgaes that are intergrated into the desktop.
+
+=== preferences
+
+This module allows one to load and save preference data permentally to storage media.
 
 == QTvcp Widgets
 
