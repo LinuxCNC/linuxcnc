@@ -69,4 +69,6 @@ homed_color = #00FF00
 unhomed_color = #FF0000
 dro_digits = 3
 toggle_readout = True
+reload_tool = True
+tool_in_spindle = 0
 

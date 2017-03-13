@@ -67,6 +67,8 @@
 
 #include "tp_debug.h"
 
+#define ABS(x) (((x) < 0) ? -(x) : (x))
+
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
@@ -1371,28 +1373,35 @@ void emcmotCommandHandler(void *arg, long period)
 		break;
 	    }
 
-	    if(joint_num == -1) {
-                if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE)
+	    if(joint_num == -1) { // -1 means home all
+                if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {
                     emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
-                else
+                } else {
                     reportError(_("homing sequence already in progress"));
-		break;
+                }
+	        break;  // do home-all sequence
 	    }
 
-	    if (joint == NULL) {
-		break;
-	    }
+	    if (joint == NULL) { break; }
+            joint->free_tp.enable = 0; /* abort movement (jog, etc) in progress */
 
-            if(joint->home_state != HOME_IDLE) {
-                reportError(_("homing already in progress"));
-            } else if(emcmotStatus->homingSequenceState != HOME_SEQUENCE_IDLE) {
-                reportError(_("homing sequence already in progress"));
+            // ********************************************************
+            // support for other homing modes (one sequence, one joint)
+            if (joint->home_sequence < 0) {
+               int jj;
+               emcmot_joint_t *syncjoint;
+               emcmotStatus->homingSequenceState = HOME_SEQUENCE_DO_ONE_SEQUENCE;
+               for (jj = 0; jj < emcmotConfig->numJoints; jj++) {
+                  syncjoint = &joints[jj];
+                  if (ABS(syncjoint->home_sequence) == ABS(joint->home_sequence)) {
+                      // set home_state for all joints at same neg sequence
+                      syncjoint->home_state = HOME_START;
+                  }
+               }
+               break;
             } else {
-                /* abort any movement (jog, etc) that is in progress */
-                joint->free_tp.enable = 0;
-                
-                /* prime the homing state machine */
-                joint->home_state = HOME_START;
+               emcmotStatus->homingSequenceState = HOME_SEQUENCE_DO_ONE_JOINT;
+               joint->home_state = HOME_START; // one joint only
             }
 	    break;
 
@@ -1401,7 +1410,8 @@ void emcmotCommandHandler(void *arg, long period)
             rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
             
-            if ((emcmotStatus->motion_state != EMCMOT_MOTION_FREE) && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
+            if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
+                && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
                 reportError(_("must be in joint mode or disabled to unhome"));
                 return;
             }

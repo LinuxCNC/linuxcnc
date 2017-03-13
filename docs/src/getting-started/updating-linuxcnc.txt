@@ -390,11 +390,12 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
 
 === Home sequences
 
-Negative values may be used for the ini file items
+*Negative* values may be used for the ini file items
 named [JOINT_n]HOME_SEQUENCE.  Prior to joints_axes incorporation a value
 of -1 or the ommission of the item indicated no sequence was applicable.
 Now, only omission of the item is used for that purpose.
-
+See the chapter: <<cha:homing-configuration, 'Homing Configuration'>> 
+for more information.
 
 === Locking rotary indexer (updates for joints_axes)
 
@@ -579,6 +580,21 @@ so that they can be connected to signals:
 ----
    motion.servo.last-period    (servo last period in clks)
    motion.servo.last-period_ns (kernel-dependent availability)
+----
+
+== Interface changes for joints_axes
+
+=== python linuxcnc module
+
+The jog() interface includes a 'joint-flag' to specify joint (True)
+or teleop (False) jogging:
+
+----
+jog(command, joint-flag, axis-or-joint-number, velocity[, distance]])
+
+jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number)
+jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity)
+jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 ----
 
 == GUIs (updates for joints_axes)
@@ -938,5 +954,23 @@ connections.
 The sim config 'Sample Configurations/sim/axis/minimal_xyz.ini'
 demonstrates a working xyz configuration that uses LIB:basic_sim.tcl
 with a minimal number of ini file settings.
+
+== Ongoing updates to development branch
+
+Commits to unreleased branches may make changes that affect testers
+and early-adopters of the unreleased software.
+
+=== Hal pins
+
+Name changes:
+
+----
+was: axis.L.vel-cmd
+ is: axis.l.teleop-vel-cmd
+----
+
+=== Hal component updates
+
+. siggen: new pin 'reset' to set output signal values to predefined state
 
 // vim: set syntax=asciidoc:

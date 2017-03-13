@@ -177,11 +177,19 @@ time. If HOME_SEQUENCE is not specified then this joint will not be
 homed by the HOME ALL sequence. HOME_SEQUENCE numbers start with 0 and
 there may be no unused numbers.
 
-Negative HOME_SEQUENCE values indicate that joints in the sequence
-should synchronize the final move to HOME by waiting until all 
-joints in the sequence are ready.  If any joint has a negative
-HOME_SEQUENCE value, then all joints with the same (positive
-or negative) value will synchronize the final move.
+*Negative* HOME_SEQUENCE values indicate that joints in the sequence
+should *synchronize the final move* to [JOINT_n]HOME by waiting until all 
+joints in the sequence are ready.  If any joint has a *negative*
+HOME_SEQUENCE value, then all joints with the same absolute value
+(positive or negative) of the HOME_SEQUENCE item value will synchronize
+the final move.
+
+A *negative* HOME_SEQUENCE also applies to commands to home a single
+joint.  If the HOME_SEQUENCE value is *negative*, all joints having
+the same absolute value of that HOME_SEQUENCE will be *homed together
+with a synchronized final move*.  If the HOME_SEQUENCE value is
+zero or positive, a command to home the joint will home only the
+specified joint.
 
 Examples for a 3 joint system
     

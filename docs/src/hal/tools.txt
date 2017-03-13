@@ -160,7 +160,11 @@ sim_pin is a command line utility to display and update any number of
 writable pins, parameters or signals.  Usage:
 ----
   Usage:
-         sim_pin name1 [name2 ...] &
+         sim_pin [Options] name1 [name2 ...] &
+
+  Options:
+         --help                (this text)
+         --title title_string  (window title, default: sim_pin)
 
   Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
@@ -180,7 +184,8 @@ writable pins, parameters or signals.  Usage:
          The bit pushbutton mode can be specifed on the command
          line by formatting the item name:
              namei/mode=[toggle | pulse | hold]
-
+         If the mode begins with an uppercase letter, the radio
+         buttons for selecting other modes are not shown
 ----
 For complete information, see the man page:
 ----

@@ -282,5 +282,5 @@ class LinuxCNC:
 	    if self.status.tool_in_spindle == expected_tool:
 		print "the Stat buffer's toolInSpindle reached the value of %d after %f seconds" % (expected_tool, time.time() - start_time)
 		return
-	raise LinuxCNC_Exception("the Stat buffer's toolInSpindle value is %d, expected %d" % (s.status.tool_in_spindle, expected_tool))
+	raise LinuxCNC_Exception("the Stat buffer's toolInSpindle value is %d, expected %d" % (self.status.tool_in_spindle, expected_tool))
 

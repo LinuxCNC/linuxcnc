@@ -477,15 +477,14 @@ static int init_hal_io(void)
         axis_data = &(emcmot_hal_data->axis[n]);
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].pos_cmd),
            mot_comp_id, "axis.%c.pos-cmd",         c)) != 0) goto error;
-        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].vel_cmd),
-           mot_comp_id, "axis.%c.vel-cmd",         c)) != 0) goto error;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_cmd),
+           mot_comp_id, "axis.%c.teleop-vel-cmd",         c)) != 0) goto error;
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_pos_cmd),
            mot_comp_id, "axis.%c.teleop-pos-cmd",  c)) != 0) goto error;
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_lim),
            mot_comp_id, "axis.%c.teleop-vel-lim",  c)) != 0) goto error;
         if ((retval = hal_pin_bit_newf(HAL_OUT,   &(emcmot_hal_data->axis[n].teleop_tp_enable),
            mot_comp_id, "axis.%c.teleop-tp-enable",c)) != 0) goto error;
-
         retval = export_axis(c, axis_data);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis %c pin/param export failed\n"), c);

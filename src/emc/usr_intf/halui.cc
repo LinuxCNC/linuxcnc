@@ -1107,6 +1107,7 @@ static int sendProgramRun(int line)
     programStartLine = line;
 
     emc_task_plan_run_msg.line = line;
+    sendAuto();
     return emcCommandSend(emc_task_plan_run_msg);
 }
 

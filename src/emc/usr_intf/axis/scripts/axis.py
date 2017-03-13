@@ -3102,7 +3102,6 @@ def units(s, d=1.0):
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 jointcount = int(inifile.find("KINS", "JOINTS"))
-jointnames = "012345678"[:jointcount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX") or open_directory
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -3125,9 +3124,11 @@ except:
 vars.trajcoordinates.set(trajcoordinates)
 
 joint_type = [None] * jointcount
+joint_sequence = [None] * jointcount
 for j in range(jointcount):
     section = "JOINT_%d" % j
     joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
+    joint_sequence[j]  = inifile.find(section, "HOME_SEQUENCE") or ""
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
@@ -3202,12 +3203,14 @@ except Exception:
 # Check for these slider items (message if missing)
 try:
     if has_angular_joint_or_axis:
-        msg = "max angular speed"
+        msg = ("    [DISPLAY]MAX_ANGULAR_VELOCITY\n"
+               "or  [TRAJ]MAX_ANGULAR_VELOCITY")
         vars.max_aspeed.set(float(max_angular_speed))
         if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
         vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
 except Exception:
-    print "\nWarning: Missing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    print ("\nWarning: Missing required specifier (has angular joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
     max_angular_speed = 1
     default_jog_angular_speed = 1
     vars.max_aspeed.set(float(max_angular_speed))
@@ -3393,7 +3396,13 @@ for jnum in range(num_joints):
                command=lambda jnum=jnum: commands.home_joint_number(jnum))
         widgets.unhomemenu.add_command(
                command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
-        ja_name = "Joint"; ja_id = jnum
+        ja_name = "Joint"
+        if joint_sequence[jnum] is '':
+            ja_id = "%d"%jnum
+        elif (int(joint_sequence[jnum]) < 0):
+            ja_id = "%d (Sequence: %2s SYNC)"%(jnum,joint_sequence[jnum])
+        else:
+            ja_id = "%d (Sequence: %2s)"%(jnum,joint_sequence[jnum])
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
