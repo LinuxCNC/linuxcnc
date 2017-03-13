@@ -223,8 +223,9 @@ static int update(void *arg, const hal_funct_args_t *fa)
 }
 
 
-static int instantiate_interpolate(const char *name, const int argc, const char **argv)
+static int instantiate_interpolate(const int argc, const char **argv)
 {
+    const char *name = argv[1];
     struct inst_data *ip;
     int inst_id, i;
 
