@@ -154,12 +154,18 @@ class Private_Data:
                                 ['base',_('Base Information'),True],
                                 ['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
                                 ['options',_('Options'), True],['halui_page', _('HALUI'), True],
+                                ['gui_page',_('User Interface'), True],
                                 ['axisx', _('Axis X'), True],
                                 ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],
                                 ['axisu', _('Axis U'), True],['axisv', _('Axis V'), True],
                                 ['axisa', _('Axis A'), True],
                                 ['spindle',_('Spindle'), True],['finished',_('Almost Done'),True]
                              ]
+ 
+        self.available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page',
+								'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
+							]
+							
         # internalname / displayed name / steptime/ step space / direction hold / direction setup
         self.alldrivertypes = [
                             ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -754,12 +760,12 @@ class StepconfApp:
         self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
         window = self.builder.get_object("window1")
         notebook1 = self.builder.get_object("notebook1")
-        for x,y,z in (self._p.available_page):
-            if x == 'intro':continue
-            dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
-            self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
-            page = self.builder.get_object(x)
-            notebook1.append_page(page, Gtk.Label(x))
+        for reference,title,state in (self._p.available_page):
+            if reference == 'intro':continue
+            dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (reference,title,state))
+            self.builder.add_from_file(os.path.join(datadir, '%s.glade'%reference))
+            page = self.builder.get_object(reference)
+            notebook1.append_page(page, Gtk.Label(reference))
         notebook1.set_show_tabs(False)
 
         self.w = Widgets(self.builder)
@@ -1181,6 +1187,27 @@ class StepconfApp:
             return False
         return True
 
+#***************
+# GLADEVCP TEST
+#***************
+    def test_glade_panel(self,w):
+        panelname = os.path.join(distdir, "configurable_options/gladevcp")
+        if self.w.rdo_gladevcp_blank.get_active() == True:
+            print 'no sample requested'
+            return True
+        if self.w.rdo_default_display.get_active() == True:
+            panel = "default_panel.glade"
+        if self.w.rdo_custom_galdevcp.get_active() == True:
+            panel = "custom_galdevcp.glade"
+            panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
+        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
+        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
+        if self.w.rdo_default_display.get_active() == True:
+            halrun.write("setp displaytest.spindle-speed 1000\n")
+        halrun.write("waitusr displaytest\n")
+        halrun.flush()
+        halrun.close()  
+        
 #***************
 # PYVCP TEST
 #***************
