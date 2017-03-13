@@ -1,3 +1,7 @@
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 from qtscreen.keybindings import Keylookup
@@ -11,7 +15,10 @@ import linuxcnc
 import sys
 import os
 
-# instantiate libraries
+###########################################
+# **** instantiate libraries section **** #
+###########################################
+
 KEYBIND = Keylookup()
 GSTAT = GStat()
 AUX_PRGM = Aux_program_loader()
@@ -19,9 +26,15 @@ NOTE = Notify()
 MSG = Message()
 PREFS = Access()
 
+###################################
+# **** HANDLER CLASS SECTION **** #
+###################################
+
 class HandlerClass:
 
-    # This will be pretty standard to gain access.
+    ########################
+    # **** INITIALIZE **** #
+    ########################
     # widgets allows access to  widgets from the qtvcp files
     # at this point the widgets and hal pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
@@ -42,19 +55,10 @@ class HandlerClass:
         self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
         self.shutdown_check = PREFS.getpref('shutdown_check', True, bool)
 
-    def closeEvent(self, event):
-        if self.shutdown_check:
-            answer = MSG.showdialog('Do you want to shutdown now?',
-                details='You can set a preference to not see this message', 
-                icon=MSG.CRITICAL, display_type=MSG.YN_TYPE)
-            if not answer:
-                event.ignore()
-                return
-        event.accept()
-
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
+
     # at this point:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
@@ -86,9 +90,9 @@ class HandlerClass:
             #print 'from %s'% receiver
             return False
 
-    ######################
-    # callbacks from GSTAT
-    ######################
+    ########################
+    # callbacks from GSTAT #
+    ########################
     def say_estop(self,w):
         print 'saying estop'
 
@@ -108,9 +112,9 @@ class HandlerClass:
     def on_error_message(self, w, message):
         NOTE.notify('Error',message,QtGui.QMessageBox.Information,10)
 
-    ######################
-    # callbacks from form
-    ######################
+    #######################
+    # callbacks from form #
+    #######################
 
     def zero_axis(self):
         name = self.w.sender().text()
@@ -203,15 +207,16 @@ class HandlerClass:
         self.cmnd.mode(linuxcnc.MODE_AUTO)
         self.cmnd.abort()
 
-    ##################
-    # functions
-    ##################
+    #####################
+    # general functions #
+    #####################
+
     def continous_jog(self, axis, direction):
         GSTAT.continuous_jog(axis, direction)
 
-    ####################
-    # KEY BINDING CALLS
-    ####################
+    #####################
+    # KEY BINDING CALLS #
+    #####################
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
             self.w.button_estop.click()
@@ -256,12 +261,31 @@ class HandlerClass:
         else:
             self.w.jog_neg_z.released.emit()
 
+    ###########################
+    # **** closing event **** #
+    ###########################
+    def closeEvent(self, event):
+        if self.shutdown_check:
+            answer = MSG.showdialog('Do you want to shutdown now?',
+                details='You can set a preference to not see this message', 
+                icon=MSG.CRITICAL, display_type=MSG.YN_TYPE)
+            if not answer:
+                event.ignore()
+                return
+        event.accept()
+
+    ##############################
+    # required class boiler code #
+    ##############################
 
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-# standard handler call
+################################
+# required handler boiler code #
+################################
+
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
