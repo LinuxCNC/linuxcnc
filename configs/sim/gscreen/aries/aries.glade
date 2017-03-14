@@ -171,7 +171,6 @@ G codes</property>
                                         <property name="reference_type">1</property>
                                         <attributes>
                                           <attribute name="weight" value="book"/>
-                                          <attribute name="stretch" value="ultra-condensed"/>
                                           <attribute name="scale" value="6"/>
                                         </attributes>
                                       </object>
@@ -935,6 +934,7 @@ G codes</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="blink_when_off">True</property>
                                                     <property name="led_blink_rate">500</property>
+                                                    <property name="led_shiny">True</property>
                                                     <property name="led_size">5</property>
                                                   </object>
                                                   <packing>
@@ -1297,11 +1297,13 @@ G codes</property>
                                           <placeholder/>
                                         </child>
                                         <child>
-                                          <object class="HAL_LED" id="led-estop">
+                                          <object class="HAL_LED" id="led_estop">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="blink_when_off">True</property>
+                                            <property name="has_hal_pin">False</property>
                                             <property name="led_blink_rate">200</property>
+                                            <property name="led_shiny">True</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
@@ -1310,12 +1312,14 @@ G codes</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="HAL_LED" id="led-machine-on">
+                                          <object class="HAL_LED" id="led_machine_on">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="blink_when_off">True</property>
+                                            <property name="has_hal_pin">False</property>
                                             <property name="led_blink_rate">200</property>
                                             <property name="led_shape">1</property>
+                                            <property name="led_shiny">True</property>
                                             <property name="led_size">5</property>
                                           </object>
                                           <packing>
@@ -1376,8 +1380,10 @@ G codes</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="blink_when_off">True</property>
+                                            <property name="has_hal_pin">False</property>
                                             <property name="led_blink_rate">200</property>
                                             <property name="led_shape">1</property>
+                                            <property name="led_shiny">True</property>
                                             <property name="led_size">5</property>
                                           </object>
                                           <packing>
@@ -1458,7 +1464,7 @@ G codes</property>
                                       <object class="GtkImage" id="image3">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="pixbuf">linuxcnc-wizard.gif</property>
+                                        <property name="pixbuf">/home/chris/emc-dev/share/gscreen/images//linuxcnc-wizard.gif</property>
                                       </object>
                                     </child>
                                     <child type="tab">
@@ -1995,6 +2001,8 @@ Up</property>
                                 <property name="button_text" translatable="yes">MDI</property>
                                 <property name="font_off_color">#000000000000</property>
                                 <property name="font_on_color">#000000000000</property>
+                                <property name="has_hal_pins">False</property>
+                                <property name="light_is_on">True</property>
                                 <property name="light_off_color">#bebebebebebe</property>
                                 <property name="light_on_color">#0000ffff0000</property>
                               </object>
@@ -2011,6 +2019,7 @@ Up</property>
                                 <property name="button_text" translatable="yes">Macro</property>
                                 <property name="font_off_color">#000000000000</property>
                                 <property name="font_on_color">#000000000000</property>
+                                <property name="has_hal_pins">False</property>
                                 <property name="light_off_color">#bebebebebebe</property>
                                 <property name="light_on_color">#0000ffff0000</property>
                               </object>
@@ -2028,85 +2037,206 @@ Up</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHButtonBox" id="buttonbox_auto">
-                            <property name="can_focus">False</property>
-                            <property name="layout_style">center</property>
+                          <object class="GtkNotebook" id="notebook_auto">
+                            <property name="can_focus">True</property>
+                            <property name="tab_pos">left</property>
+                            <property name="show_tabs">False</property>
+                            <property name="show_border">False</property>
                             <child>
-                              <object class="GtkButton" id="button4">
-                                <property name="related_action">vcp_action_open1</property>
+                              <object class="GtkHButtonBox" id="buttonbox_auto">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="use_underline">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="layout_style">center</property>
+                                <child>
+                                  <object class="GtkButton" id="button4">
+                                    <property name="label" translatable="yes">Load</property>
+                                    <property name="related_action">vcp_action_open1</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="use_underline">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LightButton" id="hal_light_button7">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="button_text" translatable="yes"/>
+                                    <property name="font_off_color">#000000000000</property>
+                                    <property name="font_on_color">#000000000000</property>
+                                    <property name="has_hal_pins">False</property>
+                                    <property name="light_off_color">#bebebebebebe</property>
+                                    <property name="light_on_color">#0000ffff0000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LightButton" id="hal_light_button8">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="button_text" translatable="yes"/>
+                                    <property name="font_off_color">#000000000000</property>
+                                    <property name="font_on_color">#000000000000</property>
+                                    <property name="light_off_color">#bebebebebebe</property>
+                                    <property name="light_on_color">#0000ffff0000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LightButton" id="light_button_graphics">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="button_text" translatable="yes">Graphics</property>
+                                    <property name="font_off_color">#000000000000</property>
+                                    <property name="font_on_color">#000000000000</property>
+                                    <property name="has_hal_pins">False</property>
+                                    <property name="light_is_on">True</property>
+                                    <property name="light_off_color">#bebebebebebe</property>
+                                    <property name="light_on_color">#0000ffff0000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">3</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="tab">
+                              <object class="GtkLabel" id="label46">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">page 1</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
+                                <property name="tab_fill">False</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="HAL_LightButton" id="hal_light_button7">
+                              <object class="GtkHButtonBox" id="buttonbox_edit">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="button_text" translatable="yes">Edit</property>
-                                <property name="font_off_color">#000000000000</property>
-                                <property name="font_on_color">#000000000000</property>
-                                <property name="light_off_color">#bebebebebebe</property>
-                                <property name="light_on_color">#0000ffff0000</property>
+                                <property name="layout_style">center</property>
+                                <child>
+                                  <object class="GtkButton" id="button3">
+                                    <property name="label" translatable="yes">&lt;-</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="button5">
+                                    <property name="label" translatable="yes">-&gt;</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LightButton" id="light_button_edit">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="button_text" translatable="yes">Edit</property>
+                                    <property name="font_off_color">#000000000000</property>
+                                    <property name="font_on_color">#000000000000</property>
+                                    <property name="has_hal_pins">False</property>
+                                    <property name="light_off_color">#bebebebebebe</property>
+                                    <property name="light_on_color">#0000ffff0000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_LightButton" id="light_button_macro1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="button_text" translatable="yes">Search</property>
+                                    <property name="font_off_color">#000000000000</property>
+                                    <property name="font_on_color">#000000000000</property>
+                                    <property name="has_hal_pins">False</property>
+                                    <property name="light_off_color">#bebebebebebe</property>
+                                    <property name="light_on_color">#0000ffff0000</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">3</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
                                 <property name="position">1</property>
+                                <property name="tab_fill">False</property>
+                              </packing>
+                            </child>
+                            <child type="tab">
+                              <object class="GtkLabel" id="label48">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">page 2</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                                <property name="tab_fill">False</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="HAL_LightButton" id="hal_light_button8">
+                              <object class="GtkHButtonBox" id="hbuttonbox2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="button_text" translatable="yes"/>
-                                <property name="font_off_color">#000000000000</property>
-                                <property name="font_on_color">#000000000000</property>
-                                <property name="light_off_color">#bebebebebebe</property>
-                                <property name="light_on_color">#0000ffff0000</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
-                            <child>
-                              <object class="HAL_LightButton" id="light_button_graphics">
+                            <child type="tab">
+                              <object class="GtkLabel" id="label49">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="button_text" translatable="yes">Graphics</property>
-                                <property name="font_off_color">#000000000000</property>
-                                <property name="font_on_color">#000000000000</property>
-                                <property name="light_off_color">#bebebebebebe</property>
-                                <property name="light_on_color">#0000ffff0000</property>
+                                <property name="label" translatable="yes">page 4</property>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="HAL_LightButton" id="hal_light_button3">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="button_text" translatable="yes"/>
-                                <property name="font_off_color">#000000000000</property>
-                                <property name="font_on_color">#000000000000</property>
-                                <property name="light_off_color">#bebebebebebe</property>
-                                <property name="light_on_color">#0000ffff0000</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">4</property>
+                                <property name="position">2</property>
+                                <property name="tab_fill">False</property>
                               </packing>
                             </child>
                           </object>
@@ -2122,13 +2252,14 @@ Up</property>
                             <property name="can_focus">True</property>
                             <property name="tab_pos">left</property>
                             <property name="show_tabs">False</property>
+                            <property name="show_border">False</property>
                             <child>
                               <object class="GtkHButtonBox" id="buttonbox_home">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="layout_style">center</property>
                                 <child>
-                                  <object class="HAL_LightButton" id="hal_light_button_home_x">
+                                  <object class="HAL_LightButton" id="light_button_home_x">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="button_text" translatable="yes">Home X</property>
@@ -2144,7 +2275,7 @@ Up</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="HAL_LightButton" id="hal_light_button_home_y">
+                                  <object class="HAL_LightButton" id="light_button_home_y">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="button_text" translatable="yes">Home Y</property>
@@ -2160,7 +2291,7 @@ Up</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="HAL_LightButton" id="hal_light_button_home_z">
+                                  <object class="HAL_LightButton" id="light_button_home_z">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="button_text" translatable="yes">Home Z</property>
@@ -2387,7 +2518,18 @@ Limits</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkVBox" id="vcp_right">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
         </child>

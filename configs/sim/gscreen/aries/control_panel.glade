@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="EMC_ToggleAction_ESTOP" id="vcp_toggleaction_estop1"/>
+  <object class="EMC_ToggleAction_Power" id="vcp_toggleaction_power1"/>
+  <object class="EMC_ToggleAction_Run" id="vcp_toggleaction_run1"/>
+  <object class="EMC_ToggleAction_Stop" id="vcp_toggleaction_stop1"/>
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkButton" id="vcp_estop">
+                <property name="use_action_appearance">False</property>
+                <property name="related_action">vcp_toggleaction_estop1</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <child>
+                  <object class="GtkLabel" id="label2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Estop</property>
+                    <attributes>
+                      <attribute name="weight" value="heavy"/>
+                      <attribute name="scale" value="2"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="vcp_power">
+                <property name="use_action_appearance">False</property>
+                <property name="related_action">vcp_toggleaction_power1</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <object class="GtkLabel" id="label3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Power</property>
+                    <attributes>
+                      <attribute name="weight" value="heavy"/>
+                      <attribute name="scale" value="2"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkButton" id="vcp_run">
+                <property name="use_action_appearance">False</property>
+                <property name="related_action">vcp_toggleaction_run1</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <object class="GtkLabel" id="vcp_run_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Run</property>
+                    <attributes>
+                      <attribute name="weight" value="heavy"/>
+                      <attribute name="scale" value="2"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="vcp_abort">
+                <property name="use_action_appearance">False</property>
+                <property name="related_action">vcp_toggleaction_stop1</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <object class="GtkLabel" id="vcp_run_label1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Abort</property>
+                    <attributes>
+                      <attribute name="weight" value="heavy"/>
+                      <attribute name="scale" value="2"/>
+                    </attributes>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">This grey section represents
+ a control panel.
+This is an added-on gladevcp panel
+and is not part of the screen.
+These similar controls are expected
+ to be built with actual hardware or a
+user built panel like this one.</property>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="State_Sensitive_Table" id="state_sensitive_table1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="is_homed">False</property>
+            <child>
+              <object class="GtkVBox" id="vbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkVBox" id="vbox3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkTable" id="table1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="n_rows">3</property>
+                        <property name="n_columns">4</property>
+                        <property name="homogeneous">True</property>
+                        <child>
+                          <object class="HAL_LightButton" id="select_x">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">X</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">12</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#1340e2b3f885</property>
+                          </object>
+                          <packing>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select-high">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes"> .01</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">11</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#0000ffff0000</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select-med">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">.001</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">11</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#f82efe3d2e90</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select-low">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">.0001</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">11</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#efff1000732d</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">3</property>
+                            <property name="right_attach">4</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select_z">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">Z</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">12</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#1313e2e2f8f8</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select_x1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">Y</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">12</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#1340e2b3f885</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select_fo">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">FO</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">12</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#1340e2b3f885</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select_so">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">SO</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">12</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#1340e2b3f885</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LightButton" id="select_ro">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="button_halio_pin">False</property>
+                            <property name="button_text" translatable="yes">RO</property>
+                            <property name="font_bold">True</property>
+                            <property name="font_off_color">#000000000000</property>
+                            <property name="font_on_color">#000000000000</property>
+                            <property name="font_size">12</property>
+                            <property name="is_momentary">True</property>
+                            <property name="light_off_color">#bebebebebebe</property>
+                            <property name="light_on_color">#1340e2b3f885</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="padding">10</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="Hal_Dial" id="mpg">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="center_color">#bdefbdefbdef</property>
+            <property name="label">MPG</property>
+            <property name="scale_adjustable">False</property>
+            <property name="show_counts">False</property>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

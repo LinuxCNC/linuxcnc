@@ -2,15 +2,35 @@
 # The commands in this file are run after the GUI starts
 
 sets spindle-at-speed true
-setp gscreen.led_spindle_fault true
-setp gscreen.led_fault true
-setp gscreen.led_aux true
+#setp gscreen.led_spindle_fault true
+#setp gscreen.led_fault true
+#setp gscreen.led_aux true
 
-net spindle-cw gscreen.led_spindle_fwd
-net spindle-ccw gscreen.led_spindle_rev motion.spindle-reverse
-net spindle-cmd-rpm-abs gscreen.spindle-spd-disp
+#net spindle-cw gscreen.led_spindle_fwd
+#net spindle-ccw gscreen.led_spindle_rev motion.spindle-reverse
+#net spindle-cmd-rpm-abs gscreen.spindle-spd-disp
 
 net tool-change gscreen.change-tool iocontrol.0.tool-change 
 net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
 net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+
+
+
+net     mpg-counts  control_panel.mpg
+
+net     mpg-scale-x     joint.0.jog-scale      axis.x.jog-scale
+net     mpg-scale-y     joint.1.jog-scale      axis.y.jog-scale
+net     mpg-scale-z     joint.2.jog-scale      axis.z.jog-scale
+
+net     mpg-counts  joint.0.jog-counts      axis.x.jog-counts
+net     mpg-counts  joint.1.jog-counts      axis.y.jog-counts
+net     mpg-counts  joint.2.jog-counts      axis.z.jog-counts
+
+net     select-x    gscreen.select-x    joint.0.jog-enable      axis.x.jog-enable
+net     select-y    gscreen.select-y    joint.1.jog-enable      axis.y.jog-enable
+net     select-z    gscreen.select-z    joint.2.jog-enable      axis.z.jog-enable
+
+sets mpg-scale-x .010
+sets mpg-scale-y .010
+sets mpg-scale-z .010

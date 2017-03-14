@@ -80,7 +80,7 @@ image
 	{
 	function	= BOX
 	recolorable	= TRUE
-	file		= "../bg3.png"
+	file		= "bg3.png"
 	stretch		= FALSE
 	}
 
