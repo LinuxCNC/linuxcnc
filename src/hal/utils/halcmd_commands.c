@@ -1545,8 +1545,8 @@ int do_waitusr_cmd(char *comp_name)
     comp = halpr_find_comp_by_name(comp_name);
     if (comp == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
-	halcmd_error("component '%s' not found\n", comp_name);
-	return -EINVAL;
+	halcmd_info("component '%s' not found or already exited\n", comp_name);
+	return 0;
     }
     if (comp->type != 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
