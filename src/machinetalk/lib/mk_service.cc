@@ -187,8 +187,9 @@ int mk_announce(mk_netopts_t *n, mk_socket_t *s, const char *headline, const cha
     assert(n != NULL);
 
     // dont't announce if both ANNOUNCE_IPV4 and ANNOUNCE_IPV6 are zero
-    if (!(n->announce_ipv4 || n->announce_ipv4))
-	return 0;
+    if (!(n->announce_ipv4 || n->announce_ipv6)) {
+        return 0;
+    }
 
     // determine avahi announcement mode
     if (!n->announce_ipv4)
