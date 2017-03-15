@@ -511,6 +511,7 @@ static void btprint(const char *prefix, const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     vsyslog_async(LOG_ERR, fmt, args);
+    va_end(args);
 }
 
 // handle signals delivered via sigaction - not all signals
