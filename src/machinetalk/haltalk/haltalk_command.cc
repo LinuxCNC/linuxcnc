@@ -225,7 +225,7 @@ create_rcomp(htself_t *self,  const machinetalk::Component *pbcomp,
     if (comp_id < 0) {
 	note_printf(self->tx, "hal_init_mode(%s): %s",
 		    cname, strerror(-comp_id));
-	goto ERROR;
+	goto EXIT_COMP;
     }
 
     // create the pins
@@ -310,15 +310,16 @@ create_rcomp(htself_t *self,  const machinetalk::Component *pbcomp,
     return rc;
 
  EXIT_COMP:
-    //    if (hi) delete hi;
-    if (rc->cc)
+    if (rc->cc) {
 	hal_ccomp_free(cc);
-    if (rc) delete rc;
-    if (comp_id > 0)
+    }
+    if (rc) {
+        delete rc;
+    }
+    if (comp_id > 0) {
 	hal_exit(comp_id);
- ERROR:
-    if (rc) delete rc;
-    return NULL;
+    }
+     return NULL;
 }
 
 static int
