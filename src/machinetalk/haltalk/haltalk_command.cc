@@ -317,6 +317,7 @@ create_rcomp(htself_t *self,  const machinetalk::Component *pbcomp,
     if (comp_id > 0)
 	hal_exit(comp_id);
  ERROR:
+    if (rc) delete rc;
     return NULL;
 }
 

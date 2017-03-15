@@ -102,7 +102,8 @@ int pbvprintf( machinetalk_RTAPI_Message *msg, int level, const char *fmt, va_li
             // dbuf_put_string(o, va_arg(ap, const char *));
 	    v->type = machinetalk_ValueType_STRING;
 	    v->has_v_string = true;
-	    strncpy(v->v_string,va_arg(ap, const char *), sizeof(v->v_string));
+	    *(v->v_string) = '\0';
+	    strncat(v->v_string, va_arg(ap, const char *), sizeof(v->v_string) - 1);
 	    msg->arg_count++;
             break;
         default:
