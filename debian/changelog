@@ -144,7 +144,7 @@ linuxcnc (1:2.7.5) unstable; urgency=medium
   * carousel comp: Fix a bad initialisation in index mode
   * gantry comp: fix typo in docs
   * wj200 comp: warn on unhandled command-line arguments
-  * xhc-hb04: accomodate prior connections to the
+  * xhc-hb04: accommodate prior connections to the
       motion.spindle-speed-out-rps-abs pin
 
   * shuttlexpress: clean up the manpage & asciidocs
@@ -947,7 +947,7 @@ linuxcnc (1:2.6.12) unstable; urgency=low
   * tests: test homing in halui/jogging
   * tests: add a motion-logger test of a remap bug
   * packaging: use "set -e" to fail on error in the postinst script
-  * buildbot: dont try to build on Jessie RTAI
+  * buildbot: don't try to build on Jessie RTAI
   * build: verify links in the gcode Quick Reference (English & French)
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 10 Jan 2016 10:07:09 -0700
