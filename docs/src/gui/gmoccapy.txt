@@ -677,7 +677,7 @@ For a "C" axis you will see:
 * gmoccapy.jog-c-plus
 * gmoccapy.jog-c-minus
 
-[Note]
+[NOTE]
 naming of this hal pin has changed for gmoccapy2
 
 * gmoccapy.jog.axis.jog-x-plus
@@ -708,7 +708,7 @@ gmoccapy offers a hal pin to toggle between turtle and rabbit jogging
 
 * gmoccapy.turtle-jog   (Hal Bit In)
 
-[Note]
+[NOTE]
 in gmoccapy2 it is
 
 * gmoccapy.jog.turtle-jog   (Hal Bit In)
@@ -732,7 +732,7 @@ jog-inc-0 is unchangeable and will represent continuous jogging.
 * gmoccapy.jog-inc-5
 * gmoccapy.jog-inc-6
 
-[Note]
+[NOTE]
 gmoccapy2 uses differnt hal pin naming
 
 * gmoccapy.jog.jog-inc-0
@@ -1332,7 +1332,7 @@ Default is use unlock code (default = *123*)
 Spindle::
 The start RPM sets the rpm to be used if the spindle is started and no S value has been set.
 
-[Note]
+[NOTE]
 This value will be preseted according to your settings in 
 [DISPLAY] DEFAULT_SPINDLE_SPEED of your INI. If you change the settings on the
 settings page, that value will be default from that moment, your INI File will
