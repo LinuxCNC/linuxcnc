@@ -266,8 +266,9 @@ void hal_print_error(const char *fmt, ...)
     va_start(args, fmt);
     const char *prefix = "HAL error: ";
     strncpy(_hal_errmsg, prefix, sizeof(_hal_errmsg));
+    int n = strlen(_hal_errmsg);
 
-    rtapi_vsnprintf(_hal_errmsg + strlen(_hal_errmsg), HALPRINTBUFFERLEN,
+    rtapi_vsnprintf(_hal_errmsg + n, HALPRINTBUFFERLEN - n,
 		    fmt, args);
     rtapi_print_msg(RTAPI_MSG_ERR, _hal_errmsg);
     va_end(args);
