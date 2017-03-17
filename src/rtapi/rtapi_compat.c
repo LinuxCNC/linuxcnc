@@ -116,26 +116,29 @@ int xenomai_gid()
 int user_in_xenomai_group()
 {
     int numgroups, i;
-    gid_t *grouplist;
+    gid_t *grouplist = NULL;
     int gid = xenomai_gid();
 
     if (gid < 0)
 	return gid;
 
     numgroups = getgroups(0,NULL);
-    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
-    if (grouplist == NULL)
-	return -ENOMEM;
-    if (getgroups( numgroups, grouplist) > 0) {
-	for (i = 0; i < numgroups; i++) {
-	    if (grouplist[i] == (unsigned) gid) {
-		free(grouplist);
-		return 1;
+    if(numgroups > 0) // if there was an error will return -1, if none 0
+	{
+	grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
+        if (grouplist == NULL)
+	    return -ENOMEM;
+        if (getgroups( numgroups, grouplist) > 0) {
+	    for (i = 0; i < numgroups; i++) {
+		if (grouplist[i] == (unsigned) gid) {
+		    free(grouplist);
+		    return 1;
+		}
 	    }
+	} else {
+	    free(grouplist);
+	    return errno;
 	}
-    } else {
-	free(grouplist);
-	return errno;
     }
     return 0;
 }
@@ -243,6 +246,11 @@ flavor_ptr flavor_byid(int flavor_id)
 flavor_ptr default_flavor(void)
 {
     char *fname = getenv("FLAVOR");
+    if(strlen(fname) > RTAPI_NAME_LEN){ // will overrun buffer if it is
+	fprintf(stderr, "flavour name in env =  %s, which exceeds valid length\n", fname);
+	exit(-1);
+    }
+
     flavor_ptr f, flavor;
 
     if (fname) {
@@ -696,11 +704,16 @@ int rtapi_get_tags(const char *mod_name)
 	    perror("cant get  RTLIB_DIR ?\n");
 	    return -1;
 	}
-	strcat(modpath,"/");
-	strcat(modpath, flavor->name);
-	strcat(modpath,"/");
-	strcat(modpath,mod_name);
-	strcat(modpath, flavor->mod_ext);
+	if((strlen(modpath) + 1) < PATH_MAX)
+	    strcat(modpath,"/");
+	if((strlen(modpath) + strlen(flavor->name)) < PATH_MAX)
+	    strcat(modpath, flavor->name);
+	if((strlen(modpath) + 1) < PATH_MAX)
+	    strcat(modpath,"/");
+	if((strlen(modpath) + strlen(mod_name)) < PATH_MAX)
+	    strcat(modpath,mod_name);
+	if((strlen(modpath) + strlen(flavor->mod_ext)) < PATH_MAX)
+	    strcat(modpath, flavor->mod_ext);
     }
     const char **caps = get_caps(modpath);
 
