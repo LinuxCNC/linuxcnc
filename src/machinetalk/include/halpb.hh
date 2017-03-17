@@ -105,7 +105,7 @@ static inline int hal_param2pb(const hal_param_t *pp, machinetalk::Param *p)
 
 static inline int hal_pbpin2u(const machinetalk::Pin *p, hal_data_u *vp)
 {
-    switch (p->type()) {
+    switch (static_cast<hal_type_t>(p->type())) {
     default:
 	return -1;
     case HAL_BIT:
@@ -126,7 +126,7 @@ static inline int hal_pbpin2u(const machinetalk::Pin *p, hal_data_u *vp)
 
 static inline int hal_pbsig2u(const machinetalk::Signal *s, hal_data_u *vp)
 {
-    switch (s->type()) {
+    switch (static_cast<hal_type_t>(s->type())) {
     default:
 	return -1;
     case HAL_BIT:
