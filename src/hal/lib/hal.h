@@ -837,6 +837,7 @@ hal_param_new(const char *name,
     va_start(ap, owner_id);
     return halg_param_newfv(1, type,  dir,
 			    data_addr, owner_id, name, ap) == NULL ? _halerrno : 0;
+    va_end(ap);
 }
 
 int hal_param_newf(hal_type_t type,

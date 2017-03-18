@@ -39,7 +39,7 @@ static char *name = "ringread";
 
 FUNCTION(_) {
     ringvec_t vec[2];
-    ringsize_t rsize;
+    rrecsize_t rsize;
     const void *data;
 
     if (rb.header->type == RINGTYPE_STREAM) {
