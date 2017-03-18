@@ -537,6 +537,8 @@ static platform_t check_platform(void)
 			case 1: //bcm2836
 			case 2: //bcm2837
 				return RPI_2; // peripheral base is same on pi2/3
+			default:
+				return UNSUPPORTED;
 		}
 	}
 	else
