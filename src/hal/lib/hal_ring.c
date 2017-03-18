@@ -346,6 +346,10 @@ hal_plug_t *halg_plug_new(const int use_hal_mutex,
 	else
 	    ring = halg_find_object_by_id(0, HAL_RING, args->ring_id).ring;
 
+	// at this point the ring descriptor must be valid
+	if (ring == NULL)
+	    goto FAIL;
+
 	// construct plug name as '<ring>.<plug owner>.[read|write]'
 	char *tag = (args->type == PLUG_WRITER) ? "write" : "read";
 	char buf[HAL_MAX_NAME_LEN];
@@ -365,10 +369,6 @@ hal_plug_t *halg_plug_new(const int use_hal_mutex,
 	    HALFAIL(EEXIST, "plug '%s' already exists", plugname);
 	    goto FAIL;
 	}
-
-	// at this point the ring descriptor must be valid
-	if (ring == NULL)
-		goto FAIL;
 
 	// check ring type compatibility
 	unsigned wanted = args->flags & RINGTYPE_MASK;
