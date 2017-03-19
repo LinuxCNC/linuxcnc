@@ -290,7 +290,7 @@ int main(int argc, char **argv)
 		strcat(cmdline, " ");
 	    }
 	    else {
-		fprintf("halcmd commandline exceeds %i chars", MAX_CMD_LEN);
+		fprintf(stderr, "halcmd commandline exceeds %i chars", MAX_CMD_LEN);
 		exit(-1);
 	    }
 	}
