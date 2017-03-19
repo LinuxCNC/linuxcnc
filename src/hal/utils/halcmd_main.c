@@ -164,6 +164,8 @@ int main(int argc, char **argv)
                 proto_debug = 1;
 		break;
 	    case 'C':
+		// Coverity doesn't like this and you can see why
+		// not going to mess with it for now
                 cl = getenv("COMP_LINE");
                 cw = getenv("COMP_POINT");
                 if (!cl || !cw) exit(0);
@@ -277,12 +279,20 @@ int main(int argc, char **argv)
         return 1;
     }
     {
-	char cmdline[200];
+	// MAX_CMD_LEN set in halcmd.h at 1024
+	char cmdline[MAX_CMD_LEN];
 	cmdline[0] = '\0';
-	int i;
+	int i, len = 0;
 	for (i=1; i < argc; i++) {
-	    strcat(cmdline, argv[i]);
-	    strcat(cmdline, " ");
+	    len += strlen(argv[i]) + 1;
+	    if (len < MAX_CMD_LEN) {
+		strcat(cmdline, argv[i]);
+		strcat(cmdline, " ");
+	    }
+	    else {
+		fprintf(stderr, "halcmd commandline exceeds %i chars", MAX_CMD_LEN);
+		exit(-1);
+	    }
 	}
 	rtapi_print_msg(RTAPI_MSG_DBG, "--halcmd %s", cmdline);
     }
