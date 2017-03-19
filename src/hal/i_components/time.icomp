@@ -57,22 +57,28 @@ In your post-gui.hal file you might use the following to connect it up
  net cycle-minutes pyvcp.time-minutes <= time.0.minutes
  net cycle-hours pyvcp.time-hours <= time.0.hours
 
+The start pin will start or restart the counter cumulatively
+
+The zero pin will zero the counter for a fresh count
+attach to a momentary push button
+
 """;
 
-author "John Thornton";
+author "John Thornton  - adapted by ArcEye to instcomp";
 
 license "GPL";
 
 // Input Pins
-pin in bit start "Timer On";
+pin in bit start = 0 "Timer On";
+pin in bit zero  = 0 "Zero timer";
 
 // Output Pins
-pin out u32 seconds "Seconds";
-pin out u32 minutes "Minutes";
-pin out u32 hours "Hours";
+pin out u32 seconds  = 0 "Seconds";
+pin out u32 minutes = 0 "Minutes";
+pin out u32 hours = 0 "Hours";
 
 // Variables
-variable hal_u32_t totalsecs = 0;
+variable long totalnsecs = 0;
 variable hal_bit_t old_start = false;
 
 function _;
@@ -83,15 +89,24 @@ function _;
 
 FUNCTION(_)
 {
+long lperiod = fa_current_period(fa);
+hal_u32_t totalsecs;
+
+    if(zero){
+	// cater for a zeroing the counter
+	totalnsecs = totalsecs = 0;
+	seconds = minutes = hours = 0;
+    }
 
     if(start && !old_start) 
-		totalsecs = 0;
+	totalsecs = 0;
 
     if(start){
-    totalsecs += (hal_u32_t)(period / 1e9);
-    seconds = totalsecs % 60;
-    minutes = (totalsecs / 60) % 60;
-    hours = totalsecs / 3600;
+        totalnsecs += lperiod;
+        totalsecs = (hal_u32_t)(totalnsecs / 1e9);
+        seconds = totalsecs % 60;
+        minutes = (totalsecs / 60) % 60;
+        hours = totalsecs / 3600;
     }
     old_start = start;
 
