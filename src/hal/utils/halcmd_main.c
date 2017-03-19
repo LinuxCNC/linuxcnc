@@ -285,13 +285,12 @@ int main(int argc, char **argv)
 	int i, len = 0;
 	for (i=1; i < argc; i++) {
 	    len += strlen(argv[i]) + 1;
-	    if(len < 200){
+	    if (len < MAX_CMD_LEN) {
 		strcat(cmdline, argv[i]);
 		strcat(cmdline, " ");
 	    }
-	    else{
-		rtapi_print_msg(RTAPI_MSG_DBG, 
-		    "halcmd commandline exceeds 200 chars");
+	    else {
+		fprintf("halcmd commandline exceeds %i chars", MAX_CMD_LEN);
 		exit(-1);
 	    }
 	}
