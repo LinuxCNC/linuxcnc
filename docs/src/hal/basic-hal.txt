@@ -36,12 +36,16 @@ loadrt mux4 count=1
 
 === addf
 
-The 'addf' command adds a real time function function to a thread. The order
-of the addf commands in the hal file is the order that they are loaded and
-executed. Some functions it is important to load them in a certain order like
-the paraport read and write functions. The function name is usually the
-the component name plus a number. In the following example the component 'or2'
-is loaded and 'show function' shows the name of the or2 function
+Adds function 'functname' to thread 'threadname'. Default is to add the function
+in the order they are in the file. If 'position' is specified, adds the function
+to that spot in the thread. Negative 'position' means position with respect to
+the end of the thread. For example '1' is start of thread, '-1' is the end of
+the thread, '-3' is third from the end.
+
+Some functions it is important to load them in a certain order like the paraport
+read and write functions. The function name is usually the the component name
+plus a number. In the following example the component 'or2' is loaded and 'show
+function' shows the name of the or2 function
 
 ----
 $ halrun
