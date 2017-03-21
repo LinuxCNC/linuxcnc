@@ -1220,14 +1220,7 @@ class HAL:
                     if i == _PD.POTE:
                         print >>file, "setp   "+potpinname+"spinena-invert   true"
                 print >>file
-                if closedloop:
-                    print >>file, "net spindle-output      => " + potpinname + "spinout"
-                else:
-                    if self.d.susenegativevoltage:
-                        signal = "spindle-vel-cmd-rpm"
-                    else:
-                        signal = "spindle-vel-cmd-rpm-abs"
-                    print >>file, "net %s     => %sspinout"%(signal,potpinname)
+                print >>file, "net spindle-output      => " + potpinname + "spinout"
                 print >>file, "net spindle-enable      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
@@ -1244,14 +1237,7 @@ class HAL:
                     print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
                     print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
                     print >>file
-                    if closedloop or self.d.suseoutputrange2:
-                        print >>file, "net spindle-output      => " + pwmpinname
-                    else:
-                        if self.d.susenegativevoltage:
-                            signal = "spindle-vel-cmd-rpm"
-                        else:
-                            signal = "spindle-vel-cmd-rpm-abs"
-                        print >>file, "net %s     => %s"%(signal,pwmpinname)
+                    print >>file, "net spindle-output      => " + pwmpinname
                     if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
                         print >>file, "net spindle-enable      => " + rawpinname + "spinena"
                 else:
