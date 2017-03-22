@@ -101,6 +101,12 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         self.set_property("label",labelcontent)
 
     def expose(self, widget, event):
+        # check for sensitivity flags so color can be changed
+        if (self.flags() & gtk.PARENT_SENSITIVE) and (self.flags() & gtk.SENSITIVE):
+            self.alpha = 1
+        else:
+            self.alpha = 0.3
+
         context = widget.window.cairo_create()
         self.set_size_request(100, 100)
         # set a clip region for the expose event
@@ -220,16 +226,15 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         radius = min(rect.width / 2.0, rect.height / 2.0) - 5
         # black rim
         context.arc(x, y, radius, 0, 2.0 * math.pi)
-        context.set_source_rgb(0, 0, 0)
+        context.set_source_rgba(0, 0, 0,self.alpha)
         context.fill_preserve()
         # black inner circle outline
-        context.set_source_rgb(0, 0, 0,)
         context.arc(x, y, 0.8 * radius, 0, 2.0 * math.pi)
         context.stroke()
         # changeable filled inner circle 
         context.set_source_rgb(0.8, .8, .8,)
         color = self.center_color
-        context.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., 1)
+        context.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., self.alpha)
         context.arc(x, y, 0.8 * radius-context.get_line_width()/2, 0, 2.0 * math.pi)
         context.fill()
         context.stroke()
@@ -258,7 +263,7 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
 
         # pointer
         # the line is rotated n degrees (pi/(ticks/2))
-        context.set_source_rgb(0, 0, 0)
+        context.set_source_rgba(0, 0, 0,self.alpha)
         minutes = self._minute_offset
         # calculate starting and stopping position of pointer line
         x_calc = radius * math.sin(math.pi / (self.cpr/2.0)* minutes)
