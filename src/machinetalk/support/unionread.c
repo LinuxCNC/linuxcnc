@@ -39,19 +39,18 @@ bool print_container(pb_istream_t *stream)
     uint64_t taghdr;
     pb_wire_type_t wiretype;
 
-#if 1
     if (!pb_decode_varint(stream, &taghdr)) {
 	printf("Parsing taghdr failed: %s\n", PB_GET_ERROR(stream));
     }
     tag = taghdr >> 3;
     wiretype = taghdr & 0x07;
-#else
+/**********************************************************
     bool eof;
     // It is a submessage encoded in length-delimited format
     if (!pb_decode_tag(stream, &wiretype, &tag, &eof))  {
 	printf("Parsing tag#3 failed: %s\n", PB_GET_ERROR(stream));
     }
-#endif
+***********************************************************/
     printf("wiretype=%d tag=%d (submessage type)\n", wiretype, tag);
     assert(wiretype == 2); // length-delimited format
 
