@@ -271,7 +271,7 @@ void rtapi_print_loc(const int level,
     int n = strlen(_rtapi_logmsg);
 
     vsnprintf(_rtapi_logmsg + n, RTAPIPRINTBUFFERLEN - n, fmt, args);
-    rtapi_print_msg(level, _rtapi_logmsg);
+    rtapi_print_msg(level, "%s", _rtapi_logmsg);
     va_end(args);
 }
 

@@ -32,7 +32,7 @@ int hal_xinit(const int type,
 	      const hal_constructor_t ctor,
 	      const hal_destructor_t dtor,
 	      const char *name) {
-    hal_comp_t *c = halg_xinitf(1, type, userarg1, userarg2, ctor, dtor, name);
+    hal_comp_t *c = halg_xinitf(1, type, userarg1, userarg2, ctor, dtor, "%s", name);
     return c == NULL ? _halerrno : hh_get_id(&c->hdr);
 }
 

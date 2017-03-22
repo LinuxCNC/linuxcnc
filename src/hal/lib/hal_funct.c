@@ -62,7 +62,7 @@ int halg_export_xfunctf(const int use_halmutex,
 int hal_export_funct(const char *name, void (*funct) (void *, long),
 		     void *arg, int uses_fp, int reentrant, int owner_id)
 {
-    return hal_export_functf(funct, arg, uses_fp, reentrant, owner_id, name);
+    return hal_export_functf(funct, arg, uses_fp, reentrant, owner_id, "%s", name);
 }
 
 static int halg_export_xfunctfv(const int use_hal_mutex,
