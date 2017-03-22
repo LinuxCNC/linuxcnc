@@ -243,7 +243,7 @@ create_rcomp(htself_t *self,  const machinetalk::Component *pbcomp,
                               (hal_pin_dir_t) p.dir(),
                               NULL, // v2
                               comp_id,
-                              p.name().c_str());
+                              "%s", p.name().c_str());
 
         if (o.pin == NULL) {
             note_printf(self->tx, "halg_pin_new() failed: %d - %s ",

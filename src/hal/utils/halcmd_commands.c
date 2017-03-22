@@ -3464,7 +3464,7 @@ static void hdprinter(int level, const char *fmt, ...)
     va_start(ap, fmt);
     vsnprintf(buf, BUFFERLEN, fmt, ap);
     va_end(ap);
-    halcmd_output(buf);
+    halcmd_output("%s", buf);
 }
 
 static int ringdump(const char *name, ringbuffer_t *rb, void *arg)
@@ -3905,7 +3905,7 @@ int do_newpin_cmd(char *comp_name, char *pin_name, char *type_name, char *args[]
 	p = NULL;
 #endif
 	// same here - use unlocked pin_new
-	pin  = halg_pin_newf(0, type, dir, p, ho_id(comp), pin_name);
+	pin  = halg_pin_newf(0, type, dir, p, ho_id(comp), "%s", pin_name);
 	if (pin == NULL) {
 	    halcmd_error("cant create pin '%s':  %s\n",
 			 pin_name, strerror(-retval));

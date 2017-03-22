@@ -290,7 +290,7 @@ int rtapi_connect(int instance, char *uri, const char *svc_uuid)
     zsocket_set_identity(z_command, z_ident);
     zsocket_set_linger(z_command, 0);
 
-    if (zsocket_connect(z_command, uri)) {
+    if (zsocket_connect(z_command, "%s", uri)) {
 	perror("connect");
 	return -EINVAL;
     }

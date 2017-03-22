@@ -1050,7 +1050,7 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     // log accumulated notes
     for (int i = 0; i < pbreply.note_size(); i++) {
 	rtapi_print_msg(pbreply.retcode() ? RTAPI_MSG_ERR : RTAPI_MSG_DBG,
-			pbreply.note(i).c_str());
+			"%s", pbreply.note(i).c_str());
     }
 
     // TODO: extract + attach error message
@@ -1331,7 +1331,7 @@ static int mainloop(size_t  argc, char **argv)
 	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
 		 RUNDIR, instance_id, RTAPIMOD, service_uuid);
 	mode_t prev = umask(S_IROTH | S_IWOTH | S_IXOTH);
-	if ((z_port = zsocket_bind(z_command, uri )) < 0) {
+	if ((z_port = zsocket_bind(z_command, "%s", uri )) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,  "cannot bind IPC socket '%s' - %s\n",
 			    uri, strerror(errno));
 	    global_data->rtapi_app_pid = 0;
