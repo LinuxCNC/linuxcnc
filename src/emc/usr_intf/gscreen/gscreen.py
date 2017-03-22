@@ -1748,7 +1748,11 @@ class Gscreen:
             The search text string is set by text entry widget 'search_entry'.
             This is a callback function called by any named widget
         """
-        self.widgets.gcode_view.text_search(direction=True,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+        try:
+            CASE = self.widgets.ignorecase_checkbutton.get_active()
+        except:
+            CASE = True
+        self.widgets.gcode_view.text_search(direction=True,mixed_case=CASE,
                                 text=self.widgets.search_entry.get_text())
 
     def search_bwd(self,widget):
@@ -1758,7 +1762,11 @@ class Gscreen:
             The search text string is set by text entry widget 'search_entry'.
             This is a callback function called by any named widget
         """
-        self.widgets.gcode_view.text_search(direction=False,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+        try:
+            CASE = self.widgets.ignorecase_checkbutton.get_active()
+        except:
+            CASE = True
+        self.widgets.gcode_view.text_search(direction=False,mixed_case=CASE,
                                 text=self.widgets.search_entry.get_text())
 
     def replace_text(self,widget):
@@ -1770,9 +1778,17 @@ class Gscreen:
             The replace all option is set by widget 'replaceall_checkbutton' state
             This is a callback function called by any named widget
         """
-        self.widgets.gcode_view.replace_text_search(direction=True,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+        try:
+            CASE = self.widgets.ignorecase_checkbutton.get_active()
+        except:
+            CASE = True
+        try:
+            RE_ALL = self.widgets.replaceall_checkbutton.get_active()
+        except:
+            RE_ALL = False
+        self.widgets.gcode_view.replace_text_search(direction=True,mixed_case=CASE,
                                 text=self.widgets.search_entry.get_text(),re_text=self.widgets.search_entry1.get_text(),
-                                replace_all=self.widgets.replaceall_checkbutton.get_active())
+                                replace_all=RE_ALL)
 
     def undo_edit(self,widget):
         """This will undo one level of change in the gcode_view.
