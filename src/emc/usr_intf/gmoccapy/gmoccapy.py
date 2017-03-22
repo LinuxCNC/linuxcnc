@@ -1076,16 +1076,22 @@ class gmoccapy(object):
             names = os.listdir(USERTHEMEDIR)
             names.sort()
             for dirs in names:
-                sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
-                if 'gtk-2.0' in sbdirs:
-                    themes.append(dirs)
+                try:
+                    sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
+                    if 'gtk-2.0' in sbdirs:
+                        themes.append(dirs)
+                except:
+                    pass
         if os.path.exists(THEMEDIR):
             names = os.listdir(THEMEDIR)
             names.sort()
             for dirs in names:
-                sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
-                if 'gtk-2.0' in sbdirs:
-                    themes.append(dirs)
+                try:
+                    sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
+                    if 'gtk-2.0' in sbdirs:
+                        themes.append(dirs)
+                except:
+                    pass
         temp = 0
         theme_name = self.prefs.getpref("gtk_theme", "Follow System Theme", str)
         for index, theme in enumerate(themes):
