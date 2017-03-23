@@ -618,7 +618,7 @@ void __iomem *pci_ioremap_bar(struct pci_dev *dev, int bar)
 	return mmio;
 }
 
-inline void iounmap(volatile void __iomem *addr)
+void iounmap(volatile void __iomem *addr)
 {
 	unsigned int i;
 
