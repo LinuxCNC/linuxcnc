@@ -214,6 +214,7 @@ static void write_sample_to_ring(void *arg, long period)
 		case HAL_U64:
 		    set_u64_value(hd->pins_out[j], get_u64_value(hd->pins_in[j]));
 		    break;
+		case HAL_TYPE_MAX:
 		case HAL_TYPE_UNSPECIFIED:
 		    // an error - should fail loudly TBD
 		    ;
@@ -252,6 +253,7 @@ static void write_sample_to_ring(void *arg, long period)
 	    case HAL_U64:
 		set_u64_value(&s->value[j], get_u64_value(hd->pins_in[j]));
 		break;
+	    case HAL_TYPE_MAX:
 	    case HAL_TYPE_UNSPECIFIED:
 		// an error - should fail loudly TBD
 		;
@@ -294,6 +296,7 @@ static inline void apply(const sample_t *s, const hal_delayline_t *hd)
 	case HAL_U64:
 	    set_u64_value(hd->pins_out[i], get_u64_value(&s->value[i]));
 	    break;
+	case HAL_TYPE_MAX:
 	case HAL_TYPE_UNSPECIFIED:
 	    // an error - should fail loudly TBD
 	    ;
@@ -479,6 +482,13 @@ static int export_delayline(int n)
 	case HAL_S32:
 	    str_type = "s32";
 	    break;
+	case HAL_S64:
+	    str_type = "s64";
+	    break;
+	case HAL_U64:
+	    str_type = "u64";
+	    break;
+	case HAL_TYPE_MAX:
 	case HAL_TYPE_UNSPECIFIED:
 	    // do nothing
 	    break;

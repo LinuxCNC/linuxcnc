@@ -8,7 +8,7 @@ cdef class Component(HALObject):
     cdef dict _itemdict
     cdef int _handle
 
-    def __cinit__(self, name, mode=TYPE_USER, int userarg1=0, int userarg2=0,
+    def __cinit__(self, char *name, mode=TYPE_USER, int userarg1=0, int userarg2=0,
                   wrap=False, noexit=False, lock=True):
         global _comps
         hal_required()
@@ -16,7 +16,7 @@ cdef class Component(HALObject):
         with HALMutexIf(lock):
             self._cc = NULL
             if not wrap:
-                self._o.comp = halg_xinitf(0, mode, userarg1, userarg2, NULL, NULL, name)
+                self._o.comp = halg_xinitf(0, mode, userarg1, userarg2, NULL, NULL, "%s", name)
                 if self._o.comp == NULL:
                     raise RuntimeError("Failed to create component '%s': - %s" %
                                        (name, hal_lasterror()))

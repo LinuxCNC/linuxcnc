@@ -12,6 +12,8 @@ def describe_hal_dir(haldir):
 cdef class _Pin(HALObject):
 
     def __cinit__(self, *args,  init=None, eps=0, wrap=True, lock=True):
+        cdef bytes c_bytes
+        cdef char *c_name
         hal_required()
 
         # _Pin() has slightly different calling conventions due to
@@ -39,9 +41,11 @@ cdef class _Pin(HALObject):
                     raise RuntimeError("pin %s : epsilon"
                                        " index out of range" % (name, eps))
 
+                c_bytes = name.encode()
+                c_name = c_bytes
                 self._o.pin = halg_pin_newf(0,  t, dir,
                                             NULL, #v2 # <void **>(self._storage),
-                                            (<Component>comp).id,name,)
+                                            (<Component>comp).id, "%s", c_name)
                 if self._o.pin == NULL:
                     raise RuntimeError("Fail to create pin %s:"
                                        " %d %s" % (name, _halerrno, hal_lasterror()))

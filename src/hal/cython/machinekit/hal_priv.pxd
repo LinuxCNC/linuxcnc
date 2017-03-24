@@ -181,7 +181,7 @@ cdef extern from "hal_priv.h":
                              const int dir,
                              void **data_ptr_addr,
                              const int owner_id,
-                             const char *name)
+                             const char *name, ...)
 
     # accessors
     hal_sig_t *signal_of(const hal_pin_t *pin)

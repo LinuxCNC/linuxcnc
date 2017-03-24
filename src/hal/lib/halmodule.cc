@@ -43,6 +43,8 @@ union paramunion {
     hal_bit_t b;
     hal_u32_t u32;
     hal_s32_t s32;
+    hal_u64_t u64;
+    hal_s64_t s64;
     hal_float_t f;
 };
 
@@ -51,6 +53,8 @@ union pinunion {
     hal_bit_t *b;
     hal_u32_t *u32;
     hal_s32_t *s32;
+    hal_u64_t *u64;
+    hal_s64_t *s64;
     hal_float_t *f;
 };
 
@@ -273,7 +277,10 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_BIT: return PyBool_FromLong(*(item->u->pin.b));
             case HAL_U32: return PyLong_FromUnsignedLong(*(item->u->pin.u32));
             case HAL_S32: return PyInt_FromLong(*(item->u->pin.s32));
+            case HAL_U64: return PyLong_FromUnsignedLong(*(item->u->pin.u64));
+            case HAL_S64: return PyInt_FromLong(*(item->u->pin.s64));
             case HAL_FLOAT: return PyFloat_FromDouble(*(item->u->pin.f));
+            case HAL_TYPE_MAX: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     } else {
@@ -281,7 +288,10 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_BIT: return PyBool_FromLong(item->u->param.b);
             case HAL_U32: return PyLong_FromUnsignedLong(item->u->param.u32);
             case HAL_S32: return PyInt_FromLong(item->u->param.s32);
+            case HAL_U64: return PyLong_FromUnsignedLong(item->u->param.u64);
+            case HAL_S64: return PyInt_FromLong(item->u->param.s64);
             case HAL_FLOAT: return PyFloat_FromDouble(item->u->param.f);
+            case HAL_TYPE_MAX: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }
