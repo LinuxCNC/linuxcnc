@@ -149,8 +149,9 @@ Owner   Type   Dir        Value  Name
 
 This command displays all of the pins in the current HAL. A complex system
 could have dozens or hundreds of pins. But right now there are only
-nine pins. All eight of these pins are floating point, and carry data
-out of the 'siggen' component. Since we have not yet executed the code
+nine pins. Of these pins eight are floating point and one is bit (boolean).
+Six carry data out of the 'siggen' component and three are used to transfer
+settings into the component. Since we have not yet executed the code
 contained within the component, some the pins have a value of zero.
 
 The next step is to look at parameters:
