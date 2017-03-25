@@ -54,7 +54,7 @@ endif # BUILD_ALL_FLAVORS && USE_SHMDRV
 
 # make shmdrvapi.o a shared library, which gets around -fPIC
 # issues on amd64
-SHMDRVAPISRCS := rtapi/shmdrv/shmdrvapi.c 
+SHMDRVAPISRCS := rtapi/shmdrv/shmdrvapi.c
 
 $(call TOOBJSDEPS, $(SHMDRVAPISRCS)): EXTRAFLAGS += -fPIC
 SHMDRVLIB := ../lib/liblinuxcncshm.so
