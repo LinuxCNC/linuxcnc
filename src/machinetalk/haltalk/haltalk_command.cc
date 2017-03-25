@@ -21,6 +21,7 @@
 #include "hal_object.h"
 #include "pbutil.hh"
 #include "rtapi_hexdump.h"
+#include <sys/time.h>
 
 #include <google/protobuf/text_format.h>
 
@@ -90,8 +91,8 @@ validate_component(const char *name, const machinetalk::Component *pbcomp, machi
 
     hal_comp_t *hc = halpr_find_comp_by_name(name);
     if (hc == NULL) {
-    note_printf(e, "HAL component '%s' does not exist", name);
-    return e.note_size();
+        note_printf(e, "HAL component '%s' does not exist", name);
+        return e.note_size();
     }
 
     int npins = halpr_pin_count(name);
@@ -100,89 +101,95 @@ validate_component(const char *name, const machinetalk::Component *pbcomp, machi
     int npbparams = pbcomp->param_size();
     std::string s;
 
-    if (!pbcomp->has_name())
-    note_printf(e, "pb component has no name");
+    if (!pbcomp->has_name()) {
+        note_printf(e, "pb component has no name");
+    }
 
-    if (npbpins != npins)
-    note_printf(e, "pin count mismatch:pb comp=%d hal comp=%d",
-            npbpins, npins);
+    if (npbpins != npins) {
+        note_printf(e, "pin count mismatch:pb comp=%d hal comp=%d",
+                    npbpins, npins);
+    }
 
-    if (npbparams != nparams)
-    note_printf(e, "param count mismatch:pb comp=%d hal comp=%d",
-            npbparams, nparams);
+    if (npbparams != nparams) {
+        note_printf(e, "param count mismatch:pb comp=%d hal comp=%d",
+                    npbparams, nparams);
+    }
 
     for (int i = 0; i < npbpins; i++) {
+        const machinetalk::Pin &p = pbcomp->pin().Get(i);;
 
-    const machinetalk::Pin &p = pbcomp->pin().Get(i);;
+        // basic syntax - required attributes
+        if (!p.has_name()) {
+            gpb::TextFormat::PrintToString(p, &s);
+            note_printf(e, "pin without name: %s", s.c_str());
+            continue;
+        }
+        if (!p.has_type()) {
+            gpb::TextFormat::PrintToString(p, &s);
+            note_printf(e, "pin without type: %s", s.c_str());
+            continue;
+        }
+        if (!p.has_dir()) {
+            gpb::TextFormat::PrintToString(p, &s);
+            note_printf(e, "pin without dir: %s", s.c_str());
+            continue;
+        }
 
-    // basic syntax - required attributes
-    if (!p.has_name()) {
-        gpb::TextFormat::PrintToString(p, &s);
-        note_printf(e, "pin without name: %s", s.c_str());
-        continue;
-    }
-    if (!p.has_type()) {
-        gpb::TextFormat::PrintToString(p, &s);
-        note_printf(e, "pin without type: %s", s.c_str());
-        continue;
-    }
-    if (!p.has_dir()) {
-        gpb::TextFormat::PrintToString(p, &s);
-        note_printf(e, "pin without dir: %s", s.c_str());
-        continue;
-    }
+        // each pb pin must match an existing HAL pin
+        hal_pin_t *hp = halpr_find_pin_by_name(p.name().c_str());
+        if (hp == NULL) {
+            note_printf(e, "HAL pin '%s' does not exist", p.name().c_str());
+        }
+        else {
+            // HAL pin name exists, match attributes
+            if (hp->type != (hal_type_t) p.type()) {
+                note_printf(e, "HAL pin '%s' type mismatch: hal=%d pb=%d",
+                            p.name().c_str(), hp->type, p.type());
+            }
 
-    // each pb pin must match an existing HAL pin
-    hal_pin_t *hp = halpr_find_pin_by_name(p.name().c_str());
-    if (hp == NULL) {
-        note_printf(e, "HAL pin '%s' does not exist", p.name().c_str());
-    } else {
-        // HAL pin name exists, match attributes
-        if (hp->type != (hal_type_t) p.type())
-        note_printf(e, "HAL pin '%s' type mismatch: hal=%d pb=%d",
-                p.name().c_str(), hp->type, p.type());
-
-        if (hp->dir != (hal_pin_dir_t) p.dir())
-        note_printf(e, "HAL pin '%s' direction mismatch: hal=%d pb=%d",
-                p.name().c_str(), hp->dir, p.dir());
-    }
+            if (hp->dir != (hal_pin_dir_t) p.dir()) {
+                note_printf(e, "HAL pin '%s' direction mismatch: hal=%d pb=%d",
+                            p.name().c_str(), hp->dir, p.dir());
+            }
+        }
     }
     // same for params:
     for (int i = 0; i < npbparams; i++) {
+        const machinetalk::Param &p = pbcomp->param().Get(i);;
 
-    const machinetalk::Param &p = pbcomp->param().Get(i);;
+        // basic syntax - required attributes
+        if (!p.has_name()) {
+            gpb::TextFormat::PrintToString(p, &s);
+            note_printf(e, "param withtout name: %s", s.c_str());
+            continue;
+        }
+        if (!p.has_type()) {
+            gpb::TextFormat::PrintToString(p, &s);
+            note_printf(e, "param withtout type: %s", s.c_str());
+            continue;
+        }
+        if (!p.has_dir()) {
+            gpb::TextFormat::PrintToString(p, &s);
+            note_printf(e, "param withtout direction: %s", s.c_str());
+            continue;
+        }
 
-    // basic syntax - required attributes
-    if (!p.has_name()) {
-        gpb::TextFormat::PrintToString(p, &s);
-        note_printf(e, "param withtout name: %s", s.c_str());
-        continue;
-    }
-    if (!p.has_type()) {
-        gpb::TextFormat::PrintToString(p, &s);
-        note_printf(e, "param withtout type: %s", s.c_str());
-        continue;
-    }
-    if (!p.has_dir()) {
-        gpb::TextFormat::PrintToString(p, &s);
-        note_printf(e, "param withtout direction: %s", s.c_str());
-        continue;
-    }
-
-    // each pb param must match an existing HAL param
-    hal_param_t *hp = halpr_find_param_by_name(p.name().c_str());
-    if (hp == NULL) {
-        note_printf(e, "HAL param '%s' does not exist", p.name().c_str());
-    } else {
-        // HAL param name exists, match attributes
-        if (hp->type != (hal_type_t) p.type())
-        note_printf(e, "HAL param '%s' type mismatch: hal=%d pb=%d",
+        // each pb param must match an existing HAL param
+        hal_param_t *hp = halpr_find_param_by_name(p.name().c_str());
+        if (hp == NULL) {
+            note_printf(e, "HAL param '%s' does not exist", p.name().c_str());
+        } else {
+            // HAL param name exists, match attributes
+            if (hp->type != (hal_type_t) p.type()) {
+                note_printf(e, "HAL param '%s' type mismatch: hal=%d pb=%d",
                 hp->type, p.type());
+            }
 
-        if (hp->dir != (hal_param_dir_t) p.dir())
-        note_printf(e, "HAL param '%s' direction mismatch: hal=%d pb=%d",
-                hp->dir, p.dir());
-    }
+            if (hp->dir != (hal_param_dir_t) p.dir()) {
+                note_printf(e, "HAL param '%s' direction mismatch: hal=%d pb=%d",
+                            hp->dir, p.dir());
+            }
+        }
     }
     // this matching on pb objects only will not explicitly
     // enumerate HAL pins and params which are not in the pb request,
@@ -320,113 +327,115 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
     // validate pinlist attributes if pins are present -
     // to create a pin, it must have, name, type, direction
     for (int i = 0; i < pbcomp->pin_size(); i++) {
-    const machinetalk::Pin &p = pbcomp->pin(i);
-    if (!(p.has_name() &&
-          p.has_type() &&
-          p.has_dir())) {
+        const machinetalk::Pin &p = pbcomp->pin(i);
+        if (!(p.has_name() &&
+              p.has_type() &&
+              p.has_dir())) {
 
-        // TODO if (type < HAL_BIT || type > HAL_U32)
-        gpb::TextFormat::PrintToString(p, &s);
-        zframe_t *o = zmsg_first (from);  // freed with msg
-        std::string origin( (const char *) zframe_data(o), zframe_size(o));
-        note_printf(self->tx,
-            "request %d from %s: invalid pin - name, type or dir missing: Pin=(%s)",
-            self->rx.type(), origin.c_str(), s.c_str());
-    }
+            // TODO if (type < HAL_BIT || type > HAL_U32)
+            gpb::TextFormat::PrintToString(p, &s);
+            zframe_t *o = zmsg_first (from);  // freed with msg
+            std::string origin( (const char *) zframe_data(o), zframe_size(o));
+            note_printf(self->tx,
+                        "request %d from %s: invalid pin - name, type or dir missing: Pin=(%s)",
+                        self->rx.type(), origin.c_str(), s.c_str());
+        }
     }
     // reply if any bad news so far
-    if (self->tx.note_size() > 0)
-    return send_pbcontainer(from, self->tx, socket);
-
+    if (self->tx.note_size() > 0) {
+        return send_pbcontainer(from, self->tx, socket);
+    }
     // see if component already exists
     if (self->rcomps.count(cname) == 0) {
-       // check if any rcomps defined in HAL since startup
-       scan_comps(self);
+        // check if any rcomps defined in HAL since startup
+        scan_comps(self);
     }
 
     if (self->rcomps.count(cname) == 0) {
+        // fail if no_create flag is set in Component submessage
+        // meaning: bind succeeds only if the component exists
+        if (pbcomp->has_no_create() && pbcomp->no_create()) {
+            zframe_t *o = zmsg_first (from);  // freed with msg
+            std::string origin( (const char *) zframe_data(o), zframe_size(o));
+            note_printf(self->tx,
+                        "request %d from '%s': Component not created since no_create flag set",
+                        self->rx.type(), origin.c_str());
+            return send_pbcontainer(from, self->tx, socket);
+        }
 
-    // fail if no_create flag is set in Component submessage
-    // meaning: bind succeeds only if the component exists
-    if (pbcomp->has_no_create() && pbcomp->no_create()) {
-        zframe_t *o = zmsg_first (from);  // freed with msg
-        std::string origin( (const char *) zframe_data(o), zframe_size(o));
-        note_printf(self->tx,
-            "request %d from '%s': Component not created since no_create flag set",
-            self->rx.type(), origin.c_str());
-    return send_pbcontainer(from, self->tx, socket);
+        // see if component already exists
+        // there might be a comp but user might have
+        // left out the 'ready <compname>' step or forgotten to call 'hal_ready()'
+        // in which case the comp will be in state COMP_INITIALIZING
+        int compstate = hal_comp_state_by_name(cname);
+        if (compstate == COMP_INITIALIZING) {
+            note_printf(self->tx, "component '%s' exists but has state COMP_INITIALIZING", cname);
+            note_printf(self->tx, "this could be caused by a missing hal_ready() call or "
+                        "a missing 'ready <compname>' halcmd statement");
+            return send_pbcontainer(from, self->tx, socket);
+        }
+
+        // still no, new component being created remotely
+        // any errors accumulate in self->tx.note
+       rc = create_rcomp(self, pbcomp, from, socket);
+       if (rc) {
+           self->rcomps[cname] = rc;
+           // acquire and bind happens during subscribe
+       }
+    }
+    else {
+        // component exists
+        rc = self->rcomps[cname];
+        // validate request against existing comp
+        retval = validate_component(cname, pbcomp, self->tx);
+        if (retval) {
+            zframe_t *o = zmsg_first (from);  // freed with msg
+            std::string origin( (const char *) zframe_data(o), zframe_size(o));
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "%s: bind request from %s:"
+                            " mismatch against existing HAL component",
+                            self->cfg->progname, origin.c_str());
+            return send_pbcontainer(from, self->tx, socket);
+        }
+
+        // decide here if we want to carry over pin/param values
+        // passed in the BIND request.
+        // one possible route is to set pins only if the comp
+        // is not currently bound, and was never bound before; this is made conditional
+        // on a flag in the comp userarg2 so its optional and must be set
+        // explicitly
+        //
+        // purpose: apply initial values from UI widgets
+        // together with the waitbound halcmd operation this assures all values
+        // are set up once waitbound finishes
+        //
+        hal_comp_t *c = rc->cc->comp;
+        if ((c->userarg2 & RCOMP_ACCEPT_VALUES_ON_BIND) &&   // option set
+            (c->last_bound == 0) &&                          // never bound before
+            (c->state == COMP_UNBOUND)) {                    // currently unbound
+            rtapi_print_msg(RTAPI_MSG_DBG,
+                            "%s: comp %s first bind, accepting initial pin values from BIND request",
+                            self->cfg->progname, ho_name(c));
+            if (apply_initial_values(self, pbcomp)) {
+                return send_pbcontainer(from, self->tx, socket);
+            }
+        }
     }
 
-    // see if component already exists
-    // there might be a comp but user might have
-    // left out the 'ready <compname>' step or forgotten to call 'hal_ready()'
-    // in which case the comp will be in state COMP_INITIALIZING
-    int compstate = hal_comp_state_by_name(cname);
-    if (compstate == COMP_INITIALIZING) {
-
-        note_printf(self->tx, "component '%s' exists but has state COMP_INITIALIZING", cname);
-        note_printf(self->tx, "this could be caused by a missing hal_ready() call or "
-            "a missing 'ready <compname>' halcmd statement");
-        return send_pbcontainer(from, self->tx, socket);
-    }
-
-    // still no, new component being created remotely
-    // any errors accumulate in self->tx.note
-    rc = create_rcomp(self, pbcomp, from, socket);
-    if (rc) {
-        self->rcomps[cname] = rc;
-        // acquire and bind happens during subscribe
-    }
-    } else {
-    // component exists
-    rc = self->rcomps[cname];
-    // validate request against existing comp
-    retval = validate_component(cname, pbcomp, self->tx);
-    if (retval) {
-        zframe_t *o = zmsg_first (from);  // freed with msg
-        std::string origin( (const char *) zframe_data(o), zframe_size(o));
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                "%s: bind request from %s:"
-                " mismatch against existing HAL component",
-                self->cfg->progname, origin.c_str());
-        return send_pbcontainer(from, self->tx, socket);
-    }
-
-    // decide here if we want to carry over pin/param values
-    // passed in the BIND request.
-    // one possible route is to set pins only if the comp
-    // is not currently bound, and was never bound before; this is made conditional
-    // on a flag in the comp userarg2 so its optional and must be set
-    // explicitly
-    //
-    // purpose: apply initial values from UI widgets
-    // together with the waitbound halcmd operation this assures all values
-    // are set up once waitbound finishes
-    //
-    hal_comp_t *c = rc->cc->comp;
-    if ((c->userarg2 & RCOMP_ACCEPT_VALUES_ON_BIND) &&   // option set
-        (c->last_bound == 0) &&                          // never bound before
-        (c->state == COMP_UNBOUND)) {                    // currently unbound
-        rtapi_print_msg(RTAPI_MSG_DBG,
-                "%s: comp %s first bind, accepting initial pin values from BIND request",
-                self->cfg->progname, ho_name(c));
-        if (apply_initial_values(self, pbcomp))
-        return send_pbcontainer(from, self->tx, socket);
-    }
-    }
     // all good.
     if (rc) {
-    // a valid component, either existing or new.
-    WITH_HAL_MUTEX();
+        // a valid component, either existing or new.
+        WITH_HAL_MUTEX();
 
-    machinetalk::Component *c = self->tx.add_comp();
-    hal_comp_t *comp = halpr_find_comp_by_name(cname);
-    assert(comp != NULL);
-    self->tx.set_type(machinetalk::MT_HALRCOMP_BIND_CONFIRM);
-    self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
-    retval = halpr_describe_component(comp, c);
-    assert(retval == 0);
+        machinetalk::Component *c = self->tx.add_comp();
+        hal_comp_t *comp = halpr_find_comp_by_name(cname);
+        assert(comp != NULL);
+        self->tx.set_type(machinetalk::MT_HALRCOMP_BIND_CONFIRM);
+        self->tx.set_uuid(&self->netopts.proc_uuid, sizeof(uuid_t));
+        retval = halpr_describe_component(comp, c);
+        assert(retval == 0);
     }
+
     return send_pbcontainer(from, self->tx, socket);
 }
 
@@ -441,54 +450,54 @@ dispatch_request(htself_t *self, zmsg_t *from, void *socket)
     switch (type) {
 
     case machinetalk::MT_PING:
-    retval = process_ping(self, from, socket);
-    break;
+        retval = process_ping(self, from, socket);
+        break;
 
     case machinetalk::MT_HALRCOMP_BIND:
-    // check for component submessages, and fail if none present
-    if (self->rx.comp_size() == 0) {
-        zframe_t *o = zmsg_first (from);  // freed with msg
-        std::string origin( (const char *) zframe_data(o), zframe_size(o));
-        note_printf(self->tx, "request %d from '%s': no Component submessage",
-            self->rx.type(), origin.c_str());
-        return send_pbcontainer(from, self->tx, socket);
-    }
-    // bind them all
-    for (int i = 0; i < self->rx.comp_size(); i++) {
-        const machinetalk::Component *pbcomp = &self->rx.comp(i);
-        retval = process_rcomp_bind(self, from, pbcomp,  socket);
-    }
-    break;
+        // check for component submessages, and fail if none present
+        if (self->rx.comp_size() == 0) {
+            zframe_t *o = zmsg_first (from);  // freed with msg
+            std::string origin( (const char *) zframe_data(o), zframe_size(o));
+            note_printf(self->tx, "request %d from '%s': no Component submessage",
+                        self->rx.type(), origin.c_str());
+            return send_pbcontainer(from, self->tx, socket);
+        }
+        // bind them all
+        for (int i = 0; i < self->rx.comp_size(); i++) {
+            const machinetalk::Component *pbcomp = &self->rx.comp(i);
+            retval = process_rcomp_bind(self, from, pbcomp,  socket);
+        }
+        break;
 
     // HAL object set/get ops
     case machinetalk::MT_HALRCOMMAND_SET:
     case machinetalk::MT_HALRCOMP_SET:
     // XXX: param missing
-    retval = process_set(self, type == machinetalk::MT_HALRCOMP_SET, from, socket);
-    break;
+        retval = process_set(self, type == machinetalk::MT_HALRCOMP_SET, from, socket);
+        break;
 
     case machinetalk::MT_HALRCOMMAND_GET:
     // XXX: param missing
-    retval = process_get(self, from, socket);
-    break;
+        retval = process_get(self, from, socket);
+        break;
 
     case machinetalk::MT_HALRCOMMAND_DESCRIBE:
-    self->tx.set_type(machinetalk::MT_HALRCOMMAND_DESCRIPTION);
-    retval = process_describe(self, from, socket);
-    break;
+        self->tx.set_type(machinetalk::MT_HALRCOMMAND_DESCRIPTION);
+        retval = process_describe(self, from, socket);
+        break;
 
     // NIY - fall through:
     case machinetalk::MT_HALRCOMMAND_CREATE:
     case machinetalk::MT_HALRCOMMAND_DELETE:
     default:
-    self->tx.set_type(machinetalk::MT_HALRCOMMAND_ERROR);
-    note_printf(self->tx, "rcommand %d: not implemented", self->rx.type());
-    send_pbcontainer(from, self->tx, socket);
-    zframe_t *o = zmsg_first (from);  // freed with msg
-    std::string origin( (const char *) zframe_data(o), zframe_size(o));
-    rtapi_print_msg(RTAPI_MSG_ERR, "%s: rcommand from %s : unhandled type %d",
-            self->cfg->progname, origin.c_str(), (int) self->rx.type());
-    retval = -1;
+        self->tx.set_type(machinetalk::MT_HALRCOMMAND_ERROR);
+        note_printf(self->tx, "rcommand %d: not implemented", self->rx.type());
+        send_pbcontainer(from, self->tx, socket);
+        zframe_t *o = zmsg_first (from);  // freed with msg
+        std::string origin( (const char *) zframe_data(o), zframe_size(o));
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: rcommand from %s : unhandled type %d",
+                        self->cfg->progname, origin.c_str(), (int) self->rx.type());
+        retval = -1;
     }
     return retval;
 }
@@ -669,64 +678,65 @@ process_get(htself_t *self, zmsg_t *from, void *socket)
     itemmap_iterator it;
 
     for (int i = 0; i < self->rx.pin_size(); i++) {
-    const machinetalk::Pin &p = self->rx.pin(i);
-    if (p.has_handle()) {
-        int handle = p.handle();
-        it = self->items.find(handle);
-        if (it != self->items.end()) {
-        hal_object_ptr o = it->second;
-        if (hh_get_object_type(o.hdr) != HAL_PIN) {
-            note_printf(self->tx,
-                "get pin: handle type mismatch - not a pin: handle=%d type=%s",
-                handle,  hh_get_object_typestr(o.hdr));
-            continue;
+        const machinetalk::Pin &p = self->rx.pin(i);
+        if (p.has_handle()) {
+            int handle = p.handle();
+            it = self->items.find(handle);
+            if (it != self->items.end()) {
+                hal_object_ptr o = it->second;
+                if (hh_get_object_type(o.hdr) != HAL_PIN) {
+                    note_printf(self->tx,
+                                "get pin: handle type mismatch - not a pin: handle=%d type=%s",
+                                handle,  hh_get_object_typestr(o.hdr));
+                    continue;
+                }
+                // hal_pin_t *hp = hi->o.pin;
+                // assert(hp != NULL);
+                machinetalk::Pin *pbpin = self->tx.add_pin();
+                // reply with just value and handle
+                pbpin->set_handle(ho_id(o.pin));
+                hal_pin2pb(o.pin, pbpin);
+            }
+        } else {
+            if (!p.has_name()) {
+                note_printf(self->tx,
+                            "get pin: no name and no handle!");
+                continue;
+            }
+            // for named get, reply with full decoration
+            describe_pin_by_name(self, p.name().c_str());
         }
-        // hal_pin_t *hp = hi->o.pin;
-        // assert(hp != NULL);
-        machinetalk::Pin *pbpin = self->tx.add_pin();
-        // reply with just value and handle
-        pbpin->set_handle(ho_id(o.pin));
-        hal_pin2pb(o.pin, pbpin);
-        }
-    } else {
-        if (!p.has_name()) {
-        note_printf(self->tx,
-                "get pin: no name and no handle!");
-        continue;
-        }
-        // for named get, reply with full decoration
-        describe_pin_by_name(self, p.name().c_str());
     }
-    }
+
     for (int i = 0; i < self->rx.signal_size(); i++) {
-    const machinetalk::Signal &s = self->rx.signal(i);
-    if (s.has_handle()) {
-        int handle = s.handle();
-        it = self->items.find(handle);
-        if (it != self->items.end()) {
-        hal_object_ptr o = it->second;
-        if (hh_get_object_type(o.hdr) != HAL_SIGNAL) {
-            note_printf(self->tx,
-                "get signal: handle type mismatch - not a signal: handle=%d type=%s",
-                handle, hh_get_object_typestr(o.hdr));
-            continue;
+        const machinetalk::Signal &s = self->rx.signal(i);
+        if (s.has_handle()) {
+            int handle = s.handle();
+            it = self->items.find(handle);
+            if (it != self->items.end()) {
+                hal_object_ptr o = it->second;
+                if (hh_get_object_type(o.hdr) != HAL_SIGNAL) {
+                    note_printf(self->tx,
+                                "get signal: handle type mismatch - not a signal: handle=%d type=%s",
+                                handle, hh_get_object_typestr(o.hdr));
+                    continue;
+                }
+                // hal_sig_t *hs = hi->o.signal;
+                // assert(hs != NULL);
+                machinetalk::Signal *pbsignal = self->tx.add_signal();
+                // reply with just value and handle
+                pbsignal->set_handle(ho_id(o.sig));
+                hal_sig2pb(o.sig, pbsignal);
+            }
+        } else {
+            if (!s.has_name()) {
+                note_printf(self->tx,
+                            "get signal: no name and no handle!");
+                continue;
+            }
+            // for named get, reply with full decoration
+            describe_signal_by_name(self, s.name().c_str());
         }
-        // hal_sig_t *hs = hi->o.signal;
-        // assert(hs != NULL);
-        machinetalk::Signal *pbsignal = self->tx.add_signal();
-        // reply with just value and handle
-        pbsignal->set_handle(ho_id(o.sig));
-        hal_sig2pb(o.sig, pbsignal);
-        }
-    } else {
-        if (!s.has_name()) {
-        note_printf(self->tx,
-                "get signal: no name and no handle!");
-        continue;
-        }
-        // for named get, reply with full decoration
-        describe_signal_by_name(self, s.name().c_str());
-    }
     }
     // XXX: add param handling here
 
@@ -745,25 +755,25 @@ int describe_pin_by_name(htself_t *self, const char *name)
     itemmap_iterator it;
     hal_pin_t *hp = halpr_find_pin_by_name(name);
     if (hp == NULL) {
-    note_printf(self->tx, "no such pin: '%s'", name);
-    return -1;
+        note_printf(self->tx, "no such pin: '%s'", name);
+        return -1;
     }
     // add to items if not yet present
     it = self->items.find(ho_id(hp));
     if (it == self->items.end()) {
-    // pin not found. add to items
-    hal_object_ptr o;
-    o.pin = hp;
-    // halitem_t *hi = new halitem_t();
-    // hi->type = HAL_PIN;
-    // hi->o.pin = hp;
-    // if (hh_get_legacy(&hp->hdr)) {
-    //     hi->ptr = SHMPTR(hp->data_ptr_addr);
-    // } else {
-    //     //       hi->ptr =
-    // }
-    self->items[ho_id(hp)] = o;
-    // printf("add pin %s to items\n", hp->name);
+        // pin not found. add to items
+        hal_object_ptr o;
+        o.pin = hp;
+        // halitem_t *hi = new halitem_t();
+        // hi->type = HAL_PIN;
+        // hi->o.pin = hp;
+        // if (hh_get_legacy(&hp->hdr)) {
+        //     hi->ptr = SHMPTR(hp->data_ptr_addr);
+        // } else {
+        //     //       hi->ptr =
+        // }
+        self->items[ho_id(hp)] = o;
+        // printf("add pin %s to items\n", hp->name);
     }
     // add binding in reply - includes handle
     machinetalk::Pin *pbpin = self->tx.add_pin();

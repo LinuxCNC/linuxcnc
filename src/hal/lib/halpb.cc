@@ -59,8 +59,9 @@ halpr_describe_component(hal_comp_t *comp, machinetalk::Component *pbcomp)
     pbcomp->set_last_bound(comp->last_bound);
     pbcomp->set_last_unbound(comp->last_unbound);
     pbcomp->set_pid(comp->pid);
-    if (comp->insmod_args)
-	pbcomp->set_args((const char *)SHMPTR(comp->insmod_args));
+    if (comp->insmod_args) {
+        pbcomp->set_args((const char *)SHMPTR(comp->insmod_args));
+    }
     pbcomp->set_userarg1(comp->userarg1);
     pbcomp->set_userarg2(comp->userarg2);
 
