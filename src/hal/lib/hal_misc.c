@@ -47,10 +47,15 @@ int halpr_pin_count(const char *name)
     if (comp == 0)
 	HALFAIL_RC(ENOENT, "no such comp: '%s'", name);
 
-    foreach_args_t args =  {
-	.type = HAL_PIN,
-	.owning_comp = ho_id(comp),
-    };
+    foreach_args_t args =  {};
+    args.type = HAL_PIN;
+    if (comp->type == TYPE_REMOTE) {
+        args.owner_id = ho_id(comp);
+    }
+    else {
+        args.owning_comp = ho_id(comp);
+    }
+
     return halg_foreach(0, &args, NULL);
 }
 

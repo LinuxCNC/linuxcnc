@@ -65,7 +65,12 @@ halpr_describe_component(hal_comp_t *comp, machinetalk::Component *pbcomp)
     pbcomp->set_userarg2(comp->userarg2);
 
     foreach_args_t args = {};
-    args.owning_comp = ho_id(comp);
+    if (comp->type == TYPE_REMOTE) {
+        args.owner_id = ho_id(comp);
+    }
+    else {
+        args.owning_comp = ho_id(comp);
+    }
     args.user_ptr1 = (void *)pbcomp;
     halg_foreach(0, &args, pbadd_owned);
     return 0;
