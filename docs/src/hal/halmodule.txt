@@ -262,7 +262,7 @@ Use These To specify details rather then the value they hold.
 
 Read these to aquire information about the realtime system.
 
-* is_kernalspace
+* is_kernelspace
 
 * is_rt
 
