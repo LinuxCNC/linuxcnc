@@ -42,7 +42,6 @@ import math
 import errno
 import textwrap
 import commands
-import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
@@ -78,6 +77,8 @@ gettext.install(domain, localedir=LOCALEDIR, unicode=True)
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
+# Due to traslation put here module with locale
+from stepconf.definitions import *
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc","stepconf")
 main_datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
@@ -105,6 +106,7 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
+
 style = """
 GtkEntry.invalid {
 	color:  black;
@@ -126,6 +128,7 @@ GtkEntry.selected {
 """
 
 from stepconf import pages
+from stepconf import preset
 from stepconf import build_INI
 from stepconf import build_HAL
 
@@ -152,20 +155,25 @@ class Private_Data:
         self.distdir = distdir
         self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
                                 ['base',_('Base Information'),True],
-                                ['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
-                                ['options',_('Options'), True],['halui_page', _('HALUI'), True],
-                                ['gui_page',_('User Interface'), True],
+                                ['pport1', _('Parallel Port 1'),True],
+                                ['pport2', _('Parallel Port 2'),True],
                                 ['axisx', _('Axis X'), True],
-                                ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],
-                                ['axisu', _('Axis U'), True],['axisv', _('Axis V'), True],
+                                ['axisy', _('Axis Y'), True],
+                                ['axisz', _('Axis Z'), True],
+                                ['axisu', _('Axis U'), True],
+                                ['axisv', _('Axis V'), True],
                                 ['axisa', _('Axis A'), True],
-                                ['spindle',_('Spindle'), True],['finished',_('Almost Done'),True]
+                                ['spindle',_('Spindle'), True],
+                                ['options',_('Options'), True],
+                                ['halui_page', _('HALUI'), True],
+                                ['gui_page',_('User Interface'), True],
+                                ['finished',_('Almost Done'),True]
                              ]
  
         self.available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page',
-								'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
-							]
-							
+                                'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
+                                ]
+        
         # internalname / displayed name / steptime/ step space / direction hold / direction setup
         self.alldrivertypes = [
                             ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -183,79 +191,80 @@ class Private_Data:
                             ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
                             ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
-                            ]
-
+        ]
+        """
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
-            self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
-            self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
-            self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
-            self.MIST, self.FLOOD, self.ESTOP, self.AMP,
-            self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
-            self.UNUSED_OUTPUT 
+        self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
+        self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
+        self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
+        self.MIST, self.FLOOD, self.ESTOP, self.AMP,
+        self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
+        self.UNUSED_OUTPUT 
         ) = self.hal_output_names = [
-            "xstep", "xdir", "ystep", "ydir",
-            "zstep", "zdir", "astep", "adir",
-            "ustep", "udir", "vstep", "vdir",
-            "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
-            "coolant-mist", "coolant-flood", "estop-out", "xenable",
-            "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
-            "unused-output"]
-
+        "xstep", "xdir", "ystep", "ydir",
+        "zstep", "zdir", "astep", "adir",
+        "ustep", "udir", "vstep", "vdir",
+        "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
+        "coolant-mist", "coolant-flood", "estop-out", "xenable",
+        "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+        "unused-output"]
+        
         (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
-            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
-            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
-            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
-            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
-            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
-            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
-            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
-            self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
-            self.UNUSED_INPUT
+        self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
+        self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
+        self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
+        self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
+        self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
+        self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
+        self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
+        self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
+        self.UNUSED_INPUT
         ) = self.hal_input_names = [
-            "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
-            "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
-            "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
-            "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
-            "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
-            "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
-            "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
-            "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
-            "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
-            "unused-input"]
-
+        "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
+        "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
+        "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
+        "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
+        "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
+        "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
+        "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
+        "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
+        "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
+        "unused-input"]
+        
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
-            _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
-            _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
-            _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
-            _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
-            _("Charge Pump"),
-            _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
-            _("Unused"))
-
+        _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
+        _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
+        _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
+        _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
+        _("Charge Pump"),
+        _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
+        _("Unused"))
+        
         self.human_input_names = (_("ESTOP In"), _("Probe In"),
-            _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
-            _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
-            _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
-            _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
-            _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
-            _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
-            _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
-            _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
-            _("Both Limit + Home X"), _("Both Limit + Home Y"),
-            _("Both Limit + Home Z"), _("Both Limit + Home A"),
-            _("Both Limit + Home U"), _("Both Limit + Home V"),
-            _("Minimum Limit X"), _("Minimum Limit Y"),
-            _("Minimum Limit Z"), _("Minimum Limit A"),
-            _("Minimum Limit U"), _("Minimum Limit V"),
-            _("Maximum Limit X"), _("Maximum Limit Y"),
-            _("Maximum Limit Z"), _("Maximum Limit A"),
-            _("Maximum Limit U"), _("Maximum Limit V"),
-            _("Both Limit X"), _("Both Limit Y"),
-            _("Both Limit Z"), _("Both Limit A"),
-            _("Both Limit U"), _("Both Limit V"),
-            _("All limits"), _("All home"), _("All limits + homes"),
-            _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-            _("Unused"))
+        _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
+        _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
+        _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
+        _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
+        _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
+        _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
+        _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
+        _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
+        _("Both Limit + Home X"), _("Both Limit + Home Y"),
+        _("Both Limit + Home Z"), _("Both Limit + Home A"),
+        _("Both Limit + Home U"), _("Both Limit + Home V"),
+        _("Minimum Limit X"), _("Minimum Limit Y"),
+        _("Minimum Limit Z"), _("Minimum Limit A"),
+        _("Minimum Limit U"), _("Minimum Limit V"),
+        _("Maximum Limit X"), _("Maximum Limit Y"),
+        _("Maximum Limit Z"), _("Maximum Limit A"),
+        _("Maximum Limit U"), _("Maximum Limit V"),
+        _("Both Limit X"), _("Both Limit Y"),
+        _("Both Limit Z"), _("Both Limit A"),
+        _("Both Limit U"), _("Both Limit V"),
+        _("All limits"), _("All home"), _("All limits + homes"),
+        _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
+        _("Unused"))
+        """
 
         self.MESS_START = _('Start')
         self.MESS_FWD = _('Forward')
@@ -340,34 +349,34 @@ class Data:
         self.pin16inv = 0
         self.pin17inv = 0
 
-        self.pin1 = SIG.ESTOP
-        self.pin2 = SIG.XSTEP
-        self.pin3 = SIG.XDIR
-        self.pin4 = SIG.YSTEP
-        self.pin5 = SIG.YDIR
-        self.pin6 = SIG.ZSTEP
-        self.pin7 = SIG.ZDIR
-        self.pin8 = SIG.ASTEP
-        self.pin9 = SIG.ADIR
-        self.pin14 = SIG.CW
-        self.pin16 = SIG.PWM
-        self.pin17 = SIG.AMP
+        self.pin1 = ESTOP
+        self.pin2 = XSTEP
+        self.pin3 = XDIR
+        self.pin4 = YSTEP
+        self.pin5 = YDIR
+        self.pin6 = ZSTEP
+        self.pin7 = ZDIR
+        self.pin8 = ASTEP
+        self.pin9 = ADIR
+        self.pin14 = CW
+        self.pin16 = PWM
+        self.pin17 = AMP
 
-        self.pin10 = SIG.UNUSED_INPUT
-        self.pin11 = SIG.UNUSED_INPUT
-        self.pin12 = SIG.UNUSED_INPUT
-        self.pin13 = SIG.UNUSED_INPUT
-        self.pin15 = SIG.UNUSED_INPUT
+        self.pin10 = UNUSED_INPUT
+        self.pin11 = UNUSED_INPUT
+        self.pin12 = UNUSED_INPUT
+        self.pin13 = UNUSED_INPUT
+        self.pin15 = UNUSED_INPUT
 
         #   port 2
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp2_pin%d' % pin
-            self[p] = SIG.UNUSED_OUTPUT
+            self[p] = UNUSED_OUTPUT
             p = 'pp2_pin%dinv' % pin
             self[p] = 0
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
-            self[p] = SIG.UNUSED_INPUT
+            self[p] = UNUSED_INPUT
             p = 'pp2_pin%d_in_inv' % pin
             self[p] = 0
 
@@ -750,6 +759,7 @@ class StepconfApp:
         debug = self.debug = dbgstate
         global dbg
         dbg = self.dbg
+        self.distdir = distdir
         self.recursive_block = False
         self.axis_under_test = None
         # Private data holds the array of pages to load, signals, and messages
@@ -923,71 +933,13 @@ class StepconfApp:
             self.w.dirsetup.set_sensitive(1)
         self.calculate_ideal_period()
 
-    # preset out pins
-    def preset_sherline_outputs(self):
-        self.w.pin2.set_active(1)
-        self.w.pin3.set_active(0)
-        self.w.pin4.set_active(3)
-        self.w.pin5.set_active(2)
-        self.w.pin6.set_active(5)
-        self.w.pin7.set_active(4)
-        self.w.pin8.set_active(7)
-        self.w.pin9.set_active(6)
-
-    def preset_xylotex_outputs(self):
-        self.w.pin2.set_active(0)
-        self.w.pin3.set_active(1)
-        self.w.pin4.set_active(2)
-        self.w.pin5.set_active(3)
-        self.w.pin6.set_active(4)
-        self.w.pin7.set_active(5)
-        self.w.pin8.set_active(6)
-        self.w.pin9.set_active(7)
-
-    def preset_tb6560_3axes_outputs(self):
-        SIG = self._p
-        def index(signal):
-            return self._p.hal_output_names.index(signal)
-        # x axis
-        self.w.pin1.set_active(index(SIG.XSTEP))
-        self.w.pin16.set_active(index(SIG.XDIR))
-        self.w.pin4.set_active(index(SIG.AMP))
-        # Y axis
-        self.w.pin14.set_active(index(SIG.YSTEP))
-        self.w.pin7.set_active(index(SIG.YDIR))
-        self.w.pin17.set_active(index(SIG.AMP))
-        # Z axis
-        self.w.pin3.set_active(index(SIG.ZSTEP))
-        self.w.pin6.set_active(index(SIG.ZDIR))
-        self.w.pin5.set_active(index(SIG.AMP))
-        # spindle
-        self.w.pin2.set_active(index(SIG.ON))
-
-    def preset_tb6560_4axes_outputs(self):
-        SIG = self._p
-        def index(signal):
-            return self._p.hal_output_names.index(signal)
-        # x axis
-        self.w.pin2.set_active(index(SIG.XSTEP))
-        self.w.pin3.set_active(index(SIG.XDIR))
-        self.w.pin1.set_active(index(SIG.AMP))
-        # Y axis
-        self.w.pin4.set_active(index(SIG.YSTEP))
-        self.w.pin5.set_active(index(SIG.YDIR))
-        # Z axis
-        self.w.pin6.set_active(index(SIG.ZSTEP))
-        self.w.pin7.set_active(index(SIG.ZDIR))
-        # A axis
-        self.w.pin8.set_active(index(SIG.ASTEP))
-        self.w.pin9.set_active(index(SIG.ADIR))
-
     # check for spindle output signals
     def has_spindle_speed_control(self):
         d = self.d
         SIG = self._p
 
         # Check pp1 for output signals
-        pp1_check = SIG.PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
+        pp1_check = PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
             d.pin7, d.pin8, d.pin9, d.pin14, d.pin16, d.pin17)
         if pp1_check is True: return True
 
@@ -996,7 +948,7 @@ class StepconfApp:
         # output pins:
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp2_pin%d' % pin
-            if d[p] == SIG.PWM: return True
+            if d[p] == PWM: return True
 
         # if we get to here - there are no spindle control signals
         return False
@@ -1006,13 +958,13 @@ class StepconfApp:
         d = self.d
 
         # pp1 input pins
-        if SIG.PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
-        if SIG.PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
+        if PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
+        if PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
 
         # pp2 input pins
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
-            if d[p] in (SIG.PPR, SIG.PHA): return True
+            if d[p] in (PPR, PHA): return True
 
         # if we get to here - there are no spindle encoder signals
         return False
@@ -1083,93 +1035,47 @@ class StepconfApp:
         # GTK supports signal blocking but then you can't assign signal names in GLADE -slaps head
         if self._p.in_pport_prepare or self.recursive_block: return
         self.recursive_block = True
-        SIG = self._p
-        exclusive = {
-            SIG.HOME_X: (SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.HOME_Y: (SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.HOME_Z: (SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.HOME_A: (SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.MAX_HOME_X: (SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_HOME_Y: (SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_HOME_Z: (SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_HOME_A: (SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.MIN_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.BOTH_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.MIN_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-
-            SIG.MAX_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-
-            SIG.BOTH_X: (SIG.MIN_X, SIG.MAX_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_Y: (SIG.MIN_Y, SIG.MAX_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_Z: (SIG.MIN_Z, SIG.MAX_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_A: (SIG.MIN_A, SIG.MAX_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-
-            SIG.ALL_LIMIT: (
-                SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.ALL_LIMIT_HOME),
-            SIG.ALL_HOME: (
-                SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.ALL_LIMIT_HOME),
-            SIG.ALL_LIMIT_HOME: (
-                SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.ALL_LIMIT, SIG.ALL_HOME),
-        }
         v = pin.get_active()
-        name = self._p.hal_input_names[v]
-        ex = exclusive.get(name, ())
+        ex = exclusive_input.get(v, ())
+        
+        # This part is probably useless. It is just an exercise with the GTK3 combobox.
+        tree_iter = pin.get_active_iter()
+        if tree_iter != None:
+            model = pin.get_model()
+            current_text = model[tree_iter][0]
+        # Find function with current selected index
+        lcurrent_function = filter(lambda element: element['index'] == v, hal_input)
+        current_function = lcurrent_function[0]
+        name = current_function["name"]
+        index = current_function["index"]
+
         # search pport1 for the illegal signals and change them to unused.
         dbg( 'looking for %s in pport1'%name)
         for pin1 in (10,11,12,13,15):
             p = 'pin%d' % pin1
             if self.w[p] == pin: continue
-            v1 = self._p.hal_input_names[self.w[p].get_active()]
-            if v1 in ex or v1 == name:
+            v1 = hal_input[self.w[p].get_active()]
+            if v1["index"] in ex or v1["name"] == name:
                 dbg( 'found %s, at %s'%(name,p))
-                self.w[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                #self.w[p].set_active(self._p.hal_input_names.index(UNUSED_INPUT))
+                self.w[p].set_active(UNUSED_INPUT)
                 if not port ==1: # if on the other page must change the data model too
                     dbg( 'found on other pport page')
-                    self.d[p] = SIG.UNUSED_INPUT
+                    self.d[p] = UNUSED_INPUT
         # search pport2 for the illegal signals and change them to unused.
         dbg( 'looking for %s in pport2'%name)
         for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p2 = 'pp2_pin%d_in' % pin1
             if self.w[p2] == pin: continue
-            v2 = self._p.hal_input_names[self.w[p2].get_active()]
-            if v2 in ex or v2 == name:
+            #v2 = self._p.hal_input_names[self.w[p2].get_active()]
+            v2 = hal_input[self.w[p2].get_active()]
+            if v2["index"] in ex or v2["name"] == name:
                 dbg( 'found %s, at %s'%(name,p2))
-                self.w[p2].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                #self.w[p2].set_active(self._p.hal_input_names.index(UNUSED_INPUT))
+                self.w[p2].set_active(UNUSED_INPUT)
                 if not port ==2:# if on the other page must change the data model too
                     dbg( 'found on other pport page')
-                    self.d[p2] = SIG.UNUSED_INPUT
+                    self.d[p2] = UNUSED_INPUT
         self.recursive_block = False
 #**************
 # Latency test
@@ -1185,101 +1091,7 @@ class StepconfApp:
         if pid:
             self.w['window1'].set_sensitive(1)
             return False
-        return True
-
-#***************
-# GLADEVCP TEST
-#***************
-    def test_glade_panel(self,w):
-        panelname = os.path.join(distdir, "configurable_options/gladevcp")
-        if self.w.rdo_gladevcp_blank.get_active() == True:
-            print 'no sample requested'
-            return True
-        if self.w.rdo_default_display.get_active() == True:
-            panel = "default_panel.glade"
-        if self.w.rdo_custom_galdevcp.get_active() == True:
-            panel = "custom_galdevcp.glade"
-            panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
-        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
-        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
-        if self.w.rdo_default_display.get_active() == True:
-            halrun.write("setp displaytest.spindle-speed 1000\n")
-        halrun.write("waitusr displaytest\n")
-        halrun.flush()
-        halrun.close()  
-        
-#***************
-# PYVCP TEST
-#***************
-    def testpanel(self,w):
-        panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        if self.w.radiobutton5.get_active() == True:
-            print 'no sample requested'
-            return True
-        if self.w.radiobutton6.get_active() == True:
-            panel = "spindle.xml"
-        if self.w.radiobutton8.get_active() == True:
-            panel = "custompanel.xml"
-            panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
-        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
-        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
-        if self.w.radiobutton6.get_active() == True:
-            halrun.write("setp displaytest.spindle-speed 1000\n")
-        halrun.write("waitusr displaytest\n")
-        halrun.flush()
-        halrun.close()   
-
-#**************
-# LADDER TEST
-#**************
-    def load_ladder(self,w):         
-        newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
-        self.d.modbus = self.w.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -Is", "w")
-        halrun.write(""" 
-              loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
-              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d\
-                     numFloatIn=%(fin)d numFloatOut=%(fout)d\n
-              addf classicladder.0.refresh slow\n
-              start\n
-                      """ % {
-                      'period': 50000,
-                      'din': self.w.digitsin.get_value(),
-                      'dout': self.w.digitsout.get_value(),
-                      'sin': self.w.s32in.get_value(),
-                      'sout': self.w.s32out.get_value(), 
-                      'fin':self.w.floatsin.get_value(),
-                      'fout':self.w.floatsout.get_value(),
-                 })
-        if self.w.radiobutton1.get_active() == True:
-            if self.d.tempexists:
-               self.d.laddername='TEMP.clp'
-            else:
-               self.d.laddername= 'blank.clp'
-        if self.w.radiobutton2.get_active() == True:
-            self.d.laddername= 'estop.clp'
-        if self.w.radiobutton3.get_active() == True:
-            self.d.laddername = 'serialmodbus.clp'
-            self.d.modbus = True
-            self.w.modbus.set_active(self.d.modbus)
-        if self.w.radiobutton4.get_active() == True:
-            self.d.laddername='custom.clp'
-            originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
-        else:
-            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.d.laddername)        
-        if self.d.modbus == True: 
-            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\
-                \n" %          { 'newfilename':newfilename ,'filename':filename })
-        else:
-            halrun.write("loadusr -w classicladder --newpath=%(newfilename)s %(filename)s\n" % { 'newfilename':newfilename ,'filename':filename })
-        halrun.flush()
-        halrun.close()
-        if os.path.exists(newfilename):
-            self.d.tempexists = True
-            self.w.newladder.set_text('Edited ladder program')
-            self.w.radiobutton1.set_active(True)
-        else:
-            self.d.tempexists = 0
+        return True  
 
 #**********
 # Axis Test
@@ -1401,13 +1213,13 @@ class StepconfApp:
             """ % {
                 'resettime': self.d['steptime']
             })
-        amp_signals = self.find_output(SIG.AMP)
+        amp_signals = self.find_output(AMP)
         for pin in amp_signals:
             amp,amp_port = pin
             halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
                 % {'enablepin': amp,'portnum': amp_port})
 
-        estop_signals = self.find_output(SIG.ESTOP)
+        estop_signals = self.find_output(ESTOP)
         for pin in estop_signals:
             estop,e_port = pin
             halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
@@ -1594,7 +1406,7 @@ class StepconfApp:
     def home_sig(self, axis):
         SIG = self._p
         inputs = self.build_input_set()
-        thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
+        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         for i in inputs:
             if i in thisaxishome: return i

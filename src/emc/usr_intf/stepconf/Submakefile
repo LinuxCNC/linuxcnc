@@ -1,4 +1,4 @@
-STEPCONF_MODULES = pages build_INI build_HAL import_mach 
+STEPCONF_MODULES = pages build_INI build_HAL import_mach definitions preset
 
 STEPCONF_GLADEFILES := \
 	main_page \

@@ -34,6 +34,8 @@ import os
 from gi.repository import Gtk
 from gi.repository import GObject
 from importlib import import_module
+from stepconf.definitions import *
+import preset
 
 
 def add_method(self, method, name=None):
@@ -52,7 +54,6 @@ class Pages:
 		global dbg
 		dbg = self.a.dbg
 		self.dbg = dbg
-		
 		# Import all methods from py pages
 		for lib in (self._p.available_page_lib):
 			#print(lib)
@@ -191,19 +192,31 @@ class Pages:
 		# pport1 combo boxes
 		model = self.w.output_list
 		model.clear()
-		for name in self._p.human_output_names: model.append((name,))
+		for pin in hal_output:
+			model.append((pin["human"],))
+			 
+		#for name in self._p.human_output_names: model.append((name,))
 		model = self.w.input_list
 		model.clear()
-		for name in self._p.human_input_names: model.append((name,))
+ 		for pin in hal_input:
+			model.append((pin["human"],))
+		#for name in self._p.human_input_names: model.append((name,))
+		# preset list for pp1
+		self.w.pp1_preset_liststore.clear()
+		for mydict in preset.preset_pinouts_pp1:
+			treeiter = self.w.pp1_preset_liststore.append([mydict["human"]])
 		# pport2 comboboxes
 		model = self.w.pp2_output_list
 		model.clear()
-		for ind,name in enumerate(self._p.human_output_names):
-			if not ind in( 0,1,2,3,4,5,6,7):
-				model.append((name,))
+ 		for pin in hal_output:
+            # First functions not admitted
+			if not pin["index"] in( 0,1,2,3,4,5,6,7):
+				model.append((pin["human"],))
 		model = self.w.pp2_input_list
 		model.clear()
-		for name in self._p.human_input_names: model.append((name,))
+		#for name in self._p.human_input_names: model.append((name,))
+		for pin in hal_input:
+			model.append((pin["human"],))       
 		self.intro_prepare()
 
 #************
@@ -277,23 +290,64 @@ class Pages:
 			self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 	
 		inputs = self.a.build_input_set()
-		thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
+		thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
 							"max-home-" + axis, "both-home-" + axis))
 		# Test if exists limit switches
 		homes = bool(inputs & thisaxishome)
 		self.w[axis + "homesw"].set_sensitive(homes)
 		self.w[axis + "homevel"].set_sensitive(homes)
 		self.w[axis + "latchdir"].set_sensitive(homes)
+
+		# preset prepare
+		self.w[axis + "preset_liststore"].clear()
+		for mydict in preset.preset_pinouts_pp1:
+			treeiter = self.w[axis + "preset_liststore"].append([mydict["human"]])
 	
 		self.w[axis + "steprev"].grab_focus()
 		GObject.idle_add(lambda: self.a.update_pps(axis))
-	
+
+	def preset_axis(self, axis):
+		state = self.w[axis + "preset_combo"].get_active()
+		"""
+		lcurrent_machine = filter(lambda element: element['name'] == myselect, preset.preset_pinouts_pp1)
+		if(lcurrent_machine != []):
+			# Just first element
+			current_machine = lcurrent_machine[0]
+		"""
+		# The elements are inserted in sequence in the combo so
+		# I can refer them by the list index
+		if(state > -1):
+			current_machine = preset.preset_pinouts_pp1[state]
+		else:
+			return
+
+		# List axis page widgets
+		lwidget=[
+			axis + "steprev",
+			axis + "microstep",
+			axis + "pulleynum",
+			axis + "pulleyden",
+			axis + "leadscrew",
+			axis + "maxvel",
+			axis + "maxacc",
+			axis + "homepos",
+			axis + "minlim",
+			axis + "maxlim",
+			axis + "homesw",
+			axis + "homevel"
+		]
+		for w in lwidget:
+			if(w in current_machine):
+				self.w['%s'%w].set_text(str(current_machine[w]))
+		if(axis + "latchdir" in current_machine):
+			self.w['%slatchdir'%axis].set_active(current_machine[axis + "latchdir"])
+
 	def axis_done(self, axis):
 		def get_text(n): self.d[axis + n] = float(self.w[axis + n].get_text())
 		def get_active(n): self.d[axis + n] = self.w[axis + n].get_active()
 		get_text("steprev")
 		get_text("microstep")
-		get_text("pulleynum")
+		get_text("pulleynum") 
 		get_text("pulleyden")
 		get_text("leadscrew")
 		get_text("maxvel")
