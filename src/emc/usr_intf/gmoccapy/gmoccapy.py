@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.5.1"
+_RELEASE = " 2.2.5.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1701,6 +1701,7 @@ class gmoccapy(object):
             if self.stat.tool_in_spindle != 0:
                 return
             self.reload_tool()
+            self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_not_all_homed(self, widget, joints):
         self.all_homed = False

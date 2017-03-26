@@ -1,3 +1,9 @@
+ver 2.2.5.2
+- if the GUI tries to reload a tool on restart and that tool was not found in 
+  the tool table, the GUI remained in MDI mode, while it was showing the manual 
+  view. This leaded to the problem, that jogging was not possible, but users 
+  thought they where in MANUAL mode, where jogging should be allowed.
+
 ver 2.2.5.1
 - added a new dictionary self.joint_axis_dic to maintain the relation between 
   joints and axis. This was tested with gantry and non identical configs. There
