@@ -296,6 +296,7 @@ static int halg_foreach_from(bool use_hal_mutex,
 	    // 4. by owning comp (directly-legacy case, or indirectly -
 	    // for pins, params and functs owned by an instance).
 	    // see comments near the foreach_args definition in hal_object.h.
+	    // ATTENTION: this operation may be computation intensive!
 	    if (args->owning_comp) {
 		hal_comp_t *oc = halpr_find_owning_comp(hh_get_owner_id(hh));
 		if (oc == NULL)
