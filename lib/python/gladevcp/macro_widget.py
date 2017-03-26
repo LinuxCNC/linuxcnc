@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # vim: sts=4 sw=4 et
-# GladeVcp MDI history widget
+# GladeVcp Macro widget
 #
+# Based on hal MDI history widget
 # Copyright (c) 2011  Pavel Shramov <shramov@mexmat.net>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,17 +29,29 @@ try:
 except:
     pass
 
-class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
-    __gtype_name__ = 'EMC_MDIHistory'
+class MacroSelect(gtk.VBox, _EMC_ActionBase):
+    __gtype_name__ = 'MacroSelect'
+    __gsignals__ = {
+                    'macro-submitted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,gobject.TYPE_STRING,)),
+                    }
+
     def __init__(self, *a, **kw):
         gtk.VBox.__init__(self, *a, **kw)
         self.gstat = GStat()
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
-        inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
-        self.ini = linuxcnc.ini(inifile)
-        self.no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
-        path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
-        self.filename = os.path.expanduser(path)
+        try:
+            inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
+            self.ini = linuxcnc.ini(inifile)
+            no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
+            macros =  self.inifile.findall("MACROS", "MACRO")
+            sub_path = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")or '~/linuxcnc/nc_files/macros'
+        except:
+            no_home_required = 1
+            macros = None
+            sub_path = '~/linuxcnc/nc_files/macros'
+
+        #path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
+        self.foldername = os.path.expanduser(sub_path)
 
         self.model = gtk.ListStore(str)
 
@@ -46,7 +59,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.tv.set_model(self.model)
         self.cell = gtk.CellRendererText()
 
-        self.col = gtk.TreeViewColumn("Command")
+        self.col = gtk.TreeViewColumn("Macro Commands")
         self.col.pack_start(self.cell, True)
         self.col.add_attribute(self.cell, 'text', 0)
 
@@ -73,25 +86,26 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.pack_start(self.entry, False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or no_home_required ) ))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(not self.is_auto_mode()))
         self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
-        # this time lambda with two parameters, as not all homed will send also the unhomed joints
-        self.gstat.connect('not-all-homed', lambda w,uj: self.set_sensitive(self.no_home_required) )
         self.reload()
         self.show_all()
 
     def reload(self):
         self.model.clear()
-
+        files = []
         try:
-            fp = open(self.filename)
+            for f in os.listdir(self.foldername):
+                if f.endswith('.ngc'):
+                    with open(os.path.join(self.foldername, f), 'r') as temp:
+                        first_line = temp.readline().strip()
+                        print first_line
+                        if 'MACROCOMMAND' in first_line:
+                            files.append(first_line.strip('; MACROCOMMAND='))
         except:
-            return
-        lines = map(str.strip, fp.readlines())
-        fp.close()
-
-        lines = filter(bool, lines)
+            pass
+        lines = filter(bool, files)
         for l in lines:
             self.model.append((l,))
         path = (len(lines)-1,)
@@ -112,20 +126,13 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             return
         if not cmd:
             return
-        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        #ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        name = cmd.split()
+        path = self.foldername+ "/" + name[0] + ".ngc"
+        self.emit('macro-submitted',path,cmd)
 
-        try:
-            fp = open(self.filename, 'a')
-            fp.write(cmd + "\n")
-            fp.close()
-        except:
-            pass
+        #self.linuxcnc.mdi(cmd)
 
-        self.linuxcnc.mdi(cmd)
-        last = self.model.append((cmd,))
-        path = self.model.get_path(last)
-        self.tv.scroll_to_cell(path)
-        self.tv.set_cursor(path)
         self.entry.set_text('')
         self.entry.grab_focus()
 
@@ -156,3 +163,29 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
         except:
             self.entry.set_text('ERROR loading halshow')
+
+# for testing without glade editor:
+# Must linuxcnc running to see anything
+def main(filename = None):
+    def macro_callback(widget,path,cmd):
+        print cmd,path
+
+    window = gtk.Dialog("Macro Test dialog",
+                   None,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+    widget = MacroSelect()
+    widget.connect("macro-submitted",macro_callback)
+    window.vbox.add(widget)
+    window.connect("destroy", gtk.main_quit)
+    window.show_all()
+    response = window.run()
+    if response == gtk.RESPONSE_ACCEPT:
+       print "True"
+    else:
+       print "False"
+
+if __name__ == "__main__":
+    main()
+

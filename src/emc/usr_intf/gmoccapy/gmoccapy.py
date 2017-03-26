@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.5.1"
+_RELEASE = " 2.2.5.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1076,16 +1076,22 @@ class gmoccapy(object):
             names = os.listdir(USERTHEMEDIR)
             names.sort()
             for dirs in names:
-                sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
-                if 'gtk-2.0' in sbdirs:
-                    themes.append(dirs)
+                try:
+                    sbdirs = os.listdir(os.path.join(USERTHEMEDIR, dirs))
+                    if 'gtk-2.0' in sbdirs:
+                        themes.append(dirs)
+                except:
+                    pass
         if os.path.exists(THEMEDIR):
             names = os.listdir(THEMEDIR)
             names.sort()
             for dirs in names:
-                sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
-                if 'gtk-2.0' in sbdirs:
-                    themes.append(dirs)
+                try:
+                    sbdirs = os.listdir(os.path.join(THEMEDIR, dirs))
+                    if 'gtk-2.0' in sbdirs:
+                        themes.append(dirs)
+                except:
+                    pass
         temp = 0
         theme_name = self.prefs.getpref("gtk_theme", "Follow System Theme", str)
         for index, theme in enumerate(themes):
@@ -1695,6 +1701,7 @@ class gmoccapy(object):
             if self.stat.tool_in_spindle != 0:
                 return
             self.reload_tool()
+            self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_not_all_homed(self, widget, joints):
         self.all_homed = False

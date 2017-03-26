@@ -1229,6 +1229,7 @@ setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
 text $_tabs_mdi.gcodes \
 	-height 2 \
 	-width 40 \
+	-undo 0 \
 	-wrap word
 
 $_tabs_mdi.gcodes insert end {}
@@ -1310,6 +1311,7 @@ $_tabs_numbers configure -borderwidth 1
 text ${_tabs_numbers}.text -width 1 -height 1 -wrap none \
 	-background [systembuttonface] \
 	-borderwidth 0 \
+	-undo 0 \
 	-relief flat
 pack ${_tabs_numbers}.text -fill both -expand 1
 bindtags ${_tabs_numbers}.text [list ${_tabs_numbers}.text . all]
@@ -1363,6 +1365,7 @@ text ${pane_bottom}.t.text \
 	-highlightthickness 0 \
 	-relief flat \
 	-takefocus 0 \
+	-undo 0 \
 	-yscrollcommand [list ${pane_bottom}.t.sb set]
 ${pane_bottom}.t.text insert end {}
 bind ${pane_bottom}.t.text <Configure> { goto_sensible_line }

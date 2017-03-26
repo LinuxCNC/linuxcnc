@@ -77,6 +77,11 @@ the left of the bus/address digits.  So, to set 5 MHz on the
 encoder board at address 3 on the first EPP bus, you would write :
 enc_clock='0x503'
 
+It was recently discovered that some parallel port chips would not work with the ppmc driver.
+Especially, the Oxford OXPCIe952 chip on the SIIG PCIe parallel port cards had this trouble.
+The ppmc driver in all LinuxCNC versions starting from 2.7.8 have been corrected for this problem by default.  However, this possibly could cause problems with really old EPP parallel port hardware, so there is a command line option to go back to the previous behavior.  The new behavior is set by default, or by adding the parameter epp_dir=0 on the command line.  To get the old behavior, add epp_dir=1 to the command line.
+All parallel ports I have here work with the new default behavior.  As on the other parameters, it is possible to give a list, like epp_dir=1,0,1 to set different settings for each of up to 3 parallel ports.
+
 == Pins
 
 In the following pins, parameters, and functions, <port> is the parallel
