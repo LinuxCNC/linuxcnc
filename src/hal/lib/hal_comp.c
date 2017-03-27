@@ -372,35 +372,38 @@ const char *hal_comp_name(int comp_id)
 
 // use only for owner_ids of pins, params or functs
 // may return NULL if buggy using code
+// This was a bottleneck with rcomps validating pins
+// Move checks so that instances get checked first
+
 hal_comp_t *halpr_find_owning_comp(const int owner_id)
 {
-    hal_comp_t *comp = halpr_find_comp_by_id(owner_id);
-    if (comp != NULL)
-	return comp;  // legacy case: the owner_id refers to a comp
+hal_comp_t *comp;
 
-    // nope, so it better be an instance
+    // more likely to be instcomp, so test that first
     hal_inst_t *inst = halpr_find_inst_by_id(owner_id);
-    if (inst == NULL) {
-	HALERR("BUG: owner_id %d refers neither to a hal_comp_t nor an hal_inst_t",
-	       owner_id);
-	return NULL;
-    }
 
+    if (inst == NULL) { // is it a legacy comp?
+        comp = halpr_find_comp_by_id(owner_id);
+        if (comp != NULL)
+            return comp;
+        else
+            return NULL;
+        }
+    // is it valid?
     HAL_ASSERT(ho_object_type(inst) == HAL_INST);
 
     // found the instance. Retrieve its owning comp:
     comp =  halpr_find_comp_by_id(ho_owner_id(inst));
     if (comp == NULL) {
-	// really bad. an instance which has no owning comp?
-	HALERR("BUG: instance %s/%d's comp_id %d refers to a non-existant comp",
-	       ho_name(inst), ho_id(inst), ho_owner_id(inst));
-    }
-
+        // really bad. an instance which has no owning comp?
+        HALERR("BUG: instance %s/%d's comp_id %d refers to a non-existant comp",
+           ho_name(inst), ho_id(inst), ho_owner_id(inst));
+        }
+    // is it valid?
     HAL_ASSERT(ho_object_type(comp) == HAL_COMPONENT);
 
     return comp;
 }
-
 
 int free_comp_struct(hal_comp_t * comp)
 {
