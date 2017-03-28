@@ -2756,3 +2756,9 @@ by exporting GLADEVCP_EXTRAS to specify a private application
 directory without removing a system-installed application directory.
 Messages inidicating rejected duplicates are printed to
 stdout.
+
+[NOTE]
+
+Support for auxiliary gladevcp applications requires a python
+module named 'importlib'.  This module may not be available in
+older installations like Ubuntu-Lucid.
