@@ -47,7 +47,6 @@
 #include <inifile.h>
 #include <syslog_async.h>
 
-#include "halitem.h"
 #include "mk-service.hh"
 #include "mk-zeroconf.hh"
 
