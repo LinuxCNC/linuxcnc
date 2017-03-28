@@ -227,22 +227,18 @@ register_context_t *ll_zeroconf_register(zservice_t *s, AvahiCzmqPoll *av_loop)
         syslog_async(LOG_ERR,
 		     "zeroconf: Failed to create avahi client object: %s\n",
 		     avahi_strerror(error));
-        goto fail;
+        return NULL;
     }
 
     return rctx;
-
- fail:
-    if (rctx)
-        ll_zeroconf_unregister(rctx);
-    return NULL;
 }
 
 // Unregister this server from DNS-SD/mDNS
 int ll_zeroconf_unregister(register_context_t *rctx)
 {
-    if (rctx == NULL)
-	return 0;
+    if (rctx == NULL) {
+        return 0;
+    }
 
     syslog_async(LOG_INFO, "zeroconf: unregistering '%s'\n", rctx->name);
     if (rctx->client)
