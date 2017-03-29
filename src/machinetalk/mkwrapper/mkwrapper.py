@@ -2254,7 +2254,8 @@ def main():
     except Exception as e:
         printError("uncaught exception: " + str(e))
 
-    print("stopping threads")
+    if debug:
+        print("stopping threads")
     if fileService is not None:
         fileService.stop()
     if mkwrapper is not None:
@@ -2264,7 +2265,8 @@ def main():
     while threading.active_count() > 2:  # one thread for every process is left
         time.sleep(0.1)
 
-    print("threads stopped")
+    if debug:
+        print("threads stopped")
     sys.exit(0)
 
 if __name__ == "__main__":

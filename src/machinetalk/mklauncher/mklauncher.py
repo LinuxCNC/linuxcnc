@@ -530,8 +530,7 @@ def main():
 
     if debug:
         print('stopping threads')
-    if mklauncher is not None:
-        mklauncher.stop()
+    mklauncher.stop()
 
     # wait for all threads to terminate
     while threading.active_count() > 1:
