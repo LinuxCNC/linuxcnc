@@ -47,7 +47,7 @@ the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO
 Section>>), 'T0' gets special handling: no tool will be selected. This
 is useful if you want the spindle to be empty after a tool change.
 
-NOTE: 'T0' When LinuxCNC is configured for a random toolchanger (see
+NOTE: When LinuxCNC is configured for a random toolchanger (see
 the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO
 Section>>), 'T0' does not get any special treatment: T0 is a valid
 tool like any other.  It is customary to use T0 on a random toolchanger
