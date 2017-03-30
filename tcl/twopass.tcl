@@ -102,8 +102,12 @@ proc ::tp::loadusr_substitute {args} {
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
     #puts "loadusr_substitute<$pass> ignored"
-  } else {
+    # ensure userspace modules are loaded on pass 0, as some rt modules require
+    # userspace modules for loading their configuration (ethercat i.e.)
     eval orig_loadusr $args
+  } else {
+    # FIXME: load uspace modules before RT ones, and do this on pass 1 again
+    #eval orig_loadusr $args
   }
 } ;# loadusr_substitute
 
