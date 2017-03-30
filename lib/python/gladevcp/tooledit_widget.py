@@ -116,6 +116,19 @@ class ToolEdit(gtk.VBox):
         self.wear_window = self.wTree.get_object("wear_window")
         self.tool_window = self.wTree.get_object("tool_window")
         self.view1 = self.wTree.get_object("treeview1")
+        # sort routine for treeview column: tool diameter  
+        def compare(model, row1, row2, user_data=None):
+            sort_column, _ = model.get_sort_column_id()
+            value1 = model.get_value(row1,sort_column)
+            value2 = model.get_value(row2,sort_column)
+            if value2<value1:
+                return -1
+            elif value1==value2:
+                return 0
+            else:
+                return 1
+        model = self.view1.get_model()
+        model.set_sort_func(12, compare)  
         self.view2 = self.wTree.get_object("treeview2")
         # sort routine for tool diameter
         def compare(model, row1, row2, user_data=None):
