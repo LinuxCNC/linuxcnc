@@ -34,13 +34,13 @@ net torch-down thcud.torch-down <= parport.0.pin-13-in
 .br
 net torch-on motion.spindle-on => parport.0.pin-16-out (start the arc)
 .br
-net arc-ok thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+net arc-ok thcud.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
 
 HAL Motion Connections
 .br
-net requested-vel thc.requested-vel <= motion.requested-vel
+net requested-vel thcud.requested-vel <= motion.requested-vel
 .br
-net current-vel thc.current-vel <= motion.current-vel
+net current-vel thcud.current-vel <= motion.current-vel
 
 Pyvcp Connections
 In the xml file you need something like:
