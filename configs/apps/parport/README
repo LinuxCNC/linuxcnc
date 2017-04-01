@@ -7,7 +7,7 @@ To find the onboard parallel port address open a terminal and type in:
 
 cat /proc/ioports | grep parport
 
-usually it will be paraport0
+usually it will be parport0
 
 0378-037a : parport0
 

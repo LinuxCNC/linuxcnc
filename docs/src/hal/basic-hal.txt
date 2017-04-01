@@ -42,7 +42,7 @@ to that spot in the thread. Negative 'position' means position with respect to
 the end of the thread. For example '1' is start of thread, '-1' is the end of
 the thread, '-3' is third from the end.
 
-Some functions it is important to load them in a certain order like the paraport
+Some functions it is important to load them in a certain order like the parport
 read and write functions. The function name is usually the the component name
 plus a number. In the following example the component 'or2' is loaded and 'show
 function' shows the name of the or2 function
