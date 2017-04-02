@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.2.5.2"
+_RELEASE = " 2.3.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -263,7 +263,8 @@ class gmoccapy(object):
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
 
         self._get_axis_list()
-        self._init_extra_axes()
+        # self._init_extra_axes() # will be called from _get_axis_list
+
         self._init_jog_increments()
 
         self._init_hal_pins()
@@ -607,139 +608,35 @@ class gmoccapy(object):
 
     def _get_axis_list(self):
         # begin with an empty axis list
-        self.axis_list = []
-        self.joint_axis_dic = {}
+        self.axis_list = self.get_ini_info.get_axis_list()
+        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
 
-        coordinates = self.get_ini_info.get_coordinates().lower()
-        coordinates = coordinates.replace(' ','')
+        # if we receive a None, that means we do not have a trivial kinematics
+        # like a scara or robot
+        if self.joint_axis_dic == None:
+            self._init_extra_axes()
+            return
 
-        # if there are double letters in the config, we must disable the
-        # corresponding home button and reorder the joints / axis relations
-        for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
-            if axisletter in coordinates:
-                if axisletter in self.axis_list:
+        self._init_extra_axes()
+
+        for axis in self.joint_axis_dic:
+            if len(axis) > 1:
+                # means we do have double letters in coordinates, i.e. gantry
+                # will return (x,y0,y1,z)
+                # we only take the first axis, as we aspect the second one to be the slave
+                if "0" in axis:
+                    pass
+                else:
                     continue
-                self.axis_list.append(axisletter)
-                self.joint_axis_dic[axisletter] = joint
-        print(self.joint_axis_dic)   
-
-        if len(coordinates) != len(self.axis_list):
-            self.joint_axis_dic = {}
-            # there are more joints than axis, normaly this means we have
-            # a gantry machine, or a very special one
-            if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print("identity kinematics with more joints than axis")
-                print("**************************************************")
-                print("Coordinates = ", coordinates, len(coordinates))
-                print("Axis List = ", self.axis_list, len(self.axis_list))
-                print("**************************************************")
-            self.gantry = False
-            for axisletter in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
-                if coordinates.count(axisletter) > 1:
-                    #self.widgets["btn_home_%s" % axisletter].set_sensitive(False)
-                    # OK we have a special case here, we need to take care off
-                    # i.e. a Gantry XYYZ config
-                    self.gantry = True
-            if self.gantry:
-                for axis in self.axis_list:
-                    if axis == self.axisletter_four:
-                        self.widgets.Combi_DRO_4.set_joint(coordinates.index(axis.lower()))
-                        self.joint_axis_dic[axis] = coordinates.index(axis.lower())
-                    elif axis == self.axisletter_five:
-                        self.widgets.Combi_DRO_5.set_joint(coordinates.index(axis.lower()))
-                        self.joint_axis_dic[axis] =  coordinates.index(axis.lower())
-                    else:    
-                        self.widgets["Combi_DRO_%s"%axis].set_joint(coordinates.index(axis.lower()))
-                        self.joint_axis_dic[axis] =  coordinates.index(axis.lower())
-                print(self.joint_axis_dic)
+            if axis == self.axisletter_four:
+                print("Combi_DRO_4 = joint %s" %self.joint_axis_dic[axis])
+                self.widgets.Combi_DRO_4.set_joint(self.joint_axis_dic[axis])
+            elif axis == self.axisletter_five:
+                print("Combi_DRO_5 = joint %s" %self.joint_axis_dic[axis])
+                self.widgets.Combi_DRO_5.set_joint(self.joint_axis_dic[axis])
             else:
-                for joint, axisletter in enumerate(coordinates):
-                    self.joint_axis_dic[axisletter] = joint
-                print(self.joint_axis_dic)   
-
-    def _init_preferences(self):
-        # check if NO_FORCE_HOMING is used in ini
-        self.no_force_homing = self.get_ini_info.get_no_force_homing()
-
-        # disable reload tool on start up, if True
-        if self.no_force_homing:
-            self.widgets.chk_reload_tool.set_sensitive(False)
-            self.widgets.chk_reload_tool.set_active(False)
-            self.widgets.lbl_reload_tool.set_visible(True)
-
-        # if there is a INI Entry for default spindle speed, we will use that one as default
-        # but if there is a setting in our preference file, that one will beet the INI entry
-        default_spindle_speed = self.get_ini_info.get_default_spindle_speed()
-        self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
-
-        # if it's a lathe config, set the tooleditor style
-        self.lathe_mode = self.get_ini_info.get_lathe()
-
-        # get the values for the sliders
-        default_jog_vel = self.get_ini_info.get_jog_vel()
-        self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
-        self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
-        self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
-        self.feed_override_max = self.get_ini_info.get_max_feed_override()
-        self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
-        self.dro_actual = self.get_ini_info.get_position_feedback_actual()
-
-        # set the slider limits
-        self.widgets.spc_jog_vel.set_property("min", 0)
-        self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max)
-        self.widgets.spc_jog_vel.set_value(default_jog_vel)
-
-        self.widgets.spc_spindle.set_property("min", self.spindle_override_min * 100)
-        self.widgets.spc_spindle.set_property("max", self.spindle_override_max * 100)
-        self.widgets.spc_spindle.set_value(100)
-
-        self.widgets.spc_rapid.set_property("min", 0)
-        self.widgets.spc_rapid.set_property("max", self.rapid_override_max * 100)
-        self.widgets.spc_rapid.set_value(100)
-
-        self.widgets.spc_feed.set_property("min", 0)
-        self.widgets.spc_feed.set_property("max", self.feed_override_max * 100)
-        self.widgets.spc_feed.set_value(100)
-
-        # the scales to apply to the count of the hardware mpg wheel, to avoid to much turning
-        default = (self.jog_rate_max / 100)
-        self.scale_jog_vel = self.prefs.getpref("scale_jog_vel", default, float)
-        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
-        self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
-        self.widgets.adj_scale_spindle_override.set_value(self.scale_spindle_override)
-        self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
-        self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
-        self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
-        self.widgets.adj_scale_rapid_override.set_value(self.scale_rapid_override)
-
-        # holds the max velocity value and is needed to be able to react to halui pin
-        self.max_velocity = self.stat.max_velocity
-
-        # set and get all information for turtle jogging
-        # self.rabbit_jog will be used in future to store the last value
-        # so it can be recovered after jog_vel_mode switch
-        self.rabbit_jog = default_jog_vel
-        hide_turtle_jog_button = self.prefs.getpref("hide_turtle_jog_button", False, bool)
-        self.widgets.chk_turtle_jog.set_active(hide_turtle_jog_button)
-        self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20, int)
-        self.widgets.adj_turtle_jog_factor.configure(self.turtle_jog_factor, 1,
-                                                     100, 1, 0, 0)
-        if hide_turtle_jog_button:
-            self.widgets.tbtn_turtle_jog.hide()
-            self.turtle_jog_factor = 1
-        self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
-
-        # and according to machine units the digits to display
-        if self.stat.linear_units == _MM:
-            self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", "mm/min")
-        else:
-            self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", "inch/min")
-
-        # the size of the DRO
-        self.dro_size = self.prefs.getpref("dro_size", 28, int)
-        self.widgets.adj_dro_size.set_value(self.dro_size)
+                print("Combi_DRO_%s = joint %s" %(axis[0],self.joint_axis_dic[axis]))
+                self.widgets["Combi_DRO_%s"%axis[0]].set_joint(self.joint_axis_dic[axis])
 
     def _init_extra_axes(self):
         # to much axes given, can only handle 5
@@ -851,6 +748,90 @@ class gmoccapy(object):
                     axis = 5
                     size = int(size * 0.65)
                 self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+
+    def _init_preferences(self):
+        # check if NO_FORCE_HOMING is used in ini
+        self.no_force_homing = self.get_ini_info.get_no_force_homing()
+
+        # disable reload tool on start up, if True
+        if self.no_force_homing:
+            self.widgets.chk_reload_tool.set_sensitive(False)
+            self.widgets.chk_reload_tool.set_active(False)
+            self.widgets.lbl_reload_tool.set_visible(True)
+
+        # if there is a INI Entry for default spindle speed, we will use that one as default
+        # but if there is a setting in our preference file, that one will beet the INI entry
+        default_spindle_speed = self.get_ini_info.get_default_spindle_speed()
+        self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
+
+        # if it's a lathe config, set the tooleditor style
+        self.lathe_mode = self.get_ini_info.get_lathe()
+
+        # get the values for the sliders
+        default_jog_vel = self.get_ini_info.get_jog_vel()
+        self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
+        self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
+        self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
+        self.feed_override_max = self.get_ini_info.get_max_feed_override()
+        self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
+        self.dro_actual = self.get_ini_info.get_position_feedback_actual()
+
+        # set the slider limits
+        self.widgets.spc_jog_vel.set_property("min", 0)
+        self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max)
+        self.widgets.spc_jog_vel.set_value(default_jog_vel)
+
+        self.widgets.spc_spindle.set_property("min", self.spindle_override_min * 100)
+        self.widgets.spc_spindle.set_property("max", self.spindle_override_max * 100)
+        self.widgets.spc_spindle.set_value(100)
+
+        self.widgets.spc_rapid.set_property("min", 0)
+        self.widgets.spc_rapid.set_property("max", self.rapid_override_max * 100)
+        self.widgets.spc_rapid.set_value(100)
+
+        self.widgets.spc_feed.set_property("min", 0)
+        self.widgets.spc_feed.set_property("max", self.feed_override_max * 100)
+        self.widgets.spc_feed.set_value(100)
+
+        # the scales to apply to the count of the hardware mpg wheel, to avoid to much turning
+        default = (self.jog_rate_max / 100)
+        self.scale_jog_vel = self.prefs.getpref("scale_jog_vel", default, float)
+        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
+        self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
+        self.widgets.adj_scale_spindle_override.set_value(self.scale_spindle_override)
+        self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
+        self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
+        self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
+        self.widgets.adj_scale_rapid_override.set_value(self.scale_rapid_override)
+
+        # holds the max velocity value and is needed to be able to react to halui pin
+        self.max_velocity = self.stat.max_velocity
+
+        # set and get all information for turtle jogging
+        # self.rabbit_jog will be used in future to store the last value
+        # so it can be recovered after jog_vel_mode switch
+        self.rabbit_jog = default_jog_vel
+        hide_turtle_jog_button = self.prefs.getpref("hide_turtle_jog_button", False, bool)
+        self.widgets.chk_turtle_jog.set_active(hide_turtle_jog_button)
+        self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20, int)
+        self.widgets.adj_turtle_jog_factor.configure(self.turtle_jog_factor, 1,
+                                                     100, 1, 0, 0)
+        if hide_turtle_jog_button:
+            self.widgets.tbtn_turtle_jog.hide()
+            self.turtle_jog_factor = 1
+        self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
+
+        # and according to machine units the digits to display
+        if self.stat.linear_units == _MM:
+            self.widgets.spc_jog_vel.set_digits(0)
+            self.widgets.spc_jog_vel.set_property("unit", "mm/min")
+        else:
+            self.widgets.spc_jog_vel.set_digits(2)
+            self.widgets.spc_jog_vel.set_property("unit", "inch/min")
+
+        # the size of the DRO
+        self.dro_size = self.prefs.getpref("dro_size", 28, int)
+        self.widgets.adj_dro_size.set_value(self.dro_size)
 
     def _init_joints_btn(self):
         # if we have identity kinematics, we do not need to check for the joints button
@@ -3076,23 +3057,33 @@ class gmoccapy(object):
             # but if the machine is a gantry, we need to do special check, as
             # on XYYZ machine joint 2 is not Z
             if widget == self.widgets.btn_home_x:
-                axis = self.joint_axis_dic["x"]
+                if "x0" in self.joint_axis_dic:
+                    joint = self.joint_axis_dic["x0"]
+                else:
+                    joint = self.joint_axis_dic["x"]
             elif widget == self.widgets.btn_home_y:
-                axis = self.joint_axis_dic["y"]
+                if "y0" in self.joint_axis_dic:
+                    joint = self.joint_axis_dic["y0"]
+                else:
+                    joint = self.joint_axis_dic["y"]
             elif widget == self.widgets.btn_home_z:
-                axis = self.joint_axis_dic["z"]
+                if "z0" in self.joint_axis_dic:
+                    joint = self.joint_axis_dic["z0"]
+                else:
+                    joint = self.joint_axis_dic["z"]
             elif widget == self.widgets.btn_home_4:
-                axis = self.joint_axis_dic[self.axisletter_four]
+                joint = self.joint_axis_dic[self.axisletter_four]
             elif widget == self.widgets.btn_home_5:
-                axis = self.joint_axis_dic[self.axisletter_five]
+                joint = self.joint_axis_dic[self.axisletter_five]
+
         else:
             for button in range(0,8):
                 if widget == self.widgets["btn_home_j%s"%button]:
-                    axis = button
+                    joint = button
                     break
 
         self.set_motion_mode(0)
-        self.command.home(axis)
+        self.command.home(joint)
         
     def on_btn_sel_next_joints_clicked(self, widget, data=None):
         widget.hide()
@@ -3516,7 +3507,7 @@ class gmoccapy(object):
             message = _("Offset %s could not be set, because off unknown axis") % axis
             dialogs.warning_dialog(self, _("Wrong offset setting!"), message)
             return
-        if self.lathe_mode:
+        if self.lathe_mode and axis =="x":
             if self.diameter_mode:
                 preset = self.prefs.getpref("diameter offset_axis_%s" % axis, 0, float)
                 offset = dialogs.entry_dialog(self, data=preset, header=_("Enter value for diameter"),

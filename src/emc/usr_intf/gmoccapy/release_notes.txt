@@ -1,3 +1,12 @@
+ver 2.3.0
+- joint axis branch did change the handling between joints and axis. Previously
+  it was needed to include a unused Y axis for a lathe and now that is not longer
+  needed. There are some more changes, that needed some additional changes to
+  gmoccapy. I have passed a lot of code over to get_ini_info.
+- all config files have been changed to support the new behavior. I tried to make
+  all the code compatible with older configs. Some might need the not used axis
+  to be included in homing entries in the ini files.
+
 ver 2.2.5.2
 - if the GUI tries to reload a tool on restart and that tool was not found in 
   the tool table, the GUI remained in MDI mode, while it was showing the manual 
