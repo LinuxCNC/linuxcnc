@@ -71,7 +71,7 @@ O6     endif
        #<probex> = #5061
        #<probey> = #5062
        #<probez> = #5063
-       (LOG,X#<probex> Y#<probey> Z#<probex>)
+       (LOG,X#<probex> Y#<probey> Z#<probez>)
        #<xct> = [#<xct> + 1]
 O3    endwhile
       G0Z#<zsafe>
