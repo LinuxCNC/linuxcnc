@@ -40,3 +40,6 @@ oprofile*
 *.log
 position.txt
 *.9
+/.clang/
+/.codelite/
+/Debug/
