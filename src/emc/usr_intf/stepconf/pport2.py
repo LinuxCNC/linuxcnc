@@ -30,7 +30,7 @@ def pport2_prepare(self):
 		p = 'pp2_pin%d' % pin
 		self.w[p].set_wrap_width(3)
 		# Search element where pin == pin
-		lcurrent_function = filter(lambda element: element['index'] == self.d[p], hal_output)
+		lcurrent_function = filter(lambda element: element['name'] == self.d[p], hal_output)
 		if(lcurrent_function != []):
 			# Just first element 
 			current_function = lcurrent_function[0]
@@ -42,7 +42,7 @@ def pport2_prepare(self):
 	for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
 		p = 'pp2_pin%d_in' % pin
 		self.w[p].set_wrap_width(3)
-		lcurrent_function = filter(lambda element: element['index'] == self.d[p], hal_input)
+		lcurrent_function = filter(lambda element: element['name'] == self.d[p], hal_input)
 		if(lcurrent_function != []):
 			# Just first element
 			current_function = lcurrent_function[0]
@@ -59,12 +59,12 @@ def pport2_prepare(self):
 def pport2_finish(self):
 	for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
 		p = 'pp2_pin%d' % pin
-		self.d[p] = hal_output[self.w[p].get_active()+8]["index"]
+		self.d[p] = hal_output[self.w[p].get_active()+8]["name"]
 		p = 'pp2_pin%dinv' % pin
 		self.d[p] = self.w[p].get_active()
 	for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
 		p = 'pp2_pin%d_in' % pin
-		self.d[p] = hal_input[self.w[p].get_active()]["index"]
+		self.d[p] = hal_input[self.w[p].get_active()]["name"]
 		p = 'pp2_pin%d_in_inv' % pin
 		self.d[p] = self.w[p].get_active()
 	self.d.pp2_direction = self.w.pp2_direction.get_active()

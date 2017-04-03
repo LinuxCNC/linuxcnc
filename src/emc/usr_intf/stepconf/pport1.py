@@ -21,6 +21,7 @@
 #************
 # pport1 PAGE
 #************
+from gi.repository import Gtk
 from stepconf import preset
 from stepconf.definitions import *
 
@@ -31,7 +32,7 @@ def pport1_prepare(self):
 		p = 'pin%d' % pin
 		self.w[p].set_wrap_width(3)
 		# Search element where pin == pin
-		lcurrent_function = filter(lambda element: element['index'] == self.d[p], hal_output)
+		lcurrent_function = filter(lambda element: element['name'] == self.d[p], hal_output)
 		if(lcurrent_function != []):
 			# Just first element 
 			current_function = lcurrent_function[0]
@@ -43,7 +44,7 @@ def pport1_prepare(self):
 		p = 'pin%d' % pin
 		self.w[p].set_wrap_width(3)
 		# Search element where pin == pin
-		lcurrent_function = filter(lambda element: element['index'] == self.d[p], hal_input)
+		lcurrent_function = filter(lambda element: element['name'] == self.d[p], hal_input)
 		if(lcurrent_function != []):
 			# Just first element
 			current_function = lcurrent_function[0]
@@ -55,15 +56,18 @@ def pport1_prepare(self):
 	self.w.ioaddr.set_text(self.d.ioaddr)
 	self._p.in_pport_prepare = False
 
+
 def pport1_finish(self):
 	for pin in (10,11,12,13,15):
 		p = 'pin%d' % pin
 		#self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
-		self.d[p] = hal_input[self.w[p].get_active()]["index"]
+		#self.d[p] = hal_input[self.w[p].get_active()]["index"]
+		self.d[p] = hal_input[self.w[p].get_active()]["name"]
 	for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
 		p = 'pin%d' % pin
 		#self.d[p] = self._p.hal_output_names[self.w[p].get_active()]
-		self.d[p] = hal_output[self.w[p].get_active()]["index"]
+		#self.d[p] = hal_output[self.w[p].get_active()]["index"]
+		self.d[p] = hal_output[self.w[p].get_active()]["name"]
 	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
 		p = 'pin%dinv' % pin
 		self.d[p] = self.w[p].get_active()
@@ -74,8 +78,8 @@ def pport1_finish(self):
 def on_exclusive_check_pp1(self, widget):
 	self.a.do_exclusive_inputs(widget,1)
 
-def on_preselect_button_clicked(self, widget):
-	state = self.w.preset_combo.get_active()
+def on_pp1_preselect_button_clicked(self, widget):
+	state = self.w.pp1_preset_combo.get_active()
 	"""
 	lcurrent_machine = filter(lambda element: element['name'] == myselect, preset.preset_pinouts_pp1)
 	if(lcurrent_machine != []):
@@ -97,4 +101,12 @@ def on_preselect_button_clicked(self, widget):
 		if(p in current_machine):
 			self.w['%s'%p].set_active(current_machine[p])
 
-
+def on_pp1_preset_io_button_clicked(self, widget):
+	state = self.w.pp1_preset_io_combo.get_active()
+	if(state > -1):
+		path = Gtk.TreePath(state)
+		treeiter = self.w.pp1_preset_io_liststore.get_iter(path)
+		value = self.w.pp1_preset_io_liststore.get_value(treeiter, 0)
+		self.w.ioaddr.set_text(value)
+	else:
+		return

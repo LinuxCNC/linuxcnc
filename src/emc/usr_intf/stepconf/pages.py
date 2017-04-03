@@ -42,7 +42,7 @@ def add_method(self, method, name=None):
 	if name is None:
 		name = method.func_name
 	setattr(self.__class__, name, method)
-		
+
 class Pages:
 	def __init__(self, app):
 		self.d = app.d      # collected data
@@ -189,22 +189,31 @@ class Pages:
 		renderer.connect("edited", self.on_halui_row_changed)
 		column = Gtk.TreeViewColumn("MDI__COMMAND", renderer, text=1)
 		self.w.viewTable1.append_column(column)
+		
 		# pport1 combo boxes
 		model = self.w.output_list
 		model.clear()
 		for pin in hal_output:
 			model.append((pin["human"],))
-			 
+
 		#for name in self._p.human_output_names: model.append((name,))
 		model = self.w.input_list
 		model.clear()
  		for pin in hal_input:
 			model.append((pin["human"],))
-		#for name in self._p.human_input_names: model.append((name,))
+
+		# parport preset
+		self.w.pp1_preset_io_liststore.clear()
+		for myport in self.d.lparport:
+			treeiter = self.w.pp1_preset_io_liststore.append([myport])
+		self.w.pp1_preset_io_combo.set_active(0)
+
 		# preset list for pp1
 		self.w.pp1_preset_liststore.clear()
 		for mydict in preset.preset_pinouts_pp1:
 			treeiter = self.w.pp1_preset_liststore.append([mydict["human"]])
+		self.w.pp1_preset_combo.set_active(0)
+			
 		# pport2 comboboxes
 		model = self.w.pp2_output_list
 		model.clear()
@@ -216,8 +225,15 @@ class Pages:
 		model.clear()
 		#for name in self._p.human_input_names: model.append((name,))
 		for pin in hal_input:
-			model.append((pin["human"],))       
+			model.append((pin["human"],))
 		self.intro_prepare()
+
+		# axis preset prepare
+		for axis in ('x','y','z','u','v'):
+			self.w[axis + "preset_liststore"].clear()
+			for mydict in preset.preset_pinouts_pp1:
+				treeiter = self.w[axis + "preset_liststore"].append([mydict["human"]])
+			self.w[axis + "preset_combo"].set_active(0)
 
 #************
 # INTRO PAGE
@@ -297,11 +313,6 @@ class Pages:
 		self.w[axis + "homesw"].set_sensitive(homes)
 		self.w[axis + "homevel"].set_sensitive(homes)
 		self.w[axis + "latchdir"].set_sensitive(homes)
-
-		# preset prepare
-		self.w[axis + "preset_liststore"].clear()
-		for mydict in preset.preset_pinouts_pp1:
-			treeiter = self.w[axis + "preset_liststore"].append([mydict["human"]])
 	
 		self.w[axis + "steprev"].grab_focus()
 		GObject.idle_add(lambda: self.a.update_pps(axis))

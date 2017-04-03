@@ -298,7 +298,7 @@ class Data:
 
         self.machinename = _("my-mill")
         self.axes = 0 # XYZ
-        self.units = 0 # inch
+        self.units = 1 # mm
         self.drivertype = "Other"
         self.steptime = 5000
         self.stepspace = 5000
@@ -307,6 +307,7 @@ class Data:
         self.latency = 15000
         self.period = 25000
 
+        self.lparport = self.find_parport()
         self.ioaddr = "0"
         self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
@@ -331,52 +332,52 @@ class Data:
         self.select_axis = True
         self.select_gmoccapy = False
 
-        self.pin1inv = 0
-        self.pin2inv = 0
-        self.pin3inv = 0
-        self.pin4inv = 0
-        self.pin5inv = 0
-        self.pin6inv = 0
-        self.pin7inv = 0
-        self.pin8inv = 0
-        self.pin9inv = 0
-        self.pin10inv = 0
-        self.pin11inv = 0
-        self.pin12inv = 0
-        self.pin13inv = 0
-        self.pin14inv = 0
-        self.pin15inv = 0
-        self.pin16inv = 0
-        self.pin17inv = 0
+        self.pin1inv = False
+        self.pin2inv = False
+        self.pin3inv = False
+        self.pin4inv = False
+        self.pin5inv = False
+        self.pin6inv = False
+        self.pin7inv = False
+        self.pin8inv = False
+        self.pin9inv = False
+        self.pin10inv = False
+        self.pin11inv = False
+        self.pin12inv = False
+        self.pin13inv = False
+        self.pin14inv = False
+        self.pin15inv = False
+        self.pin16inv = False
+        self.pin17inv = False
 
-        self.pin1 = ESTOP
-        self.pin2 = XSTEP
-        self.pin3 = XDIR
-        self.pin4 = YSTEP
-        self.pin5 = YDIR
-        self.pin6 = ZSTEP
-        self.pin7 = ZDIR
-        self.pin8 = ASTEP
-        self.pin9 = ADIR
-        self.pin14 = CW
-        self.pin16 = PWM
-        self.pin17 = AMP
+        self.pin1 = d_hal_output[ESTOP]
+        self.pin2 = d_hal_output[XSTEP]
+        self.pin3 = d_hal_output[XDIR]
+        self.pin4 = d_hal_output[YSTEP]
+        self.pin5 = d_hal_output[YDIR]
+        self.pin6 = d_hal_output[ZSTEP]
+        self.pin7 = d_hal_output[ZDIR]
+        self.pin8 = d_hal_output[ASTEP]
+        self.pin9 = d_hal_output[ADIR]
+        self.pin14 = d_hal_output[CW]
+        self.pin16 = d_hal_output[PWM]
+        self.pin17 = d_hal_output[AMP]
 
-        self.pin10 = UNUSED_INPUT
-        self.pin11 = UNUSED_INPUT
-        self.pin12 = UNUSED_INPUT
-        self.pin13 = UNUSED_INPUT
-        self.pin15 = UNUSED_INPUT
+        self.pin10 = d_hal_input[UNUSED_INPUT]
+        self.pin11 = d_hal_input[UNUSED_INPUT]
+        self.pin12 = d_hal_input[UNUSED_INPUT]
+        self.pin13 = d_hal_input[UNUSED_INPUT]
+        self.pin15 = d_hal_input[UNUSED_INPUT]
 
         #   port 2
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp2_pin%d' % pin
-            self[p] = UNUSED_OUTPUT
+            self[p] = d_hal_output[UNUSED_OUTPUT]
             p = 'pp2_pin%dinv' % pin
             self[p] = 0
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
-            self[p] = UNUSED_INPUT
+            self[p] = d_hal_input[UNUSED_INPUT]
             p = 'pp2_pin%d_in_inv' % pin
             self[p] = 0
 
@@ -397,12 +398,12 @@ class Data:
              self[i+'latchdir'] = 0
              self[i+'scale'] = 0
 
-	     # Varibles for test axis
+             # Varibles for test axis
              self[i+'testmaxvel'] = None
              self[i+'testmaxacc'] = None
 
         # set xyzuv axes defaults depending on units true = imperial
-        self.set_axis_unit_defaults(True)
+        self.set_axis_unit_defaults(False)
 
         self.asteprev = 200
         self.amicrostep = 2
@@ -441,9 +442,36 @@ class Data:
         self.createsymlink = 1
         self.createshortcut = 1
 
+    def find_parport(self):
+        # Try to find parallel port
+        lparport=[]
+        # open file.
+        try:
+            in_file = open("/proc/ioports","r")
+        except:
+            print "Unable to open /proc/ioports"
+            return([])
+
+        try:
+            for line in in_file:
+                if "parport" in line:
+                    tmprow = line.strip()
+                    lrow = tmprow.split(":")
+                    address_range = lrow[0].strip()
+                    init_address = address_range.split("-")[0].strip()
+                    lparport.append("0x" + init_address)
+        except:
+            print "Error find parport"
+            in_file.close()
+            return([])
+        in_file.close()
+        if lparport == []:
+            return([])
+        return(lparport)
+                    
     # change the XYZ axis defaults to metric or imperial
     # This only sets data that makes sense to change eg gear ratio don't change
-    def set_axis_unit_defaults(self, units=True):
+    def set_axis_unit_defaults(self, units=False):
         if units: # imperial
             for i in ('x','y','z','u','v'):
                 self[i+'maxvel'] = 1
@@ -826,7 +854,6 @@ class StepconfApp:
 #*******************
 # GUI Helper functions
 #*******************
-
     # print debug strings
     def dbg(self,str):
         global debug
@@ -939,7 +966,7 @@ class StepconfApp:
         SIG = self._p
 
         # Check pp1 for output signals
-        pp1_check = PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
+        pp1_check =  d_hal_output[PWM] in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
             d.pin7, d.pin8, d.pin9, d.pin14, d.pin16, d.pin17)
         if pp1_check is True: return True
 
@@ -948,7 +975,7 @@ class StepconfApp:
         # output pins:
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp2_pin%d' % pin
-            if d[p] == PWM: return True
+            if d[p] == d_hal_output[PWM]: return True
 
         # if we get to here - there are no spindle control signals
         return False
@@ -958,13 +985,13 @@ class StepconfApp:
         d = self.d
 
         # pp1 input pins
-        if PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
-        if PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
+        if d_hal_input[PPR] in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
+        if d_hal_input[PHA] in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
 
         # pp2 input pins
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
-            if d[p] in (PPR, PHA): return True
+            if d[p] in (d_hal_input[PPR], d_hal_input[PHA]): return True
 
         # if we get to here - there are no spindle encoder signals
         return False
@@ -1061,7 +1088,7 @@ class StepconfApp:
                 self.w[p].set_active(UNUSED_INPUT)
                 if not port ==1: # if on the other page must change the data model too
                     dbg( 'found on other pport page')
-                    self.d[p] = UNUSED_INPUT
+                    self.d[p] = d_hal_input[UNUSED_INPUT]
         # search pport2 for the illegal signals and change them to unused.
         dbg( 'looking for %s in pport2'%name)
         for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
@@ -1075,7 +1102,7 @@ class StepconfApp:
                 self.w[p2].set_active(UNUSED_INPUT)
                 if not port ==2:# if on the other page must change the data model too
                     dbg( 'found on other pport page')
-                    self.d[p2] = UNUSED_INPUT
+                    self.d[p2] = d_hal_input[UNUSED_INPUT]
         self.recursive_block = False
 #**************
 # Latency test
@@ -1097,226 +1124,229 @@ class StepconfApp:
 # Axis Test
 #***********
     def test_axis(self, axis):
-        if not self.check_for_rt(): return
-        SIG = self._p
+		if not self.check_for_rt(): return
+		SIG = self._p
 
-	# Retrive user setting for maxvel and maxacc on current axis tab
-	# Test if there is some data saved
-	testvel = self.d[axis + "testmaxvel"]
-	testacc = self.d[axis + "testmaxacc"]
-	# Check if not null and not empty and not string "None"
-	if(testvel != None and testvel != "" and testvel != "None"):
-		vel = float(testvel)
-	else:
-        	vel = float(self.w[axis + "maxvel"].get_text())
+		# Retrive user setting for maxvel and maxacc on current axis tab
+		# Test if there is some data saved
+		testvel = self.d[axis + "testmaxvel"]
+		testacc = self.d[axis + "testmaxacc"]
+		# Check if not null and not empty and not string "None"
+		if(testvel != None and testvel != "" and testvel != "None"):
+			vel = float(testvel)
+		else:
+	        	vel = float(self.w[axis + "maxvel"].get_text())
+	
+		# Check if not null and not empty and not string "None"
+		if(testacc != None and testacc != "" and testacc != "None"):
+			acc = float(testacc)
+		else:
+			acc = float(self.w[axis + "maxacc"].get_text())
+	
+		scale = self.d[axis + "scale"]
+		maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
+		#maxvel = 1.5 * vel
+		if self.d.doublestep():
+				period = int(1e9 / maxvel / scale)
+		else:
+				period = int(.5e9 / maxvel / scale)
+		
+		steptime = self.w.steptime.get_value()
+		stepspace = self.w.stepspace.get_value()
+		latency = self.w.latency.get_value()
+		minperiod = self.d.minperiod()
+		
+		if period < minperiod:
+			period = minperiod
+			if self.d.doublestep():
+				maxvel = 1e9 / minperiod / abs(scale)
+			else:
+				maxvel = 1e9 / minperiod / abs(scale)
+		if period > 100000:
+			period = 100000
 
-	# Check if not null and not empty and not string "None"
-	if(testacc != None and testacc != "" and testacc != "None"):
-		acc = float(testacc)
-	else:
-        	acc = float(self.w[axis + "maxacc"].get_text())
+		# halrun print a point "." on console, but I have not found out why.
+		self.halrun = halrun = os.popen("halrun -Is", "w")
+		if debug:
+			halrun.write("echo\n")
+		axnum = "xyza".index(axis)
+		step = axis + "step"
+		dir = axis + "dir"
+		
+		halrun.write("""
+			loadrt steptest
+			loadrt stepgen step_type=0
+			""")
 
-        scale = self.d[axis + "scale"]
-	maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
-        #maxvel = 1.5 * vel
-        if self.d.doublestep():
-                period = int(1e9 / maxvel / scale)
-        else:
-                period = int(.5e9 / maxvel / scale)
+		port3name=port2name=port2dir=port3dir=""
+		if self.d.number_pports>2:
+			 port3name = ' '+self.d.ioaddr3
+			 if self.d.pp3_direction: # Input option
+				port3dir =" in"
+			 else: 
+				port3dir =" out"
+		if self.d.number_pports>1:
+			 port2name = ' '+self.d.ioaddr2
+			 if self.d.pp2_direction: # Input option
+				port2dir =" in"
+			 else: 
+				port2dir =" out"
+		halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
+		halrun.write("""
+			loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
+			addf stepgen.make-pulses fast
+			addf parport.0.write fast
+			"""%{'period': period})
+		
+		if self.d.number_pports>1:
+			halrun.write( "addf parport.0.write fast\n")
+		if self.d.number_pports>2:
+			halrun.write( "addf parport.0.write fast\n")
+		temp = self.find_output(axis +'step')
+		step_pin = temp[0][0]
+		temp = self.find_output(axis +'dir')
+		dir_pin = temp[0][0]
+		halrun.write("""
+			addf stepgen.capture-position slow
+			addf steptest.0 slow
+			addf stepgen.update-freq slow
 
-        steptime = self.w.steptime.get_value()
-        stepspace = self.w.stepspace.get_value()
-        latency = self.w.latency.get_value()
-        minperiod = self.d.minperiod()
+			net step stepgen.0.step => parport.0.pin-%(steppin)02d-out
+			net dir stepgen.0.dir => parport.0.pin-%(dirpin)02d-out
+			net cmd steptest.0.position-cmd => stepgen.0.position-cmd
+			net fb stepgen.0.position-fb => steptest.0.position-fb
 
-        if period < minperiod:
-            period = minperiod
-            if self.d.doublestep():
-                maxvel = 1e9 / minperiod / abs(scale)
-            else:
-                maxvel = 1e9 / minperiod / abs(scale)
-        if period > 100000:
-            period = 100000
+			setp parport.0.pin-%(steppin)02d-out-reset 1
+			setp stepgen.0.steplen 1
+			setp stepgen.0.dirhold %(dirhold)d
+			setp stepgen.0.dirsetup %(dirsetup)d
+			setp stepgen.0.position-scale %(scale)f
+			setp steptest.0.epsilon %(onestep)f
 
-        self.halrun = halrun = os.popen("halrun -Is", "w")
-        if debug:
-            halrun.write("echo\n")
-        axnum = "xyza".index(axis)
-        step = axis + "step"
-        dir = axis + "dir"
+			setp stepgen.0.enable 1
+		""" % {
+			'steppin': step_pin,
+			'dirpin': dir_pin,
+			'dirhold': self.d.dirhold + self.d.latency,
+			'dirsetup': self.d.dirsetup + self.d.latency,
+			'onestep': abs(1. / self.d[axis + "scale"]),
+			'scale': self.d[axis + "scale"],
+		})
+		
+		if self.doublestep():
+			halrun.write("""
+				setp parport.0.reset-time %(resettime)d
+				setp stepgen.0.stepspace 0
+				addf parport.0.reset fast
+			""" % {
+				'resettime': self.d['steptime']
+			})
+		amp_signals = self.find_output(d_hal_output[AMP])
+		for pin in amp_signals:
+			amp,amp_port = pin
+			halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
+				% {'enablepin': amp,'portnum': amp_port})
+		
+		estop_signals = self.find_output(d_hal_output[ESTOP])
+		for pin in estop_signals:
+			estop,e_port = pin
+			halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
+				% {'estoppin': estop,'portnum': e_port})
+		
+		for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
+			inv = getattr(self.d, "pin%dinv" % pin)
+			if inv:
+				halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
+					% {'pin': pin})
+		if self.d.number_pports > 1:
+			if self.d.pp2_direction:# Input option
+				out_list =(1,14,16,17)
+			else:
+				out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+			for pin in (out_list):
+				inv = getattr(self.d, "pp2_pin%dinv" % pin)
+				if inv:
+					halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
+					% {'pin': pin})
+		if debug:
+			halrun.write("loadusr halmeter sig cmd -g 275 415\n")
+		
+		if axis == "a":
+			self.w.testvelunit.set_text(_("deg / s"))
+			self.w.testaccunit.set_text(_(u"deg / s²"))
+			self.w.testampunit.set_text(_("deg"))
+			self.w.testvel.set_increments(1,5)
+			self.w.testacc.set_increments(1,5)
+			self.w.testamplitude.set_increments(1,5)
+			self.w.testvel.set_range(0, maxvel)
+			self.w.testacc.set_range(1, 360000)
+			self.w.testamplitude.set_range(0, 1440)
+			self.w.testvel.set_digits(1)
+			self.w.testacc.set_digits(1)
+			self.w.testamplitude.set_digits(1)
+			self.w.testamplitude.set_value(10)
+		elif self.d.units:
+			self.w.testvelunit.set_text(_("mm / s"))
+			self.w.testaccunit.set_text(_(u"mm / s²"))
+			self.w.testampunit.set_text(_("mm"))
+			self.w.testvel.set_increments(1,5)
+			self.w.testacc.set_increments(1,5)
+			self.w.testamplitude.set_increments(1,5)
+			self.w.testvel.set_range(0, maxvel)
+			self.w.testacc.set_range(1, 100000)
+			self.w.testamplitude.set_range(0, 1000)
+			self.w.testvel.set_digits(2)
+			self.w.testacc.set_digits(2)
+			self.w.testamplitude.set_digits(2)
+			self.w.testamplitude.set_value(15)
+		else:
+			self.w.testvelunit.set_text(_("in / s"))
+			self.w.testaccunit.set_text(_(u"in / s²"))
+			self.w.testampunit.set_text(_("in"))
+			self.w.testvel.set_increments(.1,5)
+			self.w.testacc.set_increments(1,5)
+			self.w.testamplitude.set_increments(.1,5)
+			self.w.testvel.set_range(0, maxvel)
+			self.w.testacc.set_range(1, 3600)
+			self.w.testamplitude.set_range(0, 36)
+			self.w.testvel.set_digits(1)
+			self.w.testacc.set_digits(1)
+			self.w.testamplitude.set_digits(1)
+			self.w.testamplitude.set_value(.5)
+		
+		self.jogplus = self.jogminus = 0
+		self.w.testdir.set_active(0)
+		self.w.run.set_active(0)
+		self.w.testacc.set_value(acc)
+		self.w.testvel.set_value(vel)
+		self.axis_under_test = axis
+		self.update_axis_test()
 
-        halrun.write("""
-            loadrt steptest
-            loadrt stepgen step_type=0
-            """)
+		halrun.write("start\n")
+		halrun.flush()
 
-        port3name=port2name=port2dir=port3dir=""
-        if self.d.number_pports>2:
-             port3name = ' '+self.d.ioaddr3
-             if self.d.pp3_direction: # Input option
-                port3dir =" in"
-             else: 
-                port3dir =" out"
-        if self.d.number_pports>1:
-             port2name = ' '+self.d.ioaddr2
-             if self.d.pp2_direction: # Input option
-                port2dir =" in"
-             else: 
-                port2dir =" out"
-        halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
-        halrun.write("""
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
-            addf stepgen.make-pulses fast
-            addf parport.0.write fast
-            """%{'period': period})
+		self.w.dlgTestAxis.set_title(_("%s Axis Test") % axis.upper())
+		self.w.dlgTestAxis.show_all()
+		result = self.w.dlgTestAxis.run()
+		if result == Gtk.ResponseType.OK:
+			# Save test parameters
+			self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
+			self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
+		self.w.dlgTestAxis.hide()
+		
+		if amp_signals:
+			for pin in amp_signals:
+				amp,amp_port = pin
+				halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 0\n"
+				% {'enablepin': amp,'portnum': amp_port})
+		if estop_signals:
+			for pin in estop_signals:
+				estop,e_port = pin
+				halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 0\n"
+				% {'estoppin': estop,'portnum': e_port})
 
-        if self.d.number_pports>1:
-            halrun.write( "addf parport.0.write fast\n")
-        if self.d.number_pports>2:
-            halrun.write( "addf parport.0.write fast\n")
-        temp = self.find_output(axis +'step')
-        step_pin = temp[0][0]
-        temp = self.find_output(axis +'dir')
-        dir_pin = temp[0][0] 
-        halrun.write("""
-            addf stepgen.capture-position slow
-            addf steptest.0 slow
-            addf stepgen.update-freq slow
-
-            net step stepgen.0.step => parport.0.pin-%(steppin)02d-out
-            net dir stepgen.0.dir => parport.0.pin-%(dirpin)02d-out
-            net cmd steptest.0.position-cmd => stepgen.0.position-cmd
-            net fb stepgen.0.position-fb => steptest.0.position-fb
-
-            setp parport.0.pin-%(steppin)02d-out-reset 1
-            setp stepgen.0.steplen 1
-            setp stepgen.0.dirhold %(dirhold)d
-            setp stepgen.0.dirsetup %(dirsetup)d
-            setp stepgen.0.position-scale %(scale)f
-            setp steptest.0.epsilon %(onestep)f
-
-            setp stepgen.0.enable 1
-        """ % {
-            'steppin': step_pin,
-            'dirpin': dir_pin,
-            'dirhold': self.d.dirhold + self.d.latency,
-            'dirsetup': self.d.dirsetup + self.d.latency,
-            'onestep': abs(1. / self.d[axis + "scale"]),
-            'scale': self.d[axis + "scale"],
-        })
-
-        if self.doublestep():
-            halrun.write("""
-                setp parport.0.reset-time %(resettime)d
-                setp stepgen.0.stepspace 0
-                addf parport.0.reset fast
-            """ % {
-                'resettime': self.d['steptime']
-            })
-        amp_signals = self.find_output(AMP)
-        for pin in amp_signals:
-            amp,amp_port = pin
-            halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
-                % {'enablepin': amp,'portnum': amp_port})
-
-        estop_signals = self.find_output(ESTOP)
-        for pin in estop_signals:
-            estop,e_port = pin
-            halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
-                % {'estoppin': estop,'portnum': e_port})
-
-        for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-            inv = getattr(self.d, "pin%dinv" % pin)
-            if inv:
-                halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
-                    % {'pin': pin})
-        if self.d.number_pports > 1:
-            if self.d.pp2_direction:# Input option
-                out_list =(1,14,16,17)
-            else:
-                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
-            for pin in (out_list):
-                inv = getattr(self.d, "pp2_pin%dinv" % pin)
-                if inv:
-                    halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
-                    % {'pin': pin})
-        if debug:
-            halrun.write("loadusr halmeter sig cmd -g 275 415\n")
-
-        self.w.dialog1.set_title(_("%s Axis Test") % axis.upper())
-
-        if axis == "a":
-            self.w.testvelunit.set_text(_("deg / s"))
-            self.w.testaccunit.set_text(_(u"deg / s²"))
-            self.w.testampunit.set_text(_("deg"))
-            self.w.testvel.set_increments(1,5)
-            self.w.testacc.set_increments(1,5)
-            self.w.testamplitude.set_increments(1,5)
-            self.w.testvel.set_range(0, maxvel)
-            self.w.testacc.set_range(1, 360000)
-            self.w.testamplitude.set_range(0, 1440)
-            self.w.testvel.set_digits(1)
-            self.w.testacc.set_digits(1)
-            self.w.testamplitude.set_digits(1)
-            self.w.testamplitude.set_value(10)
-        elif self.d.units:
-            self.w.testvelunit.set_text(_("mm / s"))
-            self.w.testaccunit.set_text(_(u"mm / s²"))
-            self.w.testampunit.set_text(_("mm"))
-            self.w.testvel.set_increments(1,5)
-            self.w.testacc.set_increments(1,5)
-            self.w.testamplitude.set_increments(1,5)
-            self.w.testvel.set_range(0, maxvel)
-            self.w.testacc.set_range(1, 100000)
-            self.w.testamplitude.set_range(0, 1000)
-            self.w.testvel.set_digits(2)
-            self.w.testacc.set_digits(2)
-            self.w.testamplitude.set_digits(2)
-            self.w.testamplitude.set_value(15)
-        else:
-            self.w.testvelunit.set_text(_("in / s"))
-            self.w.testaccunit.set_text(_(u"in / s²"))
-            self.w.testampunit.set_text(_("in"))
-            self.w.testvel.set_increments(.1,5)
-            self.w.testacc.set_increments(1,5)
-            self.w.testamplitude.set_increments(.1,5)
-            self.w.testvel.set_range(0, maxvel)
-            self.w.testacc.set_range(1, 3600)
-            self.w.testamplitude.set_range(0, 36)
-            self.w.testvel.set_digits(1)
-            self.w.testacc.set_digits(1)
-            self.w.testamplitude.set_digits(1)
-            self.w.testamplitude.set_value(.5)
-
-        self.jogplus = self.jogminus = 0
-        self.w.testdir.set_active(0)
-        self.w.run.set_active(0)
-        self.w.testacc.set_value(acc)
-        self.w.testvel.set_value(vel)
-	self.axis_under_test = axis
-	self.update_axis_test()
-
-	halrun.write("start\n"); halrun.flush()
-	self.w.dialog1.show_all()
-	result = self.w.dialog1.run()
-	if result == Gtk.ResponseType.OK:
-		# Save test parameters
-		self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
-		self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
-        self.w.dialog1.hide()
-        if amp_signals:
-            for pin in amp_signals:
-                amp,amp_port = pin
-                halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 0\n"
-                % {'enablepin': amp,'portnum': amp_port})
-        if estop_signals:
-            for pin in estop_signals:
-                estop,e_port = pin
-                halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 0\n"
-                % {'estoppin': estop,'portnum': e_port})
-
-        time.sleep(.001)
-        halrun.close()
+		time.sleep(.001)
+		halrun.close()
 
     def update_axis_test(self, *args):
         axis = self.axis_under_test
@@ -1406,7 +1436,7 @@ class StepconfApp:
     def home_sig(self, axis):
         SIG = self._p
         inputs = self.build_input_set()
-        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
+        thisaxishome = set((d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         for i in inputs:
             if i in thisaxishome: return i

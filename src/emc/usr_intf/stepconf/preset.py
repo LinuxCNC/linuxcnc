@@ -151,12 +151,12 @@ preset_pinouts_pp1 = [
 		'pin12':ALL_HOME, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0,
-		'xsteprev':400, 'xmicrostep':1, 'xpulleyden':1, 'xpulleynum':1, 'xleadscrew':3, 'xmaxvel':30, 'xmaxacc' :150,
+		'xsteprev':400, 'xmicrostep':1, 'xpulleyden':1, 'xpulleynum':1, 'xleadscrew':3, 'xmaxvel':40, 'xmaxacc' :150,
 		'xhomepos':590, 'xminlim':0, 'xmaxlim':290, 'xhomesw':592, 'xhomevel':3, 'xlatchdir':0,
-		'ysteprev':200, 'ymicrostep':2, 'ypulleyden':1, 'ypulleynum':1, 'yleadscrew':20, 'ymaxvel':0, 'ymaxacc' :0,
-		'yhomepos':0, 'yminlim':0, 'ymaxlim':0, 'yhomesw':0, 'yhomevel':0, 'ylatchdir':0,
-		'zsteprev':200, 'zmicrostep':2, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':20, 'zmaxvel':0, 'zmaxacc' :0,
-		'zhomepos':0, 'zminlim':0, 'zmaxlim':0, 'zhomesw':0, 'zhomevel':0, 'zlatchdir':0,
+		'ysteprev':400, 'ymicrostep':1, 'ypulleyden':1, 'ypulleynum':1, 'yleadscrew':3, 'ymaxvel':40, 'ymaxacc' :150,
+		'yhomepos':0, 'yminlim':0, 'ymaxlim':832, 'yhomesw':-2, 'yhomevel':-3, 'ylatchdir':0,
+		'zsteprev':400, 'zmicrostep':1, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':3, 'zmaxvel':30, 'zmaxacc' :150,
+		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
 	}
 ]
 
