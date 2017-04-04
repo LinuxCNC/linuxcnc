@@ -44,11 +44,20 @@ handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     zmsg_dump(msg);
 
     zframe_t *f = zmsg_last(msg);
+    if(f == NULL){
+	rtapi_print_msg(RTAPI_MSG_ERR, "handle_command_input(): NULL zframe_t 'f' passed");
+	return -1;
+	}
+
     zmsg_remove(msg, f);
 
 
     if (!self->rx.ParseFromArray(zframe_data(f), zframe_size(f))) {
-       zframe_t *o = zmsg_first (msg);  // freed with msg
+	zframe_t *o = zmsg_first (msg);  // freed with msg
+	if(o == NULL){
+	    rtapi_print_msg(RTAPI_MSG_ERR, "handle_command_input(): NULL zframe_t 'f' passed");
+	    return -1;
+	    }
         std::string origin( (const char *) zframe_data(o), zframe_size(o));
         rtapi_print_hex_dump(RTAPI_MSG_ALL, RTAPI_DUMP_PREFIX_OFFSET, 16, 1,
         zframe_data(f), zframe_size(f), true, NULL, "%s: invalid pb ", origin.c_str());
@@ -316,6 +325,10 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
     // fail if comp.name not present
     if (!pbcomp->has_name()) {
         zframe_t *o = zmsg_first (from);  // freed with msg
+	if(o == NULL){
+	    rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
+	    return -1;
+	    }
         std::string origin( (const char *) zframe_data(o), zframe_size(o));
         note_printf(self->tx, "request %d from '%s': no name in Component submessage",
                     self->rx.type(), origin.c_str());
@@ -334,7 +347,11 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
 
             // TODO if (type < HAL_BIT || type > HAL_U32)
             gpb::TextFormat::PrintToString(p, &s);
-            zframe_t *o = zmsg_first (from);  // freed with msg
+	    zframe_t *o = zmsg_first (from);  // freed with msg
+	    if(o == NULL){
+		rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
+		return -1;
+		}
             std::string origin( (const char *) zframe_data(o), zframe_size(o));
             note_printf(self->tx,
                         "request %d from %s: invalid pin - name, type or dir missing: Pin=(%s)",
@@ -354,8 +371,12 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
     if (self->rcomps.count(cname) == 0) {
         // fail if no_create flag is set in Component submessage
         // meaning: bind succeeds only if the component exists
-        if (pbcomp->has_no_create() && pbcomp->no_create()) {
-            zframe_t *o = zmsg_first (from);  // freed with msg
+	if (pbcomp->has_no_create() && pbcomp->no_create()) {
+	    zframe_t *o = zmsg_first (from);  // freed with msg
+	    if(o == NULL){
+		rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
+		return -1;
+		}
             std::string origin( (const char *) zframe_data(o), zframe_size(o));
             note_printf(self->tx,
                         "request %d from '%s': Component not created since no_create flag set",
@@ -389,7 +410,11 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
         // validate request against existing comp
         retval = validate_component(cname, pbcomp, self->tx);
         if (retval) {
-            zframe_t *o = zmsg_first (from);  // freed with msg
+	    zframe_t *o = zmsg_first (from);  // freed with msg
+	    if(o == NULL){                          
+		rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
+		return -1;
+		}
             std::string origin( (const char *) zframe_data(o), zframe_size(o));
             rtapi_print_msg(RTAPI_MSG_ERR,
                             "%s: bind request from %s:"
@@ -456,7 +481,11 @@ dispatch_request(htself_t *self, zmsg_t *from, void *socket)
     case machinetalk::MT_HALRCOMP_BIND:
         // check for component submessages, and fail if none present
         if (self->rx.comp_size() == 0) {
-            zframe_t *o = zmsg_first (from);  // freed with msg
+	    zframe_t *o = zmsg_first (from);  // freed with msg
+	    if(o == NULL){                          
+		rtapi_print_msg(RTAPI_MSG_ERR,"dispatch_request(): NULL zframe_t 'o' passed");
+		return -1;
+		}
             std::string origin( (const char *) zframe_data(o), zframe_size(o));
             note_printf(self->tx, "request %d from '%s': no Component submessage",
                         self->rx.type(), origin.c_str());
@@ -493,7 +522,11 @@ dispatch_request(htself_t *self, zmsg_t *from, void *socket)
         self->tx.set_type(machinetalk::MT_HALRCOMMAND_ERROR);
         note_printf(self->tx, "rcommand %d: not implemented", self->rx.type());
         send_pbcontainer(from, self->tx, socket);
-        zframe_t *o = zmsg_first (from);  // freed with msg
+	zframe_t *o = zmsg_first (from);  // freed with msg
+	if(o == NULL){                          
+	    rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
+	    return -1;
+	    }
         std::string origin( (const char *) zframe_data(o), zframe_size(o));
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: rcommand from %s : unhandled type %d",
                         self->cfg->progname, origin.c_str(), (int) self->rx.type());
