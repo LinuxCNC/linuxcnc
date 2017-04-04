@@ -17,8 +17,8 @@ PRU_DBG := $(patsubst %,$(RTLIBDIR)/%.dbg,$(PRU_MAINS))
 # Adding to TARGETS builds the PRU code once and puts it in the RTLIBDIR for
 # the first defined RTOS flavor (typically posix)
 #TARGETS +=  $(PRU_BIN) $(PRU_DBG)
-# Only build PRU code for the Xenomai RTOS flavor
-ifeq ($(threads),xenomai)
+# Only build PRU code for the Xenomai and RT-PREEMPT RTOS flavor
+ifeq ($(threads),$(filter $(threads), xenomai rt-preempt)) 
 modules : $(PRU_BIN) $(PRU_DBG)
 endif
 
