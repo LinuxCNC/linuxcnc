@@ -862,6 +862,11 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     zframe_t *request_frame  = zmsg_pop (r);
     static bool force_exit = false;
 
+    if(request_frame == NULL){
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_request(): NULL zframe_t 'request_frame' passed");
+	return -1;
+	}
+
     machinetalk::Container pbreq, pbreply;
 
     if (!pbreq.ParseFromArray(zframe_data(request_frame),
@@ -1057,6 +1062,11 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 
     size_t reply_size = pbreply.ByteSize();
     zframe_t *reply = zframe_new (NULL, reply_size);
+    if(reply == NULL){
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_request(): NULL zframe_t 'reply' passed");
+	return -1;
+	}
+
     if (!pbreply.SerializeWithCachedSizesToArray(zframe_data (reply))) {
 	zframe_destroy(&reply);
 	rtapi_print_msg(RTAPI_MSG_ERR,

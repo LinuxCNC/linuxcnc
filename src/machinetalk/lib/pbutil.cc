@@ -64,9 +64,13 @@ send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
 	goto DONE;
     }
 
-    for (size_t i = 0; i < nsize; ++i)
-    {
+    for (size_t i = 0; i < nsize; ++i){
         zframe_t *f = zmsg_pop (dest); 
+	if(f == NULL){                          
+	    syslog_async(LOG_ERR, "send_pbcontainer(): NULL zframe_t 'f' passed");
+	    retval = -1;
+	    goto DONE;
+	    }
         if (zframe_size(f)) {
             retval = zframe_send (&f, socket, ZMQ_MORE);
             if (retval) {
