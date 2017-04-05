@@ -1742,7 +1742,7 @@ int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41
   } else if (g_code == G_42_1) {
     CHP(convert_cutter_compensation_on(RIGHT, block, settings));
   } else
-    ERS("BUG: Code not G40, G41, G41.1, G42, G42.2");
+    ERS("BUG: Code not G40, G41, G41.1, G42, G42.1");
 
   return INTERP_OK;
 }
