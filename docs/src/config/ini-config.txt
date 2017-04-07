@@ -60,7 +60,7 @@ name and end at the next section name.
 The following sections are used by LinuxCNC:
 
 * '[<<sec:emc-section,EMC>>]' general information
-* '[<<sec:display-section,DISPLAY>>]' settings related to the graphical user interface
+* ' <<sec:display-section,DISPLAY>>]' settings related to the graphical user interface
 * '[<<sec:filter-section,FILTER>>]' settings input filter programs
 * '[<<sec:rs274ngc-section,RS274NGC>>]' settings used by the g-code interpreter
 * '[<<sec:emcmot-section,EMCMOT>>]' settings used by the real time motion controller
@@ -368,6 +368,13 @@ Many of them are used also from gmoccapy, see the
 * 'JOG_AXES =' - The order in which jog keys are assigned to axis letters.  The left and right arrows are assigned to the first axis letter, up and down to the second, page up/page down to the third, and left and right bracket to the fourth.  If unspecified, the default is determined from the [TRAJ]COORDINATES, [DISPLAY]LATHE and [DISPLAY]FOAM values.
 
 * 'JOG_INVERT =' - For each axis letter, the jog direction is inverted.  The default is "X" for lathes and blank otherwise.
+
+[NOTE]
+The settings for 'JOG_AXES' and 'JOG_INVERT' apply to world mode jogging by axis coordinate letter
+and are in effect while in world mode after successful homing.  When operating in joint
+mode prior to homing, keyboard jog keys are assigned in a fixed sequence: left/right: joint0,
+up/down: joint1, page up/page down: joint2, left/right bracket: joint3
+
 
 * 'USER_COMMAND_FILE = mycommands.py' -- The name of an optional, configuration-specific
   python file sourced by the axis gui instead of the user-specific file `~/.axisrc`.
