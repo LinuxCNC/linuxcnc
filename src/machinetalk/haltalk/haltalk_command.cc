@@ -72,7 +72,6 @@ handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
         dispatch_request(self, msg, poller->socket);
     }
     zframe_destroy(&f);
-    zmsg_destroy(&msg);
 
     return retval;
 }
