@@ -1513,4 +1513,4 @@ Motion's number of joints can be changed at runtime using the
 `EMCMOT_SET_NUM_JOINTS` command from Task.
 
 The Motion controller always operates on `EMCMOT_MAX_AXIS` axes.
-It always creates nine sets of axis.*.* pins.
+It always creates nine sets of `axis.*.*` pins.
