@@ -26,7 +26,7 @@ hal_manualtoolchange \- HAL userspace component to enable manual tool changes.
 .SH SYNOPSIS
 loadusr hal_manualtoolchange
 .SH DESCRIPTION
-hal_manualtoolchange is a LinuxCNC userspace component that allows users with machines lacking automatic tool changers to make manual tool changes.  In use the hal_manualtoolchange component will stop the spindle, pause the program and display a tool change window prompting the user which tool number to load (Based on the last T- number programmed) when the M6 tool change command is encountered.  Pressing the "continue" button will resume the programs execution.
+hal_manualtoolchange is a LinuxCNC userspace component that allows users with machines lacking automatic tool changers to make manual tool changes.  In use when a M6 tool change is encountered, the motion component will stop the spindle and pause the program.  The hal_manualtoolchange component will then receive a signal from the motion component causing it to display a tool change window prompting the user which tool number to load based on the last T- number programmed.  The dialog will stay active until the "continue" button is pressed.  When the "continue" button is pressed, hal_manualtoolchange will then signal the motion component that the tool change is complete thus allowing motion to turn the spindle back on and resume program execution.
 .PP
 Additionally, The hal_manualtoolchange component includes a hal pin for a button that can be connected to a physical button to complete the tool change and remove the window prompt (hal_manualtoolchange.change_button).
 .PP
