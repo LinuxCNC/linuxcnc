@@ -63,6 +63,8 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     char *data = (char *) zframe_data(f);
     assert(data);
     char *topic = data + 1;
+	zmsg_t *topic_msg = zmsg_new();
+	zmsg_pushstr(topic_msg, topic);
 
     switch (*data) {
 
@@ -79,7 +81,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
         // not found, publish an error message on this topic
         self->tx.set_type(machinetalk::MT_HALRCOMP_ERROR);
         note_printf(self->tx, "component '%s' does not exist", topic);
-        retval = send_pbcontainer(topic, self->tx, self->mksock[SVC_HALRCOMP].socket);
+        retval = send_pbcontainer(topic_msg, self->tx, self->mksock[SVC_HALRCOMP].socket);
         assert(retval == 0);
 
         } else {
@@ -311,11 +313,11 @@ comp_report_cb(const int phase,
     break;
 
     case REPORT_END: // finalize & send
-    retval = send_pbcontainer(ho_name(cc->comp),
-                  self->tx,
-                  self->mksock[SVC_HALRCOMP].socket);
-    assert(retval == 0);
-    break;
+	zmsg_t *compname_msg = zmsg_new();
+        zmsg_pushstr(compname_msg, ho_name(cc->comp));
+	retval = send_pbcontainer(compname_msg, self->tx, self->mksock[SVC_HALRCOMP].socket);
+	assert(retval == 0);
+	break;
     }
     return 0;
 }
@@ -350,11 +352,13 @@ add_pins_to_items(const int phase,
 int ping_comps(htself_t *self)
 {
     for (compmap_iterator c = self->rcomps.begin();
-     c != self->rcomps.end(); c++) {
-    self->tx.set_type(machinetalk::MT_PING);
-    int retval = send_pbcontainer(c->first.c_str(), self->tx,
-                      self->mksock[SVC_HALRCOMP].socket);
-    assert(retval == 0);
+	 c != self->rcomps.end(); c++) {
+	self->tx.set_type(machinetalk::MT_PING);
+	zmsg_t *compname_msg = zmsg_new();
+	zmsg_pushstr(compname_msg, c->first.c_str());
+	int retval = send_pbcontainer(compname_msg, self->tx,
+				      self->mksock[SVC_HALRCOMP].socket);
+	assert(retval == 0);
     }
     return 0;
 }
