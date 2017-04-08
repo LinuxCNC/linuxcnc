@@ -3331,12 +3331,30 @@ for i in range(len(trajcoordinates)):
     if trajcoordinates.count(trajcoordinates[i]) > 1:
         duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
 if duplicate_coord_letters != "":
-    # Can occur, for instance, with trivkins with kinsmodule=both).
-    # In such kins, the value for a duplicated axis letter will equal the
-    # value of the highest numbered joint.
-    # Movements on axis gui display in joint mode (after homing) may be unexpected,
-    #   e.g., moving  a joint that is not the highest number will not affect the
-    # corresponding 'identity' coordinate.
+    # duplicate_coord_letters are allowed
+    #
+    # Example: configs/sim/axis/gantry.ini -- trivkins with kinstype=both.
+    # With such kins, the value displayed on the gui graphical display
+    # in JOINT mode AFTER homing may be confusing for a pair of joints that
+    # are assigned using a duplicated axis letter in [TRAJ]COORDINATES
+    # and specified consistently with the trivkins 'coordinates=' parameter.
+    #
+    # Moving the joint in the pair with the highest number will update its
+    # displayed joint value and move the cone in the gui graphical display
+    # as expected.
+    #
+    # Moving the joint in the pair with the lower number will update its
+    # displayed joint value but will not move the cone.
+    #
+    # Note also that returning to world mode from joint mode, the
+    # value assigned to the duplicated axis letter will be the value of
+    # the highest number joint since trivkins forward kinematics iterates
+    # through all joint numbers and ends up with the value for the
+    # highest joint number.  These behaviors, due in part to the simple
+    # implementation of the trivkins module, could be customized by a more
+    # sophisticated kinematics module that accepts duplicated coordinate
+    # letters with some special requirements -- hence the warning:
+
     print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
           duplicate_coord_letters)
 if len(trajcoordinates) > jointcount:
@@ -3361,19 +3379,6 @@ def lathe_historical_config():
         and (num_joints == 3)):
         return True
     return False
-
-def aletter_for_jnum(jnum):
-    if lathe_historical_config():
-        if jnum == 1: return "Y"
-        if jnum == 2: return "Z"
-    if kins_is_trivkins:
-        return trivkinscoords.upper()[jnum]
-    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-        raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
-    else:
-        guess = trajcoordinates.upper()[jnum]
-        print "aletter_for_jnum guessing %d --> %s"%(jnum,guess)
-        return guess
 
 num_joints = s.joints
 gave_individual_homing_message = ""
