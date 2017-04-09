@@ -260,11 +260,18 @@ source line number motion is currently executing. Relation
 to `id` unclear.
 
 *motion_mode*:: '(returns integer)' -
-motion mode.
+This is the mode of the Motion controller.  One of TRAJ_MODE_COORD,
+TRAJ_MODE_FREE, TRAJ_MODE_TELEOP.
 
 *motion_type*:: '(returns integer)' -
-trajectory planner mode. One of TRAJ_MODE_COORD,
-TRAJ_MODE_FREE, TRAJ_MODE_TELEOP.
+The type of the currently executing motion.  One of:
+    * MOTION_TYPE_TRAVERSE
+    * MOTION_TYPE_FEED
+    * MOTION_TYPE_ARC
+    * MOTION_TYPE_TOOLCHANGE
+    * MOTION_TYPE_PROBING
+    * MOTION_TYPE_INDEXROTARY
+    * Or 0 if no motion is currently taking place.
 
 *optional_stop*:: '(returns integer)' -
 option stop flag.
