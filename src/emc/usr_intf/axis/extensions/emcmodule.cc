@@ -332,7 +332,8 @@ static PyMemberDef Stat_members[] = {
     {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
     {(char*)"axes", T_INT, O(motion.traj.axes), READONLY},
     {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
-    {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY},
+    {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY, (char*)"The current mode of the Motion controller.  One of TRAJ_MODE_FREE,\n"
+        "TRAJ_MODE_COORD, or TRAJ_MODE_TELEOP." },
     {(char*)"enabled", T_BOOL, O(motion.traj.enabled), READONLY},
     {(char*)"inpos", T_BOOL, O(motion.traj.inpos), READONLY},
     {(char*)"queue", T_INT, O(motion.traj.queue), READONLY},
