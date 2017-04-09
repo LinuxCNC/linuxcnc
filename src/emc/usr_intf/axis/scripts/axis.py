@@ -3361,17 +3361,6 @@ if len(trajcoordinates) > jointcount:
     print ("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
           %(trajcoordinates,jointcount))
 
-def jnum_for_aletter(aletter):
-    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-        raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
-    aletter = aletter.lower()
-    if kins_is_trivkins:
-        return trajcoordinates.index(aletter)
-    else:
-        guess = trajcoordinates.index(aletter)
-        print "jnum_for_aletter guessing %s --> %d"%(aletter,guess)
-        return guess
-
 def lathe_historical_config():
     # detect historical lathe config with dummy joint 1
     if      (lathe
@@ -3379,6 +3368,19 @@ def lathe_historical_config():
         and (num_joints == 3)):
         return True
     return False
+
+def aletter_for_jnum(jnum):
+    if lathe_historical_config():
+        if jnum == 1: return "Y"
+        if jnum == 2: return "Z"
+    if kins_is_trivkins:
+        return trivkinscoords.upper()[jnum]
+    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
+    else:
+        guess = trajcoordinates.upper()[jnum]
+        print "aletter_for_jnum guessing %d --> %s"%(jnum,guess)
+        return guess
 
 num_joints = s.joints
 gave_individual_homing_message = ""
