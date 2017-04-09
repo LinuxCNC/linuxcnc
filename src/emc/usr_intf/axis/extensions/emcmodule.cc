@@ -352,7 +352,10 @@ static PyMemberDef Stat_members[] = {
     {(char*)"probing", T_BOOL, O(motion.traj.probing), READONLY},
     {(char*)"probe_val", T_INT, O(motion.traj.probeval), READONLY},
     {(char*)"kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY},
-    {(char*)"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
+    {(char*)"motion_type", T_INT, O(motion.traj.motion_type), READONLY, (char*)"The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
+        "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
+        "MOTION_TYPE_PROBING, or MOTION_TYPE_INDEXROTARY), or 0 if no motion is\n"
+        "currently taking place."},
     {(char*)"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {(char*)"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
     {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
