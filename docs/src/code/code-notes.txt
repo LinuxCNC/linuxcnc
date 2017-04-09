@@ -55,9 +55,10 @@ very much a work in progress, and its layout may change in the future.
     the ini file uses the term 'axis' for data that would more accurately
     be described as joint data, such as input and output scaling, etc.
 
-* 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In the
-    LinuxCNC motion controller, when we refer to a pose we mean an EmcPose
-    structure, containing three linear coordinates and three angular ones.
+* 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In
+    the LinuxCNC motion controller, when we refer to a pose we mean an
+    EmcPose structure, containing six linear coordinates (X, Y, Z, U,
+    V, and W) and three angular ones (A, B, and C).
 
 == Architecture overview
 
