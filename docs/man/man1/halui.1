@@ -273,10 +273,11 @@ responds to this pin, independent of the .count-enable pin.)
 .B halui.max-velocity.scale\fR float in \fR
 This pin controls the scale of changes to the max velocity.  Each unit
 change in .counts, and each positive edge on .increase and .decrease,
-changes the max velocity by .scale.
+changes the max velocity by .scale.  The units of the .scale pin are
+machine-units per second.
 .TP
 .B halui.max-velocity.value\fR float out \fR
-Current value for maximum velocity.
+Current value for maximum velocity, in machine-units per second.
 
 .SS machine
 .TP 
