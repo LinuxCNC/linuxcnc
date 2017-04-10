@@ -246,25 +246,37 @@ pin for starting mist
 .SS max-velocity
 .TP
 .B halui.max-velocity.count-enable\fR bit in \fR (default: \fBTRUE\fR)
-When TRUE, modify max velocity when counts changes.
+When True, modify max velocity when halui.max-velocity.counts changes.
 .TP
 .B halui.max-velocity.counts\fR s32 in \fR
-counts from an encoder for example to change maximum velocity
-.TP
-.B halui.max-velocity.decrease\fR bit in \fR
-pin for decreasing the maximum velocity (-=scale)
+When .count-enable is True, halui changes the max velocity in response
+to changes to this pin.  It's usually connected to an MPG encoder on
+an operator's panel or jog pendant.  When .count-enable is False, halui
+ignores this pin.
 .TP
 .B halui.max-velocity.direct-value\fR bit in \fR
-pin for using a direct value for max velocity
+When this pin is True, halui commands the max velocity directly to
+(.counts * .scale).  When this pin is False, halui commands the max
+velocity in a relative way: change max velocity by an amount equal to
+(change in .counts * .scale).
 .TP
 .B halui.max-velocity.increase\fR bit in \fR
-pin for increasing the maximum velocity (+=scale)
+A positive edge (a False to True transition) on this pin increases the
+max velocity by the value of the .scale pin.  (Note that halui always
+responds to this pin, independent of the .count-enable pin.)
+.TP
+.B halui.max-velocity.decrease\fR bit in \fR
+A positive edge (a False to True transition) on this pin decreases the
+max velocity by the value of the .scale pin.  (Note that halui always
+responds to this pin, independent of the .count-enable pin.)
 .TP
 .B halui.max-velocity.scale\fR float in \fR
-pin for setting the scale on changing the maximum velocity
+This pin controls the scale of changes to the max velocity.  Each unit
+change in .counts, and each positive edge on .increase and .decrease,
+changes the max velocity by .scale.
 .TP
 .B halui.max-velocity.value\fR float out \fR
-Current value for maximum velocity
+Current value for maximum velocity.
 
 .SS machine
 .TP 
