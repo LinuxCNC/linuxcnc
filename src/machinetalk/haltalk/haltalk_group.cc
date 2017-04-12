@@ -117,9 +117,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		     g != self->groups.end(); g++) {
 		    note_printf(self->tx, "    %s", g->first.c_str());
 		}
-		zmsg_t *topic_msg = zmsg_new();
-		zmsg_pushstr(topic_msg, topic);
-		int retval = send_pbcontainer(topic_msg, self->tx,
+		int retval = send_pbcontainer(topic, self->tx,
 					      self->mksock[SVC_HALGROUP].socket);
 		assert(retval == 0);
 	    }
@@ -305,9 +303,7 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 	break;
 
     case REPORT_END: // finalize & send
-	zmsg_t *groupname_msg = zmsg_new();
-        zmsg_pushstr(groupname_msg, ho_name(cgroup->group));
-	retval = send_pbcontainer(groupname_msg, self->tx,
+	retval = send_pbcontainer(ho_name(cgroup->group), self->tx,
 				  self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);
 
@@ -337,9 +333,7 @@ int ping_groups(htself_t *self)
 {
     for (groupmap_iterator g = self->groups.begin(); g != self->groups.end(); g++) {
 	self->tx.set_type(machinetalk::MT_PING);
-	zmsg_t *groupname_msg = zmsg_new();
-        zmsg_pushstr(groupname_msg, g->first.c_str());
-	int retval = send_pbcontainer(groupname_msg, self->tx,
+	int retval = send_pbcontainer(g->first.c_str(), self->tx,
 				      self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);
     }

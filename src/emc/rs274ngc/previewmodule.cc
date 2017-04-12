@@ -60,12 +60,10 @@ static void publish_istat(machinetalk::InterpreterStateType state)
     if (state ^ last_state) {
 	istat.set_type(machinetalk::MT_INTERP_STAT);
 	istat.set_interp_state(state);
-	istat.set_interp_name("preview");
-	zmsg_t *istat_topic_msg = zmsg_new();
-	zmsg_pushstr(istat_topic_msg, istat_topic);
+    istat.set_interp_name("preview");
 
 	// NB: this will also istat.Clear()
-	retval = send_pbcontainer(istat_topic_msg, istat, z_status);
+	retval = send_pbcontainer(istat_topic, istat, z_status);
 	assert(retval == 0);
 
 	last_state = state; // change tracking
@@ -78,14 +76,12 @@ static void send_preview(const char *client, bool flush = false)
 {
     int retval;
     n_messages++;
-    zmsg_t *client_msg = zmsg_new();
-    zmsg_pushstr(client_msg, client);
 
     if ((output.preview_size() > batch_limit) || flush) {
 	n_containers++;
 	n_bytes += output.ByteSize();
 	output.set_type(machinetalk::MT_PREVIEW);
-	retval = send_pbcontainer(client_msg, output, z_preview);
+	retval = send_pbcontainer(client, output, z_preview);
 	assert(retval == 0);
     }
 }
