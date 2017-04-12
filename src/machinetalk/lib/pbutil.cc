@@ -24,17 +24,24 @@
 // send_pbcontainer: if set, dump container to stderr in TextFormat
 int __attribute__((weak)) print_container;
 
+int
+send_pbcontainer(const std::string &dest, machinetalk::Container &c, void *socket)
+{
+    int retval = 0;
+    zmsg_t *msg = zmsg_new();
+    zframe_t *d =  zframe_new (dest.c_str(), dest.size());
+    zmsg_append(msg, &d);
+    retval = send_pbcontainer(msg, c, socket);
+    zmsg_destroy(&msg);
+    return retval;
+}
+
 // send_pbcontainer: destination can contain multiple routing points
 int
 send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
 {
     int retval = 0;
     zframe_t *f;
-
-    // handle 'no destination prepended' properly
-    if (dest == NULL)
-	dest = zmsg_new();
-
     size_t nsize = zmsg_size(dest);
 
     f = zframe_new(NULL, c.ByteSize());
@@ -57,13 +64,29 @@ send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
 	goto DONE;
     }
 
-    zmsg_append (dest, &f);
-    retval = zmsg_send(&dest, socket);
-    if (retval) {
-	syslog_async(LOG_ERR,"%s: FATAL - zmsg_send() failed",
-			    __func__);
+    for (size_t i = 0; i < nsize; ++i){
+        zframe_t *f = zmsg_pop (dest); 
+	if(f == NULL){                          
+	    syslog_async(LOG_ERR, "send_pbcontainer(): NULL zframe_t 'f' passed");
+	    retval = -1;
+	    goto DONE;
+	    }
+        if (zframe_size(f)) {
+            retval = zframe_send (&f, socket, ZMQ_MORE);
+            if (retval) {
+                std::string str( (const char *) zframe_data(f), zframe_size(f));
+                syslog_async(LOG_ERR,"%s: FATAL - failed to send destination frame: '%.*s'",
+                             __func__, str.size(), str.c_str());
+                goto DONE;
+            }
+        }
+        zframe_destroy(&f);
     }
-
+    retval = zframe_send(&f, socket, 0);
+    if (retval) {
+	syslog_async(LOG_ERR,"%s: FATAL - failed to zframe_sendm(%d)",
+			    __func__, end-buf);
+    }
  DONE:
     c.Clear();
     return retval;

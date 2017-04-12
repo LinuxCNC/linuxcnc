@@ -66,15 +66,13 @@ describe_group(htself_t *self,
 	       void *socket)
 {
     WITH_HAL_MUTEX();
-    zmsg_t *from_msg = zmsg_new();
-    zmsg_pushstr(from_msg, from.c_str());
     int ret = halg_object2pb(0, &self->tx, group, HAL_GROUP, 0);
     if (ret != 1)  {
 	self->tx.set_type(machinetalk::MT_HALRCOMP_ERROR);
 	note_printf(self->tx, "no such group: '%s'", group);
-	return send_pbcontainer(from_msg, self->tx, socket);
+	return send_pbcontainer(from, self->tx, socket);
     }
-    return send_pbcontainer(from_msg, self->tx, socket);
+    return send_pbcontainer(from, self->tx, socket);
 }
 
 
@@ -86,15 +84,13 @@ describe_comp(htself_t *self,
 	      void *socket)
 {
     WITH_HAL_MUTEX();
-    zmsg_t *from_msg = zmsg_new();
-    zmsg_pushstr(from_msg, from.c_str());
     int ret = halg_object2pb(0, &self->tx, comp, HAL_COMPONENT, 0);
     if (ret != 1)  {
 	self->tx.set_type(machinetalk::MT_HALRCOMP_ERROR);
 	note_printf(self->tx, "no such component: '%s'", comp);
-	return send_pbcontainer(from_msg, self->tx, socket);
+	return send_pbcontainer(from, self->tx, socket);
     }
-    return send_pbcontainer(from_msg, self->tx, socket);
+    return send_pbcontainer(from, self->tx, socket);
 }
 
 // add protocol parameters the subscriber might want to know about
