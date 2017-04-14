@@ -3076,12 +3076,16 @@ def jog_on_map(num, speed):
         axis_letter = jog_order[num]
         num = "XYZABCUVW".index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
+    elif num >= num_joints:
+        return
     return jog_on(num, speed)
 
 def jog_off_map(num):
     if not get_jog_mode():
         if num >= len(jog_order): return
         num = "XYZABCUVW".index(jog_order[num])
+    elif num >= num_joints:
+        return
     return jog_off(num)
 
 def bind_axis(a, b, d):
