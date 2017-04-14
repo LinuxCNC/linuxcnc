@@ -34,5 +34,9 @@ function _ "Update the output based on the input and parameters";
 license "GPL";
 author "Jeff Epler <jepler@unpythonic.net>";
 ;;
-value += (in - value) * gain;
-out = (int)(rtapi_s64)(value * scale);
+#include <rtapi_math.h>
+
+FUNCTION(_) {
+    value += (in - value) * gain;
+    out = (int)(rtapi_s64)floor((value * scale) + 0.5);
+}
