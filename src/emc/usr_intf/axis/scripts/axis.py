@@ -1773,10 +1773,14 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
+    if not all_homed() and lathe and not lathe_historical_config():
+	axes = "xzabcuvw"
+    else:       
+        axes = "xyzabcuvw"
     if ja in "012345678":
         a = int(ja)
-    else :
-        a = "xyzabcuvw".index(ja)
+    else:    
+        a = axes.index(ja)
     return a
 
 def all_homed():
@@ -3072,12 +3076,30 @@ def jog_on_map(num, speed):
         axis_letter = jog_order[num]
         num = "XYZABCUVW".index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
+    elif num >= num_joints:
+        return
+    elif lathe:
+        if num >= len(jog_order): return
+        axis_letter = jog_order[num]
+	if lathe_historical_config():
+            num = "XYZ".index(axis_letter)
+	else:
+            num = trajcoordinates.upper().index(axis_letter)
+        if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
 
 def jog_off_map(num):
     if not get_jog_mode():
         if num >= len(jog_order): return
         num = "XYZABCUVW".index(jog_order[num])
+    elif num >= num_joints:
+        return
+    elif lathe:
+        if num >= len(jog_order): return
+        if lathe_historical_config():
+            num = "XYZ".index(jog_order[num])
+        else:
+            num = trajcoordinates.upper().index(jog_order[num])
     return jog_off(num)
 
 def bind_axis(a, b, d):
