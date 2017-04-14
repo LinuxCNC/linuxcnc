@@ -1773,10 +1773,14 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
+    if not all_homed() and lathe and not lathe_historical_config():
+	axes = "xzabcuvw"
+    else:       
+        axes = "xyzabcuvw"
     if ja in "012345678":
         a = int(ja)
-    else :
-        a = "xyzabcuvw".index(ja)
+    else:    
+        a = axes.index(ja)
     return a
 
 def all_homed():
