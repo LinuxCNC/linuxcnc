@@ -3078,6 +3078,14 @@ def jog_on_map(num, speed):
         if axis_letter in jog_invert: speed = -speed
     elif num >= num_joints:
         return
+    elif lathe:
+        if num >= len(jog_order): return
+        axis_letter = jog_order[num]
+	if lathe_historical_config():
+            num = "XYZ".index(axis_letter)
+	else:
+            num = trajcoordinates.upper().index(axis_letter)
+        if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
 
 def jog_off_map(num):
@@ -3086,6 +3094,12 @@ def jog_off_map(num):
         num = "XYZABCUVW".index(jog_order[num])
     elif num >= num_joints:
         return
+    elif lathe:
+        if num >= len(jog_order): return
+        if lathe_historical_config():
+            num = "XYZ".index(jog_order[num])
+        else:
+            num = trajcoordinates.upper().index(jog_order[num])
     return jog_off(num)
 
 def bind_axis(a, b, d):
