@@ -1304,15 +1304,25 @@ widgets.axis_y.configure(value="y")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode():
-        # free jogging (joints) (only accept integers here)
+    if get_jog_mode() and trivkinstype != "single":
+        # free jogging (joints) if:
+        #   trivkins config and kinstype = both
+        #   non-trivkins config
+        # only accept integers here
         if type(i) != type(0): return
         if i >= num_joints: return
         widget = getattr(widgets, "joint_%d" % i)
     else:
-        # teleop jogging (axes) (letters are special case for key bindings)
-        if type(i) == type(""): letter = i
-        else:                   letter = "xyzabcuvw"[i]
+        # teleop jogging (axes) or
+        # free jogging (joints) if:
+        #   trivkins config and kinstype not both
+        # letters are special case for key bindings
+        if type(i) == type(""):
+            letter = i
+        elif lathe and not lathe_historical_config()and not all_homed():
+            letter = "xzabcuvw"[i]
+        else:
+            letter = "xyzabcuvw"[i]
         if letter in trajcoordinates:
             widget = getattr(widgets, "axis_%s" % letter)
         else:
@@ -3340,12 +3350,17 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 
 kinsmodule=inifile.find("KINS", "KINEMATICS").lower()
 kins_is_trivkins = False
+trivkinstype = "none"
 if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
     for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
+        if "kinstype=" in item:
+            trivkinstype = item.split("=")[1]
+        else:
+            trivkinstype = "single"
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
