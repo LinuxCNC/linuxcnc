@@ -1,0 +1,262 @@
+[[cha:GStat]]
+
+= GStat
+
+== Intro
+
+GStat is a python class used to send messages from linuxcnc to other python programs. +
+It uses GObject to deliver messages, making it easy to listen for specific information. +
+This is referred to as event-driven programming, which is more efficient then every program +
+polling linuxcnc at the same time. +
+GladeVCP, Gscreen and Gmoccapy use GStat extensively. +
+GStat is in the hal_glib module
+
+== Overview
+
+First a program imports the hal_glib module and instantiates GStat. +
+Then it 'connects' to the messages it wishes to monitor. +
+GStat checks linuxcnc's status every 100ms and if there are differences from +
+the last check, it will send a callback message to all the connected programs +
+with the current status. +
+
+== Sample code pattern
+Here is the basic pattern for using GStat. +
+This program creates two HAL pins that output the status +
+of G20/G21.
+
+[source,python]
+----
+#!/usr/bin/env python
+import hal
+from hal_glib import GStat
+import gobject
+GSTAT = GStat()
+
+def mode_changed(obj, data):
+        h['g20'] = not data
+        h['g21'] = data
+
+h = hal.component("metric_status")
+h.newpin("g20", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("g21", hal.HAL_BIT, hal.HAL_OUT)
+h.ready()
+
+GSTAT.connect("metric-mode-changed",mode_changed)
+GSTAT.forced_update()
+GSTAT.emit('metric_mode_changed',metric_new)
+
+try:
+        gobject.MainLoop().run()
+except KeyboardInterrupt:
+    raise SystemExit
+----
+
+===  Messages
+
+*state-estop* :: '(returns nothing)' -
+Sent when linuxcnc is goes into estop.
+
+*state-estop-reset*:: '(returns nothing)' -
+Sent when linuxcnc comes out of estop.
+
+*state-on* :: '(returns nothing)' -
+Sent when linuxcnc is in machine on state.
+
+*state-off*:: '(returns nothing)' -
+Sent when linuxcnc is in machine off state.
+
+*homed* :: '(returns string)' -
+Sent as each joint is homed.
+
+*all-homed* :: '(returns nothing)' -
+Sent when all defined joints are homed.
+
+*not-all-homed* :: '(returns string)' -
+Sends a list of joints not currently homed.
+
+*override_limits_changed* :: '(returns string)' -
+Sent if linuxcnc has been directed to override it's limits.
+
+*mode-manual* :: '(returns nothing)' -
+Sent when linuxcnc switches to manual mode.
+
+*mode-mdi* :: '(returns nothing)' -
+Sent when linuxcnc switches to mdi mode.
+
+*mode-auto* :: '(returns nothing)' -
+Sent when linuxcnc switches to auto mode.
+
+*interp-run* :: '(returns nothing)' -
+Sent when linuxcnc's interpreter is running an MDI or program.
+
+*interp-idle* :: '(returns nothing)' -
+Sent when linuxcnc's interpreter idle.
+
+*interp-paused* :: '(returns nothing)' -
+Sent when linuxcnc's interpreter is paused.
+
+*interp-reading* :: '(returns nothing)' -
+Sent when linuxcnc's interpreter is reading.
+
+*interp-waiting* :: '(returns nothing)' -
+Sent when linuxcnc's interpreter is waiting.
+
+*jograte-changed* :: '(returns float)' -
+Sent when jograte has changed. +
+Linuxcnc does not have an internal jograte. +
+This is GStat's internal jograte.
+
+*program-pause-changed* :: '(returns bool)' -
+Sent when program is paused/unpaused.
+
+*optional-stop-changed* :: '(returns bool)' -
+Sent when optional stop is set/unset
+
+*block-delete-changed* :: '(returns bool)' -
+sent when block delete is set/unset.
+
+*file-loaded* :: '(returns string)' -
+Sent when linuxcnc has loaded a file
+
+*reload-display* :: '(returns nothing)' -
+Sent when there is a request to reload the display
+
+*line-changed* :: '(returns integer)' -
+Sent when linuxcnc has read a new line. +
+Linuxcnc does not update this for every type of line.
+
+*tool-in-spindle-changed* :: '(returns integer)' -
+Sent when the tool has changed.
+
+*motion-mode-changed* :: '(returns integer)' -
+Sent when motion's mode has changed
+
+*spindle-control-changed* :: '(returns bool, integer)' -
+Sent when spindle direction or running status changes.
+
+*current-feed-rate* :: '(returns float)' -
+Sent when the current feed rate changes.
+
+*current-x-rel-position* :: '(returns float)' -
+Sent when the X relative position changes.
+
+*current-position* :: '(returns pyobject, pyobject, pyobject)' -
+Sent as the current positions changes. +
+returns tuples of position,relative position and distance-to-go.
+
+*requested-spindle-speed-changed* :: '(returns float)' -
+Sent when the current requested RPM changes
+
+*spindle-override-changed* :: '(returns float)' -
+Sent when the spindle override value changes +
+in percent
+
+*feed-override-changed* :: '(returns float)' -
+Sent when the feed override value changes +
+in percent
+
+*rapid-override-changed* :: '(returns float)' -
+Sent when the rapid override value changes +
+in percent 0-100
+
+*feed-hold-enabled-changed* :: '(returns bool)' -
+Sent when feed hold status changes
+
+*itime-mode* :: '(returns bool)' -
+Sent when G93 status changes +
+(inverse time mode)
+
+*fpm-mode* :: '(returns bool)' -
+Sent when G94 status changes +
+(feed per minute mode)
+
+*fpr-mode* :: '(returns bool)' -
+Sent when G95 status changes +
+(feed per revolution mode)
+
+*css-mode* :: '(returns bool)' -
+Sent when G96 status changes +
+(constant surface feed mode)
+
+*rpm-mode* :: '(returns bool)' -
+Sent when G97 status changes +
+(constatnt RPM mode)
+
+*radius-mode* :: '(returns bool)' -
+Sent when G8 status changes +
+display X in radius mode
+
+*diameter-mode* :: '(returns bool)' -
+Sent when G7 status changes +
+display X in Diameter mode
+
+*m-code-changed* :: '(returns string)' -
+Sent when active M codes change
+
+*g-code-changed* :: '(returns string)' -
+Sent when active G code change
+
+*metric-mode-changed* :: '(returns bool)' -
+Sent when G21 status changes
+
+*user_system-changed* :: '(returns string)' -
+Sent when G20 status changes
+
+*error-message* :: '(returns string)' -
+Error messages are sent when detected
+
+*text-messsage* :: '(returns string)' -
+Text messages are sent when detected
+
+*display-message* :: '(returns string)' -
+Operator display messages are sent when detected
+
+== Functions
+These are convenience functions that are commonly used in programming
+
+*set_jograte* :: '(float)' -
+Linuxcnc has no internal concept of jog rate -each GUI has it's own. +
+This is not always convenient. +
+This function allows one to set a jog rate for all objects connected to the +
+signal 'jograte-changed'. +
+It defaults to 15 +
+GSTAT.set_jog_rate( 10 ) would set the jog rate and emit the jograte-changed signal. +
+
+*get_jograte()* :: '(Nothing)' -
+x = GSTAT.get_jograte would return GSTAT's current internal jograte.
+
+*is_all_homed* :: '(nothing)' -
+This will return the current state of all_homed (BOOL).
+
+*machine_is_on* :: '(nothing)' -
+This will return the current state of machine (BOOL).
+
+*estop_is_clear* :: '(nothing)' -
+This will return the state of Estop (BOOL)
+
+*set_tool_touchoff* :: '(tool,axis,value)' -
+This command will record the current mode, switch to MDI mode, +
+invoke the MDI command: G10 L10 P[TOOL] [AXIS] [VALUE] +
+wait for it to complete +
+invoke G43 +
+wait for it to complete +
+switch back to the original mode. +
+
+*set_axis_origin* :: '(axis,value)' -
+This command will record the current mode, switch to MDI mode, +
+invoke the MDI command: G10 L20 P0 [AXIS] [VALUE] +
+wait for it to complete +
+switch back to the original mode. +
+emit a 'reload-display' signal. +
+
+*do_jog* :: '(axis_number,direction, distance)' -
+This will jog an axis continuously or at a set distance. +
+You must be in the proper mode to jog.
+
+== Known Issues
+
+Some status points are reported wrongly during a running program. +
+This is because the interpreter runs ahead of the current position of a running program. +
+This will hopefully be resolved with the merge of state-tags branch. +
+
+

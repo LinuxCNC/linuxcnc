@@ -99,6 +99,7 @@ DOC_SRCS_EN := \
 	gui/tklinuxcnc.txt \
 	gui/tooledit.txt \
 	gui/touchy.txt \
+	gui/GStat.txt \
 	gui/vismach.txt \
 	hal/basic-hal.txt \
 	hal/canonical-devices.txt \
