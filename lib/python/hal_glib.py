@@ -172,7 +172,7 @@ class _GStat(gobject.GObject):
         except:
             pass
         gobject.timeout_add(100, self.update)
-        self.current_jog_rate = 15
+        self._current_jog_rate = 15
         self._is_all_homed = False
 
     def merge(self):
@@ -576,10 +576,12 @@ class _GStat(gobject.GObject):
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg
 
-    def set_jog_rate(self,upm):
-        self.current_jog_rate = upm
+    def set_jograte(self,upm):
+        self._current_jog_rate = upm
         self.emit('jograte-changed', upm)
 
+    def get_jograte(self):
+        return self._current_jog_rate
 
     def is_all_homed(self):
         return self._is_all_homed
@@ -624,7 +626,7 @@ class _GStat(gobject.GObject):
             self.cmd.mode(premode)
         self.emit('reload-display')
 
-    def continuous_jog(self, axisnum, direction, distance=0):
+    def do_jog(self, axisnum, direction, distance=0):
         jjogmode,j_or_a = self.get_jog_info(axisnum)
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
@@ -632,7 +634,7 @@ class _GStat(gobject.GObject):
             if axisnum in (3,4,5):
                 rate = self.angular_jog_velocity
             else:
-                rate = self.current_jog_rate/60
+                rate = self._current_jog_rate/60
             if distance == 0:
                 self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
             else:
