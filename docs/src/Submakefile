@@ -111,6 +111,8 @@ DOC_SRCS_EN := \
 	hal/tutorial.txt \
 	hal/twopass.txt \
 	install/latency-test.txt \
+	integrator/steppers.txt \
+	integrator/wiring.txt \
 	ladder/classic-ladder.txt \
 	ladder/ladder-examples.txt \
 	ladder/ladder-intro.txt \
@@ -238,6 +240,7 @@ PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Documentation.pdf \
 	LinuxCNC_Developer_Manual.pdf \
 	LinuxCNC_Manual_Pages.pdf \
+	LinuxCNC_Integrator.pdf \
 	)
 
 PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, \
@@ -342,6 +345,8 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/Master_Documentation_es.pdf
 	@ln -f $< $@
@@ -539,6 +544,7 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf
