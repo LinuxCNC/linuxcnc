@@ -931,6 +931,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_NONVOL_UNSIGNED:
             case LBP_NONVOL_SIGNED:
+            case LBP_FLOAT:
                 HM2_ERR("Non-Volatile data type found in PTOC. This should "
                         "never happen. Aborting");
                 return r;
@@ -1319,6 +1320,9 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                                      // Would we ever write to a counter? 
                                     // Assume not for the time being
                                     break;
+                                case LBP_FLOAT:
+                                    *((float*)(&buff)) = *pin->float_pin;
+                                    break;
                                 default:
                                     HM2_ERR("Unsupported output datatype %i (name ""%s"")\n",
                                             conf->DataType, conf->NameString);
@@ -1503,6 +1507,9 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 *pin->s32_pin = pin->accum - pin->offset;
                 *pin->s32_pin2 = pin->accum;
                 *pin->float_pin = (double)(pin->accum - pin->offset) / pin->fullscale ;
+                break;
+            case LBP_FLOAT:
+                *pin->float_pin = *((float*)(&buff));
                 break;
             }
             default:
