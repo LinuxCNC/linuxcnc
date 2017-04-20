@@ -1,0 +1,71 @@
+[[cha:steppers]]
+
+= Stepper Formulas
+
+What Voltage should the power supply be?
+
+To calculate the voltage needed empirically take a 24 VDC power supply
+or any power supply that you have on hand that is above the minimum for
+the drive and hook it to the heaviest loaded axis.
+
+Run that axis and increase the speed until you find the fastest speed
+that it will run without missing steps with the test voltage.
+
+Using the following formula you can determine your voltage needed.
+Speed you want ÷ (Speed you got * 0.9) * Test voltage used = Voltage needed
+Example (300IPM ÷ (150IPM * 0.9) * 24VDC = 53.3VDC
+Just make sure that the voltage is within the range of your stepper driver.
+
+What Voltage is my Stepper?
+
+Some steppers just have the resistance and current on the tag.
+When I asked this question I had to do a slap on the forehead!
+Using Ohm's Law R x I = E (Resistance x Current = Voltage)
+Example 1.1 Ohms x 2.8 Amps = 3.08 Volts
+
+Compute Maximum Voltage vs Inductance
+
+To compute the maximum voltage that you should use
+depending on the inductance of the motor use this formula.
+Maximum Voltage = 1000 * SQRT(inductance)
+
+Example a motor that is rated at 1.5mH inductance per phase.
+1000 * SQRT(0.0015) = 38.73 Volts MAXIMUM.
+Example a motor that is rated at 6mH per phase
+1000 * SQRT(0.006) = 77 Volts MAXIMUM.
+Example a motor that is rated 2.5mH
+1000 * SQRT(0.0025) = 50VDC MAXIMUM.
+
+NOTE: Not all motors are created equal. 
+If you use this formula and your motor seems to be excessively hot, turn down
+the voltage until the temperature is acceptable. Stepper motors are designed to
+run hot, but there's no need to stink up the place with fried insulation.
+Many motors are rated to withstand an 80 C temperature rise.
+For my own purposes, I limit the temperature rise to 60 C.
+
+Compute Value and Wattage of Current-Limiting Resistors
+
+Note: For L/R systems only.
+
+This is a basic application of Ohms Law for a series circuit.
+Your resistor must drop the difference in voltage between
+the voltage at which your stepper is rated and your supply voltage:
+
+Resistor voltage drop = Supply voltage - stepper rated voltage
+
+Applying Ohms Law, divide by the rated current to get the resistance:
+
+Resistor value = Resistor voltage drop / stepper current
+
+Finally, and very importantly, you need to know how much wattage 
+you will be dissipating as heat, which your resistors must be rated to handle:
+
+Resistor wattage rating = Resistor voltage drop * stepper current
+
+For example: Steppers rated at 2.5V @ 5A, with a 26V power supply
+
+Resistor voltage drop = 26V - 2.5V = 23.5V
+Resistor value = 23.5V / 5A = 4.7 Ohms
+Resistor wattage rating = 23.5V * 5A = 117.5 Watts
+
+
