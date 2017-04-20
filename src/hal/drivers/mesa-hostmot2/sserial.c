@@ -1322,6 +1322,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                                 default:
                                     HM2_ERR("Unsupported output datatype %i (name ""%s"")\n",
                                             conf->DataType, conf->NameString);
+				    conf->DataType = 0; // Warn once, then ignore
                                     
                             }
                             bitcount = setbits(chan, &buff, bitcount, conf->DataLength);
@@ -1507,6 +1508,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
             default:
                 HM2_ERR_NO_LL("Unsupported input datatype %i (name ""%s"")\n",
                         conf->DataType, conf->NameString);
+		conf->DataType = 0; // Only warn once, then ignore
             }
             bitcount += conf->DataLength;
         }
