@@ -8,7 +8,7 @@ Integrator Information V{lversion}, {localdate}
 
 include::integrator/steppers.txt[]
 
-include::integrator/stepper-timgin.txt[]
+include::integrator/stepper-timing.txt[]
 
 include::integrator/wiring.txt[]
 
