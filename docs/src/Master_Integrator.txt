@@ -8,6 +8,8 @@ Integrator Information V{lversion}, {localdate}
 
 include::integrator/steppers.txt[]
 
+include::integrator/stepper-timgin.txt[]
+
 include::integrator/wiring.txt[]
 
 // vim: set syntax=asciidoc:
