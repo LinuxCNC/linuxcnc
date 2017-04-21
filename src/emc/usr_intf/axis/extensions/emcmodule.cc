@@ -330,7 +330,8 @@ static PyMemberDef Stat_members[] = {
     {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
     {(char*)"joints", T_INT, O(motion.traj.joints), READONLY},
     {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
-    {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY},
+    {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY, (char*)"The current mode of the Motion controller.  One of TRAJ_MODE_FREE,\n"
+        "TRAJ_MODE_COORD, or TRAJ_MODE_TELEOP." },
     {(char*)"enabled", T_BOOL, O(motion.traj.enabled), READONLY},
     {(char*)"inpos", T_BOOL, O(motion.traj.inpos), READONLY},
     {(char*)"queue", T_INT, O(motion.traj.queue), READONLY},
@@ -350,7 +351,10 @@ static PyMemberDef Stat_members[] = {
     {(char*)"probing", T_BOOL, O(motion.traj.probing), READONLY},
     {(char*)"probe_val", T_INT, O(motion.traj.probeval), READONLY},
     {(char*)"kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY},
-    {(char*)"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
+    {(char*)"motion_type", T_INT, O(motion.traj.motion_type), READONLY, (char*)"The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
+        "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
+        "MOTION_TYPE_PROBING, or MOTION_TYPE_INDEXROTARY), or 0 if no motion is\n"
+        "currently taking place."},
     {(char*)"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {(char*)"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
     {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
@@ -2215,6 +2219,13 @@ initlinuxcnc(void) {
     ENUMX(4, EMC_TRAJ_MODE_FREE);
     ENUMX(4, EMC_TRAJ_MODE_COORD);
     ENUMX(4, EMC_TRAJ_MODE_TELEOP);
+
+    ENUMX(4, EMC_MOTION_TYPE_TRAVERSE);
+    ENUMX(4, EMC_MOTION_TYPE_FEED);
+    ENUMX(4, EMC_MOTION_TYPE_ARC);
+    ENUMX(4, EMC_MOTION_TYPE_TOOLCHANGE);
+    ENUMX(4, EMC_MOTION_TYPE_PROBING);
+    ENUMX(4, EMC_MOTION_TYPE_INDEXROTARY);
 
     ENUM(KINEMATICS_IDENTITY);
     ENUM(KINEMATICS_FORWARD_ONLY);

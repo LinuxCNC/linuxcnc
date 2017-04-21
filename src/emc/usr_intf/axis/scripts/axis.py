@@ -1773,10 +1773,14 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
+    if not all_homed() and lathe and not lathe_historical_config():
+	axes = "xzabcuvw"
+    else:       
+        axes = "xyzabcuvw"
     if ja in "012345678":
         a = int(ja)
-    else :
-        a = "xyzabcuvw".index(ja)
+    else:    
+        a = axes.index(ja)
     return a
 
 def all_homed():
@@ -3072,12 +3076,30 @@ def jog_on_map(num, speed):
         axis_letter = jog_order[num]
         num = "XYZABCUVW".index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
+    elif num >= num_joints:
+        return
+    elif lathe:
+        if num >= len(jog_order): return
+        axis_letter = jog_order[num]
+	if lathe_historical_config():
+            num = "XYZ".index(axis_letter)
+	else:
+            num = trajcoordinates.upper().index(axis_letter)
+        if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
 
 def jog_off_map(num):
     if not get_jog_mode():
         if num >= len(jog_order): return
         num = "XYZABCUVW".index(jog_order[num])
+    elif num >= num_joints:
+        return
+    elif lathe:
+        if num >= len(jog_order): return
+        if lathe_historical_config():
+            num = "XYZ".index(jog_order[num])
+        else:
+            num = trajcoordinates.upper().index(jog_order[num])
     return jog_off(num)
 
 def bind_axis(a, b, d):
@@ -3331,28 +3353,35 @@ for i in range(len(trajcoordinates)):
     if trajcoordinates.count(trajcoordinates[i]) > 1:
         duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
 if duplicate_coord_letters != "":
-    # Can occur, for instance, with trivkins with kinsmodule=both).
-    # In such kins, the value for a duplicated axis letter will equal the
-    # value of the highest numbered joint.
-    # Movements on axis gui display in joint mode (after homing) may be unexpected,
-    #   e.g., moving  a joint that is not the highest number will not affect the
-    # corresponding 'identity' coordinate.
+    # duplicate_coord_letters are allowed
+    #
+    # Example: configs/sim/axis/gantry.ini -- trivkins with kinstype=both.
+    # With such kins, the value displayed on the gui graphical display
+    # in JOINT mode AFTER homing may be confusing for a pair of joints that
+    # are assigned using a duplicated axis letter in [TRAJ]COORDINATES
+    # and specified consistently with the trivkins 'coordinates=' parameter.
+    #
+    # Moving the joint in the pair with the highest number will update its
+    # displayed joint value and move the cone in the gui graphical display
+    # as expected.
+    #
+    # Moving the joint in the pair with the lower number will update its
+    # displayed joint value but will not move the cone.
+    #
+    # Note also that returning to world mode from joint mode, the
+    # value assigned to the duplicated axis letter will be the value of
+    # the highest number joint since trivkins forward kinematics iterates
+    # through all joint numbers and ends up with the value for the
+    # highest joint number.  These behaviors, due in part to the simple
+    # implementation of the trivkins module, could be customized by a more
+    # sophisticated kinematics module that accepts duplicated coordinate
+    # letters with some special requirements -- hence the warning:
+
     print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
           duplicate_coord_letters)
 if len(trajcoordinates) > jointcount:
     print ("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
           %(trajcoordinates,jointcount))
-
-def jnum_for_aletter(aletter):
-    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-        raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
-    aletter = aletter.lower()
-    if kins_is_trivkins:
-        return trajcoordinates.index(aletter)
-    else:
-        guess = trajcoordinates.index(aletter)
-        print "jnum_for_aletter guessing %s --> %d"%(aletter,guess)
-        return guess
 
 def lathe_historical_config():
     # detect historical lathe config with dummy joint 1
