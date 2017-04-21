@@ -18,6 +18,8 @@
 #************
 import os
 
+THEMEDIR = "/usr/share/themes"
+
 # OUTPUT
 XSTEP=0
 XDIR=1

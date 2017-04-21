@@ -322,6 +322,31 @@ class Data:
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
 
+        # gladevcp data
+        self.gladevcp = False # not included
+        self.gladesample = True
+        self.gladeexists = False
+        self.spindlespeedbar = True
+        self.spindleatspeed = True
+        self.maxspeeddisplay = 1000
+        self.zerox = False
+        self.zeroy = False
+        self.zeroz = False
+        self.zeroa = False
+        self.autotouchz = False
+        self.gladevcphaluicmds = 0
+        self.centerembededgvcp = True
+        self.sideembededgvcp = False
+        self.standalonegvcp = False
+        self.gladevcpposition = False
+        self.gladevcpsize = False
+        self.gladevcpforcemax = False
+        self.gladevcpwidth = 200
+        self.gladevcpheight = 200
+        self.gladevcpxpos = 0
+        self.gladevcpypos = 0
+        self.gladevcptheme = "Follow System Theme"
+
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present
         self.laddername = "custom.clp"
