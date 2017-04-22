@@ -566,7 +566,7 @@ become_master:
             close(fd);
             goto become_master;
         }
-        if(result < 0) { perror("connect"); exit(1); }
+        if(result < 0) { fprintf(stderr, "connect %s: %s", addr.sun_path, strerror(errno)); exit(1); }
         return slave(fd, args);
     } else {
         perror("bind"); exit(1);
