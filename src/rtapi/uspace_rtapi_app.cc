@@ -53,8 +53,6 @@
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>		/* shmget() */
 #include <string.h>
 #include <boost/lockfree/queue.hpp>
 
