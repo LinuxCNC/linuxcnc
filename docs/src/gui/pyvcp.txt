@@ -358,7 +358,6 @@ If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be 
 <multilabel>
     <legends>["Label1" "Label2" "Label3" "Label4" "Label5" "Label6"]</legends>
     <font>("Helvetica",20)</font>
-    <disable>False</disable>
 </multilabel>
 -------------------------------------------------
 
