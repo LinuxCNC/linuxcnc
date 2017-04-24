@@ -2,21 +2,24 @@
 # vim: sts=4 sw=4 et
 
 import _hal, hal
-from PyQt4.QtCore import QObject, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import _GStat as GladeVcpStat
 import linuxcnc
 import math
 import gobject
 
-class QPin(QObject, hal.Pin):
+# using pyqt5 reqires using super()
+# because QObject uses a differnt calling signature it must be _init_ last with out using Super
+# reference: https://fuhm.net/super-harmful/
+class QPin(hal.Pin,QObject ):
     value_changed = pyqtSignal([int], [float], [bool] )
 
     REGISTRY = []
     UPDATE = False
 
     def __init__(self, *a, **kw):
-        QObject.__init__(self)
-        hal.Pin.__init__(self, *a, **kw)
+        super(QPin,self).__init__(*a, **kw)
+        QObject.__init__(self,None)
         self._item_wrap(self._item)
         self._prev = None
         self.REGISTRY.append(self)
@@ -75,7 +78,12 @@ class QComponent:
 # by subclassing it
 class _GStat(GladeVcpStat):
     def __init__(self):
-        GladeVcpStat.__init__(self)
+        super(_GStat, self).__init__()
+
+    def add_timer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update)
+        self.timer.start(100)
 
 # used so all qtvcp widgets use the same instance of _gstat
 # this keeps them all in synch

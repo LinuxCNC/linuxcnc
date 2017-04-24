@@ -21,7 +21,7 @@
 import gobject
 from qtvcp_widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import QComponent
-from PyQt4.QtCore import QObject
+from PyQt5.QtCore import QObject
 class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug=False):
 

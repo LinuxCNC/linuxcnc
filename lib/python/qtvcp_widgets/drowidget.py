@@ -17,7 +17,7 @@
 import sys,os
 import math
 import linuxcnc
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from qtvcp import qt_glib
 
 # we put this in a try so there is no error in the glade editor
@@ -27,9 +27,9 @@ try:
 except:
     pass
 
-class Lcnc_DROLabel(QtGui.QLabel):
+class Lcnc_DROLabel(QtWidgets.QLabel):
     def __init__(self, parent = None):
-        QtGui.QLabel.__init__(self,parent)
+        QtWidgets.QLabel.__init__(self,parent)
         self.gstat = qt_glib.GStat()
         self.emc = linuxcnc
         self.display_units_mm=0

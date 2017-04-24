@@ -2,8 +2,8 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 from qtscreen.keybindings import Keylookup
 from qtscreen.aux_program_loader import Aux_program_loader
 from qtscreen.notify import Notify
@@ -49,7 +49,6 @@ class HandlerClass:
         GSTAT.connect('state-on', self.on_state_on)
         GSTAT.connect('state-off', self.on_state_off)
         GSTAT.connect('jograte-changed', self.on_jograte_changed)
-        GSTAT.connect('error-message', self.on_error_message)
 
         # Read user preferences
         self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
@@ -110,7 +109,7 @@ class HandlerClass:
         self.jog_velocity = rate
 
     def on_error_message(self, w, message):
-        NOTE.notify('Error',message,QtGui.QMessageBox.Information,10)
+        NOTE.notify('Error',message,QtWidgets.QMessageBox.Information,10)
 
     #######################
     # callbacks from form #
@@ -133,7 +132,7 @@ class HandlerClass:
         AUX_PRGM.load_halmeter()
 
     def change_jograte(self, rate):
-        GSTAT.set_jog_rate(float(rate))
+        GSTAT.set_jograte(float(rate))
 
     def change_feedrate(self, rate):
         self.cmnd.feedrate(rate/100.0)
@@ -187,15 +186,15 @@ class HandlerClass:
 
     def loadfile_clicked(self):
         print 'load'
-        fname = QtGui.QFileDialog.getOpenFileName(self.w, 'Open file', 
+        fname = QtWidgets.QFileDialog.getOpenFileName(self.w, 'Open file', 
                 os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
-        print fname
-        f = open(fname, 'r')
+        print fname[0]
+        NOTE.notify('Error',fname[0],QtWidgets.QMessageBox.Information,10)
+        f = open(fname[0], 'r')
 
         self.cmnd.mode(linuxcnc.MODE_AUTO)
-        print fname
-        self.cmnd.program_open(str(fname))
-        GSTAT.emit('file-loaded', fname)
+        self.cmnd.program_open(str(fname[0]))
+        GSTAT.emit('file-loaded', fname[0])
 
     def runfile_clicked(self):
         print 'run file'
@@ -212,7 +211,7 @@ class HandlerClass:
     #####################
 
     def continous_jog(self, axis, direction):
-        GSTAT.continuous_jog(axis, direction)
+        GSTAT.do_jog(axis, direction)
 
     #####################
     # KEY BINDING CALLS #

@@ -66,7 +66,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>1</number>
     </property>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_3">
+   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_3" native="true">
     <property name="geometry">
      <rect>
       <x>670</x>
@@ -239,7 +239,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Graphics" name="graphics">
+    <widget class="Graphics" name="graphics" native="true">
      <property name="geometry">
       <rect>
        <x>40</x>
@@ -266,7 +266,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </rect>
     </property>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_5">
+   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_5" native="true">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -405,7 +405,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <string>Jog</string>
     </property>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout">
+   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout" native="true">
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -560,7 +560,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_2">
+   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_2" native="true">
     <property name="geometry">
      <rect>
       <x>110</x>
@@ -589,7 +589,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_4">
+   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_4" native="true">
     <property name="geometry">
      <rect>
       <x>670</x>
@@ -662,12 +662,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QsciScintilla</extends>
-   <header>qtvcp_widgets.gcode_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>Lcnc_PushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp_widgets.simple_widgets</header>
@@ -693,6 +687,13 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
    <class>QsciScintilla</class>
    <extends>QFrame</extends>
    <header>Qsci/qsciscintilla.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QsciScintilla</extends>
+   <header>qtvcp_widgets.gcode_widget</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

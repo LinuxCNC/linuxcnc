@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp_widgets.container_widgets import State_Enable_GridLayout
 from qtvcp_widgets.qtvcp_icons import Icon
 ICON = Icon()
@@ -26,7 +26,7 @@ class StateEnableGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('state_enable_gridlayout')))
+        return QtWidgets.QIcon(QtWidgets.QPixmap(ICON.get_path('state_enable_gridlayout')))
     def toolTip(self):
         return "Linuxcnc State enable/disable GridLayout widget"
     def whatsThis(self):

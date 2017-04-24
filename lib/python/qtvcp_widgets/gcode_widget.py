@@ -23,10 +23,9 @@
 # Which is code in the public domain
 
 import sys
-from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QFont, QFontMetrics, QColor
+from PyQt5.QtGui import QFont, QFontMetrics, QColor
 try:
-    from PyQt4.Qsci import QsciScintilla, QsciLexerCustom
+    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
 except:
     print '**** QTVCP ERROR: Gcode widget can not import QsciScintilla - is package python-qscintilla2 installed?'
     sys.exit(1)
@@ -171,9 +170,7 @@ class GcodeEditor(QsciScintilla, _HalWidgetBase):
 
         # Clickable margin 1 for showing markers
         self.setMarginSensitivity(1, True)
-        self.connect(self,
-            SIGNAL('marginClicked(int, int, Qt::KeyboardModifiers)'),
-            self.on_margin_clicked)
+        self.marginClicked.connect(self.on_margin_clicked)
         self.markerDefine(QsciScintilla.RightArrow,
             self.ARROW_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ee1111"),
@@ -235,7 +232,7 @@ class GcodeEditor(QsciScintilla, _HalWidgetBase):
         pass
 
 if __name__ == "__main__":
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     editor = GcodeEditor()
     editor.show()

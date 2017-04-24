@@ -111,10 +111,8 @@ class _GStat(gobject.GObject):
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-<<<<<<< e4ae7e717ffcc587dc5c59b9e85a455450771434
         'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-=======
->>>>>>> gladevcp/qtvcp -upgrade hal_glib and have qtvcp use it
+
         'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
@@ -171,9 +169,12 @@ class _GStat(gobject.GObject):
         except:
             pass
 
-        gobject.timeout_add(100, self.update)
         self._current_jog_rate = 15
         self._is_all_homed = False
+        self.add_timer()
+
+    def add_timer(self):
+        gobject.timeout_add(100, self.update)
 
     def merge(self):
         self.old['state'] = self.stat.task_state

@@ -18,8 +18,9 @@ warnings.filterwarnings("ignore")
 import gtk
 warnings.filterwarnings("default")
 
-from PyQt4.QtCore import pyqtProperty, QSize
-from PyQt4.QtGui import QX11EmbedContainer
+from PyQt5.QtCore import pyqtProperty, QSize, QProcess
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QWindow
 from qtvcp.qt_glib import GStat
 import thread
 import gobject
@@ -194,13 +195,14 @@ class modded_gremlin(gremlin.Gremlin):
 # This get embedded into a QT container
 # It runs in it's own thread to update the GTK side of things
 class PyApp(gtk.Plug):
-    def __init__(self,):
-        super(PyApp, self).__init__(0l)
-
+    def __init__(self,Wid):
+        super(PyApp, self).__init__(Wid)
+        print 'py-', Wid
         #self.set_size_request(300, 300)
         self.connect("destroy", self.on_destroy)
 
         self.plug_id = self.get_id()
+        print 'py plug id',self.plug_id
         vbox = gtk.VBox()
         self.add(vbox)
         self.gremlin = modded_gremlin()
@@ -217,20 +219,19 @@ class PyApp(gtk.Plug):
             pass
 
 # This is the QT embedding container object.
-class Graphics(QX11EmbedContainer):
+class Graphics(QWidget):
     def __init__(self, parent = None):
-        QX11EmbedContainer.__init__(self, parent)
-        self.pygtk = PyApp()
+        QWidget.__init__(self, parent)
+        self.pygtk = PyApp(0l)
         self.gremlin = self.pygtk.gremlin
         # run GTK in a separate thread
         try:
             thread.start_new_thread( run_gtk,(None) )
         except:
             pass
-        #QtCore.QObject.connect(self, QtCore.SIGNAL("error()"), self.embeddederror)
 
-        # embed GTK gremkin 
-        self.embedClient (self.pygtk.plug_id)
+        # embed GTK gremlin 
+        self.embed_plug(self.pygtk.plug_id)
 
         # gremlin defaults
         #self.gremlin.enable_dro = False
@@ -238,8 +239,16 @@ class Graphics(QX11EmbedContainer):
         self.gremlin.metric_units = False
         self.setview('p')
 
-    def embeddederror(self):
-        print 'embed error'
+    # This embeds an X11 window into a QT window using the X11 number.
+    def embed_plug(self, WID):
+        sub_window = QWindow.fromWinId(WID)
+        container = self.createWindowContainer(sub_window)
+        container.setParent(self)
+        container.show()
+        print self.frameGeometry().width()
+        container.resize(330,360)
+        self.haveContainer = True
+        print 'container',container
 
     def sizeHint(self):
         return QSize(300, 300)
@@ -288,7 +297,7 @@ class Graphics(QX11EmbedContainer):
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.Widgets import QApplication
 
     app = QApplication(sys.argv)
     widget = Graphics()

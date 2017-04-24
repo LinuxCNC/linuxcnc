@@ -16,7 +16,7 @@
 
 import linuxcnc
 import os
-from PyQt4.QtGui import QLineEdit
+from PyQt5.QtWidgets import QLineEdit
 from qtvcp.qt_glib import GStat
 from qtscreen.aux_program_loader import Aux_program_loader
 GSTAT = GStat()
@@ -69,7 +69,7 @@ class Lcnc_MDILine(QLineEdit):
 # for testing without editor:
 def main():
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = Lcnc_MDILine()
