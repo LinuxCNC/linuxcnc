@@ -1,3 +1,6 @@
+ver 2.3.1
+- added a new hal pin for tool diameter
+
 ver 2.3.0
 - joint axis branch did change the handling between joints and axis. Previously
   it was needed to include a unused Y axis for a lathe and now that is not longer
