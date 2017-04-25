@@ -1334,10 +1334,10 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                                 case LBP_FLOAT:
                                     if (conf->DataLength == sizeof(float) * 8 ){
                                         float temp = *pin->float_pin;
-                                        memcpy(&buff, &temp, conf->DataLength);
+                                        memcpy(&buff, &temp, sizeof(float));
                                     } else if (conf->DataLength == sizeof(double) * 8){
                                         double temp = *pin->float_pin;
-                                        memcpy(&buff, &temp, conf->DataLength);
+                                        memcpy(&buff, &temp, sizeof(double));
                                     } else {
                                         HM2_ERR_NO_LL("sserial write: LBP_FLOAT of bit-length %i not handled\n", conf->DataLength);
                                         conf->DataType = 0; // only warn once, then ignore
