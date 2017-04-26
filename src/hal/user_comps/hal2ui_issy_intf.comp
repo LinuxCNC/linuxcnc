@@ -1,0 +1,134 @@
+component hal2ui_issy_intf "HAL side of smartserial kbd and smartserial io UI";
+//option singleton yes;
+option userspace yes;
+option userinit yes;
+
+license "GPLv2 or greater";
+
+param rw u32 sleeptime;
+pin in u32 sskbd_pin "Smartserial keybord key pins";
+pin out bit sskbd_led## [47] "Smartserial keyboard key leds(47)";
+pin in bit inp_pin## [32] "SSIO input pins(32)";
+pin out bit out_pin## [32] "SSIO output pins(32)";  
+pin in u32 inp_int## [16] "SSIO iput u32(16)";
+pin out u32 out_int## [16] "SSIO output u32(16)";
+
+;;
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <sys/socket.h> 
+#include <sys/un.h> 
+#include <unistd.h> 
+#include <signal.h>
+#include <fcntl.h> /* Added for the nonblocking socket */
+
+typedef struct
+{
+
+    hal_u32_t kbd0_32;
+    hal_u32_t kbd33_64; 
+} sskbd_status;
+
+typedef struct {
+    uint8_t id;
+    uint32_t pins_in;
+    uint32_t pind_out;
+    uint64_t sskbd_in;
+    uint64_t ssdkd_led;
+    uint32_t int_inp[4];
+} hal2ui;
+
+hal2ui in_old_state= { 0,0,0,0L,0L,{0,0,0,0}};
+hal2ui out_old_state= { 0,0,0,0L,0L,{0,0,0,0}};
+hal2ui in_state= { 0,0,0,0L,0L,{0,0,0,0}};
+hal2ui out_state= { 0,0,0,0L,0L,{0,0,0,0}};
+uint8_t last_id_in=0;
+uint8_t last_id_out=0;
+
+int client_socket_fd,socket_fd; 
+const char* const socket_name ="/tmp/ui_issy_s"; 
+struct sockaddr_un client_name,name;  /* Structs for the client and server socket addresses. */
+
+// struct timeval timeout = { 1, 500000 }; // 1.5 seconds
+
+char buff[256];
+
+unsigned char emc_in_bits[48];
+unsigned char emc_out_bits[48];
+long int emc_s32s[6];
+
+int should_exit = 0;
+
+void sigterm_handler(int signo) {
+    should_exit = 1;
+}
+
+
+void userinit(int argc, char **argv)
+{
+     
+    signal(SIGTERM, sigterm_handler);
+    
+    socket_fd = socket (PF_LOCAL, SOCK_STREAM, 0); /* Create the socket.   */ 
+    /* Indicate that this is a server.   */ 
+    unlink( socket_name ); /* Remove any previous socket with the same filename. */
+    bzero( &name, sizeof( name ) ); /* Zero all fields of servaddr. */
+    name.sun_family = AF_LOCAL; /* Socket type is local (Unix Domain). */
+    strcpy (name.sun_path, socket_name); /* Define the name of this socket. */
+    bind (socket_fd, &name, SUN_LEN (&name)); 
+    /* Listen for connections.   */ 
+    listen (socket_fd, 5);   
+}
+
+void user_mainloop(void) 
+{
+socklen_t client_name_len; 
+int flags;
+int length,l=0; 
+char* text; 
+    text = (char*) malloc (sizeof(out_state));
+    client_socket_fd = accept (socket_fd, &client_name, &client_name_len); 
+    if ( client_socket_fd < 0 ) {
+        if ( errno != EINTR ) /* Something interrupted us. */
+            {
+                fprintf( stderr, "Accept Error\n" );
+                should_exit = 1;
+            };
+    };
+    flags = fcntl(socket_fd, F_GETFL, 0);
+    fcntl(socket_fd, F_SETFL, flags|O_NONBLOCK); /* Change the socket into non-blocking state	*/
+    flags = fcntl(client_socket_fd, F_GETFL, 0);
+    fcntl(client_socket_fd, F_SETFL, flags|O_NONBLOCK); /* Change the socket into non-blocking state	*/
+
+    while(!should_exit) {
+        int num=0;
+        char p=buff+l;
+        /* Handle the connection.   */         /* Accept a connection.   */ 
+        FOR_ALL_INSTS() {
+            for (int i =0;i<32;i++){
+                
+                out_state.pins_in |= (inp_pin(i)<<i);
+                if (i<4) out_state.int_in = inp_int(i);
+            }
+            /* First, read the length of the text message from the socket. If 
+            read returns zero, the client closed the connection.  */ 
+            if (read (client_socket_fd, &length, sizeof (length)) < 1) 
+                should_exit = 1;
+            else {
+                if (length=sizeof(in_old_state)) {
+                    read (client_socket_fd, p, length);
+                    &in_state.pins_out;
+                }
+                fprintf( stderr, "%s\n", text);
+            }
+    
+        num++;
+        //esleep(0.02);//approx 0.02 sec
+        }
+    /* Close our end of the connection.   */ 
+    close (client_socket_fd);
+    close (socket_fd);
+    unlink (socket_name); 
+}
