@@ -226,6 +226,7 @@ class GcodeEditor(QsciScintilla, _HalWidgetBase):
             self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
         self.setCursorPosition(line,0)
         self.ensureCursorVisible()
+        self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
         self.last_line = line
 
     def set_line_number(self, w, line):

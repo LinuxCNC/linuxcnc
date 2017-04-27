@@ -95,6 +95,14 @@ class modded_gremlin(gremlin.Gremlin):
     def _load(self, filename):
         return self.load(filename)
 
+    # Override gremlin's / glcannon.py function so we can emit a GObject signal
+    def update_highlight_variable(self,line):
+        self.highlight_line = line
+        if line == None:
+            line = -1
+        print line
+        #self.emit('line-clicked', line)
+
     # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if not self.enable_dro:
@@ -197,12 +205,10 @@ class modded_gremlin(gremlin.Gremlin):
 class PyApp(gtk.Plug):
     def __init__(self,Wid):
         super(PyApp, self).__init__(Wid)
-        print 'py-', Wid
         #self.set_size_request(300, 300)
         self.connect("destroy", self.on_destroy)
 
         self.plug_id = self.get_id()
-        print 'py plug id',self.plug_id
         vbox = gtk.VBox()
         self.add(vbox)
         self.gremlin = modded_gremlin()
@@ -245,10 +251,8 @@ class Graphics(QWidget):
         container = self.createWindowContainer(sub_window)
         container.setParent(self)
         container.show()
-        print self.frameGeometry().width()
         container.resize(330,360)
         self.haveContainer = True
-        print 'container',container
 
     def sizeHint(self):
         return QSize(300, 300)

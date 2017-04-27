@@ -19,7 +19,7 @@ except:
 class Notify:
     def __init__(self):
         self.statusbar = None
-        self.alarmpage = None
+        self.alarmpage = []
     # This prints a message in the status bar (if available)
     # the system notifier (if available)
     # adds an entry to the alarm page (if available)
@@ -38,18 +38,25 @@ class Notify:
             pass
         try:
             self.show_notification(title, message, icon, timeout)
-        except:
-            pass
+        except Exception as e: print(e)
 
     def show_notification(self, title, message, icon=None, timeout=4):
         uri = ""
-        if icon:
-            uri = "file://" + icon
-        n = pynotify.Notification(title, message, uri)
-        n.set_hint_string("x-canonical-append","True")
-        n.set_urgency(pynotify.URGENCY_CRITICAL)
+        try:
+            if icon:
+                uri = "file://" + icon
+        except:
+            print 'ERROR Notify - Icon filename error - %s'% icon
+        n = pynotify.Notification(title, message)
+        #n.set_hint_string("x-canonical-append","True")
+        n.set_urgency(pynotify.URGENCY_LOW)
         n.set_timeout(int(timeout * 1000) )
+        n.add_action("action_click","Reply to Message",self.action_callback,None) # Arguments
         n.show()
+
+    def action_callback(self):
+        print 'action'
+        #print self.alarmpage
 
     def show_status(self, message, timeout=4):
         try:
