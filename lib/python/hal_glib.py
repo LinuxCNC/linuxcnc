@@ -4,6 +4,7 @@
 import _hal, hal, gobject
 import linuxcnc
 import os
+import math
 
 # constants
 JOGJOINT  = 1
