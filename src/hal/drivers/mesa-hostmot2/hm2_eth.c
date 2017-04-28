@@ -448,7 +448,6 @@ static char *hm2_8cSS_pin_names[] = {
 
 };
 
-
 #define UDP_PORT 27181
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
@@ -1279,7 +1278,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 
-   
+
     } else if (strncmp(board_name, "MC04", 4) == 0) {
         strncpy(llio_name, board_name, 4);
         llio_name[1] = tolower(llio_name[1]);
@@ -1294,7 +1293,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.ioport_connector_name[1] = "P2";
 
 
-
      } else if (strncmp(board_name, "8CSS", 4) == 0) {
         strncpy(llio_name, board_name, 4);
         llio_name[1] = tolower(llio_name[1]);
@@ -1307,11 +1305,6 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.io_connector_pin_names = hm2_8cSS_pin_names;
         board->llio.ioport_connector_name[0] = "P1";
         board->llio.ioport_connector_name[1] = "P2";
-
-
-
-
-
 
     } else {
         LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
