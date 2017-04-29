@@ -2684,4 +2684,25 @@ iocontrol-v2 to actually work.
   program. Previously there was no clean way to abort a Python oword
   subroutine.
 
+== Debugging
 
+In the '[EMC]' section of the ini file the 'DEBUG' parameter can be changed to
+get various levels of debug messages when LinuxCNC is started from a terminal.
+
+----
+Debug level, 0 means no messages. See src/emc/nml_intf/debugflags.h for others
+DEBUG = 0x00000002 # configuration
+DEBUG = 0x7FFFDEFF # no interp,oword
+DEBUG = 0x00008000 # py only
+DEBUG = 0x0000E000 # py + remap + Oword
+DEBUG = 0x0000C002 # py + remap + config
+DEBUG = 0x0000C100 # py + remap + Interpreter
+DEBUG = 0x0000C140 # py + remap + Interpreter + NML msgs
+DEBUG = 0x0000C040 # py + remap + NML
+DEBUG = 0x0003E100 # py + remap + Interpreter + oword + signals + namedparams
+DEBUG = 0x10000000 # EMC_DEBUG_USER1 - trace statements
+DEBUG = 0x20000000 # EMC_DEBUG_USER2 - trap into Python debugger
+DEBUG = 0x10008000 # USER1, PYTHON
+DEBUG = 0x30008000 # USER1,USER2, PYTHON # USER2 will cause involute to try to connect to pydev
+DEBUG = 0x7FFFFFFF # All debug messages
+----

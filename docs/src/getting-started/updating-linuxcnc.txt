@@ -599,6 +599,87 @@ jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance
 
 == GUIs (updates for joints_axes)
 
+=== Notes on joint/axis jogging, homing, and kinematics
+
+With incorporation of joints_axes updates, LinuxCNC enforces the
+distinctions of joints and axes (coordinate letters) -- but some
+guis (like the axis gui) may hide some of the distinctions for
+simple machines.
+
+In most cases, you can think of joints as 'motors'.
+
+The relationships between joints and axis coordinates are
+determined by the mathmatical kinematics functions that describe a
+machine's motion.
+
+World coordinates (X,Y,Z,A,B,C,U,V,W) are determined by applying
+'FORWARD' kinematics operations to joint (motor) positions.
+
+When moving in world space (e.g., gcode movements) the required
+joint (motor) positions are determined by applying 'INVERSE'
+kinematics operations to the coordinates requested for motion
+in world space.
+
+Moving in world space is possible only 'after' homing.
+
+For simple machines (like mills and lathes) there is a one-to-one
+equivalence of joints and axis coordinate letters.  For example,
+on an XYZ mill, the relationships are typically: axisX==joint0,
+axisY==joint1, axisZ=joint2.  This correspondence is
+characterized as 'IDENTITY' kinematics  and the kinematics module
+used is usually trivkins (trivial kinematics).  (See the trivkins
+man page '$ man trivkins')
+
+Joint jogging (by joint number 0,1,...) is used in joint mode
+(usually used only 'BEFORE' homing).  When homing is completed,
+the jogging mode is 'AUTOMATICALLY' switched from joint mode to
+world mode and axis jogging (coordinate letter X,Y,...) is used.
+This is appropriate for all gcode moves requested by MDI commands
+or by gcode programs.
+
+Although jogging in joint mode is often never required after
+homing, some guis (like axis) provide a keyboard shortcut ('$')
+to allow toggling between joint and world (teleop) modes for
+machines that use 'non-IDENTITY' kinematics.
+
+In many common situations, joint jogging is never needed since
+homing is accomplished using home switches and/or the various homing
+methods provided by LinuxCNC.  One simply turns on
+the machine, issues the Home-All command, the machine homes and
+changes to world mode automatically. See
+<<cha:homing-configuration,Homing Configuration>>
+
+Machines that do not use home switches may require manual jogging
+in joint mode before homing each and every joint.  It is also
+possible to use immediate homing (see the homing docs) for joints
+that do not require homing to a fixed position.
+
+Although a gui may hide joints/axes distinctions for 'IDENTITY'
+kinematics machines, it is usually important to complete homing
+in order to run programs or use features provided by a gui.
+
+By default, the trivkins module declares itself as having
+'IDENTITY' kinematics.  The distinctions of joint/world
+operations can be made visible in the axis gui when using
+trivkins by setting the kinemetics type to a 'non-IDENTITY' type
+using 'kinstype=both'.   The 'both' setting indicates that both
+forward and inverse kinematics functions are available and gui
+provisions that hide the distinctions of joints and axis letters
+should not be employed.  For example, for an xyz configuration,
+specify:
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=xyz kinstype=both
+----
+
+With this setting, identity kinematics will be used but the axis
+gui will:
+
+. show joint numbers prior to homing
+. show axis letters after successful homing
+. support toggling between joint and teleop modes with the '$' key
+
 === Halui
 
 Halui now supports teleop jogging resulting in some changed pin names and
@@ -721,6 +802,7 @@ These assignments can be controlled by new inifile directives in the
 
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
+
 
 === tklinuxcnc
 

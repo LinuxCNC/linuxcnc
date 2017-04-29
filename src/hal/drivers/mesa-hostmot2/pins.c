@@ -565,7 +565,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         if (pin->primary_tag == 0) {
             // oops, found the Zero sentinel before the promised number of pins
             HM2_ERR(
-                "pin %d primary tag is 0 (end-of-list sentinel), expected %d!\n",
+                "pin %d primary tag is 0 (end-of-list sentinel), expected %d pins!\n",
                 i,
                 hm2->num_pins
             );

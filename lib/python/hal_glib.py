@@ -4,6 +4,7 @@
 import _hal, hal, gobject
 import linuxcnc
 import os
+import math
 
 # constants
 JOGJOINT  = 1
@@ -137,10 +138,6 @@ class _GStat(gobject.GObject):
 
         'metric-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'user_system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-
-        'error-message': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'text-messsage': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'display-message': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -163,7 +160,6 @@ class _GStat(gobject.GObject):
     def __init__(self, stat = None):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
-        self.error = linuxcnc.error_channel()
         self.cmd = linuxcnc.command()
         self.old = {}
         try:
@@ -172,7 +168,7 @@ class _GStat(gobject.GObject):
         except:
             pass
         gobject.timeout_add(100, self.update)
-        self.current_jog_rate = 15
+        self._current_jog_rate = 15
         self._is_all_homed = False
 
     def merge(self):
@@ -248,18 +244,6 @@ class _GStat(gobject.GObject):
         self.old['m-code'] = active_mcodes
 
     def update(self):
-        try:
-            e = self.error.poll()
-            if e:
-                kind, text = e
-                if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                    self.emit('error-message',text)
-                elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
-                    self.emit('text-message',text)
-                elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
-                    self.emit('display-message',text)
-        except:
-            pass
         try:
             self.stat.poll()
         except:
@@ -498,22 +482,17 @@ class _GStat(gobject.GObject):
 
         # spindle speed mpde
         css_new = self.old['css']
-        if css_new:
-            self.emit('css-mode',css_new)
+        self.emit('css-mode',css_new)
         rpm_new = self.old['rpm']
-        if rpm_new:
-            self.emit('rpm-mode',rpm_new)
+        self.emit('rpm-mode',rpm_new)
 
         # feed mode:
         itime_new = self.old['itime']
-        if itime_new:
-            self.emit('itime-mode',itime_new)
+        self.emit('itime-mode',itime_new)
         fpm_new = self.old['fpm']
-        if fpm_new:
-            self.emit('fpm-mode',fpm_new)
+        self.emit('fpm-mode',fpm_new)
         fpr_new = self.old['fpr']
-        if fpr_new:
-            self.emit('fpr-mode',fpr_new)
+        self.emit('fpr-mode',fpr_new)
         # paused
         paused_new = self.old['paused']
         self.emit('program-pause-changed',paused_new)
@@ -525,8 +504,7 @@ class _GStat(gobject.GObject):
         self.emit('optional-stop-changed',optional_stop_new)
         # user system G5x
         system_new = self.old['g5x-index']
-        if system_new:
-            self.emit('user_system_changed',system_new)
+        self.emit('user_system_changed',system_new)
         # radius mode g8
         radius_new = self.old['radius']
         self.emit('radius-mode',radius_new)
@@ -541,8 +519,7 @@ class _GStat(gobject.GObject):
         self.emit('g-code-changed',g_code_new)
         # metric units G21
         metric_new = self.old['metric']
-        if metric_new:
-            self.emit('metric_mode_changed',metric_new)
+        self.emit('metric_mode_changed',metric_new)
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
@@ -583,10 +560,12 @@ class _GStat(gobject.GObject):
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg
 
-    def set_jog_rate(self,upm):
-        self.current_jog_rate = upm
+    def set_jograte(self,upm):
+        self._current_jog_rate = upm
         self.emit('jograte-changed', upm)
 
+    def get_jograte(self):
+        return self._current_jog_rate
 
     def is_all_homed(self):
         return self._is_all_homed
@@ -631,7 +610,7 @@ class _GStat(gobject.GObject):
             self.cmd.mode(premode)
         self.emit('reload-display')
 
-    def continuous_jog(self, axisnum, direction, distance=0):
+    def do_jog(self, axisnum, direction, distance=0):
         jjogmode,j_or_a = self.get_jog_info(axisnum)
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
@@ -639,7 +618,7 @@ class _GStat(gobject.GObject):
             if axisnum in (3,4,5):
                 rate = self.angular_jog_velocity
             else:
-                rate = self.current_jog_rate/60
+                rate = self._current_jog_rate/60
             if distance == 0:
                 self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
             else:

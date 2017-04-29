@@ -23,12 +23,6 @@ is configured with the default tcl version >= 8.5.
 
 image::images/tooledit-sort.png[align="center"]
 
-On Ubuntu Lucid 10.04 tcl/tk8.4 is the default.  You can add tcl/tk8.5 with
-the commands:
-----
-sudo apt-get install tcl8.5 tk8.5
-----
-
 Depending upon other applications installed on the system, it may be
 necessary to enable tcl/tk8.5 with the commands:
 ----

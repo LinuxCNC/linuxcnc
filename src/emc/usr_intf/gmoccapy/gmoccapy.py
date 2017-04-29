@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.0"
+_RELEASE = " 2.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2561,6 +2561,7 @@ class gmoccapy(object):
             # toolinfo[16] = tool info
             self.widgets.lbl_tool_no.set_text(str(toolinfo[1]))
             self.widgets.lbl_tool_dia.set_text(toolinfo[12])
+            self.halcomp["tool-diameter"] = float(locale.atof(toolinfo[12]))
             self.widgets.lbl_tool_name.set_text(toolinfo[16])
 
         # we do not allow touch off with no tool mounted, so we set the
@@ -4609,6 +4610,7 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
         pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
+        self.halcomp.newpin("tool-diameter", hal.HAL_FLOAT, hal.HAL_OUT)
 
         # make a pin to delete a notification message
         pin = self.halcomp.newpin("delete-message", hal.HAL_BIT, hal.HAL_IN)

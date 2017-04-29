@@ -76,6 +76,7 @@
                           <object class="HAL_LED" id="led-pos-limit">
                             <property name="visible">True</property>
                             <property name="pick_color_on">#ffff00000000</property>
+                            <property name="pick_color_off">#7d7d7d7d7d7d</property>
                             <property name="led_size">7</property>
                           </object>
                           <packing>
@@ -88,6 +89,7 @@
                           <object class="HAL_LED" id="led-neg-limit">
                             <property name="visible">True</property>
                             <property name="pick_color_on">#ffff00000000</property>
+                            <property name="pick_color_off">#7d7d7d7d7d7d</property>
                             <property name="led_size">7</property>
                           </object>
                           <packing>
