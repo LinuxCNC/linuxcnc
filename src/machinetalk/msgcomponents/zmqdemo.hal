@@ -10,7 +10,7 @@ loadrt charge_pump
 net square-wave charge_pump.0.out ringwrite.write
 
 # 0.5s
-newthread slow 500000000
+newthread slow 500000000 fp
 
 # the 'enqueue a message' function
 addf ringwrite slow
