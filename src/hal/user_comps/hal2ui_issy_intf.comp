@@ -6,13 +6,12 @@ option userinit yes;
 license "GPLv2 or greater";
 
 param rw u32 sleeptime;
-pin in u32 sskbd_pin "Smartserial keybord key pins";
-pin out bit sskbd_led## [47] "Smartserial keyboard key leds(47)";
+pin in u64 sskbd_pin "Smartserial keybord state";
+pin out u32 sskbd_led "Smartserial keyboard key leds(47)";
 pin in bit inp_pin## [32] "SSIO input pins(32)";
 pin out bit out_pin## [32] "SSIO output pins(32)";  
-pin in u32 inp_int## [16] "SSIO iput u32(16)";
-pin out u32 out_int## [16] "SSIO output u32(16)";
-
+pin in u32 inpi "SSIO iput u32";
+pin out u32 outi "SSIO output u32";
 ;;
 
 #include <stdio.h> 
@@ -24,36 +23,27 @@ pin out u32 out_int## [16] "SSIO output u32(16)";
 #include <signal.h>
 #include <fcntl.h> /* Added for the nonblocking socket */
 
-typedef struct
-{
-
-    hal_u32_t kbd0_32;
-    hal_u32_t kbd33_64; 
-} sskbd_status;
 
 typedef struct {
     uint8_t id;
     uint32_t pins_in;
-    uint32_t pind_out;
+    uint32_t pins_out;
     uint64_t sskbd_in;
     uint64_t ssdkd_led;
-    uint32_t int_inp[4];
+    uint32_t int_inp;
+    uint32_t int_out;
 } hal2ui;
 
-hal2ui in_old_state= { 0,0,0,0L,0L,{0,0,0,0}};
-hal2ui out_old_state= { 0,0,0,0L,0L,{0,0,0,0}};
-hal2ui in_state= { 0,0,0,0L,0L,{0,0,0,0}};
-hal2ui out_state= { 0,0,0,0L,0L,{0,0,0,0}};
-uint8_t last_id_in=0;
-uint8_t last_id_out=0;
+
+hal2ui cur_state= { 2,0,0,0L,0L,0,0};
+hal2ui old_state= { 2,0,0,0L,0L,0,0};
 
 int client_socket_fd,socket_fd; 
-const char* const socket_name ="/tmp/ui_issy_s"; 
-struct sockaddr_un client_name,name;  /* Structs for the client and server socket addresses. */
+const char* const socket_name ="/tmp/ui_issy"; 
+struct sockaddr_un name;  /* Structs for the client and server socket addresses. */
 
-// struct timeval timeout = { 1, 500000 }; // 1.5 seconds
 
-char buff[256];
+hal2ui buff[1];
 
 unsigned char emc_in_bits[48];
 unsigned char emc_out_bits[48];
@@ -63,33 +53,70 @@ int should_exit = 0;
 
 void sigterm_handler(int signo) {
     should_exit = 1;
+    fprintf(stderr,"end signaled signo:%d\n",signo);
 }
 
+int do_read(int fd, void *buffer,ssize_t length)
+{
+    ssize_t result=0,l=0;
+    while (l<length) {
+        result = read(fd, buffer+l, length-l);
+        if (result <= 0 && errno != EAGAIN) break;
+        l+=result;
+    };
+    if (result == 0) {
+        return 1;
+    } else if (result < 0) {
+        should_exit = 1;    
+        return -1;
+    };
+    return 0;
+}
+
+int do_write(int fd, void *buffer,ssize_t length)
+{
+    ssize_t result,l=0;
+    while (l < length) {
+        result= write(fd, buffer +l,length -l);
+        if (result < 0) {
+            if (errno == EAGAIN)
+                return 0;
+            should_exit = 1;
+            return -1;
+        }
+        l += result;
+    }
+    return 0;
+}
 
 void userinit(int argc, char **argv)
 {
      
     signal(SIGTERM, sigterm_handler);
     
-    socket_fd = socket (PF_LOCAL, SOCK_STREAM, 0); /* Create the socket.   */ 
+    socket_fd = socket (PF_LOCAL, SOCK_STREAM,0); /* Create the socket.   */ 
     /* Indicate that this is a server.   */ 
     unlink( socket_name ); /* Remove any previous socket with the same filename. */
     bzero( &name, sizeof( name ) ); /* Zero all fields of servaddr. */
     name.sun_family = AF_LOCAL; /* Socket type is local (Unix Domain). */
     strcpy (name.sun_path, socket_name); /* Define the name of this socket. */
-    bind (socket_fd, &name, SUN_LEN (&name)); 
+    bind (socket_fd, (struct sockaddr *)&name, SUN_LEN(&name)); 
     /* Listen for connections.   */ 
     listen (socket_fd, 5);   
 }
 
 void user_mainloop(void) 
 {
-socklen_t client_name_len; 
 int flags;
-int length,l=0; 
-char* text; 
-    text = (char*) malloc (sizeof(out_state));
-    client_socket_fd = accept (socket_fd, &client_name, &client_name_len); 
+int length; 
+fd_set readset,writeset;
+struct timeval tval = {0,20000};
+struct sockaddr_storage ss;
+socklen_t slen = sizeof(ss);
+
+
+    /* Accept a connection.   */ 
+    client_socket_fd = accept (socket_fd, (struct sockaddr*)&ss, &slen); 
     if ( client_socket_fd < 0 ) {
         if ( errno != EINTR ) /* Something interrupted us. */
             {
@@ -97,38 +124,63 @@ char* text;
                 should_exit = 1;
             };
     };
-    flags = fcntl(socket_fd, F_GETFL, 0);
-    fcntl(socket_fd, F_SETFL, flags|O_NONBLOCK); /* Change the socket into non-blocking state	*/
     flags = fcntl(client_socket_fd, F_GETFL, 0);
-    fcntl(client_socket_fd, F_SETFL, flags|O_NONBLOCK); /* Change the socket into non-blocking state	*/
-
+     /* Change the socket into non-blocking state	*/
+    fcntl(client_socket_fd, F_SETFL, flags|O_NONBLOCK);
+    /* Handle the connection.   */
     while(!should_exit) {
-        int num=0;
-        char p=buff+l;
-        /* Handle the connection.   */         /* Accept a connection.   */ 
         FOR_ALL_INSTS() {
-            for (int i =0;i<32;i++){
-                
-                out_state.pins_in |= (inp_pin(i)<<i);
-                if (i<4) out_state.int_in = inp_int(i);
-            }
-            /* First, read the length of the text message from the socket. If 
-            read returns zero, the client closed the connection.  */ 
-            if (read (client_socket_fd, &length, sizeof (length)) < 1) 
-                should_exit = 1;
-            else {
-                if (length=sizeof(in_old_state)) {
-                    read (client_socket_fd, p, length);
-                    &in_state.pins_out;
-                }
-                fprintf( stderr, "%s\n", text);
-            }
-    
-        num++;
-        //esleep(0.02);//approx 0.02 sec
+            int r=0;
+            FD_ZERO (&readset);
+            FD_ZERO (&writeset);
+            FD_SET (client_socket_fd, &readset);
+            FD_SET (client_socket_fd, &writeset);
+            r=select(client_socket_fd+1, &readset, NULL, NULL, &tval);
+            if ( r < 0) {
+                perror("Err select error");
+                continue;
+            } else if (r==1 && FD_ISSET(client_socket_fd, &readset)) {
+                    r=do_read (client_socket_fd, buff, sizeof (cur_state));
+                    if(r!=0) {
+                         fprintf(stderr,"Err read socket:%d",r);
+                         should_exit = 1;
+                    } else {
+                        for (int i=0,o=buff->pins_out;i<32;i++) {
+                            out_pin(i) = (o & 1)==1;
+                            o= o>>1;
+                        }
+                        outi = buff->int_out;
+                    }
+            };
+            for (int i=0,o=1; i<32; i++){
+                    cur_state.pins_in = inp_pin(i) ?
+                         cur_state.pins_in | o:
+                         cur_state.pins_in & ~o;
+                    o<<=1;     
+            };
+            cur_state.int_inp = inpi;
+            if ((old_state.pins_in!=cur_state.pins_in) || (old_state.int_inp!=cur_state.int_inp)) {
+                    length = sizeof(cur_state);
+                    r=select(client_socket_fd+1, NULL, &writeset, NULL, &tval);
+                    if (r==1 && FD_ISSET(client_socket_fd, &writeset)){
+                        if(do_write (client_socket_fd,&cur_state,length)) {
+                            perror("Err write socket\n");
+                            should_exit = 1;
+                            continue;
+                        };
+                    } else if (r<0) {
+                        perror("Err sock select");
+                    }
+                    memcpy(&old_state,&cur_state,length); 
+            };
+            
         }
+        
+    }
     /* Close our end of the connection.   */ 
     close (client_socket_fd);
+    FD_CLR(client_socket_fd,&readset);
+    FD_CLR(client_socket_fd,&writeset);
     close (socket_fd);
     unlink (socket_name); 
 }
