@@ -290,6 +290,9 @@ fi
 if [ ! -n "$INIFILE" ] ; then
     # still nothing specified, exit
     exit 0
+else
+    # make it easier for gremlin_view to get the active ini file
+    export INIFILE
 fi
 
 # delete directories from path, save name only
