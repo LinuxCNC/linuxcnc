@@ -129,7 +129,7 @@ typedef KINEMATICS_TYPE  (*vtk_kinematicsType_t)(void);
 typedef struct {
     vtk_kinematicsForward_t kinematicsForward;
     vtk_kinematicsInverse_t kinematicsInverse;
-    //    vtk_kinematicsHome_t    kinematicsHome; // unused
+    vtk_kinematicsHome_t    kinematicsHome; // used by drawbotkins
     vtk_kinematicsType_t    kinematicsType;
 } vtkins_t;
 
