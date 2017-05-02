@@ -121,6 +121,7 @@ DOC_SRCS_EN := \
 	hal/twopass.txt \
 	install/latency-test.txt \
 	integrator/steppers.txt \
+	integrator/stepper-timing.txt \
 	integrator/wiring.txt \
 	ladder/classic-ladder.txt \
 	ladder/ladder-examples.txt \

@@ -160,12 +160,12 @@ class Pages:
 				dbg("State changed to %s"% state)
 				break
 
-#####################################################
-# All Page Methods
-#####################################################
-#***************
-# Intialize
-#***************
+    #####################################################
+    # All Page Methods
+    #####################################################
+    #***************
+    # Intialize
+    #***************
 	def initialize(self):
 		# one time initialized data
 		liststore = self.w.drivertype.get_model()
@@ -190,74 +190,74 @@ class Pages:
 		column = Gtk.TreeViewColumn("MDI__COMMAND", renderer, text=1)
 		self.w.viewTable1.append_column(column)
 
-		# base
-		self.w.base_preset_liststore.clear()
-		self.w.base_preset_liststore.append([_("Other"), 0])
-		for mydict in preset.preset_machines:
-			treeiter = self.w.base_preset_liststore.append([mydict["human"], mydict["index"]])
-		self.w.base_preset_combo.set_active(0)
+        # base
+        self.w.base_preset_liststore.clear()
+        self.w.base_preset_liststore.append([_("Other"), 0])
+        for mydict in preset.preset_machines:
+            treeiter = self.w.base_preset_liststore.append([mydict["human"], mydict["index"]])
+        self.w.base_preset_combo.set_active(0)
 		
-		# pport1 combo boxes
-		model = self.w.output_list
-		model.clear()
-		for pin in hal_output:
-			model.append((pin["human"],))
+        # pport1 combo boxes
+        model = self.w.output_list
+        model.clear()
+        for pin in hal_output:
+            model.append((pin["human"],))
 
-		#for name in self._p.human_output_names: model.append((name,))
-		model = self.w.input_list
-		model.clear()
- 		for pin in hal_input:
-			model.append((pin["human"],))
+        #for name in self._p.human_output_names: model.append((name,))
+        model = self.w.input_list
+        model.clear()
+        for pin in hal_input:
+            model.append((pin["human"],))
 
-		# parport preset
-		self.w.pp1_preset_io_liststore.clear()
-		for myport in self.d.lparport:
-			treeiter = self.w.pp1_preset_io_liststore.append([myport])
-		if(self.d.lparport):
-			self.w.pp1_preset_io_combo.set_active(0)
-			self.d.ioaddr = self.d.lparport[0]
-			#self.w.ioaddr.set_text(self.d.lparport[0])
+	# parport preset
+	self.w.pp1_preset_io_liststore.clear()
+	for myport in self.d.lparport:
+		treeiter = self.w.pp1_preset_io_liststore.append([myport])
+	if(self.d.lparport):
+		self.w.pp1_preset_io_combo.set_active(0)
+		self.d.ioaddr = self.d.lparport[0]
+		#self.w.ioaddr.set_text(self.d.lparport[0])
 
-		# preset list for pp1
-		self.w.pp1_preset_liststore.clear()
-		self.w.pp1_preset_liststore.append([_("Other"), 0])
-		for mydict in preset.preset_machines:
-			treeiter = self.w.pp1_preset_liststore.append([mydict["human"], mydict["index"]])
-		self.w.pp1_preset_combo.set_active(0)
-			
-		# pport2 comboboxes
-		model = self.w.pp2_output_list
-		model.clear()
- 		for pin in hal_output:
+	# preset list for pp1
+	self.w.pp1_preset_liststore.clear()
+	self.w.pp1_preset_liststore.append([_("Other"), 0])
+	for mydict in preset.preset_machines:
+		treeiter = self.w.pp1_preset_liststore.append([mydict["human"], mydict["index"]])
+        self.w.pp1_preset_combo.set_active(0)
+
+        # pport2 comboboxes
+        model = self.w.pp2_output_list
+        model.clear()
+        for pin in hal_output:
             # First functions not admitted
-			if not pin["index"] in( 0,1,2,3,4,5,6,7):
-				model.append((pin["human"],))
-		model = self.w.pp2_input_list
-		model.clear()
-		#for name in self._p.human_input_names: model.append((name,))
-		for pin in hal_input:
-			model.append((pin["human"],))
-		self.intro_prepare()
+            if not pin["index"] in( 0,1,2,3,4,5,6,7):
+                model.append((pin["human"],))
+        model = self.w.pp2_input_list
+        model.clear()
+        #for name in self._p.human_input_names: model.append((name,))
+        for pin in hal_input:
+            model.append((pin["human"],))
+        self.intro_prepare()
 
-		# axis preset prepare
-		for axis in ('x','y','z','u','v'):
-			self.w[axis + "preset_liststore"].clear()
-			self.w[axis + "preset_liststore"].append([_("Other"), 0])
-			for mydict in preset.preset_machines:
-				treeiter = self.w[axis + "preset_liststore"].append([mydict["human"], mydict["index"]])
-			self.w[axis + "preset_combo"].set_active(0)
-
-#************
-# INTRO PAGE
-#************
+        # axis preset prepare
+        for axis in ('x','y','z','u','v'):
+            self.w[axis + "preset_liststore"].clear()
+            self.w[axis + "preset_liststore"].append([_("Other"), 0])
+            for mydict in preset.preset_machines:
+                treeiter = self.w[axis + "preset_liststore"].append([mydict["human"], mydict["index"]])
+            self.w[axis + "preset_combo"].set_active(0)
+            
+	#************
+	# INTRO PAGE
+	#************
 	def intro_prepare(self):
 		pass
 	def intro_finish(self):
 		pass
 
-#*********************
-# General Axis methods and callbacks
-#*********************
+    #*********************
+    # General Axis methods and callbacks
+    #*********************
 	def on_jogminus_pressed(self, *args):
 		self.a.jogminus = 1
 		self.a.update_axis_test()

@@ -4,6 +4,7 @@
 import _hal, hal, gobject
 import linuxcnc
 import os
+import math
 
 # constants
 JOGJOINT  = 1
@@ -137,10 +138,6 @@ class _GStat(gobject.GObject):
 
         'metric-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'user_system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-
-        'error-message': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'text-message': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'display-message': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -163,7 +160,6 @@ class _GStat(gobject.GObject):
     def __init__(self, stat = None):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
-        self.error = linuxcnc.error_channel()
         self.cmd = linuxcnc.command()
         self.old = {}
         try:
@@ -248,18 +244,6 @@ class _GStat(gobject.GObject):
         self.old['m-code'] = active_mcodes
 
     def update(self):
-        try:
-            e = self.error.poll()
-            if e:
-                kind, text = e
-                if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                    self.emit('error-message',text)
-                elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
-                    self.emit('text-message',text)
-                elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
-                    self.emit('display-message',text)
-        except:
-            pass
         try:
             self.stat.poll()
         except:

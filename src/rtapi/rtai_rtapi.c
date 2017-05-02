@@ -90,7 +90,7 @@
 #define RTAI_NR_TRAPS HAL_NR_FAULTS
 #endif
 
-#if RTAI <= 3
+#if RTAI < 5
 #define rt_free_timers rt_free_timer
 #endif
 
