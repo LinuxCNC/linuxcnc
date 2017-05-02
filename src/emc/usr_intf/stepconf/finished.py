@@ -21,7 +21,50 @@
 #*************
 # FINISH PAGE
 #*************
+import shutil
+import os
+import errno
+from gi.repository import Gtk
+
 def finished_prepare(self):
-	pass
+    pass
 def finished_finish(self):
-	self.a.buid_config()
+    self.build_config()
+
+def build_config(self):
+    base = self.build_base()
+    self.d.save(base)
+    self.d.save_preferences()
+    self.a.INI.write_inifile(base)
+    self.a.HAL.write_halfile(base)
+    self.copy(base, "tool.tbl")
+    if self.a.warning_dialog(self._p.MESS_QUIT,False):
+        Gtk.main_quit()
+
+def build_base(self):
+    base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
+    ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
+    if not os.path.exists(ncfiles):
+        try:
+            os.makedirs(ncfiles)
+        except os.error, detail:
+            if detail.errno != errno.EEXIST: raise
+
+        examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
+        if not os.path.exists(examples):
+            examples = os.path.join(BASE, "nc_files")
+        if os.path.exists(examples):
+            os.symlink(examples, os.path.join(ncfiles, "examples"))
+    try:
+        os.makedirs(base)
+    except os.error, detail:
+        if detail.errno != errno.EEXIST: raise
+    return base
+
+
+def copy(self, base, filename):
+    dest = os.path.join(base, filename)
+    if not os.path.exists(dest):
+        shutil.copy(os.path.join(self.a.distdir, filename), dest)
+
+

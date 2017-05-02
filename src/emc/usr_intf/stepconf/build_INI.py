@@ -24,13 +24,12 @@
 
 import os
 import time
+from stepconf.definitions import *
 
 class INI:
     def __init__(self,app):
         # access to:
         self.d = app.d  # collected data
-        global SIG
-        SIG = app._p    # private data (signals names)
         self.a = app    # The parent, stepconf
 
     def write_inifile(self, base):
@@ -62,6 +61,15 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.select_gmoccapy:
             print >>file, "DISPLAY = gmoccapy"
+        if self.d.gladevcp:
+            theme = self.d.gladevcptheme
+            if theme == "Follow System Theme":theme = ""
+            else: theme = " -t "+theme
+            if self.d.centerembededgvcp:
+                print >>file, "EMBED_TAB_NAME = GladeVCP"
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+            elif self.d.sideembededgvcp:
+                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
         print >>file, "EDITOR = gedit"
         print >>file, "POSITION_OFFSET = RELATIVE"
         print >>file, "POSITION_FEEDBACK = ACTUAL"
@@ -154,12 +162,16 @@ class INI:
             print >>file, "HALFILE = custom.hal"
             print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
 
-        if self.d.halui:
+        if self.d.halui_custom or self.d.halui:
            print >>file
            print >>file, "[HALUI]"
            print >>file, _("# add halui MDI commands here (max 64) ")
-           for mdi_command in self.d.halui_list:
-               print >>file, "MDI_COMMAND = %s" % mdi_command
+           if(self.d.halui_custom):
+               for mdi_command in self.d.halui_list_custom:
+                   print >>file, "MDI_COMMAND = %s" % mdi_command
+           if(self.d.halui):
+               for mdi_command in self.d.halui_list:
+                   print >>file, "MDI_COMMAND = %s" % mdi_command
 
         print >>file
         print >>file, "[TRAJ]"
@@ -252,7 +264,7 @@ class INI:
 
 
         inputs = self.a.build_input_set()
-        thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
+        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
                             "max-home-" + letter, "both-home-" + letter))
         # no need to set HOME_IGNORE_LIMITS when ALL_LIMIT_HOME, HAL logic will do the trick
         ignore = set(("min-home-" + letter, "max-home-" + letter,

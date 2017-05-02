@@ -273,6 +273,7 @@ class Private_Data:
         self.MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
         self.MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
         self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel file ?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named custompanel_backup.xml will be lost. ")
+        self.MESS_GLADEVCP_REWRITE =_("OK to replace existing custom gladevcp panel file ?\nExisting glade_custom.ui will be renamed glade_custom_backup.ui.\nAny existing file named glade_custom_backup.ui will be lost. ")
         self.MESS_ABORT = _("Quit Stepconf and discard changes?")
         self.MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
@@ -318,7 +319,7 @@ class Data:
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
         self.pyvcp = 0 # not included
-        self.pyvcpname = "custom.xml"
+        self.pyvcpname = "blank.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
 
@@ -334,7 +335,7 @@ class Data:
         self.zeroz = False
         self.zeroa = False
         self.autotouchz = False
-        self.gladevcphaluicmds = 0
+        self.gladevcphaluicmds = 0 # not used
         self.centerembededgvcp = True
         self.sideembededgvcp = False
         self.standalonegvcp = False
@@ -346,6 +347,7 @@ class Data:
         self.gladevcpxpos = 0
         self.gladevcpypos = 0
         self.gladevcptheme = "Follow System Theme"
+        self.gladevcpname = "blank.ui"
 
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present
@@ -464,8 +466,35 @@ class Data:
         self.floatsout = 10
         self.halui = 0
         self.halui_list = []
+        self.halui_custom = 0
+        self.halui_list_custom = []
         self.createsymlink = 1
         self.createshortcut = 1
+
+    def get_machine_preset(self, combo):
+        tree_iter = combo.get_active_iter()
+        if tree_iter != None:
+            model = combo.get_model()
+            name, row_id = model[tree_iter][:2]
+            
+            lcurrent_machine = filter(lambda element: element['index'] == row_id, preset.preset_machines)
+            if(lcurrent_machine != []):
+                # Just first element
+                current_machine = lcurrent_machine[0]
+                return(current_machine)
+        else:
+            # Other selected
+            return(None)
+
+    def select_combo_machine(self, combo, index):
+        liststore = combo.get_model ()
+        treeiter = liststore.get_iter_first()
+        while treeiter != None:
+            name, row_id = liststore[treeiter][:2]
+            if(row_id == index):
+                combo.set_active_iter(treeiter)
+                return
+            treeiter = liststore.iter_next(treeiter)
 
     def find_parport(self):
         # Try to find parallel port
@@ -732,6 +761,20 @@ class Data:
            else:
                   print "Master PYVCP files missing from configurable_options dir"
 
+        if self.gladevcp and not self.gladevcpname == "glade_custom.ui":                
+           panelname = os.path.join(distdir, "configurable_options/gladevcp/%s" % self.gladevcpname)
+           originalname = os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     print "custom GLADEVCP file already exists"
+                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  print "copied GLADEVCP program to usr directory"
+                  print"%s" % panelname
+           else:
+                  print "Master GLADEVCP files missing from configurable_options dir"
+                  
         filename = "%s.stepconf" % base
 
         d = xml.dom.minidom.getDOMImplementation().createDocument(
@@ -847,34 +890,6 @@ class StepconfApp:
         window.show()
         #self.w.xencoderscale.realize()
 
-    def build_base(self):
-        base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
-        ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
-        if not os.path.exists(ncfiles):
-            makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
-            if not os.path.exists(examples):
-                examples = os.path.join(BASE, "nc_files")
-            if os.path.exists(examples):
-                os.symlink(examples, os.path.join(ncfiles, "examples"))
-        makedirs(base)
-        return base
-
-    def copy(self, base, filename):
-        dest = os.path.join(base, filename)
-        if not os.path.exists(dest):
-            shutil.copy(os.path.join(distdir, filename), dest)
-
-    def buid_config(self):
-        base = self.build_base()
-        self.d.save(base)
-        self.d.save_preferences()
-        #self.write_readme(base)
-        self.INI.write_inifile(base)
-        self.HAL.write_halfile(base)
-        self.copy(base, "tool.tbl")
-        if self.warning_dialog(self._p.MESS_QUIT,False):
-            Gtk.main_quit()
 
 #*******************
 # GUI Helper functions
@@ -934,7 +949,7 @@ class StepconfApp:
             else:
                 return False
 
-# Driver functions
+    # Driver functions
     def drivertype_fromid(self):
         for d in self._p.alldrivertypes:
             if d[0] == self.d.drivertype: return d[1]
@@ -1459,7 +1474,6 @@ class StepconfApp:
         return steptime <= 5000
 
     def home_sig(self, axis):
-        SIG = self._p
         inputs = self.build_input_set()
         thisaxishome = set((d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))

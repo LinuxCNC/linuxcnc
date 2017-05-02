@@ -34,6 +34,17 @@ def gui_page_prepare(self):
     self.w.gui_select_gmoccapy.set_active(self.d.select_gmoccapy)
     self.w.ladderconnect.set_active(self.d.ladderconnect)
     self.w.gui_pyvcpconnect.set_active(self.d.pyvcpconnect)
+    # Gladevcp
+    self.w.gui_gladevcp.set_active(self.d.gladevcp)
+    self.w.spindlespeedbar.set_active(self.d.spindlespeedbar)
+    self.w.spindleatspeed.set_active(self.d.spindleatspeed)
+    self.w.gladevcpforcemax.set_active(self.d.gladevcpforcemax )
+    self.w.centerembededgvcp.set_active(self.d.centerembededgvcp)
+    self.w.sideembededgvcp.set_active(self.d.sideembededgvcp)
+    self.w.standalonegvcp.set_active(self.d.standalonegvcp)
+    self.w.gladevcpposition.set_active(self.d.gladevcpposition)
+    self.w.gladevcpsize.set_active(self.d.gladevcpsize )
+    self.w.autotouchz.set_active(self.d.autotouchz)
     """
     if os.path.exists(THEMEDIR):
         self.get_installed_themes()
@@ -58,6 +69,68 @@ def gui_page_finish(self):
             if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                 if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
                     return True
+    # Gladevcp
+    self.d.gladevcp = self.w.gui_gladevcp.get_active()        
+    if self.d.gladevcp == True:
+        if self.w.gui_rdo_gladevcp_blank.get_active() == True:
+            self.d.gladevcpname = "blank.ui"
+        if self.w.gui_rdo_default_display.get_active() == True:
+            self.d.gladevcpname = "glade_default.ui"
+        if self.w.gui_rdo_custom_galdevcp.get_active() == True:
+            self.d.gladevcpname = "glade_custom.ui"
+        else:
+            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.d.machinename)):
+                if not self.a.warning_dialog(self._p.MESS_GLADEVCP_REWRITE,False):
+                    return True    
+
+
+    self.d.spindlespeedbar = self.w.spindlespeedbar.get_active()
+    self.d.spindleatspeed = self.w.spindleatspeed.get_active()
+    self.d.gladevcpforcemax = self.w.gladevcpforcemax.get_active()
+    self.d.centerembededgvcp = self.w.centerembededgvcp.get_active()
+    self.d.sideembededgvcp = self.w.sideembededgvcp.get_active()
+    self.d.standalonegvcp = self.w.standalonegvcp.get_active()
+    self.d.gladevcpposition = self.w.gladevcpposition.get_active()
+    self.d.gladevcpsize = self.w.gladevcpsize.get_active()
+    self.d.autotouchz = self.w.autotouchz.get_active()
+    
+    self.d.maxspeeddisplay = self.w.maxspeeddisplay.get_value()
+    self.d.gladevcpwidth = self.w.gladevcpwidth.get_value()
+    self.d.gladevcpheight = self.w.gladevcpheight.get_value()
+    self.d.gladevcpxpos = self.w.gladevcpxpos.get_value()
+    self.d.gladevcpypos = self.w.gladevcpypos.get_value()   
+
+    # set HALUI commands based on the user requested glade buttons
+    hal_zerox = "G10 L20 P0 X0 ( Set X to zero )"
+    hal_zeroy = "G10 L20 P0 Y0 ( Set Y to zero )"
+    hal_zeroz = "G10 L20 P0 Z0 ( Set Z to zero )"
+    hal_zeroa = "G10 L20 P0 A0 ( Set A to zero )"
+    
+    self.d.zerox = self.w.zerox.get_active()
+    self.d.zeroy = self.w.zeroy.get_active()
+    self.d.zeroz = self.w.zeroz.get_active()
+    self.d.zeroa = self.w.zeroa.get_active()
+    
+    if  self.d.zerox:
+        self.d.halui_list.append(hal_zerox)
+    if  self.d.zeroy:
+        self.d.halui_list.append(hal_zeroy)
+    if  self.d.zeroz:
+        self.d.halui_list.append(hal_zeroz)
+    if  self.d.zeroa:
+        self.d.halui_list.append(hal_zeroa)
+        
+    if(self.d.zerox or self.d.zeroy or self.d.zeroz or self.d.zeroa):
+        self.d.halui = 1
+        
+    #self.d.gladevcptheme = self.w.gladevcptheme.get_active_text()
+    # make sure there is a copy of the choosen gladevcp panel in /tmp/
+    # We will copy it later into our config folder
+    self.gladevcptestpanel(self)
+    if self.w.autotouchz.get_active():
+        self.d.classicladder = True
+        if not self.w.ladderexist.get_active():
+            self.w.laddertouchz.set_active(True)
 
 def on_show_gladepvc_clicked(self,*args):
     self.test_glade_panel(self)

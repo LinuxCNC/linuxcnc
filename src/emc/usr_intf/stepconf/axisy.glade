@@ -869,6 +869,8 @@
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
+      <!-- column-name index -->
+      <column type="gint"/>
     </columns>
     <data>
       <row>

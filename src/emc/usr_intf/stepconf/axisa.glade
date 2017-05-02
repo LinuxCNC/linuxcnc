@@ -19,13 +19,17 @@
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
+      <!-- column-name gint1 -->
+      <column type="gint"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">Stepcraft 840</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">Stepcraft 420</col>
+        <col id="1">0</col>
       </row>
     </data>
   </object>

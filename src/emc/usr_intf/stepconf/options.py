@@ -31,7 +31,7 @@ def options_prepare(self):
 	self.w.s32out.set_value(self.d.s32out)
 	self.w.floatsin.set_value(self.d.floatsin)
 	self.w.floatsout.set_value(self.d.floatsout)
-	self.w.halui.set_active(self.d.halui)
+	self.w.halui.set_active(self.d.halui_custom)
 	self.page_set_state('halui_page', self.w.halui.get_active())
 	self.w.ladderconnect.set_active(self.d.ladderconnect)
 	self.on_classicladder_toggled()
@@ -50,7 +50,7 @@ def options_finish(self):
 	self.d.s32out = self.w.s32out.get_value()
 	self.d.floatsin = self.w.floatsin.get_value()
 	self.d.floatsout = self.w.floatsout.get_value()
-	self.d.halui = self.w.halui.get_active()  
+	self.d.halui_custom = self.w.halui.get_active()  
 	self.d.ladderconnect = self.w.ladderconnect.get_active()   
 	self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
 	if self.d.classicladder:

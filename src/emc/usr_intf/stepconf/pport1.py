@@ -79,18 +79,11 @@ def on_exclusive_check_pp1(self, widget):
 	self.a.do_exclusive_inputs(widget,1)
 
 def on_pp1_preselect_button_clicked(self, widget):
-	state = self.w.pp1_preset_combo.get_active()
-	"""
-	lcurrent_machine = filter(lambda element: element['name'] == myselect, preset.preset_pinouts_pp1)
-	if(lcurrent_machine != []):
-		# Just first element
-		current_machine = lcurrent_machine[0]
-	"""
-	# The elements are inserted in sequence in the combo so
-	# I can refer them by the list index
-	if(state > -1):
-		current_machine = preset.preset_pinouts_pp1[state]
+	current_machine = self.d.get_machine_preset(self.w.pp1_preset_combo)
+	if current_machine:
+		None
 	else:
+		# Other selected
 		return
 	# Test output & intput & inverted
 	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):

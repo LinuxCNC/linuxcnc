@@ -21,6 +21,9 @@
 #************
 # BASIC PAGE
 #************
+from stepconf import preset
+
+
 def base_prepare(self):
 	self.w.drivetime_expander.set_expanded(True)
 	self.w.machinename.set_text(self.d.machinename)
@@ -74,6 +77,8 @@ def base_finish(self):
 	self.page_set_state('axisv','V' in text_selected)
 	self.page_set_state('axisa','A' in text_selected)
 
+	
+
 # Basic page callbacks
 def on_pp2_checkbutton_toggled(self, *args): 
 	i = self.w.pp2_checkbutton.get_active()   
@@ -97,10 +102,28 @@ def on_latency_test_clicked(self, widget):
 def on_calculate_ideal_period(self, widget):
 	self.a.calculate_ideal_period()
 
-def on_units_changed(self,widget):
+def on_units_changed(self, widget):
 	if not self.d.units == widget.get_active():
 		# change the XYZ axis defaults to metric or imperial
 		# This erases any entered data that would make sense to change
 		self.d.set_axis_unit_defaults(not widget.get_active())
+
+def on_base_preselect_button_clicked(self, widget):
+	current_machine = self.d.get_machine_preset(self.w.base_preset_combo)
+	if current_machine:
+		self.base_general_preset(current_machine)
+	else:
+		# Other selected
+		None
+
+def base_general_preset(self, current_machine):
+	# base
+	self.pport1_prepare()
+	self.d.select_combo_machine(self.w.pp1_preset_combo, current_machine["index"])
+	self.on_pp1_preselect_button_clicked(None)
+	self.pport1_finish()
+	# axis
+	
+	return
 
 

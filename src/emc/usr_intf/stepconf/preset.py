@@ -18,8 +18,9 @@
 from stepconf.definitions import *
 
 # PRESET
-preset_pinouts_pp1 = [
-	{'name':'sherline', 'human':'Sherline (Untested)',
+# Please do not use 0 as index
+preset_machines = [
+	{'name':'sherline', 'human':'Sherline (Untested)', 'index':1,
 		'pin1':UNUSED_OUTPUT, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':0,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -38,7 +39,7 @@ preset_pinouts_pp1 = [
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0
 	},
-	{'name':'xylotex', 'human':'Xylotex (Untested)',
+	{'name':'xylotex', 'human':'Xylotex (Untested)', 'index':2,
 		'pin1':UNUSED_OUTPUT, 'pin1inv':0,
 		'pin2':XSTEP, 'pin2inv':0,
 		'pin3':XDIR, 'pin3inv':0,
@@ -57,7 +58,7 @@ preset_pinouts_pp1 = [
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0
 	},	
-	{'name':'tb6560_3axes', 'human':'TB6560 3 axes (Untested)',
+	{'name':'tb6560_3axes', 'human':'TB6560 3 axes (Untested)', 'index':3,
 		'pin1':XSTEP, 'pin1inv':0,
 		'pin2':ON, 'pin2inv':0,
 		'pin3':ZSTEP, 'pin3inv':0,
@@ -76,7 +77,7 @@ preset_pinouts_pp1 = [
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0		
 	},		
-	{'name':'tb6560_4axes', 'human':'TB6560 4 axes (Untested)',
+	{'name':'tb6560_4axes', 'human':'TB6560 4 axes (Untested)', 'index':4,
 		'pin1':AMP, 'pin1inv':0,
 		'pin2':XSTEP, 'pin2inv':0,
 		'pin3':XDIR, 'pin3inv':0,
@@ -95,7 +96,7 @@ preset_pinouts_pp1 = [
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0
 	},
-	{'name':'stepcraft-420', 'human':'Stepcraft 420 (Untested)',
+	{'name':'stepcraft-420', 'human':'Stepcraft 420 (Untested)', 'index':5,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -114,7 +115,7 @@ preset_pinouts_pp1 = [
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0
 	},
-	{'name':'stepcraft-600', 'human':'Stepcraft 600 (Untested)',
+	{'name':'stepcraft-600', 'human':'Stepcraft 600 (Untested)', 'index':6,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -133,7 +134,7 @@ preset_pinouts_pp1 = [
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0
 	},
-	{'name':'stepcraft-840', 'human':'Stepcraft 840',
+	{'name':'stepcraft-840', 'human':'Stepcraft 840', 'index':7,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,

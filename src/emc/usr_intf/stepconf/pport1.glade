@@ -36,19 +36,25 @@
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
+      <!-- column-name index -->
+      <column type="gint"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">Sherline</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">Xylotex</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">TB6560 3 axes</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">TB6560 4 axes</col>
+        <col id="1">0</col>
       </row>
     </data>
   </object>

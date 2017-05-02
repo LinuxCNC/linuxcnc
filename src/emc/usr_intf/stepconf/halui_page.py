@@ -26,23 +26,23 @@ def halui_page_prepare(self):
 	# Clear listore
 	self.w.lstStore1.clear()
 	# Populate treeview
-	for num, mdi_command in enumerate(self.d.halui_list):
+	for num, mdi_command in enumerate(self.d.halui_list_custom):
 		self.w.lstStore1.append([num+1, mdi_command])
 
 def halui_page_finish(self):
-	self.d.halui_list = []
+	self.d.halui_list_custom = []
 	# Get first row
 	treeiter = self.w.lstStore1.get_iter_first()
 	if treeiter == None:
 		return True
-	self.d.halui_list.append(self.w.lstStore1.get_value(treeiter, 1))
+	self.d.halui_list_custom.append(self.w.lstStore1.get_value(treeiter, 1))
 	while treeiter != None:
 		treeiter = self.w.lstStore1.iter_next(treeiter)
 		if treeiter != None:
 			current_value = self.w.lstStore1.get_value(treeiter, 1).strip()
 			# Check if value contains data
 			if len(current_value) > 2:
-				self.d.halui_list.append(current_value)
+				self.d.halui_list_custom.append(current_value)
 
 def on_halui_btnAdd_clicked(self, *args):
 	next_index = len(self.w.lstStore1) +1

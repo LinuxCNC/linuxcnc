@@ -179,7 +179,7 @@ class Pages:
 		self.w.label_fwd.set_text(self._p.MESS_START)
 		if debug:
 			self.w.window1.set_title('Stepconf -debug mode')
-		# halui table
+		# halui custom table
 		renderer = Gtk.CellRendererText()
 		column = Gtk.TreeViewColumn("Index", renderer, text=0)
 		column.set_reorderable(False)
@@ -189,6 +189,13 @@ class Pages:
 		renderer.connect("edited", self.on_halui_row_changed)
 		column = Gtk.TreeViewColumn("MDI__COMMAND", renderer, text=1)
 		self.w.viewTable1.append_column(column)
+
+		# base
+		self.w.base_preset_liststore.clear()
+		self.w.base_preset_liststore.append([_("Other"), 0])
+		for mydict in preset.preset_machines:
+			treeiter = self.w.base_preset_liststore.append([mydict["human"], mydict["index"]])
+		self.w.base_preset_combo.set_active(0)
 		
 		# pport1 combo boxes
 		model = self.w.output_list
@@ -206,12 +213,16 @@ class Pages:
 		self.w.pp1_preset_io_liststore.clear()
 		for myport in self.d.lparport:
 			treeiter = self.w.pp1_preset_io_liststore.append([myport])
-		self.w.pp1_preset_io_combo.set_active(0)
+		if(self.d.lparport):
+			self.w.pp1_preset_io_combo.set_active(0)
+			self.d.ioaddr = self.d.lparport[0]
+			#self.w.ioaddr.set_text(self.d.lparport[0])
 
 		# preset list for pp1
 		self.w.pp1_preset_liststore.clear()
-		for mydict in preset.preset_pinouts_pp1:
-			treeiter = self.w.pp1_preset_liststore.append([mydict["human"]])
+		self.w.pp1_preset_liststore.append([_("Other"), 0])
+		for mydict in preset.preset_machines:
+			treeiter = self.w.pp1_preset_liststore.append([mydict["human"], mydict["index"]])
 		self.w.pp1_preset_combo.set_active(0)
 			
 		# pport2 comboboxes
@@ -231,8 +242,9 @@ class Pages:
 		# axis preset prepare
 		for axis in ('x','y','z','u','v'):
 			self.w[axis + "preset_liststore"].clear()
-			for mydict in preset.preset_pinouts_pp1:
-				treeiter = self.w[axis + "preset_liststore"].append([mydict["human"]])
+			self.w[axis + "preset_liststore"].append([_("Other"), 0])
+			for mydict in preset.preset_machines:
+				treeiter = self.w[axis + "preset_liststore"].append([mydict["human"], mydict["index"]])
 			self.w[axis + "preset_combo"].set_active(0)
 
 #************
@@ -271,7 +283,7 @@ class Pages:
 			self.w[axis + n].set_name("%s%s" % (axis, n))
 		def set_active(n):
 			self.w[axis + n].set_active(self.d[axis + n])
-		SIG = self._p
+
 		set_text("steprev")
 		set_text("microstep")
 		set_text("pulleynum")
@@ -318,18 +330,11 @@ class Pages:
 		GObject.idle_add(lambda: self.a.update_pps(axis))
 
 	def preset_axis(self, axis):
-		state = self.w[axis + "preset_combo"].get_active()
-		"""
-		lcurrent_machine = filter(lambda element: element['name'] == myselect, preset.preset_pinouts_pp1)
-		if(lcurrent_machine != []):
-			# Just first element
-			current_machine = lcurrent_machine[0]
-		"""
-		# The elements are inserted in sequence in the combo so
-		# I can refer them by the list index
-		if(state > -1):
-			current_machine = preset.preset_pinouts_pp1[state]
+		current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
+		if current_machine:
+			None
 		else:
+			# Other selected
 			return
 
 		# List axis page widgets
