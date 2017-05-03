@@ -123,7 +123,11 @@ def base_general_preset(self, current_machine):
 	self.on_pp1_preselect_button_clicked(None)
 	self.pport1_finish()
 	# axis
-	
+	for axis in ('x','y','z','u','v'):
+		self.axis_prepare(axis)
+		self.d.select_combo_machine(self.w[axis + "preset_combo"], current_machine["index"])
+		self.preset_axis(axis)
+		self.axis_done(axis)
 	return
 
 

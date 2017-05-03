@@ -94,7 +94,7 @@ def on_pp1_preselect_button_clicked(self, widget):
 		if(p in current_machine):
 			self.w['%s'%p].set_active(current_machine[p])
 
-def on_pp1_preset_io_button_clicked(self, widget):
+def on_pp1_preset_io_combo_changed(self, widget):
 	state = self.w.pp1_preset_io_combo.get_active()
 	if(state > -1):
 		path = Gtk.TreePath(state)
@@ -103,3 +103,4 @@ def on_pp1_preset_io_button_clicked(self, widget):
 		self.w.ioaddr.set_text(value)
 	else:
 		return
+

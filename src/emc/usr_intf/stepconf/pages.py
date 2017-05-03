@@ -27,8 +27,8 @@
 # add function call here: <reference name>_prepare() and <reference name>_finish() to this file
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
-# add the reference name, Text name and active state to private data variable: self.available_page and
-# available_page_lib of stepconf.py
+# add the reference name, Text name and active state to private data variable: available_page and
+# available_page_lib of definitions.py
 
 import os
 from gi.repository import Gtk
@@ -55,7 +55,7 @@ class Pages:
 		dbg = self.a.dbg
 		self.dbg = dbg
 		# Import all methods from py pages
-		for lib in (self._p.available_page_lib):
+		for lib in (available_page_lib):
 			#print(lib)
 			mod = import_module("stepconf." + lib)
 			module_dict = mod.__dict__
@@ -80,17 +80,17 @@ class Pages:
 			return True
 		return
 
-	# seaches (self._p.available_page) from the current page forward,
+	# seaches (available_page) from the current page forward,
 	# for the next page that is True or till second-to-last page.
 	# if state found True: call current page finish function.
 	# If that returns False then call the next page prepare function and show page
 	def on_button_fwd_clicked(self,widget):
 		cur = self.w.notebook1.get_current_page()
 		u = cur+1
-		cur_name,cur_text,cur_state = self._p.available_page[cur]
-		while u < len(self._p.available_page):
-			name,text,state = self._p.available_page[u]
-			dbg( "FWD search %s,%s,%s,%s,of %d pages"%(u,name,text,state,len(self._p.available_page)-1))
+		cur_name,cur_text,cur_state = available_page[cur]
+		while u < len(available_page):
+			name,text,state = available_page[u]
+			dbg( "FWD search %s,%s,%s,%s,of %d pages"%(u,name,text,state,len(available_page)-1))
 			if state:
 				if not self['%s_finish'%cur_name]():
 					self.w.notebook1.set_current_page(u)
@@ -101,12 +101,12 @@ class Pages:
 				break
 			u +=1
 		# second-to-last page? change the fwd button to finish and show icon
-		if u == len(self._p.available_page)-1:
+		if u == len(available_page)-1:
 			self.w.apply_image.set_visible(True)
 			self.w.label_fwd.set_text(self._p.MESS_DONE)
 		# last page? nothing to prepare just finish
-		elif u == len(self._p.available_page):
-			name,text,state = self._p.available_page[cur]
+		elif u == len(available_page):
+			name,text,state = available_page[cur]
 			self['%s_finish'%name]()
 		# if comming from page 0 to page 1 sensitize 
 		# the back button and change fwd button text
@@ -114,19 +114,19 @@ class Pages:
 			self.w.button_back.set_sensitive(True)
 			self.w.label_fwd.set_text(self._p.MESS_FWD)
 
-	# seaches (self._p.available_page) from the current page backward,
+	# seaches (available_page) from the current page backward,
 	# for the next page that is True or till first page.
 	# if state found True: call current page finish function.
 	# If that returns False then call the next page prepare function and show page
 	def on_button_back_clicked(self,widget):
 		cur = self.w.notebook1.get_current_page()
 		u = cur-1
-		cur_name,cur_text,cur_state = self._p.available_page[cur]
+		cur_name,cur_text,cur_state = available_page[cur]
 		while u > -1:
-			name,text,state = self._p.available_page[u]
-			dbg( "BACK search %s,%s,%s,%s,of %d pages"%(u,name,text,state,len(self._p.available_page)-1))
+			name,text,state = available_page[u]
+			dbg( "BACK search %s,%s,%s,%s,of %d pages"%(u,name,text,state,len(available_page)-1))
 			if state:
-				if not cur == len(self._p.available_page)-1:
+				if not cur == len(available_page)-1:
 					self['%s_finish'%cur_name]()
 				self.w.notebook1.set_current_page(u)
 				self['%s_prepare'%name]()
@@ -135,7 +135,7 @@ class Pages:
 				break
 			u -=1
 		# Not last page? change finish button text and hide icon
-		if u <= len(self._p.available_page):
+		if u <= len(available_page):
 			self.w.apply_image.set_visible(False)
 			self.w.label_fwd.set_text(self._p.MESS_FWD)
 		# page 0 ? de-sensitize the back button and change fwd button text 
@@ -148,15 +148,15 @@ class Pages:
 		self.w.button_back.set_sensitive(bstate)
 	
 	# Sets the visual state of a list of page(s)
-	# The page names must be the one used in self._p.available_page
+	# The page names must be the one used in available_page
 	# If a pages state is false it won't be seen or it's functions called.
 	# if you deselect the current page it will show till next time it is cycled
 	def page_set_state(self,page_list,state):
 		dbg("page_set_state() %s ,%s"%(page_list,state))
-		for i,data in enumerate(self._p.available_page):
+		for i,data in enumerate(available_page):
 			name,text,curstate = data
 			if name in page_list:
-				self._p.available_page[i][2] = state
+				available_page[i][2] = state
 				dbg("State changed to %s"% state)
 				break
 
@@ -174,7 +174,7 @@ class Pages:
 			liststore.append([i[1]])
 		#self.w.drivertype.append_text(_("Other"))
 		liststore.append([_("Other")])
-		self.w.title_label.set_text(self._p.available_page[0][1])
+		self.w.title_label.set_text(available_page[0][1])
 		self.w.button_back.set_sensitive(False)
 		self.w.label_fwd.set_text(self._p.MESS_START)
 		if debug:

@@ -153,26 +153,9 @@ class Private_Data:
     def __init__(self):
         self.in_pport_prepare = True
         self.distdir = distdir
-        self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
-                                ['base',_('Base Information'),True],
-                                ['pport1', _('Parallel Port 1'),True],
-                                ['pport2', _('Parallel Port 2'),True],
-                                ['axisx', _('Axis X'), True],
-                                ['axisy', _('Axis Y'), True],
-                                ['axisz', _('Axis Z'), True],
-                                ['axisu', _('Axis U'), True],
-                                ['axisv', _('Axis V'), True],
-                                ['axisa', _('Axis A'), True],
-                                ['spindle',_('Spindle'), True],
-                                ['options',_('Options'), True],
-                                ['halui_page', _('HALUI'), True],
-                                ['gui_page',_('User Interface'), True],
-                                ['finished',_('Almost Done'),True]
-                             ]
+
  
-        self.available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page',
-                                'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
-                                ]
+
         
         # internalname / displayed name / steptime/ step space / direction hold / direction setup
         self.alldrivertypes = [
@@ -866,7 +849,7 @@ class StepconfApp:
         self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
         window = self.builder.get_object("window1")
         notebook1 = self.builder.get_object("notebook1")
-        for reference,title,state in (self._p.available_page):
+        for reference,title,state in (available_page):
             if reference == 'intro':continue
             dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (reference,title,state))
             self.builder.add_from_file(os.path.join(datadir, '%s.glade'%reference))
