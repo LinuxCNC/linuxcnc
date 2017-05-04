@@ -42,6 +42,7 @@ class HandlerClass:
         self.w = widgets
         self.stat = linuxcnc.stat()
         self.cmnd = linuxcnc.command()
+        self.error = linuxcnc.error_channel()
         self.jog_velocity = 10.0
 
         # connect to GStat to catch linuxcnc events
@@ -49,6 +50,7 @@ class HandlerClass:
         GSTAT.connect('state-on', self.on_state_on)
         GSTAT.connect('state-off', self.on_state_off)
         GSTAT.connect('jograte-changed', self.on_jograte_changed)
+        GSTAT.connect('periodic', self.on_periodic)
 
         # Read user preferences
         self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
@@ -110,6 +112,23 @@ class HandlerClass:
 
     def on_error_message(self, w, message):
         NOTE.notify('Error',message,QtWidgets.QMessageBox.Information,10)
+
+    def on_periodic(self,w):
+        try:
+            e = self.error.poll()
+            if e:
+                kind, text = e
+                if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+                    if self.desktop_notify:
+                        NOTE.notify('ERROR',text,None,4)
+                elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                   if self.desktop_notify:
+                        NOTE.notify('OP MESSAGE',text,None,4)
+                elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                   if self.desktop_notify:
+                        NOTE.notify('DISPLAY',text,None,4)
+        except:
+            pass
 
     #######################
     # callbacks from form #
