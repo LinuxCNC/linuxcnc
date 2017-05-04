@@ -49,6 +49,22 @@
       </row>
     </data>
   </object>
+  <object class="GtkAdjustment" id="dir_h_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="dir_s_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkListStore" id="driver_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkBox" id="base">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -57,18 +73,6 @@
       <object class="GtkGrid" id="grid1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
@@ -266,6 +270,8 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="use_action_appearance">False</property>
+            <property name="xalign">0</property>
+            <property name="yalign">0</property>
             <signal name="clicked" handler="on_base_preselect_button_clicked" swapped="no"/>
           </object>
           <packing>
@@ -347,15 +353,6 @@
             <property name="width">1</property>
             <property name="height">1</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
         </child>
         <child>
           <object class="GtkExpander" id="drivetime_expander">
@@ -587,6 +584,15 @@
             <property name="width">1</property>
             <property name="height">1</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
       <packing>
@@ -863,22 +869,6 @@ Period Jitter </property>
         <property name="position">8</property>
       </packing>
     </child>
-  </object>
-  <object class="GtkAdjustment" id="dir_h_adjustment">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="dir_s_adjustment">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkListStore" id="driver_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
   </object>
   <object class="GtkTextBuffer" id="name_textbuffer"/>
   <object class="GtkAdjustment" id="step_s_adjustment">

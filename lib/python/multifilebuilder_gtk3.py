@@ -32,9 +32,18 @@ class MultiFileBuilder:
     def add_from_file(self, fn):
         builder = Gtk.Builder()
         if self.domain is not None: builder.set_translation_domain(self.domain)
-
         self.builders.append(builder)
         builder.add_from_file(fn)
+        #### This is a workaround for glade or gtkbuilder bug with id and name mixing
+        lobj = builder.get_objects()
+        for obj in lobj:
+            try:
+                newname = Gtk.Buildable.get_name(obj)
+                obj.set_name(newname)
+            except:
+                None
+        ### End workaround ###
+
 
     def add_from_string(self, strg):
         builder = Gtk.Builder()

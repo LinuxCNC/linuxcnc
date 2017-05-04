@@ -23,7 +23,6 @@
 #************
 from stepconf import preset
 
-
 def base_prepare(self):
 	self.w.drivetime_expander.set_expanded(True)
 	self.w.machinename.set_text(self.d.machinename)
