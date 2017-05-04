@@ -5,6 +5,8 @@ import sys
 # standard - you can't set how long the message stays up for.
 # I suggest fixing this with a PPA off the net
 # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
+    # callback work around:
+    # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 try:
     NOTIFY_AVAILABLE = False
     import pynotify
@@ -18,14 +20,13 @@ except:
 
 class Notify:
     def __init__(self):
+        self._n=[]
         self.statusbar = None
         self.alarmpage = []
+
     # This prints a message in the status bar (if available)
     # the system notifier (if available)
     # adds an entry to the alarm page (if available)
-    # Ubuntu screws with the system notification program so it does follow timeouts
-    # There is a ppa on the net to fix this I suggest it.
-    # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
     def notify(self,title,message,icon="",timeout=2):
         messageid = None
         try:
@@ -47,16 +48,30 @@ class Notify:
                 uri = "file://" + icon
         except:
             print 'ERROR Notify - Icon filename error - %s'% icon
-        n = pynotify.Notification(title, message)
+        n =  pynotify.Notification(title,message)
+        self._n.append(n)
         #n.set_hint_string("x-canonical-append","True")
         n.set_urgency(pynotify.URGENCY_LOW)
         n.set_timeout(int(timeout * 1000) )
-        n.add_action("action_click","Reply to Message",self.action_callback,None) # Arguments
+        n.add_action("action_click","Show All Messages",self.action_callback,None) # Arguments
+        n.connect('closed', self.handle_closed)
+        #self._n.add_action('You Clicked The Button', 'Remove Fire', self.OnClicked)
         n.show()
 
-    def action_callback(self):
-        print 'action'
-        #print self.alarmpage
+    def handle_closed(self,n):
+        pass
+        #print self._n
+        #print n
+
+    def OnClicked(self,notification, signal_text):
+        print '1: ' + str(notification)
+        print '2: ' + str(signal_text)
+        notification.close()
+
+    def action_callback(self,*args,**kwds):
+        print '\nAll recorded messages:'
+        for num,i in enumerate(self.alarmpage):
+            print num,i
 
     def show_status(self, message, timeout=4):
         try:
