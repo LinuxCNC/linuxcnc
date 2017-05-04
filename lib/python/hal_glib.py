@@ -80,6 +80,7 @@ class GComponent:
 class _GStat(gobject.GObject):
     '''Emits signals based on linuxcnc status '''
     __gsignals__ = {
+        'periodic': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-estop': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-on': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -454,6 +455,7 @@ class _GStat(gobject.GObject):
         if metric_new != metric_old:
             self.emit('metric-mode-changed',metric_new)
         # AND DONE... Return true to continue timeout
+        self.emit('periodic')
         return True
 
     def forced_update(self):
