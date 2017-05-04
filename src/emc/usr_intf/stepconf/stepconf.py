@@ -107,26 +107,6 @@ if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
 
-style = """
-GtkEntry.invalid {
-	color:  black;
-	background-color: red;
-	background: red;
-}
-
-GtkEntry.valid {
-	color:  @fg_color;
-	background-color: @bg_color;
-	background: @bg_color;
-}
-
-GtkEntry.selected {
-	color:  @fg_color;
-	background-color: @bg_color;
-	background: @bg_color;
-}
-"""
-
 from stepconf import pages
 from stepconf import preset
 from stepconf import build_INI
@@ -154,27 +134,6 @@ class Private_Data:
         self.in_pport_prepare = True
         self.distdir = distdir
 
- 
-
-        
-        # internalname / displayed name / steptime/ step space / direction hold / direction setup
-        self.alldrivertypes = [
-                            ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
-                            ["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
-                            ["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
-                            ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
-                            ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
-                            ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-                            ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
-                            ["l297", _("L297"), 500,  4000, 4000, 1000],
-                            ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
-                            ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
-                            ["xylotex", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
-                            ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
-                            ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
-                            ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
-                            ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
-        ]
         """
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
         self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
@@ -864,6 +823,12 @@ class StepconfApp:
         self.builder.set_translation_domain(domain) # for locale translations
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
         #wiz_pic = Gdk.pixbuf_new_from_file(wizard)
+        """
+        for w in self.w:
+            myid = w.get_id()
+            print myid, w.get_name()
+            #w.set_name(myid)
+        """
         image = Gtk.Image()
         image.set_from_file(wizard)
         wiz_pic = image.get_pixbuf()
@@ -934,23 +899,23 @@ class StepconfApp:
 
     # Driver functions
     def drivertype_fromid(self):
-        for d in self._p.alldrivertypes:
+        for d in alldrivertypes:
             if d[0] == self.d.drivertype: return d[1]
 
     def drivertype_toid(self, what=None):
         if not isinstance(what, int): what = self.drivertype_toindex(what)
-        if what < len(self._p.alldrivertypes): return self._p.alldrivertypes[what][0]
+        if what < len(alldrivertypes): return alldrivertypes[what][0]
         return "other"
 
     def drivertype_toindex(self, what=None):
         if what is None: what = self.d.drivertype
-        for i, d in enumerate(self._p.alldrivertypes):
+        for i, d in enumerate(alldrivertypes):
             if d[0] == what: return i
-        return len(self._p.alldrivertypes)
+        return len(alldrivertypes)
 
     def drivertype_fromindex(self):
         i = self.w.drivertype.get_active()
-        if i < len(self._p.alldrivertypes): return self._p.alldrivertypes[i][1]
+        if i < len(alldrivertypes): return alldrivertypes[i][1]
         return _("Other")
 
     def calculate_ideal_period(self):
@@ -965,8 +930,8 @@ class StepconfApp:
 
     def update_drivertype_info(self):
         v = self.w.drivertype.get_active()
-        if v < len(self._p.alldrivertypes):
-            d = self._p.alldrivertypes[v]
+        if v < len(alldrivertypes):
+            d = alldrivertypes[v]
             self.w.steptime.set_value(d[2])
             self.w.stepspace.set_value(d[3])
             self.w.dirhold.set_value(d[4])

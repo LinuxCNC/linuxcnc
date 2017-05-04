@@ -169,10 +169,8 @@ class Pages:
 	def initialize(self):
 		# one time initialized data
 		liststore = self.w.drivertype.get_model()
-		for i in self._p.alldrivertypes:
-			#self.w.drivertype.append_text(i[1])
+		for i in alldrivertypes:
 			liststore.append([i[1]])
-		#self.w.drivertype.append_text(_("Other"))
 		liststore.append([_("Other")])
 		self.w.title_label.set_text(available_page[0][1])
 		self.w.button_back.set_sensitive(False)
@@ -203,7 +201,6 @@ class Pages:
 		for pin in hal_output:
 			model.append((pin["human"],))
 
-		#for name in self._p.human_output_names: model.append((name,))
 		model = self.w.input_list
 		model.clear()
 		for pin in hal_input:
@@ -216,7 +213,6 @@ class Pages:
 		if(self.d.lparport):
 			self.w.pp1_preset_io_combo.set_active(0)
 			self.d.ioaddr = self.d.lparport[0]
-			#self.w.ioaddr.set_text(self.d.lparport[0])
 
 		# preset list for pp1
 		self.w.pp1_preset_liststore.clear()
@@ -239,7 +235,7 @@ class Pages:
 			model.append((pin["human"],))
 		self.intro_prepare()
 
-			# axis preset prepare
+		# axis preset prepare
 		for axis in ('x','y','z','u','v'):
 			self.w[axis + "preset_liststore"].clear()
 			self.w[axis + "preset_liststore"].append([_("Other"), 0])
