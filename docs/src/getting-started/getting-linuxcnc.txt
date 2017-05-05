@@ -73,7 +73,11 @@ https://www.assembla.com/spaces/zsync-windows/documents
 +
 ----
 md5sum linuxcnc-2.7-wheezy.iso
+----
++
 or
++
+----
 sha256sum linuxcnc-2.7-wheezy.iso
 ----
 . Then compare to these checksums
