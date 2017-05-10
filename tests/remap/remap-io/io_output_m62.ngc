@@ -1,0 +1,5 @@
+o<io_output_M62> sub
+(debug,X io_output_M62 remapping pre:  5399=#5399)
+M62 P0
+(debug,X io_output_M62 remapping post:  5399=#5399)
+o<io_output_M62> endsub
