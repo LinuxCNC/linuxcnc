@@ -25,10 +25,7 @@
 #import pygtk
 #pygtk.require("2.0")
 
-#import gtk
-#import gtk.glade
 from gi.repository import Gtk
-#import gobject
 from gi.repository import GObject
 from gi.repository import Gdk
 
@@ -89,12 +86,6 @@ if not os.path.isfile(wizard):
     print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
     sys.exit(1)
 
-icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-linuxcncicon = os.path.join(icondir, "linuxcncicon.png")
-if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
-if not os.path.isfile(linuxcncicon):
-    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcncicon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
@@ -134,95 +125,6 @@ class Private_Data:
         self.in_pport_prepare = True
         self.distdir = distdir
 
-        """
-        (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
-        self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
-        self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
-        self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
-        self.MIST, self.FLOOD, self.ESTOP, self.AMP,
-        self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
-        self.UNUSED_OUTPUT 
-        ) = self.hal_output_names = [
-        "xstep", "xdir", "ystep", "ydir",
-        "zstep", "zdir", "astep", "adir",
-        "ustep", "udir", "vstep", "vdir",
-        "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
-        "coolant-mist", "coolant-flood", "estop-out", "xenable",
-        "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
-        "unused-output"]
-        
-        (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
-        self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
-        self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
-        self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
-        self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
-        self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
-        self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
-        self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
-        self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
-        self.UNUSED_INPUT
-        ) = self.hal_input_names = [
-        "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
-        "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
-        "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
-        "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
-        "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
-        "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
-        "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
-        "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
-        "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
-        "unused-input"]
-        
-        self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
-        _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
-        _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
-        _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
-        _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
-        _("Charge Pump"),
-        _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
-        _("Unused"))
-        
-        self.human_input_names = (_("ESTOP In"), _("Probe In"),
-        _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
-        _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
-        _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
-        _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
-        _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
-        _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
-        _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
-        _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
-        _("Both Limit + Home X"), _("Both Limit + Home Y"),
-        _("Both Limit + Home Z"), _("Both Limit + Home A"),
-        _("Both Limit + Home U"), _("Both Limit + Home V"),
-        _("Minimum Limit X"), _("Minimum Limit Y"),
-        _("Minimum Limit Z"), _("Minimum Limit A"),
-        _("Minimum Limit U"), _("Minimum Limit V"),
-        _("Maximum Limit X"), _("Maximum Limit Y"),
-        _("Maximum Limit Z"), _("Maximum Limit A"),
-        _("Maximum Limit U"), _("Maximum Limit V"),
-        _("Both Limit X"), _("Both Limit Y"),
-        _("Both Limit Z"), _("Both Limit A"),
-        _("Both Limit U"), _("Both Limit V"),
-        _("All limits"), _("All home"), _("All limits + homes"),
-        _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-        _("Unused"))
-        """
-
-        self.MESS_START = _('Start')
-        self.MESS_FWD = _('Forward')
-        self.MESS_DONE = _('Done')
-        self.MESS_CL_REWRITE =_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. ")
-        self.MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
-        self.MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
-        self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel file ?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named custompanel_backup.xml will be lost. ")
-        self.MESS_GLADEVCP_REWRITE =_("OK to replace existing custom gladevcp panel file ?\nExisting glade_custom.ui will be renamed glade_custom_backup.ui.\nAny existing file named glade_custom_backup.ui will be lost. ")
-        self.MESS_ABORT = _("Quit Stepconf and discard changes?")
-        self.MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
-        self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
-        self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
-                 unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-            "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
-
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
@@ -238,6 +140,8 @@ class Data:
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
+
+        self.md5sums = []
 
         self.machinename = _("my-mill")
         self.axes = 0 # XYZ
@@ -370,6 +274,8 @@ class Data:
              # Varibles for test axis
              self[i+'testmaxvel'] = None
              self[i+'testmaxacc'] = None
+             # Preset
+             self[i+'preset'] = 0
 
         # set xyzuv axes defaults depending on units true = imperial
         self.set_axis_unit_defaults(False)
@@ -670,105 +576,7 @@ class Data:
             pin = "pin%d" % p
             p = self[pin]
 
-    def save(self,basedir):
-        base = basedir
-        self.md5sums = []
 
-        if self.classicladder: 
-           if not self.laddername == "custom.clp":
-                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
-                original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
-                if os.path.exists(filename):     
-                  if os.path.exists(original):
-                     print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( filename,original)
-                  print "copied ladder program to usr directory"
-                  print"%s" % filename
-                else:
-                     print "Master or temp ladder files missing from configurable_options dir"
-
-        if self.pyvcp and not self.pyvcpname == "custompanel.xml":                
-           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
-           originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  print "copied PYVCP program to usr directory"
-                  print"%s" % panelname
-           else:
-                  print "Master PYVCP files missing from configurable_options dir"
-
-        if self.gladevcp and not self.gladevcpname == "glade_custom.ui":                
-           panelname = os.path.join(distdir, "configurable_options/gladevcp/%s" % self.gladevcpname)
-           originalname = os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     print "custom GLADEVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  print "copied GLADEVCP program to usr directory"
-                  print"%s" % panelname
-           else:
-                  print "Master GLADEVCP files missing from configurable_options dir"
-                  
-        filename = "%s.stepconf" % base
-
-        d = xml.dom.minidom.getDOMImplementation().createDocument(
-                            None, "stepconf", None)
-        e = d.documentElement
-
-        for k, v in sorted(self.__dict__.iteritems()):
-            if k.startswith("_"): continue
-            n = d.createElement('property')
-            e.appendChild(n)
-
-            if isinstance(v, float): n.setAttribute('type', 'float')
-            elif isinstance(v, bool): n.setAttribute('type', 'bool')
-            elif isinstance(v, int): n.setAttribute('type', 'int')
-            elif isinstance(v, list): n.setAttribute('type', 'eval')
-            else: n.setAttribute('type', 'string')
-
-            n.setAttribute('name', k)
-            n.setAttribute('value', str(v))
-        
-        d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        print("%s" % base)
-
-        # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
-            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
-            echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
-        if self.createsymlink:
-            shortcut = os.path.join(desktop, self.machinename)
-            if os.path.exists(desktop) and not os.path.exists(shortcut):
-                os.symlink(base,shortcut)
-
-        if self.createshortcut and os.path.exists(desktop):
-            if os.path.exists(BASE + "/scripts/linuxcnc"):
-                scriptspath = (BASE + "/scripts/linuxcnc")
-            else:
-                scriptspath ="linuxcnc"
-
-            filename = os.path.join(desktop, "%s.desktop" % self.machinename)
-            file = open(filename, "w")
-            print >>file,"[Desktop Entry]"
-            print >>file,"Version=1.0"
-            print >>file,"Terminal=false"
-            print >>file,"Name=" + _("launch %s") % self.machinename
-            print >>file,"Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename )
-            print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
-            print >>file,"Icon=%s"% linuxcncicon
-            file.close()
-            # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0775)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -797,7 +605,16 @@ class StepconfApp:
         debug = self.debug = dbgstate
         global dbg
         dbg = self.dbg
+        self.program_path = BASE
         self.distdir = distdir
+
+        self.icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+        self.linuxcncicon = os.path.join(self.icondir, "linuxcncicon.png")
+        if not os.path.isfile(self.linuxcncicon):
+            self.linuxcncicon = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
+        if not os.path.isfile(self.linuxcncicon):
+            self.linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcncicon.png")
+        
         self.recursive_block = False
         self.axis_under_test = None
         # Private data holds the array of pages to load, signals, and messages
@@ -839,6 +656,7 @@ class StepconfApp:
         #self.w.xencoderscale.realize()
 
 
+
 #*******************
 # GUI Helper functions
 #*******************
@@ -855,14 +673,14 @@ class StepconfApp:
         is_realtime_capable = False
         try:
             if hal.is_sim:
-                self.warning_dialog(self._p.MESS_NO_REALTIME,True)
+                self.warning_dialog(MESS_NO_REALTIME,True)
             elif hal.is_rt:
                 if hal.is_kernelspace:
                     actual_kernel = os.uname()[2]
                     if hal.kernel_version == actual_kernel:
                         is_realtime_capable = True
                     else:
-                        self.warning_dialog(self._p.MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
+                        self.warning_dialog(MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
                 else:
                     is_realtime_capable = True
         except:
@@ -897,56 +715,6 @@ class StepconfApp:
             else:
                 return False
 
-    # Driver functions
-    def drivertype_fromid(self):
-        for d in alldrivertypes:
-            if d[0] == self.d.drivertype: return d[1]
-
-    def drivertype_toid(self, what=None):
-        if not isinstance(what, int): what = self.drivertype_toindex(what)
-        if what < len(alldrivertypes): return alldrivertypes[what][0]
-        return "other"
-
-    def drivertype_toindex(self, what=None):
-        if what is None: what = self.d.drivertype
-        for i, d in enumerate(alldrivertypes):
-            if d[0] == what: return i
-        return len(alldrivertypes)
-
-    def drivertype_fromindex(self):
-        i = self.w.drivertype.get_active()
-        if i < len(alldrivertypes): return alldrivertypes[i][1]
-        return _("Other")
-
-    def calculate_ideal_period(self):
-        steptime = self.w.steptime.get_value()
-        stepspace = self.w.stepspace.get_value()
-        latency = self.w.latency.get_value()
-        minperiod = self.d.minperiod(steptime, stepspace, latency)
-        maxhz = int(1e9 / minperiod)
-        if not self.d.doublestep(steptime): maxhz /= 2
-        self.w.baseperiod.set_text("%d ns" % minperiod)
-        self.w.maxsteprate.set_text("%d Hz" % maxhz)
-
-    def update_drivertype_info(self):
-        v = self.w.drivertype.get_active()
-        if v < len(alldrivertypes):
-            d = alldrivertypes[v]
-            self.w.steptime.set_value(d[2])
-            self.w.stepspace.set_value(d[3])
-            self.w.dirhold.set_value(d[4])
-            self.w.dirsetup.set_value(d[5])
-
-            self.w.steptime.set_sensitive(0)
-            self.w.stepspace.set_sensitive(0)
-            self.w.dirhold.set_sensitive(0)
-            self.w.dirsetup.set_sensitive(0)
-        else:
-            self.w.steptime.set_sensitive(1)
-            self.w.stepspace.set_sensitive(1)
-            self.w.dirhold.set_sensitive(1)
-            self.w.dirsetup.set_sensitive(1)
-        self.calculate_ideal_period()
 
     # check for spindle output signals
     def has_spindle_speed_control(self):
@@ -984,64 +752,7 @@ class StepconfApp:
         # if we get to here - there are no spindle encoder signals
         return False
 
-    # for Axis page calculation updates
-    def update_pps(self, axis):
-        def get(n):
-            return float(self.w[axis + n].get_text())
-        self.axis_sanity_test(axis)
-        try:
-            pitch = get("leadscrew")
-            step = get("steprev")
-            micro = get("microstep")
-            pullnum = get("pulleynum")
-            pulldem = get("pulleyden")
-            if self.d.units == 1 or axis == 'a': pitch = 1./pitch
-            pps = (pitch * step * micro * (pullnum / pulldem) * get("maxvel"))
-            if pps == 0: raise ValueError
-            pps = abs(pps)
-            acctime = get("maxvel") / get("maxacc")
-            accdist = acctime * .5 * get("maxvel")
-            self.w[axis + "acctime"].set_text("%.4f" % acctime)
-            self.w[axis + "accdist"].set_text("%.4f" % accdist)
-            self.w[axis + "hz"].set_text("%.1f" % pps)
-            scale = self.d[axis + "scale"] = (1.0 * pitch * step
-                * micro * (pullnum / pulldem))
-            self.w[axis + "scale"].set_text("%.1f" % scale)
-            temp = "Axis Scale: %d × %d × (%.1f ÷ %.1f) × %.3f ="% (
-                int(step),int(micro),(pullnum),(pulldem),pitch)
-            self.w[axis + "scaledescr"].set_text(temp)
-            self.p.set_buttons_sensitive(1,1)
-            self.w[axis + "axistest"].set_sensitive(1)
-        except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
-            self.w[axis + "acctime"].set_text("")
-            self.w[axis + "accdist"].set_text("")
-            self.w[axis + "hz"].set_text("")
-            self.w[axis + "scale"].set_text("")
-            self.p.set_buttons_sensitive(0,0)
-            self.w[axis + "axistest"].set_sensitive(0)
 
-    def axis_sanity_test(self, axis):
-        # I hate the inner function
-        def get(n):
-            return float(self.w[axis + n].get_text())
-
-        # List of field with background color can change
-        datalist = ('steprev','microstep','pulleynum','pulleyden','leadscrew',
-                    'maxvel','maxacc')
-        mystyle =""
-        for i in datalist:
-            # Damn! this is a bug. GTKBuilder sets the widget name to be the builder ID.
-            widget_name = Gtk.Buildable.get_name(self.w[axis+i])
-	    ctx = self.w[axis+i].get_style_context()
-
-            try:
-                a=get(i)
-                if a <= 0:raise ValueError
-            except:
-	        ctx.add_class('invalid')
-            else:
-		ctx.remove_class('invalid')
-	
     # pport functions
     # disallow some signal combinations
     def do_exclusive_inputs(self, pin,port):
@@ -1092,273 +803,7 @@ class StepconfApp:
                     dbg( 'found on other pport page')
                     self.d[p2] = d_hal_input[UNUSED_INPUT]
         self.recursive_block = False
-#**************
-# Latency test
-#**************
-    def run_latency_test(self):
-        self.latency_pid = os.spawnvp(os.P_NOWAIT,
-                                "latency-test", ["latency-test"])
-        self.w['window1'].set_sensitive(0)
-        GObject.timeout_add(15, self.latency_running_callback)
-
-    def latency_running_callback(self):
-        pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
-        if pid:
-            self.w['window1'].set_sensitive(1)
-            return False
-        return True  
-
-#**********
-# Axis Test
-#***********
-    def test_axis(self, axis):
-		if not self.check_for_rt(): return
-		SIG = self._p
-
-		# Retrive user setting for maxvel and maxacc on current axis tab
-		# Test if there is some data saved
-		testvel = self.d[axis + "testmaxvel"]
-		testacc = self.d[axis + "testmaxacc"]
-		# Check if not null and not empty and not string "None"
-		if(testvel != None and testvel != "" and testvel != "None"):
-			vel = float(testvel)
-		else:
-	        	vel = float(self.w[axis + "maxvel"].get_text())
-	
-		# Check if not null and not empty and not string "None"
-		if(testacc != None and testacc != "" and testacc != "None"):
-			acc = float(testacc)
-		else:
-			acc = float(self.w[axis + "maxacc"].get_text())
-	
-		scale = self.d[axis + "scale"]
-		maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
-		#maxvel = 1.5 * vel
-		if self.d.doublestep():
-				period = int(1e9 / maxvel / scale)
-		else:
-				period = int(.5e9 / maxvel / scale)
-		
-		steptime = self.w.steptime.get_value()
-		stepspace = self.w.stepspace.get_value()
-		latency = self.w.latency.get_value()
-		minperiod = self.d.minperiod()
-		
-		if period < minperiod:
-			period = minperiod
-			if self.d.doublestep():
-				maxvel = 1e9 / minperiod / abs(scale)
-			else:
-				maxvel = 1e9 / minperiod / abs(scale)
-		if period > 100000:
-			period = 100000
-
-		# halrun print a point "." on console, but I have not found out why.
-		self.halrun = halrun = os.popen("halrun -Is", "w")
-		if debug:
-			halrun.write("echo\n")
-		axnum = "xyza".index(axis)
-		step = axis + "step"
-		dir = axis + "dir"
-		
-		halrun.write("""
-			loadrt steptest
-			loadrt stepgen step_type=0
-			""")
-
-		port3name=port2name=port2dir=port3dir=""
-		if self.d.number_pports>2:
-			 port3name = ' '+self.d.ioaddr3
-			 if self.d.pp3_direction: # Input option
-				port3dir =" in"
-			 else: 
-				port3dir =" out"
-		if self.d.number_pports>1:
-			 port2name = ' '+self.d.ioaddr2
-			 if self.d.pp2_direction: # Input option
-				port2dir =" in"
-			 else: 
-				port2dir =" out"
-		halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
-		halrun.write("""
-			loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
-			addf stepgen.make-pulses fast
-			addf parport.0.write fast
-			"""%{'period': period})
-		
-		if self.d.number_pports>1:
-			halrun.write( "addf parport.0.write fast\n")
-		if self.d.number_pports>2:
-			halrun.write( "addf parport.0.write fast\n")
-		temp = self.find_output(axis +'step')
-		step_pin = temp[0][0]
-		temp = self.find_output(axis +'dir')
-		dir_pin = temp[0][0]
-		halrun.write("""
-			addf stepgen.capture-position slow
-			addf steptest.0 slow
-			addf stepgen.update-freq slow
-
-			net step stepgen.0.step => parport.0.pin-%(steppin)02d-out
-			net dir stepgen.0.dir => parport.0.pin-%(dirpin)02d-out
-			net cmd steptest.0.position-cmd => stepgen.0.position-cmd
-			net fb stepgen.0.position-fb => steptest.0.position-fb
-
-			setp parport.0.pin-%(steppin)02d-out-reset 1
-			setp stepgen.0.steplen 1
-			setp stepgen.0.dirhold %(dirhold)d
-			setp stepgen.0.dirsetup %(dirsetup)d
-			setp stepgen.0.position-scale %(scale)f
-			setp steptest.0.epsilon %(onestep)f
-
-			setp stepgen.0.enable 1
-		""" % {
-			'steppin': step_pin,
-			'dirpin': dir_pin,
-			'dirhold': self.d.dirhold + self.d.latency,
-			'dirsetup': self.d.dirsetup + self.d.latency,
-			'onestep': abs(1. / self.d[axis + "scale"]),
-			'scale': self.d[axis + "scale"],
-		})
-		
-		if self.doublestep():
-			halrun.write("""
-				setp parport.0.reset-time %(resettime)d
-				setp stepgen.0.stepspace 0
-				addf parport.0.reset fast
-			""" % {
-				'resettime': self.d['steptime']
-			})
-		amp_signals = self.find_output(d_hal_output[AMP])
-		for pin in amp_signals:
-			amp,amp_port = pin
-			halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
-				% {'enablepin': amp,'portnum': amp_port})
-		
-		estop_signals = self.find_output(d_hal_output[ESTOP])
-		for pin in estop_signals:
-			estop,e_port = pin
-			halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
-				% {'estoppin': estop,'portnum': e_port})
-		
-		for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-			inv = getattr(self.d, "pin%dinv" % pin)
-			if inv:
-				halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
-					% {'pin': pin})
-		if self.d.number_pports > 1:
-			if self.d.pp2_direction:# Input option
-				out_list =(1,14,16,17)
-			else:
-				out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
-			for pin in (out_list):
-				inv = getattr(self.d, "pp2_pin%dinv" % pin)
-				if inv:
-					halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
-					% {'pin': pin})
-		if debug:
-			halrun.write("loadusr halmeter sig cmd -g 275 415\n")
-		
-		if axis == "a":
-			self.w.testvelunit.set_text(_("deg / s"))
-			self.w.testaccunit.set_text(_(u"deg / s²"))
-			self.w.testampunit.set_text(_("deg"))
-			self.w.testvel.set_increments(1,5)
-			self.w.testacc.set_increments(1,5)
-			self.w.testamplitude.set_increments(1,5)
-			self.w.testvel.set_range(0, maxvel)
-			self.w.testacc.set_range(1, 360000)
-			self.w.testamplitude.set_range(0, 1440)
-			self.w.testvel.set_digits(1)
-			self.w.testacc.set_digits(1)
-			self.w.testamplitude.set_digits(1)
-			self.w.testamplitude.set_value(10)
-		elif self.d.units:
-			self.w.testvelunit.set_text(_("mm / s"))
-			self.w.testaccunit.set_text(_(u"mm / s²"))
-			self.w.testampunit.set_text(_("mm"))
-			self.w.testvel.set_increments(1,5)
-			self.w.testacc.set_increments(1,5)
-			self.w.testamplitude.set_increments(1,5)
-			self.w.testvel.set_range(0, maxvel)
-			self.w.testacc.set_range(1, 100000)
-			self.w.testamplitude.set_range(0, 1000)
-			self.w.testvel.set_digits(2)
-			self.w.testacc.set_digits(2)
-			self.w.testamplitude.set_digits(2)
-			self.w.testamplitude.set_value(15)
-		else:
-			self.w.testvelunit.set_text(_("in / s"))
-			self.w.testaccunit.set_text(_(u"in / s²"))
-			self.w.testampunit.set_text(_("in"))
-			self.w.testvel.set_increments(.1,5)
-			self.w.testacc.set_increments(1,5)
-			self.w.testamplitude.set_increments(.1,5)
-			self.w.testvel.set_range(0, maxvel)
-			self.w.testacc.set_range(1, 3600)
-			self.w.testamplitude.set_range(0, 36)
-			self.w.testvel.set_digits(1)
-			self.w.testacc.set_digits(1)
-			self.w.testamplitude.set_digits(1)
-			self.w.testamplitude.set_value(.5)
-		
-		self.jogplus = self.jogminus = 0
-		self.w.testdir.set_active(0)
-		self.w.run.set_active(0)
-		self.w.testacc.set_value(acc)
-		self.w.testvel.set_value(vel)
-		self.axis_under_test = axis
-		self.update_axis_test()
-
-		halrun.write("start\n")
-		halrun.flush()
-
-		self.w.dlgTestAxis.set_title(_("%s Axis Test") % axis.upper())
-		self.w.dlgTestAxis.show_all()
-		result = self.w.dlgTestAxis.run()
-		if result == Gtk.ResponseType.OK:
-			# Save test parameters
-			self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
-			self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
-		self.w.dlgTestAxis.hide()
-		
-		if amp_signals:
-			for pin in amp_signals:
-				amp,amp_port = pin
-				halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 0\n"
-				% {'enablepin': amp,'portnum': amp_port})
-		if estop_signals:
-			for pin in estop_signals:
-				estop,e_port = pin
-				halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 0\n"
-				% {'estoppin': estop,'portnum': e_port})
-
-		time.sleep(.001)
-		halrun.close()
-
-    def update_axis_test(self, *args):
-        axis = self.axis_under_test
-        if axis is None: return
-        halrun = self.halrun
-        halrun.write("""
-            setp stepgen.0.maxaccel %(accel)f
-            setp stepgen.0.maxvel %(vel)f
-            setp steptest.0.jog-minus %(jogminus)s
-            setp steptest.0.jog-plus %(jogplus)s
-            setp steptest.0.run %(run)s
-            setp steptest.0.amplitude %(amplitude)f
-            setp steptest.0.maxvel %(vel)f
-            setp steptest.0.dir %(dir)s
-        """ % {
-            'jogminus': self.jogminus,
-            'jogplus': self.jogplus,
-            'run': self.w.run.get_active(),
-            'amplitude': self.w.testamplitude.get_value(),
-            'accel': self.w.testacc.get_value(),
-            'vel': self.w.testvel.get_value(),
-            'dir': self.w.testdir.get_active(),
-        })
-        halrun.flush()
+  
 
 #**********************************
 # Common helper functions

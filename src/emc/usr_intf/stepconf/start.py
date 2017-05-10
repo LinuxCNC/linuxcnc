@@ -68,6 +68,5 @@ def start_finish(self):
 def on_machinename_changed(self, *args):
 	temp = self.w.machinename.get_text()
 	self.w.confdir.set_text("~/linuxcnc/configs/%s" % temp.replace(" ","_"))
-def on_drivertype_changed(self, *args):
-	self.a.update_drivertype_info()
+
 

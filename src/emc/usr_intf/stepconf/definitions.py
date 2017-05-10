@@ -43,11 +43,40 @@ GtkEntry.selected {
 	background: gray;
 }
 
+#base_preselect_button1:active {
+	background-color: #0274d9;
+}
 
+#base_preselect_button.normal {
+	color: black;
+	background-color: gray;
+	background: gray;
+}
+
+#base_preselect_button.selected {
+	color: black;
+	background-color: #0274d9;
+	background: #0274d9;
+}
 
 """
 
 THEMEDIR = "/usr/share/themes"
+
+MESS_START = _('Start')
+MESS_FWD = _('Forward')
+MESS_DONE = _('Done')
+MESS_CL_REWRITE =_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. ")
+MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
+MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
+MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel file ?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named custompanel_backup.xml will be lost. ")
+MESS_GLADEVCP_REWRITE =_("OK to replace existing custom gladevcp panel file ?\nExisting glade_custom.ui will be renamed glade_custom_backup.ui.\nAny existing file named glade_custom_backup.ui will be lost. ")
+MESS_ABORT = _("Quit Stepconf and discard changes?")
+MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
+MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
+MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
+    unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
+    "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
 
 available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
 				['base',_('Base Information'),True],
@@ -67,7 +96,7 @@ available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
 ]
 
 available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page',
-					'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
+					'axis', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
 ]
 
 # OUTPUT

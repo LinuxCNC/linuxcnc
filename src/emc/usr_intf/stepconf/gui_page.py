@@ -67,7 +67,7 @@ def gui_page_finish(self):
             self.d.pyvcpname = "custompanel.xml"
         else:
             if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
-                if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
+                if not self.a.warning_dialog(MESS_PYVCP_REWRITE,False):
                     return True
     # Gladevcp
     self.d.gladevcp = self.w.gui_gladevcp.get_active()        
@@ -80,7 +80,7 @@ def gui_page_finish(self):
             self.d.gladevcpname = "glade_custom.ui"
         else:
             if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.d.machinename)):
-                if not self.a.warning_dialog(self._p.MESS_GLADEVCP_REWRITE,False):
+                if not self.a.warning_dialog(MESS_GLADEVCP_REWRITE,False):
                     return True    
 
 

@@ -56,7 +56,6 @@ class Pages:
 		self.dbg = dbg
 		# Import all methods from py pages
 		for lib in (available_page_lib):
-			#print(lib)
 			mod = import_module("stepconf." + lib)
 			module_dict = mod.__dict__
 			try:
@@ -73,7 +72,7 @@ class Pages:
 # Notebook Controls
 #********************
 	def on_window1_destroy(self, *args):
-		if self.a.warning_dialog (self._p.MESS_ABORT,False):
+		if self.a.warning_dialog (MESS_ABORT,False):
 			Gtk.main_quit()
 			return True
 		else:
@@ -103,7 +102,7 @@ class Pages:
 		# second-to-last page? change the fwd button to finish and show icon
 		if u == len(available_page)-1:
 			self.w.apply_image.set_visible(True)
-			self.w.label_fwd.set_text(self._p.MESS_DONE)
+			self.w.label_fwd.set_text(MESS_DONE)
 		# last page? nothing to prepare just finish
 		elif u == len(available_page):
 			name,text,state = available_page[cur]
@@ -112,7 +111,7 @@ class Pages:
 		# the back button and change fwd button text
 		if cur == 0:
 			self.w.button_back.set_sensitive(True)
-			self.w.label_fwd.set_text(self._p.MESS_FWD)
+			self.w.label_fwd.set_text(MESS_FWD)
 
 	# seaches (available_page) from the current page backward,
 	# for the next page that is True or till first page.
@@ -137,11 +136,11 @@ class Pages:
 		# Not last page? change finish button text and hide icon
 		if u <= len(available_page):
 			self.w.apply_image.set_visible(False)
-			self.w.label_fwd.set_text(self._p.MESS_FWD)
+			self.w.label_fwd.set_text(MESS_FWD)
 		# page 0 ? de-sensitize the back button and change fwd button text 
 		if u == 0:
 			self.w.button_back.set_sensitive(False)
-			self.w.label_fwd.set_text(self._p.MESS_START)
+			self.w.label_fwd.set_text(MESS_START)
 	
 	def set_buttons_sensitive(self,fstate,bstate):
 		self.w.button_fwd.set_sensitive(fstate)
@@ -174,7 +173,7 @@ class Pages:
 		liststore.append([_("Other")])
 		self.w.title_label.set_text(available_page[0][1])
 		self.w.button_back.set_sensitive(False)
-		self.w.label_fwd.set_text(self._p.MESS_START)
+		self.w.label_fwd.set_text(MESS_START)
 		if debug:
 			self.w.window1.set_title('Stepconf -debug mode')
 		# halui custom table
@@ -269,107 +268,6 @@ class Pages:
 		self.a.jogplus = 0
 		self.a.update_axis_test()
 	
-	def update_axis_params(self, *args):
-		self.a.update_axis_test()
-	
-	def axis_prepare(self, axis):
-		def set_text(n):
-			self.w[axis + n].set_text("%s" % self.d[axis + n])
-			# Set a name for this widget. Necessary for css id
-			self.w[axis + n].set_name("%s%s" % (axis, n))
-		def set_active(n):
-			self.w[axis + n].set_active(self.d[axis + n])
-
-		set_text("steprev")
-		set_text("microstep")
-		set_text("pulleynum")
-		set_text("pulleyden")
-		set_text("leadscrew")
-		set_text("maxvel")
-		set_text("maxacc")
-		set_text("homepos")
-		set_text("minlim")
-		set_text("maxlim")
-		set_text("homesw")
-		set_text("homevel")
-		set_active("latchdir")
-	
-		if axis == "a":
-			self.w[axis + "screwunits"].set_text(_("degree / rev"))
-			self.w[axis + "velunits"].set_text(_("deg / s"))
-			self.w[axis + "accunits"].set_text(_(u"deg / s²"))
-			self.w[axis + "accdistunits"].set_text(_("deg"))
-			self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
-		elif self.d.units:
-			self.w[axis + "screwunits"].set_text(_("mm / rev"))
-			self.w[axis + "velunits"].set_text(_("mm / s"))
-			self.w[axis + "accunits"].set_text(_(u"mm / s²"))
-			self.w[axis + "accdistunits"].set_text(_("mm"))
-			self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
-		else:
-			self.w[axis + "screwunits"].set_text(_("rev / in"))
-			self.w[axis + "velunits"].set_text(_("in / s"))
-			self.w[axis + "accunits"].set_text(_(u"in / s²"))
-			self.w[axis + "accdistunits"].set_text(_("in"))
-			self.w[axis + "scaleunits"].set_text(_("Steps / in"))
-	
-		inputs = self.a.build_input_set()
-		thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
-							"max-home-" + axis, "both-home-" + axis))
-		# Test if exists limit switches
-		homes = bool(inputs & thisaxishome)
-		self.w[axis + "homesw"].set_sensitive(homes)
-		self.w[axis + "homevel"].set_sensitive(homes)
-		self.w[axis + "latchdir"].set_sensitive(homes)
-	
-		self.w[axis + "steprev"].grab_focus()
-		GObject.idle_add(lambda: self.a.update_pps(axis))
-
-	def preset_axis(self, axis):
-		current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
-		if current_machine:
-			None
-		else:
-			# Other selected
-			return
-
-		# List axis page widgets
-		lwidget=[
-			axis + "steprev",
-			axis + "microstep",
-			axis + "pulleynum",
-			axis + "pulleyden",
-			axis + "leadscrew",
-			axis + "maxvel",
-			axis + "maxacc",
-			axis + "homepos",
-			axis + "minlim",
-			axis + "maxlim",
-			axis + "homesw",
-			axis + "homevel"
-		]
-		for w in lwidget:
-			if(w in current_machine):
-				self.w['%s'%w].set_text(str(current_machine[w]))
-		if(axis + "latchdir" in current_machine):
-			self.w['%slatchdir'%axis].set_active(current_machine[axis + "latchdir"])
-
-	def axis_done(self, axis):
-		def get_text(n): self.d[axis + n] = float(self.w[axis + n].get_text())
-		def get_active(n): self.d[axis + n] = self.w[axis + n].get_active()
-		get_text("steprev")
-		get_text("microstep")
-		get_text("pulleynum") 
-		get_text("pulleyden")
-		get_text("leadscrew")
-		get_text("maxvel")
-		get_text("maxacc")
-		get_text("homepos")
-		get_text("minlim")
-		get_text("maxlim")
-		get_text("homesw")
-		get_text("homevel")
-		get_active("latchdir")
 
 
 # BOILER CODE

@@ -21,17 +21,18 @@
 #*******************
 # AXIS X PAGE
 #*******************
+
 def axisx_prepare(self):
 	self.axis_prepare('x')
 def axisx_finish(self):
 	self.axis_done('x')
 # AXIS X callbacks
-def on_xsteprev_changed(self, *args): self.a.update_pps('x')
-def on_xmicrostep_changed(self, *args): self.a.update_pps('x')
-def on_xpulleyden_changed(self, *args): self.a.update_pps('x')
-def on_xpulleynum_changed(self, *args): self.a.update_pps('x')
-def on_xleadscrew_changed(self, *args): self.a.update_pps('x')
-def on_xmaxvel_changed(self, *args): self.a.update_pps('x')
-def on_xmaxacc_changed(self, *args): self.a.update_pps('x')
-def on_xaxistest_clicked(self, *args): self.a.test_axis('x')
+def on_xsteprev_changed(self, *args): self.update_pps('x')
+def on_xmicrostep_changed(self, *args): self.update_pps('x')
+def on_xpulleyden_changed(self, *args): self.update_pps('x')
+def on_xpulleynum_changed(self, *args): self.update_pps('x')
+def on_xleadscrew_changed(self, *args): self.update_pps('x')
+def on_xmaxvel_changed(self, *args): self.update_pps('x')
+def on_xmaxacc_changed(self, *args): self.update_pps('x')
+def on_xaxistest_clicked(self, *args): self.test_axis('x')
 def on_xpreset_button_clicked(self, *args): self.preset_axis('x')

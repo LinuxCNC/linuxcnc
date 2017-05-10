@@ -64,7 +64,7 @@ def options_finish(self):
 		  self.d.laddername = 'estop.clp'
 		  inputs = self.a.build_input_set()
 		  if SIG.ESTOP_IN not in inputs:
-			 self.a.warning_dialog(self._p.MESS_NO_ESTOP,True)
+			 self.a.warning_dialog(MESS_NO_ESTOP,True)
 			 return True # don't advance the page
 		  self.d.ladderhaltype = 1
 	   if self.w.radiobutton3.get_active() == True:
@@ -76,11 +76,11 @@ def options_finish(self):
 		  self.d.laddername='custom.clp'
 	   else:
 		   if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
-			  if not self.a.warning_dialog(self._p.MESS_CL_REWRITE,False):
+			  if not self.a.warning_dialog(MESS_CL_REWRITE,False):
 				 return True # don't advance the page
 	   if self.w.radiobutton1.get_active() == False:
 		  if os.path.exists(os.path.join(self._p.distdir, "configurable_options/ladder/TEMP.clp")):
-			 if not self.a.warning_dialog(self._p.MESS_CL_EDITTED,False):
+			 if not self.a.warning_dialog(MESS_CL_EDITTED,False):
 			   return True # don't advance the page
 
 # options page callback
