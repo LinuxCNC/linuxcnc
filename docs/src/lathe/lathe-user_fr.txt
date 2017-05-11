@@ -65,7 +65,7 @@ parallèle à l'axe Z, le zéro étant côté Z+.
 
 .Orientations des outils de tournage
 
-image::images/tool_positions_fr.png[]
+image::images/tool_positions_fr.png[alt="Orientations des outils de tournage"]
 
 
 Les images ci-dessous montrent la représentation qu'Axis donne des orientations
@@ -74,18 +74,18 @@ de l'outil, en se référant à la figure ci-dessus.
 .Outil dans les positions 1, 2, 3 et 4[[fig:Outil-Positions-1-2-3-4]]
 (((Outils en positions 1, 2, 3 et 4)))
 
-image::images/tool_pos_1.png[]
-image::images/tool_pos_2.png[]
-image::images/tool_pos_3.png[]
-image::images/tool_pos_4.png[]
+image:images/tool_pos_1.png[alt="Outil dans les position 1"]
+image:images/tool_pos_2.png[alt="Outil dans les position 2"]
+image:images/tool_pos_3.png[alt="Outil dans les position 3"]
+image:images/tool_pos_4.png[alt="Outil dans les position 4"]
 
 .Outil dans les positions 5, 6, 7 et 8[[fig:Outil-Positions-5-6-7-8]]
 (((Outils en positions 5, 6, 7 et 8)))
 
-image::images/tool_pos_5.png[]
-image::images/tool_pos_6.png[]
-image::images/tool_pos_7.png[]
-image::images/tool_pos_8.png[]
+image:images/tool_pos_5.png[alt="Outil dans les position 5"]
+image:images/tool_pos_6.png[alt="Outil dans les position 6"]
+image:images/tool_pos_7.png[alt="Outil dans les position 7"]
+image:images/tool_pos_8.png[alt="Outil dans les position 8"]
 
 == Correction d'outil
 
@@ -254,7 +254,7 @@ comme on pourrait le supposer.
 [[fig:Control-Point]]
 .Point contrôlé
 
-image::images/control_point.png[]
+image::images/control_point.png[alt="Point contrôlé"]
 
 === Tourner les angles sans compensation d'outil
 
@@ -265,7 +265,7 @@ identiques uniquement si les mouvements de tournage suivent les axes X et Z.
 
 .Tournage en rampe
 
-image::images/ramp_entry.png[]
+image::images/ramp_entry.png[alt="Tournage en rampe"]
 
 Le point contrôlé progresse en suivant la trajectoire programmée mais l'arête de
 coupe ne suit pas cette trajectoire comme c'est visible sur la figure suivante.
@@ -274,7 +274,7 @@ et d'ajuster la trajectoire programmée pour compenser le rayon de bec de l'outi
 
 .Trajectoire en rampe
 
-image::images/ramp_cut.png[]
+image::images/ramp_cut.png[alt="Trajectoire en rampe"]
 
 Dans l'exemple ci-dessus, pour suivre la rampe programmée et obtenir la bonne
 trajectoire, il suffi de décaler la trajectoire de la rampe vers la
@@ -290,7 +290,7 @@ pièce.
 
 .Tournage du diamètre
 
-image::images/radius_1.png[]
+image::images/radius_1.png[alt="Tournage du diamètre"]
 
 Sur la figure suivante, on voit que quand l'outil approche la fin la pièce,
 le point contrôlé continue de suivre la trajectoire alors que l'arête de coupe
@@ -299,14 +299,14 @@ a été programmé, la pièce conserve son angle d'extrémité.
 
 .Tournage du rayon
 
-image::images/radius_2.png[]
+image::images/radius_2.png[alt="Tournage du rayon"]
 
 Maintenant, comme on le voit, le point contrôlé suit bien la trajectoire
 programmée mais l'arête de coupe est en dehors de la matière.
 
 .Tournage du rayon
 
-image::images/radius_3.png[]
+image::images/radius_3.png[alt="Tournage du rayon"]
 
 Sur la figure finale, on voit que l'arête de coupe a terminé le dressage de la
 face mais en laissant un coin carré à la place du beau rayon attendu. Noter aussi
@@ -316,7 +316,7 @@ valeur d'un rayon de bec de l'outil.
 
 .Dressage de la face
 
-image::images/radius_4.png[]
+image::images/radius_4.png[alt="Dressage de la face"]
 
 === Utiliser la compensation d'outil
 

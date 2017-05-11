@@ -58,7 +58,7 @@ page _Basic Machine Information_ de l'assistant Stepconf.
 
 .Assistant de configuration XYZ[[cap:XYZ-Wizard-Configuration]]
 
-image::images/xyz_ACO.png[]
+image::images/xyz_ACO.png[alt="Assistant de configuration XYZ"]
 
 L'assistant Stepconf Wizard va créer plusieurs fichiers et les placer dans le
 répertoire _/emc/configs/pyvcp_xyz_. Si la case _Créer un lien_ est cochée,
@@ -166,7 +166,7 @@ conviendra tout d'abord de vérifier soigneusement.
 
 .Boutons de Jog[[cap:Jog-Buttons]]
 
-image::images/xyz_buttons.png[]
+image::images/xyz_buttons.png[alt="Boutons de Jog"]
 
 === Effectuer les connections
 
@@ -273,7 +273,7 @@ HAL de sortie.
 
 .Panneau flottant testeur de port parallèle[[cap:Port-Tester-Panel]]
 
-image::images/ptest.png[]
+image::images/ptest.png[alt="Panneau flottant testeur de port parallèle"]
 
 Pour lancer les commandes de HAL dont nous avons besoin et démarrer tout ce
 qi'il nous faut, nous avons mis le code suivant dans notre fichier ptest.hal.
@@ -302,7 +302,7 @@ La figure suivante montre à quoi ressemble le panneau complet.
 
 .Testeur de port parallèle, complet[[cap:Port-Tester-Complete]]
 
-image::images/ptest-final.png[]
+image::images/ptest-final.png[alt="Testeur de port parallèle, complet"]
 
 Pour ajouter le reste des pins du port parallèle, il suffi de modifier les 
 fichiers .xml et .hal.
@@ -452,7 +452,7 @@ L'image ci-dessous montre notre panneau PyVCP en fonctionnement.
 
 .Panneau pour GS2[[cap:Panneau-GS2]]
 
-image::images/gs2_panel.png[]
+image::images/gs2_panel.png[alt="Panneau pour GS2"]
 
 === Les connections
 

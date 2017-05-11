@@ -154,7 +154,7 @@ version of the hexapod).
 
 .Bipod setup
 
-image::images/bipod.png[]
+image::images/bipod.png[alt="Bipod setup"]
 
 The Bipod we are talking about is a device that consists of 2 motors
 placed on a wall, from which a device is hung using some wire. The
