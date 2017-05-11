@@ -147,7 +147,7 @@ have to be connected as the following block diagram shows:
 
 .Servo axis interfaces(((axis-iterface)))
 
-image::images/GM_AxisInterface.png[align="center", scaledwidth="100%", alt"Servo axis interfaces"]
+image::images/GM_AxisInterface.png[align="center", scaledwidth="100%", alt="Servo axis interfaces"]
 
 
 === Encoder
