@@ -565,7 +565,7 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 
 .Pin numbering of homing & end switch connector(((pin-numbering-endsw)))
 
-image::images/GM_ENDSWpinout.png[align="center", alt="Pin numbering of homing & end switch connector"]
+image::images/GM_ENDSWpinout.png[align="center", alt="Pin numbering of homing and end switch connector"]
 
 .End- and homing switch connector pinout
 

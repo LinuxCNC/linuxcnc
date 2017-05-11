@@ -167,7 +167,7 @@ color).
 
 .TkLinuxCNC Override Limits & Jogging increments example
 
-image::images/tkemc-override-limits.png[align="center", alt="TkLinuxCNC Override Limits & Jogging increments example"]
+image::images/tkemc-override-limits.png[align="center", alt="TkLinuxCNC Override Limits and Jogging increments example"]
 
 .The Spindle group
 
