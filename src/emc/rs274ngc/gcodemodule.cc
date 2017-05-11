@@ -684,11 +684,21 @@ void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0, *interpname=0;
+    PyObject *initcodes=0;
     int error_line_offset = 0;
     struct timeval t0, t1;
     int wait = 1;
-    if(!PyArg_ParseTuple(args, "sO|sss", &f, &callback, &unitcode, &initcode, &interpname))
-        return NULL;
+
+    if(!PyArg_ParseTuple(args, "sOO!|s:new-parse",
+            &f, &callback, &PyList_Type, &initcodes, &interpname))
+    {
+        PyErr_WriteUnraisable(Py_None);
+        initcodes = nullptr;
+        PyErr_Clear();
+        if(!PyArg_ParseTuple(args, "sO|sss:parse",
+                &f, &callback, &unitcode, &initcode, &interpname))
+            return NULL;
+    }
 
     if(pinterp) {
         delete pinterp;
@@ -717,7 +727,19 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     maybe_new_line();
 
     int result = INTERP_OK;
-    if(unitcode) {
+    if(initcodes) {
+        for(int i=0; i<PyList_Size(initcodes) && RESULT_OK; i++)
+        {
+            PyObject *item = PyList_GetItem(initcodes, i);
+            if(!item) return NULL;
+            char *code = PyString_AsString(item);
+            if(!code) return NULL;
+            result = interp_new.read(code);
+            if(!RESULT_OK) goto out_error;
+            result = interp_new.execute();
+        }
+    }
+    if(unitcode && RESULT_OK) {
         result = interp_new.read(unitcode);
         if(!RESULT_OK) goto out_error;
         result = interp_new.execute();
