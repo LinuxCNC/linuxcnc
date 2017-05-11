@@ -206,8 +206,7 @@ motion.probe-input.  Usage:
 simulate_probe &
 ----
 
-image::images/simulate_probe.png[alt="simulate_probe is a simple gui to simulate activation of the pin
-motion.probe-input"]
+image::images/simulate_probe.png[alt="simulate_probe is a simple gui to simulate activation of the pin motion.probe-input"]
 
 == Hal Histogram
 
