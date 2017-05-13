@@ -1304,12 +1304,12 @@ widgets.axis_y.configure(value="y")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode() and trivkinstype != "single":
+    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and trivkinstype == "both")):
         # free jogging (joints) if:
+        #   non-trivkins config or
         #   trivkins config and kinstype = both
-        #   non-trivkins config
         # only accept integers here
-        if type(i) != type(0): return
+        if not isinstance(i, int): return
         if i >= num_joints: return
         widget = getattr(widgets, "joint_%d" % i)
     else:
@@ -1317,7 +1317,7 @@ def activate_ja_widget(i, force=0):
         # free jogging (joints) if:
         #   trivkins config and kinstype not both
         # letters are special case for key bindings
-        if type(i) == type(""):
+        if isinstance(i, basestring):
             letter = i
         elif lathe and not lathe_historical_config()and not all_homed():
             letter = "xzabcuvw"[i]
@@ -3061,6 +3061,7 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
+    activate_ja_widget(a)
 
 def jog_off(a):
     if jog_after[a]: return
@@ -3068,7 +3069,6 @@ def jog_off(a):
 
 def jog_off_actual(a):
     if not manual_ok(): return
-    activate_ja_widget(a)
     jog_after[a] = None
     jogging[a] = 0
     jjogmode = get_jog_mode()
@@ -3350,17 +3350,15 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 
 kinsmodule=inifile.find("KINS", "KINEMATICS").lower()
 kins_is_trivkins = False
-trivkinstype = "none"
 if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
+    trivkinstype = "single"
     for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
         if "kinstype=" in item:
-            trivkinstype = item.split("=")[1]
-        else:
-            trivkinstype = "single"
+            trivkinstype = item.split("=")[1].lower()
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
