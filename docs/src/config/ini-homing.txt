@@ -20,7 +20,7 @@ following section.
 
 .Homing Sequences
 
-image::images/emc2-motion-homing-diag.png[align="center"]
+image::images/emc2-motion-homing-diag.png[align="center", alt="Homing Sequences"]
 
 == Configuration
 

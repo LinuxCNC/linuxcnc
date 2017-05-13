@@ -333,6 +333,9 @@ status pin telling that joint N is on the positive software limit
 .B halui.joint.N.on-soft-min-limit\fR bit out \fR
 status pin telling that joint N is on the negative software limit
 .TP
+.B halui.joint.N.override-limits\fR bit out \fR
+status pin telling that joint N's limits are temporarily overridden
+.TP
 .B halui.joint.N.unhome\fR bit in \fR
 pin for unhoming joint N
 .TP
@@ -359,6 +362,9 @@ status pin telling that the selected joint is on the positive software limit
 .TP
 .B halui.joint.selected.on-soft-min-limit\fR bit out \fR
 status pin telling that the selected joint is on the negative software limit
+.TP
+.B halui.joint.selected.override-limits\fR bit out \fR
+status pin telling that the selected joint's limits are temporarily overridden
 .TP
 .B halui.joint.selected.unhome\fR bit in \fR
 pin for unhoming the selected joint

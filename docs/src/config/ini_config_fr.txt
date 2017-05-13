@@ -33,7 +33,7 @@ exemples de configuration existants.
 
 .Sélecteur de configuration
 
-image::../common/images/configuration-selector1_fr.png[align="center"]
+image::../common/images/configuration-selector1_fr.png[align="center", alt="Sélecteur de configuration de LinuxCNC"]
 
 == Fichiers utilisés pour la configuration
 

@@ -58,7 +58,7 @@ Wizard.
 
 .XYZ Wizard Configuration[[cap:XYZ-Wizard-Configuration]]
 
-image::images/xyz_ACO.png[]
+image::images/xyz_ACO.png[alt="XYZ Wizard Configuration"]
 
 The Stepconf Wizard will create several files and place them in the
 linuxcnc/configs/pyvcp_xyz directory. If you left the create link checked
@@ -166,7 +166,7 @@ will be there.
 
 .Jog Buttons[[cap:Jog-Buttons]]
     
-image::images/xyz_buttons.png[]
+image::images/xyz_buttons.png[alt="Jog Buttons"]
 
 === Make Connections
 
@@ -271,7 +271,7 @@ of in pins and a couple of out pins.
 
 .Port Tester Panel[[cap:Port-Tester-Panel]]
 
-image::images/ptest.png[]
+image::images/ptest.png[alt="Port Tester Panel"]
 
 To run the HAL commands that we need to get everything up and running
 we put the following in our ptest.hal file.
@@ -300,7 +300,7 @@ The following figure shows what a complete panel might look like.
 
 .Port Tester Complete[[cap:Port-Tester-Complete]]
 
-image::images/ptest-final.png[]
+image::images/ptest-final.png[alt="Port Tester Complete"]
 
 To add the rest of the parallel port pins just modify the .xml and
 .hal files.
@@ -446,7 +446,7 @@ The above gives us a PyVCP panel that looks like the following.
 
 .GS2 Panel[[cap:GS2-Panel]]
 
-image::images/gs2_panel.png[]
+image::images/gs2_panel.png[alt="GS2 Panel"]
 
 === The Connections
 

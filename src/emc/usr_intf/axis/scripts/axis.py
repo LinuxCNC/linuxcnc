@@ -1167,12 +1167,32 @@ def open_file_guts(f, filtered=False, addrecent=True):
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+        initcodes = []
+        if initcode:
+            initcodes.append(initcode)
         if not interpname:
             unitcode = "G%d" % (20 + (s.linear_units == 1))
-        else:
-            unitcode = ''
+            initcodes.append(unitcode)
+            initcodes.append("g90")
+            initcodes.append("t%d m6" % s.tool_in_spindle)
+            position = "g53 g0"
+            for i in range(9):
+                if s.axis_mask & (1<<i):
+                    position += " %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+            initcodes.append(position)
+            for g in s.gcodes[1:]:
+                if g == -1: continue
+                initcodes.append("G%.1f" % (g * .1))
+            tool_offset = "G43.1"
+            for i in range(9):
+                if s.axis_mask & (1<<i):
+                    tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
+            initcodes.append(tool_offset)
+            for m in s.mcodes:
+                if m == -1: continue
+                initcodes.append("M%d" % m)
         try:
-            result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
+            result, seq = o.load_preview(f, canon, initcodes, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -1704,8 +1724,9 @@ def get_jog_speed(a):
             return vars.jog_aspeed.get()/60.
 
 def get_jog_speed_map(a):
-    if a >= len(jog_order): return 0
+    if get_jog_mode() and a >= num_joints: return 0
     if not get_jog_mode():
+    	if a >= len(jog_order): return 0
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
     return get_jog_speed(a)

@@ -13,7 +13,7 @@ avec une manivelle électronique (MPG) et des boutons et interrupteurs.
 
 .L'interface tactile Touchy
 
-image::images/touchy_fr.png[]
+image::images/touchy_fr.png[alt="L'interface tactile Touchy"]
 
 == Panneau de Configuration
 

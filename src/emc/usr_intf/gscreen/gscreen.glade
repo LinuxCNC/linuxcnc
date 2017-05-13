@@ -1738,16 +1738,51 @@
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkLabel" id="label47">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Replace
+  Text:</property>
+                              </object>
+                              <packing>
+                                <property name="position">3</property>
+                              </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkEntry" id="search_entry1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                              </object>
+                              <packing>
+                                <property name="position">4</property>
+                              </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkCheckButton" id="replaceall_checkbutton">
+                                <property name="label" translatable="yes">Replace
+   All</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">5</property>
+                              </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkCheckButton" id="ignorecase_checkbutton">
+                                <property name="label" translatable="yes">Ignore
+ Case</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">6</property>
+                              </packing>
                             </child>
                             <child>
                               <placeholder/>
@@ -3570,7 +3605,16 @@ Program</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkButton" id="button_replace_text">
+                    <property name="label" translatable="yes">Replace
+  Text</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">7</property>
+                  </packing>
                 </child>
               </object>
               <packing>

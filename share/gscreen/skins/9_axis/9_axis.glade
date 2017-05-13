@@ -552,16 +552,52 @@
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkLabel" id="label47">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Replace
+  Text:</property>
+                              </object>
+                              <packing>
+                                <property name="position">3</property>
+                              </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkEntry" id="search_entry1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                              </object>
+                              <packing>
+                                <property name="position">4</property>
+                              </packing>
+                            </child>
+
+                            <child>
+                              <object class="GtkCheckButton" id="replaceall_checkbutton">
+                                <property name="label" translatable="yes">Replace
+   All</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">5</property>
+                              </packing>
                             </child>
                             <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
+                              <object class="GtkCheckButton" id="ignorecase_checkbutton">
+                                <property name="label" translatable="yes">Ignore
+ Case</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">6</property>
+                              </packing>
                             </child>
                             <child>
                               <placeholder/>
@@ -721,7 +757,7 @@
                         <child>
                           <object class="GtkImage" id="image6">
                             <property name="visible">True</property>
-                            <property name="pixbuf">../gscreen/images/linuxcnc-wizard.gif</property>
+                            <property name="pixbuf">../../images/linuxcnc-wizard.gif</property>
                           </object>
                           <packing>
                             <property name="right_attach">3</property>
@@ -2149,7 +2185,7 @@ Readout</property>
                     <child>
                       <object class="GtkImage" id="image5">
                         <property name="visible">True</property>
-                        <property name="pixbuf">../gscreen/images/coolant_mist_plain.gif</property>
+                        <property name="pixbuf">../../images/coolant_mist_plain.gif</property>
                       </object>
                     </child>
                   </object>
@@ -2165,7 +2201,7 @@ Readout</property>
                     <child>
                       <object class="GtkImage" id="image4">
                         <property name="visible">True</property>
-                        <property name="pixbuf">../gscreen/images/coolant_flood_plain.gif</property>
+                        <property name="pixbuf">../../images/coolant_flood_plain.gif</property>
                       </object>
                     </child>
                   </object>
@@ -2531,7 +2567,7 @@ Rotary</property>
                     <child>
                       <object class="GtkImage" id="image7">
                         <property name="visible">True</property>
-                        <property name="pixbuf">../gscreen/images/tool_clear.gif</property>
+                        <property name="pixbuf">../../images/tool_clear.gif</property>
                       </object>
                     </child>
                   </object>
@@ -2706,7 +2742,16 @@ Vertical</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkButton" id="button_replace_text">
+                    <property name="label" translatable="yes">Replace
+  Text</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">7</property>
+                  </packing>
                 </child>
               </object>
               <packing>
