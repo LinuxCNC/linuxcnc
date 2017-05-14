@@ -1193,7 +1193,6 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
     int b, i, p, r;
     int bitcount;
     rtapi_u64 buff;
-    
     float val;
     
     if (hm2->sserial.num_instances <= 0) return;
