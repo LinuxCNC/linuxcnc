@@ -1193,7 +1193,14 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 if s.axis_mask & (1<<i):
                     tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
             initcodes.append(tool_offset)
-            for m in s.mcodes:
+            for i, m in enumerate(s.mcodes):
+                # index 0 is "sequence number", just like s.gcodes[0].  Trying
+                # to set this number as a modal code caused issue #271.
+                # index 1 is the stopping code, which holds M2 after reading
+                # ahead to the end of a program.  Trying to set this number
+                # as a modal code makes the next preview disappear.
+                # (see Interp::write_m_codes)
+                if i in (0,1): continue
                 if m == -1: continue
                 initcodes.append("M%d" % m)
         try:
