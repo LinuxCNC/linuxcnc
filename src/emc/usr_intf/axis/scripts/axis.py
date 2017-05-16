@@ -885,8 +885,12 @@ class LivePlotter:
             if i == -1: continue
             if i % 10 == 0:
                 active_codes.append("G%d" % (i/10))
+                if i/10 > 53 and i/10 < 60:
+                   vars.touch_off_system.set("P%(p)d  G%(ones)d" % {'p': i/10-53, 'ones': i/10})
             else:
                 active_codes.append("G%(ones)d.%(tenths)d" % {'ones': i/10, 'tenths': i%10})
+                if i > 590 and i < 594:
+                    vars.touch_off_system.set("P%(p)d  G%(ones)d.%(tenths)d" % {'p': i-584, 'ones': i/10, 'tenths': i%10})
 
         for i in self.stat.mcodes[1:]:
             if i == -1: continue
@@ -2889,8 +2893,6 @@ vars.optional_stop.set(ap.getpref("optional_stop", True))
 # placeholder function for LivePlotter.update():
 def user_live_update():
     pass
-
-vars.touch_off_system.set("P1  G54")
 
 update_recent_menu()
 
