@@ -1642,8 +1642,8 @@ def prompt_float(title, text, default, unit_str):
     t = _prompt_float(title, text, default, unit_str)
     return t.run()
 
-all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
-            'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3',
+all_systems = ['P0  Current', 'P1  G54', 'P2  G55', 'P3  G56', 'P4  G57',
+            'P5  G58', 'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3',
             _('T    Tool Table')]
 
 class _prompt_touchoff(_prompt_float):
@@ -2897,7 +2897,7 @@ vars.optional_stop.set(ap.getpref("optional_stop", True))
 def user_live_update():
     pass
 
-vars.touch_off_system.set("P1  G54")
+vars.touch_off_system.set(all_systems[0])
 
 update_recent_menu()
 
