@@ -105,6 +105,7 @@ FUNCTION(_)
                     index_target = gs(index_cmd);
                     state = 2;
                 }
+                break;
             case 2: // start moving index table
                 // if desired position not equals current position, then move
                 pos_difference = (index_target - index_curr);
