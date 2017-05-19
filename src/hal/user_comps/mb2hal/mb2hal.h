@@ -13,7 +13,6 @@
 #include "rtapi_errno.h"
 #include "hal.h"
 #include "inifile.h"
-#include "emcglb.h"
 
 #include <modbus.h>
 

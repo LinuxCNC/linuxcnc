@@ -9,8 +9,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 #ifndef EMCMOTCFG_H
 #define EMCMOTCFG_H
@@ -54,6 +52,10 @@
 /* maximum and minimum limit defaults for all axes */
 #define DEFAULT_MAX_LIMIT 1000
 #define DEFAULT_MIN_LIMIT -1000
+
+/* default number of motion io pins */
+#define DEFAULT_DIO 4
+#define DEFAULT_AIO 4
 
 /* size of motion queue
  * a TC_STRUCT is about 512 bytes so this queue is

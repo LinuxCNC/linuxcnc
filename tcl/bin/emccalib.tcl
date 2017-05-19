@@ -37,7 +37,7 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     option add *$class.borderWidth 1  100
 }
 
-set numaxes [emc_ini "AXES" "TRAJ"]
+set numjoints [emc_ini "JOINTS" "KINS"]
 
 # Find the name of the ini file used for this run.
 set thisinifile "$::EMC_INIFILE"
@@ -147,23 +147,24 @@ set endline $sectionarray([lindex $sectionlist [expr [lsearch -exact $sectionlis
 set halfilelist ""
 
 for {set i $startline} {$i < $endline} {incr i} {
-    set thisstring [$initext get $i.0 $i.end]
-    if {   [lindex $thisstring 0] == "HALFILE"
-        || [lindex $thisstring 0] == "POSTGUI_HALFILE"
+    set thisstring [string trim [$initext get $i.0 $i.end]]
+    if {   ([string first         "HALFILE" "$thisstring"] == 0)
+        || ([string first "POSTGUI_HALFILE" "$thisstring"] == 0)
        } {
-        set thishalname [lindex $thisstring end]
+        set arglist [lindex [split $thisstring =] 1]
+        set thishalname [lindex $arglist 0]
         lappend halfilelist [find_file_in_hallib_path $thishalname $thisinifile]
     }
 }
 
 proc makeIniTune {} {
-    global axisentry top initext sectionarray thisconfigdir haltext
-    global numaxes ininamearray commandarray thisinifile halfilelist
+    global jointentry top initext sectionarray thisconfigdir haltext
+    global numjoints ininamearray commandarray thisinifile halfilelist
     global af
 
-    for {set j 0} {$j<$numaxes} {incr j} {
+    for {set j 0} {$j<$numjoints} {incr j} {
         set af($j) [$top insert [expr $j+3] page$j \
-            -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectAxis $j" ]
+            -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectJoint $j" ]
         set col0 [label $af($j).collabel0 -text [msgcat::mc "INI Name"]]
         set col1 [label $af($j).collabel1 -text [msgcat::mc "HAL's Value"]]
         set col2 [label $af($j).space -text "   "]
@@ -192,30 +193,30 @@ proc makeIniTune {} {
         scan [$haltext index end] %d nl
         for {set i 1} { $i < $nl } {incr i} {
             set tmpstring [string trim [$haltext get $i.0 $i.end]]
-            if {[string match *AXIS* $tmpstring] && ![string match *#* $tmpstring]} {
+            if {[string match *JOINT* $tmpstring] && ![string match *#* $tmpstring]} {
 	      set halcommand [split $tmpstring " \t"]
 	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
                         if { [lindex $halcommand 1] == "\=" } {
                             set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
                         }
-                for {set j 0} {$j < $numaxes} {incr j} {
-                    if {[string match *AXIS_${j}* $tmpstring]} {
-                        # puts "j=axisno,match:[list $j $tmpstring]"
+                for {set j 0} {$j < $numjoints} {incr j} {
+                    if {[string match *JOINT_${j}* $tmpstring]} {
+			# puts [list $j $tmpstring]
                         # this is a hal file search ordered loop
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
                         set tmpval [string trim [hal getp [halcmdSubstitute $thishalcommand]]]
-                        global axis$j-$lowername axis$j-$lowername-next
-                        set axis$j-$lowername $tmpval
-                        set axis$j-$lowername-next $tmpval
+                        global joint$j-$lowername joint$j-$lowername-next
+                        set joint$j-$lowername $tmpval
+                        set joint$j-$lowername-next $tmpval
                         if { [catch { set thisname [label $af($j).label-$j-$lowername \
                             -text "$thisininame:  " -width 20 -anchor e] } ] } {
                         } else {
                             set thisval [label $af($j).entry-$lowername -width 8 \
-                              -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
+                              -textvariable joint$j-$lowername -anchor e -foreg firebrick4 ]
                             set thisentry [entry $af($j).next-$lowername -width 8 \
-                              -width 12 -textvariable axis$j-$lowername-next ]
+                              -width 12 -textvariable joint$j-$lowername-next ]
                             grid $thisname $thisval x $thisentry
                         }
                         lappend ininamearray($j) $lowername
@@ -232,8 +233,8 @@ proc makeIniTune {} {
         return
     }
 
-    # build the buttons to control axis variables.
-    for {set j 0} {$j<$numaxes } {incr j} {
+    # build the buttons to control joint variables.
+    for {set j 0} {$j<$numjoints } {incr j} {
         set bframe [frame $af($j).buttons]
         grid configure $bframe -columnspan 4 -sticky nsew 
         set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
@@ -256,16 +257,16 @@ proc incompatible_ini_file {} {
       -message [msgcat::mc "\
                No Tuneable items in ini file: <$fname>\n\n\
                To specify tuneable item(s):\n\n\
-                  1) Include all \[AXIS_n\] sections\n\
+                  1) Include all \[JOINT_n\] sections\n\
                      and specify itemnames(s)\n\n\
                      Inifile example:\n\
-                        \[AXIS_0\]\n\
+                        \[JOINT_0\]\n\
                         P = 1\n\n\
-                  2) Use setp for \[AXIS_n\]itemname\n\n\
+                  2) Use setp for \[JOINT_n\]itemname\n\n\
                      Halfile example:\n\
                      loadrt pid names=example\n\
                      ...\n\
-                     setp example.Pgain \[AXIS_0\]P\n\
+                     setp example.Pgain \[JOINT_0\]P\n\
                \n\
                " ] \
       -type ok \
@@ -273,15 +274,15 @@ proc incompatible_ini_file {} {
       exit 1
 } ;# incompatible_ini_file
 
-proc selectAxis {which} {
-    global axisentry
-    set axisentry $which
+proc selectJoint {which} {
+    global jointentry
+    set jointentry $which
 }
 
 proc iniTuneButtonpress {which} {
-    global axisentry ininamearray
-    set labelname ".main.top.fpage$axisentry.next"
-    set basename ".main.top.fpage$axisentry.buttons"
+    global jointentry ininamearray
+    set labelname ".main.top.fpage$jointentry.next"
+    set basename ".main.top.fpage$jointentry.buttons"
     # which can be (test, ok, cancel)
     switch -- $which {
         test {
@@ -311,28 +312,28 @@ proc iniTuneButtonpress {which} {
         default {
         }
     }
-    foreach name [set ininamearray($axisentry)] {
+    foreach name [set ininamearray($jointentry)] {
         $labelname-$name configure -state $entrystate
     }
     changeIni $which
 }
 
 proc changeIni {how } {
-    global axisentry sectionarray ininamearray commandarray
-    global numaxes main initext
+    global jointentry sectionarray ininamearray commandarray
+    global numjoints main initext
     global af
-    for {set i 0} {$i<$numaxes} {incr i} {
+    for {set i 0} {$i<$numjoints} {incr i} {
     }
     switch -- $how {
         cancel {-}
         test {
-            set varnames [lindex [array get ininamearray $axisentry] end]
-            set varcommands [lindex [array get commandarray $axisentry] end]
+            set varnames [lindex [array get ininamearray $jointentry] end]
+            set varcommands [lindex [array get commandarray $jointentry] end]
             set maxvarnum [llength $varnames]
             set swapvars $varnames
             # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set var "axis$axisentry-[lindex $varnames $listnum]"
+                set var "joint$jointentry-[lindex $varnames $listnum]"
                 global $var $var-next
                 # remove this item from the "to be swapped" list
                 set thisvar [lindex $swapvars 0]
@@ -354,12 +355,12 @@ proc changeIni {how } {
             }        
         }
         ok {
-            set varnames [lindex [array get ininamearray $axisentry] end]
-            set varcommands [lindex [array get commandarray $axisentry] end]
+            set varnames [lindex [array get ininamearray $jointentry] end]
+            set varcommands [lindex [array get commandarray $jointentry] end]
             set maxvarnum [llength $varnames]
             # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set var "axis$axisentry-[lindex $varnames $listnum]"
+                set var "joint$jointentry-[lindex $varnames $listnum]"
                 global $var $var-next
                 # get the values
                 set oldval [set $var]
@@ -368,12 +369,12 @@ proc changeIni {how } {
             }        
         }
         refresh {
-            set varnames [lindex [array get ininamearray $axisentry] end]
-            set varcommands [lindex [array get commandarray $axisentry] end]
+            set varnames [lindex [array get ininamearray $jointentry] end]
+            set varcommands [lindex [array get commandarray $jointentry] end]
             set maxvarnum [llength $varnames]
             # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set var "axis$axisentry-[lindex $varnames $listnum]"
+                set var "joint$jointentry-[lindex $varnames $listnum]"
                 global $var $var-next
                 # get the parameter name string
                 set tmpcmd [lindex $varcommands $listnum]
@@ -385,7 +386,7 @@ proc changeIni {how } {
         }
         quit {
             # build a check for changed values here and ask
-            for {set j 0} {$j < $numaxes} {incr j} {
+            for {set j 0} {$j < $numjoints} {incr j} {
                 set oldvals [lindex [array get valarray $j] 1]
                 set cmds [lindex [array get commandarray $j] 1]
                 set k 0
@@ -415,7 +416,7 @@ proc changeIni {how } {
 proc saveIni {which} {
     global HALCMD thisconfigdir thisinifile
     global sectionarray ininamearray commandarray HALCMD
-    global numaxes initext sectionlist
+    global numjoints initext sectionlist
     global af
     
     if {![file writable $thisinifile]} {
@@ -425,12 +426,12 @@ proc saveIni {which} {
     }
     switch -- $which {
         tune {
-            for {set i 0} {$i<$numaxes} {incr i} {
+            for {set i 0} {$i<$numjoints} {incr i} {
             set varnames [lindex [array get ininamearray $i] end]
                 set upvarnames [string toupper $varnames]
                 set varcommands [lindex [array get commandarray $i] end]
                 set maxvarnum [llength $varnames]
-                set sectname "AXIS_$i"
+                set sectname "JOINT_$i"
                 # get the name of the next ini section
                 set endsect [lindex $sectionlist [expr [lsearch -exact $sectionlist $sectname] + 1 ]]
                 set sectnum "[set sectionarray($sectname)]"

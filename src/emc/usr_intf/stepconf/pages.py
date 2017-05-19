@@ -28,9 +28,11 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
 
-import gtk
+#import gtk
 import os
-import gobject
+from gi.repository import Gtk
+#import gobject
+from gi.repository import GObject
 
 class Pages:
     def __init__(self, app):
@@ -48,7 +50,7 @@ class Pages:
 #********************
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         else:
             return False
@@ -67,6 +69,7 @@ class Pages:
             if state:
                 if not self['%s_finish'%cur_name]():
                     self.w.notebook1.set_current_page(u)
+                    dbg( 'prepare %s'% name)
                     self['%s_prepare'%name]()
                     self.w.title_label.set_text(text)
                     dbg("set %d current"%u)
@@ -140,14 +143,27 @@ class Pages:
 #***************
     def initialize(self):
         # one time initialized data
+        liststore = self.w.drivertype.get_model()
         for i in self._p.alldrivertypes:
-            self.w.drivertype.append_text(i[1])
-        self.w.drivertype.append_text(_("Other"))
+            #self.w.drivertype.append_text(i[1])
+            liststore.append([i[1]])
+        #self.w.drivertype.append_text(_("Other"))
+        liststore.append([_("Other")])
         self.w.title_label.set_text(self._p.available_page[0][1])
         self.w.button_back.set_sensitive(False)
         self.w.label_fwd.set_text(self._p.MESS_START)
         if debug:
             self.w.window1.set_title('Stepconf -debug mode')
+        # halui table
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn("Index", renderer, text=0)
+        column.set_reorderable(False)
+        self.w.viewTable1.append_column(column)
+        renderer = Gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect("edited", self.on_halui_row_changed)
+        column = Gtk.TreeViewColumn("MDI__COMMAND", renderer, text=1)
+        self.w.viewTable1.append_column(column)
         # pport1 combo boxes
         model = self.w.output_list
         model.clear()
@@ -190,14 +206,14 @@ class Pages:
             if not debug:
                 os.remove('/tmp/temp.stepconf')
         elif not self.w.createconfig.get_active():
-            filter = gtk.FileFilter()
+            filter = Gtk.FileFilter()
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
-            dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.w.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
-                (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                 gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-            dialog.set_default_response(gtk.RESPONSE_OK)
+            dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
+                self.w.window1, Gtk.FileChooserAction.OPEN,
+                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            dialog.set_default_response(Gtk.ResponseType.OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
                 dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.stepconf"% self.d._lastconfigname))
@@ -205,7 +221,7 @@ class Pages:
             dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.show_all()
             result = dialog.run()
-            if result == gtk.RESPONSE_OK:
+            if result == Gtk.ResponseType.OK:
                 filename = dialog.get_filename()
                 dialog.destroy()
                 self.d.load(filename, self)
@@ -268,10 +284,16 @@ class Pages:
         else:
             self.d.number_pports = 1
         self.page_set_state('pport2',self.w.radio_pp2.get_active())
-        dbg("active axes: %s = %d"% (self.w.axes.get_active_text(),self.d.axes))
-        self.page_set_state('axisz','Z' in self.w.axes.get_active_text())
-        self.page_set_state('axisy','Y' in self.w.axes.get_active_text())
-        self.page_set_state('axisa','A' in self.w.axes.get_active_text())
+        # Get item selected in combobox
+        tree_iter = self.w.axes.get_active_iter()
+        model = self.w.axes.get_model()
+        text_selected = model[tree_iter][0]
+        dbg("active axes: %s = %d"% (text_selected,self.d.axes))
+        self.page_set_state('axisz','Z' in text_selected)
+        self.page_set_state('axisy','Y' in text_selected)
+        self.page_set_state('axisu','U' in text_selected)
+        self.page_set_state('axisv','V' in text_selected)
+        self.page_set_state('axisa','A' in text_selected)
 
     # Basic page callbacks
     def on_pp2_checkbutton_toggled(self, *args): 
@@ -311,6 +333,8 @@ class Pages:
         if  not self.w.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                 self.w.radiobutton8.set_active(True)
+        self.w.select_axis.set_active(self.d.select_axis)
+        self.w.select_gmoccapy.set_active(self.d.select_gmoccapy)
         self.w.classicladder.set_active(self.d.classicladder)
         self.w.modbus.set_active(self.d.modbus)
         self.w.digitsin.set_value(self.d.digitsin)
@@ -320,6 +344,7 @@ class Pages:
         self.w.floatsin.set_value(self.d.floatsin)
         self.w.floatsout.set_value(self.d.floatsout)
         self.w.halui.set_active(self.d.halui)
+        self.page_set_state('halui_page', self.w.halui.get_active())
         self.w.ladderconnect.set_active(self.d.ladderconnect)
         self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
         self.on_classicladder_toggled()
@@ -330,6 +355,8 @@ class Pages:
 
     def options_finish(self):
         SIG = self._p
+        self.d.select_axis = self.w.select_axis.get_active()
+        self.d.select_gmoccapy = self.w.select_gmoccapy.get_active()
         self.d.pyvcp = self.w.pyvcp.get_active()
         self.d.classicladder = self.w.classicladder.get_active()
         self.d.modbus = self.w.modbus.get_active()
@@ -339,7 +366,7 @@ class Pages:
         self.d.s32out = self.w.s32out.get_value()
         self.d.floatsin = self.w.floatsin.get_value()
         self.d.floatsout = self.w.floatsout.get_value()
-        self.d.halui = self.w.halui.get_active()    
+        self.d.halui = self.w.halui.get_active()
         self.d.pyvcpconnect = self.w.pyvcpconnect.get_active()  
         self.d.ladderconnect = self.w.ladderconnect.get_active()   
         self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
@@ -411,6 +438,91 @@ class Pages:
             self.w.radiobutton8.set_sensitive(i)
         self.w.pyvcp_box.set_sensitive(i)
 
+    def on_halui_toggled(self, *args):
+        self.page_set_state('halui_page', self.w.halui.get_active())
+
+#***************
+# halui PAGE
+#***************
+    def halui_page_prepare(self):
+        # Clear listore
+        self.w.lstStore1.clear()
+        # Populate treeview
+        for num, mdi_command in enumerate(self.d.halui_list):
+            self.w.lstStore1.append([num+1, mdi_command])
+
+    def halui_page_finish(self):
+        self.d.halui_list = []
+        # Get first row
+        treeiter = self.w.lstStore1.get_iter_first()
+        if treeiter == None:
+            return True
+        self.d.halui_list.append(self.w.lstStore1.get_value(treeiter, 1))
+        while treeiter != None:
+            treeiter = self.w.lstStore1.iter_next(treeiter)
+            if treeiter != None:
+                current_value = self.w.lstStore1.get_value(treeiter, 1).strip()
+                # Check if value contains data
+                if len(current_value) > 2:
+                    self.d.halui_list.append(current_value)
+
+    def on_halui_btnAdd_clicked(self, *args):
+        next_index = len(self.w.lstStore1) +1
+        self.w.lstStore1.append([next_index, ""])
+
+    def on_halui_btnDel_clicked(self, *args):
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            # Remove selected row
+            self.w.lstStore1.remove(treeiter)
+            # Get first row
+            treeiter = self.w.lstStore1.get_iter_first()
+            if treeiter == None:
+                return
+            index = 1
+            self.w.lstStore1.set_value(treeiter, 0, index)
+            index = index +1
+            # Cicle lstStore1 to update index
+            while treeiter != None:
+                treeiter = self.w.lstStore1.iter_next(treeiter)
+                if treeiter != None:
+                    # Change index
+                    self.w.lstStore1.set_value(treeiter, 0, index)
+                    index = index +1
+
+    def on_halui_btnUp_clicked(self, *args):
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            prev_treeiter = model.iter_previous(treeiter)
+            current_index = model[treeiter][0]
+            # Move up and update first column (index)
+            if((current_index -1) > 0):
+                self.w.lstStore1.move_before(treeiter, prev_treeiter)
+                self.w.lstStore1.set_value(treeiter, 0, current_index -1)
+                self.w.lstStore1.set_value(prev_treeiter, 0, current_index)
+
+    def on_halui_btnDown_clicked(self, *args):
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        if treeiter != None:
+            next_treeiter = model.iter_next(treeiter)
+            current_index = model[treeiter][0]
+            # Move down and update first column (index)
+            if(next_treeiter != None):
+                self.w.lstStore1.move_after(treeiter, next_treeiter)
+                self.w.lstStore1.set_value(treeiter, 0, current_index +1)
+                self.w.lstStore1.set_value(next_treeiter, 0, current_index)
+
+    def on_halui_row_changed(self, *args):
+        newvalue = args[2]
+        if len((newvalue.strip()) <2):
+            return
+        select = self.w.viewTable1.get_selection()
+        model, treeiter = select.get_selected()
+        self.w.lstStore1.set_value(treeiter, 1, newvalue)
+
 #************
 # pport1 PAGE
 #************
@@ -443,7 +555,7 @@ class Pages:
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
         self.d.ioaddr = self.w.ioaddr.get_text()
-        self.page_set_state('spindle',self.a.has_spindle_speed_control())
+        self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport1 callbacks
     def on_exclusive_check_pp1(self, widget):
@@ -498,7 +610,7 @@ class Pages:
             self.d[p] = self.w[p].get_active()
         self.d.pp2_direction = self.w.pp2_direction.get_active()
         self.d.ioaddr2 = self.w.ioaddr2.get_text()
-        self.page_set_state('spindle',self.a.has_spindle_speed_control())
+        self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport2 callbacks:
     def on_pp2_direction_changed(self,widget):
@@ -563,6 +675,40 @@ class Pages:
     def on_zaxistest_clicked(self, *args): self.a.test_axis('z')
 
 #********************
+# AXIS U PAGE
+#********************
+    def axisu_prepare(self):
+        self.axis_prepare('u')
+    def axisu_finish(self):
+        self.axis_done('u')
+    # AXIS U callbacks
+    def on_usteprev_changed(self, *args): self.a.update_pps('u')
+    def on_umicrostep_changed(self, *args): self.a.update_pps('u')
+    def on_upulleyden_changed(self, *args): self.a.update_pps('u')
+    def on_upulleynum_changed(self, *args): self.a.update_pps('u')
+    def on_uleadscrew_changed(self, *args): self.a.update_pps('u')
+    def on_umaxvel_changed(self, *args): self.a.update_pps('u')
+    def on_umaxacc_changed(self, *args): self.a.update_pps('u')
+    def on_uaxistest_clicked(self, *args): self.a.test_axis('u')
+
+#********************
+# AXIS V PAGE
+#********************
+    def axisv_prepare(self):
+        self.axis_prepare('v')
+    def axisv_finish(self):
+        self.axis_done('v')
+    # AXIS V callbacks
+    def on_vsteprev_changed(self, *args): self.a.update_pps('v')
+    def on_vmicrostep_changed(self, *args): self.a.update_pps('v')
+    def on_vpulleyden_changed(self, *args): self.a.update_pps('v')
+    def on_vpulleynum_changed(self, *args): self.a.update_pps('v')
+    def on_vleadscrew_changed(self, *args): self.a.update_pps('v')
+    def on_vmaxvel_changed(self, *args): self.a.update_pps('v')
+    def on_vmaxacc_changed(self, *args): self.a.update_pps('v')
+    def on_vaxistest_clicked(self, *args): self.a.test_axis('v')
+
+#********************
 # AXIS A PAGE
 #********************
     def axisa_prepare(self):
@@ -583,18 +729,18 @@ class Pages:
 # General Axis methods and callbacks
 #*********************
 
-    def on_jogminus_pressed(self, w):
+    def on_jogminus_pressed(self, *args):
         self.a.jogminus = 1
         self.a.update_axis_test()
 
-    def on_jogminus_released(self, w):
+    def on_jogminus_released(self, *args):
         self.a.jogminus = 0
         self.a.update_axis_test()
 
-    def on_jogplus_pressed(self, w):
+    def on_jogplus_pressed(self, *args):
         self.a.jogplus = 1
         self.a.update_axis_test()
-    def on_jogplus_released(self, w):
+    def on_jogplus_released(self, *args):
         self.a.jogplus = 0
         self.a.update_axis_test()
 
@@ -602,8 +748,12 @@ class Pages:
         self.a.update_axis_test()
 
     def axis_prepare(self, axis):
-        def set_text(n): self.w[axis + n].set_text("%s" % self.d[axis + n])
-        def set_active(n): self.w[axis + n].set_active(self.d[axis + n])
+        def set_text(n):
+            self.w[axis + n].set_text("%s" % self.d[axis + n])
+            # Set a name for this widget. Necessary for css id
+            self.w[axis + n].set_name("%s%s" % (axis, n))
+        def set_active(n):
+            self.w[axis + n].set_active(self.d[axis + n])
         SIG = self._p
         set_text("steprev")
         set_text("microstep")
@@ -622,32 +772,33 @@ class Pages:
         if axis == "a":
             self.w[axis + "screwunits"].set_text(_("degree / rev"))
             self.w[axis + "velunits"].set_text(_("deg / s"))
-            self.w[axis + "accunits"].set_text(_("deg / s²"))
+            self.w[axis + "accunits"].set_text(_(u"deg / s²"))
             self.w[axis + "accdistunits"].set_text(_("deg"))
             self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
         elif self.d.units:
             self.w[axis + "screwunits"].set_text(_("mm / rev"))
             self.w[axis + "velunits"].set_text(_("mm / s"))
-            self.w[axis + "accunits"].set_text(_("mm / s²"))
+            self.w[axis + "accunits"].set_text(_(u"mm / s²"))
             self.w[axis + "accdistunits"].set_text(_("mm"))
             self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
         else:
             self.w[axis + "screwunits"].set_text(_("rev / in"))
             self.w[axis + "velunits"].set_text(_("in / s"))
-            self.w[axis + "accunits"].set_text(_("in / s²"))
+            self.w[axis + "accunits"].set_text(_(u"in / s²"))
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 
         inputs = self.a.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
+        # Test if exists limit switches
         homes = bool(inputs & thisaxishome)
         self.w[axis + "homesw"].set_sensitive(homes)
         self.w[axis + "homevel"].set_sensitive(homes)
         self.w[axis + "latchdir"].set_sensitive(homes)
 
         self.w[axis + "steprev"].grab_focus()
-        gobject.idle_add(lambda: self.a.update_pps(axis))
+        GObject.idle_add(lambda: self.a.update_pps(axis))
 
     def axis_done(self, axis):
         def get_text(n): self.d[axis + n] = float(self.w[axis + n].get_text())
@@ -682,19 +833,23 @@ class Pages:
         self.w['usespindleatspeed'].set_active(self.d.usespindleatspeed)
 
         if self.a.has_spindle_encoder():
-            self.w.spindlecpr.set_sensitive(1)
+            self.w.spindlecpr.show()
+            self.w.spindlecprlabel.show()
             self.w.spindlefiltergain.show()
             self.w.spindlefiltergainlabel.show()
             self.w.spindlenearscale.show()
             self.w.usespindleatspeed.show()
             self.w.spindlenearscaleunitlabel.show()
         else:
-            self.w.spindlecpr.set_sensitive(0)
+            self.w.spindlecpr.hide()
+            self.w.spindlecprlabel.hide()
             self.w.spindlefiltergain.hide()
             self.w.spindlefiltergainlabel.hide()
             self.w.spindlenearscale.hide()
             self.w.usespindleatspeed.hide()
             self.w.spindlenearscaleunitlabel.hide()
+
+        self.w.output.set_sensitive(self.a.has_spindle_speed_control())
 
     def spindle_finish(self):
         self.d.spindlecarrier = float(self.w.spindlecarrier.get_text())

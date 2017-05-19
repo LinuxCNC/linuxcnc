@@ -34,14 +34,21 @@ s = linuxcnc.stat(); s.poll()
 
 def show_mcodes(l):
     return " ".join(["M%g" % i for i in l[1:] if i != -1])
+    
 def show_gcodes(l):
     return " ".join(["G%g" % (i/10.) for i in l[1:] if i != -1])
-position = " ".join(["%-8.4f"] * s.axes)
+    
 def show_position(p):
-    return position % p[:s.axes]
-peraxis = " ".join(["%s"] * s.axes)
-def show_peraxis(p):
-    return peraxis % p[:s.axes]
+    return " ".join(["%-8.4f" % n for i, n in enumerate(p) if s.axis_mask & (1<<i)])
+
+joint_position = " ".join(["%-8.4f"] * s.joints)
+def show_joint_position(p):
+    return joint_position % p[:s.joints]
+
+perjoint = " ".join(["%s"] * s.joints)
+def show_perjoint(p):
+    return perjoint % p[:s.joints]
+    
 def show_float(p): return "%-8.4f" % p
 
 maps = {
@@ -68,26 +75,26 @@ maps = {
 'kinematics_type': {linuxcnc.KINEMATICS_IDENTITY: 'identity', linuxcnc.KINEMATICS_FORWARD_ONLY: 'forward_only', 
                     linuxcnc.KINEMATICS_INVERSE_ONLY: 'inverse_only', linuxcnc.KINEMATICS_BOTH: 'both'},
 'mcodes': show_mcodes, 'gcodes': show_gcodes, 'poll': None, 'tool_table': None,
-'axis': None, 'gettaskfile': None,
+'axis': None, 'joint': None, 'gettaskfile': None,
 'actual_position': show_position, 
 'position': show_position, 
 'dtg': show_position, 
-'joint_position': show_position,
-'joint_actual_position': show_position,
 'origin': show_position,
 'rotation_xy': show_float,
 'probed_position': show_position,
 'tool_offset': show_position,
 'g5x_offset': show_position,
 'g92_offset': show_position,
-'limit': show_peraxis,
-'homed': show_peraxis,
 'linear_units': show_float,
 'max_acceleration': show_float,
 'max_velocity': show_float,
 'angular_units': show_float,
 'distance_to_go': show_float,
 'current_vel': show_float,
+'limit': show_perjoint,
+'homed': show_perjoint,
+'joint_position': show_joint_position,
+'joint_actual_position': show_joint_position,
 }
 
 if s.kinematics_type == 1:

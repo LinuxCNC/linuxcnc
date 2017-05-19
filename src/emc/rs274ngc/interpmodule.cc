@@ -20,7 +20,10 @@
 // Michael Haberler 7/2011
 //
 
-#include <boost/python.hpp>
+#include <boost/python/class.hpp>
+#include <boost/python/def.hpp>
+#include <boost/python/exception_translator.hpp>
+#include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <map>
 
@@ -174,11 +177,12 @@ static int wrap_interp_execute_1(Interp &interp, const char *command)
 {    
     setup &_setup = interp._setup;
     block saved_block = _setup.blocks[0];
+    int saved_call_state = _setup.call_state;
 
-    // use the remap stack to save/restore the current block
-    CHP(interp.enter_remap());
+    // Temporarily set the call state to CS_NORMAL
+    _setup.call_state = CS_NORMAL;
     int status = interp.execute(command);
-    CHP(interp.leave_remap());
+    _setup.call_state = saved_call_state;
     _setup.blocks[0] = saved_block;
 
     // printf("ie1: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
@@ -574,10 +578,10 @@ static inline void set_a_axis_wrapped(Interp &interp, int value)  {
     interp._setup.a_axis_wrapped = value;
 }
 static inline int get_a_indexer (Interp &interp)  {
-    return interp._setup.a_indexer;
+    return interp._setup.a_indexer_jnum;
 }
 static inline void set_a_indexer(Interp &interp, int value)  {
-    interp._setup.a_indexer = value;
+    interp._setup.a_indexer_jnum = value;
 }
 static inline int get_b_axis_wrapped (Interp &interp)  {
     return interp._setup.b_axis_wrapped;
@@ -586,10 +590,10 @@ static inline void set_b_axis_wrapped(Interp &interp, int value)  {
     interp._setup.b_axis_wrapped = value;
 }
 static inline int get_b_indexer (Interp &interp)  {
-    return interp._setup.b_indexer;
+    return interp._setup.b_indexer_jnum;
 }
 static inline void set_b_indexer(Interp &interp, int value)  {
-    interp._setup.b_indexer = value;
+    interp._setup.b_indexer_jnum = value;
 }
 static inline int get_c_axis_wrapped (Interp &interp)  {
     return interp._setup.c_axis_wrapped;
@@ -598,10 +602,10 @@ static inline void set_c_axis_wrapped(Interp &interp, int value)  {
     interp._setup.c_axis_wrapped = value;
 }
 static inline int get_c_indexer (Interp &interp)  {
-    return interp._setup.c_indexer;
+    return interp._setup.c_indexer_jnum;
 }
 static inline void set_c_indexer(Interp &interp, int value)  {
-    interp._setup.c_indexer = value;
+    interp._setup.c_indexer_jnum = value;
 }
 static inline int get_call_level (Interp &interp)  {
     return interp._setup.call_level;
@@ -913,11 +917,11 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("w_current", &get_w_current, &set_w_current)
 	.add_property("w_origin_offset", &get_w_origin_offset, &set_w_origin_offset)
 	.add_property("a_axis_wrapped", &get_a_axis_wrapped, &set_a_axis_wrapped)
-	.add_property("a_indexer", &get_a_indexer, &set_a_indexer)
+	.add_property("a_indexer_jnum", &get_a_indexer, &set_a_indexer)
 	.add_property("b_axis_wrapped", &get_b_axis_wrapped, &set_b_axis_wrapped)
-	.add_property("b_indexer", &get_b_indexer, &set_b_indexer)
+	.add_property("b_indexer_jnum", &get_b_indexer, &set_b_indexer)
 	.add_property("c_axis_wrapped", &get_c_axis_wrapped, &set_c_axis_wrapped)
-	.add_property("c_indexer", &get_c_indexer, &set_c_indexer)
+	.add_property("c_indexer_jnum", &get_c_indexer, &set_c_indexer)
 	.add_property("call_level", &get_call_level, &set_call_level)
 	.add_property("current_pocket", &get_current_pocket, &set_current_pocket)
 	.add_property("cutter_comp_orientation",

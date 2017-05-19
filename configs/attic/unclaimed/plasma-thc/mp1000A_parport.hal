@@ -1,0 +1,32 @@
+############################# Parallel Ports ##############################################
+
+# Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
+loadrt hal_parport cfg="0xa400 0xac00 in"
+
+# Connect both Paralell Ports to Threads for Read / Write
+addf parport.0.read base-thread 1
+addf parport.0.write base-thread -1
+addf parport.1.read base-thread 1
+addf parport.1.write base-thread -1
+
+# Invert pins to make motors move in right direction
+setp parport.0.pin-03-out-invert 1
+setp parport.0.pin-05-out-invert 1
+
+# Hook up the step and dir signals to the parport pins
+# Axis A and Y are the same axis but different motors 
+net StepX stepgen.0.step => parport.0.pin-02-out
+net DirX stepgen.0.dir => parport.0.pin-03-out
+net StepY stepgen.1.step => parport.0.pin-04-out
+net DirY stepgen.1.dir => parport.0.pin-05-out
+net StepZ stepgen.2.step => parport.0.pin-06-out
+net DirZ stepgen.2.dir => parport.0.pin-07-out
+net StepA stepgen.3.step => parport.0.pin-08-out
+net DirA stepgen.3.dir => parport.0.pin-09-out
+
+# Hook up limit and home switches, each axis shares a common pin for homing, limit min and limit max
+net LimitX parport.1.pin-06-in-not => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in joint.0.home-sw-in
+net LimitY parport.1.pin-07-in-not => joint.1.neg-lim-sw-in joint.1.pos-lim-sw-in joint.1.home-sw-in
+# Z axis Limit switch handled by THC, see thc.hal
+#net LimitZ parport.1.pin-13-in => joint.2.neg-lim-sw-in joint.2.pos-lim-sw-in joint.2.home-sw-in
+net LimitA parport.1.pin-09-in-not => joint.3.neg-lim-sw-in joint.3.pos-lim-sw-in joint.3.home-sw-in

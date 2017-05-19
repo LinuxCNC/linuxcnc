@@ -1,0 +1,10 @@
+max5 5 axis XYZBC configs
+
+
+max5triv.ini  -- implemented with trivkins
+
+max5kins.ini  -- implemented with max5 kinematics
+                 non-identity kinematics
+                 automatic teleop after homing
+
+max5_base.inc -- shared settings

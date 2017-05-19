@@ -14,9 +14,9 @@
     that allows values to be sampled from HAL pins at a uniform 
     realtime sample rate, and writes them to a stdout (from which
     they can be redirected to a file).  When the realtime module
-    is loaded, it creates a fifo in shared memory and begins capturing
-    samples to the fifo.  Then, the user space program 'hal_ssampler'
-    is invoked to read from the fifo and print to stdout.
+    is loaded, it creates a stream in shared memory and begins capturing
+    samples to the stream.  Then, the user space program 'hal_ssampler'
+    is invoked to read from the stream and print to stdout.
 
     Invoking:
 
@@ -73,7 +73,6 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"                /* HAL public API decls */
 #include "streamer.h"
-#include "rtapi_atomic.h"
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -94,33 +93,24 @@ char comp_name[HAL_NAME_LEN+1];	/* name for this instance of sampler */
 ************************************************************************/
 
 /* signal handler */
+static sig_atomic_t stop;
 static void quit(int sig)
 {
     if ( ignore_sig ) {
 	return;
     }
-    if ( shmem_id >= 0 ) {
-	rtapi_shmem_delete(shmem_id, comp_id);
-    }
-    if ( comp_id >= 0 ) {
-	hal_exit(comp_id);
-    }
-    exit(exitval);
+    stop = 1;
 }
 
 #define BUF_SIZE 4000
 
 int main(int argc, char **argv)
 {
-    int n, channel, retval, size, tag;
+    int n, channel, tag;
     long int samples;
-    unsigned long this_sample;
+    unsigned this_sample, last_sample=0;
     char *cp, *cp2;
-    void *shmem_ptr;
-    fifo_t *fifo;
-    shmem_data_t *data, *dptr, buf[MAX_PINS];
-    int tmpout, newout;
-    struct timespec delay;
+    hal_stream_t stream;
 
     /* set return code to "fail", clear it later if all goes well */
     exitval = 1;
@@ -192,76 +182,33 @@ int main(int argc, char **argv)
 	goto out;
     }
     hal_ready(comp_id);
-    /* open shmem for user/RT comms (fifo) */
-    /* initial size is unknown, assume only the fifo structure */
-    shmem_id = rtapi_shmem_new(SAMPLER_SHMEM_KEY+channel, comp_id, sizeof(fifo_t));
-    if ( shmem_id < 0 ) {
-	fprintf(stderr, "ERROR: couldn't allocate user/RT shared memory\n");
+    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, 0);
+    if (res < 0) {
+	errno = -res;
+	perror("hal_stream_attach");
 	goto out;
     }
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
-    if ( retval < 0 ) {
-	fprintf(stderr, "ERROR: couldn't map user/RT shared memory\n");
-	goto out;
-    }
-    fifo = shmem_ptr;
-    if ( fifo->magic != FIFO_MAGIC_NUM ) {
-	fprintf(stderr, "ERROR: channel %d realtime part is not loaded\n", channel );
-	goto out;
-    }
-    /* now use data in fifo structure to calculate proper shmem size */
-    size = sizeof(fifo_t) + (1+fifo->num_pins) * fifo->depth * sizeof(shmem_data_t);
-    /* close shmem, re-open with proper size */
-    rtapi_shmem_delete(shmem_id, comp_id);
-    shmem_id = rtapi_shmem_new(SAMPLER_SHMEM_KEY+channel, comp_id, size);
-    if ( shmem_id < 0 ) {
-	fprintf(stderr, "ERROR: couldn't re-allocate user/RT shared memory\n");
-	goto out;
-    }
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
-    if ( retval < 0 ) {
-	fprintf(stderr, "ERROR: couldn't re-map user/RT shared memory\n");
-	goto out;
-    }
-    fifo = shmem_ptr;
-    data = fifo->data;
+    int num_pins = hal_stream_element_count(&stream);
     while ( samples != 0 ) {
-	while ( atomic_load_explicit(&fifo->in, memory_order_acquire) == fifo->out ) {
-            /* fifo empty, sleep for 10mS */
-	    delay.tv_sec = 0;
-	    delay.tv_nsec = 10000000;
-	    nanosleep(&delay,NULL);
+	union hal_stream_data buf[num_pins];
+	hal_stream_wait_readable(&stream, &stop);
+	if(stop) break;
+	int res = hal_stream_read(&stream, buf, &this_sample);
+	if (res < 0) {
+	    errno = -res;
+	    perror("hal_stream_read");
+	    goto out;
 	}
-	/* make pointer to fifo entry */
-        tmpout = atomic_load_explicit(&fifo->out, memory_order_acquire);
-	newout = tmpout + 1;
-	if ( newout >= fifo->depth ) {
-	    newout = 0;
-	}
-	dptr = &data[tmpout * (fifo->num_pins+1)];
-	/* read data from shmem into buffer */
-	for ( n = 0 ; n < fifo->num_pins ; n++ ) {
-	    buf[n] = *(dptr++);
-	}
-	/* and read sample number */
-	this_sample = dptr->u;
-	if ( atomic_load_explicit(&fifo->out, memory_order_acquire) != tmpout ) {
-	    /* the sample was overwritten while we were reading it */
-	    /* so ignore it */
-	    continue;
-	} else {
-	    /* update 'out' for next sample */
-            atomic_store_explicit(&fifo->out, newout, memory_order_release);
-	}
-	if ( this_sample != ++(fifo->last_sample) ) {
-	    printf ( "overrun\n" );
-	    fifo->last_sample = this_sample;
+	++last_sample;
+	if ( this_sample != last_sample ) {
+	    printf ( "overrun\n");
+	    last_sample = this_sample;
 	}
 	if ( tag ) {
-	    printf ( "%ld ", this_sample );
+	    printf ( "%d ", this_sample-1 );
 	}
-	for ( n = 0 ; n < fifo->num_pins ; n++ ) {
-	    switch ( fifo->type[n] ) {
+	for ( n = 0 ; n < num_pins; n++ ) {
+	    switch ( hal_stream_element_type(&stream, n) ) {
 	    case HAL_FLOAT:
 		printf ( "%f ", buf[n].f);
 		break;
@@ -293,9 +240,7 @@ int main(int argc, char **argv)
 
 out:
     ignore_sig = 1;
-    if ( shmem_id >= 0 ) {
-	rtapi_shmem_delete(shmem_id, comp_id);
-    }
+    hal_stream_detach(&stream);
     if ( comp_id >= 0 ) {
 	hal_exit(comp_id);
     }

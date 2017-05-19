@@ -20,31 +20,31 @@ setp stepgen.2.dirsetup 35200
 setp stepgen.2.dirhold 35200
 
 # Set stepgen module scaling - get values from ini file
-setp stepgen.0.position-scale [AXIS_0]SCALE
-setp stepgen.1.position-scale [AXIS_1]SCALE
-setp stepgen.2.position-scale [AXIS_2]SCALE
-setp stepgen.3.position-scale [AXIS_3]SCALE
+setp stepgen.0.position-scale [JOINT_0]SCALE
+setp stepgen.1.position-scale [JOINT_1]SCALE
+setp stepgen.2.position-scale [JOINT_2]SCALE
+setp stepgen.3.position-scale [JOINT_3]SCALE
 
 # Set stepgen module velocity limits - get values from ini file
 
 # Set stepgen module accel limits - get values from ini file
-setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
-setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
-setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
-setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 
 # Hook up stepgen to motion modules
-net PosX-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
-net PosX-fb stepgen.0.position-fb => axis.0.motor-pos-fb
-net PosY-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
-net PosY-fb stepgen.1.position-fb => axis.1.motor-pos-fb
-net PosZ-cmd axis.2.motor-pos-cmd => stepgen.2.position-cmd
-net PosZ-fb stepgen.2.position-fb => axis.2.motor-pos-fb
-net PosA-cmd axis.3.motor-pos-cmd => stepgen.3.position-cmd
-net PosA-fb stepgen.3.position-fb => axis.3.motor-pos-fb
+net PosX-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd
+net PosX-fb stepgen.0.position-fb => joint.0.motor-pos-fb
+net PosY-cmd joint.1.motor-pos-cmd => stepgen.1.position-cmd
+net PosY-fb stepgen.1.position-fb => joint.1.motor-pos-fb
+net PosZ-cmd joint.2.motor-pos-cmd => stepgen.2.position-cmd
+net PosZ-fb stepgen.2.position-fb => joint.2.motor-pos-fb
+net PosA-cmd joint.3.motor-pos-cmd => stepgen.3.position-cmd
+net PosA-fb stepgen.3.position-fb => joint.3.motor-pos-fb
 
 # Hook up enable signals for step generators
-net EnableX axis.0.amp-enable-out => stepgen.0.enable
-net EnableY axis.1.amp-enable-out => stepgen.1.enable
-net EnableZ axis.2.amp-enable-out => stepgen.2.enable
-net EnableA axis.3.amp-enable-out => stepgen.3.enable
+net EnableX joint.0.amp-enable-out => stepgen.0.enable
+net EnableY joint.1.amp-enable-out => stepgen.1.enable
+net EnableZ joint.2.amp-enable-out => stepgen.2.enable
+net EnableA joint.3.amp-enable-out => stepgen.3.enable

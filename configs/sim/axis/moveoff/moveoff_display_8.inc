@@ -1,7 +1,7 @@
 [DISPLAY]
 
-EMBED_TAB_NAME=moveoff gladevcp demo
-EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp8 gladevcp -c gladevcp8 -t Redmond -x {XID} ./moveoff_gladevcp_8.ui
+EMBED_TAB_NAME= moveoff gladevcp demo
+EMBED_TAB_COMMAND= halcmd loadusr -Wn gladevcp8 gladevcp -c gladevcp8 -t Redmond -x {XID} ./moveoff_gladevcp_8.ui
 EMBED_TAB_LOCATION = vcp_box
 # halcmd options used:
 #       -Wn NAME   wait for named component (must agree with names in moveoff_display_8.hal)

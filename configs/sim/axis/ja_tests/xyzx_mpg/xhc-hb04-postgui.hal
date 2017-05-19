@@ -1,0 +1,19 @@
+# optional postgui hal file to allow MPG wheel jog of joint_3
+# using the fourth xhc-hb04 rotary switch position (labeled 'a')
+
+# connect to existing signals:
+net pendant:jog-scale    => joint.3.jog-scale
+net pendant:wheel-counts => pendant_util.in3
+
+# make new signals and connections for optionalj3 jogging:
+net optionalj3:enable <= xhc-hb04.jog.enable-a
+net optionalj3:enable => joint.3.jog-enable
+
+net optionalj3:filtered <= pendant_util.out3
+net optionalj3:filtered => joint.3.jog-counts
+
+# scale3 value is: kvalue * scale_for_rotary_switch_a
+# kvalue=100 is a constant defined in xhc-hb04.tcl
+# scale_for_rotary_switch_a=1 defined in xhc-hb04.inc
+setp pendant_util.scale3 100
+

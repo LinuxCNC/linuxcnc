@@ -10,7 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-
 import math
 
 
@@ -26,6 +25,11 @@ class emc_control:
                 self.mdi = 0
                 self.isjogging = [0,0,0,0,0,0,0,0,0]
                 self.restart_line_number = self.restart_reset_line = 0
+                self.emccommand.teleop_enable(1)
+                self.emccommand.wait_complete()
+                self.emcstat.poll()
+                if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
+                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -123,43 +127,57 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.spindle(self.emc.SPINDLE_DECREASE)
 
+        def set_motion_mode(self):
+            self.emcstat.poll()
+            if self.emcstat.motion_mode != self.emc.TRAJ_MODE_TELEOP:
+                self.emccommand.teleop_enable(1)
+                self.emccommand.wait_complete()
+
         def continuous_jog_velocity(self, velocity,angular=None):
+                if self.masked: return
+                self.set_motion_mode()
                 if velocity == None:
                     rate = self.angular_jog_velocity = angular / 60.0
                 else:
                     rate = self.jog_velocity = velocity / 60.0
                 for i in range(9):
                         if self.isjogging[i]:
-                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, i, self.isjogging[i] * rate)
+                                self.emccommand.jog(self.emc.JOG_CONTINUOUS
+                                ,0 ,i ,self.isjogging[i] * rate)
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
+                self.set_motion_mode()
                 if direction == 0:
                         self.isjogging[axis] = 0
-                        self.emccommand.jog(self.emc.JOG_STOP, axis)
+                        self.emccommand.jog(self.emc.JOG_STOP, 0, axis)
                 else:
                     if axis in (3,4,5):
                         rate = self.angular_jog_velocity
                     else:
                         rate = self.jog_velocity
                     self.isjogging[axis] = direction
-                    self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * rate)
+                    self.emccommand.jog(self.emc.JOG_CONTINUOUS
+                    ,0 ,axis ,direction * rate)
 
         def incremental_jog(self, axis, direction, distance):
                 if self.masked: return
+                self.set_motion_mode()
                 self.isjogging[axis] = direction
                 if axis in (3,4,5):
                     rate = self.angular_jog_velocity
                 else:
                     rate = self.jog_velocity
-                self.emccommand.jog(self.emc.JOG_INCREMENT, axis, direction * rate, distance)
+                self.emccommand.jog(self.emc.JOG_INCREMENT
+                ,0 ,axis ,direction * rate, distance)
                 self.isjogging[axis] = 0
                 
         def quill_up(self):
                 if self.masked: return
+                self.set_motion_mode()
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.wait_complete()
-                self.emccommand.jog(self.emc.JOG_CONTINUOUS, 2, 100)
+                self.emccommand.jog(self.emc.JOG_CONTINUOUS, 0, 2, 100)
 
         def feed_hold(self, data):
                 if self.masked: return
@@ -246,7 +264,9 @@ class emc_control:
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_MANUAL:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(1)
                 self.emccommand.wait_complete()
+            self.set_motion_mode()
 
         def set_mdi_mode(self):
             self.emcstat.poll()
@@ -422,10 +442,11 @@ class emc_status:
             self.data.flood = self.emcstat.flood
             self.data.mist = self.emcstat.mist
             self.data.machine_on = self.emcstat.task_state == self.emc.STATE_ON
-            self.data.or_limits = self.emcstat.axis[0]['override_limits']
+            self.data.or_limits = self.emcstat.joint[0]['override_limits']
             self.data.feed_hold = self.emcstat.feed_hold_enabled
             self.data.feed_override = self.emcstat.feedrate
             self.data.velocity_override = self.emcstat.max_velocity / self.data._maxvelocity
+            self.data.rapid_override = self.emcstat.rapidrate
             self.data.file = self.emcstat.file
             self.data.last_line = self.data.motion_line
             self.data.motion_line = self.emcstat.motion_line

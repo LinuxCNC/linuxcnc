@@ -137,7 +137,7 @@ class OffsetPage(gtk.VBox):
             self.inifile = self.linuxcnc.ini(INIPATH)
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
             if units == None:
-                units = self.inifile.find("AXIS_0", "UNITS")
+                units = self.inifile.find("AXIS_X", "UNITS")
         except:
             print "**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"
             units = "inch"

@@ -1,10 +1,13 @@
 Sim files using tklinuxcnc gui:
 
-tklinuxcnc.ini
-   tcl/tk interface
+ldelta.ini
+  -delta robot with linear joints
 
 servo_sim.ini
-   simulation for a servo machine
+  -simulation for a servo machine
+
+tklinuxcnc.ini
+  -tcl/tk interface
 
 tripod.ini
-   non-trivial kinematics machine
+  -non-trivial kinematics machine

@@ -8,11 +8,19 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 
+GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
+ifeq ($(BUILD_DOCS),yes)
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
+endif
+
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
 	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
 	$(GENERATED_MANPAGES))
+
+../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.in config.status
+	./config.status --file=$@:$<
 
 ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
@@ -29,6 +37,7 @@ DOC_SRCS_EN := \
 	code/rs274.txt \
 	code/adding-configs.txt \
 	code/contributing-to-linuxcnc.txt \
+	code/building-linuxcnc.txt \
 	common/emc-history.txt \
 	common/glossary.txt \
 	common/gpld-copyright.txt \
@@ -57,7 +66,7 @@ DOC_SRCS_EN := \
 	drivers/pico-ppmc.txt \
 	drivers/pluto-p.txt \
 	drivers/servo-to-go.txt \
-	drivers/shuttlexpress.txt \
+	drivers/shuttle.txt \
 	examples/gcode.txt \
 	examples/gs2-example.txt \
 	examples/mpg.txt \
@@ -83,10 +92,9 @@ DOC_SRCS_EN := \
 	gui/gmoccapy.txt \
 	gui/gmoccapy-hu.txt \
 	gui/gscreen.txt \
+	gui/panelui.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
-	gui/keystick.txt \
-	gui/mini.txt \
 	gui/ngcgui.txt \
 	gui/tklinuxcnc.txt \
 	gui/tooledit.txt \
@@ -121,6 +129,7 @@ DOC_SRCS_EN := \
 	motion/kinematics.txt \
 	motion/pid-theory.txt \
 	motion/tweaking-steppers.txt \
+	motion/5-axis-kinematics.txt \
 	remap/remap.txt \
 	user/starting-linuxcnc.txt \
 	user/user-concepts.txt \
@@ -168,8 +177,6 @@ DOC_SRCS_FR := \
 	gui/axis_fr.txt \
 	gui/gladevcp_fr.txt \
 	gui/image-to-gcode_fr.txt \
-	gui/keystick_fr.txt \
-	gui/mini_fr.txt \
 	gui/ngcgui_fr.txt \
 	gui/tklinuxcnc_fr.txt \
 	gui/tooledit_fr.txt\
@@ -283,11 +290,6 @@ ifeq ($(TRIVIAL_BUILD),no)
 Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
 
-GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
-
-../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
-	./config.status --file=$@:$<
-
 docs: manpages
 manpages: $(GENERATED_MANPAGES)
 
@@ -317,7 +319,7 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr checkref_es
 
-checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/gcode.html .htmldoc-stamp
+checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
@@ -603,6 +605,22 @@ endif
 %.dxf:; $(error Required image file $@ does not exist)
 %.ps:; $(error Required image file $@ does not exist)
 %.eps:; $(error Required image file $@ does not exist)
+
+# make manpages from all the asciidoc manpage-sources
+# Note that in some versions of asciidoc, including the one in Debian Jessie,
+# a2x spuriously warns that this --destination-dir is ignored.  It is *NOT*
+# ignored, don't remove it trying to fix the diagnostic.
+# For more information, see https://github.com/asciidoc/asciidoc/issues/44
+GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.txt, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.txt))
+$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
+	@mkdir -p `dirname $@`
+	a2x -v --doctype manpage \
+		--format manpage \
+		--destination-dir `dirname $@` \
+		--xsltproc-opts --nonet \
+		-a mansource=LinuxCNC \
+		-a manmanual='LinuxCNC Documentation' \
+		$<
 
 else
 docclean:

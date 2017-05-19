@@ -42,6 +42,7 @@
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
+#include <rtapi_mutex.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
@@ -90,6 +90,7 @@ static void save_signals(FILE *dst, int only_unlinked);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
 static void save_params(FILE *dst);
+static void save_unconnected_input_pin_values(FILE *dst);
 static void save_threads(FILE *dst);
 static void print_help_commands(void);
 
@@ -1384,6 +1385,29 @@ static char *guess_comp_name(char *prog_name)
     return name;
 }
 
+static void reset_getopt_state() {
+/*
+
+It turns out that it is not portable to reset the state of getopt, so that
+a different argv list can be parsed.
+
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=192834
+
+(though that thread ends with the bug being closed as fixed in lenny, it
+is not fixed or has regressed by debian jessie)
+*/
+
+#ifdef __GNU_LIBRARY__
+    optind = 0;
+#else
+    optind = 1;
+#endif
+
+#ifdef HAVE_OPTRESET
+    optreset = 1;
+#endif
+}
+
 int do_loadusr_cmd(char *args[])
 {
     int wait_flag, wait_comp_flag, ignore_flag;
@@ -1406,7 +1430,7 @@ int do_loadusr_cmd(char *args[])
     prog_name = NULL;
 
     /* check for options (-w, -i, and/or -r) */
-    optind = 0;
+    reset_getopt_state();
     while (1) {
 	int c = getopt(argc, args, "+wWin:");
 	if(c == -1) break;
@@ -2357,13 +2381,17 @@ int do_save_cmd(char *type, char *filename)
     if (type == 0 || *type == '\0') {
 	type = "all";
     }
-    if (strcmp(type, "all" ) == 0) {
+    if (   (strcmp(type, "all")  == 0)
+	|| (strcmp(type, "allu") == 0) ) {
 	/* save everything */
 	save_comps(dst);
 	save_aliases(dst);
-        save_signals(dst, 1);
-        save_nets(dst, 3);
+	save_signals(dst, 1);
+	save_nets(dst, 3);
 	save_params(dst);
+	if (strcmp(type,"allu") == 0) {
+	    save_unconnected_input_pin_values(dst);
+	}
 	save_threads(dst);
     } else if (strcmp(type, "comp") == 0) {
 	save_comps(dst);
@@ -2393,6 +2421,8 @@ int do_save_cmd(char *type, char *filename)
 	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
 	save_threads(dst);
+    } else if (strcmp(type, "unconnectedinpins") == 0) {
+	save_unconnected_input_pin_values(dst);
     } else {
 	halcmd_error("Unknown 'save' type '%s'\n", type);
         if (dst != stdout) fclose(dst);
@@ -2663,6 +2693,25 @@ static void save_threads(FILE *dst)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
+static void save_unconnected_input_pin_values(FILE *dst)
+{
+    hal_pin_t *pin;
+    void *dptr;
+    int next;
+    fprintf(dst, "# unconnected pin values\n");
+    for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr)
+    {
+        pin = SHMPTR(next);
+        if (   (pin->signal == 0)
+            && ( (pin->dir == HAL_IN) || (pin->dir == HAL_IO) )
+           ) {
+            dptr = &(pin->dummysig);
+            fprintf(dst, "setp %s %s\n",
+                   pin->name, data_value((int) pin->type, dptr));
+        }
+    }
+}
+
 int do_setexact_cmd() {
     int retval = 0;
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2718,7 +2767,7 @@ int do_help_cmd(char *command)
 	printf("  Starts user space program 'progname', passing\n");
 	printf("  'progargs' to it.  Options are:\n");
 	printf("  -W  wait for HAL component to become ready\n");
-	printf("  -Wn name to wait for the component, which will have the given name.\n");
+	printf("  -Wn NAME  wait for component named NAME to become ready\n");
 	printf("  -w  wait for program to finish\n");
 	printf("  -i  ignore program return value (use with -w)\n");
     } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {
@@ -2835,8 +2884,10 @@ int do_help_cmd(char *command)
 	printf("  \"halcmd -f filename\".\n");
 	printf("  Type can be 'comp', 'alias', 'sig[u]', 'signal', 'link[a]'\n");
         printf("  'net[a]', 'netl', 'netla', netal', 'param', 'parameter,\n");
-	printf("  or 'thread'.\n");
+	printf("  'unconnectedinpins', 'all, 'allu', or 'thread'.\n");
         printf("  (A final 'a' character (like 'neta' means show arrows for pin direction.)\n");
+        printf("  If 'type' is 'allu'), does the equivalent of:\n");
+	printf("  'comp', 'alias', 'sigu', 'netla', 'param', 'unconnectedinpins' and 'thread'.\n\n");
         printf("  If 'type' is omitted (or type is 'all'), does the equivalent of:\n");
 	printf("  'comp', 'alias', 'sigu', 'netla', 'param', and 'thread'.\n\n");
         printf("  See the man page ($man halcmd) for save option details\n");

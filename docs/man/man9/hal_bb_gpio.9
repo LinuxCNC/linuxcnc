@@ -1,0 +1,70 @@
+.TH hal_bb_gpio "9" "" "LinuxCNC Documentation" "HAL Component"
+.SH NAME
+
+hal_bb_gpio \- Driver for beaglebone GPIO pins
+
+.SH SYNOPSIS
+.HP
+.B loadrt hal_bb_gpio \fIuser_leds=#,...\fR \fIinput_pins=#,...\fR \fIoutput_pins=#,...\fB
+
+.SH USER LEDS
+The \fIuser_leds\fR loadrt parameter controls which LEDs are available to HAL.
+Valid range: 0..3.  These LEDs are next to the ethernet jack and the linuxcnc
+numbers match the silkscreen on beaglbone black.  Empirically, these seem to be
+OR'd with whatever function is assigned to the LED in Linux.
+
+.SS PINS
+.TP
+\fBbb_gpio.userled\fIN\fR bit in
+.TQ
+\fBbb_gpio.userled\fIN\fB-invert\fR bit in
+The associated LED is lit if \fBuserled\fIN\fR xor \fBuserled\fIN\fR-invert\fB
+is TRUE.
+
+.SH INPUT PINS
+The \fIinput_pins\fR loadrt parameter controls which physical I/O pins are
+available to HAL as input pins.  The numbering is "800+N" for pin N on
+connector P8, and "900+N" for pin N on connector P9.  For example, "803"
+means connector P8 pin 3, which is also described in BeagleBone documentation
+as "gpmc_ad6".
+
+Specifying pins that are otherwise in use by the system may have undesirable
+side effects, such as crashing rtapi_app or the whole system.
+
+.SS PINS
+.TP
+\fBbb_gpio.p\fIN\fB.in-\fINN\fR bit out
+.TQ
+\fBbb_gpio.p\fIN\fB.in-\fINN\fB-invert\fR bit in
+\fBin-\fINN\fR is a snapshot of the value of the corresponding physical pin XOR
+the value of the corresponding \fBin-\fINN\fB-invert\fR pin.
+
+.SH OUTPUT PINS
+The \fIinput_pins\fR loadrt parameter controls which physical I/O pins are
+available to HAL as input pins.  The numbering is "800+N" for pin N on
+connector P8, and "900+N" for pin N on connector P9.
+
+Specifying pins that are otherwise in use by the system may have undesirable
+side effects, such as crashing rtapi_app or the whole system.
+
+.SS PINS
+.TP
+\fBbb_gpio.p\fIN\fB.out-\fINN\fR bit out
+.TQ
+\fBbb_gpio.p\fIN\fB.out-\fINN\fB-invert\fR bit in
+The corresponding physical pin is driven with the result of
+\fBin-\fINN\fR xor \fBin-\fINN\fB-invert\fR.
+
+.SH PARAMETERS
+None
+
+.SH FUNCTIONS
+.TP
+.B bb_gpio.read
+Update HAL pins from physical pins
+.TP
+.B bb_gpio.write
+Update physical pins from HAL pins
+
+.SH LICENSE
+GPL

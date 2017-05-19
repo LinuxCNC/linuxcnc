@@ -1,0 +1,48 @@
+
+#
+# joint 0
+#
+
+net joint-0-jog-enable <= test-ui.joint-0-jog-enable
+net joint-0-jog-enable => joint.0.jog-enable
+
+net joint-0-jog-counts <= test-ui.joint-0-jog-counts
+net joint-0-jog-counts => joint.0.jog-counts
+
+net joint-0-jog-scale <= test-ui.joint-0-jog-scale
+net joint-0-jog-scale => joint.0.jog-scale
+
+net Xpos => test-ui.joint-0-position
+
+
+#
+# joint 1
+#
+
+net joint-1-jog-enable <= test-ui.joint-1-jog-enable
+net joint-1-jog-enable => joint.1.jog-enable
+
+net joint-1-jog-counts <= test-ui.joint-1-jog-counts
+net joint-1-jog-counts => joint.1.jog-counts
+
+net joint-1-jog-scale <= test-ui.joint-1-jog-scale
+net joint-1-jog-scale => joint.1.jog-scale
+
+net Ypos => test-ui.joint-1-position
+
+
+#
+# joint 2
+#
+
+net joint-2-jog-enable <= test-ui.joint-2-jog-enable
+net joint-2-jog-enable => joint.2.jog-enable
+
+net joint-2-jog-counts <= test-ui.joint-2-jog-counts
+net joint-2-jog-counts => joint.2.jog-counts
+
+net joint-2-jog-scale <= test-ui.joint-2-jog-scale
+net joint-2-jog-scale => joint.2.jog-scale
+
+net Zpos => test-ui.joint-2-position
+

@@ -28,33 +28,33 @@ addf motenc.0.digital-out-write servo-thread -1
 
 # Connect limit/home switch outputs to motion controller.
 net Xminlim <= motenc.0.in-00
-net Xminlim => axis.0.neg-lim-sw-in
+net Xminlim => joint.0.neg-lim-sw-in
 net Xmaxlim <= motenc.0.in-01
-net Xmaxlim => axis.0.pos-lim-sw-in
+net Xmaxlim => joint.0.pos-lim-sw-in
 net Xhome <= motenc.0.in-02
-net Xhome => axis.0.home-sw-in
+net Xhome => joint.0.home-sw-in
 
 net Yminlim <= motenc.0.in-04
-net Yminlim => axis.1.neg-lim-sw-in
+net Yminlim => joint.1.neg-lim-sw-in
 net Ymaxlim <= motenc.0.in-05
-net Ymaxlim => axis.1.pos-lim-sw-in
+net Ymaxlim => joint.1.pos-lim-sw-in
 net Yhome <= motenc.0.in-06
-net Yhome => axis.1.home-sw-in
+net Yhome => joint.1.home-sw-in
 
 net Zminlim <= motenc.0.in-08
-net Zminlim => axis.2.neg-lim-sw-in
+net Zminlim => joint.2.neg-lim-sw-in
 net Zmaxlim <= motenc.0.in-09
-net Zmaxlim => axis.2.pos-lim-sw-in
+net Zmaxlim => joint.2.pos-lim-sw-in
 net Zhome <= motenc.0.in-10
-net Zhome => axis.2.home-sw-in
+net Zhome => joint.2.home-sw-in
 
 # Connect amp faults to motion controller.
 net Xfault <= motenc.0.in-03
-net Xfault => axis.0.amp-fault-in
+net Xfault => joint.0.amp-fault-in
 net Yfault <= motenc.0.in-07
-net Yfault => axis.1.amp-fault-in
+net Yfault => joint.1.amp-fault-in
 net Zfault <= motenc.0.in-11
-net Zfault => axis.2.amp-fault-in
+net Zfault => joint.2.amp-fault-in
 
 # Connect amp enables to motion controller.
 net Xenable => motenc.0.out-08

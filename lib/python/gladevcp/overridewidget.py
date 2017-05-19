@@ -73,7 +73,7 @@ class Override(gtk.HScale):
             adjustment.set_upper(MAXSPINDLE*100)
             adjustment.set_lower(MINSPINDLE*100)
         elif self.override_type == 3:
-            MAXVEL = float(self.inifile.find("TRAJ","MAX_VELOCITY") or 100)
+            MAXVEL = float(self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY") or 100)
             #print 'maxv',MAXVEL,MAXVEL/100.0
             self.max_vel_convert = MAXVEL/100.0
             adjustment.set_upper(100)

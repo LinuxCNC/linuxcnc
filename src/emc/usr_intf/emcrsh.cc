@@ -1,6 +1,6 @@
 /********************************************************************
-* Description: emcrsh.cc
-*   Extended telnet based EMC interface
+* Description: emcrsh.cc  (source for linuxcncrsh)
+*   Extended telnet based LinuxCNC interface
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *   Further derived from work by jmkasunich
@@ -45,9 +45,9 @@
 #include "shcom.hh"             // NML Messaging functions
 
 /*
-  Using emcrsh:
+  Using linuxcncrsh:
 
-  emcrsh {-- --port <port number> --name <server name> --connectpw <password>
+  linuxcncrsh {-- --port <port number> --name <server name> --connectpw <password>
              --enablepw <password> --sessions <max sessions> --path <path>
              -ini<inifile>}
 
@@ -62,10 +62,10 @@
             Make sure to include the final slash (/).
   With -- -ini <inifile>, uses inifile instead of emc.ini. 
 
-  There are six commands supported, Where the commands set and get contain EMC
-  specific sub-commands based on the commands supported by emcsh, but where the "emc_"
-  is omitted. Commands and most parameters are not case sensitive. The exceptions are 
-  passwords, file paths and text strings.
+  There are six commands supported, Where the commands set and get contain LinuxCNC
+  specific sub-commands based on the commands supported by linuxcncrsh, but where the 
+  usual prefix ( "emc_") is omitted. Commands and most parameters are not case sensitive.
+  The exceptions are passwords, file paths and text strings.
   
   The supported commands are as follows:
   
@@ -84,12 +84,12 @@
   
   ==> Get <==
   
-  The get command includes one of the emc sub-commands, described below and
+  The get command includes one of the LinuxCNC sub-commands, described below and
   zero or more additional parameters. 
   
   ==> Set <==
   
-  The set command inclides one of the emc sub-commands, described below and
+  The set command inclides one of the LinuxCNC sub-commands, described below and
   one or more additional parameters.
   
   ==> Quit <==
@@ -98,7 +98,7 @@
   
   ==> Shutdown <==
   
-  The shutdown command tells EMC to shutdown before quitting the connection. This
+  The shutdown command tells LinuxCNC to shutdown before quitting the connection. This
   command may only be issued if the Hello has been successfully negotiated and the
   connection has control of the CNC (see enable sub-command below). This command
   has no parameters.
@@ -112,7 +112,7 @@
   successsfully negotiated.
   
   
-  EMC sub-commands:
+  LinuxCNC sub-commands:
   
   echo on | off
   With get will return the current echo state, with set, sets the echo
@@ -155,12 +155,12 @@
   Returns the string value of <var> in section <section>, in EMC_INIFILE
 
   debug {<new value>}
-  With get, returns the integer value of EMC_DEBUG, in the EMC. Note that
-  it may not be true that the local EMC_DEBUG variable here (in emcsh and
-  the GUIs that use it) is the same as the EMC_DEBUG value in the EMC. This
-  can happen if the EMC is started from one .ini file, and the GUI is started
+  With get, returns the integer value of EMC_DEBUG, in LinuxCNC. Note that
+  it may not be true that the local EMC_DEBUG variable here (in linuxcncrsh and
+  the GUIs that use it) is the same as the EMC_DEBUG value in the LinuxCNC. This
+  can happen if LinuxCNC is started from one .ini file, and the GUI is started
   with another that has a different value for DEBUG.
-  With set, sends a command to the EMC to set the new debug level,
+  With set, sends a command to the LinuxCNC to set the new debug level,
   and sets the EMC_DEBUG global here to the same value. This will make
   the two values the same, since they really ought to be the same.
 
@@ -179,18 +179,18 @@
   wait forever.
 
   update (none) | none | auto
-  With no arg, forces an update of the EMC status. With "none", doesn't
+  With no arg, forces an update of the LinuxCNC status. With "none", doesn't
   cause an automatic update of status with other emc_ words. With "auto",
   makes emc_ words automatically update status before they return values.
 
   error
-  Returns the current EMC error string, or "ok" if no error.
+  Returns the current LinuxCNC error string, or "ok" if no error.
 
   operator_display
-  Returns the current EMC operator display string, or "ok" if none.
+  Returns the current LinuxCNC operator display string, or "ok" if none.
 
   operator_text
-  Returns the current EMC operator text string, or "ok" if none.
+  Returns the current LinuxCNC operator text string, or "ok" if none.
 
   time
   Returns the time, in seconds, from the start of the epoch. This starting
@@ -241,17 +241,17 @@
   load_tool_table <file>
   Loads the tool table specified by <file>
 
-  home 0 | 1 | 2 | ...
-  Homes the indicated axis.
+  home 0 | 1 | 2 | ... 
+  Homes the indicated joint.
 
-  jog_stop 0 | 1 | 2 | ...
-  Stop the axis jog
+  jog_stop joint_number|axis_letter
+  Stop the axis or joint jog
 
-  jog 0 | 1 | 2 | ... <speed>
-  Jog the indicated axis at <speed>; sign of speed is direction
+  jog joint_number|axis_letter speed
+  Jog the indicated joint or axis at <speed>; sign of speed is direction
 
-  jog_incr 0 | 1 | 2 | ... <speed> <incr>
-  Jog the indicated axis by increment <incr> at the <speed>; sign of
+  jog_incr joint_number|axis_letter <speed> <incr>
+  Jog the indicated joint or axis by increment <incr> at the <speed>; sign of
   speed is direction
 
   feed_override {<percent>}
@@ -352,7 +352,7 @@
 
   user_linear_units
   Returns "inch", "mm", "cm", or "custom", for the
-  corresponding native user linear units of the EMC trajectory
+  corresponding native user linear units of the LinuxCNC trajectory
   level. This is obtained heuristically, based on the
   EMC_TRAJ_STAT::linearUnits numerical value of user units per mm.
   Something close to 0.03937 is deemed "inch", 1.000 is "mm", 0.1 is
@@ -360,7 +360,7 @@
 
   user_angular_units
   Returns "deg", "rad", "grad", or "custom" for the corresponding native
-  user angular units of the EMC trajectory level. Like with linear units,
+  user angular units of the LinuxCNC trajectory level. Like with linear units,
   this is obtained heuristically.
 
   display_linear_units
@@ -416,7 +416,7 @@
   1> Load / save connect and enable passwords to file.
   2> Implement commands to set / get passwords
   3> Get enable to tell peer connections which connection has control.
-  4> Get shutdown to notify EMC to actually shutdown.
+  4> Get shutdown to notify LinuxCNC to actually shutdown.
 */
 
 // EMC_STAT *emcStatus;
@@ -1006,36 +1006,79 @@ static cmdResponseType setHome(char *s, connectionRecType *context)
   
   if (s == NULL) return rtStandardError;
   if (sscanf(s, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
+  if ((axis < 0) || (axis > EMCMOT_MAX_JOINTS)) return rtStandardError;
   sendHome(axis);
   return rtNoError;
 }
 
-static cmdResponseType setJogStop(char *s, connectionRecType *context)
+static int axisnumber(char letter) {
+   switch (letter) {
+     case 'x': case 'X': return 0;
+     case 'y': case 'Y': return 1;
+     case 'z': case 'Z': return 2;
+     case 'a': case 'A': return 3;
+     case 'b': case 'B': return 4;
+     case 'c': case 'C': return 5;
+     case 'u': case 'U': return 6;
+     case 'v': case 'V': return 7;
+     case 'w': case 'W': return 8;
+   }
+   return -1;
+}
+
+static cmdResponseType setJogStop(char *pch, connectionRecType *context)
 {
-  int axis;
+  int ja,jnum,jjogmode;
+  char aletter;
+  //parms:  jnum|aletter
   
-  if (s == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
-  if (sendJogStop(axis) != 0) return rtStandardError;
+  pch = strtok(NULL, delims);
+  if (pch == NULL) return rtStandardError;
+
+  if (sscanf(pch, "%d", &jnum) > 0) {
+    ja = jnum;
+    jjogmode = JOGJOINT;
+  } else if (sscanf(pch, "%c", &aletter) > 0) {
+    ja = axisnumber(aletter);
+    jjogmode = JOGTELEOP;
+  } else {
+    return rtStandardError;
+  }
+
+  if (   (jjogmode == JOGJOINT)
+      && ((ja < 0) || (ja > EMCMOT_MAX_JOINTS))
+     ) return rtStandardError;
+
+  if (sendJogStop(ja,jjogmode) != 0) return rtStandardError;
   return rtNoError;
 }
 
 static cmdResponseType setJog(char *s, connectionRecType *context)
 {
-  int axis;
+  int ja,jnum,jjogmode;
+  char aletter;
   float speed;
   char *pch;
-  
+  //parms:  jnum|aletter speed
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(pch, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
+
+  if (sscanf(pch, "%d", &jnum) > 0) {
+    ja = jnum;
+    jjogmode = JOGJOINT;
+  } else if (sscanf(pch, "%c", &aletter) > 0) {
+    ja = axisnumber(aletter);
+    jjogmode = JOGTELEOP;
+  } else {
+    return rtStandardError;
+  }
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &speed) <= 0) return rtStandardError; 
-  if (sendJogCont(axis, speed) != 0) return rtStandardError;
+
+  if (sendJogCont(ja, jjogmode, speed) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1051,21 +1094,39 @@ static cmdResponseType setFeedOverride(char *s, connectionRecType *context)
 
 static cmdResponseType setJogIncr(char *s, connectionRecType *context)
 {
-  int axis;
+  int jnum,ja,jjogmode;
+  char aletter;
   float speed, incr;
   char *pch;
+  //parms:  jnum|aletter speed distance
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(pch, "%d", &axis) <= 0) return rtStandardError;
-  if ((axis < 0) || (axis > 5)) return rtStandardError;
+
+  if (sscanf(pch, "%d", &jnum) > 0) {
+    ja = jnum;
+    jjogmode = JOGJOINT;
+  } else if (sscanf(pch, "%c", &aletter) > 0) {
+    ja = axisnumber(aletter);
+    jjogmode = JOGTELEOP;
+  } else {
+    return rtStandardError;
+  }
+
+  if (   (jjogmode == JOGJOINT)
+      && ((ja < 0) || (ja > EMCMOT_MAX_JOINTS))
+     ) return rtStandardError;
+
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
+
   if (sscanf(pch, "%f", &speed) <= 0) return rtStandardError; 
   pch = strtok(NULL, delims);
+
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &incr) <= 0) return rtStandardError; 
-  if (sendJogIncr(axis, speed, incr) != 0) return rtStandardError;
+
+  if (sendJogIncr(ja, jjogmode, speed, incr) != 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -1174,13 +1235,16 @@ static cmdResponseType setProbe(char *s, connectionRecType *context)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
+fprintf(stderr,"0_probe pch=%s\n",pch);
   if (sscanf(pch, "%f", &x) <= 0) return rtStandardError;
 
   pch = strtok(NULL, delims);
+fprintf(stderr,"1_probe pch=%s\n",pch);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &y) <= 0) return rtStandardError;
 
   pch = strtok(NULL, delims);
+fprintf(stderr,"2_probe pch=%s\n",pch);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &z) <= 0) return rtStandardError;
   
@@ -1271,7 +1335,7 @@ int commandSet(connectionRecType *context)
     case scToolOffset: ret = setToolOffset(pch, context); break;
     case scLoadToolTable: ret = setLoadToolTable(strtok(NULL, delims), context); break;
     case scHome: ret = setHome(strtok(NULL, delims), context); break;
-    case scJogStop: ret = setJogStop(strtok(NULL, delims), context); break;
+    case scJogStop: ret = setJogStop(pch, context); break;
     case scJog: ret = setJog(pch, context); break;
     case scJogIncr: ret = setJogIncr(pch, context); break;
     case scFeedOverride: ret = setFeedOverride(strtok(NULL, delims), context); break;
@@ -1454,7 +1518,7 @@ static cmdResponseType getError(char *s, connectionRecType *context)
   const char *pErrorStr = "ERROR %s";
   
   if (updateError() != 0)
-    sprintf(context->outBuf, pErrorStr, "emc_error: bad status from EMC");
+    sprintf(context->outBuf, pErrorStr, "emc_error: bad status from LinuxCNC");
   else
     if (error_string[0] == 0)
       sprintf(context->outBuf, pErrorStr, "OK");
@@ -1470,7 +1534,7 @@ static cmdResponseType getOperatorDisplay(char *s, connectionRecType *context)
   const char *pOperatorDisplayStr = "OPERATOR_DISPLAY %s";
   
   if (updateError() != 0)
-    sprintf(context->outBuf, pOperatorDisplayStr, "emc_operator_display: bad status from EMC");
+    sprintf(context->outBuf, pOperatorDisplayStr, "emc_operator_display: bad status from LinuxCNC");
   else
     if (operator_display_string[0] == 0)
       sprintf(context->outBuf, pOperatorDisplayStr, "OK");
@@ -1486,7 +1550,7 @@ static cmdResponseType getOperatorText(char *s, connectionRecType *context)
   const char *pOperatorTextStr = "OPERATOR_TEXT %s";
   
   if (updateError() != 0)
-    sprintf(context->outBuf, pOperatorTextStr, "emc_operator_text: bad status from EMC");
+    sprintf(context->outBuf, pOperatorTextStr, "emc_operator_text: bad status from LinuxCNC");
   else
     if (operator_text_string[0] == 0)
       sprintf(context->outBuf, pOperatorTextStr, "OK");
@@ -1768,20 +1832,20 @@ static cmdResponseType getRelActPos(char *s, connectionRecType *context)
 static cmdResponseType getJointPos(char *s, connectionRecType *context)
 {
   const char *pJointPos = "JOINT_POS";
-  int axis, i;
+  int joint, i;
   char buf[16];
   
-  if (s == NULL) axis = -1; // Return all axes
-  else axis = atoi(s);
-  if (axis == -1) {
+  if (s == NULL) joint = -1; // Return all axes
+  else joint = atoi(s);
+  if (joint == -1) {
     strcpy(context->outBuf, pJointPos);
     for (i=0; i<6; i++) {
-      sprintf(buf, " %f", emcStatus->motion.axis[i].input);
+      sprintf(buf, " %f", emcStatus->motion.joint[i].input);
       strcat(context->outBuf, buf);
       }
     }
   else
-    sprintf(context->outBuf, "%s %d %f", pJointPos, axis, emcStatus->motion.axis[axis].input);
+    sprintf(context->outBuf, "%s %d %f", pJointPos, joint, emcStatus->motion.joint[joint].input);
   
   return rtNoError;
 }
@@ -1828,21 +1892,21 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
 {
   const char *pJointLimit = "JOINT_LIMIT";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointLimit);
     for (i=0; i<6; i++) {
-      if (emcStatus->motion.axis[i].minHardLimit)
+      if (emcStatus->motion.joint[i].minHardLimit)
         strcpy(buf, " MINHARD");
       else
-        if (emcStatus->motion.axis[i].minSoftLimit)
+        if (emcStatus->motion.joint[i].minSoftLimit)
 	  strcpy(buf, " MINSOFT");
 	else
-	  if (emcStatus->motion.axis[i].maxSoftLimit)
+	  if (emcStatus->motion.joint[i].maxSoftLimit)
 	    strcpy(buf, " MAXSOFT");
 	  else
-	    if (emcStatus->motion.axis[i].maxHardLimit)
+	    if (emcStatus->motion.joint[i].maxHardLimit)
 	      strcpy(buf, " MAXHARD");
 	    else strcpy(buf, " OK");
       strcat(context->outBuf, buf);
@@ -1850,20 +1914,20 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
     }
   else
     {
-      axis = atoi(s);
-      if (emcStatus->motion.axis[axis].minHardLimit)
+      joint = atoi(s);
+      if (emcStatus->motion.joint[joint].minHardLimit)
         strcpy(buf, "MINHARD");
       else
-        if (emcStatus->motion.axis[axis].minSoftLimit)
+        if (emcStatus->motion.joint[joint].minSoftLimit)
 	  strcpy(buf, "MINSOFT");
 	else
-	  if (emcStatus->motion.axis[axis].maxSoftLimit)
+	  if (emcStatus->motion.joint[joint].maxSoftLimit)
 	    strcpy(buf, "MAXSOFT");
 	  else
-	    if (emcStatus->motion.axis[axis].maxHardLimit)
+	    if (emcStatus->motion.joint[joint].maxHardLimit)
 	      strcpy(buf, "MAXHARD");
 	    else strcpy(buf, "OK");
-      sprintf(context->outBuf, "%s %d %s", pJointLimit, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointLimit, joint, buf);
     }
   return rtNoError;
 }
@@ -1872,22 +1936,22 @@ static cmdResponseType getJointFault(char *s, connectionRecType *context)
 {
   const char *pJointFault = "JOINT_FAULT";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointFault);
     for (i=0; i<6; i++) {
-      if (emcStatus->motion.axis[i].fault)
+      if (emcStatus->motion.joint[i].fault)
         strcat(context->outBuf, " FAULT");
       else strcat(context->outBuf, " OK");
       }
     }
   else {
-      axis = atoi(s);
-      if (emcStatus->motion.axis[axis].fault)
+      joint = atoi(s);
+      if (emcStatus->motion.joint[joint].fault)
         strcpy(buf, "FAULT");
       else strcpy(buf, "OK");
-      sprintf(context->outBuf, "%s %d %s", pJointFault, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointFault, joint, buf);
     }
   return rtNoError;
 }
@@ -1896,7 +1960,7 @@ static cmdResponseType getOverrideLimits(char *s, connectionRecType *context)
 {
   const char *pOverrideLimits = "OVERRIDE_LIMITS %d";
   
-  sprintf(context->outBuf, pOverrideLimits, emcStatus->motion.axis[0].overrideLimits);
+  sprintf(context->outBuf, pOverrideLimits, emcStatus->motion.joint[0].overrideLimits);
   return rtNoError;
 }
 
@@ -1904,22 +1968,22 @@ static cmdResponseType getJointHomed(char *s, connectionRecType *context)
 {
   const char *pJointHomed = "JOINT_HOMED";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointHomed);
     for (i=0; i<6; i++) {
-      if (emcStatus->motion.axis[i].homed)
+      if (emcStatus->motion.joint[i].homed)
         strcat(context->outBuf, " YES");
       else strcat(context->outBuf, " NO");
       }
     }
   else {
-      axis = atoi(s);
-      if (emcStatus->motion.axis[axis].homed)
+      joint = atoi(s);
+      if (emcStatus->motion.joint[joint].homed)
         strcpy(buf, "YES");
       else strcpy(buf, "NO");
-      sprintf(context->outBuf, "%s %d %s", pJointHomed, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointHomed, joint, buf);
     }
   return rtNoError;
 }
@@ -1992,26 +2056,26 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
 {
   const char *pJointType = "JOINT_TYPE";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointType);
     for (i=0; i<6; i++) {
-      switch (emcStatus->motion.axis[i].axisType) {
-        case EMC_AXIS_LINEAR: strcat(context->outBuf, " LINEAR"); break;
-	case EMC_AXIS_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
-	default: strcat(context->outBuf, " CUSTOM");
+      switch (emcStatus->motion.joint[i].jointType) {
+        case EMC_LINEAR: strcat(context->outBuf, " LINEAR"); break;
+	case EMC_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
+	default: strcat(context->outBuf, "CUSTOM");
 	}
       }
     }
   else {
-      axis = atoi(s);
-      switch (emcStatus->motion.axis[axis].axisType) {
-        case EMC_AXIS_LINEAR: strcpy(buf, " LINEAR"); break;
-	case EMC_AXIS_ANGULAR: strcpy(buf, " ANGULAR"); break;
+      joint = atoi(s);
+      switch (emcStatus->motion.joint[joint].jointType) {
+        case EMC_LINEAR: strcpy(buf, " LINEAR"); break;
+	case EMC_ANGULAR: strcpy(buf, " ANGULAR"); break;
 	default: strcpy(buf, "CUSTOM");
 	}
-      sprintf(context->outBuf, "%s %d %s", pJointType, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointType, joint, buf);
     }
   return rtNoError;
 }
@@ -2020,31 +2084,31 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
 {
   const char *pJointUnits = "JOINT_UNITS";
   char buf[16];
-  int axis, i;
+  int joint, i;
   
   if (s == NULL) {
     strcpy(context->outBuf, pJointUnits);
     for (i=0; i<6; i++) {
-      switch (emcStatus->motion.axis[i].axisType) {
-        case EMC_AXIS_LINEAR: 
-	  if (CLOSE(emcStatus->motion.axis[i].units, 1.0, LINEAR_CLOSENESS))
+      switch (emcStatus->motion.joint[i].jointType) {
+        case EMC_LINEAR: 
+	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, LINEAR_CLOSENESS))
 	    strcat(context->outBuf, " MM");
 	  else 
-	    if (CLOSE(emcStatus->motion.axis[i].units, INCH_PER_MM,
+	    if (CLOSE(emcStatus->motion.joint[i].units, INCH_PER_MM,
 	      LINEAR_CLOSENESS)) strcat(context->outBuf, " INCH");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[i].units, CM_PER_MM,
+	      if (CLOSE(emcStatus->motion.joint[i].units, CM_PER_MM,
 	        LINEAR_CLOSENESS)) strcat(context->outBuf, " CM");
 	      else strcat(context->outBuf, " CUSTOM");
 	  break;
-	case EMC_AXIS_ANGULAR:
-	  if (CLOSE(emcStatus->motion.axis[i].units, 1.0, ANGULAR_CLOSENESS))
+	case EMC_ANGULAR:
+	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, ANGULAR_CLOSENESS))
 	    strcat(context->outBuf, " DEG");
 	  else
-  	    if (CLOSE(emcStatus->motion.axis[i].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
+  	    if (CLOSE(emcStatus->motion.joint[i].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
 	      strcat(context->outBuf, " RAD");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[i].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
+	      if (CLOSE(emcStatus->motion.joint[i].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
 	        strcat(context->outBuf, " GRAD");
 	      else strcat(context->outBuf, " CUSTOM");
 	  break;
@@ -2053,32 +2117,32 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
       }
     }
   else {
-      axis = atoi(s);
-      switch (emcStatus->motion.axis[axis].axisType) {
-        case EMC_AXIS_LINEAR: 
-	  if (CLOSE(emcStatus->motion.axis[axis].units, 1.0, LINEAR_CLOSENESS))
+      joint = atoi(s);
+      switch (emcStatus->motion.joint[joint].jointType) {
+        case EMC_LINEAR: 
+	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, LINEAR_CLOSENESS))
 	    strcpy(buf, "MM");
 	  else 
-	    if (CLOSE(emcStatus->motion.axis[axis].units, INCH_PER_MM,
+	    if (CLOSE(emcStatus->motion.joint[joint].units, INCH_PER_MM,
 	      LINEAR_CLOSENESS)) strcpy(buf, "INCH");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[axis].units, CM_PER_MM,
+	      if (CLOSE(emcStatus->motion.joint[joint].units, CM_PER_MM,
 	        LINEAR_CLOSENESS)) strcpy(buf, "CM");
 	      else strcpy(buf, "CUSTOM");
 	  break;
-	case EMC_AXIS_ANGULAR:
-	  if (CLOSE(emcStatus->motion.axis[axis].units, 1.0, ANGULAR_CLOSENESS))
+	case EMC_ANGULAR:
+	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, ANGULAR_CLOSENESS))
 	    strcpy(buf, "DEG");
 	  else
-  	    if (CLOSE(emcStatus->motion.axis[axis].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
+  	    if (CLOSE(emcStatus->motion.joint[joint].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
 	      strcpy(buf, "RAD");
 	    else
-	      if (CLOSE(emcStatus->motion.axis[axis].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
+	      if (CLOSE(emcStatus->motion.joint[joint].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
 	        strcpy(buf, "GRAD");
 	      else strcpy(buf, "CUSTOM");
 	  break;
 	default: strcpy(buf, "CUSTOM");
-      sprintf(context->outBuf, "%s %d %s", pJointUnits, axis, buf);
+      sprintf(context->outBuf, "%s %d %s", pJointUnits, joint, buf);
       }
     }
   return rtNoError;
@@ -2407,8 +2471,8 @@ static int helpGeneral(connectionRecType *context)
 {
   sprintf(context->outBuf, "Available commands:\n\r");
   strcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
-  strcat(context->outBuf, "  Get <emc command>\n\r");
-  strcat(context->outBuf, "  Set <emc command>\n\r");
+  strcat(context->outBuf, "  Get <LinuxCNC command>\n\r");
+  strcat(context->outBuf, "  Set <LinuxCNC command>\n\r");
   strcat(context->outBuf, "  Shutdown\n\r");
   strcat(context->outBuf, "  Help <command>\n\r");
   sockWrite(context);
@@ -2425,7 +2489,7 @@ static int helpHello(connectionRecType *context)
   strcat(context->outBuf, "  With valid password, server responds with:\n\r");
   strcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
   strcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
-  strcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
+  strcat(context->outBuf, "  Server Name is the name of the LinuxCNC Server to which the client has connected.\n\r");
   strcat(context->outBuf, "  Protocol Version is the cleint requested version or latest version support by server if");
   strcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
   strcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
@@ -2436,9 +2500,9 @@ static int helpHello(connectionRecType *context)
 
 static int helpGet(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\rGet <emc command>\n\r");
+  sprintf(context->outBuf, "Usage:\n\rGet <LinuxCNC command>\n\r");
   strcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
-  strcat(context->outBuf, "  Emc command may be one of:\n\r");
+  strcat(context->outBuf, "  LinuxCNC command may be one of:\n\r");
   strcat(context->outBuf, "    Abs_act_pos\n\r");
   strcat(context->outBuf, "    Abs_cmd_pos\n\r");
   strcat(context->outBuf, "    Angular_unit_conversion\n\r");
@@ -2503,7 +2567,7 @@ static int helpGet(connectionRecType *context)
 
 static int helpSet(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r  Set <emc command>\n\r");
+  sprintf(context->outBuf, "Usage:\n\r  Set <LinuxCNC command>\n\r");
   strcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
   strcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
   strcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
@@ -2568,7 +2632,7 @@ static int helpShutdown(connectionRecType *context)
 {
   sprintf(context->outBuf, "Usage:\n\r");
   strcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
-  strcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
+  strcat(context->outBuf, "  and initiates a shutdown of LinuxCNC. The command has no parameters, and\n\r");
   strcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
   sockWrite(context);
   return 0;
@@ -2794,7 +2858,7 @@ static void initMain()
 
 static void usage(char* pname) {
     printf("Usage: \n");
-    printf("         %s [Options] [-- emcOptions]\n"
+    printf("         %s [Options] [-- LinuxCNC_Options]\n"
            "Options:\n"
            "         --help       this help\n"
            "         --port       <port number>  (default=%d)\n"
@@ -2803,7 +2867,7 @@ static void usage(char* pname) {
            "         --enablepw   <password>     (default=%s)\n"
            "         --sessions   <max sessions> (default=%d) (-1 ==> no limit) \n"
            "         --path       <path>         (default=%s)\n"
-           "emcOptions:\n"
+           "LinuxCNC_Options:\n"
            "          -ini        <inifile>      (default=%s)\n"
           ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,emc_inifile
           );
@@ -2827,7 +2891,12 @@ int main(int argc, char *argv[])
         }
       }
 
-    // process emc command line args
+    // process LinuxCNC command line args
+    // Note: '--' may be used to separate cmd line args
+    //       optind is index of next arg to process
+    //       make argv[optind] zeroth arg
+    argc = argc - optind + 1;
+    argv = argv + optind - 1;
     if (emcGetArgs(argc, argv) != 0) {
 	rcs_print_error("error in argument list\n");
 	exit(1);
@@ -2837,7 +2906,7 @@ int main(int argc, char *argv[])
     initSockets();
     // init NML
     if (tryNml() != 0) {
-	rcs_print_error("can't connect to emc\n");
+	rcs_print_error("can't connect to LinuxCNC\n");
 	thisQuit();
 	exit(1);
     }

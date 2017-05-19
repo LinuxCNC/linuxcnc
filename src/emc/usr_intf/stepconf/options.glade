@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.4"/>
   <object class="GtkAdjustment" id="cl_di_adjustment">
     <property name="lower">15</property>
     <property name="upper">50</property>
@@ -38,23 +38,22 @@
     <property name="value">10</property>
     <property name="step_increment">1</property>
   </object>
-  <object class="GtkVBox" id="options">
+  <object class="GtkBox" id="options">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
+    <property name="orientation">vertical</property>
     <child>
-      <object class="GtkVBox" id="vbox6">
+      <object class="GtkBox" id="hbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GtkCheckButton" id="halui">
-            <property name="label" translatable="yes">Include Halui user interface component</property>
+          <object class="GtkRadioButton" id="select_axis">
+            <property name="label" translatable="yes">Use AXIS Screen</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
-            <property name="use_action_appearance">False</property>
-            <property name="relief">none</property>
-            <property name="use_underline">True</property>
-            <property name="xalign">0.55000001192092896</property>
+            <property name="xalign">0.5</property>
+            <property name="active">True</property>
             <property name="draw_indicator">True</property>
           </object>
           <packing>
@@ -64,47 +63,129 @@
           </packing>
         </child>
         <child>
+          <object class="GtkRadioButton" id="select_gmoccapy">
+            <property name="label" translatable="yes">Use Gmoccapy Screen</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="xalign">0.5</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">select_axis</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="manualtoolchange">
+        <property name="label" translatable="yes">_Onscreen prompt for manual tool change</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="halui">
+        <property name="label" translatable="yes">Include Halui user interface component</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="relief">none</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <signal name="toggled" handler="on_halui_toggled" swapped="no"/>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="pyvcp">
+        <property name="label" translatable="yes">Include custom PyVCP GUI panel</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <signal name="toggled" handler="on_pyvcp_toggled" swapped="no"/>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="vbox6">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
           <object class="GtkAlignment" id="alignment6">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">0.15000000596046448</property>
-            <property name="xscale">0.38999998569488525</property>
+            <property name="xalign">0</property>
+            <property name="xscale">0.25</property>
             <child>
-              <object class="GtkFrame" id="frame2">
+              <object class="GtkAlignment" id="alignment4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label_xalign">0</property>
+                <property name="xalign">1</property>
+                <property name="xscale">0.5</property>
                 <child>
-                  <object class="GtkAlignment" id="alignment7">
+                  <object class="GtkExpander" id="expander1">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0.25</property>
-                    <property name="xscale">0.5</property>
+                    <property name="can_focus">True</property>
+                    <property name="expanded">True</property>
                     <child>
-                      <object class="GtkHBox" id="pyvcp_box">
+                      <object class="GtkBox" id="pyvcp_box">
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkVBox" id="vbox5">
+                          <object class="GtkBox" id="vbox5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkHBox" id="hbox13">
+                              <object class="GtkBox" id="hbox13">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="valign">start</property>
                                 <child>
-                                  <object class="GtkVBox" id="vbox9">
+                                  <object class="GtkBox" id="vbox9">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="orientation">vertical</property>
                                     <child>
                                       <object class="GtkRadioButton" id="radiobutton5">
                                         <property name="label" translatable="yes">Blank program</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
+                                        <property name="xalign">0</property>
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
                                       </object>
@@ -120,8 +201,8 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
+                                        <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton5</property>
                                       </object>
@@ -137,8 +218,8 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
+                                        <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton5</property>
                                       </object>
@@ -154,8 +235,8 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
+                                        <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
                                       </object>
                                       <packing>
@@ -176,11 +257,10 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0.51999998092651367</property>
                                     <signal name="clicked" handler="on_display_pyvcp_clicked" swapped="no"/>
                                     <child>
-                                      <object class="GtkHBox" id="hbox12">
+                                      <object class="GtkBox" id="hbox12">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <child>
@@ -236,19 +316,13 @@ panel</property>
                         </child>
                       </object>
                     </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkCheckButton" id="pyvcp">
-                    <property name="label" translatable="yes">Include custom PyVCP GUI panel</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.55000001192092896</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_pyvcp_toggled" swapped="no"/>
+                    <child type="label">
+                      <object class="GtkLabel" id="label1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Set pyVCP options</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -257,80 +331,90 @@ panel</property>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">0</property>
+        <property name="padding">3</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="classicladder">
+        <property name="label" translatable="yes">Include _Classicladder PLC</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <signal name="toggled" handler="on_classicladder_toggled" swapped="no"/>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">5</property>
       </packing>
     </child>
     <child>
       <object class="GtkAlignment" id="alignment1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0.11999999731779099</property>
-        <property name="xscale">0.5</property>
+        <property name="xalign">0</property>
+        <property name="xscale">0.25</property>
         <property name="left_padding">5</property>
         <child>
-          <object class="GtkFrame" id="frame1">
+          <object class="GtkAlignment" id="alignment2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label_xalign">0</property>
+            <property name="yalign">0.05000000074505806</property>
+            <property name="xscale">0.25</property>
+            <property name="yscale">0</property>
             <child>
-              <object class="GtkAlignment" id="alignment2">
+              <object class="GtkExpander" id="expander2">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">0.25</property>
-                <property name="yalign">0.05000000074505806</property>
-                <property name="xscale">0.25</property>
-                <property name="yscale">0</property>
+                <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkHBox" id="ladder_box">
+                  <object class="GtkBox" id="ladder_box">
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkVBox" id="vbox2">
+                      <object class="GtkBox" id="vbox2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkHBox" id="hbox6">
+                          <object class="GtkBox" id="hbox6">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkVBox" id="vbox3">
+                              <object class="GtkBox" id="vbox3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkExpander" id="clpins_expander">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <child>
-                                      <object class="GtkTable" id="table4">
+                                      <object class="GtkGrid" id="table4">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="n_rows">6</property>
-                                        <property name="n_columns">2</property>
                                         <child>
                                           <object class="GtkSpinButton" id="floatsout">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">●</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">cl_fo_adjustment</property>
                                             <property name="climb_rate">0.040000000000000001</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
                                             <property name="top_attach">5</property>
-                                            <property name="bottom_attach">6</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -338,17 +422,11 @@ panel</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">●</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">cl_fi_adjustment</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
                                             <property name="top_attach">4</property>
-                                            <property name="bottom_attach">5</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -356,17 +434,11 @@ panel</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">●</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">cl_so_adjustment</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
                                             <property name="top_attach">3</property>
-                                            <property name="bottom_attach">4</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -374,17 +446,11 @@ panel</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">●</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">cl_si_adjustment</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
                                             <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -392,62 +458,54 @@ panel</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="invisible_char">●</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">cl_do_adjustment</property>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
                                             <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label_floatout">
+                                          <object class="GtkSpinButton" id="digitsin">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
-                                            <property name="ypad">5</property>
-                                            <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">s32out</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="invisible_char">●</property>
+                                            <property name="adjustment">cl_di_adjustment</property>
                                           </object>
                                           <packing>
-                                            <property name="top_attach">5</property>
-                                            <property name="bottom_attach">6</property>
+                                            <property name="left_attach">1</property>
+                                            <property name="top_attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label_floatin">
+                                          <object class="GtkLabel" id="label_digin">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
+                                            <property name="xalign">0.039999999105930328</property>
                                             <property name="ypad">5</property>
-                                            <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
+                                            <property name="label" translatable="yes">Number of digital in pins:</property>
                                             <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">s32out</property>
+                                            <property name="mnemonic_widget">digitsin</property>
+                                            <property name="angle">2.2351741811588166e-10</property>
                                           </object>
                                           <packing>
-                                            <property name="top_attach">4</property>
-                                            <property name="bottom_attach">5</property>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">0</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label_s32out">
+                                          <object class="GtkLabel" id="label_digout">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
-                                            <property name="ypad">5</property>
-                                            <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
+                                            <property name="xalign">0.049999997019767761</property>
+                                            <property name="ypad">3</property>
+                                            <property name="label" translatable="yes">Number of digital  out pins:</property>
                                             <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">s32out</property>
+                                            <property name="mnemonic_widget">digitsout</property>
                                           </object>
                                           <packing>
-                                            <property name="top_attach">3</property>
-                                            <property name="bottom_attach">4</property>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">1</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -462,52 +520,54 @@ panel</property>
                                             <property name="mnemonic_widget">s32in</property>
                                           </object>
                                           <packing>
+                                            <property name="left_attach">0</property>
                                             <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label_digout">
+                                          <object class="GtkLabel" id="label_s32out">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0.049999997019767761</property>
-                                            <property name="ypad">3</property>
-                                            <property name="label" translatable="yes">Number of digital  out pins:</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">digitsout</property>
-                                          </object>
-                                          <packing>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkSpinButton" id="digitsin">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="invisible_char">●</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
-                                            <property name="adjustment">cl_di_adjustment</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="label_digin">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="xalign">0.039999999105930328</property>
+                                            <property name="xalign">0</property>
                                             <property name="ypad">5</property>
-                                            <property name="label" translatable="yes">Number of digital in pins:</property>
+                                            <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
                                             <property name="use_underline">True</property>
-                                            <property name="mnemonic_widget">digitsin</property>
-                                            <property name="angle">0.019999999552965164</property>
+                                            <property name="mnemonic_widget">s32out</property>
                                           </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">3</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label_floatin">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="xalign">0</property>
+                                            <property name="ypad">5</property>
+                                            <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="mnemonic_widget">s32out</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">4</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label_floatout">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="xalign">0</property>
+                                            <property name="ypad">5</property>
+                                            <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="mnemonic_widget">s32out</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">5</property>
+                                          </packing>
                                         </child>
                                       </object>
                                     </child>
@@ -534,7 +594,6 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="relief">none</property>
                                     <property name="use_underline">True</property>
                                     <property name="xalign">0</property>
@@ -547,52 +606,11 @@ panel</property>
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
                                 <property name="fill">True</property>
                                 <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkVBox" id="vbox4">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
@@ -603,25 +621,27 @@ panel</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox7">
+                          <object class="GtkBox" id="hbox7">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkVBox" id="vbox7">
+                              <object class="GtkBox" id="vbox7">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkRadioButton" id="radiobutton1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                     <child>
                                       <object class="GtkLabel" id="newladder">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
                                         <property name="label" translatable="yes">Blank ladder program</property>
                                         <property name="use_underline">True</property>
                                       </object>
@@ -639,7 +659,7 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">radiobutton1</property>
                                   </object>
@@ -655,8 +675,8 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">radiobutton1</property>
                                   </object>
@@ -672,8 +692,8 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">radiobutton1</property>
                                   </object>
@@ -689,8 +709,8 @@ panel</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -711,14 +731,13 @@ panel</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_loadladder_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkAlignment" id="alignment3">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkHBox" id="hbox10">
+                                      <object class="GtkBox" id="hbox10">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <child>
@@ -774,18 +793,13 @@ program</property>
                     </child>
                   </object>
                 </child>
-              </object>
-            </child>
-            <child type="label">
-              <object class="GtkCheckButton" id="classicladder">
-                <property name="label" translatable="yes">Include _Classicladder PLC</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_underline">True</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_classicladder_toggled" swapped="no"/>
+                <child type="label">
+                  <object class="GtkLabel" id="label2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Set Ladder Options</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -794,23 +808,7 @@ program</property>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">1</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkCheckButton" id="manualtoolchange">
-        <property name="label" translatable="yes">_Onscreen prompt for manual tool change</property>
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">False</property>
-        <property name="use_action_appearance">False</property>
-        <property name="use_underline">True</property>
-        <property name="draw_indicator">True</property>
-      </object>
-      <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
-        <property name="position">2</property>
+        <property name="position">6</property>
       </packing>
     </child>
   </object>

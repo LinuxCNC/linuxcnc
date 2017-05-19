@@ -25,10 +25,10 @@ net DirZ stepgen.2.dir => parport.0.pin-08-out
 net DirA stepgen.3.dir => parport.0.pin-09-out
 
 # Hook up limit and home switches, each axis shares a common pin for homing, limit min and limit max
-net LimitX parport.0.pin-11-in-not => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
-net LimitY parport.0.pin-12-in-not => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
-net LimitZ parport.0.pin-13-in => axis.2.neg-lim-sw-in axis.2.pos-lim-sw-in axis.2.home-sw-in
-net LimitA parport.0.pin-15-in-not => axis.3.neg-lim-sw-in axis.3.pos-lim-sw-in axis.3.home-sw-in
+net LimitX parport.0.pin-11-in-not => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in joint.0.home-sw-in
+net LimitY parport.0.pin-12-in-not => joint.1.neg-lim-sw-in joint.1.pos-lim-sw-in joint.1.home-sw-in
+net LimitZ parport.0.pin-13-in => joint.2.neg-lim-sw-in joint.2.pos-lim-sw-in joint.2.home-sw-in
+net LimitA parport.0.pin-15-in-not => joint.3.neg-lim-sw-in joint.3.pos-lim-sw-in joint.3.home-sw-in
 
 # Hook up the spindle signal
 net SpindleOn motion.spindle-forward => parport.1.pin-01-out

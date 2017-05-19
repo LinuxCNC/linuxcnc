@@ -1,9 +1,9 @@
 # HAL config file for vismach simulation of a vertical milling machine
 # This file only handles axis movement. 
 
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES num_dio=6
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_dio=6
 
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
@@ -11,16 +11,16 @@ addf motion-controller servo-thread
 
 # loop position commands back to motion module feedback
 
-net x-pos axis.0.motor-pos-cmd => axis.0.motor-pos-fb
-net y-pos axis.1.motor-pos-cmd => axis.1.motor-pos-fb
-net z-pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb
+net x-pos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+net y-pos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+net z-pos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
 
-net x-pos-lim axis.0.pos-lim-sw-in axis.0.home-sw-in
-net x-neg-lim axis.0.neg-lim-sw-in
-net y-pos-lim axis.1.pos-lim-sw-in axis.1.home-sw-in
-net y-neg-lim axis.1.neg-lim-sw-in
-net z-pos-lim axis.2.pos-lim-sw-in axis.2.home-sw-in
-net z-neg-lim axis.2.neg-lim-sw-in
+net x-pos-lim joint.0.pos-lim-sw-in joint.0.home-sw-in
+net x-neg-lim joint.0.neg-lim-sw-in
+net y-pos-lim joint.1.pos-lim-sw-in joint.1.home-sw-in
+net y-neg-lim joint.1.neg-lim-sw-in
+net z-pos-lim joint.2.pos-lim-sw-in joint.2.home-sw-in
+net z-neg-lim joint.2.neg-lim-sw-in
 
 
 # estop loopback

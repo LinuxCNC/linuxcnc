@@ -1,6 +1,6 @@
 # load realtime modules
-loadrt trivkins
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 loadrt at_pid num_chan=2 debug=1
 loadrt ddt count=4 
 loadrt pluto_servo
@@ -26,8 +26,8 @@ addf mux2.0                  servo-thread
 addf debounce.0              servo-thread
 addf limit1.0                servo-thread
 
-setp pluto-servo.encoder.0.scale [AXIS_0]INPUT_SCALE
-setp pluto-servo.encoder.1.scale [AXIS_2]INPUT_SCALE
+setp pluto-servo.encoder.0.scale [JOINT_0]INPUT_SCALE
+setp pluto-servo.encoder.1.scale [JOINT_2]INPUT_SCALE
 setp pluto-servo.encoder.2.scale -4096
 
 setp pluto-servo.pwm.0.scale 26 # volts supply
@@ -37,29 +37,29 @@ setp pid.0.maxoutput 26 # volts at motor
 setp pid.1.maxoutput 26
 
 # the values below come from the ini
-setp pid.0.Pgain [AXIS_0]P
-setp pid.0.Igain [AXIS_0]I
-setp pid.0.Dgain [AXIS_0]D
-setp pid.0.bias [AXIS_0]BIAS
-setp pid.0.FF0 [AXIS_0]FF0
-setp pid.0.FF1 [AXIS_0]FF1
-setp pid.0.FF2 [AXIS_0]FF2
-setp pid.0.deadband [AXIS_0]DEADBAND
+setp pid.0.Pgain [JOINT_0]P
+setp pid.0.Igain [JOINT_0]I
+setp pid.0.Dgain [JOINT_0]D
+setp pid.0.bias [JOINT_0]BIAS
+setp pid.0.FF0 [JOINT_0]FF0
+setp pid.0.FF1 [JOINT_0]FF1
+setp pid.0.FF2 [JOINT_0]FF2
+setp pid.0.deadband [JOINT_0]DEADBAND
 
-setp pid.1.Pgain [AXIS_2]P
-setp pid.1.Igain [AXIS_2]I
-setp pid.1.Dgain [AXIS_2]D
-setp pid.1.bias [AXIS_2]BIAS
-setp pid.1.FF0 [AXIS_2]FF0
-setp pid.1.FF1 [AXIS_2]FF1
-setp pid.1.FF2 [AXIS_2]FF2
-setp pid.1.deadband [AXIS_2]DEADBAND
+setp pid.1.Pgain [JOINT_2]P
+setp pid.1.Igain [JOINT_2]I
+setp pid.1.Dgain [JOINT_2]D
+setp pid.1.bias [JOINT_2]BIAS
+setp pid.1.FF0 [JOINT_2]FF0
+setp pid.1.FF1 [JOINT_2]FF1
+setp pid.1.FF2 [JOINT_2]FF2
+setp pid.1.deadband [JOINT_2]DEADBAND
 
-net Xpos-fb pluto-servo.encoder.0.position => pid.0.feedback axis.0.motor-pos-fb
-net Zpos-fb pluto-servo.encoder.1.position => pid.1.feedback axis.2.motor-pos-fb
+net Xpos-fb pluto-servo.encoder.0.position => pid.0.feedback joint.0.motor-pos-fb
+net Zpos-fb pluto-servo.encoder.1.position => pid.1.feedback joint.2.motor-pos-fb
 
-net Xpos-cmd axis.0.motor-pos-cmd => pid.0.command ddt.0.in
-net Zpos-cmd axis.2.motor-pos-cmd => pid.1.command ddt.2.in
+net Xpos-cmd joint.0.motor-pos-cmd => pid.0.command ddt.0.in
+net Zpos-cmd joint.2.motor-pos-cmd => pid.1.command ddt.2.in
 
 net Xvel-cmd pid.0.output => pluto-servo.pwm.0.value
 net Zvel-cmd pid.1.output => pluto-servo.pwm.1.value
@@ -71,8 +71,8 @@ net Zvel ddt.2.out => ddt.3.in
 net Zacc ddt.3.out
 
 # machine ON
-net Xenable axis.0.amp-enable-out => pid.0.enable pluto-servo.pwm.0.enable pluto-servo.dout.09
-net Zenable axis.2.amp-enable-out => pid.1.enable pluto-servo.pwm.1.enable
+net Xenable joint.0.amp-enable-out => pid.0.enable pluto-servo.pwm.0.enable pluto-servo.dout.09
+net Zenable joint.2.amp-enable-out => pid.1.enable pluto-servo.pwm.1.enable
 
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
@@ -81,7 +81,7 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 setp debounce.0.delay 3
 net Xswitch pluto-servo.din.00-not => debounce.0.0.in
-net Xswitch-debounced debounce.0.0.out => axis.0.home-sw-in axis.0.pos-lim-sw-in
+net Xswitch-debounced debounce.0.0.out => joint.0.home-sw-in joint.0.pos-lim-sw-in
 
 # tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared

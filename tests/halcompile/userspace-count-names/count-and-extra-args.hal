@@ -1,0 +1,15 @@
+loadusr -W userspace_count_names count=2 zip
+list pin
+unloadusr userspace_count_names
+waitusr userspace_count_names
+
+loadusr -W userspace_count_names zip count=2 zap
+list pin
+unloadusr userspace_count_names
+waitusr userspace_count_names
+
+loadusr -W userspace_count_names  zap zoot count=2
+list pin
+unloadusr userspace_count_names
+waitusr userspace_count_names
+

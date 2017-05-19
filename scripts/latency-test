@@ -31,14 +31,17 @@ human_time () {
     fi
 }
 
-BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
-case $# in
-0) ;;
-1) BASE=$(parse_time $1) ;;
-2) BASE=$(parse_time $1); SERVO=$(parse_time $2) ;;
-*)
-    echo "Usage: latency-test [base-period [servo-period]]"
-    echo "Default: latency-test 25us 1ms"
+usage () {
+    echo "Usage:"
+    echo "       latency-test [base-period [servo-period]]"
+    echo "   or:"
+    echo "       latency-test period -      # for single thread"
+    echo "   or:"
+    echo "       latency-test -h | --help   # (this text)"
+    echo ""
+    echo "Defaults:     base-period=${BASE}nS servo-period=${SERVO}nS"
+    echo "Equivalently: base-period=$(human_time $BASE) servo-period=$(human_time $SERVO)"
+    echo ""
     echo "Times may be specified with suffix \"s\", \"ms\", \"us\" \"µs\", or \"ns\""
     echo "Times without a suffix and less than 1000 are taken to be in us;"
     echo "other times without a suffix are taken to be in ns"
@@ -46,6 +49,19 @@ case $# in
     echo "The worst-case latency seen in any run of latency-test"
     echo "is written to the file ~/.latency"
     exit 1
+}
+
+BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
+
+case $1 in
+  -h|--help) usage;;
+esac
+
+case $# in
+0) ;;
+1) BASE=$(parse_time $1) ;;
+2) BASE=$(parse_time $1); SERVO=$(parse_time $2) ;;
+*) usage;;
 esac
 
 if [ "$BASE" -gt "$SERVO" ]; then TEMP=$BASE; BASE=$SERVO; SERVO=$TEMP; fi
@@ -75,7 +91,7 @@ cat > lat.xml <<EOF
 <table>
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring linuxcnc.
+"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>
@@ -120,7 +136,7 @@ cat > lat.xml <<EOF
 <table>
 <tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
 <text>
-"""Let this test run for a few minutes, then note the maximum Jitter.  You will use it while configuring linuxcnc.
+"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
 
 While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
 </text>

@@ -1212,22 +1212,23 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		return;
 	    }
 	}
-	server->write_reply =
+	REMOTE_WRITE_REPLY *reply;
+	server->write_reply = reply =
 	    (REMOTE_WRITE_REPLY *) server->process_request(&server->
 	    write_req);
 	if (((min_compatible_version < 2.58) && (min_compatible_version > 1e-6)) || server->write_reply->confirm_write) {
 	    if (NULL == server->write_reply) {
 		rcs_print_error("Server could not process request.\n");
-		putbe32(temp_buffer, _client_tcp_port->serial_number);
+	        putbe32(temp_buffer, reply->write_id);
 		putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
 		putbe32(temp_buffer + 8, 0);	/* was_read */
 		sendn(_client_tcp_port->socket_fd, temp_buffer, 12, 0,
 		    dtimeout);
 		return;
 	    }
-	    putbe32(temp_buffer, _client_tcp_port->serial_number);
-	    putbe32(temp_buffer + 4, server->write_reply->status);
-	    putbe32(temp_buffer + 8, server->write_reply->was_read);
+	    putbe32(temp_buffer, reply->write_id);
+	    putbe32(temp_buffer + 4, reply->status);
+	    putbe32(temp_buffer + 8, reply->was_read);
 	    if (sendn
 		(_client_tcp_port->socket_fd, temp_buffer, 12, 0,
 		    dtimeout) < 0) {

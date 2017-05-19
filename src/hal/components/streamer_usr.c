@@ -13,17 +13,17 @@
 /** This file, 'streamer_usr.c', is the user part of a HAL component
     that allows numbers stored in a file to be "streamed" onto HAL
     pins at a uniform realtime sample rate.  When the realtime module
-    is loaded, it creates a fifo in shared memory.  Then, the user
-    space program 'hal_streamer' is invoked.  'hal_streamer' takes 
-    input from stdin and writes it to the fifo, and the realtime
-    part transfers the data from the fifo to HAL pins.
+    is loaded, it creates a stream in shared memory.  Then, the user
+    space program 'hal_stream' is invoked.  'hal_stream' takes
+    input from stdin and writes it to the stream, and the realtime
+    part transfers the data from the stream to HAL pins.
 
     Invoking:
 
     halstreamer [chan_num]
 
     'chan_num', if present, specifies the streamer channel to use.
-    The default is channel zero.  Since hal_streamer takes its data
+    The default is channel zero.  Since hal_stream takes its data
     from stdin, it will almost always either need to have stdin 
     redirected from a file, or have data piped into it from some
     other program.
@@ -68,7 +68,6 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"                /* HAL public API decls */
 #include "streamer.h"
-#include "rtapi_atomic.h"
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -79,7 +78,6 @@
 ************************************************************************/
 
 int comp_id = -1;	/* -1 means hal_init() not called yet */
-int shmem_id = -1;
 int exitval = 1;	/* program return code - 1 means error */
 int ignore_sig = 0;	/* used to flag critical regions */
 int linenumber=0;	/* used to print linenumber on errors */
@@ -90,33 +88,24 @@ char comp_name[HAL_NAME_LEN+1];	/* name for this instance of streamer */
 ************************************************************************/
 
 /* signal handler */
+static sig_atomic_t stop;
 static void quit(int sig)
 {
     if ( ignore_sig ) {
 	return;
     }
-    if ( shmem_id >= 0 ) {
-	rtapi_shmem_delete(shmem_id, comp_id);
-    }
-    if ( comp_id >= 0 ) {
-	hal_exit(comp_id);
-    }
-    exit(exitval);
+    stop = 1;
 }
 
 #define BUF_SIZE 4000
 
 int main(int argc, char **argv)
 {
-    int n, channel, retval, size, line;
+    int n, channel, line=0;
     char *cp, *cp2;
-    void *shmem_ptr;
-    fifo_t *fifo;
-    shmem_data_t *data, *dptr;
+    hal_stream_t stream;
     char buf[BUF_SIZE];
 	const char *errmsg;
-    int tmpin, newin;
-    struct timespec delay;
 
     /* set return code to "fail", clear it later if all goes well */
     exitval = 1;
@@ -172,66 +161,30 @@ int main(int argc, char **argv)
 	goto out;
     }
     hal_ready(comp_id);
-    /* open shmem for user/RT comms (fifo) */
-    /* initial size is unknown, assume only the fifo structure */
-    shmem_id = rtapi_shmem_new(STREAMER_SHMEM_KEY+channel, comp_id, sizeof(fifo_t));
-    if ( shmem_id < 0 ) {
-	fprintf(stderr, "ERROR: couldn't allocate user/RT shared memory\n");
+    /* open shmem for user/RT comms (stream) */
+    int r = hal_stream_attach(&stream, comp_id, STREAMER_SHMEM_KEY+channel, 0);
+    if ( r < 0 ) {
+	errno = -r;
+	perror("hal_stream_attach");
 	goto out;
     }
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
-    if ( retval < 0 ) {
-	fprintf(stderr, "ERROR: couldn't map user/RT shared memory\n");
-	goto out;
-    }
-    fifo = shmem_ptr;
-    if ( fifo->magic != FIFO_MAGIC_NUM ) {
-	fprintf(stderr, "ERROR: channel %d realtime part is not loaded\n", channel );
-	goto out;
-    }
-    /* now use data in fifo structure to calculate proper shmem size */
-    size = sizeof(fifo_t) + fifo->num_pins * fifo->depth * sizeof(shmem_data_t);
-    /* close shmem, re-open with proper size */
-    rtapi_shmem_delete(shmem_id, comp_id);
-    shmem_id = rtapi_shmem_new(STREAMER_SHMEM_KEY+channel, comp_id, size);
-    if ( shmem_id < 0 ) {
-	fprintf(stderr, "ERROR: couldn't re-allocate user/RT shared memory\n");
-	goto out;
-    }
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
-    if ( retval < 0 ) {
-	fprintf(stderr, "ERROR: couldn't re-map user/RT shared memory\n");
-	goto out;
-    }
-    line = 1;
-    fifo = shmem_ptr;
-    data = fifo->data;
+    int num_pins = hal_stream_element_count(&stream);
     while ( fgets(buf, BUF_SIZE, stdin) ) {
-	/* calculate _next_ value for in */
-	tmpin = fifo->in;
-	newin = tmpin + 1;
-	if ( newin >= fifo->depth ) {
-	    newin = 0;
+	/* skip comment lines */
+	if ( buf[0] == '#' ) {
+	    line++;
+	    continue;
 	}
-	/* wait until there is space in the buffer */
-	while ( newin == atomic_load_explicit(&fifo->out,
-                memory_order_acquire) ) {
-            /* fifo full, sleep for 10mS */
-	    delay.tv_sec = 0;
-	    delay.tv_nsec = 10000000;
-	    nanosleep(&delay,NULL);
-	}
-	/* make pointer fifo entry */
-	dptr = &data[tmpin*fifo->num_pins];
-	/* parse input line, write results to fifo */
 	cp = buf;
 	errmsg = NULL;
-	for ( n = 0 ; n < fifo->num_pins ; n++ ) {
+	union hal_stream_data data[num_pins];
+	for ( n = 0 ; n < num_pins ; n++ ) {
+            union hal_stream_data *dptr = &data[n];
 	    /* strip leading whitespace */
 	    while ( isspace(*cp) ) {
 		cp++;
 	    }
-	    switch ( fifo->type[n] ) {
+	    switch ( hal_stream_element_type(&stream, n) ) {
 	    case HAL_FLOAT:
 		dptr->f = strtod(cp, &cp2);
 		break;
@@ -284,7 +237,9 @@ int main(int argc, char **argv)
 		abort the program.  Right now it skips the line. */
 	} else {
 	    /* good data, keep it */
-	    atomic_store_explicit(&fifo->in, newin, memory_order_release);
+            hal_stream_wait_writable(&stream, &stop);
+	    if(stop) break;
+	    hal_stream_write(&stream, data);
 	}
 	line++;
     }
@@ -293,9 +248,7 @@ int main(int argc, char **argv)
 
 out:
     ignore_sig = 1;
-    if ( shmem_id >= 0 ) {
-	rtapi_shmem_delete(shmem_id, comp_id);
-    }
+    hal_stream_detach(&stream);
     if ( comp_id >= 0 ) {
 	hal_exit(comp_id);
     }

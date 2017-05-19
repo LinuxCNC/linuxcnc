@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ----------------------------------------------------------------------*/
 #include "rcs_print.hh"
 #include "emc.hh"
+#include "emcglb.h"
 #include <stdio.h>
 #include "hal.h"
 #include "rtapi.h"
@@ -93,17 +94,30 @@ do { \
      if (retval < 0) return retval; \
    } while (0)
 
-#define MAKE_FLOAT_PIN_IDX(NAME,DIR,IDX) \
+#define MAKE_FLOAT_PIN_IDX(NAME,HALPIN_NAME,DIR,IDX) \
 do {                        \
      retval = hal_pin_float_newf(DIR,&(the_inihal_data->NAME[IDX]),\
-                                 comp_id,PREFIX"%d."#NAME,IDX); \
+                                 comp_id,PREFIX"%d."#HALPIN_NAME,IDX); \
+     if (retval < 0) return retval; \
+   } while (0)
+
+#define MAKE_FLOAT_PIN_LETTER(NAME,HALPIN_NAME,DIR,IDX,LETTER) \
+do {                        \
+     retval = hal_pin_float_newf(DIR,&(the_inihal_data->NAME[IDX]),\
+                                 comp_id,PREFIX"%c."#HALPIN_NAME,LETTER); \
      if (retval < 0) return retval; \
    } while (0)
 
 #define INIT_PIN(NAME) *(the_inihal_data->NAME) = old_inihal_data.NAME;
 
+int ini_hal_exit(void)
+{
+    hal_exit(comp_id);
+    comp_id = -1;
+    return 0;
+}
 
-int ini_hal_init(void)
+int ini_hal_init(int numjoints)
 {
     int retval;
 
@@ -122,14 +136,23 @@ int ini_hal_init(void)
         return -1;
     }
 
-    for (int idx = 0; idx < EMCMOT_MAX_JOINTS; idx++) {
-        MAKE_FLOAT_PIN_IDX(backlash,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(min_limit,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(max_limit,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(max_velocity,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(max_acceleration,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(ferror,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(min_ferror,HAL_IN,idx);
+    for (int idx = 0; idx < numjoints; idx++) {
+        MAKE_FLOAT_PIN_IDX(joint_backlash,backlash,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_ferror,ferror,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_min_ferror,min_ferror,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_min_limit,min_limit,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_max_limit,max_limit,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_max_velocity,max_velocity,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_max_acceleration,max_acceleration,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_home,home,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_home_offset,home_offset,HAL_IN,idx);
+    }
+    for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
+        char letter = "xyzabcuvw"[idx];
+        MAKE_FLOAT_PIN_LETTER(axis_min_limit,min_limit,HAL_IN,idx,letter);
+        MAKE_FLOAT_PIN_LETTER(axis_max_limit,max_limit,HAL_IN,idx,letter);
+        MAKE_FLOAT_PIN_LETTER(axis_max_velocity,max_velocity,HAL_IN,idx,letter);
+        MAKE_FLOAT_PIN_LETTER(axis_max_acceleration,max_acceleration,HAL_IN,idx,letter);
     }
 
     MAKE_FLOAT_PIN(traj_default_velocity,HAL_IN);
@@ -148,7 +171,7 @@ int ini_hal_init(void)
     return 0;
 } // ini_hal_init()
 
-int ini_hal_init_pins()
+int ini_hal_init_pins(int numjoints)
 {
     INIT_PIN(traj_default_velocity);
     INIT_PIN(traj_max_velocity);
@@ -162,14 +185,22 @@ int ini_hal_init_pins()
     INIT_PIN(traj_arc_blend_ramp_freq);
     INIT_PIN(traj_arc_blend_tangent_kink_ratio);
 
-    for (int idx = 0; idx < EMCMOT_MAX_JOINTS; idx++) {
-        INIT_PIN(backlash[idx]);
-        INIT_PIN(min_limit[idx]);
-        INIT_PIN(max_limit[idx]);
-        INIT_PIN(max_velocity[idx]);
-        INIT_PIN(max_acceleration[idx]);
-        INIT_PIN(ferror[idx]);
-        INIT_PIN(min_ferror[idx]);
+    for (int idx = 0; idx < numjoints; idx++) {
+        INIT_PIN(joint_backlash[idx]);
+        INIT_PIN(joint_ferror[idx]);
+        INIT_PIN(joint_min_ferror[idx]);
+        INIT_PIN(joint_min_limit[idx]);
+        INIT_PIN(joint_max_limit[idx]);
+        INIT_PIN(joint_max_velocity[idx]);
+        INIT_PIN(joint_max_acceleration[idx]);
+        INIT_PIN(joint_home[idx]);
+        INIT_PIN(joint_home_offset[idx]);
+    }
+    for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
+        INIT_PIN(axis_min_limit[idx]);
+        INIT_PIN(axis_max_limit[idx]);
+        INIT_PIN(axis_max_velocity[idx]);
+        INIT_PIN(axis_max_acceleration[idx]);
     }
 
     return 0;
@@ -185,7 +216,7 @@ static void copy_hal_data(const ptr_inihal_data &i, value_inihal_data &j)
 #undef ARRAY
 } // copy_hal_data()
 
-int check_ini_hal_items()
+int check_ini_hal_items(int numjoints)
 {
     value_inihal_data new_inihal_data_mutable;
     copy_hal_data(*the_inihal_data, new_inihal_data_mutable);
@@ -253,72 +284,127 @@ int check_ini_hal_items()
             return -1;
         }
     }
-
-    for (int idx = 0; idx < EMCMOT_MAX_JOINTS; idx++) {
-        if (CHANGED_IDX(backlash,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(backlash,idx);
-            UPDATE_IDX(backlash,idx);
-            if (0 != emcAxisSetBacklash(idx,NEW(backlash[idx]))) {
+    for (int idx = 0; idx < numjoints; idx++) {
+        if (CHANGED_IDX(joint_backlash,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_backlash,idx);
+            UPDATE_IDX(joint_backlash,idx);
+            if (0 != emcJointSetBacklash(idx,NEW(joint_backlash[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print("check_ini_hal_items:bad return value from emcAxisSetBacklash\n");
+                    rcs_print("check_ini_hal_items:bad return value from emcJointSetBacklash\n");
                 }
         }
         }
-        if (CHANGED_IDX(min_limit,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(min_limit,idx);
-            UPDATE_IDX(min_limit,idx);
-            if (0 != emcAxisSetMinPositionLimit(idx,NEW(min_limit[idx]))) {
+        if (CHANGED_IDX(joint_min_limit,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_min_limit,idx);
+            UPDATE_IDX(joint_min_limit,idx);
+            if (0 != emcJointSetMinPositionLimit(idx,NEW(joint_min_limit[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMinPositionLimit\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(joint_max_limit,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_max_limit,idx);
+            UPDATE_IDX(joint_max_limit,idx);
+            if (0 != emcJointSetMaxPositionLimit(idx,NEW(joint_max_limit[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxPositionLimit\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(joint_max_velocity,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_max_velocity,idx);
+            UPDATE_IDX(joint_max_velocity,idx);
+            if (0 != emcJointSetMaxVelocity(idx, NEW(joint_max_velocity[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxVelocity\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(joint_max_acceleration,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_max_acceleration,idx);
+            UPDATE_IDX(joint_max_acceleration,idx);
+            if (0 != emcJointSetMaxAcceleration(idx, NEW(joint_max_acceleration[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxAcceleration\n");
+                }
+            }
+        }
+        if (   CHANGED_IDX(joint_home,idx)
+            || CHANGED_IDX(joint_home_offset,idx)
+           ) {
+            if (debug) {
+                SHOW_CHANGE_IDX(joint_home,idx);
+                SHOW_CHANGE_IDX(joint_home_offset,idx);
+            }
+            UPDATE_IDX(joint_home,idx);
+            UPDATE_IDX(joint_home_offset,idx);
+            if  (0 != emcJointUpdateHomingParams(idx, NEW(joint_home[idx]),
+                                                      NEW(joint_home_offset[idx]))
+                ) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointUpdateHomingParams\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(joint_ferror,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_ferror,idx);
+            UPDATE_IDX(joint_ferror,idx);
+            if (0 != emcJointSetFerror(idx,NEW(joint_ferror[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetFerror\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(joint_min_ferror,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_min_ferror,idx);
+            UPDATE_IDX(joint_min_ferror,idx);
+            if (0 != emcJointSetMinFerror(idx,NEW(joint_min_ferror[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMinFerror\n");
+                }
+        }
+        }
+    } // numjoints
+
+    for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
+        if (CHANGED_IDX(axis_min_limit,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(axis_min_limit,idx);
+            UPDATE_IDX(axis_min_limit,idx);
+            if (0 != emcAxisSetMinPositionLimit(idx,NEW(axis_min_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMinPositionLimit\n");
                 }
             }
         }
-        if (CHANGED_IDX(max_limit,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(max_limit,idx);
-            UPDATE_IDX(max_limit,idx);
-            if (0 != emcAxisSetMaxPositionLimit(idx,NEW(max_limit[idx]))) {
+        if (CHANGED_IDX(axis_max_limit,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(axis_max_limit,idx);
+            UPDATE_IDX(axis_max_limit,idx);
+            if (0 != emcAxisSetMaxPositionLimit(idx,NEW(axis_max_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxPositionLimit\n");
                 }
             }
         }
-        if (CHANGED_IDX(max_velocity,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(max_velocity,idx);
-            UPDATE_IDX(max_velocity,idx);
-            if (0 != emcAxisSetMaxVelocity(idx, NEW(max_velocity[idx]))) {
+        if (CHANGED_IDX(axis_max_velocity,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(axis_max_velocity,idx);
+            UPDATE_IDX(axis_max_velocity,idx);
+            if (0 != emcAxisSetMaxVelocity(idx,NEW(axis_max_velocity[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxVelocity\n");
                 }
             }
         }
-        if (CHANGED_IDX(max_acceleration,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(max_acceleration,idx);
-            UPDATE_IDX(max_acceleration,idx);
-            if (0 != emcAxisSetMaxAcceleration(idx, NEW(max_acceleration[idx]))) {
+        if (CHANGED_IDX(axis_max_acceleration,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(axis_max_acceleration,idx);
+            UPDATE_IDX(axis_max_acceleration,idx);
+            if (0 != emcAxisSetMaxAcceleration(idx,NEW(axis_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
                 }
             }
         }
-        if (CHANGED_IDX(ferror,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(ferror,idx);
-            UPDATE_IDX(ferror,idx);
-            if (0 != emcAxisSetFerror(idx,NEW(ferror[idx]))) {
-                if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetFerror\n");
-                }
-            }
-        }
-        if (CHANGED_IDX(min_ferror,idx) ) {
-            if (debug) SHOW_CHANGE_IDX(min_ferror,idx);
-            UPDATE_IDX(min_ferror,idx);
-            if (0 != emcAxisSetMinFerror(idx,NEW(min_ferror[idx]))) {
-                if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMinFerror\n");
-                }
-        }
-        }
-    }
+    } // EMCMOT_MAX_AXIS
 
     return 0;
 } // check_ini_hal_items

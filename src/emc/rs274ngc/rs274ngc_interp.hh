@@ -267,10 +267,10 @@ public:
  int convert_cycle_g83(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z,
                              double delta);
- int convert_cycle_g84(block_pointer block, CANON_PLANE plane, double x, double y,
+ int convert_cycle_g74_g84(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z,
                              CANON_DIRECTION direction,
-                             CANON_SPEED_FEED_MODE mode);
+                             CANON_SPEED_FEED_MODE mode,int motion, double dwell);
  int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z);
  int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
@@ -646,8 +646,8 @@ int read_inputs(setup_pointer settings);
     int unwind_call(int status, const char *file, int line, const char *function);
 
 
- int convert_straight_indexer(int, block*, setup*);
- int issue_straight_index(int, double, int, setup*);
+ int convert_straight_indexer(int anum, int jnum, block* blk, setup* settings);
+ int issue_straight_index(int anum, int jnum, double end, int lineno, setup* settings);
 
  void doLog(unsigned int flags, const char *file, int line,
 	    const char *fmt, ...) __attribute__((format(printf,5,6)));

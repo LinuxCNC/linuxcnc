@@ -1,0 +1,16 @@
+twopass:invoked with <> options
+twopass:found ./a.hal
+twopass:found ./b.hal
+and2 bit   IN FALSE andX.in0 <== p
+and2 bit   IN FALSE andX.in1 <== p
+and2 bit   OUT FALSE andX.out
+and2 s32   OUT 0 andX.time
+and2 bit   IN FALSE andY.in0
+and2 bit   IN FALSE andY.in1
+and2 bit   OUT FALSE andY.out ==> p
+and2 s32   OUT 0 andY.time
+and2 bit   IN FALSE andZ.in0 <== p
+and2 bit   IN FALSE andZ.in1
+and2 bit   OUT FALSE andZ.out
+and2 s32   OUT 0 andZ.time
+

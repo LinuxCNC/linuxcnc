@@ -18,7 +18,11 @@
 // Interpreter internals - Python bindings
 // Michael Haberler 7/2011
 
-#include <boost/python.hpp>
+// (at least in boost 1.55, return_internal_reference needs a definition
+// of boost::python::detail::get which comes from detail/caller.hpp.
+// At first sniff it's a boost bug but what can you do...)
+#include <boost/python/detail/caller.hpp>
+#include <boost/python/return_internal_reference.hpp>
 namespace bp = boost::python;
 
 #include "rs274ngc.hh"

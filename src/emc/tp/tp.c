@@ -142,9 +142,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotDebug->joints[0].acc_limit;
-    acc_bound->y = emcmotDebug->joints[1].acc_limit;
-    acc_bound->z = emcmotDebug->joints[2].acc_limit;
+    acc_bound->x = emcmotDebug->axes[0].acc_limit; //0==>x
+    acc_bound->y = emcmotDebug->axes[1].acc_limit; //1==>y
+    acc_bound->z = emcmotDebug->axes[2].acc_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -154,9 +154,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotDebug->joints[0].vel_limit;
-    vel_bound->y = emcmotDebug->joints[1].vel_limit;
-    vel_bound->z = emcmotDebug->joints[2].vel_limit;
+    vel_bound->x = emcmotDebug->axes[0].vel_limit; //0==>x
+    vel_bound->y = emcmotDebug->axes[1].vel_limit; //1==>y
+    vel_bound->z = emcmotDebug->axes[2].vel_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -351,10 +351,10 @@ int tpClearDIOs(TP_STRUCT * const tp) {
     tp->syncdio.anychanged = 0;
     tp->syncdio.dio_mask = 0;
     tp->syncdio.aio_mask = 0;
-    for (i = 0; i < num_dio; i++) {
+    for (i = 0; i < emcmotConfig->numDIO; i++) {
         tp->syncdio.dios[i] = 0;
     }
-    for (i = 0; i < num_aio; i++) {
+    for (i = 0; i < emcmotConfig->numAIO; i++) {
         tp->syncdio.aios[i] = 0;
     }
 
@@ -2278,12 +2278,12 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
 
     int i=0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
-        for (i=0; i < num_dio; i++) {
+        for (i=0; i < emcmotConfig->numDIO; i++) {
             if (!(tc->syncdio.dio_mask & (1 << i))) continue;
             if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
             if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
         }
-        for (i=0; i < num_aio; i++) {
+        for (i=0; i < emcmotConfig->numAIO; i++) {
             if (!(tc->syncdio.aio_mask & (1 << i))) continue;
             emcmotAioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
         }

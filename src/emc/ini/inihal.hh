@@ -22,31 +22,30 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "hal.h"
 #include "emcmotcfg.h"
 
-int check_ini_hal_items();
-int ini_hal_init(void);
-int ini_hal_init_pins(void);
+int check_ini_hal_items(int numjoints);
+int ini_hal_init(int numjoints);
+int ini_hal_exit(void);
+int ini_hal_init_pins(int numjoints);
 
 /* not doing these fields (yet,ever?):
 [TRAJ]COORDINATES
-[TRAJ]AXES
 [TRAJ]LINEAR_UNITS
 [TRAJ]ANGULAR_UNITS
-[TRAJ]HOME
-[AXIS_n]TYPE
-[AXIS_n]UNITS
-[AXIS_n]HOME
-[AXIS_n]HOME_OFFSET
-[AXIS_n]HOME_SEARCH_VEL
-[AXIS_n]HOME_LATCH_VEL
-[AXIS_n]HOME_FINAL_VEL
-[AXIS_n]HOME_IS_SHARED
-[AXIS_n]HOME_USE_INDEX
-[AXIS_n]HOME_IGNORE_LIMITS
-[AXIS_n]HOME_SEQUENCE
-[AXIS_n]VOLATILE_HOME
-[AXIS_n]LOCKING_INDEXER
-[AXIS_n]COMP_FILE_TYPE
-[AXIS_n]COMP
+[JOINT_n]TYPE
+[JOINT_n]UNITS
+[JOINT_n]HOME
+[JOINT_n]HOME_OFFSET
+[JOINT_n]HOME_SEARCH_VEL
+[JOINT_n]HOME_LATCH_VEL
+[JOINT_n]HOME_FINAL_VEL
+[JOINT_n]HOME_IS_SHARED
+[JOINT_n]HOME_USE_INDEX
+[JOINT_n]HOME_IGNORE_LIMITS
+[JOINT_n]HOME_SEQUENCE
+[JOINT_n]VOLATILE_HOME
+[JOINT_n]LOCKING_INDEXER
+[JOINT_n]COMP_FILE_TYPE
+[JOINT_n]COMP
 */
 #define HAL_FIELDS \
     FIELD(hal_float_t,traj_default_velocity) \
@@ -61,13 +60,20 @@ int ini_hal_init_pins(void);
     FIELD(hal_float_t,traj_arc_blend_ramp_freq) \
     FIELD(hal_float_t,traj_arc_blend_tangent_kink_ratio) \
 \
-    ARRAY(hal_float_t,backlash,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,min_limit,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,max_limit,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,max_velocity,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,max_acceleration,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,ferror,EMCMOT_MAX_JOINTS) \
-    ARRAY(hal_float_t,min_ferror,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_backlash,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_ferror,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_min_ferror,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_min_limit,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_max_limit,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_max_velocity,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_max_acceleration,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_home,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,joint_home_offset,EMCMOT_MAX_JOINTS) \
+\
+    ARRAY(hal_float_t,axis_min_limit,EMCMOT_MAX_AXIS) \
+    ARRAY(hal_float_t,axis_max_limit,EMCMOT_MAX_AXIS) \
+    ARRAY(hal_float_t,axis_max_velocity,EMCMOT_MAX_AXIS) \
+    ARRAY(hal_float_t,axis_max_acceleration,EMCMOT_MAX_AXIS) \
 
 struct PTR {
     template<class T>

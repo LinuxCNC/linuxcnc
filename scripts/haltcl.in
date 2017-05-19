@@ -1,20 +1,6 @@
 #!@TCLSH@
-load @EMC2_TCL_LIB_DIR@/hal.so
 
-proc parse_ini {filename} {
-    set f [open $filename]
-
-    while {[gets $f line] >= 0} {
-        if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
-            # nothing
-        } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
-            upvar $section s
-            lappend s([string trim $k]) $v
-        }
-    }
-
-    close $f
-}
+package require Linuxcnc
 
 if {   [llength $argv] > 0 \
     && (  ([lindex $argv 0] == "-i") || ([lindex $argv 0] == "-ini")  )} {

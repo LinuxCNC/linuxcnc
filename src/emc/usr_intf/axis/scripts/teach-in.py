@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """Usage:
     python teach.py nmlfile outputfile
 If outputfile is not specified, writes to standard output.
@@ -39,20 +39,23 @@ s = linuxcnc.stat()
 
 def get_cart():
     s.poll()
-    position = " ".join(["%-8.4f"] * s.axes)
-    return position % s.position[:s.axes]
+    position = ""
+    for i,a in enumerate("XYZABCUVW"):
+        if s.axis_mask & (1<<i):
+            position = position + "%-8.4f " % (s.position[i])
+    return position[:-1] # remove the final space char
     
 def get_joint():
     s.poll()
-    position = " ".join(["%-8.4f"] * s.axes)
-    return position % s.joint_actual_position[:s.axes]
+    position = " ".join(["%-8.4f"] * s.joints)
+    return position % s.joint_actual_position[:s.joints]
 
 def log():
     global linenumber;
     if world.get():
-	p = get_cart()
+        p = get_cart()
     else:
-	p = get_joint()
+        p = get_joint()
     label1.configure(text='Learned:  %s' % p)
     print linenumber, p, s.flood, s.mist, s.lube, s.spindle_enabled;
     linenumber += 1;
@@ -60,9 +63,9 @@ def log():
 def show():
     s.poll()
     if world.get():
-	p = get_cart()
+        p = get_cart()
     else:
-	p = get_joint()
+        p = get_joint()
     label2.configure(text='Position: %s' % p)
     app.after(100, show)
 

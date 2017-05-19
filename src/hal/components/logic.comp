@@ -3,10 +3,12 @@ pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
+pin out bit nand if personality & 0x800;
+pin out bit nor if personality & 0x1000;
 function _ nofp;
 description """
-General `logic function' component.  Can perform `and', `or'
-and `xor' of up to 16 inputs.
+General `logic function' component.  Can perform `and', `or',
+`nand', `nor' and `xor' of up to 16 inputs.
 .LP
 Determine the proper value for `personality'
 by adding the inputs and outputs then convert to hex:
@@ -18,6 +20,10 @@ The number of input pins, usually from 2 to 16
 512 (0x200)  if the `or' output is desired
 .IP \\(bu
 1024 (0x400)  if the `xor' (exclusive or) output is desired
+.IP \\(bu
+2048 (0x800)  if the `nand' output is desired
+.IP \\(bu
+4096 (0x1000)  if the `nor' output is desired
 .LP
 Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
 would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
@@ -33,4 +39,6 @@ FUNCTION(_) {
     if(personality & 0x100) and = a;
     if(personality & 0x200) or = o;
     if(personality & 0x400) xor = x;
+    if(personality & 0x800) nand = !a;
+    if(personality & 0x1000) nor = !o;
 }

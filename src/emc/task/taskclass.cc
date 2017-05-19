@@ -36,6 +36,12 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 
+#include <boost/python/dict.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/object.hpp>
+#include <boost/python/tuple.hpp>
+namespace bp = boost::python;
+
 // Python plugin interface
 #define TASK_MODULE "task"
 #define TASK_VAR "pytask"

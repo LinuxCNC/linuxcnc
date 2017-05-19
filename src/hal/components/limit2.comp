@@ -2,9 +2,9 @@ component limit2 "Limit the output signal to fall between min and max and limit 
 pin in float in;
 pin out float out;
 pin in bit load "When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv";
-param rw float min_=-1e20;
-param rw float max_=1e20;
-param rw float maxv=1e20;
+pin in float min_=-1e20;
+pin in float max_=1e20;
+pin in float maxv=1e20;
 option data limit2_data;
 function _;
 license "GPL";

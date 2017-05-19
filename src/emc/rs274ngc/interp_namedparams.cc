@@ -15,7 +15,12 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <boost/python.hpp>
+
+#include "python_plugin.hh"
+#include <boost/python/dict.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/tuple.hpp>
 namespace bp = boost::python;
 
 #include <unistd.h>
@@ -356,7 +361,7 @@ int Interp::find_named_param(
 	  bp::object retval, tupleargs, kwargs;
 	  bp::list plist;
 
-	  plist.append(_setup.pythis); // self
+	  plist.append(*_setup.pythis); // self
 	  tupleargs = bp::tuple(plist);
 	  kwargs = bp::dict();
 

@@ -299,6 +299,7 @@
 #include <getopt.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#include <rtapi_mutex.h>
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halrmt may want to avoid libnml dependency */

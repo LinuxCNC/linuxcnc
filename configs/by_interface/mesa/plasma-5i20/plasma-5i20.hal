@@ -14,10 +14,10 @@
 # Core EMC/HAL Loads
 
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 loadrt hal_parport cfg=0x378
 
@@ -50,36 +50,36 @@ addf parport.0.write servo-thread
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= joint.0.amp-enable-out 
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.00.enable
 
 
 # position command and feedback
-net emcmot.00.pos-cmd <= axis.0.motor-pos-cmd
+net emcmot.00.pos-cmd <= joint.0.motor-pos-cmd
 net emcmot.00.pos-cmd => hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-cmd
 
 net motor.00.pos-fb <= hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-fb
-net motor.00.pos-fb => axis.0.motor-pos-fb
+net motor.00.pos-fb => joint.0.motor-pos-fb
 
 
 # timing parameters
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirhold         [AXIS_0]DIRHOLD
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirsetup        [JOINT_0]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.dirhold         [JOINT_0]DIRHOLD
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.steplen         [AXIS_0]STEPLEN
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [AXIS_0]STEPSPACE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.steplen         [JOINT_0]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [JOINT_0]STEPSPACE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [AXIS_0]SCALE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [JOINT_0]SCALE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [JOINT_0]STEPGEN_MAXACCEL
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
 
 net both-home-x <= parport.0.pin-10-in-not
-net both-home-x => axis.0.home-sw-in
-net both-home-x => axis.0.neg-lim-sw-in
-net both-home-x => axis.0.pos-lim-sw-in
+net both-home-x => joint.0.home-sw-in
+net both-home-x => joint.0.neg-lim-sw-in
+net both-home-x => joint.0.pos-lim-sw-in
 
 # ################
 # Y [1] Axis
@@ -89,36 +89,36 @@ net both-home-x => axis.0.pos-lim-sw-in
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= joint.1.amp-enable-out 
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.01.enable
 
 
 # position command and feedback
-net emcmot.01.pos-cmd <= axis.1.motor-pos-cmd
+net emcmot.01.pos-cmd <= joint.1.motor-pos-cmd
 net emcmot.01.pos-cmd => hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-cmd
 
 net motor.01.pos-fb <= hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-fb
-net motor.01.pos-fb => axis.1.motor-pos-fb
+net motor.01.pos-fb => joint.1.motor-pos-fb
 
 
 # timing parameters
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirhold         [AXIS_1]DIRHOLD
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirsetup        [JOINT_1]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.dirhold         [JOINT_1]DIRHOLD
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.steplen         [AXIS_1]STEPLEN
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [AXIS_1]STEPSPACE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.steplen         [JOINT_1]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [JOINT_1]STEPSPACE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [AXIS_1]SCALE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [JOINT_1]SCALE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [JOINT_1]STEPGEN_MAXACCEL
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.step_type       0
 
 net both-home-y <= parport.0.pin-11-in-not
-net both-home-y => axis.1.home-sw-in
-net both-home-y => axis.1.neg-lim-sw-in
-net both-home-y => axis.1.pos-lim-sw-in
+net both-home-y => joint.1.home-sw-in
+net both-home-y => joint.1.neg-lim-sw-in
+net both-home-y => joint.1.pos-lim-sw-in
 
 # ################
 # Z [2] Axis
@@ -128,38 +128,38 @@ net both-home-y => axis.1.pos-lim-sw-in
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= joint.2.amp-enable-out 
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.02.enable
 
 
 # position command and feedback
 # hijack position command and feed through thc
-net emcmot.02.pos-cmd thc.z-pos-in <= axis.2.motor-pos-cmd
+net emcmot.02.pos-cmd thc.z-pos-in <= joint.2.motor-pos-cmd
 net thc-pos-cmd thc.z-pos-out => hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-cmd
-net motor.02.pos-fb axis.2.motor-pos-fb <= thc.z-fb-out
+net motor.02.pos-fb joint.2.motor-pos-fb <= thc.z-fb-out
 
-net both-home-z => axis.2.home-sw-in
-net both-home-z => axis.2.neg-lim-sw-in
-net both-home-z => axis.2.pos-lim-sw-in
+net both-home-z => joint.2.home-sw-in
+net both-home-z => joint.2.neg-lim-sw-in
+net both-home-z => joint.2.pos-lim-sw-in
 
 # timing parameters
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirhold         [AXIS_2]DIRHOLD
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirsetup        [JOINT_2]DIRSETUP
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.dirhold         [JOINT_2]DIRHOLD
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.steplen         [AXIS_2]STEPLEN
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.steplen         [JOINT_2]STEPLEN
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [JOINT_2]STEPSPACE
 
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [AXIS_2]SCALE
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [JOINT_2]SCALE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [JOINT_2]STEPGEN_MAXACCEL
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 
 net both-home-z <= parport.0.pin-12-in-not
-net both-home-z => axis.2.home-sw-in
-net both-home-z => axis.2.neg-lim-sw-in
-net both-home-z => axis.2.pos-lim-sw-in
+net both-home-z => joint.2.home-sw-in
+net both-home-z => joint.2.neg-lim-sw-in
+net both-home-z => joint.2.pos-lim-sw-in
 
 #######################
 # Standard I/O Block - EStop, Etc

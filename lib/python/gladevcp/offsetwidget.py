@@ -64,7 +64,7 @@ class HAL_Offset(gtk.Label):
             self.inifile = self.emc.ini(INIPATH)
             units=self.inifile.find("TRAJ","LINEAR_UNITS")
             if units==None:
-                units=self.inifile.find("AXIS_0","UNITS")
+                units=self.inifile.find("AXIS_X","UNITS")
         except:
             units = "inch"
 

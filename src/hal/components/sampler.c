@@ -59,7 +59,6 @@
 #include "streamer.h"		/* decls and such for fifos */
 #include "rtapi_errno.h"
 #include "rtapi_string.h"
-#include "rtapi_atomic.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -77,24 +76,26 @@ RTAPI_MP_ARRAY_INT(depth,MAX_SAMPLERS,"fifo depth");
 /* this structure contains the HAL shared memory data for one sampler */
 
 typedef struct {
-    fifo_t *fifo;		/* pointer to user/RT fifo */
+    hal_stream_t fifo;		/* pointer to user/RT fifo */
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
     hal_bit_t *full;		/* pin: overrun flag */
     hal_bit_t *enable;		/* pin: enable sampling */
     hal_s32_t *overruns;	/* pin: number of overruns */
     hal_s32_t *sample_num;	/* pin: sample ID / timestamp */
+    int num_pins;
+    pin_data_t pins[HAL_STREAM_MAX_PINS];
 } sampler_t;
 
 /* other globals */
 static int comp_id;		/* component ID */
-static int shmem_id[MAX_SAMPLERS];
+static int nsamplers;
+static sampler_t *samplers;
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int parse_types(fifo_t *f, char *cfg);
-static int init_sampler(int num, fifo_t *tmp_fifo);
+static int init_sampler(int num, sampler_t *tmp_fifo);
 static void sample(void *arg, long period);
 
 /***********************************************************************
@@ -103,73 +104,45 @@ static void sample(void *arg, long period);
 
 int rtapi_app_main(void)
 {
-    int n, numchan, max_depth, retval;
-    fifo_t tmp_fifo[MAX_SAMPLERS];
+    int n, retval;
 
-    /* validate config info */
-    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
-	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
-	    break;
-	}
-	tmp_fifo[n].num_pins = parse_types(&(tmp_fifo[n]), cfg[n]);
-	if ( tmp_fifo[n].num_pins == 0 ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: bad config string '%s'\n", cfg[n]);
-	    return -EINVAL;
-	}
-	/* allow one extra "slot" for the sample number */
-	max_depth = MAX_SHMEM / (sizeof(shmem_data_t) * (tmp_fifo[n].num_pins + 1));
-	if ( depth[n] > max_depth ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: depth too large, max is %d\n", max_depth);
-	    return -ENOMEM;
-	}
-	tmp_fifo[n].depth = depth[n];
-    }
-    if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SAMPLER: ERROR: no channels specified\n");
-	return -EINVAL;
-    }
-    numchan = n;
-    /* clear shmem IDs */
-    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
-	shmem_id[n] = -1;
-    }
-
-    /* have good config info, connect to the HAL */
     comp_id = hal_init("sampler");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: hal_init() failed\n");
 	return -EINVAL;
     }
 
-    /* create the samplers - allocate memory, export pins, etc. */
-    for (n = 0; n < numchan; n++) {
-	retval = init_sampler(n, &(tmp_fifo[n]));
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: sampler %d init failed\n", n);
-	    hal_exit(comp_id);
-	    return retval;
+    samplers = hal_malloc(MAX_SAMPLERS * sizeof(sampler_t));
+    /* validate config info */
+    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
+	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
+	    break;
 	}
+	retval = hal_stream_create(&samplers[n].fifo, comp_id, SAMPLER_SHMEM_KEY+n, depth[n], cfg[n]);
+	if(retval < 0) {
+	    goto fail;
+	}
+	nsamplers++;
+	retval = init_sampler(n, &samplers[n]);
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"SAMPLER: installed %d data samplers\n", numchan);
+    if ( n == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SAMPLER: ERROR: no channels specified\n");
+	return -EINVAL;
+    }
+
     hal_ready(comp_id);
     return 0;
+fail:
+    for(n=0; n<nsamplers; n++) hal_stream_detach(&samplers[n].fifo);
+    hal_exit(comp_id);
+    return retval;
 }
 
 void rtapi_app_exit(void)
 {
-    int n;
-
-    /* free any shmem blocks */
-    for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
-	if ( shmem_id[n] > 0 ) {
-	    rtapi_shmem_delete(shmem_id[n], comp_id);
-	}
-    }
+    int i;
+    for(i=0; i<nsamplers; i++) hal_stream_detach(&samplers[i].fifo);
     hal_exit(comp_id);
 }
 
@@ -180,49 +153,24 @@ void rtapi_app_exit(void)
 static void sample(void *arg, long period)
 {
     sampler_t *samp;
-    fifo_t *fifo;
     pin_data_t *pptr;
-    shmem_data_t *dptr;
-    int tmpin, newin, tmpout, n;
+    int n;
 
     /* point at sampler struct in HAL shmem */
     samp = arg;
     /* are we enabled? */
     if ( ! *(samp->enable) ) {
-	/* no, done */
+	*(samp->curr_depth) = hal_stream_depth(&samp->fifo);
+	*(samp->full) = !hal_stream_writable(&samp->fifo);
 	return;
     }
-    /* HAL pins are right after the sampler_t struct in HAL shmem */
-    pptr = (pin_data_t *)(samp+1);
-    /* point at user/RT fifo in other shmem */
-    fifo = samp->fifo;
-    /* fifo data area is right after the fifo_t struct in shmem */
-    dptr = (shmem_data_t *)(fifo+1);
-    /* calculate _next_ value for in */
-    tmpin = fifo->in;
-    newin = tmpin + 1;
-    if ( newin >= fifo->depth ) {
-	newin = 0;
-    }
-    tmpout = atomic_load_explicit(&fifo->out, memory_order_acquire);
-    if ( newin == tmpout ) {
-	/* fifo is full, need to overwrite the oldest data */
-	tmpout++;
-	if ( tmpout >= fifo->depth ) {
-	    tmpout = 0;
-	}
-	atomic_store_explicit(&fifo->out, tmpout, memory_order_release);
-        /* log the overrun */
-	(*samp->overruns)++;
-	*(samp->full) = 1;
-    } else {
-	*(samp->full) = 0;
-    }
-    /* make pointer to fifo entry */
-    dptr += tmpin * (fifo->num_pins+1);
+    /* point at pins in hal shmem */
+    pptr = samp->pins;
+    union hal_stream_data data[HAL_STREAM_MAX_PINS], *dptr=data;
     /* copy data from HAL pins to fifo */
-    for ( n = 0 ; n < fifo->num_pins ; n++ ) {
-	switch ( fifo->type[n] ) {
+    int num_pins = hal_stream_element_count(&samp->fifo);
+    for ( n = 0 ; n < num_pins ; n++ ) {
+	switch ( hal_stream_element_type(&samp->fifo, n) ) {
 	case HAL_FLOAT:
 	    dptr->f = *(pptr->hfloat);
 	    break;
@@ -245,83 +193,28 @@ static void sample(void *arg, long period)
 	dptr++;
 	pptr++;
     }
-    /* store sample number at the end of the fifo record */
-    dptr->u = (*samp->sample_num)++;
-    /* update fifo pointer */
-    atomic_store_explicit(&fifo->in, newin, memory_order_release);
-    /* calculate current depth */
-    if ( newin < tmpout ) {
-	newin += fifo->depth;
+    if ( hal_stream_write(&samp->fifo, data) < 0) {
+	/* fifo is full, data is lost */
+        /* log the overrun */
+	(*samp->overruns)++;
+	*(samp->full) = 1;
+	*(samp->curr_depth) = hal_stream_maxdepth(&samp->fifo);
+    } else {
+	*(samp->full) = 0;
+	*(samp->curr_depth) = hal_stream_depth(&samp->fifo);
     }
-    *(samp->curr_depth) = newin - tmpout;
 }
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int parse_types(fifo_t *f, char *cfg)
+static int init_sampler(int num, sampler_t *str)
 {
-    char *c;
-    int n;
-
-    c = cfg;
-    n = 0;
-    while (( n < MAX_PINS ) && ( *c != '\0' )) {
-	switch (*c) {
-	case 'f':
-	case 'F':
-	    f->type[n++] = HAL_FLOAT;
-	    c++;
-	    break;
-	case 'b':
-	case 'B':
-	    f->type[n++] = HAL_BIT;
-	    c++;
-	    break;
-	case 'u':
-	case 'U':
-	    f->type[n++] = HAL_U32;
-	    c ++;
-	    break;
-	case 's':
-	case 'S':
-	    f->type[n++] = HAL_S32;
-	    c++;
-	    break;
-	default:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SAMPLER: ERROR: unknown type '%c', must be F, B, U, or S\n", *c);
-	    return 0;
-	}
-    }
-    if ( *c != '\0' ) {
-	/* didn't reach end of cfg string */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SAMPLER: ERROR: more than %d items\n", MAX_PINS);
-	return 0;
-    }
-    return n;
-}
-
-static int init_sampler(int num, fifo_t *tmp_fifo)
-{
-    int size, retval, n, usefp;
-    void *shmem_ptr;
-    sampler_t *str;
+    int retval, usefp, n;
     pin_data_t *pptr;
-    fifo_t *fifo;
     char buf[HAL_NAME_LEN + 1];
 
-    /* alloc shmem for base sampler data and user specified pins */
-    size = sizeof(sampler_t) + tmp_fifo->num_pins * sizeof(pin_data_t);
-    str = hal_malloc(size);
-
-    if (str == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SAMPLER: ERROR: couldn't allocate HAL shared memory\n");
-	return -ENOMEM;
-    }
     /* export "standard" pins and params */
     retval = hal_pin_bit_newf(HAL_OUT, &(str->full), comp_id,
 	"sampler.%d.full", num);
@@ -364,20 +257,19 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
     *(str->curr_depth) = 0;
     *(str->overruns) = 0;
     *(str->sample_num) = 0;
-    /* HAL pins are right after the sampler_t struct in HAL shmem */
-    pptr = (pin_data_t *)(str+1);
+    pptr = str->pins;
     usefp = 0;
     /* export user specified pins (the ones that sample data) */
-    for ( n = 0 ; n < tmp_fifo->num_pins ; n++ ) {
+    for ( n = 0 ; n < hal_stream_element_count(&str->fifo) ; n++ ) {
 	rtapi_snprintf(buf, sizeof(buf), "sampler.%d.pin.%d", num, n);
-	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_IN, (void **)pptr, comp_id );
+	retval = hal_pin_new(buf, hal_stream_element_type(&str->fifo, n), HAL_IN, (void **)pptr, comp_id );
 	if (retval != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"SAMPLER: ERROR: pin '%s' export failed\n", buf);
 	    return -EIO;
 	}
 	/* init the pin value */
-	switch ( tmp_fifo->type[n] ) {
+	switch ( hal_stream_element_type(&str->fifo, n) ) {
 	case HAL_FLOAT:
 	    *(pptr->hfloat) = 0.0;
 	    usefp = 1;
@@ -405,32 +297,6 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
 	return retval;
     }
 
-    /* alloc shmem for user/RT comms (fifo) */
-    size = sizeof(fifo_t) + (tmp_fifo->num_pins + 1) * tmp_fifo->depth * sizeof(shmem_data_t);
-    shmem_id[num] = rtapi_shmem_new(SAMPLER_SHMEM_KEY+num, comp_id, size);
-    if ( shmem_id[num] < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SAMPLEr: ERROR: couldn't allocate user/RT shared memory\n");
-	return -ENOMEM;
-    }
-    retval = rtapi_shmem_getptr(shmem_id[num], &shmem_ptr);
-    if ( retval < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SAMPLER: ERROR: couldn't map user/RT shared memory\n");
-	return -ENOMEM;
-    }
-    fifo = shmem_ptr;
-    str->fifo = fifo;
-    /* copy data from temp_fifo */
-    *fifo = *tmp_fifo;
-    /* init fields */
-    fifo->in = 0;
-    fifo->out = 0;
-    fifo->last_sample = 0;
-    fifo->last_sample--;
-
-    /* mark it inited for user program */
-    fifo->magic = FIFO_MAGIC_NUM;
     return 0;
 }
 

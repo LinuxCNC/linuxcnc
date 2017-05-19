@@ -1,40 +1,52 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.4"/>
   <object class="GtkTextBuffer" id="textbuffer1">
-    <property name="text" translatable="yes">All the necessary information has now been gathered. 
+    <property name="text" translatable="yes">All the necessary information has now been gathered.
 Click "Done" to write your configuration files to disk.
 
 If you experience lockups while running LinuxCNC:
--you will need to decrease the maximum velocity which will have the effect of increasing BASE_PERIOD.
+-you will need to decrease the maximum velocity which will have the effect of increasing
+ BASE_PERIOD.
 
 If you experience lost steps while running LinuxCNC:
--first verify that you entered the proper timings for your stepper drivers. 
+-first verify that you entered the proper timings for your stepper drivers.
 -then run a more thorough latency test as described on the linuxcnc.org wiki.
  http;//wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting
 
 If you experience the "Unexpected Realtime Delay" message:
--run a more thorough latency test as described on the linuxcnc.org wiki: 
+-run a more thorough latency test as described on the linuxcnc.org wiki:
  http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting</property>
   </object>
-  <object class="GtkTable" id="finished">
+  <object class="GtkGrid" id="finished">
+    <property name="name">MyGrid</property>
     <property name="visible">True</property>
-    <property name="n_columns">2</property>
+    <property name="app_paintable">True</property>
+    <property name="can_focus">False</property>
+    <property name="row_homogeneous">True</property>
+    <property name="column_homogeneous">True</property>
     <child>
       <object class="GtkTextView" id="textview1">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_left">1</property>
+        <property name="margin_top">1</property>
+        <property name="hscroll_policy">natural</property>
+        <property name="vscroll_policy">natural</property>
+        <property name="editable">False</property>
         <property name="wrap_mode">word</property>
+        <property name="left_margin">1</property>
+        <property name="right_margin">1</property>
+        <property name="indent">4</property>
+        <property name="cursor_visible">False</property>
         <property name="buffer">textbuffer1</property>
+        <property name="accepts_tab">False</property>
       </object>
       <packing>
-        <property name="left_attach">1</property>
-        <property name="right_attach">2</property>
+        <property name="left_attach">0</property>
+        <property name="top_attach">0</property>
       </packing>
-    </child>
-    <child>
-      <placeholder/>
     </child>
   </object>
 </interface>

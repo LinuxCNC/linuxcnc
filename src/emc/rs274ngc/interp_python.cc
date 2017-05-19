@@ -33,8 +33,11 @@
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
-#include <boost/python.hpp>
-
+#include "python_plugin.hh"
+#include "interp_python.hh"
+#include <boost/python/extract.hpp>
+#include <boost/python/import.hpp>
+#include <boost/python/str.hpp>
 namespace bp = boost::python;
 
 #include <unistd.h>
@@ -127,7 +130,7 @@ int Interp::pycall(setup_pointer settings,
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
     CHKS(!PYUSABLE, "pycall(%s): Pyhton plugin not initialized",funcname);
-    frame->py_return_type = 0;
+    frame->pystuff.impl->py_return_type = 0;
 
     switch (calltype) {
     case PY_EXECUTE: // just run a string
@@ -146,7 +149,7 @@ int Interp::pycall(setup_pointer settings,
 	
 	// handler continuation if a generator was used
 	try {
-	    retval = frame->generator_next();
+	    retval = frame->pystuff.impl->generator_next();
 	}
 	catch (bp::error_already_set) {
 	    if (PyErr_Occurred()) {
@@ -155,7 +158,7 @@ int Interp::pycall(setup_pointer settings,
 		// Technically this means a normal end of the handler and hence we 
 		// treat it as INTERP_OK indicating this handler is now done
 		if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-		    frame->py_return_type = RET_STOPITERATION;
+		    frame->pystuff.impl->py_return_type = RET_STOPITERATION;
 		    bp::handle_exception();
 		    PyErr_Clear();
 		    logPy("pycall: call generator - StopIteration exception");
@@ -173,7 +176,7 @@ int Interp::pycall(setup_pointer settings,
 	}
 	break;
     default:
-	python_plugin->call(module,funcname, frame->tupleargs,frame->kwargs,retval);
+	python_plugin->call(module,funcname, frame->pystuff.impl->tupleargs,frame->pystuff.impl->kwargs,retval);
 	CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
 	     "pycall(%s):\n%s", funcname,
 	     python_plugin->last_exception().c_str());
@@ -201,27 +204,27 @@ int Interp::pycall(setup_pointer settings,
 
 		    // a generator was returned. This must have been the first time call to a handler
 		    // which contains a yield. Extract next() method.
-		    frame->generator_next = bp::getattr(retval, "next");
+		    frame->pystuff.impl->generator_next = bp::getattr(retval, "next");
 
 		    // and  call it for the first time.
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
-		    frame->py_returned_int = bp::extract<int>(frame->generator_next());
-		    frame->py_return_type = RET_YIELD;
+		    frame->pystuff.impl->py_returned_int = bp::extract<int>(frame->pystuff.impl->generator_next());
+		    frame->pystuff.impl->py_return_type = RET_YIELD;
 		
 		} else if (PyString_Check(retval.ptr())) {  
 		    // returning a string sets the interpreter error message and aborts
 		    char *msg = bp::extract<char *>(retval);
 		    ERM("%s", msg);
-		    frame->py_return_type = RET_ERRORMSG;
+		    frame->pystuff.impl->py_return_type = RET_ERRORMSG;
 		    status = INTERP_ERROR;
 		} else if (PyInt_Check(retval.ptr())) {  
-		    frame->py_returned_int = bp::extract<int>(retval);
-		    frame->py_return_type = RET_INT;
-		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->py_returned_int);
+		    frame->pystuff.impl->py_returned_int = bp::extract<int>(retval);
+		    frame->pystuff.impl->py_return_type = RET_INT;
+		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->pystuff.impl->py_returned_int);
 		} else if (PyFloat_Check(retval.ptr())) { 
-		    frame->py_returned_double = bp::extract<double>(retval);
-		    frame->py_return_type = RET_DOUBLE;
-		    logPy("Python call %s.%s returned float: %f", module, funcname, frame->py_returned_double);
+		    frame->pystuff.impl->py_returned_double = bp::extract<double>(retval);
+		    frame->pystuff.impl->py_return_type = RET_DOUBLE;
+		    logPy("Python call %s.%s returned float: %f", module, funcname, frame->pystuff.impl->py_returned_double);
 		} else {
 		    // not a generator, int, or float - strange
 		    PyObject *res_str = PyObject_Str(retval.ptr());
@@ -234,7 +237,7 @@ int Interp::pycall(setup_pointer settings,
 		}
 	    } else {
 		logPy("call: O <%s> call returned None",funcname);
-		frame->py_return_type = RET_NONE;
+		frame->pystuff.impl->py_return_type = RET_NONE;
 	    }
 	    break;
 
@@ -246,8 +249,8 @@ int Interp::pycall(setup_pointer settings,
 		(PyInt_Check(retval.ptr()))) {
 
 // FIXME check new return value convention
-		status = frame->py_returned_int = bp::extract<int>(retval);
-		frame->py_return_type = RET_INT;
+		status = frame->pystuff.impl->py_returned_int = bp::extract<int>(retval);
+		frame->pystuff.impl->py_return_type = RET_INT;
 		logPy("pycall(%s):  PY_INTERNAL/PY_PLUGIN_CALL: return code=%d", funcname,status);
 	    } else {
 		logPy("pycall(%s):  PY_INTERNAL: expected an int return code", funcname);
@@ -297,3 +300,12 @@ int Interp::py_execute(const char *cmd, bool as_file)
     return INTERP_OK;
 }
 
+pycontext::pycontext() : impl(new pycontext_impl) {}
+pycontext::~pycontext() { delete impl; }
+pycontext::pycontext(const pycontext &other)
+    : impl(new pycontext_impl(*other.impl)) {}
+pycontext &pycontext::operator=(const pycontext &other) {
+    delete impl;
+    impl = new pycontext_impl(*other.impl);
+    return *this;
+}

@@ -63,6 +63,9 @@ set ::default_start_node sim/axis/axis.ini
 # exclude directories that should never be offered
 set ::exclude_list [list common]
 
+# exclude files with special names
+set ::exclude_file_list _panelui.ini
+
 # support filenames that are never copied to user:
 set ::never_copy_list [list maintainer.txt nodemocopy]
 
@@ -112,6 +115,7 @@ proc initialize_config {} {
 
 # FIXME add trap for comment on the first of a line.
 proc getVal {stringa sect var} {
+    set varval ""
     set x [regexp -indices -- "$sect.*$var *= *" $stringa  indexes]
     if {$x } {
         set startindex [lindex $indexes 1]
@@ -163,6 +167,9 @@ proc name_is_usable_nodename {node} {
     if {   [ regexp {.*\.ini$}  $node ] == 1 \
         || [ regexp {.*\.demo$} $node ] == 1 \
        } {
+       if {[lsearch $::exclude_file_list [file tail $node]] >= 0} {
+          return 0  
+       }
        return 1 ;# ok
     }
     return 0 ;# fail
@@ -830,6 +837,7 @@ proc make_shortcut {inifile} {
               }
       default {set name linuxcnc-other}
     }
+    if {"$name" == ""} {set name LinuxCNC-other}
     set filename0 [file join $::desktopdir [file rootname [file tail $inifile]]]
     set filename ${filename0}.desktop
     set i 0

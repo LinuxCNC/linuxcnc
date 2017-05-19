@@ -1,0 +1,39 @@
+(G52 and G92 param #5210 setting behavior)
+G20  ; use inches for readability
+
+(PRINT,Program start:  Params all 0)
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G92:  Set current position to X1 Y2)
+G92 X1 Y2
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G92.2:  Reset G92)
+G92.2
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G92.3:  Restore G92)
+G92.3
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G92.1:  Clear G92)
+G92.1
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G52:  Set origin at X2 Y3)
+G52 X2 Y3
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G92.2:  Reset G92)
+G92.2
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G92.3:  Restore G92)
+G92.3
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+(PRINT,G52 X0 Y0:  Zero G92, but leave param 5210 set)
+G52 X0 Y0
+(PRINT,G92 params:  #5210 #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+M30

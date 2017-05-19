@@ -25,6 +25,9 @@ extern int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg);
 extern int emcTaskOnce(const char *inifile);
 extern int emcRunHalFiles(const char *filename);
 
+// Returns 0 if all joints are homed, 1 if any joints are un-homed.
+int all_homed(void);
+
 int emcTaskInit();
 int emcTaskHalt();
 int emcTaskAbort();

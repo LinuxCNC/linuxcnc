@@ -15,162 +15,22 @@ timeout = 5.0
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
 
-class LinuxcncError(Exception):
-    pass
-#    def __init__(self, value):
-#        self.value = value
-#    def __str__(self):
-#        return repr(self.value)
+program_start = time.time()
 
-class LinuxcncControl:
-    '''
-    issue G-Code commands
-    make sure important modes are saved and restored
-    mode is saved only once, and can be restored only once
-    
-    usage example: 
-        e = emc_control()
-        e.prepare_for_mdi()
-            any internal sub using e.g("G0.....")
-        e.finish_mdi()
-    
-    '''
-
-    def __init__(self):
-        self.c = linuxcnc.command()
-        self.e = linuxcnc.error_channel()
-        self.s = linuxcnc.stat()
-        
-    def running(self, do_poll=True):
-        '''
-        check wether interpreter is running.
-        If so, cant switch to MDI mode.
-        '''
-        if do_poll: 
-            self.s.poll()
-        return (self.s.task_mode == linuxcnc.MODE_AUTO and 
-                self.s.interp_state != linuxcnc.INTERP_IDLE)
-                
-    def set_mode(self,m):
-        '''
-        set EMC mode if possible, else throw LinuxcncError
-        return current mode
-        '''
-        self.s.poll()
-        if self.s.task_mode == m : 
-            return m
-        if self.running(do_poll=False): 
-            raise LinuxcncError("interpreter running - cant change mode")
-        self.c.mode(m)   
-        self.c.wait_complete()
-        return m  
-
-    def set_state(self,m):
-        '''
-        set EMC mode if possible, else throw LinuxcncError
-        return current mode
-        '''
-        self.s.poll()
-        if self.s.task_mode == m : 
-            return m
-        self.c.state(m)   
-        self.c.wait_complete()
-        return m
-
-    def do_home(self,axismask):
-        self.s.poll()
-        self.c.home(axismask)   
-        self.c.wait_complete()
-
-
-    def ok_for_mdi(self):
-        ''' 
-        check wether ok to run MDI commands.
-        '''
-        self.s.poll()
-        return not self.s.estop and self.s.enabled and self.s.homed 
-        
-    def prepare_for_mdi(self):
-        ''' 
-        check wether ok to run MDI commands.
-        throw  LinuxcncError if told so.
-        return current mode
-        '''
-
-        self.s.poll()
-        if self.s.estop:
-            raise LinuxcncError("machine in ESTOP")
-        
-        if not self.s.enabled:
-            raise LinuxcncError("machine not enabled")
-        
-        if not self.s.homed:
-            raise LinuxcncError("machine not homed")
-        
-        if self.running():
-            raise LinuxcncError("interpreter not idle")
-            
-        return self.set_mode(linuxcnc.MODE_MDI)
-
-    g_raise_except = True
-    
-    def g(self,code,wait=False):
-        '''
-        issue G-Code as MDI command.
-        wait for completion if reqested
-        '''
-        
-        self.c.mdi(code)
-        if wait:
-            try:
-                while self.c.wait_complete() == -1:
-                    pass
-                return True
-            except KeyboardInterrupt:
-                print "interrupted by keyboard in c.wait_complete()"
-                return False
-
-        self.error = self.e.poll()
-        if self.error:
-            kind, text = self.error
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                if LinuxcncControl.g_raise_except:
-                    raise LinuxcncError(text)
-                else:        
-                    print ("error " + text)
-            else:
-                print ("info " + text)
-        return False
-
-    def get_current_tool(self):
-        self.e.poll()
-        return self.e.tool_in_spindle
-
-    def active_codes(self):
-        self.e.poll()
-        return self.s.gcodes
-    
-    def get_current_system(self):
-        g = self.active_codes()
-        for i in g:
-                if i >= 540 and i <= 590:
-                        return i/10 - 53
-                elif i >= 590 and i <= 593:
-                        return i - 584
-        return 1
+def log(msg):
+    delta_t = time.time() - program_start;
+    print "%.3f: %s" % (delta_t, msg)
+    sys.stdout.flush()
 
 
 def introspect(h):
-    #print "joint.0.select =", h['joint-0-select']
-    #print "joint.0.selected =", h['joint-0-selected']
-    #print "joint.0.position =", h['joint-0-position']
     os.system("halcmd show pin halui")
     os.system("halcmd show pin python-ui")
     os.system("halcmd show sig")
 
 
 def home_joint(name):
-    print "    homing", name
+    log("    homing %s" % name)
 
     h[name + '-home'] = 1
     start = time.time()
@@ -178,7 +38,7 @@ def home_joint(name):
         time.sleep(0.1)
 
     if h[name + '-homed'] == 0:
-        print "failed to home", name, "in halui"
+        log("failed to home %s in halui" % name)
         introspect(h)
         sys.exit(1)
 
@@ -186,7 +46,7 @@ def home_joint(name):
 
 
 def select_joint(name, deassert=True):
-    print "    selecting", name
+    log("    selecting %s" % name)
 
     h[name + '-select'] = 1
     start = time.time()
@@ -194,7 +54,7 @@ def select_joint(name, deassert=True):
         time.sleep(0.1)
 
     if h[name + '-selected'] == 0:
-        print "failed to select", name, "in halui"
+        log("failed to select %s in halui" % name)
         introspect(h)
         sys.exit(1)
 
@@ -204,7 +64,7 @@ def select_joint(name, deassert=True):
 
 def jog_minus(name, target):
     start_position = h[name + '-position']
-    print "    jogging", name, "negative: to %.3f" % (target)
+    log("    jogging %s negative: to %.3f" % (name, target))
 
     h['jog-selected-minus'] = 1
 
@@ -213,21 +73,20 @@ def jog_minus(name, target):
         time.sleep(0.1)
 
     if h[name + '-position'] > target:
-        print name, "failed to jog", name, "to", target
-        print "timed out at %.3f after %.3f seconds" % (h[name + '-position'], timeout)
+        log("failed to jog %s to %.3f (timed out at %.3f after %.3f seconds)" % (name, target, h[name + '-position'], timeout))
         introspect(h)
         sys.exit(1)
 
     h['jog-selected-minus'] = 0
 
-    print "    jogged %s negative past target %.3f" % (name, target)
+    log("    jogged %s negative past target %.3f" % (name, target))
 
     return True
 
 
 def jog_plus(name, target):
     start_position = h[name + '-position']
-    print "    jogging %s positive: to %.3f" % (name, target)
+    log("    jogging %s positive: to %.3f" % (name, target))
 
     h['jog-selected-plus'] = 1
 
@@ -236,16 +95,25 @@ def jog_plus(name, target):
         time.sleep(0.1)
 
     if h[name + '-position'] < target:
-        print name, "failed to jog", name, "to", target
-        print "timed out at %.3f after %.3f seconds" % (h[name + '-position'], timeout)
+        log("failed to jog %s to %.3f (timed out at %.3f after %.3f seconds)" % (name, target, h[name + '-position'], timeout))
         introspect(h)
         sys.exit(1)
 
     h['jog-selected-plus'] = 0
 
-    print "    jogged %s positive past target %.3f" % (name, target)
+    log("    jogged %s positive past target %.3f" % (name, target))
 
     return True
+
+
+def wait_for_pin_value(pin_name, target_value, timeout=2.0):
+    start_time = time.time()
+    while h[pin_name] != target_value:
+        if (time.time() - start_time) > timeout:
+            log("Error: pin %s didn't reach target value %s!" % (pin_name, target_value))
+            log("pin value is %s at timeout after %.3f seconds" % (h[pin_value], timeout))
+            sys.exit(1)
+        time.sleep(0.1)
 
 
 def wait_for_joint_to_stop(joint_number):
@@ -257,10 +125,11 @@ def wait_for_joint_to_stop(joint_number):
         time.sleep(0.1)
         new_pos = h[pos_pin]
         if new_pos == prev_pos:
+            log("joint %d stopped jogging" % joint_number)
             return
         prev_pos = new_pos
-    print "Error: joint didn't stop jogging!"
-    print "joint %d is at %.3f %.3f seconds after reaching target (prev_pos=%.3f)" % (joint_number, h[pos_pin], timeout, prev_pos)
+    log("Error: joint didn't stop jogging!")
+    log("joint %d is at %.3f %.3f seconds after reaching target (prev_pos=%.3f)" % (joint_number, h[pos_pin], timeout, prev_pos))
     sys.exit(1)
 
 
@@ -273,7 +142,7 @@ def jog_joint(joint_number, target):
 
     name = 'joint-%d' % joint_number
 
-    print "jogging", name, "to", target
+    log("jogging %s to %.3f" % (name, target))
     select_joint(name)
 
     if h[name + '-position'] > target:
@@ -285,11 +154,11 @@ def jog_joint(joint_number, target):
         pin_name = 'joint-%d-position' % j
         if j == joint_number:
             if joint[j] == h[pin_name]:
-                print "joint", str(j), "didn't move but should have!"
+                log("joint %d didn't move but should have!" % j)
                 success = False
         else:
             if joint[j] != h[pin_name]:
-                print "joint", str(j), "moved from %.3f to %.3f but shouldnt have!" % (joint[j], h[pin_name])
+                log("joint %d moved from %.3f to %.3f but shouldnt have!" % (j, joint[j], h[pin_name]))
                 success = False
 
     wait_for_joint_to_stop(joint_number)
@@ -335,6 +204,9 @@ h.newpin("joint-2-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("jog-selected-minus", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("jog-selected-plus", hal.HAL_BIT, hal.HAL_OUT)
 
+h.newpin("motion-mode-joint", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("motion-mode-is-joint", hal.HAL_BIT, hal.HAL_IN)
+
 h.ready() # mark the component as 'ready'
 
 os.system("halcmd source ./postgui.hal")
@@ -344,9 +216,13 @@ os.system("halcmd source ./postgui.hal")
 # connect to LinuxCNC
 #
 
-e = LinuxcncControl()
-e.set_state(linuxcnc.STATE_ESTOP_RESET)
-e.set_state(linuxcnc.STATE_ON)
+c = linuxcnc.command()
+s = linuxcnc.stat()
+e = linuxcnc.error_channel
+
+c.state(linuxcnc.STATE_ESTOP_RESET)
+c.state(linuxcnc.STATE_ON)
+c.wait_complete()
 
 # Select joints 1 and 2, but do not de-assert the .select pins.
 select_joint('joint-1', deassert=False)
@@ -362,7 +238,12 @@ h['joint-1-select'] = 0
 h['joint-2-select'] = 0
 
 # The machine is homed and all the .joint.N.select pins are deasserted.
-e.set_mode(linuxcnc.MODE_MANUAL)
+c.mode(linuxcnc.MODE_MANUAL)
+c.wait_complete()
+
+h['motion-mode-joint'] = 1
+wait_for_pin_value('motion-mode-is-joint', 1, 2.0)
+h['motion-mode-joint'] = 0
 
 
 #

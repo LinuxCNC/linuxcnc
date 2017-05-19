@@ -5,11 +5,6 @@ Configurations in this directory also demonstrate the use of a twopass method of
 o twopass_compat
   verify compatibilty with .hal halfiles
 
-o twopass_demo
-  use single haltcl file with
-  built-in tests for:
-  loadrt,passnumber,puts
-
 o twopass_basic
   use LIB example basic_sim
 

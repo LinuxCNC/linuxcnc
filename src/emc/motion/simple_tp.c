@@ -13,21 +13,6 @@
 #include "simple_tp.h"
 #include "rtapi_math.h"
 
-/***********************************************************************
-*                  LOCAL VARIABLE DECLARATIONS                         *
-************************************************************************/
-
-
-/***********************************************************************
-*                      LOCAL FUNCTION PROTOTYPES                       *
-************************************************************************/
-
-
-
-/***********************************************************************
-*                        PUBLIC FUNCTION CODE                          *
-************************************************************************/
-
 void simple_tp_update(simple_tp_t *tp, double period)
 {
     double max_dv, tiny_dp, pos_err, vel_req;
@@ -36,7 +21,7 @@ void simple_tp_update(simple_tp_t *tp, double period)
     /* compute max change in velocity per servo period */
     max_dv = tp->max_acc * period;
     /* compute a tiny position range, to be treated as zero */
-    tiny_dp = max_dv * period * 0.001;
+    tiny_dp = TINY_DP(tp->max_acc, period);
     /* calculate desired velocity */
     if (tp->enable) {
 	/* planner enabled, request a velocity that tends to drive

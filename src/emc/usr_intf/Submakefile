@@ -10,22 +10,8 @@ EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/sockets.c
 
 HALUISRCS := emc/usr_intf/halui.cc
-ifeq "$(HAVE_NCURSES)" "yes"
-KEYSTICKSRCS := emc/usr_intf/keystick.cc
-endif
-ifeq "$(HAVE_XAW)" "yes"
-XEMCSRCS := emc/usr_intf/xemc.cc
-endif
 
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
-
-ifeq "$(HAVE_NCURSES)" "yes"
-USERSRCS += $(KEYSTICKSRCS)
-endif
-
-ifeq "$(HAVE_XAW)" "yes"
-USERSRCS += $(XEMCSRCS)
-endif
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS)
 
 $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 
@@ -53,18 +39,3 @@ TARGETS += ../bin/linuxcnclcd
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
 TARGETS += ../bin/halui
-
-ifeq "$(HAVE_NCURSES)" "yes"
-../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
-TARGETS += ../bin/keystick
-endif
-
-ifeq "$(HAVE_XAW)" "yes"
-$(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
-../bin/xlinuxcnc: $(call TOOBJS, $(XEMCSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
-TARGETS += ../bin/xlinuxcnc
-endif

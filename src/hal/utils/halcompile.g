@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #    This is 'halcompile', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -38,7 +38,7 @@ parser Hal:
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
     token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
-    token TSTRING: "\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
+    token TSTRING: "r?\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
     rule File: ComponentDeclaration Declaration* "$" {{ return True }}
     rule ComponentDeclaration:
@@ -119,6 +119,12 @@ def _parse(rule, text, filename=None):
 def parse(filename):
     initialize()
     f = open(filename).read()
+    if '\r' in f:
+        if require_unix_line_endings:
+            raise SystemExit, "%s:0: Error: File contains DOS-style or Mac-style line endings." % filename
+        else:
+            print >>sys.stderr, "%s:0: Warning: File contains DOS-style or Mac-style line endings." % filename
+        f = open(filename, "rU").read()
     a, b = f.split("\n;;\n", 1)
     p = _parse('File', a + "\n\n", filename)
     if not p: raise SystemExit, 1
@@ -563,10 +569,62 @@ static int comp_id;
         print >>f, "static void user_mainloop(void);"
         if options.get("userinit"):
             print >>f, "static void userinit(int argc, char **argv);"
+
+        print >>f, """
+int __comp_parse_count(int *argc, char **argv) {
+    int i;
+    for (i = 0; i < *argc; i ++) {
+        if (strncmp(argv[i], "count=", 6) == 0) {
+            errno = 0;
+            count = strtoul(&argv[i][6], NULL, 0);
+            for (; i+1 < *argc; i ++) {
+                argv[i] = argv[i+1];
+            }
+            argv[i] = NULL;
+            (*argc)--;
+            if (errno == 0) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+"""
+        print >>f, """
+int __comp_parse_names(int *argc, char **argv) {
+    int i;
+    for (i = 0; i < *argc; i ++) {
+        if (strncmp(argv[i], "names=", 6) == 0) {
+            char *p = &argv[i][6];
+            int j;
+            for (; i+1 < *argc; i ++) {
+                argv[i] = argv[i+1];
+            }
+            argv[i] = NULL;
+            (*argc)--;
+            for (j = 0; j < 16; j ++) {
+                names[j] = strtok(p, ",");
+                p = NULL;
+                if (names[j] == NULL) {
+                    return 1;
+                }
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+"""
         print >>f, "int argc=0; char **argv=0;"
         print >>f, "int main(int argc_, char **argv_) {"    
         print >>f, "    argc = argc_; argv = argv_;"
-        print >>f 
+        print >>f, "    int found_count, found_names;"
+        print >>f, "    found_count = __comp_parse_count(&argc, argv);"
+        print >>f, "    found_names = __comp_parse_names(&argc, argv);"
+        print >>f, "    if (found_count && found_names) {"
+        print >>f, "        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");"
+        print >>f, "        return 1;"
+        print >>f, "    }"
         if options.get("userinit", 0):
             print >>f, "    userinit(argc, argv);"
         print >>f 
@@ -956,18 +1014,22 @@ Usage:
 def main():
     global require_license
     require_license = True
+    global require_unix_line_endings
+    require_unix_line_endings = False
     mode = PREPROCESS
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
-                           ['install', 'compile', 'preprocess', 'outfile=',
+        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?",
+                           ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
 
     for k, v in opts:
+        if k in ("-U", "--unix"):
+            require_unix_line_endings = True
         if k in ("-u", "--userspace"):
             userspace = True
         if k in ("-i", "--install"):

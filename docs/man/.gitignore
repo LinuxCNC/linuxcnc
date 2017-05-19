@@ -7,6 +7,8 @@ cat3/
 cat9/
 
 man1/linuxcnc.1
+man1/halstreamer.1
+man1/thermistor.1
 
 man9/abs.9
 man9/abs_s32.9
@@ -106,6 +108,7 @@ man9/serport.9
 man9/sim_spindle.9
 man9/sphereprobe.9
 man9/steptest.9
+man9/streamer.9
 man9/sum2.9
 man9/thc.9
 man9/thcud.9

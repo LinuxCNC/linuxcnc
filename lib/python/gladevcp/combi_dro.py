@@ -509,17 +509,16 @@ class Combi_DRO(gtk.VBox):
     # i.e. to use an axis as R or D insteadt of X on a lathe
     def change_axisletter(self, letter):
         '''
-        changes the automaticaly given axisletter
-        very usefull to change an lathe DRO from X to R or D
+        changes the automatically given axis-letter
+        very useful to change an lathe DRO from X to R or D
 
-        Combi_DRO.change_axisletter(letter)
+        Combi_DRO.change_axis-letter(letter)
 
         letter = string
 
         '''
         self.lbl_axisletter.set_text(letter)
 
- 
     def set_joint(self, joint):
         '''
         changes the joint, not the joint number. This is handy for special

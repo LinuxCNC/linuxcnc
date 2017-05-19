@@ -4,7 +4,7 @@ description
 """
 After tripping home switch, travel in opposite direction is required (amount set by the hysteresis pin)
 """;
-pin in float cur_pos "Current position (typically: axis.n.motor-pos-fb)";
+pin in float cur_pos "Current position (typically: joint.n.motor-pos-fb)";
 pin in float home_pos = 1 "Home switch position";
 pin in float hysteresis = 0.1"Travel required to backoff (hysteresis)";
 pin out bit  home_sw"Home switch activated";

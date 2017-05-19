@@ -31,7 +31,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #      If these settings are not found in the ini file, the moveoff
 #      component defaults will be used.
 #
-#   3) Include ini file entries for the per-axis settings
+#   3) Include ini file entries for the per-joint settings
 #      [MOVEOFF_n]
 #      MAX_VELOCITY =
 #      MAX_ACCELERATION =
@@ -39,7 +39,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #      MIN_LIMIT =
 #
 #      If settings are not found in the ini file, the items 
-#      [AXIS_n]
+#      [JOINT_n]
 #      MAX_VELOCITY =
 #      MAX_ACCELERATION =
 #      MAX_LIMIT =
@@ -97,16 +97,16 @@ proc setup_pinnames {} {
   # Note: works for standard names but a custom proc is needed
   #       here if the Hal alias command is used on the names
 
-  # Identify AXIS_n stanzas
+  # Identify JOINT_n stanzas
   for {set a 0} {$a < 9} {incr a} {
-     if [info exists ::AXIS_[set a](TYPE)] {
+     if [info exists ::JOINT_[set a](TYPE)] {
         lappend ::HU(axes) $a
         set ::HU(highest_joint_num) $a
      }
   }
   foreach a $::HU(axes) {
-    set ::HU($a,pos,pinname) axis.${a}.motor-pos-cmd
-    set ::HU($a,fb,pinname)  axis.${a}.motor-pos-fb
+    set ::HU($a,pos,pinname) joint.${a}.motor-pos-cmd
+    set ::HU($a,fb,pinname)  joint.${a}.motor-pos-fb
   }
 } ;# setup_pinnames
 
@@ -229,11 +229,11 @@ proc set_moveoff_inputs {a} {
       set ::HU($a,$pin) [set ::MOVEOFF_[set a]($ininame)]
       # lindex is used in case there are duplicate entries
       set ::HU($a,$pin) [lindex $::HU($a,$pin) end]
-    } elseif { [info exists ::AXIS_[set a]($ininame)] } {
-      set ::HU($a,$pin) [set ::AXIS_[set a]($ininame)]
+    } elseif { [info exists ::JOINT_[set a]($ininame)] } {
+      set ::HU($a,$pin) [set ::JOINT_[set a]($ininame)]
       # lindex is used in case there are duplicate entries
       set ::HU($a,$pin) [lindex $::HU($a,$pin) end]
-      puts "hookup_moveoff.tcl:use \[AXIS_$a\]$ininame=$::HU($a,$pin)"
+      puts "hookup_moveoff.tcl:use \[JOINT_$a\]$ininame=$::HU($a,$pin)"
     }
     if [info exists ::HU($a,$pin)] {
       do_hal setp $::m.$pin-$a    $::HU($a,$pin)

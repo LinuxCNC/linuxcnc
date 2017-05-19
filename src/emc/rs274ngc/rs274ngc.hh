@@ -26,7 +26,7 @@
 #include "emc.hh"
 #include "debugflags.h"
 
-typedef struct setup_struct setup;
+struct setup;
 #ifndef JAVA_DIAG_APPLET
 typedef setup *setup_pointer;
 #endif

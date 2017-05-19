@@ -29,6 +29,7 @@ extern "C" {
 #include <arpa/inet.h>		/* inet_ntoa */
 #include <sys/socket.h>
 #include <sys/time.h>           /* struct timeval */
+#include <netinet/in.h>         /* sockaddr_in */
 #include <netdb.h>
 #include <math.h>		/* fmod() */
 
@@ -1444,7 +1445,7 @@ CMS_STATUS TCPMEM::peek()
     return (status);
 }
 
-CMS_STATUS TCPMEM::write(void *user_data)
+CMS_STATUS TCPMEM::write(void *user_data, int *serial_number_out)
 {
 
     if (!write_permission_flag) {
@@ -1545,22 +1546,14 @@ CMS_STATUS TCPMEM::write(void *user_data)
 	recvd_bytes = 0;
 	returned_serial_number =
 	    (CMS_STATUS) getbe32(temp_buffer);
+	if(serial_number_out) *serial_number_out = returned_serial_number;
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	    "TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
 
-	if (returned_serial_number != serial_number) {
-	    rcs_print_error
-		("TCPMEM: Returned serial number(%ld) does not match expected serial number(%ld).\n",
-		returned_serial_number, serial_number);
-	    reconnect_needed = 1;
-	    if (subscription_type == CMS_NO_SUBSCRIPTION) {
-		reenable_sigpipe();
-		return (status = CMS_MISC_ERROR);
-	    }
-	}
 	status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
 	header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
+	header.write_id = returned_serial_number;
     } else {
 	header.was_read = 0;
 	status = CMS_WRITE_OK;
@@ -1570,7 +1563,7 @@ CMS_STATUS TCPMEM::write(void *user_data)
     return (status);
 }
 
-CMS_STATUS TCPMEM::write_if_read(void *user_data)
+CMS_STATUS TCPMEM::write_if_read(void *user_data, int *serial_number_out)
 {
 
     if (!write_permission_flag) {
@@ -1665,19 +1658,10 @@ CMS_STATUS TCPMEM::write_if_read(void *user_data)
 	recvd_bytes = 0;
 	returned_serial_number =
 	    (CMS_STATUS) getbe32(temp_buffer);
+	if(serial_number_out) *serial_number_out = returned_serial_number;
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	    "TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
-	if (returned_serial_number != serial_number) {
-	    rcs_print_error
-		("TCPMEM: Returned serial number(%ld) does not match expected serial number(%ld).\n",
-		returned_serial_number, serial_number);
-	    reconnect_needed = 1;
-	    if (subscription_type == CMS_NO_SUBSCRIPTION) {
-		reenable_sigpipe();
-		return (status = CMS_MISC_ERROR);
-	    }
-	}
 	status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
 	header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
     } else {

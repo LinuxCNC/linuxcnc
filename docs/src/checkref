@@ -12,10 +12,9 @@ shift
 
 FILES="$@"
 
-# it'd be nice to build-depend on checklinks, but it's not available in Lucid
 if [ -z $(which checklink) ]; then
-    echo "*** checklink not found, install w3c-linkchecker for better coverage" 1>&2
-    exit 0
+    echo "ERROR: checklink not found, install w3c-linkchecker for HTML link validation" 1>&2
+    exit 1
 fi
 
 

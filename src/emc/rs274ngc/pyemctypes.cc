@@ -19,7 +19,8 @@
 // Michael Haberler 7/2011
 //
 
-#include <boost/python.hpp>
+#include <boost/python/class.hpp>
+#include <boost/python/tuple.hpp>
 namespace bp = boost::python;
 
 #include "rs274ngc.hh"

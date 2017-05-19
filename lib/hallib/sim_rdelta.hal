@@ -1,0 +1,42 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+loadusr -W rotarydelta
+
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+# create HAL signals for position commands from motion module
+# loop position commands back to motion module feedback
+net J0pos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+net J1pos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+net J2pos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
+
+net J3pos joint.3.motor-pos-cmd => joint.3.motor-pos-fb
+net J4pos joint.4.motor-pos-cmd => joint.4.motor-pos-fb
+net J5pos joint.5.motor-pos-cmd => joint.5.motor-pos-fb
+net J6pos joint.6.motor-pos-cmd => joint.6.motor-pos-fb
+net J7pos joint.7.motor-pos-cmd => joint.7.motor-pos-fb
+net J8pos joint.8.motor-pos-cmd => joint.8.motor-pos-fb
+
+net J0cmd joint.0.pos-cmd => rotarydelta.joint0
+net J1cmd joint.1.pos-cmd => rotarydelta.joint1
+net J2cmd joint.2.pos-cmd => rotarydelta.joint2
+
+net pfr rotarydeltakins.platformradius => rotarydelta.pfr
+net tl rotarydeltakins.thighlength => rotarydelta.tl
+net sl rotarydeltakins.shinlength => rotarydelta.sl
+net fr rotarydeltakins.footradius => rotarydelta.fr
+
+sets pfr 10
+sets tl 10
+sets sl 18
+sets fr 5
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

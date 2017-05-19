@@ -2,7 +2,7 @@
 
 # first load the core RT modules that will be needed
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
 # stepper module
@@ -16,25 +16,25 @@ addf motion-controller servo-thread
 addf stepgen.update-freq servo-thread
 
 # connect position commands from motion module to step generator
-net Xpos-cmd <= axis.0.motor-pos-cmd
+net Xpos-cmd <= joint.0.motor-pos-cmd
 net Xpos-cmd => stepgen.0.position-cmd
-net Ypos-cmd <= axis.1.motor-pos-cmd
+net Ypos-cmd <= joint.1.motor-pos-cmd
 net Ypos-cmd => stepgen.1.position-cmd
-net Zpos-cmd <= axis.2.motor-pos-cmd
+net Zpos-cmd <= joint.2.motor-pos-cmd
 net Zpos-cmd => stepgen.2.position-cmd
-net Apos-cmd <= axis.3.motor-pos-cmd
+net Apos-cmd <= joint.3.motor-pos-cmd
 net Apos-cmd => stepgen.3.position-cmd
 
 # connect position feedback from step generators
 # to motion module
 net Xpos-fb <= stepgen.0.position-fb
-net Xpos-fb => axis.0.motor-pos-fb
+net Xpos-fb => joint.0.motor-pos-fb
 net Ypos-fb <= stepgen.1.position-fb
-net Ypos-fb => axis.1.motor-pos-fb
+net Ypos-fb => joint.1.motor-pos-fb
 net Zpos-fb <= stepgen.2.position-fb
-net Zpos-fb => axis.2.motor-pos-fb
+net Zpos-fb => joint.2.motor-pos-fb
 net Apos-fb <= stepgen.3.position-fb
-net Apos-fb => axis.3.motor-pos-fb
+net Apos-fb => joint.3.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -68,13 +68,13 @@ net Avel => ddt.7.in
 net Aacc <= ddt.7.out
 
 # connect enable signals for step generators
-net Xen <= axis.0.amp-enable-out
+net Xen <= joint.0.amp-enable-out
 net Xen => stepgen.0.enable
-net Yen <= axis.1.amp-enable-out
+net Yen <= joint.1.amp-enable-out
 net Yen => stepgen.1.enable
-net Zen <= axis.2.amp-enable-out
+net Zen <= joint.2.amp-enable-out
 net Zen => stepgen.2.enable
-net Aen <= axis.3.amp-enable-out
+net Aen <= joint.3.amp-enable-out
 net Aen => stepgen.3.enable
 
 # connect signals to step pulse generator outputs
@@ -88,19 +88,19 @@ net Astep stepgen.3.step
 net Adir stepgen.3.dir
 
 # set stepgen module scaling - get values from ini file
-setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
-setp stepgen.1.position-scale [AXIS_1]INPUT_SCALE
-setp stepgen.2.position-scale [AXIS_2]INPUT_SCALE
-setp stepgen.3.position-scale [AXIS_3]INPUT_SCALE
+setp stepgen.0.position-scale [JOINT_0]INPUT_SCALE
+setp stepgen.1.position-scale [JOINT_1]INPUT_SCALE
+setp stepgen.2.position-scale [JOINT_2]INPUT_SCALE
+setp stepgen.3.position-scale [JOINT_3]INPUT_SCALE
 
 # set stepgen module velocity limits - get values from ini file
-setp stepgen.0.maxvel [AXIS_0]STEPGEN_MAXVEL
-setp stepgen.1.maxvel [AXIS_1]STEPGEN_MAXVEL
-setp stepgen.2.maxvel [AXIS_2]STEPGEN_MAXVEL
-setp stepgen.3.maxvel [AXIS_3]STEPGEN_MAXVEL
+setp stepgen.0.maxvel [JOINT_0]STEPGEN_MAXVEL
+setp stepgen.1.maxvel [JOINT_1]STEPGEN_MAXVEL
+setp stepgen.2.maxvel [JOINT_2]STEPGEN_MAXVEL
+setp stepgen.3.maxvel [JOINT_3]STEPGEN_MAXVEL
 
 # set stepgen module accel limits - get values from ini file
-setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
-setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
-setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
-setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL

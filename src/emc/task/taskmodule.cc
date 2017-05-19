@@ -18,11 +18,13 @@
  */
 // TODO: reuse interp converters
 
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
 #include <boost/python/class.hpp>
-#include <boost/ref.hpp>
-
+#include <boost/python/def.hpp>
+#include <boost/python/implicit.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/overloads.hpp>
+#include <boost/python/scope.hpp>
+#include "python_plugin.hh"
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
 #include "taskclass.hh"
@@ -165,9 +167,9 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 
 };
 
-typedef pp::array_1_t< EMC_AXIS_STAT, EMC_AXIS_MAX> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
-typedef pp::array_1_t< int, EMC_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
-typedef pp::array_1_t< double, EMC_MAX_AIO> analog_io_array, (*analog_io_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< EMC_AXIS_STAT, EMCMOT_MAX_AXIS> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< int, EMCMOT_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< double, EMCMOT_MAX_AIO> analog_io_array, (*analog_io_w)( EMC_MOTION_STAT &m );
 
 typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_tw)( EMC_TASK_STAT &t );
 typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_tw)( EMC_TASK_STAT &t );
@@ -359,28 +361,28 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("feed_hold_enabled", &EMC_TRAJ_STAT::feed_hold_enabled )
 	;
 
-    class_ <EMC_AXIS_STAT, noncopyable>("EMC_AXIS_STAT",no_init)
-	.def_readwrite("units", &EMC_AXIS_STAT::units)
-	.def_readwrite("backlash", &EMC_AXIS_STAT::backlash)
-	.def_readwrite("minPositionLimit", &EMC_AXIS_STAT::minPositionLimit)
-	.def_readwrite("maxPositionLimit" ,&EMC_AXIS_STAT::maxPositionLimit)
-	.def_readwrite("maxFerror", &EMC_AXIS_STAT::maxFerror)
-	.def_readwrite("minFerror", &EMC_AXIS_STAT::minFerror)
-	.def_readwrite("ferrorCurrent", &EMC_AXIS_STAT::ferrorCurrent)
-	.def_readwrite("ferrorHighMark", &EMC_AXIS_STAT::ferrorHighMark)
-	.def_readwrite("output", &EMC_AXIS_STAT::output)
-	.def_readwrite("input", &EMC_AXIS_STAT::input)
-	.def_readwrite("velocity", &EMC_AXIS_STAT::velocity)
-	.def_readwrite("inpos",  &EMC_AXIS_STAT::inpos)
-	.def_readwrite("homing",  &EMC_AXIS_STAT::homing)
-	.def_readwrite("homed",  &EMC_AXIS_STAT::homed)
-	.def_readwrite("fault",  &EMC_AXIS_STAT::fault)
-	.def_readwrite("enabled",  &EMC_AXIS_STAT::enabled)
-	.def_readwrite("minSoftLimit",  &EMC_AXIS_STAT::minSoftLimit)
-	.def_readwrite("maxSoftLimit",  &EMC_AXIS_STAT::maxSoftLimit)
-	.def_readwrite("minHardLimit",  &EMC_AXIS_STAT::minHardLimit)
-	.def_readwrite("maxHardLimit",  &EMC_AXIS_STAT::maxHardLimit)
-	.def_readwrite("overrideLimits",  &EMC_AXIS_STAT::overrideLimits)
+    class_ <EMC_JOINT_STAT, noncopyable>("EMC_JOINT_STAT",no_init)
+	.def_readwrite("units", &EMC_JOINT_STAT::units)
+	.def_readwrite("backlash", &EMC_JOINT_STAT::backlash)
+	.def_readwrite("minPositionLimit", &EMC_JOINT_STAT::minPositionLimit)
+	.def_readwrite("maxPositionLimit" ,&EMC_JOINT_STAT::maxPositionLimit)
+	.def_readwrite("maxFerror", &EMC_JOINT_STAT::maxFerror)
+	.def_readwrite("minFerror", &EMC_JOINT_STAT::minFerror)
+	.def_readwrite("ferrorCurrent", &EMC_JOINT_STAT::ferrorCurrent)
+	.def_readwrite("ferrorHighMark", &EMC_JOINT_STAT::ferrorHighMark)
+	.def_readwrite("output", &EMC_JOINT_STAT::output)
+	.def_readwrite("input", &EMC_JOINT_STAT::input)
+	.def_readwrite("velocity", &EMC_JOINT_STAT::velocity)
+	.def_readwrite("inpos",  &EMC_JOINT_STAT::inpos)
+	.def_readwrite("homing",  &EMC_JOINT_STAT::homing)
+	.def_readwrite("homed",  &EMC_JOINT_STAT::homed)
+	.def_readwrite("fault",  &EMC_JOINT_STAT::fault)
+	.def_readwrite("enabled",  &EMC_JOINT_STAT::enabled)
+	.def_readwrite("minSoftLimit",  &EMC_JOINT_STAT::minSoftLimit)
+	.def_readwrite("maxSoftLimit",  &EMC_JOINT_STAT::maxSoftLimit)
+	.def_readwrite("minHardLimit",  &EMC_JOINT_STAT::minHardLimit)
+	.def_readwrite("maxHardLimit",  &EMC_JOINT_STAT::maxHardLimit)
+	.def_readwrite("overrideLimits",  &EMC_JOINT_STAT::overrideLimits)
 	;
 
     class_ <EMC_SPINDLE_STAT, noncopyable>("EMC_SPINDLE_STAT",no_init)
@@ -500,9 +502,9 @@ BOOST_PYTHON_MODULE(emctask) {
 
     implicitly_convertible<EMC_TASK_STATE_ENUM, int>();
 
-    pp::register_array_1< double, EMC_MAX_AIO> ("AnalogIoArray");
-    pp::register_array_1< int, EMC_MAX_DIO> ("DigitalIoArray");
-    pp::register_array_1< EMC_AXIS_STAT,EMC_AXIS_MAX,
+    pp::register_array_1< double, EMCMOT_MAX_AIO> ("AnalogIoArray");
+    pp::register_array_1< int, EMCMOT_MAX_DIO> ("DigitalIoArray");
+    pp::register_array_1< EMC_AXIS_STAT,EMCMOT_MAX_AXIS,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("AxisArray");
 }
 

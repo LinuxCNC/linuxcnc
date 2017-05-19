@@ -4,17 +4,8 @@ modifies pyngcgui_touchy.ini to use:
 
 [HAL]
 ...
-HALFILE = hooktup_move.tcl
+HALFILE = hookup_move.tcl
 HALUI   = halui
-
-[APPLICATIONS]
-DELAY = 5
-# Note: use PULSE mode for cycle-start, pause, abort
-APP = sim_pin \
-      touchy.cycle-start \
-      halui.program.pause \
-      touchy.abort \
-      motion.feed-hold
 
 APP = moveoff_gui \
     -size 20 -loc center \
@@ -27,6 +18,6 @@ Simulation configurations usually connect the motor-pos-cmd and motor-pos-fb pin
 
 This separated connection is needed to verify that the hookup_moveoff script works correctly with both servo and stepper system configurations.
 
-For more useage info:
+For more usage info:
   $ man moveoff
   $ moveoff_gui --help | more

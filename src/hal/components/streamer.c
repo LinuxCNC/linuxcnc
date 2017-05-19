@@ -71,7 +71,6 @@
 #include "streamer.h"		/* decls and such for fifos */
 #include "rtapi_errno.h"
 #include "rtapi_string.h"
-#include "rtapi_atomic.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -89,7 +88,7 @@ RTAPI_MP_ARRAY_INT(depth,MAX_STREAMERS,"fifo depth");
 /* this structure contains the HAL shared memory data for one streamer */
 
 typedef struct {
-    fifo_t *fifo;		/* pointer to user/RT fifo */
+    hal_stream_t fifo;		/* pointer to user/RT fifo */
     hal_s32_t *curr_depth;	/* pin: current fifo depth */
     hal_bit_t *empty;		/* pin: underrun flag */
     hal_bit_t *enable;		/* pin: enable streaming */
@@ -97,18 +96,19 @@ typedef struct {
     hal_bit_t *clock;		/* pin: clock input */
     hal_s32_t *clock_mode;	/* pin: clock mode */
     int myclockedge;	        /* clock edge detector */
+    pin_data_t pins[HAL_STREAM_MAX_PINS];
 } streamer_t;
 
 /* other globals */
 static int comp_id;		/* component ID */
-static int shmem_id[MAX_STREAMERS];
+static int nstreamers;
+static streamer_t *streams;
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int parse_types(fifo_t *f, char *cfg);
-static int init_streamer(int num, fifo_t *tmp_fifo);
+static int init_streamer(int num, streamer_t *stream);
 static void update(void *arg, long period);
 
 /***********************************************************************
@@ -117,72 +117,47 @@ static void update(void *arg, long period);
 
 int rtapi_app_main(void)
 {
-    int n, numchan, max_depth, retval;
-    fifo_t tmp_fifo[MAX_STREAMERS];
+    int n, retval;
 
-    /* validate config info */
-    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
-	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
-	    break;
-	}
-	tmp_fifo[n].num_pins = parse_types(&(tmp_fifo[n]), cfg[n]);
-	if ( tmp_fifo[n].num_pins == 0 ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: bad config string '%s'\n", cfg[n]);
-	    return -EINVAL;
-	}
-	max_depth = MAX_SHMEM / (sizeof(shmem_data_t) * tmp_fifo[n].num_pins);
-	if ( depth[n] > max_depth ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: depth too large, max is %d\n", max_depth);
-	    return -ENOMEM;
-	}
-	tmp_fifo[n].depth = depth[n];
-    }
-    if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: no channels specified\n");
-	return -EINVAL;
-    }
-    numchan = n;
-    /* clear shmem IDs */
-    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
-	shmem_id[n] = -1;
-    }
-
-    /* have good config info, connect to the HAL */
     comp_id = hal_init("streamer");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: hal_init() failed\n");
 	return -EINVAL;
     }
 
-    /* create the streamers - allocate memory, export pins, etc. */
-    for (n = 0; n < numchan; n++) {
-	retval = init_streamer(n, &(tmp_fifo[n]));
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: streamer %d init failed\n", n);
-	    hal_exit(comp_id);
-	    return retval;
+    streams = hal_malloc(MAX_STREAMERS * sizeof(streamer_t));
+
+    /* validate config info */
+    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
+	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
+	    break;
 	}
+	retval = hal_stream_create(&streams[n].fifo, comp_id, STREAMER_SHMEM_KEY+n, depth[n], cfg[n]);
+	if(retval < 0) {
+	    goto fail;
+	}
+	nstreamers++;
+	retval = init_streamer(n, &streams[n]);
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"STREAMER: installed %d data streamers\n", numchan);
+    if ( n == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STREAMER: ERROR: no channels specified\n");
+	retval = -EINVAL;
+	goto fail;
+    }
+
     hal_ready(comp_id);
     return 0;
+fail:
+    for(n=0; n<nstreamers; n++) hal_stream_destroy(&streams[n].fifo);
+    hal_exit(comp_id);
+    return retval;
 }
 
 void rtapi_app_exit(void)
 {
-    int n;
-
-    /* free any shmem blocks */
-    for ( n = 0 ; n < MAX_STREAMERS ; n++ ) {
-	if ( shmem_id[n] > 0 ) {
-	    rtapi_shmem_delete(shmem_id[n], comp_id);
-	}
-    }
+    int i;
+    for(i=0; i<nstreamers; i++) hal_stream_destroy(&streams[i].fifo);
     hal_exit(comp_id);
 }
 
@@ -193,10 +168,8 @@ void rtapi_app_exit(void)
 static void update(void *arg, long period)
 {
     streamer_t *str;
-    fifo_t *fifo;
     pin_data_t *pptr;
-    shmem_data_t *dptr;
-    int tmpin, tmpout, n, doclk;
+    int n, doclk;
 
     /* point at streamer struct in HAL shmem */
     str = arg;
@@ -233,42 +206,32 @@ static void update(void *arg, long period)
                    break;
        }
     }
-    /* HAL pins are right after the streamer_t struct in HAL shmem */
-    pptr = (pin_data_t *)(str+1);
+    /* pint at HAL pins */
+    pptr = str->pins;
     /* point at user/RT fifo in other shmem */
-    fifo = str->fifo;
-    /* fifo data area is right after the fifo_t struct in shmem */
-    dptr = (shmem_data_t *)(fifo+1);
-    /* find the next block of data in the fifo */
-    tmpin = atomic_load_explicit(&fifo->in, memory_order_acquire);
-    tmpout = fifo->out;
-    if ( tmpout == tmpin ) {
-        /* fifo empty - log it */
-	*(str->empty) = 1;
-	*(str->curr_depth) = 0;
-	/* increase underrun only for valid clock*/
-	if (doclk==1){
-	(*str->underruns)++;
-	}
+    int depth = hal_stream_depth(&str->fifo);
+    *(str->curr_depth) = depth;
+    *(str->empty) = depth == 0;
+    if(!doclk)
 	/* done - output pins retain current values */
 	return;
+    if(depth == 0) {
+	/* increase underrun only for valid clock*/
+	(*str->underruns)++;
+	return;
     }
-    /* clear the "empty" pin */
-    *(str->empty) = 0;
-    /* calculate current depth */
-    if ( tmpin < tmpout ) {
-	tmpin += fifo->depth;
+    union hal_stream_data data[HAL_STREAM_MAX_PINS];
+    if(hal_stream_read(&str->fifo, data, NULL) < 0)
+    {
+        /* should not happen (single reader invariant) */
+	(*str->underruns)++;
+	return;
     }
-    *(str->curr_depth) = tmpin - tmpout;
-    /* don't preceed if there are no valid clock*/
-    if (doclk==0){
-       return;
-    }
-    /* make ptr to first data item of the current fifo record */
-    dptr += tmpout * fifo->num_pins;
+    union hal_stream_data *dptr = data;
+    int num_pins = hal_stream_element_count(&str->fifo);
     /* copy data from fifo to HAL pins */
-    for ( n = 0 ; n < fifo->num_pins ; n++ ) {
-	switch ( fifo->type[n] ) {
+    for ( n = 0 ; n < num_pins ; n++ ) {
+	switch ( hal_stream_element_type(&str->fifo, n) ) {
 	case HAL_FLOAT:
 	    *(pptr->hfloat) = dptr->f;
 	    break;
@@ -291,80 +254,14 @@ static void update(void *arg, long period)
 	dptr++;
 	pptr++;
     }
-    tmpout++;
-    if ( tmpout >= fifo->depth ) {
-        tmpout = 0;
-    }
-    /* store new value of out */
-    atomic_store_explicit(&fifo->out, tmpout, memory_order_release);
 }
 
-/***********************************************************************
-*                   LOCAL FUNCTION DEFINITIONS                         *
-************************************************************************/
-
-static int parse_types(fifo_t *f, char *cfg)
+static int init_streamer(int num, streamer_t *str)
 {
-    char *c;
-    int n;
-
-    c = cfg;
-    n = 0;
-    while (( n < MAX_PINS ) && ( *c != '\0' )) {
-	switch (*c) {
-	case 'f':
-	case 'F':
-	    f->type[n++] = HAL_FLOAT;
-	    c++;
-	    break;
-	case 'b':
-	case 'B':
-	    f->type[n++] = HAL_BIT;
-	    c++;
-	    break;
-	case 'u':
-	case 'U':
-	    f->type[n++] = HAL_U32;
-	    c++;
-	    break;
-	case 's':
-	case 'S':
-	    f->type[n++] = HAL_S32;
-	    c++;
-	    break;
-	default:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STREAMER: ERROR: unknown type '%c', must be F, B, U, or S\n", *c);
-	    return 0;
-	}
-    }
-    if ( *c != '\0' ) {
-	/* didn't reach end of cfg string */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: more than %d items\n", MAX_PINS);
-	return 0;
-    }
-    return n;
-}
-
-static int init_streamer(int num, fifo_t *tmp_fifo)
-{
-    int size, retval, n, usefp;
-    void *shmem_ptr;
-    streamer_t *str;
+    int retval, n, usefp;
     pin_data_t *pptr;
-    fifo_t *fifo;
     char buf[HAL_NAME_LEN + 1];
 
-    /* alloc shmem for base streamer data and user specified pins */
-    size = sizeof(streamer_t) + tmp_fifo->num_pins*sizeof(pin_data_t);
-    str = hal_malloc(size);
-
-    if (str == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: couldn't allocate HAL shared memory\n");
-	return -ENOMEM;
-    }
     /* export "standard" pins and params */
     retval = hal_pin_bit_newf(HAL_OUT, &(str->empty), comp_id,
 	"streamer.%d.empty", num);
@@ -417,20 +314,19 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     *(str->curr_depth) = 0;
     *(str->underruns) = 0;
     *(str->clock_mode) = 0;
-    /* HAL pins are right after the streamer_t struct in HAL shmem */
-    pptr = (pin_data_t *)(str+1);
+    pptr = str->pins;
     usefp = 0;
     /* export user specified pins (the ones that stream data) */
-    for ( n = 0 ; n < tmp_fifo->num_pins ; n++ ) {
+    for ( n = 0 ; n < hal_stream_element_count(&str->fifo); n++ ) {
 	rtapi_snprintf(buf, sizeof(buf), "streamer.%d.pin.%d", num, n);
-	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_OUT, (void **)pptr, comp_id );
+	retval = hal_pin_new(buf, hal_stream_element_type(&str->fifo, n), HAL_OUT, (void **)pptr, comp_id );
 	if (retval != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STREAMER: ERROR: pin '%s' export failed\n", buf);
 	    return -EIO;
 	}
 	/* init the pin value */
-	switch ( tmp_fifo->type[n] ) {
+	switch ( hal_stream_element_type(&str->fifo, n) ) {
 	case HAL_FLOAT:
 	    *(pptr->hfloat) = 0.0;
 	    usefp = 1;
@@ -458,31 +354,6 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	return retval;
     }
 
-    /* alloc shmem for user/RT comms (fifo) */
-    size = sizeof(fifo_t) + tmp_fifo->num_pins * tmp_fifo->depth * sizeof(shmem_data_t);
-    shmem_id[num] = rtapi_shmem_new(STREAMER_SHMEM_KEY+num, comp_id, size);
-    if ( shmem_id[num] < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: couldn't allocate user/RT shared memory\n");
-	return -ENOMEM;
-    }
-    retval = rtapi_shmem_getptr(shmem_id[num], &shmem_ptr);
-    if ( retval < 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STREAMER: ERROR: couldn't map user/RT shared memory\n");
-	return -ENOMEM;
-    }
-    fifo = shmem_ptr;
-    str->fifo = fifo;
-    /* copy data from temp_fifo */
-    *fifo = *tmp_fifo;
-    /* init fields */
-    fifo->in = 0;
-    fifo->out = 0;
-    fifo->last_sample = 0;
-
-    /* mark it inited for user program */
-    fifo->magic = FIFO_MAGIC_NUM;
     return 0;
 }
 

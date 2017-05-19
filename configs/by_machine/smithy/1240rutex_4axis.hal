@@ -1,5 +1,5 @@
-loadrt trivkins
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[KINS]JOINTS
 loadrt stepgen step_type=0,0,0,0
 loadrt match8 count=1
 # Used to filter out spurious limit switch signals
@@ -19,20 +19,20 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 addf stepgen.update-freq servo-thread
 
-net Xpos-cmd axis.0.motor-pos-cmd stepgen.0.position-cmd
-net Ypos-cmd axis.1.motor-pos-cmd stepgen.1.position-cmd
-net Zpos-cmd axis.2.motor-pos-cmd stepgen.2.position-cmd
-net Apos-cmd axis.3.motor-pos-cmd stepgen.3.position-cmd
+net Xpos-cmd joint.0.motor-pos-cmd stepgen.0.position-cmd
+net Ypos-cmd joint.1.motor-pos-cmd stepgen.1.position-cmd
+net Zpos-cmd joint.2.motor-pos-cmd stepgen.2.position-cmd
+net Apos-cmd joint.3.motor-pos-cmd stepgen.3.position-cmd
 
-net Xpos-fb stepgen.0.position-fb axis.0.motor-pos-fb
-net Ypos-fb stepgen.1.position-fb axis.1.motor-pos-fb
-net Zpos-fb stepgen.2.position-fb axis.2.motor-pos-fb
-net Apos-fb stepgen.3.position-fb axis.3.motor-pos-fb
+net Xpos-fb stepgen.0.position-fb joint.0.motor-pos-fb
+net Ypos-fb stepgen.1.position-fb joint.1.motor-pos-fb
+net Zpos-fb stepgen.2.position-fb joint.2.motor-pos-fb
+net Apos-fb stepgen.3.position-fb joint.3.motor-pos-fb
 
-net Xen <= axis.0.amp-enable-out stepgen.0.enable
-net Yen <= axis.1.amp-enable-out stepgen.1.enable
-net Zen <= axis.2.amp-enable-out stepgen.2.enable
-net Aen <= axis.3.amp-enable-out stepgen.3.enable
+net Xen <= joint.0.amp-enable-out stepgen.0.enable
+net Yen <= joint.1.amp-enable-out stepgen.1.enable
+net Zen <= joint.2.amp-enable-out stepgen.2.enable
+net Aen <= joint.3.amp-enable-out stepgen.3.enable
 
 net Xstep stepgen.0.step parport.0.pin-03-out
 net Xdir stepgen.0.dir parport.0.pin-02-out
@@ -43,18 +43,18 @@ net Zdir stepgen.2.dir parport.0.pin-06-out
 net Astep stepgen.3.step parport.0.pin-09-out
 net Adir stepgen.3.dir parport.0.pin-08-out
 
-setp stepgen.0.position-scale [AXIS_0]SCALE
-setp stepgen.1.position-scale [AXIS_1]SCALE
-setp stepgen.2.position-scale [AXIS_2]SCALE
-setp stepgen.3.position-scale [AXIS_3]SCALE
-setp stepgen.0.maxvel [AXIS_0]STEPGEN_MAXVEL
-setp stepgen.1.maxvel [AXIS_1]STEPGEN_MAXVEL
-setp stepgen.2.maxvel [AXIS_2]STEPGEN_MAXVEL
-setp stepgen.3.maxvel [AXIS_3]STEPGEN_MAXVEL
-setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
-setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
-setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
-setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+setp stepgen.0.position-scale [JOINT_0]SCALE
+setp stepgen.1.position-scale [JOINT_1]SCALE
+setp stepgen.2.position-scale [JOINT_2]SCALE
+setp stepgen.3.position-scale [JOINT_3]SCALE
+setp stepgen.0.maxvel [JOINT_0]STEPGEN_MAXVEL
+setp stepgen.1.maxvel [JOINT_1]STEPGEN_MAXVEL
+setp stepgen.2.maxvel [JOINT_2]STEPGEN_MAXVEL
+setp stepgen.3.maxvel [JOINT_3]STEPGEN_MAXVEL
+setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 
 # four axis motion allows 4 other outputs on pins 1,14,16,17
 # five additional input pins are available 10,11,12,13,15
@@ -75,12 +75,12 @@ net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 
 newsig false bit
 sets false FALSE
-net xhoming axis.0.homing match8.0.a0
-net yhoming axis.1.homing match8.0.a1
-net zhoming axis.2.homing match8.0.a2
-net ahoming axis.3.homing match8.0.a3
+net xhoming joint.0.homing match8.0.a0
+net yhoming joint.1.homing match8.0.a1
+net zhoming joint.2.homing match8.0.a2
+net ahoming joint.3.homing match8.0.a3
 net false match8.0.b0 match8.0.b1 match8.0.b2 match8.0.b3
 net home-raw parport.0.pin-15-in-not debounce.0.0.in
-net home-filtered debounce.0.0.out axis.0.home-sw-in axis.1.home-sw-in axis.2.home-sw-in axis.3.home-sw-in match8.0.in
-net limit match8.0.out axis.0.neg-lim-sw-in
+net home-filtered debounce.0.0.out joint.0.home-sw-in joint.1.home-sw-in joint.2.home-sw-in joint.3.home-sw-in match8.0.in
+net limit match8.0.out joint.0.neg-lim-sw-in
 

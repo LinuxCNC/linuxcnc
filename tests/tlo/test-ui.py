@@ -13,151 +13,6 @@ import math
 timeout = 1.0
 
 
-class LinuxcncError(Exception):
-    pass
-#    def __init__(self, value):
-#        self.value = value
-#    def __str__(self):
-#        return repr(self.value)
-
-class LinuxcncControl:
-    '''
-    issue G-Code commands
-    make sure important modes are saved and restored
-    mode is saved only once, and can be restored only once
-    
-    usage example: 
-        e = emc_control()
-        e.prepare_for_mdi()
-            any internal sub using e.g("G0.....")
-        e.finish_mdi()
-    
-    '''
-
-    def __init__(self):
-        self.c = linuxcnc.command()
-        self.e = linuxcnc.error_channel()
-        self.s = linuxcnc.stat()
-        
-    def running(self, do_poll=True):
-        '''
-        check wether interpreter is running.
-        If so, cant switch to MDI mode.
-        '''
-        if do_poll: 
-            self.s.poll()
-        return (self.s.task_mode == linuxcnc.MODE_AUTO and 
-                self.s.interp_state != linuxcnc.INTERP_IDLE)
-                
-    def set_mode(self,m):
-        '''
-        set EMC mode if possible, else throw LinuxcncError
-        return current mode
-        '''
-        self.s.poll()
-        if self.s.task_mode == m : 
-            return m
-        if self.running(do_poll=False): 
-            raise LinuxcncError("interpreter running - cant change mode")
-        self.c.mode(m)   
-        self.c.wait_complete()
-        return m  
-
-    def set_state(self,m):
-        '''
-        set EMC mode if possible, else throw LinuxcncError
-        return current mode
-        '''
-        self.s.poll()
-        if self.s.task_mode == m : 
-            return m
-        self.c.state(m)   
-        self.c.wait_complete()
-        return m
-
-    def do_home(self,axismask):
-        self.s.poll()
-        self.c.home(axismask)   
-        self.c.wait_complete()
-
-
-    def ok_for_mdi(self):
-        ''' 
-        check wether ok to run MDI commands.
-        '''
-        self.s.poll()
-        return not self.s.estop and self.s.enabled and self.s.homed 
-        
-    def prepare_for_mdi(self):
-        ''' 
-        check wether ok to run MDI commands.
-        throw  LinuxcncError if told so.
-        return current mode
-        '''
-
-        self.s.poll()
-        if self.s.estop:
-            raise LinuxcncError("machine in ESTOP")
-        
-        if not self.s.enabled:
-            raise LinuxcncError("machine not enabled")
-        
-        if not self.s.homed:
-            raise LinuxcncError("machine not homed")
-        
-        if self.running():
-            raise LinuxcncError("interpreter not idle")
-            
-        return self.set_mode(linuxcnc.MODE_MDI)
-
-    g_raise_except = True
-    
-    def g(self,code,wait=False):
-        '''
-        issue G-Code as MDI command.
-        wait for completion if reqested
-        '''
-        
-        self.c.mdi(code)
-        if wait:
-            try:
-                while self.c.wait_complete() == -1:
-                    pass
-                return True
-            except KeyboardInterrupt:
-                print "interrupted by keyboard in c.wait_complete()"
-                return False
-
-        self.error = self.e.poll()
-        if self.error:
-            kind, text = self.error
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                if self.g_raise_except:
-                    raise LinuxcncError(text)
-                else:        
-                    print ("error " + text)
-            else:
-                print ("info " + text)
-        return False
-
-    def get_current_tool(self):
-        self.s.poll()
-        return self.s.tool_in_spindle
-
-    def active_codes(self):
-        self.e.poll()
-        return self.s.gcodes
-    
-    def get_current_system(self):
-        g = self.active_codes()
-        for i in g:
-                if i >= 540 and i <= 590:
-                        return i/10 - 53
-                elif i >= 590 and i <= 593:
-                        return i - 584
-        return 1
-
-
 def introspect():
     os.system("halcmd show pin python-ui")
 
@@ -186,14 +41,14 @@ def verify_pin_value(pin_name, value):
 
 
 def get_interp_param(param_number):
-    e.c.mdi("(debug, #%d)" % param_number)
-    while e.c.wait_complete() == -1:
+    c.mdi("(debug, #%d)" % param_number)
+    while c.wait_complete() == -1:
         pass
 
     # wait up to 2 seconds for a reply
     start = time.time()
     while (time.time() - start) < 2:
-        error = e.e.poll()
+        error = e.poll()
         if error == None:
             time.sleep(0.010)
             continue
@@ -270,11 +125,14 @@ os.system("halcmd source ./postgui.hal")
 # connect to LinuxCNC
 #
 
-e = LinuxcncControl()
-e.g_raise_except = False
-e.set_state(linuxcnc.STATE_ESTOP_RESET)
-e.set_state(linuxcnc.STATE_ON)
-e.set_mode(linuxcnc.MODE_MDI)
+c = linuxcnc.command()
+s = linuxcnc.stat()
+e = linuxcnc.error_channel()
+
+c.state(linuxcnc.STATE_ESTOP_RESET)
+c.state(linuxcnc.STATE_ON)
+c.mode(linuxcnc.MODE_MDI)
+c.wait_complete()
 
 
 #
@@ -297,7 +155,8 @@ verify_tool(
 
 print "*** load T100 but dont apply TLO"
 
-e.g('t100 m6')
+c.mdi('t100 m6')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -312,7 +171,8 @@ verify_tool(
 
 print "*** apply TLO of loaded tool (T100)"
 
-e.g('g43')
+c.mdi('g43')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -327,7 +187,8 @@ verify_tool(
 
 print "*** apply TLO of T200 instead"
 
-e.g('g43 h200')
+c.mdi('g43 h200')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -345,13 +206,15 @@ print "*** try to add in TLO with no H-word, should fail"
 # first drain the error queue
 start = time.time()
 while (time.time() - start) < 2:
-    error = e.e.poll()
+    error = e.poll()
     if error == None:
         # no more queued errors, continue with test
         break
 
-e.g('g43.2')
-if e.error[1] != "G43.2: H-word missing":
+c.mdi('g43.2')
+c.wait_complete()
+error = e.poll()
+if error[1] != "G43.2: H-word missing":
     print "G43.2 with missing H-word did not produce expected error"
     print "got [%s]" % e.error[1]
     sys.exit(1)
@@ -359,7 +222,8 @@ if e.error[1] != "G43.2: H-word missing":
 
 print "*** add in TLO of T100"
 
-e.g('g43.2 h100')
+c.mdi('g43.2 h100')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -374,7 +238,8 @@ verify_tool(
 
 print "*** add in TLO of T300"
 
-e.g('g43.2 h300')
+c.mdi('g43.2 h300')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -389,7 +254,8 @@ verify_tool(
 
 print "*** add in TLO of T400"
 
-e.g('g43.2 h400')
+c.mdi('g43.2 h400')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -404,7 +270,8 @@ verify_tool(
 
 print "*** add in TLO of T400 again"
 
-e.g('g43.2 h400')
+c.mdi('g43.2 h400')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -418,7 +285,8 @@ verify_tool(
 
 print "*** now let's try it rotated.  first, just rotate but don't change the tlo"
 
-e.g('g10 l2 p1 r33')
+c.mdi('g10 l2 p1 r33')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -432,7 +300,8 @@ verify_tool(
 
 print "*** clear tlo"
 
-e.g('g49')
+c.mdi('g49')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -446,7 +315,8 @@ verify_tool(
 
 print "*** apply t100"
 
-e.g('g43 h100')
+c.mdi('g43 h100')
+c.wait_complete()
 
 verify_tool(
     tool=100,
@@ -460,7 +330,8 @@ verify_tool(
 
 print "*** add in t200"
 
-e.g('g43.2 h200')
+c.mdi('g43.2 h200')
+c.wait_complete()
 
 verify_tool(
     tool=100,

@@ -19,35 +19,35 @@ addf stg.do-write servo-thread 1
 
 # connect limit/home switch outputs to motion controller
 net Xminlim <= stg.in-02
-net Xminlim => axis.0.neg-lim-sw-in
+net Xminlim => joint.0.neg-lim-sw-in
 net Xmaxlim <= stg.in-01
-net Xmaxlim => axis.0.pos-lim-sw-in
+net Xmaxlim => joint.0.pos-lim-sw-in
 net Xhome <= stg.in-00
-net Xhome => axis.0.home-sw-in
+net Xhome => joint.0.home-sw-in
 
 net Yminlim <= stg.in-06
-net Yminlim => axis.1.neg-lim-sw-in
+net Yminlim => joint.1.neg-lim-sw-in
 net Ymaxlim <= stg.in-05
-net Ymaxlim => axis.1.pos-lim-sw-in
+net Ymaxlim => joint.1.pos-lim-sw-in
 net Yhome <= stg.in-04
-net Yhome => axis.1.home-sw-in
+net Yhome => joint.1.home-sw-in
 
 net Zminlim <= stg.in-10
-net Zminlim => axis.2.neg-lim-sw-in
+net Zminlim => joint.2.neg-lim-sw-in
 net Zmaxlim <= stg.in-09
-net Zmaxlim => axis.2.pos-lim-sw-in
+net Zmaxlim => joint.2.pos-lim-sw-in
 net Zhome <= stg.in-08
-net Zhome => axis.2.home-sw-in
+net Zhome => joint.2.home-sw-in
 
 #continue in the same manner for further axes (A,B,C)
 
 # connect amp faults to motion controller
 net Xfault <= stg.in-03
-net Xfault => axis.0.amp-fault-in
+net Xfault => joint.0.amp-fault-in
 net Yfault <= stg.in-07
-net Yfault => axis.1.amp-fault-in
+net Yfault => joint.1.amp-fault-in
 net Zfault <= stg.in-11
-net Zfault => axis.2.amp-fault-in
+net Zfault => joint.2.amp-fault-in
 
 # connect index pulses to motion controller
 # do these when index pulsing is figured out
@@ -55,11 +55,11 @@ net Zfault => axis.2.amp-fault-in
 #newsig Yindex  bit
 #newsig Zindex bit
 #linksp Xindex <= stg.0.enc-index
-#linksp Xindex => axis.0.index-enable
+#linksp Xindex => joint.0.index-enable
 #linksp Yindex <= stg.1.enc-index
-#linksp Yindex => axis.1.index-enable
+#linksp Yindex => joint.1.index-enable
 #linksp Zindex <= stg.2.enc-index
-#linksp Zindex => axis.2.index-enable
+#linksp Zindex => joint.2.index-enable
 
 # connect amp enables to motion controller
 net Xenable => stg.out-00

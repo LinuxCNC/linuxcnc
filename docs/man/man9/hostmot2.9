@@ -496,7 +496,14 @@ Low order bits (see "h")
 g: (Gray-code). This is a modifier that indicates that the following
 format string is gray-code encoded. This is only valid for encoders (e, h l) and 
 unsigned (u) data types.
- 
+.TP
+m: (Multi-turn). This is a modifier that indicates that the following
+format string is a multi-turn encoder. This is only valid for encoders (e, h l).
+A jump in encoder position of more than half the full scale is interpreted as a
+full turn and the counts are wrapped. With a multi-turn encoder this is only
+likely to be a data glitch and will lead to a permanent offset. This flag
+endures that such encoders will never wrap.
+
 .TP
 Parameters:
 Two parameters is universally created for all SSI instances
@@ -1097,6 +1104,27 @@ This parameter only has an effect if the
 value of the GPIO will be the inverse of the value on the "out" HAL pin.
 Only full GPIO pins and IO pins used as outputs by active module instances
 have this parameter.
+
+.PP
+When a physical I/O pin is used by a special function, the related
+.BR is_output ", and " is_opendrain
+HAL parameters are aliased to the special function.  For instance, if gpio 1
+is taken over by pwmgen 0's first output, then aliases like
+.B hm2_7i92.0.pwmgen.00.out0.invert_output
+(referring to
+.BR hm2_7i92.0.gpio.001.invert_output )
+will be automatically created.  When more than one GPIO is connected to the
+same special function, an extra .#. is inserted so that the settings for
+each related GPIO can be set separately.  For example, for the firmware
+SV12IM_2X7I48_72, the alias
+.B hm2_5i20.0.pwmgen.00.0.enable.invert_output
+(referring to 
+.BR hm2_5i20.0.gpio.000.invert_output )
+and
+.B hm2_5i20.0.pwmgen.00.1.enable.invert_output
+(referring to
+.BR hm2_5i20.0.gpio.023.invert_output )
+are both created.
 
 .SH led
 
