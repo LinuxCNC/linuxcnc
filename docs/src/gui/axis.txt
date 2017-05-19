@@ -544,7 +544,7 @@ information.
 
 .Touch Off
 
-By pressing 'Touch Off' or the END key, the 'G54 offset' for the
+By pressing 'Touch Off' or the END key, the 'G5x offset' for the
 current axis is changed so that the current axis value will be the
 specified value. Expressions may be entered using the rules for
 rs274ngc programs, except that variables may not be referred to. The
@@ -669,7 +669,7 @@ The most frequently used keyboard shortcuts are shown in the following Table
 |I                | Select jog increment                      | Manual
 |C                | Continuous jog                            | Manual
 |Control-Home     | Perform homing sequence                   | Manual
-|End              | Touch off: Set G54 offset for active axis | Manual
+|End              | Touch off: Set G5x offset for active axis | Manual
 |Left, Right      | Jog first axis                            | Manual
 |Up, Down         | Jog second axis                           | Manual
 |Pg Up, Pg Dn     | Jog third axis                            | Manual
