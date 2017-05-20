@@ -198,6 +198,10 @@ proc wheel_setup {jogmode} {
                                   <= halui.mode.is-manual \
                                   => pendant_util.is-manual
 
+  makenet [existing_outpin_signame   halui.mode.is-teleop pendant:amux-enable] \
+                                  <= halui.mode.is-teleop \
+                                  => pendant_util.amux-enable
+
   set anames        {x y z a}
   set available_idx {0 1 2 3}
   # The pendant has fixed labels and displays for letters: x y z a
