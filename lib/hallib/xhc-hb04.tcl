@@ -198,9 +198,6 @@ proc wheel_setup {jogmode} {
                                   <= halui.mode.is-manual \
                                   => pendant_util.is-manual
 
-  makenet pendant:jogenable-off <= xhc-hb04.jog.enable-off
-  makenet pendant:jogenable-off => pendant_util.jogenable-off
-
   set anames        {x y z a}
   set available_idx {0 1 2 3}
   # The pendant has fixed labels and displays for letters: x y z a

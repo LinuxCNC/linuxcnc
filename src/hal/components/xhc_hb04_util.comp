@@ -12,7 +12,6 @@ pin is True.
 
 The pin named is-manual is typically connected to halui.mode.is-manual.
 
-The pin named jogenable-off is not used.
 """;
 
 pin in bit start_or_pause;
@@ -46,7 +45,6 @@ pin out float divide_by_k_out;
 pin in  float k = 1.0;
 
 pin in  bit   is_manual;
-pin in  bit   jogenable_off;
 
 pin in  float amux0_in0;
 pin in  float amux1_in0;
