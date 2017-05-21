@@ -215,7 +215,7 @@ static int instantiate_jplan(const int argc, const char **argv)
 	    hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i))
 	    return -1;
 
-	hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IO;
+	hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IN;
 	if (hal_pin_float_newf(dir,    &(jp->pos_cmd), inst_id, "%s.%d.pos-cmd", name, i) ||
 	    hal_pin_float_newf(HAL_IO, &(jp->max_vel), inst_id, "%s.%d.max-vel", name, i) ||
 	    hal_pin_float_newf(HAL_IO, &(jp->max_acc), inst_id, "%s.%d.max-acc", name, i))
