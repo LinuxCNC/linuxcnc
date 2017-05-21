@@ -423,7 +423,7 @@ else
   AC_MSG_RESULT(not specified)
 fi
 
-AC_PROG_CC([$RTSCC gcc])
+AC_PROG_CC([$RTSCC gcc clang])
 AC_PROG_CPP()
 
 if test -z "$CC"; then
