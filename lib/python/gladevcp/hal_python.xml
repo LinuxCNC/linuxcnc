@@ -1,5 +1,4 @@
-<glade-catalog name="gladevcp" library="gladepython" supports="libglade,gtkbuilder"
-               domain="glade-3" depends="gtk+">
+<glade-catalog name="gladevcp" library="gladepython" supports="libglade,gtkbuilder" domain="glade-3" depends="gtk+">
     <init-function>glade_python_init</init-function>
     
     <glade-widget-classes>
@@ -63,7 +62,7 @@
         <glade-widget-class name="HAL_VBar" generic-name="hal_vbar" title="HAL VBar"/>
         <glade-widget-class name="Override" generic-name="override" title="Override Controls">
             <properties>
-                <property id="Adjustment" visible="false"/>
+                <property id="Adjustment" visible="False"/>
             </properties>
         </glade-widget-class>
         <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
