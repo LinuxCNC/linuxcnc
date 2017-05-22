@@ -11,7 +11,7 @@ Les éléments de tooledit modifiables décrits ici sont disponibles
 dans les versions 2.5.1 et suivantes. Dans la version 2.5.0, l'interface
 graphique ne permet pas ces ajustements.
 
-image::images/tooledit_fr.png[align="left",width=640]
+image::images/tooledit_fr.png[align="left", width="640", alt="Éditeur graphique de table d’outils"]
 
 Le programme tooledit rafraichi le fichier de la table d'outils avec les
 changements édités puis enregistrés avec le bouton _EnregistrerFichier_.
@@ -42,7 +42,7 @@ TOOL_EDITOR = tooledit Z DIAM
 ----
 
 .Résultat obtenu
-image::images/tooledit-columns_fr.png[align="left"]
+image::images/tooledit-columns_fr.png[align="left", alt="Éditeur graphique de table d’outils - Choix des colonnes"]
 
 == Tri par colonne
 Les outils de la table affichée peuvent être triés selon n'importe quelle
@@ -50,7 +50,7 @@ colonne, par ordre croissant ou décroissant, en cliquant sur l'entête de la
 colonne. Un second clic inverse l'ordre de tri. Le tri par colonne nécessite
 une version de TCL/TK >= 8.5
 
-image::images/tooledit-sort_fr.png[align="left"]
+image::images/tooledit-sort_fr.png[align="left", alt="Éditeur graphique de table d’outils - Tri par colonne"]
 
 Sous Ubuntu Lucid 10.04 tcl/tk8.4 est installé par défaut. Il est possible
 d'ajouter tcl/tk8.5 avec la commande suivante:
@@ -87,7 +87,7 @@ l'exécution d'un g-code ou d'un autre programme peut altérer les données de l
 table d'outils. Toute modification est alors détectée par tooledit qui affiche
 le message: Attention: Fichier modifié par un autre process
 
-image::images/tooledit-warning_fr.png[align="left"]
+image::images/tooledit-warning_fr.png[align="left", alt="Éditeur graphique de table d’outils - Utilisation autonome"]
 
 L'affichage de la table d'outils dans tooledit peut être rafraichi par le
 bouton _Relire_, pour relire le fichier modifié.

@@ -25,7 +25,7 @@ paramètres.
 
 .Les différents usinages de l'exemple
 
-image::images/useful-subroutines-ngc.png[]
+image::images/useful-subroutines-ngc.png[alt="Les différents usinages de l'exemple"]
 
 === Palpage d'une grille rectangulaire de points
 
@@ -39,7 +39,7 @@ _probe-results.txt_ situé dans le même répertoire que le fichier .ini.
 
 .La grille de palpage
 
-image::images/gridprobe-ngc.png[]
+image::images/gridprobe-ngc.png[alt="La grille de palpage"]
 
 === Amélioration du palpage d'une grille rectangulaire de points
 
@@ -54,7 +54,7 @@ répertoire que le fichier .ini.
 
 .La grille de palpage plus fine
 
-image::images/smartprobe-ngc.png[]
+image::images/smartprobe-ngc.png[alt="La grille de palpage plus fine"]
 
 === Mesure de longueur d'outil
 
