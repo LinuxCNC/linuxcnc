@@ -359,7 +359,7 @@ G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 
 .G2 Example
 
-image::images/g2.png[align="center"]
+image::images/g2.png[align="center", alt="G2 Example"]
 
 In the next example we see the difference between the offsets for Y if
 we are doing a G2 or a G3 move. For the G2 move the start position is
@@ -377,7 +377,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 .G2-G3 Example
 
-image::images/g2-3.png[align="center"]
+image::images/g2-3.png[align="center", alt="G2-G3 Example"]
 
 In the next example we show how the arc can make a helix in the Z axis
 by adding the Z word.
@@ -591,7 +591,7 @@ M2
 
 .Sample NURBS Output
 
-image:images/nurbs01.png[align="center"]
+image:images/nurbs01.png[align="center", alt="Sample NURBS Output"]
 
 More information on NURBS can be found here:
 
@@ -1528,7 +1528,7 @@ G76 P- Z- I- J- R- K- Q- H- E- L-
 
 .G76 Threading
 
-image::images/g76-threads.png[align="center"]
+image::images/g76-threads.png[align="center", alt="G76 Threading"]
 
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
@@ -1645,7 +1645,7 @@ are the cutting moves.
 
 .G76 Example
 
-image::images/g76-01.png[align="center"]
+image::images/g76-01.png[align="center", alt="G76 Example"]
 
 [[gcode:g80-g89]]
 == Canned Cycles
@@ -1881,7 +1881,7 @@ being able to point a reader to a specific line of code.
 
 .G80 Cycle
     
-image::images/G81mult.png[align="center"]
+image::images/G81mult.png[align="center", alt="G80 Cycle"]
 
 The use of G80 in line N200 is optional because the G0 on the next
 line will turn off the G81 cycle. But using the G80 as shown in 

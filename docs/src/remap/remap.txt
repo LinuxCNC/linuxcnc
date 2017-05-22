@@ -1107,8 +1107,8 @@ o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
 ---------------------------------------------------------------------
-NB: ini and HAL variable expansion need explicit enabling with
-<<remap:ini-features,FEATURE>>.
+NOTE: ini and HAL variable expansion need explicit enabling with the
+<<remap:ini-features,FEATURES>> mask.
 
 If more fine grained recovery action is needed, use the idiom
 laid out in the previous example:
@@ -2612,7 +2612,7 @@ need to replace ini variables which are currently used in the
 hard-coded tool change process, like the `[EMCIO]TOOL_CHANGE_POSITION` parameter.
 
 CAUTION: this section doesn't really belong here but since it comes with
-the same branch, here it rests for now until its clear this will be
+the same branch, here it rests for now until it's clear this will be
 merged. It should go into the gcode/overview Named Parameters section.
 
 [[remap:referto-hal-items]]
@@ -2654,13 +2654,13 @@ This feature was motivated by the desire for stronger coupling between
 user interface components like `GladeVCP` and `PyVCP` to act as
 parameter source for driving NGC file behavior. The alternative -
 going through the M6x pins and wiring them - has a limited,
-non-mmemonic namespace and is unnecessary cumbersome just as a
+non-mnemonic namespace and is unnecessarily cumbersome just as a
 UI/Interpreter communications mechanism.
 
 NOTE: The values are are only updated when the G code is not running.
 
 CAUTION: this section doesn't really belong here but since it comes with
-the same branch, here it rests for now until its clear this will be
+the same branch, here it rests for now until it's clear this will be
 merged. It should go into the gcode/overview Named Parameters section.
 
 ==  Status

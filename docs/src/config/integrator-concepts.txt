@@ -141,7 +141,7 @@ unlike stepper motors which are generally run 'open loop'. What does
 system is connected. 
 
 .Servo Loop
-image::images/servo-feedback.png[]
+image::images/servo-feedback.png[alt="simplified diagram of how a servomotor system is connected"]
 
 This diagram shows that the input signal (and the feedback signal) drive 
 the summing amplifier, the summing amplifier drives the power amplifier, 
@@ -173,7 +173,7 @@ set point. In the case of LinuxCNC the process we want to control is actual
 axis position and the set point is the commanded axis position.
 
 .PID Loop
-image::images/pid-feedback.png[]
+image::images/pid-feedback.png[alt="PID Loop, PID stands for Proportional, Integral, and Derivative"]
 
 By 'tuning' the three constants in the PID controller algorithm, the
 controller can provide control action designed for specific process

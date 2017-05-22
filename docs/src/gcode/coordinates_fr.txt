@@ -46,7 +46,7 @@ ligne où un mouvement basé sur les coordonnées machine est souhaité.
 [[fig:decalages-ilots]]
 == Décalages pièce (G54 à G59.3)
 
-image::images/offsets.png[]
+image::images/offsets.png[alt="Exemple de décalages pour 8 ilots"]
 
 .Exemple de décalages pour 8 ilots
 

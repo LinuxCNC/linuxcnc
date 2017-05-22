@@ -24,7 +24,7 @@ machine coordinate system.
 == Coordinate Systems
 
 .Example of Coordinate Systems
-image::images/offsets.png[align="center"]
+image::images/offsets.png[align="center", alt="Example of Coordinate Systems"]
 
 .Coordinate System Offsets
 

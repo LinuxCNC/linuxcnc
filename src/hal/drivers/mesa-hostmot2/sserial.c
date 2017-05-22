@@ -1087,6 +1087,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     return r;
                 }
+                break;
             default:
                 HM2_ERR("Unhandled sserial data type (%i) Name %s Units %s\n",
                         chan->confs[i].DataType, 
@@ -1531,11 +1532,11 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
             case LBP_FLOAT:
                 if (conf->DataLength == sizeof(float) * 8){
                     float temp;
-                    memcpy(&temp, &buff, conf->DataLength);
+                    memcpy(&temp, &buff, sizeof(float));
                     *pin->float_pin = temp;
                 } else if (conf->DataLength == sizeof(double) * 8){
                     double temp;
-                    memcpy(&temp, &buff, conf->DataLength);
+                    memcpy(&temp, &buff, sizeof(double));
                     *pin->float_pin = temp;
                 } else {
                     HM2_ERR_NO_LL("sserial read: LBP_FLOAT of bit-length %i not handled\n", conf->DataLength);
