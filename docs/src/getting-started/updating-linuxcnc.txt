@@ -1055,4 +1055,23 @@ was: axis.L.vel-cmd
 
 . siggen: new pin 'reset' to set output signal values to predefined state
 
+=== XHC-HB04 Pendant Support
+
+==== xhc_hb04_util.comp (helper component)
+
+Remove unused pin 'jogenable-off'
+
+Add pin 'amux-enable' so that the multiplexed acceleration reductions are now
+enabled by the ANDing the pins: 'is-manual' and 'amux-enable'.  These two pins
+are  typically connected to 'halui.mode.is-manual' and 'halui.mode.is-teleop'
+respectively.
+
+==== xhc_hb04.tcl (optional LIB configuration halfile)
+
+Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
+
+Support connection of 'halui.mode.is-teleop' to 'pendant_util.amux-enable' via
+the signal 'pendant:amux-enable'.  This change allows homing and joint mode
+jogging to occur at normal (not reduced) acceleration settings.
+
 // vim: set syntax=asciidoc:
