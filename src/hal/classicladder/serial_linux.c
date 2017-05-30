@@ -236,7 +236,7 @@ if ( recep_descrip>0 )
 {
 		if ( ModbusDebugLevel>=2 )
 			printf("Serial reading...\n");
-			NbrCarsReceived = read(fd,Buff,MaxBuffLength);
+		NbrCarsReceived = read(fd,Buff,MaxBuffLength);
 		if ( ModbusDebugLevel>=2 )
 			printf("%d chars found\n", NbrCarsReceived);
 }
