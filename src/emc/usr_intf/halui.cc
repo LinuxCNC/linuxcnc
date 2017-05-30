@@ -195,6 +195,8 @@ struct PTR {
     struct field { typedef T *type; };
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
 template<class T> struct NATIVE {};
 template<> struct NATIVE<hal_bit_t> { typedef bool type; };
 template<> struct NATIVE<hal_s32_t> { typedef rtapi_s32 type; };
@@ -203,6 +205,7 @@ template<> struct NATIVE<hal_float_t> { typedef double type; };
 struct VALUE {
     template<class T> struct field { typedef typename NATIVE<T>::type type; };
 };
+#pragma GCC diagnostic pop
 
 template<class T>
 struct halui_str_base
