@@ -193,6 +193,7 @@ static char* fetch_ifname(int sockfd, char *buf, size_t n) {
 
     for(it=ifa; it; it=it->ifa_next) {
         struct sockaddr_in *ifaddr = (struct sockaddr_in*)it->ifa_addr;
+        if (ifaddr == NULL) continue;
         if(ifaddr->sin_family != srcaddr.sin_family) continue;
         if(ifaddr->sin_addr.s_addr != srcaddr.sin_addr.s_addr) continue;
         snprintf(buf, n, "%s", it->ifa_name);

@@ -73,7 +73,11 @@ https://www.assembla.com/spaces/zsync-windows/documents
 +
 ----
 md5sum linuxcnc-2.7-wheezy.iso
+----
++
 or
++
+----
 sha256sum linuxcnc-2.7-wheezy.iso
 ----
 . Then compare to these checksums
@@ -95,7 +99,8 @@ The LinuxCNC Live/Install Image is a hybrid ISO image which can be written
 directly to a USB storage device (flash drive) or a DVD and used to boot
 a computer.  The image is too large to fit on a CD.
 
-. Writing the image to a USB storage device in Linux
+.Writing the image to a USB storage device in Linux
+
 . Connect a USB storage device (for example a flash drive or thumb
   drive type device).
 . Determine the device file corresponding to the USB flash drive.
