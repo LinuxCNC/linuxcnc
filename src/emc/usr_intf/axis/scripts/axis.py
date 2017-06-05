@@ -1748,7 +1748,7 @@ def get_jog_speed(a):
 def get_jog_speed_map(a):
     if get_jog_mode() and a >= num_joints: return 0
     if not get_jog_mode():
-    	if a >= len(jog_order): return 0
+        if a >= len(jog_order): return 0
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
     return get_jog_speed(a)
@@ -1817,7 +1817,7 @@ def ja_from_rbutton():
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
     if not all_homed() and lathe and not lathe_historical_config():
-	axes = "xzabcuvw"
+        axes = "xzabcuvw"
     else:       
         axes = "xyzabcuvw"
     if ja in "012345678":
@@ -2817,8 +2817,8 @@ class TclCommands(nf.TclCommands):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
     def inifindall(section, item):
-	items = tuple(inifile.findall(section, item))
-	return root_window.tk.merge(*items)
+        items = tuple(inifile.findall(section, item))
+        return root_window.tk.merge(*items)
 
 commands = TclCommands(root_window)
 
@@ -3124,9 +3124,9 @@ def jog_on_map(num, speed):
     elif lathe:
         if num >= len(jog_order): return
         axis_letter = jog_order[num]
-	if lathe_historical_config():
+        if lathe_historical_config():
             num = "XYZ".index(axis_letter)
-	else:
+        else:
             num = trajcoordinates.upper().index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
