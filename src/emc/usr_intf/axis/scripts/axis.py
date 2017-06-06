@@ -1821,9 +1821,21 @@ def ja_from_rbutton():
     else:       
         axes = "xyzabcuvw"
     if ja in "012345678":
-        a = int(ja)
+        a = int(ja) # number specifies a joint
     else:    
-        a = axes.index(ja)
+        a = axes.index(ja) # letter specifies an axis coordinate
+
+    # handle joint jogging for known identity kins
+    if get_jog_mode():
+        # joint jogging
+        if lathe_historical_config():
+            a = "xyzabcuvw".index(ja)
+        elif kins_is_trivkins and trivkinstype == "single":
+            # note: if duplicate_coord_letters,
+            #       use index for first occurrence of the letter
+            a = trajcoordinates.index(ja)
+        #future: elif's for other known identity kins go here
+
     return a
 
 def all_homed():
