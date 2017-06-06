@@ -3392,6 +3392,7 @@ if kinsmodule.split()[0] == "trivkins":
             trivkinscoords = item.split("=")[1]
         if "kinstype=" in item:
             trivkinstype = item.split("=")[1].lower()
+            if trivkinstype=="1": trivkinstype = "single"
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
