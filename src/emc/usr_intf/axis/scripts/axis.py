@@ -1175,11 +1175,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
             initcodes.append(unitcode)
             initcodes.append("g90")
             initcodes.append("t%d m6" % s.tool_in_spindle)
-            position = "g53 g0"
             for i in range(9):
                 if s.axis_mask & (1<<i):
-                    position += " %s%.8f" % ("XYZABCUVW"[i], s.position[i])
-            initcodes.append(position)
+                    position = "g53 g0 %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+                    initcodes.append(position)
             for i, g in enumerate(s.gcodes):
                 # index 0 is "sequence number" and index 2 is the last block's
                 # "g_mode" neither of which should be sent as a startup code.
