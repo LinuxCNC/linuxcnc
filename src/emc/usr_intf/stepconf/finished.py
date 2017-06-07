@@ -76,7 +76,7 @@ def save(self,basedir):
 
 	if self.d.classicladder: 
 		if not self.d.laddername == "custom.clp":
-			filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.d.laddername)
+			filename = os.path.join(self.a.distdir, "configurable_options/ladder/%s" % self.d.laddername)
 			original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
 			if os.path.exists(filename):     
 				if os.path.exists(original):
@@ -90,7 +90,7 @@ def save(self,basedir):
 				print "Master or temp ladder files missing from configurable_options dir"
 
 	if self.d.pyvcp and not self.d.pyvcpname == "custompanel.xml":                
-		panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
+		panelname = os.path.join(self.a.distdir, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)
 		if os.path.exists(panelname):     
 			if os.path.exists(originalname):
@@ -104,7 +104,7 @@ def save(self,basedir):
 			print "Master PYVCP files missing from configurable_options dir"
 
 	if self.d.gladevcp and not self.d.gladevcpname == "glade_custom.ui":                
-		panelname = os.path.join(distdir, "configurable_options/gladevcp/%s" % self.d.gladevcpname)
+		panelname = os.path.join(self.a.distdir, "configurable_options/gladevcp/%s" % self.d.gladevcpname)
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.d.machinename)
 		if os.path.exists(panelname):     
 			if os.path.exists(originalname):

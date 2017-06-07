@@ -69,6 +69,17 @@ def pport2_finish(self):
 		self.d[p] = self.w[p].get_active()
 	self.d.pp2_direction = self.w.pp2_direction.get_active()
 	self.d.ioaddr2 = self.w.ioaddr2.get_text()
+
+	"""
+	# Save preset
+	current_machine = self.d.get_machine_preset(self.w.pp2_preset_combo)
+	if current_machine:
+		self.d.pport2_preset = current_machine["index"]
+	else:
+		# Other selected
+		self.d.pport2_preset = 0
+		return
+	"""
 	self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
 # pport2 callbacks:

@@ -167,10 +167,6 @@ class Pages:
 	#***************
 	def initialize(self):
 		# one time initialized data
-		liststore = self.w.drivertype.get_model()
-		for i in alldrivertypes:
-			liststore.append([i[1]])
-		liststore.append([_("Other")])
 		self.w.title_label.set_text(available_page[0][1])
 		self.w.button_back.set_sensitive(False)
 		self.w.label_fwd.set_text(MESS_START)
@@ -193,7 +189,13 @@ class Pages:
 		for mydict in preset.preset_machines:
 			treeiter = self.w.base_preset_liststore.append([mydict["human"], mydict["index"]])
 		self.w.base_preset_combo.set_active(0)
-		
+
+		self.w.driver_liststore.clear()
+		self.w.driver_liststore.append([_("Other"), 0])
+		for mydict in preset.preset_machines:
+			treeiter = self.w.driver_liststore.append([mydict["human"], mydict["index"]])
+		self.w.drivertype.set_active(0)
+
 		# pport1 combo boxes
 		model = self.w.output_list
 		model.clear()

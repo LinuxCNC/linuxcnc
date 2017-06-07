@@ -54,6 +54,12 @@ def pport1_prepare(self):
 
 	self.w.pin1.grab_focus()
 	self.w.ioaddr.set_text(self.d.ioaddr)
+
+	# Preset
+	preset_index = self.d.pport1_preset
+	self.d.select_combo_machine(self.w.pp1_preset_combo, preset_index)
+	self.pport1_execut_preset()
+	
 	self._p.in_pport_prepare = False
 
 
@@ -72,6 +78,16 @@ def pport1_finish(self):
 		p = 'pin%dinv' % pin
 		self.d[p] = self.w[p].get_active()
 	self.d.ioaddr = self.w.ioaddr.get_text()
+
+	# Save preset
+	current_machine = self.d.get_machine_preset(self.w.pp1_preset_combo)
+	if current_machine:
+		self.d.pport1_preset = current_machine["index"]
+	else:
+		# Other selected
+		self.d.pport1_preset = 0
+		return
+	
 	self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
 # pport1 callbacks
@@ -79,20 +95,32 @@ def on_exclusive_check_pp1(self, widget):
 	self.a.do_exclusive_inputs(widget,1)
 
 def on_pp1_preselect_button_clicked(self, widget):
+	self.pport1_execut_preset()
+
+def pport1_execut_preset(self):
 	current_machine = self.d.get_machine_preset(self.w.pp1_preset_combo)
 	if current_machine:
 		None
 	else:
 		# Other selected
+		# Enable pin selection
+		for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
+			p = 'pin%d' % pin
+			self.w['%s'%p].set_sensitive(1)
+			p = 'pin%dinv' % pin
+			self.w['%s'%p].set_sensitive(1)
 		return
+
 	# Test output & intput & inverted
 	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
 		p = 'pin%d' % pin
 		if(p in current_machine):
 			self.w['%s'%p].set_active(current_machine[p])
+			self.w['%s'%p].set_sensitive(0)
 		p = 'pin%dinv' % pin
 		if(p in current_machine):
 			self.w['%s'%p].set_active(current_machine[p])
+			self.w['%s'%p].set_sensitive(0)
 
 def on_pp1_preset_io_combo_changed(self, widget):
 	state = self.w.pp1_preset_io_combo.get_active()

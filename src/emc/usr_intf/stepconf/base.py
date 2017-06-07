@@ -35,7 +35,13 @@ def base_prepare(self):
 	self.w.stepspace.set_value(self.d.stepspace)
 	self.w.dirsetup.set_value(self.d.dirsetup)
 	self.w.dirhold.set_value(self.d.dirhold)
-	self.w.drivertype.set_active(self.drivertype_toindex())
+
+	# Preset
+	preset_index = self.d.global_preset
+	self.d.select_combo_machine(self.w.base_preset_combo, preset_index)
+	preset_index = self.d.drivertype
+	self.d.select_combo_machine(self.w.drivertype, preset_index)
+	
 	self.w.ioaddr.set_text(self.d.ioaddr)
 	self.w.machinename.grab_focus()
 	self.w.ioaddr2.set_text(self.d.ioaddr2) 
@@ -47,7 +53,7 @@ def base_prepare(self):
 		 self.w.radio_pp2.set_active(True)
 	else:
 		 self.w.radio_pp1.set_active(True)
-		 
+
 	ctx = self.w.base_preselect_button.get_style_context()
 	ctx.remove_class('selected')
 	ctx.add_class('normal')
@@ -58,7 +64,6 @@ def base_finish(self):
 	self.d.machinename = machinename.replace(" ","_")
 	self.d.axes = self.w.axes.get_active()
 	self.d.units = self.w.units.get_active()
-	self.d.drivertype = self.drivertype_toid(self.w.drivertype.get_active())
 	self.d.steptime = self.w.steptime.get_value()
 	self.d.stepspace = self.w.stepspace.get_value()
 	self.d.dirsetup = self.w.dirsetup.get_value()
@@ -70,6 +75,21 @@ def base_finish(self):
 		self.d.number_pports = 2
 	else:
 		self.d.number_pports = 1
+
+	# Preset
+	current_machine = self.d.get_machine_preset(self.w.drivertype)
+	if current_machine:
+		self.d.drivertype = current_machine["index"]
+	else:
+		# Other selected
+		self.d.drivertype = 0
+	current_machine = self.d.get_machine_preset(self.w.base_preset_combo)
+	if current_machine:
+		self.d.global_preset = current_machine["index"]
+	else:
+		# Other selected
+		self.d.global_preset = 0
+	
 	self.page_set_state('pport2',self.w.radio_pp2.get_active())
 	# Get item selected in combobox
 	tree_iter = self.w.axes.get_active_iter()
@@ -82,49 +102,32 @@ def base_finish(self):
 	self.page_set_state('axisv','V' in text_selected)
 	self.page_set_state('axisa','A' in text_selected)
 
-# Driver functions
-def on_drivertype_changed(self, *args):
-	self.update_drivertype_info()
-
-def update_drivertype_info(self):
-	v = self.w.drivertype.get_active()
-	if v < len(alldrivertypes):
-		d = alldrivertypes[v]
-		self.w.steptime.set_value(d[2])
-		self.w.stepspace.set_value(d[3])
-		self.w.dirhold.set_value(d[4])
-		self.w.dirsetup.set_value(d[5])
-
-		self.w.steptime.set_sensitive(0)
-		self.w.stepspace.set_sensitive(0)
-		self.w.dirhold.set_sensitive(0)
-		self.w.dirsetup.set_sensitive(0)
+def on_drivertype_changed(self, widget):
+	current_machine = self.d.get_machine_preset(self.w.drivertype)
+	if current_machine:
+		#self.d.drivertype = current_machine["index"]
+		None
 	else:
+		# Other selected
+		#self.d.drivertype = 0
 		self.w.steptime.set_sensitive(1)
 		self.w.stepspace.set_sensitive(1)
 		self.w.dirhold.set_sensitive(1)
 		self.w.dirsetup.set_sensitive(1)
+		return
+
+	# List axis page widgets
+	lwidget=[
+		"steptime",
+		"stepspace",
+		"dirhold",
+		"dirsetup"
+	]
+	for w in lwidget:
+		if(w in current_machine):
+			self.w['%s'%w].set_text(str(current_machine[w]))
+			self.w['%s'%w].set_sensitive(0)
 	self.calculate_ideal_period()
-
-def drivertype_fromid(self):
-	for d in alldrivertypes:
-		if d[0] == self.d.drivertype: return d[1]
-
-def drivertype_toid(self, what=None):
-	if not isinstance(what, int): what = self.drivertype_toindex(what)
-	if what < len(alldrivertypes): return alldrivertypes[what][0]
-	return "other"
-
-def drivertype_toindex(self, what=None):
-	if what is None: what = self.d.drivertype
-	for i, d in enumerate(alldrivertypes):
-		if d[0] == what: return i
-	return len(alldrivertypes)
-
-def drivertype_fromindex(self):
-	i = self.w.drivertype.get_active()
-	if i < len(alldrivertypes): return alldrivertypes[i][1]
-	return _("Other")
 
 def calculate_ideal_period(self):
 	steptime = self.w.steptime.get_value()
@@ -190,7 +193,7 @@ def on_base_preselect_button_clicked(self, widget):
 
 def base_general_preset(self, current_machine):
 	# base
-	
+	self.d.select_combo_machine(self.w.drivertype, current_machine["index"])
 	# pport1
 	self.pport1_prepare()
 	self.d.select_combo_machine(self.w.pp1_preset_combo, current_machine["index"])

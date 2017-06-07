@@ -17,10 +17,71 @@
 #
 from stepconf.definitions import *
 
+
 # PRESET
 # Please do not use 0 as index
+GECKO201=100
+GECKO202=101
+GECKO203V=102
+GECKO210=103
+GECKO212=104
+GECKO320=105
+GECKO540=106
+L297=200
+PMDX150=201
+SHERLINE=202
+XYLOTEX=203
+OEM750=204
+JVLSMD41=205
+HOBBYCNC=206
+KELING=207
+TB6560_3AXES=300
+TB6560_4AXES=301
+STEPCRAFT420=400
+STEPCRAFT600=401
+STEPCRAFT840=402
+
 preset_machines = [
-	{'name':'sherline', 'human':'Sherline (Untested)', 'index':1,
+	{'name':'gecko201', 'human':_("Gecko 201") + ' (Untested)', 'index':GECKO201,
+		'steptime':500, 'stepspace':4000, 'dirhold':20000, 'dirsetup':1000
+	},
+	{'name':'gecko202', 'human':_("Gecko 202") + ' (Untested)', 'index':GECKO202,
+		'steptime':500, 'stepspace':4500, 'dirhold':20000, 'dirsetup':1000
+	},
+	{'name':'gecko203v', 'human':_("Gecko 203v") + ' (Untested)', 'index':GECKO203V,
+		'steptime':1000, 'stepspace':2000, 'dirhold':200, 'dirsetup':200
+	},
+	{'name':'gecko210', 'human':_("Gecko 210") + ' (Untested)', 'index':GECKO210,
+		'steptime':500, 'stepspace':4000, 'dirhold':20000, 'dirsetup':1000
+	},
+	{'name':'gecko212', 'human':_("Gecko 212") + ' (Untested)', 'index':GECKO212,
+		'steptime':500, 'stepspace':4000, 'dirhold':20000, 'dirsetup':1000
+	},
+	{'name':'gecko320', 'human':_("Gecko 320") + ' (Untested)', 'index':GECKO320,
+		'steptime':3500, 'stepspace':500, 'dirhold':200, 'dirsetup':200
+	},
+	{'name':'gecko540', 'human':_("Gecko 540") + ' (Untested)', 'index':GECKO540,
+		'steptime':1000, 'stepspace':2000, 'dirhold':200, 'dirsetup':200
+	},
+	{'name':'oem750', 'human':_("Parker-Compumotor oem750") + ' (Untested)', 'index':OEM750,
+		'steptime':1000, 'stepspace':1000, 'dirhold':1000, 'dirsetup':200000
+	},
+	{'name':'l297', 'human':_("L297") + ' (Untested)', 'index':L297,
+		'steptime':500, 'stepspace':4000, 'dirhold':4000, 'dirsetup':1000
+	},
+	{'name':'pmdx150', 'human':_("PMDX-150") + ' (Untested)', 'index':PMDX150,
+		'steptime':1000, 'stepspace':2000, 'dirhold':1000, 'dirsetup':1000
+	},
+	{'name':'jvlsmd41', 'human':_("JVL-SMD41 or 42") + ' (Untested)', 'index':JVLSMD41,
+		'steptime':500, 'stepspace':500, 'dirhold':2500, 'dirsetup':2500
+	},
+	{'name':'hobbycnc', 'human':_("Hobbycnc Pro Chopper") + ' (Untested)', 'index':HOBBYCNC,
+		'steptime':2000, 'stepspace':2000, 'dirhold':2000, 'dirsetup':2000
+	},
+	{'name':'keling', 'human':_("Keling 4030") + ' (Untested)', 'index':KELING,
+		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
+	},
+	{'name':'sherline', 'human':_("Sherline") + ' (Untested)', 'index':SHERLINE,
 		'pin1':UNUSED_OUTPUT, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':0,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -37,9 +98,10 @@ preset_machines = [
 		'pin11':UNUSED_INPUT, 'pin11inv':0,
 		'pin12':UNUSED_INPUT, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
-		'pin15':UNUSED_INPUT, 'pin15inv':0
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'steptime':22000, 'stepspace':22000, 'dirhold':100000, 'dirsetup':100000
 	},
-	{'name':'xylotex', 'human':'Xylotex (Untested)', 'index':2,
+	{'name':'xylotex', 'human': _("Xylotex") + ' (Untested)', 'index':XYLOTEX,
 		'pin1':UNUSED_OUTPUT, 'pin1inv':0,
 		'pin2':XSTEP, 'pin2inv':0,
 		'pin3':XDIR, 'pin3inv':0,
@@ -56,9 +118,10 @@ preset_machines = [
 		'pin11':UNUSED_INPUT, 'pin11inv':0,
 		'pin12':UNUSED_INPUT, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
-		'pin15':UNUSED_INPUT, 'pin15inv':0
-	},	
-	{'name':'tb6560_3axes', 'human':'TB6560 3 axes (Untested)', 'index':3,
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'steptime':2000, 'stepspace':1000, 'dirhold':200, 'dirsetup':200
+	},
+	{'name':'tb6560_3axes', 'human':_("TB6560 3 axes") + ' (Untested)', 'index':TB6560_3AXES,
 		'pin1':XSTEP, 'pin1inv':0,
 		'pin2':ON, 'pin2inv':0,
 		'pin3':ZSTEP, 'pin3inv':0,
@@ -75,9 +138,10 @@ preset_machines = [
 		'pin11':UNUSED_INPUT, 'pin11inv':0,
 		'pin12':UNUSED_INPUT, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
-		'pin15':UNUSED_INPUT, 'pin15inv':0		
-	},		
-	{'name':'tb6560_4axes', 'human':'TB6560 4 axes (Untested)', 'index':4,
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
+	},
+	{'name':'tb6560_4axes', 'human':_("TB6560 4 axes") + ' (Untested)', 'index':TB6560_4AXES,
 		'pin1':AMP, 'pin1inv':0,
 		'pin2':XSTEP, 'pin2inv':0,
 		'pin3':XDIR, 'pin3inv':0,
@@ -94,9 +158,10 @@ preset_machines = [
 		'pin11':UNUSED_INPUT, 'pin11inv':0,
 		'pin12':UNUSED_INPUT, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
-		'pin15':UNUSED_INPUT, 'pin15inv':0
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
 	},
-	{'name':'stepcraft-420', 'human':'Stepcraft 420 (Untested)', 'index':5,
+	{'name':'stepcraft420', 'human':_("Stepcraft 420") + ' (Untested)', 'index':STEPCRAFT420,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -113,9 +178,10 @@ preset_machines = [
 		'pin11':ESTOP_IN, 'pin11inv':1,
 		'pin12':ALL_HOME, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
-		'pin15':UNUSED_INPUT, 'pin15inv':0
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
 	},
-	{'name':'stepcraft-600', 'human':'Stepcraft 600 (Untested)', 'index':6,
+	{'name':'stepcraft600', 'human':_("Stepcraft 600") + ' (Untested)', 'index':STEPCRAFT600,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -132,9 +198,10 @@ preset_machines = [
 		'pin11':ESTOP_IN, 'pin11inv':1,
 		'pin12':ALL_HOME, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
-		'pin15':UNUSED_INPUT, 'pin15inv':0
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
 	},
-	{'name':'stepcraft-840', 'human':'Stepcraft 840', 'index':7,
+	{'name':'stepcraft840', 'human':_("Stepcraft 840"), 'index':STEPCRAFT840,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -158,8 +225,10 @@ preset_machines = [
 		'yhomepos':0, 'yminlim':0, 'ymaxlim':832, 'yhomesw':-2, 'yhomevel':-3, 'ylatchdir':0,
 		'zsteprev':400, 'zmicrostep':1, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':3, 'zmaxvel':30, 'zmaxacc' :150,
 		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
+		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
 	}
 ]
+
 
 """
         for i in ('x','y','z','u','v'):

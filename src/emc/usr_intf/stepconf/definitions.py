@@ -423,6 +423,7 @@ exclusive_input = {
 }
 
 # internalname / displayed name / steptime/ step space / direction hold / direction setup
+"""
 alldrivertypes = [
 			["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
 			["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
@@ -440,3 +441,4 @@ alldrivertypes = [
 			["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
 			["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
+"""

@@ -153,7 +153,8 @@ class Data:
         self.dirsetup = 20000
         self.latency = 15000
         self.period = 25000
-
+        
+        self.global_preset = 0
         self.lparport = self.find_parport()
         self.ioaddr = "0"
         self.ioaddr2 = "1"
@@ -241,6 +242,8 @@ class Data:
         self.pin12 = d_hal_input[UNUSED_INPUT]
         self.pin13 = d_hal_input[UNUSED_INPUT]
         self.pin15 = d_hal_input[UNUSED_INPUT]
+        # pp1 preset
+        self.pport1_preset = 0
 
         #   port 2
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
