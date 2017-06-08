@@ -257,13 +257,14 @@ User Manual.
    'mini', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
-  to show when the user interface starts. The RELATIVE coordinate system
-  reflects the G92 and G5x coordinate offsets currently in effect.
+  to show on the DRO when the user interface starts. The RELATIVE coordinate
+  system reflects the G92 and G5x coordinate offsets currently in effect.
 
-* 'POSITION_FEEDBACK = ACTUAL' - The coordinate value (COMMANDED or ACTUAL)
-  to show when the user interface starts. The COMMANDED position is the ideal
-  position requested by LinuxCNC. The ACTUAL position is the feedback position
-  of the motors.
+* 'POSITION_FEEDBACK = COMMANDED' - The coordinate value (COMMANDED or ACTUAL)
+  to show on the DRO when the user interface starts. In Axis this can be changed
+  from the View menu. The COMMANDED position is the position requested by
+  LinuxCNC. The ACTUAL position is the feedback position of the motors if they
+  have feedback like most servo systems. Typically the COMMANDED value is used.
 
 * 'DRO_FORMAT_MM = %+08.6f' - Over-ride the default DRO formatting in metric
   mode. (normally 3 decimal places, padded with spaces to 6 digits to the left)

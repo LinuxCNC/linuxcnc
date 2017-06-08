@@ -1175,11 +1175,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
             initcodes.append(unitcode)
             initcodes.append("g90")
             initcodes.append("t%d m6" % s.tool_in_spindle)
-            position = "g53 g0"
             for i in range(9):
                 if s.axis_mask & (1<<i):
-                    position += " %s%.8f" % ("XYZABCUVW"[i], s.position[i])
-            initcodes.append(position)
+                    position = "g53 g0 %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+                    initcodes.append(position)
             for i, g in enumerate(s.gcodes):
                 # index 0 is "sequence number" and index 2 is the last block's
                 # "g_mode" neither of which should be sent as a startup code.
@@ -1336,15 +1335,25 @@ widgets.axis_y.configure(value="y")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode():
-        # free jogging (joints) (only accept integers here)
-        if type(i) != type(0): return
+    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and trivkinstype == "both")):
+        # free jogging (joints) if:
+        #   non-trivkins config or
+        #   trivkins config and kinstype = both
+        # only accept integers here
+        if not isinstance(i, int): return
         if i >= num_joints: return
         widget = getattr(widgets, "joint_%d" % i)
     else:
-        # teleop jogging (axes) (letters are special case for key bindings)
-        if type(i) == type(""): letter = i
-        else:                   letter = "xyzabcuvw"[i]
+        # teleop jogging (axes) or
+        # free jogging (joints) if:
+        #   trivkins config and kinstype not both
+        # letters are special case for key bindings
+        if isinstance(i, basestring):
+            letter = i
+        elif lathe and not lathe_historical_config()and not all_homed():
+            letter = "xzabcuvw"[i]
+        else:
+            letter = "xyzabcuvw"[i]
         if letter in trajcoordinates:
             widget = getattr(widgets, "axis_%s" % letter)
         else:
@@ -1738,7 +1747,7 @@ def get_jog_speed(a):
 def get_jog_speed_map(a):
     if get_jog_mode() and a >= num_joints: return 0
     if not get_jog_mode():
-    	if a >= len(jog_order): return 0
+        if a >= len(jog_order): return 0
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
     return get_jog_speed(a)
@@ -1807,13 +1816,25 @@ def ja_from_rbutton():
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
     if not all_homed() and lathe and not lathe_historical_config():
-	axes = "xzabcuvw"
+        axes = "xzabcuvw"
     else:       
         axes = "xyzabcuvw"
     if ja in "012345678":
-        a = int(ja)
+        a = int(ja) # number specifies a joint
     else:    
-        a = axes.index(ja)
+        a = axes.index(ja) # letter specifies an axis coordinate
+
+    # handle joint jogging for known identity kins
+    if get_jog_mode():
+        # joint jogging
+        if lathe_historical_config():
+            a = "xyzabcuvw".index(ja)
+        elif kins_is_trivkins and trivkinstype == "single":
+            # note: if duplicate_coord_letters,
+            #       use index for first occurrence of the letter
+            a = trajcoordinates.index(ja)
+        #future: elif's for other known identity kins go here
+
     return a
 
 def all_homed():
@@ -2807,8 +2828,8 @@ class TclCommands(nf.TclCommands):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
     def inifindall(section, item):
-	items = tuple(inifile.findall(section, item))
-	return root_window.tk.merge(*items)
+        items = tuple(inifile.findall(section, item))
+        return root_window.tk.merge(*items)
 
 commands = TclCommands(root_window)
 
@@ -3084,6 +3105,7 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
+    activate_ja_widget(a)
 
 def jog_off(a):
     if jog_after[a]: return
@@ -3091,7 +3113,6 @@ def jog_off(a):
 
 def jog_off_actual(a):
     if not manual_ok(): return
-    activate_ja_widget(a)
     jog_after[a] = None
     jogging[a] = 0
     jjogmode = get_jog_mode()
@@ -3114,9 +3135,9 @@ def jog_on_map(num, speed):
     elif lathe:
         if num >= len(jog_order): return
         axis_letter = jog_order[num]
-	if lathe_historical_config():
+        if lathe_historical_config():
             num = "XYZ".index(axis_letter)
-	else:
+        else:
             num = trajcoordinates.upper().index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
@@ -3376,9 +3397,13 @@ kins_is_trivkins = False
 if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
+    trivkinstype = "single"
     for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
+        if "kinstype=" in item:
+            trivkinstype = item.split("=")[1].lower()
+            if trivkinstype=="1": trivkinstype = "single"
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):

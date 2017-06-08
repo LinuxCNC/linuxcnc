@@ -3407,18 +3407,17 @@ void *readClient(void *arg)
       if ((buf[i] != '\n') && (buf[i] != '\r')) {
         context->inBuf[j] = buf[i];
 	j++;
-	}
-      else
-        if (j > 0)
-          {
-  	    context->inBuf[j] = 0;
-            if (parseCommand(context) == -1) goto finished;
-	    j = 0;
-	}
-        i++;	
       }
+      else if (j > 0)
+      {
+	context->inBuf[j] = 0;
+        if (parseCommand(context) == -1) goto finished;
+	j = 0;
+      }
+      i++;
+    }
     buf[0] = 0;
-    } 
+  }
 
 finished:
   close(context->cliSock);
