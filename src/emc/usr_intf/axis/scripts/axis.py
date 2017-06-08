@@ -176,7 +176,7 @@ help1 = [
     ("Y", _("Activate second axis")),
     ("Z", _("Activate third axis")),
     ("A", _("Activate fourth axis")),
-    ("1..8,0", _("Activate corresponding joint")),
+    ("` or 0,1..8", _("Activate first through ninth joint")),
     ("", _("if joints radiobuttons visible")),
     ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
     ("", _("if axes radiobuttons visible")),
@@ -2934,7 +2934,6 @@ def set_rapidrate(n):
 def activate_ja_widget_or_set_feedrate(jora):
     # note: call with integers only
     if joints_mode() and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-        if jora == 0: return
         if jora == 10: jora = 0
         activate_ja_widget(jora,True)
         return
