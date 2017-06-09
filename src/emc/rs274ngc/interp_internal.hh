@@ -647,6 +647,8 @@ struct setup
 
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
+    double tolerance;           // G64 blending tolerance
+    double naivecam_tolerance;  // G64 naive cam tolerance
   int current_pocket;             // carousel slot number of current tool
   double current_x;             // current X-axis position
   double current_y;             // current Y-axis position

@@ -378,7 +378,7 @@ int tpClear(TP_STRUCT * const tp)
     // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
-    struct state_tag_t tag = {0};
+    struct state_tag_t tag = {{0}};
     tp->execTag = tag;
     tp->motionType = 0;
     tp->termCond = TC_TERM_COND_PARABOLIC;
@@ -536,7 +536,7 @@ int tpGetExecId(TP_STRUCT * const tp)
 struct state_tag_t tpGetExecTag(TP_STRUCT * const tp)
 {
     if (0 == tp) {
-        struct state_tag_t empty = {0};
+        struct state_tag_t empty = {{0}};
         return empty;
     }
 

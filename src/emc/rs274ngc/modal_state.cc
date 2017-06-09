@@ -27,8 +27,7 @@ StateTag::StateTag(): flags(0)
 {
     memset(fields,-1,sizeof(fields));
     packed_flags = 0;
-    feed = 0.0;
-    speed = 0.0;
+    memset(fields_float,-1,sizeof(fields_float));
 }
 
 StateTag::StateTag(struct state_tag_t const & basetag):

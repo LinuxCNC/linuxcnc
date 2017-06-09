@@ -1953,6 +1953,8 @@ int Interp::synch()
   char file_name[LINELEN];
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
@@ -2086,6 +2088,8 @@ int Interp::active_modes(int *g_codes,
 			 double *settings,
 			 StateTag const &tag)
 {
+    int i;
+
     // Pre-checks on fields
     if (!tag.is_valid()) {
         return INTERP_ERROR;
@@ -2143,9 +2147,13 @@ int Interp::active_modes(int *g_codes,
         tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
 
 
+    // Copy float-type state
+    for (i=0; i<GM_FIELD_FLOAT_MAX_FIELDS; i++)
+	settings[i] = tag.fields_float[i];
+    // Line number stored in double; this demonstrates why the current
+    // system of unpacking state tags into arrays of fixed type and
+    // purpose should be refactored into something more elegant
     settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
-    settings[1] = tag.feed;
-    settings[2] = tag.speed;
 
     return INTERP_OK;
 }

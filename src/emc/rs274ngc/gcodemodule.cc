@@ -497,6 +497,7 @@ void RIGID_TAP(int line_number,
     Py_XDECREF(result);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_PROBE_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_PROBE_POSITION_Y() { return _pos_y; }
 double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
