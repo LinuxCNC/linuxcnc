@@ -1,0 +1,24 @@
+After program abort, show whether G61/G61.1/G64 settings are
+consistent with machine state at last executing motion prior to abort.
+
+This test runs and aborts a test .ngc program several times with
+various motion mode and blend/naive CAM tolerance settings.  Checks
+are performed at various times relative to program execution:
+
+1) Motion mode:  Does stat buffer agree with programmed mode?
+
+2) G64 tolerance settings:  Does stat buffer agree with programmed P/Q
+   args?  (Only for G64, and only when these params are available in
+   stat buffer)
+
+3) G64 tolerance settings:  Do programmed tolerance settings produce
+   expected motion, as evidenced by samples taken during program
+   execution?
+
+The .ngc program is aborted before ever reaching a G64 programmed at
+the end.  This demonstrates a bug caused by motion and interp running
+out of synch, affecting LinuxCNC v. 2.7 and reported in Github issue
+#177.
+
+The fix will be introduced with Rob Ellenberg's state tags work,
+discussed in Github issue #134.
