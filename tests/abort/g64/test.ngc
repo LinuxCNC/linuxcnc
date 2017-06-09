@@ -1,0 +1,25 @@
+%
+; Stepover for zig-zag
+#100 = 1
+; Start at a fast clip from X0Y0
+G0 X0Y0 F120
+; Run a bunch of zig-zags
+#1 = 0
+O100 WHILE [#1 LT 5*#100]
+
+    ; zig
+    G1 X5 Y[#1 + #100]
+
+    ; zag
+    G1 X0 Y[#1 + 2*#100]
+
+    #1 = [#1 + 2*#100]
+O100 ENDWHILE
+
+; Do a nice, slow move to ensure time for abort
+F1 G1 Y10 (bogus location)
+
+; Set G64; execution will never reach here
+G64 P1 Q2
+
+%
