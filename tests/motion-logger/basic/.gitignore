@@ -1,2 +1,4 @@
 result.*
 sim.var*
+expected.builtin-startup
+out.motion-logger
