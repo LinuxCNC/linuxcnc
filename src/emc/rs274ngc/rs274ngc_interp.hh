@@ -471,8 +471,10 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
  int restore_from_tag(StateTag const &tag);
- int gen_settings(double *current, double *saved, std::string &cmd);
- int gen_g_codes(int *current, int *saved, std::string &cmd);
+ int gen_settings(
+     int *int_current, int *int_saved,
+     double *float_current, double *float_saved,
+     std::string &cmd);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
     int gen_restore_cmd(int *current_g,
 			int *current_m,

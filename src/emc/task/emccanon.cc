@@ -2984,6 +2984,11 @@ double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()
     return TO_PROG_LEN(canon.motionTolerance);
 }
 
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE()
+{
+    return TO_PROG_LEN(canon.naivecamTolerance);
+}
+
 
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE()
 {

@@ -310,6 +310,7 @@ assert(s.spindle[0]['enabled'] == 0)
 assert(s.spindle[0]['override_enabled'] == True)
 assert(s.spindle[0]['speed'] == 0.0)
 assert(s.spindle[0]['override'] == 1.0)
+
 assert(s.state == linuxcnc.STATE_ESTOP)
 
 assert(s.task_mode == linuxcnc.MODE_MANUAL)
