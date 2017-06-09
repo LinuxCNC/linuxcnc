@@ -69,8 +69,10 @@ def axis_prepare(self, axis):
 		self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 
 	inputs = self.a.build_input_set()
-	thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
-						"max-home-" + axis, "both-home-" + axis))
+	#thisaxishome = set([ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
+	#					"max-home-" + axis, "both-home-" + axis])
+	thisaxishome = set([d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
+						"max-home-" + axis, "both-home-" + axis])
 	# Test if exists limit switches
 	homes = bool(inputs & thisaxishome)
 	self.w[axis + "homesw"].set_sensitive(homes)
@@ -80,8 +82,10 @@ def axis_prepare(self, axis):
 	self.w[axis + "steprev"].grab_focus()
 	GObject.idle_add(lambda: self.update_pps(axis))
 
+	# Prepare preset
 	preset_index = self.d[axis + "preset"]
 	self.d.select_combo_machine(self.w[axis + "preset_combo"], preset_index)
+	self.preset_axis(axis)
 
 def axis_done(self, axis):
 	def get_text(n):
@@ -101,17 +105,15 @@ def axis_done(self, axis):
 	get_text("homesw")
 	get_text("homevel")
 	get_active("latchdir")
-
-
-def preset_axis(self, axis):
+	# Save preset
 	current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
 	if current_machine:
 		self.d[axis + "preset"] = current_machine["index"]
 	else:
 		# Other selected
 		self.d[axis + "preset"] = 0
-		return
 
+def preset_axis(self, axis):
 	# List axis page widgets
 	lwidget=[
 		axis + "steprev",
@@ -127,9 +129,20 @@ def preset_axis(self, axis):
 		axis + "homesw",
 		axis + "homevel"
 	]
+
+	current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
+	if current_machine:
+		None
+	else:
+		# Other selected
+		for w in lwidget:
+			self.w['%s'%w].set_sensitive(1)
+		return
+
 	for w in lwidget:
 		if(w in current_machine):
 			self.w['%s'%w].set_text(str(current_machine[w]))
+			self.w['%s'%w].set_sensitive(0)
 	if(axis + "latchdir" in current_machine):
 		self.w['%slatchdir'%axis].set_active(current_machine[axis + "latchdir"])
 

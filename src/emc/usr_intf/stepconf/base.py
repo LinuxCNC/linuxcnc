@@ -103,19 +103,6 @@ def base_finish(self):
 	self.page_set_state('axisa','A' in text_selected)
 
 def on_drivertype_changed(self, widget):
-	current_machine = self.d.get_machine_preset(self.w.drivertype)
-	if current_machine:
-		#self.d.drivertype = current_machine["index"]
-		None
-	else:
-		# Other selected
-		#self.d.drivertype = 0
-		self.w.steptime.set_sensitive(1)
-		self.w.stepspace.set_sensitive(1)
-		self.w.dirhold.set_sensitive(1)
-		self.w.dirsetup.set_sensitive(1)
-		return
-
 	# List axis page widgets
 	lwidget=[
 		"steptime",
@@ -123,6 +110,17 @@ def on_drivertype_changed(self, widget):
 		"dirhold",
 		"dirsetup"
 	]
+
+	current_machine = self.d.get_machine_preset(self.w.drivertype)
+	if current_machine:
+		#self.d.drivertype = current_machine["index"]
+		None
+	else:
+		# Other selected
+		for w in lwidget:
+			self.w['%s'%w].set_sensitive(1)
+		return
+
 	for w in lwidget:
 		if(w in current_machine):
 			self.w['%s'%w].set_text(str(current_machine[w]))

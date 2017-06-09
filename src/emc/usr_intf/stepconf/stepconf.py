@@ -813,8 +813,9 @@ class StepconfApp:
 #**********************************
 
     def build_input_set(self):
-        input_set =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
+        input_set =[self.d.pin10, self.d.pin11, self.d.pin12, self.d.pin13, self.d.pin15]
         if self.d.number_pports > 1:
+            #print "More pport"
             if self.d.pp2_direction:# Input option
                 in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
             else:
