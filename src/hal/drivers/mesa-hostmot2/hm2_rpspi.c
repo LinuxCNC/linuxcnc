@@ -918,7 +918,7 @@ static int peripheral_map(void)
 	aux  = (bcm2835_aux_t *)(peripheralmem + (BCM2835_AUX_OFFSET - BCM2835_GPIO_OFFSET) / sizeof(*peripheralmem));
 
 	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Mapped peripherals from 0x%08x (size 0x%08x) to gpio:0x%p, spi:0x%p, aux:0x%p\n",
-			membase, peripheralsize, gpio, spi, aux);
+			membase, (uint32_t)peripheralsize, gpio, spi, aux);
 
 	return 0;
 }
