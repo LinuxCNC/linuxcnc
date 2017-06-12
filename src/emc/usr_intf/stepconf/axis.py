@@ -68,20 +68,11 @@ def axis_prepare(self, axis):
 		self.w[axis + "accdistunits"].set_text(_("in"))
 		self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 
-	inputs = self.a.build_input_set()
-	#thisaxishome = set([ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
-	#					"max-home-" + axis, "both-home-" + axis])
-	thisaxishome = set([d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
-						"max-home-" + axis, "both-home-" + axis])
-	# Test if exists limit switches
-	homes = bool(inputs & thisaxishome)
-	self.w[axis + "homesw"].set_sensitive(homes)
-	self.w[axis + "homevel"].set_sensitive(homes)
-	self.w[axis + "latchdir"].set_sensitive(homes)
+	#self.check_switch_limits(axis)
 
 	self.w[axis + "steprev"].grab_focus()
 	GObject.idle_add(lambda: self.update_pps(axis))
-
+	
 	# Prepare preset
 	preset_index = self.d[axis + "preset"]
 	self.d.select_combo_machine(self.w[axis + "preset_combo"], preset_index)
@@ -113,8 +104,36 @@ def axis_done(self, axis):
 		# Other selected
 		self.d[axis + "preset"] = 0
 
+def check_switch_limits(self, axis):
+	inputs = self.a.build_input_set()
+	#thisaxishome = set([ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
+	#					"max-home-" + axis, "both-home-" + axis])
+	thisaxishome = set([d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
+						"max-home-" + axis, "both-home-" + axis])
+	# Test if exists limit switches
+	homes = bool(inputs & thisaxishome)
+	if (homes == False):
+		self.w[axis + "homesw"].set_sensitive(homes)
+		self.w[axis + "homevel"].set_sensitive(homes)
+		self.w[axis + "latchdir"].set_sensitive(homes)
+	else:
+		current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
+		if current_machine:
+			if (axis + "homesw" in current_machine):
+				self.w[axis + "homesw"].set_sensitive(0)
+			if (axis + "homevel" in current_machine):
+				self.w[axis + "homevel"].set_sensitive(0)
+			if (axis + "latchdir" in current_machine):
+				self.w[axis + "latchdir"].set_sensitive(0)
+		else:
+			# Other selected
+			self.w[axis + "homesw"].set_sensitive(homes)
+			self.w[axis + "homevel"].set_sensitive(homes)
+			self.w[axis + "latchdir"].set_sensitive(homes)
+			return
+
 def preset_axis(self, axis):
-	# List axis page widgets
+	# List axis page widgets (except latchdir)
 	lwidget=[
 		axis + "steprev",
 		axis + "microstep",
@@ -137,14 +156,22 @@ def preset_axis(self, axis):
 		# Other selected
 		for w in lwidget:
 			self.w['%s'%w].set_sensitive(1)
+		self.check_switch_limits(axis)
 		return
 
 	for w in lwidget:
 		if(w in current_machine):
 			self.w['%s'%w].set_text(str(current_machine[w]))
 			self.w['%s'%w].set_sensitive(0)
+		else:
+			self.w['%s'%w].set_sensitive(1)
 	if(axis + "latchdir" in current_machine):
 		self.w['%slatchdir'%axis].set_active(current_machine[axis + "latchdir"])
+		#self.w['%slatchdir'%axis].set_sensitive(0)
+	#else:
+	#	self.w['%slatchdir'%axis].set_sensitive(1)
+	# 
+	self.check_switch_limits(axis)
 
 
 # for Axis page calculation updates

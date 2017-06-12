@@ -264,7 +264,7 @@ class INI:
 
 
         inputs = self.a.build_input_set()
-        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
+        thisaxishome = set((d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + letter, "min-home-" + letter,
                             "max-home-" + letter, "both-home-" + letter))
         # no need to set HOME_IGNORE_LIMITS when ALL_LIMIT_HOME, HAL logic will do the trick
         ignore = set(("min-home-" + letter, "max-home-" + letter,
