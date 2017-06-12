@@ -217,8 +217,8 @@ static int instantiate_jplan(const int argc, const char **argv)
 
 	hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IN;
 	if (hal_pin_float_newf(dir,    &(jp->pos_cmd), inst_id, "%s.%d.pos-cmd", name, i) ||
-	    hal_pin_float_newf(HAL_IO, &(jp->max_vel), inst_id, "%s.%d.max-vel", name, i) ||
-	    hal_pin_float_newf(HAL_IO, &(jp->max_acc), inst_id, "%s.%d.max-acc", name, i))
+	    hal_pin_float_newf(dir, &(jp->max_vel), inst_id, "%s.%d.max-vel", name, i) ||
+	    hal_pin_float_newf(dir, &(jp->max_acc), inst_id, "%s.%d.max-acc", name, i))
 	    return -1;
     }
     hal_export_xfunct_args_t xfunct_args = {
