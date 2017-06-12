@@ -786,17 +786,28 @@ static int read_ident(hm2_rpspi_t *board, char *ident)
 }
 
 /*************************************************/
-static uint32_t read_spiclkbase(const char *sysclkref)
+#define RPSPI_SYS_CLKVPU	"/sys/kernel/debug/clk/vpu/clk_rate"	// Newer kernels (4.8+, I think) have detailed info
+#define RPSPI_SYS_CLKCORE	"/sys/kernel/debug/clk/core/clk_rate"	// Older kernels only have core-clock info
+
+static uint32_t read_spiclkbase(void)
 {
+	const char *sysclkref = RPSPI_SYS_CLKVPU;
 	uint32_t rate;
 	int fd;
 	char buf[16];
 	ssize_t err;
 
 	if((fd = rtapi_open_as_root(sysclkref, O_RDONLY)) < 0) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot open clock setting '%s' (errno=%d), using %d Hz\n", sysclkref, errno, spiclk_base);
-		return spiclk_base;
+		// Failed VPU clock, try core clock
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: No VPU clock at '%s' (errno=%d), trying core clock as alternative.\n", sysclkref, errno);
+		sysclkref = RPSPI_SYS_CLKCORE;
+		if((fd = rtapi_open_as_root(sysclkref, O_RDONLY)) < 0) {
+			// Neither clock available, complain and use default setting
+			rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot open clock setting '%s' (errno=%d), using %d Hz\n", sysclkref, errno, spiclk_base);
+			return spiclk_base;
+		}
 	}
+
 	memset(buf, 0, sizeof(buf));
 	if((err = read(fd, buf, sizeof(buf)-1)) < 0) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot read clock setting '%s' (errno=%d), using %d Hz\n", sysclkref, errno, spiclk_base);
@@ -1196,7 +1207,7 @@ static int hm2_rpspi_setup(void)
 
 		clkratew = spiclk_rate * 1000;		// Command-line specifies in kHz
 		clkrater = spiclk_rate_rd * 1000;	// Command-line specifies in kHz
-		clkbase  = read_spiclkbase("/sys/kernel/debug/clk/vpu/clk_rate");
+		clkbase  = read_spiclkbase();
 
 		boards[j].nr = j;
 		boards[j].spiclkratew = clkratew;
