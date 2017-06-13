@@ -137,7 +137,7 @@ RTAPI_MP_ARRAY_STRING(config, RPSPI_MAX_BOARDS, "config string for the AnyIO boa
 
 /*
  * RPI3 NOTE:
- * The SPI frequency is wildly variable when the ondemand cpufreq governor is
+ * The core frequency is wildly variable when the ondemand cpufreq governor is
  * active. This may result in changing SPI frequencies depending on the system
  * load. You must set the performance governor for stable frequency. To set a
  * stable 1.2GHz core frequency, across all cores, put something like this in
@@ -154,8 +154,9 @@ RTAPI_MP_ARRAY_STRING(config, RPSPI_MAX_BOARDS, "config string for the AnyIO boa
  *
  * The documentation is a bit sparse, but the clock seems to follow the VPU
  * rate as a subordinate of PLLC. The peripheral documentation states that the
- * APB clock is used, but that is set at 126MHz, which does not result in the
- * seen frequencies at different divider settings.
+ * APB clock is used (for SPI0), but that is set at 126MHz, which does not
+ * result in the seen frequencies at different divider settings. Both SPI0 and
+ * SPI1 are apparently referenced to the core clock.
  *
  * Using 400MHz as the "safe" value is better than 250MHz. Better to get a
  * slower SPI rate than one too fast, which would result in communication
@@ -178,9 +179,10 @@ RTAPI_MP_INT(spiclk_rate, "SPI clock rate in kHz (default 31250 kHz, slowest 3 k
 RTAPI_MP_INT(spiclk_rate_rd, "SPI clock rate for reading in kHz (default same as spiclk_rate)")
 
 /*
- * Override the "safe" base frequency of the SPI peripheral.
- * The clock speed is normally read from /sys/kernel/debug/clk/vpu/clk_rate and
- * should give the correct current clock speed.
+ * Override the "safe" base frequency of the SPI peripheral. The clock speed
+ * is normally read from /sys/kernel/debug/clk/vpu/clk_rate or, for older
+ * kernels, /sys/kernel/debug/clk/core/clk_rate and should give the correct
+ * current base clock speed.
  */
 #define F_PERI	400000000UL
 static int spiclk_base = F_PERI;
@@ -679,6 +681,12 @@ static int hm2_rpspi_read_spi0(hm2_lowlevel_io_t *llio, uint32_t addr, void *buf
 }
 
 /*************************************************/
+// Counting ones in a word is the also known as the Hamming weight or
+// population count. The "best" algorithm is SWAR. The nibble-lookup seems to
+// be a good alternative. Anyway, this routine is only called on a cookie
+// error and has no real speed criteria.
+// Newer GCC has a __builtin_popcount() to get the right number, but that may
+// not be available on the current compiler.
 static inline unsigned count_ones(uint32_t val)
 {
 	// Number of ones in a nibble
@@ -729,10 +737,10 @@ static int check_cookie(hm2_rpspi_t *board)
 		// output (every 8-bit for SPI0 and every 16-bit for SPI1).
 		//
 		// We can detect this eventuality by checking the cookie
-		// against a bit-shifted version and mask the bits that may be
-		// fallen off the cliff. If the cookie matches (no zeroes in
-		// the XOR result), then it is most likely that the read-clock
-		// frequency is too high.
+		// against a bit-shifted version and mask the bits that may
+		// have fallen off the cliff. If the cookie matches (all zeroes
+		// in the XOR result), then it is most likely that the
+		// read-clock frequency is too high.
 		//
 		// Example (SPI0):
 		//  read  : 2a d5 e5 ff
@@ -799,7 +807,7 @@ static uint32_t read_spiclkbase(void)
 
 	if((fd = rtapi_open_as_root(sysclkref, O_RDONLY)) < 0) {
 		// Failed VPU clock, try core clock
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: No VPU clock at '%s' (errno=%d), trying core clock as alternative.\n", sysclkref, errno);
+		rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: No VPU clock at '%s' (errno=%d), trying core clock as alternative.\n", sysclkref, errno);
 		sysclkref = RPSPI_SYS_CLKCORE;
 		if((fd = rtapi_open_as_root(sysclkref, O_RDONLY)) < 0) {
 			// Neither clock available, complain and use default setting
@@ -850,7 +858,7 @@ static int probe_board(hm2_rpspi_t *board) {
 
 	if((ret = read_ident(board, ident)) < 0)
 		return ret;
-	ident[sizeof(ident)-1] = 0;	// Because it is may be used in printf, regardless format limits
+	ident[sizeof(ident)-1] = 0;	// Because it may be used in printf, regardless format limits
 
 	if(!memcmp(ident, "MESA7I90", 8)) {
 		base = "hm2_7i90";
@@ -1103,7 +1111,7 @@ static platform_t check_platform(void)
 	fclose(fp);
 
 	// we have truncated cpuinfo return unsupported
-	if(!fsize || fsize == sizeof(buf) - 1) {
+	if(!fsize || fsize == CPUINFO_BUFSIZE - 1) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Platform detection memory buffer too small\n");
 		goto check_exit;
 	}
