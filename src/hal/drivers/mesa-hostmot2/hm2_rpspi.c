@@ -1257,7 +1257,7 @@ static int hm2_rpspi_setup(void)
 			return retval;
 		}
 
-		if((retval = hm2_register(&boards[i].llio, config[j])) < 0) {
+		if((retval = hm2_register(&boards[j].llio, config[j])) < 0) {
 			rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: hm2_register() failed for SPI%d/CE%d.\n", iddev, idce);
 			return retval;
 		}
