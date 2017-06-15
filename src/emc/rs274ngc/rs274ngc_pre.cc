@@ -2109,7 +2109,7 @@ int Interp::active_modes(int *g_codes,
     g_codes[10] = tag.flags[GM_FLAG_RETRACT_OLDZ] ? G_98 : G_99;
     g_codes[11] =
         tag.flags[GM_FLAG_BLEND] ? G_64 :
-        tag.flags[GM_FLAG_EXACT_STOP] ? G_61 : G_61_1;
+        tag.flags[GM_FLAG_EXACT_STOP] ? G_61_1 : G_61;
     // Empty status code, leave as default
     g_codes[12] = -1;
     g_codes[13] = tag.flags[GM_FLAG_CSS_MODE] ? G_97 : G_96;
