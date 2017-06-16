@@ -289,6 +289,7 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
 
     double physical_maxvel;  // max vel supported by current step timings & position-scale
     double maxvel;           // actual max vel to use this time
+    double minvel;
 
     double steps_per_sec_cmd;
 
@@ -323,6 +324,8 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
         } else {
             maxvel = *(s->hal.pin.maxvel);
         }
+
+        minvel = *(s->hal.pin.minvel);
     }
 
     // maxaccel may not be negative
@@ -352,6 +355,11 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
         new_vel = maxvel;
     } else if (new_vel < -maxvel) {
         new_vel = -maxvel;
+    }
+
+    // also clamp on the lower end to prevent PRU "pin hunting"
+    if (rtapi_fabs(new_vel) < minvel) {
+        new_vel = 0.0;
     }
 
     *s->hal.pin.velocity_fb = (hal_float_t)new_vel;
@@ -492,6 +500,12 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
         return r;
     }
 
+    r = hal_pin_float_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.minvel), hpg->config.comp_id, "%s.stepgen.%02d.minvel", hpg->config.halname, i);
+    if (r < 0) {
+        HPG_ERR("stepgen %02d: Error adding pin 'minvel', aborting\n", i);
+        return r;
+    }
+
     r = hal_pin_u32_newf(HAL_IN, &(hpg->stepgen.instance[i].hal.pin.steplen), hpg->config.comp_id, "%s.stepgen.%02d.steplen", hpg->config.halname, i);
     if (r < 0) {
         HPG_ERR("stepgen %02d: Error adding pin 'steplen', aborting\n", i);
@@ -545,6 +559,7 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
     *(hpg->stepgen.instance[i].hal.pin.position_scale) = 1.0;
     *(hpg->stepgen.instance[i].hal.pin.maxvel) = 0.0;
     *(hpg->stepgen.instance[i].hal.pin.maxaccel) = 1.0;
+    *(hpg->stepgen.instance[i].hal.pin.minvel) = 0.0;
 
     hpg->stepgen.instance[i].subcounts = 0;
 

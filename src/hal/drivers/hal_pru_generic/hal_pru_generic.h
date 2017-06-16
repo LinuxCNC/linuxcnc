@@ -115,6 +115,7 @@ typedef struct {
             hal_float_t     *position_scale;
             hal_float_t     *maxvel;
             hal_float_t     *maxaccel;
+            hal_float_t     *minvel;
 
             hal_u32_t       *steplen;
             hal_u32_t       *stepspace;
