@@ -46,15 +46,15 @@ Set register PD001 (source of run commands) to 2 (communication port).
 Set register PD002 (source of operating frequency) to 2 (communication
 port).
 .B
-.IP PD005
-.br
-Set register PD005 (max frequency) according to motor specs.  This is
-the maximum frequency of the motor's power supply, in Hz.
-.B
 .IP PD004
 .br
 Set register PD004 (Base Frequency) according to motor specs.  This is
 the rated frequency of the motor from the motor's name plate, in Hz.
+.B
+.IP PD005
+.br
+Set register PD005 (max frequency) according to motor specs.  This is
+the maximum frequency of the motor's power supply, in Hz.
 .B
 .IP PD011
 .br
@@ -251,6 +251,9 @@ within .spindle-at-speed-tolerance of the commanded speed.
 (float, out)
 .B
 .IP <name>.max-freq
+(float, out)
+.B
+.IP <name>.base-freq
 (float, out)
 .B
 .IP <name>.freq-lower-limit
