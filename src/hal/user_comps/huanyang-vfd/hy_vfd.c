@@ -111,6 +111,7 @@ typedef struct {
 	hal_float_t *freq_lower_limit;		// PD011 Frequency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
+	hal_u32_t *motor_poles;                 // PD143 Number of motor poles - from motor name plate
 	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
 	
 	hal_bit_t	*hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
@@ -161,10 +162,11 @@ static struct option long_options[] = {
                 {"motor-voltage", 1, 0, 'V'},
                 {"motor-current", 1, 0, 'I'},
                 {"motor-speed", 1, 0, 'S'},
+                {"motor-poles", 1, 0, 'P'},
 		{0,0,0,0}
 };
 
-static char *option_string = "b:d:ghn:p:r:s:t:F:f:B:V:I:S:";
+static char *option_string = "b:d:ghn:p:r:s:t:F:f:B:V:I:S:P:";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 static char *paritystrings[] = {"even", "odd", "none", NULL};
@@ -234,6 +236,9 @@ void usage(int argc, char **argv) {
                         "    Set the motor's max speed to <r> (RPM).  This will be computed from the\n"
                         "    50 Hz RPM value read from the VFD register P144 if not supplied on the\n"
                         "    command line.\n"
+                        "-P or --motor-poles <n>\n"
+                        "    Set VFD register PD143 (Number of Motor Poles) to <n>.  This value\n"
+                        "    comes from the motor's name plate.\n"
         );
 }
 
@@ -460,6 +465,20 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		goto failed;		
 	*(haldata->rated_motor_current) = hc_data->ret_data * 0.1;
 
+	hc_data->parameter = 143; // PD143 Number of Motor Poles
+        if (*haldata->motor_poles != 0) {
+            // user passed in motor poles, send to VFD
+            hc_data->function = FUNCTION_WRITE;
+            hc_data->data = (uint16_t)(*haldata->motor_poles);
+            if ((retval = hy_comm(hc_param, hc_data)) != 0) {
+                goto failed;
+            }
+            hc_data->function = FUNCTION_READ;
+        }
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
+		goto failed;		
+	*haldata->motor_poles = hc_data->ret_data;
+
         hc_data->parameter = 144; // PD144 Rated Motor Rev (at 50 Hz)
         if (*haldata->rated_motor_rev != 0) {
             // user passed in motor max speed
@@ -632,6 +651,7 @@ int main(int argc, char **argv)
         float motor_v = 0;
         float motor_i = 0;
         float motor_speed = 0;
+        hal_u32_t motor_poles = 0;
 
 	done = 0;
 
@@ -768,6 +788,15 @@ int main(int argc, char **argv)
 			}
 			break;
 
+                case 'P':
+                        motor_poles = strtof(optarg, &endarg);
+			if (*endarg != '\0') {
+				printf("hy_vfd: ERROR: invalid motor poles: %s\n", optarg);
+				retval = -1;
+				goto out_noclose;
+			}
+			break;
+
 		case 'h':
 		default:
 			usage(argc, argv);
@@ -879,6 +908,8 @@ int main(int argc, char **argv)
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
 	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->motor_poles), hal_comp_id, "%s.motor-poles", modname);
+	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
 	if (retval!=0) goto out_closeHAL;
@@ -924,6 +955,7 @@ int main(int argc, char **argv)
 	*(haldata->rated_motor_voltage) = motor_v;
 	*(haldata->rated_motor_current) = motor_i;
 	*(haldata->rated_motor_rev) = motor_speed;
+	*(haldata->motor_poles) = motor_poles;
 
 	*(haldata->hycomm_ok) = 0;
 

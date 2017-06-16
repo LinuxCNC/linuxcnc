@@ -71,6 +71,10 @@ This is the motor's maximum voltage, in Volts.
 Set register PD142 (rated motor current) according to motor name plate.
 This is the motor's maximum current, in Amps.
 .B
+.IP PD143
+.br
+Set register PD143 (Number of Motor Poles) according to motor name plate.
+.B
 .IP PD144
 .br
 Set register PD144 (rated motor revolutions) according to motor name
@@ -161,6 +165,12 @@ speed at 50 Hz from this argument and from the motor's max frequency
 not specified) and program register PD144 of the VFD.  If not specified,
 read the motor's speed at 50 Hz from register P144 of the VFD, and use
 that and the max frequency to compute the motor's max speed.
+.B
+.IP -P,\ --motor-poles\ <n>
+(default: read value from VFD P143) This command-line argument is the
+number of poles in the motor.  If specified, this value is sent to the
+VFD's register PD143.  If not specified, the value is read from PD143
+and reported on the corresponding HAL pin.
 .B
 .SH PINS
 .B
@@ -267,6 +277,10 @@ within .spindle-at-speed-tolerance of the commanded speed.
 .B
 .IP <name>.rated-motor-rev
 (float, out)
+.B
+.B
+.IP <name>.motor-poles
+(u32, out)
 .B
 .IP <name>.hycomm-ok
 (bit, out)
