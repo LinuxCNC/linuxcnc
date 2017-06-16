@@ -1,0 +1,28 @@
+component maxnv2 "Output the maximum of all inputs";
+pin_ptr out float out "Follows the highest value of all in pins";
+pin_ptr in float in#.[pincount];
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 16;
+
+function _;
+license "GPL";
+author "Alexander Roessler";
+;;
+#include "rtapi_math.h"
+
+FUNCTION(_)
+{
+    int i;
+    hal_float_t value;
+
+    value = gf(in_(0));
+    for (i = 1; i < local_pincount; ++i) {
+        value = rtapi_fmax(value, gf(in_(i)));
+    }
+
+    sf(out, value);
+
+    return 0;
+}
