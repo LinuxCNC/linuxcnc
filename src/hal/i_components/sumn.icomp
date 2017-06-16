@@ -1,0 +1,25 @@
+component sumn "Sum of n inputs";
+pin in float in#.[pincount];
+pin out float out "out = sum(in[n])";
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 16;
+
+function _;
+license "GPL";
+author "Alexander Roessler";
+;;
+FUNCTION(_)
+{
+    int i;
+    hal_float_t sum;
+
+    sum = 0;
+    for (i = 0; i < local_pincount; ++i) {
+        sum += in_(i);
+    }
+    out = sum;
+
+return 0;
+}
