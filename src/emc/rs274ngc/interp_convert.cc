@@ -2657,6 +2657,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else if (g_code == G_21) {
     USE_LENGTH_UNITS(CANON_UNITS_MM);
@@ -2697,6 +2700,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else
     ERS(NCE_BUG_CODE_NOT_G20_OR_G21);
@@ -4614,10 +4620,11 @@ int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, se
 
 int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, setup_pointer settings) {
     CANON_MOTION_MODE save_mode;
-    double save_tolerance;
+    double save_tolerance, save_cam_tolerance;
     // temporarily switch to exact stop mode for indexing move
     save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
     save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+    save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     if (save_mode != CANON_EXACT_PATH)
         SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -4633,8 +4640,10 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
     LOCK_ROTARY(lineno, jnum);
 
     // restore path mode
-    if(save_mode != CANON_EXACT_PATH)
+    if(save_mode != CANON_EXACT_PATH) {
         SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+	SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    }
 
     settings->AA_current = AA_end;
     settings->BB_current = BB_end;

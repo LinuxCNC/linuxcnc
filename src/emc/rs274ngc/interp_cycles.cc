@@ -819,7 +819,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance;
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_z;
 
   plane = CANON_PLANE_XY;
@@ -883,6 +883,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -980,8 +981,10 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   settings->current_z = clear_cc;
   settings->cycle_cc = block->z_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1008,7 +1011,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance;
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->w_current;
 
   plane = CANON_PLANE_UV;
@@ -1054,6 +1057,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1150,8 +1154,10 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   settings->w_current = clear_cc;
   settings->cycle_cc = block->w_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1225,7 +1231,8 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save the current tolerance, to restore it lateron
+  // save the current tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_x;
 
   plane = CANON_PLANE_YZ;
@@ -1271,6 +1278,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1367,8 +1375,10 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   settings->current_x = clear_cc;
   settings->cycle_cc = block->x_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1394,7 +1404,8 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save the current tolerance, to restore it lateron
+  // save the current tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->u_current;
 
   plane = CANON_PLANE_VW;
@@ -1440,6 +1451,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1536,8 +1548,10 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   settings->u_current = clear_cc;
   settings->cycle_cc = block->u_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1620,7 +1634,8 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save current path-following tolerance, to restore it lateron
+  // save current path-following tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_y;
 
   plane = CANON_PLANE_XZ;
@@ -1666,6 +1681,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1762,8 +1778,10 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   settings->current_y = clear_cc;
   settings->cycle_cc = block->y_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1788,7 +1806,8 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save current path-following tolerance, to restore it lateron
+  // save current path-following tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->v_current;
 
   plane = CANON_PLANE_UW;
@@ -1834,6 +1853,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1930,8 +1950,10 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   settings->v_current = clear_cc;
   settings->cycle_cc = block->v_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
