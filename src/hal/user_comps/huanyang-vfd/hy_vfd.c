@@ -107,6 +107,7 @@ typedef struct {
 	hal_float_t	*freq_cmd;				// calculated frequency command
 
 	hal_float_t *max_freq;				// PD005 Max Operating Frequency
+	hal_float_t *base_freq;				// PD004 Base Frequency
 	hal_float_t *freq_lower_limit;		// PD011 Frequency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
@@ -156,13 +157,14 @@ static struct option long_options[] = {
 		{"target", 1, 0, 't'},
                 {"max-frequency", 1, 0, 'F'},
                 {"min-frequency", 1, 0, 'f'},
+                {"base-frequency", 1, 0, 'B'},
                 {"motor-voltage", 1, 0, 'V'},
                 {"motor-current", 1, 0, 'I'},
                 {"motor-speed", 1, 0, 'S'},
 		{0,0,0,0}
 };
 
-static char *option_string = "b:d:ghn:p:r:s:t:F:f:V:I:S:";
+static char *option_string = "b:d:ghn:p:r:s:t:F:f:B:V:I:S:";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 static char *paritystrings[] = {"even", "odd", "none", NULL};
@@ -218,6 +220,9 @@ void usage(int argc, char **argv) {
                         "    register 5 if not supplied on the command line.\n"
                         "-f or --min-frequency <f>\n"
                         "    Set VFD min frequency to <f> Hz.  This will be read from the VFD\n"
+                        "    register 11 if not supplied on the command line.\n"
+                        "-B or --base-frequency <f>\n"
+                        "    Set VFD base frequency to <f> Hz.  This will be read from the VFD\n"
                         "    register 11 if not supplied on the command line.\n"
                         "-V or --motor-voltage <v>\n"
                         "    Set VFD max output voltage to <v> (Volts).  This will be read from the\n"
@@ -398,6 +403,20 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
 	*(haldata->max_freq) = hc_data->ret_data * 0.01;
+
+	hc_data->parameter = 4; // PD004 Base Frequency
+        if (*haldata->base_freq != 0) {
+            // user passed in base freq, send to VFD
+            hc_data->function = FUNCTION_WRITE;
+            hc_data->data = (uint16_t)(*haldata->base_freq * 100);
+            if ((retval = hy_comm(hc_param, hc_data)) != 0) {
+                goto failed;
+            }
+            hc_data->function = FUNCTION_READ;
+        }
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
+		goto failed;		
+	*(haldata->base_freq) = hc_data->ret_data * 0.01;
 
 	hc_data->parameter = 11; // PD011 Frequency Lower Limit
         if (*haldata->freq_lower_limit != 0) {
@@ -608,6 +627,7 @@ int main(int argc, char **argv)
 	int argindex, argvalue;
 
         float max_freq = 0;
+        float base_freq = 0;
         float min_freq = 0;
         float motor_v = 0;
         float motor_i = 0;
@@ -698,6 +718,15 @@ int main(int argc, char **argv)
                         max_freq = strtof(optarg, &endarg);
 			if ((*endarg != '\0') || (max_freq < 0.0) || (max_freq > UINT16_MAX)) {
 				printf("hy_vfd: ERROR: invalid max frequency: %s\n", optarg);
+				retval = -1;
+				goto out_noclose;
+			}
+			break;
+
+                case 'B':
+                        base_freq = strtof(optarg, &endarg);
+			if ((*endarg != '\0') || (base_freq < 0.0) || (base_freq > 400.0)) {
+				printf("hy_vfd: ERROR: invalid base frequency: %s\n", optarg);
 				retval = -1;
 				goto out_noclose;
 			}
@@ -840,6 +869,8 @@ int main(int argc, char **argv)
 	
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->max_freq), hal_comp_id, "%s.max-freq", modname);
 	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_float_newf(HAL_OUT, &(haldata->base_freq), hal_comp_id, "%s.base-freq", modname);
+	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_lower_limit), hal_comp_id, "%s.freq-lower-limit", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_voltage), hal_comp_id, "%s.rated-motor-voltage", modname);
@@ -888,6 +919,7 @@ int main(int argc, char **argv)
 	*(haldata->CNST) = 0;
 	
 	*(haldata->max_freq) = max_freq;
+	*(haldata->base_freq) = base_freq;
 	*(haldata->freq_lower_limit) = min_freq;
 	*(haldata->rated_motor_voltage) = motor_v;
 	*(haldata->rated_motor_current) = motor_i;
