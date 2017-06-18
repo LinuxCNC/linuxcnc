@@ -700,8 +700,13 @@ static inline unsigned count_ones(uint32_t val)
 
 static int check_cookie(hm2_rpspi_t *board)
 {
-	static const uint32_t xcookie[4] = {0x55aacafe, 0x54534f48, 0x32544f4d, 0x00000400};
-	uint32_t cookie[4];
+	// The secondary and tertiary cookie values are "HOSTMOT2", but we use
+	// binary here to prevent bytesex problems and multibyte character
+	// formats. Alternatively, we could use a byte-array, but then the
+	// IOCOOKIE values has to be split. Doomed if you do, doomed if you
+	// don't...
+	static const uint32_t xcookie[3] = {HM2_IOCOOKIE, 0x54534f48, 0x32544f4d};
+	uint32_t cookie[3];
 	uint32_t ca;
 	uint32_t co;
 
@@ -711,15 +716,15 @@ static int check_cookie(hm2_rpspi_t *board)
 	if(!memcmp(cookie, xcookie, sizeof(cookie)))
 		return 0;	// The cookie got read correctly
 
-	rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Invalid cookie, read: %08x %08x %08x %08x,"
-			" expected: %08x %08x %08x %08x\n",
+	rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Invalid cookie, read: %08x %08x %08x,"
+			" expected: %08x %08x %08x\n",
 			board->spidevid, board->spiceid,
-			cookie[0], cookie[1], cookie[2], cookie[3],
-			xcookie[0], xcookie[1], xcookie[2], xcookie[3]);
+			cookie[0], cookie[1], cookie[2],
+			xcookie[0], xcookie[1], xcookie[2]);
 
 	// Lets see if we can tell why it went wrong
-	ca = cookie[0] & cookie[1] & cookie[2] & cookie[3];	// All ones -> ca == ones
-	co = cookie[0] | cookie[1] | cookie[2] | cookie[3];	// All zero -> co == zero
+	ca = cookie[0] & cookie[1] & cookie[2];	// All ones -> ca == ones
+	co = cookie[0] | cookie[1] | cookie[2];	// All zero -> co == zero
 
 	if((!co && spi_pull_miso == SPI_PULL_DOWN) || (ca == 0xffffffff && spi_pull_miso == SPI_PULL_UP)) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d No drive seen on MISO line (kept at pull-%s level)."
@@ -755,10 +760,6 @@ static int check_cookie(hm2_rpspi_t *board)
 		//  read  : 32 54 4e 4c = _0011001 0 0101010 0 0100111 0 0100110 (0)
 		//  cookie: 32 54 4f 4d =  0011001 0 0101010 0 0100111 1 0100110  1
 		//
-		//  read  : 00 00 02 00
-		//  shift : 00 00 04 00 = _0000000 0 0000000 0 0000010 0 0000000 (0)
-		//  cookie: 00 00 04 00 =  0000000 0 0000000 0 0000010 0 0000000  0
-		//
 		// The '_' bit falls out of the read bit-string because of the
 		// << operator and a (0) is added to the LSB. The "lone" bits
 		// may have fallen off the cliff and are ignored by the mask.
@@ -766,7 +767,7 @@ static int check_cookie(hm2_rpspi_t *board)
 		uint32_t mask = board->spidevid ? ~0x00010001 : ~0x01010101;
 		unsigned ones;
 		unsigned i;
-		for(ones = i = 0; i < 4; i++) {
+		for(ones = i = 0; i < 3; i++) {
 			ones += count_ones((xcookie[i] ^ (cookie[i] << 1)) & mask);
 		}
 		if(!ones) {
