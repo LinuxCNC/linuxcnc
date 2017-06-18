@@ -609,9 +609,6 @@ int main(int argc, char **argv) {
     hal_ready(hal_comp_id);
 
     while (done == 0) {
-        int r;
-        float f;
-
         if (*haldata->period < 0.001) *haldata->period = 0.001;
         if (*haldata->period > 2.0) *haldata->period = 2.0;
         period_timespec.tv_sec = (time_t)(*haldata->period);
