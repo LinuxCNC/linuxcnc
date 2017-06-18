@@ -704,9 +704,9 @@ static int check_cookie(hm2_rpspi_t *board)
 	uint32_t cookie[4];
 	uint32_t ca;
 	uint32_t co;
-	int r = board->llio.read(&board->llio, 0x100, cookie, 16);
-	if(r < 0)
-		return r;
+
+	if(!board->llio.read(&board->llio, 0x100, cookie, 16))
+		return -ENODEV;
 
 	if(!memcmp(cookie, xcookie, sizeof(cookie)))
 		return 0;	// The cookie got read correctly
@@ -787,10 +787,11 @@ static int check_cookie(hm2_rpspi_t *board)
 /*************************************************/
 static int read_ident(hm2_rpspi_t *board, char *ident)
 {
-	int retval = board->llio.read(&board->llio, 0x40c, ident, 8);
-	if(retval < 0)
+	if(!board->llio.read(&board->llio, 0x40c, ident, 8)) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Board ident read failed\n", board->spidevid, board->spiceid);
-	return retval;
+		return -EIO;	// Cookie could be read, so this is a comms error
+	}
+	return 0;
 }
 
 /*************************************************/
