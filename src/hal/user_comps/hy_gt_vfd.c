@@ -479,12 +479,20 @@ int main(int argc, char **argv) {
         // Set the response timeout.
         t.tv_sec = 0;
         t.tv_usec = 16 * 1000;
+#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+        modbus_set_response_timeout(mb, t.tv_sec, t.tv_usec);
+#else
         modbus_set_response_timeout(mb, &t);
+#endif
 
         // Set the byte timeout to -1, to just wait for the complete
         // response timeout instead.
         t.tv_sec = -1;
+#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+        modbus_set_response_timeout(mb, t.tv_sec, t.tv_usec);
+#else
         modbus_set_byte_timeout(mb, &t);
+#endif
     }
 
     retval = modbus_connect(mb);
@@ -601,9 +609,6 @@ int main(int argc, char **argv) {
     hal_ready(hal_comp_id);
 
     while (done == 0) {
-        int r;
-        float f;
-
         if (*haldata->period < 0.001) *haldata->period = 0.001;
         if (*haldata->period > 2.0) *haldata->period = 2.0;
         period_timespec.tv_sec = (time_t)(*haldata->period);
