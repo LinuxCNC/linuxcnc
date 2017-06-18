@@ -31,33 +31,20 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/fsuid.h>
 
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include <hal.h>
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_slab.h>
 
-#include "rtapi_stdint.h"
-#include "rtapi_bool.h"
-#include "rtapi_gfp.h"
-#include "rtapi_slab.h"
-
-#include "rtapi_bool.h"
-
-#if defined (WOST)
-#include "include/hostmot2-lowlevel.h"
-#include "include/hostmot2.h"
-#else
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
-#endif
-
 #include "spi_common_rpspi.h"
 
 /*
  * Debugging options
  */
-#define RPSPI_DEBUG		1	// Comment to disable all debugging
+//#define RPSPI_DEBUG		1	// Comment to disable all debugging
 
 #if defined(RPSPI_DEBUG)
 #define RPSPI_DEBUG_MSG		1	// Redirect INFO to ERR channel
@@ -229,6 +216,15 @@ RTAPI_MP_INT(spi_pull_sclk, "Enable/disable pull-{up,down} on SPI SCLK (default 
 #define SPI1_PROBE_MASK	(SPI1_PROBE_CE0 | SPI1_PROBE_CE1 | SPI1_PROBE_CE2)
 static int spi_probe = SPI0_PROBE_CE0;
 RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))")
+
+/*
+ * Set the message level for debugging purpose. This has the (side-)effect that
+ * all modules within this process will start spitting out messages at the
+ * requested level.
+ * The upstream message level is not touched if spi_debug == -1.
+ */
+static int spi_debug = -1;
+RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
 
 /*********************************************************************/
 /*
@@ -698,7 +694,7 @@ static inline unsigned count_ones(uint32_t val)
 	return i;
 }
 
-static int check_cookie(hm2_rpspi_t *board)
+static int32_t check_cookie(hm2_rpspi_t *board)
 {
 	// The secondary and tertiary cookie values are "HOSTMOT2", but we use
 	// binary here to prevent bytesex problems and multibyte character
@@ -706,15 +702,18 @@ static int check_cookie(hm2_rpspi_t *board)
 	// IOCOOKIE values has to be split. Doomed if you do, doomed if you
 	// don't...
 	static const uint32_t xcookie[3] = {HM2_IOCOOKIE, 0x54534f48, 0x32544f4d};
-	uint32_t cookie[3];
+	uint32_t cookie[4];
 	uint32_t ca;
 	uint32_t co;
 
-	if(!board->llio.read(&board->llio, 0x100, cookie, 16))
+	// We read four (4) 32-bit words. The first three are the cookie and
+	// the fourth entry is the idrom address offset. The offset is used in
+	// the call to get the board ident if we successfully match a cookie.
+	if(!board->llio.read(&board->llio, HM2_ADDR_IOCOOKIE, cookie, 16))
 		return -ENODEV;
 
-	if(!memcmp(cookie, xcookie, sizeof(cookie)))
-		return 0;	// The cookie got read correctly
+	if(!memcmp(cookie, xcookie, sizeof(xcookie)))
+		return (int32_t)cookie[3];	// The cookie got read correctly
 
 	rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Invalid cookie, read: %08x %08x %08x,"
 			" expected: %08x %08x %08x\n",
@@ -786,16 +785,6 @@ static int check_cookie(hm2_rpspi_t *board)
 }
 
 /*************************************************/
-static int read_ident(hm2_rpspi_t *board, char *ident)
-{
-	if(!board->llio.read(&board->llio, 0x40c, ident, 8)) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Board ident read failed\n", board->spidevid, board->spiceid);
-		return -EIO;	// Cookie could be read, so this is a comms error
-	}
-	return 0;
-}
-
-/*************************************************/
 #define RPSPI_SYS_CLKVPU	"/sys/kernel/debug/clk/vpu/clk_rate"	// Newer kernels (4.8+, I think) have detailed info
 #define RPSPI_SYS_CLKCORE	"/sys/kernel/debug/clk/core/clk_rate"	// Older kernels only have core-clock info
 
@@ -844,7 +833,7 @@ static uint32_t read_spiclkbase(void)
 
 /*************************************************/
 static int probe_board(hm2_rpspi_t *board) {
-	int ret;
+	int32_t ret;
 	char ident[8+1];
 	char *base;
 
@@ -858,8 +847,14 @@ static int probe_board(hm2_rpspi_t *board) {
 
 	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: SPI%d/CE%d Valid cookie matched\n", board->spidevid, board->spiceid);
 
-	if((ret = read_ident(board, ident)) < 0)
-		return ret;
+	// Read the board identification.
+	// The IDROM address offset is returned in the cookie check and the
+	// board_name offset is added (see hm2_idrom_t in hostmot2.h)
+	// FIXME: should we not simply read the entire IDROM here?
+	if(!board->llio.read(&board->llio, (uint32_t)ret + 0x000c, ident, 8)) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Board ident read failed\n", board->spidevid, board->spiceid);
+		return -EIO;	// Cookie could be read, so this is a comms error
+	}
 	ident[sizeof(ident)-1] = 0;	// Because it may be used in printf, regardless format limits
 
 	if(!memcmp(ident, "MESA7I90", 8)) {
@@ -1169,6 +1164,10 @@ static int hm2_rpspi_setup(void)
 {
 	int i, j;
 	int retval = -1;
+
+	// Set process-level message level if requested
+	if(spi_debug >= RTAPI_MSG_NONE && spi_debug <= RTAPI_MSG_ALL)
+		rtapi_set_msg_level(spi_debug);
 
 	platform = check_platform();
 

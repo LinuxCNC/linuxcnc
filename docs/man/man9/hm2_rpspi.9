@@ -86,6 +86,18 @@ combinations of SPI and CE should be probed:
 
 The probe is performed exactly in above order. Any boards found will be
 numbered 0...4 in the order found. See also
+
+.TP
+\fBspi_debug\fR [default: \-1]
+Set the message level of the running process. The message level is set if
+\fBspi_debug\fR is set to a positive value between 0 and 5, where 0 means no
+messages at all and 5 means everything. A value of \-1 does not touch the
+current message level.
+
+Caveat Emptor: changing the message level is process-wide and all modules
+within the process will spit out messages at the requested level. This may
+cause quite some clutter in your terminal.
+
 .BR INTERFACE\ CONFGURATION
 below.
 
