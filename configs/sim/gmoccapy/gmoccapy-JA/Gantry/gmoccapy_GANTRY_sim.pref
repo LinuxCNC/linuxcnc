@@ -75,4 +75,6 @@ scale_rapid_override = 1.0
 offset_axis_z = 0.0
 offset_axis_x = 0.0
 offset_axis_y = 0.0
+reload_tool = True
+tool_in_spindle = 0
 

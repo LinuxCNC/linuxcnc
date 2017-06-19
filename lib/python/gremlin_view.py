@@ -93,7 +93,7 @@ g_verbose         = False
 LOCALEDIR = linuxcnc.SHARE + "/locale"
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
-def ini_setup ():
+def ini_check ():
     """set environmental variable and change directory"""
     # Note:
     #   hal_gremlin gets inifile from os.environ (only)
@@ -104,8 +104,8 @@ def ini_setup ():
         os.environ['INI_FILE_NAME'] = ini_filename # need for hal_gremlin
         os.chdir(os.path.dirname(ini_filename))
         if g_verbose:
-            print('ini_setup: INI_FILENAME= %s' % ini_filename)
-            print('ini_setup:       curdir= %s' % os.path.curdir)
+            print('ini_check: INI_FILENAME= %s' % ini_filename)
+            print('ini_check:       curdir= %s' % os.path.curdir)
         return True # success
     print(_('%s:linuxcnc ini file  not available') % g_progname)
     return False # exit here crashes glade-gtk2
@@ -139,7 +139,7 @@ class GremlinView():
 
         self.alive = alive
         linuxcnc_running = False
-        if ini_setup():
+        if ini_check():
             linuxcnc_running = True
 
         if (glade_file == None):
@@ -158,10 +158,6 @@ class GremlinView():
         self.halg      = bldr.get_object('gremlin_view_hal_gremlin')
 
         #self.halg.show_lathe_radius = 1 # for test, hal_gremlin default is Dia
-
-        self.halg.init_glcanondraw(
-             trajcoordinates=self.halg.inifile.find('TRAJ','COORDINATES'),
-             kinstype=self.halg.inifile.find('KINS','KINEMATICS'))
 
         if not linuxcnc_running:
             # blanks display area:

@@ -136,6 +136,9 @@ void keydown(kb_inst_t *inst){
                 }
             }
         }
+        else {
+            *inst->hal.keycode = 0x40;//nochange
+        }
         
         inst->then[inst->row] = inst->now[inst->row];
         inst->now[inst->row] = scan;

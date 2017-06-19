@@ -136,6 +136,15 @@ paragraph style.
 Styles include
 NOTE TIP IMPORTANT WARNING CAUTION
 
+Tables
+======
+[options="header, width="80%"]
+|=======
+|1 |2 |A
+|3 |4 |B
+|5 |6 |C
+|=======
+
 Escaping a character
 ====================
 Normally characters like ' and * would not print unless you use \' or \* then

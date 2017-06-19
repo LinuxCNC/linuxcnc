@@ -12,7 +12,7 @@ shown.
 
 .TkLinuxCNC Window
 
-image::images/tkemc.png[align="center"]
+image::images/tkemc.png[align="center", alt="TkLinuxCNC Window"]
 
 == Getting Started
 
@@ -130,7 +130,7 @@ optional stop switch (if the button is green the program execution will
 be stopped on any M1 encountered).
 
 .TkLinuxCNC Interpreter / program control
-image::images/tkemc-interp.png[align="center"]
+image::images/tkemc-interp.png[align="center", alt="TkLinuxCNC Interpreter / program control"]
 
 .Text Program Display Area
 
@@ -167,7 +167,7 @@ color).
 
 .TkLinuxCNC Override Limits & Jogging increments example
 
-image::images/tkemc-override-limits.png[align="center"]
+image::images/tkemc-override-limits.png[align="center", alt="TkLinuxCNC Override Limits and Jogging increments example"]
 
 .The Spindle group
 
@@ -192,7 +192,7 @@ on, and not set to MDI mode, the code entry controls are unavailable.
 
 .The Code Entry tab
 
-image::images/tkemc-mdi.png[align="center"]
+image::images/tkemc-mdi.png[align="center", alt="The Code Entry tab"]
 
 .MDI:
 

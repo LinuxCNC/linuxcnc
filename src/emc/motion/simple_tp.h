@@ -19,6 +19,9 @@
 #ifndef SIMPLE_TP_H
 #define SIMPLE_TP_H
 
+// stopping criterion:
+#define TINY_DP(max_acc,period) (max_acc*period*period*0.001)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

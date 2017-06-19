@@ -2,9 +2,9 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load 6 differentiators (for velocity and accel signals
 loadrt ddt count=6
 # load additional blocks
@@ -27,18 +27,18 @@ addf hypot.1 servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt.0.in
-net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt.2.in
-net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt.4.in
+net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt.0.in
+net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt.2.in
+net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt.4.in
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 net Xvel ddt.0.out => ddt.1.in hypot.0.in0
-net Xacc <= ddt.1.out 
+net Xacc <= ddt.1.out
 net Yvel ddt.2.out => ddt.3.in hypot.0.in1
-net Yacc <= ddt.3.out 
+net Yacc <= ddt.3.out
 net Zvel ddt.4.out => ddt.5.in hypot.1.in0
-net Zacc <= ddt.5.out 
+net Zacc <= ddt.5.out
 
 # Cartesian 2- and 3-axis velocities
 net XYvel hypot.0.out => hypot.1.in1

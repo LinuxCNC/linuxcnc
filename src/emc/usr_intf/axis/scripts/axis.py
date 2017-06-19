@@ -144,7 +144,7 @@ except TclError:
     raise
 
 def General_Halt():
-    text = "Do you really want to close linuxcnc?"
+    text = "Do you really want to close LinuxCNC?"
     if not root_window.tk.call("nf_dialog", ".error", "Confirm Close", text, "warning", 1, "Yes", "No"):
         root_window.destroy()
 
@@ -394,7 +394,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.get_resources()
         self.realize()
         self.init_glcanondraw(trajcoordinates=trajcoordinates,
-                              kinstype=kinstype)
+                              kinsmodule=kinsmodule)
     def getRotateMode(self):
         return vars.rotate_mode.get()
 
@@ -1167,12 +1167,43 @@ def open_file_guts(f, filtered=False, addrecent=True):
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+        initcodes = []
+        if initcode:
+            initcodes.append(initcode)
         if not interpname:
             unitcode = "G%d" % (20 + (s.linear_units == 1))
-        else:
-            unitcode = ''
+            initcodes.append(unitcode)
+            initcodes.append("g90")
+            initcodes.append("t%d m6" % s.tool_in_spindle)
+            for i in range(9):
+                if s.axis_mask & (1<<i):
+                    position = "g53 g0 %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+                    initcodes.append(position)
+            for i, g in enumerate(s.gcodes):
+                # index 0 is "sequence number" and index 2 is the last block's
+                # "g_mode" neither of which should be sent as a startup code.
+                # In particular, after issuing a non-modal G like G10, that
+                # will appear at s.gcodes[2] which caused issue #269
+                if i in (0, 2): continue
+                if g == -1: continue
+                initcodes.append("G%.1f" % (g * .1))
+            tool_offset = "G43.1"
+            for i in range(9):
+                if s.axis_mask & (1<<i):
+                    tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
+            initcodes.append(tool_offset)
+            for i, m in enumerate(s.mcodes):
+                # index 0 is "sequence number", just like s.gcodes[0].  Trying
+                # to set this number as a modal code caused issue #271.
+                # index 1 is the stopping code, which holds M2 after reading
+                # ahead to the end of a program.  Trying to set this number
+                # as a modal code makes the next preview disappear.
+                # (see Interp::write_m_codes)
+                if i in (0,1): continue
+                if m == -1: continue
+                initcodes.append("M%d" % m)
         try:
-            result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
+            result, seq = o.load_preview(f, canon, initcodes, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -1304,15 +1335,25 @@ widgets.axis_y.configure(value="y")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode():
-        # free jogging (joints) (only accept integers here)
-        if type(i) != type(0): return
+    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and trivkinstype == "both")):
+        # free jogging (joints) if:
+        #   non-trivkins config or
+        #   trivkins config and kinstype = both
+        # only accept integers here
+        if not isinstance(i, int): return
         if i >= num_joints: return
         widget = getattr(widgets, "joint_%d" % i)
     else:
-        # teleop jogging (axes) (letters are special case for key bindings)
-        if type(i) == type(""): letter = i
-        else:                   letter = "xyzabcuvw"[i]
+        # teleop jogging (axes) or
+        # free jogging (joints) if:
+        #   trivkins config and kinstype not both
+        # letters are special case for key bindings
+        if isinstance(i, basestring):
+            letter = i
+        elif lathe and not lathe_historical_config()and not all_homed():
+            letter = "xzabcuvw"[i]
+        else:
+            letter = "xyzabcuvw"[i]
         if letter in trajcoordinates:
             widget = getattr(widgets, "axis_%s" % letter)
         else:
@@ -1610,8 +1651,8 @@ def prompt_float(title, text, default, unit_str):
     t = _prompt_float(title, text, default, unit_str)
     return t.run()
 
-all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
-            'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3',
+all_systems = ['P0  Current', 'P1  G54', 'P2  G55', 'P3  G56', 'P4  G57',
+            'P5  G58', 'P6  G59', 'P7  G59.1', 'P8  G59.2', 'P9  G59.3',
             _('T    Tool Table')]
 
 class _prompt_touchoff(_prompt_float):
@@ -1704,8 +1745,9 @@ def get_jog_speed(a):
             return vars.jog_aspeed.get()/60.
 
 def get_jog_speed_map(a):
-    if a >= len(jog_order): return 0
+    if get_jog_mode() and a >= num_joints: return 0
     if not get_jog_mode():
+        if a >= len(jog_order): return 0
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
     return get_jog_speed(a)
@@ -1773,10 +1815,26 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
+    if not all_homed() and lathe and not lathe_historical_config():
+        axes = "xzabcuvw"
+    else:       
+        axes = "xyzabcuvw"
     if ja in "012345678":
-        a = int(ja)
-    else :
-        a = "xyzabcuvw".index(ja)
+        a = int(ja) # number specifies a joint
+    else:    
+        a = axes.index(ja) # letter specifies an axis coordinate
+
+    # handle joint jogging for known identity kins
+    if get_jog_mode():
+        # joint jogging
+        if lathe_historical_config():
+            a = "xyzabcuvw".index(ja)
+        elif kins_is_trivkins and trivkinstype == "single":
+            # note: if duplicate_coord_letters,
+            #       use index for first occurrence of the letter
+            a = trajcoordinates.index(ja)
+        #future: elif's for other known identity kins go here
+
     return a
 
 def all_homed():
@@ -2589,7 +2647,7 @@ class TclCommands(nf.TclCommands):
         if s.tool_in_spindle == 0: return
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Tool Touch Off (Tool No:%s)"%s.tool_in_spindle),
+                title=_("Tool %s TouchOff"%s.tool_in_spindle),
                 text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=True,
@@ -2770,8 +2828,8 @@ class TclCommands(nf.TclCommands):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
     def inifindall(section, item):
-	items = tuple(inifile.findall(section, item))
-	return root_window.tk.merge(*items)
+        items = tuple(inifile.findall(section, item))
+        return root_window.tk.merge(*items)
 
 commands = TclCommands(root_window)
 
@@ -2860,7 +2918,7 @@ vars.optional_stop.set(ap.getpref("optional_stop", True))
 def user_live_update():
     pass
 
-vars.touch_off_system.set("P1  G54")
+vars.touch_off_system.set(all_systems[0])
 
 update_recent_menu()
 
@@ -3004,7 +3062,8 @@ def jog(*args):
 
 def get_jog_mode():
     s.poll()
-    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+    if  (    (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+        and  all_homed() ):
         teleop_mode = 1
         jjogmode = False
     else:
@@ -3046,6 +3105,7 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
+    activate_ja_widget(a)
 
 def jog_off(a):
     if jog_after[a]: return
@@ -3053,7 +3113,6 @@ def jog_off(a):
 
 def jog_off_actual(a):
     if not manual_ok(): return
-    activate_ja_widget(a)
     jog_after[a] = None
     jogging[a] = 0
     jjogmode = get_jog_mode()
@@ -3071,12 +3130,30 @@ def jog_on_map(num, speed):
         axis_letter = jog_order[num]
         num = "XYZABCUVW".index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
+    elif num >= num_joints:
+        return
+    elif lathe:
+        if num >= len(jog_order): return
+        axis_letter = jog_order[num]
+        if lathe_historical_config():
+            num = "XYZ".index(axis_letter)
+        else:
+            num = trajcoordinates.upper().index(axis_letter)
+        if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
 
 def jog_off_map(num):
     if not get_jog_mode():
         if num >= len(jog_order): return
         num = "XYZABCUVW".index(jog_order[num])
+    elif num >= num_joints:
+        return
+    elif lathe:
+        if num >= len(jog_order): return
+        if lathe_historical_config():
+            num = "XYZ".index(jog_order[num])
+        else:
+            num = trajcoordinates.upper().index(jog_order[num])
     return jog_off(num)
 
 def bind_axis(a, b, d):
@@ -3101,7 +3178,6 @@ def units(s, d=1.0):
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 jointcount = int(inifile.find("KINS", "JOINTS"))
-jointnames = "012345678"[:jointcount]
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX") or open_directory
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -3123,10 +3199,12 @@ except:
     raise SystemExit("Missing [TRAJ]COORDINATES")
 vars.trajcoordinates.set(trajcoordinates)
 
-joint_type = [None] * linuxcnc.MAX_JOINTS
-for j in range(linuxcnc.MAX_JOINTS):
+joint_type = [None] * jointcount
+joint_sequence = [None] * jointcount
+for j in range(jointcount):
     section = "JOINT_%d" % j
     joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
+    joint_sequence[j]  = inifile.find(section, "HOME_SEQUENCE") or ""
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
@@ -3137,7 +3215,7 @@ for a in range(linuxcnc.MAX_AXIS):
         axis_type[a] = "ANGULAR"
     else:
         axis_type[a] = "LINEAR"
-    section = "AXIS_%s" % letter
+    section = "AXIS_%s" % letter.upper()
     initype = inifile.find(section, "TYPE")
     if initype is None: continue # use default
     axis_type[a] = initype
@@ -3175,28 +3253,40 @@ max_velocity = (
 
 # Enforce these slider items (exit if missing)
 try:
-    msg = "max velocity"
+    msg = ("   [DISPLAY]MAX_LINEAR_VELOCITY\n"
+           "or [TRAJ]MAX_LINEAR_VELOCITY\n"
+           "or [AXIS_X]MAX_VELOCITY")
     vars.maxvel_speed.set(float(max_velocity)*60)
     vars.max_maxvel.set(float(max_velocity))
-    if has_linear_joint_or_axis:
-        msg = "max linear speed"
-        vars.max_speed.set(float(max_linear_speed))
 except Exception:
-    print "\nMissing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    print ("\nMissing required specifier:\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
     raise SystemExit
 
-if default_jog_linear_speed is None: default_jog_linear_speed = max_linear_speed
-vars.jog_speed.set(float(default_jog_linear_speed)*60)
+try:
+    if has_linear_joint_or_axis:
+        msg = ("   [DISPLAY]MAX_LINEAR_VELOCITY\n"
+               "or [TRAJ]MAX_LINEAR_VELOCITY")
+        vars.max_speed.set(float(max_linear_speed))
+        if default_jog_linear_speed is None:
+            default_jog_linear_speed = max_linear_speed
+        vars.jog_speed.set(float(default_jog_linear_speed)*60)
+except Exception:
+    print ("\nMissing required specifier (has linear joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
+    raise SystemExit
 
 # Check for these slider items (message if missing)
 try:
     if has_angular_joint_or_axis:
-        msg = "max angular speed"
+        msg = ("    [DISPLAY]MAX_ANGULAR_VELOCITY\n"
+               "or  [TRAJ]MAX_ANGULAR_VELOCITY")
         vars.max_aspeed.set(float(max_angular_speed))
         if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
         vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
 except Exception:
-    print "\nWarning: Missing <%s> specifier\nSee the \'INI Configuration\' documents\n"%msg
+    print ("\nWarning: Missing required specifier (has angular joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n"%msg)
     max_angular_speed = 1
     default_jog_angular_speed = 1
     vars.max_aspeed.set(float(max_angular_speed))
@@ -3302,14 +3392,18 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-kinstype=inifile.find("KINS", "KINEMATICS").lower()
+kinsmodule=inifile.find("KINS", "KINEMATICS").lower()
 kins_is_trivkins = False
-if kinstype.split()[0] == "trivkins":
+if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
-    for item in kinstype.split():
+    trivkinstype = "single"
+    for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
+        if "kinstype=" in item:
+            trivkinstype = item.split("=")[1].lower()
+            if trivkinstype=="1": trivkinstype = "single"
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
@@ -3317,28 +3411,35 @@ for i in range(len(trajcoordinates)):
     if trajcoordinates.count(trajcoordinates[i]) > 1:
         duplicate_coord_letters = duplicate_coord_letters + trajcoordinates[i]
 if duplicate_coord_letters != "":
-    # Can occur, for instance, with trivkins with kinstype=both).
-    # In such kins, the value for a duplicated axis letter will equal the
-    # value of the highest numbered joint.
-    # Movements on axis gui display in joint mode (after homing) may be unexpected,
-    #   e.g., moving  a joint that is not the highest number will not affect the
-    # corresponding 'identity' coordinate.
+    # duplicate_coord_letters are allowed
+    #
+    # Example: configs/sim/axis/gantry.ini -- trivkins with kinstype=both.
+    # With such kins, the value displayed on the gui graphical display
+    # in JOINT mode AFTER homing may be confusing for a pair of joints that
+    # are assigned using a duplicated axis letter in [TRAJ]COORDINATES
+    # and specified consistently with the trivkins 'coordinates=' parameter.
+    #
+    # Moving the joint in the pair with the highest number will update its
+    # displayed joint value and move the cone in the gui graphical display
+    # as expected.
+    #
+    # Moving the joint in the pair with the lower number will update its
+    # displayed joint value but will not move the cone.
+    #
+    # Note also that returning to world mode from joint mode, the
+    # value assigned to the duplicated axis letter will be the value of
+    # the highest number joint since trivkins forward kinematics iterates
+    # through all joint numbers and ends up with the value for the
+    # highest joint number.  These behaviors, due in part to the simple
+    # implementation of the trivkins module, could be customized by a more
+    # sophisticated kinematics module that accepts duplicated coordinate
+    # letters with some special requirements -- hence the warning:
+
     print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
           duplicate_coord_letters)
 if len(trajcoordinates) > jointcount:
     print ("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
           %(trajcoordinates,jointcount))
-
-def jnum_for_aletter(aletter):
-    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-        raise SystemExit("jnum_for_aletter: Must be KINEMATICS_IDENTITY")
-    aletter = aletter.lower()
-    if kins_is_trivkins:
-        return trajcoordinates.index(aletter)
-    else:
-        guess = trajcoordinates.index(aletter)
-        print "jnum_for_aletter guessing %s --> %d"%(aletter,guess)
-        return guess
 
 def lathe_historical_config():
     # detect historical lathe config with dummy joint 1
@@ -3382,7 +3483,13 @@ for jnum in range(num_joints):
                command=lambda jnum=jnum: commands.home_joint_number(jnum))
         widgets.unhomemenu.add_command(
                command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
-        ja_name = "Joint"; ja_id = jnum
+        ja_name = "Joint"
+        if joint_sequence[jnum] is '':
+            ja_id = "%d"%jnum
+        elif (int(joint_sequence[jnum]) < 0):
+            ja_id = "%d (Sequence: %2s SYNC)"%(jnum,joint_sequence[jnum])
+        else:
+            ja_id = "%d (Sequence: %2s)"%(jnum,joint_sequence[jnum])
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",

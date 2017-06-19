@@ -24,7 +24,7 @@ Jelen pillanatban angol, német spanyol, lengyel, szerb és magyar fordítások 
 Segítsen a további fordítások bevezetésében és keressn ezen az e-mail címen:, *nieson@web.de*.
 Ha segítségre van szüksége, ne habozzon, keressen meg!.'
 
-image::images/gmoccapy_4_axis.png[align="left"]
+image::images/gmoccapy_5_axis.png[align="left"]
 
 == Követelmények
 A gmoccapy az UBUNTU 10.04-en, 12.04-en és Debian Wheezy-n a LinuxCNC 2.6 ,2.7 , master, Machinekit verziókkal
@@ -1140,7 +1140,7 @@ is showing all lathe relevant information.
 
 == Plasma specific section
 
-image::images/gmoccapy_plasma_1.png[align="left"]
+image::images/gmoccapy_plasma.png[align="left"]
 
 There is a very good WIKI, which is actually growing, maintained by Marius
 

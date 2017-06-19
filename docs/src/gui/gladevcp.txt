@@ -1373,7 +1373,8 @@ Text template for metric units::
 Text template for imperial units::
     You can use python formatting to display the position with different precision.
 Reference Type::
-    Absolute (machine origin), Relative (to current user coordinate origin - G5x)
+    Absolute <<sec.machine-corrdinate-system,(machine origin)>>, Relative
+    (to current user coordinate origin - G5x)
     or Distance-to-go (relative to current user coordinate origin)
 Joint Number::
     Used to select which axis (technically which joint) is displayed.
@@ -1481,6 +1482,13 @@ toggle_readout::
     By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout() +
     Value must be bool +    
     default is TRUE
+
+cycle_time::
+    The time the DRO waits between two polls,
+    the value must be an integer in the range of 100 to 1000, +
+    default is 150, this setting should only be changed if you use more +
+    than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that +
+    the DRO slows down the main application too much.
 
 Direct program control::
     Using gobject to set the above listed properties:
@@ -2188,7 +2196,6 @@ details.
 HAL widgets come with a pre-defined signal called 'hal-pin-changed'. See the
 <<gladevcp:hal-pin-changed-signal,Hal Widgets section>> for details. 
 
-
 === Programming model
 
 The overall approach is as follows:
@@ -2254,6 +2261,38 @@ def get_handlers(halcomp,builder,useropts):
 
 Now, 'on_this_signal' will be available as signal handler to your
 widget tree.
+
+.GladeVCP-specific signals
+
+For GladevCP panel which respond to HAL inputs it may be important that the handler
+code can tell that the GladeVCP panel is currently active and displayed. For
+example a panel inside the Touchy interface might well need to perform an action
+when the switch connected to touchy.cycle-start is operated (in the same way
+that the native tabs respond differently to the same button.)
+To make this possible a signal is sent from the GUI (at the time of writing, only
+Touchy) to the embedded tab. The signal is of type "Gladevcp" and the two messages
+sent are "Visible" and "Hidden". (Note that the signals  have a fixed length of 20
+characters so only the first characters should be used in any comparison, hence
+the [:7] below.) A sample handler for these signals is:
+
+[source, python]
+----------------------------------
+    # This catches our messages from another program
+    def event(self,w,event):
+        print event.message_type,event.data
+        if event.message_type == 'Gladevcp':
+            if event.data[:7] == 'Visible':
+                self.active = True
+            else:
+                self.active = False
+
+    # connect to client-events from the host GUI
+    def on_map_event(self, widget, data=None):
+        top = widget.get_toplevel()
+        print "map event"
+        top.connect('client-event', self.event)
+----------------------------------
+
 
 .The get_handlers protocol
 
@@ -2734,3 +2773,57 @@ arise. For details, see the `keyboard_forward()` function in
 
 The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
 link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
+
+== Auxiliary Gladevcp Applications
+
+Support is provided for independently installed gladevcp applications
+that conform to system directory placements as defined by the
+LINUXCNC_AUX_GLADEVCP and LINUXCNC_AUX_EXAMPLES items reported by
+the script linuxcnc_var:
+
+====
+  $ linuxcnc_var LINUXCNC_AUX_GLADEVCP
+  /usr/share/linuxcnc/aux_gladevcp
+  $ linuxcnc_var LINUXCNC_AUX_EXAMPLES
+  /usr/share/linuxcnc/aux_examples
+====
+
+The system directory defined by LINUXCNC_AUX_GLADEVCP
+(/usr/share/linuxcnc/aux_gladevcp) specifies the location for
+a gladevcp-compatible python file(s) and related subdirectories.
+The python file is imported at gladevcp startup and made
+available to subsequent gladevcp applications including 
+embedded usage in supporting guis.
+
+The system directory defined by LINUXCNC_AUX_EXAMPLES
+(/usr/share/linuxcnc/aux_examples) specifies the location
+of example configuration subdirectories used for auxiliary
+applications.  See the getting-started/running-linuxcnc
+section for 'Adding Configuration Selection Items'.
+
+For testing, a runtime specification of auxiliary applications
+may be specified using the exported environmental variable:
+GLADEVCP_EXTRAS.  This variable should be a path list of one or
+more configuration directories separated by a (:). Typically,
+this variable would be set in a shell starting linuxcnc or in
+a user’s ~/.profile startup script. Example:
+
+====
+  export GLADEVCP_EXTRAS=~/mygladevcp:/opt/othergladevcp
+====
+
+Files found in directories specified with the environmental
+variable GLADEVCP_EXTRAS supersede identically-named files within
+subdirectories of the system directory specified by
+LINUXNC_AUX_GLADEVCP (e.g., /usr/share/linuxcnc/aux_gladevcp).
+This provision allows a developer to test an application
+by exporting GLADEVCP_EXTRAS to specify a private application
+directory without removing a system-installed application directory.
+Messages inidicating rejected duplicates are printed to
+stdout.
+
+[NOTE]
+
+Support for auxiliary gladevcp applications requires a python
+module named 'importlib'.  This module may not be available in
+older installations like Ubuntu-Lucid.

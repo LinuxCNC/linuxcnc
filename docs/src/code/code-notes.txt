@@ -55,9 +55,10 @@ very much a work in progress, and its layout may change in the future.
     the ini file uses the term 'axis' for data that would more accurately
     be described as joint data, such as input and output scaling, etc.
 
-* 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In the
-    LinuxCNC motion controller, when we refer to a pose we mean an EmcPose
-    structure, containing three linear coordinates and three angular ones.
+* 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In
+    the LinuxCNC motion controller, when we refer to a pose we mean an
+    EmcPose structure, containing six linear coordinates (X, Y, Z, U,
+    V, and W) and three angular ones (A, B, and C).
 
 == Architecture overview
 
@@ -220,9 +221,9 @@ The FREE command puts the motion controller in free mode. Free mode
 means that each joint is independent of all the other joints. Cartesian
 coordinates, poses, and kinematics are ignored when in free mode. In
 essence, each joint has its own simple trajectory planner, and each
-joint completely ignores the other joints. Some commands (like JOG)
-only work in free mode. Other commands, including anything that deals
-with Cartesian coordinates, do not work at all in free mode.
+joint completely ignores the other joints. Some commands (like Joint
+JOG and HOME) only work in free mode. Other commands, including anything
+that deals with Cartesian coordinates, do not work at all in free mode.
 
 ==== Requirements
 
@@ -260,7 +261,7 @@ type movements.
 
 The command handler will reject the TELEOP command with an error
 message if the kinematics cannot be activated because the one or more
-axes have not been homed. In addition, if any joint is in motion
+joints have not been homed. In addition, if any joint is in motion
 (GET_MOTION_INPOS_FLAG() == FALSE), then the command will be ignored
 (with no error message). This behavior is controlled by code that is
 now located in the function 'set_operating_mode()' in control.c. I
@@ -288,7 +289,7 @@ that is used when executing a G-code program.
 
 The command handler will reject the COORD command with an error
 message if the kinematics cannot be activated because the one or more
-axes have not been homed. In addition, if any joint is in motion
+joints have not been homed. In addition, if any joint is in motion
 (GET_MOTION_INPOS_FLAG() == FALSE), then the command will be ignored
 (with no error message). This behavior is controlled by code that is
 now located in the function 'set_operating_mode()' in control.c. I
@@ -1513,4 +1514,4 @@ Motion's number of joints can be changed at runtime using the
 `EMCMOT_SET_NUM_JOINTS` command from Task.
 
 The Motion controller always operates on `EMCMOT_MAX_AXIS` axes.
-It always creates nine sets of axis.*.* pins.
+It always creates nine sets of `axis.*.*` pins.

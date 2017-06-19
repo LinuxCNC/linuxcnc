@@ -77,6 +77,7 @@
 #define LBP_STREAM              0x06
 #define LBP_BOOLEAN             0x07
 #define LBP_ENCODER             0x08
+#define LBP_FLOAT               0x10 // New for STMBL
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
 #define LBP_ENCODER_L           0x28 // part and full count fields. 
 
@@ -90,6 +91,7 @@ typedef struct {
     short ParmAddr;
     char UnitString[HM2_SSERIAL_MAX_STRING_LENGTH+1];
     char NameString[HM2_SSERIAL_MAX_STRING_LENGTH+1];
+    char Flags; //0x01 = graycode 0x02 = nowrap
 }hm2_sserial_data_t;
 
 static const hm2_sserial_data_t hm2_8i20_params[] = {
@@ -177,6 +179,7 @@ typedef struct {
     hal_float_t fullscale;
     hal_u32_t u32_param;
     hal_bit_t graycode;
+    hal_bit_t nowrap;
     rtapi_s64 oldval; // not pins, but this way every pin can have one
     rtapi_s64 accum; // these two are only currently used by encoders
     rtapi_s64 offset;

@@ -357,7 +357,7 @@ static int init_hal_io(void)
     }
 
     /* export machine wide hal pins */
-    if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->motion_enabled), mot_comp_id, "motion.motion-enabled")) != 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->motion_enabled), mot_comp_id, "motion.motion-enabled")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->in_position), mot_comp_id, "motion.in-position")) != 0) goto error;
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->motion_type), mot_comp_id, "motion.motion-type")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->coord_mode), mot_comp_id, "motion.coord-mode")) != 0) goto error;
@@ -395,11 +395,13 @@ static int init_hal_io(void)
     }
     // end of exporting trajectory planner internals
 
-    // export timing related HAL parameters so they can be scoped
-    if ((retval = hal_param_u32_newf(HAL_RO, &(emcmot_hal_data->last_period), mot_comp_id, "motion.servo.last-period")) != 0) goto error;
+    // export timing related HAL pins so they can be scoped and/or connected
+    if ((retval = hal_pin_u32_newf(HAL_OUT, &(emcmot_hal_data->last_period), mot_comp_id, "motion.servo.last-period")) != 0) goto error;
 #ifdef HAVE_CPU_KHZ
-    if ((retval = hal_param_float_newf(HAL_RO, &(emcmot_hal_data->last_period_ns), mot_comp_id, "motion.servo.last-period-ns")) != 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->last_period_ns), mot_comp_id, "motion.servo.last-period-ns")) != 0) goto error;
 #endif
+
+    // export timing related HAL pins so they can be scoped
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tooloffset_x), mot_comp_id, "motion.tooloffset.x")) != 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tooloffset_y), mot_comp_id, "motion.tooloffset.y")) != 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tooloffset_z), mot_comp_id, "motion.tooloffset.z")) != 0) goto error;
@@ -450,7 +452,7 @@ static int init_hal_io(void)
     emcmot_hal_data->debug_float_2 = 0.0;
     emcmot_hal_data->debug_float_3 = 0.0;
 
-    emcmot_hal_data->last_period = 0;
+    *(emcmot_hal_data->last_period) = 0;
 
     /* export joint pins and parameters */
     for (n = 0; n < num_joints; n++) {
@@ -475,15 +477,14 @@ static int init_hal_io(void)
         axis_data = &(emcmot_hal_data->axis[n]);
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].pos_cmd),
            mot_comp_id, "axis.%c.pos-cmd",         c)) != 0) goto error;
-        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].vel_cmd),
-           mot_comp_id, "axis.%c.vel-cmd",         c)) != 0) goto error;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_cmd),
+           mot_comp_id, "axis.%c.teleop-vel-cmd",         c)) != 0) goto error;
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_pos_cmd),
            mot_comp_id, "axis.%c.teleop-pos-cmd",  c)) != 0) goto error;
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_lim),
            mot_comp_id, "axis.%c.teleop-vel-lim",  c)) != 0) goto error;
         if ((retval = hal_pin_bit_newf(HAL_OUT,   &(emcmot_hal_data->axis[n].teleop_tp_enable),
            mot_comp_id, "axis.%c.teleop-tp-enable",c)) != 0) goto error;
-
         retval = export_axis(c, axis_data);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis %c pin/param export failed\n"), c);

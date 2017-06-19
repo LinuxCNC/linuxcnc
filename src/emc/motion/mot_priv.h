@@ -80,7 +80,7 @@ typedef struct {
 
 typedef struct {
     hal_float_t *pos_cmd;        /* RPI: commanded position */
-    hal_float_t *vel_cmd;        /* RPI: commanded velocity */
+    hal_float_t *teleop_vel_cmd; /* RPI: commanded velocity */
     hal_float_t *teleop_pos_cmd; /* RPI: teleop traj planner pos cmd */
     hal_float_t *teleop_vel_lim; /* RPI: teleop traj planner vel limit */
     hal_bit_t   *teleop_tp_enable; /* RPI: teleop traj planner is running */
@@ -176,8 +176,8 @@ typedef struct {
     hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */
 
     // realtime overrun detection
-    hal_u32_t last_period;	/* param: last period in clocks */
-    hal_float_t last_period_ns;	/* param: last period in nanoseconds */
+    hal_u32_t   *last_period;	/* pin: last period in clocks */
+    hal_float_t *last_period_ns;	/* pin: last period in nanoseconds */
 
     hal_float_t *tooloffset_x;
     hal_float_t *tooloffset_y;

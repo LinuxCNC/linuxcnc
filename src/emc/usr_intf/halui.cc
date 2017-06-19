@@ -97,6 +97,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,tool_length_offset_u) /* current applied u tool-length-offset */ \
     FIELD(hal_float_t,tool_length_offset_v) /* current applied v tool-length-offset */ \
     FIELD(hal_float_t,tool_length_offset_w) /* current applied w tool-length-offset */ \
+    FIELD(hal_float_t,tool_diameter) /* current tool diameter (0 if no tool) */ \
 \
     FIELD(hal_bit_t,spindle_start) /* pin for starting the spindle */ \
     FIELD(hal_bit_t,spindle_stop) /* pin for stoping the spindle */ \
@@ -119,6 +120,7 @@ static int axis_mask = 0;
     ARRAY(hal_bit_t,joint_on_soft_max_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the software max limit */ \
     ARRAY(hal_bit_t,joint_on_hard_min_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware min limit */ \
     ARRAY(hal_bit_t,joint_on_hard_max_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware max limit */ \
+    ARRAY(hal_bit_t,joint_override_limits,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware max limit */ \
     ARRAY(hal_bit_t,joint_has_fault,EMCMOT_MAX_JOINTS+1) /* status pin that the joint has a fault */ \
     FIELD(hal_u32_t,joint_selected) /* status pin for the joint selected */ \
     FIELD(hal_u32_t,axis_selected) /* status pin for the axis selected */ \
@@ -193,6 +195,8 @@ struct PTR {
     struct field { typedef T *type; };
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
 template<class T> struct NATIVE {};
 template<> struct NATIVE<hal_bit_t> { typedef bool type; };
 template<> struct NATIVE<hal_s32_t> { typedef rtapi_s32 type; };
@@ -201,6 +205,7 @@ template<> struct NATIVE<hal_float_t> { typedef double type; };
 struct VALUE {
     template<class T> struct field { typedef typename NATIVE<T>::type type; };
 };
+#pragma GCC diagnostic pop
 
 template<class T>
 struct halui_str_base
@@ -625,6 +630,8 @@ int halui_hal_init(void)
 	if (retval < 0) return retval;
 	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_max_limit[joint]), comp_id, "halui.joint.%d.on-hard-max-limit", joint);
 	if (retval < 0) return retval;
+	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_override_limits[joint]), comp_id, "halui.joint.%d.override-limits", joint);
+	if (retval < 0) return retval;
 	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_has_fault[joint]), comp_id, "halui.joint.%d.has-fault", joint);
 	if (retval < 0) return retval;
     }
@@ -636,6 +643,8 @@ int halui_hal_init(void)
     retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_min_limit[num_joints]), comp_id, "halui.joint.selected.on-hard-min-limit");
     if (retval < 0) return retval;
     retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_max_limit[num_joints]), comp_id, "halui.joint.selected.on-hard-max-limit");
+    if (retval < 0) return retval;
+    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_override_limits[num_joints]), comp_id, "halui.joint.selected.override-limits");
     if (retval < 0) return retval;
     retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_has_fault[num_joints]), comp_id, "halui.joint.selected.has-fault");
     if (retval < 0) return retval;
@@ -689,6 +698,8 @@ int halui_hal_init(void)
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_v), comp_id, "halui.tool.length_offset.v");
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_diameter), comp_id, "halui.tool.diameter");
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->so_value), comp_id, "halui.spindle-override.value");
     if (retval < 0) return retval;
@@ -1104,6 +1115,7 @@ static int sendProgramRun(int line)
     programStartLine = line;
 
     emc_task_plan_run_msg.line = line;
+    sendAuto();
     return emcCommandSend(emc_task_plan_run_msg);
 }
 
@@ -2138,6 +2150,22 @@ static void modify_hal_pins()
     *(halui_data->tool_length_offset_v) = emcStatus->task.toolOffset.v;
     *(halui_data->tool_length_offset_w) = emcStatus->task.toolOffset.w;
 
+    if (emcStatus->io.tool.toolInSpindle == 0) {
+        *(halui_data->tool_diameter) = 0.0;
+    } else {
+        int pocket;
+        for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket ++) {
+            if (emcStatus->io.tool.toolTable[pocket].toolno == emcStatus->io.tool.toolInSpindle) {
+                *(halui_data->tool_diameter) = emcStatus->io.tool.toolTable[pocket].diameter;
+                break;
+            }
+        }
+        if (pocket == CANON_POCKETS_MAX) {
+            // didn't find the tool
+            *(halui_data->tool_diameter) = 0.0;
+        }
+    }
+
     *(halui_data->spindle_is_on) = (emcStatus->motion.spindle.speed != 0);
     *(halui_data->spindle_runs_forward) = (emcStatus->motion.spindle.direction == 1);
     *(halui_data->spindle_runs_backward) = (emcStatus->motion.spindle.direction == -1);
@@ -2149,6 +2177,7 @@ static void modify_hal_pins()
 	*(halui_data->joint_on_soft_max_limit[joint]) = emcStatus->motion.joint[joint].maxSoftLimit;
 	*(halui_data->joint_on_hard_min_limit[joint]) = emcStatus->motion.joint[joint].minHardLimit;
 	*(halui_data->joint_on_hard_max_limit[joint]) = emcStatus->motion.joint[joint].maxHardLimit;
+	*(halui_data->joint_override_limits[joint]) = emcStatus->motion.joint[joint].overrideLimits;
 	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.joint[joint].fault;
     }
 
@@ -2210,6 +2239,7 @@ static void modify_hal_pins()
     *(halui_data->joint_on_soft_min_limit[num_joints]) = emcStatus->motion.joint[*(halui_data->joint_selected)].minSoftLimit;
     *(halui_data->joint_on_soft_max_limit[num_joints]) = emcStatus->motion.joint[*(halui_data->joint_selected)].maxSoftLimit;
     *(halui_data->joint_on_hard_min_limit[num_joints]) = emcStatus->motion.joint[*(halui_data->joint_selected)].minHardLimit;
+    *(halui_data->joint_override_limits[num_joints]) = emcStatus->motion.joint[*(halui_data->joint_selected)].overrideLimits;
     *(halui_data->joint_on_hard_max_limit[num_joints]) = emcStatus->motion.joint[*(halui_data->joint_selected)].maxHardLimit;
     *(halui_data->joint_has_fault[num_joints]) = emcStatus->motion.joint[*(halui_data->joint_selected)].fault;
 

@@ -1637,7 +1637,7 @@ class App:
                 return True
             else:
                 return False
-        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+        elif hal.is_kernelspace and hal.kernel_version != actual_kernel:
             self.warning_dialog(self._p.MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
             if self.debugstate:
                 return True
@@ -5468,22 +5468,24 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             if self.d.mesa0_numof_sserialports:
                 for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa0_numof_sserialchannels:
-                        # if m1 in the name then it needs mode 1
-                        if "m1" in self.d["mesa0sserial0_%dsubboard"% (i-1)]:
-                            temp = temp + "1"
-                        else:
-                            temp = temp + "0"
+                        # m number in the name signifies the required sserial mode
+                        for j in ("123456789"):
+                            if ("m"+j) in self.d["mesa0sserial0_%dsubboard"% (i-1)]:
+                                temp = temp + j
+                                break
+                        else: temp = temp + "0" # default case
                     else:
                         temp = temp + "x"
                 ssconfig0 = " sserial_port_0=%s"% temp
             if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
                 for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa1_numof_sserialchannels:
-                        # if m1 in the name then it needs mode 1
-                        if "m1" in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
-                            temp = temp + "1"
-                        else:
-                            temp = temp + "0"
+                        # m number in the name signifies the required sserial mode
+                        for j in ("123456789"):
+                            if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
+                                temp = temp + j
+                                break
+                        else: temp = temp + "0" # default case
                     else:
                         temp = temp + "x"
                 ssconfig1 = " sserial_port_0=%s"% temp

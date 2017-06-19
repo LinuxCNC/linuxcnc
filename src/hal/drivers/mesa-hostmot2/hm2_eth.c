@@ -193,6 +193,7 @@ static char* fetch_ifname(int sockfd, char *buf, size_t n) {
 
     for(it=ifa; it; it=it->ifa_next) {
         struct sockaddr_in *ifaddr = (struct sockaddr_in*)it->ifa_addr;
+        if (ifaddr == NULL) continue;
         if(ifaddr->sin_family != srcaddr.sin_family) continue;
         if(ifaddr->sin_addr.s_addr != srcaddr.sin_addr.s_addr) continue;
         snprintf(buf, n, "%s", it->ifa_name);
@@ -787,6 +788,17 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.ioport_connector_name[1] = "P1";
         board->llio.fpga_part_number = "XC6SLX9";
         board->llio.num_leds = 4;
+
+    } else if (strncmp(board_name, "7I93", 4) == 0) {
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 24;
+        board->llio.ioport_connector_name[0] = "P2";
+        board->llio.ioport_connector_name[1] = "P1";
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
     } else {
         LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
         strncpy(llio_name, board_name, 4);

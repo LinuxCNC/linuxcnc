@@ -177,7 +177,9 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         jointIniFile->Find(&use_index, "HOME_USE_INDEX", jointString);
         ignore_limits = false;	        // default
         jointIniFile->Find(&ignore_limits, "HOME_IGNORE_LIMITS", jointString);
-        sequence = -1;	                // default
+        sequence = 999;// default: use unrealizable and postive sequence no.
+                       // so that joints with unspecified HOME_SEQUENCE=
+                       // will not be homed in home-all
         jointIniFile->Find(&sequence, "HOME_SEQUENCE", jointString);
         volatile_home = 0;	        // default
         jointIniFile->Find(&volatile_home, "VOLATILE_HOME", jointString);

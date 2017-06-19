@@ -423,7 +423,7 @@ else
   AC_MSG_RESULT(not specified)
 fi
 
-AC_PROG_CC([$RTSCC gcc])
+AC_PROG_CC([$RTSCC gcc clang])
 AC_PROG_CPP()
 
 if test -z "$CC"; then
@@ -742,6 +742,12 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
 AC_SUBST([HALLIB_DIR])
+
+# coordinate installed auxiliary applications (not RIP or deb dependent):
+LINUXCNC_AUX_GLADEVCP=/usr/share/linuxcnc/aux_gladevcp
+LINUXCNC_AUX_EXAMPLES=/usr/share/linuxcnc/aux_examples
+AC_SUBST([LINUXCNC_AUX_GLADEVCP])
+AC_SUBST([LINUXCNC_AUX_EXAMPLES])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #

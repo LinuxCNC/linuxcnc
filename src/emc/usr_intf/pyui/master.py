@@ -67,11 +67,11 @@ class keyboard():
         self.widgets = {}
         self.r_c = {}
         self.config = ConfigObj(self.filename)
-        self.cmd = commands.CNC_COMMANDS(self)
         try:
             self.hal.setprefix(self.config['HAL_PREFIX']['NAME'])
         except:
             self.hal.setprefix('panelui')
+        self.cmd = commands.CNC_COMMANDS(self)
         for basewidget in self.config:
             if basewidget == 'HAL_PREFIX': continue
             DBG('\n List of %s:'% (basewidget),2 )

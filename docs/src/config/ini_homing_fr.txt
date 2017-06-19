@@ -21,7 +21,7 @@ configuration associés, la figure suivante donne le détail de ces séquences.
 [[fig:Sequences-de-prise-d-origine]]
 .Les séquences de POM possibles
 
-image::images/linuxcnc-motion-homing-diag_fr.png[]
+image::images/linuxcnc-motion-homing-diag_fr.png[alt="Les séquences de POM possibles"]
 
 
 . Comme on le voit sur la figure, les deux conditions de base sont les suivantes:

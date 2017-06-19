@@ -50,6 +50,7 @@ import gtk
 import gtk.glade
 import gobject
 import hal
+import errno
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
 import pango
@@ -617,7 +618,14 @@ class Gscreen:
         # check for a local theme gtkrc file
         localtheme = os.path.join(CONFIGPATH,'%s_theme'%self.skinname)
         if os.path.exists(localtheme):
+            print 'local theme path found'
             self.data.local_theme = 'Link to %s_theme'% self.skinname
+            # make ~/.themes - quietly ignore the error if it exists
+            try:
+                os.makedirs(userthemedir)
+            except OSError as exception:
+                if exception.errno != errno.EEXIST:
+                    raise
             # create systemlink because one can't store themes in an arbitrary folder.
             if not os.path.exists(userthemedir+'/%s'%self.data.local_theme):
                 os.symlink(localtheme,userthemedir+'/%s'%self.data.local_theme)
@@ -768,13 +776,6 @@ class Gscreen:
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
-
-        try:
-            self.widgets.gremlin.init_glcanondraw(
-                trajcoordinates = self.inifile.find("TRAJ", "COORDINATES"),
-                kinstype = self.inifile.find("KINS", "KINEMATICS"))
-        except:
-            print ("**** GSCREEN NOTE: could not init_glcanondraw for gremlin")
 
         # see if there are user messages in the ini file 
         self.message_setup()
@@ -1747,7 +1748,11 @@ class Gscreen:
             The search text string is set by text entry widget 'search_entry'.
             This is a callback function called by any named widget
         """
-        self.widgets.gcode_view.text_search(direction=True,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+        try:
+            CASE = self.widgets.ignorecase_checkbutton.get_active()
+        except:
+            CASE = True
+        self.widgets.gcode_view.text_search(direction=True,mixed_case=CASE,
                                 text=self.widgets.search_entry.get_text())
 
     def search_bwd(self,widget):
@@ -1757,7 +1762,11 @@ class Gscreen:
             The search text string is set by text entry widget 'search_entry'.
             This is a callback function called by any named widget
         """
-        self.widgets.gcode_view.text_search(direction=False,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+        try:
+            CASE = self.widgets.ignorecase_checkbutton.get_active()
+        except:
+            CASE = True
+        self.widgets.gcode_view.text_search(direction=False,mixed_case=CASE,
                                 text=self.widgets.search_entry.get_text())
 
     def replace_text(self,widget):
@@ -1769,9 +1778,17 @@ class Gscreen:
             The replace all option is set by widget 'replaceall_checkbutton' state
             This is a callback function called by any named widget
         """
-        self.widgets.gcode_view.replace_text_search(direction=True,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+        try:
+            CASE = self.widgets.ignorecase_checkbutton.get_active()
+        except:
+            CASE = True
+        try:
+            RE_ALL = self.widgets.replaceall_checkbutton.get_active()
+        except:
+            RE_ALL = False
+        self.widgets.gcode_view.replace_text_search(direction=True,mixed_case=CASE,
                                 text=self.widgets.search_entry.get_text(),re_text=self.widgets.search_entry1.get_text(),
-                                replace_all=self.widgets.replaceall_checkbutton.get_active())
+                                replace_all=RE_ALL)
 
     def undo_edit(self,widget):
         """This will undo one level of change in the gcode_view.
@@ -1822,7 +1839,11 @@ class Gscreen:
             method = self.keylookup.convert(keyname)
             if method:
                 try:
-                    return self.handler_instance[method](state,SHIFT,CNTRL,ALT)
+                    try:
+                        return self.handler_instance[method](state,SHIFT,CNTRL,ALT)
+                    except:
+                        self.show_try_errors()
+                        return self.handler_instance.keybindings[method](state,SHIFT,CNTRL,ALT)
                 except:
                     self.show_try_errors()
                     return self[method](state,SHIFT,CNTRL,ALT) 

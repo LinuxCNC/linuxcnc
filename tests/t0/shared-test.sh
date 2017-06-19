@@ -39,6 +39,7 @@ fi
         echo 'set mdi m100 P3 Q#5400'             # toolno
         echo 'set mdi m100 P4 Q#5403'             # TLO z
         echo 'set mdi m100 P5'                    # blank line
+        echo set wait done
     }
 
     echo hello EMC mt 1.0

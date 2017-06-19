@@ -157,6 +157,119 @@ exit in a short time, or call the '.exit()' method on the component
 if substantial work (such as reading or 
 writing files) must be done to complete the shutdown process.
 
+== Helpful Functions
+
+// === getparam
+
+// === getpin
+
+// === newparam
+
+// === newpin
+
+// === exit
+
+// === getitem
+
+// === getprefix
+
+// === ready
+
+// === setprefix
+
+// === get
+
+// === get_dir
+
+// === get_name
+
+// === get_type
+
+// === is_pin
+
+// === set
+
+=== component_exists
+
+Does the specified component exist at this time. +
+Example: +
+hal.component_exists("testpanel") +
+
+=== component_is_ready
+Is the specified component ready at this time. +
+Example: +
+hal.component_is_ready("testpanel") +
+
+// === get_msg_level
+
+// === set_msg_level
+
+=== connect
+
+Connect a pin to a signal. +
+example: +
+hal.connect("pinname","signal_name")
+
+=== new_signal
+Create a New signal of the type specified. +
+example" +
+hal.new_sig("signalname",hal.HAL_BIT)
+
+=== pin_has_writer
+
+Does the specified pin have a driving pin connected. +
+Returns True or False. +
+
+=== set_p
+
+Set a pin value. +
+example: +
+hal.set_p("pinname","10") +
+
+== Constants
+
+Use These To specify details rather then the value they hold.
+
+* HAL_BIT
+
+* HAL_FLOAT
+
+* HAL_S32
+
+* HAL_U32
+
+* HAL_IN
+
+* HAL_OUT
+
+* HAL_RO
+
+* HAL_RW
+
+* MSG_NONE
+
+* MSG_ALL
+
+* MSG_DBG
+
+* MSG_ERR
+
+* MSG_INFO
+
+* MSG_WARN
+
+== System Information
+
+Read these to aquire information about the realtime system.
+
+* is_kernelspace
+
+* is_rt
+
+* is_sim
+
+* is_userspace
+
 == Project ideas
 
 * Create an external control panel with buttons, switches, and

@@ -260,6 +260,7 @@ extern "C" {
 	double  orientation;    /* angle for spindle orient */
 	char    direction;      /* CANON_DIRECTION flag for spindle orient */
 	double  timeout;        /* of wait for spindle orient to complete */
+	unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move
 	unsigned char tail;	/* flag count for mutex detect */
         int arcBlendOptDepth;
         int arcBlendEnable;
@@ -457,6 +458,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	HOME_SEQUENCE_START,
 	HOME_SEQUENCE_START_JOINTS,
 	HOME_SEQUENCE_WAIT_JOINTS,
+	HOME_SEQUENCE_DO_ONE_JOINT,
+	HOME_SEQUENCE_DO_ONE_SEQUENCE,
     } home_sequence_state_t;
 
     typedef enum {
@@ -601,7 +604,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     
     typedef struct {
 	double pos_cmd;		/* commanded axis position */
-	double vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* comanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
 	double vel_limit;	/* upper limit of axis speed */
@@ -615,7 +618,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     } emcmot_axis_t;
 
     typedef struct {
-        double vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* comanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
     } emcmot_axis_status_t;

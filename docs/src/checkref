@@ -41,9 +41,9 @@ if [ $BAD_LINKS -eq 1 ]; then
     echo "***" 1>&2
     exit $RET_VAL
 else
-    echo "***"
-    echo "*** language: $LANGUAGE"
-    echo "*** all links are good!"
-    echo "***"
+    echo "###"
+    echo "### language: $LANGUAGE"
+    echo "### all links are good!"
+    echo "###"
 fi
 
