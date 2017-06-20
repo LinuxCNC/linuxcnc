@@ -118,18 +118,18 @@ def wait_for_pin_value(pin_name, target_value, timeout=2.0):
 
 def wait_for_joint_to_stop(joint_number):
     pos_pin = 'joint-%d-position' % joint_number
+    vel_pin = 'joint-%d-velocity' % joint_number
     start_time = time.time()
-    timeout = 2.0
     prev_pos = h[pos_pin]
     while (time.time() - start_time) < timeout:
         time.sleep(0.1)
         new_pos = h[pos_pin]
-        if new_pos == prev_pos:
+        if new_pos == prev_pos and h[vel_pin] == 0.0:
             log("joint %d stopped jogging" % joint_number)
             return
         prev_pos = new_pos
     log("Error: joint didn't stop jogging!")
-    log("joint %d is at %.3f %.3f seconds after reaching target (prev_pos=%.3f)" % (joint_number, h[pos_pin], timeout, prev_pos))
+    log("joint %d is at %.3f %.3f seconds after reaching target (prev_pos=%.3f, val=%.3f)" % (joint_number, h[pos_pin], timeout, prev_pos, h[vel_pin]))
     sys.exit(1)
 
 
@@ -286,23 +286,38 @@ print "%s starting at %.3f" % (name0, start_position0)
 print "%s starting at %.3f" % (name1, start_position1)
 print "%s starting at %.3f" % (name2, start_position2)
 
+
+#
+# start joint0 jogging in the positive direction
+#
+
 print "jogging %s positive using the private per-joint jog pins" % name0
 h[name0 + '-jog-plus'] = 1
 
 # wait for this joint to come up to speed
 start = time.time()
-timeout = 2
 while (h[name0 + '-velocity'] <= 0) and ((time.time() - start) < timeout):
     time.sleep(0.1)
 if h[name0 + '-velocity'] <= 0:
     print "%s did not start jogging" % name0
     sys.exit(1)
 
+
+#
+# start the selected joint1 jogging in the negative direction
+#
+
 print "jogging selected joint (%s) negative" % (name1)
 select_joint(name1)
 h['jog-selected-minus'] = 1
 
-time.sleep(2)
+# wait for this joint to start moving
+start = time.time()
+while (h[name1 + '-velocity'] >= 0) and ((time.time() - start) < timeout):
+    time.sleep(0.1)
+if h[name1 + '-velocity'] >= 0:
+    print "%s did not start jogging" % name1
+    sys.exit(1)
 
 if h[name0 + '-velocity'] <= 0:
     print "%s stopped jogging" % name0
@@ -328,7 +343,7 @@ start_velocity2 = h[name2 + '-velocity']
 print "selecting %s" % name2
 select_joint(name2)
 
-time.sleep(2)
+wait_for_joint_to_stop(1)
 
 if h[name0 + '-velocity'] <= 0:
     print "%s stopped jogging" % name0
@@ -351,7 +366,7 @@ start_velocity2 = h[name2 + '-velocity']
 print "stopping jog"
 h['jog-selected-minus'] = 0
 
-time.sleep(2)
+wait_for_joint_to_stop(2)
 
 if h[name0 + '-velocity'] <= 0:
     print "%s stopped jogging" % name0
