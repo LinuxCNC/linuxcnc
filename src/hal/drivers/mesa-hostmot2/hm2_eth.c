@@ -377,7 +377,7 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
         return ret;
     }
 
-    ret = rtapi_do_as_root(ioctl_siocsarp, board);
+    ret = ioctl_siocsarp(board);
     if(ret < 0) {
         perror("ioctl SIOCSARP");
         board->req.arp_flags &= ~ATF_PERM;
@@ -400,7 +400,7 @@ static int close_board(hm2_eth_t *board) {
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
-        int ret = rtapi_do_as_root(ioctl_siocdarp, board);
+        int ret = ioctl_siocdarp(board);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
     int ret = shutdown(board->sockfd, SHUT_RDWR);
