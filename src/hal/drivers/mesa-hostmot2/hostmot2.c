@@ -1367,6 +1367,12 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         name[8] = '\0';
 
         if (strncmp(name, HM2_CONFIGNAME, 9) != 0) {
+            int i;
+            // Prevent non-printable characters messing up the terminal
+            for (i = 0; i < 8; i++) {
+                if (!isprint(name[i]))
+                    name[i] = '?';
+            }
             HM2_ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME);
             r = -EINVAL;
             goto fail0;
