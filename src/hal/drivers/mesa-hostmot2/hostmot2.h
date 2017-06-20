@@ -268,6 +268,7 @@ typedef struct {
             hal_s32_t *rawlatch;     // raw encoder of latch
             hal_s32_t *count;        // (rawcounts - zero_offset)
             hal_s32_t *count_latch;  // (rawlatch - zero_offset)
+            hal_float_t *raw_position;
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *velocity;

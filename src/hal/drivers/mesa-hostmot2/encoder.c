@@ -451,6 +451,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.raw-position", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.raw_position), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.position", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position), hm2->llio->comp_id);
             if (r < 0) {
@@ -687,6 +694,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         *hm2->encoder.instance[i].hal.pin.count = 0;
         *hm2->encoder.instance[i].hal.pin.count_latch = 0;
         *hm2->encoder.instance[i].hal.pin.position = 0.0;
+        *hm2->encoder.instance[i].hal.pin.raw_position = 0.0;
         *hm2->encoder.instance[i].hal.pin.position_latch = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
         *hm2->encoder.instance[i].hal.pin.quadrature_error = 0;
@@ -854,6 +862,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
 
     *e->hal.pin.position = *e->hal.pin.count / e->hal.param.scale;
     *e->hal.pin.position_latch = *e->hal.pin.count_latch / e->hal.param.scale;
+    *e->hal.pin.raw_position = *e->hal.pin.rawcounts / e->hal.param.scale;
 }
 
 

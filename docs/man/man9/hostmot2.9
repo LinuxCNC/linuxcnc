@@ -319,6 +319,13 @@ Number of encoder counts since the previous reset.
 Encoder position in position units (count / scale).
 
 .TP
+(float out) raw-position
+"Raw" encoder position in position units (rawcounts / scale).  Since the
+value on the rawcounts pin is not reset to zero by an index-enabled
+index pulse, the value on the raw-position pin is also unaffected by
+index-enabled index.
+
+.TP
 (float out) velocity
 Estimated encoder velocity in position units
 per second.
