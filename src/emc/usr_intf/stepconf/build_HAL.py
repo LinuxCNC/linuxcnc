@@ -337,7 +337,7 @@ class HAL:
                 print >>file, _("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI")
                 print >>file, "loadusr classicladder --nogui custom.clp"
         if self.d.pyvcp:
-            vcp = os.path.join(base, "custompanel.xml")
+            vcp = os.path.join(base, self.d.pyvcpname)
             if not os.path.exists(vcp):
                 f1 = open(vcp, "w")
 

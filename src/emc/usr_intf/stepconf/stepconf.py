@@ -32,7 +32,7 @@ from gi.repository import Gdk
 import sys
 import os
 from optparse import Option, OptionParser
-import hal
+
 import xml.dom.minidom
 import hashlib
 import math
@@ -165,7 +165,7 @@ class Data:
 
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
-        self.pyvcp = 0 # not included
+        self.pyvcp = 1 # default include
         self.pyvcpname = "blank.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
@@ -610,6 +610,9 @@ class StepconfApp:
         dbg = self.dbg
         self.program_path = BASE
         self.distdir = distdir
+        # For axis test
+        self.jogminus = 0
+        self.jogplus = 0
 
         self.icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
         self.linuxcncicon = os.path.join(self.icondir, "linuxcncicon.png")
@@ -669,32 +672,7 @@ class StepconfApp:
         if not debug: return
         print "DEBUG: %s"%str
 
-    # Check for realtime-capable LinuxCNC.
-    # Returns True if the running version of LinuxCNC is realtime-capable
-    # (or if debug is enabled), returns False otherwise.
-    def check_for_rt(self):
-        is_realtime_capable = False
-        try:
-            if hal.is_sim:
-                self.warning_dialog(MESS_NO_REALTIME,True)
-            elif hal.is_rt:
-                if hal.is_kernelspace:
-                    actual_kernel = os.uname()[2]
-                    if hal.kernel_version == actual_kernel:
-                        is_realtime_capable = True
-                    else:
-                        self.warning_dialog(MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
-                else:
-                    is_realtime_capable = True
-        except:
-            print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
-            print sys.exc_info()
-            return True
 
-        if is_realtime_capable or debug:
-            return True
-        else:
-            return False
 
     # pop up dialog
     def warning_dialog(self,message,is_ok_type):

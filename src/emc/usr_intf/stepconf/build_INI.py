@@ -95,7 +95,7 @@ class INI:
         else:
             print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
         if self.d.pyvcp:
-            print >>file, "PYVCP = custompanel.xml"
+            print >>file, "PYVCP = %s" % self.d.pyvcpname
         if self.d.axes == 2:
             print >>file, "LATHE = 1"
         if self.d.axes == 3:

@@ -252,25 +252,6 @@ class Pages:
 	def intro_finish(self):
 		pass
 
-	#*********************
-	# General Axis methods and callbacks
-	#*********************
-	def on_jogminus_pressed(self, *args):
-		self.a.jogminus = 1
-		self.a.update_axis_test()
-	
-	def on_jogminus_released(self, *args):
-		self.a.jogminus = 0
-		self.a.update_axis_test()
-	
-	def on_jogplus_pressed(self, *args):
-		self.a.jogplus = 1
-		self.a.update_axis_test()
-	def on_jogplus_released(self, *args):
-		self.a.jogplus = 0
-		self.a.update_axis_test()
-	
-
 
 # BOILER CODE
 	def __getitem__(self, item):

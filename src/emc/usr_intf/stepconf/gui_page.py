@@ -29,7 +29,7 @@ def gui_page_prepare(self):
     self.on_gui_pyvcp_toggled()
     if  not self.w.createconfig.get_active():
         if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
-            self.w.gui_rdo_pyvcp_custom.set_active(True)
+            self.w.gui_rdo_custom_pyvcp.set_active(True)
     self.w.gui_select_axis.set_active(self.d.select_axis)
     self.w.gui_select_gmoccapy.set_active(self.d.select_gmoccapy)
     self.w.ladderconnect.set_active(self.d.ladderconnect)
@@ -57,13 +57,10 @@ def gui_page_finish(self):
     self.d.pyvcp = self.w.gui_pyvcp.get_active()
     self.d.pyvcpconnect = self.w.gui_pyvcpconnect.get_active()    
     if self.d.pyvcp == True:
-        if self.w.gui_rdo_pyvcp_blank.get_active() == True:
-            self.d.pyvcpname = "blank.xml"
-            self.pyvcphaltype = 0
-        if self.w.gui_rdo_pyvcp_spindle.get_active() == True:
-            self.d.pyvcpname = "spindle.xml"
+        if self.w.gui_rdo_default_pyvcp.get_active() == True:
+            self.d.pyvcpname = "default_panel.xml"
             self.d.pyvcphaltype = 1
-        if self.w.gui_rdo_pyvcp_custom.get_active() == True:
+        if self.w.gui_rdo_custom_pyvcp.get_active() == True:
             self.d.pyvcpname = "custompanel.xml"
         else:
             if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
@@ -72,9 +69,7 @@ def gui_page_finish(self):
     # Gladevcp
     self.d.gladevcp = self.w.gui_gladevcp.get_active()        
     if self.d.gladevcp == True:
-        if self.w.gui_rdo_gladevcp_blank.get_active() == True:
-            self.d.gladevcpname = "blank.ui"
-        if self.w.gui_rdo_default_display.get_active() == True:
+        if self.w.gui_rdo_default_gladevcp.get_active() == True:
             self.d.gladevcpname = "glade_default.ui"
         if self.w.gui_rdo_custom_galdevcp.get_active() == True:
             self.d.gladevcpname = "glade_custom.ui"
@@ -136,7 +131,7 @@ def on_show_gladepvc_clicked(self,*args):
     self.test_glade_panel(self)
 
 def on_show_pyvcp_clicked(self,*args):
-    self.testpanel(self)		
+    self.testpanel(self)
 
 def on_gui_gladevcp_toggled(self,*args):
     # TODO
@@ -150,9 +145,9 @@ def on_gui_gladevcp_toggled(self,*args):
 def on_gui_pyvcp_toggled(self,*args):
     i= self.w.gui_pyvcp.get_active()
     if  self.w.createconfig.get_active():
-        self.w.gui_rdo_pyvcp_custom.set_sensitive(False)
+        self.w.gui_rdo_custom_pyvcp.set_sensitive(False)
     else:
-        self.w.gui_rdo_pyvcp_custom.set_sensitive(i)
+        self.w.gui_rdo_custom_pyvcp.set_sensitive(i)
     self.w.gui_pyvcp_box.set_sensitive(i)
 
 """
@@ -175,47 +170,238 @@ def get_installed_themes(self):
     self.widgets.touchytheme.set_active(temp2)
 """
 
-#***************
-# GLADEVCP TEST
-#***************
-def test_glade_panel(self,w):
-    panelname = os.path.join(self.a.distdir, "configurable_options/gladevcp")
-    if self.w.gui_rdo_gladevcp_blank.get_active() == True:
-        print 'no sample requested'
-        return True
-    if self.w.gui_rdo_default_display.get_active() == True:
-        self.gladevcptestpanel(w)
-        self.display_gladevcp_panel()
-    if self.w.gui_rdo_custom_galdevcp.get_active() == True:
-        None
-	
+"""
+        halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
+        if self.a.debug:
+            halrun.write("echo\n")
+        halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{
+                        'size':size,'pos':pos,'option':options})
+        if self.w.spindlespeedbar.get_active():
+            halrun.write("setp displaytest.spindle-speed 500\n")
+        if self.w.zerox.get_active():
+            halrun.write("setp displaytest.zero-x-active true\n")
+        if self.w.zeroy.get_active():
+            halrun.write("setp displaytest.zero-y-active true\n")
+        if self.w.zeroz.get_active():
+            halrun.write("setp displaytest.zero-z-active true\n")
+        if self.w.zeroa.get_active():
+            halrun.write("setp displaytest.zero-a-active true\n")
+        if self.w.autotouchz.get_active():
+            halrun.write("setp displaytest.auto-touch-z-active true\n")
+        if self.w.spindleatspeed.get_active():
+            halrun.write("setp displaytest.spindle-at-speed-led true\n")
+        halrun.write("setp displaytest.button-box-active true\n")
+"""
 #***************
 # PYVCP TEST
 #***************
 def testpanel(self,w):
     panelname = os.path.join(self.a.distdir, "configurable_options/pyvcp")
-    if self.w.gui_rdo_pyvcp_blank.get_active() == True:
-        print 'no sample requested'
-        return True
-    if self.w.gui_rdo_pyvcp_spindle.get_active() == True:
-        panel = "default_panel.glade"
-    if self.w.gui_rdo_pyvcp_custom.get_active() == True:
+    if self.w.gui_rdo_default_pyvcp.get_active() == True:
+        panel = "pyvcp_test.xml"
+        # Prepare file
+        self.pyvcptestpanel(self)
+        folder = "/tmp"
+        halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
+        if self.a.debug:
+            halrun.write("echo\n")
+        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
+    if self.w.gui_rdo_custom_pyvcp.get_active() == True:
         panel = "custompanel.xml"
         panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
         halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
-    if self.w.gui_rdo_pyvcp_spindle.get_active() == True:
-        halrun.write("setp displaytest.spindle-speed 1000\n")
+    #if self.w.gui_rdo_pyvcp_spindle.get_active() == True:
+    #    halrun.write("setp displaytest.spindle-speed 1000\n")
     halrun.write("waitusr displaytest\n")
     halrun.flush()
     halrun.close()
+
+def pyvcptestpanel(self, w):
+    directory = "/tmp/"
+    filename = os.path.join(directory, "pyvcp_test.xml")
+    file = open(filename, "w")
+    print >>file, ("""<?xml version="1.0"?>
+<pyvcp>
+<labelframe text="Jog Buttons">
+	<font>("Helvetica",16)</font>
+	<!-- the X jog buttons -->
+	<hbox>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>3</width>
+		<halpin>"x-plus"</halpin>
+		<text>"X+"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>3</width>
+		<halpin>"x-minus"</halpin>
+		<text>"X-"</text>
+		</button>
+	</hbox>
+	<!-- the Y jog buttons -->
+	<hbox>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>3</width>
+		<halpin>"y-plus"</halpin>
+		<text>"Y+"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>3</width>
+		<halpin>"y-minus"</halpin>
+		<text>"Y-"</text>
+		</button>
+	</hbox>
+	<!-- the Z jog buttons -->
+	<hbox>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>3</width>
+		<halpin>"z-plus"</halpin>
+		<text>"Z+"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>3</width>
+		<halpin>"z-minus"</halpin>
+		<text>"Z-"</text>
+		</button>
+	</hbox>
+	<!-- the jog speed slider -->
+	<vbox>
+		<relief>RAISED</relief>
+		<bd>3</bd>
+		<label>
+		<text>"Jog Speed"</text>
+		<font>("Helvetica",16)</font>
+		</label>
+		<scale>
+		<font>("Helvetica",14)</font>
+		<halpin>"jog-speed"</halpin>
+		<resolution>1</resolution>
+		<orient>HORIZONTAL</orient>
+		<min_>0</min_>
+		<max_>1800</max_>
+		</scale>
+	</vbox>
+</labelframe>
+<!-- nullpunkt -->
+<labelframe text="G54 set zero">
+	<font>("Helvetica",16)</font>
+	<hbox>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>2</width>
+		<halpin>"x-null"</halpin>
+		<text>"X=0"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>2</width>
+		<halpin>"y-null"</halpin>
+		<text>"Y=0"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>2</width>
+		<halpin>"z-null"</halpin>
+		<text>"Z=0"</text>
+		</button>
+	</hbox>
+</labelframe>
+<!-- Go to zero -->
+<labelframe text="Go to zero">
+	<font>("Helvetica",16)</font>
+	<hbox>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>2</width>
+		<halpin>"x-zero"</halpin>
+		<text>"-X-"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>2</width>
+		<halpin>"y-zero"</halpin>
+		<text>"-Y-"</text>
+		</button>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>2</width>
+		<halpin>"z-zero"</halpin>
+		<text>"-Z-"</text>
+		</button>
+	</hbox>
+	<hbox>
+		<button>
+		<font>("Helvetica",20)</font>
+		<width>12</width>
+		<halpin>"sleeping-position"</halpin>
+		<text>"Sleeping position"</text>
+		</button>
+	</hbox>
+</labelframe>
+<!-- Tool length sensor -->
+<labelframe text="Tool length sensor">
+<font>("Helvetica",16)</font>
+	<hbox>
+		<button>
+		<!-- G30.1 -->
+		<font>("Helvetica",12)</font>
+		<width>8</width>
+		<halpin>"set-sensor-position"</halpin>
+		<text>"Set position"</text>
+		</button>
+		<button>
+		<!-- G30 -->
+		<font>("Helvetica",12)</font>
+		<width>8</width>
+		<halpin>"goto-sensor-position"</halpin>
+		<text>"Go to position"</text>
+		</button>
+	</hbox>
+	<hbox>
+		<button>
+		<font>("Helvetica",16)</font>
+		<width>12</width>
+		<halpin>"standard-sensor-position"</halpin>
+		<text>"Standard position"</text>
+		</button>
+	</hbox>
+	<hbox>
+		<button>
+		<font>("Helvetica",12)</font>
+		<width>8</width>
+		<halpin>"probe"</halpin>
+		<text>"Probe"</text>
+		</button>
+	</hbox>
+</labelframe>
+</pyvcp>
+""")
+    file.close()
+
+#***************
+# GLADEVCP TEST
+#***************
+def test_glade_panel(self,w):
+    panelname = os.path.join(self.a.distdir, "configurable_options/gladevcp")
+    if self.w.gui_rdo_default_gladevcp.get_active() == True:
+        self.gladevcptestpanel(w)
+        self.display_gladevcp_panel()
+    if self.w.gui_rdo_custom_galdevcp.get_active() == True:
+        None
+
 
 def display_gladevcp_panel(self):
         pos = "+0+0"
         size = "200x200"
         options = ""
         folder = "/tmp"
-        if not self.w.createconfig.get_active() and self.w.gladeexists.get_active():
+        if not self.w.createconfig.get_active():
             folder = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
             if not os.path.exists(folder + "/gvcp-panel.ui"):
                 self.a.warning_dialog (_("""You specified there is an existing gladefile, \
