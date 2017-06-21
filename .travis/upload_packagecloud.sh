@@ -32,5 +32,7 @@ if [ "${TRAVIS_TEST_RESULT}" -eq 0 ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ] \
     if [ "${MARCH}" = "64" ]; then
         package_cloud push ${repo} ${TRAVIS_BUILD_DIR}/deploy/*dsc
     fi
+else
+    echo "Package upload skipped"
 fi    
 
