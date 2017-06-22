@@ -70,7 +70,8 @@ int get_rpi_revision(void)
             (strcmp(revision, "1000006") == 0 ))
       return 2;
    else if ((strcmp(revision, "a01041") == 0) ||
-            (strcmp(revision, "a21041") == 0 ))
+            (strcmp(revision, "a21041") == 0) ||
+	    (strcmp(revision, "a22042") == 0))
       return 3;
    else if ((strcmp(revision, "a22082") == 0) ||
 	    (strcmp(revision, "a02082") == 0))
