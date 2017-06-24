@@ -1,0 +1,29 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+
+# HAL connections for Panel Display (space holders)
+net hy-SetF <= spindle-vfd.SetF
+net hy-Rott <= spindle-vfd.Rott 
+net hy-OutF <= spindle-vfd.OutF 
+net hy-OutA <= spindle-vfd.OutA 
+net hy-Rott => gladevcp.hal_meter1
+net hy-OutA => gladevcp.hal_meter2
+
+#SPINDLE ON SPEED
+loadrt near
+addf near.0 servo-thread
+net hy-SetF => near.0.in1
+net hy-OutF => near.0.in2
+net hy-tmp <= near.0.out
+setp near.0.scale 1.01
+loadrt and2
+addf and2.0 servo-thread
+net hy-tmp => and2.0.in0
+net hy-spindle-on => and2.0.in1
+net spindle-at-speed <= and2.0.out
+
+#warte auf Spindel
+net spindle-at-speed => motion.spindle-at-speed
+
+# now enable the VFD after EMC is up and running
+setp spindle-vfd.enable 1
