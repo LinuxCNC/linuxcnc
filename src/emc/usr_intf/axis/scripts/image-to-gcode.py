@@ -36,6 +36,10 @@ import operator
 
 epsilon = 1e-5
 
+def tobytes(img):
+    if hasattr(img, 'tobytes'): return img.tobytes()
+    return img.tostring()
+
 def ball_tool(r,rad):
     s = -sqrt(rad**2-r**2)
     return s
@@ -753,7 +757,7 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numpy.fromstring(im.tostring(), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
+    nim = numpy.fromstring(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']
