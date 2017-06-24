@@ -1,0 +1,6 @@
+An Axis based sim for use of Haunyang VFD
+
+Donated by Otto Meister <42qwertzu@gmail.com>
+
+This sim will NOT work if you do not have the hardware, because the driver
+requires to be able to make contact on serial port with the VFD.

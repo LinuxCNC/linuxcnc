@@ -1,0 +1,5 @@
+User Otto Meister <42qwertzu@gmail.com> reports that these config fragments from Linuxcnc 
+do not really assist much and has donated a sim config 
+showing the use of the hy_vfd driver with Machinekit
+
+Located under Sample Configurations/sim/Axis/hy_vfd
