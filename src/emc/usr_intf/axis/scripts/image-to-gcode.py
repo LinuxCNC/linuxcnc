@@ -23,7 +23,10 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import gettext;
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import Image
+try:
+    from PIL import Image
+except:
+    import Image
 
 import numpy.core
 plus_inf = numpy.core.Inf
