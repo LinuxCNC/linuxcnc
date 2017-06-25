@@ -23,7 +23,10 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import gettext;
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import Image
+try:
+    from PIL import Image
+except:
+    import Image
 
 import numpy.core
 plus_inf = numpy.core.Inf
@@ -35,6 +38,10 @@ from math import *
 import operator
 
 epsilon = 1e-5
+
+def tobytes(img):
+    if hasattr(img, 'tobytes'): return img.tobytes()
+    return img.tostring()
 
 def ball_tool(r,rad):
     s = -sqrt(rad**2-r**2)
@@ -753,7 +760,7 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numpy.fromstring(im.tostring(), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
+    nim = numpy.fromstring(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']
