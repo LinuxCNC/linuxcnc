@@ -91,6 +91,7 @@ else
 fi
 
 PYTHON_PACKAGING=dh_pysupport
+PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
 
 case $DISTRIB_NAME in
 Ubuntu-14.*|Ubuntu-15.04|LinuxMint-17.*) # Trusty Tahr (LTS) through Vivid
@@ -120,11 +121,13 @@ Debian-testing)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
+        PYTHON_GST=
 	;;
 Debian-9.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python,asciidoc-dblatex
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
+        PYTHON_GST=
         ;;
 Debian-8.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
@@ -206,6 +209,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
     -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
     -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
+    -e "s|@PYTHON_GST@|$PYTHON_GST|g" \
     -e "s|@PYTHON_PACKAGING@|$PYTHON_PACKAGING|g" \
     $*
 }
