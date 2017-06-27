@@ -8,6 +8,11 @@ and therefore does not require keyboard or mouse.
 It is meant to be used with a touch screen, and works in combination
 with a wheel/MPG and a few buttons and switches.
 
+The 'Handwheel' tab has radio buttons to select between 'Feed Override',
+'Spindle Override', 'Maximum Velocity' and 'Jogging' functions for the wheel/MPG
+input. Radio buttons for axis selection and increment for jogging are also
+provided.
+
 .Touchy
 
 image::images/touchy.png[align="center"]
