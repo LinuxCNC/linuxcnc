@@ -176,8 +176,10 @@ help1 = [
     ("Y", _("Activate second axis")),
     ("Z", _("Activate third axis")),
     ("A", _("Activate fourth axis")),
-    ("`,1..8", _("Activate first through ninth joint")),
+    ("` or 0,1..8", _("Activate first through ninth joint")),
+    ("", _("if joints radiobuttons visible")),
     ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
+    ("", _("if axes radiobuttons visible")),
     (_(", and ."), _("Select jog speed")),
     (_("< and >"), _("Select angular jog speed")),
     (_("I, Shift-I"), _("Select jog increment")),
@@ -2930,19 +2932,12 @@ def set_rapidrate(n):
 
 def activate_ja_widget_or_set_feedrate(jora):
     # note: call with integers only
-    if manual_ok():
-        if joints_mode():
-            activate_ja_widget(jora)
-            return
-        if not joints_mode():
-            if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                activate_ja_widget(jora)
-                return
-            else:
-                return # ignore number (no teleop letter correspondence)
+    if joints_mode() and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        if jora == 10: jora = 0
+        activate_ja_widget(jora,True)
+        return
     else:
         set_feedrate(10*jora)
-    return
 
 def nomodifier(f):
     def g(event):
@@ -2993,9 +2988,9 @@ root_window.bind("5", lambda event: activate_ja_widget_or_set_feedrate(5))
 root_window.bind("6", lambda event: activate_ja_widget_or_set_feedrate(6))
 root_window.bind("7", lambda event: activate_ja_widget_or_set_feedrate(7))
 root_window.bind("8", lambda event: activate_ja_widget_or_set_feedrate(8))
+root_window.bind("9", lambda event: activate_ja_widget_or_set_feedrate(9))
+root_window.bind("0", lambda event: activate_ja_widget_or_set_feedrate(10))
 
-root_window.bind("9", lambda event: set_feedrate(90))
-root_window.bind("0", lambda event: set_feedrate(100))
 root_window.bind("c", lambda event: jogspeed_continuous())
 root_window.bind("d", lambda event: widgets.rotate.invoke())
 root_window.bind("i", lambda event: jogspeed_incremental())

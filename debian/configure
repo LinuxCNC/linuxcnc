@@ -153,7 +153,10 @@ PYTHON_PACKAGING=dh_python2
 TCLTK_VERSION=8.6
 
 case $DISTRIB_NAME in
-Debian-[89].*|Debian-testing|Raspbian-[89].*) # Jessie, Stretch
+Debian-9.*|Raspbian-9.*|Debian-testing) # Stretch
+        DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
+        ;;
+Debian-9.*|Raspbian-8.*) # Jessie
         ;;
 Debian-7.*|Raspbian-7) # Wheezy
         EXTRA_BUILD=libgnomeprintui2.2-dev
