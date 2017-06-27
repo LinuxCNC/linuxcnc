@@ -1337,7 +1337,7 @@ widgets.axis_y.configure(value="y")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and trivkinstype == "both")):
+    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_BOTH)):
         # free jogging (joints) if:
         #   non-trivkins config or
         #   trivkins config and kinstype = both
@@ -1831,7 +1831,7 @@ def ja_from_rbutton():
         # joint jogging
         if lathe_historical_config():
             a = "xyzabcuvw".index(ja)
-        elif kins_is_trivkins and trivkinstype == "single":
+        elif kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             # note: if duplicate_coord_letters,
             #       use index for first occurrence of the letter
             a = trajcoordinates.index(ja)
@@ -3392,13 +3392,9 @@ kins_is_trivkins = False
 if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
-    trivkinstype = "single"
     for item in kinsmodule.split():
         if "coordinates=" in item:
             trivkinscoords = item.split("=")[1]
-        if "kinstype=" in item:
-            trivkinstype = item.split("=")[1].lower()
-            if trivkinstype=="1": trivkinstype = "single"
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
