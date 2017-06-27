@@ -163,9 +163,20 @@ class Data:
         self.pp3_direction = 0 # output
         self.number_pports = 1
 
+        self.halui = 0
+        self.halui_list = []
+        self.halui_custom = 0
+        self.halui_list_custom = []
+
+        self.hal_postgui = 0
+        self.hal_postgui_list = []
+        self.hal_postgui_custom = 0
+        self.hal_postgui_list_custom = []
+
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
         self.pyvcp = 1 # default include
+        self.pyvcptype = 0 # include default pyvcp gui
         self.pyvcpname = "blank.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
@@ -257,7 +268,7 @@ class Data:
             p = 'pp2_pin%d_in_inv' % pin
             self[p] = 0
 
-        for i in ('x','y','z','u','v'):
+        for i in ('x','y','z','a', 'u','v'):
              self[i+'steprev'] = 200
              self[i+'microstep'] = 2
              self[i+'pulleynum'] = 1
@@ -315,10 +326,6 @@ class Data:
         self.s32out = 10
         self.floatsin = 10
         self.floatsout = 10
-        self.halui = 0
-        self.halui_list = []
-        self.halui_custom = 0
-        self.halui_list_custom = []
         self.createsymlink = 1
         self.createshortcut = 1
 
@@ -378,7 +385,7 @@ class Data:
     # This only sets data that makes sense to change eg gear ratio don't change
     def set_axis_unit_defaults(self, units=False):
         if units: # imperial
-            for i in ('x','y','z','u','v'):
+            for i in ('x','y','z','a','u','v'):
                 self[i+'maxvel'] = 1
                 self[i+'maxacc'] = 30
                 self[i+'homevel'] = .05
@@ -390,7 +397,7 @@ class Data:
                     self.zminlim = -4
                     self.zmaxlim = 0
         else: # metric
-            for i in ('x','y','z','u','v'):
+            for i in ('x','y','z','a','u','v'):
                 self[i+'maxvel'] = 25
                 self[i+'maxacc'] = 750
                 self[i+'homevel'] = 1.5
@@ -700,7 +707,6 @@ class StepconfApp:
     # check for spindle output signals
     def has_spindle_speed_control(self):
         d = self.d
-        SIG = self._p
 
         # Check pp1 for output signals
         pp1_check =  d_hal_output[PWM] in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
@@ -718,7 +724,6 @@ class StepconfApp:
         return False
 
     def has_spindle_encoder(self):
-        SIG = self._p
         d = self.d
 
         # pp1 input pins

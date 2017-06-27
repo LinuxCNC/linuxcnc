@@ -142,7 +142,8 @@ class INI:
         print >>file
         print >>file, "[RS274NGC]"
         print >>file, "PARAMETER_FILE = linuxcnc.var"
-
+        subroutine_path = os.path.expanduser("~/linuxcnc/configs/%s" % (self.d.machinename))
+        print >>file, "SUBROUTINE_PATH = ncsubroutines:%s" % subroutine_path
         base_period = self.d.ideal_period()
 
         print >>file
@@ -166,11 +167,12 @@ class INI:
            print >>file
            print >>file, "[HALUI]"
            print >>file, _("# add halui MDI commands here (max 64) ")
+           # First put standard mdi_command
+           for mdi_command in self.d.halui_list:
+               print >>file, "MDI_COMMAND = %s" % mdi_command
+           # Then custom command
            if(self.d.halui_custom):
                for mdi_command in self.d.halui_list_custom:
-                   print >>file, "MDI_COMMAND = %s" % mdi_command
-           if(self.d.halui):
-               for mdi_command in self.d.halui_list:
                    print >>file, "MDI_COMMAND = %s" % mdi_command
 
         print >>file

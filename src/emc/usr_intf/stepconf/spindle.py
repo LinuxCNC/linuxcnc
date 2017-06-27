@@ -22,7 +22,6 @@
 # SPINDLE PAGE
 #*********
 def spindle_prepare(self):
-	SIG = self._p
 	self.w['spindlecarrier'].set_text("%s" % self.d.spindlecarrier)
 	self.w['spindlespeed1'].set_text("%s" % self.d.spindlespeed1)
 	self.w['spindlespeed2'].set_text("%s" % self.d.spindlespeed2)

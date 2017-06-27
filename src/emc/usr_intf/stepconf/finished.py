@@ -89,17 +89,45 @@ def save(self,basedir):
 			else:
 				print "Master or temp ladder files missing from configurable_options dir"
 
-	if self.d.pyvcp and not self.d.pyvcpname == "custompanel.xml":                
-		panelname = os.path.join(self.a.distdir, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
-		originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)
-		if os.path.exists(panelname):     
+	if self.d.pyvcp:
+		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.pyvcpname))
+		#self.d.pyvcpname == "custompanel.xml":
+		#panelname = os.path.join(self.a.distdir, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
+		if(self.d.pyvcphaltype == 0): # custom panel
 			if os.path.exists(originalname):
 				 print "custom PYVCP file already exists"
-				 shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.d.machinename) ) 
-				 print "made backup of existing custom"
-			shutil.copy( panelname,originalname)
-			print "copied PYVCP program to usr directory"
-			print"%s" % panelname
+			else:
+				file = open(originalname, "w")
+				print >>file, ("""<?xml version="1.0"?>
+<pyvcp>
+</pyvcp>
+""")
+			print "create PYVCP program to usr directory"
+			print"%s" % self.d.pyvcpname
+		elif(self.d.pyvcphaltype == 1): # default panel
+			# Create default panel
+			self.create_pyvcp_panel(originalname)
+			# Subroutine
+			subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, "pyvcp_probe.ngc"))
+			fngc = open(subroutine, "w")
+			print >>fngc, ("""
+o<pyvcp_probe> sub
+(Set Z Zero for G54 coordinate)
+	G53 G0 X558 Y6 Z70
+	G49 (Delete any reference)
+	G38.2 Z0 F200
+	G91 G0 Z1 (Off the switch)
+	(try again at lower speed)
+	G90
+	G38.2 Z0 F15
+	G91 G0 Z1 (Off the switch)
+	#1000=#5063 (save reference tool length)
+	(print,reference length is #1000)
+	(G54 G10 L20 P1 Z[#1000])
+	G54 G10 L20 P1 Z[35.0] (switch height)
+	G90 (done)
+o<pyvcp_probe> endsub
+""")
 		else:
 			print "Master PYVCP files missing from configurable_options dir"
 

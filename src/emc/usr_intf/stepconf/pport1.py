@@ -86,9 +86,9 @@ def pport1_finish(self):
 	else:
 		# Other selected
 		self.d.pport1_preset = 0
-		return
-	
 	self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
+	#print (self.a.has_spindle_speed_control())
+	#print (self.a.has_spindle_encoder())
 
 # pport1 callbacks
 def on_exclusive_check_pp1(self, widget):
