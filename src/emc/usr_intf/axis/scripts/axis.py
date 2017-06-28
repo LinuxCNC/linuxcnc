@@ -1352,10 +1352,13 @@ def activate_ja_widget(i, force=0):
         # letters are special case for key bindings
         if isinstance(i, basestring):
             letter = i
-        elif lathe and not lathe_historical_config()and not all_homed():
-            letter = "xzabcuvw"[i]
-        else:
+        elif not get_jog_mode():
             letter = "xyzabcuvw"[i]
+        else:
+            if lathe_historical_config():
+                if i == 1: return
+                if i > 1: i = i-1
+            letter = trajcoordinates[i]
         if letter in trajcoordinates:
             widget = getattr(widgets, "axis_%s" % letter)
         else:
