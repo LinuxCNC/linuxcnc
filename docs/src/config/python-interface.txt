@@ -231,7 +231,11 @@ actual joint positions.
 Desired joint positions.
 
 *kinematics_type*:: '(returns integer)' -
-identity=1, serial=2, parallel=3, custom=4 .
+The type of kinematics.  One of:
+    * KINEMATICS_IDENTITY
+    * KINEMATICS_FORWARD_ONLY
+    * KINEMATICS_INVERSE_ONLY
+    * KINEMATICS_BOTH
 
 *limit*:: '(returns tuple of integers)' -
 axis limit masks. minHardLimit=1,
