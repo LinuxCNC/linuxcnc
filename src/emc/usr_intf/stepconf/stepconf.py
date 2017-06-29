@@ -179,7 +179,7 @@ class Data:
         self.pyvcptype = 0 # include default pyvcp gui
         self.pyvcpname = "blank.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
-        self.pyvcpconnect = 1 # HAL connections allowed
+        #self.pyvcpconnect = 1 # HAL connections allowed
 
         # gladevcp data
         self.gladevcp = False # not included
@@ -206,6 +206,12 @@ class Data:
         self.gladevcpypos = 0
         self.gladevcptheme = "Follow System Theme"
         self.gladevcpname = "blank.ui"
+        
+        # Position of probe switch
+        self.probe_x = 558
+        self.probe_y = 6
+        self.probe_z = 70
+        self.probe_height = 35.0 # mm
 
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present

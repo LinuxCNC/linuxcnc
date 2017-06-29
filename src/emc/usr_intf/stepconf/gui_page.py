@@ -31,7 +31,6 @@ def gui_page_prepare(self):
 	self.w.gui_select_axis.set_active(self.d.select_axis)
 	self.w.gui_select_gmoccapy.set_active(self.d.select_gmoccapy)
 	self.w.ladderconnect.set_active(self.d.ladderconnect)
-	self.w.gui_pyvcpconnect.set_active(self.d.pyvcpconnect)
 	# Gladevcp
 	self.w.gui_gladevcp.set_active(self.d.gladevcp)
 	self.w.spindlespeedbar.set_active(self.d.spindlespeedbar)
@@ -52,20 +51,19 @@ def gui_page_finish(self):
 	self.d.select_axis = self.w.gui_select_axis.get_active()
 	self.d.select_gmoccapy = self.w.gui_select_gmoccapy.get_active()
 	self.d.pyvcp = self.w.gui_pyvcp.get_active()
-	self.d.pyvcpconnect = self.w.gui_pyvcpconnect.get_active()
 	if self.d.pyvcp == True:
 		if self.w.gui_rdo_default_pyvcp.get_active() == True:
 			self.pyvcptype = 0 # default pyvcp
-			self.d.pyvcpname = "default_panel.xml" # name for [DISPLAY] section in INI file
+			self.d.pyvcpname = "pyvcp_default.xml" # name for [DISPLAY] section in INI file
 			self.d.pyvcphaltype = 1
 			# Create panel
-			self.create_pyvcp_panel("pyvcp_test.xml")
+			#self.create_pyvcp_panel("pyvcp_test.xml")
 			# Connection to hal
 			self.create_pyvcp_hal()
 			self.d.halui = 1
 		if self.w.gui_rdo_custom_pyvcp.get_active() == True:
 			self.pyvcptype = 1 # custom pyvcp
-			self.d.pyvcpname = "custompanel.xml" # name for [DISPLAY] section in INI file
+			self.d.pyvcpname = "pyvcp_custom.xml" # name for [DISPLAY] section in INI file
 		"""
 		for i in self.d.halui_list:
 			print(i)
@@ -89,7 +87,6 @@ def gui_page_finish(self):
 			if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.d.machinename)):
 				if not self.a.warning_dialog(MESS_GLADEVCP_REWRITE,False):
 					return True
-	
 	
 	self.d.spindlespeedbar = self.w.spindlespeedbar.get_active()
 	self.d.spindleatspeed = self.w.spindleatspeed.get_active()
@@ -622,6 +619,7 @@ def create_pyvcp_panel(self, filename):
 	</hbox>
 </vbox>
 """)
+
 	# Check for tool lenght sensor
 	inputs = self.a.build_input_set()
 	if (d_hal_input[PROBE] in inputs):

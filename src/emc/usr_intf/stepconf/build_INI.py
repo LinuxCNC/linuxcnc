@@ -142,6 +142,7 @@ class INI:
         print >>file
         print >>file, "[RS274NGC]"
         print >>file, "PARAMETER_FILE = linuxcnc.var"
+        # Put my ngc file here
         subroutine_path = os.path.expanduser("~/linuxcnc/configs/%s" % (self.d.machinename))
         print >>file, "SUBROUTINE_PATH = ncsubroutines:%s" % subroutine_path
         base_period = self.d.ideal_period()

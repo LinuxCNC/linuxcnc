@@ -72,7 +72,6 @@ def copy(self, base, filename):
 
 def save(self,basedir):
 	base = basedir
-	#
 
 	if self.d.classicladder: 
 		if not self.d.laddername == "custom.clp":
@@ -110,11 +109,10 @@ def save(self,basedir):
 			# Subroutine
 			subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, "pyvcp_probe.ngc"))
 			fngc = open(subroutine, "w")
-			print >>fngc, ("""
-o<pyvcp_probe> sub
-(Set Z Zero for G54 coordinate)
-	G53 G0 X558 Y6 Z70
-	G49 (Delete any reference)
+			print >>fngc, ("""o<pyvcp_probe> sub
+(Set Z Zero for G54 coordinate)""")
+			print >>fngc, ("	G53 G0 X%d Y%d Z%d" % (self.d.probe_x, self.d.probe_y, self.d.probe_z))
+			print >>fngc, ("""	G49 (Delete any reference)
 	G38.2 Z0 F200
 	G91 G0 Z1 (Off the switch)
 	(try again at lower speed)
@@ -123,15 +121,14 @@ o<pyvcp_probe> sub
 	G91 G0 Z1 (Off the switch)
 	#1000=#5063 (save reference tool length)
 	(print,reference length is #1000)
-	(G54 G10 L20 P1 Z[#1000])
-	G54 G10 L20 P1 Z[35.0] (switch height)
-	G90 (done)
-o<pyvcp_probe> endsub
-""")
+	(G54 G10 L20 P1 Z[#1000])""")
+			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_height))
+			print >>fngc, ("""	G90 (done)
+o<pyvcp_probe> endsub""")
 		else:
 			print "Master PYVCP files missing from configurable_options dir"
 
-	if self.d.gladevcp and not self.d.gladevcpname == "glade_custom.ui":                
+	if self.d.gladevcp and not self.d.gladevcpname == "glade_custom.ui":
 		panelname = os.path.join(self.a.distdir, "configurable_options/gladevcp/%s" % self.d.gladevcpname)
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.d.machinename)
 		if os.path.exists(panelname):     

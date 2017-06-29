@@ -22,6 +22,8 @@
 # options PAGE
 #***************
 import os
+from stepconf.definitions import *
+
 def options_prepare(self):
 	self.w.classicladder.set_active(self.d.classicladder)
 	self.w.modbus.set_active(self.d.modbus)
@@ -39,6 +41,24 @@ def options_prepare(self):
 	if  not self.w.createconfig.get_active():
 	   if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
 			self.w.radiobutton4.set_active(True)
+	self.w.probe_x_pos.set_text("%d" % self.d.probe_x)
+	self.w.probe_y_pos.set_text("%d" % self.d.probe_y)
+	self.w.probe_z_pos.set_text("%d" % self.d.probe_z)
+	self.w.probe_sensor_height.set_text("%d" % self.d.probe_height)
+	# Check for tool lenght sensor
+	inputs = self.a.build_input_set()
+	if (d_hal_input[PROBE] in inputs):
+		self.w.option_probe_expander.set_expanded(1)
+		self.w.probe_x_pos.set_sensitive(1)
+		self.w.probe_y_pos.set_sensitive(1)
+		self.w.probe_z_pos.set_sensitive(1)
+		self.w.probe_sensor_height.set_sensitive(1)
+	else:
+		self.w.option_probe_expander.set_expanded(0)
+		self.w.probe_x_pos.set_sensitive(0)
+		self.w.probe_y_pos.set_sensitive(0)
+		self.w.probe_z_pos.set_sensitive(0)
+		self.w.probe_sensor_height.set_sensitive(0)
 
 def options_finish(self):
 	SIG = self._p
@@ -51,8 +71,13 @@ def options_finish(self):
 	self.d.floatsin = self.w.floatsin.get_value()
 	self.d.floatsout = self.w.floatsout.get_value()
 	self.d.halui_custom = self.w.halui.get_active()  
-	self.d.ladderconnect = self.w.ladderconnect.get_active()   
-	self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
+	self.d.ladderconnect = self.w.ladderconnect.get_active()
+	self.d.manualtoolchange = self.w.manualtoolchange.get_active()
+	self.d.probe_x = float(self.w.probe_x_pos.get_text())
+	self.d.probe_y = float(self.w.probe_y_pos.get_text())
+	self.d.probe_z = float(self.w.probe_z_pos.get_text())
+	self.d.probe_height = float(self.w.probe_sensor_height.get_text())
+
 	if self.d.classicladder:
 	   if self.w.radiobutton1.get_active() == True:
 		  if self.d.tempexists:
@@ -83,6 +108,33 @@ def options_finish(self):
 			 if not self.a.warning_dialog(MESS_CL_EDITTED,False):
 			   return True # don't advance the page
 
+def on_probe_x_pos_changed(self, *args):
+	self.options_sanity_test()
+def on_probe_y_pos_changed(self, *args):
+	self.options_sanity_test()
+def on_probe_z_pos_changed(self, *args):
+	self.options_sanity_test()
+def on_probe_sensor_height_changed(self, *args):
+	self.options_sanity_test()
+
+def options_sanity_test(self):
+	def get(n):
+		return float(n.get_text())
+
+	datalist = (self.w.probe_x_pos, self.w.probe_y_pos, self.w.probe_z_pos, self.w.probe_sensor_height)
+
+	for i in datalist:
+		ctx = i.get_style_context()
+		try:
+			a=get(i)
+			if a <= 0:
+				raise ValueError
+		except:
+			ctx.add_class('invalid')
+		else:
+			ctx.remove_class('invalid')
+
+			
 # options page callback
 def on_loadladder_clicked(self, *args):
 	self.load_ladder(self)
