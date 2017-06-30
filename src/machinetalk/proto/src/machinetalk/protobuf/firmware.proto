@@ -1,3 +1,4 @@
+syntax = "proto2";
 /** firmware descriptor for hostmot2
 The message Firmware encodes the detail which used to be hardcoded in the low-level hostmot2 driver
 in the struct hm2_lowlevel_io_struct.

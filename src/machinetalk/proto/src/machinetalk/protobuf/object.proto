@@ -1,3 +1,4 @@
+syntax = "proto2";
 // everything we know about objects, including HAL objects
 
 // see README.msgid

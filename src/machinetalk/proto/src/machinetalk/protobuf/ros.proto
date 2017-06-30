@@ -1,4 +1,5 @@
-package pb;  // this should probably better be ros or pb:ros;
+syntax = "proto2";
+package machinetalk;  // this should probably better be ros or pb:ros;
 
 // see README.msgid
 // msgid base: 370

@@ -1,3 +1,4 @@
+syntax = "proto2";
 // use any of the below for testing and experimentation.
 
 import "machinetalk/protobuf/emcclass.proto";

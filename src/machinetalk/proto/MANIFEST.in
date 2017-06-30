@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include src/machinetalk/protobuf *.proto
+recursive-include python/example *

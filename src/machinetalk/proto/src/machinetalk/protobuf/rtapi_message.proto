@@ -1,3 +1,4 @@
+syntax = "proto2";
 import "machinetalk/protobuf/nanopb.proto";
 import "machinetalk/protobuf/value.proto";
 
@@ -14,7 +15,7 @@ message RTAPI_Message {
     required int32 msglevel = 10; // [default = RTAPI_MSG_DBG];
 
     required string format     = 20 [default = "*** uninitialized ***",
-				    (nanopb).max_size = 100];
+                                     (nanopb).max_size = 100];
 
     // if this list of scalars is non-empty,
     // this implies sprintf(text, <arg>) should be applied

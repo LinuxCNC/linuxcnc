@@ -119,8 +119,8 @@ static int update(void *arg, const hal_funct_args_t *fa)
 
 		    // protobuf-decode it
 		    pb_istream_t stream = pb_istream_from_buffer(data, size);
-		    pb_JointTrajectoryPoint rx =  pb_JointTrajectoryPoint_init_zero;
-		    if (!pb_decode(&stream, pb_JointTrajectoryPoint_fields, &rx)) {
+		    machinetalk_JointTrajectoryPoint rx =  machinetalk_JointTrajectoryPoint_init_zero;
+		    if (!pb_decode(&stream, machinetalk_JointTrajectoryPoint_fields, &rx)) {
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: pb_decode(JointTrajectoryPoint) failed: '%s'",
 					compname, PB_GET_ERROR(&stream));
 		    } else {
