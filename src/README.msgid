@@ -21,11 +21,12 @@ msgid's have to be unique across all messages and all proto files. This must be 
 
 The absolute value of the msgid option is irrelevant as it is only used as a key; uniqueness counts. msgid's need not be sequential.
 
-It is helpful to use message id' less than say a few thousand because
-it will be transported in a limited-size field in the multiframe ring
-(a uint32_t), and there should be bits available for other purposes
-like specifying the encoding (protobuf, or a deserialized nanopb C
-struct).
+Any msgid value must be between 1 and msgidType.MSGID_MAX. This is
+checked at startup time in libmkproto and will result in an assert if
+violated. Values above MSGID_MAX to 4095 are reserved message ID
+values, see enum msgidType in types.proto .The reason is the
+limited-size field (12 bits) in the multiframe ring flag (see
+mfields_t).
 
 Convention for adding msgid's:
 ------------------------------
@@ -38,7 +39,7 @@ e.g. canon.proto:
 config.proto:
 	// msgid base: 200
 
-ans so forth.
+and so forth.
 
 To tag a message with a msgid, proceed like so (using canon.proto as example):
 
@@ -56,4 +57,26 @@ message Emc_Traj_Set_G5x {
     required OriginIndex   g5x_index = 20;
 }
 
+Accessing the msgid if the message name is known:
+-------------------------------------------------
 
+Google Protobuf, Python bindings:
+
+def msgid(m):
+    return m.DESCRIPTOR.GetOptions().Extensions[nanopb_msgopt].msgid
+
+
+Google Protobuf, C++ bindings:
+
+uint32 msgid(const ::google::protobuf::Message  &m)
+{
+  const ::google::protobuf::MessageOptions& options = m.GetDescriptor()->options();
+  return options.GetExtension(nanopb_msgopt).msgid();
+}
+
+Nanopb:
+
+use the <messagename>_msgid symbol which defines an integer constant
+
+NB: due to the use of 'package machinetalk;', for example, the nanopb symbol for
+message 'Container' is 'pb_Container_msgid'

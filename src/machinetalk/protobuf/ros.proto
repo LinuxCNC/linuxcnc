@@ -1,0 +1,46 @@
+syntax = "proto2";
+package machinetalk;  // this should probably better be ros or pb:ros;
+
+// see README.msgid
+// msgid base: 370
+
+import "machinetalk/protobuf/nanopb.proto";
+
+// http://docs.ros.org/jade/api/std_msgs/html/msg/Header.html
+message Time {
+    option (nanopb_msgopt).msgid = 371;
+
+    optional uint32 secs = 1;
+    optional uint32 nsecs = 2;
+};
+
+message Header {
+    option (nanopb_msgopt).msgid = 372;
+
+    optional uint32 seq = 1;
+    optional Time stamp = 2;
+    optional string  frame_id = 3 [(nanopb).max_size = 20];
+}
+
+// http://docs.ros.org/indigo/api/trajectory_msgs/html/msg/JointTrajectoryPoint.html
+message JointTrajectoryPoint {
+    option (nanopb_msgopt).msgid = 373;
+
+    repeated double positions = 1         [(nanopb).max_count = 10];
+    repeated double velocities = 2        [(nanopb).max_count = 10];
+    repeated double accelerations = 3     [(nanopb).max_count = 10];
+    repeated double effort = 4            [(nanopb).max_count = 10];
+    optional double time_from_start = 5;
+
+    optional double duration = 7;         // of this segment, secs
+    optional uint32 serial = 8;           // segment being worked on
+};
+
+// http://docs.ros.org/jade/api/trajectory_msgs/html/msg/JointTrajectory.html
+message JointTrajectory {
+    option (nanopb_msgopt).msgid = 374;
+
+    optional Header header = 1;
+    repeated string joint_names = 2;
+    repeated JointTrajectoryPoint points = 3;
+};

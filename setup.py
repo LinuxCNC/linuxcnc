@@ -9,8 +9,13 @@ import sys
 import shutil
 
 PROJECT = 'machinetalk'
-PROJECT_URL = 'https://github.com/machinekit/machinetalk-protobuf'
 PROJECT_NAME = '%s-protobuf' % PROJECT
+DESCRIPTION = "Protobuf Python modules for %s" % PROJECT
+VERSION = "v1.0.6"
+AUTHOR = "Alexander Roessler"
+AUTHOR_EMAIL = "alex@machinekoder.com"
+PROJECT_URL = 'https://github.com/machinekit/%s' % PROJECT_NAME
+DOWNLOAD_URL = 'https://github.com/machinekit/%s/archive/%s.tar.gz' % (PROJECT_NAME, VERSION)
 
 # We must use setuptools, not distutils, because we need to use the
 # namespace_packages option for the "google" package.
@@ -41,14 +46,14 @@ from distutils.spawn import find_executable
 # Find the Protocol Compiler.
 if 'PROTOC' in os.environ and os.path.exists(os.environ['PROTOC']):
   protoc = os.environ['PROTOC']
-elif os.path.exists("../src/protoc"):
-  protoc = "../src/protoc"
-elif os.path.exists("../src/protoc.exe"):
-  protoc = "../src/protoc.exe"
-elif os.path.exists("../vsprojects/Debug/protoc.exe"):
-  protoc = "../vsprojects/Debug/protoc.exe"
-elif os.path.exists("../vsprojects/Release/protoc.exe"):
-  protoc = "../vsprojects/Release/protoc.exe"
+elif os.path.exists("./src/protoc"):
+  protoc = "./src/protoc"
+elif os.path.exists("./src/protoc.exe"):
+  protoc = "./src/protoc.exe"
+elif os.path.exists("./vsprojects/Debug/protoc.exe"):
+  protoc = "./vsprojects/Debug/protoc.exe"
+elif os.path.exists("./vsprojects/Release/protoc.exe"):
+  protoc = "./vsprojects/Release/protoc.exe"
 else:
   protoc = find_executable("protoc")
 
@@ -62,7 +67,7 @@ def generate_proto(source, require = True):
   if not require and not os.path.exists(source):
     return
 
-  output = source.replace(".proto", "_pb2.py").replace("../src/", "")
+  output = source.replace(".proto", "_pb2.py").replace("./src/", "")
 
   if (not os.path.exists(output) or
       (os.path.exists(source) and
@@ -75,12 +80,12 @@ def generate_proto(source, require = True):
 
     if protoc is None:
       sys.stderr.write(
-          "protoc is not installed nor found in ../src. "
+          "protoc is not installed nor found in ./src. "
           "Please compile it or install the binary package.\n"
       )
       sys.exit(-1)
 
-    protoc_command = [protoc, "-I../src", "-I" + google_protobuf_includedir, "--python_out=.", source]
+    protoc_command = [protoc, "-I./src", "-I" + google_protobuf_includedir, "--python_out=.", source]
     print("Command: %s" % protoc_command)
     if subprocess.call(protoc_command) != 0:
       sys.exit(-1)
@@ -112,7 +117,7 @@ class clean(_clean):
 
 class build_py(_build_py):
   def run(self):
-    source_path = '../src/%s/protobuf/' % PROJECT
+    source_path = './src/%s/protobuf/' % PROJECT
 
     # Generate necessary .proto file if it doesn't exist.
     for entry in os.listdir(source_path):
@@ -129,12 +134,15 @@ if __name__ == '__main__':
       create_init(PROJECT + '/protobuf')
       # start the setup
       setup(name=PROJECT_NAME,
-            version="1.0",
-            description="Protobuf Python modules for %s" % PROJECT,
+            version=VERSION,
+            description=DESCRIPTION,
             url=PROJECT_URL,
+            download_url=DOWNLOAD_URL,
+            author=AUTHOR,
+            author_email=AUTHOR_EMAIL,
             namespace_packages=[PROJECT],
             packages=find_packages(),
-            install_requires=['setuptools'],
+            install_requires=['setuptools', 'protobuf'],
             cmdclass={
                 'clean': clean,
                 'build_py': build_py,

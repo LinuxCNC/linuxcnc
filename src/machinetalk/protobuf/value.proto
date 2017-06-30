@@ -1,3 +1,4 @@
+syntax = "proto2";
 import "machinetalk/protobuf/nanopb.proto";
 
 import "machinetalk/protobuf/emcclass.proto";

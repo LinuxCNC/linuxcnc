@@ -21,12 +21,17 @@ Now create a PR against the machinekit repo.
 
 ## Python
 
-### Installation
-
+### Installation via PyPi
 To use the Machinetalk protobuf Python modules in your projects, use:
 
 ```sh
-cd python
+pip install machinetalk-protobuf
+```
+
+### Installation from source
+Alternatively you can install the Python modules directly from the source code.
+
+```sh
 python setup.py build
 sudo python setup.py install
 ```
