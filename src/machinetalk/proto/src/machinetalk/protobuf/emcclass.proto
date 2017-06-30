@@ -1,3 +1,4 @@
+syntax = "proto2";
 import "machinetalk/protobuf/nanopb.proto";
 
 // see README.msgid

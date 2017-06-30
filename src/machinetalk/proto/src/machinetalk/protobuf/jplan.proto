@@ -1,4 +1,5 @@
-package pb;
+syntax = "proto2";
+package machinetalk;
 
 // see README.msgid
 // msgid base: 350

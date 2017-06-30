@@ -1,4 +1,6 @@
 build
-node_modules
-objects
-generated
+/node_modules
+/objects
+/generated
+/machinetalk
+/doc_base
