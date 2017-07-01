@@ -1,3 +1,6 @@
+ver 2.3.1.1
+- added KeyPad Jogging as a wish from "suspension" from the forum
+
 ver 2.3.1
 - added a new hal pin for tool diameter
 
