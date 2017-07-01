@@ -1159,12 +1159,12 @@ Default is to use keyboard shortcuts.
 Please take care if you use a lathe, than the shortcuts will be different.
 See <<gmoccapy:lathe-section,the Lathe section>>
 
- * Arrow Left = X minus
- * Arrow Right = X plus
- * Arrow up = Y plus
- * Arrow Down = Y minus
- * Page Up = Z plus
- * Page Down = Z minus
+ * Arrow Left or NumPad_Left = X minus
+ * Arrow Right or NumPad_Right = X plus
+ * Arrow up NumPad_Up = Y plus
+ * Arrow Down NumPad_Down = Y minus
+ * Page Up NumPad_Page_Up = Z plus
+ * Page Down NumPad_Page_Down = Z minus
 
  * F1 = Estop (will work even if keyboard shortcuts are disabled)
  * F2 = Machine on
@@ -1357,17 +1357,17 @@ Also the keyboard behavior will change:
 
 Normal Lathe:
 
- * Arrow Left = Z minus
- * Arrow Right = Z plus
- * Arrow up = X minus
- * Arrow Down = X plus
+ * Arrow Left NumPad_Left = Z minus
+ * Arrow Right NumPad_Right = Z plus
+ * Arrow up NumPad_Up = X minus
+ * Arrow Down NumPad_Down = X plus
 
 Back Tool Lathe:
 
- * Arrow Left = Z minus
- * Arrow Right = Z plus
- * Arrow up = X plus
- * Arrow Down = X minus
+ * Arrow Left NumPad_Left = Z minus
+ * Arrow Right NumPad_Right = Z plus
+ * Arrow up NumPad_Up = X plus
+ * Arrow Down NumPad_Down = X minus
 
 The tool information frame will show not only the Z offset, but also the X
 offset and the tool table is showing all lathe relevant information.
