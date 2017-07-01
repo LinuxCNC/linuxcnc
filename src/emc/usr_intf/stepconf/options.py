@@ -41,10 +41,12 @@ def options_prepare(self):
 	if  not self.w.createconfig.get_active():
 	   if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
 			self.w.radiobutton4.set_active(True)
-	self.w.probe_x_pos.set_text("%d" % self.d.probe_x)
-	self.w.probe_y_pos.set_text("%d" % self.d.probe_y)
-	self.w.probe_z_pos.set_text("%d" % self.d.probe_z)
-	self.w.probe_sensor_height.set_text("%d" % self.d.probe_height)
+	# Set default probe value
+	self.w.probe_x_pos.set_text("%d" % self.d.probe_x_pos)
+	self.w.probe_y_pos.set_text("%d" % self.d.probe_y_pos)
+	self.w.probe_z_pos.set_text("%d" % self.d.probe_z_pos)
+	self.w.probe_sensor_height.set_text("%d" % self.d.probe_sensor_height)
+
 	# Check for tool lenght sensor
 	inputs = self.a.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
@@ -73,10 +75,10 @@ def options_finish(self):
 	self.d.halui_custom = self.w.halui.get_active()  
 	self.d.ladderconnect = self.w.ladderconnect.get_active()
 	self.d.manualtoolchange = self.w.manualtoolchange.get_active()
-	self.d.probe_x = float(self.w.probe_x_pos.get_text())
-	self.d.probe_y = float(self.w.probe_y_pos.get_text())
-	self.d.probe_z = float(self.w.probe_z_pos.get_text())
-	self.d.probe_height = float(self.w.probe_sensor_height.get_text())
+	self.d.probe_x_pos = float(self.w.probe_x_pos.get_text())
+	self.d.probe_y_pos = float(self.w.probe_y_pos.get_text())
+	self.d.probe_z_pos = float(self.w.probe_z_pos.get_text())
+	self.d.probe_sensor_height = float(self.w.probe_sensor_height.get_text())
 
 	if self.d.classicladder:
 	   if self.w.radiobutton1.get_active() == True:
@@ -107,6 +109,30 @@ def options_finish(self):
 		  if os.path.exists(os.path.join(self._p.distdir, "configurable_options/ladder/TEMP.clp")):
 			 if not self.a.warning_dialog(MESS_CL_EDITTED,False):
 			   return True # don't advance the page
+
+def option_preset(self):
+	# Use machine selected on base 
+	current_machine = self.d.get_machine_preset(self.w.base_preset_combo)
+	if current_machine:
+		None
+	else:
+		return
+		
+	lwidget=[
+		"probe_x_pos",
+		"probe_y_pos",
+		"probe_z_pos",
+		"probe_sensor_height",
+	]
+	
+	for w in lwidget:
+		if(w in current_machine):
+			self.w['%s'%w].set_text(str(current_machine[w]))
+	# Save theese parameters early
+	self.d.probe_x_pos = float(self.w.probe_x_pos.get_text())
+	self.d.probe_y_pos = float(self.w.probe_y_pos.get_text())
+	self.d.probe_z_pos = float(self.w.probe_z_pos.get_text())
+	self.d.probe_sensor_height = float(self.w.probe_sensor_height.get_text())
 
 def on_probe_x_pos_changed(self, *args):
 	self.options_sanity_test()

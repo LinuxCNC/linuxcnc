@@ -203,6 +203,8 @@ def base_general_preset(self, current_machine):
 		self.d.select_combo_machine(self.w[axis + "preset_combo"], current_machine["index"])
 		self.preset_axis(axis)
 		self.axis_done(axis)
+	# options: preset probe coordinates  in options page
+	self.option_preset()
 	return
 
 

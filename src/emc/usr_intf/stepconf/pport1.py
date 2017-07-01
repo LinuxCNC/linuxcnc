@@ -122,6 +122,7 @@ def pport1_execut_preset(self):
 			self.w['%s'%p].set_active(current_machine[p])
 			self.w['%s'%p].set_sensitive(0)
 
+
 def on_pp1_preset_io_combo_changed(self, widget):
 	state = self.w.pp1_preset_io_combo.get_active()
 	if(state > -1):

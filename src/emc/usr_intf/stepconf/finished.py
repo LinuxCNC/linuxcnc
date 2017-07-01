@@ -111,7 +111,7 @@ def save(self,basedir):
 			fngc = open(subroutine, "w")
 			print >>fngc, ("""o<pyvcp_probe> sub
 (Set Z Zero for G54 coordinate)""")
-			print >>fngc, ("	G53 G0 X%d Y%d Z%d" % (self.d.probe_x, self.d.probe_y, self.d.probe_z))
+			print >>fngc, ("	G53 G0 X%d Y%d Z%d" % (self.d.probe_x_pos, self.d.probe_y_pos, self.d.probe_z_pos))
 			print >>fngc, ("""	G49 (Delete any reference)
 	G38.2 Z0 F200
 	G91 G0 Z1 (Off the switch)
@@ -122,7 +122,7 @@ def save(self,basedir):
 	#1000=#5063 (save reference tool length)
 	(print,reference length is #1000)
 	(G54 G10 L20 P1 Z[#1000])""")
-			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_height))
+			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_sensor_height))
 			print >>fngc, ("""	G90 (done)
 o<pyvcp_probe> endsub""")
 		else:

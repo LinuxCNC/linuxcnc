@@ -179,7 +179,14 @@ preset_machines = [
 		'pin12':ALL_HOME, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0,
-		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
+		'xsteprev':400, 'xmicrostep':1, 'xpulleyden':1, 'xpulleynum':1, 'xleadscrew':3, 'xmaxvel':40, 'xmaxacc' :150,
+		'xhomepos':290, 'xminlim':0, 'xmaxlim':290, 'xhomesw':292, 'xhomevel':3, 'xlatchdir':0,
+		'ysteprev':400, 'ymicrostep':1, 'ypulleyden':1, 'ypulleynum':1, 'yleadscrew':3, 'ymaxvel':40, 'ymaxacc' :150,
+		'yhomepos':0, 'yminlim':0, 'ymaxlim':412, 'yhomesw':-2, 'yhomevel':-3, 'ylatchdir':0,
+		'zsteprev':400, 'zmicrostep':1, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':3, 'zmaxvel':30, 'zmaxacc' :150,
+		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
+		'probe_x_pos':258, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':35.0,
+		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
 	},
 	{'name':'stepcraft600', 'human':_("Stepcraft 600") + ' (Untested)', 'index':STEPCRAFT600,
 		'pin1':ON, 'pin1inv':0,
@@ -199,7 +206,14 @@ preset_machines = [
 		'pin12':ALL_HOME, 'pin12inv':0,
 		'pin13':UNUSED_INPUT, 'pin13inv':0,
 		'pin15':UNUSED_INPUT, 'pin15inv':0,
-		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
+		'xsteprev':400, 'xmicrostep':1, 'xpulleyden':1, 'xpulleynum':1, 'xleadscrew':3, 'xmaxvel':40, 'xmaxacc' :150,
+		'xhomepos':410, 'xminlim':0, 'xmaxlim':290, 'xhomesw':412, 'xhomevel':3, 'xlatchdir':0,
+		'ysteprev':400, 'ymicrostep':1, 'ypulleyden':1, 'ypulleynum':1, 'yleadscrew':3, 'ymaxvel':40, 'ymaxacc' :150,
+		'yhomepos':0, 'yminlim':0, 'ymaxlim':592, 'yhomesw':-2, 'yhomevel':-3, 'ylatchdir':0,
+		'zsteprev':400, 'zmicrostep':1, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':3, 'zmaxvel':30, 'zmaxacc' :150,
+		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
+		'probe_x_pos':378, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':35.0,
+		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
 	},
 	{'name':'stepcraft840', 'human':_("Stepcraft 840"), 'index':STEPCRAFT840,
 		'pin1':ON, 'pin1inv':0,
@@ -225,7 +239,8 @@ preset_machines = [
 		'yhomepos':0, 'yminlim':0, 'ymaxlim':832, 'yhomesw':-2, 'yhomevel':-3, 'ylatchdir':0,
 		'zsteprev':400, 'zmicrostep':1, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':3, 'zmaxvel':30, 'zmaxacc' :150,
 		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
-		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
+		'probe_x_pos':558, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':35.0,
+		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
 	}
 ]
 

@@ -243,6 +243,8 @@ class Pages:
 			for mydict in preset.preset_machines:
 				treeiter = self.w[axis + "preset_liststore"].append([mydict["human"], mydict["index"]])
 			self.w[axis + "preset_combo"].set_active(0)
+
+		# Options page
 	
 	#************
 	# INTRO PAGE

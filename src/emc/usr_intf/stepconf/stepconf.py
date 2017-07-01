@@ -208,10 +208,10 @@ class Data:
         self.gladevcpname = "blank.ui"
         
         # Position of probe switch
-        self.probe_x = 558
-        self.probe_y = 6
-        self.probe_z = 70
-        self.probe_height = 35.0 # mm
+        self.probe_x_pos = 10
+        self.probe_y_pos = 10
+        self.probe_z_pos = 100
+        self.probe_sensor_height = 40.0 # mm
 
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present

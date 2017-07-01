@@ -42,6 +42,13 @@ def gui_page_prepare(self):
 	self.w.gladevcpposition.set_active(self.d.gladevcpposition)
 	self.w.gladevcpsize.set_active(self.d.gladevcpsize )
 	self.w.autotouchz.set_active(self.d.autotouchz)
+	# Get max speed (speed / minutes)
+	if self.d.axes == 0: maxspeed = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)* 60 # X Y Z
+	elif self.d.axes == 1: maxspeed = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)* 60 # X Y Z A (A is too fast, excluded)
+	elif self.d.axes == 2: maxspeed = max(self.d.xmaxvel, self.d.zmaxvel)* 60 # X Z
+	elif self.d.axes == 3: maxspeed = max(self.d.xmaxvel, self.d.ymaxvel, self.d.umaxvel, self.d.vmaxvel)* 60 # X Y U V
+	self.general_maxspeed = maxspeed
+	
 	"""
 	if os.path.exists(THEMEDIR):
 		self.get_installed_themes()
@@ -130,7 +137,7 @@ def gui_page_finish(self):
 	#self.d.gladevcptheme = self.w.gladevcptheme.get_active_text()
 	# make sure there is a copy of the choosen gladevcp panel in /tmp/
 	# We will copy it later into our config folder
-	self.gladevcptestpanel(self)
+	self.create_gladevcp_panel(self)
 	if self.w.autotouchz.get_active():
 		self.d.classicladder = True
 		if not self.w.ladderexist.get_active():
@@ -462,12 +469,7 @@ def create_pyvcp_panel(self, filename):
 		<orient>HORIZONTAL</orient>
 		<min_>0</min_>
 """)
-	# Get max speed (speed / minutes)
-	if self.d.axes == 0: maxspeed = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)* 60 # X Y Z
-	elif self.d.axes == 1: maxspeed = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)* 60 # X Y Z A (A is too fast, excluded)
-	elif self.d.axes == 2: maxspeed = max(self.d.xmaxvel, self.d.zmaxvel)* 60 # X Z
-	elif self.d.axes == 3: maxspeed = max(self.d.xmaxvel, self.d.ymaxvel, self.d.umaxvel, self.d.vmaxvel)* 60 # X Y U V
-	print >>file, ("		<max_>%s</max_>" % maxspeed)
+	print >>file, ("		<max_>%s</max_>" % self.general_maxspeed)
 	print >>file, ("""
 		</scale>
 	</vbox>
@@ -664,7 +666,7 @@ def create_pyvcp_panel(self, filename):
 def test_glade_panel(self,w):
 	panelname = os.path.join(self.a.distdir, "configurable_options/gladevcp")
 	if self.w.gui_rdo_default_gladevcp.get_active() == True:
-		self.gladevcptestpanel(w)
+		self.create_gladevcp_panel(w)
 		self.display_gladevcp_panel()
 	if self.w.gui_rdo_custom_galdevcp.get_active() == True:
 		None
@@ -681,7 +683,7 @@ def display_gladevcp_panel(self):
 			self.a.warning_dialog (_("""You specified there is an existing gladefile, \
 But there is not one in the machine-named folder.."""),True)
 			return
-	self.gladevcptestpanel(self)
+	self.create_gladevcp_panel(self)
 	if self.w.gladevcpposition.get_active() == True:
 		xpos = self.w.gladevcpxpos.get_value()
 		ypos = self.w.gladevcpypos.get_value()
@@ -719,202 +721,216 @@ But there is not one in the machine-named folder.."""),True)
 	halrun.flush()
 	halrun.close()
 
-def gladevcptestpanel(self,w):
+def create_gladevcp_panel(self,w):
 	directory = "/tmp/"
 	filename = os.path.join(directory, "gvcp-panel.ui")
 	file = open(filename, "w")
 	print >>file, ("""<?xml version="1.0"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
-  <object class="GtkWindow" id="window1">
-    <property name="width_request">100</property>
-    <child>
-      <object class="GtkVBox" id="vbox1">
-        <property name="visible">True</property>""")
-	if self.w.spindlespeedbar.get_active():
+	<!-- interface-requires gladevcp 0.0 -->
+	<requires lib="gtk+" version="2.16"/>
+	<!-- interface-naming-policy project-wide -->
+	<object class="GtkWindow" id="window1">
+	<property name="width_request">100</property>
+		<child>
+		  <object class="GtkVBox" id="vbox1">
+			<property name="visible">True</property>""")
+	#if self.w.spindlespeedbar.get_active():
+	#	print >>file, ("""
+	# Check for spindle speed
+	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
 		print >>file, ("""
-        <child>
-          <object class="HAL_HBar" id="spindle-speed">
-            <property name="visible">True</property>
-            <property name="force_height">36</property>""")
-		print >>file, ("""<property name="max">%(maxrpm)d</property>"""%{'maxrpm':self.w.maxspeeddisplay.get_value() })
+		<child>
+		  <object class="HAL_HBar" id="spindle-speed">
+			<property name="visible">True</property>
+			<property name="force_height">36</property>""")
+		print >>file, ("""<property name="max">%(maxrpm)d</property>"""%{'maxrpm':self.general_maxspeed })
 		print >>file, ("""
-            <property name="z0_color">#0000ffff0000</property>
-            <property name="value">44.25</property>
-            <property name="z1_color">#ffffffff0000</property>
-            <property name="bg_color">#bebebebebebe</property>
-            <property name="text_template">Spindle: % 4d RPM</property>
-            <property name="z0_border">0.94999998807907104</property>
-            <property name="z2_color">#ffff00000000</property>
-            <property name="show_limits">False</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>""" )
-	if self.w.spindleatspeed.get_active():
+			<property name="z0_color">#0000ffff0000</property>
+			<property name="value">44.25</property>
+			<property name="z1_color">#ffffffff0000</property>
+			<property name="bg_color">#bebebebebebe</property>
+			<property name="text_template">Spindle: % 4d RPM</property>
+			<property name="z0_border">0.94999998807907104</property>
+			<property name="z2_color">#ffff00000000</property>
+			<property name="show_limits">False</property>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="position">0</property>
+		  </packing>
+		</child>""" )
+	#if self.w.spindleatspeed.get_active():
+	#	print >>file, ("""
+	# Check for spindle speed
+	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
 		print >>file, ("""
-        <child>
-          <object class="GtkHBox" id="hbox1">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="ypad">5</property>
-                <property name="label" translatable="yes"> Spindle Up To Speed </property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="HAL_LED" id="spindle-at-speed-led">
-                <property name="visible">True</property>
-                <property name="led_shape">2</property>
-                <property name="on_color">green</property>
-                <property name="led_size">5</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="padding">10</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">1</property>
-          </packing>
-        </child>""")
+		<child>
+		  <object class="GtkHBox" id="hbox1">
+			<property name="visible">True</property>
+			<child>
+			  <object class="GtkLabel" id="label1">
+				<property name="visible">True</property>
+				<property name="ypad">5</property>
+				<property name="label" translatable="yes"> Spindle Up To Speed </property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="position">0</property>
+			  </packing>
+			</child>
+			<child>
+			  <object class="HAL_LED" id="spindle-at-speed-led">
+				<property name="visible">True</property>
+				<property name="led_shape">2</property>
+				<property name="on_color">green</property>
+				<property name="led_size">5</property>
+			  </object>
+			  <packing>
+				<property name="expand">False</property>
+				<property name="fill">False</property>
+				<property name="padding">10</property>
+				<property name="position">1</property>
+			  </packing>
+			</child>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="position">1</property>
+		  </packing>
+		</child>""")
 	print >>file, ("""
-        <child>
-          <object class="HAL_Table" id="button-box-active">
-            <property name="visible">True</property>
-            <property name="n_rows">5</property>
-            <property name="homogeneous">False</property>""")
+		<child>
+		  <object class="HAL_Table" id="button-box-active">
+			<property name="visible">True</property>
+			<property name="n_rows">5</property>
+			<property name="homogeneous">False</property>""")
+	#if self.w.zerox.get_active():
+	#	print >>file, ("""
+	print >>file, ("""
+			<child>
+			  <object class="HAL_HBox" id="zero-x-active">
+				<property name="visible">True</property>
+				<child>
+				  <object class="HAL_Button" id="zero-x">
+					<property name="label" translatable="yes">Zero X</property>
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="receives_default">True</property>
+				  </object>
+				  <packing>
+					<property name="position">0</property>
+				  </packing>
+				</child>
+			  </object>
+			</child>""")
+
+	#if self.w.zeroy.get_active():
+	#	print >>file, ("""
+	if self.d.axes in(0, 1, 3):
+		print >>file, ("""
+			<child>
+			  <object class="HAL_HBox" id="zero-y-active">
+				<property name="visible">True</property>
+				<child>
+				  <object class="HAL_Button" id="zero-y">
+					<property name="label" translatable="yes">Zero Y</property>
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="receives_default">True</property>
+				  </object>
+				  <packing>
+					<property name="position">0</property>
+				  </packing>
+				</child>
+			  </object>
+			  <packing>
+				<property name="top_attach">1</property>
+				<property name="bottom_attach">2</property>
+			  </packing>
+			</child>""")
+	#if self.w.zeroz.get_active():
+	#	print >>file, ("""
+	if self.d.axes in(0, 1, 2):
+		print >>file, ("""
+			<child>
+			  <object class="HAL_HBox" id="zero-z-active">
+				<property name="visible">True</property>
+				<child>
+				  <object class="HAL_Button" id="zero-z">
+					<property name="label" translatable="yes">Zero Z</property>
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="receives_default">True</property>
+				  </object>
+				  <packing>
+					<property name="position">0</property>
+				  </packing>
+				</child>
+			  </object>
+			  <packing>
+				<property name="top_attach">2</property>
+				<property name="bottom_attach">3</property>
+			  </packing>
+			</child>""")
+	#if self.w.zeroa.get_active():
+	#	print >>file, ("""
+	if self.d.axes == 1:
+		print >>file, ("""
+			<child>
+			  <object class="HAL_HBox" id="zero-a-active">
+				<property name="visible">True</property>
+				<child>
+				  <object class="HAL_Button" id="zero-a">
+					<property name="label" translatable="yes">Zero A</property>
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="receives_default">True</property>
+				  </object>
+				  <packing>
+					<property name="position">0</property>
+				  </packing>
+				</child>
+			  </object>
+			  <packing>
+				<property name="top_attach">3</property>
+				<property name="bottom_attach">4</property>
+			  </packing>
+			</child>""")
 	if self.w.autotouchz.get_active():
 		print >>file, ("""
-            <child>
-              <object class="HAL_HBox" id="auto-touch-z-active">
-                <property name="visible">True</property>
-                <child>
-                  <object class="HAL_Button" id="auto-touch-z">
-                    <property name="label" translatable="yes">Z  Auto Touch Off</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="yalign">0.56000000238418579</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
-              </packing>
-            </child>""")
-	if self.w.zeroa.get_active():
-		print >>file, ("""
-            <child>
-              <object class="HAL_HBox" id="zero-a-active">
-                <property name="visible">True</property>
-                <child>
-                  <object class="HAL_Button" id="zero-a">
-                    <property name="label" translatable="yes">Zero A</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-              </packing>
-            </child>""")
-	if self.w.zeroz.get_active():
-		print >>file, ("""
-            <child>
-              <object class="HAL_HBox" id="zero-z-active">
-                <property name="visible">True</property>
-                <child>
-                  <object class="HAL_Button" id="zero-z">
-                    <property name="label" translatable="yes">Zero Z</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>""")
-	if self.w.zeroy.get_active():
-		print >>file, ("""
-            <child>
-              <object class="HAL_HBox" id="zero-y-active">
-                <property name="visible">True</property>
-                <child>
-                  <object class="HAL_Button" id="zero-y">
-                    <property name="label" translatable="yes">Zero Y</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>""")
-	if self.w.zerox.get_active():
-		print >>file, ("""
-            <child>
-              <object class="HAL_HBox" id="zero-x-active">
-                <property name="visible">True</property>
-                <child>
-                  <object class="HAL_Button" id="zero-x">
-                    <property name="label" translatable="yes">Zero X</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-            </child>""")
+			<child>
+			  <object class="HAL_HBox" id="auto-touch-z-active">
+				<property name="visible">True</property>
+				<child>
+				  <object class="HAL_Button" id="auto-touch-z">
+					<property name="label" translatable="yes">Z  Auto Touch Off</property>
+					<property name="visible">True</property>
+					<property name="can_focus">True</property>
+					<property name="receives_default">True</property>
+					<property name="yalign">0.56000000238418579</property>
+				  </object>
+				  <packing>
+					<property name="position">0</property>
+				  </packing>
+				</child>
+			  </object>
+			  <packing>
+				<property name="top_attach">4</property>
+				<property name="bottom_attach">5</property>
+			  </packing>
+			</child>""")
 	print >>file, ("""
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="fill">False</property>
+			<property name="position">2</property>
+		  </packing>
+		</child>
+	  </object>
+	</child>
+	</object>
 </interface>""")
 	file.close()
