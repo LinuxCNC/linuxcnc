@@ -83,8 +83,11 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     }
 
     for (pin_counter = 0; pin_counter < mb_tx->mb_tx_nelem; pin_counter++) {
-
-        snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter);
+        if(mb_tx->mb_tx_names){
+            snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%s", gbl.hal_mod_name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]);
+        }else{
+            snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter);
+        }
         DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
 
         switch (mb_tx->mb_tx_fnct) {
