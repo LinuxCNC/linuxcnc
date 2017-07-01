@@ -1,3 +1,7 @@
+ver. 1.5.8
+- added key jogging also with Num_Pad Arrow keys
+  was a wish from >>suspension<< from the forum
+
 ver. 1.5.7
 - new hal pin gmoccapy.ignore-limits so that this function can be
   handled from hardware switch
