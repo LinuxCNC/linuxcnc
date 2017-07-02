@@ -134,8 +134,6 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    share/applications/linuxcnc.desktop \
 	    share/desktop-directories/cnc.directory \
 	    share/menus/CNC.menu \
-	    src/Makefile.inc \
-	    src/Makefile.modinc \
 	    src/aclocal.m4 \
 	    src/config.h \
 	    src/config.h.in \
@@ -145,6 +143,10 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    src/machinekitcfg.py-tmp \
 	    tcl/linuxcnc.tcl
 	rm -rf src/autom4te.cache etc
+##	    src/Makefile.inc \
+##	    src/Makefile.modinc \
+
+
 endif
 
 #	# Remove package artifacts
@@ -182,11 +184,14 @@ endif
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
+	cp debian/machinekit-posix.install.in debian/machinekit-posix.install
+	cp debian/machinekit-rt-preempt.install.in debian/machinekit-rt-preempt.install
+	cp debian/machinekit-xenomai.install.in debian/machinekit-xenomai.install
+
 	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
-	    cp debian/machinekit-dev.install.in debian/machinekit-dev.install; \
-	else \
-	    grep -v userpci debian/machinekit-dev.install.in \
-		> debian/machinekit-dev.install; \
+	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-posix.install; \
+	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-rt-preempt.install; \
+	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-xenomai.install; \
 	fi
 
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
@@ -213,13 +218,16 @@ binary-arch: build install
 	dh_installdeb
 
 #	# delete files that should be in machinekit-dev package
-	rm -f debian/machinekit/usr/bin/comp
-	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
-	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
+#	rm -f debian/machinekit/usr/bin/comp
+#	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
+#	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
 
 	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
-	dh_shlibdeps -l debian/machinekit/usr/lib
+	## ignore missing deps / symbols info for locally built libs
+	## necessary for Stretch builds until packaged libs can be used for czmq and zeromq
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit/usr/lib
+	#dh_shlibdeps -l debian/machinekit/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

@@ -20,20 +20,24 @@ Build-Depends: debhelper (>= 6),
     python-pyftpdlib, @BUILD_DEPS@ @TCL_TK_BUILD_DEPS@
 Standards-Version: 2.1.0
 
-Package: machinekit-dev
-Architecture: any
-Depends: make, g++, @TCL_TK_BUILD_DEPS@,
-    ${shlibs:Depends}, ${misc:Depends},
-    machinekit (= ${binary:Version}),
-    yapps2-runtime
-Section: libs
-Description: PC based motion controller for real-time Linux
- Machinekit is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
- .
- This package includes files needed to build new realtime components and
- alternate front-ends for machinekit
+#########################################################################
+## not built any more, components of it are in flavour packages
+##
+#Package: machinekit-dev
+#Architecture: any
+#Depends: make, g++, @TCL_TK_BUILD_DEPS@,
+#    ${shlibs:Depends}, ${misc:Depends},
+#    machinekit (= ${binary:Version}),
+#    yapps2-runtime
+#Section: libs
+#Description: PC based motion controller for real-time Linux
+# Machinekit is the next-generation Enhanced Machine Controller which
+# provides motion control for CNC machine tools and robotic
+# applications (milling, cutting, routing, etc.).
+# .
+# This package includes files needed to build new realtime components and
+# alternate front-ends for machinekit
+#########################################################################
 
 Package: machinekit
 Breaks: linuxcnc
