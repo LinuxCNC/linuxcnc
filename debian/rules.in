@@ -23,6 +23,11 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 
+EBD := --enable-build-documentation
+ifneq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
+    $(info I: Building without documentation)
+    EBD :=
+endif
 
 build: build-arch build-indep
 build-arch: build-stamp
@@ -33,11 +38,14 @@ build-stamp:
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
 ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace $(EBD) --disable-check-runtime-deps
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) $(EBD) --disable-check-runtime-deps
 endif
-	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
+	$(MAKE) -C src $(MAKEFLAGS)
+ifeq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
+	$(MAKE) -C src $(MAKEFLAGS) docs
+endif
 	touch build-stamp
 
 clean: debian/control
@@ -47,9 +55,9 @@ clean: debian/control
 
 	cd src && ./autogen.sh
 ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --disable-check-runtime-deps
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --disable-check-runtime-deps
 endif
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
@@ -68,9 +76,19 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
+ifeq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
 	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
 	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/linuxcnc-dev/
+else
+	rm -f debian/tmp/usr/share/applications/linuxcnc-gettingstarted.desktop \
+	debian/tmp/usr/share/applications/linuxcnc-usermanual-fr.desktop \
+	debian/tmp/usr/share/applications/linuxcnc-halmanual-fr.desktop \
+	debian/tmp/usr/share/applications/linuxcnc-integratormanual-fr.desktop \
+	debian/tmp/usr/share/applications/linuxcnc-documentation.desktop \
+	debian/tmp/usr/share/applications/linuxcnc-gcoderef-fr.desktop \
+	debian/tmp/usr/share/applications/linuxcnc-gettingstarted-fr.desktop
+endif
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files

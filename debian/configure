@@ -226,6 +226,8 @@ case $TARGET in
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
 
+DOC_DEPENDS=$(echo "$DOC_DEPENDS <!nodoc>" | sed -e 's#,# <!nodoc>,#g')
+
 subst () {
 sed \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
