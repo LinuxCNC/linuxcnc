@@ -47,8 +47,8 @@ must agree on a
 .I key
 (32-bit integer identifier) and a data structure
 specified by
-.I typestring
-.  They must also agree which component (the first one loaded)
+.IR typestring .
+They must also agree which component (the first one loaded)
 will
 .B hal_stream_create
 the stream, and wich component (the second one loaded) will
