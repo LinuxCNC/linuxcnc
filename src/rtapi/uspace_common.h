@@ -320,6 +320,7 @@ int rtapi_exit(int module_id)
 
 int rtapi_is_kernelspace() { return 0; }
 static int _rtapi_is_realtime = -1;
+#ifdef __linux__
 static int detect_preempt_rt() {
     struct utsname u;
     int crit1, crit2 = 0;
@@ -336,6 +337,11 @@ static int detect_preempt_rt() {
 
     return crit1 && crit2;
 }
+#else
+static int detect_preempt_rt() {
+    return 0;
+}
+#endif
 #ifdef USPACE_RTAI
 static int detect_rtai() {
     struct utsname u;
