@@ -45,7 +45,9 @@
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <malloc.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif
 
 #include "config.h"
 
