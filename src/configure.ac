@@ -699,6 +699,8 @@ AC_ARG_WITH(platform-zedboard,
 	esac
     ])
 
+AC_SUBST(ARCH_CFLAGS)
+
 if $platform_specified; then
     # Platform was explicitly specified using --with-platform-*;
     # disable anything not explicitly specified
