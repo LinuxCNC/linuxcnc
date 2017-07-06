@@ -93,6 +93,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if(res < 0) perror("shmctl IPC_SET");
   }
 
+#ifndef __FreeBSD__ // FreeBSD doesn't implement SHM_LOCK
   if(rtapi_is_realtime())
   {
     /* ensure the segment is locked */
@@ -105,6 +106,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
       rtapi_print_msg(RTAPI_MSG_ERR,
           "shared memory segment not locked as requested\n");
   }
+#endif
 #endif
 
   /* and map it into process space */
