@@ -663,6 +663,7 @@ static void configure_memory()
     res = mlockall(MCL_CURRENT | MCL_FUTURE);
     if(res < 0) perror("mlockall");
 
+#ifdef __linux__
     /* Turn off malloc trimming.*/
     if (!mallopt(M_TRIM_THRESHOLD, -1)) {
         rtapi_print_msg(RTAPI_MSG_WARN,
@@ -673,6 +674,7 @@ static void configure_memory()
         rtapi_print_msg(RTAPI_MSG_WARN,
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
+#endif
     char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
