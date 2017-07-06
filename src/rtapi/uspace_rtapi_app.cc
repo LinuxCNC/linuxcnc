@@ -698,7 +698,7 @@ static int harden_rt()
     if(!rtapi_is_realtime()) return -EINVAL;
 
     WITH_ROOT;
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "cannot gain I/O privileges - "
