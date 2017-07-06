@@ -919,6 +919,7 @@ int Posix::task_delete(int id)
 static int find_rt_cpu_number() {
     if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
 
+#ifdef __linux__
     cpu_set_t cpuset_orig;
     int r = sched_getaffinity(getpid(), sizeof(cpuset_orig), &cpuset_orig);
     if(r < 0)
@@ -947,6 +948,9 @@ static int find_rt_cpu_number() {
         if(CPU_ISSET(i, &cpuset)) top = i;
     }
     return top;
+#else
+    return (-1);
+#endif
 }
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
@@ -977,11 +981,13 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
       return -errno;
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
-      cpu_set_t cpuset;
-      CPU_ZERO(&cpuset);
-      CPU_SET(rt_cpu_number, &cpuset);
-      if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-          return -errno;
+      if(rt_cpu_number != -1) {
+          cpu_set_t cpuset;
+          CPU_ZERO(&cpuset);
+          CPU_SET(rt_cpu_number, &cpuset);
+          if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
+               return -errno;
+      }
   }
   if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
       return -errno;
