@@ -48,6 +48,9 @@
 #include <malloc.h>
 #include <sys/prctl.h>
 #endif
+#ifdef __FreeBSD__
+#include <pthread_np.h>
+#endif
 
 #include "config.h"
 
@@ -982,7 +985,11 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
       if(rt_cpu_number != -1) {
+#ifdef __FreeBSD__
+          cpuset_t cpuset;
+#else
           cpu_set_t cpuset;
+#endif
           CPU_ZERO(&cpuset);
           CPU_SET(rt_cpu_number, &cpuset);
           if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
