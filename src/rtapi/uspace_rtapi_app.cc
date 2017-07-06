@@ -706,6 +706,7 @@ static int harden_rt()
 #endif
 
     struct sigaction sig_act = {};
+#ifdef __linux__
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
@@ -726,6 +727,7 @@ static int harden_rt()
 	rtapi_print_msg(RTAPI_MSG_WARN,
 		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
 		  errno, strerror(errno));
+#endif /* __linux__ */
 
     configure_memory();
 
@@ -745,6 +747,7 @@ static int harden_rt()
     sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
+#ifdef __linux__
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
@@ -756,6 +759,7 @@ static int harden_rt()
         }
         // deliberately leak fd until program exit
     }
+#endif /* __linux__ */
     return 0;
 }
 
