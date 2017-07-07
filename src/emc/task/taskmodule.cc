@@ -169,6 +169,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 };
 
 typedef pp::array_1_t< EMC_AXIS_STAT, EMCMOT_MAX_AXIS> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< EMC_SPINDLE_STAT, EMCMOT_MAX_SPINDLES> spindle_array, (*spindle_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< int, EMCMOT_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< double, EMCMOT_MAX_AIO> analog_io_array, (*analog_io_w)( EMC_MOTION_STAT &m );
 
@@ -184,6 +185,10 @@ static  tool_array tool_wrapper ( EMC_TOOL_STAT & t) {
 
 static  axis_array axis_wrapper ( EMC_MOTION_STAT & m) {
     return axis_array(m.axis);
+}
+
+static  spindle_array spindle_wrapper ( EMC_MOTION_STAT & m) {
+    return spindle_array(m.spindle);
 }
 
 static  synch_dio_array synch_di_wrapper ( EMC_MOTION_STAT & m) {
@@ -342,7 +347,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("id", &EMC_TRAJ_STAT::id )
 	.def_readwrite("paused", &EMC_TRAJ_STAT::paused )
 	.def_readwrite("scale", &EMC_TRAJ_STAT::scale )
-	.def_readwrite("spindle_scale", &EMC_TRAJ_STAT::spindle_scale )
 	.def_readwrite("position", &EMC_TRAJ_STAT::position )
 	.def_readwrite("actualPosition", &EMC_TRAJ_STAT::actualPosition )
 	.def_readwrite("velocity", &EMC_TRAJ_STAT::velocity )
@@ -359,7 +363,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("dtg", &EMC_TRAJ_STAT::dtg )
 	.def_readwrite("current_vel", &EMC_TRAJ_STAT::current_vel )
 	.def_readwrite("feed_override_enabled", &EMC_TRAJ_STAT::feed_override_enabled )
-	.def_readwrite("spindle_override_enabled", &EMC_TRAJ_STAT::spindle_override_enabled )
 	.def_readwrite("adaptive_feed_enabled", &EMC_TRAJ_STAT::adaptive_feed_enabled )
 	.def_readwrite("feed_hold_enabled", &EMC_TRAJ_STAT::feed_hold_enabled )
 	;
@@ -394,6 +397,10 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("brake", &EMC_SPINDLE_STAT::brake )
 	.def_readwrite("increasing", &EMC_SPINDLE_STAT::increasing )
 	.def_readwrite("enabled", &EMC_SPINDLE_STAT::enabled )
+	.def_readwrite("spindle_override_enabled", &EMC_SPINDLE_STAT::spindle_override_enabled )
+	.def_readwrite("spindle_scale", &EMC_SPINDLE_STAT::spindle_scale )
+	.def_readwrite("spindle_orient_state", &EMC_SPINDLE_STAT::orient_state )
+	.def_readwrite("spindle_orient_fault", &EMC_SPINDLE_STAT::orient_fault )
 	;
 
     class_ <EMC_COOLANT_STAT , noncopyable>("EMC_COOLANT_STAT ",no_init)
@@ -411,9 +418,9 @@ BOOST_PYTHON_MODULE(emctask) {
 	.add_property( "axis",
 		       bp::make_function( axis_w(&axis_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-
-
-	.def_readwrite("spindle", &emcStatus->motion.spindle)
+	.add_property( "spindle",
+			   bp::make_function( spindle_w(&spindle_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "synch_di",
 		       bp::make_function( synch_dio_w(&synch_di_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))

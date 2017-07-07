@@ -296,8 +296,8 @@ static inline void set_probe_flag(Interp &interp, bool value)  {
 static inline bool get_speed_override (Interp &interp)  {
     return interp._setup.speed_override;
 }
-static inline void set_speed_override(Interp &interp, bool value)  {
-    interp._setup.speed_override = value;
+static inline void set_speed_override(Interp &interp, int spindle, bool value)  {
+    interp._setup.speed_override[spindle] = value;
 }
 static inline bool get_toolchange_flag (Interp &interp)  {
     return interp._setup.toolchange_flag;
@@ -509,11 +509,11 @@ static inline double get_rotation_xy (Interp &interp)  {
 static inline void set_rotation_xy(Interp &interp, double value)  {
     interp._setup.rotation_xy = value;
 }
-static inline double get_speed (Interp &interp)  {
-    return interp._setup.speed;
+static inline double get_speed (Interp &interp, int spindle)  {
+    return interp._setup.speed[spindle];
 }
-static inline void set_speed(Interp &interp, double value)  {
-    interp._setup.speed = value;
+static inline void set_speed(Interp &interp, int spindle, double value)  {
+    interp._setup.speed[spindle] = value;
 }
 static inline double get_traverse_rate (Interp &interp)  {
     return interp._setup.traverse_rate;
@@ -749,17 +749,17 @@ static inline int get_speed_feed_mode (Interp &interp)  {
 static inline void set_speed_feed_mode(Interp &interp, int value)  {
     interp._setup.speed_feed_mode = value;
 }
-static inline int get_spindle_mode (Interp &interp)  {
-    return interp._setup.spindle_mode;
+static inline int get_spindle_mode (Interp &interp, int spindle)  {
+    return interp._setup.spindle_mode[spindle];
 }
-static inline void set_spindle_mode(Interp &interp, SPINDLE_MODE value)  {
-    interp._setup.spindle_mode = value;
+static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
+    interp._setup.spindle_mode[spindle] = value;
 }
-static inline int get_spindle_turning (Interp &interp)  {
-    return interp._setup.spindle_turning;
+static inline int get_spindle_turning (Interp &interp, int spindle)  {
+    return interp._setup.spindle_turning[spindle];
 }
-static inline void set_spindle_turning(Interp &interp, int value)  {
-    interp._setup.spindle_turning = value;
+static inline void set_spindle_turning(Interp &interp, int spindle, int value)  {
+    interp._setup.spindle_turning[spindle] = value;
 }
 static inline int get_stack_index (Interp &interp)  {
     return interp._setup.stack_index;

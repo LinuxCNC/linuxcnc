@@ -270,20 +270,20 @@ public:
                              double delta);
  int convert_cycle_g74_g84(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z,
-                             CANON_DIRECTION direction,
-                             CANON_SPEED_FEED_MODE mode,int motion, double dwell);
+                             CANON_DIRECTION direction, CANON_SPEED_FEED_MODE mode,
+                             int motion, double dwell, int spindle);
  int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z);
  int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell,
-                             CANON_DIRECTION direction);
+                             CANON_DIRECTION direction, int spindle);
  int convert_cycle_g87(block_pointer block, CANON_PLANE plane, double x, double offset_x,
                              double y, double offset_y, double r,
                              double clear_z, double middle_z, double bottom_z,
-                             CANON_DIRECTION direction);
+                             CANON_DIRECTION direction, int spindle);
  int convert_cycle_g88(block_pointer block, CANON_PLANE plane, double x, double y,
                              double bottom_z, double dwell,
-                             CANON_DIRECTION direction);
+                             CANON_DIRECTION direction, int spindle);
  int convert_cycle_g89(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell);
  int convert_cycle_xy(int motion, block_pointer block,
@@ -320,8 +320,8 @@ public:
  int convert_setup(block_pointer block, setup_pointer settings);
  int convert_setup_tool(block_pointer block, setup_pointer settings);
  int convert_set_plane(int g_code, setup_pointer settings);
- int convert_speed(block_pointer block, setup_pointer settings);
-     int convert_spindle_mode(block_pointer block, setup_pointer settings);
+ int convert_speed(int e_number, block_pointer block, setup_pointer settings);
+ int convert_spindle_mode(int e_number, block_pointer block, setup_pointer settings);
  int convert_stop(block_pointer block, setup_pointer settings);
  int convert_straight(int move, block_pointer block,
                             setup_pointer settings);

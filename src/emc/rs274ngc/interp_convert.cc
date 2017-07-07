@@ -382,7 +382,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   } else if(settings->feed_mode == UNITS_PER_REVOLUTION) {
     CHKS((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
-    CHKS((settings->speed == 0.0),
+    CHKS((settings->speed[settings->active_spindle] == 0.0),
 	_("Cannot feed with zero spindle speed in feed per rev mode"));
   } else if (settings->feed_mode == INVERSE_TIME) {
     CHKS((!block->f_flag),
@@ -2163,13 +2163,13 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
     enqueue_COMMENT("interpreter: feed mode set to inverse time");
 #endif
     settings->feed_mode = INVERSE_TIME;
-    enqueue_SET_FEED_MODE(0);
+    enqueue_SET_FEED_MODE(0, 0);
   } else if (g_code == G_94) {
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: feed mode set to units per minute");
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
-    enqueue_SET_FEED_MODE(0);
+    enqueue_SET_FEED_MODE(0, 0);
     settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
   } else if(g_code == G_95) {
@@ -2177,7 +2177,7 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
     enqueue_COMMENT("interpreter: feed mode set to units per revolution");
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
-    enqueue_SET_FEED_MODE(1);
+    enqueue_SET_FEED_MODE(settings->active_spindle , 1);
     settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
   } else
@@ -3144,22 +3144,55 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
 				   block->m_modes[7]);
  } else if ((block->m_modes[7] == 3)  && ONCE_M(7)) {
-    enqueue_START_SPINDLE_CLOCKWISE();
-    settings->spindle_turning = CANON_CLOCKWISE;
+     if (block->e_flag){
+        CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
+            (_("E-word out of range in M3 Command\nnum_spindles =%i. e_number=%d\n")),settings->num_spindles,(int)block->e_number);
+        enqueue_START_SPINDLE_CLOCKWISE(block->e_number);
+        settings->spindle_turning[(int)block->e_number] = CANON_CLOCKWISE;
+     } else {
+         for (int i = 0; i < settings->num_spindles; i++){
+             enqueue_START_SPINDLE_CLOCKWISE(i);
+             settings->spindle_turning[i] = CANON_CLOCKWISE;
+         }
+     }
  } else if ((block->m_modes[7] == 4) && ONCE_M(7)) {
-    enqueue_START_SPINDLE_COUNTERCLOCKWISE();
-    settings->spindle_turning = CANON_COUNTERCLOCKWISE;
+     if (block->e_flag){
+        CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
+            (_("E-word out of range in M4 Command")));
+        enqueue_START_SPINDLE_COUNTERCLOCKWISE(block->e_number);
+        settings->spindle_turning[(int)block->e_number] = CANON_COUNTERCLOCKWISE;
+     } else {
+         for (int i = 0; i < settings->num_spindles; i++){
+             enqueue_START_SPINDLE_COUNTERCLOCKWISE(i);
+             settings->spindle_turning[i] = CANON_COUNTERCLOCKWISE;
+         }
+     }
  } else if ((block->m_modes[7] == 5) && ONCE_M(7)){
-    enqueue_STOP_SPINDLE_TURNING();
-    settings->spindle_turning = CANON_STOPPED;
+     if (block->e_flag){
+        CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
+           (_("E-word out of range in M5 Command")));
+        enqueue_STOP_SPINDLE_TURNING(block->e_number);
+     } else {
+        for (int i = 0; i < settings->num_spindles; i++){
+        	settings->spindle_turning[i] = CANON_STOPPED;
+            enqueue_STOP_SPINDLE_TURNING(i);
+        }
+	}
   } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
-      settings->spindle_turning = CANON_STOPPED;
+      for (int i = 0; i < settings->num_spindles; i++)
+    	  settings->spindle_turning[i] = CANON_STOPPED;
+      if (block->e_flag){
+         CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
+             (_("E-word out of range in M19 Command")));
+      }
       if (block->r_flag || block->p_flag)
-      enqueue_ORIENT_SPINDLE(block->r_flag ? (block->r_number + settings->orient_offset) : settings->orient_offset, 
-			     block->p_flag ? block->p_number : 0);
+      enqueue_ORIENT_SPINDLE(block->e_flag ? block->e_number : 0,
+                             block->r_flag ? (block->r_number + settings->orient_offset) : settings->orient_offset,
+                             block->p_flag ? block->p_number : 0);
       if (block->q_flag) {
 	  CHKS((block->q_number <= 0.0),(_("Q word with M19 requires a value > 0")));
-	  enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(block->q_number);
+	  enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(block->e_flag ? block->e_number : 0,
+			  	  	  	  	  	  	  	   block->q_number);
       }
   } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
 
@@ -3229,16 +3262,20 @@ if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
     CHKS((settings->cutter_comp_side),
          (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
     ENABLE_FEED_OVERRIDE();
-    ENABLE_SPEED_OVERRIDE();
     settings->feed_override = true;
-    settings->speed_override = true;
+    for (int s = 0; s < settings->num_spindles; s++){
+    	settings->speed_override[s] = true;
+        ENABLE_SPEED_OVERRIDE(s);
+    }
  } else if ((block->m_modes[9] == 49)  && ONCE_M(9)){
     CHKS((settings->cutter_comp_side),
          (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
     DISABLE_FEED_OVERRIDE();
-    DISABLE_SPEED_OVERRIDE();
     settings->feed_override = false;
-    settings->speed_override = false;
+    for (int s = 0; s < settings->num_spindles; s++){
+    	settings->speed_override[s] = false;
+        DISABLE_SPEED_OVERRIDE(s);
+    }
   }
 
 if ((block->m_modes[9] == 50)  && ONCE_M(9)){
@@ -3256,17 +3293,30 @@ if ((block->m_modes[9] == 50)  && ONCE_M(9)){
   }
 
 if ((block->m_modes[9] == 51)  && ONCE_M(9)){
-
+	int e = -1;
+	if (block->e_flag){
+		CHKS((block->e_number <= 0 || block->e_number >= settings-> num_spindles),
+				(_("Invalid E-number in M51 command")));
+		e = block->e_number;
+	}
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
-	ENABLE_SPEED_OVERRIDE();
-	settings->speed_override = true;
+		for (int s = 0; s < settings->num_spindles; s++){
+			if (e == -1 or s == e){
+				ENABLE_SPEED_OVERRIDE(s);
+				settings->speed_override[s] = true;
+			}
+		}
     } else {
         CHKS((settings->cutter_comp_side),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
-	DISABLE_SPEED_OVERRIDE();
-	settings->speed_override = false;
+		for (int s = 0; s < settings->num_spindles; s++){
+			if (e == -1 or s == e){
+				DISABLE_SPEED_OVERRIDE(s);
+				settings->speed_override[s] = false;
+			}
+		}
     }
   }
   
@@ -4070,26 +4120,35 @@ Called by: execute_block.
 
 */
 
-int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS274 instructions
-                         setup_pointer settings)        //!< pointer to machine settings             
+int Interp::convert_speed(int e_number,          //The E-number or -1 if none
+					      block_pointer block,   //!< pointer to a block of RS274 instructions
+                          setup_pointer settings)//!< pointer to machine settings
 {
-  enqueue_SET_SPINDLE_SPEED(block->s_number);
-  settings->speed = block->s_number;
+  for (int s = 0; s < settings->num_spindles; s++){
+	  if (e_number == -1 || s == e_number){
+		  enqueue_SET_SPINDLE_SPEED(s, block->s_number);
+		  settings->speed[s] = block->s_number;
+	  }
+  }
   return INTERP_OK;
 }
 
-int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
+int Interp::convert_spindle_mode(int e_number, block_pointer block, setup_pointer settings)
 {
-    if(block->g_modes[GM_SPINDLE_MODE] == G_97) {
-        settings->spindle_mode = CONSTANT_RPM;
-	enqueue_SET_SPINDLE_MODE(0);
-    } else { /* G_96 */
-        settings->spindle_mode = CONSTANT_SURFACE;
-	if(block->d_flag)
-	    enqueue_SET_SPINDLE_MODE(fabs(block->d_number_float));
-	else
-	    enqueue_SET_SPINDLE_MODE(1e30);
-    }
+	for (int s = 0; s < settings->num_spindles; s++){
+		if (e_number == -1 || s == e_number){
+			  if(block->g_modes[14] == G_97) {
+				settings->spindle_mode[s] = CONSTANT_RPM;
+			enqueue_SET_SPINDLE_MODE(s, 0);
+			} else { /* G_96 */
+				settings->spindle_mode[s] = CONSTANT_SURFACE;
+			if(block->d_flag)
+				enqueue_SET_SPINDLE_MODE(s, fabs(block->d_number_float));
+			else
+				enqueue_SET_SPINDLE_MODE(s, 1e30);
+			}
+		}
+	}
     return INTERP_OK;
 }
 /****************************************************************************/
@@ -4261,28 +4320,28 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->distance_mode = MODE_ABSOLUTE;
 
 /*4*/ settings->feed_mode = UNITS_PER_MINUTE;
-    SET_FEED_MODE(0);
-    settings->feed_rate = 0;
+    SET_FEED_MODE(0, 0);
+    settings->feed_rate = block->f_number;
     SET_FEED_RATE(0);
 
 /*5*/ if (!settings->feed_override) {
       ENABLE_FEED_OVERRIDE();
       settings->feed_override = true;
     }
-    if (!settings->speed_override) {
-      ENABLE_SPEED_OVERRIDE();
-      settings->speed_override = true;
-    }
 
 /*6*/
     settings->cutter_comp_side = false;
     settings->cutter_comp_firstmove = true;
 
-/*7*/ STOP_SPINDLE_TURNING();
-    settings->spindle_turning = CANON_STOPPED;
-
-    /* turn off FPR */
-    SET_SPINDLE_MODE(0);
+/*7*/
+    for (int s = 0; s < settings->num_spindles; s++){
+    	STOP_SPINDLE_TURNING(s);
+    	settings->spindle_turning[s] = CANON_STOPPED;
+    	ENABLE_SPEED_OVERRIDE(s);
+    	settings->speed_override[s] = true;
+		/* turn off FPR */
+		SET_SPINDLE_MODE(s, 0);
+    }
 
 /*8*/ settings->motion_mode = G_1;
 
@@ -4403,7 +4462,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
     } else if (settings->feed_mode == UNITS_PER_REVOLUTION) {
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
-      CHKS((settings->speed == 0.0), _("Cannot feed with zero spindle speed in feed per rev mode"));
+      CHKS((settings->speed[settings->active_spindle] == 0.0),
+    		  (_("Cannot feed with zero spindle speed in feed per rev mode")));
     } else if (settings->feed_mode == INVERSE_TIME) {
       CHKS((!block->f_flag),
           NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE);
@@ -4458,27 +4518,42 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33) {
-    CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
-           (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
+	if (block->e_flag){
+		CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
+				(_("Invalid E-number in G33 move")));
+		settings->active_spindle = (int)block->e_number;
+	}
+    CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
+           (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33"));
-    START_SPEED_FEED_SYNCH(block->k_number, 0);
+    START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33_1) {
-    CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
-           (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
+	if (block->e_flag){
+		CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
+				(_("Invalid E-number in G33.1 move")));
+		settings->active_spindle = (int)block->e_number;
+	}
+    CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
+           (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33.1"));
-    START_SPEED_FEED_SYNCH(block->k_number, 0);
+    START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     RIGID_TAP(block->line_number, end_x, end_y, end_z);
     STOP_SPEED_FEED_SYNCH();
     // after the RIGID_TAP cycle we'll be in the same spot
   } else if (move == G_76) {
-    CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
-           (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
-          _("Spindle not turning in G76"));
+	if (block->d_flag){ // D was the only letter left, every other command uses E
+		CHKS((block->d_number_float < 0 || block->d_number_float >= settings->num_spindles),
+				(_("Invalid D-number in G76 cycle")));
+		settings->active_spindle = (int)block->d_number_float;
+	}
+    CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
+           (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
+          _("Chosen spindle (%i) not turning in G76"), settings->active_spindle);
     CHKS((settings->AA_current != AA_end || 
          settings->BB_current != BB_end || 
          settings->CC_current != CC_end ||
@@ -4580,25 +4655,25 @@ threading_pass(setup_pointer settings, block_pointer block,
 		      start_y, start_z - zoff, AABBCC); //back
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(taper_pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, taper_pitch, 0);
 	STRAIGHT_FEED(block->line_number, boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
 	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0);
     } else {
 	STRAIGHT_TRAVERSE(block->line_number, boring? safe_x + depth: safe_x - depth, 
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0);
     }
         
     if(taper_dist && exit_taper) {
 	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth,  //over
 		      start_y, target_z - zoff + taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(taper_pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, taper_pitch, 0);
 	STRAIGHT_FEED(block->line_number, boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight, 
@@ -5124,8 +5199,10 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
   START_CHANGE(); // indicate start of change operation
   if (!settings->tool_change_with_spindle_on) {
-      STOP_SPINDLE_TURNING();
-      settings->spindle_turning = CANON_STOPPED;
+	  for (int s = 0; s < settings->num_spindles; s++){
+		  STOP_SPINDLE_TURNING(s);
+		  settings->spindle_turning[s] = CANON_STOPPED;
+	  }
   }
 
   if (settings->tool_change_quill_up) {

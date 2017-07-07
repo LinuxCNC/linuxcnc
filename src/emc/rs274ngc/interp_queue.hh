@@ -42,6 +42,7 @@ struct set_feed_rate {
 };
 
 struct set_feed_mode {
+	int spindle;
     int mode;
 };
 
@@ -50,10 +51,12 @@ struct dwell {
 };
 
 struct set_spindle_mode {
+    int spindle;
     double mode;
 };
 
 struct set_spindle_speed {
+    int spindle;
     double speed;
 };
 
@@ -68,11 +71,13 @@ struct mcommand {
 };
 
 struct orient_spindle {
+    int spindle;
     double orientation;
     int mode;
 };
 
 struct wait_orient_spindle_complete {
+	int spindle;
     double timeout;
 };
 
@@ -89,8 +94,8 @@ struct queued_canon {
         struct set_spindle_speed set_spindle_speed;
         struct comment comment;
         struct mcommand mcommand;
-	struct orient_spindle orient_spindle;
-	struct wait_orient_spindle_complete wait_orient_spindle_complete;
+        struct orient_spindle orient_spindle;
+        struct wait_orient_spindle_complete wait_orient_spindle_complete;
     } data;
 };
 
@@ -98,16 +103,16 @@ std::vector<queued_canon>& qc(void);
 
 void enqueue_SET_FEED_RATE(double feed);
 void enqueue_DWELL(double time);
-void enqueue_SET_FEED_MODE(int mode);
+void enqueue_SET_FEED_MODE(int spindle, int mode);
 void enqueue_MIST_ON(void);
 void enqueue_MIST_OFF(void);
 void enqueue_FLOOD_ON(void);
 void enqueue_FLOOD_OFF(void);
-void enqueue_START_SPINDLE_CLOCKWISE(void);
-void enqueue_START_SPINDLE_COUNTERCLOCKWISE(void);
-void enqueue_STOP_SPINDLE_TURNING(void);
-void enqueue_SET_SPINDLE_MODE(double mode);
-void enqueue_SET_SPINDLE_SPEED(double speed);
+void enqueue_START_SPINDLE_CLOCKWISE(int spindle);
+void enqueue_START_SPINDLE_COUNTERCLOCKWISE(int spinde);
+void enqueue_STOP_SPINDLE_TURNING(int spindle);
+void enqueue_SET_SPINDLE_MODE(int spindle, double mode);
+void enqueue_SET_SPINDLE_SPEED(int spindle, double speed);
 void enqueue_COMMENT(const char *c);
 int enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
                           double dx, double dy, double dz,
@@ -128,8 +133,8 @@ void enqueue_ARC_FEED(setup_pointer settings, int l,
                       double u, double v, double w);
 void enqueue_M_USER_COMMAND(int index,double p_number,double q_number);
 void enqueue_START_CHANGE(void);
-void enqueue_ORIENT_SPINDLE(double orientation, int mode);
-void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(double timeout);
+void enqueue_ORIENT_SPINDLE(int spindle, double orientation, int mode);
+void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(int spindle, double timeout);
 void dequeue_canons(setup_pointer settings);
 void set_endpoint(double x, double y);
 void set_endpoint_zx(double z, double x);

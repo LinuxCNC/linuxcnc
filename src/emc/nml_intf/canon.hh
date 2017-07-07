@@ -132,12 +132,13 @@ typedef struct CanonConfig_t {
     double xy_rotation;
     int rotary_unlock_for_traverse; // jointnumber or -1
 
-    // these are both always positive
-    double css_maximum;
-    double css_numerator;
+    // moved to the emcStatus->spindle[] structure
+    //double css_maximum;
+    //double css_numerator;
 
     int feed_mode;
     int synched;
+    int spindle;
     CANON_POSITION g5xOffset;
     CANON_POSITION g92Offset;
 /*
@@ -344,11 +345,12 @@ for the same motions.
 
 */
 
-extern void SET_FEED_MODE(int mode);
+extern void SET_FEED_MODE(int spindle, int mode);
 
 /* This sets the feed mode: 0 for feed in units per minute, and 1 for feed in
  * units per revolution.  In units per revolution mode, the values are in
- * inches per revolution (G20 in effect) or mm per minute (G21 in effect) */
+ * inches per revolution (G20 in effect) or mm per minute (G21 in effect)
+ * The spindle number indicates which spindle the movement is synchronised to */
 
 extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance);
 
@@ -379,7 +381,7 @@ extern void STOP_CUTTER_RADIUS_COMPENSATION();
 translation commands. */
 
 /* used for threading */
-extern void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode);
+extern void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode);
 extern void STOP_SPEED_FEED_SYNCH();
 
 
@@ -502,36 +504,36 @@ extern void DWELL(double seconds);
 
 /* Spindle Functions */
 
-extern void SET_SPINDLE_MODE(double);
+extern void SET_SPINDLE_MODE(int spindle, double mode);
 extern void SPINDLE_RETRACT_TRAVERSE();
 
 /* Retract the spindle at traverse rate to the fully retracted position. */
 
-extern void START_SPINDLE_CLOCKWISE(int wait_for_atspeed = 1);
+extern void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed = 1);
 
 /* Turn the spindle clockwise at the currently set speed rate. If the
 spindle is already turning that way, this command has no effect. */
 
-extern void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed = 1);
+extern void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed = 1);
 
 /* Turn the spindle counterclockwise at the currently set speed rate. If
 the spindle is already turning that way, this command has no effect. */
 
-extern void SET_SPINDLE_SPEED(double r);
+extern void SET_SPINDLE_SPEED(int spindle, double r);
 
 /* Set the spindle speed that will be used when the spindle is turning.
 This is usually given in rpm and refers to the rate of spindle
 rotation. If the spindle is already turning and is at a different
 speed, change to the speed given with this command. */
 
-extern void STOP_SPINDLE_TURNING();
+extern void STOP_SPINDLE_TURNING(int spindle);
 
 /* Stop the spindle from turning. If the spindle is already stopped, this
 command may be given, but it will have no effect. */
 
 extern void SPINDLE_RETRACT();
-extern void ORIENT_SPINDLE(double orientation, int mode);
-extern void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout);
+extern void ORIENT_SPINDLE(int spindle, double orientation, int mode);
+extern void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout);
 extern void LOCK_SPINDLE_Z();
 extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
@@ -617,8 +619,8 @@ extern void DISABLE_FEED_OVERRIDE();
 extern void ENABLE_FEED_OVERRIDE();
 
 /* used to deactivate user control of spindle speed override */
-extern void DISABLE_SPEED_OVERRIDE();
-extern void ENABLE_SPEED_OVERRIDE();
+extern void DISABLE_SPEED_OVERRIDE(int spindle);
+extern void ENABLE_SPEED_OVERRIDE(int spindle);
 
 /* used to deactivate user control of feed hold */
 extern void DISABLE_FEED_HOLD();
@@ -866,10 +868,10 @@ extern int GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 extern int GET_EXTERNAL_QUEUE_EMPTY();
 
 // Returns the system value for spindle speed in rpm
-extern double GET_EXTERNAL_SPEED();
+extern double GET_EXTERNAL_SPEED(int spindle);
 
 // Returns the system value for direction of spindle turning
-extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
+extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle);
 
 // returns current tool length offset
 extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
@@ -911,7 +913,7 @@ extern double GET_EXTERNAL_TRAVERSE_RATE();
 // Returns the enabled/disabled status for feed override, spindle
 // override, adaptive feed, and feed hold
 extern int GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
+extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle);
 extern int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
 extern int GET_EXTERNAL_FEED_HOLD_ENABLE();
 
