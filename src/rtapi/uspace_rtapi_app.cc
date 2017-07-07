@@ -17,7 +17,9 @@
 
 #include "config.h"
 
+#ifdef __linux__
 #include <sys/fsuid.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -43,7 +45,9 @@
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <malloc.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif
 
 #include "config.h"
 
@@ -62,13 +66,17 @@ static uid_t euid, ruid;
 
 WithRoot::WithRoot() {
     if(!level++) {
+#ifdef __linux__
         setfsuid(euid);
+#endif
     }
 }
 
 WithRoot::~WithRoot() {
     if(!--level) {
+#ifdef __linux__
         setfsuid(ruid);
+#endif
     }
 }
 
@@ -503,7 +511,9 @@ int main(int argc, char **argv) {
     ruid = getuid();
     euid = geteuid();
     setresuid(euid, euid, ruid);
+#ifdef __linux__
     setfsuid(ruid);
+#endif
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
@@ -655,6 +665,7 @@ static void configure_memory()
     res = mlockall(MCL_CURRENT | MCL_FUTURE);
     if(res < 0) perror("mlockall");
 
+#ifdef __linux__
     /* Turn off malloc trimming.*/
     if (!mallopt(M_TRIM_THRESHOLD, -1)) {
         rtapi_print_msg(RTAPI_MSG_WARN,
@@ -665,6 +676,7 @@ static void configure_memory()
         rtapi_print_msg(RTAPI_MSG_WARN,
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
+#endif
     char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
@@ -696,6 +708,7 @@ static int harden_rt()
 #endif
 
     struct sigaction sig_act = {};
+#ifdef __linux__
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
@@ -716,6 +729,7 @@ static int harden_rt()
 	rtapi_print_msg(RTAPI_MSG_WARN,
 		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
 		  errno, strerror(errno));
+#endif /* __linux__ */
 
     configure_memory();
 
@@ -735,6 +749,7 @@ static int harden_rt()
     sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
+#ifdef __linux__
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
@@ -746,6 +761,7 @@ static int harden_rt()
         }
         // deliberately leak fd until program exit
     }
+#endif /* __linux__ */
     return 0;
 }
 

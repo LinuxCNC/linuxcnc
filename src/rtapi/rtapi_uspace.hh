@@ -17,7 +17,9 @@
  */
 #ifndef RTAPI_USPACE_HH
 #define RTAPI_USPACE_HH
+#ifdef __linux__
 #include <sys/fsuid.h>
+#endif
 #include <unistd.h>
 #include <pthread.h>
 #include <atomic>

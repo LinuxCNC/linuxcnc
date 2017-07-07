@@ -93,6 +93,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if(res < 0) perror("shmctl IPC_SET");
   }
 
+#ifndef __FreeBSD__ // FreeBSD doesn't implement SHM_LOCK
   if(rtapi_is_realtime())
   {
     /* ensure the segment is locked */
@@ -105,6 +106,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
       rtapi_print_msg(RTAPI_MSG_ERR,
           "shared memory segment not locked as requested\n");
   }
+#endif
 #endif
 
   /* and map it into process space */
@@ -320,6 +322,7 @@ int rtapi_exit(int module_id)
 
 int rtapi_is_kernelspace() { return 0; }
 static int _rtapi_is_realtime = -1;
+#ifdef __linux__
 static int detect_preempt_rt() {
     struct utsname u;
     int crit1, crit2 = 0;
@@ -336,6 +339,11 @@ static int detect_preempt_rt() {
 
     return crit1 && crit2;
 }
+#else
+static int detect_preempt_rt() {
+    return 0;
+}
+#endif
 #ifdef USPACE_RTAI
 static int detect_rtai() {
     struct utsname u;
