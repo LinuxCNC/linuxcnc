@@ -341,8 +341,6 @@ static PyMemberDef Stat_members[] = {
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
     {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY},
-    {(char*)"spindlerate", T_DOUBLE, O(motion.traj.spindle_scale), READONLY},
-    
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY},
     {(char*)"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
     {(char*)"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY},
@@ -358,16 +356,18 @@ static PyMemberDef Stat_members[] = {
     {(char*)"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {(char*)"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
     {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
-    {(char*)"spindle_override_enabled", T_BOOL, O(motion.traj.spindle_override_enabled), READONLY},
     {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
     {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
 
 // EMC_SPINDLE_STAT motion.spindle
-    {(char*)"spindle_speed", T_DOUBLE, O(motion.spindle.speed), READONLY},
-    {(char*)"spindle_direction", T_INT, O(motion.spindle.direction), READONLY},
-    {(char*)"spindle_brake", T_INT, O(motion.spindle.brake), READONLY},
-    {(char*)"spindle_increasing", T_INT, O(motion.spindle.increasing), READONLY},
-    {(char*)"spindle_enabled", T_INT, O(motion.spindle.enabled), READONLY},
+    //FIXME: There may be multiple spindles now
+    {(char*)"spindlerate", T_DOUBLE, O(motion.spindle[0].spindle_scale), READONLY},
+    {(char*)"spindle_speed", T_DOUBLE, O(motion.spindle[0].speed), READONLY},
+    {(char*)"spindle_direction", T_INT, O(motion.spindle[0].direction), READONLY},
+    {(char*)"spindle_brake", T_INT, O(motion.spindle[0].brake), READONLY},
+    {(char*)"spindle_increasing", T_INT, O(motion.spindle[0].increasing), READONLY},
+    {(char*)"spindle_enabled", T_INT, O(motion.spindle[0].enabled), READONLY},
+    {(char*)"spindle_override_enabled", T_BOOL, O(motion.spindle[0].spindle_override_enabled), READONLY},
 
 // io
 // EMC_TOOL_STAT io.tool

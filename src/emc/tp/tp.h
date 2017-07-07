@@ -49,7 +49,7 @@ int tpIsDone(TP_STRUCT * const tp);
 int tpQueueDepth(TP_STRUCT * const tp);
 int tpActiveDepth(TP_STRUCT * const tp);
 int tpGetMotionType(TP_STRUCT * const tp);
-int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int wait);
+int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int wait);
 void tpToggleDIOs(TC_STRUCT * const tc); //gets called when a new tc is taken from the queue. it checks and toggles all needed DIO's
 
 int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end);

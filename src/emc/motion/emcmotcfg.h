@@ -24,6 +24,7 @@
 /* number of axes defined by the interp */ //FIXME: shouldn't be here..
 #define EMCMOT_MAX_AXIS 9
 
+#define EMCMOT_MAX_SPINDLES 8
 #define EMCMOT_MAX_DIO 64
 #define EMCMOT_MAX_AIO 64
 

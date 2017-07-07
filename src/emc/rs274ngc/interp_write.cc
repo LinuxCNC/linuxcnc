@@ -118,8 +118,8 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
   gez[12] = -1;
-  gez[13] =
-    (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_96;
+  gez[13] = //I don't even know how to display the mode of an arbitray number of spindles (andypugh 17/6/16)
+    (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
   return INTERP_OK;
@@ -151,8 +151,8 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
   emz = settings->active_m_codes;
   emz[0] = settings->sequence_number;   /* 0 seq number  */
   emz[1] = (block == NULL) ? -1 : block->m_modes[4];    /* 1 stopping    */
-  emz[2] = (settings->spindle_turning == CANON_STOPPED) ? 5 :   /* 2 spindle     */
-    (settings->spindle_turning == CANON_CLOCKWISE) ? 3 : 4;
+  emz[2] = (settings->spindle_turning[0] == CANON_STOPPED) ? 5 :   /* 2 spindle     */
+    (settings->spindle_turning[0] == CANON_CLOCKWISE) ? 3 : 4;
   emz[3] =                      /* 3 tool change */
     (block == NULL) ? -1 : block->m_modes[6];
   emz[4] =                      /* 4 mist        */
@@ -198,7 +198,7 @@ int Interp::write_settings(setup_pointer settings)       //!< pointer to machine
   vals = settings->active_settings;
   vals[0] = settings->sequence_number;  /* 0 sequence number */
   vals[1] = settings->feed_rate;        /* 1 feed rate       */
-  vals[2] = settings->speed;    /* 2 spindle speed   */
+  vals[2] = settings->speed[0];    /* 2 spindle speed   */
 
   return INTERP_OK;
 }

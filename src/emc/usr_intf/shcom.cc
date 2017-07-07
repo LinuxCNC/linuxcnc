@@ -723,9 +723,10 @@ int sendLubeOff()
     return 0;
 }
 
-int sendSpindleForward()
+int sendSpindleForward(int spindle)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
+    emc_spindle_on_msg.spindle = spindle;
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
     } else {
@@ -741,9 +742,10 @@ int sendSpindleForward()
     return 0;
 }
 
-int sendSpindleReverse()
+int sendSpindleReverse(int spindle)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
+    emc_spindle_on_msg.spindle = spindle;
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed =
 	    -1 * fabs(emcStatus->task.activeSettings[2]);
@@ -760,10 +762,10 @@ int sendSpindleReverse()
     return 0;
 }
 
-int sendSpindleOff()
+int sendSpindleOff(int spindle)
 {
     EMC_SPINDLE_OFF emc_spindle_off_msg;
-
+    emc_spindle_off_msg.spindle = spindle;
     emcCommandSend(emc_spindle_off_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -774,10 +776,10 @@ int sendSpindleOff()
     return 0;
 }
 
-int sendSpindleIncrease()
+int sendSpindleIncrease(int spindle)
 {
     EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
-
+    emc_spindle_increase_msg.spindle = spindle;
     emcCommandSend(emc_spindle_increase_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -788,10 +790,10 @@ int sendSpindleIncrease()
     return 0;
 }
 
-int sendSpindleDecrease()
+int sendSpindleDecrease(int spindle)
 {
     EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
-
+    emc_spindle_decrease_msg.spindle = spindle;
     emcCommandSend(emc_spindle_decrease_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -802,10 +804,10 @@ int sendSpindleDecrease()
     return 0;
 }
 
-int sendSpindleConstant()
+int sendSpindleConstant(int spindle)
 {
     EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
-
+    emc_spindle_constant_msg.spindle = spindle;
     emcCommandSend(emc_spindle_constant_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -816,10 +818,11 @@ int sendSpindleConstant()
     return 0;
 }
 
-int sendBrakeEngage()
+int sendBrakeEngage(int spindle)
 {
     EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
 
+    emc_spindle_brake_engage_msg.spindle = spindle;
     emcCommandSend(emc_spindle_brake_engage_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -830,10 +833,11 @@ int sendBrakeEngage()
     return 0;
 }
 
-int sendBrakeRelease()
+int sendBrakeRelease(int spindle)
 {
     EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
 
+    emc_spindle_brake_release_msg.spindle = spindle;
     emcCommandSend(emc_spindle_brake_release_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -931,7 +935,7 @@ int sendRapidOverride(double override)
 }
 
 
-int sendSpindleOverride(double override)
+int sendSpindleOverride(int spindle, double override)
 {
     EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
 
@@ -939,6 +943,7 @@ int sendSpindleOverride(double override)
 	override = 0.0;
     }
 
+    emc_traj_set_spindle_scale_msg.spindle = spindle;
     emc_traj_set_spindle_scale_msg.scale = override;
     emcCommandSend(emc_traj_set_spindle_scale_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {

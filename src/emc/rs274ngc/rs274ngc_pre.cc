@@ -837,6 +837,7 @@ int Interp::init()
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
   _setup.call_state = CS_NORMAL;
+  _setup.num_spindles = 1;
 
   // default arc radius tolerances
   // we'll try to override these from the ini file below
@@ -860,6 +861,7 @@ int Interp::init()
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
+          inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
 
           if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
               _setup.a_indexer_jnum = atol(inistring);
@@ -1159,7 +1161,7 @@ int Interp::init()
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
-  _setup.spindle_mode = CONSTANT_RPM;
+// setup.spindle_mode  set in interp_synch;
 //_setup.speed_override set in Interp::synch
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
@@ -1977,15 +1979,17 @@ int Interp::synch()
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
   _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
-  _setup.speed = GET_EXTERNAL_SPEED();
-  _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
   _setup.pockets_max = GET_EXTERNAL_POCKETS_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  _setup.speed_override = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
   _setup.feed_hold = GET_EXTERNAL_FEED_HOLD_ENABLE();
-
+  for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++){
+	  _setup.speed[s] = GET_EXTERNAL_SPEED(s);
+	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
+	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
+	  _setup.spindle_mode[s] = CONSTANT_RPM;
+  }
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==
                              0) ?

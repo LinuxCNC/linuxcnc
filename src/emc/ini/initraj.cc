@@ -92,6 +92,19 @@ static int loadTraj(EmcIniFile *trajInifile)
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
     try{
+		int spindles = 1;
+		trajInifile->Find(&spindles, "SPINDLES", "TRAJ");
+		if (0 != emcTrajSetSpindles(spindles)) {
+			return -1;
+		}
+    }
+
+    catch (EmcIniFile::Exception &e) {
+        e.Print();
+        return -1;
+    }
+
+    try{
 	int axismask = 0;
 	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
 	if(coord) {

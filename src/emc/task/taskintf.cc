@@ -989,6 +989,25 @@ int emcTrajSetAxes(int axismask)
     return 0;
 }
 
+int emcTrajSetSpindles(int spindles)
+{
+    if (spindles <= 0 || spindles > EMCMOT_MAX_SPINDLES) {
+	rcs_print("emcTrajSetSpindles failing: spindles=%d\n",
+		spindles);
+	return -1;
+    }
+
+    TrajConfig.Spindles = spindles;
+    emcmotCommand.command = EMCMOT_SET_NUM_SPINDLES;
+    emcmotCommand.spindle = spindles;
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d) returned %d\n", __FUNCTION__, spindles, retval);
+    }
+    return retval;
+}
+
 int emcTrajSetUnits(double linearUnits, double angularUnits)
 {
     if (linearUnits <= 0.0 || angularUnits <= 0.0) {
@@ -1322,9 +1341,10 @@ int emcTrajSetOffset(EmcPose tool_offset)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetSpindleSync(double fpr, bool wait_for_index) 
+int emcTrajSetSpindleSync(int spindle, double fpr, bool wait_for_index)
 {
     emcmotCommand.command = EMCMOT_SET_SPINDLESYNC;
+    emcmotCommand.spindle = spindle;
     emcmotCommand.spindlesync = fpr;
     emcmotCommand.flags = wait_for_index;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -1463,6 +1483,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     int joint, enables;
 
     stat->joints = TrajConfig.Joints;
+    stat->spindles = TrajConfig.Spindles;
     stat->deprecated_axes = TrajConfig.DeprecatedAxes;
     stat->axis_mask = TrajConfig.AxisMask;
     stat->linearUnits = TrajConfig.LinearUnits;
@@ -1514,7 +1535,6 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->paused = emcmotStatus.paused;
     stat->scale = emcmotStatus.feed_scale;
     stat->rapid_scale = emcmotStatus.rapid_scale;
-    stat->spindle_scale = emcmotStatus.spindle_scale;
 
     stat->position = emcmotStatus.carte_pos_cmd;
 
@@ -1554,7 +1574,6 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
         enables = emcmotStatus.enables_new;
     
     stat->feed_override_enabled = enables & FS_ENABLED;
-    stat->spindle_override_enabled = enables & SS_ENABLED;
     stat->adaptive_feed_enabled = enables & AF_ENABLED;
     stat->feed_hold_enabled = enables & FH_ENABLED;
 
@@ -1749,32 +1768,35 @@ int emcMotionSetDout(unsigned char index, unsigned char start,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleAbort(void)
+int emcSpindleAbort(int spindle)
 {
-    return emcSpindleOff();
+    return emcSpindleOff(spindle);
 }
 
-int emcSpindleSpeed(double speed, double css_factor, double offset)
+int emcSpindleSpeed(int spindle, double speed, double css_factor, double offset)
 {
+    /* Multispindle might require pre-setting of speed
+    if (emcmotStatus.spindle_status[spindle].speed == 0){
+    	return 0; //spindle stopped, not updating speed */
 
-    if (emcmotStatus.spindle.speed == 0)
-	return 0; //spindle stopped, not updating speed
-    return emcSpindleOn(speed, css_factor, offset, emcmotCommand.wait_for_spindle_at_speed);
+    return emcSpindleOn(spindle, speed, css_factor, offset);
 }
 
-int emcSpindleOrient(double orientation, int mode) 
+int emcSpindleOrient(int spindle, double orientation, int mode)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_ORIENT;
+    emcmotCommand.spindle = spindle;
     emcmotCommand.orientation = orientation;
     emcmotCommand.mode = mode;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 
-int emcSpindleOn(double speed, double css_factor, double offset, int wait_for_at_speed)
+int emcSpindleOn(int spindle, double speed, double css_factor, double offset, int wait_for_at_speed)
 {
 
     emcmotCommand.command = EMCMOT_SPINDLE_ON;
+    emcmotCommand.spindle = spindle;
     emcmotCommand.vel = speed;
     emcmotCommand.ini_maxvel = css_factor;
     emcmotCommand.acc = offset;
@@ -1782,46 +1804,70 @@ int emcSpindleOn(double speed, double css_factor, double offset, int wait_for_at
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleOff()
+int emcSpindleOff(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_OFF;
+    emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleBrakeRelease()
+int emcSpindleBrakeRelease(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_BRAKE_RELEASE;
+    emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleBrakeEngage()
+int emcSpindleBrakeEngage(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_BRAKE_ENGAGE;
+    emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleIncrease()
+int emcSpindleIncrease(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_INCREASE;
+    emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleDecrease()
+int emcSpindleDecrease(int spindle)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_DECREASE;
+    emcmotCommand.spindle = spindle;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleConstant()
+int emcSpindleConstant(int spindle)
 {
     return 0; // nothing to do
 }
 
+int emcSpindleUpdate(EMC_SPINDLE_STAT stat[], int num_spindles){
+	int s;
+	int enables;
+    if (emcmotStatus.motionFlag & EMCMOT_MOTION_COORD_BIT)
+        enables = emcmotStatus.enables_queued;
+    else
+        enables = emcmotStatus.enables_new;
 
+    for (s = 0; s < num_spindles; s++){
+		stat[s].spindle_override_enabled = enables & SS_ENABLED;
+		stat[s].enabled = emcmotStatus.spindle_status[s].speed != 0;
+		stat[s].speed = emcmotStatus.spindle_status[s].speed;
+		stat[s].brake = emcmotStatus.spindle_status[s].brake;
+		stat[s].direction = emcmotStatus.spindle_status[s].direction;
+		stat[s].orient_state = emcmotStatus.spindle_status[s].orient_state;
+		stat[s].orient_fault = emcmotStatus.spindle_status[s].orient_fault;
+		stat[s].spindle_scale = emcmotStatus.spindle_status[s].scale;
+    }
+    return 0;
+}
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
-    int r1, r2, r3;
+    int r1, r2, r3, r4;
     int joint;
     int error;
     int exec;
@@ -1862,18 +1908,12 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r3 = emcTrajUpdate(&stat->traj);
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
+    r3 = emcTrajUpdate(&stat->traj);
+    r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->debug = emcmotConfig.debug;
-    
-    stat->spindle.enabled = emcmotStatus.spindle.speed != 0;
-    stat->spindle.speed = emcmotStatus.spindle.speed;
-    stat->spindle.brake = emcmotStatus.spindle.brake;
-    stat->spindle.direction = emcmotStatus.spindle.direction;
-    stat->spindle.orient_state = emcmotStatus.spindle.orient_state;
-    stat->spindle.orient_fault = emcmotStatus.spindle.orient_fault;
-    stat->on_soft_limit = emcmotStatus.on_soft_limit;
 
     for (dio = 0; dio < EMCMOT_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
@@ -1913,7 +1953,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     } else {
 	stat->status = RCS_DONE;
     }
-    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) ? 0 : -1;
 }
 
 int emcSetupArcBlends(int arcBlendEnable,
