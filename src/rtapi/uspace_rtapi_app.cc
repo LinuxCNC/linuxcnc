@@ -80,6 +80,9 @@ WithRoot::~WithRoot() {
     }
 }
 
+extern "C"
+int rtapi_is_realtime();
+
 namespace
 {
 RtapiApp &App();
