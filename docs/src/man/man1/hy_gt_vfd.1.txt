@@ -262,3 +262,22 @@ PC.03 = 1::
 *hy_gt_vfd.fault-info* (float, out)::
 
         The VFD's fault info register.
+
+
+
+
+== ISSUES
+
+The VFD produces the output frequency that it sends to the motor by adding
+a manually specified offset to the frequency command it gets over modbus.
+
+The manual offset is controlled by pressing the Up/Down arrows on the
+faceplate while the VFD is turning the motor.
+
+If you command a speed on the .speed-cmd pin and get a different speed
+reported on the .speed-fb pin, first verify that the VFD registers
+listed in the FIRMWARE SETUP section above and the driver's command-line
+arguments all agree with the info on the motor's name plate.  If you
+still aren't getting the speed you expect, zero the VFD's frequency
+offset by starting the motor running, then pressing the Up/Down buttons
+to zero the offset.

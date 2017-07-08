@@ -46,6 +46,11 @@ Set register PD001 (source of run commands) to 2 (communication port).
 Set register PD002 (source of operating frequency) to 2 (communication
 port).
 .B
+.IP PD004
+.br
+Set register PD004 (Base Frequency) according to motor specs.  This is
+the rated frequency of the motor from the motor's name plate, in Hz.
+.B
 .IP PD005
 .br
 Set register PD005 (max frequency) according to motor specs.  This is
@@ -65,6 +70,10 @@ This is the motor's maximum voltage, in Volts.
 .br
 Set register PD142 (rated motor current) according to motor name plate.
 This is the motor's maximum current, in Amps.
+.B
+.IP PD143
+.br
+Set register PD143 (Number of Motor Poles) according to motor name plate.
 .B
 .IP PD144
 .br
@@ -157,6 +166,12 @@ not specified) and program register PD144 of the VFD.  If not specified,
 read the motor's speed at 50 Hz from register P144 of the VFD, and use
 that and the max frequency to compute the motor's max speed.
 .B
+.IP -P,\ --motor-poles\ <n>
+(default: read value from VFD P143) This command-line argument is the
+number of poles in the motor.  If specified, this value is sent to the
+VFD's register PD143.  If not specified, the value is read from PD143
+and reported on the corresponding HAL pin.
+.B
 .SH PINS
 .B
 .IP <name>.enable
@@ -248,6 +263,9 @@ within .spindle-at-speed-tolerance of the commanded speed.
 .IP <name>.max-freq
 (float, out)
 .B
+.IP <name>.base-freq
+(float, out)
+.B
 .IP <name>.freq-lower-limit
 (float, out)
 .B
@@ -259,6 +277,10 @@ within .spindle-at-speed-tolerance of the commanded speed.
 .B
 .IP <name>.rated-motor-rev
 (float, out)
+.B
+.B
+.IP <name>.motor-poles
+(u32, out)
 .B
 .IP <name>.hycomm-ok
 (bit, out)
