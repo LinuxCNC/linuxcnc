@@ -161,7 +161,7 @@ For example, for a feed rate of 1 inch per second and an acceleration of
 *1^2^/10 = 1/10 = 0.1 inches*.
 
 For a feed rate of 0.5 inch per second, the critical distance is 
-*5^2^/100 = 25/10 = 0.025* inches.
+*5^2^/100 = 25/100 = 0.025* inches.
 
 ////
 This section has been commented out until latexmath is working again.
