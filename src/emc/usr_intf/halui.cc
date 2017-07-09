@@ -326,6 +326,14 @@ DONE: - spindle-override
     FIELD(hal_bit_t,mv_increase) /* pin for increasing the MV (+=scale) */ \
     FIELD(hal_bit_t,mv_decrease) /* pin for decreasing the MV (-=scale) */ \
 \
+    FIELD(hal_s32_t,ro_counts) /* pin for the Feed Override counting */ \
+    FIELD(hal_bit_t,ro_count_enable) /* pin for the Feed Override counting enable */ \
+    FIELD(hal_bit_t,ro_direct_value) /* pin for enabling direct value option instead of counts  */ \
+    FIELD(hal_float_t,ro_scale) /* scale for the Feed Override counting */ \
+    FIELD(hal_float_t,ro_value) /* current Feed Override value */ \
+    FIELD(hal_bit_t,ro_increase) /* pin ror increasing the FO (+=scale) */ \
+    FIELD(hal_bit_t,ro_decrease) /* pin for decreasing the FO (-=scale) */ \
+\
     FIELD(hal_s32_t,fo_counts) /* pin for the Feed Override counting */ \
     FIELD(hal_bit_t,fo_count_enable) /* pin for the Feed Override counting enable */ \
     FIELD(hal_bit_t,fo_direct_value) /* pin for enabling direct value option instead of counts  */ \
@@ -801,6 +809,8 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->fo_value), comp_id, "halui.feed-override.value"); 
     if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->ro_value), comp_id, "halui.rapid-override.value");
+    if (retval < 0) return retval;
     retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
     if (retval < 0) return retval;
     retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
@@ -926,6 +936,22 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->fo_decrease), "halui.feed-override.decrease");
     if (retval < 0) return retval;
 
+    retval = halui_export_pin_IN_s32(&(halui_data->ro_counts), "halui.rapid-override.counts");
+    if (retval < 0) return retval;
+    *halui_data->ro_counts = 0;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_count_enable), "halui.rapid-override.count-enable");
+    if (retval < 0) return retval;
+    *halui_data->ro_count_enable = 1;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_direct_value), "halui.rapid-override.direct-value");
+    if (retval < 0) return retval;
+    *halui_data->ro_direct_value = 0;
+    retval = halui_export_pin_IN_float(&(halui_data->ro_scale), "halui.rapid-override.scale");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_increase), "halui.rapid-override.increase");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_decrease), "halui.rapid-override.decrease");
+    if (retval < 0) return retval;
+    
     retval = halui_export_pin_IN_s32(&(halui_data->so_counts), "halui.spindle-override.counts");
     if (retval < 0) return retval;
     *halui_data->so_counts = 0;
@@ -1488,6 +1514,24 @@ static int sendFeedOverride(double override)
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
+static int sendRapidOverride(double override)
+{
+    EMC_TRAJ_SET_RAPID_SCALE emc_traj_set_scale_msg;
+
+    if (override < 0.0) {
+	override = 0.0;
+    }
+
+    if (override > 1.0) {
+	override = 1.0;
+    }
+
+    emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
+    emc_traj_set_scale_msg.scale = override;
+    emcCommandBuffer->write(emc_traj_set_scale_msg);
+    return emcCommandWaitReceived(emcCommandSerialNumber);
+}
+
 static int sendMaxVelocity(double velocity)
 {
     EMC_TRAJ_SET_MAX_VELOCITY mv;
@@ -1655,6 +1699,7 @@ static void hal_init_pins()
     *(halui_data->joint_selected) = 0; // select joint 0 by default
     
     *(halui_data->fo_scale) = old_halui_data.fo_scale = 0.1; //sane default
+    *(halui_data->ro_scale) = old_halui_data.ro_scale = 0.1; //sane default
     *(halui_data->so_scale) = old_halui_data.so_scale = 0.1; //sane default
 }
 
@@ -1794,6 +1839,20 @@ static void check_hal_changes()
         old_halui_data.fo_counts = counts;
     }
 
+        //rapid-override stuff
+    counts = new_halui_data.ro_counts;
+    if (counts != old_halui_data.ro_counts) {
+        if (new_halui_data.ro_count_enable) {
+            if (new_halui_data.ro_direct_value) {
+                sendRapidOverride(counts * new_halui_data.ro_scale);
+            } else {
+                sendRapidOverride( new_halui_data.ro_value + (counts - old_halui_data.ro_counts) *
+                    new_halui_data.ro_scale);
+            }
+        }
+        old_halui_data.ro_counts = counts;
+    }
+    
     //spindle-override stuff
     counts = new_halui_data.so_counts;
     if (counts != old_halui_data.so_counts) {
@@ -1817,6 +1876,12 @@ static void check_hal_changes()
         sendFeedOverride(new_halui_data.fo_value + new_halui_data.fo_scale);
     if (check_bit_changed(new_halui_data.fo_decrease, old_halui_data.fo_decrease) != 0)
         sendFeedOverride(new_halui_data.fo_value - new_halui_data.fo_scale);
+    
+    if (check_bit_changed(new_halui_data.ro_increase, old_halui_data.ro_increase) != 0)
+        sendRapidOverride(new_halui_data.ro_value + new_halui_data.ro_scale);
+    if (check_bit_changed(new_halui_data.ro_decrease, old_halui_data.ro_decrease) != 0)
+        sendRapidOverride(new_halui_data.ro_value - new_halui_data.ro_scale);
+
 
     if (check_bit_changed(new_halui_data.so_increase, old_halui_data.so_increase) != 0)
         sendSpindleOverride(new_halui_data.so_value + new_halui_data.so_scale);
@@ -2067,6 +2132,7 @@ static void modify_hal_pins()
 
     *(halui_data->mv_value) = emcStatus->motion.traj.maxVelocity;
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
+    *(halui_data->ro_value) = emcStatus->motion.traj.rapid_scale; //rapid override from 0 to 1 for 100%
     *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%
 
     *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
