@@ -263,7 +263,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
             }
         }
         if (inst->num_remotes > 0){
-            if ((r = hm2_sserial_setup_channel(hm2, inst, count)) < 0 ) {
+            if ((r = hm2_sserial_setup_channel(hm2, inst, i)) < 0 ) {
                 HM2_ERR("Smart Serial setup failure on instance %i\n", 
                         inst->device_id);
                 goto fail0;}
@@ -279,6 +279,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 //goto fail0; // Ignore it for the moment. 
             }
             //only increment the instance index if this one is populated
+            //otherwise the "slot" is re-used to keep active ports
+            //contiguous in the array
             count++ ;
         }
     }
@@ -290,6 +292,9 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
     for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(rtapi_u32));
+        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,51) < 0){
+            return -EINVAL;
+        }
     }
     // Return the physical ports to default
     ddr_reg = 0;
@@ -665,7 +670,6 @@ int hm2_sserial_read_nvram_word(hostmot2_t *hm2,
                                 int length,
                                 void *data){
     rtapi_u32 buff;
-//    return 0; //// This needs to disappear eventually, obviously
     buff = 0xEC000000;
     hm2->llio->write(hm2->llio, chan->reg_cs_addr, &buff, sizeof(rtapi_u32));
     buff = 0x01;
@@ -1780,9 +1784,9 @@ int hm2_sserial_check_local_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst
         hm2_sserial_remote_t *chan=&inst->remotes[r];
         buff = chan->status;
         buff &= err_mask;
-        for (i = 31 ; i >= 0 ; i--){
+        for (i = 31 ; i >= 0 && buff != 0 ; i--){
             if (buff & (1 << i) && err_list[i]) {
-                HM2_ERR("Smart serial card %s error = (%i) %s\n", 
+                HM2_ERR("Smart serial card %s local error = (%i) %s\n", 
                         chan->name, i, err_list[i]);
                 err_flag = -EINVAL;
             }
@@ -1806,7 +1810,7 @@ int hm2_sserial_check_remote_errors(hostmot2_t *hm2, hm2_sserial_instance_t *ins
         chan->seen_remote_errors |= chan->status;
         for (i = 31 ; i >= 0 ; i--){
             if (buff & (1 << i) && err_list[i]) {
-                HM2_ERR("Smart serial card %s error = (%i) %s\n",
+                HM2_ERR("Smart serial card %s remote error = (%i) %s\n",
                         chan->name, i, err_list[i]);
                 err_flag = -EINVAL;
             }
