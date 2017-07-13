@@ -141,11 +141,10 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    src/config.status \
 	    src/configure \
 	    src/machinekitcfg.py-tmp \
+	    src/Makefile.inc \
+	    src/Makefile.modinc \
 	    tcl/linuxcnc.tcl
 	rm -rf src/autom4te.cache etc
-##	    src/Makefile.inc \
-##	    src/Makefile.modinc \
-
 
 endif
 
@@ -217,10 +216,10 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 
-#	# delete files that should be in machinekit-dev package
-#	rm -f debian/machinekit/usr/bin/comp
-#	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
-#	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
+#	# delete files that should be in machinekit-<flavor> package
+	rm -f debian/machinekit/usr/bin/comp
+	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
+	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
 
 	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
