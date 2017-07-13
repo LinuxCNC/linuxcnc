@@ -1309,6 +1309,7 @@ widgets = nf.Widgets(root_window,
     ("view_z2", Button, ".toolbar.view_z2"),
     ("view_x", Button, ".toolbar.view_x"),
     ("view_y", Button, ".toolbar.view_y"),
+    ("view_y2", Button, ".toolbar.view_y2"),
     ("view_p", Button, ".toolbar.view_p"),
     ("rotate", Button, ".toolbar.rotate"),
 
@@ -2051,6 +2052,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="sunken")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(3)
         o.set_view_x()
@@ -2060,15 +2062,27 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="sunken")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(4)
         o.set_view_y()
+
+    def set_view_y2(event=None):
+        widgets.view_z.configure(relief="link")
+        widgets.view_z2.configure(relief="link")
+        widgets.view_x.configure(relief="link")
+        widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="sunken")
+        widgets.view_p.configure(relief="link")
+        vars.view_type.set(4)
+        o.set_view_y2()
 
     def set_view_z(event=None):
         widgets.view_z.configure(relief="sunken")
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(1)
         o.set_view_z()
@@ -2078,6 +2092,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="sunken")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(2)
         o.set_view_z2()
@@ -2088,6 +2103,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="sunken")
         vars.view_type.set(5)
         o.set_view_p()
@@ -3325,6 +3341,7 @@ vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
+lathe_backtool = bool(inifile.find("DISPLAY", "BACK_TOOL_LATHE"))
 foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
@@ -3550,7 +3567,7 @@ def unique_axes(axes, order):
 
 jog_invert = inifile.find("DISPLAY", "JOG_INVERT")
 if jog_invert is None:
-    if lathe: jog_invert = "X"
+    if lathe and not lathe_backtool: jog_invert = "X"
     else: jog_invert = ""
 jog_invert = set(jog_invert.upper())
 
@@ -3795,7 +3812,10 @@ if os.path.exists(initialfile):
     open_file_guts(initialfile, False, addrecent)
 
 if lathe:
-    commands.set_view_y()
+    if lathe_backtool:
+        commands.set_view_y2()
+    else:
+        commands.set_view_y()
 else:
     commands.set_view_p()
 if o.canon:
@@ -3908,17 +3928,22 @@ else:
 
 
 if lathe:
-    root_window.after_idle(commands.set_view_y)
-    root_window.bind("v", commands.set_view_y)
+    if lathe_backtool:
+        root_window.after_idle(commands.set_view_y2)
+        root_window.bind("v", commands.set_view_y2)
+    else:
+        root_window.after_idle(commands.set_view_y)
+        root_window.bind("v", commands.set_view_y)
     root_window.bind("d", "")
     widgets.view_z.pack_forget()
     widgets.view_z2.pack_forget()
     widgets.view_x.pack_forget()
-    widgets.view_y.pack_forget()
     widgets.view_p.pack_forget()
     widgets.rotate.pack_forget()
     widgets.axis_y.grid_forget()
     widgets.menu_view.delete(0, 5)
+else:
+    widgets.view_y2.pack_forget()
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)
