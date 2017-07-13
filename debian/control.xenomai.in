@@ -5,6 +5,7 @@ Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
 	xenomai-runtime
 Provides:  machinekit-rt-threads
 Recommends: hostmot2-firmware-all [!armhf]
+Breaks: machinekit-dev
 Enhances: machinekit
 Description: PC based motion controller for real-time Linux
  Machinekit is the next-generation Enhanced Machine Controller which
