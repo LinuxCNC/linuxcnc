@@ -366,6 +366,8 @@ Many of them are used also from gmoccapy, see the
 
 * 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 
+* 'BACK_TOOL_LATHE = 1' - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
+
 * 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
 
 * 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
