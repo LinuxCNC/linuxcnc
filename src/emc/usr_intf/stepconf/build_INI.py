@@ -141,7 +141,6 @@ class INI:
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
-        print >>file, "COMM_WAIT = 0.010"
         print >>file, "BASE_PERIOD = %d" % base_period
         print >>file, "SERVO_PERIOD = 1000000"
 
