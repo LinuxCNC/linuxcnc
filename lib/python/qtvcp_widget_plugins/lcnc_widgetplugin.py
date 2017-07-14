@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp_widgets.drowidget import Lcnc_DROLabel
 from qtvcp_widgets.mdi_line import Lcnc_MDILine
 from qtvcp_widgets.gcode_widget import GcodeEditor
