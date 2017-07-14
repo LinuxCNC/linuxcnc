@@ -554,7 +554,8 @@ class MyOpengl(GlCanonDraw, Opengl):
         x,y,z,p = 0,1,2,3
         if str(widgets.view_x['relief']) == "sunken":
             view = x
-        elif str(widgets.view_y['relief']) == "sunken":
+        elif (str(widgets.view_y['relief']) == "sunken" or
+             str(widgets.view_y2['relief']) == "sunken"):
             view = y
         elif (str(widgets.view_z['relief']) == "sunken" or
               str(widgets.view_z2['relief']) == "sunken"):
