@@ -23,7 +23,6 @@ PARAMETER_FILE = xyzx.var
 [EMCMOT]
       EMCMOT = motmod
 COMM_TIMEOUT =       1.0
-   COMM_WAIT =       0.010
 SERVO_PERIOD = 1000000
 [EMCIO]
      EMCIO = io
