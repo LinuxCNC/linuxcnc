@@ -598,6 +598,10 @@ Section.
 * 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
   nanoseconds.
 
+* 'COMM_TIMEOUT = 1.0' - Number of seconds to wait for Motion (the
+  realtime part of the motion controller) to acknowledge receipt of
+  messages from Task (the non-realtime part of the motion controller).
+
 [[sec:task-section]](((INI File, TASK Section)))
 
 === [TASK] Section

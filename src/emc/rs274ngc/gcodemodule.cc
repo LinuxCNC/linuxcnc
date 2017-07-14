@@ -762,6 +762,8 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     }
 out_error:
     if(pinterp) pinterp->close();
+    if(pinterp) pinterp->open("");
+    if(pinterp) pinterp->close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
