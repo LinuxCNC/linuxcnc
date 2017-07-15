@@ -32,7 +32,6 @@ CYCLE_TIME = 0.100
             COORDINATES = X Y Z X 
            LINEAR_UNITS = inch
           ANGULAR_UNITS = degree
-             CYCLE_TIME =   0.010
 DEFAULT_LINEAR_VELOCITY =  10.0
    DEFAULT_LINEAR_ACCEL =  200.0
     MAX_LINEAR_VELOCITY =   10

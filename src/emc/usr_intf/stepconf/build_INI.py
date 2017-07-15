@@ -169,7 +169,6 @@ class INI:
         else:
             print >>file, "LINEAR_UNITS = inch"
         print >>file, "ANGULAR_UNITS = degree"
-        print >>file, "CYCLE_TIME = 0.010"
         print >>file, "DEFAULT_LINEAR_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
         print >>file

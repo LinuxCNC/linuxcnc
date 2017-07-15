@@ -160,7 +160,6 @@ class INI:
         else:
             print >>file, "LINEAR_UNITS = inch"
         print >>file, "ANGULAR_UNITS = degree"
-        print >>file, "CYCLE_TIME = 0.010"
         if self.d.axes == 2:
             maxvel = max(self.d.xmaxvel, self.d.zmaxvel)
         else:

@@ -138,7 +138,6 @@ HALUI = halui
 COORDINATES =           X Y Z
 LINEAR_UNITS =          mm
 ANGULAR_UNITS =         degree
-CYCLE_TIME =            0.010
 DEFAULT_VELOCITY =      30.48
 MAX_VELOCITY =          53.34
 DEFAULT_ACCELERATION =  508
