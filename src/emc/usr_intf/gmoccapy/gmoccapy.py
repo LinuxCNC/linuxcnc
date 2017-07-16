@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.1"
+_RELEASE = " 2.3.1.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1570,10 +1570,6 @@ class gmoccapy(object):
     def _show_error(self, error):
         kind, text = error
         # print kind,text
-        if "joint" in text:
-            for letter in self.axis_list:
-                axnum = "xyzabcuvws".index(letter)
-                text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
             self.halcomp["error"] = True

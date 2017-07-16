@@ -1,3 +1,8 @@
+ver 2.3.1.2
+- rodw reported that gmoccapy reported a wrong error if JOINT was mentioned
+  in the error report. That was caused due to an old change from Joints to axis
+  in _show_errors.
+
 ver 2.3.1.1
 - added KeyPad Jogging as a wish from "suspension" from the forum
 
