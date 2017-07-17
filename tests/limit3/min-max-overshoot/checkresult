@@ -1,0 +1,25 @@
+#!/usr/bin/python2
+
+import sys
+
+max = 50.0
+min = -50.0
+
+result_filename = sys.argv[1]
+result_file = open(result_filename, 'r')
+
+retval = 0
+
+for line in result_file.readlines():
+    (line, in_val, out) = line.split()
+    out = float(out)
+
+    if float(out) > max:
+        print "max=%.3f, in=%.3f, out=%.3f, violation on line %s" % (max, float(in_val), out, line)
+        retval = 1
+
+    if float(out) < min:
+        print "min=%.3f, in=%.3f, out=%.3f, violation on line %s" % (min, float(in_val), out, line)
+        retval = 1
+
+sys.exit(retval)
