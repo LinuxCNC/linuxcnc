@@ -104,9 +104,6 @@ EMCMOT =              motmod
 # Timeout for comm to emcmot, in seconds
 COMM_TIMEOUT =          1.0
 
-# Interval between tries to emcmot, in seconds
-COMM_WAIT =             0.010
-
 # BASE_PERIOD is unused in this configuration but specified in core_sim.hal
 BASE_PERIOD  =               0
 # Servo task period, in nano-seconds
@@ -141,7 +138,6 @@ HALUI = halui
 COORDINATES =           X Y Z
 LINEAR_UNITS =          mm
 ANGULAR_UNITS =         degree
-CYCLE_TIME =            0.010
 DEFAULT_VELOCITY =      30.48
 MAX_VELOCITY =          53.34
 DEFAULT_ACCELERATION =  508

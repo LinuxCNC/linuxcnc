@@ -301,7 +301,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_grid_size(self): return self.grid_size
 
     def get_view(self):
-        view_dict = {'x':0, 'y':1, 'z':2, 'p':3}
+        view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
 
     def is_lathe(self): return self.lathe_option

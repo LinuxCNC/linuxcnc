@@ -347,20 +347,41 @@ image::images/pyvcp_label.png[]
 
 An extention of the text label.
 
-Selectable text label, can display up to 6 label legends when associated bit pin is activated
+Selectable text label, can display up to 6 label legends when associated bit pin
+is activated.
 
-Attach each legend pin to a signal and get a descriptive label when the signal is TRUE.
+Attach each legend pin to a signal and get a descriptive label when the signal
+is TRUE.
 
-If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be displayed.
+If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be
+displayed.
+
+If a disable pin is created with '<disable_pin>True</disable_pin>' and that pin
+is set to true the lable changes to a grayed out state.
 
 [source,xml]
--------------------------------------------------
+----
 <multilabel>
-    <legends>["Label1" "Label2" "Label3" "Label4" "Label5" "Label6"]</legends>
+    <legends>["Label1", "Label2", "Label3", "Label4", "Label5", "Label6"]</legends>
     <font>("Helvetica",20)</font>
-    <disable>False</disable>
+    <disable_pin>True</disable_pin>
 </multilabel>
--------------------------------------------------
+----
+
+The above example would create the following pins.
+
+----
+pyvcp.multilabel.0.disable
+pyvcp.multilabel.0.legend0
+pyvcp.multilabel.0.legend1
+pyvcp.multilabel.0.legend2
+pyvcp.multilabel.0.legend3
+pyvcp.multilabel.0.legend4
+pyvcp.multilabel.0.legend5
+----
+
+If you have more than one multilabel the pins created would increment the number
+like this 'pyvcp.multilabel.1.legend1'.
 
 === LEDs
 

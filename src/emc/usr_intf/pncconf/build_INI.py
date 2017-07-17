@@ -100,7 +100,6 @@ class INI:
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
-        print >>file, "COMM_WAIT = 0.010"
         #print >>file, "BASE_PERIOD = %d" % self.d.baseperiod
         print >>file, "SERVO_PERIOD = %d" % self.d.servoperiod
         print >>file
@@ -161,7 +160,6 @@ class INI:
         else:
             print >>file, "LINEAR_UNITS = inch"
         print >>file, "ANGULAR_UNITS = degree"
-        print >>file, "CYCLE_TIME = 0.010"
         if self.d.axes == 2:
             maxvel = max(self.d.xmaxvel, self.d.zmaxvel)
         else:

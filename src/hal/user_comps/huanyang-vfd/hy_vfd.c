@@ -106,10 +106,12 @@ typedef struct {
 	hal_float_t *speed_command;			// spindle speed command from EMC
 	hal_float_t	*freq_cmd;				// calculated frequency command
 
-	hal_float_t *max_freq;				// PD005 Max Operating Freqency
-	hal_float_t *freq_lower_limit;		// PD011 Freqency Lower Limit
+	hal_float_t *max_freq;				// PD005 Max Operating Frequency
+	hal_float_t *base_freq;				// PD004 Base Frequency
+	hal_float_t *freq_lower_limit;		// PD011 Frequency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
+	hal_u32_t *motor_poles;                 // PD143 Number of motor poles - from motor name plate
 	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
 	
 	hal_bit_t	*hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
@@ -156,13 +158,15 @@ static struct option long_options[] = {
 		{"target", 1, 0, 't'},
                 {"max-frequency", 1, 0, 'F'},
                 {"min-frequency", 1, 0, 'f'},
+                {"base-frequency", 1, 0, 'B'},
                 {"motor-voltage", 1, 0, 'V'},
                 {"motor-current", 1, 0, 'I'},
                 {"motor-speed", 1, 0, 'S'},
+                {"motor-poles", 1, 0, 'P'},
 		{0,0,0,0}
 };
 
-static char *option_string = "b:d:ghn:p:r:s:t:F:f:V:I:S:";
+static char *option_string = "b:d:ghn:p:r:s:t:F:f:B:V:I:S:P:";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 static char *paritystrings[] = {"even", "odd", "none", NULL};
@@ -213,11 +217,14 @@ void usage(int argc, char **argv) {
 			"    Set serial stop bits to 1 or 2\n"
 			"-t or --target <n> (default 1)\n"
 			"    Set HYCOMM target (slave) number.  This must match the device number you set on the Huanyang VFD.\n"
-                        "-F or --max-freqency <f>\n"
+                        "-F or --max-frequency <f>\n"
                         "    Set VFD max frequency to <f> Hz.  This will be read from the VFD\n"
                         "    register 5 if not supplied on the command line.\n"
-                        "-f or --min-freqency <f>\n"
+                        "-f or --min-frequency <f>\n"
                         "    Set VFD min frequency to <f> Hz.  This will be read from the VFD\n"
+                        "    register 11 if not supplied on the command line.\n"
+                        "-B or --base-frequency <f>\n"
+                        "    Set VFD base frequency to <f> Hz.  This will be read from the VFD\n"
                         "    register 11 if not supplied on the command line.\n"
                         "-V or --motor-voltage <v>\n"
                         "    Set VFD max output voltage to <v> (Volts).  This will be read from the\n"
@@ -229,6 +236,9 @@ void usage(int argc, char **argv) {
                         "    Set the motor's max speed to <r> (RPM).  This will be computed from the\n"
                         "    50 Hz RPM value read from the VFD register P144 if not supplied on the\n"
                         "    command line.\n"
+                        "-P or --motor-poles <n>\n"
+                        "    Set VFD register PD143 (Number of Motor Poles) to <n>.  This value\n"
+                        "    comes from the motor's name plate.\n"
         );
 }
 
@@ -241,7 +251,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	int freq_comp;
 	int freq, old_freq;
 	
-	// calculate and set frequency register, limit the freqency (upper and lower to VFD set parameters
+	// calculate and set frequency register, limit the frequency (upper and lower to VFD set parameters
 	hc_data->function = WRITE_FREQ_DATA;
 	hc_data->parameter = 0x00;
 	
@@ -385,7 +395,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hc_data->function = FUNCTION_READ;
 	hc_data->data = 0x0000;
 
-	hc_data->parameter = 5; // PD005 Max Operating Freqency
+	hc_data->parameter = 5; // PD005 Max Operating Frequency
         if (*haldata->max_freq != 0) {
             // user passed in motor max freq, send to VFD
             hc_data->function = FUNCTION_WRITE;
@@ -398,6 +408,20 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
 	*(haldata->max_freq) = hc_data->ret_data * 0.01;
+
+	hc_data->parameter = 4; // PD004 Base Frequency
+        if (*haldata->base_freq != 0) {
+            // user passed in base freq, send to VFD
+            hc_data->function = FUNCTION_WRITE;
+            hc_data->data = (uint16_t)(*haldata->base_freq * 100);
+            if ((retval = hy_comm(hc_param, hc_data)) != 0) {
+                goto failed;
+            }
+            hc_data->function = FUNCTION_READ;
+        }
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
+		goto failed;		
+	*(haldata->base_freq) = hc_data->ret_data * 0.01;
 
 	hc_data->parameter = 11; // PD011 Frequency Lower Limit
         if (*haldata->freq_lower_limit != 0) {
@@ -440,6 +464,20 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
 	*(haldata->rated_motor_current) = hc_data->ret_data * 0.1;
+
+	hc_data->parameter = 143; // PD143 Number of Motor Poles
+        if (*haldata->motor_poles != 0) {
+            // user passed in motor poles, send to VFD
+            hc_data->function = FUNCTION_WRITE;
+            hc_data->data = (uint16_t)(*haldata->motor_poles);
+            if ((retval = hy_comm(hc_param, hc_data)) != 0) {
+                goto failed;
+            }
+            hc_data->function = FUNCTION_READ;
+        }
+	if ((retval = hy_comm(hc_param, hc_data)) != 0)
+		goto failed;		
+	*haldata->motor_poles = hc_data->ret_data;
 
         hc_data->parameter = 144; // PD144 Rated Motor Rev (at 50 Hz)
         if (*haldata->rated_motor_rev != 0) {
@@ -608,10 +646,12 @@ int main(int argc, char **argv)
 	int argindex, argvalue;
 
         float max_freq = 0;
+        float base_freq = 0;
         float min_freq = 0;
         float motor_v = 0;
         float motor_i = 0;
         float motor_speed = 0;
+        hal_u32_t motor_poles = 0;
 
 	done = 0;
 
@@ -703,6 +743,15 @@ int main(int argc, char **argv)
 			}
 			break;
 
+                case 'B':
+                        base_freq = strtof(optarg, &endarg);
+			if ((*endarg != '\0') || (base_freq < 0.0) || (base_freq > 400.0)) {
+				printf("hy_vfd: ERROR: invalid base frequency: %s\n", optarg);
+				retval = -1;
+				goto out_noclose;
+			}
+			break;
+
                 case 'f':
                         min_freq = strtof(optarg, &endarg);
 			if ((*endarg != '\0') || (min_freq < 0.0) || (min_freq > UINT16_MAX)) {
@@ -734,6 +783,15 @@ int main(int argc, char **argv)
                         motor_speed = strtof(optarg, &endarg);
 			if ((*endarg != '\0') || (motor_speed < 0.0) || (motor_speed > UINT16_MAX)) {
 				printf("hy_vfd: ERROR: invalid motor max speed: %s\n", optarg);
+				retval = -1;
+				goto out_noclose;
+			}
+			break;
+
+                case 'P':
+                        motor_poles = strtof(optarg, &endarg);
+			if (*endarg != '\0') {
+				printf("hy_vfd: ERROR: invalid motor poles: %s\n", optarg);
 				retval = -1;
 				goto out_noclose;
 			}
@@ -840,6 +898,8 @@ int main(int argc, char **argv)
 	
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->max_freq), hal_comp_id, "%s.max-freq", modname);
 	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_float_newf(HAL_OUT, &(haldata->base_freq), hal_comp_id, "%s.base-freq", modname);
+	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_lower_limit), hal_comp_id, "%s.freq-lower-limit", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_voltage), hal_comp_id, "%s.rated-motor-voltage", modname);
@@ -847,6 +907,8 @@ int main(int argc, char **argv)
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_current), hal_comp_id, "%s.rated-motor-current", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->motor_poles), hal_comp_id, "%s.motor-poles", modname);
 	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
@@ -888,10 +950,12 @@ int main(int argc, char **argv)
 	*(haldata->CNST) = 0;
 	
 	*(haldata->max_freq) = max_freq;
+	*(haldata->base_freq) = base_freq;
 	*(haldata->freq_lower_limit) = min_freq;
 	*(haldata->rated_motor_voltage) = motor_v;
 	*(haldata->rated_motor_current) = motor_i;
 	*(haldata->rated_motor_rev) = motor_speed;
+	*(haldata->motor_poles) = motor_poles;
 
 	*(haldata->hycomm_ok) = 0;
 

@@ -69,6 +69,10 @@ if(run) {
     } else if(jog_plus) {
         position_cmd = position_fb + 2 * maxvel * fperiod;
     } else {
-        position_cmd = position_fb;
+        // Let the command track the feedback while the stepgen decelerates
+        // to a halt, then keep the command constant there.
+        if (fabs(position_fb - position_cmd) > (0.001 * maxvel * fperiod)) {
+            position_cmd = position_fb;
+        }
     }
 }

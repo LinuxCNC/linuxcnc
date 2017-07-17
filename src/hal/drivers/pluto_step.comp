@@ -142,6 +142,7 @@ function write "Write all the outputs on the pluto-step board";
 see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
 license "GPL";
+include "rtapi_math.h";
 include "hal/drivers/pluto_common.h";
 ;;
 
@@ -214,7 +215,7 @@ FUNCTION(write) {
 	double v = new_position_cmd - data.old_position_cmd[i];
 	double est_err = stepgen_position_fb(i) + data.old_velocity_cmd[i] * fperiod - new_position_cmd;
         double actual_max;
-	double scale_abs = abs(stepgen_scale(i));
+	double scale_abs = fabs(stepgen_scale(i));
 
 	v = v - debug_2 * est_err / fperiod;
         if(v > 0) v = v + .5/scale_abs;

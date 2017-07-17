@@ -17,7 +17,9 @@
 
 #include "config.h"
 
+#ifdef __linux__
 #include <sys/fsuid.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -42,56 +44,47 @@
 #endif
 #include <sys/resource.h>
 #include <sys/mman.h>
+#ifdef __linux__
 #include <malloc.h>
 #include <sys/prctl.h>
+#endif
+#ifdef __FreeBSD__
+#include <pthread_np.h>
+#endif
 
 #include "config.h"
 
 #include "rtapi.h"
-#include "rtapi/uspace_common.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>		/* shmget() */
 #include <string.h>
 #include <boost/lockfree/queue.hpp>
 
 std::atomic<int> WithRoot::level;
 static uid_t euid, ruid;
 
-static void priv_info(const char *m) {
-#ifdef RTAPI_DEBUG_PRIV
-    uid_t r, e, s;
-    if(getresuid(&r, &e, &s) < 0)
-        printf("%s: %s\n", m, strerror(errno));
-    else
-        printf("%s: ruid=%d euid=%d suid=%d\n", m, (int)r, (int)e, (int)s);
-#endif
-}
+#include "rtapi/uspace_common.h"
 
 WithRoot::WithRoot() {
     if(!level++) {
-        priv_info("before  WithRoot");
-        if(seteuid(euid) < 0) {
-            perror("seteuid (root)");
-            exit(1);
-        }
-        priv_info("after   WithRoot");
+#ifdef __linux__
+        setfsuid(euid);
+#endif
     }
 }
 
 WithRoot::~WithRoot() {
     if(!--level) {
-        priv_info("before ~WithRoot");
-        if(seteuid(ruid) < 0) {
-            perror("seteuid (user)");
-            exit(1);
-        }
-        priv_info("after  ~WithRoot");
+#ifdef __linux__
+        setfsuid(ruid);
+#endif
     }
 }
+
+extern "C"
+int rtapi_is_realtime();
 
 namespace
 {
@@ -523,10 +516,10 @@ int main(int argc, char **argv) {
     }
     ruid = getuid();
     euid = geteuid();
-    if(seteuid(ruid) < 0) {
-        perror("setuid (user)");
-        exit(1);
-    } 
+    setresuid(euid, euid, ruid);
+#ifdef __linux__
+    setfsuid(ruid);
+#endif
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
@@ -678,6 +671,7 @@ static void configure_memory()
     res = mlockall(MCL_CURRENT | MCL_FUTURE);
     if(res < 0) perror("mlockall");
 
+#ifdef __linux__
     /* Turn off malloc trimming.*/
     if (!mallopt(M_TRIM_THRESHOLD, -1)) {
         rtapi_print_msg(RTAPI_MSG_WARN,
@@ -688,6 +682,7 @@ static void configure_memory()
         rtapi_print_msg(RTAPI_MSG_WARN,
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
+#endif
     char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
@@ -709,7 +704,7 @@ static int harden_rt()
     if(!rtapi_is_realtime()) return -EINVAL;
 
     WITH_ROOT;
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "cannot gain I/O privileges - "
@@ -719,6 +714,7 @@ static int harden_rt()
 #endif
 
     struct sigaction sig_act = {};
+#ifdef __linux__
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
@@ -739,6 +735,7 @@ static int harden_rt()
 	rtapi_print_msg(RTAPI_MSG_WARN,
 		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
 		  errno, strerror(errno));
+#endif /* __linux__ */
 
     configure_memory();
 
@@ -758,6 +755,7 @@ static int harden_rt()
     sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
+#ifdef __linux__
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
@@ -769,6 +767,7 @@ static int harden_rt()
         }
         // deliberately leak fd until program exit
     }
+#endif /* __linux__ */
     return 0;
 }
 
@@ -923,6 +922,43 @@ int Posix::task_delete(int id)
   return 0;
 }
 
+static int find_rt_cpu_number() {
+    if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
+
+#ifdef __linux__
+    cpu_set_t cpuset_orig;
+    int r = sched_getaffinity(getpid(), sizeof(cpuset_orig), &cpuset_orig);
+    if(r < 0)
+        // if getaffinity fails, (it shouldn't be able to), just use CPU#0
+        return 0;
+
+    cpu_set_t cpuset;
+    for(int i=0; i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
+
+    r = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
+    if(r < 0)
+        // if setaffinity fails, (it shouldn't be able to), go on with
+        // whatever the default CPUs were.
+        perror("sched_setaffinity");
+
+    r = sched_getaffinity(getpid(), sizeof(cpuset), &cpuset);
+    if(r < 0) {
+        // if getaffinity fails, (it shouldn't be able to), copy the
+        // original affinity list in and use it
+        perror("sched_getaffinity");
+        CPU_AND(&cpuset, &cpuset_orig, &cpuset);
+    }
+
+    int top = -1;
+    for(int i=0; i<CPU_SETSIZE; i++) {
+        if(CPU_ISSET(i, &cpuset)) top = i;
+    }
+    return top;
+#else
+    return (-1);
+#endif
+}
+
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
   auto task = ::rtapi_get_task<PosixTask>(task_id);
@@ -936,10 +972,7 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   memset(&param, 0, sizeof(param));
   param.sched_priority = task->prio;
 
-  cpu_set_t cpuset;
-  CPU_ZERO(&cpuset);
   int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
-  CPU_SET(nprocs-1, &cpuset); // assumes processor numbers are contiguous
 
   pthread_attr_t attr;
   if(pthread_attr_init(&attr) < 0)
@@ -952,9 +985,20 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
       return -errno;
   if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
       return -errno;
-  if(nprocs > 1)
-      if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-          return -errno;
+  if(nprocs > 1) {
+      const static int rt_cpu_number = find_rt_cpu_number();
+      if(rt_cpu_number != -1) {
+#ifdef __FreeBSD__
+          cpuset_t cpuset;
+#else
+          cpu_set_t cpuset;
+#endif
+          CPU_ZERO(&cpuset);
+          CPU_SET(rt_cpu_number, &cpuset);
+          if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
+               return -errno;
+      }
+  }
   if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
       return -errno;
 
@@ -1199,13 +1243,7 @@ int rtapi_spawn_as_root(pid_t *pid, const char *path,
     const posix_spawnattr_t *attrp,
     char *const argv[], char *const envp[])
 {
-    WITH_ROOT;
-    setreuid(euid, euid);
-    priv_info("before posix_spawn");
-    int r = posix_spawn(pid, path, file_actions, attrp, argv, envp);
-    setresuid(ruid, ruid, (pid_t)-1);
-    priv_info("after posix_spawnp");
-    return r;
+    return posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
 
 int rtapi_spawnp_as_root(pid_t *pid, const char *path,
@@ -1213,16 +1251,5 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
     const posix_spawnattr_t *attrp,
     char *const argv[], char *const envp[])
 {
-    WITH_ROOT;
-    setreuid(euid, euid);
-    priv_info("before posix_spawnp");
-    int r = posix_spawnp(pid, path, file_actions, attrp, argv, envp);
-    setresuid(ruid, ruid, (pid_t)-1);
-    priv_info("after posix_spawnp");
-    return r;
-}
-
-int rtapi_do_as_root(int (*fn)(void *), void *arg) {
-    WITH_ROOT;
-    return fn(arg);
+    return posix_spawnp(pid, path, file_actions, attrp, argv, envp);
 }

@@ -4,6 +4,114 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.9) unstable; urgency=medium
+
+  * support "auxiliary apps", distributed separately from LinuxCNC
+
+  * docs: add a bit more info to position feedback ini setting
+  * docs: sort board list in hm2_eth manpage
+  * docs: fix pyvcp multi label description
+  * docs: fix pyvcp example so it runs
+  * docs: clarify return value in hal_pin_new(3) manpage
+  * docs: add missing var section to index header
+  * docs: add machine building info to integrator document
+  * docs: add manpage for hal_parport realtime component
+  * docs: add units info to halui max-velocity pins in manpage
+  * docs: flesh out max-velocity pins in halui manpage
+  * docs: fix incorrect info for stat.motion_type and stat.motion_mode
+  * docs: code notes: a pose has 9 coordinates, not 6
+  * docs: add hal_manualtoolchange manpage
+  * docs: add info about remap debug messages
+  * docs: fix paraport/parport typos
+  * docs: fix pin names in thcud manpage example HAL config
+  * docs: clean up the note about T0 handling
+  * docs: add some info for the hal python module
+  * docs: clarify an ambiguity about siggen in the HAL documentation
+  * docs: add information about addf command in the HAL documentation
+  * docs: add details on epp_dir command line parameter of hal_ppmc
+  * docs: remove a footnote about the behavior of emc2 v2.4
+  * docs: add or2 example
+  * docs: fix description of USER_DEFINED_FUNCTION_MAX_DIRS in ini-config
+  * docs: clarify g28/30 description
+  * docs: add link to G54-G59.3 User Coordinates section
+  * docs: clean up Machine Coordinate System section
+  * docs: remove M6 from modal group description
+  * docs: add links to machine origin from several places
+  * docs: fix typos and markup problems all over
+  * docs: add more information about the addf command
+  * docs: sorted gmoccapy video links with headlines
+  * docs: add a known problem with macros to gmoccapy docs
+  * docs: fix cut-n-paste bug in mb2hal manpage
+  * docs: expand on different ways of starting LinuxCNC
+  * docs: document some features of the Axis GUI
+  * docs: add info about the basic directory structure
+  * docs: correct misleading descriptions of named parameters
+  * docs: update info about 'save' command in halcmd manpage & help
+
+  * Axis GUI: avoid unbounded memory growth in text widgets on stretch
+  * Axis GUI: make tool info display widget larger
+  * Axis GUI: remove unused .info.offset widget
+  * Axis GUI: shorten tool touch off widget title text
+  * gmoccapy GUI: removed unused code
+  * gmoccapy GUI: added get_joints_amount() for compatibility 2.7 and master
+  * gmoccapy GUI: new hal pin gmoccapy.ignore-limits
+  * gmoccapy GUI: bug if no macros in ini file
+  * gmoccapy GUI: bug in macro button handling
+  * gmoccapy GUI: G96 bug solved
+  * gscreen GUI: fix missing .themes folder error
+  * halui: fix halui.program.run
+
+  * gladeVCP: make CombiDRO compatible for both 2.7 and master
+  * gladeVCP: fix delta scale pin not updating if wheel scroll used
+  * gladeVCP: add missing icon image for hal_dial
+
+  * pncconf: fix spindle command using wrong signal name
+  * pncconf: fix sserial mode setting in HAL file
+
+  * hal_ppmc: add command line arg to turn on/off port direction change
+
+  * mitsub_vfd: add a driver for Mitsubishi VFDs
+
+  * classicladder: fix sequential variable access
+  * classicladder: fix whitespace errors
+
+  * ilowpass: round the output instead of truncating
+
+  * halcmd: waitusr: avoid race condition
+
+  * hm2: better error message on unexpected pin descriptors
+  * hm2_eth: don't segfault on interfaces without addresses
+
+  * linuxcnc python module: add doc string for stat.motion_mode
+  * linuxcnc python module: add doc string for stat.motion_type
+  * linuxcnc python module: add a doc string for stat.queued_mdi_commands
+  * linuxcnc python module: add EMC_MOTION_TYPE_* constants
+
+  * hal python module: better doc strings for connect() and new_sig()
+
+  * Interp: fix a typo in a cutter-comp error message
+  * Task: set the stat struct member queuedMDIcommands
+
+  * example g-code: fix Z value reported by rectangle_probe.ngc
+  * example configs: fix hal pin names in gmoccapy_plasma
+  * example configs: limit led without off color in gmoccapy_plasma
+  * example configs: xhc-hb04.tcl: if prior connects, continue with msg
+
+  * rtapi: better error message when failing to connect
+
+  * uspace: allow calculated parameter array sizes
+
+  * tests: let introspection complete before continuing in the t0 tests
+  * tests: fixup hm2-idrom test to match new hm2 PD error message
+  * tests: add a test of ilowpass with low gain
+  * tests: reorg ilowpass test so i can add a low-gain test next to it
+  * tests: add a test of stat.queued_mdi_commands
+  * travis: manually uninstall gpl3 readline
+  * build: fix link error on i686 with gcc, or maybe objcopy 2.27
+  * packaging: add the new LinuxCNC_Integrator pdf to the doc package
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 02 Jun 2017 12:49:44 -0600
+
 linuxcnc (1:2.7.8) unstable; urgency=medium
 
   * docs: fix pdf duplicate history listing

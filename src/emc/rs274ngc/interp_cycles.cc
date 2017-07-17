@@ -362,7 +362,7 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
    if(save_spindle_override_enable)
     ENABLE_SPEED_OVERRIDE();
 
-    return INTERP_OK;
+   return INTERP_OK;
 
 #if 0
   START_SPEED_FEED_SYNCH();
@@ -1067,7 +1067,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
 
-    return INTERP_OK;
+  return INTERP_OK;
 }
 
 

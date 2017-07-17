@@ -46,7 +46,7 @@ static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_struct_t *emcmotStruct = 0;
 
-/* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT, COMM_WAIT)
+/* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT)
    from named ini file */
 int usrmotIniLoad(const char *filename)
 {
@@ -61,7 +61,6 @@ int usrmotIniLoad(const char *filename)
     try {
         inifile.Find((int *)&SHMEM_KEY, "SHMEM_KEY", "EMCMOT");
         inifile.Find(&EMCMOT_COMM_TIMEOUT, "COMM_TIMEOUT", "EMCMOT");
-        inifile.Find(&EMCMOT_COMM_WAIT, "COMM_WAIT", "EMCMOT");
     }
 
     catch(IniFile::Exception &e){

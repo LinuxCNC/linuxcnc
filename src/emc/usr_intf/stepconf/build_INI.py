@@ -141,7 +141,6 @@ class INI:
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
-        print >>file, "COMM_WAIT = 0.010"
         print >>file, "BASE_PERIOD = %d" % base_period
         print >>file, "SERVO_PERIOD = 1000000"
 
@@ -170,7 +169,6 @@ class INI:
         else:
             print >>file, "LINEAR_UNITS = inch"
         print >>file, "ANGULAR_UNITS = degree"
-        print >>file, "CYCLE_TIME = 0.010"
         print >>file, "DEFAULT_LINEAR_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
         print >>file

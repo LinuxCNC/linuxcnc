@@ -515,10 +515,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	break;
 
     case 'm':
-	if (sscanf(code + 1, "%d", &mcode) == 1) {
-	    _setup.remaps[code] = r;
-	    _setup.m_remapped[mcode] = &_setup.remaps[code];
-	} else {
+	if (sscanf(code + 1, "%d", &mcode) != 1) {
 	    Error("parsing M-code: expecting integer like 'M420', got '%s' : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
@@ -533,6 +530,8 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code,lineno,inistring);
 	    goto fail;
 	}
+        _setup.remaps[code] = r;
+        _setup.m_remapped[mcode] = &_setup.remaps[code];
 	break;
     case 'g':
 
@@ -554,7 +553,6 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
 		  code, GCODE_DEFAULT_MODAL_GROUP, lineno, inistring);
 	    r.modal_group = GCODE_DEFAULT_MODAL_GROUP;
-	    break;
 	}
 	if (!G_MODE_OK(r.modal_group)) {
 	    Error("error: code '%s' : %s modalgroup=<int> given  : %d:REMAP = %s",

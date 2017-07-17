@@ -33,7 +33,6 @@ USER_M_PATH       = ../../nc_files/ngcgui_lib/mfiles
 [EMCMOT]
 EMCMOT =                motmod
 COMM_TIMEOUT =          1.0
-COMM_WAIT =             0.010
 SERVO_PERIOD =          1000000
 
 [EMCIO]

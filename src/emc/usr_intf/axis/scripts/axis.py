@@ -176,8 +176,10 @@ help1 = [
     ("Y", _("Activate second axis")),
     ("Z", _("Activate third axis")),
     ("A", _("Activate fourth axis")),
-    ("`,1..8", _("Activate first through ninth joint")),
+    ("` or 0,1..8", _("Activate first through ninth joint")),
+    ("", _("if joints radiobuttons visible")),
     ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
+    ("", _("if axes radiobuttons visible")),
     (_(", and ."), _("Select jog speed")),
     (_("< and >"), _("Select angular jog speed")),
     (_("I, Shift-I"), _("Select jog increment")),
@@ -552,7 +554,8 @@ class MyOpengl(GlCanonDraw, Opengl):
         x,y,z,p = 0,1,2,3
         if str(widgets.view_x['relief']) == "sunken":
             view = x
-        elif str(widgets.view_y['relief']) == "sunken":
+        elif (str(widgets.view_y['relief']) == "sunken" or
+             str(widgets.view_y2['relief']) == "sunken"):
             view = y
         elif (str(widgets.view_z['relief']) == "sunken" or
               str(widgets.view_z2['relief']) == "sunken"):
@@ -1175,11 +1178,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
             initcodes.append(unitcode)
             initcodes.append("g90")
             initcodes.append("t%d m6" % s.tool_in_spindle)
-            position = "g53 g0"
             for i in range(9):
                 if s.axis_mask & (1<<i):
-                    position += " %s%.8f" % ("XYZABCUVW"[i], s.position[i])
-            initcodes.append(position)
+                    position = "g53 g0 %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+                    initcodes.append(position)
             for i, g in enumerate(s.gcodes):
                 # index 0 is "sequence number" and index 2 is the last block's
                 # "g_mode" neither of which should be sent as a startup code.
@@ -1308,6 +1310,7 @@ widgets = nf.Widgets(root_window,
     ("view_z2", Button, ".toolbar.view_z2"),
     ("view_x", Button, ".toolbar.view_x"),
     ("view_y", Button, ".toolbar.view_y"),
+    ("view_y2", Button, ".toolbar.view_y2"),
     ("view_p", Button, ".toolbar.view_p"),
     ("rotate", Button, ".toolbar.rotate"),
 
@@ -1336,15 +1339,28 @@ widgets.axis_y.configure(value="y")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode():
-        # free jogging (joints) (only accept integers here)
-        if type(i) != type(0): return
+    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_BOTH)):
+        # free jogging (joints) if:
+        #   non-trivkins config or
+        #   trivkins config and kinstype = both
+        # only accept integers here
+        if not isinstance(i, int): return
         if i >= num_joints: return
         widget = getattr(widgets, "joint_%d" % i)
     else:
-        # teleop jogging (axes) (letters are special case for key bindings)
-        if type(i) == type(""): letter = i
-        else:                   letter = "xyzabcuvw"[i]
+        # teleop jogging (axes) or
+        # free jogging (joints) if:
+        #   trivkins config and kinstype not both
+        # letters are special case for key bindings
+        if isinstance(i, basestring):
+            letter = i
+        elif not get_jog_mode():
+            letter = "xyzabcuvw"[i]
+        else:
+            if lathe_historical_config():
+                if i == 1: return
+                if i > 1: i = i-1
+            letter = trajcoordinates[i]
         if letter in trajcoordinates:
             widget = getattr(widgets, "axis_%s" % letter)
         else:
@@ -1738,7 +1754,7 @@ def get_jog_speed(a):
 def get_jog_speed_map(a):
     if get_jog_mode() and a >= num_joints: return 0
     if not get_jog_mode():
-    	if a >= len(jog_order): return 0
+        if a >= len(jog_order): return 0
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
     return get_jog_speed(a)
@@ -1807,13 +1823,25 @@ def ja_from_rbutton():
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
     if not all_homed() and lathe and not lathe_historical_config():
-	axes = "xzabcuvw"
+        axes = "xzabcuvw"
     else:       
         axes = "xyzabcuvw"
     if ja in "012345678":
-        a = int(ja)
+        a = int(ja) # number specifies a joint
     else:    
-        a = axes.index(ja)
+        a = axes.index(ja) # letter specifies an axis coordinate
+
+    # handle joint jogging for known identity kins
+    if get_jog_mode():
+        # joint jogging
+        if lathe_historical_config():
+            a = "xyzabcuvw".index(ja)
+        elif kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+            # note: if duplicate_coord_letters,
+            #       use index for first occurrence of the letter
+            a = trajcoordinates.index(ja)
+        #future: elif's for other known identity kins go here
+
     return a
 
 def all_homed():
@@ -2025,6 +2053,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="sunken")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(3)
         o.set_view_x()
@@ -2034,15 +2063,27 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="sunken")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(4)
         o.set_view_y()
+
+    def set_view_y2(event=None):
+        widgets.view_z.configure(relief="link")
+        widgets.view_z2.configure(relief="link")
+        widgets.view_x.configure(relief="link")
+        widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="sunken")
+        widgets.view_p.configure(relief="link")
+        vars.view_type.set(4)
+        o.set_view_y2()
 
     def set_view_z(event=None):
         widgets.view_z.configure(relief="sunken")
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(1)
         o.set_view_z()
@@ -2052,6 +2093,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="sunken")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(2)
         o.set_view_z2()
@@ -2062,6 +2104,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_z2.configure(relief="link")
         widgets.view_x.configure(relief="link")
         widgets.view_y.configure(relief="link")
+        widgets.view_y2.configure(relief="link")
         widgets.view_p.configure(relief="sunken")
         vars.view_type.set(5)
         o.set_view_p()
@@ -2807,8 +2850,8 @@ class TclCommands(nf.TclCommands):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
     def inifindall(section, item):
-	items = tuple(inifile.findall(section, item))
-	return root_window.tk.merge(*items)
+        items = tuple(inifile.findall(section, item))
+        return root_window.tk.merge(*items)
 
 commands = TclCommands(root_window)
 
@@ -2909,19 +2952,12 @@ def set_rapidrate(n):
 
 def activate_ja_widget_or_set_feedrate(jora):
     # note: call with integers only
-    if manual_ok():
-        if joints_mode():
-            activate_ja_widget(jora)
-            return
-        if not joints_mode():
-            if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                activate_ja_widget(jora)
-                return
-            else:
-                return # ignore number (no teleop letter correspondence)
+    if joints_mode() and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+        if jora == 10: jora = 0
+        activate_ja_widget(jora,True)
+        return
     else:
         set_feedrate(10*jora)
-    return
 
 def nomodifier(f):
     def g(event):
@@ -2972,9 +3008,9 @@ root_window.bind("5", lambda event: activate_ja_widget_or_set_feedrate(5))
 root_window.bind("6", lambda event: activate_ja_widget_or_set_feedrate(6))
 root_window.bind("7", lambda event: activate_ja_widget_or_set_feedrate(7))
 root_window.bind("8", lambda event: activate_ja_widget_or_set_feedrate(8))
+root_window.bind("9", lambda event: activate_ja_widget_or_set_feedrate(9))
+root_window.bind("0", lambda event: activate_ja_widget_or_set_feedrate(10))
 
-root_window.bind("9", lambda event: set_feedrate(90))
-root_window.bind("0", lambda event: set_feedrate(100))
 root_window.bind("c", lambda event: jogspeed_continuous())
 root_window.bind("d", lambda event: widgets.rotate.invoke())
 root_window.bind("i", lambda event: jogspeed_incremental())
@@ -3084,6 +3120,7 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
+    activate_ja_widget(a)
 
 def jog_off(a):
     if jog_after[a]: return
@@ -3091,7 +3128,6 @@ def jog_off(a):
 
 def jog_off_actual(a):
     if not manual_ok(): return
-    activate_ja_widget(a)
     jog_after[a] = None
     jogging[a] = 0
     jjogmode = get_jog_mode()
@@ -3114,9 +3150,9 @@ def jog_on_map(num, speed):
     elif lathe:
         if num >= len(jog_order): return
         axis_letter = jog_order[num]
-	if lathe_historical_config():
+        if lathe_historical_config():
             num = "XYZ".index(axis_letter)
-	else:
+        else:
             num = trajcoordinates.upper().index(axis_letter)
         if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
@@ -3306,6 +3342,7 @@ vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
+lathe_backtool = bool(inifile.find("DISPLAY", "BACK_TOOL_LATHE"))
 foam = bool(inifile.find("DISPLAY", "FOAM"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
@@ -3531,7 +3568,7 @@ def unique_axes(axes, order):
 
 jog_invert = inifile.find("DISPLAY", "JOG_INVERT")
 if jog_invert is None:
-    if lathe: jog_invert = "X"
+    if lathe and not lathe_backtool: jog_invert = "X"
     else: jog_invert = ""
 jog_invert = set(jog_invert.upper())
 
@@ -3776,7 +3813,10 @@ if os.path.exists(initialfile):
     open_file_guts(initialfile, False, addrecent)
 
 if lathe:
-    commands.set_view_y()
+    if lathe_backtool:
+        commands.set_view_y2()
+    else:
+        commands.set_view_y()
 else:
     commands.set_view_p()
 if o.canon:
@@ -3889,17 +3929,22 @@ else:
 
 
 if lathe:
-    root_window.after_idle(commands.set_view_y)
-    root_window.bind("v", commands.set_view_y)
+    if lathe_backtool:
+        root_window.after_idle(commands.set_view_y2)
+        root_window.bind("v", commands.set_view_y2)
+    else:
+        root_window.after_idle(commands.set_view_y)
+        root_window.bind("v", commands.set_view_y)
     root_window.bind("d", "")
     widgets.view_z.pack_forget()
     widgets.view_z2.pack_forget()
     widgets.view_x.pack_forget()
-    widgets.view_y.pack_forget()
     widgets.view_p.pack_forget()
     widgets.rotate.pack_forget()
     widgets.axis_y.grid_forget()
     widgets.menu_view.delete(0, 5)
+else:
+    widgets.view_y2.pack_forget()
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)

@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1"
+_RELEASE = " 2.3.1.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1570,10 +1570,6 @@ class gmoccapy(object):
     def _show_error(self, error):
         kind, text = error
         # print kind,text
-        if "joint" in text:
-            for letter in self.axis_list:
-                axnum = "xyzabcuvws".index(letter)
-                text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
             self.halcomp["error"] = True
@@ -2197,7 +2193,7 @@ class gmoccapy(object):
 
         # take care of different key handling for lathe operation
         if self.lathe_mode:
-            if keyname == "Page_Up" or keyname == "Page_Down":
+            if keyname == "Page_Up" or keyname == "Page_Down" or keyname == "KP_Page_Up" or keyname == "KP_Page_Down":
                 return
 
         if event.state & gtk.gdk.SHIFT_MASK:  # SHIFT is hold down, fast jogging active
@@ -2205,7 +2201,7 @@ class gmoccapy(object):
         else:
             fast = False
 
-        if keyname == "Up":
+        if keyname == "Up" or keyname == "KP_Up":
             if self.lathe_mode:
                 if self.backtool_lathe:
                     widget = self.widgets.btn_x_plus
@@ -2217,7 +2213,7 @@ class gmoccapy(object):
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
-        elif keyname == "Down":
+        elif keyname == "Down" or keyname == "KP_Down":
             if self.lathe_mode:
                 if self.backtool_lathe:
                     widget = self.widgets.btn_x_minus
@@ -2229,7 +2225,7 @@ class gmoccapy(object):
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
-        elif keyname == "Left":
+        elif keyname == "Left" or keyname == "KP_Left":
             if self.lathe_mode:
                 widget = self.widgets.btn_z_minus
             else:
@@ -2238,7 +2234,7 @@ class gmoccapy(object):
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
-        elif keyname == "Right":
+        elif keyname == "Right" or keyname == "KP_Right":
             if self.lathe_mode:
                 widget = self.widgets.btn_z_plus
             else:
@@ -2247,13 +2243,13 @@ class gmoccapy(object):
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
-        elif keyname == "Page_Up":
+        elif keyname == "Page_Up" or keyname == "KP_Page_Up":
             widget = self.widgets.btn_z_plus
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
-        elif keyname == "Page_Down":
+        elif keyname == "Page_Down" or keyname == "KP_Page_Down":
             widget = self.widgets.btn_z_minus
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
