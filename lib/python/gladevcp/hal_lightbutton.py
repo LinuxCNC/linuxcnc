@@ -12,12 +12,19 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+if pygtkcompat is not None:
+    print 'lightbutton gtk-3'
+    pygtkcompat.enable()
+    pygtkcompat.enable_gtk(version='3.0')
 import gtk
 import gobject
 import cairo
 import pango
 import math
-import gtk.glade
 
 # This creates the custom lighted button widget
 # A lighted button has a HAL_OUT or HAL_IO pin for the button.  This pin indicates if the button is pressed or toggled or not.
@@ -101,8 +108,6 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         
         self.dual_color = False
         self.use_bitmaps = False  #this feature is not implemented yet
-        self.light_on_color = gtk.gdk.Color('green')
-        self.light_off_color = gtk.gdk.Color('gray')
         self.border_width = 6
         self.corner_radius = 4
         self.button_text = 'Button'
@@ -110,8 +115,16 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.font_face = 'Sans'
         self.font_bold = False
         self.font_size = 10
-        self.font_on_color = gtk.gdk.Color('black')
-        self.font_off_color = gtk.gdk.Color('black')
+        if pygtkcompat is not None:
+            self.light_on_color = gtk.gdk.Color.parse('green')[1]
+            self.light_off_color = gtk.gdk.Color.parse('gray')[1]
+            self.font_on_color = gtk.gdk.Color.parse('black')[1]
+            self.font_off_color = gtk.gdk.Color.parse('black')[1]
+        else:
+            self.light_on_color = gtk.gdk.Color('green')
+            self.light_off_color = gtk.gdk.Color('gray')
+            self.font_on_color = gtk.gdk.Color('black')
+            self.font_off_color = gtk.gdk.Color('black')
         self.create_enable_pin = False
         
         self.active = False
