@@ -47,8 +47,12 @@ from hal_filechooser import *
 from hal_sourceview import *
 from hal_mdihistory import *
 from macro_widget import MacroSelect
-from hal_pyngcgui import PyNgcGui
-from hal_gremlin_plus import HAL_GremlinPlus
+if pygtkcompat is None:
+    # No widget can use gremlin yet in GTK3
+    pass
+else:
+    from hal_pyngcgui import PyNgcGui
+    from hal_gremlin_plus import HAL_GremlinPlus
 
 # GTK3 only
 if pygtkcompat is not None:
