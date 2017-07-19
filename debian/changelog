@@ -1,3 +1,44 @@
+linuxcnc (1:2.7.10) unstable; urgency=medium
+
+  * docs: document [EMCMOT]COMM_TIMEOUT
+  * docs: teach buildsystem to generate manpages from asciidoc source
+  * docs: add info about the Touchy radio buttons
+  * docs: improve some hm2_bspi manpages
+
+  * gmoccapy: added Num_Pad jogging
+  * image-to-gcode: work around gratuitous breakage in PIL
+
+  * GladeVCP: don't exit if CombiDRO fails to poll status
+
+  * hy_vfd: add --motor-poles, to set PD143
+  * hy_vfd: add --base-frequency to set PD004 on the VFD
+  * hy_vfd: document PD004/base-freq better in the manpage
+  * hy_vfd: fix some typos in --help output and comments
+
+  * add a driver for the Huanyang GT series VFD
+
+  * hm2_eth: add support for Mesa 7i93 AnyIO ethernet board
+  * hm2_sserial: Fix a bug where the second port would not work if the
+      first was disabled
+
+  * gcodemodule: make interp really close part program
+  * pluto: use rtapi's fabs() instead of the kernel's abs()
+  * steptest: don't change position-cmd when not running
+
+  * uspace: find top online CPU
+
+  * tests: make timeouts simpler & smarter in halui/jogging test
+
+  * build: fix building linuxcnc.1 when docs not requested
+  * build: don't fail when requested not to build documentation
+  * build: ensure asciidoc manpages are built before checklink is run
+  * build: build-depend on asciidoc-dblatex on debian stretch
+  * build: on Debian Stretch and newer, depend on gstreamer 1.0
+  * build: add debian/configure stanza for debian stretch
+  * build: rename the GS2 VFD Makefile variables for clarity
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 18 Jul 2017 21:02:57 -0600
+
 linuxcnc (1:2.7.9) unstable; urgency=medium
 
   * support "auxiliary apps", distributed separately from LinuxCNC
