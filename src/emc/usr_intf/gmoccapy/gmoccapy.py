@@ -3136,6 +3136,9 @@ class gmoccapy(object):
                 self._show_error((11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
                 return
             self.command.override_limits()
+            self.halcomp["ignore-limits-active"] = True
+        else:
+            self.halcomp["ignore-limits-active"] = False
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
         if widget.get_active():
@@ -4642,6 +4645,9 @@ class gmoccapy(object):
         # make a pin to set ignore limits
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
+
+        # make a pin to notify PLC/hardware to ignore limits
+        self.halcomp.newpin( "ignore-limits-active", hal.HAL_BIT, hal.HAL_OUT )
 
 # Hal Pin Handling End
 # =========================================================
