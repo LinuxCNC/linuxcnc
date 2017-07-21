@@ -609,9 +609,8 @@ def create_pyvcp_panel(self, filename):
 #***************
 # GLADEVCP TEST
 #***************
-def create_gvcp_default.hal(self):
+def create_gvcp_default_hal(self):
 	self.d.hal_gvcp_list = []
-
 
 	# X
 	self.d.hal_gvcp_list.append("# connect the X PyVCP buttons")
