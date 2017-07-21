@@ -366,6 +366,8 @@ Many of them are used also from gmoccapy, see the
 
 * 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 
+* 'BACK_TOOL_LATHE = 1' - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
+
 * 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
 
 * 'GEOMETRY = XYZABCUVW' - Controls the preview and backplot of rotary motion. This item consists
@@ -595,6 +597,10 @@ Section.
 
 * 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
   nanoseconds.
+
+* 'COMM_TIMEOUT = 1.0' - Number of seconds to wait for Motion (the
+  realtime part of the motion controller) to acknowledge receipt of
+  messages from Task (the non-realtime part of the motion controller).
 
 [[sec:task-section]](((INI File, TASK Section)))
 

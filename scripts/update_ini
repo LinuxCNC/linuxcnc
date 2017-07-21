@@ -201,7 +201,15 @@ if version == "$Revision$" or version < "1.0":
     copysection("DISPLAY")
     copysection("FILTER")
     copysection("RS274NGC")
-    copysection("EMCMOT")
+
+    all_sections.remove("EMCMOT")
+    section = re.search("\[EMCMOT\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("[EMCMOT]\n")
+    section = re.sub("# Interval between tries to emcmot.*?\n", "", section)
+    section = re.sub("COMM_WAIT.*?\n", "", section)
+    newini.write(section)
+
     copysection("TASK")
     copysection("HAL")
     copysection("HALUI")
@@ -210,7 +218,7 @@ if version == "$Revision$" or version < "1.0":
     all_sections.remove("TRAJ")
     section = re.search("\[TRAJ\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
-    newini.write("[TRAJ]\n")
+    newini.write("\n[TRAJ]\n")
     if section != None:
         if not re.search("MAX_LINEAR_VELOCITY", section):
             if re.search("MAX_VELOCITY", section):
@@ -225,6 +233,7 @@ if version == "$Revision$" or version < "1.0":
             section = re.sub("MAX_ACCELERATION", "MAX_LINEAR_ACCELERATION", section)
         if not re.search("DEFAULT_ACCELERATION", section):
             section = re.sub("DEFAULT_ACCELERATION", "DEFAULT_LINEAR_ACCELERATION", section)
+        section = re.sub("CYCLE_TIME.*?\n", "", section)
         newini.write(section)
 
     copysection("EMCIO")

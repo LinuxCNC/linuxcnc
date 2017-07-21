@@ -261,8 +261,6 @@ REMAP=M950 argspec=p python=symbols  modalgroup=10
 EMCMOT =              motmod
 # Timeout for comm to emcmot, in seconds
 COMM_TIMEOUT =          1.0
-# Interval between tries to emcmot, in seconds
-COMM_WAIT =             0.010
 # BASE_PERIOD is unused in this configuration but specified in core_sim.hal
 BASE_PERIOD  =               0
 # Servo task period, in nano-seconds
@@ -309,7 +307,6 @@ COORDINATES =           X Y Z
 HOME =                  0 0 0
 LINEAR_UNITS =          mm
 ANGULAR_UNITS =         degree
-CYCLE_TIME =            0.010
 DEFAULT_VELOCITY =      30.48
 MAX_VELOCITY =          53.34
 DEFAULT_ACCELERATION =  508

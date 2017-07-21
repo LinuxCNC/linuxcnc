@@ -614,6 +614,14 @@ Button .toolbar.view_y \
 	-takefocus 0
 setup_widget_accel .toolbar.view_y {}
 
+Button .toolbar.view_y2 \
+	-command set_view_y2 \
+	-helptext [_ "Inverted Front view"] \
+	-image [load_image tool_axis_y2] \
+	-relief link \
+	-takefocus 0
+setup_widget_accel .toolbar.view_y2 {}
+
 Button .toolbar.view_p \
 	-command set_view_p \
 	-helptext [_ "Perspective view"] \
@@ -736,6 +744,10 @@ pack .toolbar.view_x \
 
 # Pack widget .toolbar.view_y
 pack .toolbar.view_y \
+	-side left
+
+# Pack widget .toolbar.view_y2
+pack .toolbar.view_y2 \
 	-side left
 
 # Pack widget .toolbar.view_p

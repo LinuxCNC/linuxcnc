@@ -156,7 +156,7 @@ TCLTK_VERSION=8.6
 case $DISTRIB_NAME in
 Debian-9.*|Raspbian-9.*|Debian-testing) # Stretch
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
-        PYTHON_GST=
+        PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         ;;
 Debian-8.*|Raspbian-8.*) # Jessie
         ;;

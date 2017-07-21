@@ -17,7 +17,9 @@
 
 #include "config.h"
 
+#ifdef __linux__
 #include <sys/fsuid.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -42,8 +44,13 @@
 #endif
 #include <sys/resource.h>
 #include <sys/mman.h>
+#ifdef __linux__
 #include <malloc.h>
 #include <sys/prctl.h>
+#endif
+#ifdef __FreeBSD__
+#include <pthread_np.h>
+#endif
 
 #include "config.h"
 
@@ -62,15 +69,22 @@ static uid_t euid, ruid;
 
 WithRoot::WithRoot() {
     if(!level++) {
+#ifdef __linux__
         setfsuid(euid);
+#endif
     }
 }
 
 WithRoot::~WithRoot() {
     if(!--level) {
+#ifdef __linux__
         setfsuid(ruid);
+#endif
     }
 }
+
+extern "C"
+int rtapi_is_realtime();
 
 namespace
 {
@@ -503,7 +517,9 @@ int main(int argc, char **argv) {
     ruid = getuid();
     euid = geteuid();
     setresuid(euid, euid, ruid);
+#ifdef __linux__
     setfsuid(ruid);
+#endif
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
@@ -655,6 +671,7 @@ static void configure_memory()
     res = mlockall(MCL_CURRENT | MCL_FUTURE);
     if(res < 0) perror("mlockall");
 
+#ifdef __linux__
     /* Turn off malloc trimming.*/
     if (!mallopt(M_TRIM_THRESHOLD, -1)) {
         rtapi_print_msg(RTAPI_MSG_WARN,
@@ -665,6 +682,7 @@ static void configure_memory()
         rtapi_print_msg(RTAPI_MSG_WARN,
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
+#endif
     char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
@@ -686,7 +704,7 @@ static int harden_rt()
     if(!rtapi_is_realtime()) return -EINVAL;
 
     WITH_ROOT;
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "cannot gain I/O privileges - "
@@ -696,6 +714,7 @@ static int harden_rt()
 #endif
 
     struct sigaction sig_act = {};
+#ifdef __linux__
     // enable realtime
     if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
     {
@@ -716,6 +735,7 @@ static int harden_rt()
 	rtapi_print_msg(RTAPI_MSG_WARN,
 		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
 		  errno, strerror(errno));
+#endif /* __linux__ */
 
     configure_memory();
 
@@ -735,6 +755,7 @@ static int harden_rt()
     sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
+#ifdef __linux__
     int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         rtapi_print_msg(RTAPI_MSG_WARN, "failed to open /dev/cpu_dma_latency: %s\n", strerror(errno));
@@ -746,6 +767,7 @@ static int harden_rt()
         }
         // deliberately leak fd until program exit
     }
+#endif /* __linux__ */
     return 0;
 }
 
@@ -903,6 +925,7 @@ int Posix::task_delete(int id)
 static int find_rt_cpu_number() {
     if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
 
+#ifdef __linux__
     cpu_set_t cpuset_orig;
     int r = sched_getaffinity(getpid(), sizeof(cpuset_orig), &cpuset_orig);
     if(r < 0)
@@ -931,6 +954,9 @@ static int find_rt_cpu_number() {
         if(CPU_ISSET(i, &cpuset)) top = i;
     }
     return top;
+#else
+    return (-1);
+#endif
 }
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
@@ -961,11 +987,17 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
       return -errno;
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
-      cpu_set_t cpuset;
-      CPU_ZERO(&cpuset);
-      CPU_SET(rt_cpu_number, &cpuset);
-      if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-          return -errno;
+      if(rt_cpu_number != -1) {
+#ifdef __FreeBSD__
+          cpuset_t cpuset;
+#else
+          cpu_set_t cpuset;
+#endif
+          CPU_ZERO(&cpuset);
+          CPU_SET(rt_cpu_number, &cpuset);
+          if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
+               return -errno;
+      }
   }
   if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
       return -errno;

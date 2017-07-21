@@ -1707,7 +1707,7 @@ class GlCanonDraw:
         glDepthFunc(GL_ALWAYS)
         diameter, frontangle, backangle, orientation = current_tool[-4:]
         w = 3/8.
-
+        glDisable(GL_CULL_FACE)#lathe tool needs to be visable form both sides
         radius = self.to_internal_linear_unit(diameter) / 2.
         glColor3f(*self.colors['lathetool'])
         glBegin(GL_LINES)
@@ -1762,6 +1762,7 @@ class GlCanonDraw:
                 radius * dy + radius * math.cos(circlemaxangle) + sz * cosmax)
 
             glEnd()
+        glEnable(GL_CULL_FACE)
         glDepthFunc(GL_LESS)
 
     def extents_info(self):

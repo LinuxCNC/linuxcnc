@@ -161,6 +161,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             if (ret_available == 0) {
                 DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
+                usleep(1000);
                 continue;
             }
 
@@ -176,6 +177,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             if (ret_connected == 0) {
                 DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
+                usleep(1000);
                 continue;
             }
 
