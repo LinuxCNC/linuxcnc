@@ -184,12 +184,24 @@ class Pages:
 		self.w.viewTable1.append_column(column)
 
 		# base
+		# Axis
+		axis_type = [
+			{'type':"XYZ", 'index':XYZ},
+			{'type':"XYZA", 'index':XYZA},
+			{'type':"XZ (Lathe)", 'index':XZ},
+			{'type':"XYUV (Foam)", 'index':XYUV}
+		]
+		self.w.axis_liststore.clear()
+		for mydict in axis_type:
+			treeiter = self.w.axis_liststore.append([mydict["type"], mydict["index"]])
+		self.w.axes.set_active(0)
+		# Machine
 		self.w.base_preset_liststore.clear()
 		self.w.base_preset_liststore.append([_("Other"), 0])
 		for mydict in preset.preset_machines:
 			treeiter = self.w.base_preset_liststore.append([mydict["human"], mydict["index"]])
 		self.w.base_preset_combo.set_active(0)
-
+		# Driver
 		self.w.driver_liststore.clear()
 		self.w.driver_liststore.append([_("Other"), 0])
 		for mydict in preset.preset_machines:

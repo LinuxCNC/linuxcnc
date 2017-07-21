@@ -61,6 +61,14 @@ GtkEntry.selected {
 
 """
 
+INCH = 0
+MM = 1
+
+XYZ = 0
+XYZA = 1
+XZ = 2
+XYUV = 3
+
 THEMEDIR = "/usr/share/themes"
 
 MESS_START = _('Start')

@@ -161,7 +161,7 @@ preset_machines = [
 		'pin15':UNUSED_INPUT, 'pin15inv':0,
 		'steptime':5000, 'stepspace':5000, 'dirhold':20000, 'dirsetup':20000
 	},
-	{'name':'stepcraft420', 'human':_("Stepcraft 420") + ' (Untested)', 'index':STEPCRAFT420,
+	{'name':'stepcraft420', 'human':_("Stepcraft 420") + ' (Untested)', 'index':STEPCRAFT420, 'units':MM,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -188,7 +188,7 @@ preset_machines = [
 		'probe_x_pos':258, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':35.0,
 		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
 	},
-	{'name':'stepcraft600', 'human':_("Stepcraft 600") + ' (Untested)', 'index':STEPCRAFT600,
+	{'name':'stepcraft600', 'human':_("Stepcraft 600") + ' (Untested)', 'index':STEPCRAFT600, 'units':MM,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,
@@ -215,7 +215,7 @@ preset_machines = [
 		'probe_x_pos':378, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':35.0,
 		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
 	},
-	{'name':'stepcraft840', 'human':_("Stepcraft 840"), 'index':STEPCRAFT840,
+	{'name':'stepcraft840', 'human':_("Stepcraft 840"), 'index':STEPCRAFT840, 'units':MM,
 		'pin1':ON, 'pin1inv':0,
 		'pin2':XDIR, 'pin2inv':1,
 		'pin3':XSTEP, 'pin3inv':0,

@@ -28,7 +28,17 @@ from stepconf import preset
 def base_prepare(self):
 	self.w.drivetime_expander.set_expanded(True)
 	self.w.machinename.set_text(self.d.machinename)
-	self.w.axes.set_active(self.d.axes)
+	# AXES
+	#self.w.axes.set_active(self.d.axes)
+	liststore = self.w.axes.get_model ()
+	treeiter = liststore.get_iter_first()
+	while treeiter != None:
+		name, row_id = liststore[treeiter][:2]
+		if(row_id == self.d.axes):
+			self.w.axes.set_active_iter(treeiter)
+			break
+		treeiter = liststore.iter_next(treeiter)
+	
 	self.w.units.set_active(self.d.units)
 	self.w.latency.set_value(self.d.latency)
 	self.w.steptime.set_value(self.d.steptime)
@@ -62,7 +72,15 @@ def base_finish(self):
 	self.w.drivetime_expander.set_expanded(False)
 	machinename = self.w.machinename.get_text()
 	self.d.machinename = machinename.replace(" ","_")
-	self.d.axes = self.w.axes.get_active()
+	tree_iter = self.w.axes.get_active_iter()
+	if tree_iter != None:
+		model = self.w.axes.get_model()
+		name, row_id = model[tree_iter][:2]
+		self.d.axes = row_id
+	else:
+		self.d.axes = 0
+
+	#self.d.axes = self.w.axes.get_active()
 	self.d.units = self.w.units.get_active()
 	self.d.steptime = self.w.steptime.get_value()
 	self.d.stepspace = self.w.stepspace.get_value()

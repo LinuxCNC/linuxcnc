@@ -11,19 +11,25 @@
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
+      <!-- column-name index -->
+      <column type="gint"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">XYZ</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">XYZA</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">XZ (Lathe)</col>
+        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">XYUV (Foam)</col>
+        <col id="1">0</col>
       </row>
     </data>
   </object>

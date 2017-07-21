@@ -61,15 +61,6 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.select_gmoccapy:
             print >>file, "DISPLAY = gmoccapy"
-        if self.d.gladevcp:
-            theme = self.d.gladevcptheme
-            if theme == "Follow System Theme":theme = ""
-            else: theme = " -t "+theme
-            if self.d.centerembededgvcp:
-                print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
-            elif self.d.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
         print >>file, "EDITOR = gedit"
         print >>file, "POSITION_OFFSET = RELATIVE"
         print >>file, "POSITION_FEEDBACK = ACTUAL"
@@ -94,6 +85,12 @@ class INI:
             print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         else:
             print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
+        if self.d.gladevcp:
+            if self.d.centerembededgvcp:
+                print >>file, "EMBED_TAB_NAME = GladeVCP"
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -H gvcp_call_list.hal -x {XID} %s" % self.d.gladevcpname
+            elif self.d.sideembededgvcp:
+                print >>file, "GLADEVCP = -H gvcp_call_list.hal %s" % self.d.gladevcpname
         if self.d.pyvcp:
             print >>file, "PYVCP = %s" % self.d.pyvcpname
         if self.d.axes == 2:
@@ -108,17 +105,17 @@ class INI:
         #                      1: X Y Z A
         #                      2: X Z
         #                      3: X Y U V
-        if   self.d.axes == 0: num_joints = 3 # X Y Z
-        elif self.d.axes == 1: num_joints = 4 # X Y Z A
-        elif self.d.axes == 2: num_joints = 2 # X Z
-        elif self.d.axes == 3: num_joints = 4 # X Y U V
+        if   self.d.axes == XYZ: num_joints = 3 # X Y Z
+        elif self.d.axes == XYZA: num_joints = 4 # X Y Z A
+        elif self.d.axes == XZ: num_joints = 2 # X Z
+        elif self.d.axes == XYUV: num_joints = 4 # X Y U V
         else:
             print "___________________unknown self.d.axes",self.d.axes
 
-        if   self.d.axes == 1: coords = "X Y Z A"
-        elif self.d.axes == 0: coords = "X Y Z"
-        elif self.d.axes == 2: coords = "X Z"
-        elif self.d.axes == 3: coords = "X Y U V"
+        if   self.d.axes == XYZA: coords = "X Y Z A"
+        elif self.d.axes == XYZ: coords = "X Y Z"
+        elif self.d.axes == XZ: coords = "X Z"
+        elif self.d.axes == XYUV: coords = "X Y U V"
 
         print >>file,  "[KINS]"
         # trivial kinematics: no. of joints == no.of axes)
@@ -151,7 +148,6 @@ class INI:
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
-        print >>file, "COMM_WAIT = 0.010"
         print >>file, "BASE_PERIOD = %d" % base_period
         print >>file, "SERVO_PERIOD = 1000000"
 
@@ -162,6 +158,7 @@ class INI:
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         if self.d.customhal:
             print >>file, "HALFILE = custom.hal"
+        if self.d.pyvcp or self.d.gladevcp:
             print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
 
         if self.d.halui_custom or self.d.halui:
@@ -185,7 +182,6 @@ class INI:
         else:
             print >>file, "LINEAR_UNITS = inch"
         print >>file, "ANGULAR_UNITS = degree"
-        print >>file, "CYCLE_TIME = 0.010"
         print >>file, "DEFAULT_LINEAR_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
         print >>file
@@ -194,13 +190,13 @@ class INI:
         print >>file, "CYCLE_TIME = 0.100"
         print >>file, "TOOL_TABLE = tool.tbl"
 
-        if self.d.axes == 2: # XZ
+        if self.d.axes == XZ: # XZ
             all_homes = self.a.home_sig("x") and self.a.home_sig("z")
         else:
             all_homes = self.a.home_sig("x") and self.a.home_sig("y")
-            if self.d.axes == 3: # XYUV
+            if self.d.axes == XYUV: # XYUV
                 all_homes = all_homes and self.a.home_sig("u") and self.a.home_sig("v")
-            elif self.d.axes == 0: # XYZ
+            elif self.d.axes == XYZ: # XYZ
                 all_homes = all_homes and self.a.home_sig("z")
             elif self.d.axes == 1: # XYZA
                 all_homes = all_homes and self.a.home_sig("z") and self.a.home_sig("a")
@@ -289,7 +285,7 @@ class INI:
             if inputs & ignore:
                 print >>file, "HOME_IGNORE_LIMITS = YES"
             if all_homes:
-                if self.d.axes == 3: # XYUV
+                if self.d.axes == XYUV: # XYUV
                     if letter in('y','v'): hs = 1
                     else: hs = 0
                     print >>file, "HOME_SEQUENCE = %d"% hs

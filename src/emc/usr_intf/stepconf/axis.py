@@ -401,7 +401,7 @@ def test_axis(self, axis):
 		self.w.testacc.set_digits(1)
 		self.w.testamplitude.set_digits(1)
 		self.w.testamplitude.set_value(10)
-	elif self.d.units:
+	elif (self.d.units == MM):
 		self.w.testvelunit.set_text(_("mm / s"))
 		self.w.testaccunit.set_text(_(u"mm / s²"))
 		self.w.testampunit.set_text(_("mm"))

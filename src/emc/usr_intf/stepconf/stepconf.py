@@ -145,7 +145,7 @@ class Data:
 
         self.machinename = _("my-mill")
         self.axes = 0 # XYZ
-        self.units = 1 # mm
+        self.units = MM # mm
         self.drivertype = "Other"
         self.steptime = 5000
         self.stepspace = 5000
@@ -183,6 +183,7 @@ class Data:
 
         # gladevcp data
         self.gladevcp = False # not included
+        self.gladevcptype = 0 # include default gladevcp gui
         self.gladesample = True
         self.gladeexists = False
         self.spindlespeedbar = True
@@ -194,8 +195,9 @@ class Data:
         self.zeroa = False
         self.autotouchz = False
         self.gladevcphaluicmds = 0 # not used
-        self.centerembededgvcp = True
-        self.sideembededgvcp = False
+        self.centerembededgvcp = False
+        self.sideembededgvcp = True
+        """
         self.standalonegvcp = False
         self.gladevcpposition = False
         self.gladevcpsize = False
@@ -205,6 +207,7 @@ class Data:
         self.gladevcpxpos = 0
         self.gladevcpypos = 0
         self.gladevcptheme = "Follow System Theme"
+        """
         self.gladevcpname = "blank.ui"
         
         # Position of probe switch

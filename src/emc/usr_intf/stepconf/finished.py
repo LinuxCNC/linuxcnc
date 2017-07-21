@@ -92,18 +92,7 @@ def save(self,basedir):
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.pyvcpname))
 		#self.d.pyvcpname == "custompanel.xml":
 		#panelname = os.path.join(self.a.distdir, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
-		if(self.d.pyvcphaltype == 0): # custom panel
-			if os.path.exists(originalname):
-				 print "custom PYVCP file already exists"
-			else:
-				file = open(originalname, "w")
-				print >>file, ("""<?xml version="1.0"?>
-<pyvcp>
-</pyvcp>
-""")
-			print "create PYVCP program to usr directory"
-			print"%s" % self.d.pyvcpname
-		elif(self.d.pyvcphaltype == 1): # default panel
+		if(self.d.pyvcptype == 0): # default panel
 			# Create default panel
 			self.create_pyvcp_panel(originalname)
 			# Subroutine
@@ -125,25 +114,42 @@ def save(self,basedir):
 			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_sensor_height))
 			print >>fngc, ("""	G90 (done)
 o<pyvcp_probe> endsub""")
+		elif(self.d.pyvcptype == 1): # custom panel
+			if os.path.exists(originalname):
+				 print "custom PYVCP file already exists"
+			else:
+				file = open(originalname, "w")
+				print >>file, ("""<?xml version="1.0"?>
+<pyvcp>
+</pyvcp>
+""")
+				file.close()
+				print "create PYVCP program to usr directory"
+				print"%s" % self.d.pyvcpname
 		else:
 			print "Master PYVCP files missing from configurable_options dir"
 
-	if self.d.gladevcp and not self.d.gladevcpname == "glade_custom.ui":
-		panelname = os.path.join(self.a.distdir, "configurable_options/gladevcp/%s" % self.d.gladevcpname)
-		originalname = os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.d.machinename)
-		if os.path.exists(panelname):     
+	if self.d.gladevcp:
+		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.gladevcpname))
+		if(self.d.gladevcptype == 0): # default panel
+			# Create default panel
+			self.create_gladevcp_panel(originalname)
+		elif(self.d.gladevcptype == 1): # custom panel
 			if os.path.exists(originalname):
-				print "custom GLADEVCP file already exists"
-				shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.d.machinename) ) 
-				print "made backup of existing custom"
-			shutil.copy( panelname,originalname)
-			print "copied GLADEVCP program to usr directory"
-			print"%s" % panelname
+				 print "custom GLADEVCP file already exists"
+			else:
+				file = open(originalname, "w")
+				print >>file, ("""<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+</interface>""")
+				file.close()
+
 		else:
-			print "Master GLADEVCP files missing from configurable_options dir"
+			print "Master GladeVCP files missing from configurable_options dir"
 
 	filename = "%s.stepconf" % base
-
 	d = xml.dom.minidom.getDOMImplementation().createDocument(None, "stepconf", None)
 	e = d.documentElement
 
