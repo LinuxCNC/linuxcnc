@@ -172,24 +172,6 @@ stopping) the planned, coordinated motion will allow movement
 away from the soft limit when correcting changes are made in the
 offending external offset.
 
-=== Restrictions
-
-An mdi move may not be started if non-zero external offsets are applied.
-
-If a non-zero external offset exists when the interpreter synchronizes
-its view of the machine's position, motion is terminated.  These
-synchronizations typically occur when a 'queue buster' gcode is
-encountered.  'Queue busters' include:
-
-. tool changes (M6)
-. reading hal pins (M66)
-. probe moves (G38.x)
-
-To avoid this type of termination, all external offsets should be
-reduced to zero before execution of a 'queue busting' command.
-For operator controlled external offsets, a pause (M0) and
-message (debug,Reset External Offsets) may be helpful.
-
 === Warning
 
 The use of external offsets can alter machine motion in a
@@ -337,11 +319,10 @@ M68 command to control a *motion.analog-out-NN* pin.
 
 Panel LEDs are provided to show important status items.
 
-Functions are provided for polygons (nsides >= 3), sine waves
-and square waves.  The functions can be multiplied in frequency
-using the fmul pin and modified in amplitude using the
-rfrac pin (fraction of reference radius).
-and amplitude .
+Functions are provided for inside and outside polygons (nsides >= 3),
+sine waves and square waves.  The functions can be multiplied in
+frequency using the fmul pin and modified in amplitude using the rfrac
+pin (fraction of reference radius).
 
 Controls are provided to start/stop offset waveforms and to
 set the function type and its parameters.

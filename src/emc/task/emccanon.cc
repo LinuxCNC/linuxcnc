@@ -2554,6 +2554,19 @@ CANON_POSITION GET_EXTERNAL_POSITION()
 
     pos = emcStatus->motion.traj.position;
 
+    if (GET_EXTERNAL_OFFSET_APPLIED() ) {
+        EmcPose eoffset = GET_EXTERNAL_OFFSETS();
+        pos.tran.x -= eoffset.tran.x;
+        pos.tran.y -= eoffset.tran.y;
+        pos.tran.z -= eoffset.tran.z;
+        pos.a      -= eoffset.a;
+        pos.b      -= eoffset.b;
+        pos.c      -= eoffset.c;
+        pos.u      -= eoffset.u;
+        pos.v      -= eoffset.v;
+        pos.w      -= eoffset.w;
+    }
+
     // first update internal record of last position
     canonUpdateEndPoint(FROM_EXT_LEN(pos.tran.x), FROM_EXT_LEN(pos.tran.y), FROM_EXT_LEN(pos.tran.z),
                         FROM_EXT_ANG(pos.a), FROM_EXT_ANG(pos.b), FROM_EXT_ANG(pos.c),

@@ -1969,27 +1969,6 @@ int Interp::synch()
   _setup.v_current  = GET_EXTERNAL_POSITION_V();
   _setup.w_current  = GET_EXTERNAL_POSITION_W();
 
-  if (GET_EXTERNAL_OFFSET_APPLIED() ) {
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-    return INTERP_ERROR;  // synch() return error --> stop
-#else
-    // Removing an external offset applied in motion works
-    // here _unless_ there is a loop (repeat,while,do-while)
-    // with queuebusters.
-    // Below is for experimental usage only:
-    EmcPose e = GET_EXTERNAL_OFFSETS();
-    _setup.current_x  = GET_EXTERNAL_POSITION_X() - e.tran.x;
-    _setup.current_y  = GET_EXTERNAL_POSITION_Y() - e.tran.y;
-    _setup.current_z  = GET_EXTERNAL_POSITION_Z() - e.tran.z;
-    _setup.AA_current = GET_EXTERNAL_POSITION_A() - e.a;
-    _setup.BB_current = GET_EXTERNAL_POSITION_B() - e.b;
-    _setup.CC_current = GET_EXTERNAL_POSITION_C() - e.c;
-    _setup.u_current  = GET_EXTERNAL_POSITION_U() - e.u;
-    _setup.v_current  = GET_EXTERNAL_POSITION_V() - e.v;
-    _setup.w_current  = GET_EXTERNAL_POSITION_W() - e.w;
-#endif
-  }
-
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
@@ -2018,6 +1997,12 @@ int Interp::synch()
   // read_inputs(&_setup); // input/probe/toolchange
 
   write_settings(&_setup);
+
+#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
+  if (GET_EXTERNAL_OFFSET_APPLIED() ) {
+    return INTERP_ERROR;
+  }
+#endif
 
   return INTERP_OK;
 }
