@@ -1099,7 +1099,6 @@ class gmoccapy(object):
             print (_("**** no audio available! ****"))
             print(_("**** PYGST libray not installed? ****"))
             print(_("**** is python-gstX.XX installed? ****"))
-            return
 
         if self._AUDIO_AVAILABLE:
             # the sounds to play if an error or message rises
@@ -1112,8 +1111,8 @@ class gmoccapy(object):
             self.widgets.audio_alert_chooser.set_filename(self.alert_sound)
             self.widgets.audio_error_chooser.set_filename(self.error_sound)
         else:
-            self.widgets.audio_alert_chooser.set_sensitiv(False)
-            self.widgets.audio_error_chooser.set_sensitiv(False)
+            self.widgets.audio_alert_chooser.set_sensitive(False)
+            self.widgets.audio_error_chooser.set_sensitive(False)
 
     # init the preview
     def _init_gremlin( self ):
