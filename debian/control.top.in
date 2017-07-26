@@ -29,7 +29,7 @@ Build-Depends: debhelper (>= 6),
     psmisc,
 Standards-Version: 3.9.2
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
-Vcs-Git: git://git.linuxcnc.org/git/linuxcnc.git
+Vcs-Git: git://github.com/linuxcnc/linuxcnc.git
 
 Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
