@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.2"
+_RELEASE = " 2.3.1.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -114,7 +114,8 @@ sys.path.insert(0, LIBDIR)
 
 # as now we know the libdir path we can import our own modules
 from gmoccapy import widgets       # a class to handle the widgets
-from gmoccapy import player        # a class to handle sounds
+# moved to _init_audio to check if gst can be imported
+# from gmoccapy import player        # a class to handle sounds
 from gmoccapy import notification  # this is the module we use for our error handling
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
@@ -1089,7 +1090,7 @@ class gmoccapy(object):
         self._AUDIO_AVAILABLE = False
         try:
             import gst
-
+            from gmoccapy import player        # a class to handle sounds
             self._AUDIO_AVAILABLE = True
             print (_("**** GMOCCAPY INFO ****"))
             print (_("**** audio available! ****"))
