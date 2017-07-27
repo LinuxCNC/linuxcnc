@@ -158,7 +158,10 @@ FUNCTION(_){
         state = 1;
         ready = 0;
     case 1: // choose direction
-        if (pocket_number < 1 || pocket_number > inst_pockets) return;
+        if (pocket_number < 1 || pocket_number > inst_pockets) {
+            state = 0;
+            return;
+        }
         if (inst_dir == 2){
             if (current_position < pocket_number){
                 if (pocket_number - current_position > (inst_pockets / 2)) {
