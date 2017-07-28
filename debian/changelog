@@ -1,3 +1,12 @@
+linuxcnc (1:2.7.11) unstable; urgency=medium
+
+  * doc changes for the transition to github
+  * carousel: fix a bug with tool number of zero
+  * axis/gremlin: a better way to avoid leaking files
+  * test that the Python interpreter prints the right errors
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 27 Jul 2017 22:36:58 -0600
+
 linuxcnc (1:2.7.10) unstable; urgency=medium
 
   * docs: document [EMCMOT]COMM_TIMEOUT
