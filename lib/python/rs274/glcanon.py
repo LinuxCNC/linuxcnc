@@ -24,6 +24,7 @@ import linuxcnc
 import array
 import gcode
 import os
+import re
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -1258,7 +1259,10 @@ class GlCanonDraw:
                 glPushMatrix()
                 glTranslatef(*pos)
                 sign = 1
-                for ch in self.get_geometry():
+                g = re.split(" *(-?[XYZABCUVW])", self.get_geometry())
+                g = "".join(reversed(g))
+
+                for ch in g: # Apply in orignal non-reversed GEOMETRY order
                     if ch == '-':
                         sign = -1
                     elif ch == 'A':
