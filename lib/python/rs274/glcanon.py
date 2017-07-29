@@ -1274,6 +1274,8 @@ class GlCanonDraw:
                     elif ch == 'C':
                         glRotatef(rz*sign, 0, 0, 1)
                         sign = 1
+                    else:
+                        sign = 1 # reset sign for non-rotational axis "XYZUVW"
                 glEnable(GL_BLEND)
                 glEnable(GL_CULL_FACE)
                 glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
