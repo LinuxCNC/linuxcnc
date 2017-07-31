@@ -1372,7 +1372,7 @@ def jogspeed_incremental(dir=1):
     if cursel == "":
         cursel = 0
     else:
-        cursel = int(cursel)
+        cursel = int(cursel[0])
     if dir == 1:
         if cursel > 0:
             # If it was "Continous" just before, then don't change last jog increment!
