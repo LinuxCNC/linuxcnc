@@ -95,8 +95,8 @@ if [ -z "${ACTIVE}" ] ; then
 
 fi
 
-if [ ! -r /sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/in_voltage5_raw ] ; then
-	echo "Analog input files not found in /sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/" >&2
+if [ ! -r /sys/bus/iio/devices/iio:device0/in_voltage5_raw ] ; then
+	echo "Analog input files not found in /sys/bus/iio/devices/iio:device0/" >&2
 	exit 1;
 fi
 
