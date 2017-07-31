@@ -38,7 +38,7 @@ loadrt tp
 loadrt hostmot2
 
 # load low-level driver
-newinst [HOSTMOT2](DRIVER) [HOSTMOT2]DEVNAME -- config=[HOSTMOT2](CONFIG)
+newinst [HOSTMOT2](DRIVER) [HOSTMOT2]DEVNAME -- config=[HOSTMOT2](CONFIG)  debug=1
 
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES  #tp=tp kins=trivkins
 
@@ -77,14 +77,15 @@ sets emcmot.00.enable FALSE
 net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.00.enable
 
-# added some signals to control a led (pin 39 or 40 on gpio0 port)
-# and control power on a cramps-cape (pin 1 or 2 on gpio0 port)
-setp hm2_[HOSTMOT2](BOARD).0.gpio.000.is_output TRUE
-setp hm2_[HOSTMOT2](BOARD).0.gpio.000.invert_output TRUE
+### added some signals to control a led (pin 39 or 40 on gpio0 port)
+# and control power on a cramps-cape (pin 31 and 32 on gpio0 port)
+setp hm2_[HOSTMOT2](BOARD).0.gpio.031.is_output TRUE
+setp hm2_[HOSTMOT2](BOARD).0.gpio.032.is_output TRUE
+setp hm2_[HOSTMOT2](BOARD).0.gpio.032.invert_output TRUE
 
-net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.gpio.000.out
+net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.gpio.031.out
 
-net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.led.CR01
+net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.gpio.032.out
 
 # position command and feedback
 net emcmot.00.pos-cmd <= axis.0.motor-pos-cmd
@@ -215,4 +216,3 @@ net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
 # create signals for tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
-
