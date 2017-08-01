@@ -3415,7 +3415,7 @@ if kinsmodule.split()[0] == "trivkins":
     trivkinscoords = "XYZABCUVW"
     for item in kinsmodule.split():
         if "coordinates=" in item:
-            trivkinscoords = item.split("=")[1].lower()
+            trivkinscoords = item.split("=")[1].upper()
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
