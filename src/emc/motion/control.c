@@ -862,6 +862,8 @@ static void handle_jjogwheels(void)
 	    /* if joint is not active, skip it */
 	    continue;
 	}
+
+
 	/* get counts from jogwheel */
 	new_jjog_counts = *(joint_data->jjog_counts);
 	delta = new_jjog_counts - joint->old_jjog_counts;
@@ -905,6 +907,19 @@ static void handle_jjogwheels(void)
 	}
         if (joint->home_flags & HOME_UNLOCK_FIRST) {
             reportError("Can't wheel jog locking joint_num=%d",joint_num);
+            continue;
+        }
+        if (joint->home_sequence < 0) {
+            if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                "Homing is REQUIRED to wheel jog requested coordinate\n"
+                "because joint (%d) in home_sequence is negative (%d)\n"
+                ,joint_num,joint->home_sequence);
+            } else {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                "Cannot wheel jog joint %d because home_sequence is negative (%d)\n"
+                ,joint_num,joint->home_sequence);
+            }
             continue;
         }
 	/* calculate distance to jog */

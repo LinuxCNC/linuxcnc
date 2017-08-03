@@ -480,6 +480,25 @@ void emcmotCommandHandler(void *arg, long period)
 
         if (joint_num >= 0 && joint_num < emcmotConfig->numJoints) {
             joint = &joints[joint_num];
+            if (   (   emcmotCommand->command == EMCMOT_JOG_CONT
+                    || emcmotCommand->command == EMCMOT_JOG_INCR
+                    || emcmotCommand->command == EMCMOT_JOG_ABS
+                   )
+                && !(GET_MOTION_TELEOP_FLAG())
+                && (joint->home_sequence < 0)
+               ) {
+                  if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
+                      rtapi_print_msg(RTAPI_MSG_ERR,
+                      "Homing is REQUIRED to jog requested coordinate\n"
+                      "because joint (%d) in home_sequence is negative (%d)\n"
+                      ,joint_num,joint->home_sequence);
+                  } else {
+                      rtapi_print_msg(RTAPI_MSG_ERR,
+                      "Cannot jog joint %d because home_sequence is negative (%d)\n"
+                      ,joint_num,joint->home_sequence);
+                  }
+                  return;
+            }
         }
         if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
             axis = &axes[axis_num];

@@ -191,6 +191,11 @@ with a synchronized final move*.  If the HOME_SEQUENCE value is
 zero or positive, a command to home the joint will home only the
 specified joint.
 
+Joint mode jogging of joints having a negative HOME_SEQUENCE is
+disallowed.  In common gantry applications, such jogging can lead
+to misalignment (racking).  Note that conventional jogging in
+world coordinates is always available once a machine is homed.
+
 Examples for a 3 joint system
     
 Two sequences (0,1), no synchronization
