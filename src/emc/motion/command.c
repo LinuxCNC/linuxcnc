@@ -658,6 +658,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    }
 	    joint->home_offset = emcmotCommand->offset;
 	    joint->home = emcmotCommand->home;
+	    joint->home_sequence = emcmotCommand->home_sequence;
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:

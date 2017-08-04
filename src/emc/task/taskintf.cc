@@ -343,7 +343,7 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     return retval;
 }
 
-int emcJointUpdateHomingParams(int joint, double home, double offset)
+int emcJointUpdateHomingParams(int joint, double home, double offset, int sequence)
 {
     CATCH_NAN(std::isnan(home) || std::isnan(offset) );
 
@@ -355,6 +355,7 @@ int emcJointUpdateHomingParams(int joint, double home, double offset)
     emcmotCommand.joint = joint;
     emcmotCommand.home = home;
     emcmotCommand.offset = offset;
+    emcmotCommand.home_sequence = sequence;
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
