@@ -185,6 +185,46 @@ do_tcl_tk_version() {
     echo "debian/control:  Set tcl/tk build deps to version $TCL_TK_VER" >&2
 }
 
+## Set version for packages by altering changelog
+## Write new version info then prepend existing one, for use in changes file
+## Allows command line builds and builds outside of Travis environment to set meaningful version numbers
+
+do_changelog() {
+    DISTRO_UC="$(lsb_release -c | cut -c 10- | sed 's/^[[:space:]]*//g' | sed -e 's/\b\(.\)/\u\1/g')"
+    DISTRO_LC="$(lsb_release -c | cut -c 10- | sed 's/^[[:space:]]*//g')"
+    MKVERSION="$(git show HEAD:VERSION | cut -d ' ' -f 1).$(git rev-list --count master)-1.git$(git rev-parse --short HEAD)~${DISTRO_LC}"
+    COMMITTER="$(git show -s --pretty=%an $(git rev-parse --short HEAD))"
+    EMAIL="$(git show -s --format='%ae' $(git rev-parse --short HEAD))"
+
+    mv changelog changelog.old
+    cat > changelog <<EOF
+machinekit (${MKVERSION}) ${DISTRO_UC}; urgency=low
+
+  * Cross-Builder rebuild for Debian ${DISTRO_UC}, commit $(git rev-parse --short HEAD)
+
+ -- ${COMMITTER} <${EMAIL}>  $(date -R)
+
+EOF
+
+cat changelog # debug output
+cat changelog.old >> changelog
+echo "New package version number added to changelog"
+}
+
+## Create source orig tarball in format required for creation of debian tarball and .dsc file
+## Allows non binary package builds from command line or outside Travis environment
+
+do_source_tarball() {
+#version based on major version plus commit number only, without suffixed -1 or commit hash
+MK_VERSION="$(git show HEAD:VERSION | cut -d ' ' -f 1).$(git rev-list --count master)"
+
+OWD=$PWD
+cd ../
+git archive HEAD | bzip2 -z > ../machinekit_${MK_VERSION}.orig.tar.bz2
+echo "Source tarball created"
+cd $OWD
+}
+
 usage() {
     {
 	test -z "$1" || echo "$1"
@@ -193,6 +233,8 @@ usage() {
 	echo "   -p		build POSIX threads"
 	echo "   -r		build RT_PREEMPT threads"
 	echo "   -x		build Xenomai threads"
+	echo "   -c		rewrite changelog to set package version from git commit"
+	echo "	 -s		create source tarball for non binary package builds"
 	echo "   -X <kver>	build Xenomai-kernel threads ***"
 	echo "   -R <kver>	build RTAI-kernel threads ***"
 	echo "   -t <tclver>	set tcl/tk version"
@@ -229,14 +271,17 @@ cp machinekit.install.in machinekit.install
 echo "debian/machinekit.install.in:  copied base template" >&2
 
 # read command line options
-while getopts dprxR:X:t:?h ARG; do
+while getopts dprxcsR:X:t:?h ARG; do
     case $ARG in
 	p) do_posix ;;
 	r) do_rt-preempt ;;
 	x) do_xenomai ;;
+	c) do_changelog ;;  # set new changelog with package versions from git
+	s) do_source_tarball ;; # create tarball for non binary builds
 	R) do_rtai_kernel "$OPTARG" ;;
 	X) do_xenomai_kernel "$OPTARG" ;;
 	t) TCL_TK_VER="$OPTARG" ;;
+
 	?|h) usage ;;
 	*) usage "Unknown arg: '-$ARG'" ;;
     esac
@@ -267,3 +312,4 @@ echo "debian/control:  add final Build-Depends: list" >&2
 
 # Warn if no flavor configured
 $HAVE_FLAVOR || usage "WARNING:  No thread flavors configured"
+
