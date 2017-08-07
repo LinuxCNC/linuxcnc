@@ -15,6 +15,7 @@ KTHREAD_ARCHES="i386 amd64"
 if test -x /usr/bin/lsb_release; then
     DISTRO_ID=$(lsb_release -is)  # Debian or Ubuntu
     DISTRO_RELEASE=$(lsb_release -rs)   # 8.1, 14.04, etc.
+    DISTRO_CODENAME=$(lsb_release -cs) # wheezy | jessie | stretch
 fi
 
 # Work out of the debian/ directory
@@ -98,9 +99,16 @@ do_posix() {
     HAVE_FLAVOR=true
 }
 
+## cater for fact that Stretch now has it's own rt-preempt kernels
 do_rt-preempt() {
-    cat control.rt-preempt.in >> control
-    echo "debian/control:  added RT_PREEMPT threads package" >&2
+    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
+	cat control.rt-preempt-stretch.in >> control
+	echo "debian/control:  added RT_PREEMPT threads package for Stretch" >&2
+    else
+	cat control.rt-preempt.in >> control
+	echo "debian/control:  added RT_PREEMPT threads package for Wheezy/Jessie" >&2
+    fi
+    
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
 }
@@ -190,8 +198,8 @@ do_tcl_tk_version() {
 ## Allows command line builds and builds outside of Travis environment to set meaningful version numbers
 
 do_changelog() {
-    DISTRO_UC="$(lsb_release -c | cut -c 10- | sed 's/^[[:space:]]*//g' | sed -e 's/\b\(.\)/\u\1/g')"
-    DISTRO_LC="$(lsb_release -c | cut -c 10- | sed 's/^[[:space:]]*//g')"
+    DISTRO_UC="$(echo $DISTRO_CODENAME | sed 's/^[[:space:]]*//g' | sed -e 's/\b\(.\)/\u\1/g')"
+    DISTRO_LC="$(echo $DISTRO_CODENAME | sed 's/^[[:space:]]*//g')"
     MKVERSION="$(git show HEAD:VERSION | cut -d ' ' -f 1).$(git rev-list --count master)-1.git$(git rev-parse --short HEAD)~${DISTRO_LC}"
     COMMITTER="$(git show -s --pretty=%an $(git rev-parse --short HEAD))"
     EMAIL="$(git show -s --format='%ae' $(git rev-parse --short HEAD))"

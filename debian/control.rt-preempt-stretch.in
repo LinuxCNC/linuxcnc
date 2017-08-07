@@ -1,0 +1,17 @@
+
+Package: machinekit-rt-preempt
+Architecture: any
+Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
+# These Debian-style RT_PREEMPT package names are restricted by
+# architecture; ARM arch SOCs are all incompatible, so this can't be
+# easily done for ARM.
+ linux-image-rt-686-pae [i386], linux-image-rt-amd64 [amd64]
+Provides:  machinekit-rt-threads
+Suggests: hostmot2-firmware-all [!armhf]
+Enhances: machinekit
+Description: PC based motion controller for real-time Linux
+ Machinekit is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package provides components and drivers that run on an RT-Preempt system.
