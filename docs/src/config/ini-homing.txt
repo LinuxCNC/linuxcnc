@@ -265,3 +265,9 @@ the following ini entries for that axis are needed.
 . HOME_USE_INDEX = NO
 . HOME_SEQUENCE = 0
 
+=== Inhibiting Homing (((Inhibiting Homing)))
+
+A hal pin (motion.homing-inhibit) is provided to disallow
+homing inititiation for both "Home All" and individual joint
+homing.
+

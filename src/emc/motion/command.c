@@ -1389,9 +1389,16 @@ void emcmotCommandHandler(void *arg, long period)
 		reportError(_("must be in joint mode to home"));
 		return;
 	    }
+	    if (*(emcmot_hal_data->homing_inhibit)) {
+	        reportError(_("Homing denied by motion.homing-inhibit joint=%d\n"),
+	                   joint_num);
+                return;
+	    }
+
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		break;
 	    }
+
 
 	    if(joint_num == -1) { // -1 means home all
                 if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {

@@ -1051,6 +1051,12 @@ was: axis.L.vel-cmd
  is: axis.l.teleop-vel-cmd
 ----
 
+New pins:
+
+----
+motion.homing-inhibit (see motion manpage)
+----
+
 === Hal component updates
 
 . siggen: new pin 'reset' to set output signal values to predefined state
