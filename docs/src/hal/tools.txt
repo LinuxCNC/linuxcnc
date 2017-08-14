@@ -139,7 +139,7 @@ sim_pin
   Note:  linuxcnc must be running
          A named item can specify a pin, param, or signal
          The item must be writable, e.g.:
-            pin:    IN or I/O (and not connected to a signal)
+            pin:    IN or I/O (and not connected to a signal with a writer)
             param:  RW
             signal: connected to a writable pin
 ----
