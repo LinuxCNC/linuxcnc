@@ -480,6 +480,25 @@ void emcmotCommandHandler(void *arg, long period)
 
         if (joint_num >= 0 && joint_num < emcmotConfig->numJoints) {
             joint = &joints[joint_num];
+            if (   (   emcmotCommand->command == EMCMOT_JOG_CONT
+                    || emcmotCommand->command == EMCMOT_JOG_INCR
+                    || emcmotCommand->command == EMCMOT_JOG_ABS
+                   )
+                && !(GET_MOTION_TELEOP_FLAG())
+                && (joint->home_sequence < 0)
+               ) {
+                  if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
+                      rtapi_print_msg(RTAPI_MSG_ERR,
+                      "Homing is REQUIRED to jog requested coordinate\n"
+                      "because joint (%d) in home_sequence is negative (%d)\n"
+                      ,joint_num,joint->home_sequence);
+                  } else {
+                      rtapi_print_msg(RTAPI_MSG_ERR,
+                      "Cannot jog joint %d because home_sequence is negative (%d)\n"
+                      ,joint_num,joint->home_sequence);
+                  }
+                  return;
+            }
         }
         if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
             axis = &axes[axis_num];
@@ -639,6 +658,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    }
 	    joint->home_offset = emcmotCommand->offset;
 	    joint->home = emcmotCommand->home;
+	    joint->home_sequence = emcmotCommand->home_sequence;
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
@@ -1369,9 +1389,16 @@ void emcmotCommandHandler(void *arg, long period)
 		reportError(_("must be in joint mode to home"));
 		return;
 	    }
+	    if (*(emcmot_hal_data->homing_inhibit)) {
+	        reportError(_("Homing denied by motion.homing-inhibit joint=%d\n"),
+	                   joint_num);
+                return;
+	    }
+
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		break;
 	    }
+
 
 	    if(joint_num == -1) { // -1 means home all
                 if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {

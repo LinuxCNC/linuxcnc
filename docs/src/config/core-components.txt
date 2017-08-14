@@ -442,6 +442,8 @@ N refers to a joint number, L refers to an axis letter
 
 * 'ini.N.home_offset' - (float, in) [JOINT_N]HOME_OFFSET
 
+* 'ini.N.home_offset' - (s32, in) [JOINT_N]HOME_SEQUENCE
+
 * 'ini.L.min_limit' - (float, in) [AXIS_L]MIN_LIMIT
 
 * 'ini.L.max_limit' - (float, in) [AXIS_L]MAX_LIMIT
