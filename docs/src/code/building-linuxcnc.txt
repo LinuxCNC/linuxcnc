@@ -230,7 +230,7 @@ from the git repo by running this:
 
 -----
 > cd linuxcnc-dev/debian
-> ./configure uspace rtai
+> ./configure uspace
 -----
 
 [NOTE]
