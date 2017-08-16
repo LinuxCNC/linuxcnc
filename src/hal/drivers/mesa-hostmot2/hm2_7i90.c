@@ -387,6 +387,7 @@ static int hm2_7i90_setup(void) {
     num_boards = 0;
 
     for (i = 0; i < HM2_7I90_MAX_BOARDS; i ++) {
+        if(!config[i] || !*config[i]) break;
 
         hm2_lowlevel_io_t *this;
         int r;
