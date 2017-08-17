@@ -1,7 +1,7 @@
 
 Package: machinekit-xenomai
 Architecture: any
-Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
+Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime,
 	xenomai-runtime
 Provides:  machinekit-rt-threads
 Recommends: hostmot2-firmware-all [!armhf]
