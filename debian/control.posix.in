@@ -1,7 +1,7 @@
 
 Package: machinekit-posix
 Architecture: any
-Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, 
+Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime
 Provides:  machinekit-rt-threads
 Breaks: machinekit-dev
 Enhances: machinekit
