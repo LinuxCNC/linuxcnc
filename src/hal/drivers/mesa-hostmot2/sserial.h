@@ -75,6 +75,7 @@
 #define LBP_STREAM              0x06
 #define LBP_BOOLEAN             0x07
 #define LBP_ENCODER             0x08
+#define LBP_FLOAT               0x10 // New for STMBL
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
 #define LBP_ENCODER_L           0x28 // part and full count fields. 
 
