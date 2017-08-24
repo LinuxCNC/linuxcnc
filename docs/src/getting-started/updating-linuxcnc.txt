@@ -869,6 +869,9 @@ ShuttleXpress, so the old driver name is no longer accurate.
 
 === linuxcncrsh
 
+"Home All" is now supported with the set home subcommand
+by using -1 for the joint number
+
 The jogging commands have been altered to accomodate both joint (free)
 and teleop (world) jogging.
 
