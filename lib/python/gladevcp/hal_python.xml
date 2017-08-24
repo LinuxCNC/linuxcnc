@@ -62,7 +62,7 @@
         <glade-widget-class name="HAL_VBar" generic-name="hal_vbar" title="HAL VBar"/>
         <glade-widget-class name="Override" generic-name="override" title="Override Controls">
             <properties>
-                <property id="Adjustment" visible="False"/>
+                <property id="Adjustment" visible="false"/>
             </properties>
         </glade-widget-class>
         <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>

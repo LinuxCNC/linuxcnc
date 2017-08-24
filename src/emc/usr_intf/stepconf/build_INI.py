@@ -85,13 +85,14 @@ class INI:
             print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         else:
             print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
-        if self.d.gladevcp:
+        if (self.d.gladevcp == True and self.d.gladevcptype != GLADEVCP_NONE):
             if self.d.centerembededgvcp:
                 print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -H gvcp_call_list.hal -x {XID} %s" % self.d.gladevcpname
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -u %s -H %s -x {XID} %s" % \
+                		(FILE_GLADEVCP_HANDLER, FILE_GLADEVCP_CALL_LIST, self.d.gladevcpname)
             elif self.d.sideembededgvcp:
-                print >>file, "GLADEVCP = -H gvcp_call_list.hal %s" % self.d.gladevcpname
-        if self.d.pyvcp:
+                print >>file, "GLADEVCP = -u %s -H %s %s" % (FILE_GLADEVCP_HANDLER, FILE_GLADEVCP_CALL_LIST, self.d.gladevcpname)
+        if (self.d.pyvcp == True and self.d.pyvcptype != PYVCP_NONE):
             print >>file, "PYVCP = %s" % self.d.pyvcpname
         if self.d.axes == 2:
             print >>file, "LATHE = 1"
@@ -157,11 +158,12 @@ class INI:
             print >>file,"HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         if self.d.customhal:
-            print >>file, "HALFILE = custom.hal"
-        if self.d.pyvcp or self.d.gladevcp:
-            print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
-
-        if self.d.halui_custom or self.d.halui:
+            print >>file, "HALFILE = %s" % FILE_CUSTOM_HALFILE
+        #if (self.d.pyvcp == True and self.d.pyvcptype != PYVCP_NONE) or (self.d.gladevcp == True and self.d.gladevcptype != GLADEVCP_NONE):
+        if (self.d.pyvcp == True and self.d.pyvcptype != PYVCP_NONE):
+            print >>file, "POSTGUI_HALFILE = %s" % FILE_POSTGUI_CALL_LIST
+               
+        if (self.d.halui_custom == 1 or self.d.halui ==1):
            print >>file
            print >>file, "[HALUI]"
            print >>file, _("# add halui MDI commands here (max 64) ")

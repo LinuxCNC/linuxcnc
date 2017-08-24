@@ -69,6 +69,29 @@ XYZA = 1
 XZ = 2
 XYUV = 3
 
+PYVCP_DEFAULT = 1
+PYVCP_CUSTOM = 2
+PYVCP_NONE = 3
+GLADEVCP_DEFAULT = 1
+GLADEVCP_CUSTOM = 2
+GLADEVCP_NONE = 3
+
+FILE_CUSTOM_HALFILE = 'custom.hal'
+FILE_GUIMERGE = 'gui_merge.hal'
+# Pyvcp
+FILE_POSTGUI_CALL_LIST = 'postgui_call_list.hal'
+FILE_PYVCP_POSTGUI = 'pyvcp_postgui.hal'
+FILE_PYVCP_CUSTOM_HAL = 'pyvcp_custom.hal'
+FILE_PYVCP_DEFAULT_GUI = 'pyvcp_default.xml'
+FILE_PYVCP_CUSTOM_GUI = 'pyvcp_custom.xml'
+# Gladevcp
+FILE_GLADEVCP_CALL_LIST = 'gladevcp_call_list.hal'
+FILE_GLADEVCP_DEFAULT_HAL = 'gladevcp_default.hal'
+FILE_GLADEVCP_CUSTOM_HAL = 'gladevcp_custom.hal'
+FILE_GLADEVCP_DEFAULT_GUI = 'gladevcp_default.glade'
+FILE_GLADEVCP_CUSTOM_GUI = 'gladevcp_custom.glade'
+FILE_GLADEVCP_HANDLER = 'gladevcp_handler.py'
+
 THEMEDIR = "/usr/share/themes"
 
 MESS_START = _('Start')
@@ -103,7 +126,7 @@ available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
 				['finished',_('Almost Done'),True]
 ]
 
-available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page',
+available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page', 'gui_pyvcp', 'gui_gladevcp',
 					'axis', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
 ]
 

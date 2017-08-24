@@ -172,18 +172,40 @@ class Data:
         self.hal_postgui_list = []
         self.hal_postgui_custom = 0
         self.hal_postgui_list_custom = []
+        self.hal_guioption_list = []
 
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
-        self.pyvcp = 1 # default include
-        self.pyvcptype = 0 # include default pyvcp gui
+
+        # HALUI MDI_COMMAND
+        self.halui_mdi_x_null = -1
+        self.halui_mdi_x_zero = -1
+        self.halui_mdi_y_null = -1
+        self.halui_mdi_y_zero = -1
+        self.halui_mdi_z_null = -1
+        self.halui_mdi_z_zero = -1
+        self.halui_mdi_a_null = -1
+        self.halui_mdi_a_zero = -1
+        self.halui_mdi_u_null = -1
+        self.halui_mdi_u_zero = -1
+        self.halui_mdi_v_null = -1
+        self.halui_mdi_v_zero = -1
+        self.halui_mdi_set_position = -1
+        self.halui_mdi_goto_position = -1
+        self.halui_probe_tool_lenght = -1
+
+        # gui
+        self.mix_gladevcp_pyvcp = False
+        self.maxor2 = 0
+        # pyvcp data
+        self.pyvcp = True # default include
+        self.pyvcptype = PYVCP_DEFAULT # include default pyvcp gui
         self.pyvcpname = "blank.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
-        #self.pyvcpconnect = 1 # HAL connections allowed
-
+        
         # gladevcp data
         self.gladevcp = False # not included
-        self.gladevcptype = 0 # include default gladevcp gui
+        self.gladevcptype = GLADEVCP_DEFAULT # include default gladevcp gui
         self.gladesample = True
         self.gladeexists = False
         self.spindlespeedbar = True
@@ -197,17 +219,6 @@ class Data:
         self.gladevcphaluicmds = 0 # not used
         self.centerembededgvcp = False
         self.sideembededgvcp = True
-        """
-        self.standalonegvcp = False
-        self.gladevcpposition = False
-        self.gladevcpsize = False
-        self.gladevcpforcemax = False
-        self.gladevcpwidth = 200
-        self.gladevcpheight = 200
-        self.gladevcpxpos = 0
-        self.gladevcpypos = 0
-        self.gladevcptheme = "Follow System Theme"
-        """
         self.gladevcpname = "blank.ui"
         
         # Position of probe switch

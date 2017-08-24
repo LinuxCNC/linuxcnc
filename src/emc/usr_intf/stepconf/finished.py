@@ -88,17 +88,13 @@ def save(self,basedir):
 			else:
 				print "Master or temp ladder files missing from configurable_options dir"
 
-	if self.d.pyvcp:
-		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.pyvcpname))
-		#self.d.pyvcpname == "custompanel.xml":
-		#panelname = os.path.join(self.a.distdir, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
-		if(self.d.pyvcptype == 0): # default panel
-			# Create default panel
-			self.create_pyvcp_panel(originalname)
+	# Extra subroutine
+	if (self.d.pyvcp == True or self.d.gladevcp == True ):
+		if(self.d.pyvcptype == PYVCP_DEFAULT or self.d.gladevcptype == GLADEVCP_DEFAULT): # default panel
 			# Subroutine
-			subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, "pyvcp_probe.ngc"))
+			subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, "probe_tool_lenght.ngc"))
 			fngc = open(subroutine, "w")
-			print >>fngc, ("""o<pyvcp_probe> sub
+			print >>fngc, ("""o<probe_tool_lenght> sub
 (Set Z Zero for G54 coordinate)""")
 			print >>fngc, ("	G53 G0 X%d Y%d Z%d" % (self.d.probe_x_pos, self.d.probe_y_pos, self.d.probe_z_pos))
 			print >>fngc, ("""	G49 (Delete any reference)
@@ -113,41 +109,43 @@ def save(self,basedir):
 	(G54 G10 L20 P1 Z[#1000])""")
 			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_sensor_height))
 			print >>fngc, ("""	G90 (done)
-o<pyvcp_probe> endsub""")
-		elif(self.d.pyvcptype == 1): # custom panel
+o<probe_tool_lenght> endsub""")
+			fngc.close()
+
+	if self.d.pyvcp:
+		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.pyvcpname))
+		if(self.d.pyvcptype == PYVCP_DEFAULT): # default panel
+			# Create default panel
+			self.create_pyvcp_panel(originalname)
+		elif(self.d.pyvcptype == PYVCP_CUSTOM): # custom panel
 			if os.path.exists(originalname):
 				 print "custom PYVCP file already exists"
 			else:
-				file = open(originalname, "w")
-				print >>file, ("""<?xml version="1.0"?>
-<pyvcp>
-</pyvcp>
-""")
-				file.close()
-				print "create PYVCP program to usr directory"
-				print"%s" % self.d.pyvcpname
+				self.create_pyvcp_custom(originalname)
+				print "created PYVCP panel %s" % self.d.pyvcpname
+		elif(self.d.pyvcptype == PYVCP_NONE): # no panel
+			None
 		else:
 			print "Master PYVCP files missing from configurable_options dir"
 
 	if self.d.gladevcp:
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.gladevcpname))
-		if(self.d.gladevcptype == 0): # default panel
+		if(self.d.gladevcptype == GLADEVCP_DEFAULT): # default panel
 			# Create default panel
 			self.create_gladevcp_panel(originalname)
-		elif(self.d.gladevcptype == 1): # custom panel
+		elif(self.d.gladevcptype == GLADEVCP_CUSTOM): # custom panel
 			if os.path.exists(originalname):
 				 print "custom GLADEVCP file already exists"
 			else:
-				file = open(originalname, "w")
-				print >>file, ("""<interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
-</interface>""")
-				file.close()
-
+				self.create_gladevcp_custom(originalname)
+				print "created GLADEVCP panel %s" % self.d.gladevcpname
+		elif(self.d.gladevcptype == GLADEVCP_NONE): # no panel
+			None
 		else:
 			print "Master GladeVCP files missing from configurable_options dir"
+		# Create gladevcp.py file
+		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, FILE_GLADEVCP_HANDLER))
+		self.create_gladevcp_py(originalname)
 
 	filename = "%s.stepconf" % base
 	d = xml.dom.minidom.getDOMImplementation().createDocument(None, "stepconf", None)

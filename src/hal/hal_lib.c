@@ -2334,7 +2334,6 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
     int next;
     hal_pin_t *pin;
     hal_oldname_t *oldname;
-    
 
     /* search pin list for 'name' */
     next = hal_data->pin_list_ptr;
