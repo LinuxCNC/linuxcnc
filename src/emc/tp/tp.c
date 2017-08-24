@@ -466,8 +466,8 @@ int tpSetVmax(TP_STRUCT * const tp, double vMax, double ini_maxvel)
 }
 
 /**
- * (?) Set the tool tip maximum velocity.
- * I think this is the [TRAJ] max velocity. This should be the max velocity of
+ * Set the tool tip maximum velocity.
+ * This is the [TRAJ]MAX_LINEAR_VELOCITY. This should be the max velocity of
  * const the TOOL TIP, not necessarily any particular axis. This applies to
  * subsequent moves until changed.
  */

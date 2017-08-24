@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #**************************************************************************
 # Copyright 2016 Rudy du Preez <rudy@asmsa.co.za>
 #

@@ -604,8 +604,8 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_UPDATE_JOINT_HOMING_PARAMS:
                 log_print(
-                    "UPDATE_JOINT_HOMING_PARAMS joint=%d, offset=%.6f home=%.6f\n",
-                    c->joint, c->offset, c->home
+                    "UPDATE_JOINT_HOMING_PARAMS joint=%d, offset=%.6f home=%.6f home_sequence=%d\n",
+                    c->joint, c->offset, c->home, c->home_sequence
                 );
                 break;
 

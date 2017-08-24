@@ -1,3 +1,11 @@
+ver 2.3.1.4
+- if no sound is available make the sound selecting widgets on the settings page
+  not sensitive, Thanks to Rene for reporting this misbehavior
+
+ver 2.3.1.3
+- changed the import of the player module, as Stretch does not support gst in
+  the way Wheesy or Jessie did
+
 ver 2.3.1.2
 - rodw reported that gmoccapy reported a wrong error if JOINT was mentioned
   in the error report. That was caused due to an old change from Joints to axis

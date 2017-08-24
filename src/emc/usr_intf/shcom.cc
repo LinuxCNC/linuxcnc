@@ -417,7 +417,7 @@ double convertAngularUnits(double u)
     return u;
 }
 
-// polarities for axis jogging, from ini file
+// polarities for joint jogging, from ini file
 static int jogPol[EMCMOT_MAX_JOINTS];
 
 int sendDebug(int level)
@@ -540,11 +540,11 @@ int sendMdi()
     return 0;
 }
 
-int sendOverrideLimits(int axis)
+int sendOverrideLimits(int joint)
 {
     EMC_JOINT_OVERRIDE_LIMITS lim_msg;
 
-    lim_msg.joint = axis;	// neg means off, else on for all
+    lim_msg.joint = joint;	// neg means off, else on for all
     emcCommandSend(lim_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
