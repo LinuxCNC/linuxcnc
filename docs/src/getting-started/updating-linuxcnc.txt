@@ -1083,7 +1083,12 @@ Support connection of 'halui.mode.is-teleop' to 'pendant_util.amux-enable' via
 the signal 'pendant:amux-enable'.  This change allows homing and joint mode
 jogging to occur at normal (not reduced) acceleration settings.
 
-=== Negative [JOINT_n]HOME_SEQUENCE
+=== [JOINT_n]HOME_SEQUENCE Starting values
+
+Starting sequence values may be 0, 1 (or -1) only.  See the
+"Homing Configuration" documentation for more information.
+
+=== [JOINT_n]HOME_SEQUENCE Negative values
 
 Joints using a negative HOME_SEQUENCE are not allowed to jog in joint
 mode in order to prevent misalignment (racking) in common gantry
