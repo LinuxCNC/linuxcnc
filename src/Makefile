@@ -1059,6 +1059,7 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_storage $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_ads7828 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_bbb $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_temp_atlas $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
@@ -1484,6 +1485,8 @@ hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/fwid.o	  \
     hal/drivers/mesa-hostmot2/tram.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/nano_soc_adc.o \
+    hal/drivers/mesa-hostmot2/capsense.o \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
 hm2_7i90-objs :=			  \
