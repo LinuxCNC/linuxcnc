@@ -174,8 +174,13 @@ may be homed after all axes with a lower (absolute value)
 HOME_SEQUENCE have already been homed and are at the HOME_OFFSET. If
 two axes have the same HOME_SEQUENCE, they may be homed at the same
 time. If HOME_SEQUENCE is not specified then this joint will not be
-homed by the HOME ALL sequence. HOME_SEQUENCE numbers start with 0 and
-there may be no unused numbers.
+homed by the HOME ALL sequence.
+
+The initial HOME_SEQUENCE number may be 0, 1 (or -1).  The
+absolute value of sequence numbers must increment by one --
+skipping sequence numbers is not supported.  If a sequence number
+is omitted, "Home All" homing will stop upon conmpletion of the
+last valid sequence number.
 
 *Negative* HOME_SEQUENCE values indicate that joints in the sequence
 should *synchronize the final move* to [JOINT_n]HOME by waiting until all 
