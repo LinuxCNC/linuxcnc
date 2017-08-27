@@ -257,6 +257,10 @@ class Pages:
 			self.w[axis + "preset_combo"].set_active(0)
 
 		# Options page
+		self.w.probe_x_pos.set_text("%d" % self.d.probe_x_pos)
+		self.w.probe_y_pos.set_text("%d" % self.d.probe_y_pos)
+		self.w.probe_z_pos.set_text("%d" % self.d.probe_z_pos)
+		self.w.probe_sensor_height.set_text("%d" % self.d.probe_sensor_height)
 	
 	#************
 	# INTRO PAGE

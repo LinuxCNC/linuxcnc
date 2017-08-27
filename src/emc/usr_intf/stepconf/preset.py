@@ -40,6 +40,7 @@ TB6560_4AXES=301
 STEPCRAFT420=400
 STEPCRAFT600=401
 STEPCRAFT840=402
+LEADSHINE_MX3660=600
 
 preset_machines = [
 	{'name':'gecko201', 'human':_("Gecko 201") + ' (Untested)', 'index':GECKO201,
@@ -241,6 +242,24 @@ preset_machines = [
 		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
 		'probe_x_pos':558, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':35.0,
 		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
+	},
+		{'name':'leadshineMX3660', 'human':_("Leadshine MX3660 3 axis") + ' (Untested)', 'index':LEADSHINE_MX3660, 'units':MM,
+		'pin1':DOUT1, 'pin1inv':0,
+		'pin2':XSTEP, 'pin2inv':1,
+		'pin3':XDIR, 'pin3inv':0,
+		'pin4':YSTEP, 'pin4inv':1,
+		'pin5':YDIR, 'pin5inv':0,
+		'pin6':ZSTEP, 'pin6inv':0,
+		'pin7':ZDIR,'pin7inv':0,
+		'pin8':DOUT2, 'pin8inv':0,
+		'pin9':DOUT3, 'pin9inv':0,
+		'pin14':PWM, 'pin14inv':0,
+		'pin16':PUMP, 'pin16inv':0,
+		'pin17':DOUT0, 'pin17inv':0,
+		'pin10':DIN0, 'pin10inv':0,
+		'pin11':DIN1, 'pin11inv':1,
+		'pin12':DIN2, 'pin12inv':0,
+		'pin13':DIN3, 'pin13inv':0,
+		'pin15':ESTOP_IN, 'pin15inv':0
 	}
 ]
-

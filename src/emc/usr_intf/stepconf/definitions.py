@@ -18,6 +18,8 @@
 #************
 import os
 
+STEPCONF_VERSION="2.0"
+
 style = """
 GtkEntry.invalid {
 	color:  black;
