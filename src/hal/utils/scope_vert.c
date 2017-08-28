@@ -646,7 +646,7 @@ static void init_vert_info_window(void)
 	gtk_label_new_in_box(" ---- ", ctrl_usr->vert_info_win, FALSE, FALSE,
 	0);
     /* Offset control */
-    vert->offset_button = gtk_button_new_with_label("Offset\n----");
+    vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
     vert->offset_label = (GTK_BIN(vert->offset_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
