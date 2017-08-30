@@ -869,6 +869,9 @@ ShuttleXpress, so the old driver name is no longer accurate.
 
 === linuxcncrsh
 
+"Home All" is now supported with the set home subcommand
+by using -1 for the joint number
+
 The jogging commands have been altered to accomodate both joint (free)
 and teleop (world) jogging.
 
@@ -1051,6 +1054,12 @@ was: axis.L.vel-cmd
  is: axis.l.teleop-vel-cmd
 ----
 
+New pins:
+
+----
+motion.homing-inhibit (see motion manpage)
+----
+
 === Hal component updates
 
 . siggen: new pin 'reset' to set output signal values to predefined state
@@ -1073,5 +1082,17 @@ Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
 Support connection of 'halui.mode.is-teleop' to 'pendant_util.amux-enable' via
 the signal 'pendant:amux-enable'.  This change allows homing and joint mode
 jogging to occur at normal (not reduced) acceleration settings.
+
+=== [JOINT_n]HOME_SEQUENCE Starting values
+
+Starting sequence values may be 0, 1 (or -1) only.  See the
+"Homing Configuration" documentation for more information.
+
+=== [JOINT_n]HOME_SEQUENCE Negative values
+
+Joints using a negative HOME_SEQUENCE are not allowed to jog in joint
+mode in order to prevent misalignment (racking) in common gantry
+configurations.  As always, machines with any kinematics type must be
+homed prior to enabling conventional world mode jogging.
 
 // vim: set syntax=asciidoc:

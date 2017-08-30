@@ -16,7 +16,7 @@ http://buildbot.linuxcnc.org
 For the impatient, try this:
 
 ----
-> git clone git://git.linuxcnc.org/git/linuxcnc.git linuxcnc-dev
+> git clone git://github.com/linuxcnc/linuxcnc.git linuxcnc-dev
 > cd linuxcnc-dev/src
 > ./autogen.sh
 > ./configure --with-realtime=uspace
@@ -230,7 +230,7 @@ from the git repo by running this:
 
 -----
 > cd linuxcnc-dev/debian
-> ./configure uspace rtai
+> ./configure uspace
 -----
 
 [NOTE]
@@ -392,18 +392,17 @@ the memory lock limit is raised using the following command:
 == Options for checking out the git repo
 
 The <<Quick-Start, Quick Start>> instructions at the top of this
-document said to make an anonymous clone from our git server at
-http://git.linuxcnc.org.  This is the quickest, easiest way to get
-started.  However, there are other options to consider.
+document said to make an anonymous local clone from our git repo at
+http://github.com/linuxcnc/linuxcnc.git.  This is the quickest, easiest
+way to get started.  However, there are other options to consider.
 
 
 === Fork us on Github
 
-The LinuxCNC project maintains a mirror of our git repo at
-http://github.com/LinuxCNC/linuxcnc.  github is a popular git hosting
-service and code sharing website.  You can easily (and for no cost)
-create a fork of our git repo at github, and use that to track and
-publish your changes.
+The LinuxCNC project git repo is at http://github.com/LinuxCNC/linuxcnc.
+github is a popular git hosting service and code sharing website.
+You can easily (and for no cost) create a fork of our git repo at github,
+and use that to track and publish your changes.
 
 After creating your own github fork of LinuxCNC, clone it to your
 development machine and proceed with your hacking as usual.

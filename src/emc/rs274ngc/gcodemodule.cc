@@ -761,9 +761,12 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         result = interp_new.execute();
     }
 out_error:
-    if(pinterp) pinterp->close();
-    if(pinterp) pinterp->open("");
-    if(pinterp) pinterp->close();
+    if(pinterp)
+    {
+        auto interp = dynamic_cast<Interp*>(pinterp);
+        if(interp) interp->_setup.use_lazy_close = false;
+        pinterp->close();
+    }
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,

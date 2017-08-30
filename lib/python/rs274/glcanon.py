@@ -24,6 +24,7 @@ import linuxcnc
 import array
 import gcode
 import os
+import re
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -1258,7 +1259,10 @@ class GlCanonDraw:
                 glPushMatrix()
                 glTranslatef(*pos)
                 sign = 1
-                for ch in self.get_geometry():
+                g = re.split(" *(-?[XYZABCUVW])", self.get_geometry())
+                g = "".join(reversed(g))
+
+                for ch in g: # Apply in orignal non-reversed GEOMETRY order
                     if ch == '-':
                         sign = -1
                     elif ch == 'A':
@@ -1270,6 +1274,8 @@ class GlCanonDraw:
                     elif ch == 'C':
                         glRotatef(rz*sign, 0, 0, 1)
                         sign = 1
+                    else:
+                        sign = 1 # reset sign for non-rotational axis "XYZUVW"
                 glEnable(GL_BLEND)
                 glEnable(GL_CULL_FACE)
                 glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)

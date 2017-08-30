@@ -19,7 +19,7 @@ proc usage {} {
   Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
          The item must be writable, e.g.:
-            pin:    IN or I/O (and not connected to a signal)
+            pin:    IN or I/O (and not connected to a signal with a writer)
             param:  RW
             signal: connected to a writable pin
 
@@ -412,9 +412,19 @@ proc b_press {id} {
     float {
       set e $::SP($id,entry)
       if ![isnumber $e] {
-        popup "Number required (not <$e>)"
-        set ::SP($id,entry) ""
-        return
+        if [catch {set e [expr $::SP($id,entry)]} msg] {
+          popup "Invalid Expression (<$e>)"
+          set ::SP($id,entry) ""
+          return
+        } else {
+          switch $e {
+            Inf - NaN {
+              popup "Bad expr result: <$e>"
+              set ::SP($id,entry) ""
+              return
+            }
+          }
+        }
       }
 
       # Note: halcmd rejects numbers formatted 'nEmm' for s32, u32

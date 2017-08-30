@@ -18,11 +18,13 @@ Default = 4.
 .TP
 \\fBdir\\fR Set to 1 for unidirectional or  2 for bidirectional operation.
 Default = bidirectional
+\\fBparity\\fR Set to 1 for odd parity, 0 for even parity checking.
+Default = 0 (even)
 .RE""";
 
 description """This component is intended to help operate various types of
 carousel-type toolchangers. 
-The component can be configured to operate with binary, binary-coded decimal (BCD) 
+The component can be configured to operate with binary, binary-coded decimal (BCD)
 or gray-coded position feedback, with an individual sensor for each tool position
 or with a sensor at each tool position and a separate index.
 
@@ -49,7 +51,7 @@ is reached, set the motor-control pins to 0, set "active" to 0 and set "ready"
 to 1.
 
 In index mode the behaviour is slightly different. The first time that the "enable"
-pin is set; the carousel will rotate forwards until 
+pin is set; the carousel will rotate forwards until
 both the index and pulse inputs are true. If there is no pulse line at the
 index position then a HAL "or2" function can be used to allow the index sensor
 to toggle both inputs. Setting "enable" low does not halt the homing move, so if
@@ -57,21 +59,29 @@ homing on first tool change is not needed then the enable pin can be toggled by
 an axis homing pin or a script. 
 """;
 
-pin in  signed pocket-number "The pocket to move to when the .enable pin goes high";
+pin in  signed pocket-number """The pocket to move to when the .enable pin goes high. If the value
+passed is gigher than the number of pockests specified in the "pockets" modparam then modulo arithmetic
+is used. This is intended to allow the use of multiple tools in the same holder, as is sometimes
+useful with lathes.""";
 pin in  bit    enable "Set this pin high to start movement. Setting it low will stop movement";
 pin out bit    active "indicates that the component is active";
 pin out bit    ready "This pin goes high when the carousel is in-position";
+pin in  bit    strobe = 1 """Use this pin to indicate that the position feedback is valid. Often
+provided by binary encoders""";
+pin  in bit    parity_ """Some encoders supply a parity bit, if this is connected then the
+parity-error output bit will indicate parity errors""";
 pin in  bit    sense-# [32:personality] """Carousel position feedback pins. In 'index' mode there 
 will be only 2 pins. sense-0 is the index and sense-1 is the pocket sensor.""";
 pin in  bit    jog-fwd "Jog the carousel forwards one tool position";
-pin in  bit    jog-rev """Jog the carousel in reverse (only if dir = 2). 
-It is very important that these pins should be debounced and should probably 
+pin in  bit    jog-rev """Jog the carousel in reverse (only if dir = 2).
+It is very important that these pins should be debounced and should probably
 also be interlocked to only operate when the machine is idle.""";
 pin out bit    motor-fwd "Indicates the motor should run forwards (bigger numbers)";
 pin out bit    motor-rev "Indicates the motor should run reverse.";
+pin out bit    parity-error "Indicates a parity error";
 pin out signed current-position "This pin indicates the current position feedback";
 
-param r  signed   state = 0 "Current component state";
+param r  signed state = 0 "Current component state";
 param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
 param r  bit    homed = 0 "Shows that homing is complete. Only used in index mode";
 
@@ -85,6 +95,7 @@ variable int inst_sense;
 variable int inst_dir;
 variable int inst_pockets;
 variable int inst_code;
+variable int inst_parity;
 variable int old_index = 0;
 variable int target;
 
@@ -96,6 +107,7 @@ int default_pockets = 8;
 int default_code = 'G';
 int default_dir = 2;
 int default_sense = 4;
+int default_parity = 0;
 
 #define MAX_CHAN 8
 static int pockets[MAX_CHAN] = {-1};
@@ -107,10 +119,16 @@ RTAPI_MP_ARRAY_INT(dir, MAX_CHAN,
                     "set to 2 if the carousel is bidirectional")
 static int num_sense[MAX_CHAN] = {-1};
 RTAPI_MP_ARRAY_INT(num_sense, MAX_CHAN, "The number of sense pins to create")
-
+// We have a hal pin and a modparam with the same name. From the user
+// point of view I think that makes sense. In the code parity[] is the modparam,
+// parity_ is the hal pin.
+static int parity[MAX_CHAN] = {-1};
+RTAPI_MP_ARRAY_INT(parity, MAX_CHAN, "0 for even parity, 1 for odd")
 
 FUNCTION(_){
-    int i,d,pow;
+    int i, d, pow;
+    int pcalc = 0;
+    int mod_pocket = 0;
     int p = 0;
     unsigned int mask;
 
@@ -118,6 +136,7 @@ FUNCTION(_){
     case 'G': // Gray Code
         for (i = 0; i < inst_sense ; i++) {
             p += sense(i) << i;
+        pcalc ^= sense(i);
         }
         for(mask = p >> 1 ; mask != 0 ; mask = mask >> 1){
             p ^= mask;
@@ -126,6 +145,7 @@ FUNCTION(_){
     case 'B': // Straight Binary
         for (i = 0; i < inst_sense ; i++) {
             p += sense(i) << i;
+        pcalc ^= sense(i);
         }
         break;
     case 'D': // BCD
@@ -143,8 +163,9 @@ FUNCTION(_){
             p += d * pow;
             pow *= 10;
             d = 0;
+        pcalc ^= sense(i);
         }
-        break;     
+        break;
     case 'S': // individual sensors
         for (i = inst_sense - 1; sense(i) == 0 && i > 0 ; i--) {}
         p = i;
@@ -167,8 +188,14 @@ FUNCTION(_){
         break;
     }
 
-    current_position = p;
-
+    if (strobe) {
+        current_position = p;
+        parity_error = (pcalc != (inst_parity ^ parity_));
+    }
+    mod_pocket = ((pocket_number - 1) % inst_pockets) + 1;
+    // mod is odd with negatives, so just in case
+    if (mod_pocket < 1) mod_pocket = 1;
+    if (mod_pocket > inst_pockets) mod_pocket = inst_pockets;
     switch (state){
     case 0: // waiting at start
         if (jog_fwd || (jog_rev && inst_dir == 2))  {
@@ -177,6 +204,8 @@ FUNCTION(_){
                 break;
             }
             target = current_position + jog_fwd - jog_rev;
+            if (target > inst_pockets ) target = 1;
+            if (target < 1) target = inst_pockets;
             motor_fwd = jog_fwd;
             motor_rev = jog_rev;
             active = 1;
@@ -192,10 +221,13 @@ FUNCTION(_){
         state = 1;
         ready = 0;
     case 1: // choose direction
-        if (pocket_number < 1 || pocket_number > inst_pockets) return;
+        if (pocket_number < 1 || pocket_number > inst_pockets) {
+            state = 0;
+            return;
+        }
         if (inst_dir == 2){
-            if (current_position < pocket_number){
-                if (pocket_number - current_position > (inst_pockets / 2)) {
+            if (current_position < mod_pocket){
+                if (mod_pocket - current_position > (inst_pockets / 2)) {
                     motor_fwd = 0;
                     motor_rev = 1;
                 } else {
@@ -203,7 +235,7 @@ FUNCTION(_){
                     motor_rev = 0;
                 }
             } else {
-                if (current_position - pocket_number > (inst_pockets / 2)) {
+                if (current_position - mod_pocket > (inst_pockets / 2)) {
                     motor_fwd = 1;
                     motor_rev = 0;
                 } else {
@@ -217,7 +249,7 @@ FUNCTION(_){
         }
         state = 2;
     case 2: // moving
-        if ((current_position != pocket_number) && enable) return;
+        if ((current_position != mod_pocket) && enable) return;
         motor_fwd = 0;
         motor_rev = 0;
         state = 3;
@@ -228,8 +260,6 @@ FUNCTION(_){
         state = 0;
         break;
     case 5: //jogging fwd/rev
-        if (target > inst_pockets) target = 1;
-        if (target < 1) target = inst_pockets;
         if (current_position != target) return;
         motor_fwd = 0;
         motor_rev = 0;
@@ -273,6 +303,8 @@ EXTRA_SETUP(){
     }
 
     if (dir[extra_arg] > 0)  default_dir = (dir[extra_arg] > 1)? 2:1;
+
+    if (parity[extra_arg] != -1) default_parity = parity[extra_arg];
     
     if (default_code == 'I') {
         default_sense = 2;
@@ -284,6 +316,7 @@ EXTRA_SETUP(){
     inst_code = default_code;
     inst_dir = default_dir;
     inst_sense = default_sense;
+    inst_parity = default_parity;
 
     if (inst_code == 'S' && inst_sense < inst_pockets) inst_sense = inst_pockets;
     personality = inst_sense;

@@ -43,7 +43,7 @@ Hal boolean items (bit) and numerical items (u32, s32, float) are supported.
 
 If the named input is a numerical type, the gui displays:
 .P
-   \fBEntry\fR  Entry widget for new value
+   \fBEntry\fR  Entry widget for value or a valid Tcl expression.
 .br
    \fBSet\fR    Pushbutton to set new value from Entry (or use <RETURN>)
 .br
@@ -69,7 +69,7 @@ LinuxCNC or a standalone Hal application must be running
 A named item can specify a \fBpin\fR, \fBparam\fR, or \fBsignal\fR.
 The named item must be writable:
 .P
-  \fBpin    IN or I/O\fR (and not connected to a signal)
+  \fBpin    IN or I/O\fR (and not connected to a signal with a writer)
 .br
   \fBparam  RW\fR
 .br

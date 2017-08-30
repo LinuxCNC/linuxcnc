@@ -76,6 +76,9 @@ static ptr_inihal_data *the_inihal_data;
 #define SHOW_CHANGE_IDX(NAME,IDX) \
     fprintf(stderr,"Changed: "#NAME"[%d] %g-->%g\n",IDX,old_inihal_data.NAME[IDX], \
                                                         new_inihal_data.NAME[IDX]);
+#define SHOW_CHANGE_IDX_INT(NAME,IDX) \
+    fprintf(stderr,"Changed: "#NAME"[%d] %d-->%d\n",IDX,old_inihal_data.NAME[IDX], \
+                                                        new_inihal_data.NAME[IDX]);
 #define MAKE_BIT_PIN(NAME,DIR) \
 do { \
      retval = hal_pin_bit_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
@@ -85,6 +88,13 @@ do { \
 #define MAKE_S32_PIN(NAME,DIR) \
 do { \
      retval = hal_pin_s32_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
+     if (retval < 0) return retval; \
+   } while (0)
+
+#define MAKE_S32_PIN_IDX(NAME,HALPIN_NAME,DIR,IDX) \
+do { \
+     retval = hal_pin_s32_newf(DIR,&(the_inihal_data->NAME[IDX]),\
+                               comp_id,PREFIX"%d."#HALPIN_NAME,IDX); \
      if (retval < 0) return retval; \
    } while (0)
 
@@ -146,6 +156,7 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_IDX(joint_max_acceleration,max_acceleration,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home,home,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home_offset,home_offset,HAL_IN,idx);
+        MAKE_S32_PIN_IDX(  joint_home_sequence,home_sequence,HAL_IN,idx);
     }
     for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
         char letter = "xyzabcuvw"[idx];
@@ -195,6 +206,7 @@ int ini_hal_init_pins(int numjoints)
         INIT_PIN(joint_max_acceleration[idx]);
         INIT_PIN(joint_home[idx]);
         INIT_PIN(joint_home_offset[idx]);
+        INIT_PIN(joint_home_sequence[idx]);
     }
     for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
         INIT_PIN(axis_min_limit[idx]);
@@ -332,15 +344,19 @@ int check_ini_hal_items(int numjoints)
         }
         if (   CHANGED_IDX(joint_home,idx)
             || CHANGED_IDX(joint_home_offset,idx)
+            || CHANGED_IDX(joint_home_sequence,idx)
            ) {
             if (debug) {
                 SHOW_CHANGE_IDX(joint_home,idx);
                 SHOW_CHANGE_IDX(joint_home_offset,idx);
+                SHOW_CHANGE_IDX_INT(joint_home_sequence,idx);
             }
             UPDATE_IDX(joint_home,idx);
             UPDATE_IDX(joint_home_offset,idx);
+            UPDATE_IDX(joint_home_sequence,idx);
             if  (0 != emcJointUpdateHomingParams(idx, NEW(joint_home[idx]),
-                                                      NEW(joint_home_offset[idx]))
+                                                      NEW(joint_home_offset[idx]),
+                                                      NEW(joint_home_sequence[idx]))
                 ) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcJointUpdateHomingParams\n");

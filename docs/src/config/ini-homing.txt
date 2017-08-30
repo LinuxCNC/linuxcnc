@@ -174,8 +174,13 @@ may be homed after all axes with a lower (absolute value)
 HOME_SEQUENCE have already been homed and are at the HOME_OFFSET. If
 two axes have the same HOME_SEQUENCE, they may be homed at the same
 time. If HOME_SEQUENCE is not specified then this joint will not be
-homed by the HOME ALL sequence. HOME_SEQUENCE numbers start with 0 and
-there may be no unused numbers.
+homed by the HOME ALL sequence.
+
+The initial HOME_SEQUENCE number may be 0, 1 (or -1).  The
+absolute value of sequence numbers must increment by one --
+skipping sequence numbers is not supported.  If a sequence number
+is omitted, "Home All" homing will stop upon conmpletion of the
+last valid sequence number.
 
 *Negative* HOME_SEQUENCE values indicate that joints in the sequence
 should *synchronize the final move* to [JOINT_n]HOME by waiting until all 
@@ -190,6 +195,11 @@ the same absolute value of that HOME_SEQUENCE will be *homed together
 with a synchronized final move*.  If the HOME_SEQUENCE value is
 zero or positive, a command to home the joint will home only the
 specified joint.
+
+Joint mode jogging of joints having a negative HOME_SEQUENCE is
+disallowed.  In common gantry applications, such jogging can lead
+to misalignment (racking).  Note that conventional jogging in
+world coordinates is always available once a machine is homed.
 
 Examples for a 3 joint system
     
@@ -259,4 +269,10 @@ the following ini entries for that axis are needed.
 . HOME_LATCH_VEL = 0
 . HOME_USE_INDEX = NO
 . HOME_SEQUENCE = 0
+
+=== Inhibiting Homing (((Inhibiting Homing)))
+
+A hal pin (motion.homing-inhibit) is provided to disallow
+homing inititiation for both "Home All" and individual joint
+homing.
 

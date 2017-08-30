@@ -3408,14 +3408,14 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s" % ja_name))
 
-kinsmodule=inifile.find("KINS", "KINEMATICS").lower()
+kinsmodule=inifile.find("KINS", "KINEMATICS")
 kins_is_trivkins = False
 if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
     trivkinscoords = "XYZABCUVW"
     for item in kinsmodule.split():
         if "coordinates=" in item:
-            trivkinscoords = item.split("=")[1]
+            trivkinscoords = item.split("=")[1].upper()
 
 duplicate_coord_letters = ""
 for i in range(len(trajcoordinates)):
