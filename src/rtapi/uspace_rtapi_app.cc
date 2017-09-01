@@ -798,7 +798,18 @@ static int find_rt_cpu_number() {
         return 0;
 
     cpu_set_t cpuset;
-    for(int i=0; i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
+    CPU_ZERO(&cpuset);
+    long top_probe = sysconf(_SC_NPROCESSORS_CONF);
+    // in old glibc versions, it was an error to pass to sched_setaffinity bits
+    // that are higher than an imagined/probed kernel-side CPU mask size.
+    // this caused the message
+    //     sched_setaffinity: Invalid argument
+    // to be printed at startup, and the probed CPU would not take into
+    // account CPUs masked from this process by default (whether by
+    // isolcpus or taskset).  By only setting bits up to the "number of
+    // processes configured", the call is successful on glibc versions such as
+    // 2.19 and older.
+    for(long i=0; i<top_probe && i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
 
     r = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
     if(r < 0)
