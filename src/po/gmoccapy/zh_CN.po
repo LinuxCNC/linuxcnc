@@ -689,7 +689,7 @@ msgstr "<b>主窗口</b>"
 
 #: gmoccapy.glade.h:25
 msgid "<b>Max. Velocity</b>"
-msgstr "<b>最大速度</b>"
+msgstr "<b>空程速率</b>"
 
 #: gmoccapy.glade.h:26
 msgid "<b>Mouse Button mode</b>"
@@ -871,11 +871,11 @@ msgstr "G和M代码信息以及速度和进给"
 
 #: gmoccapy.glade.h:70
 msgid "Go back to main button list"
-msgstr "返回主按钮列表"
+msgstr "返回主界面"
 
 #: gmoccapy.glade.h:71
 msgid "Go back to main view"
-msgstr "回到主视图"
+msgstr "返回主界面"
 
 #: gmoccapy.glade.h:3344
 msgid ""
@@ -1090,7 +1090,7 @@ msgstr "调整点动速度"
 
 #: gmoccapy.glade.h:127
 msgid "Scale max velocity"
-msgstr "调整最大速度"
+msgstr "调整空程速率"
 
 #: gmoccapy.glade.h:128
 msgid "Scale spindle override"
@@ -1316,7 +1316,7 @@ msgstr "使用边框"
 
 #: gmoccapy.glade.h:183
 msgid "Use hal pin to unlock"
-msgstr "使用hal pin解锁"
+msgstr "使用硬件pin解锁"
 
 #: gmoccapy.glade.h:184
 msgid "Use keyboard shortcuts"
@@ -1396,7 +1396,7 @@ msgstr "调整进给速率"
 
 #: gmoccapy.glade.h:203
 msgid "adjust max vel of machine"
-msgstr "调整机器最大速度"
+msgstr "调整机器空程速率"
 
 #: gmoccapy.glade.h:204
 msgid "apply the changes you made, G43 will be excecuted only if it is active g-code"
@@ -1609,6 +1609,10 @@ msgstr "Y 对刀/将Y设置为所需的值"
 
 #: gmoccapy.glade.h:257
 msgid "touch off Z / set Z to 0"
+msgstr "Z 对刀/将Z设置为0"
+
+#: gmoccapy.glade.h:257
+msgid "touch off z / set z to 0"
 msgstr "Z 对刀/将Z设置为0"
 
 #: gmoccapy.glade.h:258
