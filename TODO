@@ -7,5 +7,7 @@ TODO     sort out axis/joints issues:
 
 TODO     Convert all hardware drivers to use canonical homing, 
 
+TODO     Make the buildbot build new branches
+
 Fixes in HAL modules:
 TODO     canonical interfaces and naming conventions
