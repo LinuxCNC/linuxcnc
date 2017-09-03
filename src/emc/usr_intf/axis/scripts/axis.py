@@ -1412,7 +1412,7 @@ def jogspeed_listbox_change(dummy, value):
     # pdb.set_trace()
     # FJ: curselection is not always up to date here, so 
     #     do a linear search by hand
-    iterator = iter(root_window.call(widgets.jogincr._w, "list", "get", "0", "end"))
+    iterator = root_window.call(widgets.jogincr._w, "list", "get", "0", "end")
     idx = 0
     cursel = -1
     if isinstance(value, str): value = value.encode('utf-8', 'replace')
