@@ -39,3 +39,4 @@ oprofile*
 *.log
 position.txt
 *.9
+*.glade.h
