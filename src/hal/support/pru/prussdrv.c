@@ -80,7 +80,7 @@ int __pruss_detect_hw_version(unsigned int *pruss_io)
     }
 }
 
-void __prussintc_set_cmr(unsigned int *pruintc_io, unsigned short sysevt,
+void __prussintc_set_cmr(volatile unsigned int *pruintc_io, unsigned short sysevt,
                          unsigned short channel)
 {
     pruintc_io[(PRU_INTC_CMR1_REG + (sysevt & ~(0x3))) >> 2] |=
@@ -89,7 +89,7 @@ void __prussintc_set_cmr(unsigned int *pruintc_io, unsigned short sysevt,
 }
 
 
-void __prussintc_set_hmr(unsigned int *pruintc_io, unsigned short channel,
+void __prussintc_set_hmr(volatile unsigned int *pruintc_io, unsigned short channel,
                          unsigned short host)
 {
     pruintc_io[(PRU_INTC_HMR1_REG + (channel & ~(0x3))) >> 2] =
@@ -422,7 +422,7 @@ int prussdrv_pru_write_memory(unsigned int pru_ram_id,
 
 int prussdrv_pruintc_init(const tpruss_intc_initdata * prussintc_init_data)
 {
-    unsigned int *pruintc_io = (unsigned int *) prussdrv.intc_base;
+    volatile unsigned int *pruintc_io = (volatile unsigned int *) prussdrv.intc_base;
     unsigned int i, mask1, mask2;
 
     pruintc_io[PRU_INTC_SIPR1_REG >> 2] = 0xFFFFFFFF;
@@ -491,7 +491,7 @@ int prussdrv_pruintc_init(const tpruss_intc_initdata * prussintc_init_data)
 
 int prussdrv_pru_send_event(unsigned int eventnum)
 {
-    unsigned int *pruintc_io = (unsigned int *) prussdrv.intc_base;
+    volatile unsigned int *pruintc_io = (volatile unsigned int *) prussdrv.intc_base;
     if (eventnum < 32)
         pruintc_io[PRU_INTC_SRSR1_REG >> 2] = 1 << eventnum;
     else
@@ -513,7 +513,7 @@ int prussdrv_pru_wait_event(unsigned int pru_evtout_num, int *event_count)
 
 int prussdrv_pru_clear_event(unsigned int eventnum)
 {
-    unsigned int *pruintc_io = (unsigned int *) prussdrv.intc_base;
+    volatile unsigned int *pruintc_io = (volatile unsigned int *) prussdrv.intc_base;
     if (eventnum < 32)
         pruintc_io[PRU_INTC_SECR1_REG >> 2] = 1 << eventnum;
     else
