@@ -157,14 +157,14 @@ extern "C" {
 
     void *prussdrv_get_virt_addr(unsigned int phyaddr);
 
-    int prussdrv_pru_wait_event(unsigned int pru_evtout_num, int *event_count);
+    int prussdrv_pru_wait_event(unsigned int host_interrupt, int *event_count);
 
     int prussdrv_pru_send_event(unsigned int eventnum);
 
-    int prussdrv_pru_clear_event(unsigned int eventnum);
+    int prussdrv_pru_clear_event(unsigned int eventnum, unsigned int sysevent);
 
     int prussdrv_pru_send_wait_clear_event(unsigned int send_eventnum,
-                                           unsigned int pru_evtout_num,
+                                           unsigned int host_interrupt,
                                            unsigned int ack_eventnum);
 
     int prussdrv_exit(void);
