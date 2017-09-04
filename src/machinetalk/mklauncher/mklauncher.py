@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
 import os
 import sys
 import argparse
@@ -19,8 +20,8 @@ from machinekit import config
 
 from google.protobuf.message import DecodeError
 from machinetalk.protobuf.message_pb2 import Container
-from machinetalk.protobuf.config_pb2 import *
-from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.config_pb2 import Launcher, MachineInfo, File, StdoutLine, CLEARTEXT
+import machinetalk.protobuf.types_pb2 as pb
 from machinetalk.protobuf.object_pb2 import ProtocolParameters
 
 if sys.version_info >= (3, 0):
@@ -33,7 +34,7 @@ def printError(msg):
     sys.stderr.write('ERROR: ' + msg + '\n')
 
 
-class Mklauncher:
+class Mklauncher(object):
     def __init__(self, context, launcherDirs=None, topDir='.',
                  host='', svcUuid=None, debug=False, name=None, hostInName=True,
                  pollInterval=0.5, pingInterval=2.0, loopback=False):
@@ -156,21 +157,23 @@ class Mklauncher:
             self.name = 'Machinekit Launcher'
         if hostInName:
             self.name += ' on ' + self.host
-        self.launcherService = service.Service(type='launcher',
-                                   svcUuid=svcUuid,
-                                   dsn=self.launcherDsname,
-                                   port=self.launcherPort,
-                                   host=self.host,
-                                   name=self.name,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
-        self.commandService = service.Service(type='launchercmd',
-                                   svcUuid=svcUuid,
-                                   dsn=self.commandDsname,
-                                   port=self.commandPort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
+        self.launcherService = \
+            service.Service(type='launcher',
+                            svcUuid=svcUuid,
+                            dsn=self.launcherDsname,
+                            port=self.launcherPort,
+                            host=self.host,
+                            name=self.name,
+                            loopback=self.loopback,
+                            debug=self.debug)
+        self.commandService = \
+            service.Service(type='launchercmd',
+                            svcUuid=svcUuid,
+                            dsn=self.commandDsname,
+                            port=self.commandPort,
+                            host=self.host,
+                            loopback=self.loopback,
+                            debug=self.debug)
 
         self.publish()
 
@@ -200,7 +203,7 @@ class Mklauncher:
             self.launcherService.publish()
             self.commandService.publish()
         except Exception as e:
-            print (('cannot register DNS service' + str(e)))
+            print(('cannot register DNS service' + str(e)))
             sys.exit(1)
 
     def unpublish(self):
@@ -269,10 +272,10 @@ class Mklauncher:
         if self.launcherFullUpdate:
             self.add_pparams()
             self.txContainer.CopyFrom(self.container)
-            self.send_launcher_msg(MT_LAUNCHER_FULL_UPDATE)
+            self.send_launcher_msg(pb.MT_LAUNCHER_FULL_UPDATE)
             self.launcherFullUpdate = False
         elif modified:
-            self.send_launcher_msg(MT_LAUNCHER_INCREMENTAL_UPDATE)
+            self.send_launcher_msg(pb.MT_LAUNCHER_INCREMENTAL_UPDATE)
 
     def send_launcher_msg(self, msgType):
         if self.debug:
@@ -305,7 +308,7 @@ class Mklauncher:
         return
 
     def ping_launcher(self):
-        self.send_launcher_msg(MT_PING)
+        self.send_launcher_msg(pb.MT_PING)
 
     def process_launcher(self, s):
         try:
@@ -378,11 +381,11 @@ class Mklauncher:
 
     def send_command_wrong_params(self, identity, note='wrong parameters'):
         self.txCommand.note.append(note)
-        self.send_command_msg(identity, MT_ERROR)
+        self.send_command_msg(identity, pb.MT_ERROR)
 
     def send_command_wrong_index(self, identity):
         self.txCommand.note.append('wrong index')
-        self.send_command_msg(identity, MT_ERROR)
+        self.send_command_msg(identity, pb.MT_ERROR)
 
     def process_command(self, s):
         frames = s.recv_multipart()
@@ -399,10 +402,10 @@ class Mklauncher:
             self.send_command_wrong_params(identity, note=note)
             return
 
-        if self.rx.type == MT_PING:
-            self.send_command_msg(identity, MT_PING_ACKNOWLEDGE)
+        if self.rx.type == pb.MT_PING:
+            self.send_command_msg(identity, pb.MT_PING_ACKNOWLEDGE)
 
-        elif self.rx.type == MT_LAUNCHER_START:
+        elif self.rx.type == pb.MT_LAUNCHER_START:
             if self.rx.HasField('index'):
                 index = self.rx.index
                 if index >= len(self.container.launcher):
@@ -411,11 +414,11 @@ class Mklauncher:
                     success, note = self.start_process(index)
                     if not success:
                         self.txCommand.note.append(note)
-                        self.send_command_msg(identity, MT_ERROR)
+                        self.send_command_msg(identity, pb.MT_ERROR)
             else:
                 self.send_command_wrong_params(identity)
 
-        elif self.rx.type == MT_LAUNCHER_TERMINATE:
+        elif self.rx.type == pb.MT_LAUNCHER_TERMINATE:
             if self.rx.HasField('index'):
                 index = self.rx.index
                 if index >= len(self.container.launcher) \
@@ -424,7 +427,7 @@ class Mklauncher:
                 else:
                     self.terminate_process(index)
 
-        elif self.rx.type == MT_LAUNCHER_KILL:
+        elif self.rx.type == pb.MT_LAUNCHER_KILL:
             if self.rx.HasField('index'):
                 index = self.rx.index
                 if index >= len(self.container.launcher) \
@@ -433,7 +436,7 @@ class Mklauncher:
                 else:
                     self.kill_process(index)
 
-        elif self.rx.type == MT_LAUNCHER_WRITE_STDIN:
+        elif self.rx.type == pb.MT_LAUNCHER_WRITE_STDIN:
             if self.rx.HasField('index') \
                and self.rx.HasField('name'):  # temporarily using the name field
                 index = self.rx.index
@@ -444,18 +447,18 @@ class Mklauncher:
                 else:
                     self.write_stdin_process(index, name)
 
-        elif self.rx.type == MT_LAUNCHER_CALL:
+        elif self.rx.type == pb.MT_LAUNCHER_CALL:
             self.txCommand.note.append("process call not allowed")
-            self.send_command_msg(identity, MT_ERROR)
+            self.send_command_msg(identity, pb.MT_ERROR)
 
-        elif self.rx.type == MT_LAUNCHER_SHUTDOWN:
+        elif self.rx.type == pb.MT_LAUNCHER_SHUTDOWN:
             if not self.shutdown_system():
                 self.txCommand.note.append("cannot shutdown system: DBus error")
-                self.send_command_msg(identity, MT_ERROR)
+                self.send_command_msg(identity, pb.MT_ERROR)
 
         else:
             self.txCommand.note.append("unknown command")
-            self.send_command_msg(identity, MT_ERROR)
+            self.send_command_msg(identity, pb.MT_ERROR)
 
 
 shutdown = False
@@ -539,6 +542,7 @@ def main():
     if debug:
         print('threads stopped')
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
