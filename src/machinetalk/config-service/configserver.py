@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
-from stat import *
+from stat import S_ISREG, S_ISDIR
 import zmq
 import threading
 import signal
@@ -14,13 +14,13 @@ from machinekit import config
 
 from google.protobuf.message import DecodeError
 from machinetalk.protobuf.message_pb2 import Container
-from machinetalk.protobuf.config_pb2 import *
-from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.config_pb2 import CLEARTEXT, QT5_QML, GLADEVCP, JAVASCRIPT
+import machinetalk.protobuf.types_pb2 as pb
 
 
-class ConfigServer:
+class ConfigServer(object):
     def __init__(self, context, appDirs=None, topdir=".",
-                 host='', svcUuid=None, debug=False, name=None, 
+                 host='', svcUuid=None, debug=False, name=None,
                  hostInName=True, loopback=False):
         if appDirs is None:
             appDirs = []
@@ -72,13 +72,13 @@ class ConfigServer:
         if hostInName:
             self.name += ' on ' + self.host
         self.service = service.Service(type='config',
-                                   svcUuid=svcUuid,
-                                   dsn=self.dsname,
-                                   port=self.port,
-                                   host=self.host,
-                                   name=self.name,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
+                                       svcUuid=svcUuid,
+                                       dsn=self.dsname,
+                                       port=self.port,
+                                       host=self.host,
+                                       name=self.name,
+                                       loopback=self.loopback,
+                                       debug=self.debug)
 
         self.publish()
 
@@ -101,7 +101,7 @@ class ConfigServer:
         try:
             self.service.publish()
         except Exception as e:
-            print (('cannot register DNS service' + str(e)))
+            print(('cannot register DNS service' + str(e)))
             sys.exit(1)
 
     def unpublish(self):
@@ -115,8 +115,10 @@ class ConfigServer:
             return QT5_QML
         elif type == 'GLADEVCP':
             return GLADEVCP
-        else:
+        elif type == 'JAVASCRIPT':
             return JAVASCRIPT
+        else:
+            raise TypeError('Unsupported type %s' % type)
 
     def send_msg(self, dest, type):
         self.tx.type = type
@@ -132,7 +134,7 @@ class ConfigServer:
             app.name = name
             app.description = self.cfg.get(name, 'description')
             app.type = self.typeToPb(self.cfg.get(name, 'type'))
-        self.send_msg(origin, MT_DESCRIBE_APPLICATION)
+        self.send_msg(origin, pb.MT_DESCRIBE_APPLICATION)
 
     def add_files(self, basePath, path, app):
         if self.debug:
@@ -163,7 +165,7 @@ class ConfigServer:
         self.add_files(self.cfg.get(name, 'files'),
                        self.cfg.get(name, 'files'), app)
 
-        self.send_msg(origin, MT_APPLICATION_DETAIL)
+        self.send_msg(origin, pb.MT_APPLICATION_DETAIL)
 
     def process(self, s):
         frames = s.recv_multipart()
@@ -178,25 +180,23 @@ class ConfigServer:
         except DecodeError as e:
             note = 'Protobuf Decode Error: ' + str(e)
             self.tx.note.append(note)
-            self.send_msg(identity, MT_ERROR)
+            self.send_msg(identity, pb.MT_ERROR)
             return
 
-        if self.rx.type == MT_LIST_APPLICATIONS:
+        if self.rx.type == pb.MT_LIST_APPLICATIONS:
             self.list_apps(identity)
-            return
 
-        if self.rx.type == MT_RETRIEVE_APPLICATION:
+        elif self.rx.type == pb.MT_RETRIEVE_APPLICATION:
             a = self.rx.app[0]
             self.retrieve_app(identity, a.name)
-            return
 
-        if self.rx.type == MT_PING:
-            self.send_msg(identity, MT_PING_ACKNOWLEDGE)
-            return
+        elif self.rx.type == pb.MT_PING:
+            self.send_msg(identity, pb.MT_PING_ACKNOWLEDGE)
 
-        note = "unsupported request type %d" % (self.rx.type)
-        self.tx.note.append(note)
-        self.send_msg(identity, MT_ERROR)
+        else:
+            note = "unsupported request type %d" % (self.rx.type)
+            self.tx.note.append(note)
+            self.send_msg(identity, pb.MT_ERROR)
 
 
 shutdown = False
