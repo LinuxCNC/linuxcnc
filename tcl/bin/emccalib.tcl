@@ -240,10 +240,6 @@ proc makeIniTune {} {
     }
 
     foreach fname $::EC(halfilelist) {
-        if {[string first LIB: $fname] != -1} {
-            # LIB: files are not candidates tunable items
-            continue
-        }
         $::EC(haltext) config -state normal
         $::EC(haltext) delete 1.0 end
         if {[catch {open $fname} programin]} {
