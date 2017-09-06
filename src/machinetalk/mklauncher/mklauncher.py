@@ -81,8 +81,6 @@ class Mklauncher(object):
 
         self._create_sockets(context)
         self._create_services(hostInName, svcUuid)
-        self._publish_services()
-        self._start_threads()
 
     def _search_launchers(self, directories):
         INI_NAME = 'launcher.ini'
@@ -219,6 +217,10 @@ class Mklauncher(object):
     def _unpublish_services(self):
         self.launcherService.unpublish()
         self.commandService.unpublish()
+
+    def start(self):
+        self._publish_services()
+        self._start_threads()
 
     def stop(self):
         self.terminate_processes()
@@ -536,6 +538,7 @@ def main():
                             hostInName=bool(args.suppress_ip),
                             loopback=(not remote),
                             debug=debug)
+    mklauncher.start()
 
     while mklauncher.running and not check_exit():
         time.sleep(1)
