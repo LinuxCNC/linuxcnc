@@ -1321,8 +1321,10 @@ def jogspeed_listbox_change(dummy, value):
     iterator = iter(root_window.call(widgets.jogincr._w, "list", "get", "0", "end"))
     idx = 0
     cursel = -1
+    if isinstance(value, str): value = value.encode('utf-8', 'replace')
     for i in iterator:
-        if i == unicode(value, 'utf-8'):
+        if isinstance(i, str): i = i.encode('utf-8', 'replace')
+        if i == value:
             cursel= idx
             break
         idx += 1
