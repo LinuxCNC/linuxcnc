@@ -512,7 +512,7 @@ static void *pruevent_thread(void *arg)
     if (prussdrv_pru_wait_event(event, &event_count) < 0)
         continue;
     HPG_ERR("PRU event %d received\n",event);
-    prussdrv_pru_clear_event(pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
+    prussdrv_pru_clear_event(event, pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
     } while (1);
     HPG_ERR("pruevent_thread exiting\n");
     return NULL; // silence compiler warning

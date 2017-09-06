@@ -140,10 +140,10 @@ extern "C" {
 
     int prussdrv_pru_write_memory(unsigned int pru_ram_id,
                                   unsigned int wordoffset,
-                                  unsigned int *memarea,
+                                  const unsigned int *memarea,
                                   unsigned int bytelength);
 
-    int prussdrv_pruintc_init(tpruss_intc_initdata * prussintc_init_data);
+    int prussdrv_pruintc_init(const tpruss_intc_initdata * prussintc_init_data);
 
     int prussdrv_map_l3mem(void **address);
 
@@ -153,23 +153,23 @@ extern "C" {
 
     int prussdrv_map_peripheral_io(unsigned int per_id, void **address);
 
-    unsigned int prussdrv_get_phys_addr(void *address);
+    unsigned int prussdrv_get_phys_addr(const void *address);
 
     void *prussdrv_get_virt_addr(unsigned int phyaddr);
 
-    int prussdrv_pru_wait_event(unsigned int pru_evtout_num, int *event_count);
+    int prussdrv_pru_wait_event(unsigned int host_interrupt, int *event_count);
 
     int prussdrv_pru_send_event(unsigned int eventnum);
 
-    int prussdrv_pru_clear_event(unsigned int eventnum);
+    int prussdrv_pru_clear_event(unsigned int eventnum, unsigned int sysevent);
 
     int prussdrv_pru_send_wait_clear_event(unsigned int send_eventnum,
-                                           unsigned int pru_evtout_num,
+                                           unsigned int host_interrupt,
                                            unsigned int ack_eventnum);
 
     int prussdrv_exit(void);
 
-    int prussdrv_exec_program(int prunum, char *filename, int disabled);
+    int prussdrv_exec_program(int prunum, const char *filename, int disabled);
 
     int prussdrv_exec_code(int prunum, const unsigned int *code, int codelen, int disabled);
 

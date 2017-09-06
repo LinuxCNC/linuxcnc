@@ -371,7 +371,7 @@ static void *pruevent_thread(void *arg)
 	    continue;
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d received\n",
 		    modname, event);
-	prussdrv_pru_clear_event(pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
+	prussdrv_pru_clear_event(event, pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
     } while (1);
     rtapi_print_msg(RTAPI_MSG_ERR, "%s: pruevent_thread exiting\n",
 		    modname);
