@@ -12,6 +12,7 @@ import subprocess
 import fcntl
 import shlex
 import dbus
+import logging
 
 from operator import attrgetter
 
@@ -28,6 +29,8 @@ if sys.version_info >= (3, 0):
     import configparser
 else:
     import ConfigParser as configparser
+
+logger = logging.getLogger('mklauncher')
 
 
 def printError(msg):
@@ -69,8 +72,7 @@ class Mklauncher(object):
             self.container.launcher.add().CopyFrom(launcher)
             self.txContainer.launcher.add().MergeFrom(launcher)
 
-        if self.debug:
-            print(self.container)
+        logger.debug('parsed launchers:\n%s' % str(self.container))
 
         # prepare pings
         if self.pingInterval > 0:
@@ -151,7 +153,7 @@ class Mklauncher(object):
                     launchers.append(launcher)
 
         # sort using the priority attribute before distribution
-        launchers = sorted(launchers, key=attrgetter('priority'), reverse=True)
+        return sorted(launchers, key=attrgetter('priority'), reverse=True)
 
     def _start_threads(self):
         threading.Thread(target=self._process_sockets).start()
@@ -290,8 +292,7 @@ class Mklauncher(object):
             self._send_launcher_message(pb.MT_LAUNCHER_INCREMENTAL_UPDATE)
 
     def _send_launcher_message(self, msgType):
-        if self.debug:
-            print('sending launcher message')
+        logger.debug('sending launcher message')
         self.txContainer.type = msgType
         txBuffer = self.txContainer.SerializeToString()
         self.txContainer.Clear()
@@ -329,8 +330,7 @@ class Mklauncher(object):
                 self.launcherSubscribed = status
                 self.launcherFullUpdate = status
 
-            if self.debug:
-                print(("process launcher called " + subscription + ' ' + str(status)))
+            logger.debug(("process launcher called " + subscription + ' ' + str(status)))
 
         except zmq.ZMQError as e:
             printError('ZMQ error: ' + str(e))
@@ -401,8 +401,7 @@ class Mklauncher(object):
         identity = frames[:-1]  # multipart id
         message = frames[-1]  # last frame
 
-        if self.debug:
-            print("process command called, id: %s" % identity)
+        logger.debug("process command called, id: %s" % identity)
 
         try:
             self.rx.ParseFromString(message)
@@ -501,6 +500,12 @@ def main():
     args = parser.parse_args()
     debug = args.debug
 
+    logging.basicConfig()
+    if debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
     mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
@@ -518,8 +523,7 @@ def main():
         print("Remote communication is deactivated, configserver will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
 
-    if debug:
-        print(("announcing mklauncher"))
+    logger.debug("announcing mklauncher")
 
     context = zmq.Context()
     context.linger = 0
@@ -540,16 +544,14 @@ def main():
     while mklauncher.running and not check_exit():
         time.sleep(1)
 
-    if debug:
-        print('stopping threads')
+    logger.debug('stopping threads')
     mklauncher.stop()
 
     # wait for all threads to terminate
     while threading.active_count() > 1:
         time.sleep(0.1)
 
-    if debug:
-        print('threads stopped')
+    logger.debug('threads stopped')
     sys.exit(0)
 
 
