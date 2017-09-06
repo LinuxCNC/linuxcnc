@@ -37,10 +37,55 @@ def printError(msg):
     sys.stderr.write('ERROR: ' + msg + '\n')
 
 
+class LauncherImportance(object):
+    DEFAULT_IMPORTANCE = 0
+
+    def __init__(self, config_file):
+        self._config_file = config_file
+        self._importances = {}
+
+    def __setitem__(self, launcher_id, importance):
+        self._importances[launcher_id] = importance
+
+    def __getitem__(self, launcher_id):
+        if launcher_id in self._importances:
+            return self._importances[launcher_id]
+        else:
+            return LauncherImportance.DEFAULT_IMPORTANCE
+
+    def save(self):
+        config_dir = os.path.dirname(self._config_file)
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+
+        cfg = configparser.ConfigParser()
+        for key in self._importances:
+            section, name = key.split(':')
+            if not cfg.has_section(section):
+                cfg.add_section(section)
+            cfg.set(section, name, self._importances[key])
+
+        with open(self._config_file, 'w') as config_file:
+            cfg.write(config_file)
+
+    def load(self):
+        self._importances = {}
+        cfg = configparser.ConfigParser()
+        cfg.read(self._config_file)
+
+        for section in cfg.sections():
+            for (key, value) in cfg.items(section):
+                self._importances['%s:%s' % (section, key)] = int(value)
+
+    def __str__(self):
+        return str(self._importances)
+
+
 class Mklauncher(object):
     def __init__(self, context, launcherDirs=None, host='',
                  svcUuid='', debug=False, name=None, hostInName=True,
-                 pollInterval=0.5, pingInterval=2.0, loopback=False):
+                 pollInterval=0.5, pingInterval=2.0, loopback=False,
+                 config_dir='~/.config/machinekit/mklauncher'):
         if launcherDirs is None:
             launcherDirs = []
 
@@ -66,13 +111,18 @@ class Mklauncher(object):
         self.processes = {}  # for processes mapped to launcher
         self.terminating = set()  # set of terminating processes
 
-        launchers = self._search_launchers(self.launcherDirs)
+        launchers, ids = self._search_launchers(self.launcherDirs)
+        self._launcher_ids = {}
         for index, launcher in enumerate(launchers):
+            self._launcher_ids[index] = ids[launcher.index]
             launcher.index = index
-            self.container.launcher.add().CopyFrom(launcher)
-            self.txContainer.launcher.add().MergeFrom(launcher)
-
+            self.container.launcher.extend([launcher])
+            self.txContainer.launcher.add().CopyFrom(launcher)
         logger.debug('parsed launchers:\n%s' % str(self.container))
+
+        config_file = os.path.expanduser(os.path.join(config_dir, 'importances.ini'))
+        self._importances = LauncherImportance(config_file)
+        self._importances.load()
 
         # prepare pings
         if self.pingInterval > 0:
@@ -109,6 +159,8 @@ class Mklauncher(object):
         }
 
         launchers = []
+        ids = {}
+        index = 0
         for rootDir in directories:
             for root, _, files in os.walk(rootDir):
                 if INI_NAME not in files:
@@ -128,6 +180,7 @@ class Mklauncher(object):
                     info.model = cfg.get(section, 'model')
                     info.variant = cfg.get(section, 'variant')
                     launcher.priority = cfg.getint(section, 'priority')
+                    launcher.importance = 0
                     launcher.info.MergeFrom(info)
                     # command data
                     launcher.command = cfg.get(section, 'command')
@@ -150,10 +203,14 @@ class Mklauncher(object):
                         image.encoding = CLEARTEXT
                         image.blob = fileBuffer
                         launcher.image.MergeFrom(image)
+
+                    launcher.index = index
+                    index += 1
                     launchers.append(launcher)
+                    ids[launcher.index] = '%s:%s' % (root, section)
 
         # sort using the priority attribute before distribution
-        return sorted(launchers, key=attrgetter('priority'), reverse=True)
+        return sorted(launchers, key=attrgetter('priority'), reverse=True), ids
 
     def _start_threads(self):
         threading.Thread(target=self._process_sockets).start()
@@ -234,9 +291,15 @@ class Mklauncher(object):
         self.txContainer.pparams.MergeFrom(parameters)
 
     def _update_launcher_status(self):
-        modified = False
+        txLauncher = Launcher()  # new pb message for tx
         for launcher in self.container.launcher:
+            modified = False
             index = launcher.index
+
+            importance = self._importances[self._launcher_ids[launcher.index]]
+            if importance is not launcher.importance:
+                txLauncher.importance = importance
+                modified = True
 
             terminating = False
             if index in self.terminating:
@@ -244,8 +307,6 @@ class Mklauncher(object):
                 self.terminating.remove(index)
 
             if index in self.processes:
-                txLauncher = Launcher()  # new pb message for tx
-                txLauncher.index = index
                 process = self.processes[index]
                 process.poll()
                 returncode = process.returncode
@@ -279,9 +340,11 @@ class Mklauncher(object):
                     txLauncher.terminating = False
                     modified = True
                     self.processes.pop(index, None)  # remove from watchlist
-                if modified:
-                    launcher.MergeFrom(txLauncher)
-                    self.txContainer.launcher.add().MergeFrom(txLauncher)
+            if modified:
+                launcher.MergeFrom(txLauncher)
+                txLauncher.index = index
+                self.txContainer.launcher.add().MergeFrom(txLauncher)
+                txLauncher.Clear()
 
         if self.launcherFullUpdate:
             self._add_pparams_to_message()
@@ -388,6 +451,11 @@ class Mklauncher(object):
         except:
             return False
 
+    def _update_importance(self, launcher):
+        launcher_id = self._launcher_ids[launcher.index]
+        self._importances[launcher_id] = launcher.importance
+        self._importances.save()
+
     def _send_command_wrong_params(self, identity, note='wrong parameters'):
         self.tx.note.append(note)
         self._send_command_message(identity, pb.MT_ERROR)
@@ -463,6 +531,19 @@ class Mklauncher(object):
             if not self._shutdown_system():
                 self.tx.note.append("cannot shutdown system: DBus error")
                 self._send_command_message(identity, pb.MT_ERROR)
+
+        elif self.rx.type == pb.MT_LAUNCHER_SET:
+            for launcher in self.rx.launcher:
+                if not launcher.HasField('index') \
+                   or not launcher.HasField('importance'):
+                    self._send_command_wrong_params()
+                    continue
+
+                index = launcher.index
+                if index >= len(self.container.launcher):
+                    self._send_command_wrong_index(identity)
+                else:
+                    self._update_importance(launcher)
 
         else:
             self.tx.note.append("unknown command")
