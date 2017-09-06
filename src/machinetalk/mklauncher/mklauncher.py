@@ -36,7 +36,7 @@ def printError(msg):
 
 class Mklauncher(object):
     def __init__(self, context, launcherDirs=None, host='',
-                 svcUuid=None, debug=False, name=None, hostInName=True,
+                 svcUuid='', debug=False, name=None, hostInName=True,
                  pollInterval=0.5, pingInterval=2.0, loopback=False):
         if launcherDirs is None:
             launcherDirs = []
