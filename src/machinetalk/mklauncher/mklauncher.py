@@ -51,10 +51,14 @@ class Mklauncher(object):
         self.pollInterval = pollInterval
         self.pingInterval = pingInterval
 
+        # published container
         self.container = Container()
         self.txContainer = Container()
         self.launcherSubscribed = False
         self.launcherFullUpdate = False
+        # command rx and tx containers for reuse
+        self.rx = Container()
+        self.tx = Container()
 
         self.processes = {}  # for processes mapped to launcher
         self.terminating = set()  # set of terminating processes
@@ -134,9 +138,17 @@ class Mklauncher(object):
             self.pingRatio = -1
         self.pingCount = 0
 
-        self.rx = Container()
-        self.txCommand = Container()
-        self.topDir = topDir
+        self._create_sockets(context)
+        self._create_services(hostInName, svcUuid)
+        self._publish_services()
+        self._start_threads()
+
+    def _start_threads(self):
+        threading.Thread(target=self.process_sockets).start()
+        threading.Thread(target=self.poll).start()
+        self.running = True
+
+    def _create_sockets(self, context):
         self.context = context
         self.baseUri = "tcp://"
         if self.loopback:
@@ -153,6 +165,22 @@ class Mklauncher(object):
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
 
+    def process_sockets(self):
+        poll = zmq.Poller()
+        poll.register(self.launcherSocket, zmq.POLLIN)
+        poll.register(self.commandSocket, zmq.POLLIN)
+
+        while not self.shutdown.is_set():
+            s = dict(poll.poll(1000))
+            if self.launcherSocket in s and s[self.launcherSocket] == zmq.POLLIN:
+                self.process_launcher(self.launcherSocket)
+            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
+                self.process_command(self.commandSocket)
+
+        self._unpublish_services()
+        self.running = False
+
+    def _create_services(self, hostInName, svcUuid):
         if self.name is None:
             self.name = 'Machinekit Launcher'
         if hostInName:
@@ -175,29 +203,7 @@ class Mklauncher(object):
                             loopback=self.loopback,
                             debug=self.debug)
 
-        self.publish()
-
-        threading.Thread(target=self.process_sockets).start()
-        threading.Thread(target=self.poll).start()
-        self.running = True
-
-    def process_sockets(self):
-        poll = zmq.Poller()
-        poll.register(self.launcherSocket, zmq.POLLIN)
-        poll.register(self.commandSocket, zmq.POLLIN)
-
-        while not self.shutdown.is_set():
-            s = dict(poll.poll(1000))
-            if self.launcherSocket in s and s[self.launcherSocket] == zmq.POLLIN:
-                self.process_launcher(self.launcherSocket)
-            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
-                self.process_command(self.commandSocket)
-
-        self.unpublish()
-        self.running = False
-        return
-
-    def publish(self):
+    def _publish_services(self):
         # Zeroconf
         try:
             self.launcherService.publish()
@@ -206,7 +212,7 @@ class Mklauncher(object):
             print(('cannot register DNS service' + str(e)))
             sys.exit(1)
 
-    def unpublish(self):
+    def _unpublish_services(self):
         self.launcherService.unpublish()
         self.commandService.unpublish()
 
@@ -286,10 +292,10 @@ class Mklauncher(object):
         self.launcherSocket.send_multipart(['launcher', txBuffer], zmq.NOBLOCK)
 
     def send_command_msg(self, identity, msgType):
-        self.txCommand.type = msgType
-        txBuffer = self.txCommand.SerializeToString()
+        self.tx.type = msgType
+        txBuffer = self.tx.SerializeToString()
         self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
-        self.txCommand.Clear()
+        self.tx.Clear()
 
     def poll(self):
         while not self.shutdown.is_set():
@@ -380,11 +386,11 @@ class Mklauncher(object):
             return False
 
     def send_command_wrong_params(self, identity, note='wrong parameters'):
-        self.txCommand.note.append(note)
+        self.tx.note.append(note)
         self.send_command_msg(identity, pb.MT_ERROR)
 
     def send_command_wrong_index(self, identity):
-        self.txCommand.note.append('wrong index')
+        self.tx.note.append('wrong index')
         self.send_command_msg(identity, pb.MT_ERROR)
 
     def process_command(self, s):
@@ -413,7 +419,7 @@ class Mklauncher(object):
                 else:
                     success, note = self.start_process(index)
                     if not success:
-                        self.txCommand.note.append(note)
+                        self.tx.note.append(note)
                         self.send_command_msg(identity, pb.MT_ERROR)
             else:
                 self.send_command_wrong_params(identity)
@@ -448,16 +454,16 @@ class Mklauncher(object):
                     self.write_stdin_process(index, name)
 
         elif self.rx.type == pb.MT_LAUNCHER_CALL:
-            self.txCommand.note.append("process call not allowed")
+            self.tx.note.append("process call not allowed")
             self.send_command_msg(identity, pb.MT_ERROR)
 
         elif self.rx.type == pb.MT_LAUNCHER_SHUTDOWN:
             if not self.shutdown_system():
-                self.txCommand.note.append("cannot shutdown system: DBus error")
+                self.tx.note.append("cannot shutdown system: DBus error")
                 self.send_command_msg(identity, pb.MT_ERROR)
 
         else:
-            self.txCommand.note.append("unknown command")
+            self.tx.note.append("unknown command")
             self.send_command_msg(identity, pb.MT_ERROR)
 
 
