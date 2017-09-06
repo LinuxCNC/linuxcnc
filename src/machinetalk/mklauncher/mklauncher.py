@@ -63,66 +63,7 @@ class Mklauncher(object):
         self.processes = {}  # for processes mapped to launcher
         self.terminating = set()  # set of terminating processes
 
-        # Create launcher configuration structure
-        iniName = 'launcher.ini'
-        configDefaults = {
-            'name': 'Launcher',
-            'command': '',
-            'description': '',
-            'image': '',
-            'shell': 'false',
-            'workdir': '.',
-            'type': '',
-            'manufacturer': '',
-            'model': '',
-            'variant': '',
-            'priority': '0'
-        }
-
-        launchers = []
-        for rootDir in self.launcherDirs:
-            for root, _, files in os.walk(rootDir):
-                if iniName in files:
-                    iniFile = os.path.join(root, iniName)
-                    cfg = configparser.ConfigParser(configDefaults)
-                    cfg.read(iniFile)
-                    for section in cfg.sections():
-                        launcher = Launcher()
-                        # descriptive data
-                        launcher.name = cfg.get(section, 'name')
-                        launcher.description = cfg.get(section, 'description')
-                        info = MachineInfo()
-                        info.type = cfg.get(section, 'type')
-                        info.manufacturer = cfg.get(section, 'manufacturer')
-                        info.model = cfg.get(section, 'model')
-                        info.variant = cfg.get(section, 'variant')
-                        launcher.priority = cfg.getint(section, 'priority')
-                        launcher.info.MergeFrom(info)
-                        # command data
-                        launcher.command = cfg.get(section, 'command')
-                        launcher.shell = cfg.getboolean(section, 'shell')
-                        workdir = cfg.get(section, 'workdir')
-                        if not os.path.isabs(workdir):
-                            workdir = os.path.join(root, workdir)
-                        launcher.workdir = os.path.normpath(workdir)
-                        launcher.returncode = 0
-                        launcher.running = False
-                        launcher.terminating = False
-                        # storing the image file
-                        imageFile = cfg.get(section, 'image')
-                        if imageFile is not '':
-                            if not os.path.isabs(imageFile):
-                                imageFile = os.path.join(root, imageFile)
-                            fileBuffer = open(imageFile, 'rb').read()
-                            image = File()
-                            image.name = os.path.basename(imageFile)
-                            image.encoding = CLEARTEXT
-                            image.blob = fileBuffer
-                            launcher.image.MergeFrom(image)
-                        launchers.append(launcher)
-
-        # sort using the priority attribute before distribution
-        launchers = sorted(launchers, key=attrgetter('priority'), reverse=True)
+        launchers = self._search_launchers(self.launcherDirs)
         for index, launcher in enumerate(launchers):
             launcher.index = index
             self.container.launcher.add().CopyFrom(launcher)
@@ -142,6 +83,69 @@ class Mklauncher(object):
         self._create_services(hostInName, svcUuid)
         self._publish_services()
         self._start_threads()
+
+    def _search_launchers(self, directories):
+        INI_NAME = 'launcher.ini'
+        CONFIG_DEFAULTS = {
+            'name': 'Launcher',
+            'command': '',
+            'description': '',
+            'image': '',
+            'shell': 'false',
+            'workdir': '.',
+            'type': '',
+            'manufacturer': '',
+            'model': '',
+            'variant': '',
+            'priority': '0'
+        }
+
+        launchers = []
+        for rootDir in directories:
+            for root, _, files in os.walk(rootDir):
+                if INI_NAME not in files:
+                    continue
+
+                iniFile = os.path.join(root, INI_NAME)
+                cfg = configparser.ConfigParser(CONFIG_DEFAULTS)
+                cfg.read(iniFile)
+                for section in cfg.sections():
+                    launcher = Launcher()
+                    # descriptive data
+                    launcher.name = cfg.get(section, 'name')
+                    launcher.description = cfg.get(section, 'description')
+                    info = MachineInfo()
+                    info.type = cfg.get(section, 'type')
+                    info.manufacturer = cfg.get(section, 'manufacturer')
+                    info.model = cfg.get(section, 'model')
+                    info.variant = cfg.get(section, 'variant')
+                    launcher.priority = cfg.getint(section, 'priority')
+                    launcher.info.MergeFrom(info)
+                    # command data
+                    launcher.command = cfg.get(section, 'command')
+                    launcher.shell = cfg.getboolean(section, 'shell')
+                    workdir = cfg.get(section, 'workdir')
+                    if not os.path.isabs(workdir):
+                        workdir = os.path.join(root, workdir)
+                    launcher.workdir = os.path.normpath(workdir)
+                    launcher.returncode = 0
+                    launcher.running = False
+                    launcher.terminating = False
+                    # storing the image file
+                    imageFile = cfg.get(section, 'image')
+                    if imageFile is not '':
+                        if not os.path.isabs(imageFile):
+                            imageFile = os.path.join(root, imageFile)
+                        fileBuffer = open(imageFile, 'rb').read()
+                        image = File()
+                        image.name = os.path.basename(imageFile)
+                        image.encoding = CLEARTEXT
+                        image.blob = fileBuffer
+                        launcher.image.MergeFrom(image)
+                    launchers.append(launcher)
+
+        # sort using the priority attribute before distribution
+        launchers = sorted(launchers, key=attrgetter('priority'), reverse=True)
 
     def _start_threads(self):
         threading.Thread(target=self.process_sockets).start()
