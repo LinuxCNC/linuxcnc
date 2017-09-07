@@ -11,7 +11,7 @@ import shutil
 PROJECT = 'machinetalk'
 PROJECT_NAME = '%s-protobuf' % PROJECT
 DESCRIPTION = "Protobuf Python modules for %s" % PROJECT
-VERSION = "v1.0.6"
+VERSION = "v1.0.7"
 AUTHOR = "Alexander Roessler"
 AUTHOR_EMAIL = "alex@machinekoder.com"
 PROJECT_URL = 'https://github.com/machinekit/%s' % PROJECT_NAME
