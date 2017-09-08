@@ -76,4 +76,5 @@ message Launcher {
     optional int32        returncode     = 11; // return code of the command
     optional string       workdir        = 12; // working dir of the command
     optional uint32       priority       = 13; // priority for sorting, smaller means lower priority
+    optional uint32       importance     = 14; // importance set by the user, smaller means less important
 }

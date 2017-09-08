@@ -696,6 +696,7 @@ enum ContainerType {
     MT_LAUNCHER_WRITE_STDIN = 12613;
     MT_LAUNCHER_CALL = 12614;
     MT_LAUNCHER_SHUTDOWN = 12615;
+    MT_LAUNCHER_SET = 12616;
 }
 
 enum OriginIndex {
