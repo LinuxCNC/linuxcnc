@@ -93,8 +93,13 @@ rules_set_kthreads_headers() {
 }
 
 do_posix() {
-    cat control.posix.in >> control
-    echo "debian/control:  added POSIX threads package" >&2
+    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
+	cat control.posix-stretch.in >> control
+	echo "debian/control:  added POSIX threads package for stretch" >&2
+    else
+	cat control.posix.in >> control
+        echo "debian/control:  added POSIX threads package" >&2
+    fi
     rules_enable_threads posix
     HAVE_FLAVOR=true
 }

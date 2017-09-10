@@ -8,4 +8,3 @@ usr/lib/*.so
 usr/bin/comp
 usr/share/linuxcnc/Makefile.modinc
 usr/share/linuxcnc/Makefile.inc
-

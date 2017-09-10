@@ -758,6 +758,12 @@ else
     fi
 fi
 
+if test $TARGET_PLATFORM_PC = true; then
+	echo "*** TARGET_PLATFORM_PC=true ***"
+	touch ../debian/platform_pc
+fi
+
+
 # Print messages about what platforms are to be enabled or disabled
 AC_MSG_CHECKING(platform-pc)
 AC_MSG_RESULT([$platform_pc_reason])
