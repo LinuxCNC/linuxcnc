@@ -1335,6 +1335,15 @@ else
     AC_MSG_ERROR([Tclx not found!
 install with "sudo apt-get install tclx"])
 fi
+
+AC_MSG_CHECKING([for python pango and cairo modules])
+if $PYTHON -c 'import pango,cairo'; then
+    AC_MSG_RESULT([found])
+else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([Python pango and cairo modules not found!
+install with "sudo apt-get install python-gtk2"])
+fi
 fi
 
 AC_SUBST([TCL_DBGX])
