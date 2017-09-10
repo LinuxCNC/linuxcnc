@@ -193,7 +193,7 @@ static void init_trigger_mode_window(void)
     /* set initial state to normal */
     ctrl_shm->auto_trig = 0;
     /* define the radio buttons */
-    trig->normal_button = gtk_radio_button_new_with_label(NULL, "Normal");
+    trig->normal_button = gtk_radio_button_new_with_label(NULL, _("Normal"));
     trig->auto_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
 	(GTK_RADIO_BUTTON(trig->normal_button)), _("Auto"));
