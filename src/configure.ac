@@ -541,9 +541,15 @@ AC_ARG_WITH(platform-pc,
     ],
     [
         case $host_cpu in
-	    (i?86 | x86_64)
-	        TARGET_PLATFORM_PC=unk
+	    (x86_64)
+	        ARCH_CFLAGS="-m64"
+		TARGET_PLATFORM_PC=unk
 		;;
+	    (i?86)
+	        ARCH_CFLAGS="-m32"
+		TARGET_PLATFORM_PC=unk
+		;;
+
 	    (*)
 	        TARGET_PLATFORM_PC=false
 		platform_pc_reason="$arch_disab_msg"
