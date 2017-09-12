@@ -269,6 +269,7 @@ the following ini entries for that axis are needed.
 . HOME_LATCH_VEL = 0
 . HOME_USE_INDEX = NO
 . HOME_SEQUENCE = 0
+. HOME equals to HOME_OFFSET
 
 === Inhibiting Homing (((Inhibiting Homing)))
 
