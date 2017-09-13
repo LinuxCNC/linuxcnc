@@ -212,7 +212,7 @@ binary-arch: build install
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml \
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
-	dh_python2 --ignore-shebangs --no-guessing-versions
+	dh_python2 --ignore-shebangs --no-guessing-versions --no-ext-rename
 	dh_makeshlibs
 	dh_installdeb
 
