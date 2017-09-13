@@ -292,6 +292,8 @@ class Mklauncher(object):
 
     def _update_launcher_status(self):
         txLauncher = Launcher()  # new pb message for tx
+        has_update = False
+
         for launcher in self.container.launcher:
             modified = False
             index = launcher.index
@@ -345,13 +347,14 @@ class Mklauncher(object):
                 txLauncher.index = index
                 self.txContainer.launcher.add().MergeFrom(txLauncher)
                 txLauncher.Clear()
+                has_update = True
 
         if self.launcherFullUpdate:
             self._add_pparams_to_message()
             self.txContainer.CopyFrom(self.container)
             self._send_launcher_message(pb.MT_LAUNCHER_FULL_UPDATE)
             self.launcherFullUpdate = False
-        elif modified:
+        elif has_update:
             self._send_launcher_message(pb.MT_LAUNCHER_INCREMENTAL_UPDATE)
 
     def _send_launcher_message(self, msgType):
