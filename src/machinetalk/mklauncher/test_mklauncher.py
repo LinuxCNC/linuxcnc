@@ -36,7 +36,7 @@ def config_dir(tmpdir):
 
 
 def test_reading_single_launcher_file_works(context, single_launcher_file):
-    launcher = Mklauncher(context, launcherDirs=single_launcher_file)
+    launcher = Mklauncher(context, launcher_dirs=single_launcher_file)
 
     launchers = launcher.container.launcher
     assert len(launchers) == 1
@@ -94,7 +94,7 @@ def test_reading_launcher_importances_with_non_existing_file_does_not_throw_erro
 
 
 def test_updating_launcher_importance_works(context, single_launcher_file, config_dir):
-    launcher = Mklauncher(context, launcherDirs=single_launcher_file, config_dir=config_dir)
+    launcher = Mklauncher(context, launcher_dirs=single_launcher_file, config_dir=config_dir)
 
     from machinetalk.protobuf.config_pb2 import Launcher
     msg = Launcher()
