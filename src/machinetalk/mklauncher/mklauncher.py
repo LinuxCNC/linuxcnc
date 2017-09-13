@@ -33,10 +33,6 @@ else:
 logger = logging.getLogger('mklauncher')
 
 
-def printError(msg):
-    sys.stderr.write('ERROR: ' + msg + '\n')
-
-
 class LauncherImportance(object):
     DEFAULT_IMPORTANCE = 0
 
@@ -82,28 +78,28 @@ class LauncherImportance(object):
 
 
 class Mklauncher(object):
-    def __init__(self, context, launcherDirs=None, host='',
-                 svcUuid='', debug=False, name=None, hostInName=True,
-                 pollInterval=0.5, pingInterval=2.0, loopback=False,
+    def __init__(self, context, launcher_dirs=None, host='',
+                 svc_uuid='', debug=False, name=None, host_in_name=True,
+                 poll_interval=0.5, ping_interval=2.0, loopback=False,
                  config_dir='~/.config/machinekit/mklauncher'):
-        if launcherDirs is None:
-            launcherDirs = []
+        if launcher_dirs is None:
+            launcher_dirs = []
 
-        self.launcherDirs = launcherDirs
+        self.launcher_dirs = launcher_dirs
         self.host = host
         self.loopback = loopback
         self.name = name
         self.debug = debug
         self.shutdown = threading.Event()
         self.running = False
-        self.pollInterval = pollInterval
-        self.pingInterval = pingInterval
+        self.poll_interval = poll_interval
+        self.ping_interval = ping_interval
 
         # published container
         self.container = Container()
-        self.txContainer = Container()
-        self.launcherSubscribed = False
-        self.launcherFullUpdate = False
+        self.tx_container = Container()
+        self.launcher_subscribed = False
+        self.launcher_full_update = False
         # command rx and tx containers for reuse
         self.rx = Container()
         self.tx = Container()
@@ -111,13 +107,13 @@ class Mklauncher(object):
         self.processes = {}  # for processes mapped to launcher
         self.terminating = set()  # set of terminating processes
 
-        launchers, ids = self._search_launchers(self.launcherDirs)
+        launchers, ids = self._search_launchers(self.launcher_dirs)
         self._launcher_ids = {}
         for index, launcher in enumerate(launchers):
             self._launcher_ids[index] = ids[launcher.index]
             launcher.index = index
             self.container.launcher.extend([launcher])
-            self.txContainer.launcher.add().CopyFrom(launcher)
+            self.tx_container.launcher.add().CopyFrom(launcher)
         logger.debug('parsed launchers:\n%s' % str(self.container))
 
         config_file = os.path.expanduser(os.path.join(config_dir, 'importances.ini'))
@@ -125,14 +121,14 @@ class Mklauncher(object):
         self._importances.load()
 
         # prepare pings
-        if self.pingInterval > 0:
-            self.pingRatio = math.floor(self.pingInterval / self.pollInterval)
+        if self.ping_interval > 0:
+            self.ping_ratio = math.floor(self.ping_interval / self.poll_interval)
         else:
-            self.pingRatio = -1
+            self.ping_ratio = -1
         self.pingCount = 0
 
         self._create_sockets(context)
-        self._create_services(hostInName, svcUuid)
+        self._create_services(host_in_name, svc_uuid)
 
     def start(self):
         self._publish_services()
@@ -161,8 +157,8 @@ class Mklauncher(object):
         launchers = []
         ids = {}
         index = 0
-        for rootDir in directories:
-            for root, _, files in os.walk(rootDir):
+        for root_dir in directories:
+            for root, _, files in os.walk(root_dir):
                 if INI_NAME not in files:
                     continue
 
@@ -193,13 +189,13 @@ class Mklauncher(object):
                     launcher.running = False
                     launcher.terminating = False
                     # storing the image file
-                    imageFile = cfg.get(section, 'image')
-                    if imageFile is not '':
-                        if not os.path.isabs(imageFile):
-                            imageFile = os.path.join(root, imageFile)
-                        fileBuffer = open(imageFile, 'rb').read()
+                    image_file = cfg.get(section, 'image')
+                    if image_file is not '':
+                        if not os.path.isabs(image_file):
+                            image_file = os.path.join(root, image_file)
+                        fileBuffer = open(image_file, 'rb').read()
                         image = File()
-                        image.name = os.path.basename(imageFile)
+                        image.name = os.path.basename(image_file)
                         image.encoding = CLEARTEXT
                         image.blob = fileBuffer
                         launcher.image.MergeFrom(image)
@@ -219,55 +215,55 @@ class Mklauncher(object):
 
     def _create_sockets(self, context):
         self.context = context
-        self.baseUri = "tcp://"
+        base_uri = "tcp://"
         if self.loopback:
-            self.baseUri += '127.0.0.1'
+            base_uri += '127.0.0.1'
         else:
-            self.baseUri += '*'
-        self.launcherSocket = context.socket(zmq.XPUB)
-        self.launcherSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
-        self.launcherPort = self.launcherSocket.bind_to_random_port(self.baseUri)
-        self.launcherDsname = self.launcherSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-        self.launcherDsname = self.launcherDsname.replace('0.0.0.0', self.host)
-        self.commandSocket = context.socket(zmq.ROUTER)
-        self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
-        self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-        self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
+            base_uri += '*'
+        self.launcher_socket = context.socket(zmq.XPUB)
+        self.launcher_socket.setsockopt(zmq.XPUB_VERBOSE, 1)
+        self.launcher_port = self.launcher_socket.bind_to_random_port(base_uri)
+        self.launcher_ds_name = self.launcher_socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.launcher_ds_name = self.launcher_ds_name.replace('0.0.0.0', self.host)
+        self.command_socket = context.socket(zmq.ROUTER)
+        self.command_port = self.command_socket.bind_to_random_port(base_uri)
+        self.command_ds_name = self.command_socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.command_ds_name = self.command_ds_name.replace('0.0.0.0', self.host)
 
     def _process_sockets(self):
         poll = zmq.Poller()
-        poll.register(self.launcherSocket, zmq.POLLIN)
-        poll.register(self.commandSocket, zmq.POLLIN)
+        poll.register(self.launcher_socket, zmq.POLLIN)
+        poll.register(self.command_socket, zmq.POLLIN)
 
         while not self.shutdown.is_set():
             s = dict(poll.poll(1000))
-            if self.launcherSocket in s and s[self.launcherSocket] == zmq.POLLIN:
-                self._process_launcher_socket(self.launcherSocket)
-            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
-                self._process_command_socket(self.commandSocket)
+            if self.launcher_socket in s and s[self.launcher_socket] == zmq.POLLIN:
+                self._process_launcher_socket(self.launcher_socket)
+            if self.command_socket in s and s[self.command_socket] == zmq.POLLIN:
+                self._process_command_socket(self.command_socket)
 
         self._unpublish_services()
         self.running = False
 
-    def _create_services(self, hostInName, svcUuid):
+    def _create_services(self, host_in_name, svc_uuid):
         if self.name is None:
             self.name = 'Machinekit Launcher'
-        if hostInName:
+        if host_in_name:
             self.name += ' on ' + self.host
-        self.launcherService = \
+        self.launcher_service = \
             service.Service(type='launcher',
-                            svcUuid=svcUuid,
-                            dsn=self.launcherDsname,
-                            port=self.launcherPort,
+                            svcUuid=svc_uuid,
+                            dsn=self.launcher_ds_name,
+                            port=self.launcher_port,
                             host=self.host,
                             name=self.name,
                             loopback=self.loopback,
                             debug=self.debug)
         self.commandService = \
             service.Service(type='launchercmd',
-                            svcUuid=svcUuid,
-                            dsn=self.commandDsname,
-                            port=self.commandPort,
+                            svcUuid=svc_uuid,
+                            dsn=self.command_ds_name,
+                            port=self.command_port,
                             host=self.host,
                             loopback=self.loopback,
                             debug=self.debug)
@@ -275,23 +271,23 @@ class Mklauncher(object):
     def _publish_services(self):
         # Zeroconf
         try:
-            self.launcherService.publish()
+            self.launcher_service.publish()
             self.commandService.publish()
         except Exception as e:
-            print(('cannot register DNS service' + str(e)))
+            logger.error(('cannot register DNS service' + str(e)))
             sys.exit(1)
 
     def _unpublish_services(self):
-        self.launcherService.unpublish()
+        self.launcher_service.unpublish()
         self.commandService.unpublish()
 
     def _add_pparams_to_message(self):
         parameters = ProtocolParameters()
-        parameters.keepalive_timer = int(self.pingInterval * 1000.0)
-        self.txContainer.pparams.MergeFrom(parameters)
+        parameters.keepalive_timer = int(self.ping_interval * 1000.0)
+        self.tx_container.pparams.MergeFrom(parameters)
 
     def _update_launcher_status(self):
-        txLauncher = Launcher()  # new pb message for tx
+        tx_launcher = Launcher()  # new pb message for tx
         has_update = False
 
         for launcher in self.container.launcher:
@@ -300,7 +296,7 @@ class Mklauncher(object):
 
             importance = self._importances[self._launcher_ids[launcher.index]]
             if importance is not launcher.importance:
-                txLauncher.importance = importance
+                tx_launcher.importance = importance
                 modified = True
 
             terminating = False
@@ -316,72 +312,72 @@ class Mklauncher(object):
                     if not launcher.running:  # update running value
                         if len(launcher.output) > 0:
                             launcher.ClearField('output')  # clear output for new processes
-                            self.launcherFullUpdate = True  # request a full update
-                        txLauncher.running = True
-                        txLauncher.returncode = 0
+                            self.launcher_full_update = True  # request a full update
+                        tx_launcher.running = True
+                        tx_launcher.returncode = 0
                         modified = True
                     # read stdout
-                    stdoutIndex = len(launcher.output)
+                    stdout_index = len(launcher.output)
                     while True:
                         try:
                             line = process.stdout.readline()
                             stdoutLine = StdoutLine()
-                            stdoutLine.index = stdoutIndex
+                            stdoutLine.index = stdout_index
                             stdoutLine.line = line
-                            txLauncher.output.add().MergeFrom(stdoutLine)
-                            stdoutIndex += 1
+                            tx_launcher.output.add().MergeFrom(stdoutLine)
+                            stdout_index += 1
                             modified = True
                         except IOError:  # process has no new line
                             break
                     # send termination status
                     if terminating:
-                        txLauncher.terminating = True
+                        tx_launcher.terminating = True
                 else:
-                    txLauncher.returncode = returncode
-                    txLauncher.running = False
-                    txLauncher.terminating = False
+                    tx_launcher.returncode = returncode
+                    tx_launcher.running = False
+                    tx_launcher.terminating = False
                     modified = True
                     self.processes.pop(index, None)  # remove from watchlist
             if modified:
-                launcher.MergeFrom(txLauncher)
-                txLauncher.index = index
-                self.txContainer.launcher.add().MergeFrom(txLauncher)
-                txLauncher.Clear()
+                launcher.MergeFrom(tx_launcher)
+                tx_launcher.index = index
+                self.tx_container.launcher.add().MergeFrom(tx_launcher)
+                tx_launcher.Clear()
                 has_update = True
 
-        if self.launcherFullUpdate:
+        if self.launcher_full_update:
             self._add_pparams_to_message()
-            self.txContainer.CopyFrom(self.container)
+            self.tx_container.CopyFrom(self.container)
             self._send_launcher_message(pb.MT_LAUNCHER_FULL_UPDATE)
-            self.launcherFullUpdate = False
+            self.launcher_full_update = False
         elif has_update:
             self._send_launcher_message(pb.MT_LAUNCHER_INCREMENTAL_UPDATE)
 
     def _send_launcher_message(self, msgType):
         logger.debug('sending launcher message')
-        self.txContainer.type = msgType
-        txBuffer = self.txContainer.SerializeToString()
-        self.txContainer.Clear()
-        self.launcherSocket.send_multipart(['launcher', txBuffer], zmq.NOBLOCK)
+        self.tx_container.type = msgType
+        txBuffer = self.tx_container.SerializeToString()
+        self.tx_container.Clear()
+        self.launcher_socket.send_multipart(['launcher', txBuffer], zmq.NOBLOCK)
 
     def _send_command_message(self, identity, msgType):
         self.tx.type = msgType
         txBuffer = self.tx.SerializeToString()
-        self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
+        self.command_socket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
         self.tx.Clear()
 
     def _poll(self):
         while not self.shutdown.is_set():
-            if self.launcherSubscribed:
+            if self.launcher_subscribed:
                 self._update_launcher_status()
-                if (self.pingCount == self.pingRatio):
+                if (self.pingCount == self.ping_ratio):
                     self._send_launcher_message(pb.MT_PING)
 
-            if (self.pingCount == self.pingRatio):
+            if (self.pingCount == self.ping_ratio):
                 self.pingCount = 0
             else:
                 self.pingCount += 1
-            time.sleep(self.pollInterval)
+            time.sleep(self.poll_interval)
 
         self.running = False
         return
@@ -393,13 +389,13 @@ class Mklauncher(object):
             status = (rc[0] == "\x01")
 
             if subscription == 'launcher':
-                self.launcherSubscribed = status
-                self.launcherFullUpdate = status
+                self.launcher_subscribed = status
+                self.launcher_full_update = status
 
             logger.debug(("process launcher called " + subscription + ' ' + str(status)))
 
         except zmq.ZMQError as e:
-            printError('ZMQ error: ' + str(e))
+            logger.error('ZMQ error: ' + str(e))
 
     def _start_process(self, index):
         launcher = self.container.launcher[index]
@@ -444,12 +440,12 @@ class Mklauncher(object):
 
     def _shutdown_system(self):
         try:
-            systemBus = dbus.SystemBus()
-            ckService = systemBus.get_object('org.freedesktop.ConsoleKit',
-                                             '/org/freedesktop/ConsoleKit/Manager')
-            ckInterface = dbus.Interface(ckService, 'org.freedesktop.ConsoleKit.Manager')
-            stopMethod = ckInterface.get_dbus_method("Stop")
-            stopMethod()
+            system_bus = dbus.SystemBus()
+            ck_service = system_bus.get_object('org.freedesktop.ConsoleKit',
+                                               '/org/freedesktop/ConsoleKit/Manager')
+            ck_interface = dbus.Interface(ck_service, 'org.freedesktop.ConsoleKit.Manager')
+            stop_method = ck_interface.get_dbus_method("Stop")
+            stop_method()
             return True
         except:
             return False
@@ -604,8 +600,8 @@ def main():
     remote = mki.getint("MACHINEKIT", "REMOTE")
 
     if remote == 0:
-        print("Remote communication is deactivated, configserver will use the loopback interfaces")
-        print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
+        logger.info("Remote communication is deactivated, configserver will use the loopback interfaces")
+        logger.info(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
 
     logger.debug("announcing mklauncher")
 
@@ -616,11 +612,11 @@ def main():
 
     hostname = '%(fqdn)s'  # replaced by service announcement
     mklauncher = Mklauncher(context,
-                            svcUuid=uuid,
+                            svc_uuid=uuid,
                             host=hostname,
-                            launcherDirs=args.dirs,
+                            launcher_dirs=args.dirs,
                             name=args.name,
-                            hostInName=bool(args.suppress_ip),
+                            host_in_name=bool(args.suppress_ip),
                             loopback=(not remote),
                             debug=debug)
     mklauncher.start()
