@@ -728,6 +728,7 @@ class StepconfApp:
         self.d = Data(self._p)
         # build the glade files
         self.builder = MultiFileBuilder()
+        self.builder.set_translation_domain(domain)
         self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
         window = self.builder.get_object("window1")
         notebook1 = self.builder.get_object("notebook1")

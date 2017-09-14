@@ -1406,6 +1406,7 @@ class App:
         bar_size = 0
         # build the glade files
         self.builder = MultiFileBuilder()
+        self.builder.set_translation_domain(domain)
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'main_page.glade'))
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'dialogs.glade'))
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'help.glade'))
