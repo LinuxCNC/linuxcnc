@@ -52,7 +52,7 @@ pin   in u32 type_ = 0 "Filter type determines the type of filter \
 coefficients calculated.  When 0, coefficients must be loaded directly \
 from the \\fBn0,n1,n2,d1\\fR params.  When 1, \
 a low pass filter is created specified by the \\fBf0,Q\\fR pins.  \
-When 2, a notch filter is created specified by the \\fBf0,A\\fR pins.";
+When 2, a notch filter is created specified by the \\fBf0,Q\\fR pins.";
 pin   in float f0 = 250.0 "The corner frequency of the filter.";
 pin   in float Q = 0.7071 "The Q of the filter.";
 
