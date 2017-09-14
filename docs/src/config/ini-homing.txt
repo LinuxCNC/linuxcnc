@@ -25,7 +25,7 @@ image::images/emc2-motion-homing-diag.png[align="center", alt="Homing Sequences"
 == Configuration
 
 The following determines exactly how the home sequence behaves.
-They are defined in an [AXIS] section of the inifile.
+They are defined in an [JOINT_n] section of the inifile.
 
 [width="80%", options="header", cols="4*^"]
 |==========================================================
@@ -92,12 +92,12 @@ The value must be a positive number.
 
 Can hold the values YES / NO. The default value for this parameter is NO.
 This flag determines whether LinuxCNC will ignore the limit switch input
-for this axis while homing. Setting this to YES will not ignore limit inputs
-for other axes. If you do not have a separate home switch set this to YES and
+for this joint while homing. Setting this to YES will not ignore limit inputs
+for other joints. If you do not have a separate home switch set this to YES and
 case connect the limit switch signal to the home switch input in HAL. LinuxCNC
-will ignore the limit switch input for this axis while homing. To use only
+will ignore the limit switch input for this joint while homing. To use only
 one input for all homing and limits you will have to block the limit signals
-of the axes not homing in HAL and home one axis at a time.
+of the joints not homing in HAL and home one joint at a time.
 
 === HOME_USE_INDEX (((HOME USE INDEX)))
 
@@ -140,7 +140,7 @@ joint should move to on that scale.]
 
 === HOME_IS_SHARED (((HOME IS SHARED)))
 
-If there is not a separate home switch input for this axis, but a
+If there is not a separate home switch input for this joint, but a
 number of momentary switches wired to the same pin, set this value to 1
 to prevent homing from starting if one of the shared switches is
 already closed. Set this value to 0 to permit homing even if the switch
@@ -168,11 +168,11 @@ A request to rehome the joint is silently ignored.
 
 === HOME_SEQUENCE (((HOME SEQUENCE)))
 
-Used to define a multi-axis homing sequence HOME ALL and enforce
-homing order (e.g., Z may not be homed if X is not yet homed). An axis
-may be homed after all axes with a lower (absolute value)
+Used to define a multi-joint homing sequence HOME ALL and enforce
+homing order (e.g., Z may not be homed if X is not yet homed). A joint
+may be homed after all joints with a lower (absolute value)
 HOME_SEQUENCE have already been homed and are at the HOME_OFFSET. If
-two axes have the same HOME_SEQUENCE, they may be homed at the same
+two joints have the same HOME_SEQUENCE, they may be homed at the same
 time. If HOME_SEQUENCE is not specified then this joint will not be
 homed by the HOME ALL sequence.
 
@@ -247,23 +247,23 @@ One sequence, all joints synchronized
 
 === VOLATILE_HOME (((VOLATILE HOME)))
 
-If this setting is true, this axis becomes unhomed whenever the
+If this setting is true, this joint becomes unhomed whenever the
 machine transitions into the OFF state. This is appropriate for
-any axis that does not maintain position when the axis drive is
+any joint that does not maintain position when the joint drive is
 off.  Some stepper drives, especially microstep drives, may need
 this.
 
 === LOCKING_INDEXER (((LOCKING INDEXER)))
 
-If this axis is a locking rotary indexer, it will unlock before
+If this joint is a locking rotary indexer, it will unlock before
 homing, and lock afterward.
 
 === Immediate Homing (((Immediate Homing)))
 
-If an axis does not have home switches or does not have a logical
-home position like a rotary axis and you want that axis to home at
-the current position when the "Home All" button is pressed in Axis
-the following ini entries for that axis are needed.
+If a joint does not have home switches or does not have a logical
+home position like a rotary joint and you want that joint to home at
+the current position when the "Home All" button is pressed in the
+Axis gui, then the following ini entries for that joint are needed.
 
 . HOME_SEARCH_VEL = 0
 . HOME_LATCH_VEL = 0
