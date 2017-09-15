@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Build/cross-build Machinekit-HAL in Docker
+# Build/cross-build Machinekit in Docker
 #
 # This script can be run manually or in Travis CI.  Sample manual
 # usage, `$PWD` is the `src/` directory:

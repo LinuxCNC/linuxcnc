@@ -30,7 +30,7 @@ MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 TRAVIS_REPO=${TRAVIS_REPO_SLUG:+travis.${TRAVIS_REPO_SLUG/\//.}}
 PKGSOURCE="${PKGSOURCE:-${TRAVIS_REPO:-$(hostname)}}"
 DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
-REPO_URL="${REPO_URL:-https://github.com/arceye/Machinekit-hal}"
+REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
 
 # Compute version
 if ${IS_PR}; then
@@ -83,7 +83,7 @@ cd ${SOURCE_DIR}
 
 mv debian/changelog debian/changelog.orig
 cat > debian/changelog <<EOF
-machinekit-hal (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
+machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
   * Travis CI rebuild
     - TAG ${TAG}
@@ -103,7 +103,7 @@ if test "$BUILD_SOURCE" = true; then
 
     # create .orig tarball
     git archive HEAD | \
-	bzip2 -z | tee ../machinekit-hal_${VERSION}.orig.tar.bz2 >/dev/null
+	bzip2 -z | tee ../machinekit_${VERSION}.orig.tar.bz2 >/dev/null
 
     # build source package
     dpkg-source -b .
