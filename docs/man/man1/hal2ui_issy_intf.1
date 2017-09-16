@@ -1,0 +1,31 @@
+.TH HAL2UI_ISSY_INTF "9" "2017-05-01" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+hal2ui_issy_intf \- HAL side of smartserial kbd and smartserial io UI
+.SH SYNOPSIS
+.B hal2ui_issy_intf
+.SH PINS
+.TP
+.B hal2ui-issy-intf.\fIN\fB.inp-pin\fIMM\fB\fR bit in  (MM=00..31) \fR
+SSIO input pins(32)
+.TP
+.B hal2ui-issy-intf.\fIN\fB.out-pin\fIMM\fB\fR bit out  (MM=00..31) \fR
+SSIO output pins(32)
+.TP
+.B hal2ui-issy-intf.\fIN\fB.inpi\fR u32 in \fR
+SSIO iput u32
+.TP
+.B hal2ui-issy-intf.\fIN\fB.outi\fR u32 out \fR
+SSIO output u32
+.SH PARAMETERS
+.TP
+.B hal2ui-issy-intf.\fIN\fB.sleeptime\fR u32 rw \fR
+.SH LICENSE
+
+GPLv2 or greater
