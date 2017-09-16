@@ -13,7 +13,7 @@ Permission is granted to copy, distribute and/or modify this document under
  license is included in the section entitled 
  "GNU Free Documentation License".. 
  If you do not find the license you may order a copy from Free Software 
- Foundation, Inc. 59 Temple Place, Suite 330 Boston, MA 02111-1307
+ Foundation, Inc. 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 LINUX® is the registered trademark of Linus Torvalds in the U.S. and other
 countries.  The registered trademark Linux® is used pursuant to a sublicense
@@ -27,7 +27,7 @@ toute version ultérieure publiée par la « Free Software Foundation »; sans
  couverture.  Une copie de la licence est incluse dans la section 
  intitulée « GNU Free Documentation License ». Si vous ne trouvez pas 
  la licence vous pouvez en commander un exemplaire chez Free Software 
- Foundation, Inc. 59 Temple Place, Suite 330 Boston, MA 02111-1307 
+ Foundation, Inc. 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
  (La version de langue anglaise fait foi)
 

@@ -36,7 +36,7 @@ a .demo file is usable.
 -------------------------------------------------------
 
 The configuraton picker (pickconfig.tcl) walks through
-existing _user_ configurations in ~linuxcnc/configs and the
+existing _user_ configurations in ~/linuxcnc/configs and the
 distribution's root/configs directory.  It presents both
 existing user configurations and sample configurations.
 When a sample configuration is selected the configuration

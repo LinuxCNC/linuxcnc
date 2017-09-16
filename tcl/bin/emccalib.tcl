@@ -5,7 +5,7 @@ exec $LINUXCNC_EMCSH "$0" "$@"
 ###############################################################
 # Description:  emccalib.tcl
 #               A Tcl/Tk script that interfaces with LinuxCNC
-#               through GUIs.  It configures ini tuning variables 
+#               through GUIs.  It configures ini tuning variables
 #               on the fly and saves if desired.
 #
 #  Author: Ray Henry
@@ -37,11 +37,42 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     option add *$class.borderWidth 1  100
 }
 
-set numjoints [emc_ini "JOINTS" "KINS"]
+set ::EC(numjoints) [emc_ini "JOINTS" "KINS"]
+
+#--------------------------------------------------------------
+# Tuning stanzas
+set ::EC(stanzas)  [list TUNE JOINT_ AXIS_]
+
+# Specify a stanza for tuning with:
+# ::EC(stanza_name,howmany)  == number of allowed names
+# ::EC(stanza_name,suffixes) == list of allowed suffixes
+#
+# Special case: howmany==1 and items=="", no allowed suffixes
+#
+# Examples:
+#  item==JOINT_ specifies name/value pairs like:
+#               [JOINT_n]name=value
+#               where n is a suffix in {0 1 ...}
+#
+#  item==TUNE   using howmany==1 and items=="" specfies
+#               name/value pairs with no suffix like:
+#               [TUNE]name=value
+
+set ::EC(TUNE,howmany)  1
+set ::EC(TUNE,suffixes) ""
+
+set ::EC(JOINT_,howmany) $::EC(numjoints)
+for {set i 0} {$i < $::EC(JOINT_,howmany)} {incr i} {
+  lappend ::EC(JOINT_,suffixes) $i
+}
+
+set ::EC(AXIS_,suffixes) {X Y Z A B C U V W}
+set ::EC(AXIS_,howmany)  [llength $::EC(AXIS_,suffixes)]
+#--------------------------------------------------------------
 
 # Find the name of the ini file used for this run.
-set thisinifile "$::EMC_INIFILE"
-set thisconfigdir [file dirname $thisinifile]
+set ::EC(thisinifile) "$::EMC_INIFILE"
+set ::EC(thisconfigdir) [file dirname $::EC(thisinifile)]
 
 
 #----------start toplevel----------
@@ -54,40 +85,23 @@ proc askKill {} {
     exit
 }
 
-# clean up a possible problems during shutdown
-proc killHalConfig {} {
-    global fid
-    if {[info exists fid] && $fid != ""} {
-        catch flush $fid
-        catch close $fid
-    }
-    destroy .
-    exit
-}
-
 # Wizard logo
-set wizard_image_search {
-    /etc/emc2/emc2-wizard.gif \
-    /usr/local/etc/emc2/emc2-wizard.gif \
-    emc2-wizard.gif
-}
-set logo ""
-foreach wizard_image $wizard_image_search {
-    if { [file exists $wizard_image] } {
-        set logo [image create photo -file $wizard_image]
-        break
-    }
+set lname $::env(LINUXCNC_HOME)/share/linuxcnc/linuxcnc-wizard.gif
+if { [file exists $lname] } {
+   set logo [image create photo -file $lname]
+} else {
+   set logo ""
 }
 
-wm title . [msgcat::mc "LinuxCNC Servo Axis Calibration"]
+wm title . [msgcat::mc "LinuxCNC Calibration"]
 set logo [label .logo -image $logo]
-set main [frame .main ]
-set top [NoteBook .main.top]
+set ::EC(main) [frame .main ]
+set ::EC(nbook) [NoteBook .main.top]
 pack $logo -side left -anchor nw
-pack $main -side left -expand yes -fill both \
+pack $::EC(main) -side left -expand yes -fill both \
     -padx 18 -pady 18 -anchor n
-pack $top -side top -fill both -expand yes
-set terminate [frame $main.bot]
+pack $::EC(nbook) -side top -fill both -expand yes
+set terminate [frame $::EC(main).bot]
 pack $terminate -side top -fill x
 button $terminate.save -text [msgcat::mc "Save To File"] -command {saveIni tune}
 button $terminate.quit -text [msgcat::mc "Quit"] -command {saveIni quit}
@@ -102,7 +116,7 @@ proc sSlide {f a b} {
 
 # Build menu
 # fixme clean up the underlines so they are unique under each set
-set menubar [menu $top.menubar -tearoff 0]
+set menubar [menu $::EC(nbook).menubar -tearoff 0]
 #. configure -menu $menubar
 set filemenu [menu $menubar.file -tearoff 0]
 $menubar add cascade -label [msgcat::mc "File"] \
@@ -113,139 +127,163 @@ $filemenu add command -label [msgcat::mc "Save"] \
     -command {saveHAL save}
 
 # Make a text widget to hold the ini file
-set initext [text $top.initext]
-set haltext [text $top.haltext]
-$initext config -state normal
-$initext delete 1.0 end
-set programin [open $thisinifile]
-$initext insert end [read $programin]
+set ::EC(initext) [text $::EC(nbook).initext]
+set ::EC(haltext) [text $::EC(nbook).haltext]
+$::EC(initext) config -state normal
+$::EC(initext) delete 1.0 end
+set programin [open $::EC(thisinifile)]
+$::EC(initext) insert end [read $programin]
 close $programin
 
 # setup array with section names and line numbers
-array set sectionarray {}
-set sectionlist {}
-scan [$initext index end] %d nl
+set ::EC(sectionlist) {}
+scan [$::EC(initext) index end] %d nl
 set inilastline $nl
 for {set i 1} {$i < $nl} {incr i} {
-    if { [$initext get $i.0] == "\[" } {
-        set inisectionname [$initext get $i.1 $i.end]
+    if { [$::EC(initext) get $i.0] == "\[" } {
+        set inisectionname [$::EC(initext) get $i.1 $i.end]
         set tab "	"
         set spc " "
         set inisectionname [string trimright $inisectionname "$spc$tab]" ]
-        array set sectionarray "$inisectionname $i"
-        lappend sectionlist $inisectionname
+        set ::EC(sectionline,$inisectionname) $i
+        lappend ::EC(sectionlist) $inisectionname
     }
 }
 
-array set sectionarray "END_OF_INI_FILE [expr $nl-1]"
-lappend sectionlist "END_OF_INI_FILE"
+set     ::EC(sectionline,END_OF_INI_FILE) [expr $nl-1]
+lappend ::EC(sectionlist) END_OF_INI_FILE
 
 # Find the HALFILE names between HAL and the next section
-set startline $sectionarray(HAL)
-set endline $sectionarray([lindex $sectionlist [expr [lsearch -exact $sectionlist HAL] + 1 ]])
+set startline $::EC(sectionline,HAL)
+set endline   $::EC(sectionline,[lindex $::EC(sectionlist) \
+              [expr [lsearch -exact $::EC(sectionlist) HAL] + 1 ]])
 
-set halfilelist ""
+set ::EC(halfilelist) ""
 
 for {set i $startline} {$i < $endline} {incr i} {
-    set thisstring [string trim [$initext get $i.0 $i.end]]
+    set thisstring [string trim [$::EC(initext) get $i.0 $i.end]]
     if {   ([string first         "HALFILE" "$thisstring"] == 0)
         || ([string first "POSTGUI_HALFILE" "$thisstring"] == 0)
        } {
         set arglist [lindex [split $thisstring =] 1]
         set thishalname [lindex $arglist 0]
-        lappend halfilelist [find_file_in_hallib_path $thishalname $thisinifile]
+        lappend ::EC(halfilelist) [find_file_in_hallib_path $thishalname $::EC(thisinifile)]
     }
 }
 
-proc makeIniTune {} {
-    global jointentry top initext sectionarray thisconfigdir haltext
-    global numjoints ininamearray commandarray thisinifile halfilelist
-    global af
+proc find_ini_refs {stanza} {
+    # find the ini references in this hal and build widgets
+    scan [$::EC(haltext) index end] %d nl
+    for {set i 1} { $i < $nl } {incr i} {
+        set tmpstring [string trim [$::EC(haltext) get $i.0 $i.end]]
+        if {[string match *${stanza}* $tmpstring] && ![string match *#* $tmpstring]} {
+          set halcommand [split $tmpstring " \t"]
+          if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
+            if { [lindex $halcommand 1] == "\=" } {
+                set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
+            }
+            for {set sfx 0} {$sfx < $::EC($stanza,howmany)} {incr sfx} {
+                set tabno $::EC($stanza,$sfx,tabno)
+                set itag [lindex $::EC($stanza,suffixes) $sfx]
+                if {[string match *${stanza}${itag}* $tmpstring]} {
+                    # this is a hal file search ordered loop
+                    set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
+                    set lowername "[string tolower $thisininame]"
+                    set thishalcommand [lindex $tmpstring 1]
+                    set tmpval [string trim [hal getp [halcmdSubstitute $thishalcommand]]]
+                    set ::EC(value,$tabno,$lowername)      $tmpval
+                    set ::EC(value,$tabno,$lowername,next) $tmpval
+                    if { [catch { set thisname [label $::EC(tab,$tabno).label-$itag-$lowername \
+                        -text "$thisininame:  " -width 20 -anchor e] } msg ] } {
+                        #puts msg=$msg
+                    } else {
+                        set thisval [label $::EC(tab,$tabno).entry-$lowername -width 8 \
+                          -textvariable ::EC(value,$tabno,$lowername) -anchor e -foreg firebrick4 ]
+                        set thisentry [entry $::EC(tab,$tabno).next-$lowername -width 8 \
+                          -width 12 -textvariable ::EC(value,$tabno,$lowername,next) ]
+                        grid $thisname $thisval x $thisentry
+                    }
+                    lappend ::EC(ininamearray,$tabno) $lowername
+                    lappend ::EC(commandarray,$tabno) $thishalcommand
+                    break
+                }
+            }
+          }
+        }
+    }
+} ;# find_ini_refs
 
-    for {set j 0} {$j<$numjoints} {incr j} {
-        set af($j) [$top insert [expr $j+3] page$j \
-            -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectJoint $j" ]
-        set col0 [label $af($j).collabel0 -text [msgcat::mc "INI Name"]]
-        set col1 [label $af($j).collabel1 -text [msgcat::mc "HAL's Value"]]
-        set col2 [label $af($j).space -text "   "]
-        set col3 [label $af($j).collabel3 -text [msgcat::mc "Next Value"]]
-        grid $col0 $col1 $col2 $col3 -ipady 5
-        grid rowconfigure $af($j) 9999 -weight 1
+proc makeIniTune {} {
+    set tabno 0
+    foreach stanza $::EC(stanzas) {
+        for {set sfx 0} {$sfx < $::EC($stanza,howmany)} {incr sfx} {
+            set ::EC($stanza,$sfx,tabno) $tabno
+            set ::EC($tabno,stanza) $stanza ;# cross reference tabno-->stanza
+            set itag [lindex $::EC($stanza,suffixes) $sfx]
+
+            if {$::EC($stanza,howmany) == 1} {
+                set tablabel ${stanza}
+            } else {
+                set tablabel ${stanza}$itag
+            }
+
+            set ::EC(tab,$tabno) [$::EC(nbook) insert [expr $tabno+3] page$tabno \
+                -text $tablabel -raisecmd "selectTab $tabno" ]
+            set col0 [label $::EC(tab,$tabno).collabel0 -text [msgcat::mc "INI Name"]]
+            set col1 [label $::EC(tab,$tabno).collabel1 -text [msgcat::mc "HAL's Value"]]
+            set col2 [label $::EC(tab,$tabno).space -text "   "]
+            set col3 [label $::EC(tab,$tabno).collabel3 -text [msgcat::mc "Next Value"]]
+            grid $col0 $col1 $col2 $col3 -ipady 5
+            grid rowconfigure $::EC(tab,$tabno) 9999 -weight 1
+            incr tabno
+        }
     }
 
-    #puts "af: [array get af]"
-
-    foreach fname $halfilelist {
-        if {[string first LIB: $fname] != -1} {
-            # LIB: files are not candidates tunable items
-            continue
-        }
-        $haltext config -state normal
-        $haltext delete 1.0 end
+    foreach fname $::EC(halfilelist) {
+        $::EC(haltext) config -state normal
+        $::EC(haltext) delete 1.0 end
         if {[catch {open $fname} programin]} {
             continue
         } else {
-            $haltext insert end [read $programin]
+            $::EC(haltext) insert end [read $programin]
             catch {close $programin}
         }
-
-        # find the ini references in this hal and build widgets        
-        scan [$haltext index end] %d nl
-        for {set i 1} { $i < $nl } {incr i} {
-            set tmpstring [string trim [$haltext get $i.0 $i.end]]
-            if {[string match *JOINT* $tmpstring] && ![string match *#* $tmpstring]} {
-	      set halcommand [split $tmpstring " \t"]
-	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
-                        if { [lindex $halcommand 1] == "\=" } {
-                            set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
-                        }
-                for {set j 0} {$j < $numjoints} {incr j} {
-                    if {[string match *JOINT_${j}* $tmpstring]} {
-			# puts [list $j $tmpstring]
-                        # this is a hal file search ordered loop
-                        set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
-                        set lowername "[string tolower $thisininame]"
-                        set thishalcommand [lindex $tmpstring 1]
-                        set tmpval [string trim [hal getp [halcmdSubstitute $thishalcommand]]]
-                        global joint$j-$lowername joint$j-$lowername-next
-                        set joint$j-$lowername $tmpval
-                        set joint$j-$lowername-next $tmpval
-                        if { [catch { set thisname [label $af($j).label-$j-$lowername \
-                            -text "$thisininame:  " -width 20 -anchor e] } ] } {
-                        } else {
-                            set thisval [label $af($j).entry-$lowername -width 8 \
-                              -textvariable joint$j-$lowername -anchor e -foreg firebrick4 ]
-                            set thisentry [entry $af($j).next-$lowername -width 8 \
-                              -width 12 -textvariable joint$j-$lowername-next ]
-                            grid $thisname $thisval x $thisentry
-                        }
-                        lappend ininamearray($j) $lowername
-                        lappend commandarray($j) $thishalcommand
-                        break
-                    }
-                }
-              }
-            }
+        foreach stanza $::EC(stanzas) {
+            find_ini_refs $stanza
         }
     }
-    if { ![info exists ininamearray] } {
+    if {[array names ::EC ininamearray,*] == ""} {
         incompatible_ini_file
         return
     }
 
-    # build the buttons to control joint variables.
-    for {set j 0} {$j<$numjoints } {incr j} {
-        set bframe [frame $af($j).buttons]
-        grid configure $bframe -columnspan 4 -sticky nsew 
-        set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
-            -command {iniTuneButtonpress test}]
-        set tmpok [button $bframe.ok -text [msgcat::mc "OK"] \
-            -command {iniTuneButtonpress ok} -state disabled  ]
-        set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
-            -command {iniTuneButtonpress cancel} -state disabled ]
-        set tmprefresh [button $bframe.refresh -text [msgcat::mc "Refresh"] \
-            -command {iniTuneButtonpress refresh}]
-        pack $tmpok $tmptest $tmpcancel $tmprefresh -side left -fill both -expand yes -pady 5
+    # build the buttons to control variables.
+    foreach stanza $::EC(stanzas) {
+        for {set sfx 0} {$sfx < $::EC($stanza,howmany)} {incr sfx} {
+            set itag [lindex $::EC($stanza,suffixes) $sfx]
+            set tabno $::EC($stanza,$sfx,tabno)
+            if ![info exists ::EC(startpagenum)] {
+                set ::EC(startpagenum) $tabno
+            }
+            if ![info exists ::EC(ininamearray,$tabno)] {
+                $::EC(nbook) delete page$tabno
+                if {$tabno == $::EC(startpagenum)} {
+                    unset ::EC(startpagenum)
+                }
+                continue
+            }
+            set bframe [frame $::EC(tab,$tabno).buttons]
+            grid configure $bframe -columnspan 4 -sticky nsew
+            set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
+                -command {iniTuneButtonpress test}]
+            set tmpok [button $bframe.ok -text [msgcat::mc "OK"] \
+                -command {iniTuneButtonpress ok} -state disabled  ]
+            set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
+                -command {iniTuneButtonpress cancel} -state disabled ]
+            set tmprefresh [button $bframe.refresh -text [msgcat::mc "Refresh"] \
+                -command {iniTuneButtonpress refresh}]
+            pack $tmpok $tmptest $tmpcancel $tmprefresh -side left -fill both -expand yes -pady 5
+        }
     }
 } ;# makeIniTune
 
@@ -255,18 +293,27 @@ proc incompatible_ini_file {} {
    set answer [tk_messageBox \
       -title "Ini file not compatible with $progname" \
       -message [msgcat::mc "\
-               No Tuneable items in ini file: <$fname>\n\n\
-               To specify tuneable item(s):\n\n\
-                  1) Include all \[JOINT_n\] sections\n\
-                     and specify itemnames(s)\n\n\
-                     Inifile example:\n\
-                        \[JOINT_0\]\n\
-                        P = 1\n\n\
-                  2) Use setp for \[JOINT_n\]itemname\n\n\
-                     Halfile example:\n\
-                     loadrt pid names=example\n\
-                     ...\n\
-                     setp example.Pgain \[JOINT_0\]P\n\
+               No Tuneable items in ini file:\n\
+               $fname\n\n\
+               Sections supported are:\n\
+               \[JOINT_N\]name=value\n\
+               \[AXIS_L\]name=value\n\
+               \[TUNE\]name=value\n\n\
+               N is a  joint number\n\
+               L is an axis letter\n\n\
+               A Halfile must include a setp\n\
+               for a suppored section item\n\n\
+               Inifile example:\n\
+               \[JOINT_0\]\n\
+               PGAIN=1\n\
+               ...\n\
+               \[TUNE\]\n\
+               SPEED=100\n\
+               ...\n\n\
+               Halfile example:\n\
+               setp pid.0.Pgain \[JOINT_0\]PGAIN\n\
+               setp mux2.0.in1 \[TUNE\]SPEED\n\
+               ...\n\n\
                \n\
                " ] \
       -type ok \
@@ -274,15 +321,13 @@ proc incompatible_ini_file {} {
       exit 1
 } ;# incompatible_ini_file
 
-proc selectJoint {which} {
-    global jointentry
-    set jointentry $which
+proc selectTab {which} {
+    set ::curtab $which ;# current tab number
 }
 
 proc iniTuneButtonpress {which} {
-    global jointentry ininamearray
-    set labelname ".main.top.fpage$jointentry.next"
-    set basename ".main.top.fpage$jointentry.buttons"
+    set labelname ".main.top.fpage$::curtab.next"
+    set basename ".main.top.fpage$::curtab.buttons"
     # which can be (test, ok, cancel)
     switch -- $which {
         test {
@@ -312,35 +357,31 @@ proc iniTuneButtonpress {which} {
         default {
         }
     }
-    foreach name [set ininamearray($jointentry)] {
+    foreach name $::EC(ininamearray,$::curtab) {
         $labelname-$name configure -state $entrystate
     }
-    changeIni $which
-}
+    changeIni $which $::EC($::curtab,stanza)
+} ;# iniTuneButtonpress
 
-proc changeIni {how } {
-    global jointentry sectionarray ininamearray commandarray
-    global numjoints main initext
-    global af
-    for {set i 0} {$i<$numjoints} {incr i} {
-    }
+proc changeIni {how stanza} {
     switch -- $how {
         cancel {-}
         test {
-            set varnames [lindex [array get ininamearray $jointentry] end]
-            set varcommands [lindex [array get commandarray $jointentry] end]
-            set maxvarnum [llength $varnames]
+            set varnames    $::EC(ininamearray,$::curtab)
+            set varcommands $::EC(commandarray,$::curtab)
+            set maxvarnum   [llength $varnames]
             set swapvars $varnames
-            # handle each variable and values inside loop 
+            # handle each variable and values inside loop
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set var "joint$jointentry-[lindex $varnames $listnum]"
-                global $var $var-next
+                set vname   [lindex $varnames $listnum]
+                set var     ::EC(value,$::curtab,$vname)
+                set varnext ::EC(value,$::curtab,$vname,next)
                 # remove this item from the "to be swapped" list
                 set thisvar [lindex $swapvars 0]
                 set swapvars [lrange $swapvars 1 end]
                 # get the values
                 set oldval [set $var]
-                set newval [set $var-next]
+                set newval [set $varnext]
                 # get the parameter name string
                 set tmpcmd [lindex $varcommands $listnum]
                 # set new parameter value in hal
@@ -350,125 +391,109 @@ proc changeIni {how } {
                     # set the current value for display
                     set $var $newval
                     # set the tmp value as next in display
-                    set $var-next $oldval
+                    set $varnext $oldval
                 }
-            }        
+            }
         }
         ok {
-            set varnames [lindex [array get ininamearray $jointentry] end]
-            set varcommands [lindex [array get commandarray $jointentry] end]
-            set maxvarnum [llength $varnames]
-            # handle each variable and values inside loop 
+            set varnames    $::EC(ininamearray,$::curtab)
+            set varcommands $::EC(commandarray,$::curtab)
+            set maxvarnum   [llength $varnames]
+            # handle each variable and values inside loop
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set var "joint$jointentry-[lindex $varnames $listnum]"
-                global $var $var-next
+                set vname   [lindex $varnames $listnum]
+                set var     ::EC(value,$::curtab,$vname)
+                set varnext ::EC(value,$::curtab,$vname,next)
                 # get the values
                 set oldval [set $var]
                 # set the tmp value as next in display
-                set $var-next $oldval
-            }        
+                set $varnext $oldval
+            }
         }
         refresh {
-            set varnames [lindex [array get ininamearray $jointentry] end]
-            set varcommands [lindex [array get commandarray $jointentry] end]
-            set maxvarnum [llength $varnames]
-            # handle each variable and values inside loop 
+            set varnames    $::EC(ininamearray,$::curtab)
+            set varcommands $::EC(commandarray,$::curtab)
+            set maxvarnum   [llength $varnames]
+            # handle each variable and values inside loop
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set var "joint$jointentry-[lindex $varnames $listnum]"
-                global $var $var-next
+                set vname   [lindex $varnames $listnum]
+                set var     ::EC(value,$::curtab,$vname)
+                set varnext ::EC(value,$::curtab,$vname,next)
                 # get the parameter name string
                 set tmpcmd [lindex $varcommands $listnum]
                 # get parameter value from hal
                 set val [string trim [hal getp [halcmdSubstitute $tmpcmd]]]
-                set $var $val
-                set $var-next $val
+                set $var     $val
+                set $varnext $val
             }
         }
         quit {
-            # build a check for changed values here and ask
-            for {set j 0} {$j < $numjoints} {incr j} {
-                set oldvals [lindex [array get valarray $j] 1]
-                set cmds [lindex [array get commandarray $j] 1]
-                set k 0
-                foreach cmd $cmds {
-                    set tmpval [string trim [hal getp [halcmdSubstitute $cmd]]]
-                    set oldval [lindex $oldvals $k]
-                    if {$tmpval != $oldval} {
-                        set answer [tk_messageBox \
-                            -message [msgcat::mc "The HAL parameter \n \
-                            %s \n has changed. \n Really quit?" $cmd] \
-                            -type yesno -icon question] 
-                        switch -- $answer { \
-                                yes exit
-                                no {return}
-                        }
-                    
-                    }
-                    incr k
-                }
-            }
-            destroy .
+            puts stderr "Unexpected changeIni quit"
+            # was never called, removed deadcode here
         }
         default {}
     }
-}
+} ;# changeIni
 
 proc saveIni {which} {
-    global HALCMD thisconfigdir thisinifile
-    global sectionarray ininamearray commandarray HALCMD
-    global numjoints initext sectionlist
-    global af
-    
-    if {![file writable $thisinifile]} {
+    if {![file writable $::EC(thisinifile)]} {
         tk_messageBox -type ok -message [msgcat::mc "Not permitted to save here.\n\n \
-            You need to copy a configuration to your home directory and work there."] 
-        killHalConfig 
+            You need to copy a configuration to your home directory and work there."]
     }
     switch -- $which {
         tune {
-            for {set i 0} {$i<$numjoints} {incr i} {
-            set varnames [lindex [array get ininamearray $i] end]
-                set upvarnames [string toupper $varnames]
-                set varcommands [lindex [array get commandarray $i] end]
-                set maxvarnum [llength $varnames]
-                set sectname "JOINT_$i"
-                # get the name of the next ini section
-                set endsect [lindex $sectionlist [expr [lsearch -exact $sectionlist $sectname] + 1 ]]
-                set sectnum "[set sectionarray($sectname)]"
-                set nextsectnum "[set sectionarray($endsect)]"
-                $initext configure -state normal
-                for {set ind $sectnum} {$ind < $nextsectnum} {incr ind} {
-                    switch -- [$initext get $ind.0] {
-                        "#" {}
-                        default {
-                            set tmpstr [$initext get $ind.0 $ind.end]
-                            set tmpvar [lindex [split $tmpstr "="] 0]
-                            set tmpvar [string trim $tmpvar]
-                            set tmpindx [lsearch $upvarnames $tmpvar]
-                            if {$tmpindx != -1} {
-                                set cmd [lindex $varcommands $tmpindx]
-                                $initext mark set insert $ind.0
-                                set newval [string trim [hal getp [halcmdSubstitute $cmd]]]
-                                set tmptest [string first "e" $newval]
-                                if {[string first "e" $newval] > 1} {
-                                    set newval [format %f $newval]
-                                }
-                                regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
-                                $initext delete insert "insert lineend"
-                                $initext insert insert $newvar
+            update_initext $::EC($::curtab,stanza)
+            saveFile $::EC(thisinifile) $::EC(initext)
+        }
+        quit {destroy .; exit}
+    }
+} ;# saveIni
+
+proc update_initext {stanza} {
+    set anames [array names ::EC ininamearray,*]
+    foreach stanza $::EC(stanzas) {
+        for {set sfx 0} {$sfx < $::EC($stanza,howmany)} {incr sfx} {
+            set itag [lindex $::EC($stanza,suffixes) $sfx]
+            set tabno $::EC($stanza,$sfx,tabno)
+            if {[lsearch $anames ininamearray,$tabno] < 0} continue
+            set varnames    $::EC(ininamearray,$tabno)
+            set upvarnames  [string toupper $varnames]
+            set varcommands $::EC(commandarray,$tabno)
+            set maxvarnum   [llength $varnames]
+            set sectname    "${stanza}$itag"
+            # get the name of the next ini section
+            set endsect [lindex $::EC(sectionlist) \
+                [expr [lsearch -exact $::EC(sectionlist) $sectname] + 1 ]]
+            set sectnum "[set ::EC(sectionline,$sectname)]"
+            set nextsectnum "[set ::EC(sectionline,$endsect)]"
+            $::EC(initext) configure -state normal
+            for {set ind $sectnum} {$ind < $nextsectnum} {incr ind} {
+                switch -- [$::EC(initext) get $ind.0] {
+                    "#" {}
+                    default {
+                        set tmpstr [$::EC(initext) get $ind.0 $ind.end]
+                        set tmpvar [lindex [split $tmpstr "="] 0]
+                        set tmpvar [string trim $tmpvar]
+                        set tmpindx [lsearch $upvarnames $tmpvar]
+                        if {$tmpindx != -1} {
+                            set cmd [lindex $varcommands $tmpindx]
+                            $::EC(initext) mark set insert $ind.0
+                            set newval [string trim [hal getp [halcmdSubstitute $cmd]]]
+                            set tmptest [string first "e" $newval]
+                            if {[string first "e" $newval] > 1} {
+                                set newval [format %f $newval]
                             }
+                            regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
+                            $::EC(initext) delete insert "insert lineend"
+                            $::EC(initext) insert insert $newvar
                         }
                     }
                 }
-                $initext configure -state disabled
             }
-            saveFile $thisinifile $initext
-        }
-        quit {
-            killHalConfig
+            $::EC(initext) configure -state disabled
         }
     }
-}
+} ;# update_initext
 
 proc halcmdSubstitute {s} {
     set pat {\[([^]]+)\](\([^)]+\)|[^() \r\n\t]+)}
@@ -485,12 +510,12 @@ proc halcmdSubstitute {s} {
         regexp $pat $query - section var
         set var [regsub {\((.*)\)} $var {\1}]
         append result [emc_ini $var $section]
-        
+
         set pos [expr $end+1]
     }
     append result [string range $s $pos end]
     return $result
-}
+} ;# halcmdSubstitute
 
 proc saveFile {filename contents} {
     catch {file copy -force $filename $filename.bak}
@@ -518,8 +543,13 @@ proc saveFile {filename contents} {
             puts "I got a filename"
         }
         "." {
-            # this is a widget name so get contents
-            puts $fileout [$contents get 1.0 end]
+            # "." means this is a widget name so get contents
+            set lines [$contents count -lines 1.0 end]
+            # was: puts $fileout [$contents get 1.0 end]
+            # avoid writing empty lines at end of file:
+            incr lines -1
+            set last ${lines}.end
+            puts $fileout [$contents get 1.0 $last]
             catch {close $fileout}
         }
         default {
@@ -527,12 +557,9 @@ proc saveFile {filename contents} {
             puts $fileout $contents
             catch {close $fileout}
         }
-    }    
-}    
+    }
+} ;# saveFile
 
 makeIniTune
-$top raise page0
-
-
-
+$::EC(nbook) raise page$::EC(startpagenum)
 
