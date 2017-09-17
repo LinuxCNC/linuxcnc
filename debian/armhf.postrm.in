@@ -1,0 +1,5 @@
+
+# remove the whole dir and contents, uninstall will have left it
+# because the symlinks still exist
+
+rm -r -d -f /usr/lib/linuxcnc

@@ -193,6 +193,24 @@ endif
 	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-xenomai.install; \
 	fi
 
+	## only want this for armhf builds ##
+	if [ -f debian/platform_pc ] ; then \
+	    rm -f debian/platform_pc; \
+	else \
+	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
+	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
+	    cat debian/posix-postinst.add >> debian/machinekit-posix.postinst; \
+	    cat debian/rt-preempt-postinst.add >> debian/machinekit-rt-preempt.postinst; \
+	    cat debian/xenomai-postinst.add >> debian/machinekit-xenomai.postinst; \
+	    cat debian/armhf.postrm.in >> debian/machinekit-posix.postrm; \
+	    cat debian/armhf.postrm.in >> debian/machinekit-rt-preempt.postrm; \
+	    cat debian/armhf.postrm.in >> debian/machinekit-xenomai.postrm; \
+	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-posix.install; \
+	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-rt-preempt.install; \
+	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-xenomai.install; \
+	fi
+
+
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
 # Build architecture-independent files here.
