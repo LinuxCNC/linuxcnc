@@ -119,9 +119,16 @@ do_rt-preempt() {
 }
 
 do_xenomai() {
+    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
+	cat control.xenomai-stretch.in >> control
+	echo "debian/control:  added xenomai threads package for Stretch" >&2
+    else
+	cat control.xenomai.in >> control
+	echo "debian/control:  added xenomai threads package for Wheezy/Jessie" >&2
+    fi
+
     # Be sure the -dev files only appear once
     BUILD_DEPS="${BUILD_DEPS/libxenomai-dev, /}libxenomai-dev, "
-    cat control.xenomai.in >> control
     echo "debian/control:  added Xenomai (userland) threads package" \
 	"with Build-Depends:" >&2
     echo "    libxenomai-dev" >&2

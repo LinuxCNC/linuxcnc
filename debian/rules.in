@@ -197,14 +197,17 @@ endif
 	if [ -f debian/platform_pc ] ; then \
 	    rm -f debian/platform_pc; \
 	else \
+	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
+	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
+	    cat debian/posix-postinst.add >> debian/machinekit-posix.postinst; \
+	    cat debian/rt-preempt-postinst.add >> debian/machinekit-rt-preempt.postinst; \
+	    cat debian/xenomai-postinst.add >> debian/machinekit-xenomai.postinst; \
+	    cat debian/armhf.postrm.in >> debian/machinekit-posix.postrm; \
+	    cat debian/armhf.postrm.in >> debian/machinekit-rt-preempt.postrm; \
+	    cat debian/armhf.postrm.in >> debian/machinekit-xenomai.postrm; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-posix.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-rt-preempt.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-xenomai.install; \
-	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
-	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
-	    cp debian/pru-postinst.in debian/machinekit-posix.postinst; \
-	    cp debian/pru-postinst.in debian/machinekit-rt-preempt.postinst; \
-	    cp debian/pru-postinst.in debian/machinekit-xenomai.postinst; \
 	fi
 
 
