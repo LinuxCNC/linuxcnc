@@ -1,5 +1,14 @@
 ifdef TARGET_PLATFORM_BEAGLEBONE
 
+# These are actually the same location but the package
+# build needs to set a path relative to the Makefile,
+# from whence it will be copied to debian/tmp
+ifeq ($(RUN_IN_PLACE),yes)
+PRUBINDIR := $(EMC2_HOME)/rtlib/prubin
+else
+PRUBINDIR := ../rtlib/prubin
+endif
+
 # support for ARM335x PRU (Programmable Realtime Unit) components and
 SUPPORT_DIR := hal/support
 PRU_SRC_DIR := hal/drivers/hal_pru_generic
@@ -10,17 +19,10 @@ PRU_MAINS   := pru_generic pru_decamux
 PRU_FILES := $(wildcard $(PRU_SRC_DIR)/*.p)
 
 # .bin file produced by PASM -b goes in rtlib
-PRU_BIN := $(patsubst %,$(RTLIBDIR)/%.bin,$(PRU_MAINS))
-PRU_DBG := $(patsubst %,$(RTLIBDIR)/%.dbg,$(PRU_MAINS))
+PRU_BIN := $(patsubst %,$(PRUBINDIR)/%.bin,$(PRU_MAINS))
+PRU_DBG := $(patsubst %,$(PRUBINDIR)/%.dbg,$(PRU_MAINS))
 
-# .bin files are targets
-# Adding to TARGETS builds the PRU code once and puts it in the RTLIBDIR for
-# the first defined RTOS flavor (typically posix)
-#TARGETS +=  $(PRU_BIN) $(PRU_DBG)
-# Only build PRU code for the Xenomai RTOS flavor
-ifeq ($(threads),xenomai) 
-modules : $(PRU_BIN) $(PRU_DBG)
-endif
+modules : $(PRU_BIN) $(PRU_DBG) 
 
 # .bin output, create listing
 PASM_BINFLAGS := -b -L -d
@@ -28,7 +30,7 @@ PASM_BINFLAGS := -b -L -d
 # conversion rule for the above
 # assemble .p  into .bin object files
 
-$(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PASM) 
+$(PRUBINDIR)/%.bin $(PRUBINDIR)/%.dbg: $(PASM) 
 
 
 PRU_DEPS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.d,$(PRU_MAINS)))
@@ -41,14 +43,14 @@ $(PRU_DEPS): objects/%.d : %.p
 	$(Q)cpp -x c -MM -MG -MT objects/$(patsubst %.p,%.bin,$<) -o $@ $<
 
 objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM)
-	$(Q)mkdir -p $(RTLIBDIR)
+	$(Q)mkdir -p $(PRUBINDIR)
 	$(ECHO) Assembling PRU code $@ 
 	$(Q)$(PASM) $(PASM_BINFLAGS) $< $(basename $@)
 
-$(PRU_BIN): $(RTLIBDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
-	cp $^ $@
+$(PRU_BIN): $(PRUBINDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
+	cp -f $^ $@
 
-$(PRU_DBG): $(RTLIBDIR)/%.dbg : objects/$(PRU_SRC_DIR)/%.dbg
-	cp $^ $@
+$(PRU_DBG): $(PRUBINDIR)/%.dbg : objects/$(PRU_SRC_DIR)/%.dbg
+	cp -f $^ $@
 
 endif
