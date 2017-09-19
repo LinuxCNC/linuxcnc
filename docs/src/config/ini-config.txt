@@ -899,12 +899,13 @@ Typically (but not always):
     degrees. Positive Numbers will move the axis in a positive direction and
     negative numbers will move the axis in the negative direction.
 
-* 'LOCKING_INDEXER = 1' - When this is set to 1 a G0 move for this axis will
+* 'LOCKING_INDEXER = 1' - When this is set to 1, a G0 move for this axis will
     initiate an unlock with axis.N.unlock pin then wait for the
     axis.N.is-unlocked pin then move the axis at the rapid rate for that axis.
-    After the move the axis.N.unlock will be false and motion will wait for
+    After the move, the axis.N.unlock will be false and motion will wait for
     axis.N.is-unlocked to go false. Moving with other axes is not allowed when
-    moving a locked rotary axis.
+    moving a locked rotary axis.  If motion is disabled (estop for instance),
+    while the axis.N.unlock pin is set, the axis.N.unlock pin is reset to false.
 
 * 'UNITS = INCH' -
     (((UNITS))) If specified, this setting overrides the related [TRAJ] UNITS setting.

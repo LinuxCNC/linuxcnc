@@ -139,6 +139,10 @@ static int setServoCycleTime(double secs);
 /***********************************************************************
 *                     PUBLIC FUNCTION CODE                             *
 ************************************************************************/
+int joint_is_lockable(int joint_num) {
+    // this branch uses hardcoded joint_num for rotaries
+    return ((joint_num >=3 && joint_num <= 5));
+}
 
 void emcmot_config_change(void)
 {
@@ -800,13 +804,14 @@ static int export_joint(int num, joint_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    if(num >=3 && num <= 5) {
-        // for rotaries only...
+
+    if (joint_is_lockable(num)) {
         retval = hal_pin_bit_newf(HAL_OUT, &(addr->unlock), mot_comp_id, "axis.%d.unlock", num);
         if (retval != 0) return retval;
         retval = hal_pin_bit_newf(HAL_IN, &(addr->is_unlocked), mot_comp_id, "axis.%d.is-unlocked", num);
         if (retval != 0) return retval;
     }
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
