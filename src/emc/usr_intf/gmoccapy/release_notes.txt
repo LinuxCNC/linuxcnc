@@ -1,3 +1,8 @@
+ver 2.3.1.7
+- minor bug in self periodic, forgot to change an AUDIO_AVIABLE setting
+- some work on tool handling, i.e. not possible to delete tool in spindle
+  any more and after applying changes the tool in spindle will be marked
+
 ver 2.3.1.6
 - solved the bug, that the decimal separator was changed after starting the gui
   the was related to the import of gst, as this import does change the value of

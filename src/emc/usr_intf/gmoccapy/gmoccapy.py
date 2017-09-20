@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.6"
+_RELEASE = " 2.3.1.7"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1583,7 +1583,7 @@ class gmoccapy(object):
             text = _("Unknown error type and no error text given")
         self.notification.add_message(text, icon)
 
-        if self._AUDIO_AVAILABLE:
+        if _AUDIO_AVAILABLE:
             if kind == 1 or kind == 11:
                 self.audio.set_sound(self.error_sound)
             else:
@@ -3880,16 +3880,26 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
+        act_tool = self.stat.tool_in_spindle
+        if act_tool == self.widgets.tooledit1.get_selected_tool():
+            message = _("You are trying to delete the tool mounted in the spindle\n")
+            message += _("This is not allowed, please change tool prior to delete it")
+            dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
+            return
+
         self.widgets.tooledit1.delete(None)
+        self.widgets.tooledit1.set_selected_tool(act_tool)
 
     def on_btn_add_tool_clicked(self, widget, data=None):
         self.widgets.tooledit1.add(None)
 
     def on_btn_reload_tooltable_clicked(self, widget, data=None):
         self.widgets.tooledit1.reload(None)
+        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_apply_tool_changes_clicked(self, widget, data=None):
         self.widgets.tooledit1.save(None)
+        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
