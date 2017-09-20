@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.4"
+_RELEASE = " 2.3.1.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -498,11 +498,6 @@ class gmoccapy(object):
 
         self.widgets.adj_start_spindle_RPM.set_value(self.spindle_start_rpm)
         self.widgets.gcode_view.set_sensitive(False)
-        self.tooledit_btn_delete_tool = self.widgets.tooledit1.wTree.get_object("delete")
-        self.tooledit_btn_add_tool = self.widgets.tooledit1.wTree.get_object("add")
-        self.tooledit_btn_reload_tool = self.widgets.tooledit1.wTree.get_object("reload")
-        self.tooledit_btn_apply_tool = self.widgets.tooledit1.wTree.get_object("apply")
-        self.widgets.tooledit1.hide_buttonbox(True)
         self.widgets.ntb_user_tabs.remove_page(0)
         self._add_macro_button()
 
@@ -1026,20 +1021,10 @@ class gmoccapy(object):
 # Dynamic tabs handling End
 # =============================================================
 
-    # first we hide all the axis columns the unhide the ones we want
-    # if it's a lathe config we show lathe related columns
     # and we load the tooltable data
     def _init_tooleditor(self):
-        self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
-        for axis in self.axis_list:
-            self.widgets.tooledit1.set_visible("%s" % axis, True)
 
-        if self.lathe_mode:
-            self.widgets.tooledit1.set_visible("ijq", True)
-            if not self.get_ini_info.get_lathe_wear_offsets():
-                # hide the wear offset tabs
-                self.widgets.tooledit1.set_lathe_display(False)
-        # get the path to the tool table
+       # get the path to the tool table
         tooltable = self.get_ini_info.get_toolfile()
         if not tooltable:
             print(_("**** GMOCCAPY ERROR ****"))
@@ -1047,6 +1032,24 @@ class gmoccapy(object):
             sys.exit()
         toolfile = os.path.join(CONFIGPATH, tooltable)
         self.widgets.tooledit1.set_filename(toolfile)
+
+        # first we hide all the axis columns the unhide the ones we want
+        self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
+        for axis in self.axis_list:
+            self.widgets.tooledit1.set_visible("%s" % axis, True)
+
+        # if it's a lathe config we show lathe related columns
+        if self.lathe_mode:
+            self.widgets.tooledit1.set_visible("ijq", True)
+            if not self.get_ini_info.get_lathe_wear_offsets():
+                # hide the wear offset tabs
+                self.widgets.tooledit1.set_lathe_display(False)
+
+        self.tooledit_btn_delete_tool = self.widgets.tooledit1.wTree.get_object("delete")
+        self.tooledit_btn_add_tool = self.widgets.tooledit1.wTree.get_object("add")
+        self.tooledit_btn_reload_tool = self.widgets.tooledit1.wTree.get_object("reload")
+        self.tooledit_btn_apply_tool = self.widgets.tooledit1.wTree.get_object("apply")
+        self.widgets.tooledit1.hide_buttonbox(True)
 
     def _init_themes(self):
         # If there are themes then add them to combo box

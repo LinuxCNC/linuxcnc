@@ -1,3 +1,9 @@
+ver 2.3.1.5
+- some code clearance, as the tooleditor stuff was reparted on several places
+  Now it is together in _init_tooleditor.
+  This is the begining of finding the bug of decimal separator handling
+  Push reload will replace the German "," with the "." Why = ?????
+
 ver 2.3.1.4
 - if no sound is available make the sound selecting widgets on the settings page
   not sensitive, Thanks to Rene for reporting this misbehavior
