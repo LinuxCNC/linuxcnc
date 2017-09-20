@@ -320,7 +320,7 @@ class Mklauncher(object):
                     stdout_index = len(launcher.output)
                     while True:
                         try:
-                            line = process.stdout.readline()
+                            line = process.stdout.read()
                             stdoutLine = StdoutLine()
                             stdoutLine.index = stdout_index
                             stdoutLine.line = line
