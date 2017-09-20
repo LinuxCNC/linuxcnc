@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.5"
+_RELEASE = " 2.3.1.6"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -114,13 +114,18 @@ sys.path.insert(0, LIBDIR)
 
 # as now we know the libdir path we can import our own modules
 from gmoccapy import widgets       # a class to handle the widgets
-# moved to _init_audio to check if gst can be imported
-# from gmoccapy import player        # a class to handle sounds
 from gmoccapy import notification  # this is the module we use for our error handling
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs       # this takes the code of all our dialogs
 
+_AUDIO_AVAILABLE = False
+try:
+    import gst
+    from gmoccapy import player        # a class to handle sounds
+    _AUDIO_AVAILABLE = True
+except:
+    pass
 # set up paths to files, part two
 CONFIGPATH = os.environ['CONFIG_DIR']
 DATADIR = os.path.join(BASE, "share", "gmoccapy")
@@ -1045,10 +1050,6 @@ class gmoccapy(object):
                 # hide the wear offset tabs
                 self.widgets.tooledit1.set_lathe_display(False)
 
-        self.tooledit_btn_delete_tool = self.widgets.tooledit1.wTree.get_object("delete")
-        self.tooledit_btn_add_tool = self.widgets.tooledit1.wTree.get_object("add")
-        self.tooledit_btn_reload_tool = self.widgets.tooledit1.wTree.get_object("reload")
-        self.tooledit_btn_apply_tool = self.widgets.tooledit1.wTree.get_object("apply")
         self.widgets.tooledit1.hide_buttonbox(True)
 
     def _init_themes(self):
@@ -1090,20 +1091,10 @@ class gmoccapy(object):
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
-        self._AUDIO_AVAILABLE = False
-        try:
-            import gst
-            from gmoccapy import player        # a class to handle sounds
-            self._AUDIO_AVAILABLE = True
+        if _AUDIO_AVAILABLE:
             print (_("**** GMOCCAPY INFO ****"))
             print (_("**** audio available! ****"))
-        except:
-            print (_("**** GMOCCAPY INFO ****"))
-            print (_("**** no audio available! ****"))
-            print(_("**** PYGST libray not installed? ****"))
-            print(_("**** is python-gstX.XX installed? ****"))
 
-        if self._AUDIO_AVAILABLE:
             # the sounds to play if an error or message rises
             self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
             self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
@@ -1114,6 +1105,11 @@ class gmoccapy(object):
             self.widgets.audio_alert_chooser.set_filename(self.alert_sound)
             self.widgets.audio_error_chooser.set_filename(self.error_sound)
         else:
+            print (_("**** GMOCCAPY INFO ****"))
+            print (_("**** no audio available! ****"))
+            print(_("**** PYGST libray not installed? ****"))
+            print(_("**** is python-gstX.XX installed? ****"))
+
             self.widgets.audio_alert_chooser.set_sensitive(False)
             self.widgets.audio_error_chooser.set_sensitive(False)
 
@@ -3884,17 +3880,16 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        self.tooledit_btn_delete_tool.emit("clicked")
+        self.widgets.tooledit1.delete(None)
 
     def on_btn_add_tool_clicked(self, widget, data=None):
-        self.tooledit_btn_add_tool.emit("clicked")
+        self.widgets.tooledit1.add(None)
 
     def on_btn_reload_tooltable_clicked(self, widget, data=None):
-        self.tooledit_btn_reload_tool.emit("clicked")
+        self.widgets.tooledit1.reload(None)
 
     def on_btn_apply_tool_changes_clicked(self, widget, data=None):
-        self.tooledit_btn_apply_tool.emit("clicked")
-        tool = self.widgets.tooledit1.get_selected_tool()
+        self.widgets.tooledit1.save(None)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():

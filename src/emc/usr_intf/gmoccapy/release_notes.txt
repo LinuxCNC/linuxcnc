@@ -1,3 +1,9 @@
+ver 2.3.1.6
+- solved the bug, that the decimal separator was changed after starting the gui
+  the was related to the import of gst, as this import does change the value of
+  locale.localeconv()["decimal_point"]
+  I do not know why, but the import of gst prior to locale settings solves the problem
+
 ver 2.3.1.5
 - some code clearance, as the tooleditor stuff was reparted on several places
   Now it is together in _init_tooleditor.
