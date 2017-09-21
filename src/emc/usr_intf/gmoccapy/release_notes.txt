@@ -1,3 +1,10 @@
+ver 2.3.1.8
+- made dialogs a Class and enable gobject signals with the dialogs
+  Now a sound will be played if a dialog pops up.
+
+  This is a first step to modify all the handling within the GUI to
+  make most parts react to signal and slots.
+
 ver 2.3.1.7
 - minor bug in self periodic, forgot to change an AUDIO_AVIABLE setting
 - some work on tool handling, i.e. not possible to delete tool in spindle
