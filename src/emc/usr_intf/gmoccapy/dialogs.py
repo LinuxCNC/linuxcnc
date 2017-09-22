@@ -34,7 +34,7 @@ class Dialogs(gobject.GObject):
     __gtype_name__ = 'Dialogs'
 
     __gsignals__ = {
-                'play_sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+                'play_sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
                }
 
     def __init__(self):
