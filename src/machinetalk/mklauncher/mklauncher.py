@@ -162,6 +162,7 @@ class Mklauncher(object):
                 if INI_NAME not in files:
                     continue
 
+                root = os.path.abspath(os.path.expanduser(root))
                 iniFile = os.path.join(root, INI_NAME)
                 cfg = configparser.ConfigParser(CONFIG_DEFAULTS)
                 cfg.read(iniFile)
