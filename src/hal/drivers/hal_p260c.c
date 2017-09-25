@@ -33,7 +33,7 @@
 #define MODNAME "hal_p260c"
 
 /* module information */
-MODULE_AUTHOR("Colin Whittaker");
+MODULE_AUTHOR("Colin Whittaker for PMC Stone, Inc.");
 MODULE_DESCRIPTION("Driver for P260C boards in a RS-485 string. Version 1.2");
 MODULE_LICENSE("GPL");
 
