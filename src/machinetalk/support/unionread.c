@@ -57,7 +57,7 @@ bool print_container(pb_istream_t *stream)
     if (!pb_decode_varint(stream, &length)) {
 	printf("Parsing field#2 failed: %s\n", PB_GET_ERROR(stream));
     }
-    printf("submessage length=%lu\n", length);
+    printf("submessage length=%llu\n", length);
 
     printf("submessage: %s NML; %s Motion\n",
 	   is_NML_container(tag) ? "is" : "not",
