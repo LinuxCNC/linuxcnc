@@ -195,6 +195,12 @@ static int check_axis_constraint(double target, int id, char *move_type,
     double nl = axes[axis_no].min_pos_limit;
     double pl = axes[axis_no].max_pos_limit;
 
+    double eps = 1e-308;
+
+    if (    (fabs(target) < eps)
+         && (fabs(axes[axis_no].min_pos_limit) < eps)
+         && (fabs(axes[axis_no].max_pos_limit) < eps) ) { return 1;}
+
     if(target < nl) {
         in_range = 0;
         reportError(_("%s move on line %d would exceed %c's %s limit"),
