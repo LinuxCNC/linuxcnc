@@ -34,17 +34,17 @@ shift $(($OPTIND - 1))
 # Set build parameters
 
 case ${TAG} in
-    amd64)
+    amd64*)
 	BUILD_OPTS='-b'                  # Build all binary packages
 	RUN_TESTS='runtests tests'       # Run tests on build arch
 	;;
-    i386)                                # Machine arch: i386
+    i386*)                               # Machine arch: i386
 	BUILD_OPTS="-a i386"             # - Set machine arch
 	;;&
-    armhf|raspbian)                      # Machine arch: armhf
+    armhf*|raspbian*)                    # Machine arch: armhf
 	BUILD_OPTS="-a armhf"            # - Set machine arch
 	;;&
-    i386|armhf|raspbian)                 # Cross-compile/foreign arch
+    i386*|armhf*|raspbian*)              # Cross-compile/foreign arch
 	BUILD_OPTS+=" -B"                # - Only build arch binary packages
 	BUILD_OPTS+=" -d"                # - Root fs missing build deps; force
 	RUN_TESTS='true'                 # - Don't run tests
