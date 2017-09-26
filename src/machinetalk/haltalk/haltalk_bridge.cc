@@ -142,11 +142,11 @@ static int bridge_fsm(htself_t *self, bridgeevent_t event)
     case BSTATE_RETRY_PROBE:
 
     case BSTATE_CONNECT:
-	bridge->z_bridge = zsocket_new (self->z_context, ZMQ_XSUB);
-	retval = zsocket_connect(bridge->z_bridge, self->cfg->bridgecomp_updateuri);
+	bridge->z_bridge = zsock_new (self->z_context, ZMQ_XSUB);
+	retval = zsock_connect(bridge->z_bridge, self->cfg->bridgecomp_updateuri);
 	assert (retval == 0);
-	bridge->z_bridge_cmd = zsocket_new (self->z_context, ZMQ_DEALER);
-	retval = zsocket_connect(bridge->z_bridge_cmd, self->cfg->bridgecomp_cmduri);
+	bridge->z_bridge_cmd = zsock_new (self->z_context, ZMQ_DEALER);
+	retval = zsock_connect(bridge->z_bridge_cmd, self->cfg->bridgecomp_cmduri);
 	assert (retval == 0);
 	break;
 

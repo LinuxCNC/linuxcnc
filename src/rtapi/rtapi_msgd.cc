@@ -984,15 +984,12 @@ int main(int argc, char **argv)
 	memset(argv[i], '\0', strlen(argv[i]));
 
 
-    // suppress default handling of signals in zctx_new()
+    // suppress default handling of signals in zsock_new()
     // since we're using signalfd()
     zsys_handler_set(NULL);
 
     netopts.rundir = RUNDIR;
     netopts.rtapi_instance = rtapi_instance;
-
-    netopts.z_context = zctx_new ();
-    assert(netopts.z_context);
 
     netopts.z_loop = zloop_new ();
     assert(netopts.z_loop);
@@ -1102,10 +1099,10 @@ int main(int argc, char **argv)
     logpub.port = port;
     logpub.dnssd_subtype = LOG_DNSSD_SUBTYPE;
     logpub.tag = "log";
-    logpub.socket = zsocket_new (netopts.z_context, ZMQ_XPUB);
+    logpub.socket = zsock_new (ZMQ_XPUB);
 
-    zsocket_set_xpub_verbose (logpub.socket, 1);  // enable reception
-    zsocket_set_linger(logpub.socket, 0);
+    zsock_set_xpub_verbose (logpub.socket, 1);  // enable reception
+    zsock_set_linger(logpub.socket, 0);
 
     if (mk_bindsocket(&netopts, &logpub))
 	return -1;
@@ -1129,7 +1126,7 @@ int main(int argc, char **argv)
 
     do {
 	retval = zloop_start(netopts.z_loop);
-    } while (!(retval || zctx_interrupted));
+    } while (!(retval || zsys_interrupted));
 
     // stop the service announcement
     mk_withdraw(&logpub);
@@ -1139,7 +1136,7 @@ int main(int argc, char **argv)
         avahi_czmq_poll_free(netopts.av_loop);
 
     // shutdown zmq context
-    zctx_destroy(&netopts.z_context);
+    zsock_destroy(&logpub.socket);
 
     cleanup_actions();
     closelog();

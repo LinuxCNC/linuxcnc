@@ -1291,17 +1291,16 @@ static int mainloop(size_t  argc, char **argv)
 	assert(signal_fd > -1);
     }
 
-    // suppress default handling of signals in zctx_new()
+    // suppress default handling of signals in zsock_new()
     // since we're using signalfd()
     zsys_handler_set(NULL);
 
-    zctx_t *z_context = zctx_new ();
-    void *z_command = zsocket_new (z_context, ZMQ_ROUTER);
+    zsock_t *z_command = zsock_new (ZMQ_ROUTER);
     {
 	char z_ident[30];
 	snprintf(z_ident, sizeof(z_ident), "rtapi_app%d", getpid());
-	zsocket_set_identity(z_command, z_ident);
-	zsocket_set_linger(z_command, 1000); // wait for last reply to drain
+	zsock_set_identity(z_command, z_ident);
+	zsock_set_linger(z_command, 1000); // wait for last reply to drain
     }
 
 #ifdef NOTYET
@@ -1324,13 +1323,13 @@ static int mainloop(size_t  argc, char **argv)
 	    z_uri = strdup(uri);
 	}
 
-	if ((z_port = zsocket_bind(z_command, z_uri)) == -1) {
+	if ((z_port = zsock_bind(z_command, z_uri)) == -1) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,  "cannot bind '%s' - %s\n",
 			    z_uri, strerror(errno));
 	    global_data->rtapi_app_pid = 0;
 	    exit(EXIT_FAILURE);
 	} else {
-	    z_uri_dsn = zsocket_last_endpoint(z_command);
+	    z_uri_dsn = zsock_last_endpoint(z_command);
 	    rtapi_print_msg(RTAPI_MSG_DBG,  "rtapi_app: command RPC socket on '%s'\n",
 			    z_uri_dsn);
 	}
@@ -1341,7 +1340,7 @@ static int mainloop(size_t  argc, char **argv)
 	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
 		 RUNDIR, instance_id, RTAPIMOD, service_uuid);
 	mode_t prev = umask(S_IROTH | S_IWOTH | S_IXOTH);
-	if ((z_port = zsocket_bind(z_command, "%s", uri )) < 0) {
+	if ((z_port = zsock_bind(z_command, "%s", uri )) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,  "cannot bind IPC socket '%s' - %s\n",
 			    uri, strerror(errno));
 	    global_data->rtapi_app_pid = 0;
@@ -1412,7 +1411,7 @@ static int mainloop(size_t  argc, char **argv)
     zeroconf_service_withdraw(rtapi_publisher);
 
     // shutdown zmq context
-    zctx_destroy(&z_context);
+    zsock_destroy(&z_command);
 
     // exiting, so deregister our pid, which will make rtapi_msgd exit too
     global_data->rtapi_app_pid = 0;

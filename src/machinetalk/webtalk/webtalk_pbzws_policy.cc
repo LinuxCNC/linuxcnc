@@ -114,21 +114,21 @@ pbzws_policy(wtself_t *server,
 	switch (type) {
 	case zws::MT_SOCKET:
 	    wss->socket_type = self->pzf->stype();
-	    wss->socket = zsocket_new (server->ctx, wss->socket_type);
+	    wss->socket = zsock_new (server->ctx, wss->socket_type);
 	    if (self->cfg->ipv6) {
-		zsocket_set_ipv6 (wss->socket, 1);
-		assert (zsocket_ipv6 (wss->socket) == 1);
+		zsock_set_ipv6 (wss->socket, 1);
+		assert (zsock_ipv6 (wss->socket) == 1);
 	    }
 	    switch(self->pzf->sec()) {
 	    case zws::SM_ZMQ_PLAIN:
-		zsocket_set_plain_username (wss->socket, self->pzf->user().c_str());
-		zsocket_set_plain_password (wss->socket, self->pzf->passwd().c_str());
+		zsock_set_plain_username (wss->socket, self->pzf->user().c_str());
+		zsock_set_plain_password (wss->socket, self->pzf->passwd().c_str());
 		break;
 	    default:
 		break;
 	    }
 	    if (self->pzf->has_identity())
-		zsocket_set_identity (wss->socket, self->pzf->identity().c_str());
+		zsock_set_identity (wss->socket, self->pzf->identity().c_str());
 
 	    register_zmq_poller(wss);
 	    // fall through
@@ -136,9 +136,9 @@ pbzws_policy(wtself_t *server,
 	case zws::MT_CONNECT:
 	    for (int i = 0; i < self->pzf->uri_size(); i++) {
 		const char *uri = self->pzf->uri(i).c_str();
-		if (zsocket_connect (wss->socket, uri) < 0) {
+		if (zsock_connect (wss->socket, uri) < 0) {
 		    error_tows(self, "connect: endpoint '%s' invalid (%s socket)",
-			       uri, zsocket_type_str (self->wss->socket));
+			       uri, zsock_type_str (self->wss->socket));
 		    return -1;
 		}
 	    }
@@ -147,10 +147,10 @@ pbzws_policy(wtself_t *server,
 	case zws::MT_DISCONNECT:
 	    for (int i = 0; i < self->pzf->uri_size(); i++) {
 		const char *uri = self->pzf->uri(i).c_str();
-		if (zsocket_connect (wss->socket, uri) < 0) {
+		if (zsock_connect (wss->socket, uri) < 0) {
 		    error_tows(self,
 			       "disconnect: endpoint '%s' invalid or operation not supported (%s socket)",
-			       uri, zsocket_type_str (self->wss->socket));
+			       uri, zsock_type_str (self->wss->socket));
 		    return -1;
 		}
 	    }
@@ -163,7 +163,7 @@ pbzws_policy(wtself_t *server,
 	case zws::MT_PAYLOAD:
 	    if (payload_fromws(self->pzf, wss->socket)) {
 		error_tows(self, "sending payload to type %s socket failed",
-			   zsocket_type_str (self->wss->socket));
+			   zsock_type_str (self->wss->socket));
 		return -1;
 	    }
 	    break;
@@ -336,9 +336,9 @@ static int handle_subscription(struct pbzws_session *self, zws::frameType type)
 	switch (self->wss->socket_type) {
 	case ZMQ_SUB:
 	    if (type == zws::MT_SUBSCRIBE)
-		zsocket_set_subscribe (self->wss->socket, topic);
+		zsock_set_subscribe (self->wss->socket, topic);
 	    else
-		zsocket_set_unsubscribe (self->wss->socket, topic);
+		zsock_set_unsubscribe (self->wss->socket, topic);
 	    break;
 	case ZMQ_XSUB:
 	    if (type == zws::MT_SUBSCRIBE)
@@ -353,7 +353,7 @@ static int handle_subscription(struct pbzws_session *self, zws::frameType type)
 	default:
 	    error_tows(self, "cant %ssubscribe on a type %s socket",
 		       type == zws::MT_SUBSCRIBE ? "":"un",
-		       zsocket_type_str (self->wss->socket));
+		       zsock_type_str (self->wss->socket));
 	    return -1;
 	}
     }

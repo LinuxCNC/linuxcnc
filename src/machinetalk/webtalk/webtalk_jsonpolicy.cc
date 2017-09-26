@@ -71,11 +71,11 @@ json_policy(wtself_t *self,
 			for (int i = 0; i < c.note_size(); i++) {
 				if (c.type() == machinetalk::MT_ZMQ_SUBSCRIBE) {
 				lwsl_fromws("%s: subscribe to '%s'\n", __func__, c.note(i).c_str());
-				zsocket_set_subscribe (wss->socket, c.note(i).c_str());
+				zsock_set_subscribe (wss->socket, c.note(i).c_str());
 			    }
 			    if (c.type() == machinetalk::MT_ZMQ_UNSUBSCRIBE) {
 				lwsl_fromws("%s: unsubscribe from '%s'\n", __func__, c.note(i).c_str());
-				zsocket_set_unsubscribe (wss->socket, c.note(i).c_str());
+				zsock_set_unsubscribe (wss->socket, c.note(i).c_str());
 			    }
 			}
 			c.Clear();

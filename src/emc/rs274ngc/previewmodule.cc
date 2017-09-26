@@ -35,8 +35,7 @@ using namespace google::protobuf;
 #include "czmq.h"
 #include "pbutil.hh" // hal/haltalk
 
-static zctx_t *z_context;
-static void *z_preview, *z_status;  // sockets
+static zsock_t *z_preview, *z_status;
 static const char *istat_topic = "status";
 static int batch_limit = 100;
 static const char *p_client = "preview"; //NULL; // single client for now
@@ -104,9 +103,6 @@ static void preview_end()
 
 static int z_init(void)
 {
-    if (!z_context)
-	z_context = zctx_new ();
-
     // const char *uri = getenv("PREVIEW_URI");
     // if (uri) z_preview_uri = uri;
     // uri = getenv("STATUS_URI");
@@ -120,16 +116,16 @@ static int z_init(void)
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 
-    z_preview = zsocket_new (z_context, ZMQ_XPUB);
+    z_preview = zsock_new (ZMQ_XPUB);
 #if 0
-    rc = zsocket_bind(z_preview, z_preview_uri);
+    rc = zsock_bind(z_preview, z_preview_uri);
     assert (rc != 0);
 #endif
 
-    z_status = zsocket_new (z_context, ZMQ_XPUB);
+    z_status = zsock_new (ZMQ_XPUB);
     assert(z_status);
 #if 0 
-    rc = zsocket_bind(z_status, z_status_uri);
+    rc = zsock_bind(z_status, z_status_uri);
     assert (rc != 0);
 
 #endif
@@ -149,7 +145,8 @@ static void z_shutdown(void)
         fprintf(stderr, "preview: %zu containers %zu preview msgs %zu bytes  avg=%zu bytes/container\n",
             n_containers, n_messages, n_bytes, n_bytes/n_containers);
     }
-    zctx_destroy(&z_context);
+    zsock_destroy(&z_preview);
+    zsock_destroy(&z_status);
 }
 
 char _parameter_file_name[LINELEN];
@@ -1306,13 +1303,13 @@ static PyObject *bind_sockets(PyObject *self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "ss", &preview_uri, &status_uri))
         return NULL;
     int rc;
-    rc = zsocket_bind(z_preview, "%s", preview_uri);
+    rc = zsock_bind(z_preview, "%s", preview_uri);
     if(!rc) {
 	PyErr_Format(PyExc_RuntimeError,
 		     "binding preview socket to '%s' failed", preview_uri);
 	return NULL;
     }
-    rc = zsocket_bind(z_status, "%s", status_uri);
+    rc = zsock_bind(z_status, "%s", status_uri);
     if(!rc) {
 	PyErr_Format(PyExc_RuntimeError,
 		     "binding status socket to '%s' failed", status_uri);
@@ -1321,8 +1318,8 @@ static PyObject *bind_sockets(PyObject *self, PyObject *args) {
     // usleep(300 *1000); // avoid slow joiner syndrome
 
     return Py_BuildValue("(ss)",
-			 zsocket_last_endpoint(z_preview),
-			 zsocket_last_endpoint(z_status));
+			 zsock_last_endpoint(z_preview),
+			 zsock_last_endpoint(z_status));
 }
 
 static PyMethodDef gcode_methods[] = {
