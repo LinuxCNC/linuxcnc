@@ -1,3 +1,9 @@
+ver 2.3.1.9
+- dialogs, changed entry_dialog check for integer before show_all
+  This was only a cosmetic change
+- Solved bug in lathe mode, changing the size of DRO, did not 
+  change the Y DRO (D). Thanks to Partic T for reporting
+
 ver 2.3.1.8
 - made dialogs a Class and enable gobject signals with the dialogs
   Now a sound will be played if a dialog pops up.

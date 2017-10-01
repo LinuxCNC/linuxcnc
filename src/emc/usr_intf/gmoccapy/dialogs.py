@@ -89,11 +89,11 @@ class Dialogs(gobject.GObject):
         calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.RESPONSE_ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(True)
-        dialog.show_all()
         self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button
             calc.num_pad_only(True)
             calc.integer_entry_only(True)
+        dialog.show_all()
         response = dialog.run()
         value = calc.get_value()
         dialog.destroy()

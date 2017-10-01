@@ -72,7 +72,7 @@ sys.excepthook = excepthook
 debug = False
 
 if debug:
-    pydevdir = '/home/emcmesa/liclipse/plugins/org.python.pydev_4.5.4.201601292050/pysrc'
+    pydevdir = '/home/gmoccapy/Aptana_Studio_3/plugins/org.python.pydev_4.5.5.201603221110/pysrc'
 
     if os.path.isdir(pydevdir):  # and  'emctask' in sys.builtin_module_names:
         sys.path.append(pydevdir)
@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.7"
+_RELEASE = " 2.3.1.9"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -223,7 +223,9 @@ class gmoccapy(object):
         self.width = 979      # The width of the main Window
         self.height = 750     # The height of the main Window
 
-        self.gcodeerror = ""  # we need this to avoid multiple messages of the same error
+        self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
+
+        self.lathe_mode = None # we need this to check if we have a lathe config
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
@@ -3751,6 +3753,8 @@ class gmoccapy(object):
                 axis = 5
                 size = int(size * 0.75)
             self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+            if self.lathe_mode:
+                self.widgets.Combi_DRO_y.set_property("font_size", size)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())
