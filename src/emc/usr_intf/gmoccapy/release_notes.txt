@@ -1,3 +1,8 @@
+ver. 1.5.9
+- fixed a bug on import gst, leading to an exception if gst is not installed
+- fixed a bug, not taking care of Y-DRO (D) in lateh mode if the user changed
+  the size of the DRO
+
 ver. 1.5.8
 - added key jogging also with Num_Pad Arrow keys
   was a wish from >>suspension<< from the forum

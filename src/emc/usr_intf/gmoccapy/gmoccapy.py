@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.8"
+_RELEASE = " 1.5.9"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -99,11 +99,14 @@ sys.path.insert( 0, LIBDIR )
 
 # as now we know the libdir path we can import our own modules
 from gmoccapy import widgets       # a class to handle the widgets
-from gmoccapy import player        # a class to handle sounds
 from gmoccapy import notification  # this is the module we use for our error handling
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs       # this takes the code of all our dialogs
+try:
+    from gmoccapy import player    # a class to handle sounds
+except ImportError:
+    pass
 
 # set up paths to files, part two
 CONFIGPATH = os.environ['CONFIG_DIR']
@@ -199,7 +202,9 @@ class gmoccapy( object ):
         self.width = 979   # The width of the main Window
         self.height = 750  # The heigh of the main Window
 
-        self.gcodeerror = ""  # we need this to avoid multile messages of the same error
+        self.gcodeerror = ""   # we need this to avoid multile messages of the same error
+
+        self.lathe_mode = None # needed to check if we have a lathe configuration
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property( "gtk-theme-name" )
@@ -761,6 +766,8 @@ class gmoccapy( object ):
 
             for axis in self.axis_list:
                 self.widgets["Combi_DRO_%s" % axis].set_property( "font_size", self.dro_size )
+            if self.lathe_mode:
+                self.widgets.Combi_DRO_y.set_property( "font_size", self.dro_size )                
 
             return
         axis_four = list( set( self.axis_list ) - set( ( "x", "y", "z" ) ) )
