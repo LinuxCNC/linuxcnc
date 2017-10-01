@@ -917,9 +917,10 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the
    user to home the machine before any MDI command or a program is run.
-   Normally, only jogging is allowed before homing. Setting NO_FORCE_HOMING
-   = 1 allows the user to make MDI moves and run programs without homing the
-   machine first. Interfaces without homing ability will need to have this
+   Normally, only jogging is allowed before homing.  For configurations using
+   identity kinematics, setting NO_FORCE_HOMING = 1 allows the user to make
+   MDI moves and run programs without homing the machine first. Interfaces
+   using identity kinematics without homing ability will need to have this
    option set to 1.
 
 * 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
