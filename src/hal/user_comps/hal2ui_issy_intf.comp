@@ -6,8 +6,6 @@ option userinit yes;
 license "GPLv2 or greater";
 
 param rw u32 sleeptime;
-pin in u64 sskbd_pin "Smartserial keybord state";
-pin out u32 sskbd_led "Smartserial keyboard key leds(47)";
 pin in bit inp_pin## [32] "SSIO input pins(32)";
 pin out bit out_pin## [32] "SSIO output pins(32)";  
 pin in u32 inpi "SSIO iput u32";
