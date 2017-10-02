@@ -40,4 +40,6 @@ oprofile*
 *.log
 position.txt
 *.9
-*.glade.h
+/.clang/
+/.codelite/
+/Debug/

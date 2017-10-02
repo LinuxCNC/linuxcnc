@@ -11,3 +11,4 @@ linuxcnc-doc-*/
 /linuxcnc*.files
 *.debhelper
 shlibs.local
+*.files
