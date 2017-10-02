@@ -1343,6 +1343,10 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                                     } else if (conf->DataLength == sizeof(double) * 8){
                                         double temp = *pin->float_pin;
                                         memcpy(&buff, &temp, sizeof(double));
+                                    } else {
+                                        HM2_ERR_NO_LL("sserial read: LBP_FLOAT of bit-length %i not handled\n", conf->DataLength);
+                                        conf->DataType = 0; // Only warn once, then ignore
+                                    }
                                     break;
                                 default:
                                     HM2_ERR("Unsupported output datatype %i (name ""%s"")\n",
@@ -1530,13 +1534,12 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 *pin->float_pin = (double)(pin->accum - pin->offset) / pin->fullscale ;
                 break;
             case LBP_FLOAT:
-                if (conf->DataLength == sizeof(float_t) * 8){
-                    float_t temp=*(float_t *)&buff);
-                    *pin->float_pin = temp;
-                } else if (conf->DataLength == sizeof(real_t) * 8){
-                    real_t temp;
-                    temp = *((real_t *)&buff);
-                    *pin->float_pin = temp;
+                if (conf->DataLength == sizeof(float) * 8 ){
+                                        float temp = *pin->float_pin;
+                                        memcpy(&buff, &temp, sizeof(float));
+                } else if (conf->DataLength == sizeof(double) * 8){
+                                        double temp = *pin->float_pin;
+                                        memcpy(&buff, &temp, sizeof(double));
                 } else {
                     HM2_ERR_NO_LL("sserial read: LBP_FLOAT of bit-length %i not handled\n", conf->DataLength);
                     conf->DataType = 0; // Only warn once, then ignore
