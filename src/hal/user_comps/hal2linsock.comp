@@ -1,16 +1,129 @@
-component hal2ui_issy_intf "HAL side of smartserial kbd and smartserial io UI";
-//option singleton yes;
+component hal2linsock """
+HAL side pin <-> any UI via standard linux sockets
+componet is socket server 
+default socket name is /tmp/hal2uis
+component can take argument named socket_name with your desired soket full path name
+""";
+
 option userspace yes;
 option userinit yes;
 
 license "GPLv2 or greater";
 
 param rw u32 sleeptime;
-pin in bit inp_pin## [32] "SSIO input pins(32)";
-pin out bit out_pin## [32] "SSIO output pins(32)";  
-pin in u32 inpi "SSIO iput u32";
-pin out u32 outi "SSIO output u32";
+pin in bit inp_pin## [32] "HAL input pins(32)";
+pin out bit out_pin## [32] "HAL output pins(32)";  
+pin in u32 inpi "HAL input 32bit integer";
+pin out u32 outi "HAL output 32bit integer";
 ;;
+/*
+  Userspace HAL component to control a Hitatchi WJ200 series VFD
+
+  Written by Jasen Kolev, inspired by WJ200_vfd.comp in linuxcnc
+
+  Copyright (C) 2017 Jasen Kolev
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation, version 2.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301-1307  USA.
+
+  see 'man hal2linsock' section in the Drivers manual.
+   * 
+   * 
+   * 
+   * demo socket client
+   * 
+   * 
+#include <stdio.h> 
+#include <string.h> 
+#include <sys/socket.h> 
+#include <sys/un.h> 
+#include <unistd.h> 
+#include <signal.h>
+#include <stdint.h>
+#include <unistd.h>
+
+typedef struct {
+    uint8_t id;
+    uint32_t pins_in;
+    uint32_t pins_out;
+    uint64_t sskbd_in;
+    uint64_t ssdkd_led;
+    uint32_t int_inp;
+    uint32_t int_out;
+} hal2ui;
+
+
+hal2ui in_state= { 0,0,0,0L,0L,0,0};
+hal2ui out_state= { 1,0xffffffff,0xffffffff,0L,0L,0,0};
+
+
+int should_exit =0;
+
+void sigterm_handler(int signo) {
+    should_exit = 1;
+}
+
+ 
+int main (int argc, char* const argv[]) 
+{
+   const char* const socket_name = "/tmp/ui_issy"; 
+   int socket_fd; 
+   struct sockaddr_un name; 
+   int i=0,b=1;  
+
+   signal(SIGTERM, sigterm_handler);
+   // Create the socket.   
+   socket_fd = socket (PF_LOCAL, SOCK_STREAM, 0); 
+   // Store the server's name in the socket address.  
+   name.sun_family = AF_LOCAL; 
+   strcpy (name.sun_path, socket_name); 
+   // Connect the socket.   
+   if (connect(socket_fd,(struct sockaddr *)&name, SUN_LEN(&name)) <0 ) {
+       perror("Err socket connect");
+       should_exit = 1;
+   }
+   while (!should_exit) {
+      // Write pins to the socket.
+      printf("i=%d\t",i);
+      out_state.int_out  = i;
+      out_state.pins_out ^= b;
+      printf("oi=%d\tpins=%#x\n",out_state.int_out,out_state.pins_out);
+      if (write(socket_fd, &out_state,sizeof(out_state))<0) {
+          should_exit = 0;
+          perror("write socket\n");
+          continue;
+      }
+      out_state.pins_out ^= b;
+     // read pins 
+      if (read(socket_fd,&in_state,sizeof(in_state))<1){
+          should_exit = 0;
+          perror("Err read socket error\n");
+          continue;
+      } 
+      printf("Input int=%d\n",in_state.int_inp);
+      printf("inpins = %#x\n",in_state.pins_in);
+    
+      i++; b=(1<<i);  
+      i &= 0x1f;
+   }; 
+   close (socket_fd); 
+   return 0; 
+} 
+    *
+    *
+    * 
+ * */
+ 
 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -30,14 +143,14 @@ typedef struct {
     uint64_t ssdkd_led;
     uint32_t int_inp;
     uint32_t int_out;
-} hal2ui;
+} hal2ui; /* socket comunication structure */
 
 
 hal2ui cur_state= { 2,0,0,0L,0L,0,0};
 hal2ui old_state= { 2,0,0,0L,0L,0,0};
 
 int client_socket_fd,socket_fd; 
-const char* const socket_name ="/tmp/ui_issy"; 
+const char* const socket_name ="/tmp/hal2uis"; 
 struct sockaddr_un name;  /* Structs for the client and server socket addresses. */
 
 
@@ -89,7 +202,17 @@ int do_write(int fd, void *buffer,ssize_t length)
 
 void userinit(int argc, char **argv)
 {
-     
+   	int opt_index = 0;
+	int c = 0;
+    static struct option options[] = {
+		{"socket_name", required_argument, 0, 0 },
+		{0, 0, 0, 0}
+	};	
+
+	c = getopt_long(argc, argv, "", options, &opt_index);
+    
+	if ((c != -1)&& (opt_index==1)) socket_name = optarg;
+    
     signal(SIGTERM, sigterm_handler);
     
     socket_fd = socket (PF_LOCAL, SOCK_STREAM,0); /* Create the socket.   */ 
