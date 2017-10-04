@@ -231,6 +231,7 @@ from the git repo by running this:
 -----
 > cd linuxcnc-dev/debian
 > ./configure uspace
+> cd ..
 -----
 
 [NOTE]
@@ -244,7 +245,8 @@ platform you're building on/for, see the <<debian-configure-arguments,
 =====
 
 Once the Debian package scripts and meta-data are configured, build the
-package by running this:
+package by running `dpkg-buildpackage` (note that it needs to run from
+the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 
 -----
 > dpkg-buildpackage -b -uc
@@ -329,7 +331,8 @@ meta-data:
 > cd ..
 -----
 
-Finally ask `dpkg-checkbuilddeps` to do its job:
+Finally ask `dpkg-checkbuilddeps` to do its job (note that it needs to
+run from the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 
 -----
 > dpkg-checkbuilddeps

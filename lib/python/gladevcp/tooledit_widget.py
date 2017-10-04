@@ -478,6 +478,7 @@ class ToolEdit(gtk.VBox):
     def toolfile_stale(self):
         print "Tool file was modified since it was last read"
         self.reload(None)
+        self.set_selected_tool(self.toolinfo_num)
 
         # Returns the tool information array of the requested toolnumber
         # or current tool if no tool number is specified
