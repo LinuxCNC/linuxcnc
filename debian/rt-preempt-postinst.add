@@ -7,7 +7,7 @@ rm -f /usr/lib/linuxcnc/rt-preempt/pru_decamux.bin
 rm -f /usr/lib/linuxcnc/rt-preempt/pru_decamux.dbg
 
 # make symlinks to BBB pru_*.*
-ln -s /usr/lib/linuxcnc/prubin/pru_generic.bin /usr/lib/linuxcnc/rt-preempt/pru_generic.bin
-ln -s /usr/lib/linuxcnc/prubin/pru_generic.dbg /usr/lib/linuxcnc/rt-preempt/pru_generic.dbg
-ln -s /usr/lib/linuxcnc/prubin/pru_decamux.bin /usr/lib/linuxcnc/rt-preempt/pru_decamux.bin
-ln -s /usr/lib/linuxcnc/prubin/pru_decamux.dbg /usr/lib/linuxcnc/rt-preempt/pru_decamux.dbg
+ln -sf /usr/lib/linuxcnc/prubin/pru_generic.bin /usr/lib/linuxcnc/rt-preempt/pru_generic.bin
+ln -sf /usr/lib/linuxcnc/prubin/pru_generic.dbg /usr/lib/linuxcnc/rt-preempt/pru_generic.dbg
+ln -sf /usr/lib/linuxcnc/prubin/pru_decamux.bin /usr/lib/linuxcnc/rt-preempt/pru_decamux.bin
+ln -sf /usr/lib/linuxcnc/prubin/pru_decamux.dbg /usr/lib/linuxcnc/rt-preempt/pru_decamux.dbg
