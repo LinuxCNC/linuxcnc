@@ -151,10 +151,10 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
 			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
 		&& need_setuid=1; \
-	    ln -s $(EMC2_HOME)/rtlib/prubin/pru_generic.bin ../rtlib/$$f/pru_generic.bin; \
-	    ln -s $(EMC2_HOME)/rtlib/prubin/pru_generic.dbg ../rtlib/$$f/pru_generic.dbg; \
-	    ln -s $(EMC2_HOME)/rtlib/prubin/pru_decamux.bin ../rtlib/$$f/pru_decamux.bin; \
-	    ln -s $(EMC2_HOME)/rtlib/prubin/pru_decamux.dbg ../rtlib/$$f/pru_decamux.dbg; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.bin ../rtlib/$$f/pru_generic.bin; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.dbg ../rtlib/$$f/pru_generic.dbg; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.bin ../rtlib/$$f/pru_decamux.bin; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.dbg ../rtlib/$$f/pru_decamux.dbg; \
 	done; \
 	test "$$need_setuid" = 1 && \
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
