@@ -17,7 +17,7 @@ using namespace google::protobuf;
 
 static machinetalk::Container command, reply;
 
-static zsock_t *z_command;
+static zsock_t *z_command = NULL;
 static int timeout = 5000;
 static std::string errormsg;
 int proto_debug;
@@ -295,3 +295,12 @@ int rtapi_connect(int instance, char *uri, const char *svc_uuid)
 
     return rtapi_ping(instance);
 }
+
+void rtapi_cleanup()
+{
+    if (z_command != NULL) {
+        zsock_destroy(&z_command);
+        z_command = NULL;
+    }
+}
+

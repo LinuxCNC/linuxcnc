@@ -855,9 +855,9 @@ static int attach_global_segment()
 
 
 // handle commands from zmq socket
-static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 {
-    zmsg_t *r = zmsg_recv(poller->socket);
+    zmsg_t *r = zmsg_recv(socket);
     char *origin = zmsg_popstr (r);
     zframe_t *request_frame  = zmsg_pop (r);
     static bool force_exit = false;
@@ -1081,8 +1081,8 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		fprintf(stderr, "reply: %s\n",buffer.c_str());
 	    }
 	}
-	assert(zstr_sendm (poller->socket, origin) == 0);
-	if (zframe_send (&reply, poller->socket, 0)) {
+	assert(zstr_sendm (socket, origin) == 0);
+	if (zframe_send (&reply, socket, 0)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "cant serialize to %s (type %d size %zu)",
 			    origin ? origin : "NULL",
@@ -1180,6 +1180,9 @@ static int s_handle_signal(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 static int
 s_handle_timer(zloop_t *loop, int  timer_id, void *args)
 {
+    (void)loop;
+    (void)timer_id;
+    (void)args;
     if (global_data->rtapi_msgd_pid == 0) {
 	// cant log this via rtapi_print, since msgd is gone
 	syslog_async(LOG_ERR,"rtapi_msgd went away, exiting\n");
@@ -1353,12 +1356,13 @@ static int mainloop(size_t  argc, char **argv)
     assert(z_loop);
     zloop_set_verbose(z_loop, debug);
 
-    zmq_pollitem_t signal_poller = { 0, signal_fd, ZMQ_POLLIN };
-    if (trap_signals)
+    
+    if (trap_signals) {
+	zmq_pollitem_t signal_poller = { 0, signal_fd, ZMQ_POLLIN };
 	zloop_poller (z_loop, &signal_poller, s_handle_signal, NULL);
-
-    zmq_pollitem_t command_poller = { z_command, 0, ZMQ_POLLIN };
-    zloop_poller(z_loop, &command_poller, rtapi_request, NULL);
+    }
+    
+    zloop_reader(z_loop, z_command, rtapi_request, NULL);
 
     zloop_timer (z_loop, BACKGROUND_TIMER, 0, s_handle_timer, NULL);
 

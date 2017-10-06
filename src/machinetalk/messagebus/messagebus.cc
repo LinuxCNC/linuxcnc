@@ -106,7 +106,6 @@ typedef struct {
     actormap_t *cmd_subscribers;
     actormap_t *response_subscribers;
     int comp_id;
-    zsock_t *context;
     zloop_t *loop;
     register_context_t *command_publisher;
     register_context_t *response_publisher;
@@ -116,7 +115,7 @@ typedef struct {
 } msgbusd_self_t;
 
 
-static int handle_xpub_in(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+static int handle_xpub_in(zloop_t *loop, zsock_t *socket, void *arg)
 {
     msgbusd_self_t *self = (msgbusd_self_t *) arg;
     actormap_t *map;
@@ -124,7 +123,7 @@ static int handle_xpub_in(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     char *data, *topic;
     int retval;
 
-    if (poller->socket == self->cmd) {
+    if (socket == self->cmd) {
 	map = self->cmd_subscribers;
 	rail = "cmd";
     } else {
@@ -132,7 +131,7 @@ static int handle_xpub_in(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	rail = "response";
     }
 
-    zmsg_t *msg = zmsg_recv(poller->socket);
+    zmsg_t *msg = zmsg_recv(socket);
     size_t nframes = zmsg_size( msg);
 
     if (nframes == 1) {
@@ -173,7 +172,7 @@ static int handle_xpub_in(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	    snprintf(errmsg, sizeof(errmsg), "rail %s: no such destination: %s", rail, to);
 	    rtapi_print_msg(RTAPI_MSG_ERR, "%s: %s\n", progname,errmsg);
 
-	    if (poller->socket == self->cmd) {
+	    if (socket == self->cmd) {
 		// command was directed to non-existent actor
 		// we wont get a reply from a non-existent actor
 		// so send error message on response rail instead:
@@ -203,9 +202,9 @@ static int handle_xpub_in(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	    if (debug)
 		rtapi_print_msg(RTAPI_MSG_ERR, "forward: %s->%s:\n", from,to);
 
-	    zstr_sendm(poller->socket, to);          // topic
-	    zstr_sendm(poller->socket, from);        // destination
-	    zmsg_send(&msg, poller->socket);
+	    zstr_sendm(socket, to);          // topic
+	    zstr_sendm(socket, from);        // destination
+	    zmsg_send(&msg, socket);
 	}
 	free(from);
 	free(to);
@@ -243,12 +242,10 @@ static int mainloop(msgbusd_self_t *self)
     int retval;
 
     zmq_pollitem_t signal_poller =        { 0, signal_fd, ZMQ_POLLIN };
-    zmq_pollitem_t cmd_poller =           { self->cmd, 0, ZMQ_POLLIN };
-    zmq_pollitem_t response_poller =      { self->response, 0, ZMQ_POLLIN };
 
     zloop_poller(self->loop, &signal_poller,   handle_signal,  self);
-    zloop_poller(self->loop, &cmd_poller,      handle_xpub_in, self);
-    zloop_poller(self->loop, &response_poller, handle_xpub_in, self);
+    zloop_reader(self->loop, self->cmd,      handle_xpub_in, self);
+    zloop_reader(self->loop, self->response, handle_xpub_in, self);
 
     do {
 	retval = zloop_start(self->loop);
@@ -270,13 +267,9 @@ static int zmq_setup(msgbusd_self_t *self)
     // since we're using signalfd()
     zsys_handler_set(NULL);
 
-    self->context = zsock_new ();
-    assert(self->context);
-
-    zsock_set_linger (self->context, 0);
-
-    self->cmd = zsock_new (self->context, ZMQ_XPUB);
+    self->cmd = zsock_new (ZMQ_XPUB);
     assert(self->cmd);
+    zsock_set_linger (self->cmd, 0);
     zsock_set_xpub_verbose (self->cmd, 1);
     self->command_port = zsock_bind(self->cmd, self->cmd_uri);
     assert(self->command_port > -1);
@@ -285,8 +278,9 @@ static int zmq_setup(msgbusd_self_t *self)
 
     assert(zsock_bind(self->cmd, proxy_cmd_uri) > -1);
 
-    self->response = zsock_new (self->context, ZMQ_XPUB);
+    self->response = zsock_new (ZMQ_XPUB);
     assert(self->response);
+    zsock_set_linger (self->response, 0);
     zsock_set_xpub_verbose (self->response, 1);
     self->response_port = zsock_bind(self->response, self->response_uri);
     assert(self->response_port >  -1);
@@ -398,7 +392,7 @@ static int rtproxy_setup(msgbusd_self_t *self)
 {
     echo.flags = ACTOR_ECHO|TRACE_TO_RT;
     echo.name = "echo";
-    echo.pipe = zactor_fork (self->context, rtproxy_thread, &echo);
+    echo.pipe = zactor_new (rtproxy_thread, &echo);
     assert (echo.pipe);
 
     demo.flags = ACTOR_RESPONDER|TRACE_FROM_RT|TRACE_TO_RT|DESERIALIZE_TO_RT|SERIALIZE_FROM_RT;
@@ -411,7 +405,7 @@ static int rtproxy_setup(msgbusd_self_t *self)
     demo.from_rt_name = "mptx.0.out";
     demo.min_delay = 2;   // msec
     demo.max_delay = 200; // msec
-    demo.pipe = zactor_fork (self->context, rtproxy_thread, &demo);
+    demo.pipe = zactor_new (rtproxy_thread, &demo);
     assert (demo.pipe);
 
     // too.flags = ACTOR_RESPONDER|ACTOR_TRACE;
@@ -421,7 +415,7 @@ static int rtproxy_setup(msgbusd_self_t *self)
     // too.name = "mptx";
     // too.to_rt_name = "mptx.0.in";
     // too.from_rt_name = "mptx.0.out";
-    // too.pipe = zactor_fork (self->context, rtproxy_thread, &too);
+    // too.pipe = zactor_new (rtproxy_thread, &too);
     // assert (too.pipe);
 
     return 0;
@@ -667,8 +661,9 @@ int main (int argc, char *argv[])
     if (self.remote)
 	mb_zeroconf_withdraw(&self);
 
-    // shutdown zmq context
-    zsock_destroy (&self.context);
+    // shutdown zmq sockets
+    zsock_destroy (&self.cmd);
+    zsock_destroy (&self.response);
 
     if (comp_id)
 	hal_exit(comp_id);

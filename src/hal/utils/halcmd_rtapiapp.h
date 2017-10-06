@@ -23,6 +23,7 @@ extern "C" {
     int rtapi_delinst(int instance,
 		      const char *instname);
     const char *rtapi_rpcerror(void);
+    void rtapi_cleanup();
 
     extern int proto_debug;
 #ifdef __cplusplus

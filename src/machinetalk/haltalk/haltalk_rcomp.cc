@@ -49,11 +49,11 @@ handle_rcomp_timer(zloop_t *loop, int timer_id, void *arg)
 //    unsubscribe events (\001<topic>), for the last unsubscribe
 //    other - any commands sent to the XPUB - dubious how useful this is
 int
-handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+handle_rcomp_input(zloop_t *loop, zsock_t *socket, void *arg)
 {
     htself_t *self = (htself_t *) arg;
     int retval;
-    zmsg_t *msg = zmsg_recv(poller->socket);
+    zmsg_t *msg = zmsg_recv(socket);
     size_t nframes = zmsg_size( msg);
 
     if (nframes == 1) {
@@ -79,7 +79,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
         // not found, publish an error message on this topic
         self->tx.set_type(machinetalk::MT_HALRCOMP_ERROR);
         note_printf(self->tx, "component '%s' does not exist", topic);
-        retval = send_pbcontainer(topic, self->tx, self->mksock[SVC_HALRCOMP].socket);
+        retval = send_pbcontainer(topic, self->tx, socket);
         assert(retval == 0);
 
         } else {
@@ -89,7 +89,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
         self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
         self->tx.set_serial(g->serial++);
         describe_parameters(self);
-        describe_comp(self, topic, topic, poller->socket);
+        describe_comp(self, topic, topic, socket);
 
         // first subscriber - activate scanning
         if (g->timer_id < 0) { // not scanning

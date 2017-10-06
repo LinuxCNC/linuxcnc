@@ -305,3 +305,10 @@ def init_RTAPI(**kwargs):
     if not __rtapicmd:
         raise RuntimeError('unable to initialize RTAPIcommand - realtime not running?')
 
+
+# make sure to close the zmq socket when done
+def _cleanup_rtapi():
+    rtapi_cleanup()
+
+import atexit
+atexit.register(_cleanup_rtapi)

@@ -71,7 +71,7 @@ int default_policy(wtself_t *self,
 		}
 		q = q->next;
 	    }
-	    wss->socket = zsock_new (self->netopts.z_context, wss->socket_type);
+	    wss->socket = zsock_new (wss->socket_type);
 	    if (wss->socket == NULL) {
 		lwsl_err("%s %d: cant create ZMQ socket: %s\n",
 			 __func__, fd, strerror(errno));

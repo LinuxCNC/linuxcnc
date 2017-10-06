@@ -94,18 +94,15 @@ mainloop( htself_t *self)
     int retval;
     zloop_t *loop = self->netopts.z_loop;
 
-    zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
-    zmq_pollitem_t group_poller =  { self->mksock[SVC_HALGROUP].socket, 0, ZMQ_POLLIN };
-    zmq_pollitem_t rcomp_poller =  { self->mksock[SVC_HALRCOMP].socket, 0, ZMQ_POLLIN };
-    zmq_pollitem_t cmd_poller =  { self->mksock[SVC_HALRCMD].socket, 0, ZMQ_POLLIN };
-
     zloop_set_verbose (loop, self->cfg->debug > 8);
 
-    if (self->cfg->trap_signals)
+    if (self->cfg->trap_signals) {
+	zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
 	zloop_poller(loop, &signal_poller, handle_signal, self);
-    zloop_poller(loop, &group_poller,  handle_group_input, self);
-    zloop_poller(loop, &rcomp_poller,  handle_rcomp_input, self);
-    zloop_poller(loop, &cmd_poller,    handle_command_input, self);
+    }
+    zloop_reader(loop, self->mksock[SVC_HALGROUP].socket, handle_group_input, self);
+    zloop_reader(loop, self->mksock[SVC_HALRCOMP].socket, handle_rcomp_input, self);
+    zloop_reader(loop, self->mksock[SVC_HALRCMD].socket, handle_command_input, self);
     if (self->cfg->keepalive_timer)
 	zloop_timer(loop, self->cfg->keepalive_timer, 0,
 		    handle_keepalive_timer, (void *) self);
@@ -468,6 +465,8 @@ int main (int argc, char *argv[])
 
     // shutdown zmq socket
     zsock_destroy(&self.mksock[SVC_HALGROUP].socket);
+    zsock_destroy(&self.mksock[SVC_HALRCOMP].socket);
+    zsock_destroy(&self.mksock[SVC_HALRCMD].socket);
 
     hal_cleanup(&self);
 

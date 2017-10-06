@@ -33,12 +33,12 @@ static int describe_signal_by_name(htself_t *self, const char *name);
 static int apply_initial_values(htself_t *self, const machinetalk::Component *pbcomp);
 
 int
-handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+handle_command_input(zloop_t *loop, zsock_t *socket, void *arg)
 {
     int retval = 0;
 
     htself_t *self = (htself_t *) arg;
-    zmsg_t *msg = zmsg_recv(poller->socket);
+    zmsg_t *msg = zmsg_recv(socket);
 
     if (self->cfg->debug  > 4)
     zmsg_dump(msg);
@@ -69,7 +69,7 @@ handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
             fprintf(stderr,"%s: req=%s\n",__func__,s.c_str());
         }
     // a valid protobuf. Interpret and reply as needed.
-        dispatch_request(self, msg, poller->socket);
+        dispatch_request(self, msg, socket);
     }
     zframe_destroy(&f);
     zmsg_destroy(&msg);

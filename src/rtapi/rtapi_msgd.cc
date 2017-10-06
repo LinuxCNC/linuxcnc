@@ -608,9 +608,9 @@ cleanup_actions(void)
 }
 
 // react to subscribe/unsubscribe events
-static int logpub_readable_cb(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+static int logpub_readable_cb(zloop_t *loop, zsock_t *socket, void *arg)
 {
-    zframe_t *f = zframe_recv(poller->socket);
+    zframe_t *f = zframe_recv(socket);
     const char *s = (const char *) zframe_data(f);
     syslog_async(LOG_ERR, "%s subscribe on '%s'",
 		 *s ? "start" : "stop", s+1);
@@ -1116,8 +1116,7 @@ int main(int argc, char **argv)
 	zloop_poller (netopts.z_loop, &signal_poller, s_handle_signal, NULL);
 
     if (logpub.socket) {
-	zmq_pollitem_t logpub_poller = { logpub.socket, 0, ZMQ_POLLIN };
-	zloop_poller (netopts.z_loop, &logpub_poller, logpub_readable_cb, NULL);
+        zloop_reader (netopts.z_loop, logpub.socket, logpub_readable_cb, NULL);
     }
 
     polltimer_id = zloop_timer (netopts.z_loop, msg_poll, 0, message_poll_cb, NULL);
@@ -1135,7 +1134,7 @@ int main(int argc, char **argv)
     if (netopts.av_loop)
         avahi_czmq_poll_free(netopts.av_loop);
 
-    // shutdown zmq context
+    // shutdown zmq sockets
     zsock_destroy(&logpub.socket);
 
     cleanup_actions();
