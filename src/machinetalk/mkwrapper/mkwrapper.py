@@ -1107,6 +1107,7 @@ class LinuxCNCWrapper():
         for index, statToolResult in enumerate(stat.tool_table):
             txToolResult.Clear()
             resultModified = False
+            newItem = False
 
             if (index == 0 and not self.randomToolChanger):
                 continue
@@ -1114,17 +1115,18 @@ class LinuxCNCWrapper():
             if (statToolResult.id == -1 and not self.randomToolChanger):
                 break  # last tool in table, except index = 0 (spindle !)
 
-            if len(self.status.io.tool_table) == tableIndex:
-                self.status.io.tool_table.add()
-                self.status.io.tool_table[tableIndex].index = tableIndex
-                self.status.io.tool_table[tableIndex].id = 0
-                self.status.io.tool_table[tableIndex].offset.MergeFrom(self.zero_position())
-                self.status.io.tool_table[tableIndex].diameter = 0.0
-                self.status.io.tool_table[tableIndex].frontangle = 0.0
-                self.status.io.tool_table[tableIndex].backangle = 0.0
-                self.status.io.tool_table[tableIndex].orientation = 0
-                self.status.io.tool_table[tableIndex].comment = ""
-                self.status.io.tool_table[tableIndex].pocket = 0
+            if len(self.status.io.tool_table) == tableIndex:  # item added
+                item = self.status.io.tool_table.add()
+                item.index = tableIndex
+                item.id = 0
+                item.offset.MergeFrom(self.zero_position())
+                item.diameter = 0.0
+                item.frontangle = 0.0
+                item.backangle = 0.0
+                item.orientation = 0
+                item.comment = ""
+                item.pocket = 0
+                newItem = True
 
             toolResult = self.status.io.tool_table[tableIndex]
 
@@ -1146,7 +1148,10 @@ class LinuxCNCWrapper():
 
             if resultModified:
                 txToolResult.index = tableIndex
-                self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
+                if newItem:
+                    self.statusTx.io.tool_table.add().CopyFrom(toolResult)  # make sure to send update
+                else:
+                    self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
                 toolTableChanged = True
 
@@ -2268,6 +2273,7 @@ def main():
     if debug:
         print("threads stopped")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
