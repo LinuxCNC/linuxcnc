@@ -92,14 +92,10 @@ rules_set_kthreads_headers() {
     done
 }
 
+# no difference in jessie / stretch additional packages
 do_posix() {
-    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cat control.posix-stretch.in >> control
-	echo "debian/control:  added POSIX threads package for stretch" >&2
-    else
-	cat control.posix.in >> control
-        echo "debian/control:  added POSIX threads package" >&2
-    fi
+    cat control.posix.in >> control
+    echo "debian/control:  added POSIX threads package" >&2
     rules_enable_threads posix
     HAVE_FLAVOR=true
 }
@@ -118,14 +114,10 @@ do_rt-preempt() {
     HAVE_FLAVOR=true
 }
 
+# no difference in jessie / stretch additional packages
 do_xenomai() {
-    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cat control.xenomai-stretch.in >> control
-	echo "debian/control:  added xenomai threads package for Stretch" >&2
-    else
-	cat control.xenomai.in >> control
-	echo "debian/control:  added xenomai threads package for Wheezy/Jessie" >&2
-    fi
+    cat control.xenomai.in >> control
+    echo "debian/control:  added xenomai threads package" >&2
 
     # Be sure the -dev files only appear once
     BUILD_DEPS="${BUILD_DEPS/libxenomai-dev, /}libxenomai-dev, "

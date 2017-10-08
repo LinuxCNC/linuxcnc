@@ -243,8 +243,8 @@ binary-arch: build install
 	    debian/shlibs.local
 	## ignore missing deps / symbols info for locally built libs
 	## necessary for Stretch builds until packaged libs can be used for czmq and zeromq
-	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit/usr/lib
-	#dh_shlibdeps -l debian/machinekit/usr/lib
+	#dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit/usr/lib
+	dh_shlibdeps -l debian/machinekit/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
