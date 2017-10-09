@@ -1,7 +1,7 @@
 
 Package: machinekit-posix
 Architecture: any
-Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime, libzmq3 (>= 4.0.4), libczmq4 (>= 4.0.2-10)
+Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime
 Provides:  machinekit-rt-threads
 Breaks: machinekit-dev
 Enhances: machinekit
