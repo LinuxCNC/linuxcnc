@@ -12,7 +12,7 @@ fi
 MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 PKGSOURCE="${PKGSOURCE:-travis.${TRAVIS_REPO_SLUG/\//.}}"
 DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
-REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
+REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit-czmq4-tester}"
 
 # Compute version
 if ${IS_PR}; then
@@ -57,7 +57,7 @@ cat debian/changelog # debug output
 cat debian/changelog.old >> debian/changelog
 
 # build unsigned packages and sources on amd64
-DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -j${JOBS}"
+DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -d -j${JOBS}"
 if test ${MARCH} = 64; then
     # create upstream tarball only on amd64
     (
@@ -67,7 +67,7 @@ if test ${MARCH} = 64; then
     )
 else
     # the rest will be binaries only
-    DEBUILD_OPTS+=" -b"
+    DEBUILD_OPTS+=" -d -b"
 fi
 
 case "${FLAV}" in
