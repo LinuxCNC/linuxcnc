@@ -56,6 +56,9 @@ EOF
 cat debian/changelog # debug output
 cat debian/changelog.old >> debian/changelog
 
+# Whilst using arceye/mk-builder docker image, need -d switch
+# because new czmq4 libs were parachuted in and not installed onto the chroot fs
+
 # build unsigned packages and sources on amd64
 DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -d -j${JOBS}"
 if test ${MARCH} = 64; then
