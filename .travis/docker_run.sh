@@ -3,7 +3,7 @@ cd "$(dirname $0)/.."
 
 MACHINEKIT_PATH="/usr/src/machinekit"
 TRAVIS_PATH="$MACHINEKIT_PATH/.travis"
-DOCKER_CONTAINER=${DOCKER_CONTAINER:-"machinekit/mk-builder"}
+DOCKER_CONTAINER=${DOCKER_CONTAINER:-"arceye/mk-builder"}
 COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
 COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
