@@ -94,18 +94,15 @@ mainloop( htself_t *self)
     int retval;
     zloop_t *loop = self->netopts.z_loop;
 
-    zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
-    zmq_pollitem_t group_poller =  { self->mksock[SVC_HALGROUP].socket, 0, ZMQ_POLLIN };
-    zmq_pollitem_t rcomp_poller =  { self->mksock[SVC_HALRCOMP].socket, 0, ZMQ_POLLIN };
-    zmq_pollitem_t cmd_poller =  { self->mksock[SVC_HALRCMD].socket, 0, ZMQ_POLLIN };
-
     zloop_set_verbose (loop, self->cfg->debug > 8);
 
-    if (self->cfg->trap_signals)
+    if (self->cfg->trap_signals) {
+	zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
 	zloop_poller(loop, &signal_poller, handle_signal, self);
-    zloop_poller(loop, &group_poller,  handle_group_input, self);
-    zloop_poller(loop, &rcomp_poller,  handle_rcomp_input, self);
-    zloop_poller(loop, &cmd_poller,    handle_command_input, self);
+    }
+    zloop_reader(loop, self->mksock[SVC_HALGROUP].socket, handle_group_input, self);
+    zloop_reader(loop, self->mksock[SVC_HALRCOMP].socket, handle_rcomp_input, self);
+    zloop_reader(loop, self->mksock[SVC_HALRCMD].socket, handle_command_input, self);
     if (self->cfg->keepalive_timer)
 	zloop_timer(loop, self->cfg->keepalive_timer, 0,
 		    handle_keepalive_timer, (void *) self);
@@ -153,15 +150,12 @@ zmq_init(htself_t *self)
 	assert(self->signal_fd > -1);
     }
 
-    // suppress default handling of signals in zctx_new()
+    // suppress default handling of signals in zsock_new()
     // since we're using signalfd()
-    // must happen before zctx_new()
+    // must happen before zsock_new()
     zsys_handler_set(NULL);
 
     mk_netopts_t *np = &self->netopts;
-
-    np->z_context = zctx_new ();
-    assert(np->z_context);
 
     np->z_loop = zloop_new();
     assert (np->z_loop);
@@ -175,10 +169,10 @@ zmq_init(htself_t *self)
     mk_socket_t *ms = &self->mksock[SVC_HALGROUP];
     ms->dnssd_subtype = HALGROUP_DNSSD_SUBTYPE;
     ms->tag = "halgroup";
-    ms->socket = zsocket_new (self->netopts.z_context, ZMQ_XPUB);
+    ms->socket = zsock_new (ZMQ_XPUB);
     assert(ms->socket);
-    zsocket_set_linger(ms->socket, 0);
-    zsocket_set_xpub_verbose(ms->socket, 1);
+    zsock_set_linger(ms->socket, 0);
+    zsock_set_xpub_verbose(ms->socket, 1);
     if (mk_bindsocket(np, ms))
 	return -1;
     assert(ms->port > -1);
@@ -191,10 +185,10 @@ zmq_init(htself_t *self)
     ms = &self->mksock[SVC_HALRCOMP];
     ms->dnssd_subtype = HALRCOMP_DNSSD_SUBTYPE;
     ms->tag = "halrcomp";
-    ms->socket = zsocket_new (self->netopts.z_context, ZMQ_XPUB);
+    ms->socket = zsock_new (ZMQ_XPUB);
     assert(ms->socket);
-    zsocket_set_linger(ms->socket, 0);
-    zsocket_set_xpub_verbose(ms->socket, 1);
+    zsock_set_linger(ms->socket, 0);
+    zsock_set_xpub_verbose(ms->socket, 1);
     if (mk_bindsocket(np, ms))
 	return -1;
     assert(ms->port > -1);
@@ -207,10 +201,10 @@ zmq_init(htself_t *self)
     ms = &self->mksock[SVC_HALRCMD];
     ms->dnssd_subtype = HALRCMD_DNSSD_SUBTYPE;
     ms->tag = "halrcmd";
-    ms->socket = zsocket_new (self->netopts.z_context, ZMQ_ROUTER);
+    ms->socket = zsock_new (ZMQ_ROUTER);
     assert(ms->socket);
-    zsocket_set_linger(ms->socket, 0);
-    zsocket_set_identity (ms->socket, self->cfg->modname);
+    zsock_set_linger(ms->socket, 0);
+    zsock_set_identity (ms->socket, self->cfg->modname);
     if (mk_bindsocket(np, ms))
 	return -1;
     assert(ms->port > -1);
@@ -469,8 +463,10 @@ int main (int argc, char *argv[])
     ht_zeroconf_withdraw(&self);
     // probably should run zloop here until deregister complete
 
-    // shutdown zmq context
-    zctx_destroy(&self.netopts.z_context);
+    // shutdown zmq socket
+    zsock_destroy(&self.mksock[SVC_HALGROUP].socket);
+    zsock_destroy(&self.mksock[SVC_HALRCOMP].socket);
+    zsock_destroy(&self.mksock[SVC_HALRCMD].socket);
 
     hal_cleanup(&self);
 

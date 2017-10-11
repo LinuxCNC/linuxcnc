@@ -49,17 +49,17 @@ send_subscribe(void *socket, const char *topic)
 }
 
 void
-rtproxy_thread(void *arg, zctx_t *ctx, void *pipe)
+rtproxy_thread(void *arg, void *pipe)
 {
     rtproxy_t *self = (rtproxy_t *) arg;
     int retval;
 
-    self->proxy_cmd = zsocket_new (ctx, ZMQ_XSUB);
-    retval = zsocket_connect(self->proxy_cmd, proxy_cmd_uri);
+    self->proxy_cmd = zsock_new (ZMQ_XSUB);
+    retval = zsock_connect(self->proxy_cmd, proxy_cmd_uri);
     assert(retval == 0);
 
-    self->proxy_response = zsocket_new (ctx, ZMQ_XSUB);
-    assert(zsocket_connect(self->proxy_response, proxy_response_uri) == 0);
+    self->proxy_response = zsock_new (ZMQ_XSUB);
+    assert(zsock_connect(self->proxy_response, proxy_response_uri) == 0);
 
     if (self->flags & (ACTOR_RESPONDER|ACTOR_ECHO|ACTOR_SUBSCRIBER)) {
 	retval = send_subscribe(self->proxy_cmd, self->name);

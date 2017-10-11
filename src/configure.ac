@@ -939,7 +939,7 @@ AC_ARG_ENABLE(dev,
 # NML
 ##############################################################################
 
-PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
+PKG_CHECK_MODULES([CZMQ], [libczmq > 4.0],
     [
         AC_DEFINE(HAVE_CZMQ, [], [zeroMQ czmq library available])
 	USE_CZMQ=yes
@@ -947,7 +947,7 @@ PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
 
 PKG_CHECK_MODULES([PROTOBUF], [protobuf > 2.4.0],
     [
-        AC_DEFINE(HAVE_PROTOBUF, [], [zeroMQ czmq library available])
+        AC_DEFINE(HAVE_PROTOBUF, [], [protobuf available])
 	USE_PROTOBUF=yes
     ],)
 

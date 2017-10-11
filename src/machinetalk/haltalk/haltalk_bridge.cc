@@ -82,7 +82,7 @@ int bridge_init(htself_t *self)
 // -- end public functions ---
 
 static int
-handle_sd_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+handle_sd_input(zloop_t *loop, zsock_t *socket, void *arg)
 {
     htself_t *self = (htself_t *)arg;
     struct sockaddr_in remote_addr = {0};
@@ -90,7 +90,7 @@ handle_sd_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     unsigned char buffer[8192];
 
     // if (poller->revents & ZMQ_POLLIN) {
-    // 	size_t len = recvfrom(sd_socket(self->bridge->sdiscover), buffer, sizeof(buffer), 0,
+    // 	size_t len = recvfrom(socket, buffer, sizeof(buffer), 0,
     // 			      (struct sockaddr *)&remote_addr, &addrlen);
 
 
@@ -120,8 +120,7 @@ prepare_discovery(htself_t *self)
     // assert(retval == 0);
     // sd_log(bridge->sdiscover, self->cfg->debug > 1);
 
-    // zmq_pollitem_t sd_poller = { 0, sd_socket(bridge->sdiscover), ZMQ_POLLIN };
-    // zloop_poller(self->z_loop, &sd_poller, handle_sd_input, self);
+    // zloop_reader(self->z_loop, sd_socket(bridge->sdiscover), handle_sd_input, self);
     // bridge->timer_id = zloop_timer(self->z_loop, 500, 1, handle_sd_timer, (void *)self); // one shot
     // assert(bridge->timer_id > -1);
 
@@ -142,11 +141,11 @@ static int bridge_fsm(htself_t *self, bridgeevent_t event)
     case BSTATE_RETRY_PROBE:
 
     case BSTATE_CONNECT:
-	bridge->z_bridge = zsocket_new (self->z_context, ZMQ_XSUB);
-	retval = zsocket_connect(bridge->z_bridge, self->cfg->bridgecomp_updateuri);
+	bridge->z_bridge = zsock_new (ZMQ_XSUB);
+	retval = zsock_connect(bridge->z_bridge, self->cfg->bridgecomp_updateuri);
 	assert (retval == 0);
-	bridge->z_bridge_cmd = zsocket_new (self->z_context, ZMQ_DEALER);
-	retval = zsocket_connect(bridge->z_bridge_cmd, self->cfg->bridgecomp_cmduri);
+	bridge->z_bridge_cmd = zsock_new (ZMQ_DEALER);
+	retval = zsock_connect(bridge->z_bridge_cmd, self->cfg->bridgecomp_cmduri);
 	assert (retval == 0);
 	break;
 

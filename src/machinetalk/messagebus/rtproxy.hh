@@ -42,4 +42,4 @@ typedef struct {
 } rtproxy_t;
 
 
-void rtproxy_thread(void *arg, zctx_t *ctx, void *pipe);
+void rtproxy_thread(void *arg, void *pipe);

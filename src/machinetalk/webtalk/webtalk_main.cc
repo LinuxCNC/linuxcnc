@@ -131,14 +131,14 @@ zmq_init(wtself_t *self)
 	assert(self->signal_fd > -1);
     }
 
-    // suppress default handling of signals in zctx_new()
+    // suppress default handling of signals in zsock_new()
     // since we're using signalfd()
-    // must happen before zctx_new()
+    // must happen before zsock_new()
     zsys_handler_set(NULL);
 
     mk_netopts_t *np = &self->netopts;
 
-    np->z_context = zctx_new ();
+    np->z_context = zsock_new ();
     assert(np->z_context);
 
     np->z_loop = zloop_new();
@@ -449,7 +449,7 @@ int main (int argc, char *argv[])
     // probably should run zloop here until deregister complete
 
     // shutdown zmq context
-    zctx_destroy(&self.netopts.z_context);
+    zsock_destroy(&self.netopts.z_context);
 
     exit(0);
 }

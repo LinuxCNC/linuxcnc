@@ -336,13 +336,13 @@ callback_http(struct libwebsocket_context *context,
 	    int retval;
 
 	    // the two/from WS pair pipe
-	    wss->wsq_out = zsocket_new (self->netopts.z_context, ZMQ_PAIR);
+	    wss->wsq_out = zsock_new (self->netopts.z_context, ZMQ_PAIR);
 	    assert (wss->wsq_out);
-	    zsocket_bind (wss->wsq_out, "inproc://wsq-%p", wss);
+	    zsock_bind (wss->wsq_out, "inproc://wsq-%p", wss);
 
-	    wss->wsq_in = zsocket_new (self->netopts.z_context, ZMQ_PAIR);
+	    wss->wsq_in = zsock_new (self->netopts.z_context, ZMQ_PAIR);
 	    assert (wss->wsq_in);
-	    zsocket_connect (wss->wsq_in, "inproc://wsq-%p", wss);
+	    zsock_connect (wss->wsq_in, "inproc://wsq-%p", wss);
 
 	    // start watching the to-websocket pipe
 	    wss->wsqin_pollitem.socket =  wss->wsq_in;
@@ -462,9 +462,9 @@ callback_http(struct libwebsocket_context *context,
 	    zloop_poller_end (self->netopts.z_loop, &wss->wsqin_pollitem);
 
 	    if (wss->socket != NULL)
-		zsocket_destroy (self->netopts.z_context, wss->socket);
-	    zsocket_destroy (self->netopts.z_context, wss->wsq_in);
-	    zsocket_destroy (self->netopts.z_context, wss->wsq_out);
+		zsock_destroy (self->netopts.z_context, wss->socket);
+	    zsock_destroy (self->netopts.z_context, wss->wsq_in);
+	    zsock_destroy (self->netopts.z_context, wss->wsq_out);
 
 	    uriFreeQueryListA(wss->queryList);
 	    uriFreeUriMembersA(&wss->u);

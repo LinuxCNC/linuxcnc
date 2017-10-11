@@ -108,7 +108,7 @@ static int bind_ifs(mk_socket_t *s, const argvec_t &ifs)
 	    uri = "tcp://" + ifs[i] + ":" + boost::lexical_cast<std::string>(s->port);
 	}
 	// use this port number for the rest of the ifs
-	s->port = zsocket_bind(s->socket, "%s", uri.c_str());
+	s->port = zsock_bind(s->socket, "%s", uri.c_str());
 	if (s->port < 0) {
 	    syslog_async(LOG_ERR, "bind to '%s' failed: %s",
 			 uri.c_str(), strerror(errno));
@@ -153,8 +153,8 @@ int mk_bindsocket(mk_netopts_t *n, mk_socket_t *s)
 	    // if there are any V6 interfaces/addresses,
 	    // enable V6 on socket now
 	    if (ifs.size() > 0) {
-		zsocket_set_ipv6 (s->socket, 1);
-		assert (zsocket_ipv6 (s->socket) == 1);
+		zsock_set_ipv6 (s->socket, 1);
+		assert (zsock_ipv6 (s->socket) == 1);
 	    }
 	    // and bind them all
 	    retval = bind_ifs(s, ifs);
@@ -166,7 +166,7 @@ int mk_bindsocket(mk_netopts_t *n, mk_socket_t *s)
 	// use IPC sockets
 	snprintf(buf, sizeof(buf), ZMQIPC_FORMAT,
 		 n->rundir, n->rtapi_instance, s->tag, n->service_uuid);
-	s->port = zsocket_bind(s->socket, "%s", buf);
+	s->port = zsock_bind(s->socket, "%s", buf);
 	if (s->port < 0)
 	    syslog_async(LOG_ERR, "bind(%s): %s\n", buf, strerror(errno));
 

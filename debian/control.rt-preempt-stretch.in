@@ -1,7 +1,7 @@
 
 Package: machinekit-rt-preempt
 Architecture: any
-Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime, czmq, zeromq,
+Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime,
 # These Debian-style RT_PREEMPT package names are restricted by
 # architecture; ARM arch SOCs are all incompatible, so this can't be
 # easily done for ARM.

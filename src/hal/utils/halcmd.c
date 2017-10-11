@@ -172,6 +172,7 @@ int halcmd_startup(int quiet, char *uri, const char *svc_uuid) {
 }
 
 void halcmd_shutdown(void) {
+    rtapi_cleanup();
     /* tell the signal handler we might have the mutex */
     hal_flag = 1;
     hal_exit(comp_id);

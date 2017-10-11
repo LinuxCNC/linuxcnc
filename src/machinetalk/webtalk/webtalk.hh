@@ -238,7 +238,7 @@ int wt_zeroconf_announce(wtself_t *self);
 int wt_zeroconf_withdraw(wtself_t *self);
 
 // webtalk_echo.cc:
-void echo_thread(void *args, zctx_t *ctx, void *pipe);
+void echo_thread(void *args, zsock_t *ctx, void *pipe);
 
 // webtalk_proxy.cc:
 int callback_http(
