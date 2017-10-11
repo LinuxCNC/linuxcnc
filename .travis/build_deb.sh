@@ -12,7 +12,7 @@ fi
 MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 PKGSOURCE="${PKGSOURCE:-travis.${TRAVIS_REPO_SLUG/\//.}}"
 DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
-REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit-czmq4-tester}"
+REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
 
 # Compute version
 if ${IS_PR}; then

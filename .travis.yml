@@ -19,8 +19,8 @@ services:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq sshpass
-  #- gem install package_cloud
-  #- .travis/check_sftp.sh 
+  - gem install package_cloud
+  - .travis/check_sftp.sh 
 
 env:
   global:
@@ -44,8 +44,8 @@ script:
   - .travis/docker_run.sh
 
 after_success:
-  #- .travis/send_binaries.sh
-  #- test ${TAG} != "raspbian-armhf" && .travis/upload_packagecloud.sh
+  - .travis/send_binaries.sh
+  - test ${TAG} != "raspbian-armhf" && .travis/upload_packagecloud.sh
 
 after_script:
-  #- .travis/send_status.sh
+  - .travis/send_status.sh
