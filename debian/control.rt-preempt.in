@@ -5,7 +5,7 @@ Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime,
 # These Debian-style RT_PREEMPT package names are restricted by
 # architecture; ARM arch SOCs are all incompatible, so this can't be
 # easily done for ARM.
- linux-image-4.1.19-rt22mah [i386], linux-image-4.1.19-rt22mah [amd64]
+ linux-image-rt-686-pae [i386], linux-image-rt-amd64 [amd64]
 Provides:  machinekit-rt-threads
 Suggests: hostmot2-firmware-all [!armhf]
 Breaks: machinekit-dev

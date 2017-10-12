@@ -100,15 +100,9 @@ do_posix() {
     HAVE_FLAVOR=true
 }
 
-## cater for fact that Stretch now has it's own rt-preempt kernels
 do_rt-preempt() {
-    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cat control.rt-preempt-stretch.in >> control
-	echo "debian/control:  added RT_PREEMPT threads package for Stretch" >&2
-    else
-	cat control.rt-preempt.in >> control
-	echo "debian/control:  added RT_PREEMPT threads package for Wheezy/Jessie" >&2
-    fi
+    cat control.rt-preempt.in >> control
+    echo "debian/control:  added RT_PREEMPT threads package" >&2
     
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
@@ -275,16 +269,8 @@ HAVE_KTHREADS_FLAVOR=false
 rm -f machinekit-{rtai,xenomai}-kernel-*.install
 
 # copy base templates into place
-# stretch uses some different packages
-if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cp control-stretch.in control
-	echo "debian/control:  copied Stretch base template" >&2
-    else
-	cp control.in control
-	echo "debian/control:  copied base template" >&2
-    fi
-    
-
+cp control.in control
+echo "debian/control:  copied base template" >&2
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
 cp machinekit.install.in machinekit.install
