@@ -462,9 +462,9 @@ callback_http(struct libwebsocket_context *context,
 	    zloop_poller_end (self->netopts.z_loop, &wss->wsqin_pollitem);
 
 	    if (wss->socket != NULL)
-		zsock_destroy (wss->socket);
-	    zsock_destroy (wss->wsq_in);
-	    zsock_destroy (wss->wsq_out);
+		zsock_destroy (&wss->socket);
+	    zsock_destroy (&wss->wsq_in);
+	    zsock_destroy (&wss->wsq_out);
 
 	    uriFreeQueryListA(wss->queryList);
 	    uriFreeUriMembersA(&wss->u);

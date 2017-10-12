@@ -138,8 +138,11 @@ zmq_init(wtself_t *self)
 
     mk_netopts_t *np = &self->netopts;
 
-    np->z_context = zsock_new ();
-    assert(np->z_context);
+    // These are the only lines in the entire code base which use np->z_context
+    // a call to zsock_new() with no arg is invalid
+    // assuming this is dead code
+    //np->z_context = zsock_new ();
+    //assert(np->z_context);
 
     np->z_loop = zloop_new();
     assert (np->z_loop);
@@ -448,8 +451,9 @@ int main (int argc, char *argv[])
     mk_withdraw(&self.mksock);
     // probably should run zloop here until deregister complete
 
+    // there is no context, which is presumably what line 144 did
     // shutdown zmq context
-    zsock_destroy(&self.netopts.z_context);
+    //zsock_destroy(&self.netopts.z_context);
 
     exit(0);
 }
