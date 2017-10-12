@@ -114,7 +114,7 @@ pbzws_policy(wtself_t *server,
 	switch (type) {
 	case zws::MT_SOCKET:
 	    wss->socket_type = self->pzf->stype();
-	    wss->socket = zsock_new (server->ctx, wss->socket_type);
+	    wss->socket = zsock_new(wss->socket_type);
 	    if (self->cfg->ipv6) {
 		zsock_set_ipv6 (wss->socket, 1);
 		assert (zsock_ipv6 (wss->socket) == 1);
