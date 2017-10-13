@@ -125,7 +125,7 @@ typedef enum protocol_flags {
 
 // per-session data
 typedef struct zws_session_data {
-    void *socket; // zmq destination
+    zsock_t *socket; // zmq destination
     zmq_pollitem_t pollitem;
     int socket_type;
 #ifdef LWS_NEW_API
@@ -139,8 +139,8 @@ typedef struct zws_session_data {
     struct libwebsocket *wsiref;
     struct libwebsocket_context *ctxref;
 #endif
-    void *wsq_in;
-    void *wsq_out;
+    zsock_t *wsq_in;
+    zsock_t *wsq_out;
     zmq_pollitem_t wsqin_pollitem;
     bool wsqin_poller_active; // false - disabled while send pipe choked
 
