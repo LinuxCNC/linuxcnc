@@ -140,7 +140,7 @@ modules:  userspace
 
 ifeq ($(HAVE_KERNEL_THREADS),yes)
     @test -f ../libexec/linuxcnc_module_helper -a \
-    	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
+	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
 	    ! -u ../libexec/linuxcnc_module_helper \) \
         && need_setuid=1; 
 endif
