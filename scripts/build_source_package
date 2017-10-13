@@ -14,8 +14,8 @@ SOURCE_DIR=$(readlink -f $(dirname ${0})/..)
 test ${TRAVIS_PULL_REQUEST:-false} = false && IS_PR=false || IS_PR=true
 
 case $TAG in
-    amd64|i386|armhf) DISTRO=jessie ;;
-    raspbian) DISTRO=raspbian ;;
+    *_8) DISTRO=jessie ;;
+    *_9) DISTRO=stretch ;;
 esac
 
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
