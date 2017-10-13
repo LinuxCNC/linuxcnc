@@ -88,7 +88,7 @@ export TAG
 declare -a BUILD_CL DOCKER_EXTRA_OPTS
 case $CMD in
     "shell"|"") # Interactive shell (default)
-	DOCKER_EXTRA_OPTS=( --privileged )
+	DOCKER_EXTRA_OPTS=( --privileged --interactive --tty )
 	if test -z "$*"; then
 	    BUILD_CL=( bash -i )
 	else
