@@ -110,6 +110,10 @@ case $CMD in
 	    -e TRAVIS_REPO=$TRAVIS_REPO
 	    -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG
 	)
+
+	# Set changelog location
+	BUILD_OPTS+=" --changes-option=-ldebian/changelog.new"
+
 	BUILD_CL=( bash -xec "
             # configure source package
             debian/configure ${PKG_CONFIGURE_ARGS};
