@@ -983,9 +983,10 @@ PKG_CHECK_MODULES([LWS], libwebsockets,
    ],)
 
 AC_MSG_CHECKING(whether to build webtalk)
-AC_ARG_ENABLE(webtalk,
-    [  --enable-webtalk    build Webtalk],
-    [
+AC_ARG_ENABLE([webtalk],
+    AS_HELP_STRING([--enable-webtalk="ARG"], [build Webtalk [ARG=yes] ]))
+
+    AS_IF([test "x$enable_webtalk" = "xyes"], [
 	if test "$USE_LWS" != "yes"; then
 	    AC_MSG_ERROR([Please install libwebsockets before building Webtalk.])
 	fi
