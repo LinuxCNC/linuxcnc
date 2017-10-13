@@ -3,8 +3,7 @@
 /rules
 /files
 /configure.cmdline
-/machinekit.install
-/machinekit-*-kernel-*.install
+/machinekit*.install
 /machinekit-dev.install
 
 # directory artifacts
