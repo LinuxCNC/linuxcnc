@@ -169,7 +169,7 @@ set -x  # Show user the command
 # - Set hostname to $IMAGE:$TAG (replace `/` and `:` with `-`)
 # - Run build command as set above
 # hide --it
-docker run \
+exec docker run \
     --rm \
     "${DOCKER_EXTRA_OPTS[@]}" \
     -u $DUID:$DGID -e USER=${USER} \
