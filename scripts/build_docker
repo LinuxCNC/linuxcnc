@@ -1,11 +1,8 @@
 #!/bin/bash -e
 #
-# Build/cross-build Machinekit in Docker
+# Build/cross-build packages and test Machinekit in Docker
 #
-# This script can be run manually or in Travis CI.  Sample manual
-# usage, `$PWD` is the `src/` directory:
-#
-# .travis/docker_build.sh
+# This script can be run manually or in Travis CI
 
 ###########################################################
 # Configuration from environment, CL args and defaults
@@ -37,7 +34,7 @@ shift $(($OPTIND - 1))
 case ${TAG} in
     amd64_*)
 	BUILD_OPTS='-b'                  # Build all binary packages
-	RUN_TESTS='runtests tests'       # Run tests on build arch
+	RUN_TESTS='runtests'             # Run tests on build arch
 	;;
     i386_*)                              # Machine arch: i386
 	BUILD_OPTS="-a i386"             # - Set machine arch
@@ -127,6 +124,10 @@ case $CMD in
 	)
 	;;
     "test") # RIP build and regression tests
+	if "$TEST_DEBUG" = true; then
+	    DOCKER_EXTRA_OPTS=( -e MSGD_OPTS=-s -e DEBUG=5 )
+	fi
+	TEST_ARGS="${TEST_ARGS:-tests}"
 	BUILD_CL=( bash -xec "
             # Set up build:  \`autoconf\` and \`make\`
 	    (
@@ -147,7 +148,7 @@ case $CMD in
 	    flavor;
 
             # Run regression tests
-	    ${RUN_TESTS}"
+	    ${RUN_TESTS} ${TEST_ARGS}"
 	)
 	;;
     *)   echo "Unkown command '$CMD'" >&2; exit 1 ;;
