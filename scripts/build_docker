@@ -140,7 +140,7 @@ case $CMD in
 	    make -C src -j${JOBS};
 
             # Set up runtime:  setuid, environment, ini
-	    sudo make -C src setuid;
+	    sudo make -C src setuid || true;  # Don't exit if this fails
 	    . scripts/rip-environment;
 	    echo -e 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> \
 		etc/linuxcnc/machinekit.ini;
