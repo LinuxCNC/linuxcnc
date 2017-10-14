@@ -129,20 +129,22 @@ case $CMD in
     "test") # RIP build and regression tests
 	BUILD_CL=( bash -xec "
             # Set up build:  \`autoconf\` and \`make\`
-	    cd src;
-	    ./autogen.sh;
-	    ./configure --host=\$HOST_MULTIARCH;
+	    (
+		cd src;
+		./autogen.sh;
+		./configure --host=\$HOST_MULTIARCH;
+	    )
 
             # Build
-	    make -j${JOBS};
+	    make -C src -j${JOBS};
 
             # Set up runtime:  setuid, environment, ini
-	    sudo make setuid >& /dev/null || true;
-	    cd ..;
+	    sudo make -C src setuid;
 	    . scripts/rip-environment;
 	    echo -e 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> \
 		etc/linuxcnc/machinekit.ini;
-	    tail etc/linuxcnc/machinekit.ini;
+	    tail -2 etc/linuxcnc/machinekit.ini;
+	    flavor;
 
             # Run regression tests
 	    ${RUN_TESTS}"
