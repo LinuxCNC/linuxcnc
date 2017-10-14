@@ -132,7 +132,7 @@ case $CMD in
 	    (
 		cd src;
 		./autogen.sh;
-		./configure --host=\$HOST_MULTIARCH;
+		./configure --host=\$HOST_MULTIARCH --with-posix;
 	    )
 
             # Build
