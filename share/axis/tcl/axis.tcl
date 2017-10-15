@@ -2020,8 +2020,6 @@ foreach c {Entry Spinbox} {
 
     foreach b { Left Right
             Up Down Prior Next Home
-            Left Right Up Down 
-            Prior Next Home 
             End } {
         bind $c <KeyPress-$b> {+if {[%W cget -state] == "normal"} break}
         bind $c <KeyRelease-$b> {+if {[%W cget -state] == "normal"} break}
