@@ -68,7 +68,7 @@ esac
 export DEB_BUILD_OPTIONS="parallel=${JOBS}"
 
 # UID/GID to carry into Docker
-DUID=`id -u`; DGID=`id -g`
+UID_GID=${UID_GID:-`id -u`:`id -g`}
 
 # Bind source directory:  parent of $PWD for packages
 BIND_SOURCE_DIR="$(readlink -f $PWD/..)"
@@ -155,6 +155,21 @@ case $CMD in
 esac
 
 ###########################################################
+# Update container image with custom /etc/passwd
+
+if test ${UID_GID/:*/} != 1000; then
+    echo "Updating /etc/passwd for UID $TRAVIS_UID" >&2
+    NEWTAG=${TAG}_custom
+    docker build -t ${IMAGE}:${NEWTAG} - <<EOF
+FROM ${IMAGE}:${TAG}
+RUN sed -i "s/\${USER}:x:\${UID}:/\${USER}:x:${UID_GID/:*/}:/" /etc/passwd
+ENV UID=${UID_GID/:*/}
+EOF
+else
+    NEWTAG=${TAG}
+fi
+
+###########################################################
 # Run build
 
 set -x  # Show user the command
@@ -172,10 +187,10 @@ set -x  # Show user the command
 exec docker run \
     --rm \
     "${DOCKER_EXTRA_OPTS[@]}" \
-    -u $DUID:$DGID -e USER=${USER} \
+    -u ${UID_GID} -e USER=${USER} \
     -v ${HOME}:${HOME} -e HOME=${HOME} \
     -v ${BIND_SOURCE_DIR}:${BIND_SOURCE_DIR} -w ${PWD} \
     -e TAG=${TAG} \
     -h ${IMAGE//[\/:]/-}-${TAG} \
-    ${IMAGE}:${TAG} \
+    ${IMAGE}:${NEWTAG} \
     "${BUILD_CL[@]}"
