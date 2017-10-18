@@ -202,7 +202,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->dpll.control_reg1_written= buff;
     }
     buff = (rtapi_u32)((-*hm2->dpll.pins->time2_us / period_us) * 0x10000) << 16
-         | (rtapi_u32)((-*hm2->dpll.pins->time1_us / period_us) * 0x10000);
+         | ((rtapi_u32)((-*hm2->dpll.pins->time1_us / period_us) * 0x10000) & 0xFFFF);
     if (buff != hm2->dpll.timer_12_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_12_addr,
@@ -211,7 +211,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->dpll.timer_12_written = buff;
     }
     buff = (rtapi_u32)((-*hm2->dpll.pins->time4_us / period_us) * 0x10000) << 16
-         | (rtapi_u32)((-*hm2->dpll.pins->time3_us / period_us) * 0x10000);
+         | ((rtapi_u32)((-*hm2->dpll.pins->time3_us / period_us) * 0x10000) & 0xFFFF);
     if (buff != hm2->dpll.timer_34_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_34_addr,
