@@ -226,10 +226,10 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
-configure: configure.in
+configure: configure.ac
 	AUTOGEN_TARGET=configure ./autogen.sh
 
-config.h.in: configure.in
+config.h.in: configure.ac
 	AUTOGEN_TARGET=config.h.in ./autogen.sh
 
 config.status: configure
