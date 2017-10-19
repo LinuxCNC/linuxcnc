@@ -1310,7 +1310,6 @@ int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rt
 //
 
 void hm2_dpl_cleanup(hostmot2_t *hm2);
-int hm2_dpll_force_write(hostmot2_t *hm2);
 int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_dpll_write(hostmot2_t *hm2, long period);
