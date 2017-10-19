@@ -119,6 +119,10 @@ where the switch or index pulse is latched and the zero point of the
 joint. After detecting the index pulse, LinuxCNC sets the joint coordinate
 of the current point to HOME_OFFSET. The default value is zero.
 
+NOTE: The home switch location, as indicated by the HOME_OFFSET variable,
+must be strictly within the soft limits.  That is, `MIN_LIMIT <
+HOME_OFFSET < MAX_LIMIT`.
+
 === HOME (((HOME)))
 
 The position that the joint will go to upon completion of the homing
@@ -133,10 +137,10 @@ final move will be made at the joint's maximum velocity unless HOME_FINAL has
 been set.
 
 [NOTE]
-The distinction between 'home_offset' and 'home' is that 'home_offset' first
-establishes the scale location on the machine by applying the 'home_offset'
-value to the location where home was found, and then 'home' says where the
-joint should move to on that scale.]
+The distinction between 'HOME_OFFSET' and 'HOME' is that 'HOME_OFFSET' first
+establishes the scale location on the machine by applying the 'HOME_OFFSET'
+value to the location where home was found, and then 'HOME' says where the
+joint should move to on that scale.
 
 === HOME_IS_SHARED (((HOME IS SHARED)))
 

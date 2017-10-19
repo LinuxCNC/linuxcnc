@@ -41,7 +41,7 @@ MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
-static int ioaddr[HM2_7I90_MAX_BOARDS] = { 0x378, 0x278, [2 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
+static int ioaddr[HM2_7I90_MAX_BOARDS] = { [0 ... (HM2_7I90_MAX_BOARDS-1)] = -1 };
 RTAPI_MP_ARRAY_INT(ioaddr, HM2_7I90_MAX_BOARDS, "base address of the parallel port(s) (see hm2_7i90(9) manpage)");
 
 static int ioaddr_hi[HM2_7I90_MAX_BOARDS] = { [0 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
@@ -379,15 +379,22 @@ static void hm2_7i90_cleanup(void) {
 
 static int hm2_7i90_setup(void) {
     int i;
+    int flag = 0;
 
     LL_PRINT("loading HostMot2 Mesa 7i90 driver version %s\n", HM2_7I90_VERSION);
 
     // zero the board structs
     memset(board, 0, HM2_7I90_MAX_BOARDS * sizeof(hm2_7i90_t));
     num_boards = 0;
-
+    // previously the ioaddr array was initialised with two guesses, 0x378 and 0x278
+    // and the number of config strings was used to tell how many boards to expect
+    // This is in case any config out there _relies_ on this
+    if (ioaddr[0] == -1){
+        flag = 1;
+        ioaddr[0] = 0x378; ioaddr[1] = 0x278;
+    }
     for (i = 0; i < HM2_7I90_MAX_BOARDS; i ++) {
-        if(!config[i] || !*config[i]) break;
+        if (ioaddr[i] < 0) break;
 
         hm2_lowlevel_io_t *this;
         int r;
@@ -450,15 +457,18 @@ static int hm2_7i90_setup(void) {
 
         r = hm2_register(&board[i].llio, config[i]);
         if (r != 0) {
+            hal_parport_release(&board[i].port);
+            if (flag && i > 0){
+            // we found a board, and were guessing addresses so failing here is OK
+                return 0;
+            } else {
             THIS_ERR(
                 "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
                 board[i].port.base,
                 board[i].port.base_hi,
-                (board[i].epp_wide ? "ON" : "OFF")
-            );
-
-            hal_parport_release(&board[i].port);
-            return r;
+                (board[i].epp_wide ? "ON" : "OFF"));
+                return r;
+            }
         }
 
         THIS_PRINT(
