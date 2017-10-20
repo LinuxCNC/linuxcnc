@@ -970,7 +970,7 @@ int main(int argc, char **argv)
 
     openlog_async(proctitle, option , SYSLOG_FACILITY);
     // max out async syslog buffers for slow system in debug mode
-    tunelog_async(99,1000);
+    tunelog_async(99,10);
 
     // set new process name
     argv0_len = strlen(argv[0]);

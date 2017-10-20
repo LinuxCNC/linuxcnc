@@ -44,8 +44,8 @@ test -n "$TAG" || error "TAG not set"
 # Set up
 
 case $TAG in
-    raspbian)  DISTRO=raspbian; exit_nice "FIXME:  not pushing Raspbian packages" ;;
-    amd64|i386|armhf) DISTRO=jessie ;;
+    *_8)  DISTRO=jessie ;;
+    *_9) DISTRO=stretch ;;
     *) error "Unknown tag '$TAG'" ;;
 esac
 
@@ -56,10 +56,14 @@ PACKAGECLOUD_ARCHIVE=${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}/debian/${DISTRO}
 ################################################
 # Deploy
 
-if [ "${TAG}" = "amd64" ]; then
-    set -x  # Show user
-#    package_cloud push ${PACKAGECLOUD_ARCHIVE} ../*.dsc
-else
-    set -x  # Show user
-fi
-#package_cloud push ${PACKAGECLOUD_ARCHIVE} ../*_$TAG.deb
+case "${TAG}" in
+    *)
+	set -x  # Show user what's happening
+	;;& # fall through
+    amd64_*)
+	# Push source packages on amd64 native arch only
+	package_cloud push ${PACKAGECLOUD_ARCHIVE} ../*.dsc
+	;;
+esac
+# Push binary packages
+package_cloud push ${PACKAGECLOUD_ARCHIVE} ../*_$TAG.deb

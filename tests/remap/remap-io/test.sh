@@ -2,7 +2,7 @@
 
 do_test() {
     INI=$1
-    linuxcnc -r $INI | grep -i m6
+    linuxcnc -r $INI
 }
 
 echo "**********  Testing python remaps"

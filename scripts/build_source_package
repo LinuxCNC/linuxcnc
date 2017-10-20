@@ -8,14 +8,18 @@
 
 # Whether to actually build the source
 BUILD_SOURCE=$1
+if test "$1" != "true" -a "$1" != "false"; then
+    echo "Usage:  $0 [ true | false ]" >&2
+    exit 1
+fi
 
 # Computed variables
 SOURCE_DIR=$(readlink -f $(dirname ${0})/..)
 test ${TRAVIS_PULL_REQUEST:-false} = false && IS_PR=false || IS_PR=true
 
 case $TAG in
-    amd64|i386|armhf) DISTRO=jessie ;;
-    raspbian) DISTRO=raspbian ;;
+    *_8) DISTRO=jessie ;;
+    *_9) DISTRO=stretch ;;
 esac
 
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
@@ -81,8 +85,7 @@ echo "RELEASE=$RELEASE"
 
 cd ${SOURCE_DIR}
 
-mv debian/changelog debian/changelog.orig
-cat > debian/changelog <<EOF
+cat > debian/changelog.new <<EOF
 machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
   * Travis CI rebuild
@@ -95,16 +98,16 @@ machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
 EOF
 echo "New changelog entry:"
-cat debian/changelog # debug output
-cat debian/changelog.orig >> debian/changelog
+cat debian/changelog.new # debug output
+cat debian/changelog >> debian/changelog.new
 
-if test "$BUILD_SOURCE" = true; then
-    set -x # Let user see
+if $BUILD_SOURCE; then
+    set -x # Let user see what's going on
 
     # create .orig tarball
     git archive HEAD | \
-	bzip2 -z | tee ../machinekit_${VERSION}.orig.tar.bz2 >/dev/null
+	bzip2 -z | dd of=../machinekit_${VERSION}.orig.tar.bz2
 
     # build source package
-    dpkg-source -b .
+    dpkg-source -l${PWD}/debian/changelog.new -b .
 fi
