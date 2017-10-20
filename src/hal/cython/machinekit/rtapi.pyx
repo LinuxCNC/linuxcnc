@@ -156,7 +156,7 @@ def classify_comp(comp):
     if not comp in hal.components:
         return CS_NOT_LOADED
     c = hal.components[comp]
-    if c.type is not hal.TYPE_RT:
+    if c.type != hal.TYPE_RT:
         return CS_NOT_RT
     if not c.has_ctor:
         return CS_RTLOADED_NOT_INSTANTIABLE
