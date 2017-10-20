@@ -50,6 +50,8 @@
 #define GPIO_CLEARDATAOUT 	0x190
 #define GPIO_DATAIN			0x138
 
+#define HEADERS 			 2
+
 typedef struct {
     volatile void *gpio_addr;
     volatile unsigned int *oe_reg;
@@ -77,7 +79,38 @@ bb_gpio_pin user_led_gpio_pins[4] = {
     { NULL, 1, 24, 0x860, 0 }	// led3, gpmc_a8
 };
 
-bb_gpio_pin p8_pins[47] = {
+// Max pins per header for all boards
+#define MAX_PINS_PER_HEADER 46
+
+// board ID:  Must set this in rtapi_app_main()
+extern int board_id;
+
+// Per-board info macros; depend on board_id
+// - Add new boards to BOARD_MACRO as needed
+# define BOARD_MACRO(name) (						\
+	(board_id == BEAGLEBONE) ? BEAGLEBONE_ ## name			\
+	: POCKETBEAGLE_ ## name						\
+	)
+#define HLO_PINS BOARD_MACRO(HLO_PINS)
+#define HHI_PINS BOARD_MACRO(HHI_PINS)
+#define PINS_PER_HEADER BOARD_MACRO(PINS_PER_HEADER)
+#define HLO_HEADER BOARD_MACRO(HLO_HEADER)
+#define HHI_HEADER BOARD_MACRO(HHI_HEADER)
+#define HLO_BASEPIN (HLO_HEADER * 100)
+#define HHI_BASEPIN (HHI_HEADER * 100)
+#define HLO_FIRSTPIN (HLO_HEADER * 100 + 1)
+#define HHI_FIRSTPIN (HHI_HEADER * 100 + 1)
+#define HLO_LASTPIN (HLO_HEADER * 100 + PINS_PER_HEADER)
+#define HHI_LASTPIN (HHI_HEADER * 100 + PINS_PER_HEADER)
+
+
+// BeagleBone definitions
+#define BEAGLEBONE 0  // board ID
+#define BEAGLEBONE_PINS_PER_HEADER 46
+#define BEAGLEBONE_HLO_HEADER 8
+#define BEAGLEBONE_HHI_HEADER 9
+
+bb_gpio_pin BEAGLEBONE_HLO_PINS[BEAGLEBONE_PINS_PER_HEADER+1] = {
     { NULL, -1, -1, -1, 1 }, // 0 unused
     { NULL, -1, -1, -1, 1 }, // 1 GND 
     { NULL, -1, -1, -1, 1 }, // 2 GND 
@@ -127,7 +160,7 @@ bb_gpio_pin p8_pins[47] = {
     { NULL, 2,  7, 0x8A4, 0 }  // pin 46, lcd_data1
 };
 
-bb_gpio_pin p9_pins[47] = {
+bb_gpio_pin BEAGLEBONE_HHI_PINS[BEAGLEBONE_PINS_PER_HEADER+1] = {
     { NULL, -1, -1, -1, 1 }, // 0 unused
     { NULL, -1, -1, -1, 1 }, // 1 GND 
     { NULL, -1, -1, -1, 1 }, // 2 GND 
@@ -180,6 +213,91 @@ bb_gpio_pin p9_pins[47] = {
     { NULL, -1, -1, -1, 1 }, // 46 GND 
 };
 
+// PocketBeagle definitions
+#define POCKETBEAGLE 1  // board ID
+#define POCKETBEAGLE_PINS_PER_HEADER 36
+#define POCKETBEAGLE_HLO_HEADER 1
+#define POCKETBEAGLE_HHI_HEADER 2
+
+bb_gpio_pin POCKETBEAGLE_HLO_PINS[POCKETBEAGLE_PINS_PER_HEADER+1] = {
+    { NULL, -1, -1,    -1, 0 }, // pin 0
+    { NULL, -1, -1,    -1, 0 }, // pin 1
+    { NULL,  2, 23, 0x8e4, 0 }, // pin 2
+    { NULL, -1, -1,    -1, 0 }, // pin 3
+    { NULL,  2, 25, 0x8ec, 0 }, // pin 4
+    { NULL, -1, -1,    -1, 0 }, // pin 5
+    { NULL,  0,  5, 0x95c, 0 }, // pin 6
+    { NULL, -1, -1,    -1, 0 }, // pin 7
+    { NULL,  0,  2, 0x950, 0 }, // pin 8
+    { NULL, -1, -1,    -1, 0 }, // pin 9
+    { NULL,  0,  3, 0x954, 0 }, // pin 10
+    { NULL, -1, -1,    -1, 0 }, // pin 11
+    { NULL,  0,  4, 0x958, 0 }, // pin 12
+    { NULL, -1, -1,    -1, 0 }, // pin 13
+    { NULL, -1, -1,    -1, 0 }, // pin 14
+    { NULL, -1, -1,    -1, 0 }, // pin 15
+    { NULL, -1, -1,    -1, 0 }, // pin 16
+    { NULL, -1, -1,    -1, 0 }, // pin 17
+    { NULL, -1, -1,    -1, 0 }, // pin 18
+    { NULL, -1, -1,    -1, 0 }, // pin 19
+    { NULL,  0, 20, 0x9b4, 0 }, // pin 20
+    { NULL, -1, -1,    -1, 0 }, // pin 21
+    { NULL, -1, -1,    -1, 0 }, // pin 22
+    { NULL, -1, -1,    -1, 0 }, // pin 23
+    { NULL, -1, -1,    -1, 0 }, // pin 24
+    { NULL, -1, -1,    -1, 0 }, // pin 25
+    { NULL,  0, 12, 0x978, 0 }, // pin 26
+    { NULL, -1, -1,    -1, 0 }, // pin 27
+    { NULL,  0, 13, 0x97c, 0 }, // pin 28
+    { NULL,  3, 21, 0x9ac, 0 }, // pin 29
+    { NULL,  1, 11, 0x974, 0 }, // pin 30
+    { NULL,  3, 18, 0x9a0, 0 }, // pin 31
+    { NULL,  1, 10, 0x970, 0 }, // pin 32
+    { NULL,  3, 15, 0x994, 0 }, // pin 33
+    { NULL,  0, 26, 0x828, 0 }, // pin 34
+    { NULL,  2, 24, 0x8e8, 0 }, // pin 35
+    { NULL,  3, 14, 0x990, 0 }, // pin 36
+};
+
+bb_gpio_pin POCKETBEAGLE_HHI_PINS[POCKETBEAGLE_PINS_PER_HEADER+1] = {
+    { NULL, -1, -1,    -1, 0 }, // pin 0
+    { NULL,  1, 18, 0x848, 0 }, // pin 1
+    { NULL,  1, 27, 0x86c, 0 }, // pin 2
+    { NULL,  0, 23, 0x824, 0 }, // pin 3
+    { NULL,  1, 26, 0x868, 0 }, // pin 4
+    { NULL,  0, 30, 0x870, 0 }, // pin 5
+    { NULL,  1, 25, 0x864, 0 }, // pin 6
+    { NULL,  0, 31, 0x874, 0 }, // pin 7
+    { NULL,  1, 28, 0x878, 0 }, // pin 8
+    { NULL,  0, 15, 0x984, 0 }, // pin 9
+    { NULL,  1, 20, 0x850, 0 }, // pin 10
+    { NULL,  0, 14, 0x980, 0 }, // pin 11
+    { NULL, -1, -1,    -1, 0 }, // pin 12
+    { NULL, -1, -1,    -1, 0 }, // pin 13
+    { NULL, -1, -1,    -1, 0 }, // pin 14
+    { NULL, -1, -1,    -1, 0 }, // pin 15
+    { NULL, -1, -1,    -1, 0 }, // pin 16
+    { NULL,  2,  1, 0x88c, 0 }, // pin 17
+    { NULL,  1, 15, 0x83c, 0 }, // pin 18
+    { NULL,  0, 27, 0x82c, 0 }, // pin 19
+    { NULL,  2,  0, 0x888, 0 }, // pin 20
+    { NULL, -1, -1,    -1, 0 }, // pin 21
+    { NULL,  1, 14, 0x838, 0 }, // pin 22
+    { NULL, -1, -1,    -1, 0 }, // pin 23
+    { NULL,  1, 16, 0x840, 0 }, // pin 24
+    { NULL,  1,  9, 0x96c, 0 }, // pin 25
+    { NULL, -1, -1,    -1, 0 }, // pin 26
+    { NULL,  1,  8, 0x968, 0 }, // pin 27
+    { NULL,  3, 20, 0x9a8, 0 }, // pin 28
+    { NULL,  0,  7, 0x964, 0 }, // pin 29
+    { NULL,  3, 17, 0x99c, 0 }, // pin 30
+    { NULL,  0, 19, 0x9b0, 0 }, // pin 31
+    { NULL,  3, 16, 0x998, 0 }, // pin 32
+    { NULL,  1, 13, 0x834, 0 }, // pin 33
+    { NULL,  3, 19, 0x9a4, 0 }, // pin 34
+    { NULL,  2, 22, 0x8e0, 0 }, // pin 35
+    { NULL, -1, -1,    -1, 0 }, // pin 36
+};
 
 
 #endif
