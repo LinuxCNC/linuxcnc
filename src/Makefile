@@ -1397,7 +1397,7 @@ endif
 ifdef TARGET_PLATFORM_BEAGLEBONE
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
-hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o
+hal_bb_gpio-objs := hal/drivers/hal_bb_gpio/hal_bb_gpio.o
 obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
