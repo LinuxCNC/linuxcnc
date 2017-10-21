@@ -8,8 +8,13 @@ fi
 
 # skip upload on failure
 if [ "${TRAVIS_TEST_RESULT}" -eq 0 ] && [ ! -f ~/no_sftp ]; then
-    cd ${TRAVIS_BUILD_DIR}
-    tar cvzf ${FILE} -C deploy .
+    if [ -d ${ROOTFS}/${MACHINEKIT_PATH}/deploy ]; then
+        cd ${TRAVIS_BUILD_DIR}
+	tar cvzf ${FILE} -C ${ROOTFS}/${MACHINEKIT_PATH}/deploy .
+    else
+	echo "${ROOTFS}/${MACHINEKIT_PATH}/deploy is missing";
+	ls -alR ${ROOTFS}/${MACHINEKIT_PATH}/
+    fi
 
 cat >sftp_cmds <<EOF
 cd shared/incoming
