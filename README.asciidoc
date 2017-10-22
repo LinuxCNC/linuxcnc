@@ -1,4 +1,4 @@
-Travis: image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Travis Build Status", link="https://travis-ci.org/machinekit/machinekit"]
+Machinekit: image:https://jenkins.machinekit.io/buildStatus/icon?job=machinekit-builder[]
 
 Manpages: image:https://jenkins.machinekit.io/buildStatus/icon?job=machinekit-manpages[]
 
