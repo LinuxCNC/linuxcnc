@@ -622,118 +622,118 @@ msgstr "超出 正 軟極限在 Joint %d"
 #: src/emc/motion/control.c:1406
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
-msgstr "超出 負 軟限制在 Joint %d"
+msgstr "在关节 %d 超出负向软极限"
 
 #: src/emc/motion/command.c:160
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr "不能 慢步 無效的 Joint 號碼 %d."
+msgstr "不能点动，无效的关节号码 %d."
 
 #: src/emc/motion/command.c:164
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "不能 慢步 Joint %d  超過 最大 的 硬 極限."
+msgstr "不能点动关节  %d  超出正向硬极限"
 
 #: src/emc/motion/command.c:169
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "不能 慢步 Joint %d  超過 最小 的 硬 極限."
+msgstr "不能点动关节  %d  超出负向硬极限"
 
 #: src/emc/motion/command.c:175
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr "不能 慢步 Joint %d  超過 最大 的 軟 極限"
+msgstr "不能点动关节 %d  超出正向软极限"
 
 #: src/emc/motion/command.c:180
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr "不能 慢步 Joint %d  超過 最小 的 軟 極限"
+msgstr "不能点动关节  %d  超出负向软极限"
 
 #: src/emc/motion/command.c:237
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
-msgstr "%s移动在行%d将超过联动%d's的正极限"
+msgstr "%s移动在行%d将超过关节%d's的正极限"
 
 #: src/emc/motion/command.c:243
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
-msgstr "%s移动在行%d将超过联动%d's的负极限"
+msgstr "%s移动在行%d将超过关节%d's的负极限"
 
 #: src/emc/motion/command.c:493
 msgid "all joints must be homed before going into coordinated mode"
-msgstr "所有 joint 一定 要在 零點 才能 進入 坐標 模式"
+msgstr "所有关节必须在进入坐标模式之前回原点"
 
 #: src/emc/motion/command.c:514
 msgid "all joints must be homed before going into teleop mode"
-msgstr "所有 Joint 一定 要在 零點 才能  進入 遠程操作 模式"
+msgstr "所有关节必须在进入远程传送模式之前回原点"
 
 #: src/emc/motion/command.c:668 src/emc/motion/command.c:734
 #: src/emc/motion/command.c:807
 msgid "Can't jog joint in coordinated mode."
-msgstr "不能 慢步 joint 在 坐標 模式"
+msgstr "在坐标模式下无法进行点动关节"
 
 #: src/emc/motion/command.c:673 src/emc/motion/command.c:739
 #: src/emc/motion/command.c:812
 msgid "Can't jog joint when not enabled."
-msgstr "不能 慢步 Joint 未有 允許 "
+msgstr "未启用时不能进行点动关节"
 
 #: src/emc/motion/command.c:678 src/emc/motion/command.c:817
 msgid "Can't jog any joints while homing."
-msgstr "不能 慢步 Joint 當 在 歸零 時"
+msgstr "在回原点时不能点动任何关节"
 
 #: src/emc/motion/command.c:744
 msgid "Can't jog any joint while homing."
-msgstr "不能 慢步 Joint 當 在 歸零 時"
+msgstr "在回原点时不能点动任何关节"
 
 #: src/emc/motion/command.c:874
 msgid "need to be enabled, in coord mode for linear move"
-msgstr "要有 允許 才能在 坐標 模式 作直線移動"
+msgstr "需要启用才能在坐标模式下进行线性移动"
 
 #: src/emc/motion/command.c:884
 msgid "can't do linear move with limits exceeded"
-msgstr "不能 加入 直線 移動 當 超出 極限"
+msgstr "超出限位，不能做线性移动"
 
 #: src/emc/motion/command.c:905
 #, c-format
 msgid "can't add linear move at line %d, error code %d"
-msgstr ""
+msgstr "不能在行%d处添加线性移动，错误代码%d"
 
 #: src/emc/motion/command.c:933
 msgid "need to be enabled, in coord mode for circular move"
-msgstr "需要允許才能 作 坐標模式 的環形移動"
+msgstr "需要启用才能在坐标模式下进行环形移动"
 
 #: src/emc/motion/command.c:943
 msgid "can't do circular move with limits exceeded"
-msgstr "不能作 環形的 移動 當 超出 極限"
+msgstr "超出限位，不能做环形移动"
 
 #: src/emc/motion/command.c:961
 #, c-format
 msgid "can't add circular move at line %d, error code %d"
-msgstr ""
+msgstr "不能在行%d处添加环形移动，错误代码%d"
 
 #: src/emc/motion/command.c:1060
 msgid "MOTION: can't STEP while already executing"
-msgstr "動作: 不能 STEP 當 已 在 執行 "
+msgstr "动作: 在执行时不能STEP "
 
 #: src/emc/motion/command.c:1162
 msgid "can't enable motion, enable input is false"
-msgstr "不能 允許 的動作, 允許 輸入 是 偽 "
+msgstr "无法启用运动，使能输入为false "
 
 #: src/emc/motion/command.c:1235
 msgid "must be in joint mode to home"
-msgstr "一定 要在 Joint 模式 才能 歸零 "
+msgstr "必须以联合模式回家 "
 
 #: src/emc/motion/command.c:1246 src/emc/motion/command.c:1257
 msgid "homing sequence already in progress"
-msgstr "歸零 序列 已在 進行中"
+msgstr "回原点序列已在进行中"
 
 #: src/emc/motion/command.c:1255
 msgid "homing already in progress"
-msgstr "歸零 已在 進行中"
+msgstr "回原点已在进行中"
 
 #: src/emc/motion/command.c:1285
 msgid "must be in joint mode or disabled to unhome"
-msgstr "一定 要在 Joint 模式 或 不允許 才 可以 離零"
+msgstr "必须处于联合模式或禁用才可以清除原点"
 
 #: src/emc/motion/command.c:1297 src/emc/motion/command.c:1320
 #, c-format
@@ -1403,11 +1403,17 @@ msgstr ""
 
 #: tcl/bin/pickconfig.tcl:154
 msgid "LinuxCNC Configuration Selector"
-msgstr "Linuxcnc 配置文件選擇器"
+msgstr "Linuxcnc 配置文件选择"
 
 #: tcl/bin/pickconfig.tcl:301
 msgid "No details available."
 msgstr "没有可用的描述"
+
+msgid "Your existing configs"
+msgstr "您现有的配置"
+
+msgid "Available configs"
+msgstr "可用配置"
 
 #: tcl/bin/pickconfig.tcl:378
 msgid ""
@@ -3763,7 +3769,7 @@ msgstr "连续"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:174
 msgid "Home"
-msgstr ""
+msgstr "原点"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:174
 msgid "Send active axis home"
@@ -5209,7 +5215,7 @@ msgstr "坐标："
 
 #: share/axis/tcl/axis.tcl:2064 src/emc/usr_intf/gscreen/gscreen.py:3600
 msgid "Machine"
-msgstr "机床名称："
+msgstr "机床"
 
 #: share/axis/tcl/axis.tcl:2064 src/emc/usr_intf/touchy/touchy.glade:155
 msgid "Relative"
@@ -5447,7 +5453,7 @@ msgstr "主轴正转"
 
 #: src/emc/usr_intf/touchy/touchy.glade:7
 msgid "LinuxCNC/Touchy"
-msgstr "LinuxCNC/敏感的"
+msgstr ""
 
 #.  # Touchy is Copyright (c) 2009-2015  Chris Radek <chris@timeguy.com> # # Touchy is free software: you can redistribute it and/or modify # it under the terms of the GNU General Public License as published by # the Free Software Foundation, either version 2 of the License, or # (at your option) any later version. # # Touchy is distributed in the hope that it will be useful, # but WITHOUT ANY WARRANTY; without even the implied warranty of # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the # GNU General Public License for more details. 
 #: src/emc/usr_intf/touchy/touchy.glade:11
@@ -5939,6 +5945,10 @@ msgstr "<b>显示选项</b>"
 msgid "Inch"
 msgstr "英寸"
 
+#: src/emc/usr_intf/gscreen/gscreen.glade:870
+msgid "MM"
+msgstr "毫米"
+
 #: src/emc/usr_intf/touchy/touchy.glade:3349
 msgid "<b>Position Readout</b>"
 msgstr "<b>位置读数</b>"
@@ -6080,6 +6090,22 @@ msgstr "开始"
 #: src/emc/usr_intf/stepconf/stepconf.py:130
 msgid "Base Information"
 msgstr "基本信息"
+
+#: src/emc/usr_intf/stepconf/stepconf.py:130
+msgid "Screen"
+msgstr "屏幕"
+
+#: src/emc/usr_intf/stepconf/stepconf.py:130
+msgid "External Controls"
+msgstr "外部控制"
+
+#: src/emc/usr_intf/stepconf/stepconf.py:130
+msgid "Mesa Card 0"
+msgstr "Mesa 卡 0"
+
+#: src/emc/usr_intf/stepconf/stepconf.py:130
+msgid "Mesa Card 1"
+msgstr "Mesa 卡 1"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:130
 msgid "Parallel Port 1"
@@ -6592,6 +6618,20 @@ msgstr "毫米/秒"
 msgid "mm / s²"
 msgstr "毫米/秒²"
 
+#: src/emc/usr_intf/stepconf/stepconf.py:1381
+#: src/emc/usr_intf/stepconf/pages.py:631
+#: src/emc/usr_intf/stepconf/axisx.glade:597
+#: src/emc/usr_intf/stepconf/axisy.glade:583
+#: src/emc/usr_intf/stepconf/axisz.glade:583
+#: src/emc/usr_intf/stepconf/axisa.glade:597
+#: src/emc/usr_intf/pncconf/x_motor.glade:1790
+#: src/emc/usr_intf/pncconf/y_motor.glade:1790
+#: src/emc/usr_intf/pncconf/z_motor.glade:1790
+#: src/emc/usr_intf/pncconf/a_motor.glade:1790
+#: src/emc/usr_intf/pncconf/s_motor.glade:1788
+msgid "mm / s&#xB2;"
+msgstr "毫米/秒²"
+
 #: src/emc/usr_intf/stepconf/stepconf.py:1394
 #: src/emc/usr_intf/stepconf/pages.py:636
 msgid "in / s"
@@ -6766,7 +6806,7 @@ msgstr "点动:"
 #: src/emc/usr_intf/stepconf/main_page.glade:63
 #: src/emc/usr_intf/pncconf/dialogs.glade:2820
 msgid "Test Area:"
-msgstr "测试区域："
+msgstr "测试范围："
 
 #: src/emc/usr_intf/stepconf/main_page.glade:97
 msgid "mm/s^2"
@@ -6841,6 +6881,14 @@ msgid "page 1"
 msgstr "页 1"
 
 #: src/emc/usr_intf/stepconf/base.glade:79
+msgid "XZ (Lathe)"
+msgstr "XZ (车床)"
+
+#: src/emc/usr_intf/pncconf/base.glade:79
+msgid "XZ Lathe"
+msgstr "XZ 车床"
+
+#: src/emc/usr_intf/stepconf/base.glade:79
 msgid "Step _Time:"
 msgstr "单步时间："
 
@@ -6875,7 +6923,9 @@ msgstr "驱动程序时序设置"
 msgid ""
 "_Test Base\n"
 "Period Jitter "
-msgstr "延迟测试"
+msgstr ""
+"测试基本\n"
+"周期抖动 "
 
 #: src/emc/usr_intf/stepconf/base.glade:372
 msgid "Machine _Name:"
@@ -6906,7 +6956,7 @@ msgstr "驱动器特性：（以μs或微秒指定的时间乘以1000）"
 
 #: src/emc/usr_intf/stepconf/base.glade:573
 msgid "Base Period Maximum _Jitter:"
-msgstr "计算机延迟："
+msgstr "基本周期最大抖动："
 
 #: src/emc/usr_intf/stepconf/base.glade:630
 #: src/emc/usr_intf/pncconf/base.glade:409
@@ -6925,7 +6975,7 @@ msgstr "并口三"
 
 #: src/emc/usr_intf/stepconf/base.glade:698
 msgid "Min Base Period:"
-msgstr "最小延迟："
+msgstr "最小基本周期："
 
 #: src/emc/usr_intf/stepconf/base.glade:735
 msgid "Max step rate:"
@@ -6933,7 +6983,7 @@ msgstr "最大步速："
 
 #: src/emc/usr_intf/stepconf/start.glade:11
 msgid "Create a _new configuration"
-msgstr "创建一个新的配置"
+msgstr "创建新的配置"
 
 #: src/emc/usr_intf/stepconf/start.glade:29
 #: src/emc/usr_intf/pncconf/start.glade:89
@@ -6972,84 +7022,84 @@ msgstr "导入Mach文件"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:59
 msgid "Pin _1:"
-msgstr ""
+msgstr "针1："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:74
 #: src/emc/usr_intf/stepconf/pport2.glade:768
 #: src/emc/usr_intf/pncconf/pport1.glade:791
 #: src/emc/usr_intf/pncconf/pport2.glade:791
 msgid "Pin _2:"
-msgstr ""
+msgstr "针2："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:89
 #: src/emc/usr_intf/stepconf/pport2.glade:814
 #: src/emc/usr_intf/pncconf/pport1.glade:839
 #: src/emc/usr_intf/pncconf/pport2.glade:839
 msgid "Pin _3:"
-msgstr ""
+msgstr "针3："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:104
 #: src/emc/usr_intf/stepconf/pport2.glade:860
 #: src/emc/usr_intf/pncconf/pport1.glade:887
 #: src/emc/usr_intf/pncconf/pport2.glade:887
 msgid "Pin _4:"
-msgstr ""
+msgstr "针4："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:119
 #: src/emc/usr_intf/stepconf/pport2.glade:906
 #: src/emc/usr_intf/pncconf/pport1.glade:935
 #: src/emc/usr_intf/pncconf/pport2.glade:935
 msgid "Pin _5:"
-msgstr ""
+msgstr "针5："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:134
 #: src/emc/usr_intf/stepconf/pport2.glade:952
 #: src/emc/usr_intf/pncconf/pport1.glade:983
 #: src/emc/usr_intf/pncconf/pport2.glade:983
 msgid "Pin _6:"
-msgstr ""
+msgstr "针6："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:149
 #: src/emc/usr_intf/stepconf/pport2.glade:998
 #: src/emc/usr_intf/pncconf/pport1.glade:1031
 #: src/emc/usr_intf/pncconf/pport2.glade:1031
 msgid "Pin _7:"
-msgstr ""
+msgstr "针7："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:164
 #: src/emc/usr_intf/stepconf/pport2.glade:1044
 #: src/emc/usr_intf/pncconf/pport1.glade:1079
 #: src/emc/usr_intf/pncconf/pport2.glade:1079
 msgid "Pin _8:"
-msgstr ""
+msgstr "针8："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:179
 #: src/emc/usr_intf/stepconf/pport2.glade:1090
 #: src/emc/usr_intf/pncconf/pport1.glade:1127
 #: src/emc/usr_intf/pncconf/pport2.glade:1127
 msgid "Pin _9:"
-msgstr ""
+msgstr "针9："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:194
 #: src/emc/usr_intf/stepconf/pport2.glade:1137
 #: src/emc/usr_intf/pncconf/pport1.glade:1176
 #: src/emc/usr_intf/pncconf/pport2.glade:1176
 msgid "_Pin 14:"
-msgstr ""
+msgstr "针14："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:209
 #: src/emc/usr_intf/stepconf/pport2.glade:1185
 #: src/emc/usr_intf/pncconf/pport1.glade:1225
 #: src/emc/usr_intf/pncconf/pport2.glade:1225
 msgid "P_in 16:"
-msgstr ""
+msgstr "针16："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:224
 #: src/emc/usr_intf/stepconf/pport2.glade:1233
 #: src/emc/usr_intf/pncconf/pport1.glade:1274
 #: src/emc/usr_intf/pncconf/pport2.glade:1274
 msgid "Pi_n 17:"
-msgstr ""
+msgstr "针17："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:470
 #: src/emc/usr_intf/stepconf/pport2.glade:692
@@ -7063,35 +7113,35 @@ msgstr "输出 (PC-机床):"
 #: src/emc/usr_intf/pncconf/pport1.glade:443
 #: src/emc/usr_intf/pncconf/pport2.glade:443
 msgid "Pin 1_0:"
-msgstr ""
+msgstr "针10："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:500
 #: src/emc/usr_intf/stepconf/pport2.glade:475
 #: src/emc/usr_intf/pncconf/pport1.glade:492
 #: src/emc/usr_intf/pncconf/pport2.glade:492
 msgid "Pin 1_1:"
-msgstr ""
+msgstr "针11："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:517
 #: src/emc/usr_intf/stepconf/pport2.glade:523
 #: src/emc/usr_intf/pncconf/pport1.glade:541
 #: src/emc/usr_intf/pncconf/pport2.glade:541
 msgid "Pin 1_2:"
-msgstr ""
+msgstr "针12："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:534
 #: src/emc/usr_intf/stepconf/pport2.glade:571
 #: src/emc/usr_intf/pncconf/pport1.glade:590
 #: src/emc/usr_intf/pncconf/pport2.glade:590
 msgid "Pin 1_3:"
-msgstr ""
+msgstr "针13："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:551
 #: src/emc/usr_intf/stepconf/pport2.glade:619
 #: src/emc/usr_intf/pncconf/pport1.glade:639
 #: src/emc/usr_intf/pncconf/pport2.glade:639
 msgid "Pin 1_5:"
-msgstr ""
+msgstr "针15："
 
 #: src/emc/usr_intf/stepconf/pport1.glade:590
 #: src/emc/usr_intf/stepconf/pport2.glade:16
@@ -7109,7 +7159,7 @@ msgstr "输入(机床-PC):"
 #: src/emc/usr_intf/pncconf/pport2.glade:29
 #: src/emc/usr_intf/pncconf/pport2.glade:724
 msgid "Invert"
-msgstr "反转"
+msgstr "反向"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1018
 msgid "Output pinout presets:"
@@ -7127,55 +7177,55 @@ msgstr "载入预设"
 #: src/emc/usr_intf/pncconf/pport1.glade:47
 #: src/emc/usr_intf/pncconf/pport2.glade:47
 msgid "Pin 2:"
-msgstr ""
+msgstr "针2："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:94
 #: src/emc/usr_intf/pncconf/pport1.glade:96
 #: src/emc/usr_intf/pncconf/pport2.glade:96
 msgid "Pin 3:"
-msgstr ""
+msgstr "针3："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:141
 #: src/emc/usr_intf/pncconf/pport1.glade:145
 #: src/emc/usr_intf/pncconf/pport2.glade:145
 msgid "Pin 4:"
-msgstr ""
+msgstr "针4："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:188
 #: src/emc/usr_intf/pncconf/pport1.glade:194
 #: src/emc/usr_intf/pncconf/pport2.glade:194
 msgid "Pin 5:"
-msgstr ""
+msgstr "针5："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:235
 #: src/emc/usr_intf/pncconf/pport1.glade:243
 #: src/emc/usr_intf/pncconf/pport2.glade:243
 msgid "Pin 6:"
-msgstr ""
+msgstr "针6："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:282
 #: src/emc/usr_intf/pncconf/pport1.glade:292
 #: src/emc/usr_intf/pncconf/pport2.glade:292
 msgid "Pin 7:"
-msgstr ""
+msgstr "针7："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:329
 #: src/emc/usr_intf/pncconf/pport1.glade:341
 #: src/emc/usr_intf/pncconf/pport2.glade:341
 msgid "Pin 8:"
-msgstr ""
+msgstr "针8："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:376
 #: src/emc/usr_intf/pncconf/pport1.glade:390
 #: src/emc/usr_intf/pncconf/pport2.glade:390
 msgid "Pin 9:"
-msgstr ""
+msgstr "针9："
 
 #: src/emc/usr_intf/stepconf/pport2.glade:721
 #: src/emc/usr_intf/pncconf/pport1.glade:743
 #: src/emc/usr_intf/pncconf/pport2.glade:743
 msgid "Pin _1: "
-msgstr ""
+msgstr "针1："
 
 #: src/emc/usr_intf/stepconf/spindle.glade:23
 msgid "Use spindle-at-speed:"
@@ -7207,7 +7257,7 @@ msgstr "PWM 2:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:183
 msgid "PWM _Rate:"
-msgstr "PWM速率："
+msgstr "PWM频率："
 
 #: src/emc/usr_intf/stepconf/spindle.glade:285
 msgid "_Cycles per revolution:"
@@ -7215,7 +7265,7 @@ msgstr "每转周期："
 
 #: src/emc/usr_intf/stepconf/spindle.glade:347
 msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr "使用“PDM”模式输入0 Hz"
+msgstr "如果使用“PDM”模式输入0 Hz"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:360
 msgid "Scale %"
@@ -7417,28 +7467,28 @@ msgstr "脉冲速率："
 #: src/emc/usr_intf/stepconf/axisz.glade:310
 #: src/emc/usr_intf/stepconf/axisa.glade:324
 msgid "_Home location:"
-msgstr "零点位置："
+msgstr "原点位置："
 
 #: src/emc/usr_intf/stepconf/axisx.glade:333
 #: src/emc/usr_intf/stepconf/axisy.glade:324
 #: src/emc/usr_intf/stepconf/axisz.glade:324
 #: src/emc/usr_intf/stepconf/axisa.glade:338
 msgid "Home _Switch location:"
-msgstr "零点开关位置："
+msgstr "原点开关位置："
 
 #: src/emc/usr_intf/stepconf/axisx.glade:348
 #: src/emc/usr_intf/stepconf/axisy.glade:338
 #: src/emc/usr_intf/stepconf/axisz.glade:338
 #: src/emc/usr_intf/stepconf/axisa.glade:352
 msgid "Home Sear_ch velocity:"
-msgstr "零点搜索速度:"
+msgstr "原点搜索速度:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:363
 #: src/emc/usr_intf/stepconf/axisy.glade:352
 #: src/emc/usr_intf/stepconf/axisz.glade:352
 #: src/emc/usr_intf/stepconf/axisa.glade:366
 msgid "Home La_tch direction:"
-msgstr "零点锁定方向:"
+msgstr "原点锁定方向:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:376
 #: src/emc/usr_intf/stepconf/axisy.glade:365
@@ -7502,7 +7552,7 @@ msgstr "秒"
 #: src/emc/usr_intf/stepconf/axisz.glade:668
 #: src/emc/usr_intf/stepconf/axisa.glade:682
 msgid "T_est this axis"
-msgstr "激活第一轴"
+msgstr "测试这个轴"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:708
 #: src/emc/usr_intf/stepconf/axisy.glade:694
@@ -7532,11 +7582,11 @@ msgid ""
 "-run a more thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
-"所有必要的信息现已收集。\n"
+"所有必要的信息已经收集结束。\n"
 "单击“完成”将配置文件保存到磁盘。\n"
 "\n"
-"如果在运行LinuxCNC时遇到锁定问题：\n"
-"- 您将需要降低最大速度，这将具有增加延迟时间的效果。\n"
+"如果在运行LinuxCNC时遇到死机：\n"
+"- 您将需要降低最大速度，这将具有增加基本周期的效果。\n"
 "\n"
 "如果在运行LinuxCNC时遇到失败的步骤：\n"
 "- 首先确认您为步进驱动程序输入正确的时序。\n"
@@ -7592,13 +7642,17 @@ msgstr "由PNCconf制作的LinuxCNC配置桌面启动器"
 msgid "Quit PNCconfig and discard changes?"
 msgstr "退出PNCconfig并放弃更改？"
 
+#: src/emc/usr_intf/pncconf/pncconf.py:1587
+msgid "Quit PNCconf and discard changes?"
+msgstr "退出PNCconf并放弃更改？"
+
 #: src/emc/usr_intf/pncconf/pncconf.py:1624
 msgid "Specific Help page is unavailable\n"
 msgstr "特定帮助页面不可用\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1626
 msgid "Help Pages"
-msgstr "帮助页"
+msgstr "帮助"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1662
 #, python-format
@@ -7689,7 +7743,7 @@ msgstr "您没有为%s轴伺服器指定编码器/旋转变压器信号\n"
 #: src/emc/usr_intf/pncconf/pncconf.py:4323
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
-msgstr "您没有为轴%s指定pwm信号或步进信号\n"
+msgstr "您没有为%s轴指定pwm信号或步进信号\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4326
 #, python-format
@@ -7822,15 +7876,15 @@ msgstr "编码器脉冲/"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4556
 msgid "Resolver Scale:"
-msgstr "解析度量表"
+msgstr "解析度范围"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4887
 msgid "Spindle Scale Calculation"
-msgstr "主轴刻度计算"
+msgstr "主轴范围计算"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4999
 msgid "Axis Scale Calculation"
-msgstr "轴刻度计算"
+msgstr "轴范围计算"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:6
 msgid "PNCconf - Mesa Card Configuration Wizard"
@@ -7844,11 +7898,11 @@ msgstr "该程序为连接到Mesa卡的铣床和车床创建(.ini和.hal)配置�
 
 #: src/emc/usr_intf/pncconf/help.glade:33
 msgid "Help Page"
-msgstr "帮助页"
+msgstr "帮助"
 
 #: src/emc/usr_intf/pncconf/help.glade:77
 msgid "Mill"
-msgstr ""
+msgstr "铣床"
 
 #: src/emc/usr_intf/pncconf/help.glade:98
 msgid ""
@@ -7862,15 +7916,14 @@ msgid ""
 "This is just a sample reference other switch combinations are\n"
 "possible."
 msgstr ""
-"总旅行= 4 + 6 = 10\n"
-"Z家庭偏移=原点到家庭开关距离= 10\n"
-"Z Neg行驶距离=原点到负极限距离= 0\n"
-"Z Pos行驶距离=总旅行 - 负行程距离= 10\n"
-"Z Home Position =原点到原点位置距离= 4\n"
+"总行程= 4 + 6 = 10\n"
+"Z原点偏移=工件原点到原点开关距离= 10\n"
+"Z 负行程距离=工件原点到负极限距离= 0\n"
+"Z 位置行程距离=总行程 - 负行程距离= 10\n"
+"Z 原点位置 =工件原点到原点位置距离= 4\n"
 "\n"
-"为了清楚起见，X轴将是相似的，但未完全示出。\n"
-"这只是其他开关组合的示例参考\n"
-"可能。"
+"为了清楚起见，X轴只是画零简单的图形，并未完全示出。\n"
+"这只是一个示例参考，实际中可能是其它组合。"
 
 #: src/emc/usr_intf/pncconf/help.glade:122
 msgid "Lathe"
@@ -7916,33 +7969,31 @@ msgid ""
 "possible"
 msgstr ""
 "X轴：\n"
-"总旅行= 10\n"
-"家庭偏移=原点到家庭开关距离= 0\n"
-"Neg行程距离=原点到负极限距离= 0\n"
-"Pos行驶距离=总行程 - 负行程距离= 10\n"
-"原点位置=原点到原点位置距离= 6\n"
+"总行程= 10\n"
+"原点偏移=工件原点到原点开关距离= 0\n"
+"负行程距离=工件原点到负极限距离= 0\n"
+"位置行程距离=总行程 - 负行程距离= 10\n"
+"原点位置=工件原点到原点位置距离= 6\n"
 "\n"
 "Y轴：\n"
-"总旅行= 8\n"
-"家庭偏移=原点到家庭开关距离= 0\n"
-"Neg行程距离=原点到负极限距离= -8\n"
-"Pos行驶距离=总旅行 - 负旅行距离= 0\n"
-"原点位置=原点到原点位置距离= 0\n"
+"总行程= 8\n"
+"原点偏移=工件原点到原点开关距离= 0\n"
+"负行程距离=工件原点到负极限距离= -8\n"
+"位置行程距离=总行程 - 负行程距离= 0\n"
+"原点位置=工件原点到原点位置距离= 0\n"
 "\n"
 "Z轴：\n"
-"总旅行= 12\n"
-"家庭偏移=原点到家庭开关距离= 0\n"
-"负行程距离=原点到负极限距离= -12\n"
-"Pos行驶距离=总旅行 - 负旅行距离= 0\n"
-"原位置=原点到原点位置距离= 0\n"
+"总行程= 12\n"
+"原点偏移=工件原点到家庭开关距离= 0\n"
+"负行程距离=工件原点到负极限距离= -12\n"
+"位置行程距离=总行程 - 负行程距离= 0\n"
+"原点位置=工件原点到原点位置距离= 0\n"
 "\n"
-"请注意，右上角的方向指示器显示\n"
-"工具的运动和实际机器上，\n"
-"经常是实际移动的桌子。在那种情况下\n"
-"方向与图示相反。\n"
+"请注意，右上角显示了刀具的运动方向\n"
+"在实际机器上，通常是移动的工作台。\n"
+"在这种情况下，方向与所示方向相反。\n"
 "\n"
-"注意这是一个例子，许多其他的组合是\n"
-"可能"
+"注意这是一个例子，可能有许多其他的组合"
 
 #: src/emc/usr_intf/pncconf/help.glade:232
 msgid ""
@@ -7971,16 +8022,16 @@ msgstr ""
 "PNCconf是Linuxcnc的配置程序。\n"
 "它使用Mesa I / O卡配置机器。\n"
 "它配置伺服，步进或闭环步进机。\n"
-"它支持一些Mesa的sserial卡。\n"
+"它支持一些Mesa的串口卡。\n"
 "随着Linuxcnc的变化，它将永远是一项正在进行的工作。\n"
 "\n"
 "非常感谢：\n"
-"Jeff Eppler  -  PNCconf基于stepconf  -  Jeff的创建。 杰夫也有技术上的困难。\n"
-"大约翰·约翰（John John John） - 绘制了原始机器插图。 测试和建议。\n"
-"Peter Wallace  - 关于Mesa I / O卡的技术问题。 提供的样品设备进行测试。\n"
-"Andy Pugh  - 建议，问题回答和许多pin名称更改:)\n"
-"戴夫·阿姆斯特朗 - 测试和建议，特别是解析器。\n"
-"每个人都给出错误报告！ 我无法测试一切，所以报告有帮助。\n"
+"Jeff Eppler  -  PNCconf基于 Jeff 的 stepconf 创建。 杰夫也有帮助解决技术上的困难。\n"
+"Big John T - John 绘制了原始机器插图，提供了测试和建议。\n"
+"Peter Wallace  - 解决关于Mesa I / O卡的技术问题。 提供样品设备进行测试。\n"
+"Andy Pugh  - 提供很多关于pin名称更改的建议和回答:)\n"
+"Dave Armstrong - 进行了测试和建议，特别是解析器。\n"
+"每个人都给出错误报告！ 我自己无法测试的这么全面，所以这些报告很有帮助。\n"
 "\n"
 "Beta 1版本"
 
@@ -7992,15 +8043,14 @@ msgid ""
 "Press the button to make the tabbed pages\n"
 "accept the changes.\n"
 msgstr ""
-"单击每个页面选项卡为每个连接器端口配置信号名称。\n"
+"单击页面选项卡为每个连接器端口配置信号名称。\n"
 "\n"
-"按按钮进行标签页\n"
-"接受变更。\n"
+"配置完成点击“应用组件更改”按钮保存配置\n"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:46
 #: src/emc/usr_intf/pncconf/mesa1.glade:46
 msgid "3PWM base frequency:"
-msgstr "3PWM基频："
+msgstr "3PWM基本频率："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:82
 #: src/emc/usr_intf/pncconf/mesa1.glade:82
@@ -8015,7 +8065,7 @@ msgstr "固件"
 #: src/emc/usr_intf/pncconf/mesa0.glade:147
 #: src/emc/usr_intf/pncconf/mesa1.glade:147
 msgid "Num of 3 pwm generators: "
-msgstr "3 pwm发电机的数量："
+msgstr "3 pwm发生器的数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:172
 #: src/emc/usr_intf/pncconf/mesa1.glade:172
@@ -8027,49 +8077,47 @@ msgstr "总针数："
 msgid ""
 "Accept  components\n"
 "          Changes"
-msgstr ""
-"接受组件\n"
-"           变化"
+msgstr "应用组件更改"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:211
 #: src/emc/usr_intf/pncconf/mesa1.glade:211
 msgid "PWM base frequency:"
-msgstr "PWM基频："
+msgstr "PWM基本频率："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:222
 #: src/emc/usr_intf/pncconf/mesa1.glade:222
 msgid "PDM base frequency:"
-msgstr "PDM基频："
+msgstr "PDM基本频率："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:233
 #: src/emc/usr_intf/pncconf/mesa1.glade:233
 msgid "Watchdog timeout:"
-msgstr ""
+msgstr "看门狗超时："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:352
 #: src/emc/usr_intf/pncconf/mesa1.glade:352
 msgid "Num of encoders:"
-msgstr "编码器编号："
+msgstr "编码器数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:363
 #: src/emc/usr_intf/pncconf/mesa1.glade:363
 msgid "Num of pwm generators:"
-msgstr "pwm发生器编号："
+msgstr "pwm发生器数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:374
 #: src/emc/usr_intf/pncconf/mesa1.glade:374
 msgid "Num of step generators: "
-msgstr "步进发生器编号："
+msgstr "步进发生器数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:385
 #: src/emc/usr_intf/pncconf/mesa1.glade:385
 msgid "Board name"
-msgstr "板子名称："
+msgstr "板名称："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:391
 #: src/emc/usr_intf/pncconf/mesa1.glade:391
 msgid "Num of Smart Serial Ports:"
-msgstr "智能串口编号："
+msgstr "智能串口数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:436
 #: src/emc/usr_intf/pncconf/mesa1.glade:436
@@ -8104,21 +8152,19 @@ msgstr "<b>健康检查</b>"
 #: src/emc/usr_intf/pncconf/mesa0.glade:522
 #: src/emc/usr_intf/pncconf/mesa1.glade:522
 msgid "Num of channels: "
-msgstr "通道数："
+msgstr "通道数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:534
 #: src/emc/usr_intf/pncconf/mesa1.glade:534
 msgid "Num of resolvers:"
-msgstr "解析器数："
+msgstr "解析器数量："
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:746
 #: src/emc/usr_intf/pncconf/mesa1.glade:746
 msgid ""
 "Configuration\n"
 "     Page"
-msgstr ""
-"配置\n"
-"     页"
+msgstr "配置"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:801
 #: src/emc/usr_intf/pncconf/mesa0.glade:1056
@@ -9261,7 +9307,7 @@ msgstr "创建配置文件的桌面快捷方式（符号链接）。"
 
 #: src/emc/usr_intf/pncconf/start.glade:107
 msgid "Create a new configuration"
-msgstr "创建新配置"
+msgstr "创建新的配置"
 
 #: src/emc/usr_intf/pncconf/start.glade:125
 msgid "Show Advanced Option Pages"
@@ -9637,11 +9683,11 @@ msgstr "减速时间"
 
 #: src/emc/usr_intf/pncconf/external.glade:4651
 msgid "Acceleration Time"
-msgstr "减速时间"
+msgstr "加速时间"
 
 #: src/emc/usr_intf/pncconf/external.glade:4662
 msgid "Slave number"
-msgstr "从属号码"
+msgstr "从属编号"
 
 #: src/emc/usr_intf/pncconf/external.glade:4673
 msgid "Baud Rate"
@@ -9673,7 +9719,7 @@ msgstr "机床单位："
 
 #: src/emc/usr_intf/pncconf/base.glade:202
 msgid "<b>Machine Basics</b>"
-msgstr "<b>机器基础知识</b>"
+msgstr "<b>基本设置</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:244
 msgid "Actual Servo Period:             "
@@ -9697,11 +9743,11 @@ msgstr "<b>计算机响应时间</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:366
 msgid "Mesa0 PCI / Parport Card:"
-msgstr ""
+msgstr "Mesa0 PCI / 并口卡:"
 
 #: src/emc/usr_intf/pncconf/base.glade:376
 msgid "Mesa1 PCI / Parport Card:"
-msgstr ""
+msgstr "Mesa1 PCI / 并口卡:"
 
 #: src/emc/usr_intf/pncconf/base.glade:464
 msgid "<b>I/O Control Ports/ Boards</b>"
@@ -9709,7 +9755,7 @@ msgstr "<b>I/O控制 端口/板</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:517
 msgid "Axis"
-msgstr "轴"
+msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:530
 msgid "TKLinuxCNC"
@@ -9717,12 +9763,12 @@ msgstr "TkLinuxCNC"
 
 #: src/emc/usr_intf/pncconf/base.glade:543
 msgid "Mini"
-msgstr "迷你"
+msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:556
 #: src/emc/usr_intf/pncconf/screen.glade:1295
 msgid "Touchy"
-msgstr "敏感的"
+msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:574
 msgid "<b>GUI frontend list</b>"
@@ -9771,8 +9817,14 @@ msgstr "最大线速度"
 #: src/emc/usr_intf/pncconf/screen.glade:446
 #: src/emc/usr_intf/pncconf/screen.glade:658
 #: src/emc/usr_intf/pncconf/screen.glade:670
+msgid "in / min"
+msgstr "英寸/分钟"
+
+#: src/emc/usr_intf/pncconf/screen.glade:446
+#: src/emc/usr_intf/pncconf/screen.glade:658
+#: src/emc/usr_intf/pncconf/screen.glade:670
 msgid "mm / min"
-msgstr "毫米 / 分钟"
+msgstr "毫米/分钟"
 
 #: src/emc/usr_intf/pncconf/screen.glade:459
 msgid "Default Angular velocity "
@@ -9800,7 +9852,7 @@ msgstr "最大角速度"
 
 #: src/emc/usr_intf/pncconf/screen.glade:589
 msgid "Axis Geometry"
-msgstr "轴的几何"
+msgstr "Axis几何"
 
 #: src/emc/usr_intf/pncconf/screen.glade:601
 msgid "xyzabc"
@@ -9840,18 +9892,18 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:1829
 #: src/emc/usr_intf/gscreen/gscreen.glade:1142
 msgid "W"
-msgstr ""
+msgstr "宽"
 
 #: src/emc/usr_intf/pncconf/screen.glade:781
 #: src/emc/usr_intf/pncconf/screen.glade:937
 #: src/emc/usr_intf/pncconf/screen.glade:1566
 #: src/emc/usr_intf/pncconf/screen.glade:1795
 msgid "H"
-msgstr ""
+msgstr "高"
 
 #: src/emc/usr_intf/pncconf/screen.glade:802
 msgid "Force Axis to Maximize"
-msgstr "力轴最大化"
+msgstr "Axis 强制最大化"
 
 #: src/emc/usr_intf/pncconf/screen.glade:886
 msgid "AXIS defaults"
@@ -9859,33 +9911,36 @@ msgstr "AXIS 默认值"
 
 #: src/emc/usr_intf/pncconf/screen.glade:910
 msgid "Force Touchy to Maximize after positioning"
-msgstr "定位后用力最大化"
+msgstr "Touchy 定位后强制最大化"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1070
 #: src/emc/usr_intf/pncconf/screen.glade:1979
 msgid "GTK Theme"
-msgstr "主题"
+msgstr "GTK主题"
+
+msgid "Follow System Theme"
+msgstr "跟随系统主题"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1095
 #: src/emc/usr_intf/gscreen/gscreen.glade:1857
 msgid "Absolute Text Color"
-msgstr "绝对字体颜色"
+msgstr "绝对文字颜色"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1153
 msgid "Absolute Textcolor"
-msgstr "绝对字体颜色"
+msgstr "绝对文字颜色"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1166
 msgid "Relative Textcolor"
-msgstr "相对字体颜色"
+msgstr "相对文字颜色"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1179
 msgid "DTG Textcolor"
-msgstr "DTG 字体颜色"
+msgstr "DTG 文字颜色"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1192
 msgid "Error Textcolor"
-msgstr "字体颜色错误"
+msgstr "错误文字颜色"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1313
 msgid "GUI Options"
@@ -12395,7 +12450,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2192
 #, python-format
 msgid "**** No widget named: %s to sensitize ****"
-msgstr " ****没有小部件命名：%s来敏感 ****"
+msgstr " ****没有小部件命名：%s激活的 ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2357
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:1561
@@ -15213,3 +15268,113 @@ msgstr "R在VW平面上的循环小于U"
 #: src/emc/rs274ngc/rs274ngc_return.hh:215
 msgid "R less than V in cycle in UW plane"
 msgstr "R在UW 平面上的循环小于V"
+
+msgid "GPIO Input"
+msgstr "GPIO 输入"
+
+msgid "GPIO Output"
+msgstr "GPIO 输出"
+
+msgid "GPIO O Drain"
+msgstr ""
+
+msgid "Unused Input"
+msgstr "未使用的输入"
+
+msgid "Limits"
+msgstr "限位"
+
+msgid "Limts/Home Shared"
+msgstr "限位/原点共用"
+
+msgid "Digital"
+msgstr "数据"
+
+msgid "Axis Selection"
+msgstr "轴选择"
+
+msgid "Overrides"
+msgstr "速率"
+
+msgid "Operation"
+msgstr "操作"
+
+msgid "External Control"
+msgstr "外部控制"
+
+msgid "Axis rapid"
+msgstr "轴快动"
+
+msgid "X BLDC Control"
+msgstr "X BLDC 控制"
+
+msgid "Y BLDC Control"
+msgstr "Y BLDC 控制"
+
+msgid "Z BLDC Control"
+msgstr "Z BLDC 控制"
+
+msgid "A BLDC Control"
+msgstr "A BLDC 控制"
+
+msgid "S BLDC Control"
+msgstr "S BLDC 控制"
+
+msgid "Custom Signals"
+msgstr "自定义信号"
+
+msgid "X Minimum Limit"
+msgstr "X 负向极限"
+
+msgid "Y Minimum Limit"
+msgstr "Y 负向极限"
+
+msgid "Z Minimum Limit"
+msgstr "Z 负向极限"
+
+msgid "A Minimum Limit"
+msgstr "A 负向极限"
+
+msgid "X Maximum Limit"
+msgstr "X 正向极限"
+
+msgid "Y Maximum Limit"
+msgstr "Y 正向极限"
+
+msgid "Z Maximum Limit"
+msgstr "Z 正向极限"
+
+msgid "A Maximum Limit"
+msgstr "A 正向极限"
+
+msgid "X Both Limit"
+msgstr "X 正/负向极限"
+
+msgid "Y Both Limit"
+msgstr "Y 正/负向极限"
+
+msgid "Z Both Limit"
+msgstr "Z 正/负向极限"
+
+msgid "A Both Limit"
+msgstr "A 正/负向极限"
+
+msgid "All Limits"
+msgstr "所有限位"
+
+msgid "X Home"
+msgstr "X 原点"
+
+msgid "Y Home"
+msgstr "Y 原点"
+
+msgid "ZHome"
+msgstr "Z 原点"
+
+msgid "A Home"
+msgstr "A 原点"
+
+msgid "All Home"
+msgstr "所有原点"
+
+
