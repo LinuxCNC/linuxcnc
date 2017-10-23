@@ -65,7 +65,7 @@ msgstr ""
 #: gmoccapy.py:755
 #, python-format
 msgid "Home axis %s"
-msgstr "%s 轴归零"
+msgstr "%s 轴回原点"
 
 #: gmoccapy.py:854
 msgid "**** To many increments given in INI File for this screen ****"
@@ -1460,19 +1460,19 @@ msgstr "隐藏光标"
 
 #: gmoccapy.glade.h:219
 msgid "home all axis"
-msgstr "全部轴归零"
+msgstr "全部轴回原点"
 
 #: gmoccapy.glade.h:220
 msgid "home x axis"
-msgstr "X 轴归零"
+msgstr "X 轴回原点"
 
 #: gmoccapy.glade.h:221
 msgid "home y axis"
-msgstr "Y 轴归零"
+msgstr "Y 轴回原点"
 
 #: gmoccapy.glade.h:222
 msgid "home z axis"
-msgstr "Z 轴归零"
+msgstr "Z 轴回原点"
 
 #: gmoccapy.glade.h:223
 msgid "launch calibration"
@@ -1536,7 +1536,7 @@ msgstr "偏移量z"
 
 #: gmoccapy.glade.h:238
 msgid "open homing button list"
-msgstr "打开归零按钮列表"
+msgstr "打开原点按钮列表"
 
 #: gmoccapy.glade.h:239
 msgid "open touch off button list"
