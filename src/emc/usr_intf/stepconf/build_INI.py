@@ -136,16 +136,21 @@ class INI:
         print >>file, "[TASK]"
         print >>file, "TASK = milltask"
         print >>file, "CYCLE_TIME = 0.010"
-
         print >>file
+       
         print >>file, "[RS274NGC]"
         print >>file, "PARAMETER_FILE = linuxcnc.var"
         # Put my ngc file here
         subroutine_path = os.path.expanduser("~/linuxcnc/configs/%s" % (self.d.machinename))
         print >>file, "SUBROUTINE_PATH = ncsubroutines:%s" % subroutine_path
-        base_period = self.d.ideal_period()
-
+        # Test if exist manual change tool
+        if(self.d.manual_tool_change == True):
+            # From orangecat
+            print >>file, "REMAP=M6 modalgroup=6 ngc=tool-change"
+            print >>file, "REMAP=M600 modalgroup=6 ngc=tool-job-begin"
         print >>file
+        
+        base_period = self.d.ideal_period()
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
@@ -215,6 +220,11 @@ class INI:
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
             self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
             self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
+
+        if(self.d.manual_tool_change == True):
+            # From orangecat
+            print >>file, "TOOL_CHANGE_AT_G30 = 0"
+        print >>file
         file.close()
         self.d.add_md5sum(filename)
 

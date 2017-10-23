@@ -93,6 +93,18 @@ FILE_GLADEVCP_CUSTOM_HAL = 'gladevcp_custom.hal'
 FILE_GLADEVCP_DEFAULT_GUI = 'gladevcp_default.glade'
 FILE_GLADEVCP_CUSTOM_GUI = 'gladevcp_custom.glade'
 FILE_GLADEVCP_HANDLER = 'gladevcp_handler.py'
+# TOOL CHANGE
+FILE_TOOL_CHANGE = 'tool_change.ngc'
+FILE_TOOL_JOB_BEGIN = 'tool_job_begin.ngc'
+
+# HALUI MDI
+#MDI_G54X0 ='G54 G10 L20 P1 x0 M100'
+MDI_G54X0 ='G10 L2 P1 X0 M100'
+MDI_G54Y0 ='G54 G10 L20 P1 y0 M100'
+MDI_G54Z0 ='G54 G10 L20 P1 z0 M100'
+MDI_G54A0 ='G54 G10 L20 P1 a0 M100'
+MDI_G54U0 ='G54 G10 L20 P1 u0 M100'
+MDI_G54V0 ='G54 G10 L20 P1 v0 M100'
 
 THEMEDIR = "/usr/share/themes"
 
@@ -129,7 +141,7 @@ available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
 ]
 
 available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page', 'gui_pyvcp', 'gui_gladevcp',
-					'axis', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
+					'tool_change', 'axis', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
 ]
 
 # OUTPUT

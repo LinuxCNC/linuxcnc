@@ -1,4 +1,4 @@
-STEPCONF_MODULES = pages axis gui_pyvcp gui_gladevcp build_INI build_HAL import_mach definitions preset
+STEPCONF_MODULES = pages axis gui_pyvcp gui_gladevcp tool_change.py build_INI build_HAL import_mach definitions preset
 
 STEPCONF_GLADEFILES := \
 	main_page \

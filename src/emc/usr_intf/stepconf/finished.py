@@ -103,9 +103,9 @@ def save(self,basedir):
 	(try again at lower speed)
 	G90
 	G38.2 Z0 F15
-	G91 G0 Z1 (Off the switch)
+	(reference length is #1000)
 	#1000=#5063 (save reference tool length)
-	(print,reference length is #1000)
+	G91 G0 Z1 (Off the switch)
 	(G54 G10 L20 P1 Z[#1000])""")
 			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_sensor_height))
 			print >>fngc, ("""	G90 (done)
@@ -146,6 +146,11 @@ o<probe_tool_lenght> endsub""")
 		# Create gladevcp.py file
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, FILE_GLADEVCP_HANDLER))
 		self.create_gladevcp_py(originalname)
+
+	if(self.d.manual_tool_change == True):
+		# From orangecat
+		self.create_tool_change_routine()
+		self.create_tool_job_begin_routine()
 
 	filename = "%s.stepconf" % base
 	d = xml.dom.minidom.getDOMImplementation().createDocument(None, "stepconf", None)

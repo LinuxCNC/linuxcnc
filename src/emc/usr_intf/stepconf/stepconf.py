@@ -25,6 +25,8 @@
 #import pygtk
 #pygtk.require("2.0")
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
@@ -220,6 +222,9 @@ class Data:
         self.centerembededgvcp = False
         self.sideembededgvcp = True
         self.gladevcpname = "blank.ui"
+
+        # Tool change
+        self.manual_tool_change = False
         
         # Position of probe switch
         self.probe_x_pos = 10

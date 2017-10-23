@@ -42,10 +42,10 @@ def options_prepare(self):
 	   if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
 			self.w.radiobutton4.set_active(True)
 	# Set default probe value
-	self.w.probe_x_pos.set_text("%d" % self.d.probe_x_pos)
-	self.w.probe_y_pos.set_text("%d" % self.d.probe_y_pos)
-	self.w.probe_z_pos.set_text("%d" % self.d.probe_z_pos)
-	self.w.probe_sensor_height.set_text("%d" % self.d.probe_sensor_height)
+	self.w.probe_x_pos.set_text("%.1f" % self.d.probe_x_pos)
+	self.w.probe_y_pos.set_text("%.1f" % self.d.probe_y_pos)
+	self.w.probe_z_pos.set_text("%.1f" % self.d.probe_z_pos)
+	self.w.probe_sensor_height.set_text("%.1f" % self.d.probe_sensor_height)
 
 	# Check for tool lenght sensor
 	inputs = self.a.build_input_set()
@@ -154,7 +154,8 @@ def options_sanity_test(self):
 		try:
 			a=get(i)
 			if a <= 0:
-				raise ValueError
+				#raise ValueError
+				ctx.add_class('invalid')
 		except:
 			ctx.add_class('invalid')
 		else:
