@@ -323,7 +323,7 @@ int rtapi_app_main(void) {
 
 	    // Add HAL pin
 	    retval = hal_pin_bit_newf(
-		HAL_OUT,
+		HAL_IN,
 		&(port_data->input_inv[pin + header*PINS_PER_HEADER]),
 		comp_id, "bb_gpio.p%d.in-%02d.invert", PIN_HEADER, pin);
 
