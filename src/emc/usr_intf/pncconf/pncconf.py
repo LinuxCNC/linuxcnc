@@ -17,7 +17,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import sys
 import os
@@ -1406,6 +1406,7 @@ class App:
         bar_size = 0
         # build the glade files
         self.builder = MultiFileBuilder()
+        self.builder.set_translation_domain(domain)
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'main_page.glade'))
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'dialogs.glade'))
         self.builder.add_from_file(os.path.join(self._p.DATADIR,'help.glade'))

@@ -18,7 +18,7 @@
 .\"
 .\" You should have received a copy of the GNU General Public
 .\" License along with this manual; if not, write to the Free
-.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
 .\"
 .\"
@@ -283,7 +283,11 @@ machine-units per second.
 Current value for maximum velocity, in machine-units per second.
 
 .SS machine
-.TP 
+.TP
+.B halui.machine.units-per-mm\fR float out \fR
+pin for machine units-per-mm (inch:1/25.4, mm:1)
+according to inifile setting: [TRAJ]LINEAR_UNITS
+.TP
 .B halui.machine.is-on\fR bit out \fR
 pin for machine is On/Off
 .TP 

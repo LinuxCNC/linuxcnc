@@ -18,7 +18,7 @@ static char *license = \
 \n\
     You should have received a copy of the GNU General Public\n\
     License along with this library; if not, write to the Free Software\n\
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA\n\
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n\
 \n\
     THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR\n\
     ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE\n\

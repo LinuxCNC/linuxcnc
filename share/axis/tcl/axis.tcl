@@ -14,7 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 lappend auto_path $::linuxcnc::TCL_LIB_DIR
 
@@ -1996,6 +1996,17 @@ bind . <Control-Tab> {
     break
 }
 
+# Handle Tk 8.6+ where virtual events are used for cursor motion
+foreach {k v} {
+    Left    PrevChar        Right   NextChar
+    Up      PrevLine        Down    NextLine
+    Home    LineStart       End     LineEnd
+} {
+    set b [bind Entry <<$v>>]
+    puts [list Trying to fix bindings $k $v $b]
+    if {$b != {}} { bind Entry <$k> $b }
+}
+
 # any key that causes an entry or spinbox action should not continue to perform
 # a binding on "."
 foreach c {Entry Spinbox} {
@@ -2009,8 +2020,6 @@ foreach c {Entry Spinbox} {
 
     foreach b { Left Right
             Up Down Prior Next Home
-            Left Right Up Down 
-            Prior Next Home 
             End } {
         bind $c <KeyPress-$b> {+if {[%W cget -state] == "normal"} break}
         bind $c <KeyRelease-$b> {+if {[%W cget -state] == "normal"} break}

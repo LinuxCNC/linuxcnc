@@ -22,7 +22,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
 
@@ -72,7 +72,7 @@ sys.excepthook = excepthook
 debug = False
 
 if debug:
-    pydevdir = '/home/emcmesa/liclipse/plugins/org.python.pydev_4.5.4.201601292050/pysrc'
+    pydevdir = '/home/gmoccapy/Aptana_Studio_3/plugins/org.python.pydev_4.5.5.201603221110/pysrc'
 
     if os.path.isdir(pydevdir):  # and  'emctask' in sys.builtin_module_names:
         sys.path.append(pydevdir)
@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.4"
+_RELEASE = " 2.3.1.9"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -114,13 +114,18 @@ sys.path.insert(0, LIBDIR)
 
 # as now we know the libdir path we can import our own modules
 from gmoccapy import widgets       # a class to handle the widgets
-# moved to _init_audio to check if gst can be imported
-# from gmoccapy import player        # a class to handle sounds
 from gmoccapy import notification  # this is the module we use for our error handling
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs       # this takes the code of all our dialogs
 
+_AUDIO_AVAILABLE = False
+try:
+    import gst
+    from gmoccapy import player        # a class to handle sounds
+    _AUDIO_AVAILABLE = True
+except:
+    pass
 # set up paths to files, part two
 CONFIGPATH = os.environ['CONFIG_DIR']
 DATADIR = os.path.join(BASE, "share", "gmoccapy")
@@ -218,10 +223,15 @@ class gmoccapy(object):
         self.width = 979      # The width of the main Window
         self.height = 750     # The height of the main Window
 
-        self.gcodeerror = ""  # we need this to avoid multiple messages of the same error
+        self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
+
+        self.lathe_mode = None # we need this to check if we have a lathe config
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
+
+        self.dialogs = dialogs.Dialogs()
+        self.dialogs.connect("play_sound", self._on_play_sound)
 
         # check the arguments given from the command line (Ini file)
         self.user_mode = False
@@ -498,11 +508,6 @@ class gmoccapy(object):
 
         self.widgets.adj_start_spindle_RPM.set_value(self.spindle_start_rpm)
         self.widgets.gcode_view.set_sensitive(False)
-        self.tooledit_btn_delete_tool = self.widgets.tooledit1.wTree.get_object("delete")
-        self.tooledit_btn_add_tool = self.widgets.tooledit1.wTree.get_object("add")
-        self.tooledit_btn_reload_tool = self.widgets.tooledit1.wTree.get_object("reload")
-        self.tooledit_btn_apply_tool = self.widgets.tooledit1.wTree.get_object("apply")
-        self.widgets.tooledit1.hide_buttonbox(True)
         self.widgets.ntb_user_tabs.remove_page(0)
         self._add_macro_button()
 
@@ -1026,20 +1031,10 @@ class gmoccapy(object):
 # Dynamic tabs handling End
 # =============================================================
 
-    # first we hide all the axis columns the unhide the ones we want
-    # if it's a lathe config we show lathe related columns
     # and we load the tooltable data
     def _init_tooleditor(self):
-        self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
-        for axis in self.axis_list:
-            self.widgets.tooledit1.set_visible("%s" % axis, True)
 
-        if self.lathe_mode:
-            self.widgets.tooledit1.set_visible("ijq", True)
-            if not self.get_ini_info.get_lathe_wear_offsets():
-                # hide the wear offset tabs
-                self.widgets.tooledit1.set_lathe_display(False)
-        # get the path to the tool table
+       # get the path to the tool table
         tooltable = self.get_ini_info.get_toolfile()
         if not tooltable:
             print(_("**** GMOCCAPY ERROR ****"))
@@ -1047,6 +1042,20 @@ class gmoccapy(object):
             sys.exit()
         toolfile = os.path.join(CONFIGPATH, tooltable)
         self.widgets.tooledit1.set_filename(toolfile)
+
+        # first we hide all the axis columns the unhide the ones we want
+        self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
+        for axis in self.axis_list:
+            self.widgets.tooledit1.set_visible("%s" % axis, True)
+
+        # if it's a lathe config we show lathe related columns
+        if self.lathe_mode:
+            self.widgets.tooledit1.set_visible("ijq", True)
+            if not self.get_ini_info.get_lathe_wear_offsets():
+                # hide the wear offset tabs
+                self.widgets.tooledit1.set_lathe_display(False)
+
+        self.widgets.tooledit1.hide_buttonbox(True)
 
     def _init_themes(self):
         # If there are themes then add them to combo box
@@ -1087,20 +1096,10 @@ class gmoccapy(object):
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
-        self._AUDIO_AVAILABLE = False
-        try:
-            import gst
-            from gmoccapy import player        # a class to handle sounds
-            self._AUDIO_AVAILABLE = True
+        if _AUDIO_AVAILABLE:
             print (_("**** GMOCCAPY INFO ****"))
             print (_("**** audio available! ****"))
-        except:
-            print (_("**** GMOCCAPY INFO ****"))
-            print (_("**** no audio available! ****"))
-            print(_("**** PYGST libray not installed? ****"))
-            print(_("**** is python-gstX.XX installed? ****"))
 
-        if self._AUDIO_AVAILABLE:
             # the sounds to play if an error or message rises
             self.alert_sound = "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
             self.error_sound = "/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
@@ -1111,6 +1110,11 @@ class gmoccapy(object):
             self.widgets.audio_alert_chooser.set_filename(self.alert_sound)
             self.widgets.audio_error_chooser.set_filename(self.error_sound)
         else:
+            print (_("**** GMOCCAPY INFO ****"))
+            print (_("**** no audio available! ****"))
+            print(_("**** PYGST libray not installed? ****"))
+            print(_("**** is python-gstX.XX installed? ****"))
+
             self.widgets.audio_alert_chooser.set_sensitive(False)
             self.widgets.audio_error_chooser.set_sensitive(False)
 
@@ -1457,14 +1461,14 @@ class gmoccapy(object):
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 title = "Pin " + message[2] + " message"
-                responce = dialogs.show_user_message(self, message[0], title)
+                responce = self.dialogs.show_user_message(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         elif message[1] == "yesnodialog":
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 self.halcomp["messages." + message[2] + "-response"] = 0
                 title = "Pin " + message[2] + " message"
-                responce = dialogs.yesno_dialog(self, message[0], title)
+                responce = self.dialogs.yesno_dialog(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
                 self.halcomp["messages." + message[2] + "-response"] = responce
             else:
@@ -1584,19 +1588,18 @@ class gmoccapy(object):
             text = _("Unknown error type and no error text given")
         self.notification.add_message(text, icon)
 
-        if self._AUDIO_AVAILABLE:
+        if _AUDIO_AVAILABLE:
             if kind == 1 or kind == 11:
-                self.audio.set_sound(self.error_sound)
+                self._on_play_sound(None, "error")
             else:
-                self.audio.set_sound(self.alert_sound)
-            self.audio.run()
+                self._on_play_sound(None, "alert")
 
     def on_gremlin_gcode_error(self, widget, errortext):
         if self.gcodeerror == errortext:
             return
         else:
             self.gcodeerror = errortext
-            dialogs.warning_dialog(self, _("Important Warning"), errortext)
+            self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
 
 
 # =========================================================
@@ -2025,12 +2028,12 @@ class gmoccapy(object):
         command = str( "O<" + o_codes[0] + "> call" )
 
         for code in o_codes[1:]:
-            parameter = dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
-                                             label=_("Set parameter %s to:") % code, integer=False)
+            parameter = self.dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
+                                                  label=_("Set parameter %s to:") % code, integer=False)
             if parameter == "ERROR":
                 print(_("conversion error"))
-                dialogs.warning_dialog(self, _("Conversion error !"),
-                                       _("Please enter only numerical values\nValues have not been applied"))
+                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                                            ("Please enter only numerical values\nValues have not been applied"))
                 return
             elif parameter == "CANCEL":
                 return
@@ -2981,7 +2984,7 @@ class gmoccapy(object):
                 code = True
             # else we ask for the code using the system.dialog
             if self.widgets.rbt_use_unlock.get_active():
-                if dialogs.system_dialog(self):
+                if self.dialogs.system_dialog(self):
                     code = True
             # Lets see if the user has the right to enter settings
             if code:
@@ -2993,7 +2996,7 @@ class gmoccapy(object):
                     message = _("Hal Pin is low, Access denied")
                 else:
                     message = _("wrong code entered, Access denied")
-                dialogs.warning_dialog(self, _("Just to warn you"), message)
+                self.dialogs.warning_dialog(self, _("Just to warn you"), message)
                 self.widgets.tbtn_setup.set_active(False)
         else:
             # check witch button should be sensitive, depending on the state of the machine
@@ -3172,7 +3175,7 @@ class gmoccapy(object):
         if hal.component_exists("classicladder_rt"):
             p = os.popen("classicladder  &", "w")
         else:
-            dialogs.warning_dialog(self, _("INFO:"),
+            self.dialogs.warning_dialog(self, _("INFO:"),
                                    _("Classicladder real-time component not detected"))
 
 # =========================================================
@@ -3377,7 +3380,7 @@ class gmoccapy(object):
         message = _("Do you really want to delete the MDI history?\n")
         message += _("this will not delete the MDI History file, but will\n")
         message += _("delete the listbox entries for this session")
-        result = dialogs.yesno_dialog(self, message, _("Attention!!"))
+        result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
 
@@ -3503,26 +3506,26 @@ class gmoccapy(object):
         else:
             axis = "Unknown"
             message = _("Offset %s could not be set, because off unknown axis") % axis
-            dialogs.warning_dialog(self, _("Wrong offset setting!"), message)
+            self.dialogs.warning_dialog(self, _("Wrong offset setting!"), message)
             return
         if self.lathe_mode and axis =="x":
             if self.diameter_mode:
                 preset = self.prefs.getpref("diameter offset_axis_%s" % axis, 0, float)
-                offset = dialogs.entry_dialog(self, data=preset, header=_("Enter value for diameter"),
-                                              label=_("Set diameter to:"), integer=False)
+                offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for diameter"),
+                                                   label=_("Set diameter to:"), integer=False)
             else:
                 preset = self.prefs.getpref("radius offset_axis_%s" % axis, 0, float)
-                offset = dialogs.entry_dialog(self, data=preset, header=_("Enter value for radius"),
-                                              label=_("Set radius to:"), integer=False)
+                offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for radius"),
+                                                   label=_("Set radius to:"), integer=False)
         else:
             preset = self.prefs.getpref("offset_axis_%s" % axis, 0, float)
-            offset = dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis %s") % axis,
-                                          label=_("Set axis %s to:") % axis, integer=False)
+            offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis %s") % axis,
+                                               label=_("Set axis %s to:") % axis, integer=False)
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
             print(_("Conversion error in btn_set_value"))
-            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
+            self.dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
                                    _("Please enter only numerical values. Values have not been applied"))
         else:
             self.command.mode(linuxcnc.MODE_MDI)
@@ -3538,7 +3541,7 @@ class gmoccapy(object):
         system, name = self.widgets.offsetpage1.get_selected()
         if not system:
             message = _("you did not selected a system to be changed to, so nothing will be changed")
-            dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
             return
         if system == self.system_list[self.stat.g5x_index]:
             return
@@ -3585,8 +3588,8 @@ class gmoccapy(object):
 
     def on_btn_block_height_clicked(self, widget, data=None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
-        blockheight = dialogs.entry_dialog(self, data=None, header=_("Enter the block height"),
-                                           label=_("Block height measured from base table"), integer=False)
+        blockheight = self.dialogs.entry_dialog(self, data=None, header=_("Enter the block height"),
+                                                label=_("Block height measured from base table"), integer=False)
 
         if blockheight == "CANCEL" or blockheight == "ERROR":
             return
@@ -3598,8 +3601,8 @@ class gmoccapy(object):
         else:
             self.prefs.putpref("blockheight", 0.0, float)
             self.prefs.putpref("probeheight", 0.0, float)
-            dialogs.warning_dialog(self, _("Conversion error in btn_block_height!"),
-                                   _("Please enter only numerical values\nValues have not been applied"))
+            self.dialogs.warning_dialog(self, _("Conversion error in btn_block_height!"),
+                                        _("Please enter only numerical values\nValues have not been applied"))
 
         # set coordinate system to new origin
         origin = self.get_ini_info.get_axis_2_min_limit() + blockheight
@@ -3750,6 +3753,8 @@ class gmoccapy(object):
                 axis = 5
                 size = int(size * 0.75)
             self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+            if self.lathe_mode:
+                self.widgets.Combi_DRO_y.set_property("font_size", size)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())
@@ -3865,7 +3870,7 @@ class gmoccapy(object):
             else:
                 tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
                 message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
-            result = dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
+            result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
@@ -3876,34 +3881,43 @@ class gmoccapy(object):
                 self.halcomp['toolchange-changed'] = True
                 message = _("Tool Change has been aborted!\n")
                 message += _("The old tool will remain set!")
-                dialogs.warning_dialog(self, message)
+                self.dialogs.warning_dialog(self, message)
         else:
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        self.tooledit_btn_delete_tool.emit("clicked")
+        act_tool = self.stat.tool_in_spindle
+        if act_tool == self.widgets.tooledit1.get_selected_tool():
+            message = _("You are trying to delete the tool mounted in the spindle\n")
+            message += _("This is not allowed, please change tool prior to delete it")
+            self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
+            return
+
+        self.widgets.tooledit1.delete(None)
+        self.widgets.tooledit1.set_selected_tool(act_tool)
 
     def on_btn_add_tool_clicked(self, widget, data=None):
-        self.tooledit_btn_add_tool.emit("clicked")
+        self.widgets.tooledit1.add(None)
 
     def on_btn_reload_tooltable_clicked(self, widget, data=None):
-        self.tooledit_btn_reload_tool.emit("clicked")
+        self.widgets.tooledit1.reload(None)
+        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_apply_tool_changes_clicked(self, widget, data=None):
-        self.tooledit_btn_apply_tool.emit("clicked")
-        tool = self.widgets.tooledit1.get_selected_tool()
+        self.widgets.tooledit1.save(None)
+        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
             message = _("No or more than one tool selected in tool table")
             message += _("Please select only one tool in the table")
-            dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
+            self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             return
 
         if self.widgets.tooledit1.get_selected_tool() != self.stat.tool_in_spindle:
             message = _("you can not touch of a tool, witch is not mounted in the spindle")
             message += _("your selection has been reseted to the tool in spindle")
-            dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
+            self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             self.widgets.tooledit1.reload(self)
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
             return
@@ -3911,7 +3925,7 @@ class gmoccapy(object):
         if "G41" in self.active_gcodes or "G42" in self.active_gcodes:
             message = _("Tool touch off is not possible with cutter radius compensation switched on!\n")
             message += _("Please emit an G40 before tool touch off")
-            dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
+            self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             return
 
         if widget == self.widgets.btn_tool_touchoff_x:
@@ -3919,11 +3933,11 @@ class gmoccapy(object):
         elif widget == self.widgets.btn_tool_touchoff_z:
             axis = "z"
         else:
-            dialogs.warning_dialog(self, _("Real big error!"),
+            self.dialogs.warning_dialog(self, _("Real big error!"),
                                    _("You managed to come to a place that is not possible in on_btn_tool_touchoff"))
             return
 
-        value = dialogs.entry_dialog(self, data=None,
+        value = self.dialogs.entry_dialog(self, data=None,
                                      header=_("Enter value for axis %s to set:") % axis.upper(),
                                      label=_("Set parameter of tool {0:d} and axis {1} to:").format(
                                          self.stat.tool_in_spindle, axis.upper()),
@@ -3931,7 +3945,7 @@ class gmoccapy(object):
 
         if value == "ERROR":
             message = _("Conversion error because of wrong entry for touch off axis %s") % axis.upper()
-            dialogs.warning_dialog(self, _("Conversion error !"), message)
+            self.dialogs.warning_dialog(self, _("Conversion error !"), message)
             return
         elif value == "CANCEL":
             return
@@ -3949,18 +3963,18 @@ class gmoccapy(object):
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
-        value = dialogs.entry_dialog(self, data=None, header=_("Enter the tool number as integer "),
+        value = self.dialogs.entry_dialog(self, data=None, header=_("Enter the tool number as integer "),
                                      label=_("Select the tool to change"), integer=True)
         if value == "ERROR":
             message = _("Conversion error because of wrong entry for tool number\n")
             message += _("enter only integer numbers")
-            dialogs.warning_dialog(self, _("Conversion error !"), message)
+            self.dialogs.warning_dialog(self, _("Conversion error !"), message)
             return
         elif value == "CANCEL":
             return
         elif int(value) == self.stat.tool_in_spindle:
             message = _("Selected tool is already in spindle, no change needed.")
-            dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
             return
         else:
             self.tool_change = True
@@ -3974,11 +3988,11 @@ class gmoccapy(object):
         tool = self.widgets.tooledit1.get_selected_tool()
         if tool == None:
             message = _("you selected no or more than one tool, the tool selection must be unique")
-            dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
             return
         if tool == self.stat.tool_in_spindle:
             message = _("Selected tool is already in spindle, no change needed.")
-            dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
             return
         if tool or tool == 0:
             self.tool_change = True
@@ -3993,7 +4007,7 @@ class gmoccapy(object):
             self.command.mdi(command)
         else:
             message = _("Could not understand the entered tool number. Will not change anything")
-            dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
 
 # =========================================================
 # gremlin relevant calls
@@ -4210,7 +4224,7 @@ class gmoccapy(object):
         self.command.auto(linuxcnc.AUTO_RUN, self.start_line)
 
     def on_btn_from_line_clicked(self, widget, data=None):
-        dialogs.restart_dialog(self)
+        self.dialogs.restart_dialog(self)
 
     def on_change_sound(self, widget, sound=None):
         file = widget.get_filename()
@@ -4365,6 +4379,18 @@ class gmoccapy(object):
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             return
         self.widgets.tbtn_setup.set_sensitive(pin.get())
+
+    def _on_play_sound(self, widget, sound = None):
+        print(self,widget,sound)
+        if _AUDIO_AVAILABLE and sound:
+            if sound == "error":
+                self.audio.set_sound(self.error_sound)
+            elif sound == "alert":
+                self.audio.set_sound(self.alert_sound)
+            else:
+                print("got unknown sound to play")
+                return
+            self.audio.run()
 
     def _on_message_deleted(self, widget, messages):
         number = []

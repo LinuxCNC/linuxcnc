@@ -12,7 +12,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -933,7 +933,18 @@ static int find_rt_cpu_number() {
         return 0;
 
     cpu_set_t cpuset;
-    for(int i=0; i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
+    CPU_ZERO(&cpuset);
+    long top_probe = sysconf(_SC_NPROCESSORS_CONF);
+    // in old glibc versions, it was an error to pass to sched_setaffinity bits
+    // that are higher than an imagined/probed kernel-side CPU mask size.
+    // this caused the message
+    //     sched_setaffinity: Invalid argument
+    // to be printed at startup, and the probed CPU would not take into
+    // account CPUs masked from this process by default (whether by
+    // isolcpus or taskset).  By only setting bits up to the "number of
+    // processes configured", the call is successful on glibc versions such as
+    // 2.19 and older.
+    for(long i=0; i<top_probe && i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
 
     r = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
     if(r < 0)

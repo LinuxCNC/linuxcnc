@@ -15,7 +15,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 # import pdb
@@ -144,8 +144,8 @@ except TclError:
     raise
 
 def General_Halt():
-    text = "Do you really want to close LinuxCNC?"
-    if not root_window.tk.call("nf_dialog", ".error", "Confirm Close", text, "warning", 1, "Yes", "No"):
+    text = _("Do you really want to close LinuxCNC?")
+    if not root_window.tk.call("nf_dialog", ".error", _("Confirm Close"), text, "warning", 1, _("Yes"), _("No")):
         root_window.destroy()
 
 root_window.protocol("WM_DELETE_WINDOW", General_Halt)
@@ -1187,7 +1187,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 # "g_mode" neither of which should be sent as a startup code.
                 # In particular, after issuing a non-modal G like G10, that
                 # will appear at s.gcodes[2] which caused issue #269
-                if i in (0, 2): continue
+                if i in (0, 1, 2): continue
                 if g == -1: continue
                 initcodes.append("G%.1f" % (g * .1))
             tool_offset = "G43.1"
@@ -1412,11 +1412,13 @@ def jogspeed_listbox_change(dummy, value):
     # pdb.set_trace()
     # FJ: curselection is not always up to date here, so 
     #     do a linear search by hand
-    iterator = iter(root_window.call(widgets.jogincr._w, "list", "get", "0", "end"))
+    iterator = root_window.call(widgets.jogincr._w, "list", "get", "0", "end")
     idx = 0
     cursel = -1
+    if isinstance(value, str): value = value.encode('utf-8', 'replace')
     for i in iterator:
-        if i == unicode(value, 'utf-8'):
+        if isinstance(i, str): i = i.encode('utf-8', 'replace')
+        if i == value:
             cursel= idx
             break
         idx += 1

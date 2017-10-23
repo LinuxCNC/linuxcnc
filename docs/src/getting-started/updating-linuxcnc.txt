@@ -1063,6 +1063,7 @@ motion.homing-inhibit (see motion manpage)
 === Hal component updates
 
 . siggen: new pin 'reset' to set output signal values to predefined state
+. biquad: pins 'type,f0,Q,s1,s2' were formerly params
 
 === XHC-HB04 Pendant Support
 

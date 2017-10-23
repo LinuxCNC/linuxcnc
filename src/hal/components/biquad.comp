@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
  * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
@@ -40,25 +40,29 @@ H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)""";
 
 pin in float in "Filter input.";
 pin out float out "Filter output.";
-pin in bit enable = 0 "Filter enable. When false, the in is passed to out \
-without any filtering. A transition from false to true causes filter \
-coefficients to be calculated according to parameters";
-pin out bit valid = 0 "When false, indicates an error occured when caclulating \
-filter coefficients.";
+pin in bit enable = 0 "Filter enable. When false, the \\fBin\\fR pin \
+is passed to the \\fBout\\fR pin without any filtering.  \
+A \\fBtransition from false to true\\fR causes filter \
+coefficients to be calculated according to the current \
+\\fBtype\\fR and the describing pin and parameter settings";
+pin out bit valid = 0 "When false, indicates an error occured when calculating \
+filter coefficients (require 2>\\fBQ\\fR>0.5 and \\fBf0\\fR>sampleRate/2)";
 
-param rw u32 type_ = 0 "Filter type determines the type of filter \
-coefficients calculated. When 0, coefficients must be loaded directly. When 1, \
-a low pass filter is created. When 2, a notch filter is created.";
-param rw float f0 = 250.0 "The corner frequency of the filter.";
-param rw float Q = 0.7071 "The Q of the filter.";
+pin   in u32 type_ = 0 "Filter type determines the type of filter \
+coefficients calculated.  When 0, coefficients must be loaded directly \
+from the \\fBn0,n1,n2,d1\\fR params.  When 1, \
+a low pass filter is created specified by the \\fBf0,Q\\fR pins.  \
+When 2, a notch filter is created specified by the \\fBf0,Q\\fR pins.";
+pin   in float f0 = 250.0 "The corner frequency of the filter.";
+pin   in float Q = 0.7071 "The Q of the filter.";
 
 param rw float d1 = 0.0 "1st-delayed denominator coef";
 param rw float d2 = 0.0 "2nd-delayed denominator coef";
 param rw float n0 = 1.0 "non-delayed numerator coef";
 param rw float n1 = 0.0 "1st-delayed numerator coef";
 param rw float n2 = 0.0 "2nd-delayed numerator coef";
-param rw float s1 = 0.0;
-param rw float s2 = 0.0;
+pin  out float s1 = 0.0 "1st-delayed internal state (for debug only)";
+pin  out float s2 = 0.0 "2nd-delayed internal state (for debug only)";
 
 option data Internal;
 option extra_setup;
