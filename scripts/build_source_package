@@ -56,7 +56,8 @@ UPSTREAM_ID=${PKGSOURCE//[-_]/}.${PR_OR_BRANCH//[-_]/}
 VERSION="${MAJOR_MINOR_VERSION}.${TIMESTAMP}.git${SHA1SHORT}"
 
 # Final release
-RELEASE="1${UPSTREAM_ID}~1${DISTRO}"
+#RELEASE="1${UPSTREAM_ID}~1${DISTRO}"
+RELEASE="1~${DISTRO}"
 
 ###########################################################
 # Debug output
@@ -82,24 +83,25 @@ echo "RELEASE=$RELEASE"
 # Generate debian/changelog entry
 #
 # https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
-
+# 
 cd ${SOURCE_DIR}
 
-cat > debian/changelog.new <<EOF
-machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
+rm -f debian/changelog
 
+cat > debian/changelog <<EOF
+machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
   * Travis CI rebuild
     - TAG ${TAG}
     - PR/branch ${PR_OR_BRANCH}
     - Commit ${SHA1SHORT}
     - ${COMMIT_URL}
-
  -- ${COMMITTER_NAME} <${COMMITTER_EMAIL}>  $(date -R)
 
 EOF
+
 echo "New changelog entry:"
-cat debian/changelog.new # debug output
-cat debian/changelog >> debian/changelog.new
+cat debian/changelog # debug output
+cat debian/changelog.in >> debian/changelog
 
 if $BUILD_SOURCE; then
     set -x # Let user see what's going on
@@ -109,5 +111,5 @@ if $BUILD_SOURCE; then
 	bzip2 -z | dd of=../machinekit_${VERSION}.orig.tar.bz2
 
     # build source package
-    dpkg-source -l${PWD}/debian/changelog.new -b .
+    dpkg-source -b .
 fi
