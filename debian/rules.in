@@ -202,9 +202,6 @@ endif
 	    cat debian/posix-postinst.add >> debian/machinekit-posix.postinst; \
 	    cat debian/rt-preempt-postinst.add >> debian/machinekit-rt-preempt.postinst; \
 	    cat debian/xenomai-postinst.add >> debian/machinekit-xenomai.postinst; \
-	    cat debian/armhf.postrm.in >> debian/machinekit-posix.postrm; \
-	    cat debian/armhf.postrm.in >> debian/machinekit-rt-preempt.postrm; \
-	    cat debian/armhf.postrm.in >> debian/machinekit-xenomai.postrm; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-posix.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-rt-preempt.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-xenomai.install; \
