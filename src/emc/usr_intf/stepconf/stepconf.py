@@ -27,6 +27,8 @@
 
 #import gtk
 #import gtk.glade
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 #import gobject
 from gi.repository import GObject

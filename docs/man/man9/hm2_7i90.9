@@ -13,8 +13,13 @@ hm2_7i90 \- LinuxCNC HAL driver for the Mesa Electronics 7i90 EPP Anything IO bo
 .B loadrt hm2_7i90 [ioaddr=\fIN\fB[,\fIN\fB...]] [ioaddr_hi=\fIN\fB[,\fIN\fB...]] [epp_wide=\fIN\fB[,\fIN\fB...]] [debug_epp=\fIN\fB[,\fIN\fB...]]
 .RS 4
 .TP
-\fBioaddr\fR [default: 0x378]
+\fBioaddr\fR [default: 0 (parport0)]
 The base address of the parallel port.
+
+The number of ioaddr indexes/addresses given is used by the driver to
+determine how many boards to search for. Previously the number of config
+strings was used, but a blank config string is perfectly acceptable for
+7i90.
 .TP
 \fBioaddr_hi\fR [default: 0]
 The secondary address of the parallel port, used to set EPP mode.
@@ -25,6 +30,9 @@ Set to zero to disable the "wide EPP mode".  "Wide" mode allows a 16-
 and 32-bit EPP transfers, which can reduce the time spent in the read
 and write functions.  However, this may not work on all EPP parallel
 ports.
+.TP
+\fBconfig\fR [default: ""]
+HostMot2 config strings, described in the hostmot2(9) manpage.
 .TP
 \fBdebug_epp\fR [default: 0]
 Developer/debug use only!  Enable debug logging of most EPP

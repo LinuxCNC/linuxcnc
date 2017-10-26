@@ -202,7 +202,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->dpll.control_reg1_written= buff;
     }
     buff = (rtapi_u32)((-*hm2->dpll.pins->time2_us / period_us) * 0x10000) << 16
-         | (rtapi_u32)((-*hm2->dpll.pins->time1_us / period_us) * 0x10000);
+         | ((rtapi_u32)((-*hm2->dpll.pins->time1_us / period_us) * 0x10000) & 0xFFFF);
     if (buff != hm2->dpll.timer_12_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_12_addr,
@@ -211,7 +211,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->dpll.timer_12_written = buff;
     }
     buff = (rtapi_u32)((-*hm2->dpll.pins->time4_us / period_us) * 0x10000) << 16
-         | (rtapi_u32)((-*hm2->dpll.pins->time3_us / period_us) * 0x10000);
+         | ((rtapi_u32)((-*hm2->dpll.pins->time3_us / period_us) * 0x10000) & 0xFFFF);
     if (buff != hm2->dpll.timer_34_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_34_addr,
@@ -220,37 +220,6 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->dpll.timer_34_written = buff;
     }
 }
-
-int hm2_dpll_force_write(hostmot2_t *hm2) {
-    int i;
-    if (hm2->dpll.num_instances == 0) return 0;
-    for (i = 0; i < hm2->absenc.num_chans; i ++){
-        hm2_sserial_remote_t *chan = &hm2->absenc.chans[i];
-        switch (chan->myinst){
-        case HM2_GTAG_SSI:
-            chan->params->timer_num = 1;
-            break;
-        case HM2_GTAG_BISS:
-            if (hm2->dpll.num_instances > 1){
-                chan->params->timer_num = 2;
-            } else {
-                chan->params->timer_num = 1;
-            }
-            break;
-        case HM2_GTAG_FABS:
-            if (hm2->dpll.num_instances > 2){
-                chan->params->timer_num = 3;
-            } else {
-                chan->params->timer_num = 1;
-            }
-            break;
-        }
-   /* Other triggerable component types should be added here */
-    }
-    return 0;
-}
-
-
 void hm2_dpll_cleanup(hostmot2_t *hm2) {
     // Should all be handled by the HAL housekeeping
 }

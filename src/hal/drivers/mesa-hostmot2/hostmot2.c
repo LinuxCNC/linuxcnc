@@ -1698,6 +1698,5 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_tp_pwmgen_force_write(hm2);
     hm2_sserial_force_write(hm2);
     hm2_bspi_force_write(hm2);
-    hm2_dpll_force_write(hm2);
 }
 

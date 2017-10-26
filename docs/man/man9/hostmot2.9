@@ -236,9 +236,12 @@ will become parameters.
 This module is a phase-locked loop that will synchronise itself with the thread
 in which the hostmot2 "read" function is installed and will trigger other
 functions that are allocated to it at a specified time before or after the 
-"read" function runs. This can currently only be applied to the three absolute
-encoder types and is intended to ensure that the data is ready when needed, and
-as fresh as possible. 
+"read" function runs. This can be applied to the three absolute
+encoder types, quadrature encoders and stepgen. In the case of the absolute
+encoders this allows the system to trigger a data transmission just prior to
+the time when the HAL driver reads the data. In the case of stepgens and
+quadrature encoders the timers can be used to reduce position sampling
+jitter. This is especially valuable with the ethernet-interfaced cards.
 
 Pins:
 .TP

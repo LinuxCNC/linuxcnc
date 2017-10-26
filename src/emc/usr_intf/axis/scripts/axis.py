@@ -1187,7 +1187,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 # "g_mode" neither of which should be sent as a startup code.
                 # In particular, after issuing a non-modal G like G10, that
                 # will appear at s.gcodes[2] which caused issue #269
-                if i in (0, 2): continue
+                if i in (0, 1, 2): continue
                 if g == -1: continue
                 initcodes.append("G%.1f" % (g * .1))
             tool_offset = "G43.1"
