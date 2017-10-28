@@ -7,26 +7,14 @@
  ********************************************************************/
 
 #include "rtapi.h"          /* RTAPI realtime OS API */
-#include "rtapi_bitops.h"	
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
                             /* this also includes config.h */
 #include "hal.h"            /* HAL public API decls */
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <errno.h>
 
 
 
-
-#if !defined(TARGET_PLATFORM_ORANGEPI)
-    #error "This driver is for the OrangePi platform only"
-#endif
 
 MODULE_AUTHOR("Mikhail Vydrenko");
 MODULE_DESCRIPTION("Driver for the Orange Pi (H3 SoC) GPIO pins");
@@ -58,7 +46,7 @@ enum
 struct _GPIO_PORT_REG_t
 {
     uint32_t config[4];
-    uint32_t data[1];
+    uint32_t data;
     uint32_t drive[2];
     uint32_t pull[2];
 };
@@ -229,11 +217,11 @@ int32_t rtapi_app_main(void)
     vrt_offset >>= 2;
 
     // add correct address values to global GPIO array
-    for ( uint32_t p = GPIO_A; p <= GPIO_I; ++p )
+    for ( n = GPIO_A; n <= GPIO_I; ++n )
     {
-        _GPIO_port_reg[p] =
+        _GPIO_port_reg[n] =
             (struct _GPIO_PORT_REG_t *)
-            (vrt_block_addr[0] + vrt_offset + p*0x24);
+            (vrt_block_addr[0] + vrt_offset + n*0x24);
     }
 
 #if USE_GPIO_PORT_L
