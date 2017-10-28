@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.1.9"
+_RELEASE = " 2.3.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -247,7 +247,7 @@ class gmoccapy(object):
             if arg == "-logo":
                 self.logofile = str(argv[ index + 1 ])
                 message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("logo entry found = %s") % self.logofile
+                message += _("logo entry found = {0}".format(self.logofile))
                 print (message)
                 self.logofile = self.logofile.strip("\"\'")
                 if not os.path.isfile(self.logofile):
@@ -283,8 +283,8 @@ class gmoccapy(object):
         self._init_user_messages()
 
         # set the title of the window, to show the release
-        self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
-        self.widgets.lbl_version.set_label("<b>gmoccapy\n%s</b>" % _RELEASE)
+        self.widgets.window1.set_title("gmoccapy for linuxcnc {0}".format(_RELEASE))
+        self.widgets.lbl_version.set_label("<b>gmoccapy\n{0}</b>".format(_RELEASE))
 
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME, self.builder, None)
 
@@ -436,7 +436,7 @@ class gmoccapy(object):
         # get if run from line should be used
         rfl = self.prefs.getpref("run_from_line", "no_run", str)
         # and set the corresponding button active
-        self.widgets["rbtn_%s_from_line" % rfl].set_active(True)
+        self.widgets["rbtn_{0}_from_line".format(rfl)].set_active(True)
         if rfl == "no_run":
             self.widgets.btn_from_line.set_sensitive(False)
         else:
@@ -445,7 +445,7 @@ class gmoccapy(object):
         # get the way to unlock the setting
         unlock = self.prefs.getpref("unlock_way", "use", str)
         # and set the corresponding button active
-        self.widgets["rbt_%s_unlock" % unlock].set_active(True)
+        self.widgets["rbt_{0}_unlock".format(unlock)].set_active(True)
         # if Hal pin should be used, only set the button active, if the pin is high
         if unlock == "hal" and not self.halcomp["unlock-settings"]:
             self.widgets.tbtn_setup.set_sensitive(False)
@@ -496,12 +496,12 @@ class gmoccapy(object):
                 axis = 4
             if axis == self.axisletter_five:
                 axis = 5
-            self.widgets["Combi_DRO_%s" % axis].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets["Combi_DRO_%s" % axis].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets["Combi_DRO_%s" % axis].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.widgets["Combi_DRO_%s" % axis].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-            self.widgets["Combi_DRO_%s" % axis].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-            self.widgets["Combi_DRO_%s" % axis].set_property("actual", self.dro_actual)
+            self.widgets["Combi_DRO_{0}".format(axis)].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.widgets["Combi_DRO_{0}".format(axis)].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.widgets["Combi_DRO_{0}".format(axis)].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.widgets["Combi_DRO_{0}".format(axis)].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+            self.widgets["Combi_DRO_{0}".format(axis)].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+            self.widgets["Combi_DRO_{0}".format(axis)].set_property("actual", self.dro_actual)
 
         self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
@@ -635,14 +635,14 @@ class gmoccapy(object):
                 else:
                     continue
             if axis == self.axisletter_four:
-                print("Combi_DRO_4 = joint %s" %self.joint_axis_dic[axis])
+                print("Combi_DRO_4 = joint {0}".format(self.joint_axis_dic[axis]))
                 self.widgets.Combi_DRO_4.set_joint(self.joint_axis_dic[axis])
             elif axis == self.axisletter_five:
-                print("Combi_DRO_5 = joint %s" %self.joint_axis_dic[axis])
+                print("Combi_DRO_5 = joint {0}".format(self.joint_axis_dic[axis]))
                 self.widgets.Combi_DRO_5.set_joint(self.joint_axis_dic[axis])
             else:
-                print("Combi_DRO_%s = joint %s" %(axis[0],self.joint_axis_dic[axis]))
-                self.widgets["Combi_DRO_%s"%axis[0]].set_joint(self.joint_axis_dic[axis])
+                print("Combi_DRO_{0} = joint {1}".format(axis[0], self.joint_axis_dic[axis]))
+                self.widgets["Combi_DRO_{0}".format(axis[0])].set_joint(self.joint_axis_dic[axis])
 
     def _init_extra_axes(self):
         # to much axes given, can only handle 5
@@ -673,27 +673,27 @@ class gmoccapy(object):
             self.widgets.Combi_DRO_5.set_property("joint_number", self.axisnumber_five)
             self.widgets.Combi_DRO_5.change_axisletter(self.axisletter_five.upper())
 
-            image = self.widgets["img_home_%s" % self.axisletter_five]
+            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
             self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis %s") % self.axisletter_five.upper())
+            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}".format(self.axisletter_five.upper())))
 
             if self.axisletter_five in "abc":
                 self.widgets.Combi_DRO_5.set_property("mm_text_template", "%11.2f")
                 self.widgets.Combi_DRO_5.set_property("imperial_text_template", "%11.2f")
 
-            image = self.widgets["img_home_%s" % self.axisletter_five]
+            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
             self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis %s") % self.axisletter_five.upper())
+            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}".format(self.axisletter_five.upper())))
             self.widgets.btn_home_5.show()
 
-            self.widgets.btn_5_plus.set_label("%s+" % self.axisletter_five.upper())
+            self.widgets.btn_5_plus.set_label("{0}+".format(self.axisletter_five.upper()))
             self.widgets.btn_5_plus.show()
-            self.widgets.btn_5_minus.set_label("%s-" % self.axisletter_five.upper())
+            self.widgets.btn_5_minus.set_label("{0}-".format(self.axisletter_five.upper()))
             self.widgets.btn_5_minus.show()
 
-            image = self.widgets["img_touch_off_%s" % self.axisletter_five]
+            image = self.widgets["img_touch_off_{0}".format(self.axisletter_five)]
             self.widgets.btn_set_value_5.set_image(image)
-            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis %s value to") % self.axisletter_five.upper())
+            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to".format(self.axisletter_five.upper())))
             self.widgets.btn_set_value_5.show()
 
         if self.axisletter_five:
@@ -710,19 +710,19 @@ class gmoccapy(object):
         self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_four)
         self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_four.upper())
 
-        image = self.widgets["img_home_%s" % self.axisletter_four]
+        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
         self.widgets.btn_home_4.set_image(image)
-        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis %s") % self.axisletter_four.upper())
+        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}".format(self.axisletter_four.upper())))
         self.widgets.btn_home_4.show()
 
-        self.widgets.btn_4_plus.set_label("%s+" % self.axisletter_four.upper())
+        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
         self.widgets.btn_4_plus.show()
-        self.widgets.btn_4_minus.set_label("%s-" % self.axisletter_four.upper())
+        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
         self.widgets.btn_4_minus.show()
 
-        image = self.widgets["img_touch_off_%s" % self.axisletter_four]
+        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
         self.widgets.btn_set_value_4.set_image(image)
-        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis %s value to") % self.axisletter_four.upper())
+        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to".format(self.axisletter_four.upper())))
         self.widgets.btn_set_value_4.show()
 
         if self.axisletter_four in "abc":
@@ -741,7 +741,7 @@ class gmoccapy(object):
                 if axis == self.axisletter_four:
                     axis = 4
                     self.widgets.tbl_DRO_45.set_homogeneous(False)
-                self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+                self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
 
         # if we have 5 axes, we will need some extra space:
         else:
@@ -753,7 +753,7 @@ class gmoccapy(object):
                 if axis == self.axisletter_five:
                     axis = 5
                     size = int(size * 0.65)
-                self.widgets["Combi_DRO_%s" % axis].set_property("font_size", size)
+                self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -1566,6 +1566,7 @@ class gmoccapy(object):
         self._update_coolant()
         self._update_spindle()
         self._update_halui_pin()
+        self._update_vc()
 
         self.widgets.lbl_time.set_label(strftime("%H:%M:%S") + "\n" + strftime("%d.%m.%Y"))
 
@@ -3201,6 +3202,27 @@ class gmoccapy(object):
             speed = self.stat.spindle_speed
         self.widgets.active_speed_label.set_label("%.0f" % abs(speed))
         self.widgets.lbl_spindle_act.set_text("S %d" % int(speed * self.spindle_override))
+
+    def _update_vc(self):
+        if self.stat.spindle_direction != 0:
+            if self.stat.spindle_speed == 0:
+                speed = self.stat.settings[2]
+            else:
+                speed = self.stat.spindle_speed
+            if not self.lathe_mode:
+                diameter = self.halcomp["tool-diameter"]
+            else:
+                diameter = int(self.widgets.Combi_DRO_x.get_position()[1]) * 2
+            vc = abs(int(speed * self.spindle_override) * diameter * 3.14 / 1000)
+        else:
+            vc = 0
+        if vc >= 100:
+            text = "Vc= {0:d}".format(vc)
+        elif vc >= 10:
+            text = "Vc= {0:2.1f}".format(vc)
+        else:
+            text = "Vc= {0:.2f}".format(vc)
+        self.widgets.lbl_vc.set_text(text)
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if widget.get_active():
