@@ -169,7 +169,9 @@ static void config_pin_as_input(int32_t n)
 static void config_pin_as_output(int32_t n)
 {
     _GPIO_port_reg[_GPIO_LIST[n].port]->config[_GPIO_LIST[n].pin / 8] &=
-        ~(0b1110 << (_GPIO_LIST[n].pin % 8 * 4));
+        ~(0b1111 << (_GPIO_LIST[n].pin % 8 * 4));
+    _GPIO_port_reg[_GPIO_LIST[n].port]->config[_GPIO_LIST[n].pin / 8] |=
+         (0b0001 << (_GPIO_LIST[n].pin % 8 * 4));
 }
 
 
