@@ -2559,7 +2559,7 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_zero_origin">
-                            <property name="label">Zero Origin</property>
+                            <property name="label" translatable="yes">Zero Origin</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -2570,7 +2570,7 @@ Halshow</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="button_offset_origin">
-                            <property name="label">Offset Origin</property>
+                            <property name="label" translatable="yes">Offset Origin</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
