@@ -89,23 +89,36 @@ def adc2r_bebopr(pin):
 
     return R_T
 
-# The CRAMPS board thermistor input has one side grounded and the other side
-# pulled high through a 1.00K resistor to 1.8V.  Following this is a 4.7K
-# resistor, some protection diodes, and filtering capacitors.  The ADC voltage
-# read is the filtered voltage across the thermistor.
-def adc2r_cramps(pin):
-    V_adc = pin.rawValue * 1.8 / 4096.0
-    V_T  = 0.0  # Voltage across the thermistor
-    R_PU = 2000.0 #Pull-up resistence 
-    I_PU = 0.0  # Current flowing through the pull-up resistor
-    R_T  = 0.0  # Resistance of the thermistor
+# CRAMPS board:  A voltage divider is formed by a pull-up resistor,
+# tied to 1.8V VDD_ADC, and thermistor, tied to ground.  The ADC
+# directly reads the thermistor voltage (V_T).  All the thermistor
+# current flows through the pull-up (I_PU), and those two values are
+# used to calculate the thermistor resistance.  The pull-up resistance
+# R_PU is 2k on the CRAMPS, and may be supplied to reuse this function
+# for custom circuits.  V_adc is 1.8V, and resolution is 12 bits for
+# 4096 possible values.
 
-    V_T = V_adc
+# Irrelevant to these calculations, in the CRAMPS, the voltage divider
+# feeds a 4.7K resistor and two capacitors which form an RC filter to
+# reduce noise.  The BBB presents almost no load on its ADC input pins
+# (just leakage current through CMOS inputs), so there is essentially
+# zero voltage across the 4.7K resistor unless the thermistor is
+# changing value very rapidly (or there is noise on the line).
 
+# https://groups.google.com/d/msg/machinekit/wZ8KAKqV7yo/blG1yZ0rBAAJ
+
+def adc2r_cramps(pin,
+                  # Pull-up resistence 
+                  R_PU = 2000):
+    # Voltage across the thermistor
+    V_T = pin.rawValue * 1.8 / 4096.0
+
+    # Current flowing through the pull-up resistor
     # No dividing by zero or negative voltages despite what the ADC says!
     # Clip to a small positive value
     I_PU = max((1.8 - V_T ) / R_PU, 0.000001) 
 
+    # Resistance of the thermistor
     R_T = V_T / I_PU
 
     return R_T
@@ -138,7 +151,7 @@ def adc2Temp(pin):
     if(args.cape_board == 'BeBoPr'):
         R = adc2r_bebopr(pin)
     elif (args.cape_board == 'CRAMPS'):
-        R = adc2r_cramps(pin)
+        R = adc2r_cramps(pin, args.r_pu)
     else:
         print("Invalid -b cape  name: %s" % args.cape_board)
         print("Valid names are: BeBoPr, CRAMPS")
@@ -172,6 +185,9 @@ parser.add_argument('-i', '--interval', help='Adc update interval', default=0.05
 parser.add_argument('-c', '--channels', help='Komma separated list of channels and thermistors to use e.g. 01:semitec_103GT_2,02:epcos_B57560G1104', required=True)
 parser.add_argument('-f', '--filter_size', help='Size of the low pass filter to use', default=10)
 parser.add_argument('-b', '--cape_board', help='Type of cape used', default='BeBoPr')
+parser.add_argument('-r', '--r_pu', default=2000, type=float,
+                    help='Divider pull-up resistor value (default 2k Ohms)')
+
 
 args = parser.parse_args()
 
