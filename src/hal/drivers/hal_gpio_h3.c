@@ -74,7 +74,8 @@ struct _GPIO_LIST_t
 
 static struct _GPIO_PORT_REG_t * _GPIO_port_reg[GPIO_PORT_COUNT] = {0};
 
-static const struct _GPIO_LIST_t _GPIO_LIST[GPIO_PIN_COUNT] = {
+static const struct _GPIO_LIST_t _GPIO_LIST[GPIO_PIN_COUNT] =
+{
     // dummy
     {-4, 0},
 
@@ -104,7 +105,8 @@ static const struct _GPIO_LIST_t _GPIO_LIST[GPIO_PIN_COUNT] = {
     {GPIO_A,  4},   {GPIO_A,  5}    //  PA4     PA5
 };
 
-static const uint8_t _available_pins[GPIO_PIN_COUNT] = {
+static const uint8_t _available_pins[GPIO_PIN_COUNT] =
+{
     // dummy
     0,
 
@@ -158,6 +160,21 @@ static void read_port(void *arg, long period);
 
 
 
+static void config_pin_as_input(int32_t n)
+{
+    _GPIO_port_reg[_GPIO_LIST[n].port]->config[_GPIO_LIST[n].pin / 8] &=
+        ~(0b1111 << (_GPIO_LIST[n].pin % 8 * 4));
+}
+
+static void config_pin_as_output(int32_t n)
+{
+    _GPIO_port_reg[_GPIO_LIST[n].port]->config[_GPIO_LIST[n].pin / 8] &=
+        ~(0b1110 << (_GPIO_LIST[n].pin % 8 * 4));
+}
+
+
+
+
 int32_t rtapi_app_main(void)
 {
     int32_t     mem_fd;
@@ -171,7 +188,8 @@ int32_t rtapi_app_main(void)
     comp_id = hal_init("hal_gpio_h3");
     if (comp_id < 0)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: hal_init() failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "hal_gpio_h3: ERROR: hal_init() failed\n");
         return -1;
     }
 
@@ -179,7 +197,8 @@ int32_t rtapi_app_main(void)
     // open physical memory file
     if ( (mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0 )
     {
-       rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: can't open /dev/mem file\n");
+       rtapi_print_msg(RTAPI_MSG_ERR,
+                       "hal_gpio_h3: ERROR: can't open /dev/mem file\n");
        return -1;
     }
 
@@ -189,12 +208,12 @@ int32_t rtapi_app_main(void)
 
     // make a block of phy memory visible in our user space
     vrt_block_addr[0] = mmap(
-       NULL,                        // Any adddress in our space
-       PHY_MEM_BLOCK_SIZE,          // Map length
-       PROT_READ | PROT_WRITE,      // Enable reading & writting to mapped memory
-       MAP_SHARED,                  // Shared with other processes
-       mem_fd,                      // File to map
-       phy_block_addr               // Offset to GPIO peripheral
+       NULL,                    // Any adddress in our space
+       PHY_MEM_BLOCK_SIZE,      // Map length
+       PROT_READ | PROT_WRITE,  // Enable reading & writting to mapped memory
+       MAP_SHARED,              // Shared with other processes
+       mem_fd,                  // File to map
+       phy_block_addr           // Offset to GPIO peripheral
     );
 
     // exit program if mmap is failed
@@ -210,7 +229,9 @@ int32_t rtapi_app_main(void)
     // add correct address values to global GPIO array
     for ( uint32_t p = GPIO_A; p <= GPIO_I; ++p )
     {
-        _GPIO_port_reg[p] = (struct _GPIO_PORT_REG_t *) (vrt_block_addr[0] + vrt_offset + p*0x24);
+        _GPIO_port_reg[p] =
+            (struct _GPIO_PORT_REG_t *)
+            (vrt_block_addr[0] + vrt_offset + p*0x24);
     }
 
 #if USE_GPIO_PORT_L
@@ -220,12 +241,12 @@ int32_t rtapi_app_main(void)
 
     // make a block of phy memory visible in our user space
     vrt_block_addr[1] = mmap(
-       NULL,                        // Any adddress in our space
-       PHY_MEM_BLOCK_SIZE,          // Map length
-       PROT_READ | PROT_WRITE,      // Enable reading & writting to mapped memory
-       MAP_SHARED,                  // Shared with other processes
-       mem_fd,                      // File to map
-       phy_block_addr               // Offset to GPIO peripheral
+       NULL,                    // Any adddress in our space
+       PHY_MEM_BLOCK_SIZE,      // Map length
+       PROT_READ | PROT_WRITE,  // Enable reading & writting to mapped memory
+       MAP_SHARED,              // Shared with other processes
+       mem_fd,                  // File to map
+       phy_block_addr           // Offset to GPIO peripheral
     );
 
     // exit program if mmap is failed
@@ -239,7 +260,9 @@ int32_t rtapi_app_main(void)
     vrt_offset >>= 2;
 
     // add correct address values to global GPIO array
-    _GPIO_port_reg[GPIO_L] = (struct _GPIO_PORT_REG_t *) (vrt_block_addr[1] + vrt_offset + 0*0x24);
+    _GPIO_port_reg[GPIO_L] =
+        (struct _GPIO_PORT_REG_t *)
+        (vrt_block_addr[1] + vrt_offset + 0*0x24);
 #endif
 
     // no need to keep phy memory file open after mmap
@@ -249,7 +272,8 @@ int32_t rtapi_app_main(void)
     port_data = hal_malloc(GPIO_PIN_COUNT);
     if (port_data == 0)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: hal_malloc() failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "hal_gpio_h3: ERROR: hal_malloc() failed\n");
         hal_exit(comp_id);
         return -1;
     }
@@ -266,7 +290,8 @@ int32_t rtapi_app_main(void)
             if ( pin < 0 || pin >= GPIO_PIN_COUNT || !_available_pins[pin] )
             {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "hal_gpio_h3: ERROR: invalid pin number %d\n", pin);
+                                "hal_gpio_h3: ERROR: "
+                                "invalid pin number %d\n", pin);
                 hal_exit(comp_id);
                 return -1;
             }
@@ -274,7 +299,8 @@ int32_t rtapi_app_main(void)
             input_pins_list[input_pins_count] = pin;
             ++input_pins_count;
 
-            // TODO - configure OrangePi pin as input
+            // configure OrangePi pin as input
+            config_pin_as_input(pin);
 
             retval = hal_pin_bit_newf(HAL_OUT, &port_data[pin], comp_id,
                                       "hal_gpio_h3.pin-%02d-in", pin);
@@ -314,7 +340,8 @@ int32_t rtapi_app_main(void)
                 if ( input_pins_list[n] == pin )
                 {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: output pin %d exported before as input\n", pin);
+                        "hal_gpio_h3: ERROR: "
+                        "output pin %d exported before as input\n", pin);
                     break;
                 }
             }
@@ -325,7 +352,8 @@ int32_t rtapi_app_main(void)
                 output_pins_list[output_pins_count] = pin;
                 ++output_pins_count;
 
-                // TODO - configure OrangePi pin as output
+                // configure OrangePi pin as output
+                config_pin_as_output(pin);
 
                 retval = hal_pin_bit_newf(HAL_IN, &port_data[pin], comp_id,
                                           "hal_gpio_h3.pin-%02d-out", pin);
@@ -344,10 +372,11 @@ int32_t rtapi_app_main(void)
     }
 
 
-    retval = hal_export_funct("hal_gpio_h3.write", write_port, 0, 0, 0, comp_id);
+    retval = hal_export_funct("hal_gpio_h3.write", write_port, 0,0,0, comp_id);
     if (retval < 0)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: write funct export failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "hal_gpio_h3: ERROR: write funct export failed\n");
         hal_exit(comp_id);
         return -1;
     }
@@ -355,7 +384,8 @@ int32_t rtapi_app_main(void)
     retval = hal_export_funct("hal_gpio_h3.read", read_port, 0, 0, 0, comp_id);
     if (retval < 0)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: read funct export failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "hal_gpio_h3: ERROR: read funct export failed\n");
         hal_exit(comp_id);
         return -1;
     }
@@ -389,11 +419,15 @@ static void write_port(void *arg, long period)
     {
         if ( *(port_data[output_pins_list[n]]) )
         {
-            // TODO - set GPIO pin
+            // set GPIO pin
+            _GPIO_port_reg[_GPIO_LIST[n].port]->data |=
+                (1UL << _GPIO_LIST[n].pin);
         }
         else
         {
-            // TODO - clear GPIO pin
+            // clear GPIO pin
+            _GPIO_port_reg[_GPIO_LIST[n].port]->data &=
+                ~(1UL << _GPIO_LIST[n].pin);
         }
     }
 }
@@ -405,7 +439,9 @@ static void read_port(void *arg, long period)
     // put GPIO input pins state into the port_data array
     for ( n = input_pins_count; n--; )
     {
-        // TODO - make real reading of pins state
-        *port_data[input_pins_list[n]] = 0;
+        *port_data[input_pins_list[n]] =
+            ((1UL << n) & _GPIO_port_reg[_GPIO_LIST[n].port]->data) ?
+                1 :
+                0 ;
     }
 }
