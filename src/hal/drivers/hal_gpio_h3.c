@@ -301,10 +301,10 @@ int32_t rtapi_app_main(void)
                 hal_exit(comp_id);
                 return -1;
             }
-        }
 
-        data = NULL; // after the first call, subsequent calls to
-                     // strtok need to be on NULL
+            data = NULL; // after the first call, subsequent calls to
+                         // strtok need to be on NULL
+        }
     }
 
     // configure output pins
@@ -355,10 +355,10 @@ int32_t rtapi_app_main(void)
                     return -1;
                 }
             }
-        }
 
-        data = NULL; // after the first call, subsequent calls to
-                     // strtok need to be on NULL
+            data = NULL; // after the first call, subsequent calls to
+                         // strtok need to be on NULL
+        }
     }
 
 
