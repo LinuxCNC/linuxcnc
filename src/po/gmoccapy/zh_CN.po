@@ -65,7 +65,7 @@ msgstr ""
 #: gmoccapy.py:755
 #, python-format
 msgid "Home axis %s"
-msgstr "%s 轴归零"
+msgstr "%s 轴回原点"
 
 #: gmoccapy.py:854
 msgid "**** To many increments given in INI File for this screen ****"
@@ -647,6 +647,18 @@ msgstr ""
 "<b>      gmoccapy 消息\n"
 " 行为和外观 </b>"
 
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
+msgid ""
+"It is not recommended to use run from line\n"
+"as LinuxCNC is handling this without \n"
+"checking the code previous to the selected line.\n"
+"So you must take care for tool changes, speeds\n"
+"feeds and cooling, etc."
+msgstr ""
+"不建议使用从行运行，因为LinuxCNC正在处理此操作，\n"
+"而不检查所选行之前的代码，因此您必须注意刀具更换，\n"
+"加速进给和冷却等。"
+
 #: gmoccapy.glade.h:14
 msgid "<b>Cooling</b>"
 msgstr "<b>冷却</b>"
@@ -690,6 +702,14 @@ msgstr "<b>主窗口</b>"
 #: gmoccapy.glade.h:25
 msgid "<b>Max. Velocity</b>"
 msgstr "<b>空程速率</b>"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
+msgid "<b>Rapid Override</b>"
+msgstr "<b>空程速率</b>"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
+msgid "<b>Feed Override</b>"
+msgstr "进给速率"
 
 #: gmoccapy.glade.h:26
 msgid "<b>Mouse Button mode</b>"
@@ -742,6 +762,31 @@ msgstr "<b>换刀器</b>"
 #: gmoccapy.glade.h:38
 msgid "<b>Tool Measurement</b>"
 msgstr "<b>刀具测量</b>"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
+msgid "Reload Tool on Start"
+msgstr "启动时重新加载刀具"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
+msgid ""
+"If checked, the tool in spindle\n"
+"will be saved on each change\n"
+"and the last tool will be reloaded\n"
+"at start of the GUI. Also it's \n"
+"length offset will be reloaded.\n"
+msgstr ""
+"如果选中，主轴中的刀具将在每次更改\n"
+"时保存，最后一个刀具将在GUI开始时重\n"
+"新加载。而且它的长度偏移将被重新加载。\n"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:157
+msgid ""
+"You use NO_FORCE_HOMING,\n"
+"so the reload of a tool at start\n"
+"is not possible."
+msgstr ""
+"您使用了 NO_FORCE_HOMING,\n"
+"所以不会在启动时重新加载刀具。"
 
 #: gmoccapy.glade.h:39
 msgid "<b>Tool information</b>"
@@ -865,6 +910,26 @@ msgstr "文件选择"
 msgid "Font"
 msgstr "字体"
 
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
+msgid "The font to use"
+msgstr "要使用的字体"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
+msgid "The maximum messages you want to be shown\t"
+msgstr "要显示的最大消息条数"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
+msgid "The width of the messages"
+msgstr "消息的宽度"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
+msgid "X-position in pixel from top left corner of the screen"
+msgstr "消息框在屏幕左上角的X位置"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
+msgid "Y-position in pixel from top left corner of the screen"
+msgstr "消息框在屏幕左上角的Y位置"
+
 #: gmoccapy.glade.h:69
 msgid "G and M code information as well as speed and feed"
 msgstr "G和M代码信息以及速度和进给"
@@ -957,6 +1022,12 @@ msgstr "点击切换DRO模式"
 #: gmoccapy.glade.h:91
 msgid "Launch test message"
 msgstr "启动测试消息"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
+msgid ""
+"Push here to launch a test message\n"
+"to test your settings."
+msgstr "按这里启动测试消息来测试您的设置。"
 
 #: gmoccapy.glade.h:92
 msgid "Load File"
@@ -1090,6 +1161,10 @@ msgstr "调整点动速度"
 
 #: gmoccapy.glade.h:127
 msgid "Scale max velocity"
+msgstr "调整空程速率"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
+msgid "Scale rapid override"
 msgstr "调整空程速率"
 
 #: gmoccapy.glade.h:128
@@ -1310,9 +1385,19 @@ msgstr "使用自动单位"
 msgid "Use auto tool measurement"
 msgstr "使用自动刀具测量"
 
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
+msgid "<b>Reload Tool</b>"
+msgstr "重新加载刀具"
+
 #: gmoccapy.glade.h:182
 msgid "Use frames"
 msgstr "使用边框"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
+msgid ""
+"If checked, the messages\n"
+"will be in a frame."
+msgstr "如果选中，将为每条消息加上边框。"
 
 #: gmoccapy.glade.h:183
 msgid "Use hal pin to unlock"
@@ -1442,6 +1527,38 @@ msgstr "删除选定的刀具或刀具组"
 msgid "enter MDI mode to launch g-code commands"
 msgstr "进入MDI模式启动G代码命令行"
 
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
+msgid ""
+"Estop the machine\n"
+"[F1]"
+msgstr ""
+"机床急停\n"
+"[F1]"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
+msgid ""
+"Turn the machine on/off\n"
+"[F2]"
+msgstr ""
+"打开/关闭机床\n"
+"[F2]"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
+msgid ""
+"enter manual mode to jog axis by hand or touch off\n"
+"[F3]"
+msgstr ""
+"进入手动模式，点动各轴或对刀\n"
+"[F3]"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
+msgid ""
+"enter MDI mode to launch g-code commands\n"
+"[F5]"
+msgstr ""
+"进入MDI模式启动G代码命令行\n"
+"[F5]"
+
 #: gmoccapy.glade.h:215
 msgid "enter auto mode to run programs"
 msgstr "进入自动模式运行程序"
@@ -1460,19 +1577,19 @@ msgstr "隐藏光标"
 
 #: gmoccapy.glade.h:219
 msgid "home all axis"
-msgstr "全部轴归零"
+msgstr "全部轴回原点"
 
 #: gmoccapy.glade.h:220
 msgid "home x axis"
-msgstr "X 轴归零"
+msgstr "X 轴回原点"
 
 #: gmoccapy.glade.h:221
 msgid "home y axis"
-msgstr "Y 轴归零"
+msgstr "Y 轴回原点"
 
 #: gmoccapy.glade.h:222
 msgid "home z axis"
-msgstr "Z 轴归零"
+msgstr "Z 轴回原点"
 
 #: gmoccapy.glade.h:223
 msgid "launch calibration"
@@ -1536,7 +1653,7 @@ msgstr "偏移量z"
 
 #: gmoccapy.glade.h:238
 msgid "open homing button list"
-msgstr "打开归零按钮列表"
+msgstr "打开原点按钮列表"
 
 #: gmoccapy.glade.h:239
 msgid "open touch off button list"
