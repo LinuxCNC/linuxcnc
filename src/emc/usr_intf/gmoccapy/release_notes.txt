@@ -1,3 +1,6 @@
+ver 2.3.2.2
+- ongoing reformating the code to new .format style
+
 ver 2.3.2.1
 - formating bug in Vc, when over 100, float can not be formated as int
 
