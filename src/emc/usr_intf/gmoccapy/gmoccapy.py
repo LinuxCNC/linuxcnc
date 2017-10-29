@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding:UTF-8 -*-
 """
-    A try of a new GUI for LinuxCNC based on gladevcp and Python
+    A GUI for LinuxCNC based on gladevcp and Python
     Based on the design of moccagui from Tom
     and with a lot of code from gscreen from Chris Morley
     and with the help from Michael Haberler
     and Chris Morley and some more
 
-    Copyright 2012 / 2016 Norbert Schechner
+    Copyright 2012 / 2017 Norbert Schechner
     nieson@web.de
 
     This program is free software; you can redistribute it and/or modify
@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.2.3"
+_RELEASE = " 2.3.2.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -900,14 +900,14 @@ class gmoccapy(object):
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
         for item in range(1, len(self.jog_increments)):
-            rbt = "rbt%d" % (item)
+            rbt = "rbt{0}".format(item)
             rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
             rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
             rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-            rbt.__name__ = "rbt%d" % (item)
+            rbt.__name__ = "rbt{0}".format(item)
             self.incr_rbt_list.append(rbt)
         self.active_increment = "rbt0"
 
@@ -2422,9 +2422,9 @@ class gmoccapy(object):
             if code == -1:
                 continue
             if code % 10 == 0:
-                temp.append("%d" % (code / 10))
+                temp.append("{0}".format(code / 10))
             else:
-                temp.append("%d.%d" % (code / 10, code % 10))
+                temp.append("{0}.{1}".format(code / 10, code % 10))
         for num, code in enumerate(temp):
             if num == 8:
                 active_codes.append("\n")
@@ -2440,7 +2440,7 @@ class gmoccapy(object):
         for code in sorted(self.stat.mcodes[1:]):
             if code == -1:
                 continue
-            temp.append("%d" % code)
+            temp.append("{0}".format(code))
         for code in (temp):
             active_codes.append("M" + code)
         self.active_mcodes = active_codes
@@ -2452,21 +2452,21 @@ class gmoccapy(object):
         # self.stat.program_units will return 1 for inch, 2 for mm and 3 for cm
         real_feed = float(self.stat.settings[1] * self.stat.feedrate)
         if self.stat.program_units != 1:
-            self.widgets.lbl_current_vel.set_text("%d" % (self.stat.current_vel * 60.0 * self.faktor))
+            self.widgets.lbl_current_vel.set_text("{0:d}".format(int(self.stat.current_vel * 60.0 * self.faktor)))
             if "G95" in self.active_gcodes:
-                feed_str = "%d" % self.stat.settings[1]
-                real_feed_str = "F  %.2f" % real_feed
+                feed_str = "{0:d}".format(int(self.stat.settings[1]))
+                real_feed_str = "F  {0:.2f}".format(real_feed)
             else:
-                feed_str = "%d" % self.stat.settings[1]
-                real_feed_str = "F  %.d" % real_feed
+                feed_str = "{0:d}".format(int(self.stat.settings[1]))
+                real_feed_str = "F  {0:d}".format(int(real_feed))
         else:
-            self.widgets.lbl_current_vel.set_text("%.2f" % (self.stat.current_vel * 60.0 * self.faktor))
+            self.widgets.lbl_current_vel.set_text("{0:.2f}".format(self.stat.current_vel * 60.0 * self.faktor))
             if "G95" in self.active_gcodes:
-                feed_str = "%.4f" % self.stat.settings[1]
-                real_feed_str = "F %.4f" % real_feed
+                feed_str = "{0:.4f}".format(self.stat.settings[1])
+                real_feed_str = "F {0:.4f}".format(real_feed)
             else:
-                feed_str = "%.3f" % self.stat.settings[1]
-                real_feed_str = "F %.3f" % real_feed
+                feed_str = "{0:.3f}".format(self.stat.settings[1])
+                real_feed_str = "F {0:.3f}".format(real_feed)
 
         # converting 0.0 to string brings nothing, so the string is empty
         # happens only on start up
@@ -2654,11 +2654,11 @@ class gmoccapy(object):
 
     def _offset_changed(self, pin, tooloffset):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
-            self.widgets.lbl_tool_offset_z.set_text("%.3f" % self.halcomp["tooloffset-z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.3f" % self.halcomp["tooloffset-x"])
+            self.widgets.lbl_tool_offset_z.set_text("{0:.3f}".format(self.halcomp["tooloffset-z"]))
+            self.widgets.lbl_tool_offset_x.set_text("{0:.3f}".format(self.halcomp["tooloffset-x"]))
         else:
-            self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tooloffset-z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tooloffset-x"])
+            self.widgets.lbl_tool_offset_z.set_text("{0:.4f}".format(self.halcomp["tooloffset-z"]))
+            self.widgets.lbl_tool_offset_x.set_text("{0:.4f}".format(self.halcomp["tooloffset-x"]))
 
     def on_offsetpage1_selection_changed(self, widget, system, name):
         if system not in self.system_list[1:] or self.widgets.tbtn_edit_offsets.get_active():
@@ -2813,7 +2813,7 @@ class gmoccapy(object):
 
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
         index = len(self.notification.messages)
-        text = _("Halo, welcome to the test message %d") % index
+        text = _("Halo, welcome to the test message {0}".format(index))
         self._show_error((13, text))
 
     def on_chk_turtle_jog_toggled(self, widget, data=None):
@@ -3205,8 +3205,8 @@ class gmoccapy(object):
             speed = self.stat.settings[2]
         else:
             speed = self.stat.spindle_speed
-        self.widgets.active_speed_label.set_label("%.0f" % abs(speed))
-        self.widgets.lbl_spindle_act.set_text("S %d" % int(speed * self.spindle_override))
+        self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
+        self.widgets.lbl_spindle_act.set_text("S {0}".format(int(speed * self.spindle_override)))
 
     def _update_vc(self):
         if self.stat.spindle_direction != 0:
@@ -3875,7 +3875,7 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
 
-        command = "M61 Q %d G43" %(tool_to_load)
+        command = "M61 Q {0} G43".format(tool_to_load)
         self.command.mdi(command)
         self.command.wait_complete()
 

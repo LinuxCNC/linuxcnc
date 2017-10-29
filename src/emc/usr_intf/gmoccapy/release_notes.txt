@@ -1,3 +1,6 @@
+ver 2.3.2.4
+- most of .format code rework done
+
 ver 2.3.2.3
 - display message as dialog, when critical errors do avoid the start of gmoccapy
   not only report in terminal
