@@ -53,7 +53,7 @@ def excepthook(exc_type, exc_obj, exc_tb):
     try:
         w = app.widgets.window1
     except KeyboardInterrupt:
-        sys.exit(0)
+        sys.exit()
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.2.2"
+_RELEASE = " 2.3.2.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -648,10 +648,11 @@ class gmoccapy(object):
         # to much axes given, can only handle 5
         if len(self.axis_list) > 5:
             message = _("**** GMOCCAPY INFO : ****")
-            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given %d through your INI file ****\n" % len(self.axis_list))
+            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given {0} through your INI file ****\n".format(len(self.axis_list)))
             message += _("**** gmoccapy will not start ****\n\n")
             print(message)
-            self.widgets.window1.destroy()
+            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            sys.exit()
 
         # XYZ machine or lathe, lathe will be handled in _init_preferences
         if len(self.axis_list) < 4:
@@ -1037,8 +1038,10 @@ class gmoccapy(object):
        # get the path to the tool table
         tooltable = self.get_ini_info.get_toolfile()
         if not tooltable:
-            print(_("**** GMOCCAPY ERROR ****"))
-            print(_("**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"))
+            message = _("**** GMOCCAPY ERROR ****\n")
+            message += _("**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****")
+            print(message)
+            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
             sys.exit()
         toolfile = os.path.join(CONFIGPATH, tooltable)
         self.widgets.tooledit1.set_filename(toolfile)
@@ -1347,8 +1350,10 @@ class gmoccapy(object):
 
         parameterfile = self.get_ini_info.get_parameter_file()
         if not parameterfile:
-            print(_("**** GMOCCAPY ERROR ****"))
-            print(_("**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"))
+            message = _("**** GMOCCAPY ERROR ****\n")
+            message += _("**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****")
+            print(message)
+            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
             sys.exit()
         path = os.path.join(CONFIGPATH, parameterfile)
         self.widgets.offsetpage1.set_filename(path)
