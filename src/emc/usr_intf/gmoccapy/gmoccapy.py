@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.2"
+_RELEASE = " 2.3.2.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3212,12 +3212,12 @@ class gmoccapy(object):
             if not self.lathe_mode:
                 diameter = self.halcomp["tool-diameter"]
             else:
-                diameter = int(self.widgets.Combi_DRO_x.get_position()[1]) * 2
+                diameter = int(self.widgets.Combi_DRO_x.get_position()[1] * 2)
             vc = abs(int(speed * self.spindle_override) * diameter * 3.14 / 1000)
         else:
             vc = 0
         if vc >= 100:
-            text = "Vc= {0:d}".format(vc)
+            text = "Vc= {0:d}".format(int(vc))
         elif vc >= 10:
             text = "Vc= {0:2.1f}".format(vc)
         else:

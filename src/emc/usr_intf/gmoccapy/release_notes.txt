@@ -1,3 +1,6 @@
+ver 2.3.2.1
+- formating bug in Vc, when over 100, float can not be formated as int
+
 ver 2.3.2
 - added a new label to toolinfo box, showing the cutting speed Vc
   it uses the tool diameter on mill and the x-relative value for lathe
