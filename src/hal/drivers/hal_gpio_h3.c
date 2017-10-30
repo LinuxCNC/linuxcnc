@@ -148,13 +148,13 @@ static void read_port(void *arg, long period);
 
 
 
-static void config_pin_as_input(int32_t n)
+static void config_pin_as_input(uint8_t n)
 {
     _GPIO_port_reg[_GPIO_LIST[n].port]->config[_GPIO_LIST[n].pin / 8] &=
         ~(0b1111 << (_GPIO_LIST[n].pin % 8 * 4));
 }
 
-static void config_pin_as_output(int32_t n)
+static void config_pin_as_output(uint8_t n)
 {
     _GPIO_port_reg[_GPIO_LIST[n].port]->config[_GPIO_LIST[n].pin / 8] &=
         ~(0b1111 << (_GPIO_LIST[n].pin % 8 * 4));
@@ -172,7 +172,7 @@ int32_t rtapi_app_main(void)
     off_t       phy_block_addr = 0;
     int32_t     n, retval;
     int8_t      *data, *token;
-    int32_t     pin;
+    uint8_t     pin;
 
 
     comp_id = hal_init("hal_gpio_h3");
@@ -275,7 +275,7 @@ int32_t rtapi_app_main(void)
 
         while ((token = strtok(data, ",")) != NULL)
         {
-            pin = strtol(token, NULL, 10);
+            pin = (uint8_t) strtol(token, NULL, 10);
 
             if ( pin < 0 || pin >= GPIO_PIN_COUNT || !_available_pins[pin] )
             {
@@ -314,7 +314,7 @@ int32_t rtapi_app_main(void)
 
         while ((token = strtok(data, ",")) != NULL)
         {
-            pin = strtol(token, NULL, 10);
+            pin = (uint8_t) strtol(token, NULL, 10);
 
             if ( pin < 0 || pin >= GPIO_PIN_COUNT || !_available_pins[pin] )
             {
@@ -400,6 +400,11 @@ void rtapi_app_exit(void)
 
 
 
+#define pd_pin      output_pins_list[n]             // port_data pin ID
+#define g_pin       _GPIO_LIST[pd_pin].pin          // GPIO pin ID
+#define g_prt       _GPIO_LIST[pd_pin].port         // GPIO port ID
+#define g_prt_data  _GPIO_port_reg[g_prt]->data     // GPIO port data value
+
 static void write_port(void *arg, long period)
 {
     static int8_t n = 0;
@@ -407,20 +412,31 @@ static void write_port(void *arg, long period)
     // set GPIO output pins state from the port_data array
     for ( n = output_pins_count; n--; )
     {
-        if ( *(port_data[output_pins_list[n]]) )
+        if ( *(port_data[pd_pin]) )
         {
             // set GPIO pin
-            _GPIO_port_reg[_GPIO_LIST[n].port]->data |=
-                (1UL << _GPIO_LIST[n].pin);
+            g_prt_data |= (1 << g_pin);
         }
         else
         {
             // clear GPIO pin
-            _GPIO_port_reg[_GPIO_LIST[n].port]->data &=
-                ~(1UL << _GPIO_LIST[n].pin);
+            g_prt_data &= ~(1 << g_pin);
         }
     }
 }
+
+#undef pd_pin
+#undef g_pin
+#undef g_prt
+#undef g_prt_data
+
+
+
+
+#define pd_pin      input_pins_list[n]
+#define g_pin       _GPIO_LIST[pd_pin].pin
+#define g_prt       _GPIO_LIST[pd_pin].port
+#define g_prt_data  _GPIO_port_reg[g_prt]->data
 
 static void read_port(void *arg, long period)
 {
@@ -429,9 +445,11 @@ static void read_port(void *arg, long period)
     // put GPIO input pins state into the port_data array
     for ( n = input_pins_count; n--; )
     {
-        *port_data[input_pins_list[n]] =
-            ((1UL << n) & _GPIO_port_reg[_GPIO_LIST[n].port]->data) ?
-                1 :
-                0 ;
+        *port_data[pd_pin] = (1 << g_pin) & g_prt_data ? 1 : 0;
     }
 }
+
+#undef pd_pin
+#undef g_pin
+#undef g_prt
+#undef g_prt_data
