@@ -48,6 +48,8 @@ import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed

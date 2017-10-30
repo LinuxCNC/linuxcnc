@@ -709,7 +709,7 @@ msgstr "<b>空程速率</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "<b>Feed Override</b>"
-msgstr "进给速率"
+msgstr "<b>进给速率</b>"
 
 #: gmoccapy.glade.h:26
 msgid "<b>Mouse Button mode</b>"
