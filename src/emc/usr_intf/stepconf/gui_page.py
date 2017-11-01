@@ -160,7 +160,7 @@ def create_halui_mdi(self):
 	self.d.halui_mdi_goto_position = len(self.d.halui_list) -1
 
 	# TOOL LENGHT SENSOR
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		self.d.halui_list.append("o<probe_tool_lenght> call")
 		self.d.halui_probe_tool_lenght = len(self.d.halui_list) -1
@@ -276,15 +276,15 @@ def create_guimerge_hal(self):
 
 	# TOOL LENGHT SENSOR
 	self.d.hal_guimerge_list.append("# TOOL LENGHT SENSOR")
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		self.d.hal_guimerge_list.append("net probe <= or2.%d.out => halui.mdi-command-%02d" % (OR, self.d.halui_probe_tool_lenght) )
 		OR += 1
 	
 	"""
 	# Spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
-		inputs = self.a.build_input_set()
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
+		inputs = self.build_input_set()
 		encoder = d_hal_input[PHA] in inputs
 		if encoder:
 			self.d.hal_guimerge_list.append("# **** Setup of spindle speed display using pyvcp -START ****")
@@ -359,7 +359,7 @@ def test_pyvcp_panel(self):
 		filepath = os.path.join(folder, panel)
 		self.create_pyvcp_panel(filepath)
 		halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
-		if self.a.debug:
+		if self._p.debug:
 			halrun.write("echo\n")
 		halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
 		halrun.write("waitusr displaytest\n")
@@ -371,7 +371,7 @@ def test_pyvcp_panel(self):
 		folder = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
 		filepath = os.path.join(folder, panel)
 		if not os.path.exists(filepath):
-			self.a.warning_dialog (_("""You specified there is an existing pyvcp, \
+			self.warning_dialog (_("""You specified there is an existing pyvcp, \
 But there is not one in the machine-named folder.."""),True)
 			return
 		halrun = os.popen("cd %(folder)s\nhalrun -Is > /dev/null"% {'folder':folder,}, "w" )    
@@ -402,7 +402,7 @@ def test_gladevcp_panel(self):
 		filepath = os.path.join(folder, panel)
 		self.create_gladevcp_panel(filepath) # Create panel
 		halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
-		if self.a.debug:
+		if self._p.debug:
 			halrun.write("echo\n")
 		halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s %(panel)s\n" %{
 						'size':size,'pos':pos,'option':options, 'panel':filepath})
@@ -415,12 +415,12 @@ def test_gladevcp_panel(self):
 		folder = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
 		filepath = os.path.join(folder, panel)
 		if not os.path.exists(filepath):
-			self.a.warning_dialog (_("""You specified there is an existing gladefile, \
+			self.warning_dialog (_("""You specified there is an existing gladefile, \
 But there is not one in the machine-named folder.."""),True)
 			return
 
 		halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
-		if self.a.debug:
+		if self._p.debug:
 			halrun.write("echo\n")
 		halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s %(panel)s\n" %{
 						'size':size,'pos':pos,'option':options, 'panel':filepath})

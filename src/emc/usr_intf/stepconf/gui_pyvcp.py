@@ -92,8 +92,8 @@ def create_pyvcp_hal_single(self):
 	self.d.hal_postgui_list.append("net my-jogspeed halui.axis.jog-speed <= pyvcp.jog-speed-f")
 
 	# Spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
-		inputs = self.a.build_input_set()
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
+		inputs = self.build_input_set()
 		encoder = d_hal_input[PHA] in inputs
 		if encoder:
 			self.d.hal_postgui_list.append("# **** Setup of spindle speed display using pyvcp -START ****")
@@ -137,7 +137,7 @@ def create_pyvcp_hal_single(self):
 	self.d.hal_postgui_list.append("net my-goto-position pyvcp.goto-position => halui.mdi-command-%02d" % (self.d.halui_mdi_goto_position) )
 
 	# TOOL LENGHT SENSOR
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		#self.d.halui_list.append("o<pyvcp_probe> call")
 		self.d.hal_postgui_list.append("net my-probe pyvcp.probe => halui.mdi-command-%02d" % (self.d.halui_probe_tool_lenght) )
@@ -257,14 +257,14 @@ def create_pyvcp_hal_merge(self):
 	OR += 1
 
 	# TOOL LENGHT SENSOR
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		self.d.hal_postgui_list.append("net my-probe <= pyvcp.probe => or2.%d.in1" % (OR))
 		OR += 1
 
 	# Spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
-		inputs = self.a.build_input_set()
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
+		inputs = self.build_input_set()
 		encoder = d_hal_input[PHA] in inputs
 		if encoder:
 			self.d.hal_postgui_list.append("# **** Setup of spindle speed display using pyvcp -START ****")
@@ -549,7 +549,7 @@ def create_pyvcp_panel(self, filename):
 </labelframe>
 """)
 	# Check for spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
 		print >>file, ("""
 <vbox>
 <relief>RIDGE</relief>
@@ -605,7 +605,7 @@ def create_pyvcp_panel(self, filename):
 """)
 
 	# Check for tool lenght sensor
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		print >>file, ("""
 <!-- Tool length sensor -->

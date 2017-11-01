@@ -22,6 +22,7 @@
 # start PAGE
 #***********
 import os
+import xml.dom.minidom
 from gi.repository import Gtk
 from gi.repository import GObject
 
@@ -34,8 +35,8 @@ def start_finish(self):
 	if self.w.importmach.get_active():
 		print 'Import Mach config'
 		from stepconf import import_mach
-		self.d.load('/tmp/temp.stepconf', self)
-		if not self.a.debug:
+		self.load('/tmp/temp.stepconf', self)
+		if not self._p.debug:
 			os.remove('/tmp/temp.stepconf')
 	elif not self.w.createconfig.get_active():
 		filter = Gtk.FileFilter()
@@ -56,7 +57,7 @@ def start_finish(self):
 		if result == Gtk.ResponseType.OK:
 			filename = dialog.get_filename()
 			dialog.destroy()
-			self.d.load(filename, self)
+			self.load(filename, self)
 		else:
 			dialog.destroy()
 			return True
@@ -69,4 +70,49 @@ def on_machinename_changed(self, *args):
 	temp = self.w.machinename.get_text()
 	self.w.confdir.set_text("~/linuxcnc/configs/%s" % temp.replace(" ","_"))
 
+
+def load(self, filename, app=None, force=False):
+	def str2bool(s):
+		return s == 'True'
+
+	converters = {'string': str, 'float': float, 'int': int, 'bool': str2bool, 'eval': eval}
+
+	d = xml.dom.minidom.parse(open(filename, "r"))
+	for n in d.getElementsByTagName("property"):
+		name = n.getAttribute("name")
+		conv = converters[n.getAttribute('type')]
+		text = n.getAttribute('value')
+		setattr(self.d, name, conv(text))
+
+	warnings = []
+	for f, m in self.d.md5sums:
+		m1 = self.md5sum(f)
+		if m1 and m != m1:
+			warnings.append(_("File %r was modified since it was written by stepconf") % f)
+	if warnings:
+		warnings.append("")
+		warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
+		if app:
+			dialog = Gtk.MessageDialog(app.w.window1,
+				Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+				Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,
+					 "\n".join(warnings))
+			dialog.show_all()
+			dialog.run()
+			dialog.destroy()
+		else:
+			for para in warnings:
+				for line in textwrap.wrap(para, 78): print line
+				print
+			print
+			if force: return
+			response = raw_input(_("Continue? "))
+			if response[0] not in _("yY"): raise SystemExit, 1
+
+	for p in (10,11,12,13,15):
+		pin = "pin%d" % p
+		p = self.d[pin]
+	for p in (1,2,3,4,5,6,7,8,9,14,16,17):
+		pin = "pin%d" % p
+		p = self.d[pin]
 

@@ -48,9 +48,9 @@ def base_prepare(self):
 
 	# Preset
 	preset_index = self.d.global_preset
-	self.d.select_combo_machine(self.w.base_preset_combo, preset_index)
+	self.select_combo_machine(self.w.base_preset_combo, preset_index)
 	preset_index = self.d.drivertype
-	self.d.select_combo_machine(self.w.drivertype, preset_index)
+	self.select_combo_machine(self.w.drivertype, preset_index)
 	
 	self.w.ioaddr.set_text(self.d.ioaddr)
 	self.w.machinename.grab_focus()
@@ -95,13 +95,13 @@ def base_finish(self):
 		self.d.number_pports = 1
 
 	# Preset
-	current_machine = self.d.get_machine_preset(self.w.drivertype)
+	current_machine = self.get_machine_preset(self.w.drivertype)
 	if current_machine:
 		self.d.drivertype = current_machine["index"]
 	else:
 		# Other selected
 		self.d.drivertype = 0
-	current_machine = self.d.get_machine_preset(self.w.base_preset_combo)
+	current_machine = self.get_machine_preset(self.w.base_preset_combo)
 	if current_machine:
 		self.d.global_preset = current_machine["index"]
 	else:
@@ -129,7 +129,7 @@ def on_drivertype_changed(self, widget):
 		"dirsetup"
 	]
 
-	current_machine = self.d.get_machine_preset(self.w.drivertype)
+	current_machine = self.get_machine_preset(self.w.drivertype)
 	if current_machine:
 		#self.d.drivertype = current_machine["index"]
 		None
@@ -149,9 +149,9 @@ def calculate_ideal_period(self):
 	steptime = self.w.steptime.get_value()
 	stepspace = self.w.stepspace.get_value()
 	latency = self.w.latency.get_value()
-	minperiod = self.d.minperiod(steptime, stepspace, latency)
+	minperiod = self.minperiod(steptime, stepspace, latency)
 	maxhz = int(1e9 / minperiod)
-	if not self.d.doublestep(steptime): maxhz /= 2
+	if not self.doublestep(steptime): maxhz /= 2
 	self.w.baseperiod.set_text("%d ns" % minperiod)
 	self.w.maxsteprate.set_text("%d Hz" % maxhz)
 
@@ -197,10 +197,10 @@ def on_units_changed(self, widget):
 	if not self.d.units == widget.get_active():
 		# change the XYZ axis defaults to metric or imperial
 		# This erases any entered data that would make sense to change
-		self.d.set_axis_unit_defaults(not widget.get_active())
+		self.a.set_axis_unit_defaults(not widget.get_active())
 
 def on_base_preselect_button_clicked(self, widget):
-	current_machine = self.d.get_machine_preset(self.w.base_preset_combo)
+	current_machine = self.get_machine_preset(self.w.base_preset_combo)
 	if current_machine:
 		self.base_general_preset(current_machine)
 		ctx = self.w.base_preselect_button.get_style_context()
@@ -209,20 +209,18 @@ def on_base_preselect_button_clicked(self, widget):
 
 def base_general_preset(self, current_machine):
 	# base
-	self.d.select_combo_machine(self.w.drivertype, current_machine["index"])
+	self.select_combo_machine(self.w.drivertype, current_machine["index"])
 	# pport1
 	self.pport1_prepare()
-	self.d.select_combo_machine(self.w.pp1_preset_combo, current_machine["index"])
+	self.select_combo_machine(self.w.pp1_preset_combo, current_machine["index"])
 	self.on_pp1_preselect_button_clicked(None)
 	self.pport1_finish()
 	# axis
 	for axis in ('x','y','z','u','v'):
 		self.axis_prepare(axis)
-		self.d.select_combo_machine(self.w[axis + "preset_combo"], current_machine["index"])
+		self.select_combo_machine(self.w[axis + "preset_combo"], current_machine["index"])
 		self.preset_axis(axis)
 		self.axis_done(axis)
 	# options: preset probe coordinates  in options page
 	self.option_preset()
 	return
-
-

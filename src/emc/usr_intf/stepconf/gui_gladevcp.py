@@ -92,8 +92,8 @@ def create_gladevcp_hal_single(self):
 	self.d.hal_gvcp_list.append("net gvcp-jogspeed halui.axis.jog-speed <= gladevcp.scale_jog_speed")
 
 	# Spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
-		inputs = self.a.build_input_set()
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
+		inputs = self.build_input_set()
 		encoder = d_hal_input[PHA] in inputs
 		if encoder:
 			self.d.hal_gvcp_list.append("# **** Setup of spindle speed display using gladevcp -START ****")
@@ -103,11 +103,11 @@ def create_gladevcp_hal_single(self):
 			self.d.hal_gvcp_list.append("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
 			self.d.hal_gvcp_list.append("")
 			self.d.hal_gvcp_list.append("setp scale.0.gain 60")
-			self.d.hal_gvcp_list.append("setp lowpass.0.gain %f")% self.d.spindlefiltergain
+			self.d.hal_gvcp_list.append("setp lowpass.0.gain %f")% self.spindlefiltergain
 			self.d.hal_gvcp_list.append("net spindle-velocity-feedback-rps               => lowpass.0.in")
 			self.d.hal_gvcp_list.append("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
 			self.d.hal_gvcp_list.append("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
-			self.d.hal_gvcp_list.append("net spindle-fb-filtered-abs-rpm  scale.0.out    => gladevcp.spindle-speed")
+			self.d.hal_gvcp_list.append("net spindle-fb-filtered-abs-rpm  scale.0.out    => gladevcp.bar_spindle_speed")
 			self.d.hal_gvcp_list.append("")
 			self.d.hal_gvcp_list.append("# **** set up spindle at speed indicator ****")
 			if self.d.usespindleatspeed:
@@ -115,20 +115,21 @@ def create_gladevcp_hal_single(self):
 				self.d.hal_gvcp_list.append("net spindle-cmd-rps-abs             =>  near.0.in1")
 				self.d.hal_gvcp_list.append("net spindle-velocity-feedback-rps   =>  near.0.in2")
 				self.d.hal_gvcp_list.append("net spindle-at-speed                <=  near.0.out")
-				self.d.hal_gvcp_list.append("setp near.0.scale %f")% self.d.spindlenearscale
+				self.d.hal_gvcp_list.append("setp near.0.scale %f")% self.spindlenearscale
 			else:
 				self.d.hal_gvcp_list.append("# **** force spindle at speed indicator true because we chose no feedback ****")
 				self.d.hal_gvcp_list.append("")
 				self.d.hal_gvcp_list.append("sets spindle-at-speed true")
-			self.d.hal_gvcp_list.append("net spindle-at-speed       => gladevcp.spindle-at-speed-led")
+			self.d.hal_gvcp_list.append("net spindle-at-speed       => gladevcp.spindle_at_speed_led")
 		else:
 			self.d.hal_gvcp_list.append("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
 			self.d.hal_gvcp_list.append("")
-			self.d.hal_gvcp_list.append("net spindle-cmd-rpm-abs    => gladevcp.spindle-speed")
+			#self.d.hal_gvcp_list.append("net spindle-cmd-rpm-abs    => gladevcp.spindle-speed")
+			self.d.hal_gvcp_list.append("net spindle-cmd-rpm-abs    => gladevcp.bar_spindle_speed")
 			self.d.hal_gvcp_list.append("")
 			self.d.hal_gvcp_list.append("# **** force spindle at speed indicator true because we have no feedback ****")
 			self.d.hal_gvcp_list.append("")
-			self.d.hal_gvcp_list.append("net spindle-at-speed => gladevcp.spindle-at-speed-led")
+			self.d.hal_gvcp_list.append("net spindle-at-speed => gladevcp.spindle_at_speed_led")
 			self.d.hal_gvcp_list.append("sets spindle-at-speed true")
 
 	# Save position
@@ -136,7 +137,7 @@ def create_gladevcp_hal_single(self):
 	self.d.hal_gvcp_list.append("net gvcp-goto-position gladevcp.go_to_position => halui.mdi-command-%02d" % (self.d.halui_mdi_goto_position) )
 
 	# TOOL LENGHT SENSOR
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		self.d.hal_gvcp_list.append("net gvcp-probe gladevcp.probe => halui.mdi-command-%02d" % (self.d.halui_probe_tool_lenght) )
 
@@ -236,7 +237,7 @@ def create_gladevcp_hal_merge(self):
 	OR += 1
 
 	# TOOL LENGHT SENSOR
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		self.d.hal_gvcp_list.append("net gvcp-probe  <= gladevcp.probe => or2.%d.in0" % (OR))
 		OR += 1
@@ -244,8 +245,8 @@ def create_gladevcp_hal_merge(self):
 	# TODO
 	"""
 	# Spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
-		inputs = self.a.build_input_set()
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
+		inputs = self.build_input_set()
 		encoder = d_hal_input[PHA] in inputs
 		if encoder:
 			self.d.hal_gvcp_list.append("# **** Setup of spindle speed display using gladevcp -START ****")
@@ -259,7 +260,7 @@ def create_gladevcp_hal_merge(self):
 			self.d.hal_gvcp_list.append("net spindle-velocity-feedback-rps               => lowpass.0.in")
 			self.d.hal_gvcp_list.append("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
 			self.d.hal_gvcp_list.append("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
-			self.d.hal_gvcp_list.append("net spindle-fb-filtered-abs-rpm  scale.0.out    => gladevcp.spindle-speed")
+			self.d.hal_gvcp_list.append("net spindle-fb-filtered-abs-rpm  scale.0.out    => gladevcp.bar_spindle_speed")
 			self.d.hal_gvcp_list.append("")
 			self.d.hal_gvcp_list.append("# **** set up spindle at speed indicator ****")
 			if self.d.usespindleatspeed:
@@ -272,15 +273,15 @@ def create_gladevcp_hal_merge(self):
 				self.d.hal_gvcp_list.append("# **** force spindle at speed indicator true because we chose no feedback ****")
 				self.d.hal_gvcp_list.append("")
 				self.d.hal_gvcp_list.append("sets spindle-at-speed true")
-			self.d.hal_gvcp_list.append("net spindle-at-speed       => gladevcp.spindle-at-speed-led")
+			self.d.hal_gvcp_list.append("net spindle-at-speed       => gladevcp.spindle_at_speed_led")
 		else:
 			self.d.hal_gvcp_list.append("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
 			self.d.hal_gvcp_list.append("")
-			self.d.hal_gvcp_list.append("net spindle-cmd-rpm-abs    => gladevcp.spindle-speed")
+			self.d.hal_gvcp_list.append("net spindle-cmd-rpm-abs    => gladevcp.bar_spindle_speed")
 			self.d.hal_gvcp_list.append("")
 			self.d.hal_gvcp_list.append("# **** force spindle at speed indicator true because we have no feedback ****")
 			self.d.hal_gvcp_list.append("")
-			self.d.hal_gvcp_list.append("net spindle-at-speed => gladevcp.spindle-at-speed-led")
+			self.d.hal_gvcp_list.append("net spindle-at-speed => gladevcp.spindle_at_speed_led")
 			self.d.hal_gvcp_list.append("sets spindle-at-speed true")
 	"""
 
@@ -342,6 +343,7 @@ def create_gladevcp_panel(self,filename):
 		print >>file, ("""                <property name="n_rows">3</property>""")
 
 	print >>file, ("""                <property name="n_columns">2</property>
+                <!-- JOG X -->
                 <child>
                   <object class="HAL_Button" id="jog_x_plus">
                     <property name="label" translatable="yes">X+</property>
@@ -377,6 +379,7 @@ def create_gladevcp_panel(self,filename):
 	# Y
 	if self.d.axes in(XYZ, XYZA, XYUV):
 		print >>file, ("""
+                <!-- JOG Y -->
                 <child>
                   <object class="HAL_Button" id="jog_y_plus">
                     <property name="label" translatable="yes">Y+</property>
@@ -412,6 +415,7 @@ def create_gladevcp_panel(self,filename):
 	# Z
 	if self.d.axes in(XYZ, XYZA, XZ):
 		print >>file, ("""
+                <!-- JOG Z -->
                 <child>
                   <object class="HAL_Button" id="jog_z_plus">
                     <property name="label" translatable="yes">Z+</property>
@@ -455,6 +459,7 @@ def create_gladevcp_panel(self,filename):
 	# A
 	if self.d.axes == XYZA:
 		print >>file, ("""
+                <!-- JOG A -->
                 <child>
                   <object class="HAL_Button" id="jog_a_plus">
                     <property name="label" translatable="yes">A+</property>
@@ -490,6 +495,7 @@ def create_gladevcp_panel(self,filename):
 	# UV
 	if self.d.axes == XYUV:
 		print >>file, ("""
+                <!-- JOG U and V -->
                 <child>
                   <object class="HAL_Button" id="jog_u_plus">
                     <property name="label" translatable="yes">U+</property>
@@ -570,7 +576,9 @@ def create_gladevcp_panel(self,filename):
           </packing>
         </child>""")
 	# JOG
-	print >>file, ("""        <child>
+	print >>file, ("""
+        <!-- JOG SPEED -->
+        <child>
           <object class="GtkVBox" id="box3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -613,7 +621,8 @@ def create_gladevcp_panel(self,filename):
           </packing>
         </child>""")
 	# X
-	print >>file, ("""        <child>
+	print >>file, ("""
+        <child>
           <object class="GtkVBox" id="box4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -637,6 +646,7 @@ def create_gladevcp_panel(self,filename):
               <object class="GtkHBox" id="box5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <!-- ZERO X -->
                 <child>
                   <object class="HAL_Button" id="zero_x">
                     <property name="label" translatable="yes">X=0</property>
@@ -654,6 +664,7 @@ def create_gladevcp_panel(self,filename):
 	# Y
 	if self.d.axes in(XYZ, XYZA, XYUV):
 		print >>file, ("""
+                <!-- ZERO Y -->
                 <child>
                   <object class="HAL_Button" id="zero_y">
                     <property name="label" translatable="yes">Y=0</property>
@@ -671,6 +682,7 @@ def create_gladevcp_panel(self,filename):
 	# Z
 	if self.d.axes in(XYZ, XYZA, XZ):
 		print >>file, ("""
+                <!-- ZERO Z -->
                 <child>
                   <object class="HAL_Button" id="zero_z">
                     <property name="label" translatable="yes">Z=0</property>
@@ -683,15 +695,16 @@ def create_gladevcp_panel(self,filename):
                     <property name="expand">True</property>
                     <property name="fill">True</property>""")
 		if (self.d.axes == XZ):
-			print >>file, ("""					<property name="position">1</property>""")
+			print >>file, ("""                    <property name="position">1</property>""")
 		else:
-			print >>file, ("""					<property name="position">2</property>""")
+			print >>file, ("""                    <property name="position">2</property>""")
 		print >>file, ("""
                   </packing>
                 </child>""")
 	# A
 	if self.d.axes == XYZA:
 		print >>file, ("""
+                <!-- ZERO A -->
                 <child>
                   <object class="HAL_Button" id="zero_a">
                     <property name="label" translatable="yes">A=0</property>
@@ -709,6 +722,7 @@ def create_gladevcp_panel(self,filename):
 	# UV
 	if self.d.axes == XYUV:
 		print >>file, ("""
+                <!-- ZERO U and V -->
                 <child>
                   <object class="HAL_Button" id="zero_u">
                     <property name="label" translatable="yes">U=0</property>
@@ -778,6 +792,7 @@ def create_gladevcp_panel(self,filename):
               <object class="GtkHBox" id="box7">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <!-- GO TO ZERO X -->
                 <child>
                   <object class="HAL_Button" id="go_zero_x">
                     <property name="label" translatable="yes">-X-</property>
@@ -795,6 +810,7 @@ def create_gladevcp_panel(self,filename):
 	# Y
 	if self.d.axes in(XYZ, XYZA, XYUV):
 		print >>file, ("""
+                <!-- GO TO ZERO Y -->
                 <child>
                   <object class="HAL_Button" id="go_zero_y">
                     <property name="label" translatable="yes">-Y-</property>
@@ -812,6 +828,7 @@ def create_gladevcp_panel(self,filename):
 	# Z
 	if self.d.axes in(XYZ, XYZA, XZ):
 		print >>file, ("""
+                <!-- GO TO ZERO Z -->
                 <child>
                   <object class="HAL_Button" id="go_zero_z">
                     <property name="label" translatable="yes">-Z-</property>
@@ -833,6 +850,7 @@ def create_gladevcp_panel(self,filename):
 	# A
 	if self.d.axes == XYZA:
 		print >>file, ("""
+                <!-- GO TO ZERO A -->
                 <child>
                   <object class="HAL_Button" id="go_zero_a">
                     <property name="label" translatable="yes">-A-</property>
@@ -850,6 +868,7 @@ def create_gladevcp_panel(self,filename):
 	# UV
 	if self.d.axes == XYUV:
 		print >>file, ("""
+                <!-- GO TO ZERO U and V -->
                 <child>
                   <object class="HAL_Button" id="go_zero_u">
                     <property name="label" translatable="yes">-U-</property>
@@ -895,8 +914,9 @@ def create_gladevcp_panel(self,filename):
           </packing>
         </child>""")
 	# Check for spindle speed
-	if (self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()):
+	if (self.has_spindle_speed_control() or self.has_spindle_encoder()):
 		print >>file, ("""
+        <!-- SPINDLE SPEED -->
         <child>
           <object class="GtkVBox" id="box8">
             <property name="visible">True</property>
@@ -918,14 +938,13 @@ def create_gladevcp_panel(self,filename):
               </packing>
             </child>
             <child>
-              <object class="HAL_HBar" id="bar_spindle">
+              <object class="HAL_HBar" id="bar_spindle_speed">
                 <property name="visible">True</property>
                 <property name="bg_color">#bebebebebebe</property>
                 <property name="z1_border">0.85000002384185791</property>
                 <property name="z0_border">0.69999998807907104</property>
-                <property name="force_height">20</property>""")
-		print >>file, ("""
-				<property name="max">100</property>
+                <property name="force_height">20</property>
+                <property name="max">100</property>
                 <property name="z1_color">#ffffffff0000</property>
                 <property name="z2_color">#ffff00000000</property>
                 <property name="z0_color">#0000ffff0000</property>
@@ -937,7 +956,7 @@ def create_gladevcp_panel(self,filename):
               </packing>
             </child>
             <child>
-              <object class="HAL_LED" id="spindle_led">
+              <object class="HAL_LED" id="spindle_at_speed_led">
                  <property name="visible">True</property>
                  <property name="pick_color_on">#f88096020000</property>
                  <property name="pick_color_off">#00002724ffff</property>
@@ -956,15 +975,16 @@ def create_gladevcp_panel(self,filename):
             <property name="position">4</property>
           </packing>
         </child>""")
-	# Save goto posizion G30.1 G30
+	# Save goto position G30.1 G30
 	print >>file, ("""
+		<!-- G30.1 G30 -->
 		<child>
 		  <object class="GtkVBox" id="vbox1">
 			<property name="visible">True</property>
 			<property name="can_focus">False</property>
 			<property name="orientation">vertical</property>
 			<child>
-			  <object class="GtkLabel" id="label5">
+			  <object class="GtkLabel" id="label7">
 				<property name="visible">True</property>
 				<property name="can_focus">False</property>
 				<property name="label" translatable="yes">Save/Goto Position</property>
@@ -1027,9 +1047,11 @@ def create_gladevcp_panel(self,filename):
 		</child>""")
 
 	# Check for tool lenght sensor
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
-		print >>file, ("""        <child>
+		print >>file, ("""
+		<!-- TOOL LENGHT SENSOR -->
+        <child>
           <object class="GtkVBox" id="box_probe">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -1071,8 +1093,10 @@ def create_gladevcp_panel(self,filename):
           </packing>
         </child>""")
 
-	# HOME ALL
-	print >>file, ("""        <child>
+	# GENERAL
+	print >>file, ("""
+		<!-- GENERAL -->
+        <child>
           <object class="GtkVBox" id="box_general">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -1092,11 +1116,12 @@ def create_gladevcp_panel(self,filename):
 			  </packing>
             </child>""")
 	# ESTOP
-	print >>file, ("""        <child>
+	print >>file, ("""
+        <child>
               <object class="GtkHBox" id="hbox_general">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-				<!-- ESTOP -->
+                <!-- ESTOP -->
                 <child>
                   <object class="HAL_Button" id="estop">
                     <property name="label" translatable="yes">ESTOP</property>
@@ -1111,7 +1136,7 @@ def create_gladevcp_panel(self,filename):
                     <property name="position">0</property>
                   </packing>
                 </child>
- 				<!-- HOME ALL -->
+                <!-- HOME ALL -->
                 <child>
                   <object class="HAL_Button" id="home_all">
                     <property name="label" translatable="yes">HOME ALL</property>

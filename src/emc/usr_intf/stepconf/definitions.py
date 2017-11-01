@@ -63,6 +63,8 @@ GtkEntry.selected {
 
 """
 
+DOMAIN = "linuxcnc"
+
 INCH = 0
 MM = 1
 
@@ -98,8 +100,8 @@ FILE_TOOL_CHANGE = 'tool_change.ngc'
 FILE_TOOL_JOB_BEGIN = 'tool_job_begin.ngc'
 
 # HALUI MDI
-#MDI_G54X0 ='G54 G10 L20 P1 x0 M100'
-MDI_G54X0 ='G10 L2 P1 X0 M100'
+#MDI_G54X0 ='G10 L2 P1 X0 M100'
+MDI_G54X0 ='G54 G10 L20 P1 x0 M100'
 MDI_G54Y0 ='G54 G10 L20 P1 y0 M100'
 MDI_G54Z0 ='G54 G10 L20 P1 z0 M100'
 MDI_G54A0 ='G54 G10 L20 P1 a0 M100'
@@ -141,7 +143,7 @@ available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
 ]
 
 available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page', 'gui_pyvcp', 'gui_gladevcp',
-					'tool_change', 'axis', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
+					'tool_change', 'axis_helper_functions', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished', 'general_helper_functions',
 ]
 
 # OUTPUT
@@ -467,23 +469,3 @@ exclusive_input = {
 		ALL_LIMIT, ALL_HOME),
 }
 
-# internalname / displayed name / steptime/ step space / direction hold / direction setup
-"""
-alldrivertypes = [
-			["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
-			["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
-			["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
-			["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
-			["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
-			["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-			["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
-			["l297", _("L297"), 500,  4000, 4000, 1000],
-			["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
-			["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
-			["xylotex", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
-			["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
-			["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
-			["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
-			["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
-]
-"""

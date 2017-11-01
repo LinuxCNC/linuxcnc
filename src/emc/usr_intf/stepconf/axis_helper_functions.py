@@ -79,7 +79,7 @@ def axis_prepare(self, axis):
 	
 	# Prepare preset
 	preset_index = self.d[axis + "preset"]
-	self.d.select_combo_machine(self.w[axis + "preset_combo"], preset_index)
+	self.select_combo_machine(self.w[axis + "preset_combo"], preset_index)
 	self.preset_axis(axis)
 
 def axis_done(self, axis):
@@ -101,7 +101,7 @@ def axis_done(self, axis):
 	get_text("homevel")
 	get_active("latchdir")
 	# Save preset
-	current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
+	current_machine = self.get_machine_preset(self.w[axis + "preset_combo"])
 	if current_machine:
 		self.d[axis + "preset"] = current_machine["index"]
 	else:
@@ -109,7 +109,7 @@ def axis_done(self, axis):
 		self.d[axis + "preset"] = 0
 
 def check_switch_limits(self, axis):
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	#thisaxishome = set([ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
 	#					"max-home-" + axis, "both-home-" + axis])
 	thisaxishome = set([d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
@@ -121,7 +121,7 @@ def check_switch_limits(self, axis):
 		self.w[axis + "homevel"].set_sensitive(homes)
 		self.w[axis + "latchdir"].set_sensitive(homes)
 	else:
-		current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
+		current_machine = self.get_machine_preset(self.w[axis + "preset_combo"])
 		if current_machine:
 			if (axis + "homesw" in current_machine):
 				self.w[axis + "homesw"].set_sensitive(0)
@@ -153,7 +153,7 @@ def preset_axis(self, axis):
 		axis + "homevel"
 	]
 
-	current_machine = self.d.get_machine_preset(self.w[axis + "preset_combo"])
+	current_machine = self.get_machine_preset(self.w[axis + "preset_combo"])
 	if current_machine:
 		None
 	else:
@@ -189,7 +189,7 @@ def update_pps(self, axis):
 		micro = get("microstep")
 		pullnum = get("pulleynum")
 		pulldem = get("pulleyden")
-		if self.d.units == 1 or axis == 'a':
+		if self.d.units == MM or axis == 'a':
 			pitch = 1./pitch
 		pps = (pitch * step * micro * (pullnum / pulldem) * get("maxvel"))
 		if pps == 0:
@@ -262,7 +262,7 @@ def test_axis(self, axis):
 	scale = self.d[axis + "scale"]
 	maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
 	#maxvel = 1.5 * vel
-	if self.a.doublestep():
+	if self.doublestep():
 			period = int(1e9 / maxvel / scale)
 	else:
 			period = int(.5e9 / maxvel / scale)
@@ -270,11 +270,11 @@ def test_axis(self, axis):
 	steptime = self.w.steptime.get_value()
 	stepspace = self.w.stepspace.get_value()
 	latency = self.w.latency.get_value()
-	minperiod = self.d.minperiod()
+	minperiod = self.minperiod()
 	
 	if period < minperiod:
 		period = minperiod
-		if self.a.doublestep():
+		if self.doublestep():
 			maxvel = 1e9 / minperiod / abs(scale)
 		else:
 			maxvel = 1e9 / minperiod / abs(scale)
@@ -283,7 +283,7 @@ def test_axis(self, axis):
 
 	# halrun print a point "." on console, but I have not found out why.
 	self.halrun = os.popen("halrun -Is", "w")
-	if self.a.debug:
+	if self._p.debug:
 		self.halrun.write("echo\n")
 	axnum = "xyza".index(axis)
 	step = axis + "step"
@@ -318,9 +318,9 @@ def test_axis(self, axis):
 		self.halrun.write( "addf parport.0.write fast\n")
 	if self.d.number_pports>2:
 		self.halrun.write( "addf parport.0.write fast\n")
-	temp = self.a.find_output(axis +'step')
+	temp = self.find_output(axis +'step')
 	step_pin = temp[0][0]
-	temp = self.a.find_output(axis +'dir')
+	temp = self.find_output(axis +'dir')
 	dir_pin = temp[0][0]
 	self.halrun.write("""
 		addf stepgen.capture-position slow
@@ -349,7 +349,7 @@ def test_axis(self, axis):
 		'scale': self.d[axis + "scale"],
 	})
 	
-	if self.a.doublestep():
+	if self.doublestep():
 		self.halrun.write("""
 			setp parport.0.reset-time %(resettime)d
 			setp stepgen.0.stepspace 0
@@ -357,13 +357,13 @@ def test_axis(self, axis):
 		""" % {
 			'resettime': self.d['steptime']
 		})
-	amp_signals = self.a.find_output(d_hal_output[AMP])
+	amp_signals = self.find_output(d_hal_output[AMP])
 	for pin in amp_signals:
 		amp,amp_port = pin
 		self.halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
 			% {'enablepin': amp,'portnum': amp_port})
 	
-	estop_signals = self.a.find_output(d_hal_output[ESTOP])
+	estop_signals = self.find_output(d_hal_output[ESTOP])
 	for pin in estop_signals:
 		estop,e_port = pin
 		self.halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
@@ -384,7 +384,7 @@ def test_axis(self, axis):
 			if inv:
 				self.halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
 				% {'pin': pin})
-	if self.a.debug:
+	if self._p.debug:
 		self.halrun.write("loadusr halmeter sig cmd -g 275 415\n")
 	
 	if axis == "a":
@@ -435,7 +435,7 @@ def test_axis(self, axis):
 	self.w.run.set_active(0)
 	self.w.testacc.set_value(acc)
 	self.w.testvel.set_value(vel)
-	self.a.axis_under_test = axis
+	self._p.axis_under_test = axis
 	self.update_axis_test()
 
 	self.halrun.write("start\n")
@@ -472,14 +472,14 @@ def check_for_rt(self):
 	is_realtime_capable = False
 	try:
 		if hal.is_sim:
-			self.a.warning_dialog(MESS_NO_REALTIME,True)
+			self.warning_dialog(MESS_NO_REALTIME,True)
 		elif hal.is_rt:
 			if hal.is_kernelspace:
 				actual_kernel = os.uname()[2]
 				if hal.kernel_version == actual_kernel:
 					is_realtime_capable = True
 				else:
-					self.a.warning_dialog(MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
+					self.warning_dialog(MESS_KERNEL_WRONG + '%s'%hal.kernel_version,True)
 			else:
 				is_realtime_capable = True
 	except:
@@ -487,7 +487,7 @@ def check_for_rt(self):
 		print sys.exc_info()
 		return True
 
-	if is_realtime_capable or self.a.debug:
+	if is_realtime_capable or self._p.debug:
 		return True
 	else:
 		return False
@@ -499,7 +499,7 @@ def update_axis_params(self, *args):
 	self.update_axis_test()
 
 def update_axis_test(self):
-	axis = self.a.axis_under_test
+	axis = self._p.axis_under_test
 	if axis is None:
 		return
 
@@ -513,8 +513,8 @@ def update_axis_test(self):
 		setp steptest.0.maxvel %(vel)f
 		setp steptest.0.dir %(dir)s
 	""" % {
-		'jogminus': self.a.jogminus,
-		'jogplus': self.a.jogplus,
+		'jogminus': self._p.jogminus,
+		'jogplus': self._p.jogplus,
 		'run': self.w.run.get_active(),
 		'amplitude': self.w.testamplitude.get_value(),
 		'accel': self.w.testacc.get_value(),
@@ -524,17 +524,17 @@ def update_axis_test(self):
 	self.halrun.flush()
 
 def on_jogminus_pressed(self, *args):
-	self.a.jogminus = 1
+	self._p.jogminus = 1
 	self.update_axis_test()
 
 def on_jogminus_released(self, *args):
-	self.a.jogminus = 0
+	self._p.jogminus = 0
 	self.update_axis_test()
 
 def on_jogplus_pressed(self, *args):
-	self.a.jogplus = 1
+	self._p.jogplus = 1
 	self.update_axis_test()
 
 def on_jogplus_released(self, *args):
-	self.a.jogplus = 0
+	self._p.jogplus = 0
 	self.update_axis_test()

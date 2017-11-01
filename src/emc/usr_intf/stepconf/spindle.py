@@ -32,7 +32,7 @@ def spindle_prepare(self):
 	self.w['spindlefiltergain'].set_value(self.d.spindlefiltergain)
 	self.w['usespindleatspeed'].set_active(self.d.usespindleatspeed)
 
-	if self.a.has_spindle_encoder():
+	if self.has_spindle_encoder():
 		self.w.spindlecpr.show()
 		self.w.spindlecprlabel.show()
 		self.w.spindlefiltergain.show()
@@ -49,7 +49,7 @@ def spindle_prepare(self):
 		self.w.usespindleatspeed.hide()
 		self.w.spindlenearscaleunitlabel.hide()
 
-	self.w.output.set_sensitive(self.a.has_spindle_speed_control())
+	self.w.output.set_sensitive(self.has_spindle_speed_control())
 
 def spindle_finish(self):
 	self.d.spindlecarrier = float(self.w.spindlecarrier.get_text())

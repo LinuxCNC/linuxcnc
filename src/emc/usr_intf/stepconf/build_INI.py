@@ -31,6 +31,7 @@ class INI:
         # access to:
         self.d = app.d  # collected data
         self.a = app    # The parent, stepconf
+        self.p = app.p # pages
 
     def write_inifile(self, base):
         if self.d.axes == 2:
@@ -81,7 +82,7 @@ class INI:
         print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
         print >>file, "INTRO_TIME = 5"
         print >>file, "PROGRAM_PREFIX = %s" % os.path.expanduser("~/linuxcnc/nc_files")
-        if self.d.units:
+        if self.d.units == MM:
             print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         else:
             print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
@@ -150,7 +151,7 @@ class INI:
             print >>file, "REMAP=M600 modalgroup=6 ngc=tool-job-begin"
         print >>file
         
-        base_period = self.d.ideal_period()
+        base_period = self.p.ideal_period()
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
@@ -184,7 +185,7 @@ class INI:
         print >>file, "[TRAJ]"
         # [TRAJ]AXES notused for joints_axes
         print >>file, "COORDINATES = ",coords
-        if self.d.units:
+        if self.d.units == MM:
             print >>file, "LINEAR_UNITS = mm"
         else:
             print >>file, "LINEAR_UNITS = inch"
@@ -198,15 +199,15 @@ class INI:
         print >>file, "TOOL_TABLE = tool.tbl"
 
         if self.d.axes == XZ: # XZ
-            all_homes = self.a.home_sig("x") and self.a.home_sig("z")
+            all_homes = self.p.home_sig("x") and self.p.home_sig("z")
         else:
-            all_homes = self.a.home_sig("x") and self.a.home_sig("y")
+            all_homes = self.p.home_sig("x") and self.p.home_sig("y")
             if self.d.axes == XYUV: # XYUV
-                all_homes = all_homes and self.a.home_sig("u") and self.a.home_sig("v")
+                all_homes = all_homes and self.p.home_sig("u") and self.p.home_sig("v")
             elif self.d.axes == XYZ: # XYZ
-                all_homes = all_homes and self.a.home_sig("z")
+                all_homes = all_homes and self.p.home_sig("z")
             elif self.d.axes == 1: # XYZA
-                all_homes = all_homes and self.a.home_sig("z") and self.a.home_sig("a")
+                all_homes = all_homes and self.p.home_sig("z") and self.p.home_sig("a")
 
         self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
         if self.d.axes in(0,1): # xyz or xyza
@@ -226,7 +227,7 @@ class INI:
             print >>file, "TOOL_CHANGE_AT_G30 = 0"
         print >>file
         file.close()
-        self.d.add_md5sum(filename)
+        self.p.add_md5sum(filename)
 
 #******************
 # HELPER FUNCTIONS
@@ -241,8 +242,10 @@ class INI:
         minlim = get("minlim")
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.d.units: extend = .001
-        else: extend = .01
+        if self.d.units == MM:
+            extend = .001
+        else:
+            extend = .01
         minlim = min(minlim, home - extend)
         maxlim = max(maxlim, home + extend)
         axis_letter = letter.upper()
@@ -266,7 +269,7 @@ class INI:
         if num == 3:
             print >>file, "FERROR = 1"
             print >>file, "MIN_FERROR = .25"
-        elif self.d.units:
+        elif self.d.units == MM:
             print >>file, "FERROR = 1"
             print >>file, "MIN_FERROR = .25"
         else:
@@ -274,7 +277,7 @@ class INI:
             print >>file, "MIN_FERROR = 0.01"
 
 
-        inputs = self.a.build_input_set()
+        inputs = self.p.build_input_set()
         thisaxishome = set((d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + letter, "min-home-" + letter,
                             "max-home-" + letter, "both-home-" + letter))
         # no need to set HOME_IGNORE_LIMITS when ALL_LIMIT_HOME, HAL logic will do the trick
@@ -305,7 +308,7 @@ class INI:
                     print >>file, "HOME_SEQUENCE = %s" % order[num]
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
-
+	"""
     def hz(self, axname):
         steprev = self.d[axname+"steprev"]
         microstep = self.d[axname+"microstep"]
@@ -328,12 +331,14 @@ class INI:
 
     def maxhz(self):
         return 1e9 / self.minperiod()
+	"""
 
     def ideal_maxvel(self, scale):
-        if self.a.doublestep():
-            return abs(.95 * 1e9 / self.d.ideal_period() / scale)
+        if self.p.doublestep():
+            return abs(.95 * 1e9 / self.p.ideal_period() / scale)
         else:
-            return abs(.95 * .5 * 1e9 / self.d.ideal_period() / scale)
+            return abs(.95 * .5 * 1e9 / self.p.ideal_period() / scale)
+
 
     # Boiler code
     def __getitem__(self, item):

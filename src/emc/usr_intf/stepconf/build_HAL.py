@@ -30,10 +30,11 @@ class HAL:
 		# access to:
 		self.d = app.d  # collected data
 		self.a = app    # The parent, stepconf
+		self.p = app.p # pages
 
 	def write_halfile(self, base):
-		inputs = self.a.build_input_set()
-		outputs = self.a.build_output_set()
+		inputs = self.p.build_input_set()
+		outputs = self.p.build_output_set()
 		
 		filename = os.path.join(base, self.d.machinename + ".hal")
 		file = open(filename, "w")
@@ -63,7 +64,7 @@ class HAL:
 			if self.d.number_pports>1:
 				name='parport.0,parport.1'
 			print >>file, "loadrt sim_parport names=%s"%name
-		if self.a.doublestep():
+		if self.p.doublestep():
 			print >>file, "setp parport.0.reset-time %d" % self.d.steptime
 		encoder = d_hal_input[PHA] in inputs
 		counter = d_hal_input[PHB] not in inputs
@@ -118,7 +119,7 @@ class HAL:
 		if pump: print >>file, "addf charge-pump base-thread"
 		if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
 		print >>file, "addf parport.0.write base-thread"
-		if self.a.doublestep():
+		if self.p.doublestep():
 			print >>file, "addf parport.0.reset base-thread"
 		if self.d.number_pports > 1:
 			print >>file, "addf parport.1.write base-thread"
@@ -454,7 +455,7 @@ class HAL:
 
 
 		self.sim_hardware_halfile(base)
-		self.d.add_md5sum(filename)
+		self.p.add_md5sum(filename)
 
 #******************
 # HELPER FUNCTIONS
@@ -466,7 +467,7 @@ class HAL:
 		print >>file
 		print >>file, "setp stepgen.%d.position-scale [JOINT_%d]SCALE" % (num, num)
 		print >>file, "setp stepgen.%d.steplen 1" % num
-		if self.a.doublestep():
+		if self.p.doublestep():
 			print >>file, "setp stepgen.%d.stepspace 0" % num
 		else:
 			print >>file, "setp stepgen.%d.stepspace 1" % num
@@ -478,7 +479,7 @@ class HAL:
 		print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
 		print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
 		print >>file, "net %senable joint.%d.amp-enable-out => stepgen.%d.enable" % (let, num, num)
-		homesig = self.a.home_sig(let)
+		homesig = self.p.home_sig(let)
 		if homesig:
 			print >>file, "net %s => joint.%d.home-sw-in" % (homesig, num)
 		min_limsig = self.min_lim_sig(let)
@@ -495,7 +496,7 @@ class HAL:
 			print >>f1, _("# This file sets up simulated limits/home/spindle encoder hardware.")
 			print >>f1, _("# This is a generated file do not edit.")
 			print >>f1
-			inputs = self.a.build_input_set()
+			inputs = self.p.build_input_set()
 			if d_hal_input[PHA] in inputs:
 				print >>f1, "loadrt sim_encoder names=sim-encoder"
 				print >>f1, "setp sim-encoder.ppr %d"%int(self.d.spindlecpr)
@@ -686,12 +687,12 @@ class HAL:
 			signame ='{0:<15}'.format(p)
 		if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
 		print >>file, "net %s => parport.%d.pin-%02d-out%s" % (signame, port, num, ending)
-		if self.a.doublestep() and not fake:
+		if self.p.doublestep() and not fake:
 			if p in (d_hal_output[XSTEP], d_hal_output[YSTEP], d_hal_output[ZSTEP], d_hal_output[ASTEP], d_hal_output[USTEP], d_hal_output[VSTEP]):
 				print >>file, "setp parport.0.pin-%02d-out-reset%s 1" % (num,ending)
 
 	def min_lim_sig(self, axis):
-		inputs = self.a.build_input_set()
+		inputs = self.p.build_input_set()
 		thisaxisminlimits = set((d_hal_input[ALL_LIMIT], d_hal_input[ALL_LIMIT_HOME], "min-" + axis, "min-home-" + axis,
 								"both-" + axis, "both-home-" + axis))
 		for i in inputs:
@@ -703,7 +704,7 @@ class HAL:
 					return i
 
 	def max_lim_sig(self, axis):
-		inputs = self.a.build_input_set()
+		inputs = self.p.build_input_set()
 		thisaxismaxlimits = set((d_hal_input[ALL_LIMIT], d_hal_input[ALL_LIMIT_HOME], "max-" + axis, "max-home-" + axis,
 								"both-" + axis, "both-home-" + axis))
 		for i in inputs:

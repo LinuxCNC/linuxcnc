@@ -72,7 +72,7 @@ def pport2_finish(self):
 
 	"""
 	# Save preset
-	current_machine = self.d.get_machine_preset(self.w.pp2_preset_combo)
+	current_machine = self.get_machine_preset(self.w.pp2_preset_combo)
 	if current_machine:
 		self.d.pport2_preset = current_machine["index"]
 	else:
@@ -80,7 +80,7 @@ def pport2_finish(self):
 		self.d.pport2_preset = 0
 		return
 	"""
-	self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
+	self.page_set_state('spindle',(self.has_spindle_speed_control() or self.has_spindle_encoder()) )
 
 # pport2 callbacks:
 def on_pp2_direction_changed(self, widget):
@@ -90,5 +90,5 @@ def on_pp2_direction_changed(self, widget):
 		self.w['pp2_pin%s_out_box'%i].set_visible(not state)
 
 def on_exclusive_check_pp2(self, widget):
-	self.a.do_exclusive_inputs(widget,2)
+	self.do_exclusive_inputs(widget,2)
 

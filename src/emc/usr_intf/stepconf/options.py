@@ -48,7 +48,7 @@ def options_prepare(self):
 	self.w.probe_sensor_height.set_text("%.1f" % self.d.probe_sensor_height)
 
 	# Check for tool lenght sensor
-	inputs = self.a.build_input_set()
+	inputs = self.build_input_set()
 	if (d_hal_input[PROBE] in inputs):
 		self.w.option_probe_expander.set_expanded(1)
 		self.w.probe_x_pos.set_sensitive(1)
@@ -89,9 +89,9 @@ def options_finish(self):
 			   self.d.ladderhaltype = 0
 	   if self.w.radiobutton2.get_active() == True:
 		  self.d.laddername = 'estop.clp'
-		  inputs = self.a.build_input_set()
+		  inputs = self.build_input_set()
 		  if SIG.ESTOP_IN not in inputs:
-			 self.a.warning_dialog(MESS_NO_ESTOP,True)
+			 self.warning_dialog(MESS_NO_ESTOP,True)
 			 return True # don't advance the page
 		  self.d.ladderhaltype = 1
 	   if self.w.radiobutton3.get_active() == True:
@@ -103,16 +103,16 @@ def options_finish(self):
 		  self.d.laddername='custom.clp'
 	   else:
 		   if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
-			  if not self.a.warning_dialog(MESS_CL_REWRITE,False):
+			  if not self.warning_dialog(MESS_CL_REWRITE,False):
 				 return True # don't advance the page
 	   if self.w.radiobutton1.get_active() == False:
 		  if os.path.exists(os.path.join(self._p.distdir, "configurable_options/ladder/TEMP.clp")):
-			 if not self.a.warning_dialog(MESS_CL_EDITTED,False):
+			 if not self.warning_dialog(MESS_CL_EDITTED,False):
 			   return True # don't advance the page
 
 def option_preset(self):
 	# Use machine selected on base 
-	current_machine = self.d.get_machine_preset(self.w.base_preset_combo)
+	current_machine = self.get_machine_preset(self.w.base_preset_combo)
 	if current_machine:
 		None
 	else:
@@ -184,7 +184,7 @@ def on_halui_toggled(self, *args):
 # LADDER TEST
 #**************
 def load_ladder(self,w):         
-	newfilename = os.path.join(self.a.distdir, "configurable_options/ladder/TEMP.clp")    
+	newfilename = os.path.join(self._p.distdir, "configurable_options/ladder/TEMP.clp")    
 	self.d.modbus = self.w.modbus.get_active()
 	self.halrun = halrun = os.popen("halrun -Is", "w")
 	halrun.write(""" 
@@ -217,7 +217,7 @@ def load_ladder(self,w):
 		self.d.laddername='custom.clp'
 		originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
 	else:
-		filename = os.path.join(self.a.distdir, "configurable_options/ladder/"+ self.d.laddername)        
+		filename = os.path.join(self._p.distdir, "configurable_options/ladder/"+ self.d.laddername)        
 	if self.d.modbus == True: 
 		halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\
 			\n" %          { 'newfilename':newfilename ,'filename':filename })

@@ -37,11 +37,11 @@ def finished_finish(self):
 def build_config(self):
 	base = self.build_base()
 	self.save(base)
-	self.d.save_preferences()
+	self.a.save_preferences()
 	self.a.INI.write_inifile(base)
 	self.a.HAL.write_halfile(base)
 	self.copy(base, "tool.tbl")
-	if self.a.warning_dialog(MESS_QUIT,False):
+	if self.warning_dialog(MESS_QUIT,False):
 		Gtk.main_quit()
 
 def build_base(self):
@@ -53,9 +53,9 @@ def build_base(self):
 		except os.error, detail:
 			if detail.errno != errno.EEXIST: raise
 	
-		examples = os.path.join(self.a.program_path, "share", "linuxcnc", "ncfiles")
+		examples = os.path.join(self._p.program_path, "share", "linuxcnc", "ncfiles")
 		if not os.path.exists(examples):
-			examples = os.path.join(self.a.program_path, "nc_files")
+			examples = os.path.join(self._p.program_path, "nc_files")
 		if os.path.exists(examples):
 			os.symlink(examples, os.path.join(ncfiles, "examples"))
 	try:
@@ -68,14 +68,14 @@ def build_base(self):
 def copy(self, base, filename):
 	dest = os.path.join(base, filename)
 	if not os.path.exists(dest):
-		shutil.copy(os.path.join(self.a.distdir, filename), dest)
+		shutil.copy(os.path.join(self._p.distdir, filename), dest)
 
 def save(self,basedir):
 	base = basedir
 
 	if self.d.classicladder: 
 		if not self.d.laddername == "custom.clp":
-			filename = os.path.join(self.a.distdir, "configurable_options/ladder/%s" % self.d.laddername)
+			filename = os.path.join(self._p.distdir, "configurable_options/ladder/%s" % self.d.laddername)
 			original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
 			if os.path.exists(filename):     
 				if os.path.exists(original):
@@ -183,8 +183,8 @@ o<probe_tool_lenght> endsub""")
 			os.symlink(base,shortcut)
 
 	if self.d.createshortcut and os.path.exists(desktop):
-		if os.path.exists(self.a.program_path + "/scripts/linuxcnc"):
-			scriptspath = (self.a.program_path + "/scripts/linuxcnc")
+		if os.path.exists(self._p.program_path + "/scripts/linuxcnc"):
+			scriptspath = (self._p.program_path + "/scripts/linuxcnc")
 		else:
 			scriptspath ="linuxcnc"
 
@@ -198,7 +198,7 @@ o<probe_tool_lenght> endsub""")
 					 % ( scriptspath, base, self.d.machinename )
 		print >>file,"Type=Application"
 		print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
-		print >>file,"Icon=%s"% self.a.linuxcncicon
+		print >>file,"Icon=%s"% self._p.linuxcncicon
 		file.close()
 		# Ubuntu 10.04 require launcher to have execute permissions
 		os.chmod(filename,0775)
