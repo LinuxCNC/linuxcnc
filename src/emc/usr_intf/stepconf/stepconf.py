@@ -40,6 +40,10 @@ import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
 from importlib import import_module
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 import traceback
 
 #**********************************

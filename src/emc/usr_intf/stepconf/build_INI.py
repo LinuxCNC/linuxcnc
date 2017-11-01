@@ -25,6 +25,9 @@
 import os
 import time
 from stepconf.definitions import *
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class INI:
     def __init__(self,app):

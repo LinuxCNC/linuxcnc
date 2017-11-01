@@ -412,10 +412,10 @@ class Pages:
         self.w.editor.set_text(self.d.editor)
         if self.d.units == self._p._IMPERIAL :
             temp = self.d.increments_imperial
-            tempunits = "in / min"
+            tempunits = _("in / min")
         else:
             temp = self.d.increments_metric
-            tempunits = "mm / min"
+            tempunits = _("mm / min")
         self.w.increments.set_text(temp)
         for i in (0,1,2):
             self.w["velunits"+str(i)].set_text(tempunits)
