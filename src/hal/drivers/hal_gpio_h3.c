@@ -60,6 +60,8 @@ struct _GPIO_LIST_t
 
 
 
+static const uint8_t * comp_name = "hal_gpio_h3";
+
 static struct _GPIO_PORT_REG_t * _GPIO_port_reg[GPIO_PORT_COUNT] = {0};
 
 static const struct _GPIO_LIST_t _GPIO_LIST[GPIO_PIN_COUNT] =
@@ -179,7 +181,7 @@ int32_t rtapi_app_main(void)
     if (comp_id < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: hal_init() failed\n");
+                        "%s: ERROR: hal_init() failed\n", comp_name);
         return -1;
     }
 
@@ -188,7 +190,7 @@ int32_t rtapi_app_main(void)
     if ( (mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0 )
     {
        rtapi_print_msg(RTAPI_MSG_ERR,
-                       "hal_gpio_h3: ERROR: can't open /dev/mem file\n");
+                       "%s: ERROR: can't open /dev/mem file\n", comp_name);
        return -1;
     }
 
@@ -209,7 +211,7 @@ int32_t rtapi_app_main(void)
     // exit program if mmap is failed
     if (vrt_block_addr[0] == MAP_FAILED)
     {
-       rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: mmap() failed\n");
+       rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: mmap() failed\n", comp_name);
        return -1;
     }
 
@@ -242,7 +244,7 @@ int32_t rtapi_app_main(void)
     // exit program if mmap is failed
     if (vrt_block_addr[1] == MAP_FAILED)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio_h3: ERROR: mmap() failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: mmap() failed\n", comp_name);
         return -1;
     }
 
@@ -263,7 +265,7 @@ int32_t rtapi_app_main(void)
     if (port_data == 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: hal_malloc() failed\n");
+                        "%s: ERROR: hal_malloc() failed\n", comp_name);
         hal_exit(comp_id);
         return -1;
     }
@@ -280,8 +282,8 @@ int32_t rtapi_app_main(void)
             if ( pin < 0 || pin >= GPIO_PIN_COUNT || !_available_pins[pin] )
             {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                                "hal_gpio_h3: ERROR: "
-                                "invalid pin number %d\n", pin);
+                                "%s: ERROR: "
+                                "invalid pin number %d\n", comp_name, pin);
                 hal_exit(comp_id);
                 return -1;
             }
@@ -297,7 +299,7 @@ int32_t rtapi_app_main(void)
             if (retval < 0)
             {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "hal_gpio_h3: ERROR: pin %d export failed\n", pin);
+                    "%s: ERROR: pin %d export failed\n", comp_name, pin);
                 hal_exit(comp_id);
                 return -1;
             }
@@ -319,7 +321,7 @@ int32_t rtapi_app_main(void)
             if ( pin < 0 || pin >= GPIO_PIN_COUNT || !_available_pins[pin] )
             {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "hal_gpio_h3: ERROR: invalid pin number %d\n", pin);
+                    "%s: ERROR: invalid pin number %d\n", comp_name, pin);
                 hal_exit(comp_id);
                 return -1;
             }
@@ -330,8 +332,9 @@ int32_t rtapi_app_main(void)
                 if ( input_pins_list[n] == pin )
                 {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: "
-                        "output pin %d exported before as input\n", pin);
+                        "%s: ERROR: "
+                        "output pin %d exported before as input\n",
+                        comp_name, pin);
                     break;
                 }
             }
@@ -350,7 +353,7 @@ int32_t rtapi_app_main(void)
                 if (retval < 0)
                 {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: pin %d export failed\n", pin);
+                        "%s: ERROR: pin %d export failed\n", comp_name, pin);
                     hal_exit(comp_id);
                     return -1;
                 }
@@ -366,7 +369,7 @@ int32_t rtapi_app_main(void)
     if (retval < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: write funct export failed\n");
+                        "%s: ERROR: write funct export failed\n", comp_name);
         hal_exit(comp_id);
         return -1;
     }
@@ -375,12 +378,12 @@ int32_t rtapi_app_main(void)
     if (retval < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "hal_gpio_h3: ERROR: read funct export failed\n");
+                        "%s: ERROR: read funct export failed\n", comp_name);
         hal_exit(comp_id);
         return -1;
     }
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "hal_gpio_h3: installed driver\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", comp_name);
     hal_ready(comp_id);
 
     return 0;
