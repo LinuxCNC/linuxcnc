@@ -14,6 +14,8 @@ enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED
                                 QMIST_ON, QMIST_OFF, QFLOOD_ON, QFLOOD_OFF,
                                 QSTART_SPINDLE_CLOCKWISE, QSTART_SPINDLE_COUNTERCLOCKWISE, QSTOP_SPINDLE_TURNING,
                                 QSET_SPINDLE_MODE, QSET_SPINDLE_SPEED,
+                                QSET_MOTION_OUTPUT,QCLEAR_MOTION_OUTPUT,QSET_AUX_OUTPUT,QCLEAR_AUX_OUTPUT,
+                                QMOTION_OUTPUT_VALUE,QAUX_OUTPUT_VALUE,
 			QCOMMENT, QM_USER_COMMAND,QSTART_CHANGE, 
 			QORIENT_SPINDLE, QWAIT_ORIENT_SPINDLE_COMPLETE};
 
@@ -108,6 +110,12 @@ void enqueue_START_SPINDLE_COUNTERCLOCKWISE(void);
 void enqueue_STOP_SPINDLE_TURNING(void);
 void enqueue_SET_SPINDLE_MODE(double mode);
 void enqueue_SET_SPINDLE_SPEED(double speed);
+void enqueue_SET_MOTION_OUTPUT_BIT(int index);
+void enqueue_CLEAR_MOTION_OUTPUT_BIT(int index);
+void enqueue_SET_AUX_OUTPUT_BIT(int index);
+void enqueue_CLEAR_AUX_OUTPUT_BIT(int index);
+void enqueue_MOTION_OUTPUT_VALUE(int index, double value);
+void enqueue_AUX_OUTPUT_VALUE(int index, double value);
 void enqueue_COMMENT(const char *c);
 int enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
                           double dx, double dy, double dz,
