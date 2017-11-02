@@ -128,7 +128,9 @@ static const uint8_t _available_pins[GPIO_PIN_COUNT] =
 
 static int32_t comp_id; // component ID
 
-hal_bit_t **port_data;
+hal_bit_t **port_data; // port data pins states
+hal_bit_t **port_data_inv; // port data inverted pins states
+hal_bit_t *port_param_inv; // port params for the pins invert states
 
 static uint8_t input_pins_list[GPIO_PIN_COUNT] = {0};
 static uint8_t input_pins_count = 0;
@@ -175,6 +177,7 @@ int32_t rtapi_app_main(void)
     int32_t     n, retval;
     int8_t      *data, *token;
     uint8_t     pin;
+    int8_t      name[HAL_NAME_LEN + 1];
 
 
     comp_id = hal_init("hal_gpio_h3");
@@ -261,8 +264,11 @@ int32_t rtapi_app_main(void)
     close(mem_fd);
 
 
-    port_data = hal_malloc(GPIO_PIN_COUNT);
-    if (port_data == 0)
+    // allocate some space for the port data arrays (normal & inverted)
+    port_data       = hal_malloc(GPIO_PIN_COUNT);
+    port_data_inv   = hal_malloc(GPIO_PIN_COUNT);
+    port_param_inv  = hal_malloc(GPIO_PIN_COUNT);
+    if (port_data == 0 || port_data_inv == 0 || port_param_inv == 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "%s: ERROR: hal_malloc() failed\n", comp_name);
@@ -282,8 +288,7 @@ int32_t rtapi_app_main(void)
             if ( pin < 0 || pin >= GPIO_PIN_COUNT || !_available_pins[pin] )
             {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                                "%s: ERROR: "
-                                "invalid pin number %d\n", comp_name, pin);
+                    "%s: ERROR: invalid pin number %d\n", comp_name, pin);
                 hal_exit(comp_id);
                 return -1;
             }
@@ -294,12 +299,25 @@ int32_t rtapi_app_main(void)
             // configure OrangePi pin as input
             config_pin_as_input(pin);
 
-            retval = hal_pin_bit_newf(HAL_OUT, &port_data[pin], comp_id,
-                                      "hal_gpio_h3.pin-%02d-in", pin);
+            // normal pin function
+            retval = hal_pin_bit_newf(HAL_OUT, &port_data[pin],
+                comp_id, "%s.pin-%02d-in", comp_name, pin);
             if (retval < 0)
             {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "%s: ERROR: pin %d export failed\n", comp_name, pin);
+                    "%s: ERROR: input pin %d export failed\n", comp_name, pin);
+                hal_exit(comp_id);
+                return -1;
+            }
+
+            // inverted pin function
+            retval = hal_pin_bit_newf(HAL_OUT, &port_data_inv[pin],
+                comp_id, "%s.pin-%02d-in-not", comp_name, pin);
+            if (retval < 0)
+            {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "%s: ERROR: inverted input pin %d export failed\n",
+                    comp_name, pin);
                 hal_exit(comp_id);
                 return -1;
             }
@@ -332,8 +350,7 @@ int32_t rtapi_app_main(void)
                 if ( input_pins_list[n] == pin )
                 {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "%s: ERROR: "
-                        "output pin %d exported before as input\n",
+                        "%s: ERROR: output pin %d exported before as input\n",
                         comp_name, pin);
                     break;
                 }
@@ -348,12 +365,26 @@ int32_t rtapi_app_main(void)
                 // configure OrangePi pin as output
                 config_pin_as_output(pin);
 
-                retval = hal_pin_bit_newf(HAL_IN, &port_data[pin], comp_id,
-                                          "hal_gpio_h3.pin-%02d-out", pin);
+                // normal pin function
+                retval = hal_pin_bit_newf(HAL_IN, &port_data[pin],
+                    comp_id, "%s.pin-%02d-out", comp_name, pin);
                 if (retval < 0)
                 {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "%s: ERROR: pin %d export failed\n", comp_name, pin);
+                        "%s: ERROR: output pin %d export failed\n",
+                        comp_name, pin);
+                    hal_exit(comp_id);
+                    return -1;
+                }
+
+                // inverted pin parameter
+                retval = hal_param_bit_newf(HAL_RW, &port_param_inv[pin],
+                    comp_id, "%s.pin-%02d-out-invert", comp_name, pin);
+                if (retval < 0)
+                {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "%s: ERROR: output pin %d invert param export failed\n",
+                        comp_name, pin);
                     hal_exit(comp_id);
                     return -1;
                 }
@@ -364,8 +395,9 @@ int32_t rtapi_app_main(void)
         }
     }
 
-
-    retval = hal_export_funct("hal_gpio_h3.write", write_port, 0,0,0, comp_id);
+    // export port WRITE function
+    rtapi_snprintf(name, sizeof(name), "%s.write", comp_name);
+    retval = hal_export_funct(name, write_port, 0, 0, 0, comp_id);
     if (retval < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -374,7 +406,9 @@ int32_t rtapi_app_main(void)
         return -1;
     }
 
-    retval = hal_export_funct("hal_gpio_h3.read", read_port, 0, 0, 0, comp_id);
+    // export port READ function
+    rtapi_snprintf(name, sizeof(name), "%s.read", comp_name);
+    retval = hal_export_funct(name, read_port, 0, 0, 0, comp_id);
     if (retval < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -383,9 +417,11 @@ int32_t rtapi_app_main(void)
         return -1;
     }
 
+    // driver is ready to use
     rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", comp_name);
     hal_ready(comp_id);
 
+    // no errors
     return 0;
 }
 
@@ -415,15 +451,15 @@ static void write_port(void *arg, long period)
     // set GPIO output pins state from the port_data array
     for ( n = output_pins_count; n--; )
     {
-        if ( *(port_data[pd_pin]) )
-        {
-            // set GPIO pin
-            g_prt_data |= (1 << g_pin);
-        }
-        else
+        if ( *(port_data[pd_pin]) ^ port_param_inv[pd_pin] )
         {
             // clear GPIO pin
             g_prt_data &= ~(1 << g_pin);
+        }
+        else
+        {
+            // set GPIO pin
+            g_prt_data |= (1 << g_pin);
         }
     }
 }
@@ -448,7 +484,16 @@ static void read_port(void *arg, long period)
     // put GPIO input pins state into the port_data array
     for ( n = input_pins_count; n--; )
     {
-        *port_data[pd_pin] = (1 << g_pin) & g_prt_data ? 1 : 0;
+        if ( ((1 << g_pin) & g_prt_data) )
+        {
+            *port_data[pd_pin]      = 1;
+            *port_data_inv[pd_pin]  = 0;
+        }
+        else
+        {
+            *port_data[pd_pin]      = 0;
+            *port_data_inv[pd_pin]  = 1;
+        }
     }
 }
 
