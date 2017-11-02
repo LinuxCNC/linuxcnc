@@ -117,7 +117,10 @@ static void thread_task(void *arg)
 	    // support actual period measurement (get the starting value right)
 	    fa.last_start_time = rtapi_get_time();
 
-	    rtapi_wait(thread->flags);
+            // If a nowait thread is idle, this becomes a tight loop that
+            // effectively spinlocks a single core processor. Allow the thread
+            // to sleep and give other threads some cpu time.
+	    rtapi_wait(thread->flags & ~TF_NOWAIT);
 	    continue;
 	}
 
