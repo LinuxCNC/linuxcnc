@@ -131,6 +131,10 @@ static int32_t comp_id; // component ID
 hal_bit_t **port_data; // port data pins states
 hal_bit_t **port_data_inv; // port data inverted pins states
 hal_bit_t *port_param_inv; // port params for the pins invert states
+hal_bit_t *port_param_reset; // port params for the pins reset states
+hal_u32_t *port_reset_time;
+
+long long port_write_time = 0;
 
 static uint8_t input_pins_list[GPIO_PIN_COUNT] = {0};
 static uint8_t input_pins_count = 0;
@@ -142,11 +146,14 @@ static uint8_t output_pins_count = 0;
 static int8_t *output_pins;
 RTAPI_MP_STRING(output_pins, "output pins, comma separated");
 
+static unsigned long ns2tsc_factor;
+#define ns2tsc(x) (((x) * (unsigned long long)ns2tsc_factor) >> 12)
 
 
 
 
 static void write_port(void *arg, long period);
+static void reset_port(void *arg, long period);
 static void read_port(void *arg, long period);
 
 
@@ -178,6 +185,15 @@ int32_t rtapi_app_main(void)
     int8_t      *data, *token;
     uint8_t     pin;
     int8_t      name[HAL_NAME_LEN + 1];
+
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
+    // this calculation fits in a 32-bit unsigned
+    // as long as CPUs are under about 6GHz
+    ns2tsc_factor = (cpu_khz << 6) / 15625ul;
+#else
+    ns2tsc_factor = 1ll<<12;
+#endif
 
 
     comp_id = hal_init("hal_gpio_h3");
@@ -265,10 +281,14 @@ int32_t rtapi_app_main(void)
 
 
     // allocate some space for the port data arrays (normal & inverted)
-    port_data       = hal_malloc(GPIO_PIN_COUNT);
-    port_data_inv   = hal_malloc(GPIO_PIN_COUNT);
-    port_param_inv  = hal_malloc(GPIO_PIN_COUNT);
-    if (port_data == 0 || port_data_inv == 0 || port_param_inv == 0)
+    port_data           = hal_malloc(GPIO_PIN_COUNT);
+    port_data_inv       = hal_malloc(GPIO_PIN_COUNT);
+    port_param_inv      = hal_malloc(GPIO_PIN_COUNT);
+    port_param_reset    = hal_malloc(GPIO_PIN_COUNT);
+    port_reset_time     = hal_malloc(1);
+    if ( port_data == 0         || port_data_inv == 0 ||
+         port_param_inv == 0    || port_param_reset == 0 ||
+         port_reset_time == 0 )
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "%s: ERROR: hal_malloc() failed\n", comp_name);
@@ -388,11 +408,34 @@ int32_t rtapi_app_main(void)
                     hal_exit(comp_id);
                     return -1;
                 }
+
+                // reset pin parameter
+                retval = hal_param_bit_newf(HAL_RW, &port_param_reset[pin],
+                    comp_id, "%s.pin-%02d-out-reset", comp_name, pin);
+                if (retval < 0)
+                {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "%s: ERROR: output pin %d reset param export failed\n",
+                        comp_name, pin);
+                    hal_exit(comp_id);
+                    return -1;
+                }
             }
 
             data = NULL; // after the first call, subsequent calls to
                          // strtok need to be on NULL
         }
+    }
+
+    // export port reset time parameter
+    retval = hal_param_u32_newf(HAL_RW, port_reset_time,
+        comp_id, "%s.reset-time", comp_name);
+    if (retval < 0)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "%s: ERROR: reset-time param export failed\n", comp_name, pin);
+        hal_exit(comp_id);
+        return -1;
     }
 
     // export port WRITE function
@@ -413,6 +456,17 @@ int32_t rtapi_app_main(void)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "%s: ERROR: read funct export failed\n", comp_name);
+        hal_exit(comp_id);
+        return -1;
+    }
+
+    // export port RESET function
+    rtapi_snprintf(name, sizeof(name), "%s.reset", comp_name);
+    retval = hal_export_funct(name, reset_port, 0, 0, 0, comp_id);
+    if (retval < 0)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "%s: ERROR: reset funct export failed\n", comp_name);
         hal_exit(comp_id);
         return -1;
     }
@@ -458,6 +512,46 @@ static void write_port(void *arg, long period)
         }
         else
         {
+            // set GPIO pin
+            g_prt_data |= (1 << g_pin);
+        }
+    }
+
+    // save write time for the reset function
+    port_write_time = rtapi_get_clocks();
+}
+
+static void reset_port(void *arg, long period)
+{
+    static int8_t n = 0;
+    static long long deadline, reset_time_tsc;
+
+    // adjust reset time
+    if(*port_reset_time > period/4) *port_reset_time = period/4;
+    reset_time_tsc = ns2tsc(*port_reset_time);
+
+    // set deadline time and make a busy waiting
+    deadline = port_write_time + reset_time_tsc;
+    while(rtapi_get_clocks() < deadline) {}
+
+    // reset pin states
+    for ( n = output_pins_count; n--; )
+    {
+        // do nothing if pin reset param = 0 or pin already reset
+        if ( !port_param_reset[pd_pin] || !(*(port_data[pd_pin])) ) continue;
+
+        // reset pin
+        if ( port_param_inv[pd_pin] )
+        {
+            // clear pin state
+            *port_data[pd_pin] = 0;
+            // clear GPIO pin
+            g_prt_data &= ~(1 << g_pin);
+        }
+        else
+        {
+            // set pin state
+            *port_data[pd_pin] = 1;
             // set GPIO pin
             g_prt_data |= (1 << g_pin);
         }
