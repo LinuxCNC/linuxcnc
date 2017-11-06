@@ -2589,7 +2589,6 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         return TP_ERR_FAIL;
     }
 
-    emcmotStatus->pos_tracking_error = 0.0;
     if (!tc) {
         // Assume that we have no active segment, so we should clear out the status fields
         emcmotStatus->distance_to_go = 0;
@@ -3466,6 +3465,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     if (tc->motion_type == TC_RIGIDTAP) {
         tpUpdateRigidTapState(tp, tc);
     }
+
+    // Assume zero tracking error unless position sync is active
+    emcmotStatus->pos_tracking_error = 0.0;
 
     /** If synchronized with spindle, calculate requested velocity to track
      * spindle motion.*/

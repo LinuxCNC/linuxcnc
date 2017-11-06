@@ -400,7 +400,6 @@ static void process_inputs(void)
     emcmotStatus->spindle_is_atspeed = *emcmot_hal_data->spindle_is_atspeed;
     // Minimum gain is zero (no position error correction), maximum gain is 1 (correct at maximum acceleration)
     emcmotStatus->spindle_tracking_gain = fmax(fmin(*emcmot_hal_data->spindle_tracking_gain, 1.0), 0.0);
-    emcmotStatus->pos_tracking_error = *emcmot_hal_data->pos_tracking_error;
     emcmotStatus->pos_tracking_mode = *emcmot_hal_data->pos_tracking_mode;
 
     /* compute net feed and spindle scale factors */
@@ -1759,7 +1758,9 @@ static void output_to_hal(void)
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_reverse) = (*emcmot_hal_data->spindle_speed_out < 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle_cmd.brake != 0) ? 1 : 0;
-    
+
+    *(emcmot_hal_data->pos_tracking_error) = emcmotStatus->pos_tracking_error;
+
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
     *(emcmot_hal_data->motion_type) = emcmotStatus->motionType;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
