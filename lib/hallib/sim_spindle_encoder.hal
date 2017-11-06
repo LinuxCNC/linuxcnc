@@ -24,7 +24,7 @@ net spindle-pos-raw sim_spindle.position-fb => sim_spindle_encoder.in
 net spindle-pos sim_spindle_encoder.out => motion.spindle-revs
 
 # simulate spindle mass
-setp spindle_mass.gain .07
+setp spindle_mass.gain .005
 
 # Limit spindle speed by our maximum value
 net spindle-speed-cmd  motion.spindle-speed-out => limit_speed.in
