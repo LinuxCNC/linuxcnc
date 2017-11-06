@@ -2960,7 +2960,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
             net_progress += nexttc->progress;
         }
         const double pos_error = pos_desired - net_progress;
-        tc_debug_print(", pos_desired %f, net_progress %f, pos_error %f\n",
+        tc_debug_print("pos_desired %f, net_progress %f, pos_error %f\n",
                        pos_desired,
                        net_progress,
                        pos_error);
