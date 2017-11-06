@@ -1045,6 +1045,15 @@ with a minimal number of ini file settings.
 Commits to unreleased branches may make changes that affect testers
 and early-adopters of the unreleased software.
 
+=== Motion pins
+
+New pins (see the motion man page for more info):
+
+---
+axis.L.jog-accel-fraction
+joint.N.jog-accel-fraction
+---
+
 === Hal pins
 
 Name changes:

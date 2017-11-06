@@ -74,6 +74,7 @@ typedef struct {
     hal_s32_t   *jjog_counts;	/* WPI: jogwheel position input */
     hal_bit_t   *jjog_enable;	/* RPI: enable jogwheel */
     hal_float_t *jjog_scale;	/* RPI: distance to jog on each count */
+    hal_float_t *jjog_accel_fraction;	/* RPI: to limit wheel jog accel */
     hal_bit_t   *jjog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
 
 } joint_hal_t;
@@ -88,6 +89,7 @@ typedef struct {
     hal_s32_t   *ajog_counts;	/* WPI: jogwheel position input */
     hal_bit_t   *ajog_enable;	/* RPI: enable jogwheel */
     hal_float_t *ajog_scale;	/* RPI: distance to jog on each count */
+    hal_float_t *ajog_accel_fraction;	/* RPI: to limit wheel jog accel */
     hal_bit_t   *ajog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
     hal_bit_t   *kb_ajog_active;   /* RPI: executing keyboard jog */
     hal_bit_t   *wheel_ajog_active;/* RPI: executing handwheel jog */
