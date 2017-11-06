@@ -2454,34 +2454,21 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
     }
 }
 
-//KLUDGE compine this with the version in taskintf
-static inline spindle_direction_code_t getSpindleCmdDir()
-{
-    if (emcmotStatus->spindle_cmd.velocity_rpm_out > 0.0) {
-        return SPINDLE_FORWARD;
-    } else if (emcmotStatus->spindle_cmd.velocity_rpm_out < 0.0) {
-        return SPINDLE_REVERSE;
-    } else {
-        return SPINDLE_STOPPED;
-    }
-}
-
+/**
+ * Compute the spindle displacement used for spindle position tracking.
+ */
 static inline double findSpindleDisplacement(double new_pos,
-                              double old_pos,
-                              spindle_direction_code_t spindle_cmd_dir)
+                              double old_pos)
 {
     // Difference assuming spindle "forward" direction
     double forward_diff = new_pos - old_pos;
 
-    switch(spindle_cmd_dir) {
-    case SPINDLE_STOPPED:
-    case SPINDLE_FORWARD:
+    const double velocity = emcmotStatus->spindle_fb.velocity_rpm;
+    if (velocity >= 0.0) {
         return forward_diff;
-    case SPINDLE_REVERSE:
+    } else {
         return -forward_diff;
     }
-    //no default on purpose, compiler should warn on missing states
-    return 0;
 }
 
 /**
@@ -2938,10 +2925,9 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     // Note that this quantity should be non-negative under normal conditions.
     double spindle_displacement = findSpindleDisplacement(spindle_pos,
-                                               local_spindle_offset,
-                                               getSpindleCmdDir());
+                                               local_spindle_offset);
 
-    tc_debug_print("spindle_displacement %f raw_pos %f", spindle_displacement, spindle_pos);
+    tc_debug_print("spindle_displacement %f, raw_pos %f, ", spindle_displacement, spindle_pos);
 
     const double spindle_vel = emcmotStatus->spindle_fb.velocity_rpm / 60.0;
     if(tc->sync_accel) {
@@ -2965,17 +2951,19 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         }
     } else {
         // Multiply by user feed rate to get equivalent desired position
-        double pos_desired = spindle_displacement * tc->uu_per_rev;
-        double pos_error = pos_desired - (tc->progress - tc->progress_at_sync);
-        tc_debug_print(" pos_desired %f, progress %f", pos_desired, tc->progress);
+        const double pos_desired = spindle_displacement * tc->uu_per_rev;
+        double net_progress = tc->progress - tc->progress_at_sync;
 
         if(nexttc) {
             // If we're in a parabolic blend, the next segment will be active too,
             // so make sure to account for its progress
-            tc_debug_print(" nexttc_progress %f", nexttc->progress);
-            pos_error -= nexttc->progress;
+            net_progress += nexttc->progress;
         }
-        tc_debug_print(", pos_error %f\n", pos_error);
+        const double pos_error = pos_desired - net_progress;
+        tc_debug_print(", pos_desired %f, net_progress %f, pos_error %f\n",
+                       pos_desired,
+                       net_progress,
+                       pos_error);
 
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
