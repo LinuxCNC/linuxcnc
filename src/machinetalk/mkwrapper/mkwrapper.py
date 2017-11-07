@@ -950,7 +950,7 @@ class LinuxCNCWrapper():
             value = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
             modified |= self.update_config_value('min_angular_velocity', value)
 
-            value = self.ini.find('DISPLAY', 'INCREMENTS') or '1.0 0.1 0.01 0.001'
+            value = self.ini.find('DISPLAY', 'INCREMENTS') or '0.001 0.01 0.1 1.0'
             modified |= self.update_config_value('increments', value)
 
             value = self.ini.find('DISPLAY', 'GRIDS') or ''
