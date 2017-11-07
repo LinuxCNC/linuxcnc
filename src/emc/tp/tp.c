@@ -2524,6 +2524,8 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
                 rtapi_print_msg(RTAPI_MSG_DBG, "old target = %f", tc->target);
                 tc->coords.rigidtap.reversal_target = aux->tmag;
                 tc->target = aux->tmag + 10. * tc->uu_per_rev;
+                // NOTE: reset both progress and sync location:
+                // At the point of reversal, the spindle is already synchronized
                 tc->progress = 0.0;
                 tc->progress_at_sync = 0.0;
                 rtapi_print_msg(RTAPI_MSG_DBG, "new target = %f", tc->target);
