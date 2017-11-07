@@ -65,6 +65,8 @@ def test_reading_launcher_importances_works(valid_importance_file):
 
     assert importances['/foo/bar/baz:myconfig'] == 10
     assert importances['/foo/bar/baz:anotherconfig'] == 2
+    assert importances['/foo/bar/baz:Myconfig'] == 10
+    assert importances['/foo/bar/baz:AnotherConfig'] == 2
 
 
 def test_writing_launcher_importances_works(tmpdir):
