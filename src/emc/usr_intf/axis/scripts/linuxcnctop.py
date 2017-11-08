@@ -44,6 +44,9 @@ def show_peraxis(p):
     return peraxis % p[:s.axes]
 def show_float(p): return "%-8.4f" % p
 
+def show_floats(s): return " ".join(show_float(p) for p in s)
+def show_ints(s): return " ".join(str(bool(p)) for p in s)
+
 maps = {
 'exec_state': {linuxcnc.EXEC_ERROR: 'error',
                 linuxcnc.EXEC_DONE: 'done',
@@ -88,6 +91,11 @@ maps = {
 'angular_units': show_float,
 'distance_to_go': show_float,
 'current_vel': show_float,
+'ain': show_floats,
+'aout': show_floats,
+'din': show_ints,
+'dout': show_ints,
+'settings': show_floats,
 }
 
 if s.kinematics_type == 1:
