@@ -116,7 +116,7 @@ def gui():
     rs274.options.install(root)
     root.title(_("LinuxCNC Status"))
 
-    t = Tkinter.Text()
+    t = Tkinter.Text(wrap="word")
     sb = Tkinter.Scrollbar(command=t.yview)
     t.configure(yscrollcommand=sb.set)
     t.configure(tabs=150)
