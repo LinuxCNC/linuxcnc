@@ -76,7 +76,8 @@ typedef enum {
  * synchronized motion code.
  */
 typedef struct {
-     double offset;
+    spindle_origin_t origin; //!< initial position of spindle during synchronization (direction-aware)
+
      int waiting_for_index;
      int waiting_for_atspeed;
 } tp_spindle_t;

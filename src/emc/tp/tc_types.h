@@ -99,6 +99,12 @@ typedef struct {
     double aios[EMCMOT_MAX_AIO];
 } syncdio_t;
 
+
+typedef struct {
+    double position; //!< Reference position for displacement calculations
+    double direction; //!< Direction of "positive" spindle motion (as -1, 1, or 0)
+} spindle_origin_t;
+
 typedef struct {
     PmCartLine xyz;             // original, but elongated, move down
     PmCartLine aux_xyz;         // this will be generated on the fly, for the other
@@ -106,7 +112,6 @@ typedef struct {
     PmCartesian abc;
     PmCartesian uvw;
     double reversal_target;
-    double spindlepos_at_reversal;
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
