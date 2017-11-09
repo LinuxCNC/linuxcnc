@@ -704,7 +704,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp, TC_STRUCT const * 
             canon_motion_type,
             tp->cycleTime,
             prev_line_tc->enables,
-            prev_line_tc->atspeed);
+            false); // NOTE: blend arc never needs the atspeed flag, since the previous line will have it (and cannot be consumed).
 
     // Copy over state data from TP
     tcSetupState(blend_tc, tp);
