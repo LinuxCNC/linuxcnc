@@ -1089,9 +1089,11 @@ respectively.
 
 Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
 
-Support connection of 'halui.mode.is-teleop' to 'pendant_util.amux-enable' via
-the signal 'pendant:amux-enable'.  This change allows homing and joint mode
-jogging to occur at normal (not reduced) acceleration settings.
+Support new motion pins for reduced accelerations
+(axis.L.jog-accel-fraction, joint.N.jog-accel-fraction) for wheel jogging.
+The use of [APPLICATIONS]APP=xhc-hb04-accels is no longer supported.
+Reduced accels are applied for wheel jogging only (not for nml commands
+issued by guis).
 
 === [JOINT_n]HOME_SEQUENCE Starting values
 
