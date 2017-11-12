@@ -22,7 +22,8 @@ net  E:units-per-mm  => sim:mm_per_unit.in
 net  S:mm_per_unit   <= sim:mm_per_unit.out
 net  S:mm_per_unit   => sim:v_per_mm.in
 
-setp sim:v_per_mm.gain 10
+;# default is for units==mm
+setp sim:v_per_mm.gain [AXIS_Z]HPID_SIM_VOLTS_PER_MM
 
 net  S:v_per_mm      <= sim:v_per_mm.out
 net  S:v_per_mm      => sim:tovolts.gain

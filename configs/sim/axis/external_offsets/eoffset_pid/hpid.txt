@@ -27,9 +27,10 @@ These ini file settings may be disabled by adding a initial comment character (#
 
 The hpid*.ini (height control by pid) uses the hal component zo (an instance of eoffset_pid.comp) to control torch height by regulating torch voltage.
 
-The torch controller is simulated (sim_torch.hal) by connecting the z axis external offset output (axis.z.eoffset) to a scale component (sim:tovolts) and scaling by a factor of 1000 so that a 0.004 inch (0.1 mm) z offset height corresponds to a about a 4 volt torch voltage.  The simulated torch voltage is passed through a lowpass filter component (sim:torch) to simulate the bandwidth-limited measurement of torch voltage.  The bandwidth is set by the filter gain setting pin (sim:torch.gain).  (See the lowpass filter man page for the relationship of lowpass gain and filter bandwidth).  The delay to achieve arc-ok is simulated by a oneshot component (sim:arcwait), the delay time is set by the pin sim:arcwait.width.  Key parameters are set with inifile settings:
+The torch controller is simulated (sim_torch.hal) by connecting the z axis external offset output (axis.z.eoffset) to a scale component (sim:tovolts) and scaling so that a change of 0.004 inch (0.1 mm) z offset height corresponds to a about a 1 volt torch voltage.  The simulated torch voltage is passed through a lowpass filter component (sim:torch) to simulate the bandwidth-limited measurement of torch voltage.  The bandwidth is set by the filter gain setting pin (sim:torch.gain).  (See the lowpass filter man page for the relationship of lowpass gain and filter bandwidth).  The delay to achieve arc-ok is simulated by a oneshot component (sim:arcwait), the delay time is set by the pin sim:arcwait.width.  Key parameters are set with inifile settings:
 
-  [AXIS_Z]HPID_SIM_TOVOLTS_GAIN
+
+  [AXIS_Z]HPID_SIM_VOLTS_PER_MM
   [AXIS_Z]HPID_SIM_TOVOLTS_OFFSET
   [AXIS_Z]HPID_SIM_TORCH_GAIN
   [AXIS_Z]HPID_SIM_TORCH_ARCWIDTH_WAIT
