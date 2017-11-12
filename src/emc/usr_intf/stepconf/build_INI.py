@@ -24,6 +24,9 @@
 
 import os
 import time
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class INI:
     def __init__(self,app):

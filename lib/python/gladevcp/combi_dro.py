@@ -345,7 +345,7 @@ class Combi_DRO(gtk.VBox):
         try:
             self.status.poll()
         except:
-            print("CombiDRO can not poll linuxcnc status any more")
+            pass
 
         if self.status.kinematics_type != linuxcnc.KINEMATICS_IDENTITY and not self.homed:
             self.main_dro.set_text("----.---")

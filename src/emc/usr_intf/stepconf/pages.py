@@ -33,6 +33,9 @@ import os
 from gi.repository import Gtk
 #import gobject
 from gi.repository import GObject
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 class Pages:
     def __init__(self, app):

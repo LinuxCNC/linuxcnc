@@ -105,7 +105,7 @@ class Dialogs(gobject.GObject):
         return "CANCEL"
 
     # display warning dialog
-    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message")):
+    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"), sound = True):
         dialog = gtk.MessageDialog(caller.widgets.window1,
             gtk.DIALOG_DESTROY_WITH_PARENT,
             gtk.MESSAGE_INFO, gtk.BUTTONS_OK, message)
@@ -113,7 +113,8 @@ class Dialogs(gobject.GObject):
         if secondary:
             dialog.format_secondary_text(secondary)
         dialog.show_all()
-        self.emit("play_sound", "alert")
+        if sound:
+            self.emit("play_sound", "alert")
         dialog.set_title(title)
         responce = dialog.run()
         dialog.destroy()

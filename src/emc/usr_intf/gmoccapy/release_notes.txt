@@ -1,3 +1,22 @@
+ver 2.3.2.4
+- most of .format code rework done
+
+ver 2.3.2.3
+- display message as dialog, when critical errors do avoid the start of gmoccapy
+  not only report in terminal
+
+ver 2.3.2.2
+- ongoing reformating the code to new .format style
+
+ver 2.3.2.1
+- formating bug in Vc, when over 100, float can not be formated as int
+
+ver 2.3.2
+- added a new label to toolinfo box, showing the cutting speed Vc
+  it uses the tool diameter on mill and the x-relative value for lathe
+- first code updates to the new string formating (not % but .format),
+  as this will be needed to switch over to python 3
+
 ver 2.3.1.9
 - dialogs, changed entry_dialog check for integer before show_all
   This was only a cosmetic change
