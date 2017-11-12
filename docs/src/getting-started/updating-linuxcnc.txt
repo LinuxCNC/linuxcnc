@@ -1107,4 +1107,13 @@ mode in order to prevent misalignment (racking) in common gantry
 configurations.  As always, machines with any kinematics type must be
 homed prior to enabling conventional world mode jogging.
 
+=== TWOPASS support for complex loadrt config= items
+
+Added twopass support for loadrt config modparams with multiple
+settings separated by blanks and enclosed with quotes.  Example:
+
+----
+loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
+----
+
 // vim: set syntax=asciidoc:
