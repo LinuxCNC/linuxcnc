@@ -132,7 +132,7 @@ proc wheel_setup {jogmode} {
          set g [expr -1 * $g]
          puts stderr "$::progname: mpg_accel #$idx must be positive was:$g1, is:$g"
       }
-      set ::XHC_HB04_CONFIG(accel,$idx) $g
+      set ::XHC_HB04_CONFIG(accel,$idx) [format %f $g] ;# ensure floatingpt
       incr idx
     }
   }
