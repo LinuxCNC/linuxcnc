@@ -94,7 +94,9 @@ struct iocontrol_str {
     // the following pins are needed for toolchanging
     //tool-prepare
     hal_bit_t *tool_prepare;	/* output, pin that notifies HAL it needs to prepare a tool */
-    hal_s32_t *tool_prep_pocket;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_prep_pocket;/* output, pin that holds the P word from the tool table entry matching the tool to be prepared,
+                                   only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_prep_index; /* internal array index of prepped tool above */
     hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
     hal_bit_t *tool_prepared;	/* input, pin that notifies that the tool has been prepared */
@@ -445,6 +447,18 @@ int iocontrol_hal_init(void)
 	hal_exit(comp_id);
 	return -1;
     }
+
+    // tool-prep-index
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_prep_index), comp_id,
+			      "iocontrol.%d.tool-prep-index", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d param tool-prep-index export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
     // tool-prep-pocket
     retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_prep_pocket), comp_id, 
 			      "iocontrol.%d.tool-prep-pocket", n);
@@ -530,7 +544,8 @@ void hal_init_pins(void)
     *(iocontrol_data->lube)=0;			/* lube output pin */
     *(iocontrol_data->tool_prepare)=0;		/* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
-    *(iocontrol_data->tool_prep_pocket)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    *(iocontrol_data->tool_prep_pocket)=0;	/* output, pin that holds the P word from the tool to be prepared, only valid when tool-prepare=TRUE */
+    *(iocontrol_data->tool_prep_index)=0;	/* output, param that holds the internal index of the tool to be prepared, for debug */
     *(iocontrol_data->tool_change)=0;		/* output, notifies a tool-change should happen (emc should be in the tool-change position) */
 }
 
@@ -632,7 +647,7 @@ void reload_tool_number(int toolno) {
 int read_tool_inputs(void)
 {
     if (*iocontrol_data->tool_prepare && *iocontrol_data->tool_prepared) {
-	emcioStatus.tool.pocketPrepped = *(iocontrol_data->tool_prep_pocket); //check if tool has been prepared
+	emcioStatus.tool.pocketPrepped = *(iocontrol_data->tool_prep_index); //check if tool has been prepared
 	*(iocontrol_data->tool_prepare) = 0;
 	emcioStatus.status = RCS_DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
 	return 10; //prepped finished
@@ -650,6 +665,7 @@ int read_tool_inputs(void)
 	emcioStatus.tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
 	*(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
 	*(iocontrol_data->tool_prep_pocket) = 0; //likewise in HAL
+	*(iocontrol_data->tool_prep_index) = 0; //likewise in HAL
 	*(iocontrol_data->tool_change) = 0; //also reset the tool change signal
 	emcioStatus.status = RCS_DONE;	// we finally finished to do tool-changing, signal task with RCS_DONE
 	return 11; //change finished
@@ -847,7 +863,8 @@ int main(int argc, char *argv[])
                 if(random_toolchanger && p == 0) break;
 
                 /* set tool number first */
-                *(iocontrol_data->tool_prep_pocket) = p;
+                *(iocontrol_data->tool_prep_index) = p;
+                *(iocontrol_data->tool_prep_pocket) = random_toolchanger? p: fms[p];
                 if(!random_toolchanger && p == 0) {
                     *(iocontrol_data->tool_prep_number) = 0;
                 } else {
