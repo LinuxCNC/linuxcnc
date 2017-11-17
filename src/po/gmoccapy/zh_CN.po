@@ -128,7 +128,7 @@ msgstr "**** GMOCCAPY 错误****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:926
 msgid "**** screen 2 GLADE ERROR: ****"
-msgstr "**** error con el archivo glade 2 ****"
+msgstr "**** 屏幕2 GLADE 错误 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:931
 msgid "**** No gmoccapy2.glade file present ****"
