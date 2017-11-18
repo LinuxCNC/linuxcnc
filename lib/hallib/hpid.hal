@@ -9,7 +9,7 @@
 #
 # User managed signals for required hal pins:
 #    E:request     (motion.analog-out-00)  USER_writes (M68 E0  Qtorchvoltage)
-#    E:enable-in-a (motion.digital-out-00) USER_writes (M64/M65 P0)
+#    E:enable-in-a (motion.spindle-on)     USER_writes (M3 S1)
 #    E:enable-in-b (motion.digital-out-01) USER_writes (M64/M65 P1)
 #    E:enable-in-c (motion.digital-out-02) USER_writes (M64/M65 P2 (optional))
 #    E:arc-ok      (motion.digital-in-00)  USER_reads  (M66 P0 L1 typ)
@@ -108,7 +108,7 @@ net  E:current-vel    => zo.current-vel
 
 #-----------------------------------------------------------
 # pin used to start/stop torch:
-net  E:enable-in-a    <= motion.digital-out-00
+net  E:enable-in-a    <= motion.spindle-on
 net  E:enable-in-a    => zo.enable-in-a
 
 #-----------------------------------------------------------

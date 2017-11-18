@@ -14,7 +14,7 @@ F#<probe_speed>
 ;NOTE: probe with G38.n codes and set Z0 here
 ;---------------------------------------
 G1 Z#<pierce_height>
-M64 P0 ;start torch (assert E:enable-in-a <= motion.digital-out-00)
+M3 S1;start torch (assert E:enable-in-a <= motion.spindle-on)
 (debug, torch on, wait #<arc_timeout>)
 
 M66 P0 L1 Q#<arc_timeout> (E:arc-ok)

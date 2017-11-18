@@ -45,7 +45,7 @@ o<rpt> repeat [#<rpt_ct>]
 
             ; ensure all gcode-program-controlled enables are 0
             ; before starting touchoff
-            M65 P0 ;         (deassert E:enable-in-a <= motion.digital-out-00)
+            M5     ;         (deassert E:enable-in-a <= motion.spindle-on)
             M65 P1 ;         (deassert E:enable-in-b <= motion.digital-out-01)
             M68 E0 Q#<torch_setpoint> (E:request     <= motion.analog-out-00 )
 

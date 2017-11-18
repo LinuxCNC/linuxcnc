@@ -37,7 +37,7 @@ The torch controller is simulated (sim_torch.hal) by connecting the z axis exter
 
 To test, the [DISPLAY]OPEN_FILE=hpid_demo.ngc gcode file calls an ngcgui subroutine hpid_sub.ngc.  An ngcgui tab is also included to set parameters and make gcode files with other settings for testing.
 
-The hpid_sub.ngc subroutine accepts inputs to repeat an arbitrary number (#<rpt_ct>) of simple patterns with fixed width and height and horizontal separation.   Before starting a pattern, a touchoff subroutine (hpid_touchoff.ngc) is called to start the simulated torch using the hal pin motion.digital-out-00 (M64 P0 command).  Settings can be altered for important items like torch_setpoint, torch_cut_hgt, pierce_hgt, pierce_dly, etc.
+The hpid_sub.ngc subroutine accepts inputs to repeat an arbitrary number (#<rpt_ct>) of simple patterns with fixed width and height and horizontal separation.   Before starting a pattern, a touchoff subroutine (hpid_touchoff.ngc) is called to start the simulated torch using the hal pin motion.spindle-on (M3 S1 command).  Settings can be altered for important items like torch_setpoint, torch_cut_hgt, pierce_hgt, pierce_dly, etc.
 
 The simulation hpid_touchoff.ngc subroutine omits probing to the surface -- a real touchoff routine would likely include this step to probe the surface and establish an appropriate z axis zero reference.
 
@@ -57,7 +57,7 @@ hpid_sub.ngc:
   
     hpid_touchoff.ngc:
       M3 --- Start torch
-             (pin:    motion.digital-out-00)
+             (pin:    motion.spindle-on)
              (signal: E:enable-in-a)
       M66 -- Wait for arc-ok
              (signal: E:arc-ok)
@@ -73,7 +73,7 @@ hpid_sub.ngc:
          (pin:    motion.analog-out-00)
          (signal: E:request)
   M5 --- Stop torch
-         (pin:   motion.digital-out-00)
+         (pin:   motion.spindle-on)
          (signal E:enable-in-a)
          
 Note that a handshake is required to enable external offsets:
