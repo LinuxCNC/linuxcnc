@@ -26,7 +26,7 @@ license "GPL";
 			      && (vel) <= max_vel && (vel) >= min_vel)
 
 FUNCTION(_) {
-    double in_pos_lim, dt, in_vel, min_vel, max_vel, min_pos, max_pos;
+    double in_pos_lim, in_vel, min_vel, max_vel, min_pos, max_pos;
     double vel_0_time, vel_0_pos;
     double vel_match_time, vel_match_in_pos, vel_match_out_pos;
     int out_dir, out_dir_rel;
@@ -38,16 +38,14 @@ FUNCTION(_) {
 	return;
     }
 
-    // Time increment per update
-    dt = period * 1e-9;
     // Input velocity
-    in_vel = (in - in_pos_old) / dt;
+    in_vel = (in - in_pos_old) / fperiod;
     // Most negative/positive velocity reachable in one period
-    min_vel = fmax(out_vel_old - maxa * dt, -maxv);
-    max_vel = fmin(out_vel_old + maxa * dt, maxv);
+    min_vel = fmax(out_vel_old - maxa * fperiod, -maxv);
+    max_vel = fmin(out_vel_old + maxa * fperiod, maxv);
     // Most negative/positive position reachable in one period
-    min_pos = out + min_vel * dt;
-    max_pos = out + max_vel * dt;
+    min_pos = out + min_vel * fperiod;
+    max_pos = out + max_vel * fperiod;
 
     // Direction (sign) of output movement
     out_dir = (out_vel_old < 0) ? -1 : 1;
@@ -57,7 +55,7 @@ FUNCTION(_) {
     // Respect max/min position limits:  stop at limit line
     vel_0_time = fabs(out_vel_old/maxa);              // min time to decel to stop
     vel_0_pos = out                                   // position after stop
-	+ out_vel_old * (vel_0_time+dt)
+	+ out_vel_old * (vel_0_time+fperiod)
 	+ 0.5 * (-out_dir * maxa) * pow(vel_0_time,2);
 
     // Follow input signal:  match position and velocity
@@ -67,7 +65,7 @@ FUNCTION(_) {
     vel_match_in_pos = in + in_vel * vel_match_time;
     // - output position after velocity match
     vel_match_out_pos = out
-	+ out_vel_old * (vel_match_time+dt)
+	+ out_vel_old * (vel_match_time+fperiod)
 	+ 0.5 * (-out_dir_rel * maxa) * pow(vel_match_time,2);
 
     // Respect max/min position limits
