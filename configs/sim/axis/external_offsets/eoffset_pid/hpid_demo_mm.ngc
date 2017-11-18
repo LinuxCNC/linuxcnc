@@ -1,4 +1,3 @@
-; hpid_demo-mm.ngc: call inch-based hpid_sub
 
  #1 =   10    (rpt_ct)
  #2 =   80    (torch_setpoint)
@@ -7,9 +6,9 @@
  #5 =    0    (pierce_dly)
  #6 =    0    (xstart)
  #7 =    0    (ystart)
- #8 =   12.7  (width)
- #9 =   76.2  (height)
-#10 =   12.7  (xseparation)
+ #8 =   80    (width)
+ #9 =   10    (height)
+#10 =   16    (yseparation)
 #11 =    2.54 (safe_hgt)
 #12 = 1900    (feed_rate1)
 #13 =    1    (pause_secs)

@@ -9,9 +9,9 @@ o<hpid_sub> sub
 
         #<xstart> =  #6 (=0)
         #<ystart> =  #7 (=0)
-        #<width>  =  #8 (=0.5)
-        #<height> =  #9 (=3)
-   #<xseparation> = #10 (=0.5)
+        #<width>  =  #8 (=3)
+        #<height> =  #9 (=0.5)
+   #<yseparation> = #10 (=0.7)
       #<safe_hgt> = #11 (=0.100)
 
     #<feed_rate1> = #12 (=120 FEED1)
@@ -74,8 +74,8 @@ o<hpid_touchoff> call [#<pierce_hgt>][#<pierce_dly>][#<torch_cut_hgt>][#<arc_tim
             G0 Z#<safe_hgt>
             (debug, finish ct=#<ct>)
             G4 P#<pause_secs>
-            #<x0> = [#<x0> + #<width>  + #<xseparation>]
-            #<y0> = [#<y0>]
+            #<x0> = [#<x0>]
+            #<y0> = [#<y0> + #<yseparation>]
 o<rpt> endrepeat
 
 o<hpid_sub> endsub
