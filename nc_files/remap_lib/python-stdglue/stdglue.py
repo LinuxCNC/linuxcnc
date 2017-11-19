@@ -173,17 +173,17 @@ def change_epilog(self, **words):
             r = self.blocks[self.remap_level].executing_remap
             self.set_errormsg("the %s remap procedure %s did not return a value"
                              % (r.name,r.remap_ngc if r.remap_ngc else r.remap_py))
-            return INTERP_ERROR
+            yield INTERP_ERROR
         # this is relevant only when using iocontrol-v2.
         if self.params[5600] > 0.0:
             if self.params[5601] < 0.0:
                 self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
-                return INTERP_ERROR
+                yield INTERP_ERROR
             print "change_epilog: Toolchanger soft fault %d" % int(self.params[5601])
 
         if self.blocks[self.remap_level].builtin_used:
             #print "---------- M6 builtin recursion, nothing to do"
-            return INTERP_OK
+            yield INTERP_OK
         else:
             if self.return_value > 0.0:
                 # commit change
@@ -195,13 +195,13 @@ def change_epilog(self, **words):
                 # cause a sync()
                 self.set_tool_parameters()
                 self.toolchange_flag = True
-                return INTERP_EXECUTE_FINISH
+                yield INTERP_EXECUTE_FINISH
             else:
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
-                return INTERP_ERROR
+                yield INTERP_ERROR
     except Exception, e:
         self.set_errormsg("M6/change_epilog: %s" % (e))
-        return INTERP_ERROR
+        yield INTERP_ERROR
 
 # REMAP=M61  modalgroup=6 prolog=settool_prolog ngc=settool epilog=settool_epilog
 # exposed parameters: #<tool> #<pocket>
