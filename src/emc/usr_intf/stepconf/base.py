@@ -221,6 +221,11 @@ def base_general_preset(self, current_machine):
 		self.select_combo_machine(self.w[axis + "preset_combo"], current_machine["index"])
 		self.preset_axis(axis)
 		self.axis_done(axis)
+	# spindle
+	self.spindle_prepare()
+	self.select_combo_machine(self.w.spindle_preset_combo, current_machine["index"])
+	self.on_spindle_preset_button_clicked(None)
+	self.spindle_finish()
 	# options: preset probe coordinates  in options page
 	self.option_preset()
 	return

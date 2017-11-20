@@ -31,6 +31,7 @@ class HAL:
 		self.d = app.d  # collected data
 		self.a = app    # The parent, stepconf
 		self.p = app.p # pages
+		self._p = app._p # private data
 
 	def write_halfile(self, base):
 		inputs = self.p.build_input_set()
@@ -44,6 +45,7 @@ class HAL:
 
 		print >>file, "loadrt [KINS]KINEMATICS"
 		print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS"
+
 		port3name=port2name=port2dir=port3dir=""
 		if self.d.number_pports>2:
 			 port3name = ' '+self.d.ioaddr3
@@ -79,7 +81,6 @@ class HAL:
 		elif self.d.axes == 2:
 			print >>file, "loadrt stepgen step_type=0,0"
 
-
 		if encoder:
 			print >>file, "loadrt encoder num_chan=1"
 		if self.d.pyvcphaltype == 1:
@@ -87,19 +88,19 @@ class HAL:
 			   print >>file, "loadrt abs count=1"
 			   print >>file, "loadrt scale count=1"
 			   print >>file, "loadrt lowpass count=1"
-			   if self.d.usespindleatspeed:
-				   print >>file, "loadrt near"
 		if pump:
 			print >>file, "loadrt charge_pump"
 			print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
 			print >>file, "net charge-pump <= charge-pump.out"
 		
 		if limits_homes:
-			print >>file, "loadrt lut5"
-		
+			LUT5 = self._p.maxlut5
+			self._p.lut5_homing = LUT5
+			LUT5 += 1
+			self._p.maxlut5 = LUT5
+
 		if pwm:
 			print >>file, "loadrt pwmgen output_type=1"
-
 
 		if self.d.classicladder:
 			print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" % (self.d.digitsin , self.d.digitsout , self.d.s32in, self.d.s32out, self.d.floatsin, self.d.floatsout)
@@ -137,9 +138,71 @@ class HAL:
 		if self.d.classicladder:
 			print >>file,"addf classicladder.0.refresh servo-thread"
 		print >>file, "addf stepgen.update-freq servo-thread"
-		
-		if limits_homes:
-			print >>file, "addf lut5.0 servo-thread"
+
+		print >>file, "###### Load logic functions ######"
+		# AND2
+		if(self._p.maxand2 > 0):
+			print >>file, "# AND2 #"
+			print >>file, "loadrt and2 count=%d" % self._p.maxand2
+			for o in range(0, self._p.maxand2):
+				print >>file, "addf and2.%d servo-thread" % o
+			print >>file
+		# NOT
+		if(self._p.maxnot > 0):
+			print >>file, "# NOT #"
+			print >>file, "loadrt not count=%d" % self._p.maxnot
+			for o in range(0, self._p.maxnot):
+				print >>file, "addf not.%d servo-thread" % o
+			print >>file
+		# TOGGLE
+		if(self._p.maxtoggle > 0):
+			print >>file, "# TOGGLE #"
+			print >>file, "loadrt toggle count=%d" % self._p.maxtoggle
+			for o in range(0, self._p.maxtoggle):
+				print >>file, "addf toggle.%d servo-thread" % o
+			print >>file
+		# TOGGLE2NIST
+		if(self._p.maxtoggle2nist > 0):
+			print >>file, "# TOGGLE2NIST #"
+			print >>file, "loadrt toggle2nist count=%d" % self._p.maxtoggle2nist
+			for o in range(0, self._p.maxtoggle2nist):
+				print >>file, "addf toggle2nist.%d servo-thread" % o
+			print >>file
+		# OR2
+		if(self._p.maxor2 > 0):
+			print >>file, "# OR2 #"
+			print >>file, "loadrt or2 count=%d" % self._p.maxor2
+			for o in range(0, self._p.maxor2):
+				print >>file, "addf or2.%d servo-thread" % o
+			print >>file
+		# MUX2
+		if(self._p.maxmux2 > 0):
+			print >>file, "# MUX2 #"
+			print >>file, "loadrt mux2 count=%d" % self._p.maxmux2
+			for o in range(0, self._p.maxmux2):
+				print >>file, "addf mux2.%d servo-thread" % o
+			print >>file
+		# NEAR
+		if(self._p.maxnear > 0):
+			print >>file, "# NEAR #"
+			print >>file, "loadrt near count=%d" % self._p.maxnear
+			for o in range(0, self._p.maxnear):
+				print >>file, "addf near.%d servo-thread" % o
+			print >>file
+		# LOGIC
+		if(self._p.maxlogic > 0):
+			print >>file, "# LOGIC #"
+			print >>file, "loadrt logic count=%d personality=0x20C" % self._p.maxlogic
+			for o in range(0, self._p.maxlogic):
+				print >>file, "addf logic.%d servo-thread" % o
+			print >>file
+		# LUT5
+		if(self._p.maxlut5 > 0):
+			print >>file, "# LUT5 #"
+			print >>file, "loadrt lut5 count=%d" % self._p.maxlut5
+			for o in range(0, self._p.maxlut5):
+				print >>file, "addf lut5.%d servo-thread" % o
+			print >>file
 
 		if pwm: print >>file, "addf pwmgen.update servo-thread"
 		if self.d.pyvcphaltype == 1:
@@ -147,8 +210,7 @@ class HAL:
 			   print >>file, "addf abs.0 servo-thread"
 			   print >>file, "addf scale.0 servo-thread"
 			   print >>file, "addf lowpass.0 servo-thread"
-			   if self.d.usespindleatspeed:
-				   print >>file, "addf near.0 servo-thread"
+
 		if pwm:
 			x1 = self.d.spindlepwm1
 			x2 = self.d.spindlepwm2
@@ -157,7 +219,18 @@ class HAL:
 			scale = (y2-y1) / (x2-x1)
 			offset = x1 - y1 / scale
 			print >>file
-			print >>file, "net spindle-cmd-rpm => pwmgen.0.value"
+			# TODO
+			if (self.d.gladevcp == True and self.d.gladevcptype == GLADEVCP_DEFAULT):
+				# Test if is-mdi and is-auto are false, so I can use my manual spindle speed slider.
+				print >>file, "setp lut5.%d.function 0x1" % (self._p.lut5_spindle_speed)
+				print >>file, "net my-spindlespeed-is-mdi <= halui.mode.is-mdi => lut5.%d.in-0" % (self._p.lut5_spindle_speed)
+				print >>file, "net my-spindlespeed-is-auto <= halui.mode.is-auto => lut5.%d.in-1" % (self._p.lut5_spindle_speed)
+				print >>file, "net my-spindlespeed-lut <= lut5.%d.out => mux2.%d.sel" % (self._p.lut5_spindle_speed, self._p.mux2_spindle_speed)
+				print >>file, "net spindle-cmd-rpm => mux2.%d.in0" % (self._p.mux2_spindle_speed)
+				print >>file, "net spindlespeed <= mux2.%d.out => pwmgen.0.value"  % (self._p.mux2_spindle_speed)
+			else:
+				print >>file, "net spindle-cmd-rpm => pwmgen.0.value"
+
 			print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
 			print >>file, "net spindle-pwm <= pwmgen.0.pwm"
 			print >>file, "setp pwmgen.0.pwm-freq %s" % self.d.spindlecarrier        
@@ -165,36 +238,6 @@ class HAL:
 			print >>file, "setp pwmgen.0.offset %s" % offset
 			print >>file, "setp pwmgen.0.dither-pwm true"
 
-		# ESTOP
-		print >>file, "# and2, not, toggle and toggle2nist for ESTOP"
-		print >>file, "loadrt and2"
-		print >>file, "addf and2.0 servo-thread"
-		print >>file, "loadrt not"
-		print >>file, "addf not.0 servo-thread"
-		print >>file, "loadrt toggle"
-		print >>file, "loadrt toggle2nist"
-		print >>file, "addf toggle.0 servo-thread"
-		print >>file, "addf toggle2nist.0 servo-thread"
-		print >>file
-
-		if (self.d.mix_gladevcp_pyvcp == True):
-			# For pyvcp and gladevcp
-			print >>file, "# OR2"
-			print >>file, "loadrt or2 count=%d" % self.d.maxor2
-			for o in range(0, self.d.maxor2):
-				print >>file, "addf or2.%d servo-thread" % o
-			print >>file
-
-			# MUX
-			print >>file, "# MUX2"
-			print >>file, "loadrt mux2"
-			print >>file, "addf mux2.0 servo-thread"
-			# LOGIC
-			print >>file, "# LOGIC"
-			print >>file, "loadrt logic count=1 personality=0x20C"
-			print >>file, "addf logic.0 servo-thread"
-			print >>file
-		
 		print >>file, "net spindle-cmd-rpm     <= motion.spindle-speed-out"
 		print >>file, "net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs"
 		print >>file, "net spindle-cmd-rps     <= motion.spindle-speed-out-rps"
@@ -267,26 +310,26 @@ class HAL:
 			print >>file
 
 		if limits_homes:
-			print >>file, "setp lut5.0.function 0x10000"
-			print >>file, "net all-limit-home => lut5.0.in-4"
-			print >>file, "net all-limit <= lut5.0.out"
+			print >>file, "setp lut5.%d.function 0x10000" % (self._p.lut5_homing)
+			print >>file, "net all-limit-home => lut5.%d.in-4" % (self._p.lut5_homing)
+			print >>file, "net all-limit <= lut5.%d.out" % (self._p.lut5_homing)
 			if self.d.axes == 2:
-				print >>file, "net homing-x <= joint.0.homing => lut5.0.in-0"
-				print >>file, "net homing-z <= joint.1.homing => lut5.0.in-1"
+				print >>file, "net homing-x <= joint.0.homing => lut5.%d.in-0" % (self._p.lut5_homing)
+				print >>file, "net homing-z <= joint.1.homing => lut5.%d.in-1" % (self._p.lut5_homing)
 			elif self.d.axes == 0:
-				print >>file, "net homing-x <= joint.0.homing => lut5.0.in-0"
-				print >>file, "net homing-y <= joint.1.homing => lut5.0.in-1"
-				print >>file, "net homing-z <= joint.2.homing => lut5.0.in-2"
+				print >>file, "net homing-x <= joint.0.homing => lut5.%d.in-0" % (self._p.lut5_homing)
+				print >>file, "net homing-y <= joint.1.homing => lut5.%d.in-1" % (self._p.lut5_homing)
+				print >>file, "net homing-z <= joint.2.homing => lut5.%d.in-2" (self._p.lut5_homing)
 			elif self.d.axes == 1:
-				print >>file, "net homing-x <= joint.0.homing => lut5.0.in-0"
-				print >>file, "net homing-y <= joint.1.homing => lut5.0.in-1"
-				print >>file, "net homing-z <= joint.2.homing => lut5.0.in-2"
-				print >>file, "net homing-a <= joint.3.homing => lut5.0.in-3"
+				print >>file, "net homing-x <= joint.0.homing => lut5.%d.in-0" (self._p.lut5_homing)
+				print >>file, "net homing-y <= joint.1.homing => lut5.%d.in-1" (self._p.lut5_homing)
+				print >>file, "net homing-z <= joint.2.homing => lut5.%d.in-2" (self._p.lut5_homing)
+				print >>file, "net homing-a <= joint.3.homing => lut5.%d.in-3" (self._p.lut5_homing)
 			elif self.d.axes == 3:
-				print >>file, "net homing-x <= joint.0.homing => lut5.0.in-0"
-				print >>file, "net homing-y <= joint.1.homing => lut5.0.in-1"
-				print >>file, "net homing-u <= joint.6.homing => lut5.0.in-2"
-				print >>file, "net homing-v <= joint.7.homing => lut5.0.in-3"
+				print >>file, "net homing-x <= joint.0.homing => lut5.%d.in-0" (self._p.lut5_homing)
+				print >>file, "net homing-y <= joint.1.homing => lut5.%d.in-1" (self._p.lut5_homing)
+				print >>file, "net homing-u <= joint.6.homing => lut5.%d.in-2" (self._p.lut5_homing)
+				print >>file, "net homing-v <= joint.7.homing => lut5.%d.in-3" (self._p.lut5_homing)
 
 		if self.d.axes == 2:
 			self.connect_joint(file, 0, 'x')
@@ -370,7 +413,7 @@ class HAL:
 			print >>f1, _("# If you make changes to this file, they will be").encode('utf-8')
 			print >>f1, _("# overwritten when you run stepconf again").encode('utf-8')
 			print >>f1
-			if (self.d.pyvcp == True and self.d.pyvcptype == GLADEVCP_DEFAULT):
+			if (self.d.pyvcp == True and self.d.pyvcptype == PYVCP_DEFAULT):
 				print >>f1, "source %s" % FILE_PYVCP_POSTGUI
 			if (self.d.mix_gladevcp_pyvcp == True):
 				print >>f1, "source %s" % FILE_GUIMERGE
@@ -388,7 +431,7 @@ class HAL:
 			print >>f1, _("# overwritten when you run stepconf again").encode('utf-8')
 			print >>f1, _("# Put custom HAL commands in %s" % FILE_PYVCP_CUSTOM_HAL)
 			
-			for hal_command in self.d.hal_postgui_list:
+			for hal_command in self._p.hal_postgui_list:
 				print >>f1, hal_command
 			f1.close()
 
@@ -426,7 +469,7 @@ class HAL:
 			print >>f1, _("# _DO NOT_ include your HAL commands here.")
 			print >>f1, _("# Put custom HAL commands in %s" % FILE_GLADEVCP_CUSTOM_HAL)
 
-			for hal_command in self.d.hal_gvcp_list:
+			for hal_command in self._p.hal_gvcp_list:
 				print >>f1, hal_command
 			f1.close()
 		# gladevcp_custom.hal
@@ -449,7 +492,7 @@ class HAL:
 			print >>f1, _("# overwritten when you run stepconf again").encode('utf-8')
 			print >>f1, _("# _DO NOT_ include your HAL commands here.")
 
-			for hal_command in self.d.hal_guimerge_list:
+			for hal_command in self._p.hal_guimerge_list:
 				print >>f1, hal_command
 			f1.close()
 

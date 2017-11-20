@@ -58,7 +58,7 @@ def pport1_prepare(self):
 	# Preset
 	preset_index = self.d.pport1_preset
 	self.select_combo_machine(self.w.pp1_preset_combo, preset_index)
-	self.pport1_execut_preset()
+	self.pport1_execute_preset()
 	
 	self._p.in_pport_prepare = False
 
@@ -86,16 +86,18 @@ def pport1_finish(self):
 	else:
 		# Other selected
 		self.d.pport1_preset = 0
-	self.page_set_state('spindle',(self.has_spindle_speed_control() or self.has_spindle_encoder()) )
+	self.check_spindle_speed_control()
+	self.check_spindle_encoder()
+	self.page_set_state('spindle',(self._p.has_spindle_speed_control or self._p.has_spindle_encoder) )
 
 # pport1 callbacks
 def on_exclusive_check_pp1(self, widget):
 	self.do_exclusive_inputs(widget,1)
 
 def on_pp1_preselect_button_clicked(self, widget):
-	self.pport1_execut_preset()
+	self.pport1_execute_preset()
 
-def pport1_execut_preset(self):
+def pport1_execute_preset(self):
 	current_machine = self.get_machine_preset(self.w.pp1_preset_combo)
 	if current_machine:
 		None

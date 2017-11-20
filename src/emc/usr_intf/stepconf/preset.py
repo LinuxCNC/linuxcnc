@@ -40,6 +40,7 @@ TB6560_4AXES=301
 STEPCRAFT420=400
 STEPCRAFT600=401
 STEPCRAFT840=402
+STEPCRAFT840_HF=403
 LEADSHINE_MX3660=600
 
 preset_machines = [
@@ -242,6 +243,36 @@ preset_machines = [
 		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
 		'probe_x_pos':558, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':36.7,
 		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000
+	},
+	{'name':'stepcraft840_HF', 'human':_("Stepcraft 840 + HF"), 'index':STEPCRAFT840_HF, 'units':MM,
+		'pin1':ON, 'pin1inv':0,
+		'pin2':XDIR, 'pin2inv':1,
+		'pin3':XSTEP, 'pin3inv':0,
+		'pin4':YDIR, 'pin4inv':1,
+		'pin5':YSTEP, 'pin5inv':0,
+		'pin6':ZDIR, 'pin6inv':0,
+		'pin7':ZSTEP,'pin7inv':0,
+		'pin8':UNUSED_OUTPUT, 'pin8inv':0,
+		'pin9':UNUSED_OUTPUT, 'pin9inv':0,
+		'pin14':DOUT2, 'pin14inv':0,
+		'pin16':DOUT3, 'pin16inv':0,
+		'pin17':PWM, 'pin17inv':0,
+		'pin10':PROBE, 'pin10inv':0,
+		'pin11':ESTOP_IN, 'pin11inv':1,
+		'pin12':ALL_HOME, 'pin12inv':0,
+		'pin13':UNUSED_INPUT, 'pin13inv':0,
+		'pin15':UNUSED_INPUT, 'pin15inv':0,
+		'xsteprev':400, 'xmicrostep':1, 'xpulleyden':1, 'xpulleynum':1, 'xleadscrew':3, 'xmaxvel':40, 'xmaxacc' :150,
+		'xhomepos':590, 'xminlim':0, 'xmaxlim':590, 'xhomesw':592, 'xhomevel':3, 'xlatchdir':0,
+		'ysteprev':400, 'ymicrostep':1, 'ypulleyden':1, 'ypulleynum':1, 'yleadscrew':3, 'ymaxvel':40, 'ymaxacc' :150,
+		'yhomepos':0, 'yminlim':0, 'ymaxlim':832, 'yhomesw':-2, 'yhomevel':-3, 'ylatchdir':0,
+		'zsteprev':400, 'zmicrostep':1, 'zpulleyden':1, 'zpulleynum':1, 'zleadscrew':3, 'zmaxvel':30, 'zmaxacc' :150,
+		'zhomepos':122, 'zminlim':0, 'zmaxlim':122, 'zhomesw':124, 'zhomevel':3, 'zlatchdir':0,
+		'probe_x_pos':558, 'probe_y_pos':6, 'probe_z_pos':70, 'probe_sensor_height':36.7,
+		'steptime':1000, 'stepspace':1000, 'dirhold':20000, 'dirsetup':20000,
+		'spindlecarrier':1500, 
+		'spindlepwm1':0.18, 'spindlepwm2':1.0, 'spindlespeed1':3000, 'spindlespeed2':20000,
+		'spindleatspeed':0, 'spindlecpr':1000, 'spindlefiltergain':0.010, 'spindlenearscale':150,
 	},
 		{'name':'leadshineMX3660', 'human':_("Leadshine MX3660 3 axis") + ' (Untested)', 'index':LEADSHINE_MX3660, 'units':MM,
 		'pin1':DOUT1, 'pin1inv':0,

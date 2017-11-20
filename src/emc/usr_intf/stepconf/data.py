@@ -79,7 +79,131 @@ class Private_Data:
 		self.jogminus = 0
 		self.jogplus = 0
 		self.axis_under_test = None
+
+		self.hal_gvcp_list = []
+		self.hal_guimerge_list = []
+		self.hal_postgui_list = []
+
+		# SPINDLE
+		self.has_spindle_speed_control = False
+		self.has_spindle_encoder = False
+
+		self.halui_list = []
+		# HALUI MDI_COMMAND
+		self.halui_mdi_x_null = -1
+		self.halui_mdi_x_zero = -1
+		self.halui_mdi_y_null = -1
+		self.halui_mdi_y_zero = -1
+		self.halui_mdi_z_null = -1
+		self.halui_mdi_z_zero = -1
+		self.halui_mdi_a_null = -1
+		self.halui_mdi_a_zero = -1
+		self.halui_mdi_u_null = -1
+		self.halui_mdi_u_zero = -1
+		self.halui_mdi_v_null = -1
+		self.halui_mdi_v_zero = -1
+		self.halui_mdi_set_position = -1
+		self.halui_mdi_goto_position = -1
+		self.halui_probe_tool_lenght = -1
 		
+		#########################################
+		##### reset logic functions for hal files
+		# OR2
+		self.maxor2 = 0
+		# MUX2
+		self.maxmux2 = 0
+		# LOGIC
+		self.maxlogic = 0
+		# AND2
+		self.maxand2 = 0
+		# NOT
+		self.maxnot = 0
+		# TOGGLE
+		self.maxtoggle = 0
+		# TOGGLE2NIST
+		self.maxtoggle2nist = 0
+		# LUT5
+		self.maxlut5 = 0
+		# NEAR
+		self.maxnear = 0
+
+		# X
+		self.or2_jog_x_minus = 0
+		self.or2_jog_x_plus = 0
+		self.or2_zero_x = 0
+		self.or2_go_zero_x = 0
+		# Y
+		self.or2_jog_y_minus = 0
+		self.or2_jog_y_plus = 0
+		self.or2_zero_y = 0
+		self.or2_go_zero_y = 0
+		# Z
+		self.or2_jog_z_minus = 0
+		self.or2_jog_z_plus = 0
+		self.or2_zero_z = 0
+		self.or2_go_zero_z = 0
+		# A
+		self.or2_jog_a_minus = 0
+		self.or2_jog_a_plus = 0
+		self.or2_zero_a = 0
+		self.or2_go_zero_a = 0
+		# UV
+		self.or2_jog_u_minus = 0
+		self.or2_jog_u_plus = 0
+		self.or2_zero_u = 0
+		self.or2_go_zero_u = 0
+
+		self.or2_jog_v_minus = 0
+		self.or2_jog_v_plus = 0
+		self.or2_zero_v = 0
+		self.or2_go_zero_v = 0
+		# HOME ALL
+		self.or2_home_all = 0
+		# E-STOP
+		self.or2_estop = 0
+		# JOG SPEED
+		# Save position
+		self.or2_set_position = 0
+		self.or2_go_to_position = 0
+		# TOOL LENGHT SENSOR
+		self.or2_probe = 0
+		# E-STOP
+		self.and2_estop = 0
+		self.not_estop = 0
+		self.toggle_estop = 0
+		self.toggle2nist_estop = 0
+		self.mux2_jog = 0
+		# JOG
+		# X
+		self.logic_jog = 0
+		self.logic_jog_x_minus = 0
+		self.logic_jog_x_plus = 0
+		# Y
+		self.logic_jog_y_minus = 0
+		self.logic_jog_y_plus = 0
+		# Z
+		self.logic_jog_z_minus = 0
+		self.logic_jog_z_plus = 0
+		# A
+		self.logic_jog_a_minus = 0
+		self.logic_jog_a_plus = 0
+		# UV
+		self.logic_jog_u_minus = 0
+		self.logic_jog_u_plus = 0
+		self.logic_jog_v_minus = 0
+		self.logic_jog_v_plus = 0
+
+		# SPINDLE
+		self.near_spindle = 0
+		self.mux2_spindle_speed = 0
+		self.lut5_spindle_speed = 0
+		self.logic_spindle_speed = 0
+		self.or2_spindle_speed = 0
+
+		# Homing
+		self.lut5_homing=0
+
+
 	# Boiler code
 	def __getitem__(self, item):
 		return getattr(self, item)
@@ -120,35 +244,13 @@ class Data:
 		self.number_pports = 1
 	
 		self.halui = 0
-		self.halui_list = []
 		self.halui_custom = 0
 		self.halui_list_custom = []
 	
-		self.hal_postgui = 0
-		self.hal_postgui_list = []
-		self.hal_postgui_custom = 0
-		self.hal_postgui_list_custom = []
-		self.hal_guioption_list = []
+		#self.hal_postgui = 0
 	
 		self.manualtoolchange = 1
 		self.customhal = 1 # include custom hal file
-	
-		# HALUI MDI_COMMAND
-		self.halui_mdi_x_null = -1
-		self.halui_mdi_x_zero = -1
-		self.halui_mdi_y_null = -1
-		self.halui_mdi_y_zero = -1
-		self.halui_mdi_z_null = -1
-		self.halui_mdi_z_zero = -1
-		self.halui_mdi_a_null = -1
-		self.halui_mdi_a_zero = -1
-		self.halui_mdi_u_null = -1
-		self.halui_mdi_u_zero = -1
-		self.halui_mdi_v_null = -1
-		self.halui_mdi_v_zero = -1
-		self.halui_mdi_set_position = -1
-		self.halui_mdi_goto_position = -1
-		self.halui_probe_tool_lenght = -1
 	
 		# gui
 		self.mix_gladevcp_pyvcp = False
@@ -295,6 +397,8 @@ class Data:
 		self.spindlefiltergain = .01
 		self.spindlenearscale = 1.5
 		self.usespindleatspeed = False
+		# spindle preset
+		self.spindle_preset = 0
 	
 		self.digitsin = 15
 		self.digitsout = 15

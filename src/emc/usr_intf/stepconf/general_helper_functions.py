@@ -169,23 +169,28 @@ def warning_dialog(self,message,is_ok_type):
 
 
 # check for spindle output signals
-def has_spindle_speed_control(self):
+def check_spindle_speed_control(self):
 	# Check pp1 for output signals
 	pp1_check =  d_hal_output[PWM] in (self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5, self.d.pin6,
 		self.d.pin7, self.d.pin8, self.d.pin9, self.d.pin14, self.d.pin16, self.d.pin17)
-	if pp1_check is True: return True
+	if pp1_check is True:
+		self._p.has_spindle_speed_control = True
+		return True
 
 	# now check port 2, which can be set to 'in' or 'out' mode: so can have
 	# other pins number to check then pp1
 	# output pins:
 	for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
 		p = 'pp2_pin%d' % pin
-		if self.d[p] == d_hal_output[PWM]: return True
+		if self.d[p] == d_hal_output[PWM]:
+			self._p.has_spindle_speed_control = True
+			return True
 
 	# if we get to here - there are no spindle control signals
+	self._p.has_spindle_speed_control = False
 	return False
 
-def has_spindle_encoder(self):
+def check_spindle_encoder(self):
 	# pp1 input pins
 	if d_hal_input[PPR] in (self.d.pin10, self.d.pin11, self.d.pin12, self.d.pin13, self.d.pin15): return True
 	if d_hal_input[PHA] in (self.d.pin10, self.d.pin11, self.d.pin12, self.d.pin13, self.d.pin15): return True
@@ -193,9 +198,12 @@ def has_spindle_encoder(self):
 	# pp2 input pins
 	for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
 		p = 'pp2_pin%d_in' % pin
-		if self.d[p] in (d_hal_input[PPR], d_hal_input[PHA]): return True
+		if self.d[p] in (d_hal_input[PPR], d_hal_input[PHA]):
+			self._p.has_spindle_encoder = False
+			return True
 
 	# if we get to here - there are no spindle encoder signals
+	self._p.has_spindle_encoder = False
 	return False
 
 

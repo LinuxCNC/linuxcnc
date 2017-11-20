@@ -510,6 +510,13 @@ class Pages:
 				treeiter = self.w[axis + "preset_liststore"].append([mydict["human"], mydict["index"]])
 			self.w[axis + "preset_combo"].set_active(0)
 
+		# preset list spindle
+		self.w.spindle_preset_liststore.clear()
+		self.w.spindle_preset_liststore.append([_("Other"), 0])
+		for mydict in preset.preset_machines:
+			treeiter = self.w.spindle_preset_liststore.append([mydict["human"], mydict["index"]])
+		self.w.spindle_preset_combo.set_active(0)
+
 		# Options page
 		self.w.probe_x_pos.set_text("%d" % self.d.probe_x_pos)
 		self.w.probe_y_pos.set_text("%d" % self.d.probe_y_pos)

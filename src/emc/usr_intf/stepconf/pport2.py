@@ -80,7 +80,9 @@ def pport2_finish(self):
 		self.d.pport2_preset = 0
 		return
 	"""
-	self.page_set_state('spindle',(self.has_spindle_speed_control() or self.has_spindle_encoder()) )
+	self.check_spindle_speed_control()
+	self.check_spindle_encoder()
+	self.page_set_state('spindle',(self._p.has_spindle_speed_control or self._p.has_spindle_encoder) )
 
 # pport2 callbacks:
 def on_pp2_direction_changed(self, widget):

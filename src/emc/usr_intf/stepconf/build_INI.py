@@ -35,7 +35,8 @@ class INI:
         self.d = app.d  # collected data
         self.a = app    # The parent, stepconf
         self.p = app.p # pages
-
+        self._p = app._p # private data
+        
     def write_inifile(self, base):
         if self.d.axes == 2:
             maxvel = max(self.d.xmaxvel, self.d.zmaxvel)        
@@ -177,7 +178,7 @@ class INI:
            print >>file, "[HALUI]"
            print >>file, _("# add halui MDI commands here (max 64) ")
            # First put standard mdi_command
-           for mdi_command in self.d.halui_list:
+           for mdi_command in self._p.halui_list:
                print >>file, "MDI_COMMAND = %s" % mdi_command
            # Then custom command
            if(self.d.halui_custom):
@@ -231,6 +232,7 @@ class INI:
         print >>file
         file.close()
         self.p.add_md5sum(filename)
+        #print self.d.md5sums
 
 #******************
 # HELPER FUNCTIONS
