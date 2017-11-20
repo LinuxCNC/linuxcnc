@@ -6,13 +6,6 @@ Includes 4 simple lowpass filters with \\fBcoef\\fR and \\fBscale\\fR pins.  The
 be 0 <= coef <=1, smaller coef values slow response.  See the lowpass manpage for
 calculating the filter time constant ($ man lowpass).
 
-Includes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The \\fBamux.N.in0\\fR
-inputs are used by default, the \\fBamux.N.in1\\fR inputs are selected when the pins \\fBis-manual\\fR
-and \\fBamux_enable\\fR are both True to.
-
-The pin named \\fBis-manual\\fR is typically connected to \\fBhalui.mode.is-manual\\fR.
-The pin named \\fBamux_enable\\fR is typically connected to \\fBhalui.mode.is-teleop\\fR.
-
 """;
 
 pin in bit start_or_pause;
@@ -44,24 +37,6 @@ pin in float coef3 = 1.0;
 pin in  float divide_by_k_in;
 pin out float divide_by_k_out;
 pin in  float k = 1.0;
-
-pin in  bit   is_manual;
-pin in  bit   amux_enable;
-
-pin in  float amux0_in0;
-pin in  float amux1_in0;
-pin in  float amux2_in0;
-pin in  float amux3_in0;
-
-pin in  float amux0_in1;
-pin in  float amux1_in1;
-pin in  float amux2_in1;
-pin in  float amux3_in1;
-
-pin out float amux0_out;
-pin out float amux1_out;
-pin out float amux2_out;
-pin out float amux3_out;
 
 option data xhc_data;
 
@@ -95,19 +70,6 @@ FUNCTION(_) {
     out1 =  ceil(value1 * scale1 - .5);
     out2 =  ceil(value2 * scale2 - .5);
     out3 =  ceil(value3 * scale3 - .5);
-
-    // accel muxes:
-    if (is_manual && amux_enable) {
-        amux0_out = amux0_in1;
-        amux1_out = amux1_in1;
-        amux2_out = amux2_in1;
-        amux3_out = amux3_in1;
-    } else {
-        amux0_out = amux0_in0;
-        amux1_out = amux1_in0;
-        amux2_out = amux2_in0;
-        amux3_out = amux3_in0;
-    }
 
     if (data.old_start_or_pause == start_or_pause) return;
     data.old_start_or_pause = start_or_pause;

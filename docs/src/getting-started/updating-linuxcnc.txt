@@ -1045,6 +1045,15 @@ with a minimal number of ini file settings.
 Commits to unreleased branches may make changes that affect testers
 and early-adopters of the unreleased software.
 
+=== Motion pins
+
+New pins (see the motion man page for more info):
+
+---
+axis.L.jog-accel-fraction
+joint.N.jog-accel-fraction
+---
+
 === Hal pins
 
 Name changes:
@@ -1080,9 +1089,11 @@ respectively.
 
 Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
 
-Support connection of 'halui.mode.is-teleop' to 'pendant_util.amux-enable' via
-the signal 'pendant:amux-enable'.  This change allows homing and joint mode
-jogging to occur at normal (not reduced) acceleration settings.
+Support new motion pins for reduced accelerations
+(axis.L.jog-accel-fraction, joint.N.jog-accel-fraction) for wheel jogging.
+The use of [APPLICATIONS]APP=xhc-hb04-accels is no longer supported.
+Reduced accels are applied for wheel jogging only (not for nml commands
+issued by guis).
 
 === [JOINT_n]HOME_SEQUENCE Starting values
 
@@ -1095,5 +1106,14 @@ Joints using a negative HOME_SEQUENCE are not allowed to jog in joint
 mode in order to prevent misalignment (racking) in common gantry
 configurations.  As always, machines with any kinematics type must be
 homed prior to enabling conventional world mode jogging.
+
+=== TWOPASS support for complex loadrt config= items
+
+Added twopass support for loadrt config modparams with multiple
+settings separated by blanks and enclosed with quotes.  Example:
+
+----
+loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
+----
 
 // vim: set syntax=asciidoc:

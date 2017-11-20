@@ -247,7 +247,7 @@ class gmoccapy(object):
             if arg == "-logo":
                 self.logofile = str(argv[ index + 1 ])
                 message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("logo entry found = {0}".format(self.logofile))
+                message += _("logo entry found = {0}").format(self.logofile)
                 print (message)
                 self.logofile = self.logofile.strip("\"\'")
                 if not os.path.isfile(self.logofile):
@@ -648,7 +648,7 @@ class gmoccapy(object):
         # to much axes given, can only handle 5
         if len(self.axis_list) > 5:
             message = _("**** GMOCCAPY INFO : ****")
-            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given {0} through your INI file ****\n".format(len(self.axis_list)))
+            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(self.axis_list))
             message += _("**** gmoccapy will not start ****\n\n")
             print(message)
             self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
@@ -676,7 +676,7 @@ class gmoccapy(object):
 
             image = self.widgets["img_home_{0}".format(self.axisletter_five)]
             self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}".format(self.axisletter_five.upper())))
+            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
 
             if self.axisletter_five in "abc":
                 self.widgets.Combi_DRO_5.set_property("mm_text_template", "%11.2f")
@@ -684,7 +684,7 @@ class gmoccapy(object):
 
             image = self.widgets["img_home_{0}".format(self.axisletter_five)]
             self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}".format(self.axisletter_five.upper())))
+            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
             self.widgets.btn_home_5.show()
 
             self.widgets.btn_5_plus.set_label("{0}+".format(self.axisletter_five.upper()))
@@ -694,7 +694,7 @@ class gmoccapy(object):
 
             image = self.widgets["img_touch_off_{0}".format(self.axisletter_five)]
             self.widgets.btn_set_value_5.set_image(image)
-            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to".format(self.axisletter_five.upper())))
+            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_five.upper()))
             self.widgets.btn_set_value_5.show()
 
         if self.axisletter_five:
@@ -713,7 +713,7 @@ class gmoccapy(object):
 
         image = self.widgets["img_home_{0}".format(self.axisletter_four)]
         self.widgets.btn_home_4.set_image(image)
-        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}".format(self.axisletter_four.upper())))
+        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
         self.widgets.btn_home_4.show()
 
         self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
@@ -723,7 +723,7 @@ class gmoccapy(object):
 
         image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
         self.widgets.btn_set_value_4.set_image(image)
-        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to".format(self.axisletter_four.upper())))
+        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
         self.widgets.btn_set_value_4.show()
 
         if self.axisletter_four in "abc":
@@ -831,10 +831,10 @@ class gmoccapy(object):
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
             self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", "mm/min")
+            self.widgets.spc_jog_vel.set_property("unit", _("mm/min"))
         else:
             self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", "inch/min")
+            self.widgets.spc_jog_vel.set_property("unit", _("inch/min"))
 
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
@@ -1064,7 +1064,7 @@ class gmoccapy(object):
         # If there are themes then add them to combo box
         model = self.widgets.theme_choice.get_model()
         model.clear()
-        model.append(("Follow System Theme",))
+        model.append((_("Follow System Theme"),))
         themes = []
         if os.path.exists(USERTHEMEDIR):
             names = os.listdir(USERTHEMEDIR)
@@ -1455,7 +1455,7 @@ class gmoccapy(object):
                 pin = hal_glib.GPin(
                     self.halcomp.newpin("messages." + message[2] + "-response", hal.HAL_BIT, hal.HAL_OUT))
             else:
-                print(_("**** GMOCCAPY ERROR **** /n Message type {0} not supported".format(message[1])))
+                print(_("**** GMOCCAPY ERROR **** /n Message type {0} not supported").format(message[1]))
 
     def _show_user_message(self, pin, message):
         if message[1] == "status":
@@ -1479,7 +1479,7 @@ class gmoccapy(object):
             else:
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         else:
-            print(_("**** GMOCCAPY ERROR **** /n Message type {0} not supported".format(message[1])))
+            print(_("**** GMOCCAPY ERROR **** /n Message type {0} not supported").format(message[1]))
 
     def _show_offset_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(1)
@@ -2035,7 +2035,7 @@ class gmoccapy(object):
 
         for code in o_codes[1:]:
             parameter = self.dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
-                                                  label=_("Set parameter {0} to:".format(code)), integer=False)
+                                                  label=_("Set parameter {0} to:").format(code), integer=False)
             if parameter == "ERROR":
                 print(_("conversion error"))
                 self.dialogs.warning_dialog(self, _("Conversion error !"),
@@ -2353,7 +2353,7 @@ class gmoccapy(object):
                 new_tupple = (item[0], new_value)
                 item = new_tupple
                 print(_("**** GMOCCAPY INFO ****"))
-                print(_("**** replaced {0} to {1} ****".format(old_value, new_value)))
+                print(_("**** replaced {0} to {1} ****").format(old_value, new_value))
             self.h_tabs[int_tab].append(item)
 
     # check if macros are in the INI file and add them to MDI Button List
@@ -2401,7 +2401,7 @@ class gmoccapy(object):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         formatted_lines = traceback.format_exc().splitlines()
         print(_("**** GMOCCAPY ERROR ****"))
-        print(_("**** {0} ****".format(formatted_lines[0])))
+        print(_("**** {0} ****").format(formatted_lines[0]))
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
         print (formatted_lines[-1])
 
@@ -2411,7 +2411,7 @@ class gmoccapy(object):
                 self.widgets[name].set_sensitive(value)
             except Exception, e:
                 print (_("**** GMOCCAPY ERROR ****"))
-                print _("**** No widget named: {0} to sensitize ****".format(name))
+                print _("**** No widget named: {0} to sensitize ****").format(name)
                 traceback.print_exc()
 
     def _update_active_gcodes(self):
@@ -2706,10 +2706,10 @@ class gmoccapy(object):
 
         if metric_units:
             self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", "mm/min")
+            self.widgets.spc_jog_vel.set_property("unit", _("mm/min"))
         else:
             self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", "inch/min")
+            self.widgets.spc_jog_vel.set_property("unit", _("inch/min"))
             
     def on_tbtn_rel_toggled(self, widget, data=None):
         if self.widgets.tbtn_dtg.get_active():
@@ -2736,10 +2736,10 @@ class gmoccapy(object):
 
     def on_tbtn_units_toggled(self, widget, data=None):
         if widget.get_active():
-            widget.set_label("inch")
+            widget.set_label(_("inch"))
             metric_units = False
         else:
-            widget.set_label("mm")
+            widget.set_label(_("mm"))
             metric_units = True
         for axis in self.axis_list:
             if axis == self.axisletter_four:
@@ -2813,7 +2813,7 @@ class gmoccapy(object):
 
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
         index = len(self.notification.messages)
-        text = _("Halo, welcome to the test message {0}".format(index))
+        text = _("Halo, welcome to the test message {0}").format(index)
         self._show_error((13, text))
 
     def on_chk_turtle_jog_toggled(self, widget, data=None):
@@ -3293,7 +3293,7 @@ class gmoccapy(object):
         elif command == "reverse":
             self.command.spindle(-1, rpm_out)
         else:
-            print(_("Something went wrong, we have an unknown spindle widget {0}".format(command)))
+            print(_("Something went wrong, we have an unknown spindle widget {0}").format(command))
 
     def _check_spindle_range(self):
         rpm = (self.stat.settings[2])
@@ -3532,7 +3532,7 @@ class gmoccapy(object):
             axis = self.axisletter_five
         else:
             axis = "Unknown"
-            message = _("Offset {0} could not be set, because off unknown axis".format(axis))
+            message = _("Offset {0} could not be set, because off unknown axis").format(axis)
             self.dialogs.warning_dialog(self, _("Wrong offset setting!"), message)
             return
         if self.lathe_mode and axis =="x":
@@ -3546,8 +3546,8 @@ class gmoccapy(object):
                                                    label=_("Set radius to:"), integer=False)
         else:
             preset = self.prefs.getpref("offset_axis_{0}".format(axis), 0, float)
-            offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis {0}".format(axis)),
-                                               label=_("Set axis {0} to:".format(axis)), integer=False)
+            offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis {0}").format(axis),
+                                               label=_("Set axis {0} to:").format(axis), integer=False)
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
@@ -3965,12 +3965,12 @@ class gmoccapy(object):
             return
 
         value = self.dialogs.entry_dialog(self, data=None,
-                                     header=_("Enter value for axis {0} to set:".format(axis.upper())),
-                                     label=_("Set parameter of tool {0:d} and axis {1} to:".format(self.stat.tool_in_spindle, axis.upper())),
+                                     header=_("Enter value for axis {0} to set:").format(axis.upper()),
+                                     label=_("Set parameter of tool {0:d} and axis {1} to:").format(self.stat.tool_in_spindle, axis.upper()),
                                      integer=False)
 
         if value == "ERROR":
-            message = _("Conversion error because of wrong entry for touch off axis {0}".format(axis.upper()))
+            message = _("Conversion error because of wrong entry for touch off axis {0}").format(axis.upper())
             self.dialogs.warning_dialog(self, _("Conversion error !"), message)
             return
         elif value == "CANCEL":

@@ -132,7 +132,7 @@ proc wheel_setup {jogmode} {
          set g [expr -1 * $g]
          puts stderr "$::progname: mpg_accel #$idx must be positive was:$g1, is:$g"
       }
-      set ::XHC_HB04_CONFIG(accel,$idx) $g
+      set ::XHC_HB04_CONFIG(accel,$idx) [format %f $g] ;# ensure floatingpt
       incr idx
     }
   }
@@ -192,15 +192,6 @@ proc wheel_setup {jogmode} {
 
   makenet pendant:wheel-counts     <= xhc-hb04.jog.counts
   makenet pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
-
-  # accommodate existing signames for halui outpins:
-  makenet [existing_outpin_signame   halui.mode.is-manual pendant:is-manual] \
-                                  <= halui.mode.is-manual \
-                                  => pendant_util.is-manual
-
-  makenet [existing_outpin_signame   halui.mode.is-teleop pendant:amux-enable] \
-                                  <= halui.mode.is-teleop \
-                                  => pendant_util.amux-enable
 
   set anames        {x y z a}
   set available_idx {0 1 2 3}
@@ -267,27 +258,8 @@ proc wheel_setup {jogmode} {
     makenet pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
                                                  => axis.$coord.jog-counts
 
-    #-----------------------------------------------------------------------
-    # multiplexer for ini.N.max_acceleration, ini.L.max_acceleration
+
     set COORD [string toupper $coord]
-    if [catch {set std_accel [set ::AXIS_[set COORD](MAX_ACCELERATION)]} msg] {
-      err_exit "Error: missing \[AXIS_[set COORD]\]MAX_ACCELERATION"
-    }
-    setp pendant_util.amux$idx-in0 $std_accel
-    if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
-      set ::XHC_HB04_CONFIG(accel,$idx) $std_accel ;# if not specified
-    }
-    setp pendant_util.amux$idx-in1 $::XHC_HB04_CONFIG(accel,$idx)
-
-    # This signal is named using $coord so the connection can be made
-    # later when the ini pins have been created
-    makenet pendant:muxed-accel-$coord <= pendant_util.amux$idx-out
-    # a script running after task is started must connect:
-    # makenet pendant:muxed-accel-$coord => ini.$coord.max_acceleration
-    # and, if applicable
-    # makenet pendant:muxed-accel-$coord => ini.$jnum.max_acceleration
-
-    #-----------------------------------------------------------------------
     makenet pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
                                => axis.$coord.jog-enable
     switch $jogmode {
@@ -295,6 +267,16 @@ proc wheel_setup {jogmode} {
         setp axis.$coord.jog-vel-mode 1
       }
     }
+
+    set afraction 1.0 ;# default
+    if [catch {
+      set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+                          /[set ::AXIS_[set COORD](MAX_ACCELERATION)] ]
+              } msg] {
+      err_exit "Missing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+    }
+    setp axis.$coord.jog-accel-fraction $afraction
+
     # connect for joint pins if known (trivkins)
     if $has_jnum {
       if ![pin_exists joint.$jnum.jog-scale] {
@@ -313,6 +295,16 @@ proc wheel_setup {jogmode} {
         puts stderr "  \[AXIS_[set COORD]\]MAX_ACCELERATION=[set ::AXIS_[set COORD](MAX_ACCELERATION)]"
       }
       makenet pendant:jog-$coord => joint.$jnum.jog-enable
+
+      set jfraction 1.0 ;# default
+      if [catch {
+        set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+                            /[set ::JOINT_[set jnum](MAX_ACCELERATION)] ]
+                } msg] {
+        err_exit "Missing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+      }
+      setp joint.$jnum.jog-accel-fraction $jfraction
+
       switch $jogmode {
         vnormal {
           setp joint.$jnum.jog-vel-mode 1

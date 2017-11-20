@@ -122,8 +122,7 @@ proc ::tp::loadrt_substitute {arg1 args} {
   } else {
     set theargs [concat $arg1 $args]
   }
-  set parms  [split $theargs]
-  set module [lindex $parms 0]
+  set module [lindex $theargs 0]
   set pass   [passnumber]
 
   # keep track of loadrt for each module in order to detect
@@ -162,8 +161,51 @@ proc ::tp::loadrt_substitute {arg1 args} {
     }
   }
 
-  set parms   [lreplace $parms 0 0]
-  foreach pair $parms {
+  set parms   [lreplace $theargs 0 0]
+
+  # A loadrt cmd may have a complex config= with multiple items:
+  # Example:
+  # loadrt hm2_eth board_ip=n.n.n.n config="num_stepgens=n num_pwmgens=n"
+  # The parms item received here has escaped quotes:
+  #  board_ip=10.10.10.10 config=\"num_stepgens=3 num_pwmgens=2 num_encoders=2\"
+  # We have to find the escaped leading and trailing quotes and the
+  # blanks separating num_* items to assemble the config= parm.
+  # After assembling string for config=, remove the backslashes and
+  # use concat.
+
+  while {[string len $parms] > 0} {
+    set first_blank [string first " " $parms]
+    set first_escaped_quote [string first \\\" $parms]
+    set second_escaped_quote -1
+    if {$first_escaped_quote >=0} {
+       set second_escaped_quote \
+       [expr $first_escaped_quote +2 + \
+             [string first \\\" \
+                [string range $parms [expr $first_escaped_quote+2] end]] \
+       ]
+    }
+    # puts "____$first_blank $first_escaped_quote $second_escaped_quote"
+
+    if {$first_blank < 0} {
+      set pair $parms
+      set parms ""
+      #puts A_newparms=<$parms>
+    } else {
+      if {  ($first_escaped_quote< 0)
+          ||($first_escaped_quote>=0)&&($first_blank<$first_escaped_quote)
+         } {
+        set pair  [string range $parms 0 [expr $first_blank -1]]
+        set parms [string range $parms [expr $first_blank +1] end]
+        #puts B_newparms=<$parms>
+      } else {
+        set pair [string range $parms 0 [expr $second_escaped_quote +1]]
+        set pair [string map {\\ ""} $pair] ;# remove \" items
+        set pair "\[concat $pair\]"         ;# use concat
+        set parms [string range $parms [expr $second_escaped_quote +3] end]
+        #puts C_newparms=<$parms>
+      }
+    }
+
     set l     [split $pair =]
     set item  [lindex $l 0]
     set value [lindex $l 1]
@@ -230,7 +272,7 @@ proc ::tp::loadrt_substitute {arg1 args} {
                }
              }
     }
-  } ;# foreach pair
+  } ;# while
 } ;# loadrt_substitute
 
 proc ::tp::addf_substitute {args} {

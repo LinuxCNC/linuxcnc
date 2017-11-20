@@ -41,6 +41,11 @@ When TRUE (and in manual mode), any change to "jog-counts" will result in motion
 Sets the distance moved for each count on "jog-counts", in machine units.
 
 .TP
+\fBaxis.\fIL\fB.jog-accel-fraction\fR IN FLOAT
+Sets acceleration for wheel jogging to a fraction of the ini max_acceleration for
+the axis. Values greater than 1 or less than zero are ignored.
+
+.TP
 \fBaxis.\fIL\fB.jog-vel-mode\fR IN BIT
 When FALSE (the default), the jogwheel operates in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 
@@ -108,6 +113,11 @@ When TRUE (and in manual mode), any change to "jog-counts" will result in motion
 .TP
 \fBjoint.\fIN\fB.jog-scale\fR IN FLOAT
 Sets the distance moved for each count on "jog-counts", in machine units.
+
+.TP
+\fBjoint.\fIN\fB.jog-accel-fraction\fR IN FLOAT
+Sets acceleration for wheel jogging to a fraction of the ini max_acceleration for
+the joint.  Values greater than 1 or less than zero are ignored.
 
 .TP
 \fBjoint.\fIN\fB.jog-vel-mode\fR IN BIT

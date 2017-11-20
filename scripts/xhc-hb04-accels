@@ -1,49 +1,16 @@
-#!/usr/bin/tclsh
+#!/bin/bash
 
-# This [APPLICATIONS]APP script is used with the library
-# halfile: LIB:xhc-hb04.tcl to connect ini hal pins that control
-# joint/axis max acceleration. These ini hal pins are not
-# available until task is started.
+cat << EOF
+#------------------------------------------------------------
+This obsolete script:
+   $(basename $0)
+should be removed from LinuxCNC ini files (effective 2.8~pre)
 
-# This script waits for the creation of ini hal pins (based
-# on testpin)  and then connects signals named:
-#     pendant:muxed-accel-L
-#  to ini.L.max_acceleration   (L == coord letter)
-#  to ini.N.max_acceleration   (N == joint number, identity kins reqd)
+xhc-hb04.tcl now controls reduced wheel jogging accels using
+the hal pins:
+  axis.L.jog-accel-fraction
+  joint.N.jog-accel-fraction
+#------------------------------------------------------------
+EOF
 
-package require Hal
-source [file join $::env(HALLIB_DIR) util_lib.tcl]
-
-set testpin ini.traj_default_acceleration ;# should always get created
-set max_wait_ms 10000 ;# 10 seconds
-set delay         100 ;# ms
-set waited_ms       0
-while {$waited_ms < $max_wait_ms} {
-  if [catch { hal getp $testpin} msg] {
-    #puts ${waited_ms}_MSG=$msg
-  } else {
-    set ok 1
-    break
-  }
-  incr waited_ms $delay
-  after $delay
-}
-if ![info exists ok] {
-  set msg "ERROR: ini pins not found after waiting $max_wait_ms ms"
-  package require Tk
-  tk_messageBox \
-    -title "[file tail $::argv0]" \
-    -type ok \
-    -message "$msg"
-  puts "\n$::argv0:$msg\n"
-  exit 1
-}
-
-foreach coord {x y z a b c u v w} {
-  if ![catch {
-    set jnum [joint_number_for_axis $coord]
-    hal gets pendant:muxed-accel-$coord} msg] {
-    hal net pendant:muxed-accel-$coord ini.$coord.max_acceleration
-    hal net pendant:muxed-accel-$coord ini.$jnum.max_acceleration
-  }
-}
+exit 0
