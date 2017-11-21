@@ -28,6 +28,11 @@ GSTAT = GStat()
 ACTION = Lcnc_Action()
 INI = IStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class Gstat_Slider(QtGui.QSlider, _HalWidgetBase):
     def __init__(self, parent = None):
         QtGui.QSlider.__init__(self,parent)

@@ -29,10 +29,15 @@
 import sys, os
 from PyQt4.QtCore import SIGNAL, pyqtProperty
 from PyQt4.QtGui import QFont, QFontMetrics, QColor
+
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 try:
     from PyQt4.Qsci import QsciScintilla, QsciLexerCustom
-except:
-    print '**** QTVCP ERROR: Gcode widget can not import QsciScintilla - is package python-qscintilla2 installed?'
+except ImportError as e:
+    log.critical("Can't import QsciScintilla - is package python-qscintilla2 installed?", exc_info=e)
     sys.exit(1)
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
@@ -292,7 +297,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         try:
             fp = os.path.expanduser(filename)
         except:
-            print 'error:',filename
+            log.error('File path is not valid: {}'.format(filename))
             self.setText('')
             return
 
@@ -304,7 +309,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
     def highlight_line(self, w, line):
         if GSTAT.is_auto_running():
             if not GSTAT.old['file']  == self._last_filename:
-                print 'should reload the display'
+                log.debug('should reload the display')
                 self.load_text(GSTAT.old['file'])
         if 1==1:
             self.markerAdd(line, self.ARROW_MARKER_NUM)
@@ -319,7 +324,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         pass
 
     def line_changed(self, line, index):
-        print 'line changed',GSTAT.is_auto_mode()
+        log.debug('Line changed: {}'.format(GSTAT.is_auto_mode()))
         self.line_text = str(self.text(line)).strip()
         self.line = line
         if GSTAT.is_auto_running() == False:
@@ -327,13 +332,13 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
 
     def select_lineup(self,w):
         line,col = self.getCursorPosition()
-        print line
+        log.debug(line)
         self.setCursorPosition(line-1,0)
         self.highlight_line(None,line-1)
 
     def select_linedown(self,w):
         line, col = self.getCursorPosition()
-        print line
+        log.debug(line)
         self.setCursorPosition(line+1,0)
         self.highlight_line(None,line+1)
 

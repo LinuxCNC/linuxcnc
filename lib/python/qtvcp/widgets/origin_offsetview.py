@@ -2,9 +2,13 @@ import sys, os
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 # localization
 import locale
-print sys.argv
+log.debug('sys.argv: {}'.format(sys.argv))
 #BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 #LOCALEDIR = os.path.join(BASE, "share", "locale")
 #locale.setlocale(locale.LC_ALL, '')
@@ -16,6 +20,7 @@ from qtvcp.qt_istat import IStat
 GSTAT = GStat()
 ACTION = Lcnc_Action()
 INI = IStat()
+
 
 class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -104,7 +109,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
     def showSelection(self, item):
         cellContent = item.data()
         text = cellContent.toPyObject()  # test
-        print text, item.row(), item.column()
+        log.debug('Text: {}, Row: {}, Column: {}'.format(text, item.row(), item.column()))
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
@@ -179,7 +184,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
             if self.filename == None:
                 return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
             if not os.path.exists(self.filename):
-                print 'no file', self.filename
+                log.error('File does not exist: yellow<{}>'.format(self.filename))
                 return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
             logfile = open(self.filename, "r").readlines()
             for line in logfile:
@@ -227,8 +232,8 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         try:
                 qualified = float(data)
                 #qualified = float(locale.atof(data))
-        except:
-            print 'error'
+        except Exception as e:
+            log.exception(e)
         # now update linuxcnc to the change
         try:
             if self.IS_RUNNING:
@@ -251,9 +256,8 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
                 ACTION.RESTORE_RECORDED_MODE()
                 GSTAT.emit('reload-display')
                 self.reload_offsets()
-        except Exception, e:
-            print e
-            print "offsetpage widget error: MDI call error"
+        except Exception as e:
+            log.exception("offsetpage widget error: MDI call error", exc_info=e)
             self.reload_offsets()
 
     # only update every 10th time periodic calls
@@ -312,17 +316,17 @@ class MyTableModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        print self.arraydata[index.row()][index.column()]
-        print(">>> setData() role = ", role)
-        print(">>> setData() index.column() = ", index.column())
+        log.debug(self.arraydata[index.row()][index.column()])
+        log.debug(">>> setData() role = {}".format(role))
+        log.debug(">>> setData() index.column() = {}".format(index.column()))
         if index.column() == 9:
             v=str(value.toPyObject())
         else:
             v=float(value.toPyObject())
-        print(">>> setData() value = ", v)
+        log.debug(">>> setData() value = ", v)
         # self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"), index, index)
-        print(">>> setData() index.row = ", index.row())
-        print(">>> setData() index.column = ", index.column())
+        log.debug(">>> setData() index.row = {}".format(index.row()))
+        log.debug(">>> setData() index.column = {}".format(index.column()))
         self.arraydata[index.row()][index.column()] = v
         self.dataChanged.emit(index, index)
         return True

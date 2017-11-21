@@ -9,6 +9,11 @@ GSTAT = GStat()
 NOTE = Notify()
 MSG = Message()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class Lcnc_ScreenOptions(QtGui.QWidget, _HalWidgetBase):
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)

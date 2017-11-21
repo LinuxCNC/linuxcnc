@@ -30,6 +30,11 @@ AUX_PRGM = Aux_program_loader()
 INI = IStat()
 ACTION = Lcnc_Action()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class Lcnc_MDILine(QLineEdit):
     def __init__(self, parent = None):
         QLineEdit.__init__(self,parent)
@@ -70,7 +75,7 @@ class Lcnc_MDILine(QLineEdit):
 
     # Gcode widget can emit a signal to this
     def external_line_selected(self, w, text, filename):
-        print text, filename
+        log.debug('Ext line selected: {}, {}'.format(text, filename))
         if filename == INI.MDI_HISTORY_PATH:
             self.setText(text)
 
@@ -82,10 +87,10 @@ class Lcnc_MDILine(QLineEdit):
     def keyPressEvent(self, event):
         super(Lcnc_MDILine, self).keyPressEvent(event)
         if event.key() == Qt.Key_Up:
-            print 'up'
+            log.debug('up')
             GSTAT.emit('move-text-lineup')
         if event.key() == Qt.Key_Down:
-            print 'down'
+            log.debug('down')
             GSTAT.emit('move-text-linedown')
 
 # for testing without editor:

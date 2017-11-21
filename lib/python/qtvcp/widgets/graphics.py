@@ -30,6 +30,11 @@ import rs274.glcanon
 
 gobject.threads_init()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 def run_gtk(self):
     try:
         gtk.gdk.threads_enter()
@@ -86,9 +91,9 @@ class modded_gremlin(gremlin.Gremlin):
         self._reload_filename=f
         try:
             self._load(f)
-        except AttributeError,detail:
+        except AttributeError as e:
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
-            print 'hal_gremlin: continuing after',detail
+            log.exception('HAL Gremlin continuing after exception', exc_info=detail)
 
     @rs274.glcanon.with_context
     def _load(self, filename):
@@ -99,7 +104,7 @@ class modded_gremlin(gremlin.Gremlin):
         self.highlight_line = line
         if line == None:
             line = -1
-        print line
+        log.debug('Highlighting line in graphics: {}'.format(line))
         #self.emit('line-clicked', line)
 
     # This overrides glcannon.py method so we can change the DRO 
@@ -246,7 +251,7 @@ class Graphics(QX11EmbedContainer):
         self.setview('p')
 
     def embeddederror(self):
-        print 'embed error'
+        log.error('embed error')
 
     def sizeHint(self):
         return QSize(300, 300)

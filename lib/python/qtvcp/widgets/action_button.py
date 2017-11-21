@@ -25,6 +25,10 @@ from qtvcp.qt_istat import IStat
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 import linuxcnc
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 # Instiniate the libraries with global reference
 # GSTAT gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
@@ -167,7 +171,7 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
            if self.isCheckable():
                 ACTION.SET_MACHINE_STATE(state)
            else:
-                print 'gstat:',GSTAT.machine_is_on
+                log.debug('gstat machine is on: {}'.format(GSTAT.machine_is_on))
                 ACTION.SET_MACHINE_STATE(not GSTAT.machine_is_on())
         elif self.home:
            if self.isCheckable():
@@ -192,8 +196,8 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             j = "XYZABCUVW"
             try:
                 axis = j[self.joint_number]
-            except:
-                print '''can't zero origin for specified jpint;''', self.joint_number
+            except IndexError:
+                log.error("can't zero origin for specified joint {}".format(self.joint_number))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
         elif self.launch_halmeter:
             AUX_PRGM.load_halmeter()
@@ -209,7 +213,7 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             ACTION.SET_MANUAL_MODE()
         # defult error case
         else:
-            print 'QTVCP: action button: * No action recognised *'
+            log.error('No action recognised')
 
     def jog_action(self,direction):
         if direction == 0 and GSTAT.current_jog_distance != 0: return

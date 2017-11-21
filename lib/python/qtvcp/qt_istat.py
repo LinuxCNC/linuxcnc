@@ -1,6 +1,11 @@
 import os
 import linuxcnc
 
+# Set up logging
+import logger
+log = logger.getLogger(__name__)
+# Set the log level for this module
+# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class IStat():
 
@@ -54,9 +59,10 @@ class IStat():
             self.MACHINE_UNIT_CONVERSION = 25.4
             self.MACHINE_UNIT_CONVERSION_9 = [25.4]*3+[1]*3+[25.4]*3
 
-        axes = (str(self.inifile.find("TRAJ", "COORDINATES"))).replace(" ", "")
-        print axes
-        if not axes == 'None':
+        axes = self.inifile.find("TRAJ", "COORDINATES")
+        if axes is not None: # i.e. LCNC is running, not just in Qt Desinger
+            axes = axes.replace(" ", "")
+            log.debug('TRAJ COORDINATES: {}'.format(axes))
             conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
             self.AVAILABLE_AXES = []
             self.AVAILABLE_AXES_INT = []

@@ -5,6 +5,11 @@ from qtvcp.widgets.ledwidget import Lcnc_Led
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class Lcnc_State_Led(Lcnc_Led,):
 
     def __init__(self, parent=None):
