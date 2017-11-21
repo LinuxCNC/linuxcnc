@@ -8,6 +8,10 @@ from qtvcp.qt_istat import IStat
 GSTAT = GStat()
 INI = IStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
 
     def __init__(self, parent=None):
@@ -89,8 +93,8 @@ class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
         self._textTemplate = data
         try:
             self._set_text(100.0)
-        except Exception, e:
-            print e,self._textTemplate,'data:',data
+        except Exception as e:
+            log.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
             self.setText('Error')
     def get_textTemplate(self):
         return self._textTemplate

@@ -1,5 +1,11 @@
 import linuxcnc
 
+# Set up logging
+import logger
+log = logger.getLogger(__name__)
+# Set the log level for this module
+#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 class HandlerClass:
 
     # This will be pretty standard to gain access.
@@ -12,20 +18,20 @@ class HandlerClass:
         self.cmnd = linuxcnc.command()
 
     def initialized__(self):
-        print 'INIT qtvcp handler'
+        log.debug('INIT qtvcp handler')
 
     def halbuttonclicked(self):
-        print 'click'
+        log.debug('click')
 
     def estop_toggled(self,pressed):
-        print 'estop click',pressed
+        log.debug('estop click {}'.format(pressed))
         if pressed:
             self.cmnd.state(linuxcnc.STATE_ESTOP_RESET)
         else:
             self.cmnd.state(linuxcnc.STATE_ESTOP)
 
     def machineon_toggled(self,pressed):
-        print 'machine on click',pressed
+        log.debug('machine on click {}'.format(pressed))
         if pressed:
             self.cmnd.state(linuxcnc.STATE_ON)
         else:
@@ -33,7 +39,7 @@ class HandlerClass:
                 
 
     def home_clicked(self):
-        print 'home click'
+        log.debug('home click')
         self.cmnd.mode(linuxcnc.MODE_MANUAL)
         self.cmnd.home(-1)
 

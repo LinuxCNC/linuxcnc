@@ -6,6 +6,11 @@ import hal
 import gobject
 hal_pin_changed_signal = ('hal-pin-changed', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 ###########################
 """ Set of base classes """
 ###########################

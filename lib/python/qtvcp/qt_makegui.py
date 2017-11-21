@@ -2,11 +2,11 @@ import os,sys
 from PyQt4 import QtCore,QtGui, uic
 import traceback
 
-qtvcp_debug = 1
-def dbg(str):
-    global qtvcp_debug
-    if not qtvcp_debug: return
-    print str
+# Set up logging
+import logger
+log = logger.getLogger(__name__)
+# Set the log level for this module
+#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -58,10 +58,9 @@ class MyEventFilter(QtCore.QObject):
         return super(MyEventFilter,self).eventFilter(receiver, event)
 
 class MyWindow(QtGui.QMainWindow):
-    def __init__(self,filename,halcomp,debug):
+    def __init__(self,filename,halcomp):
         super(MyWindow, self).__init__()
-        global qtvcp_debug
-        qtvcp_debug = debug
+
         self.filename = filename
         self.halcomp = halcomp
         self.has_closing_handler = None
@@ -72,10 +71,10 @@ class MyWindow(QtGui.QMainWindow):
 
     def instance(self):
         instance = uic.loadUi(self.filename, self)
-        if qtvcp_debug:
-            print'QTVCP top instance:',self
-            for widget in instance.findChildren(QtCore.QObject):
-                print 'QTVCP Widget:',widget
+
+        log.debug('QTVCP top instance: {}'.format(self))
+        for widget in instance.findChildren(QtCore.QObject):
+            log.debug('QTVCP Widget: {}'.format(widget))
 
 
     def load_extension(self,handlerpath,paths=None):
@@ -104,30 +103,32 @@ class MyWindow(QtGui.QMainWindow):
                 directory = '.'
             if directory not in sys.path:
                 sys.path.insert(0,directory)
-                dbg('adding import dir %s' % directory)
+                log.debug('adding import dir yellow<{}>'.format(directory))
 
             try:
                 mod = __import__(basename)
-            except ImportError,msg:
-                print "module '%s' skipped - import error: %s" %(basename,msg)
+            except ImportError, e:
+                log.critical("module '{}' skipped - import error: ".format(basename), exc_info=e)
                 sys.exit(0)
-	        continue
-            dbg("module '%s' imported OK" % mod.__name__)
+                continue
+            log.debug("module '{}' imported green<OK>".format(mod.__name__))
+
             try:
                 # look for 'get_handlers' function
                 h = getattr(mod,hdl_func,None)
 
                 if h and callable(h):
-                    dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
+                    log.debug("module '{}' : '{}' function found".format(mod.__name__,hdl_func))
                     objlist = h(halcomp,widgets,paths) # this sets the handler class signature
                 else:
                     # the module has no get_handlers() callable.
                     # in this case we permit any callable except class Objects in the module to register as handler
-                    dbg("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
+                    log.debug("module '{}': no '{}' function - registering only functions as callbacks"
+                        .format(mod.__name__, hdl_func))
                     objlist =  [mod]
                 # extract callback candidates
                 for object in objlist:
-                    dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
+                    log.debug("Registering handlers in module {} object {}".format(mod.__name__, object))
                     if isinstance(object, dict):
                         methods = dict.items()
                     else:
@@ -136,11 +137,11 @@ class MyWindow(QtGui.QMainWindow):
                         if method.startswith('_'):
                             continue
                         if callable(f):
-                            dbg("Register callback '%s' in %s" % (method, object))
+                            log.debug("Register callback '{}' in {}".format(method, object))
                             add_handler(method, f)
-            except Exception, e:
-                print "QTvcp: trouble looking for handlers in '%s': %s" %(basename, e)
-                traceback.print_exc()
+            except Exception as e:
+                log.exception("Trouble looking for handlers in '{}':".format(basename), exc_info=e)
+#                traceback.print_exc()
 
         # Wrap lists in Trampoline, unwrap single functions
         for n,v in list(handlers.items()):

@@ -22,6 +22,13 @@ import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import QComponent
 from PyQt4.QtCore import QObject
+
+# Set up logging
+import logger
+log = logger.getLogger(__name__)
+# Set the log level for this module
+#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug=False):
 
@@ -29,13 +36,11 @@ class QTPanel():
         self.widgets = {}
 
         # parse for HAL objects:
-        if debug:
-            print 'QTVCP: Parcing for hal widgets'
+        log.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
-                if debug:
-                    print 'HAL-ified instance found:    %s'%(idname)
+                log.debug('HAL-ified instance found: {}'.format(idname))
                 widget.hal_init(self.hal, str(idname), widget, window)
                 self.widgets[idname] = widget
 
