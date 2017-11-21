@@ -79,6 +79,7 @@ class Private_Data:
 		self.jogminus = 0
 		self.jogplus = 0
 		self.axis_under_test = None
+		self.jog_maxspeed = 0
 
 		self.hal_gvcp_list = []
 		self.hal_guimerge_list = []
@@ -253,16 +254,16 @@ class Data:
 		self.customhal = 1 # include custom hal file
 	
 		# gui
+		self.guitype = GUI_IS_NONE
 		self.mix_gladevcp_pyvcp = False
-		self.maxor2 = 0
 		# pyvcp data
-		self.pyvcp = True # default include
+		#self.pyvcp = True # default include
 		self.pyvcptype = PYVCP_DEFAULT # include default pyvcp gui
 		self.pyvcpname = "blank.xml"
 		self.pyvcphaltype = 0 # no HAL connections specified
 		
 		# gladevcp data
-		self.gladevcp = False # not included
+		#self.gladevcp = False # not included
 		self.gladevcptype = GLADEVCP_DEFAULT # include default gladevcp gui
 		self.gladesample = True
 		self.gladeexists = False

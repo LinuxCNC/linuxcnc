@@ -89,7 +89,7 @@ def save(self,basedir):
 				print "Master or temp ladder files missing from configurable_options dir"
 
 	# Extra subroutine
-	if (self.d.pyvcp == True or self.d.gladevcp == True ):
+	if (self.d.guitype == GUI_IS_PYVCP or self.d.guitype == GUI_IS_GLADEVCP ):
 		if(self.d.pyvcptype == PYVCP_DEFAULT or self.d.gladevcptype == GLADEVCP_DEFAULT): # default panel
 			# Subroutine
 			subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, "probe_tool_lenght.ngc"))
@@ -112,7 +112,7 @@ def save(self,basedir):
 o<probe_tool_lenght> endsub""")
 			fngc.close()
 
-	if self.d.pyvcp:
+	if (self.d.guitype == GUI_IS_PYVCP):
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.pyvcpname))
 		if(self.d.pyvcptype == PYVCP_DEFAULT): # default panel
 			# Create default panel
@@ -128,7 +128,7 @@ o<probe_tool_lenght> endsub""")
 		else:
 			print "Master PYVCP files missing from configurable_options dir"
 
-	if self.d.gladevcp:
+	elif(self.d.guitype == GUI_IS_GLADEVCP):
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.gladevcpname))
 		if(self.d.gladevcptype == GLADEVCP_DEFAULT): # default panel
 			# Create default panel
