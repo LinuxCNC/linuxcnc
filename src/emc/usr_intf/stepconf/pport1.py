@@ -52,6 +52,10 @@ def pport1_prepare(self):
 			p = 'pin%dinv' % pin
 			self.w[p].set_active(self.d[p])
 
+	# Debounce
+	self.w.chk_debounce_home_inputs.set_active(self.d.debounce_home_inputs)
+	self.w.chk_debounce_limit_inputs.set_active(self.d.debounce_limit_inputs)
+
 	self.w.pin1.grab_focus()
 	self.w.ioaddr.set_text(self.d.ioaddr)
 
@@ -79,6 +83,10 @@ def pport1_finish(self):
 		self.d[p] = self.w[p].get_active()
 	self.d.ioaddr = self.w.ioaddr.get_text()
 
+	# Debounce
+	self.d.debounce_home_inputs = self.w.chk_debounce_home_inputs.get_active()
+	self.d.debounce_limit_inputs = self.w.chk_debounce_limit_inputs.get_active()
+
 	# Save preset
 	current_machine = self.get_machine_preset(self.w.pp1_preset_combo)
 	if current_machine:
@@ -86,6 +94,7 @@ def pport1_finish(self):
 	else:
 		# Other selected
 		self.d.pport1_preset = 0
+
 	self.check_spindle_speed_control()
 	self.check_spindle_encoder()
 	self.page_set_state('spindle',(self._p.has_spindle_speed_control or self._p.has_spindle_encoder) )

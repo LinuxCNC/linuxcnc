@@ -335,6 +335,11 @@ class Data:
 		self.pin12 = d_hal_input[UNUSED_INPUT]
 		self.pin13 = d_hal_input[UNUSED_INPUT]
 		self.pin15 = d_hal_input[UNUSED_INPUT]
+
+		# Debounce
+		self.debounce_home_inputs = True
+		self.debounce_limit_inputs = True
+		
 		# pp1 preset
 		self.pport1_preset = 0
 	

@@ -219,7 +219,6 @@ class HAL:
 			scale = (y2-y1) / (x2-x1)
 			offset = x1 - y1 / scale
 			print >>file
-			# TODO
 			if (self.d.guitype == GUI_IS_GLADEVCP and self.d.gladevcptype == GLADEVCP_DEFAULT or self.d.guitype == GUI_IS_PYVCP and self.d.pyvcptype == PYVCP_DEFAULT):
 				# Test if is-mdi and is-auto are false, so I can use my manual spindle speed slider.
 				print >>file, "setp lut5.%d.function 0x1" % (self._p.lut5_spindle_speed)
@@ -287,6 +286,20 @@ class HAL:
 			din = "din-%02d" % i
 			if din in inputs:
 				print >>file, "net %s => motion.digital-in-%02d" % (din, i)
+		print >>file
+
+		# Debounce
+		if(self.d.debounce_home_inputs == True):
+			#self.d.debounce_limit_inputs
+			print >>file, "#load the debounce. One set of three channels."
+			print >>file, "loadrt debounce cfg=3"
+			
+			print >>file, "#add the debounce to a thread, so that it gets run"
+			print >>file, "#this is running in the fast base-thread"
+			print >>file, "#you could use the servo thread. I am not sure which would be best."
+			print >>file, "addf debounce.0 base-thread"
+			print >>file, "#20 base-threads is about 0.4mS. The typical machine doesn't move far in that time."
+			print >>file, "setp debounce.0.delay %d" % (DEBOUNCE_INPUT_TIME)
 
 		print >>file
 		for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)
@@ -312,7 +325,11 @@ class HAL:
 		if limits_homes:
 			print >>file, "setp lut5.%d.function 0x10000" % (self._p.lut5_homing)
 			print >>file, "net all-limit-home => lut5.%d.in-4" % (self._p.lut5_homing)
-			print >>file, "net all-limit <= lut5.%d.out" % (self._p.lut5_homing)
+			if(self.d.debounce_home_inputs == True):
+				print >>file, "net switch-raw lut5.%d.out => debounce.0.in" % (self._p.lut5_homing)
+				print >>file, "net all-limit <= debounce.0.out"
+			else:
+				print >>file, "net all-limit <= lut5.%d.out" % (self._p.lut5_homing)
 			if self.d.axes == 2:
 				print >>file, "net homing-x <= joint.0.homing => lut5.%d.in-0" % (self._p.lut5_homing)
 				print >>file, "net homing-z <= joint.1.homing => lut5.%d.in-1" % (self._p.lut5_homing)

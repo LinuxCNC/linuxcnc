@@ -131,8 +131,23 @@ def on_gui_select_axis_toggled(self,*args):
 	self.w.gui_rdo_pyvcp.set_sensitive(a)
 	self.w.gui_rdo_nogui.set_sensitive(a)
 
+	if(a == True):
+		self.on_gui_rdo_gladevcp_toggled()
+		self.on_gui_rdo_pyvcp_toggled()
+		self.on_gui_rdo_nogui_toggled()
+
 def on_gui_select_gmoccapy_toggled(self,*args):
 	c= self.w.gui_select_gmoccapy.get_active()
+	g = False
+	self.w.gui_rdo_default_gladevcp.set_sensitive(g)
+	self.w.gui_rdo_custom_gladevcp.set_sensitive(g)
+	self.w.gui_rdo_none_gladevcp.set_sensitive(g)
+	self.w.gui_gladevcp_box.set_sensitive(g)
+
+	self.w.gui_rdo_default_pyvcp.set_sensitive(g)
+	self.w.gui_rdo_custom_pyvcp.set_sensitive(g)
+	self.w.gui_rdo_none_pyvcp.set_sensitive(g)
+	self.w.gui_pyvcp_box.set_sensitive(g)
 
 def on_gui_rdo_gladevcp_toggled(self,*args):
 	g= self.w.gui_rdo_gladevcp.get_active()

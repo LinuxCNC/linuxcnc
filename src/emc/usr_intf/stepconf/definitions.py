@@ -84,6 +84,9 @@ GLADEVCP_DEFAULT = 1
 GLADEVCP_CUSTOM = 2
 GLADEVCP_NONE = 3
 
+# Debounce timing ms
+DEBOUNCE_INPUT_TIME = 10
+
 FILE_CUSTOM_HALFILE = 'custom.hal'
 FILE_GUIMERGE = 'gui_merge.hal'
 # Pyvcp
