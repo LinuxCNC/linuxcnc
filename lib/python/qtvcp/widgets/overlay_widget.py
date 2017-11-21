@@ -7,6 +7,11 @@ from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class OverlayWidget(QWidget):
     def __init__(self, parent=None):
         self.last = None
@@ -24,7 +29,7 @@ class OverlayWidget(QWidget):
         if not self.parent: return
         self.parent = self.top_level
         if not self.last == None:
-            #print 'last removed:',self.last
+            log.debug('last removed: {}'.format(self.last))
             self.last.removeEventFilter(self)
         self.parent.installEventFilter(self)
         self.last = self.parent
@@ -239,7 +244,7 @@ def main():
 
     l = QLabel('Hello, world!',w)
     l.show()
-    print l
+    log.debug('Label: {}'.format(l))
 
     o = LoadingOverlay(l)
     o.setObjectName("overlay")

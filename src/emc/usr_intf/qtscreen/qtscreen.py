@@ -1,10 +1,26 @@
+#!/usr/bin/python
 import os
 import sys
 import traceback
 import hal
 from optparse import Option, OptionParser
 from PyQt4 import QtGui, QtCore
+
+# Set up the base logger
+#   We have do do this before importing other modules because on import
+#   they set up their own loggers as children of the base logger.
+from qtvcp import logger
+log = logger.initBaseLogger('QTSCREEN', log_file=None, log_level=logger.DEBUG)
+
+# If log_file is none, logger.py will attempt to find the log file specified in
+# INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
+
+# Note: In all other modules it is best to use the `__name__` attribute
+#   to ensure we get a logger with the correct hierarchy.
+#   Ex: log = logger.getLogger(__name__)
+
 from qtvcp import qt_makepins, qt_makegui
+
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -27,20 +43,12 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTs to Python modules')
           ]
 
-# to help with debugging new screens
-verbose_debug = False
-# print debug messages if debug is true
-qtscreen_debug = False
-def dbg(str):
-    global qtscreen_debug
-    if not qtscreen_debug: return
-    print str
 
 class Paths():
     def __init__(self,filename):
 
         self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
-        print self.BASENAME
+        log.debug('BASENAME {}'.format(self.BASENAME))
         self.VCP_UI = '%s.ui'% os.path.splitext(filename)[0]
         self.VCP_HANDLER = '%s_handler.py'% self.BASENAME
         if not os.path.exists(self.VCP_HANDLER):
@@ -67,51 +75,51 @@ class Paths():
         if os.path.exists(locallocale):
             self.LOCALEDIR = locallocale
             self.DOMAIN = self.BASENAME
-            print ("**** GSCREEN INFO: CUSTOM locale name =",self.LOCALEDIR,self.BASENAME)
+            log.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
         else:
             locallocale = os.path.join(self.SKINDIR,"%s/locale"% self.BASENAME)
             if os.path.exists(locallocale):
                 self.LOCALEDIR = locallocale
                 self.DOMAIN = self.BASENAME
-                print ("**** GSCREEN INFO: SKIN locale name =",self.LOCALEDIR,self.BASENAME)
+                log.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
             else:
                 self.LOCALEDIR = os.path.join(self.BASE, "share", "locale")
                 self.DOMAIN = "linuxcnc"
         # check for local XML file
         # look in config folder:
         localui = os.path.join(self.CONFIGPATH,"%s.ui"% self.BASENAME)
-        dbg("**** QTSCREEN DEBUG: checking for .ui in: %s"% localui)
+        log.debug("Checking for .ui in: yellow<{}>".format(localui))
         if os.path.exists(localui):
-            print ("\n**** qtscreen INFO:  Using CUSTOM ui file from %s ****"% localui)
+            log.info("Using CUSTOM ui file from yellow<{}>".format(localui))
             self.XML = localui
         else:
             # look in stock skin folder
             localui = os.path.join(self.SKINDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
-            dbg("**** QTSCREEN DEBUG: checking for .ui in: %s"% localui)
+            log.debug("Checking for .ui in: yellow<{}>".format(localui))
             if os.path.exists(localui):
-                print ("\n**** qtscreen INFO:  Using SKIN ui file from %s ****"% localui)
+                log.info("Using SKIN ui file from yellow<{}>".format(localui))
                 self.XML = localui
             else:
                 # error
                 self.XML = None
-                print ("\n**** QTSCREEN ERROR:  No UI file found ****")
+                log.error("No UI file found")
                 sys.exit(0)
 
         # look for custom handler files:
-        handler_fn = "%s_handler.py"% self.BASENAME
-        local_handler_path = os.path.join(self.CONFIGPATH,handler_fn)
-        skin_handler_path = os.path.join(self.SKINDIR,"%s/%s"%(self.BASENAME,handler_fn))
-        dbg("**** QTSCREEN DEBUG: checking for handler file in: %s"% local_handler_path)
-        dbg("**** QTSCREEN DEBUG: checking for handler file in: %s"% skin_handler_path)
+        handler_fn = "{}_handler.py".format(self.BASENAME)
+        local_handler_path = os.path.join(self.CONFIGPATH, handler_fn)
+        skin_handler_path = os.path.join(self.SKINDIR, self.BASENAME, handler_fn)
+        log.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
+        log.debug("Checking for handler file in: yellow<{}>".format(skin_handler_path))
         if os.path.exists(local_handler_path):
             self.HANDLER = local_handler_path
-            print ("**** QTSCREEN INFO: Local handler file path: %s"%self.HANDLER)
+            log.info("Local handler file path: yellow<{}>".format(self.HANDLER))
         elif os.path.exists(skin_handler_path):
             self.HANDLER = skin_handler_path
-            dbg("**** QTSCREEN INFO: Skin handler file path: %s"%self.HANDLER)
+            log.debug("Skin handler file path: yellow<{}>".format(self.HANDLER))
         else:
             self.HANDLER = None
-            dbg("**** QTSCREEN WARNING: No handler file found")
+            log.critical("No handler file found")
             sys.exit(0)
 
 class QTscreen: 
@@ -133,8 +141,12 @@ class QTscreen:
                 break
 
         (opts, args) = parser.parse_args()
-        global qtscreen_debug
-        qtscreen_debug = opts.debug
+
+        # ToDo: pass specific log levels as an argument, or use an INI setting
+        if not opts.debug:
+            # Log level defaults to DEBUG, so set higher if not debug
+            logger.setGlobalLevel(logger.ERROR)
+
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtscreen screen...or
         # oops error
@@ -143,7 +155,7 @@ class QTscreen:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
-            print '**** QTscreen Error in path'
+            log.error('Error in path')
             sys.exit()
 
         # set paths using basename
@@ -153,7 +165,7 @@ class QTscreen:
         # Screen specific
         #################
         if INIPATH:
-            dbg('Linuxcnc Main Screen')
+            log.debug('Linuxcnc Main Screen')
             import linuxcnc
             # internationalization and localization
             import locale, gettext
@@ -183,12 +195,12 @@ class QTscreen:
         # VCP specific
         #################
         else:
-            dbg('VCP screen')
+            log.debug('VCP screen')
             xmlpath = PATH.VCP_UI
             # If no handler file was specified, check for one using basename
             if not opts.usermod:
                 if PATH.VCP_HANDLER:
-                    dbg('found VCP handler')
+                    log.debug('found VCP handler')
                     opts.usermod = PATH.VCP_HANDLER
 
         ##############
@@ -203,19 +215,19 @@ class QTscreen:
         try:
             self.halcomp = hal.component(opts.component)
         except:
-            print >> sys.stderr, "**** QTscreen ERROR:    Asking for a HAL component using a name that already exists?"
+            log.critial("Asking for a HAL component using a name that already exists?")
             sys.exit(0)
 
         # initialize the window
         self.app = QtGui.QApplication(sys.argv)
-        window = qt_makegui.MyWindow(xmlpath,self.halcomp,opts.debug)
+        window = qt_makegui.MyWindow(xmlpath,self.halcomp)
  
         # load optional user handler file
         if opts.usermod:
-            dbg('Loading the handler file')
+            log.debug('Loading the handler file')
             window.load_extension(opts.usermod,PATH)
             # add filter to catch keyboard events
-            dbg('Adding the key events filter')
+            log.debug('Adding the key events filter')
             myFilter = qt_makegui.MyEventFilter(window)
             self.app.installEventFilter(myFilter)
 
@@ -228,16 +240,16 @@ class QTscreen:
         # call handler file's initialized function
         if opts.usermod:
             if "initialized__" in dir(window.handler_instance):
-                dbg('''Calling the handler file's initialized__ function''')
+                log.debug('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
 
         # User components are set up so report that we are ready
-        dbg('Set HAL ready')
+        log.debug('Set HAL ready')
         self.halcomp.ready()
 
         # embed window in another program
         if opts.parent:
-            print 'Xembed Option not available yet'
+            log.critical('Xembed Option not available yet')
             sys.exit(1)
             window = xembed.reparent(window, opts.parent)
             forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
@@ -251,7 +263,7 @@ class QTscreen:
                 pos = j[2].partition("+")
                 window.move( int(pos[0]), int(pos[2]) )
             except:
-                print >> sys.stderr, "**** QTscreen ERROR:    With window position data"
+                log.critical("With window position data")
                 parser.print_usage()
                 sys.exit(1)
         if "x" in opts.geometry:
@@ -263,7 +275,7 @@ class QTscreen:
                     t = window_geometry.partition("x")
                 window.resize( int(t[0]), int(t[2]) )
             except:
-                print >> sys.stderr, "**** QTscreen ERROR:    With window resize data"
+                log.critical("With window resize data")
                 parser.print_usage()
                 sys.exit(1)
 
@@ -282,13 +294,17 @@ class QTscreen:
         # theme (styles in QT speak)
         if opts.theme:
             if not opts.theme in (QtGui.QStyleFactory.keys()):
-                print "**** QTscreen WARNING: %s theme not avaialbe"% opts.theme
+                log.warning("{} theme not available".format(opts.theme))
                 if opts.debug:
-                    print 'QTscreen Available themes:'
-                    theme=[]
+                    current_theme = QtGui.qApp.style().objectName()
+                    themes=['\nQTscreen Available themes:']
                     for i in (QtGui.QStyleFactory.keys()):
-                        theme.append('%s'%i)
-                    print theme
+                        if i == current_theme:
+                            themes.append('  * green<{}>'.format(i))
+                        else:
+                             themes.append('  * {}'.format(i))
+
+                    log.info('\n'.join(themes))
             else:
                 QtGui.qApp.setStyle(opts.theme)
         # windows theme is default for screens
@@ -302,7 +318,7 @@ class QTscreen:
             title = 'QTvcp-%s'% opts.component
         window.setWindowTitle(title)
 
-        dbg('Show window')
+        log.debug('Show window')
         window.show()
         if INIPATH:
             self.postgui()
@@ -315,7 +331,7 @@ class QTscreen:
     # finds the postgui file name and INI file path
     def postgui(self):
         postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
-        print "**** QTscreen INFO: postgui filename:",postgui_halfile
+        log.info("postgui filename: yellow<{}>".format(postgui_halfile))
         if postgui_halfile:
             if postgui_halfile.lower().endswith('.tcl'):
                 res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, postgui_halfile])

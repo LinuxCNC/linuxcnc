@@ -4,6 +4,11 @@ from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
 from PyQt4.QtGui import QWidget, QColor, QPainter, QBrush, QRadialGradient
 from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class Lcnc_Led(QWidget, _HalWidgetBase):
 
     def __init__(self, parent=None):

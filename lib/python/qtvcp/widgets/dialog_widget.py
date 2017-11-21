@@ -23,6 +23,10 @@ from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WID
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.qt_glib import GStat, Lcnc_Action
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 # Instiniate the libraries with global reference
 # GSTAT gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
@@ -69,7 +73,7 @@ class Lcnc_Dialog(QMessageBox):
         self.buttonClicked.connect(self.msgbtn)
 
         retval = self.exec_()
-        print "value of pressed message box button:", retval
+        log.debug("Value of pressed button: {}".format(retval))
         if retval == QMessageBox.No:
             return False
         else:
@@ -82,8 +86,8 @@ class Lcnc_Dialog(QMessageBox):
         super(Lcnc_Dialog, self).showEvent(event)
 
     def msgbtn(self, i):
+        log.debug("Button pressed is: {}".format(i.text()))
         return
-        print "Button pressed is:",i.text()
 
     #**********************
     # Designer properties
@@ -163,7 +167,7 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
                     self.changed.set(True)
                 else:
                     # TODO add abort command
-                    print 'cancelled should abort'
+                    log.debug('cancelled should abort')
         elif not change:
             self.changed.set(False)
 

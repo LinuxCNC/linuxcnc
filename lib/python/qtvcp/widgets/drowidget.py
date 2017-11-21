@@ -20,6 +20,10 @@ import linuxcnc
 from PyQt4 import QtCore, QtGui
 from qtvcp import qt_glib
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 # we put this in a try so there is no error in the glade editor
 # linuxcnc is probably not running then 
 try:

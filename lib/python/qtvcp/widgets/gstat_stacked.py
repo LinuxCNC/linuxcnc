@@ -6,6 +6,11 @@ from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class GstatStacked(QtGui.QStackedWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(GstatStacked, self).__init__(parent)
@@ -15,7 +20,7 @@ class GstatStacked(QtGui.QStackedWidget, _HalWidgetBase):
 
     def _hal_init(self):
         def _switch( index):
-            print 'index',index
+            log.debug('index: {}'.format(index))
             self.setCurrentIndex(index)
         if self.auto:
             GSTAT.connect('mode-auto', lambda w: _switch(2))

@@ -11,6 +11,11 @@ from hal_glib import _GStat as GladeVcpStat
 from qtvcp.qt_istat import IStat
 INI = IStat()
 
+# Set up logging
+import logger
+log = logger.getLogger(__name__)
+# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 class QPin(QObject, hal.Pin):
     value_changed = pyqtSignal([int], [float], [bool] )
 
@@ -39,10 +44,10 @@ class QPin(QObject, hal.Pin):
         for p in self.REGISTRY:
             try:
                 p.update()
-            except Exception, e:
+            except Exception as e:
                 kill.append(p)
-                print "Error updating pin %s; Removing" % p
-                print e
+                log.error("Error updating pin {}; Removing".format(p))
+                log.exception(e)
         for p in kill:
             self.REGISTRY.remove(p)
         return self.UPDATE
@@ -110,7 +115,7 @@ class Lcnc_Action():
             self.cmd.state(linuxcnc.STATE_OFF)
 
     def SET_MACHINE_HOMING(self, joint):
-        print 'Homing Joint:',joint
+        log.info('Homing Joint: {}'.format(joint))
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
         self.cmd.home(joint)
@@ -163,7 +168,7 @@ class Lcnc_Action():
         if not self.gstat.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_PAUSE)
         else:
-            print 'resume'
+            log.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
     def SET_RAPID_RATE(self, rate):

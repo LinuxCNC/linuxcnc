@@ -6,6 +6,10 @@ from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 class State_Enable_GridLayout(QWidget,_HalWidgetBase):
     def __init__(self, parent = None):
         QGridLayout.__init__(self, parent)

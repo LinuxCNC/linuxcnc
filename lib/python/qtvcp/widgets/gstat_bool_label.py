@@ -6,6 +6,10 @@ from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 class Lcnc_Gstat_Bool_Label(QtGui.QLabel, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_Gstat_Bool_Label, self).__init__(parent)
@@ -41,8 +45,8 @@ class Lcnc_Gstat_Bool_Label(QtGui.QLabel, _HalWidgetBase):
         self._true_textTemplate = data
         try:
             self._set_text(True)
-        except Exception, e:
-            print e,self._textTemplate,'data:',data
+        except Exception as e:
+            log.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
             self.setText('Error')
     def get_true_textTemplate(self):
         return self._true_textTemplate
