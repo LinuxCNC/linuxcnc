@@ -66,6 +66,7 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.select_gmoccapy:
             print >>file, "DISPLAY = gmoccapy"
+            print >>file, "PREFERENCE_FILE_PATH = gmoccapy_preferences"
         print >>file, "EDITOR = gedit"
         print >>file, "POSITION_OFFSET = RELATIVE"
         print >>file, "POSITION_FEEDBACK = ACTUAL"
@@ -77,6 +78,7 @@ class INI:
         print >>file, "DEFAULT_LINEAR_VELOCITY = %.2f" % defvel
         print >>file, "MIN_LINEAR_VELOCITY = 0"
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
+
         if self.d.axes == 1:
             defvel = min(60, self.d.amaxvel/10.)
             print >>file, "DEFAULT_ANGULAR_VELOCITY = %.2f" % defvel
@@ -101,6 +103,7 @@ class INI:
             print >>file, "PYVCP = %s" % self.d.pyvcpname
         if self.d.axes == 2:
             print >>file, "LATHE = 1"
+            print >>file, "BACK_TOOL_LATHE = 0"
         if self.d.axes == 3:
             print >>file, "FOAM = 1"
             print >>file, "GEOMETRY = XY;UZ"

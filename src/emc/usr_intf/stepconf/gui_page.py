@@ -34,6 +34,8 @@ def gui_page_prepare(self):
 	elif(self.d.guitype == GUI_IS_PYVCP):
 		self.w.gui_rdo_pyvcp.set_active(True)
 		self.on_gui_rdo_pyvcp_toggled(True)
+	elif(self.d.guitype == GUI_IS_GMOCCAPY):
+		None
 	else:
 		# Default none
 		self.w.gui_rdo_nogui.set_active(True)
@@ -92,15 +94,20 @@ def gui_page_finish(self):
 		self.d.pyvcptype = PYVCP_NONE
 		self.d.pyvcpname = ""
 
-	if(self.w.gui_rdo_gladevcp.get_active() == True):
-		self.d.guitype = GUI_IS_GLADEVCP
-	elif (self.w.gui_rdo_pyvcp.get_active() == True):
-		self.d.guitype = GUI_IS_PYVCP
+	if(self.w.gui_select_axis.get_active() == True):
+		if(self.w.gui_rdo_gladevcp.get_active() == True):
+			self.d.guitype = GUI_IS_GLADEVCP
+		elif (self.w.gui_rdo_pyvcp.get_active() == True):
+			self.d.guitype = GUI_IS_PYVCP
+		else:
+			self.d.guitype = GUI_IS_NONE
+	elif(self.w.gui_select_gmoccapy.get_active() == True):
+		self.d.guitype = GUI_IS_GMOCCAPY
 	else:
 		self.d.guitype = GUI_IS_NONE
 
 	# Halui connections
-	if(self.d.guitype != GUI_IS_NONE):
+	if(self.d.guitype == GUI_IS_PYVCP or self.d.guitype == GUI_IS_GLADEVCP):
 		# Check if at least one default panel is selected
 		if((self.d.pyvcptype == PYVCP_DEFAULT) or (self.d.gladevcptype == GLADEVCP_DEFAULT)): # default panel
 			# MDI_COMMAND
@@ -116,7 +123,16 @@ def gui_page_finish(self):
 			self.create_pyvcp_hal_single() # pyvcp
 
 	self.d.centerembededgvcp = self.w.centerembededgvcp.get_active()
-	self.d.sideembededgvcp = self.w.sideembededgvcp.get_active()   
+	self.d.sideembededgvcp = self.w.sideembededgvcp.get_active()
+
+def on_gui_select_axis_toggled(self,*args):
+	a= self.w.gui_select_axis.get_active()
+	self.w.gui_rdo_gladevcp.set_sensitive(a)
+	self.w.gui_rdo_pyvcp.set_sensitive(a)
+	self.w.gui_rdo_nogui.set_sensitive(a)
+
+def on_gui_select_gmoccapy_toggled(self,*args):
+	c= self.w.gui_select_gmoccapy.get_active()
 
 def on_gui_rdo_gladevcp_toggled(self,*args):
 	g= self.w.gui_rdo_gladevcp.get_active()
