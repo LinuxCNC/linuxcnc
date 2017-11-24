@@ -35,3 +35,4 @@ from qtvcp.plugins.overlayplugin import FocusOverlayPlugin
 from qtvcp.plugins.gstat_slider_plugin import GstatSliderPlugin
 from qtvcp.plugins.screenoptionsplugin import LcncScreenOptionsPlugin
 from qtvcp.plugins.jogincrementsplugin import JogIncrementsPlugin
+from qtvcp.plugins.camviewplugin import CamViewPlugin
