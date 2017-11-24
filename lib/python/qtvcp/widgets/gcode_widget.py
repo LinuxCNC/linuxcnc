@@ -257,14 +257,20 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
             GSTAT.connect('mode-mdi', self.load_mdi)
             GSTAT.connect('reload-mdi-history', self.load_mdi)
             GSTAT.connect('mode-auto', self.reload_last)
+            GSTAT.connect('move-text-lineup', self.select_lineup)
+            GSTAT.connect('move-text-linedown', self.select_linedown)
         GSTAT.connect('file-loaded', self.load_program)
         GSTAT.connect('line-changed', self.highlight_line)
         if self.idle_line_reset:
             GSTAT.connect('interp_idle', lambda w: self.set_line_number(None, 0))
 
-    def load_program(self, w, filename):
-        self._last_filename = filename
+    def load_program(self, w, filename = None):
+        if filename is None:
+            filename =  self._last_filename
+        else:
+            self._last_filename = filename
         self.load_text(filename)
+        #self.zoomTo(6)
         self.setCursorPosition(0,0)
 
     # when switching from MDI to AUTO we need to reload the
@@ -276,8 +282,10 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
     # With the auto_show__mdi option, MDI history is shown
     def load_mdi(self,w):
         self.load_text(INI.MDI_HISTORY_PATH)
-        self.zoomIn()
-        print 'total length',self.lines()
+        self._last_filename = INI.MDI_HISTORY_PATH
+        #print 'font point size', self.font().pointSize()
+        #self.zoomTo(10)
+        #print 'font point size', self.font().pointSize()
         self.setCursorPosition(self.lines(),0)
 
     def load_text(self, filename):
@@ -291,10 +299,14 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         self.setText(open(fp).read())
         self.last_line = None
         self.ensureCursorVisible()
+        self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
 
     def highlight_line(self, w, line):
-        print 'hilight'
-        if GSTAT.is_auto_mode():
+        if GSTAT.is_auto_running():
+            if not GSTAT.old['file']  == self._last_filename:
+                print 'should reload the display'
+                self.load_text(GSTAT.old['file'])
+        if 1==1:
             self.markerAdd(line, self.ARROW_MARKER_NUM)
             if self.last_line:
                 self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
@@ -310,8 +322,20 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         print 'line changed',GSTAT.is_auto_mode()
         self.line_text = str(self.text(line)).strip()
         self.line = line
-        if GSTAT.is_auto_mode() == False:
-            GSTAT.emit('mdi-line-selected',self.line_text)
+        if GSTAT.is_auto_running() == False:
+            GSTAT.emit('mdi-line-selected',self.line_text, self._last_filename)
+
+    def select_lineup(self,w):
+        line,col = self.getCursorPosition()
+        print line
+        self.setCursorPosition(line-1,0)
+        self.highlight_line(None,line-1)
+
+    def select_linedown(self,w):
+        line, col = self.getCursorPosition()
+        print line
+        self.setCursorPosition(line+1,0)
+        self.highlight_line(None,line+1)
 
     # designer recognized getter/setters
     # auto_show_mdi status
