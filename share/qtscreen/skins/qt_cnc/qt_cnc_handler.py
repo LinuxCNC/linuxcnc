@@ -6,6 +6,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import Lcnc_OriginOffsetDialog as OFFVIEW_DIALOG
+from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
 from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
@@ -76,12 +77,15 @@ class HandlerClass:
 
         self.d = OFFVIEW_DIALOG()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
+        self.CV = CAMVIEW()
+        KEYBIND.add_call('Key_F4','on_keycall_F4')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2):
+        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4):
             if isinstance(receiver, OFFVIEW_WIDGET) or isinstance(receiver, MDI_WIDGET):
                 if is_pressed:
                     receiver.keyPressEvent(event)
@@ -131,7 +135,9 @@ class HandlerClass:
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
             self.d.load_dialog()
-
+    def on_keycall_F4(self,event,state,shift,cntrl):
+        if state:
+            self.CV.load_dialog()
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:
             self.w.jog_pos_x.pressed.emit()

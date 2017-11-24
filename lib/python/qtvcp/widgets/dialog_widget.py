@@ -20,6 +20,7 @@ from PyQt4.QtGui import QMessageBox, QFileDialog, QColor, QDesktopWidget, \
 from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
 from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
+from qtvcp.widgets.camview_widget import CamView
 from qtvcp.qt_glib import GStat, Lcnc_Action
 
 # Instiniate the libraries with global reference
@@ -273,6 +274,41 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
 
     def _hal_init(self):
             GSTAT.connect('load-file-request', lambda w: self.load_dialog())
+
+################################################################################
+# CamView Dialog
+################################################################################
+class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(Lcnc_CamViewDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags( self.windowFlags() |Qt.Tool |
+                  Qt.Dialog |
+                 Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
+        self.setMinimumSize(800,500)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        b = buttonBox.button(QDialogButtonBox.Ok)
+        b.clicked.connect(lambda:self.close())
+        l = QVBoxLayout()
+        o = CamView()
+        o._hal_init()
+        self.setLayout(l)
+        l.addWidget(o)
+        l.addWidget(buttonBox)
+
+    def _hal_init(self):
+        pass
+
+    def load_dialog(self):
+        GSTAT.emit('focus-overlay-changed',True,'Cam View Dialog',self._color)
+        self.show()
+        self.exec_()
+        GSTAT.emit('focus-overlay-changed',False,None,None)
+
+    def _hal_init(self):
+            pass
 
 
 ################################

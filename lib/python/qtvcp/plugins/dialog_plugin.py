@@ -2,7 +2,8 @@
 
 from PyQt4.QtGui import QIcon, QPixmap
 from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.dialog_widget import Lcnc_Dialog, Lcnc_ToolDialog, Lcnc_FileDialog
+from qtvcp.widgets.dialog_widget import Lcnc_Dialog, Lcnc_ToolDialog,\
+     Lcnc_FileDialog, Lcnc_CamViewDialog
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 class DialogPlugin(QPyDesignerCustomWidgetPlugin):
@@ -28,7 +29,7 @@ class DialogPlugin(QPyDesignerCustomWidgetPlugin):
         return "Lcnc_Dialog"
 
     def group(self):
-        return "Linuxcnc - Controller"
+        return "Linuxcnc - Dialogs"
 
     def icon(self):
         return QIcon(QPixmap(ICON.get_path('lcnc_dialog')))
@@ -77,7 +78,7 @@ class ToolDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return "Lcnc_ToolDialog"
 
     def group(self):
-        return "Linuxcnc - HAL"
+        return "Linuxcnc - Dialogs"
 
     def icon(self):
         return QIcon(QPixmap(ICON.get_path('lcnc_tooldialog')))
@@ -126,7 +127,7 @@ class FileDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return "Lcnc_FileDialog"
 
     def group(self):
-        return "Linuxcnc - HAL"
+        return "Linuxcnc - Dialogs"
 
     def icon(self):
         return QIcon(QPixmap(ICON.get_path('lcnc_filedialog')))
@@ -145,6 +146,55 @@ class FileDialogPlugin(QPyDesignerCustomWidgetPlugin):
     # plugin will be configured using this description.
     def domXml(self):
         return '<widget class="Lcnc_FileDialog" name="lcnc_filedialog" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.dialog_widget"
+
+###############################################################################
+# File Dialog
+###############################################################################
+class CamViewDialogPlugin(QPyDesignerCustomWidgetPlugin):
+
+    def __init__(self, parent=None):
+        super(CamViewDialogPlugin, self).__init__(parent)
+
+        self.initialized = False
+
+    def initialize(self, core):
+        if self.initialized:
+            return
+
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return Lcnc_CamViewDialog(parent)
+
+    def name(self):
+        return "Lcnc_CamViewDialog"
+
+    def group(self):
+        return "Linuxcnc - Dialogs"
+
+    def icon(self):
+        return QIcon(QPixmap(ICON.get_path('lcnc_camviewdialog')))
+
+    def toolTip(self):
+        return "Cam View Widget"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return False
+
+    # Returns an XML description of a custom widget instance that describes
+    # default values for its properties. Each custom widget created by this
+    # plugin will be configured using this description.
+    def domXml(self):
+        return '<widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
