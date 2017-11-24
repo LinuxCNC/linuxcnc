@@ -15,6 +15,7 @@
 
 import os
 from PyQt4.QtGui import QLineEdit
+from PyQt4.QtCore import Qt, QEvent
 from qtvcp.qt_glib import GStat, Lcnc_Action
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.qt_istat import IStat
@@ -42,7 +43,8 @@ class Lcnc_MDILine(QLineEdit):
         self.returnPressed.connect(self.submit)
 
     def submit(self):
-        text = self.text()
+        text = str(self.text()).strip()
+        if text == '':return
         if text == 'HALMETER':
             AUX_PRGM.load_halmeter()
         elif text == 'STATUS':
@@ -65,11 +67,26 @@ class Lcnc_MDILine(QLineEdit):
             except:
                 pass
             GSTAT.emit('reload-mdi-history')
-        #self.selectAll()
 
     # Gcode widget can emit a signal to this
-    def external_line_selected(self, w, text):
-        self.setText(text)
+    def external_line_selected(self, w, text, filename):
+        print text, filename
+        if filename == INI.MDI_HISTORY_PATH:
+            self.setText(text)
+
+    def event(self, event):
+        #if event.type() == QEvent.FocusIn:
+        #    GSTAT.emit('reload-mdi-history')
+        return super(Lcnc_MDILine,self).event(event)
+
+    def keyPressEvent(self, event):
+        super(Lcnc_MDILine, self).keyPressEvent(event)
+        if event.key() == Qt.Key_Up:
+            print 'up'
+            GSTAT.emit('move-text-lineup')
+        if event.key() == Qt.Key_Down:
+            print 'down'
+            GSTAT.emit('move-text-linedown')
 
 # for testing without editor:
 def main():
