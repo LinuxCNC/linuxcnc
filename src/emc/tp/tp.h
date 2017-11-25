@@ -34,7 +34,7 @@ int tpSetPos(TP_STRUCT * const tp, EmcPose const * const pos);
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp);
 int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos);
 int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double
-        ini_maxvel, double acc, unsigned char enables);
+        ini_maxvel, double acc, unsigned char enables, double scale);
 int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
                      ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary);
 int tpAddCircle(TP_STRUCT * const tp, EmcPose end, PmCartesian center,

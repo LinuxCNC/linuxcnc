@@ -999,7 +999,7 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EmcPose pos;
-    double vel, ini_maxvel, acc;
+    double vel, ini_maxvel, acc, scale;
 };
 
 // EMC_TRAJ status base class

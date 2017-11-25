@@ -427,7 +427,7 @@ extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(EmcPose pos, int type, double vel, 
                         double ini_maxvel, double acc, unsigned char probe_type);
 extern int emcAuxInputWait(int index, int input_type, int wait_type, int timeout);
-extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc);
+extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc, double mult);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 

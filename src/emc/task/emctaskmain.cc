@@ -1901,7 +1901,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
 	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
         	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
-		((EMC_TRAJ_RIGID_TAP *) cmd)->acc);
+		((EMC_TRAJ_RIGID_TAP *) cmd)->acc,
+		((EMC_TRAJ_RIGID_TAP *) cmd)->scale);
 	break;
 
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:

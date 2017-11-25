@@ -104,6 +104,7 @@ typedef struct {
     PmCartesian abc;
     PmCartesian uvw;
     double reversal_target;
+    double reversal_scale;
     double spindlerevs_at_reversal;
     RIGIDTAP_STATE state;
 } PmRigidTap;

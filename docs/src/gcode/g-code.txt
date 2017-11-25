@@ -1004,9 +1004,10 @@ It is an error if:
 (((G33.1 Rigid Tapping)))
 
 ----------------
-G33.1 X- Y- Z- K-
+G33.1 X- Y- Z- K- I-
 ----------------
 * 'K' - distance per revolution
+* 'I' - optional spindle speed multiplier for faster return move
 
 For rigid tapping (spindle synchronized motion with return),
 code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved

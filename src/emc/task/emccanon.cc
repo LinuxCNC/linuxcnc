@@ -1013,7 +1013,7 @@ void STRAIGHT_FEED(int line_number,
 }
 
 
-void RIGID_TAP(int line_number, double x, double y, double z)
+void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 {
     double ini_maxvel,acc;
     EMC_TRAJ_RIGID_TAP rigidTapMsg;
@@ -1039,7 +1039,7 @@ void RIGID_TAP(int line_number, double x, double y, double z)
     rigidTapMsg.vel = toExtVel(ini_maxvel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
-
+    rigidTapMsg.scale = scale;
     flush_segments();
 
     if(ini_maxvel && acc)  {
