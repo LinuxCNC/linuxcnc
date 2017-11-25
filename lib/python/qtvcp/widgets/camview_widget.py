@@ -3,8 +3,10 @@ from PyQt4 import QtGui, QtCore
 import cv2
 
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
-from qtvcp.qt_glib import GStat
-GSTAT = GStat()
+# This avoids segfault when testing directly in python
+if __name__ != '__main__':
+    from qtvcp.qt_glib import GStat
+    GSTAT = GStat()
 
 class CamView(QtGui.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -26,8 +28,8 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         GSTAT.connect('periodic', self.nextFrameSlot)
 
     ##################################
-    # no button svrool = circle dismater
-    # left button wheel = zoom
+    # no button scroll = circle dismater
+    # left button scroll = zoom
     # right button scroll = cross hair rotation
     ##################################
     def wheelEvent(self, event):
@@ -57,6 +59,7 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         if self.scale > 5: self.scale = 5
 
     def nextFrameSlot(self,w):
+        if not self.isVisible(): return
         # don't update at the full 100ms rate
         self.count +=1
         if self.count <30:return
@@ -66,6 +69,7 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         # capture a freme from cam
         ############################
         ret, frame = self.cap.read()
+        if not ret: return
         #print 'before',frame.shape
         (oh, ow) = frame.shape[:2]
         #print oh,ow
@@ -152,8 +156,6 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
 
 if __name__ == '__main__':
 
-    # must comment out instination of Gstst above
-    # for direct testing else seg fault
     import sys
     app = QtGui.QApplication(sys.argv)
     capture = CamView()
