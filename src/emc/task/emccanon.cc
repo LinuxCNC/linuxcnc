@@ -1973,6 +1973,10 @@ static bool limitSpindleSpeed(double rpm)
 static bool limitSpindleSpeedFromVel(double nominal_vel, double max_vel)
 {
     if (!synched || nominal_vel <= 0.0) {
+        canon_debug("No spindle speed limit required\n");
+        return false;
+    } else if (feed_mode) {
+        canon_debug("Skipping spindle speed limit due to velocity sync\n");
         return false;
     }
     const static double SPINDLE_SYNCH_MARGIN = 0.05;
