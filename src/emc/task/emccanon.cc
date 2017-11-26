@@ -497,7 +497,13 @@ enum FeedRateType
 static double getActiveFeedRate(FeedRateType angular)
 {
     double uuPerRev = feed_mode ? uuPerRev_vel : uuPerRev_pos;
-    double uu_per_sec = uuPerRev * spindleSpeed_rpm / 60.0;
+    // KLUDGE effective spindle speed depends on current state
+    // If CSS mode is active, then we need to assume the worst-case (maximum) spindle speed specified by the D word
+    // Otherwise, the nominal spindle speed is used
+
+    double planned_spindle_rpm = css_maximum > 0.0 ? css_maximum : spindleSpeed_rpm;
+
+    double uu_per_sec = uuPerRev * planned_spindle_rpm / 60.0;
 
     //KLUDGE relies on external state here
     if (!angular) {
@@ -945,6 +951,7 @@ static void flush_segments(void) {
     double ini_maxvel = linedata.vel;
 
     double vel = limitSpindleSpeedByActiveFeedRate(ini_maxvel);
+    canon_debug("Line segment maximum velocity %f, requested vel %f\n", ini_maxvel, vel);
 
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     linearMoveMsg.feed_mode = feed_mode;
@@ -1952,7 +1959,7 @@ static bool limitSpindleSpeed(double rpm)
     double limit_rpm = ceil(fabs(rpm));
     if (spindleSpeed_rpm <= limit_rpm) {
         // spindle speed within range, do nothing
-        canon_debug("Spindle speed %f is within max of %f", spindleSpeed_rpm, limit_rpm);
+        canon_debug("Spindle speed %f is within max of %f\n", spindleSpeed_rpm, limit_rpm);
         return false;
     }
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
