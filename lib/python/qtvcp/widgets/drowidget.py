@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# GladeVcp Widget - DRO label widget
+# qtVcp Widget - DRO label widget
 # This widgets displays linuxcnc axis position information.
 #
-# Copyright (c) 2012 Chris Morley
+# Copyright (c) 2017 Chris Morley
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,30 +15,23 @@
 # GNU General Public License for more details.
 
 import sys,os
-import math
-import linuxcnc
 from PyQt4 import QtCore, QtGui
-from qtvcp import qt_glib
-
+from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.qt_glib import GStat
+from qtvcp.qt_istat import IStat
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
-# we put this in a try so there is no error in the glade editor
-# linuxcnc is probably not running then 
-try:
-    INIPATH = os.environ['INI_FILE_NAME']
-except:
-    pass
+# Instantiate the libraries with global reference
+# INI holds ini details
+# GSTAT gives us status messages from linuxcnc
+GSTAT = GStat()
+INI = IStat()
 
-class Lcnc_DROLabel(QtGui.QLabel):
+class Lcnc_DROLabel(QtGui.QLabel, _HalWidgetBase):
     def __init__(self, parent = None):
         QtGui.QLabel.__init__(self,parent)
-        self.gstat = qt_glib.GStat()
-        self.emc = linuxcnc
-        self.display_units_mm=0
-        self.machine_units_mm=0
-        self.unit_convert=[1]*9
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0
@@ -46,39 +39,24 @@ class Lcnc_DROLabel(QtGui.QLabel):
         self.imperial_text_template = '%9.4f'
         self.setText('--------------')
 
-        try:
-            self.inifile = self.emc.ini(INIPATH)
-            # check the ini file if UNITS are set to mm"
-            # first check the global settings
-            units=self.inifile.find("TRAJ","LINEAR_UNITS")
-            if units==None:
-                # else then the X axis units
-                units=self.inifile.find("AXIS_0","UNITS")
-        except:
-            units = "inch"
-        # set up the conversion arrays based on what units we discovered
-        if units=="mm" or units=="metric" or units == "1.0":
-            self.machine_units_mm=1
-            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
-        else:
-            self.machine_units_mm=0
-            conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.set_machine_units(self.machine_units_mm,conversion)
+    def _hal_init(self):
         # get position update from gstat every 100 ms
-        self.gstat.connect('current-position',self.update)
-        self.gstat.connect('metric-mode-changed',self._switch_units)
+        GSTAT.connect('current-position',self.update)
+        GSTAT.connect('metric-mode-changed',self._switch_units)
+        GSTAT.connect('diameter-mode', self._switch_modes)
 
     def update(self,widget,absolute,relative,dtg):
-        if self.display_units_mm != self.machine_units_mm:
-            absolute = self.convert_units(absolute)
-            relative = self.convert_units(relative)
-            dtg = self.convert_units(dtg)
+        if self.display_units_mm != INI.MACHINE_IS_METRIC:
+            absolute = INI.convert_units_9(absolute)
+            relative = INI.convert_units_9(relative)
+            dtg = INI.convert_units_9(dtg)
 
         if self.display_units_mm:
             tmpl = lambda s: self.mm_text_template % s
         else:
             tmpl = lambda s: self.imperial_text_template % s
-        if self.diameter:
+        # only joint 0 (X) can use diameter mode
+        if self.diameter and self.joint_number == 0:
             scale = 2.0
         else:
             scale = 1
@@ -93,19 +71,11 @@ class Lcnc_DROLabel(QtGui.QLabel):
             pass
         return True
 
-    def set_machine_units(self,u,c):
-        self.machine_units_mm = u
-        self.unit_convert = c
-
-    def convert_units(self,v):
-        c = self.unit_convert
-        return map(lambda x,y: x*y, v, c)
-
     def _switch_units(self, widget, data):
-        if data:
-            self.set_to_mm()
-        else:
-            self.set_to_inch()
+        self.display_units_mm = data
+
+    def _switch_modes(self,w,mode):
+        self.diameter = mode
 
     def set_to_inch(self):
         self.display_units_mm = 0
