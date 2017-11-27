@@ -15,6 +15,8 @@ class IStat():
         self.inifile = linuxcnc.ini(INIPATH)
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
         self.PREFERENCE_PATH = '~/.Preferences'
+        self.SUB_PATH = None
+
         self.MACHINE_IS_LATHE = False
         self.MACHINE_IS_METRIC = False
         self.MACHINE_UNIT_CONVERSION = 1
@@ -38,6 +40,7 @@ class IStat():
     def update(self):
         self.MDI_HISTORY_PATH = self.inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.PREFERENCE_PATH = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH") or None
+        self.SUB_PATH = (self.inifile.find("RS274NGC", "SUBROUTINE_PATH")) or None
         self.MACHINE_IS_LATHE = bool(self.inifile.find("DISPLAY", "LATHE"))
 
         try:

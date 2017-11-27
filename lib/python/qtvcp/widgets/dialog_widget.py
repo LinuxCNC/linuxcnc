@@ -21,13 +21,14 @@ from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
 from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
+from qtvcp.widgets.macro_widget import macroTab
 from qtvcp.qt_glib import GStat, Lcnc_Action
 
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
-# Instiniate the libraries with global reference
+# Instantiate the libraries with global reference
 # GSTAT gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
 GSTAT = GStat()
@@ -291,7 +292,7 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
                   Qt.Dialog |
                  Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
-        self.setMinimumSize(800,500)
+        self.setMinimumSize(700,400)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         b = buttonBox.button(QDialogButtonBox.Ok)
         b.clicked.connect(lambda:self.close())
@@ -314,6 +315,55 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
     def _hal_init(self):
             pass
 
+################################################################################
+# macroTab Dialog
+################################################################################
+class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(Lcnc_MacroTabDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags( self.windowFlags() |Qt.Tool |
+                  Qt.Dialog |
+                 Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
+        self.setMinimumSize(600,400)
+        self.resize(600, 400)
+        # patch class to call our button methods rather then the
+        # original methods (Gotta do before instantiation)
+        macroTab.cancelChecked = self._cancel
+        macroTab.okChecked = self._ok
+        # ok now instantiate patched class
+        self.tab = macroTab()
+        l = QVBoxLayout()
+        self.setLayout(l)
+        l.addWidget(self.tab)
+
+    def _hal_init(self):
+        # gotta call this since we instantiated this out of qtvcp's knowledge
+        self.tab._hal_init()
+
+    # This method is called instead of MacroTab's cancelChecked method
+    # we do this so we can use it's buttons to hide our dialog
+    # rather then close the macroTab widget
+    def _cancel(self):
+        self.close()
+
+    # This method is called instead of MacroTab's okChecked() method
+    # we do this so we can use it's buttons to hide our dialog
+    # rather then close the macroTab widget
+    def _ok(self):
+        self.tab.runMacro()
+        self.close()
+
+    def load_dialog(self):
+        GSTAT.emit('focus-overlay-changed',True,'Lathe Macro Dialog',self._color)
+        self.show()
+        self.exec_()
+        GSTAT.emit('focus-overlay-changed',False,None,None)
+
+    def _hal_init(self):
+            pass
 
 ################################
 # for testing without editor:
