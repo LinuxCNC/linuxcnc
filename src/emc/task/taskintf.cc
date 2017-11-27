@@ -1414,9 +1414,9 @@ int emcSpindleOn(double speed, double css_factor, double offset)
 {
 
     emcmotCommand.command = EMCMOT_SPINDLE_ON;
-    emcmotCommand.vel = speed;
-    emcmotCommand.ini_maxvel = css_factor;
-    emcmotCommand.acc = offset;
+    emcmotCommand.spindle_speed = speed;
+    emcmotCommand.css_factor = css_factor;
+    emcmotCommand.css_xoffset = offset;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
