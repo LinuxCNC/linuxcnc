@@ -8,6 +8,11 @@ from qtvcp.qt_istat import IStat
 GSTAT = GStat()
 INI = IStat()
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+
 class Lcnc_JogIncrements(QtGui.QComboBox, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_JogIncrements, self).__init__(parent)
@@ -20,11 +25,11 @@ class Lcnc_JogIncrements(QtGui.QComboBox, _HalWidgetBase):
 
     def selectionchange(self, i):
         text = str(self.currentText())
-        print "Current index",i,"selection changed ",text
+        log.debug("Current index: {}, selection changed {}".format(i, text))
         try:
             inc = self.parse_increment(text)
-        except  Exception, e:
-            #print e
+        except  Exception as e:
+            log.debug('Exception parsing increment', exc_info=e)
             inc = 0
         GSTAT.set_jog_increments(inc, text)
 
