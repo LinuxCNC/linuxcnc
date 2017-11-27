@@ -4444,9 +4444,12 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33.1"));
     START_SPEED_FEED_SYNCH(block->k_number, 0);
-    float scale = block->i_number;
-    if(scale < 1){
-        scale = 1;
+    float scale = 1;
+    if(block->i_flag){
+        scale = block->i_number;
+        if(scale < 1){
+            scale = 1;
+        }
     }
     RIGID_TAP(block->line_number, end_x, end_y, end_z, scale);
     STOP_SPEED_FEED_SYNCH();
