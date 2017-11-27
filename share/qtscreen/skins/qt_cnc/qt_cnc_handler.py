@@ -7,6 +7,7 @@ from PyQt4 import QtGui
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import Lcnc_OriginOffsetDialog as OFFVIEW_DIALOG
 from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
+from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
@@ -79,6 +80,8 @@ class HandlerClass:
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         self.CV = CAMVIEW()
         KEYBIND.add_call('Key_F4','on_keycall_F4')
+        self.LM = LATHEMACRO()
+        KEYBIND.add_call('Key_F5','on_keycall_F5')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -138,6 +141,10 @@ class HandlerClass:
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
             self.CV.load_dialog()
+    def on_keycall_F5(self,event,state,shift,cntrl):
+        if state:
+            print 'macro'
+            self.LM.load_dialog()
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:
             self.w.jog_pos_x.pressed.emit()
