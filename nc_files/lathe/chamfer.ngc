@@ -1,0 +1,87 @@
+; MACROCOMMAND=Chanfer X,SFM,DOC,Tool Number,Chamfer size,Front Inside,Front Outside,Back Outside
+; MACRODEFAULTS=1,300,.5,.1,.015,true,false,false
+; MACROSVG=LatheMacro.svg,4
+; O<chamfer>call [${chamfer.x-f}] [${chamfer.sf-f}] [0.5] [${chamfer.z-f}] [${chamfer.tool-s}] [${chamfer.size-f}]  [${chamfer.fo}] [${chamfer.fi}] [${chamfer.bo}]
+
+; #1 chamfer x
+; #2 surface speed *
+; #3 .5
+; #4 chanmfer z
+; #6 Tool number *
+; #7 chamfer size
+; #8 front outside switch *
+; #9 front inside switch *
+; #10 back outside swicth *
+O<chamfer> sub
+
+G8 ; Lathe radius Mode
+G18 ; XZ Plane
+;G21 ; Metric Units
+G90 ; Absolute Distance
+
+
+M6 T#6 G43
+
+(MSG, Press Cycle Start To Start Chamfer Macro)
+m0
+
+#1 = [#1 / 2] ; because of radius mode
+
+#14 = [#<_x>] (starting X)
+#13 = [#<_z>] (starting Z)
+
+G96 D2500 S#2 ; Constant Surface Speed Mode
+M3
+g95 F0.1 ; Feed-Per-Rev Mode
+
+#20 = 0
+O101 if [#8 GT 0.5] ; front outside
+	o100 while [[#20 + #3] lt #7]
+	#20 = [#20 + #3]
+	g0 x[#1 - #20] z#13
+	g1 z#4
+	g1 x#1 z[#4 - #20]
+	g1 x #14
+	g0 z#13
+	o100 endwhile
+	g0 x#14 z#13
+	g0 x[#1 - #7]
+	g1 z#4
+	g1 x#1 z[#4 - #7]
+	g1 x #14
+	g0 z#13
+O101 elseif [#9 GT 0.5] ; front inside
+	o102 while [[#20 + #3] lt #7]
+	#20 = [#20 + #3]
+	g0 x[#1 + #20] z#13
+	g1 z#4
+	g1 x#1 z[#4 - #20]
+	g1 x #14
+	g0 z#13
+	o102 endwhile
+	g0 x#14 z#13
+	g0 x[#1 + #7]
+	g1 z#4
+	g1 x#1 z[#4 - #7]
+	g1 x #14
+	g0 z#13
+O101 elseif [#10 GT 0.5] ; back outside
+	o103 while [[#20 + #3] lt #7]
+	#20 = [#20 + #3]
+	g0 x[#1 - #20] z#13
+	g1 z#4
+	g1 x#1 z[#4 + #20]
+	g1 x #14
+	g0 z#13
+	o103 endwhile
+	g0 x#14 z#13
+	g0 x[#1 - #7]
+	g1 z#4
+	g1 x#1 z[#4 + #7]
+	g1 x #14
+	g0 z#13
+O101 endif
+G7
+O<chamfer> endsub
+m2
+%
