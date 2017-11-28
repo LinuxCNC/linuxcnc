@@ -133,8 +133,9 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             GSTAT.connect('interp-idle', lambda w: self.setEnabled(test()))
             GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
             GSTAT.connect('all-homed', lambda w: self.setEnabled(True))
+            GSTAT.connect('interp-paused', lambda w: self.setEnabled(True))
 
-        elif self.abort or self.abort or self.pause:
+        elif self.abort or self.pause:
             self.setEnabled(False)
             GSTAT.connect('state-off', lambda w: self.setEnabled(False))
             GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
