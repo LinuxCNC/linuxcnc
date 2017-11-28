@@ -1,6 +1,6 @@
 ; MACROCOMMAND=Finish Diameter,SFM,DOC,FPR,Finish Length,Radius,Angle,Tool Number
 ; MACRODEFAULTS=1,500,.02,.007,-2,0,0,1
-; MACROSVG=LatheMacro.svg,0
+; MACROSVG=LatheMacro.svg,0,11
 ; O<turning> call [${turn.x-f}] [${turn.sf-f}] [${turn.cut-f}] [${turn.feed-f}] [${turn.z-f}] [${turn.rad-f}] [${turn.angle-f}] [${turn.tool-s}] 
 O<turning> sub
 
