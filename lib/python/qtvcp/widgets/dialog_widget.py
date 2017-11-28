@@ -338,8 +338,10 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         l = QVBoxLayout()
         self.setLayout(l)
         l.addWidget(self.tab)
+        self.tab._hal_init()
 
-    def _hal_init(self):
+    def __hal_init(self):
+        print'CALLED HERE'
         # gotta call this since we instantiated this out of qtvcp's knowledge
         self.tab._hal_init()
 
@@ -358,6 +360,7 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
 
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Lathe Macro Dialog',self._color)
+        self.tab.stack.setCurrentIndex(0)
         self.show()
         self.exec_()
         GSTAT.emit('focus-overlay-changed',False,None,None)

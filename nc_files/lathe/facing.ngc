@@ -1,6 +1,6 @@
 ; MACROCOMMAND=Face Diameter,SFM,DOC,FPR,Z Length,Angle,Tool Number
 ; MACRODEFAULTS=1,500,.02,.007,-2,0,1
-; MACROSVG=LatheMacro.svg,2
+; MACROSVG=LatheMacro.svg,2,10
 ; O<facing>call [${face.x-f}] [${face.sf-f}] [${face.cut-f}] [${face.feed-f}] [${face.z-f}] [${face.angle-s}] [${face.tool-s}] 
 
 ; #1 face diameter

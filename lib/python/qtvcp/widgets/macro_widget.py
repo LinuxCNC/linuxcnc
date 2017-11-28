@@ -1,5 +1,5 @@
 import os
-from PyQt4 import QtGui, QtSvg
+from PyQt4 import QtGui, QtCore, QtSvg
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_istat import IStat
 from qtvcp.qt_glib import GStat, Lcnc_Action
@@ -15,13 +15,44 @@ INI = IStat()
 GSTAT = GStat()
 ACTION = Lcnc_Action()
 
+###########################################
+# helper widget for SVG display on Button
+###########################################
+
+# We can add a svg image from a specific layer to QPushButton
+class CustomButton(QtGui.QPushButton):
+    def __init__(self, parent=None,path = None, layer = 0):
+        super(CustomButton, self).__init__(parent)
+        if path == None:
+            tpath = os.path.expanduser(INI.SUB_PATH)
+            path = os.path.join(tpath,'LatheMacro.svg')
+        self.r = QtSvg.QSvgRenderer(path)
+        self.basename = 'layer'
+        self.setLayerNumber(layer)
+
+    def setLayerNumber(self, num):
+        temp = '%s%d'% (self.basename, int(num))
+        if  self.r.elementExists(temp):
+            self.Num = int(num)
+            self.layer = temp
+        else:
+            self.Num = 0
+            self.layer = 'layer0'
+            log.error("MacrosTab SVG Button-No Layer Found: {}".format(temp))
+
+    def paintEvent(self, event):
+        super(CustomButton, self).paintEvent(event)
+        qp = QtGui.QPainter()
+        qp.begin(self)
+        self.r.render(qp, self.layer)
+        qp.end()
 
 ###################################
 # helper widget for SVG display
 ###################################
 
 # class to display certain layers of an svg file
-# intantiate it with layer number or
+# instantiate it with layer number or
 # set layer number after with setLayerNumbet(int)
 class Custom_SVG(QtSvg.QSvgWidget):
     def __init__(self, parent=None,layer = 0):
@@ -53,27 +84,63 @@ class Custom_SVG(QtSvg.QSvgWidget):
 # It then opens the .ngc files ther eand searches for keynames
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
-class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
+class macroTab(QtGui.QWidget, _HalWidgetBase ):
     def __init__(self, parent=None):
         super(macroTab, self).__init__(parent)
         tpath = os.path.expanduser(INI.SUB_PATH)
         self.filepath = os.path.join(tpath,'')
-        self.buildTabs()
+        self.stack = QtGui.QStackedWidget()
 
-    def buildTabs(self):
+        # add some buttons to run,cancel and menu
+        hbox = QtGui.QHBoxLayout()
+        self.okButton = QtGui.QPushButton("OK")
+        self.okButton.pressed.connect(self.okChecked)
+        cancelButton = QtGui.QPushButton("Cancel")
+        cancelButton.pressed.connect(self.cancelChecked)
+        menuButton = QtGui.QPushButton("Menu")
+        menuButton.pressed.connect(self.menuChecked)
+        hbox.addWidget(self.okButton)
+        hbox.addWidget(cancelButton)
+        hbox.insertSpacing(1,20)
+        hbox.addWidget(menuButton)
+        hbox.addStretch(0)
+        vbox = QtGui.QVBoxLayout()
+        vbox.addWidget(self.stack)
+        vbox.addStretch(1)
+        vbox.addLayout(hbox)
+        # add all that stuff above to me
+        self.setLayout(vbox)
+        # add everything else
+        self.buildStack()
+
+
+    def _hal_init(self):
+        self.okButton.setEnabled(False)
+        GSTAT.connect('not-all-homed', lambda w, axis: self.okButton.setEnabled(False))
+        GSTAT.connect('all-homed', lambda w: self.okButton.setEnabled(True))
+
+    # Build a stack per macro found
+    # it finds the icon info from the macro file
+    # using the magic comments parsed before this
+    # first find macros
+    # then build a menu page
+    # then build the stack
+    # anything goes wrong display an eror page
+    def buildStack(self):
         tabName = self._findMacros()
         log.debug("Macros Found: {}".format(tabName))
         if tabName == None:
             self._buildErrorTab()
             return
+        self._buildMenuPage(tabName)
         # Add pages
         # tabname is a list of found macros
         # these macro names are also used as the base name
         # of a list of required inputs.
-        # we add a label and lineedit for each string in each
+        # we add a label and lineedit/radiobutton for each string in each
         # of these arrays
         for i, tName in enumerate(tabName):
-            # make a widget that is added to a tab to hold
+            # make a widget that is added to the stack
             w = QtGui.QWidget()
             hbox = QtGui.QHBoxLayout(w)
             hbox.addStretch(1)
@@ -93,49 +160,68 @@ class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
                 vbox.addWidget(self['%s%d'%(tName,n)])
             #add the SVG pic layer
             svg_info = self[tName][1]
-            #print self.filepath+svg_info[0]
+            #print self.filepath+svg_info[0], svg_info[1]
             svgpath = os.path.join(self.filepath,svg_info[0])
             self['sw%d'%i] = Custom_SVG(svgpath,  int(svg_info[1]))
             hbox.addWidget(self['sw%d'%i])
             vbox.addStretch(1)
             hbox.addLayout(vbox)
-            # add the widget to the tab with a nice title
-            self.addTab(w,tName.lower().title())
-        # add some buttons to run or cancel
-        hbox = QtGui.QHBoxLayout()
-        self.okButton = QtGui.QPushButton("OK")
-        self.okButton.pressed.connect(self.okChecked)
-        cancelButton = QtGui.QPushButton("Cancel")
-        cancelButton.pressed.connect(self.cancelChecked)
-        hbox.addWidget(self.okButton)
-        hbox.addWidget(cancelButton)
-        hbox.addStretch(0)
+            # add the widget to the stack
+            self.stack.addWidget(w)
+
+    # Menu page has icon buttons to select the macro
+    # it finds the icon info from the macro file
+    # using the magic comments parsed before this
+    def _buildMenuPage(self, tabNames):
+        col = row = 0
+        w = QtGui.QWidget()
+        hbox = QtGui.QHBoxLayout(w)
         vbox = QtGui.QVBoxLayout()
+        grid = QtGui.QGridLayout()
+        grid.setSpacing(10)
+        # we grid them in columns of (arbritrarily) 5
+        # hopefully we don;t have too many macros...
+        for i, tName in enumerate(tabNames):
+            svg_name = self[tName][1][0]
+            try:
+                svg_num = self[tName][1][2]
+            except:
+                svg_num = self[tName][1][1]
+            svgpath = os.path.join(self.filepath, svg_name)
+            # label is the only way i hav efound to make the buttons
+            # larger - the label is under the pic - if no erross
+            btn = CustomButton('Oops\n',path=svgpath, layer= svg_num)
+            btn.clicked.connect(self.menuButtonPress(i))
+            btn.setSizePolicy(QtGui.QSizePolicy.Preferred,
+                    QtGui.QSizePolicy.Expanding)
+            grid.addWidget(btn,row,col,1,1)
+            row+=1
+            if row >4:
+                row = 0
+                col +=1
+        vbox.addLayout(grid)
         vbox.addStretch(1)
-        vbox.addLayout(hbox)
-        self.setLayout(vbox)
+        hbox.addLayout(vbox)
+        hbox.addStretch(1)
+        # add the widget to our stack
+        self.stack.addWidget(w)
 
     # make something so the user may have some small clue.
     # probably should do more - subroutines/macros are not user friendly
     def _buildErrorTab(self):
         w = QtGui.QWidget()
         vbox = QtGui.QVBoxLayout(w)
-        vbox.addStretch(0)
+        vbox.addStretch(1)
         mess = QtGui.QLabel('No Usable Macros Found In:')
         vbox.addWidget(mess)
         mess = QtGui.QLabel(self.filepath)
         vbox.addWidget(mess)
-        cancelButton = QtGui.QPushButton("Cancel")
-        cancelButton.pressed.connect(self.cancelChecked)
-        vbox.addWidget(cancelButton)
-        # add the widget to the tab with a nice title
-        self.addTab(w,'Error')
-        self.setLayout(vbox)
+        # add the widget to the stack
+        self.stack.addWidget(w)
 
-    def _hal_init(self):
-        self.okButton.setEnabled(False)
-        GSTAT.connect('not-all-homed', lambda w, axis: self.okButton.setEnabled(False))
-        GSTAT.connect('all-homed', lambda w: self.okButton.setEnabled(True))
+    # search for special macros that have the magic comments
+    # compiles them into a complicated list
+    # [ [MACRO NAME1, DEFAULT DATA1], [MACRO2,DATA2,[etc,etc]],[SVG FILE,LAYER,ICON LAYER]]
 
     def _findMacros(self):
         path = self.filepath
@@ -143,7 +229,6 @@ class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
         macros = []
         defaults = []
         svg_data = []
-        #print 'lathe m path',path
         try:
             # look for NGC macros in path
             for f in os.listdir(path):
@@ -155,14 +240,15 @@ class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
                         first_line = temp.readline().strip()
                         second_line = temp.readline().strip()
                         third_line = temp.readline().strip()
-                        # print first_line
+                        # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
                         'MACRODEFAULT' in second_line and \
                         'MACROSVG' in third_line:
                             name = os.path.splitext(f)[0]
-                            macros = first_line.strip('; MACROCOMMAND=')
-                            defaults = second_line.strip('; MACRODEFAULTS=')
-                            svg_data = third_line.strip('; MACROSVG=')
+                            # yes, now keep everything after '='
+                            macros = first_line.split('=')[1]
+                            defaults = second_line.split('=')[1]
+                            svg_data = third_line.split('=')[1]
                             # we use a comma to break up titles
                             m = macros.split(',')
                             d = defaults.split(',')
@@ -181,7 +267,8 @@ class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
                             #print'group:',name, self[name]
                             # make a list of pages, which is also the macro program name
                             tName.append(name)
-        except:
+        except Exception as e:
+            log.debug('Exception loading Macros:', exc_info=e)
             return None
         return tName
 
@@ -190,7 +277,8 @@ class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
     # then sends it to the controller
     def runMacro(self):
         cmd=''
-        name = str(self.currentWidget().objectName())
+        name = str(self.stack.currentWidget().objectName())
+        if name == '':return
         macro = name
         #print 'macro', macro
         for num, i in enumerate(self[name][0]):
@@ -213,8 +301,24 @@ class macroTab(QtGui.QTabWidget, _HalWidgetBase ):
 
     # This could be 'class patched' to do something else
     def cancelChecked(self):
+        self.stack.setCurrentIndex(0)
         self.close()
 
+    # brings the menu selection page to the front
+    def menuChecked(self):
+        self.stack.setCurrentIndex(0)
+
+    # This weird code is just so we can get the index
+    # number from a menu button press
+    # using clicked.connect() apparently doesn't easily
+    # add user data 
+    def menuButtonPress(self,data):
+        def calluser():
+            self.stack.setCurrentIndex(data+1)
+        return calluser
+
+    # usual boiler code
+    # (used so we can use code such as self[SomeDataName]
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
