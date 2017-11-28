@@ -47,8 +47,9 @@ def getLogger(name):
 
 # Set global logging level
 def setGlobalLevel(level):
+    base_log = logging.getLogger(BASE_LOGGER_NAME)
     base_log.setLevel(level)
-    log.info('Base log level set to {}'.format(level))
+    base_log.info('Base log level set to {}'.format(level))
 
 
 # Initialize the base logger
