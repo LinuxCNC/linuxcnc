@@ -35,16 +35,20 @@ class OverlayWidget(QWidget):
         self.last = self.parent
         self.raise_()
 
+        # might be useful events to know
+        # 103 window blocked by modal dialog
+        # 99 activation changed
+        # 25 deactivated
+        # 24 activated
     def eventFilter(self, obj, event):
         #print event,'parent',self.parent
+        #print event,'Event Type',self.event.type()
         if obj == self.parent:
             #Catches resize and child events from the parent widget
             if event.type() == QEvent.Resize:
                 self.resize(QResizeEvent.size(event))
-                self.raise_()
             elif event.type() == QEvent.Move:
                 self.move(QMoveEvent.pos(event))
-                self.raise_()
             elif(event.type() == QEvent.ChildAdded):
                 #print 'CHILD',QChildEvent.child(event)
                 if not QChildEvent.child(event) is QDialog:
