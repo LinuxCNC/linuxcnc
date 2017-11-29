@@ -38,13 +38,15 @@ class Lcnc_Dialog(QMessageBox):
     def __init__(self, parent = None):
         QMessageBox.__init__(self,parent)
         self.setTextFormat(Qt.RichText)
-        self.setText('<b>Do you want to shutdown now?</b>')
+        self.setText('<b>Sample Text?</b>')
         self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.setIcon(QMessageBox.Critical)
-        self.setDetailedText('You can set a preference to not see this message')
+        self.setDetailedText('Sample Detail Text')
         self.OK_TYPE = 1
         self.YN_TYPE = 0
         self._state = False
+        self._color = QColor(0, 0, 0, 150)
+        self.focus_text ='Dialog'
         self.hide()
 
     def showdialog(self, message, more_info=None, details=None, display_type=1,
@@ -59,6 +61,7 @@ class Lcnc_Dialog(QMessageBox):
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
                  Qt.FramelessWindowHint | Qt.Dialog |
                  Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
+                 #Qt.X11BypassWindowManagerHint
         self.setIcon(icon)
         self.setText('<b>%s</b>'% message)
         if more_info:
@@ -72,8 +75,9 @@ class Lcnc_Dialog(QMessageBox):
         else:
             self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.buttonClicked.connect(self.msgbtn)
-
+        GSTAT.emit('focus-overlay-changed',True,self.focus_text,self._color)
         retval = self.exec_()
+        GSTAT.emit('focus-overlay-changed',False,None,None)
         log.debug("Value of pressed button: {}".format(retval))
         if retval == QMessageBox.No:
             return False
@@ -104,6 +108,15 @@ class Lcnc_Dialog(QMessageBox):
         return self._state
     def resetState(self):
         self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0,150)
+
+    color = pyqtProperty(QColor, getColor, setColor)
     state = pyqtProperty(bool, getState, setState, resetState)
 
 ################################################################################
@@ -115,7 +128,6 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
-        self._color = QColor(0, 0, 0, 150)
 
     # We want the tool change HAL pins the same as whats used in AXIS so it is
     # easier for users to connect to.
@@ -185,15 +197,7 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
     #**********************
     # Designer properties
     #**********************
-
-    def getColor(self):
-        return self._color
-    def setColor(self, value):
-        self._color = value
-    def resetState(self):
-        self._color = QColor(0, 0, 0,150)
-
-    color = pyqtProperty(QColor, getColor, setColor)
+    # inherited
 
 ################################################################################
 # File Open Dialog
@@ -205,11 +209,12 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
 
     def _hal_init(self):
-            GSTAT.connect('load-file-request', lambda w: self.load_dialog())
+        self.topParent = self.QTVCP_INSTANCE_
+        GSTAT.connect('load-file-request', lambda w: self.load_dialog())
 
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Open Gcode',self._color)
-        fname = QFileDialog.getOpenFileName(None, 'Open file',
+        fname = QFileDialog.getOpenFileName(self.topParent, 'Open file',
                 os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
         GSTAT.emit('focus-overlay-changed',False,None,None)
         if fname:
@@ -252,6 +257,7 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_OriginOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
+        self._state = False
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
@@ -280,6 +286,32 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
     def _hal_init(self):
             GSTAT.connect('load-file-request', lambda w: self.load_dialog())
 
+    #**********************
+    # Designer properties
+    #**********************
+
+    @pyqtSlot(bool)
+    def setState(self, value):
+        self._state = value
+        if value:
+            self.show()
+        else:
+            self.hide()
+    def getState(self):
+        return self._state
+    def resetState(self):
+        self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0,150)
+
+    state = pyqtProperty(bool, getState, setState, resetState)
+    color = pyqtProperty(QColor, getColor, setColor)
+
 ################################################################################
 # CamView Dialog
 ################################################################################
@@ -287,6 +319,7 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_CamViewDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
+        self._state = False
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
@@ -312,8 +345,31 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
         self.exec_()
         GSTAT.emit('focus-overlay-changed',False,None,None)
 
-    def _hal_init(self):
-            pass
+    #**********************
+    # Designer properties
+    #**********************
+
+    @pyqtSlot(bool)
+    def setState(self, value):
+        self._state = value
+        if value:
+            self.show()
+        else:
+            self.hide()
+    def getState(self):
+        return self._state
+    def resetState(self):
+        self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0,150)
+
+    state = pyqtProperty(bool, getState, setState, resetState)
+    color = pyqtProperty(QColor, getColor, setColor)
 
 ################################################################################
 # macroTab Dialog
@@ -322,6 +378,7 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_MacroTabDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
+        self._state = False
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
@@ -338,10 +395,8 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         l = QVBoxLayout()
         self.setLayout(l)
         l.addWidget(self.tab)
-        self.tab._hal_init()
 
-    def __hal_init(self):
-        print'CALLED HERE'
+    def _hal_init(self):
         # gotta call this since we instantiated this out of qtvcp's knowledge
         self.tab._hal_init()
 
@@ -361,12 +416,41 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Lathe Macro Dialog',self._color)
         self.tab.stack.setCurrentIndex(0)
+        #ph = self.parent().geometry().height()
+        #px = self.parent().geometry().x()
+        #py = self.parent().geometry().y()
+        #dw = self.width()
+        #dh = self.height()   
+        #self.setGeometry( px, py+ph-dh, dw, dh )
         self.show()
         self.exec_()
         GSTAT.emit('focus-overlay-changed',False,None,None)
 
-    def _hal_init(self):
-            pass
+    #**********************
+    # Designer properties
+    #**********************
+
+    @pyqtSlot(bool)
+    def setState(self, value):
+        self._state = value
+        if value:
+            self.show()
+        else:
+            self.hide()
+    def getState(self):
+        return self._state
+    def resetState(self):
+        self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0,150)
+
+    state = pyqtProperty(bool, getState, setState, resetState)
+    color = pyqtProperty(QColor, getColor, setColor)
 
 ################################
 # for testing without editor:

@@ -87,8 +87,11 @@ class Custom_SVG(QtSvg.QSvgWidget):
 class macroTab(QtGui.QWidget, _HalWidgetBase ):
     def __init__(self, parent=None):
         super(macroTab, self).__init__(parent)
-        tpath = os.path.expanduser(INI.SUB_PATH)
-        self.filepath = os.path.join(tpath,'')
+        try:
+            tpath = os.path.expanduser(INI.SUB_PATH)
+            self.filepath = os.path.join(tpath,'')
+        except:
+            self.filepath = None
         self.stack = QtGui.QStackedWidget()
 
         # add some buttons to run,cancel and menu
