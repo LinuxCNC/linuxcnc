@@ -64,6 +64,7 @@ class MyWindow(QtGui.QMainWindow):
         self.filename = filename
         self.halcomp = halcomp
         self.has_closing_handler = None
+        self.setFocus(True)
 
     def closeEvent(self, event):
         if self.has_closing_handler:
