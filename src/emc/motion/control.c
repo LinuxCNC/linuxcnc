@@ -1069,7 +1069,6 @@ static void get_pos_cmds(long period)
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
     double positions[EMCMOT_MAX_JOINTS];
-    double old_pos_cmd;
     double vel_lim;
 
     /* used in teleop mode to compute the max accell requested */
@@ -1253,11 +1252,8 @@ static void get_pos_cmds(long period)
 	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
-	    /* save old command */
-	    old_pos_cmd = joint->pos_cmd;
-	    /* interpolate to get new one */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
-	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+        /* interpolate to get new position and velocity */
+	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), 0, 0);
 	}
 	/* report motion status */
 	SET_MOTION_INPOS_FLAG(0);
@@ -1316,10 +1312,8 @@ static void get_pos_cmds(long period)
 		       that fail soft limits, but we'll abort at the end of
 		       this cycle so it doesn't really matter */
 		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-		old_pos_cmd = joint->pos_cmd;
-		/* interpolate to get new one */
-		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
-		joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+        /* interpolate to get new position and velocity */
+	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), 0, 0);
 	    }
 	}
 	else
