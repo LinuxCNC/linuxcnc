@@ -12,7 +12,7 @@
 if test -x /usr/bin/lsb_release; then
     DISTRO_ID=$(lsb_release -is)  # Debian or Ubuntu
     DISTRO_RELEASE=$(lsb_release -rs)   # 8.1, 14.04, etc.
-    DISTRO_CODENAME=$(lsb_release -cs) # wheezy | jessie | stretch
+    DISTRO_CODENAME=$(lsb_release -cs) # wheezy | jessie | stretch | buster
 fi
 
 # Work out of the debian/ directory
@@ -130,12 +130,15 @@ BUILD_DEPS=  # List of Build-Depends
 HAVE_FLAVOR=false
 
 # copy base templates into place
-## need python-gst0.10 for Jessie, none for Stretch
+## need python-gst0.10 for Jessie, none for Stretch, no python-gtksourceview2 for Buster
 if [ "$DISTRO_CODENAME" == "stretch" ]; then
     cp control.stretch.in control
+elif [ "$DISTRO_CODENAME" == "buster" ]; then
+    cp control.buster.in control   	
 else
     cp control.in control
 fi
+
 echo "debian/control:  copied base template" >&2
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2

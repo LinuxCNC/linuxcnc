@@ -238,7 +238,8 @@ binary-arch: build install
 
 	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
-	dh_shlibdeps -l debian/machinekit/usr/lib
+	#enable buster builds to work with problematic shlib deps in current packages
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit/usr/lib
 	dh_gencontrol
 	
 	dh_md5sums
