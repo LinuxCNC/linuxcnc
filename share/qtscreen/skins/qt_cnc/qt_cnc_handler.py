@@ -15,6 +15,10 @@ from qtvcp.lib.message import Message
 from qtvcp.lib.preferences import Access
 from qtvcp.qt_glib import GStat
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 import linuxcnc
 import sys
 import os
@@ -78,9 +82,10 @@ class HandlerClass:
 
         self.d = OFFVIEW_DIALOG()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
-        self.CV = CAMVIEW()
+#        self.CV = CAMVIEW()
         KEYBIND.add_call('Key_F4','on_keycall_F4')
-        self.LM = LATHEMACRO()
+ #       self.LM = LATHEMACRO()
+#        self.LM._hal_init()
         KEYBIND.add_call('Key_F5','on_keycall_F5')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -97,7 +102,8 @@ class HandlerClass:
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
-        except AttributeError:
+        except Exception as e:
+            log.debug('Exception loading Macros:', exc_info=e)
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
             #print 'from %s'% receiver
             return False
@@ -137,14 +143,14 @@ class HandlerClass:
             self.w.button_home.click()
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
-            self.d.load_dialog()
+            #self.d.load_dialog()
+            self.w.lcnc_originoffsetdialog.load_dialog()
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            self.CV.load_dialog()
+            self.w.lcnc_camviewdialog.load_dialog()
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
-            print 'macro'
-            self.LM.load_dialog()
+            self.w.lcnc_macrotabdialog.load_dialog()
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:
             self.w.jog_pos_x.pressed.emit()
