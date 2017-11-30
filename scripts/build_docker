@@ -3,6 +3,9 @@
 # Build/cross-build packages and test Machinekit in Docker
 #
 # This script can be run manually or in Travis CI
+#
+# NB. for Buster builds, IMAGE needs to be set to 'arceye/mk-cross-builder'
+# and tag to amd64_10, armhf_10 or i386_10
 
 ###########################################################
 # Configuration from environment, CL args and defaults
