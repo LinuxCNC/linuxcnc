@@ -26,9 +26,9 @@ class OverlayWidget(QWidget):
         self.parent = parent
         self.setAttribute(Qt.WA_NoSystemBackground)
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
-        self.setWindowFlags( self.windowFlags() |Qt.Tool |
-                        Qt.FramelessWindowHint | Qt.Dialog |
-                             Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
+#        self.setWindowFlags( self.windowFlags() |Qt.Tool |
+#                        Qt.FramelessWindowHint | Qt.Dialog |
+#                             Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
 
     # There seems to be no way to get the very top level widget
     # in QT the parent widget can be owned in another parent
@@ -57,9 +57,10 @@ class OverlayWidget(QWidget):
         if obj == self.parent:
             #Catches resize and child events from the parent widget
             if event.type() == QEvent.Resize:
+                #print 'resize'
                 self.resize(QResizeEvent.size(event))
-            elif event.type() == QEvent.Move:
-                self.move(QMoveEvent.pos(event))
+            #elif event.type() == QEvent.Move:
+                #self.move(QMoveEvent.pos(event))
             elif(event.type() == QEvent.ChildAdded):
                 #print 'CHILD',QChildEvent.child(event)
                 if not QChildEvent.child(event) is QDialog:
