@@ -26,8 +26,8 @@ endif
 THREADS_POSIX = --without-posix
 THREADS_RT_PREEMPT = --without-rt-preempt
 THREADS_XENOMAI = --without-xenomai
-THREADS_XENOMAI_KERNEL = --without-xenomai-kernel
-THREADS_RTAI_KERNEL = --without-rtai-kernel
+#THREADS_XENOMAI_KERNEL = --without-xenomai-kernel
+#THREADS_RTAI_KERNEL = --without-rtai-kernel
 
 # Kernel threads need a list of configured header source directories
 # for each architecture
@@ -81,10 +81,6 @@ build-stamp: debian/control
 	    $(THREADS_POSIX) \
 	    $(THREADS_RT_PREEMPT) \
 	    $(THREADS_XENOMAI) \
-	    $(THREADS_XENOMAI_KERNEL) \
-	    $(THREADS_RTAI_KERNEL) \
-	    $(HEADERS_XENOMAI_KERNEL_$(DEB_HOST_ARCH)) \
-	    $(HEADERS_RTAI_KERNEL_$(DEB_HOST_ARCH)) \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
@@ -107,10 +103,6 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    $(THREADS_POSIX) \
 	    $(THREADS_RT_PREEMPT) \
 	    $(THREADS_XENOMAI) \
-	    $(THREADS_XENOMAI_KERNEL) \
-	    $(THREADS_RTAI_KERNEL) \
-	    $(HEADERS_XENOMAI_KERNEL_$(DEB_HOST_ARCH)) \
-	    $(HEADERS_RTAI_KERNEL_$(DEB_HOST_ARCH)) \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
