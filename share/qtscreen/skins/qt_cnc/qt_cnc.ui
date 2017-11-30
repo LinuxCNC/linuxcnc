@@ -313,6 +313,16 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="horizontalScrollBarPolicy">
      <enum>Qt::ScrollBarAlwaysOff</enum>
     </property>
+    <widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>-60</y>
+       <width>700</width>
+       <height>400</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="State_Enable_GridLayout" name="state_enable_gridLayout">
     <property name="geometry">
@@ -1158,10 +1168,10 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
      <number>15</number>
     </property>
     <property name="color">
-     <color>
+     <color alpha="0">
       <red>0</red>
-      <green>255</green>
-      <blue>0</blue>
+      <green>240</green>
+      <blue>10</blue>
      </color>
     </property>
     <property name="flashing" stdset="0">
@@ -1447,7 +1457,7 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
     <property name="state">
      <bool>false</bool>
     </property>
-    <property name="color">
+    <property name="color" stdset="0">
      <color alpha="150">
       <red>0</red>
       <green>0</green>
@@ -1563,8 +1573,8 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
     </property>
     <property name="color">
      <color>
-      <red>255</red>
-      <green>255</green>
+      <red>0</red>
+      <green>0</green>
       <blue>0</blue>
      </color>
     </property>
@@ -1595,8 +1605,8 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
     </property>
     <property name="color">
      <color>
-      <red>255</red>
-      <green>255</green>
+      <red>0</red>
+      <green>0</green>
       <blue>0</blue>
      </color>
     </property>
@@ -1630,8 +1640,8 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
     </property>
     <property name="color">
      <color>
-      <red>255</red>
-      <green>255</green>
+      <red>0</red>
+      <green>0</green>
       <blue>0</blue>
      </color>
     </property>
@@ -1851,6 +1861,91 @@ file</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000;&quot;&gt;Inch&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
+   <widget class="Lcnc_MacroTabDialog" name="lcnc_macrotabdialog">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>230</y>
+      <width>600</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="Lcnc_OriginOffsetDialog" name="lcnc_originoffsetdialog">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>40</y>
+      <width>800</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <zorder>lcnc_drolabel_y</zorder>
+   <zorder>lcnc_drolabel_z</zorder>
+   <zorder>lcnc_drolabel_x</zorder>
+   <zorder>frame</zorder>
+   <zorder>gcodeeditor</zorder>
+   <zorder>state_enable_gridLayout</zorder>
+   <zorder>mdi_line</zorder>
+   <zorder>groupBox</zorder>
+   <zorder>frame_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_5</zorder>
+   <zorder>label_6</zorder>
+   <zorder>label_7</zorder>
+   <zorder>label_8</zorder>
+   <zorder>label_9</zorder>
+   <zorder>label_10</zorder>
+   <zorder>label_11</zorder>
+   <zorder>label_12</zorder>
+   <zorder>lcnc_led_7</zorder>
+   <zorder>label_13</zorder>
+   <zorder>label_14</zorder>
+   <zorder>label_15</zorder>
+   <zorder>label_16</zorder>
+   <zorder>label_17</zorder>
+   <zorder>line</zorder>
+   <zorder>lcnc_state_led</zorder>
+   <zorder>lcnc_state_led_2</zorder>
+   <zorder>lcnc_state_led_3</zorder>
+   <zorder>lcnc_state_led_4</zorder>
+   <zorder>lcnc_state_label</zorder>
+   <zorder>lcnc_state_label_2</zorder>
+   <zorder>lcnc_state_label_3</zorder>
+   <zorder>lcnc_state_label_4</zorder>
+   <zorder>lcnc_state_label_5</zorder>
+   <zorder>lcnc_state_label_6</zorder>
+   <zorder>lcnc_state_label_8</zorder>
+   <zorder>lcnc_tooldialog</zorder>
+   <zorder>lcnc_dialog</zorder>
+   <zorder>lcnc_filedialog</zorder>
+   <zorder>lcnc_state_led_5</zorder>
+   <zorder>lcnc_state_led_6</zorder>
+   <zorder>lcnc_state_led_7</zorder>
+   <zorder>lcnc_state_led_8</zorder>
+   <zorder>lcnc_state_led_9</zorder>
+   <zorder>lcnc_state_led_10</zorder>
+   <zorder>lcnc_state_led_11</zorder>
+   <zorder>lcnc_actionbutton_4</zorder>
+   <zorder>lcnc_actionbutton_5</zorder>
+   <zorder>lcnc_actionbutton_6</zorder>
+   <zorder>actionbutton_load</zorder>
+   <zorder>lcnc_actionbutton_9</zorder>
+   <zorder>lcnc_actionbutton_10</zorder>
+   <zorder>lcnc_actionbutton_11</zorder>
+   <zorder>lcnc_ScreenOptions</zorder>
+   <zorder>lcnc_gstat_label_2</zorder>
+   <zorder>lcnc_gstat_bool_label</zorder>
+   <zorder>lcnc_macrotabdialog</zorder>
+   <zorder>lcnc_originoffsetdialog</zorder>
+   <zorder>focusoverlay</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
@@ -1887,9 +1982,24 @@ file</string>
    <header>qtvcp.widgets.ledwidget</header>
   </customwidget>
   <customwidget>
+   <class>Lcnc_JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_OriginOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
    <class>Lcnc_Dialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_Gstat_Bool_Label</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.gstat_bool_label</header>
   </customwidget>
   <customwidget>
    <class>Lcnc_Gstat_Label</class>
@@ -1897,20 +2007,9 @@ file</string>
    <header>qtvcp.widgets.gstat_label</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_FileDialog</class>
-   <extends>QDialog</extends>
+   <class>Lcnc_ToolDialog</class>
+   <extends>Lcnc_Dialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Gstat_Slider</class>
@@ -1930,18 +2029,29 @@ file</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>Lcnc_FileDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
    <class>Graphics</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.graphics</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Gstat_Bool_Label</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_bool_label</header>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_ToolDialog</class>
-   <extends>Lcnc_Dialog</extends>
+   <class>Lcnc_MacroTabDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_CamViewDialog</class>
+   <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
