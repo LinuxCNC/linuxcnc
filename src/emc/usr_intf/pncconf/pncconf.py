@@ -2233,7 +2233,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             data2 = prefs.getpref('gtk_theme', 'Follow System Theme', str)
             model = self.widgets.themestore
             model.clear()
-            model.append(("Follow System Theme",))
+            model.append((_("Follow System Theme"),))
             temp1 = temp2 = 0
             names = os.listdir(_PD.THEMEDIR)
             names.sort()
