@@ -807,7 +807,7 @@ set _tabs_mdi [${pane_top}.tabs insert end mdi -text [_ "MDI \[F5\]"]]
 $_tabs_manual configure -borderwidth 2
 $_tabs_mdi configure -borderwidth 2
 
-${pane_top}.tabs itemconfigure mdi -raisecmd "[list focus ${_tabs_mdi}.command]; ensure_mdi"
+${pane_top}.tabs itemconfigure mdi -raisecmd "[list focus ${_tabs_mdi}.command];"
 #${pane_top}.tabs raise manual
 after idle {
     ${pane_top}.tabs raise manual
@@ -1841,7 +1841,8 @@ proc update_state {args} {
     }
 
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
-        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+        if {   ($::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state) \
+            && $::task_mode == $::TASK_MODE_AUTO} {
             set_mode_from_tab
         }
         enable_group $::manualgroup
