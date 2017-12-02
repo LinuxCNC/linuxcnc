@@ -263,6 +263,7 @@ static PyObject *callback;
 static int interp_error;
 static int last_sequence_number;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
+CANON_PLANE _pl;
 EmcPose tool_offset;
 
 static InterpBase *pinterp;
@@ -315,7 +316,30 @@ void ARC_FEED(int line_number,
               double second_axis, int rotation, double axis_end_point,
               double a_position, double b_position, double c_position,
               double u_position, double v_position, double w_position) {
-    // XXX: set _pos_*
+    double x, y, z;
+    if (_pl == CANON_PLANE_XY) {
+        x = first_end;
+        y = second_end;
+        z = axis_end_point;
+    }
+    else if (_pl == CANON_PLANE_XZ) {
+        x = second_end;
+        y = axis_end_point;
+        z = first_end;
+    }
+    else if (_pl == CANON_PLANE_YZ) {
+        x = axis_end_point;
+        y = first_end;
+        z = second_end;
+    }
+    else {
+        x = _pos_x;
+        y = _pos_y;
+        z = _pos_z;
+    }
+    _pos_x = x; _pos_y = y; _pos_z = z;
+    _pos_a=a_position; _pos_b=b_position; _pos_c=c_position;
+    _pos_u=u_position; _pos_v=v_position; _pos_w=w_position;
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -338,6 +362,9 @@ void ARC_FEED(int line_number,
     p->set_axis_end_point(axis_end_point);
 
     machinetalk::Position *pos = p->mutable_pos();
+    pos->set_x(x);
+    pos->set_y(y);
+    pos->set_z(z);
     pos->set_a(a_position);
     pos->set_b(b_position);
     pos->set_c(c_position);
@@ -493,6 +520,7 @@ void SET_XY_ROTATION(double t) {
 void USE_LENGTH_UNITS(CANON_UNITS u) { }
 
 void SELECT_PLANE(CANON_PLANE pl) {
+    _pl = pl;
     maybe_new_line();
     // if(interp_error) return;
 
@@ -1007,6 +1035,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
+    _pl = CANON_PLANE_XY;
 
     note_printf(istat, "open '%s'", f);
     publish_istat(machinetalk::INTERP_RUNNING);
