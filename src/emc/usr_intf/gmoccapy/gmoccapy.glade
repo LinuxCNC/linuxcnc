@@ -2374,8 +2374,7 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="btn_search_back">
-                                <property name="label" translatable="yes">Search
- back</property>
+                                <property name="label" translatable="yes">Search back</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -2391,8 +2390,7 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="btn_search_forward">
-                                <property name="label" translatable="yes">Search
-  fwd</property>
+                                <property name="label" translatable="yes">Search  fwd</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -2443,8 +2441,7 @@
                             <child>
                               <object class="GtkLabel" id="lbl_replace_text">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Replace
-  Text:</property>
+                                <property name="label" translatable="yes">Replace  Text:</property>
                               </object>
                               <packing>
                                 <property name="left_attach">7</property>
@@ -2453,8 +2450,7 @@
                             </child>
                             <child>
                               <object class="GtkCheckButton" id="chk_replace_all">
-                                <property name="label" translatable="yes">Replace
-   All</property>
+                                <property name="label" translatable="yes">Replace   All</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -2467,8 +2463,7 @@
                             </child>
                             <child>
                               <object class="GtkCheckButton" id="chk_ignore_case">
-                                <property name="label" translatable="yes">Ignore
- Case</property>
+                                <property name="label" translatable="yes">Ignore Case</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -2507,8 +2502,7 @@
                             <child>
                               <object class="GtkLabel" id="lbl_search_text">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Search
-  Text:</property>
+                                <property name="label" translatable="yes">Search  Text:</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>
@@ -3002,8 +2996,7 @@
                             </child>
                             <child>
                               <object class="GtkToggleButton" id="tbtn_use_screen2">
-                                <property name="label" translatable="yes">  Display 
-Aux Screen</property>
+                                <property name="label" translatable="yes">  Display Aux Screen</property>
                                 <property name="width_request">100</property>
                                 <property name="height_request">56</property>
                                 <property name="visible">True</property>
@@ -3341,8 +3334,7 @@ Aux Screen</property>
                                         </child>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_toggle_readout">
-                                            <property name="label" translatable="yes">toggle DRO mode 
-clicking on the DRO</property>
+                                            <property name="label" translatable="yes">toggle DRO mode clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -3562,8 +3554,7 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <child>
                                               <object class="GtkButton" id="btn_use_current">
-                                                <property name="label" translatable="yes">current
-   file</property>
+                                                <property name="label" translatable="yes">current   file</property>
                                                 <property name="height_request">56</property>
                                                 <property name="visible">True</property>
                                                 <property name="sensitive">False</property>
@@ -4685,11 +4676,7 @@ clicking on the DRO</property>
                                             <child>
                                               <object class="GtkLabel" id="lbl_tool_measurement">
                                                 <property name="visible">True</property>
-                                                <property name="label" translatable="yes">No valid configuration
-found in your INI file,
-please take a look at 
-the WIKI to check how
-to configure the settings.</property>
+                                                <property name="label" translatable="yes">No valid configuration found in your INI file, please take a look at the WIKI to check how to configure the settings.</property>
                                                 <property name="wrap">True</property>
                                               </object>
                                               <packing>
@@ -4734,10 +4721,7 @@ to configure the settings.</property>
                                               <object class="GtkLabel" id="lbl_hide_axis_4">
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0</property>
-                                                <property name="label" translatable="yes">If the 4'th axis is used
-for a tool changer, you
-hide the DRO and
-jog buttons.</property>
+                                                <property name="label" translatable="yes">If the 4'th axis is used for a tool changer, you hide the DRO and jog buttons.</property>
                                               </object>
                                               <packing>
                                                 <property name="fill">False</property>
@@ -5008,8 +4992,7 @@ jog buttons.</property>
                                     <child type="label">
                                       <object class="GtkLabel" id="lbl_frm_message_style">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;      gmoccapy message
- behavior and appearance &lt;/b&gt;</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;      gmoccapy message behavior and appearance &lt;/b&gt;</property>
                                         <property name="use_markup">True</property>
                                       </object>
                                     </child>
@@ -5116,8 +5099,7 @@ jog buttons.</property>
                     <child type="tab">
                       <object class="GtkLabel" id="lbl_ntb_setup_pages_advanced">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Advanced
- Settings</property>
+                        <property name="label" translatable="yes">Advanced Settings</property>
                       </object>
                       <packing>
                         <property name="position">2</property>
@@ -5340,8 +5322,7 @@ jog buttons.</property>
                 <child>
                   <object class="GtkLabel" id="lbl_time">
                     <property name="visible">True</property>
-                    <property name="label">Time
-Date</property>
+                    <property name="label">Time Date</property>
                     <property name="justify">center</property>
                   </object>
                   <packing>
@@ -6050,8 +6031,7 @@ Date</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_edit_offsets">
-                    <property name="label" translatable="yes">  edit
-offsets</property>
+                    <property name="label" translatable="yes">  edit offsets</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6152,8 +6132,7 @@ offsets</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_zero_g92">
-                    <property name="label" translatable="yes">zero
-G92</property>
+                    <property name="label" translatable="yes">zero G92</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="can_focus">True</property>
@@ -6169,8 +6148,7 @@ G92</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_block_height">
-                    <property name="label" translatable="yes"> Block
-Height</property>
+                    <property name="label" translatable="yes"> Block Height</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -6267,8 +6245,7 @@ Height</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_set_selected">
-                    <property name="label" translatable="yes">    set
-selected</property>
+                    <property name="label" translatable="yes">    set selected</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6353,8 +6330,7 @@ selected</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
-                    <property name="label">&lt;b&gt;gmoccapy
-  1.0.3&lt;/b&gt;</property>
+                    <property name="label">&lt;b&gt;gmoccapy  1.0.3&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -6821,8 +6797,7 @@ selected</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_tool_touchoff_x">
-                    <property name="label" translatable="yes">touchoff
-  tool x</property>
+                    <property name="label" translatable="yes">touchoff  tool x</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6852,8 +6827,7 @@ selected</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_tool_touchoff_z">
-                    <property name="label" translatable="yes">touchoff
-  tool z</property>
+                    <property name="label" translatable="yes">touchoff  tool z</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
