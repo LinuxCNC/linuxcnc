@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
-  <object class="EMC_Action_Open" id="hal_action_open"/>
-  <object class="EMC_Action_Reload" id="hal_action_reload"/>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_Step" id="hal_action_step"/>
-  <object class="EMC_Action_Stop" id="hal_action_stop"/>
-  <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
   <object class="GtkAdjustment" id="adj_dro_digits">
     <property name="lower">1</property>
     <property name="upper">5</property>
@@ -159,14 +148,24 @@
   <object class="GtkTextBuffer" id="alarm_buffer"/>
   <object class="GtkFileFilter" id="ff_file_to_load"/>
   <object class="GtkFileFilter" id="filefilter1"/>
+  <object class="EMC_Action_Open" id="hal_action_open"/>
+  <object class="EMC_Action_Reload" id="hal_action_reload"/>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_Step" id="hal_action_step"/>
+  <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
     <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
     <signal name="all-homed" handler="on_hal_status_all_homed" swapped="no"/>
     <signal name="not-all-homed" handler="on_hal_status_not_all_homed" swapped="no"/>
-    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
     <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
-    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
     <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
+    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
+    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
     <signal name="line-changed" handler="on_hal_status_line_changed" swapped="no"/>
     <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
     <signal name="mode-auto" handler="on_hal_status_mode_auto" swapped="no"/>
@@ -176,6 +175,7 @@
     <signal name="motion-mode-changed" handler="on_hal_status_motion_mode_changed" swapped="no"/>
     <signal name="interp-run" handler="on_hal_status_interp_run" swapped="no"/>
   </object>
+  <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
   <object class="GtkImage" id="img_auto">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -651,6 +651,27 @@
                                             <property name="expand">True</property>
                                             <property name="fill">True</property>
                                             <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkEventBox" id="eb_blockheight_label">
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkLabel" id="lbl_blockheight">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">blockheight = 0.0</property>
+                                                <attributes>
+                                                  <attribute name="foreground" value="#ffffffffffff"/>
+                                                  <attribute name="background" value="#000000000000"/>
+                                                </attributes>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">2</property>
                                           </packing>
                                         </child>
                                       </object>
