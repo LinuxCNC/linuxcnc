@@ -1,3 +1,6 @@
+ver 2.3.3.2
+- toggling the chk_toggle_readout, raised an exception on 5 axis config
+
 ver 2.3.3.1
 - small changes to the code, as there was a possibility the
   label was shown, even if auto tool measurement was not used

@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3.1"
+_RELEASE = " 2.3.3.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2632,6 +2632,8 @@ class gmoccapy(object):
         for axis in self.axis_list:
             if axis == self.axisletter_four:
                 axis = 4
+            if axis == self.axisletter_five:
+                axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
 
     def on_Combi_DRO_clicked(self, widget, joint_number, order):
