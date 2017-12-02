@@ -49,6 +49,9 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
         self.abort = False
         self.pause = False
         self.load_dialog = False
+        self.macro_dialog = False
+        self.origin_offset_dialog = False
+        self.camview_dialog = False
         self.jog_joint_pos = False
         self.jog_joint_neg = False
         self.zero_axis = False
@@ -113,6 +116,8 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
             GSTAT.connect('all-homed', lambda w: _safecheck(True))
 
+        elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog:
+            pass
         elif self.jog_joint_pos or self.jog_joint_neg:
             GSTAT.connect('state-off', lambda w: self.setEnabled(False))
             GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
@@ -193,6 +198,12 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             ACTION.PAUSE()
         elif self.load_dialog:
             GSTAT.emit('load-file-request')
+        elif self.camview_dialog:
+            GSTAT.emit('dialog-request','CAMVIEW')
+        elif self.macro_dialog:
+            GSTAT.emit('dialog-request','MACRO')
+        elif self.origin_offset_dialog:
+            GSTAT.emit('dialog-request','ORIGINOFFSET')
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:
@@ -234,7 +245,8 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
         data = ('estop','machine_on','home','run','abort','pause',
                     'load_dialog','jog_joint_pos', 'jog_joint_neg','zero_axis',
                     'launch_halmeter','launch_status', 'launch_halshow',
-                    'auto','mdi','manual')
+                    'auto','mdi','manual','macro_dialog','origin_offset_dialog',
+                    'camview_dialog')
 
         for i in data:
             if not i == picked:
@@ -284,6 +296,33 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
         return self.load_dialog
     def reset_load_dialog(self):
         self.load_dialog = False
+
+    def set_macro_dialog(self, data):
+        self.macro_dialog = data
+        if data:
+            self._toggle_properties('macro_dialog')
+    def get_macro_dialog(self):
+        return self.macro_dialog
+    def reset_macro_dialog(self):
+        self.macro_dialog = False
+
+    def set_origin_offset_dialog(self, data):
+        self.origin_offset_dialog = data
+        if data:
+            self._toggle_properties('origin_offset_dialog')
+    def get_origin_offset_dialog(self):
+        return self.origin_offset_dialog
+    def reset_origin_offset_dialog(self):
+        self.origin_offset_dialog = False
+
+    def set_camview_dialog(self, data):
+        self.camview_dialog = data
+        if data:
+            self._toggle_properties('camview_dialog')
+    def get_camview_dialog(self):
+        return self.camview_dialog
+    def reset_camview_dialog(self):
+        self.camview_dialog = False
 
     def set_jog_joint_pos(self, data):
         self.jog_joint_pos = data
@@ -401,6 +440,9 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
     abort_action = QtCore.pyqtProperty(bool, get_abort, set_abort, reset_abort)
     pause_action = QtCore.pyqtProperty(bool, get_pause, set_pause, reset_pause)
     load_dialog_action = QtCore.pyqtProperty(bool, get_load_dialog, set_load_dialog, reset_load_dialog)
+    camview_dialog_action = QtCore.pyqtProperty(bool, get_camview_dialog, set_camview_dialog, reset_camview_dialog)
+    origin_offset_dialog_action = QtCore.pyqtProperty(bool, get_origin_offset_dialog, set_origin_offset_dialog, reset_origin_offset_dialog)
+    macro_dialog_action = QtCore.pyqtProperty(bool, get_macro_dialog, set_macro_dialog, reset_macro_dialog)
     launch_halmeter_action = QtCore.pyqtProperty(bool, get_launch_halmeter, set_launch_halmeter, reset_launch_halmeter)
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)
     launch_halshow_action = QtCore.pyqtProperty(bool, get_launch_halshow, set_launch_halshow, reset_launch_halshow)
