@@ -97,10 +97,14 @@ class GStat(_GStat):
             cls._instance = _GStat.__new__(cls, *args, **kwargs)
         return cls._instance
 
+################################################################
+# Action class
+################################################################
 class Lcnc_Action():
     def __init__(self):
         self.cmd = linuxcnc.command()
         self.gstat = GStat()
+        self.tmp = None
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -145,7 +149,11 @@ class Lcnc_Action():
 
     def OPEN_PROGRAM(self, fname):
         self.ensure_mode(linuxcnc.MODE_AUTO)
-        self.cmd.program_open(str(fname))
+        flt = INI.get_filter_program(str(fname))
+        if not flt:
+            self.cmd.program_open(str(fname))
+        else:
+            self.open_filter_program(str(fname), flt)
         self.gstat.emit('reload-display')
 
     def SET_AXIS_ORIGIN(self,axis,value):
@@ -189,10 +197,6 @@ class Lcnc_Action():
         self.CALL_MDI("G10 L2 P0 R 0")
         self.gstat.emit('reload-display')
 
-    ###############################################################################
-    # Helper functions
-    ###############################################################################
-
     def RECORD_CURRENT_MODE(self):
         mode = self.gstat.get_current_mode()
         self.last_mode = mode
@@ -200,6 +204,10 @@ class Lcnc_Action():
 
     def RESTORE_RECORDED_MODE(self):
         self.ensure_mode(self.last_mode)
+
+    ######################################
+    # Action Helper functions
+    ######################################
 
     def ensure_mode(self, *modes):
         truth, premode = self.gstat.check_for_modes(modes)
@@ -210,4 +218,91 @@ class Lcnc_Action():
         else:
             return (truth, premode)
 
+    def open_filter_program(self,fname, flt):
+        if not self.tmp:
+            self._mktemp()
+        tmp = os.path.join(self.tmp, os.path.basename(fname))
+        print 'temp',tmp
+        flt = FilterProgram(flt, fname, tmp, lambda r: r or self._load_filter_result(tmp))
+
+    def _load_filter_result(self, fname):
+        if fname:
+            self.cmd.program_open(fname)
+
+    def _mktemp(self):
+        if self.tmp:
+            return
+        self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
+        atexit.register(lambda: shutil.rmtree(self.tmp))
+
+########################################################################
+# Filter Class
+########################################################################
+import os, sys, time, select, re
+import tempfile, atexit, shutil
+
+# slightly reworked code from gladevcp
+# loads a filter program and collects the result
+progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
+class FilterProgram:
+    def __init__(self, program_filter, infilename, outfilename, callback=None):
+        import subprocess
+        outfile = open(outfilename, "w")
+        infilename_q = infilename.replace("'", "'\\''")
+        env = dict(os.environ)
+        env['AXIS_PROGRESS_BAR'] = '1'
+        p = subprocess.Popen(["sh", "-c", "%s '%s'" % (program_filter, infilename_q)],
+                              stdin=subprocess.PIPE,
+                              stdout=outfile,
+                              stderr=subprocess.PIPE,
+                              env=env)
+        p.stdin.close()  # No input for you
+        self.gstat = GStat()
+        self.p = p
+        self.stderr_text = []
+        self.program_filter = program_filter
+        self.callback = callback
+        self.gid = self.gstat.connect('periodic', self.update)
+        #progress = Progress(1, 100)
+        #progress.set_text(_("Filtering..."))
+
+    def update(self, w):
+        if self.p.poll() is not None:
+            self.finish()
+            self.gstat.disconnect(self.gid)
+            return False
+
+        r,w,x = select.select([self.p.stderr], [], [], 0)
+        if not r:
+            return True
+        stderr_line = self.p.stderr.readline()
+        m = progress_re.match(stderr_line)
+        if m:
+            pass #progress.update(int(m.group(1)), 1)
+        else:
+            self.stderr_text.append(stderr_line)
+            sys.stderr.write(stderr_line)
+        return True
+
+    def finish(self):
+        # .. might be something left on stderr
+        for line in self.p.stderr:
+            m = progress_re.match(line)
+            if not m:
+                self.stderr_text.append(line)
+                sys.stderr.write(line)
+        r = self.p.returncode
+        if r:
+            self.error(r, "".join(self.stderr_text))
+        if self.callback:
+            self.callback(r)
+
+    def error(self, exitcode, stderr):
+        dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
+                _("The program %(program)r exited with code %(code)d.  "
+                "Any error messages it produced are shown below:")
+                    % {'program': self.program_filter, 'code': exitcode})
+        dialog.format_secondary_text(stderr)
+        dialog.run()
+        dialog.destroy()
 

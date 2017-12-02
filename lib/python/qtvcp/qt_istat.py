@@ -42,7 +42,8 @@ class IStat():
         self.PREFERENCE_PATH = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH") or None
         self.SUB_PATH = (self.inifile.find("RS274NGC", "SUBROUTINE_PATH")) or None
         self.MACHINE_IS_LATHE = bool(self.inifile.find("DISPLAY", "LATHE"))
-
+        extensions = self.inifile.findall("FILTER", "PROGRAM_EXTENSION")
+        self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
         try:
             # check the ini file if UNITS are set to mm"
             # first check the global settings
@@ -108,10 +109,35 @@ class IStat():
         self.MIN_SPINDLE_OVERRIDE = float(self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE") or 0.5) * 100
         self.MAX_FEED_OVERRIDE = float(self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE") or 1.5) * 100
 
+    # helper functions
+
     def convert_units(self, data):
         return data * self.MACHINE_UNIT_CONVERSION
 
     def convert_units_9(self,v):
         c = self.MACHINE_UNIT_CONVERSION_9
         return map(lambda x,y: x*y, v, c)
+
+    # This finds the filter program's initilizing
+    # program eg python for .py from INI
+    def get_filter_program(self, fname):
+        ext = os.path.splitext(fname)[1]
+        if ext:
+            return self.inifile.find("FILTER", ext[1:])
+        else:
+            return None
+
+    # get filter extensions in QT format
+    def get_qt_filter_extensions(self,):
+        all_extensions = [("G code (*.ngc)")]
+        try:
+            for k, v in self.PROGRAM_FILTERS:
+                k = k.replace('.','*.')
+                all_extensions.append( ( ';;%s(%s)'%(v,k)) )
+            temp =''
+            for i in all_extensions:
+                temp = '%s %s'%(temp ,i)
+            return temp
+        except:
+            return all_extensions[0]
 
