@@ -1067,7 +1067,7 @@ class gmoccapy( object ):
         # If there are themes then add them to combo box
         model = self.widgets.theme_choice.get_model()
         model.clear()
-        model.append(("Follow System Theme",))
+        model.append((_("Follow System Theme"),))
         themes = []
         if os.path.exists(USERTHEMEDIR):
             names = os.listdir(USERTHEMEDIR)
