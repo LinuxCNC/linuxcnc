@@ -23,6 +23,7 @@ from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WID
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import macroTab
 from qtvcp.qt_glib import GStat, Lcnc_Action
+from qtvcp.qt_istat import IStat
 
 # Set up logging
 from qtvcp import logger
@@ -33,6 +34,7 @@ log = logger.getLogger(__name__)
 # ACTION gives commands to linuxcnc
 GSTAT = GStat()
 ACTION = Lcnc_Action()
+INI = IStat()
 
 class Lcnc_Dialog(QMessageBox):
     def __init__(self, parent = None):
@@ -208,21 +210,26 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         super(Lcnc_FileDialog, self).__init__(parent)
         self._state = False
         self._color = QColor(0, 0, 0, 150)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setFileMode(QFileDialog.ExistingFile)
+        self.setDirectory( os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
+        exts = INI.get_qt_filter_extensions()
+        self.setNameFilter(exts)
 
     def _hal_init(self):
-        self.topParent = self.QTVCP_INSTANCE_
         GSTAT.connect('load-file-request', lambda w: self.load_dialog())
 
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Open Gcode',self._color)
-        fname = QFileDialog.getOpenFileName(self.topParent, 'Open file',
-                os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
+        #self.move( 400, 400 )
+        fname = None
+        if (self.exec_()):
+            fname = self.selectedFiles()[0]
         GSTAT.emit('focus-overlay-changed',False,None,None)
         if fname:
             #NOTE.notify('Error',str(fname),QtGui.QMessageBox.Information,10)
             f = open(fname, 'r')
             ACTION.OPEN_PROGRAM(fname)
-            GSTAT.emit('file-loaded', fname)
         return fname
 
     #**********************
