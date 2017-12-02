@@ -466,7 +466,7 @@ msgstr "警告：刀具无法删除！"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3939
 msgid "No or more than one tool selected in tool table"
-msgstr "刀具表中没有或多于一个刀具，"
+msgstr "没有选择或选择多个刀具,"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3940
 msgid "Please select only one tool in the table"
@@ -537,7 +537,7 @@ msgstr "所选刀具已经在主轴上，不需要改变。"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4016
 msgid "you selected no or more than one tool, the tool selection must be unique"
-msgstr "您没有选择或选择了多个刀具，刀具选择必须是唯一的"
+msgstr "您没有选择或选择了多个刀具，只能选择一个刀具。"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4035
 msgid "Could not understand the entered tool number. Will not change anything"
@@ -1873,6 +1873,9 @@ msgstr "英寸/秒"
 
 msgid "Follow System Theme"
 msgstr "跟随系统主题"
+
+msgid "Local Config Theme"
+msgstr "本地配置主题"
 
 #~ msgid "**** GMOCCAPY ERROR : ****"
 #~ msgstr "**** GMOCCAPY 错误： ****"
