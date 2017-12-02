@@ -316,8 +316,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog">
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>-60</y>
+       <x>468</x>
+       <y>310</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -1168,10 +1168,10 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
      <number>15</number>
     </property>
     <property name="color">
-     <color alpha="0">
+     <color>
       <red>0</red>
-      <green>240</green>
-      <blue>10</blue>
+      <green>0</green>
+      <blue>0</blue>
      </color>
     </property>
     <property name="flashing" stdset="0">
@@ -1572,7 +1572,7 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
      <number>10</number>
     </property>
     <property name="color">
-     <color>
+     <color alpha="148">
       <red>0</red>
       <green>0</green>
       <blue>0</blue>
@@ -1604,7 +1604,7 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
      <number>10</number>
     </property>
     <property name="color">
-     <color>
+     <color alpha="111">
       <red>0</red>
       <green>0</green>
       <blue>0</blue>
@@ -1639,7 +1639,7 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
      <number>10</number>
     </property>
     <property name="color">
-     <color>
+     <color alpha="147">
       <red>0</red>
       <green>0</green>
       <blue>0</blue>
@@ -1887,6 +1887,60 @@ file</string>
      <bool>false</bool>
     </property>
    </widget>
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_12">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>791</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Macro</string>
+    </property>
+    <property name="macro_dialog_action" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_13">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>790</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cam View</string>
+    </property>
+    <property name="camview_dialog_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="macro_dialog_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_14">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>790</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>offsets</string>
+    </property>
+    <property name="origin_offset_dialog_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="macro_dialog_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
    <zorder>lcnc_drolabel_y</zorder>
    <zorder>lcnc_drolabel_z</zorder>
    <zorder>lcnc_drolabel_x</zorder>
@@ -1946,6 +2000,9 @@ file</string>
    <zorder>lcnc_macrotabdialog</zorder>
    <zorder>lcnc_originoffsetdialog</zorder>
    <zorder>focusoverlay</zorder>
+   <zorder>lcnc_actionbutton_12</zorder>
+   <zorder>lcnc_actionbutton_13</zorder>
+   <zorder>lcnc_actionbutton_14</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
