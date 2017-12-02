@@ -218,6 +218,11 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
 
     def _hal_init(self):
         GSTAT.connect('load-file-request', lambda w: self.load_dialog())
+        GSTAT.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, cmd):
+        if cmd =='FILE':
+            self.load_dialog()
 
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Open Gcode',self._color)
@@ -284,6 +289,11 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
 
     def _hal_init(self):
         self.topParent = self.QTVCP_INSTANCE_
+        GSTAT.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, cmd):
+        if cmd =='ORIGINOFFSET':
+            self.load_dialog()
 
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Set Origin Offsets',self._color)
@@ -350,6 +360,11 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
 
     def _hal_init(self):
         self.topParent = self.QTVCP_INSTANCE_
+        GSTAT.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, cmd):
+        if cmd =='CAMVIEW':
+            self.load_dialog()
 
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Cam View Dialog',self._color)
@@ -419,6 +434,11 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         # gotta call this since we instantiated this out of qtvcp's knowledge
         self.tab._hal_init()
         self.topParent = self.QTVCP_INSTANCE_
+        GSTAT.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, cmd):
+        if cmd =='MACRO':
+            self.load_dialog()
 
     # This method is called instead of MacroTab's cancelChecked method
     # we do this so we can use it's buttons to hide our dialog
