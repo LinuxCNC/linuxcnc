@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3"
+_RELEASE = " 2.3.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -396,7 +396,6 @@ class gmoccapy(object):
             self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
             self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
             # to set the hal pin with correct values we emit a toogled
-            self.widgets.chk_use_tool_measurement.emit("toggled")
             self.widgets.lbl_x_probe.set_label(str(xpos))
             self.widgets.lbl_y_probe.set_label(str(ypos))
             self.widgets.lbl_z_probe.set_label(str(zpos))
@@ -405,6 +404,11 @@ class gmoccapy(object):
             self.widgets.btn_zero_g92.hide()
             self.widgets.btn_block_height.show()
             self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** found valid probe config in INI File ****"))
+            print(_("**** will use auto tool measurement ****"))
+        self.widgets.chk_use_tool_measurement.emit("toggled")
+
 
         # should the tool in spindle be reloaded on startup?
         self.widgets.chk_reload_tool.set_active(self.prefs.getpref("reload_tool", True, bool))
@@ -3497,12 +3501,10 @@ class gmoccapy(object):
         if state and self.widgets.chk_use_tool_measurement.get_active():
             self.widgets.btn_zero_g92.show()
             self.widgets.btn_block_height.hide()
-            self.widgets.eb_blockheight_label.hide()
             self._replace_list_item(4, "btn_block_height", "btn_zero_g92")
         elif not state and self.widgets.chk_use_tool_measurement.get_active():
             self.widgets.btn_zero_g92.hide()
             self.widgets.btn_block_height.show()
-            self.widgets.eb_blockheight_label.show()
             self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
 
         if not state:  # we must switch back to manual mode, otherwise jogging is not possible

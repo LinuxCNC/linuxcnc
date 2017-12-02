@@ -1,3 +1,7 @@
+ver 2.3.3.1
+- small changes to the code, as there was a possibility the
+  label was shown, even if auto tool measurement was not used
+
 ver 2.3.3
 - added a label at the button of the preview window to show the actual 
   block-height value
