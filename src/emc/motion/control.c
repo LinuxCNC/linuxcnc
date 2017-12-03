@@ -555,7 +555,6 @@ static void process_probe_inputs(void)
         // not probing, but we have a rising edge on the probe.
         // this could be expensive if we don't stop.
         int i;
-        int aborted = 0;
 
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp) &&
            tpGetExecId(&emcmotDebug->coord_tp) <= 0) {
@@ -576,24 +575,22 @@ static void process_probe_inputs(void)
             // abort any homing
             if(GET_JOINT_HOMING_FLAG(joint)) {
                 joint->home_state = HOME_ABORT;
-                aborted=1;
-            }
-
-            // abort any jogs
-            if(joint->free_tp.enable == 1) {
+                reportError(_("Probe tripped during homing motion."));
+                break;//no need to check any more joints for errors
+            }else if(joint->kb_jjog_active || joint->wheel_jjog_active) {// abort any other joint move
                 joint->free_tp.enable = 0;
-                // since homing uses free_tp, this protection of aborted
-                // is needed so the user gets the correct error.
-                if(!aborted) aborted=2;
+                reportError(_("Probe tripped during a jog."));
+                break;
             }
         }
-
-        if(aborted == 1) {
-            reportError(_("Probe tripped during homing motion."));
-        }
-
-        if(aborted == 2) {
-            reportError(_("Probe tripped during a jog."));
+        // abort any  move
+        for (int i = 0; i < EMCMOT_MAX_AXIS; i++) {
+            emcmot_axis_t *axis = &axes[i];
+            if(axis->kb_ajog_active || axis->wheel_ajog_active) {
+                reportError(_("Probe tripped during a jog."));
+                SET_MOTION_ERROR_FLAG(1);
+                break;
+            }
         }
     }
     old_probeVal = emcmotStatus->probeVal;
