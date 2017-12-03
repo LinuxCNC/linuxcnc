@@ -128,9 +128,10 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 if text:
                     self.text = text
                 self.show()
-
+                log.debug('Overlay - Show')
             else:
                 self.hide()
+                log.debug('Overlay - Hide')
         GSTAT.connect('focus-overlay-changed', lambda w, data, text, color: _f(data, text, color))
 
     # Ok paint everything
