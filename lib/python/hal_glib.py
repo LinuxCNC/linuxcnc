@@ -213,6 +213,8 @@ class _GStat(gobject.GObject):
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
         self.old['spindle-speed']= self.stat.spindle[0]['speed']
+        self.old['flood']= self.stat.flood
+        self.old['mist']= self.stat.mist
 
         # override limits
         or_limit_list=[]
@@ -262,12 +264,6 @@ class _GStat(gobject.GObject):
             mcodes = mcodes + ("%s "%i)
             #active_mcodes.append("M%s "%i)
         self.old['m-code'] = mcodes
-        flood = mist = False
-        for num,i in enumerate(active_mcodes):
-            if i == 'M8': flood = True
-            elif i == 'M7': mist = True
-        self.old['flood'] = flood
-        self.old['mist'] = mist
 
     def update(self):
         try:
@@ -431,6 +427,17 @@ class _GStat(gobject.GObject):
         feed_hold_new = self.old['feed-hold']
         if feed_hold_new != feed_hold_old:
             self.emit('feed-hold-enabled-changed',feed_hold_new)
+        # mist
+        mist_old = old.get('mist', None)
+        mist_new = self.old['mist']
+        if mist_new != mist_old:
+            self.emit('mist-changed',mist_new)
+        # flood
+        flood_old = old.get('flood', None)
+        flood_new = self.old['flood']
+        if flood_new != flood_old:
+            self.emit('flood-changed',flood_new)
+
         #############################
         # Gcodes
         #############################
@@ -492,16 +499,6 @@ class _GStat(gobject.GObject):
         m_code_new = self.old['m-code']
         if m_code_new != m_code_old:
             self.emit('m-code-changed',m_code_new)
-        # mist mode M7
-        mist_old = old.get('mist', None)
-        mist_new = self.old['mist']
-        if mist_new != mist_old:
-            self.emit('mist-changed',mist_new)
-        # flood M8
-        flood_old = old.get('flood', None)
-        flood_new = self.old['flood']
-        if flood_new != flood_old:
-            self.emit('flood-changed',flood_new)
 
         # AND DONE... Return true to continue timeout
         self.emit('periodic')
