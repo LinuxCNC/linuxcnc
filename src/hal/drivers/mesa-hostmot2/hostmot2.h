@@ -122,6 +122,7 @@
 #define HM2_GTAG_RESOLVER          (192)
 #define HM2_GTAG_SMARTSERIAL       (193)
 #define HM2_GTAG_TWIDDLER          (194) // Not supported
+#define HM2_GTAG_SSR               (195)
 
 
 
@@ -956,6 +957,39 @@ typedef struct {
 } hm2_led_t ;
 
 
+//
+// SSR
+//
+
+typedef struct {
+    struct {
+
+        struct {
+            hal_u32_t *rate;
+            hal_bit_t *out[32];
+        } pin;
+
+    } hal;
+
+    rtapi_u32 written_data;
+    rtapi_u32 written_rate;
+} hm2_ssr_instance_t;
+
+typedef struct {
+    int num_instances;
+    hm2_ssr_instance_t *instance;
+
+    rtapi_u8 version;
+    rtapi_u32 clock_freq;
+
+    rtapi_u32 data_addr;
+    rtapi_u32 *data_reg;
+
+    rtapi_u32 rate_addr;
+    rtapi_u32 *rate_reg;
+} hm2_ssr_t;
+
+
 // 
 // raw peek/poke access
 //
@@ -1014,6 +1048,7 @@ typedef struct {
         int num_uarts;
         int num_pktuarts;
         int num_dplls;
+        int num_ssrs;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1057,6 +1092,7 @@ typedef struct {
     hm2_watchdog_t watchdog;
     hm2_dpll_t dpll;
     hm2_led_t led;
+    hm2_ssr_t ssr;
 
     hm2_raw_t *raw;
 
@@ -1330,6 +1366,19 @@ void hm2_watchdog_process_tram_read(hostmot2_t *hm2);
 int hm2_led_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_led_write(hostmot2_t *hm2);
 void hm2_led_cleanup(hostmot2_t *hm2);
+
+
+//
+// SSR functions
+//
+
+int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_ssr_cleanup(hostmot2_t *hm2);
+void hm2_ssr_write(hostmot2_t *hm2);
+void hm2_ssr_force_write(hostmot2_t *hm2);
+void hm2_ssr_prepare_tram_write(hostmot2_t *hm2);
+void hm2_ssr_print_module(hostmot2_t *hm2);
+
 
 //
 // the raw interface lets you peek and poke the hostmot2 instance from HAL

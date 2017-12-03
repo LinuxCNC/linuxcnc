@@ -301,6 +301,15 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
              return unknown;
              break;
 
+        case HM2_GTAG_SSR:
+            if ((sec_pin >= 1) && (sec_pin <= 31)) {
+                sprintf(unknown, "Out-%02d",sec_pin - 1);
+                return unknown;
+            } else if (sec_pin == 32) {
+                sprintf(unknown, "AC Ref (internal)");
+                return unknown;
+            }
+            break;
     }
 
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
@@ -806,6 +815,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // and about half as many I/Os as you'd expect
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2);
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances);
 }
 
 const char *hm2_get_general_function_hal_name(int gtag) {
