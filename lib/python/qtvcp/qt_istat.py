@@ -44,6 +44,7 @@ class IStat():
         self.MACHINE_IS_LATHE = bool(self.inifile.find("DISPLAY", "LATHE"))
         extensions = self.inifile.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
+        self.PARAMETER_FILE = (self.inifile.find("RS274NGC", "PARAMETER_FILE")) or None
         try:
             # check the ini file if UNITS are set to mm"
             # first check the global settings

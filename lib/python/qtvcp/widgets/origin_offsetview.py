@@ -26,7 +26,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_OriginOffsetView, self).__init__(parent)
 
-        self.filename = '../../../configs/sim/qtscreen/sim.var'
+        self.filename = INI.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
