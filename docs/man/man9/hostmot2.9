@@ -121,6 +121,7 @@ The valid entries in the format string are:
  [stepgen_width=\fIN\fB]
  [sserial_port_\fI0\fB=\fI00000000\fB]
  [num_leds=\fIN\fB]
+ [num_ac_outputs=\fIN\fB]
  [enable_raw]
 
 .TP
@@ -224,6 +225,11 @@ are enabled. Each BSPI driver can address 16 devices.
 \fBnum_leds\fR [optional, default: \-1]
 Only enable the first N of the LEDs on the FPGA board. If N is \-1, then HAL
 pins for all the LEDs will be created. If N=0 then no pins will be added.
+.TP
+\fBnum_ssrs\fR [optional, default: -1]
+Only enable the first N of the SSR modules on the FPGA board. If N is
+\-1, then HAL pins for all the SSR outputs will be created. If N=0 then
+no pins will be added.
 .TP
 \fBenable_raw\fR [optional]
 If specified, this turns on a raw access mode, whereby a user can peek and
@@ -1140,6 +1146,32 @@ Pins:
 The pins are numbered from CR01 upwards with the name
 corresponding to the PCB silkscreen. Setting the bit to "true" or 1 lights
 the led.
+
+.SH Solid State Relay
+
+SSRs have names like
+"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.ssr.\fI<Instance>\fR".
+"Instance" is a two-digit number that corresponds to the HostMot2 SSR
+instance number.  There are 'num_ssrs' instances, starting
+with 00.
+
+Each instance has a rate control pin and between 1 and 32 output pins.
+
+Pins:
+
+.TP
+(u32 in) rate
+Set the internal frequency of the SSR instance, in Hz (approximate).
+The valid range is 25 kHz to 25 MHz.  Values below the minimum will
+use the minimum, and values above the max will use the max.  1 MHz is a
+typical value, and appropriate for all Mesa cards, and is the default.
+Set to 0 to disable this SSR instance.
+
+.TP
+(bit in) out-NN
+The state of this SSR instance's NNth output.  Set to 0 to make
+the output pins act like an open switch (no connection), set to 1 to
+make them act like a closed switch.
 
 .SH Watchdog
 
