@@ -177,6 +177,7 @@ help1 = [
     (_("End"), _("Set G54 offset for active axis")),
     (_("Ctrl-End"), _("Set tool offset for loaded tool")),
     ("-, =", _("Jog active axis")),
+    (";, '", _("Select Max velocity")),
 
     ("", ""),
     (_("Left, Right"), _("Jog first axis")),
@@ -1340,6 +1341,8 @@ def jogspeed_incremental(dir=1):
     jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
     # pdb.set_trace()
     cursel = root_window.call(widgets.jogincr._w, "curselection")
+    if type(cursel) == tuple: cursel = cursel[0]
+
     if cursel == "":
         cursel = 0
     else:
