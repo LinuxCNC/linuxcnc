@@ -2210,7 +2210,6 @@ foreach {k v} {
     Home    LineStart       End     LineEnd
 } {
     set b [bind Entry <<$v>>]
-    puts [list Trying to fix bindings $k $v $b]
     if {$b != {}} { bind Entry <$k> $b }
 }
 
