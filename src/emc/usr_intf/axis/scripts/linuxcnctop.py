@@ -51,6 +51,9 @@ def show_perjoint(p):
     
 def show_float(p): return "%-8.4f" % p
 
+def show_floats(s): return " ".join(show_float(p) for p in s)
+def show_ints(s): return " ".join(str(bool(p)) for p in s)
+
 maps = {
 'exec_state': {linuxcnc.EXEC_ERROR: 'error',
                 linuxcnc.EXEC_DONE: 'done',
@@ -91,6 +94,11 @@ maps = {
 'angular_units': show_float,
 'distance_to_go': show_float,
 'current_vel': show_float,
+'ain': show_floats,
+'aout': show_floats,
+'din': show_ints,
+'dout': show_ints,
+'settings': show_floats,
 'limit': show_perjoint,
 'homed': show_perjoint,
 'joint_position': show_joint_position,
@@ -108,7 +116,7 @@ def gui():
     rs274.options.install(root)
     root.title(_("LinuxCNC Status"))
 
-    t = Tkinter.Text()
+    t = Tkinter.Text(wrap="word")
     sb = Tkinter.Scrollbar(command=t.yview)
     t.configure(yscrollcommand=sb.set)
     t.configure(tabs=150)
@@ -145,6 +153,7 @@ def gui():
         except TclError:
             anchor_point = None
         first = True
+        now = time.time()
         for k in dir(s):
             if k.startswith("_"): continue
             if maps.has_key(k) and maps[k] == None: continue
@@ -155,18 +164,20 @@ def gui():
                     v = m(v)
                 else:
                     v = m.get(v, v)
-            if isinstance(v, basestring):
-                v = v.strip()
-                v = v or "-"
-            if oldvalues.has_key(k):
-                changed = oldvalues[k] != v
-                if changed: changetime[k] = time.time() + 2
+            v = str(v)
+            v = v.strip()
+            v = v or "-"
+            changed = oldvalues.get(k, None) != v
+            if changed: changetime[k] = time.time() + 2
             oldvalues[k] = v
-            vranges = t.tag_ranges(k)
-            if changetime.has_key(k) and changetime[k] >= time.time():
+            if changed:
                 vtag = "changedvalue"
-            else:
+            elif k in changetime and changetime[k] < now:
                 vtag = "value"
+                if k in changetime: del changetime[k]
+            elif not changed:
+                continue
+            vranges = t.tag_ranges(k)
             if vranges:
                 t.tk.call(t, "replace", "%s.first" % k, "%s.last" % k, v, (k, vtag))
             else:
