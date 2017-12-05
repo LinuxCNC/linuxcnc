@@ -16,6 +16,15 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+
+# Supply bindings missing from tcl8.6
+if {[bind Scale <Left>] == ""} {
+     bind Scale <Left> { tk::ScaleIncrement %W up little noRepeat }
+}
+if {[bind Scale <Right>] == ""} {
+     bind Scale <Right> { tk::ScaleIncrement %W down little noRepeat }
+}
+
 lappend auto_path $::linuxcnc::TCL_LIB_DIR
 
 . configure \
