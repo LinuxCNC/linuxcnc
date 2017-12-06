@@ -146,6 +146,9 @@ RTAPI_IP_INT(no_init_llio, "debugging - if 1, do not set any llio fields (like n
 static int num = 0;
 RTAPI_IP_INT(num, "hm2 instance number, used for <boardname>.<num>.<pinname>");
 
+static int already_programmed = 0;
+RTAPI_IP_INT(already_programmed, "if 1 - fpga is already programmed and defined in current device tree");
+
 static int comp_id = -1;
 
 /* derive configfs folder from instance name which is unique */
@@ -440,9 +443,24 @@ static int hm2_soc_register(hm2_soc_t *brd, void *fwid, size_t fwid_len, int ins
 
     brd->llio.reset = hm2_soc_reset;
 
-    // hm2_register will downcall on those if firmware= given
-    brd->llio.program_fpga = hm2_soc_program_fpga;
-    brd->llio.verify_firmware = hm2_soc_verify_firmware;
+    if (!brd->already_programmed) {
+	// hm2_register will downcall on those if firmware= given
+	brd->llio.program_fpga = hm2_soc_program_fpga;
+	brd->llio.verify_firmware = hm2_soc_verify_firmware;
+    } else {
+	// we need this branch for soc boards with pre-programmed fpga
+	// so, we assume that fpga programmed from u-boot or later and
+	// active device tree have generic-uio compatible hm2-socfpga0 node
+	LL_DBG("mapping pre-programmed hm2_soc_ol_board %s\n", brd->name);
+	// set fpga state flag to "programmed"
+	brd->fpga_state = DTOV_STAT_APPLIED;
+	// try to map hm2 using available /sys/class/uio*
+	int r = hm2_soc_mmap(brd);
+	if (r) {
+    	    LL_ERR("preloaded_soc_mmap_fail %s, err=%d", brd->name, r);
+    	    return -EINVAL;
+	}
+    }
 
     // if descriptor=<filename> is given,
     // read it (see rtapi_app_main) and pass it up to hm2_register()
@@ -538,6 +556,7 @@ static int instantiate(const int argc, const char**argv)
     }
     brd->no_init_llio = no_init_llio;
     brd->debug = debug;
+    brd->already_programmed = already_programmed;
     if(num == -1){
         LL_ERR("num set to -1 by previous instance.  Set a valid board number");
         return -1;
