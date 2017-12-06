@@ -1,6 +1,7 @@
 import os
 from PyQt4 import QtGui, QtCore, QtSvg
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.qt_istat import IStat
 from qtvcp.qt_glib import GStat, Lcnc_Action
 # Set up logging
@@ -84,7 +85,7 @@ class Custom_SVG(QtSvg.QSvgWidget):
 # It then opens the .ngc files ther eand searches for keynames
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
-class macroTab(QtGui.QWidget, _HalWidgetBase ):
+class macroTab(QtGui.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(macroTab, self).__init__(parent)
         try:
@@ -144,7 +145,7 @@ class macroTab(QtGui.QWidget, _HalWidgetBase ):
         # of these arrays
         for i, tName in enumerate(tabName):
             # make a widget that is added to the stack
-            w = QtGui.QWidget()
+            w = TouchInputWidget()
             hbox = QtGui.QHBoxLayout(w)
             hbox.addStretch(1)
             vbox = QtGui.QVBoxLayout()
@@ -158,6 +159,7 @@ class macroTab(QtGui.QWidget, _HalWidgetBase ):
                         self['%s%d'%(tName,n)].setChecked(True)
                 else:
                     self['%s%d'%(tName,n)] = QtGui.QLineEdit()
+                    self['%s%d'%(tName,n)].keyboard_type = 'numeric'
                     self['%s%d'%(tName,n)].setText(name[1])
                 vbox.addWidget(l)
                 vbox.addWidget(self['%s%d'%(tName,n)])

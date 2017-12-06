@@ -99,6 +99,9 @@ class HandlerClass:
                     receiver.keyPressEvent(event)
                     event.accept()
                 return True
+            if isinstance(receiver,QtGui.QDialog):
+                print 'dialog'
+                return True
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
