@@ -1868,7 +1868,7 @@ msgstr "实用工具"
 
 #: tcl/tklinuxcnc.tcl:792
 msgid "Hal Scope"
-msgstr "HAL 范围"
+msgstr "HAL 示波器"
 
 #: tcl/tklinuxcnc.tcl:814
 msgid "HAL Show"
@@ -5601,7 +5601,7 @@ msgstr "加载文件行："
 
 #: src/emc/usr_intf/touchy/touchy.glade:2971
 msgid "Pockets:"
-msgstr "口袋"
+msgstr "口袋:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2984
 msgid ""
@@ -13489,11 +13489,11 @@ msgstr "打开 classicladder"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:7738
 msgid "Hal-Scope"
-msgstr "HAL 面板"
+msgstr "HAL 示波器"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:7744
 msgid "launch hal scope"
-msgstr "打开 Hal 面板"
+msgstr "打开 Hal 示波器"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:7762
 msgid "launch linuxcnc status"
@@ -15964,3 +15964,24 @@ msgstr "TB6560 3轴"
 
 msgid "TB6560 4 axes"
 msgstr "TB6560 4轴"
+
+msgid "Local Config Theme"
+msgstr "本地配置主题"
+
+msgid "Set Tool"
+msgstr "设置刀具"
+
+msgid "Set Origin"
+msgstr "设置原点"
+
+msgid "Macro"
+msgstr "宏"
+
+msgid "Ready For Homing"
+msgstr "准备好回零"
+
+msgid "Tool %s     %s"
+msgstr "刀具 %s     %s"
+
+msgid "%4.2f mm/min"
+msgstr "%4.2f 毫米/秒"
