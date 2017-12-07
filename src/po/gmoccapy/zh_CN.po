@@ -65,7 +65,7 @@ msgstr ""
 #: gmoccapy.py:755
 #, python-format
 msgid "Home axis %s"
-msgstr "%s 轴回原点"
+msgstr "%s 轴回零"
 
 #: gmoccapy.py:854
 msgid "**** To many increments given in INI File for this screen ****"
@@ -96,7 +96,7 @@ msgstr "**** GMOCCAPY 错误****"
 
 #: gmoccapy.py:896
 msgid "**** screen 2 GLADE ERROR: ****"
-msgstr "**** error con el archivo glade 2 ****"
+msgstr "**** 屏幕2 GLADE 错误 ****"
 
 #: gmoccapy.py:901
 msgid "**** No gmoccapy2.glade file present ****"
@@ -112,7 +112,7 @@ msgstr "**** 没有标签将被添加！****"
 
 #: gmoccapy.py:929
 msgid "ERROR, trying to initialize the user tabs or panaels, check for typos"
-msgstr "错误，尝试初始化用户选项卡或面板，检查打字错误"
+msgstr "错误，尝试初始化用户选项卡或面板，检查拼写错误"
 
 #: gmoccapy.py:968
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
@@ -162,7 +162,7 @@ msgstr "选择要在程序启动时加载的文件"
 #: gmoccapy.py:1244
 #, python-format
 msgid "**** GMOCCAPY ERROR **** /n Message type %s not suported"
-msgstr "**** GMOCCAPY 错误 **** / tipo del mensaje %s no soportado"
+msgstr "**** GMOCCAPY 错误 **** / 不支持消息类型 %s"
 
 #: gmoccapy.py:1362
 msgid "Unknown error type and no error text given"
@@ -457,11 +457,11 @@ msgstr "旧刀具将保持设置！"
 
 #: gmoccapy.py:3411
 msgid "No or more than one tool selected in tool table"
-msgstr "在刀具表中选择了一个或多个刀具"
+msgstr "没有选择或选择了多个刀具，"
 
 #: gmoccapy.py:3412
 msgid "Please select only one tool in the table"
-msgstr "请在表中只选择一个刀具"
+msgstr "请在刀具表中只选择一个刀具。"
 
 #: gmoccapy.py:3415
 #: gmoccapy.py:3423
@@ -471,11 +471,11 @@ msgstr "警告:无法对刀!"
 
 #: gmoccapy.py:3419
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
-msgstr "你不能对刀，刀具没有安装在主轴上"
+msgstr "无法对刀，刀具还没有安装刀主轴上，"
 
 #: gmoccapy.py:3420
 msgid "your selection has been reseted to the tool in spindle"
-msgstr "您的选择已在主轴中重置为刀具"
+msgstr "您的选择将被重置回主轴中的刀具。"
 
 #: gmoccapy.py:3429
 msgid "Tool touch off is not possible with cutter radius compensation switched on!\n"
@@ -543,7 +543,7 @@ msgstr "所选刀具已经在主轴上，不需要改变。"
 
 #: gmoccapy.py:3502
 msgid "you selected no or more than one tool, the tool selection must be unique"
-msgstr "您没有选择或选择了多个刀具，刀具选择必须是唯一的"
+msgstr "您没有选择或选择了多个刀具，只能选择一个刀具。"
 
 #: gmoccapy.py:3524
 msgid "Could not understand the entered tool number. Will not change anything"
@@ -1228,15 +1228,15 @@ msgstr "最低转速"
 
 #: gmoccapy.glade.h:161
 msgid "Start as fullscreen"
-msgstr "以全屏开始"
+msgstr "以全屏启动"
 
 #: gmoccapy.glade.h:162
 msgid "Start as window"
-msgstr "从窗口开始"
+msgstr "以窗口启动"
 
 #: gmoccapy.glade.h:163
 msgid "Start maximized"
-msgstr "开始最大化"
+msgstr "启动时最大化"
 
 #: gmoccapy.glade.h:164
 msgid "Starting RPM"
@@ -1296,7 +1296,7 @@ msgstr "复原"
 
 #: gmoccapy.glade.h:178
 msgid "Unhome all axis"
-msgstr "全部轴清除原点"
+msgstr "全部轴离零"
 
 #: gmoccapy.glade.h:179
 msgid "Unhomed color"
@@ -1460,19 +1460,19 @@ msgstr "隐藏光标"
 
 #: gmoccapy.glade.h:219
 msgid "home all axis"
-msgstr "全部轴回原点"
+msgstr "全部轴回零"
 
 #: gmoccapy.glade.h:220
 msgid "home x axis"
-msgstr "X 轴回原点"
+msgstr "X 轴回零"
 
 #: gmoccapy.glade.h:221
 msgid "home y axis"
-msgstr "Y 轴回原点"
+msgstr "Y 轴回零"
 
 #: gmoccapy.glade.h:222
 msgid "home z axis"
-msgstr "Z 轴回原点"
+msgstr "Z 轴回零"
 
 #: gmoccapy.glade.h:223
 msgid "launch calibration"
@@ -1790,6 +1790,12 @@ msgstr "黑色"
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:31
 msgid "white"
 msgstr "白色"
+
+msgid "Follow System Theme"
+msgstr "跟随系统主题"
+
+msgid "Local Config Theme"
+msgstr "本地配置主题"
 
 #~ msgid "**** GMOCCAPY INFO : ****"
 #~ msgstr "**** GMOCCAPY INFO ****"
