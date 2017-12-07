@@ -902,6 +902,11 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 
         switch (md->gtag) {
 
+            case HM2_GTAG_IOPORT:
+                // We silently ignore IOPorts here because we already
+                // handled them above.
+                continue;
+
             case HM2_GTAG_ENCODER:
             case HM2_GTAG_MUXED_ENCODER:
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
