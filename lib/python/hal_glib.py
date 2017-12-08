@@ -676,6 +676,9 @@ class _GStat(gobject.GObject):
         else:
             return False
 
+    def is_metric_mode(self):
+        return self.old['metric']
+
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
         m = "G10 L10 P%d %s%f"%(tool,axis,value)
