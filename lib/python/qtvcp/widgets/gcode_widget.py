@@ -311,6 +311,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
             if not GSTAT.old['file']  == self._last_filename:
                 log.debug('should reload the display')
                 self.load_text(GSTAT.old['file'])
+                self._last_filename = GSTAT.old['file']
         if 1==1:
             self.markerAdd(line, self.ARROW_MARKER_NUM)
             if self.last_line:
