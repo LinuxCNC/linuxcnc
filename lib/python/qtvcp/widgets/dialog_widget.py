@@ -230,6 +230,7 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         fname = None
         if (self.exec_()):
             fname = self.selectedFiles()[0]
+            self.setDirectory(self.directory().absolutePath())
         GSTAT.emit('focus-overlay-changed',False,None,None)
         if fname:
             #NOTE.notify('Error',str(fname),QtGui.QMessageBox.Information,10)
