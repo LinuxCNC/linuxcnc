@@ -62,7 +62,9 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
         self.mdi = False
         self.auto = False
         self.manual = False
-
+        self.jog_incr = False
+        self.jog_incr_imperial = .010
+        self.jog_incr_mm = .025 
     ##################################################
     # This gets called by qtvcp_makepins
     # It infers HAL involvement but there is none
@@ -155,10 +157,18 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             pass
         elif self.auto:
             GSTAT.connect('mode-auto', lambda w: _safecheck(True))
+            GSTAT.connect('mode-mdi', lambda w: _safecheck(False))
+            GSTAT.connect('mode-manual', lambda w: _safecheck(False))
         elif self.mdi:
             GSTAT.connect('mode-mdi', lambda w: _safecheck(True))
+            GSTAT.connect('mode-manual', lambda w: _safecheck(False))
+            GSTAT.connect('mode-auto', lambda w: _safecheck(False))
         elif self.manual:
             GSTAT.connect('mode-manual', lambda w: _safecheck(True))
+            GSTAT.connect('mode-mdi', lambda w: _safecheck(False))
+            GSTAT.connect('mode-auto', lambda w: _safecheck(False))
+        elif self.jog_incr:
+            GSTAT.connect('metric-mode-changed', lambda w,data:  self.incr_action())
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
 
@@ -223,6 +233,8 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             ACTION.SET_MDI_MODE()
         elif self.manual:
             ACTION.SET_MANUAL_MODE()
+        elif self.jog_incr:
+            self.incr_action()
         # defult error case
         else:
             log.error('No action recognised')
@@ -233,6 +245,19 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         GSTAT.do_jog(self.joint_number, direction, GSTAT.current_jog_distance)
 
+    def incr_action(self):
+        if GSTAT.is_metric_mode():
+            if self.jog_incr_mm:
+                text = '%s mm'% str(self.jog_incr_mm)
+                GSTAT.set_jog_increments(self.jog_incr_mm,text)
+            else:
+                GSTAT.set_jog_increments(0, 'Continous')
+        else:
+            if self.jog_incr_imperial:
+                text = '''%s "'''% str(self.jog_incr_imperial)
+                GSTAT.set_jog_increments(self.jog_incr_imperial, text)
+            else:
+                GSTAT.set_jog_increments(0, 'Continous')
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -246,7 +271,7 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
                     'load_dialog','jog_joint_pos', 'jog_joint_neg','zero_axis',
                     'launch_halmeter','launch_status', 'launch_halshow',
                     'auto','mdi','manual','macro_dialog','origin_offset_dialog',
-                    'camview_dialog')
+                    'camview_dialog','jog_incr')
 
         for i in data:
             if not i == picked:
@@ -430,6 +455,28 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
     def reset_joint(self):
         self.joint = -1
 
+    def set_jog_incr(self, data):
+        self.jog_incr = data
+        if data:
+            self._toggle_properties('jog_incr')
+    def get_jog_incr(self):
+        return self.jog_incr
+    def reset_jog_incr(self):
+        self.jog_incr = False
+
+    def set_incr_imperial(self, data):
+        self.jog_incr_imperial = data
+    def get_incr_imperial(self):
+        return self.jog_incr_imperial
+    def reset_incr_imperial(self):
+        self.jog_incr_imperial = 0.010
+
+    def set_incr_mm(self, data):
+        self.jog_incr_mm = data
+    def get_incr_mm(self):
+        return self.jog_incr_mm
+    def reset_incr_mm(self):
+        self.jog_incr_mm = 0.025
     # designer will show these properties in this order:
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
     machine_on_action = QtCore.pyqtProperty(bool, get_machine_on, set_machine_on, reset_machine_on)
@@ -451,7 +498,9 @@ class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
     jog_joint_pos_action = QtCore.pyqtProperty(bool, get_jog_joint_pos, set_jog_joint_pos, reset_jog_joint_pos)
     jog_joint_neg_action = QtCore.pyqtProperty(bool, get_jog_joint_neg, set_jog_joint_neg, reset_jog_joint_neg)
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
-
+    jog_incr_action = QtCore.pyqtProperty(bool, get_jog_incr, set_jog_incr, reset_jog_incr)
+    incr_imperial_number = QtCore.pyqtProperty(float, get_incr_imperial, set_incr_imperial, reset_incr_imperial)
+    incr_mm_number = QtCore.pyqtProperty(float, get_incr_mm, set_incr_mm, reset_incr_mm)
     ##############################
     # required class boiler code #
     ##############################
