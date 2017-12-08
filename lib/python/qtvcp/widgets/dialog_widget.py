@@ -16,7 +16,7 @@
 
 import os
 from PyQt4.QtGui import QMessageBox, QFileDialog, QColor, QDesktopWidget, \
-        QDialog, QDialogButtonBox, QVBoxLayout
+        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton
 from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
 from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
@@ -275,15 +275,20 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
                   Qt.Dialog |
                  Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
-        self.setMinimumSize(800,500)
+        self.setMinimumSize(200,200)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         b = buttonBox.button(QDialogButtonBox.Ok)
         b.clicked.connect(lambda:self.close())
+        for i in('X','Y','Z'):
+            b = QPushButton('Zero %s'%i)
+            b.clicked.connect(self.zeroPress('%s'%i))
+            buttonBox.addButton(b,3)
+        
         l = QVBoxLayout()
-        o = OFFVIEW_WIDGET()
-        o._hal_init()
+        self._o = OFFVIEW_WIDGET()
+        self._o._hal_init()
         self.setLayout(l)
-        l.addWidget(o)
+        l.addWidget(self._o)
         l.addWidget(buttonBox)
         self.setModal(True)
 
@@ -295,14 +300,26 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
         if cmd =='ORIGINOFFSET':
             self.load_dialog()
 
+    # This weird code is just so we can get the axis
+    # letter
+    # using clicked.connect() apparently can't easily
+    # add user data 
+    def zeroPress(self,data):
+        def calluser():
+            self.zeroAxis(data)
+        return calluser
+
+    def zeroAxis(self, index):
+        ACTION.SET_AXIS_ORIGIN(index,0)
+
     def load_dialog(self):
         GSTAT.emit('focus-overlay-changed',True,'Set Origin Offsets',self._color)
         # move to botton laeft of parent
         ph = self.topParent.geometry().height()
         px = self.topParent.geometry().x()
         py = self.topParent.geometry().y()
-        dw = self.width()
-        dh = self.height()
+        dw = 450#self.width()
+        dh = 300#self.height()
         self.setGeometry( px, py+ph-dh, dw, dh )
         self.show()
         self.exec_()
@@ -347,7 +364,7 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
                   Qt.Dialog |
                  Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
-        self.setMinimumSize(700,400)
+        self.setMinimumSize(400,400)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         b = buttonBox.button(QDialogButtonBox.Ok)
         b.clicked.connect(lambda:self.close())
