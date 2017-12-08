@@ -63,7 +63,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         self.metric_display = state
 
     def get_table_data(self):
-        self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0,'Current System'],
+        self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0,'Absolute Position'],
                           [None, None, 2, None, None, None, None, None, None,'Rotational Offsets'],
                           [0, 0, 3, 0, 0, 0, 0, 0, 0,'G92 Offsets'],
                           [0, 0, 0, 0, 0, 0, 0, 0, 0,'Current Tool'],
@@ -84,7 +84,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
 
         # set the table model
         header = [ 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Name']
-        vheader = ['G5x', 'Rot', 'G92', 'Tool', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3']
+        vheader = ['ABS', 'Rot', 'G92', 'Tool', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3']
         tablemodel = MyTableModel(self.tabledata, header, vheader, self)
         self.setModel(tablemodel)
         self.clicked.connect(self.showSelection)
@@ -129,13 +129,13 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
             self.current_system = "G54"
             self.IS_RUNNING = False
 
-        g5x = self.status.g5x_offset
+        ap = self.status.actual_position
         tool = self.status.tool_offset
         g92 = self.status.g92_offset
         rot = self.status.rotation_xy
 
         if self.metric_display != INI.MACHINE_IS_METRIC:
-            g5x = INI.convert_units_9(g5x)
+            ap = INI.convert_units_9(ap)
             tool = INI.convert_units_9(tool)
             g92 = INI.convert_units_9(g92)
             g54 = INI.convert_units_9(g54)
@@ -157,7 +157,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         degree_tmpl = "%11.2f"
 
         # fill each row of the liststore fron the offsets arrays
-        for row, i in enumerate([g5x, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
+        for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 1:
                     if column == 2:
