@@ -101,7 +101,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self.bg_color = QColor(0, 0, 0,150)
         self.text = "Loading..."
         self._state = False
-        self._image_path = '/home/chris/emc-dev/linuxcnc2.gif'
+        self._image_path = '~/emc2-dev/linuxcnc-wizard.gif'
         self._image = QImage(os.path.join(os.path.expanduser('~'), self._image_path))
         self._show_buttons = False
         self._show_image = False
@@ -129,6 +129,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                     self.text = text
                 self.show()
                 log.debug('Overlay - Show')
+                os.system("beep -f 555 ")
             else:
                 self.hide()
                 log.debug('Overlay - Hide')
@@ -154,7 +155,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 
     # we can add an image like a watermark transparence set by 
     # _image_transp
-    def draw_image(qp):
+    def draw_image(self, qp):
+        #print self._image, self._image_transp
         qp.setOpacity(self._image_transp)
         qp.drawImage(self.rect(), self._image)
 
@@ -189,6 +191,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self.cancelButton.pressed.connect(self.cancelChecked)
         self.okButton.setVisible(self._show_buttons)
         self.cancelButton.setVisible(self._show_buttons)
+        l = QLabel()
+        hbox.addWidget(l)
         hbox.addWidget(self.okButton)
         hbox.addWidget(self.cancelButton)
         vbox = QVBoxLayout()
@@ -259,11 +263,12 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self._show_buttons = False
 
     def setimage_path(self, data):
-        self._image_path = data
+        self._image_path = str(data)
         try:
-            self._image = QImage(os.path.join(os.path.expanduser('~'), self._image_path))
-        except:
-            pass
+            path = os.path.join(os.path.expanduser('~'), self._image_path)
+            self._image = QImage(path)
+        except Exception as e:
+            log.debug('Focus Overlay image path error: {}'.format(self._image_path))
     def getimage_path(self):
         return self._image_path
     def resetimage_path(self):
