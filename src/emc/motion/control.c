@@ -1863,6 +1863,12 @@ static void output_to_hal(void)
 	*(joint_data->f_errored) = GET_JOINT_FERROR_FLAG(joint);
 	*(joint_data->faulted) = GET_JOINT_FAULT_FLAG(joint);
 	*(joint_data->home_state) = joint->home_state;
+
+        // conditionally remove outstanding requests to unlock rotaries:
+        if  ( !GET_MOTION_ENABLE_FLAG() && (joint_is_lockable(joint_num))) {
+             *(joint_data->unlock) = 0;
+        }
+
     }
 
     /* output axis info to HAL for scoping, etc */
