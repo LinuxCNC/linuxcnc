@@ -48,11 +48,16 @@ class Lcnc_Dialog(QMessageBox):
         self.YN_TYPE = 0
         self._state = False
         self._color = QColor(0, 0, 0, 150)
-        self.focus_text ='Dialog'
+        self.focus_text =''
         self.hide()
 
     def showdialog(self, message, more_info=None, details=None, display_type=1,
-                     icon=QMessageBox.Information, pinname=None):
+                     icon=QMessageBox.Information, pinname=None, focus_text=None,
+                        focus_color=None):
+        if focus_text:
+            self.focus_text = focus_text
+        if focus_color:
+            self._color = focus_color
         self.OK_TYPE = 1
         self.YN_TYPE = 0
         self.QUESTION = QMessageBox.Question

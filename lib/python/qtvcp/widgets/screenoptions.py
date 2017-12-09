@@ -46,13 +46,12 @@ class Lcnc_ScreenOptions(QtGui.QWidget, _HalWidgetBase):
 
     def closeEvent(self, event):
         if self.close_event:
-            GSTAT.emit('focus-overlay-changed',True,'ARE YOU SURE!',QtGui.QColor(100, 0, 0,150))
             answer = self.w.lcnc_dialog.showdialog('Do you want to shutdown now?',
                 None, details='You can set a preference to not see this message',
-                icon=MSG.CRITICAL, display_type=MSG.YN_TYPE)
+                icon=MSG.CRITICAL, display_type=MSG.YN_TYPE,focus_text='ARE YOU SURE',
+                 focus_color=QtGui.QColor(100, 0, 0,150)   )
             if not answer:
                 event.ignore()
-                GSTAT.emit('focus-overlay-changed',False,None,None)
                 return
             event.accept()
 
