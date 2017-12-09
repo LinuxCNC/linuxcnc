@@ -16,10 +16,11 @@ log = logger.getLogger(__name__)
 ###########################
 
 class _HalWidgetBase:
-    def hal_init(self, comp, name, object, toplevel):
+    def hal_init(self, comp, name, object, toplevel,PATHS):
         self.hal, self.hal_name = comp, name
         self.QT_OBJECT_ = object
         self.QTVCP_INSTANCE_ = toplevel
+        self.PATHS_ = PATHS
         self._hal_init()
 
     def _hal_init(self):

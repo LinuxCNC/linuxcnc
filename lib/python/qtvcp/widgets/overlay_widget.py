@@ -114,11 +114,11 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # it should work with any main window but doesn't.
     # this worked so i stopped looking why
     # this also sets up following show or hide etc based on
-    # GSTAT messages 
+    # GSTAT messages
+    # adjust image path name at runtime
     def _hal_init(self):
         self.top_level = self.QTVCP_INSTANCE_
         self.newParent()
-
         def _f(data,text,color):
             if data:
                 if color:
@@ -134,6 +134,19 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 self.hide()
                 log.debug('Overlay - Hide')
         GSTAT.connect('focus-overlay-changed', lambda w, data, text, color: _f(data, text, color))
+        # look for special path names and change to real path
+        if 'STD_IMAGE_DIR/' in self._image_path:
+            t = self._image_path.split('STD_IMAGE_DIR/',)[1]
+            d =  os.path.join(self.PATHS_.IMAGEDIR,t)
+        elif 'CONFIG_DIR/' in self._image_path:
+            t = self._image_path.split('CONFIG_DIR/',)[1]
+            d =  os.path.join(self.PATHS_.CONFIGPATH,t)
+        else:
+            return
+        if os.path.exists(d):
+            self._image = QImage(d)
+        else:
+            log.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
 
     # Ok paint everything
     def paintEvent(self, event):
