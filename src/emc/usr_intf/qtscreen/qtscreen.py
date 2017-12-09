@@ -235,7 +235,7 @@ class QTscreen:
         window.instance()
 
         # make QT widget HAL pins
-        panel = qt_makepins.QTPanel(self.halcomp,xmlpath,window,opts.debug)
+        panel = qt_makepins.QTPanel(self.halcomp,xmlpath,window,opts.debug,PATH)
 
         # call handler file's initialized function
         if opts.usermod:

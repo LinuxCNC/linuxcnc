@@ -30,7 +30,7 @@ log = logger.getLogger(__name__)
 #log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
-    def __init__(self,halcomp,xmlname,window,debug=False):
+    def __init__(self,halcomp,xmlname,window,debug,PATH):
 
         self.hal = QComponent(halcomp)
         self.widgets = {}
@@ -41,7 +41,7 @@ class QTPanel():
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
                 log.debug('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init(self.hal, str(idname), widget, window)
+                widget.hal_init(self.hal, str(idname), widget, window,PATH)
                 self.widgets[idname] = widget
 
     def __getitem__(self, item):
