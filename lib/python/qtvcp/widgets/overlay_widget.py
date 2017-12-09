@@ -101,8 +101,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self.bg_color = QColor(0, 0, 0,150)
         self.text = "Loading..."
         self._state = False
-        self._image_path = '~/emc2-dev/linuxcnc-wizard.gif'
-        self._image = QImage(os.path.join(os.path.expanduser('~'), self._image_path))
+        self._image_path = '~/emc-dev/linuxcnc-wizard.gif'
+        self._image = QImage(os.path.expanduser(self._image_path))
         self._show_buttons = False
         self._show_image = False
         self._image_transp = 0.3
@@ -265,7 +265,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def setimage_path(self, data):
         self._image_path = str(data)
         try:
-            path = os.path.join(os.path.expanduser('~'), self._image_path)
+            path = os.path.expanduser( self._image_path)
             self._image = QImage(path)
         except Exception as e:
             log.debug('Focus Overlay image path error: {}'.format(self._image_path))
