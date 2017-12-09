@@ -722,7 +722,9 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 
 `wait_complete([float])`::
 	wait for completion of the last command sent. If timeout in
-	seconds not specified, default is 1 second.
+	seconds not specified, default is 5 seconds. Return -1 if
+	timed out, return RCS_DONE or RCS_ERROR according to command
+	execution status.
 
 
 == Reading the error channel
