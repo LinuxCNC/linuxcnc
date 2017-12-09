@@ -29,9 +29,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget{
-background-image: url(/home/chris/Desktop/background.png) 0 0 0 0 stretch stretch; }
-</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
@@ -193,7 +191,7 @@ color: rgb(255, 255, 255);</string>
       <rect>
        <x>400</x>
        <y>10</y>
-       <width>411</width>
+       <width>401</width>
        <height>211</height>
       </rect>
      </property>
@@ -300,6 +298,25 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <string>Velocity</string>
      </property>
     </widget>
+    <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>40</y>
+       <width>41</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="true_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="false_textTemplate" stdset="0">
+      <string/>
+     </property>
+    </widget>
    </widget>
    <widget class="GcodeEditor" name="gcodeeditor">
     <property name="geometry">
@@ -316,7 +333,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog">
      <property name="geometry">
       <rect>
-       <x>468</x>
+       <x>480</x>
        <y>310</y>
        <width>700</width>
        <height>400</height>
@@ -409,16 +426,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="Lcnc_MDILine" name="mdi_line">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>730</y>
-      <width>271</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
@@ -480,7 +487,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </font>
     </property>
     <property name="text">
-     <string>Estop</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Estop&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -499,7 +506,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </font>
     </property>
     <property name="text">
-     <string>Machine On</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Machine On&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
@@ -512,7 +519,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Flood</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Flood&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_7">
@@ -525,14 +532,14 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Mist</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Mist&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>490</y>
+      <y>520</y>
       <width>111</width>
       <height>22</height>
      </rect>
@@ -544,23 +551,10 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </font>
     </property>
     <property name="text">
-     <string>Block Delete</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Block Delete&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>520</y>
-      <width>111</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Single Block</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -570,10 +564,10 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Optional Stop</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Single Block&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_11">
+   <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -583,7 +577,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Paused</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Optional Stop&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_12">
@@ -596,14 +590,14 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Homing Requied</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Homing Requied&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="Lcnc_Led" name="lcnc_led_7">
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>520</y>
+      <y>550</y>
       <width>21</width>
       <height>21</height>
      </rect>
@@ -622,7 +616,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Jog Rate</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;;&quot;&gt;Jog Rate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_14">
@@ -635,7 +629,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Jog Inc</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Jog Inc&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_15">
@@ -648,7 +642,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Number</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Number&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_16">
@@ -661,7 +655,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>Offset #</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Offset #&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_17">
@@ -674,7 +668,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;TextLabel&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="Line" name="line">
@@ -709,7 +703,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_2">
+   <widget class="Lcnc_State_Led" name="led_machine_on">
     <property name="geometry">
      <rect>
       <x>120</x>
@@ -722,9 +716,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>15</number>
     </property>
     <property name="color">
-     <color alpha="0">
-      <red>0</red>
-      <green>0</green>
+     <color alpha="255">
+      <red>85</red>
+      <green>255</green>
       <blue>0</blue>
      </color>
     </property>
@@ -763,10 +757,10 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <widget class="Lcnc_State_Led" name="lcnc_state_led_4">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>580</y>
-      <width>21</width>
-      <height>20</height>
+      <x>985</x>
+      <y>470</y>
+      <width>16</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="diameter">
@@ -783,16 +777,19 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>130</x>
-      <y>690</y>
+      <y>685</y>
       <width>101</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;RO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::RichText</enum>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RO:&lt;/span&gt;  &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;RO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="feed_override_status" stdset="0">
      <bool>false</bool>
@@ -805,32 +802,38 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>690</y>
+      <y>685</y>
       <width>101</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::RichText</enum>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FO:&lt;/span&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_3">
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>690</y>
+      <y>685</y>
       <width>101</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;SO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::RichText</enum>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;SO:&lt;/span&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;SO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="feed_override_status" stdset="0">
      <bool>false</bool>
@@ -908,7 +911,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#000000;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#d1d1d1;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::RichText</enum>
@@ -917,7 +920,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#000000;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#d1d1d1;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="feed_override_status" stdset="0">
      <bool>false</bool>
@@ -983,7 +986,10 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
     <property name="show_image_option" stdset="0">
-     <bool>false</bool>
+     <bool>true</bool>
+    </property>
+    <property name="image_path" stdset="0">
+     <string>STD_IMAGE_DIR/linuxcnc-wizard.gif</string>
     </property>
    </widget>
    <widget class="Lcnc_Dialog" name="lcnc_dialog">
@@ -1067,7 +1073,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>550</y>
+      <y>580</y>
       <width>21</width>
       <height>20</height>
      </rect>
@@ -1092,7 +1098,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>490</y>
+      <y>520</y>
       <width>21</width>
       <height>21</height>
      </rect>
@@ -1113,7 +1119,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_9">
+   <widget class="Lcnc_State_Led" name="led_home_x">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -1126,9 +1132,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>10</number>
     </property>
     <property name="color">
-     <color alpha="174">
-      <red>0</red>
-      <green>0</green>
+     <color alpha="214">
+      <red>255</red>
+      <green>255</green>
       <blue>0</blue>
      </color>
     </property>
@@ -1145,7 +1151,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_10">
+   <widget class="Lcnc_State_Led" name="led_home_y">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -1158,9 +1164,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>10</number>
     </property>
     <property name="color">
-     <color alpha="140">
-      <red>0</red>
-      <green>0</green>
+     <color alpha="214">
+      <red>255</red>
+      <green>255</green>
       <blue>0</blue>
      </color>
     </property>
@@ -1180,7 +1186,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>1</number>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_11">
+   <widget class="Lcnc_State_Led" name="led_home_z">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -1193,9 +1199,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>10</number>
     </property>
     <property name="color">
-     <color alpha="231">
-      <red>0</red>
-      <green>0</green>
+     <color alpha="214">
+      <red>255</red>
+      <green>255</green>
       <blue>0</blue>
      </color>
     </property>
@@ -1219,7 +1225,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>940</x>
-      <y>480</y>
+      <y>470</y>
       <width>61</width>
       <height>61</height>
      </rect>
@@ -1240,8 +1246,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_6">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>480</y>
+      <x>860</x>
+      <y>470</y>
       <width>61</width>
       <height>61</height>
      </rect>
@@ -1263,7 +1269,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>690</y>
+      <y>685</y>
       <width>56</width>
       <height>31</height>
      </rect>
@@ -1285,7 +1291,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>690</y>
+      <y>685</y>
       <width>56</width>
       <height>31</height>
      </rect>
@@ -1310,7 +1316,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>610</x>
-      <y>690</y>
+      <y>685</y>
       <width>56</width>
       <height>31</height>
      </rect>
@@ -1355,25 +1361,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     </property>
     <property name="jogincr_status" stdset="0">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>540</y>
-      <width>51</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000;&quot;&gt;Inch&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="true_textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="false_textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000;&quot;&gt;Inch&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="Lcnc_MacroTabDialog" name="lcnc_macrotabdialog">
@@ -1449,22 +1436,24 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <height>441</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="page">
-     <widget class="QFrame" name="frame_2">
+    <widget class="QWidget" name="page_man">
+     <widget class="QFrame" name="frame_man">
       <property name="geometry">
        <rect>
-        <x>-10</x>
+        <x>0</x>
         <y>-10</y>
-        <width>201</width>
+        <width>191</width>
         <height>451</height>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1485,8 +1474,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
         </rect>
        </property>
        <property name="styleSheet">
-        <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0 0 0 0 stretch stretch;}</string>
+        <string notr="true"/>
        </property>
        <property name="is_on_status" stdset="0">
         <bool>true</bool>
@@ -1658,7 +1646,7 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
           <rect>
            <x>80</x>
            <y>150</y>
-           <width>111</width>
+           <width>101</width>
            <height>21</height>
           </rect>
          </property>
@@ -1668,11 +1656,14 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
       <widget class="Lcnc_ActionButton" name="button_estop">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>0</x>
          <y>10</y>
          <width>81</width>
          <height>51</height>
         </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
        </property>
        <property name="text">
         <string>Estop</string>
@@ -1687,9 +1678,9 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
       <widget class="Lcnc_ActionButton" name="button_machineon">
        <property name="geometry">
         <rect>
-         <x>100</x>
+         <x>90</x>
          <y>10</y>
-         <width>81</width>
+         <width>101</width>
          <height>51</height>
         </rect>
        </property>
@@ -1739,19 +1730,18 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_2">
-     <widget class="QFrame" name="frame_4">
+    <widget class="QWidget" name="page_mdi">
+     <widget class="QFrame" name="frame_mdi">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
         <width>191</width>
-        <height>461</height>
+        <height>441</height>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1775,23 +1765,10 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="label_22">
-       <property name="geometry">
-        <rect>
-         <x>50</x>
-         <y>10</y>
-         <width>72</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>MDI</string>
-       </property>
-      </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="page_3">
-     <widget class="QFrame" name="frame_5">
+    <widget class="QWidget" name="page_auto">
+     <widget class="QFrame" name="frame_auto">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -1801,8 +1778,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1810,19 +1786,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_23">
-       <property name="geometry">
-        <rect>
-         <x>50</x>
-         <y>10</y>
-         <width>72</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Auto</string>
-       </property>
-      </widget>
       <widget class="Lcnc_ActionButton" name="actionbutton_load">
        <property name="geometry">
         <rect>
@@ -1974,65 +1937,368 @@ file</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="Lcnc_Gstat_Label" name="mcodes_label">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>550</y>
-      <width>41</width>
-      <height>21</height>
+      <x>20</x>
+      <y>725</y>
+      <width>311</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Rapid</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Mcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Mcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="gcodes_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="mcodes_status" stdset="0">
+     <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_15">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>955</x>
       <y>580</y>
-      <width>41</width>
-      <height>23</height>
+      <width>51</width>
+      <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>Feed</string>
+     <string>FO</string>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>75.000000000000000</double>
     </property>
    </widget>
-   <widget class="QLabel" name="label_25">
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_16">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>955</x>
+      <y>550</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>RO</string>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_over_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>25.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_17">
+    <property name="geometry">
+     <rect>
+      <x>955</x>
       <y>610</y>
       <width>51</width>
-      <height>23</height>
+      <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>Spindle</string>
+     <string>SO</string>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_over_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>90.000000000000000</double>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_18">
     <property name="geometry">
      <rect>
-      <x>960</x>
+      <x>955</x>
       <y>640</y>
-      <width>32</width>
-      <height>23</height>
+      <width>51</width>
+      <height>24</height>
      </rect>
     </property>
     <property name="text">
      <string>Jog</string>
     </property>
+    <property name="jog_rate_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_num" stdset="0">
+     <double>60.000000000000000</double>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>15.000000000000000</double>
+    </property>
    </widget>
+   <widget class="QFrame" name="frame_auto_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>460</y>
+      <width>341</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_3">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>460</y>
+      <width>331</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_4">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>460</y>
+      <width>161</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_5">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>460</y>
+      <width>171</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>680</y>
+      <width>341</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_7">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>680</y>
+      <width>331</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_9">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>720</y>
+      <width>341</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_10">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>720</y>
+      <width>661</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_8">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>680</y>
+      <width>331</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="Lcnc_MDILine" name="mdi_line">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>6</y>
+       <width>271</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="Lcnc_Gstat_Label" name="gcodes_label">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>725</y>
+      <width>631</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Gcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Gcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="gcodes_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="mcodes_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <zorder>frame_auto_10</zorder>
+   <zorder>frame_auto_9</zorder>
+   <zorder>frame_auto_6</zorder>
+   <zorder>frame_auto_7</zorder>
+   <zorder>frame_auto_4</zorder>
+   <zorder>frame_auto_5</zorder>
+   <zorder>frame_auto_3</zorder>
+   <zorder>frame_auto_2</zorder>
    <zorder>lcnc_drolabel_y</zorder>
    <zorder>lcnc_drolabel_z</zorder>
    <zorder>lcnc_drolabel_x</zorder>
    <zorder>frame</zorder>
    <zorder>gcodeeditor</zorder>
    <zorder>state_enable_gridLayout</zorder>
-   <zorder>mdi_line</zorder>
    <zorder>groupBox</zorder>
    <zorder>label_3</zorder>
    <zorder>label_5</zorder>
@@ -2041,7 +2307,6 @@ file</string>
    <zorder>label_8</zorder>
    <zorder>label_9</zorder>
    <zorder>label_10</zorder>
-   <zorder>label_11</zorder>
    <zorder>label_12</zorder>
    <zorder>lcnc_led_7</zorder>
    <zorder>label_13</zorder>
@@ -2051,9 +2316,8 @@ file</string>
    <zorder>label_17</zorder>
    <zorder>line</zorder>
    <zorder>lcnc_state_led</zorder>
-   <zorder>lcnc_state_led_2</zorder>
+   <zorder>led_machine_on</zorder>
    <zorder>lcnc_state_led_3</zorder>
-   <zorder>lcnc_state_led_4</zorder>
    <zorder>lcnc_state_label</zorder>
    <zorder>lcnc_state_label_2</zorder>
    <zorder>lcnc_state_label_3</zorder>
@@ -2068,9 +2332,9 @@ file</string>
    <zorder>lcnc_state_led_6</zorder>
    <zorder>lcnc_state_led_7</zorder>
    <zorder>lcnc_state_led_8</zorder>
-   <zorder>lcnc_state_led_9</zorder>
-   <zorder>lcnc_state_led_10</zorder>
-   <zorder>lcnc_state_led_11</zorder>
+   <zorder>led_home_x</zorder>
+   <zorder>led_home_y</zorder>
+   <zorder>led_home_z</zorder>
    <zorder>lcnc_actionbutton_5</zorder>
    <zorder>lcnc_actionbutton_6</zorder>
    <zorder>lcnc_actionbutton_9</zorder>
@@ -2078,7 +2342,6 @@ file</string>
    <zorder>lcnc_actionbutton_11</zorder>
    <zorder>lcnc_ScreenOptions</zorder>
    <zorder>lcnc_gstat_label_2</zorder>
-   <zorder>lcnc_gstat_bool_label</zorder>
    <zorder>lcnc_macrotabdialog</zorder>
    <zorder>lcnc_originoffsetdialog</zorder>
    <zorder>lcnc_actionbutton_13</zorder>
@@ -2088,11 +2351,15 @@ file</string>
    <zorder>gstat_slider_2</zorder>
    <zorder>gstat_slider_6</zorder>
    <zorder>gstat_slider_5</zorder>
-   <zorder>label</zorder>
-   <zorder>label_2</zorder>
-   <zorder>label_25</zorder>
-   <zorder>label_4</zorder>
+   <zorder>mcodes_label</zorder>
+   <zorder>lcnc_state_led_4</zorder>
+   <zorder>lcnc_actionbutton_15</zorder>
+   <zorder>lcnc_actionbutton_16</zorder>
+   <zorder>lcnc_actionbutton_17</zorder>
+   <zorder>lcnc_actionbutton_18</zorder>
+   <zorder>frame_auto_8</zorder>
    <zorder>focusoverlay</zorder>
+   <zorder>gcodes_label</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
