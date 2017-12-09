@@ -29,6 +29,8 @@ class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
         self.current_feedrate = False
         self.requested_spindle_speed = False
         self.user_system = False
+        self.gcodes = False
+        self.mcodes = False
 
     def _hal_init(self):
         def _f(data):
@@ -52,6 +54,10 @@ class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
             GSTAT.connect('requested-spindle-speed-changed', lambda w,data: _f(data))
         elif self.user_system:
             GSTAT.connect('user-system-changed', self._set_user_system_text)
+        elif self.gcodes:
+            GSTAT.connect('g-code-changed', lambda w,data: _f(data))
+        elif self.mcodes:
+            GSTAT.connect('m-code-changed', lambda w,data: _f(data))
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s
@@ -83,7 +89,7 @@ class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
     def _toggle_properties(self, picked):
         data = ('feed_override','rapid_override','spindle_override','jograte',
                 'jogincr','tool_number','current_feedrate',
-                'requested_spindle_speed','user_system')
+                'requested_spindle_speed','user_system','gcodes','mcodes')
 
         for i in data:
             if not i == picked:
@@ -202,6 +208,26 @@ class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
     def reset_user_system(self):
         self.user_system = False
 
+ # gcodes status
+    def set_gcodes(self, data):
+        self.gcodes = data
+        if data:
+            self._toggle_properties('gcodes')
+    def get_gcodes(self):
+        return self.gcodes
+    def reset_gcodes(self):
+        self.gcodes = False
+
+ # mcodes status
+    def set_mcodes(self, data):
+        self.mcodes = data
+        if data:
+            self._toggle_properties('mcodes')
+    def get_mcodes(self):
+        return self.mcodes
+    def reset_mcodes(self):
+        self.mcodes = False
+
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
@@ -213,7 +239,8 @@ class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
     current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate, reset_current_feedrate)
     requested_spindle_speed_status = QtCore.pyqtProperty(bool, get_requested_spindle_speed, set_requested_spindle_speed, reset_requested_spindle_speed)
     user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
-
+    gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
+    mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
 
     # boilder code
     def __getitem__(self, item):
