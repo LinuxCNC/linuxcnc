@@ -5,7 +5,6 @@
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
-from qtvcp.widgets.dialog_widget import Lcnc_OriginOffsetDialog as OFFVIEW_DIALOG
 from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
@@ -74,7 +73,17 @@ class HandlerClass:
         # add a backgrund image
         self.w.setObjectName("MainWindow")
         bgpath = self.IMAGE_PATH+'/hazzy_bg_black.png'
-        self.w.setStyleSheet('''#MainWindow { background-image: url(%s) 0 0 0 0 stretch stretch; }
+        self.w.setStyleSheet('''#MainWindow {background: black; }
+QLineEdit {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+padding: 1px;
+border-style: solid;
+border: 2px solid gray;
+border-radius: 8px;
+}
+
 QPushButton {
 color: #333;
 border: 2px solid #555;
@@ -102,16 +111,11 @@ background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }
-'''%bgpath)
-        bgpath = self.IMAGE_PATH+'/frame_bg_blue.png'
-        self.w.frame.setStyleSheet("#frame { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
-        bgpath = self.IMAGE_PATH+'/frame_bg_grey.png'
-        #self.w.frame_2.setStyleSheet("QFrame { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
-        b={'''
+
 QSlider::groove:horizontal {
 border: 1px solid #bbb;
 background: white;
-height: 10px;
+height: 5px;
 border-radius: 4px;
 }
 
@@ -137,8 +141,8 @@ background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
     stop:0 #eee, stop:1 #ccc);
 border: 1px solid #777;
 width: 20px;
-margin-top: -5px;
-margin-bottom: -5px;
+margin-top: -7px;
+margin-bottom: -75px;
 border-radius: 4px;
 
 }
@@ -166,14 +170,32 @@ border: 1px solid #aaa;
 border-radius: 4px;
 min-height: 30px;
 }
-'''}
 
-        self.d = OFFVIEW_DIALOG()
+''')
+        bgpath = self.IMAGE_PATH+'/frame_bg_blue.png'
+        self.w.frame.setStyleSheet("#frame { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
+        #bgpath = self.IMAGE_PATH+'/Grey.jpg'
+        style ='''#frame_man { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+ } '''
+        self.w.frame_man.setStyleSheet(style)
+        style ='''QFrame { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+ } '''
+        self.w.frame_mdi.setStyleSheet(style)
+        self.w.frame_auto.setStyleSheet(style)
+        self.w.frame_auto_2.setStyleSheet(style)
+        self.w.frame_auto_3.setStyleSheet(style)
+        self.w.frame_auto_4.setStyleSheet(style)
+        self.w.frame_auto_5.setStyleSheet(style)
+        self.w.frame_auto_6.setStyleSheet(style)
+        self.w.frame_auto_7.setStyleSheet(style)
+        self.w.frame_auto_8.setStyleSheet(style)
+        self.w.frame_auto_9.setStyleSheet(style)
+        self.w.frame_auto_10.setStyleSheet(style)
+
         KEYBIND.add_call('Key_F3','on_keycall_F3')
-#        self.CV = CAMVIEW()
         KEYBIND.add_call('Key_F4','on_keycall_F4')
- #       self.LM = LATHEMACRO()
-#        self.LM._hal_init()
         KEYBIND.add_call('Key_F5','on_keycall_F5')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -234,7 +256,6 @@ min-height: 30px;
             self.w.button_home.click()
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
-            #self.d.load_dialog()
             self.w.lcnc_originoffsetdialog.load_dialog()
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
