@@ -124,6 +124,7 @@ class INI:
         print >>file, "[FILTER]"
         print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
         print >>file, "PROGRAM_EXTENSION = .py Python Script"
+        print >>file, "PROGRAM_EXTENSION = .nc,.tap G-Code File"
         print >>file, "png = image-to-gcode"
         print >>file, "gif = image-to-gcode"
         print >>file, "jpg = image-to-gcode"
