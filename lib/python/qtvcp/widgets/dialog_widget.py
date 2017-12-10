@@ -16,7 +16,7 @@
 
 import os
 from PyQt4.QtGui import QMessageBox, QFileDialog, QColor, QDesktopWidget, \
-        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton
+        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout
 from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
 from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
@@ -282,20 +282,29 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
                   Qt.Dialog |
                  Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
         self.setMinimumSize(200,200)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
-        b = buttonBox.button(QDialogButtonBox.Ok)
-        b.clicked.connect(lambda:self.close())
+        buttonBox = QDialogButtonBox()
+        buttonBox.setEnabled(False)
+        GSTAT.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
+        GSTAT.connect('all-homed', lambda w: buttonBox.setEnabled(True))
+        GSTAT.connect('state-estop', lambda w: buttonBox.setEnabled(False))
+        GSTAT.connect('state-estop-reset', lambda w: buttonBox.setEnabled(GSTAT.machine_is_on() and GSTAT.is_all_homed()))
         for i in('X','Y','Z'):
-            b = QPushButton('Zero %s'%i)
-            b.clicked.connect(self.zeroPress('%s'%i))
-            buttonBox.addButton(b,3)
+            b = 'button_%s'%i
+            self[b] = QPushButton('Zero %s'%i)
+            self[b].clicked.connect(self.zeroPress('%s'%i))
+            buttonBox.addButton(self[b],3)
         
-        l = QVBoxLayout()
+        v = QVBoxLayout()
+        h = QHBoxLayout()
         self._o = OFFVIEW_WIDGET()
         self._o._hal_init()
-        self.setLayout(l)
-        l.addWidget(self._o)
-        l.addWidget(buttonBox)
+        self.setLayout(v)
+        v.addWidget(self._o)
+        b = QPushButton('OK')
+        b.clicked.connect(lambda:self.close())
+        h.addWidget(b)
+        h.addWidget(buttonBox)
+        v.addLayout(h)
         self.setModal(True)
 
     def _hal_init(self):
@@ -330,6 +339,13 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.show()
         self.exec_()
         GSTAT.emit('focus-overlay-changed',False,None,None)
+
+    # usual boiler code
+    # (used so we can use code such as self[SomeDataName]
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
     #**********************
     # Designer properties
