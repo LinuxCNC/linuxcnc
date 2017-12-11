@@ -7,7 +7,7 @@
 %global gittag GIT-TAG
 %global shortcommit master
 
-Summary: Marchine Kit
+Summary: Machine Kit
 Vendor: MachineKit
 Packager: MachineKit <support@machinekit.io>
 Name:         machinekit
