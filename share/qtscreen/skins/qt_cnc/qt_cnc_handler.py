@@ -51,6 +51,7 @@ class HandlerClass:
         self.error = linuxcnc.error_channel()
         self.PATH = paths.CONFIGPATH
         self.IMAGE_PATH = paths.IMAGEDIR
+        self.STYLE = Styles(widgets, paths)
 
         # Read user preferences
         self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
@@ -69,131 +70,8 @@ class HandlerClass:
         if self.desktop_notify:
             NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
         GSTAT.forced_update()
-
-        # add a backgrund image
-        self.w.setObjectName("MainWindow")
-        bgpath = self.IMAGE_PATH+'/hazzy_bg_black.png'
-        self.w.setStyleSheet('''#MainWindow {background: black; }
-QLineEdit {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-padding: 1px;
-border-style: solid;
-border: 2px solid gray;
-border-radius: 8px;
-}
-
-QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 40px;
-}
-
- QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-QPushButton:checked {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: white;
-height: 5px;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal {
-background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
-    stop: 0 #66e, stop: 1 #bbf);
-background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-    stop: 0 #bbf, stop: 1 #55f);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::add-page:horizontal {
-background: #fff;
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #eee, stop:1 #ccc);
-border: 1px solid #777;
-width: 20px;
-margin-top: -7px;
-margin-bottom: -75px;
-border-radius: 4px;
-
-}
-
-QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #fff, stop:1 #ddd);
-border: 1px solid #444;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal:disabled {
-background: #bbb;
-border-color: #999;
-}
-
-QSlider::add-page:horizontal:disabled {
-background: #eee;
-border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
-min-height: 30px;
-}
-
-''')
-        bgpath = self.IMAGE_PATH+'/frame_bg_blue.png'
-        self.w.frame.setStyleSheet("#frame { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
-        #bgpath = self.IMAGE_PATH+'/Grey.jpg'
-        style ='''#frame_man { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
- } '''
-        self.w.frame_man.setStyleSheet(style)
-        style ='''QFrame { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
- } '''
-        self.w.frame_mdi.setStyleSheet(style)
-        self.w.frame_auto.setStyleSheet(style)
-        self.w.frame_auto_2.setStyleSheet(style)
-        self.w.frame_auto_3.setStyleSheet(style)
-        self.w.frame_auto_4.setStyleSheet(style)
-        self.w.frame_auto_5.setStyleSheet(style)
-        self.w.frame_auto_6.setStyleSheet(style)
-        self.w.frame_auto_7.setStyleSheet(style)
-        self.w.frame_auto_8.setStyleSheet(style)
-        self.w.frame_auto_9.setStyleSheet(style)
-        self.w.frame_auto_10.setStyleSheet(style)
-
+        # set custom theme
+        self.STYLE.dark_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
@@ -316,3 +194,260 @@ background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
+
+#####################################################################
+# Styles - put them here to keep things tidy
+#####################################################################
+class Styles:
+    def __init__(self, widgets, paths):
+        self.w = widgets
+        self.PATH = paths.CONFIGPATH
+        self.IMAGE_PATH = paths.IMAGEDIR
+
+    def bright_style(self):
+        self.w.setStyleSheet('''#MainWindow {background: black; }
+QLineEdit {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+padding: 1px;
+border-style: solid;
+border: 2px solid gray;
+border-radius: 8px;
+}
+
+QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 11px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 40px;
+}
+
+ QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}
+QPushButton:checked {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}
+
+QSlider::groove:horizontal {
+border: 1px solid #bbb;
+background: white;
+height: 5px;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+    stop: 0 #66e, stop: 1 #bbf);
+background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+background: #fff;
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #eee, stop:1 #ccc);
+border: 1px solid #777;
+width: 20px;
+margin-top: -7px;
+margin-bottom: -75px;
+border-radius: 4px;
+
+}
+
+QSlider::handle:horizontal:hover {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #fff, stop:1 #ddd);
+border: 1px solid #444;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+background: #bbb;
+border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+background: #eee;
+border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+background: #eee;
+border: 1px solid #aaa;
+border-radius: 4px;
+min-height: 30px;
+}
+#frame_man { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
+ }
+
+''')
+
+        style ='''#frame { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
+ } '''
+        self.w.frame.setStyleSheet(style)
+
+        style ='''QFrame { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
+ } '''
+        self.w.frame_mdi.setStyleSheet(style)
+        self.w.frame_auto.setStyleSheet(style)
+        self.w.frame_auto_2.setStyleSheet(style)
+        self.w.frame_auto_3.setStyleSheet(style)
+        self.w.frame_auto_4.setStyleSheet(style)
+        self.w.frame_auto_5.setStyleSheet(style)
+        self.w.frame_auto_6.setStyleSheet(style)
+        self.w.frame_auto_7.setStyleSheet(style)
+        self.w.frame_auto_8.setStyleSheet(style)
+        self.w.frame_auto_9.setStyleSheet(style)
+        self.w.frame_auto_10.setStyleSheet(style)
+
+
+    def dark_style(self):
+        bgpath = self.IMAGE_PATH+'/hazzy_bg_black.png'
+        self.w.setStyleSheet('''#MainWindow {background: black; }
+QLineEdit {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+padding: 1px;
+border-style: solid;
+border: 2px solid gray;
+border-radius: 8px;
+}
+
+QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 11px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 40px;
+}
+
+ QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}
+QPushButton:checked {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}
+
+QSlider::groove:horizontal {
+border: 1px solid #bbb;
+background: white;
+height: 5px;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+    stop: 0 #66e, stop: 1 #bbf);
+background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+background: #fff;
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #eee, stop:1 #ccc);
+border: 1px solid #777;
+width: 20px;
+margin-top: -7px;
+margin-bottom: -75px;
+border-radius: 4px;
+
+}
+
+QSlider::handle:horizontal:hover {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #fff, stop:1 #ddd);
+border: 1px solid #444;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+background: #bbb;
+border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+background: #eee;
+border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+background: #eee;
+border: 1px solid #aaa;
+border-radius: 4px;
+min-height: 30px;
+}
+#frame_man { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+ }
+
+''')
+        bgpath = self.IMAGE_PATH+'/frame_bg_blue.png'
+        self.w.frame.setStyleSheet("#frame { border-image: url(%s) 0 0 0 0 stretch stretch; }"%bgpath)
+        #bgpath = self.IMAGE_PATH+'/Grey.jpg'
+        
+        style ='''QFrame { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+ } '''
+        self.w.frame_mdi.setStyleSheet(style)
+        self.w.frame_auto.setStyleSheet(style)
+        self.w.frame_auto_2.setStyleSheet(style)
+        self.w.frame_auto_3.setStyleSheet(style)
+        self.w.frame_auto_4.setStyleSheet(style)
+        self.w.frame_auto_5.setStyleSheet(style)
+        self.w.frame_auto_6.setStyleSheet(style)
+        self.w.frame_auto_7.setStyleSheet(style)
+        self.w.frame_auto_8.setStyleSheet(style)
+        self.w.frame_auto_9.setStyleSheet(style)
+        self.w.frame_auto_10.setStyleSheet(style)
