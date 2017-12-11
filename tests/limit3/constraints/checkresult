@@ -1,0 +1,35 @@
+#!/usr/bin/python2
+
+import sys
+import math
+
+max_value = 0.0
+min_value = -100.0
+
+max_vel = 315
+max_accel = 1975
+
+result_filename = sys.argv[1]
+result_file = open(result_filename, 'r')
+
+input_name = [ 'sine', 'cosine', 'square', 'sawtooth', 'triangle', 'limit3-output' ]
+retval = 0
+
+for line in result_file.readlines():
+    (line, out_value, out_vel, out_accel, constraints_ok, mux_select) = line.split()
+    out_value = float(out_value)
+    out_vel = float(out_vel)
+    out_accel = float(out_accel)
+    constraints_ok = int(constraints_ok)
+    mux_select = int(mux_select)
+
+    if constraints_ok != 1:
+	print "constraint violation on line %s" % line
+        if mux_select < len(input_name):
+	    print "input is %s" % input_name[mux_select]
+        else:
+	    print "input is unknown"
+	
+        retval = 1
+
+sys.exit(retval)
