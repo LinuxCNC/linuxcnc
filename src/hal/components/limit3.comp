@@ -104,8 +104,7 @@ FUNCTION(_) {
 	    SET_NEXT_STATE(min_pos, min_vel, in);     //   - Move closer
 	else                                          // - Overshooting
 	    SET_NEXT_STATE(max_pos, max_vel, in);     //   - Back off
-    }
-    if (out < in) {                                   // Output < input
+    } else {                                          // Output <= input
 	if (vel_match_in_pos > vel_match_out_pos)     // - Not overshooting
 	    SET_NEXT_STATE(max_pos, max_vel, in);     //   - Move closer
 	else                                          // - Overshooting
