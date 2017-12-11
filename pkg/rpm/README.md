@@ -1,10 +1,12 @@
 # MachineKit packaging for RPM
 
-## Fedora
+## Fedora {i686, x86_64, armv7}
 
-prepare build ARM machine, [Fedora 27](https://arm.fedoraproject.org) and [Raspberry Pi 3](https://www.raspberrypi.org) is a great choice
+### prepare a build machine
 
-download and write to SD card (8 Gb minimum 10 class is recommended) Fedora Minimal image, boot machine and open terminal (ssh or physical)
+* i686 and x86_64 - no special recommendations, any amd or intel box with latest stable Fedora is okay
+* armv7 - [Fedora 27](https://arm.fedoraproject.org) and [Raspberry Pi 3](https://www.raspberrypi.org) is a great choice  
+  download and write to SD card (8 Gb minimum 10 class is recommended) Fedora Minimal image, boot machine and open terminal (ssh or physical)
 
 ### install prerequisites
 
@@ -66,12 +68,24 @@ machinekit-xenomai-0.1.0-2.armv7hl.rpm
 
 under root permissions:
 
+__ARMv7:__
+
 ```bash
 dnf install createrepo httpd
 cd /var/www/html
 mkdir -p fedora/armv7hl/machinekit
 cp -f $(su - mockbuild -c "echo \$HOME")/rpmbuild/RPMS/armv7hl/*.rpm fedora/27/armv7hl/machinekit/
 createrepo /var/www/html/fedora/27/armv7hl/machinekit
+```
+
+__x86_64:__
+
+```bash
+dnf install createrepo httpd
+cd /var/www/html
+mkdir -p fedora/x86_64/machinekit
+cp -f $(su - mockbuild -c "echo \$HOME")/rpmbuild/RPMS/x86_64/*.rpm fedora/27/x86_64/machinekit/
+createrepo /var/www/html/fedora/27/x86_64/machinekit
 ```
 
 ```bash
