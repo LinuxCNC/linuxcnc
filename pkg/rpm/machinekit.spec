@@ -103,8 +103,12 @@ Requires: %{name} = %{version}-%{release}
 cd src
 ./autogen.sh
 ./configure --prefix=/usr \
-    %{?_with_xenomai} \
-    %{?_with_rtpreempt} \
+%if %{with xenomai}
+    --with-xenomai \
+%endif
+%if %{with rtpreempt}
+    --with-rt-preempt \
+%endif
     --with-posix \
     --enable-usermode-pci \
     --sysconfdir=/etc \
@@ -303,7 +307,6 @@ fi
 %exclude %{_libdir}/libmtalk.so
 %exclude %{_libdir}/librtapi_math.so
 %exclude %{_libdir}/librs274.so
-%exclude %{_libdir}/libpyplugin.so
 %exclude %{_libdir}/libposemath.so
 %exclude %{_libdir}/libnml.so
 
