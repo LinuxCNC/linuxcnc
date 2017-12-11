@@ -108,12 +108,22 @@ cd src
     --with-posix \
     --enable-usermode-pci \
     --sysconfdir=/etc \
+%ifarch x86_64
+    --libdir=/usr/lib64 \
+%endif
     --with-rundir=/var/run \
     --mandir=/usr/share/man \
     --enable-emcweb
 
 # temporary patch - remove all "-o root"
 sed -i "s/ -o root//g" Makefile
+%ifarch x86_64
+# fix destination path for emc2 tcl and rtl
+sed -i "s/EMC2_TCL_DIR=\/usr\/lib\//EMC2_TCL_DIR=\/usr\/lib64\//" Makefile.inc
+sed -i "s/EMC2_RTLIB_BASE_DIR=\/usr\/lib\//EMC2_RTLIB_BASE_DIR=\/usr\/lib64\//" Makefile.inc
+sed -i "s/EMC2_TCL_LIB_DIR = \/usr\/lib\//EMC2_TCL_LIB_DIR = \/usr\/lib64\//" Makefile.inc
+sed -i 's/tcldir = \${prefix}\/lib\//tcldir = \${prefix}\/lib64\//' Makefile.inc
+%endif
 
 make -j2
 touch build-stamp
