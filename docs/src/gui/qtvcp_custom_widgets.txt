@@ -1,0 +1,299 @@
+== QTvcp Building Custom Widgets
+
+Builing custom widgets allows one to use the Qt Designer editor to place +
+a custom widget rather then doing it in a handler file. + 
+
+=== Widgets
+
+Widget is the general name for the UI objects such as buttons and labels in pyQT. +
+There are also special widgets made for linuxcnc that make integration easier. +
+This widgets can be placed with qt Designer editor - allowing one to see the result +
+before actually loading the panel in linuxcnc. +
+
+=== Designer
+Qt Designer is a What You See is What You Get editor for placing pyQT widgets. +
+It's orginal intend was for builting the graphic widgets for programs. +
+We leverage it to build screens and panels for linuxcnc. +
+In Qt Designer linuxcnc widgets are split in three heading on the left side of the editor. +
+One is for HAL only widgets. +
+One is for Linuxcnc controller widgets +
+And one is for dialog widgets. +
++
+For Designer to add custom widgets to it's editor it must have a plugin added to the right folder. +
+
+==== Custom Hal Widgets
+Hal widgets are the simplest to show example of. +
+qtvcp/widgets/simple_widgets.py holds many HAL only widgets. +
+Lets look at a snippet of simple_widgets.py. +
+
+[source,python]
+----
+#!/usr/bin/python2.7
+
+###############################
+# Imports
+###############################
+from PyQt4 import QtGui
+import hal
+
+######################
+# WIDGET
+######################
+
+class Lcnc_GridLayout(QtGui.QWidget, _HalSensitiveBase):
+    def __init__(self, parent = None):
+        QtGui.QGridLayout.__init__(self, parent)
+----
+
+==== In the 'Imports' section
+
+This is where we import libraries that our widget class needs. +
+In this case we need access to pyqt's GUI library and linuxcnc's hal library +
+
+ +
+==== In the 'WIDGETS' section
+Ok here is our custom widget based on pyQT's QGridLaayout widget. +
+grid layot allows one to place objects in a grid fashion. +
+But this grid_layout also will enable and disable all widgets inside it +
+based on the state of a HAL pin. +
+Line by Line: +
+ +
+' class Lcnc_GridLayout(QtGui.QWidget, _HalSensitiveBase):' +
+ +
+This defines the class name and the libraries in inherits from. +
+this class named Lcnc_GridLayout inheriets the functions of QWidget and _HalSensitiveBase. +
+_HalSensitiveBase is 'subclass' of _HalWidgetBase, The base class of most Qtvcp widgets +
+meaning it has all the functions of _HalWidgetBase plus the functions of _HalSensitiveBase. +
+It adds the function to make the widget be enabled or disabled based on a HAL input BIT pin. +
+ +
+'    def __init__(self, parent = None):' +
+ +
+This is the function called when the widget is first made (said instantiated)- this is pretty standard. +
+ +
+'        QtGui.QGridLayout.__init__(self, parent)' +
+ +
+This function intializes the pyQT's gridlayout widget pretty standard other the the pyQT widget name will change +
+
+==== Custom Controller Widgets
+Widget that interact with linuxcnc's controller are only a little more complicated +
+they require some extra libraries. +
+In this cut down example we will add properties that can be changed in Designer. +
+
+[source,python]
+----
+#!/usr/bin/python2.7
+
+###############################
+# Imports
+###############################
+from PyQt4.QtCore import pyqtProperty
+from qtvcp.widgets.ledwidget import Lcnc_Led
+from qtvcp.qt_glib import GStat
+
+###########################################
+# **** instantiate libraries section **** #
+###########################################
+GSTAT = GStat()
+
+##########################################
+# custom widget class defintion
+##########################################
+class Lcnc_State_Led(Lcnc_Led,):
+    def __init__(self, parent=None):
+        super(Lcnc_State_Led, self).__init__(parent)
+        self.has_hal_pins = False
+        self.setState(False)
+        self.is_estopped = False
+        self.is_on = False
+        self.invert_state = False
+
+    def _hal_init(self):
+        if self.is_estopped:
+            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
+            GSTAT.connect('state-estop-reset', lambda w:self._flip_state(False))
+        elif self.is_on:
+            GSTAT.connect('state-on', lambda w:self._flip_state(True))
+            GSTAT.connect('state-off', lambda w:self._flip_state(False))
+
+    def _flip_state(self, data):
+            if self.invert_state:
+                data = not data
+            self.change_state(data)
+
+    #########################################################################
+    # Designer properties setter/getters/resetters
+    ########################################################################
+
+    # invert status
+    def set_invert_state(self, data):
+        self.invert_state = data
+    def get_invert_state(self):
+        return self.invert_state
+    def reset_invert_state(self):
+        self.invert_state = False
+
+    # machine is estopped status
+    def set_is_estopped(self, data):
+        self.is_estopped = data
+    def get_is_estopped(self):
+        return self.is_estopped
+    def reset_is_estopped(self):
+        self.is_estopped = False
+
+    # machine is on status
+    def set_is_on(self, data):
+        self.is_on = data
+    def get_is_on(self):
+        return self.is_on
+    def reset_is_on(self):
+        self.is_on = False
+
+    #######################################
+    # Designer properties
+    #######################################
+    invert_state_status = pyqtProperty(bool, get_invert_state, set_invert_state, reset_invert_state)
+    is_estopped_status = pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
+    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
+----
+
+==== In the 'Imports' section
+
+This is where we import libraries that our widget class needs. +
+We import pyqtProperty so we can interact with the Designer editor. +
+we import lcnc_led because our custom widget is based on it. +
+We import GStat because it gives us status messages fron linuxcnc. +
+
+==== In the ' instantiate libraries' section
+Typically we instantiated the libraries outside of the widget class so that the +
+reference to it is global - meaning you don't need to use self. in front of it. +
+By convention we use all capital letters in the name. +
+
+==== In the 'custom widget class definition' section
+This is the meat and potatoes of our custom widget. +
+----
+class Lcnc_State_Led(Lcnc_Led):
+    def __init__(self, parent=None):
+        super(Lcnc_State_Led, self).__init__(parent)
+----
+This defines the name of our custom widget and what other class it inherits from, in this case +
+we inherit Lcnc_Led - a Qtvcp widget that represents a status light. +
+The __init__ is typical of most widgets, it is called when the widget is first made. +
+the super line is typical of most widgets - it calls the parent (super) widget's initialization code. +
+then we set some attributes. +
+self.has_hal_pins is an attribute inherited from Lcnc_Led - we set it here so no HAL Pins are made. +
+self.setState is inherited from Lcnc_led - we set it to make sure the LED is off. +
+the other attributes are for the selectable options of our widget. +
+----
+    def _hal_init(self):
+        if self.is_estopped:
+            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
+            GSTAT.connect('state-estop-reset', lambda w:self._flip_state(False))
+        elif self.is_on:
+            GSTAT.connect('state-on', lambda w:self._flip_state(True))
+            GSTAT.connect('state-off', lambda w:self._flip_state(False))
+----
+This function connects GSTAT (linuxcnc status message library) to our widget so that the LED will on or off based on +
+the selected state of the controller. We have two states we can choose from is_estopped or is_on +
+Depending on which is active our widget get connected to the appropriate GSTAT messages. +
+_hal_int() is called on each widget that inherited _HalWidgetBase, when Qtvcp first builds the screen. +
+You might wonder why it's called on this widget since we didn't have _HalWidgetBase in our class +
+definition (class Lcnc_State_Led(Lcnc_Led):) - it's called because Lcnc_Led inherits  _HalWidgetBase +
+ +
+in this function you have access to some extra information. (though we don't use them in this example) +
+----
+        self.hal = the HAL component instance
+        self.hal_name = This widgets name as a string
+        self.QT_OBJECT_ = This widgets pyQt object instance
+        self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
+        self.PATHS_ = The instance of Qtvcp's path library
+----
+We could use this information to create HAL pins or look up image paths etc. +
+----
+            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
+----
+lets look at this line more closely. GSTAT is very common theme is widget building. +
+GSTAT use GObject message system to send messages to widgets that register to it. +
+This line is the register process. +
+'state-estop' is the message we wish to act on. there are many messages available. +
+'lambda w:self._flip_state(True)' is what happens when the message is caught. +
+the lambda function accepts the widget instance (w) that GObject sends it and then calls the function +
+self._flip_state(True) +
+Lambda was used to strip the (w) object before calling the self._flip_state function. +
+It also allowed use to send self._flip_state() the True state. +
+you will also see code like this:
+----
+GSTAT.connect('current-feed-rate', self._set_feedrate_text)
+----
+and the function called looks like this:
+----
+    def _set_feedrate_text(self, widget, data):
+----
+in which the widget and any data must be accepted by the function. +
+ +
+----
+    def _flip_state(self, data):
+            if self.invert_state:
+                data = not data
+            self.change_state(data)
+----
+This is the function that actually flips the state of the LED. +
+It is what gets called when the appropriate GSTAT message is accepted. +
+
+====  Designer properties setter/getters/resetters
+This is how Designer sets the attributes of the widget. +
+thes can also be called directly in the widget. +
+
+==== Designer properties
+This is the registering of properties in Designer. +
+The property name is the text that is used in Designer. +
+These property names cannot be the same as the attributes they represent. +
+These properties show in Designer in the order they appear here. +
+
+=== Widget Plugins
+We must register our custom widget for Designer to use them. +
+Here is a typical sample +
+It would need to be added to qtvcp/plugins/ +
+Then qtvcp/plugins/qtvcp_plugin.py would need to be adjusted +
+to import it. +
+
+----
+#!/usr/bin/env python
+
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtvcp.widgets.simple_widgets import Lcnc_GridLayout
+from qtvcp.widgets.qtvcp_icons import Icon
+ICON = Icon()
+
+####################################
+# GridLayout
+####################################
+class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return Lcnc_GridLayout(parent)
+    def name(self):
+        return "Lcnc_GridLayout"
+    def group(self):
+        return "Linuxcnc - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_gridlayout')))
+    def toolTip(self):
+        return "HAL enable/disable GridLayout widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="Lcnc_GridLayout" name="lcnc_gridlayout" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.simple_widgets"
+----

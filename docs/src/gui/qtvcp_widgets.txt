@@ -1,0 +1,213 @@
+== QTvcp Widgets
+
+Qtscreen uses QTvcp widgets for linuxcnc integration.
+
+=== Widget Overview
+
+Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
+You are free to use any available widgets in the QTDesigner editor. +
+There are also special widgets made for linuxcnc that make integration easier. +
+This are split in two heading on the right side of the editor. +
+One is for HAL only widgets. +
+The other is for cnc control widgets. +
+you are free to mix them in any way on your panel. +
+
+=== HAL Only Widgets
+
+These Widgets have HAL pins and don't react to the machine Controller
+
+==== Checkbox Widget
+
+todo +
+It is based on pyQT4's QCheckButton
+
+==== Radio Button Widget
+
+todo +
+It is based on pyQT4's QRadioButton
+
+==== Push Button Widget
+
+todo +
+It is based on pyQT4's QpushButton
+
+====  FocusOverlay Widget
+
+todo +
+It is based on pyQT4's
+
+==== Grid Layout Widget
+
+todo +
+It is based on pyQT4's QGridLayout
+
+==== LCD Number Widget
+
+todo +
+It is based on pyQT4's QLCDNumber
+
+==== Slider Widget
+
+todo +
+It is based on pyQT4's QSlider
+
+=== Machine Controller Widgets
+
+These widgets interact to the Machine Controller state.
+
+==== Action Button Widget
+
+These buttons are used to control action of the machine controller. +
+You can select these actions: +
+Estop +
+Machine On +
+Home +
+Run +
+Pause +
+Abort +
+Load File +
+Launch Halmeter +
+Launch Status +
+Launch Halshow +
+Set machine mode +
+Jog Axes +
+
+It is based on pyQT4's QButton
+
+====  DRO Widget
+This will display the current position of an axis. +
+
+It is based on pyQT4's
+
+==== Gcode Widget
+This displays Gcode in text form. It will highlight the currently running line. +
+
+It is based on pyQT4's QsciScintilla +
+
+==== Graphics Widget
+This Displays the current Gcode in a graphical form. +
+
+todo +
+It is based on pyQT4's QX11EmbedContainer and contains a pyGTK Gremlin Object. +
+
+====  Gstat_bool_label Widget
+This will display a label based on true/false states of the machine controller. +
+You can select different text based on true or false. +
+You can use Rich text for different fonts/colors etc. +
+These states are selectable: +
+CSS Mode +
+Diameter Mode +
+FPR Mode +
+Metric Mode +
+
+It is based on pyQT4's QLabel
+
+====  Gstat Label Widget
+This will display a label based on variable states of the machine controller. +
+You can change how the state will be display by substituting  +
+You can use Rich text for different fonts/colors etc. +
+These states are selectable: +
+CSS Mode +
+Feed Override  +
+Rapid Override  +
+Spindle Override  +
+Jograte  +
+Jogincr  +
+Tool Number  +
+Current Feedrate  +
+Requested Spindle Speed  +
+User System  +
+
+It is based on pyQT4's QLabel
+
+====  Gstat Slider Widget
+
+todo +
+It is based on pyQT4's
+
+====  Jog Increments Widget
+
+todo +
+It is based on pyQT4's
+
+====  Led State Widget
+
+todo +
+It is based on pyQT4's
+
+====  Led Widget
+
+todo +
+It is based on pyQT4's
+
+=== MDI line Widget
+
+More todo +
+There are Embedded commands available from this Widget. +
+Type, in all capitols, any of these commands to load the respective program: +
+HALMETER +
+HALSHOW +
+HALSCOPE +
+STATUS +
+CALIBRATION +
+CLASSICLADDER +
+It is based on pyQT4's QLineEdit +
+
+====  Origin Offset Widget
+This widget allows one to modify User System origin offsets directly
+
+It is based on pyQT4's
+
+====  Screen options Widget
+
+todo +
+It is based on pyQT4's
+
+=== State Enable Gridlayout Widgets
+
+This is a container that other widgets can be placed in. +
+It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
+It can selectably react to machine on, interpreter idle, estop off, all-homed +
+It is based on pyQT4's QGridLayout +
+
+====  State Label Widget
+
+todo +
+It is based on pyQT4's
+
+====  Widget
+
+todo +
+It is based on pyQT4's
+
+====  Widget
+
+todo +
+It is based on pyQT4's
+
+=== Dialog Widgets
+
+====  Dialog Widgets
+
+====  Dialog Tool Change Widget
+This is used as a manual tool change prompt. +
+It has HAL pins to connect to the machine controller +
+The pins are named the same as the original AXIS manual tool prompt and works +
+the same. +
+If there is an Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT4's QMessagebox
+
+====  Dialog File Chooser Widget
+This is used to load Gcode files +
+If there is an Focus Overlay widget present, it will signal it to display. +
+
+todo +
+It is based on pyQT4's QMessagebox
+
+====  Dialog Origin Offset Widget
+This widget allows one to modify User System origin offsets directly +
+It is in a dialog form +
+If there is an Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT4's QDialog
