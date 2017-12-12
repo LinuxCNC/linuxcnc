@@ -2,7 +2,7 @@
 
 from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
 from PyQt4.QtGui import QWidget, QColor, QPainter, QBrush, QRadialGradient
-from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 
 # Set up logging
 from qtvcp import logger

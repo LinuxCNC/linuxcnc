@@ -17,7 +17,7 @@
 
 from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtProperty
-from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat, Lcnc_Action
 from qtvcp.qt_istat import IStat
 

@@ -1,6 +1,6 @@
 import os
 from PyQt4 import QtGui, QtCore, QtSvg
-from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.qt_istat import IStat
 from qtvcp.qt_glib import GStat, Lcnc_Action

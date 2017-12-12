@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import linuxcnc
-from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.lib.message import Message
 from qtvcp.lib.notify import Notify
 from qtvcp.qt_glib import GStat
