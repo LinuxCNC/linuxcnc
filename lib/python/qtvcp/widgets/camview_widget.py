@@ -1,6 +1,36 @@
+#!/usr/bin/env python
+# Qtvcp camview
+#
+# Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# use open cv to do camera alignment
+
 import sys
 from PyQt4 import QtGui, QtCore
-import cv2
+
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+# If the library is missing don't crash the GUI
+# send an error and just make a blank widget.
+
+LIB_GOOD = True
+try:
+    import cv2
+except:
+    log.error('Qtvcp Error with camview - is python-opencv installed?')
+    LIB_GOOD = False
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # This avoids segfault when testing directly in python
@@ -16,7 +46,8 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         self.rotation = 0
         self.scale = 1
         self.gap = 5
-        self.cap = cv2.VideoCapture(0)
+        if LIB_GOOD:
+            self.cap = cv2.VideoCapture(0)
         self.setWindowTitle('Cam View')
         self.setGeometry(100,100,200,200)
         self.text_color = QtGui.QColor(255,255,255)
@@ -25,7 +56,8 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         self.pix = None
 
     def _hal_init(self):
-        GSTAT.connect('periodic', self.nextFrameSlot)
+        if LIB_GOOD:
+            GSTAT.connect('periodic', self.nextFrameSlot)
 
     ##################################
     # no button scroll = circle dismater
