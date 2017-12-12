@@ -3,7 +3,7 @@
 import os
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 if __name__ != '__main__':
     GSTAT = GStat()
