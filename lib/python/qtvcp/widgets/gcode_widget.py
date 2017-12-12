@@ -39,7 +39,7 @@ try:
 except ImportError as e:
     log.critical("Can't import QsciScintilla - is package python-qscintilla2 installed?", exc_info=e)
     sys.exit(1)
-from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 from qtvcp.qt_istat import IStat
 GSTAT = GStat()

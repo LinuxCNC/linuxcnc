@@ -18,7 +18,7 @@ import os
 from PyQt4.QtGui import QMessageBox, QFileDialog, QColor, QDesktopWidget, \
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout
 from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
-from qtvcp.widgets.simple_widgets import _HalWidgetBase, hal
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import macroTab

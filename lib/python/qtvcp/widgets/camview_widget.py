@@ -2,7 +2,7 @@ import sys
 from PyQt4 import QtGui, QtCore
 import cv2
 
-from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # This avoids segfault when testing directly in python
 if __name__ != '__main__':
     from qtvcp.qt_glib import GStat
