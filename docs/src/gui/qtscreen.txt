@@ -179,7 +179,7 @@ def get_handlers(halcomp,widgets,paths):
 
 Qtscreen as built does little more then display the screen and react to widgets. +
 For more prebuilt behaviours there are available libraries. +
-(found in lib/python/qtscreen in RIP linuxcnc install) +
+(found in lib/python/qtvcp/lib in RIP linuxcnc install) +
 
 aux_program_loader +
 keybindings +
@@ -194,6 +194,8 @@ For instance the color or size of buttons and sliders can be changed using
 themes. +
 The Windows theme is default for screens. System theme is default for panels. +
 to see available themes load qtscreen with -d -t SHOWTHEMES +
+
+Qtscreen can also be customized with Qt stylesheets using css. +
 
 === INI Settings
 
@@ -215,7 +217,7 @@ DISPLAY = qtscreen <screen_name>
 ----
 QTscreen assumes the UI file and the handler file use this same base name. +
 QTscreen will search the LinuxCNC configuration file that was launched first for the files,  +
-then in the systen skin folder. the skin folder holds standard screens. +
+then in the system skin folder. the skin folders holds standard screens. +
 
 === Build a Qtscreen Panel
 
@@ -227,390 +229,30 @@ Save this UI file to your configuration folder with a name of your choice, endin
 If present, local UI files in the configuration folder will be loaded instead +
 of the stock UI files. Local UI files allow you to use your customized +
 designs rather then the default screens. +
-QTscreen will look for MYNAME.ui and MYNAME_handler.py in the config folder. +
+QTscreen will look for MYNAME.ui and MYNAME_handler.py in the launched configuration folder. +
 
 
 ==== Modifying Stock Screens
 If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
 
 == Libraries modules
-
+Qtscreen as built does little more then display the screen and react to widgets. +
+For more prebuilt behaviours there are available libraries. +
+(found in lib/python/qtvcp/lib in RIP linuxcnc install) +
 libraries are prebuilt python modules that give added features to QTvcp. +
 In this way you can select what features you want - yet don't have to build common ones yourself. +
-
-=== GSTAT
-
-GSTAT is a library that sends GObject messages based on linuxcnc's current state. +
-It also has some functions to do things such as jogging. +
-You connect a function call to the GSTAT message you are interested in. +
-QTvcp will call this function when the message is sent from GSTAT. +
-
-To import this modules add this python code to your import section: +
-[source,python]
-----
-from qtvcp.qt_glib import GStat
-----
-To instantiate the module so you can use it add this python code to your instantiate section: +
-[source,python]
-----
-GSTAT = GStat()
-----
-To connect to messages use GObject syntax. For example to catch machine on and off messages, +
-place these commands into the INITIALIZE section: +
-[source,python]
-----
-        GSTAT.connect('state-on', self.on_state_on)
-        GSTAT.connect('state-off', self.on_state_off)
-----
-In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
-When linuxcnc is in machine off state the function self.on_state_off will be called. +
-
-=== IStat
-
-IStat is a library to collect and filter data from the INI file. +
-
-The available data and defaults: +
-----
-inifile = linuxcnc.ini(INIPATH) +
-MDI_HISTORY_PATH = '~/.axis_mdi_history' +
-PREFERENCE_PATH = '~/.Preferences' +
-MACHINE_IS_LATHE = False +
-MACHINE_IS_METRIC = False +
-MACHINE_UNIT_CONVERSION = 1 +
-MACHINE_UNIT_CONVERSION_9 = [1]*9 +
-AVAILABLE_AXES = ('X','Y','Z') +
-AVAILABLE_AXES_INT = (0,1,2) +
-NO_HOME_REQUIRED = False +
-JOG_INCREMENTS = None +
-ANGULAR_INCREMENTS = None +
- +
-MAX_LINEAR_VELOCITY = 60 +
-DEFAULT_LINEAR_VELOCITY = 15.0 +
- +
-DEFAULT_SPINDLE_SPEED = 200 +
-MAX_FEED_OVERRIDE = 1.5 +
-MAX_SPINDLE_OVERRIDE = 1.5 +
-MIN_SPINDLE_OVERRIDE = 0.5 +
-----
-To import this modules add this python code to your import section: +
-[source,python]
-----
-from qtvcp.qt_istat import IStat
-----
-To instantiate the module so you can use it add this python code to your instantiate section: +
-[source,python]
-----
-INI = IStat()
-----
-To access IStat data use this general syntax  +
-[source,python]
-----
-home_state = INI.NO_HOME_REQUIRED
-if INI.MACHINE_IS_METRIC is True:
-    print 'Metric based'
-----
-
-=== Lcnc_Action
-
-This library is used to command linuxcnc's motion controller. +
-It tries to hide incidental details and add convenience methods to developers. +
-
-To import this modules add this python code to your import section: +
-[source,python]
-----
-from qtvcp.qt_glib import Lcnc_Action
-----
-To instantiate the module so you can use it add this python code to your instantiate section: +
-[source,python]
-----
-ACTION = Lcnc_Action()
-----
-To access Lcnc_Action commands use general syntax such as these: +
-[source,python]
-----
-ACTION.SET_ESTOP_STATE(state)
-ACTION.SET_MACHINE_STATE(state)
-ACTION.SET_AUTO_MODE()
-ACTION.RUN()
-----
-
-=== aux_program_loader
-
-This module allows an easy way to load auxiliary programs linuxcnc often uses. +
-To import this modules add this python code to your import section: +
-[source,python]
-----
-from qtvcp.lib.aux_program_loader import Aux_program_loader
-----
-To instantiate the module so you can use it add this python code to your instantiated section: +
-[source,python]
-----
-AUX_PRGM = Aux_program_loader() +
-----
-
-==== HALmeter
-
-----
-    Halmeter is used to display one HAL pin data.
-    load a halmeter with AUX_PRGM.load_halmeter()
-----
-
-==== classicladder user program
-
-Todo
-
-==== linuxcnc status program
-
-Todo
-
-==== HALshow configure display program
-
-Todo
-
-==== HALscope program
-
-Todo
-
-==== tooledit program
-
-Todo
-
-==== calibration
-
-Todo
-
-==== onboard keyboard
-
-Todo
-
-=== Keybindings
-
-This module is used to allow each keypress to control a behaviour such as jogging.
-
-=== messages
-
-This modules is used to display pop up dialog messages on the screen.
-
-=== notify
-
-This module is used to send messages that are integrated into the desktop.
-
-=== preferences
-
-This module allows one to load and save preference data permanently to storage media.
+Such libraries include keybindings, preference recording, desktop notification etc. +
 
 == QTvcp Widgets
 
 Qtscreen uses QTvcp widgets for linuxcnc integration.
-
-=== Widget Overview
-
 Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
 You are free to use any available widgets in the QTDesigner editor. +
 There are also special widgets made for linuxcnc that make integration easier. +
-This are split in two heading on the right side of the editor. +
+This are split in three heading on the left side of the editor. +
 One is for HAL only widgets. +
-The other is for cnc control widgets. +
+One is for cnc control widgets. +
+One is for dialog widgets. +
 you are free to mix them in any way on your panel. +
 
-=== HAL Only Widgets
-
-These Widgets have HAL pins and don't react to the machine Controller
-
-==== Checkbox Widget
-
-todo +
-It is based on pyQT4's QCheckButton
-
-==== Radio Button Widget
-
-todo +
-It is based on pyQT4's QRadioButton
-
-==== Push Button Widget
-
-todo +
-It is based on pyQT4's QpushButton
-
-====  FocusOverlay Widget
-
-todo +
-It is based on pyQT4's
-
-==== Grid Layout Widget
-
-todo +
-It is based on pyQT4's QGridLayout
-
-==== LCD Number Widget
-
-todo +
-It is based on pyQT4's QLCDNumber
-
-==== Slider Widget
-
-todo +
-It is based on pyQT4's QSlider
-
-=== Machine Controller Widgets
-
-These widgets interact to the Machine Controller state.
-
-==== Action Button Widget
-
-These buttons are used to control action of the machine controller. +
-You can select these actions: +
-Estop +
-Machine On +
-Home +
-Run +
-Pause +
-Abort +
-Load File +
-Launch Halmeter +
-Launch Status +
-Launch Halshow +
-Set machine mode +
-Jog Axes +
-
-It is based on pyQT4's QButton
-
-====  Dialog Widget
-
-todo +
-It is based on pyQT4's
-
-====  Dialog Tool Change Widget
-This is used as a manual tool change prompt. +
-It has HAL pins to connect to the machine controller +
-The pins are named the same as the original AXIS manual tool prompt and works +
-the same. +
-If there is an Focus Overlay widget present, it will signal it to display. +
-
-It is based on pyQT4's QMessagebox
-
-====  Dialog File Chooser Widget
-This is used to load Gcode files +
-If there is an Focus Overlay widget present, it will signal it to display. +
-
-todo +
-It is based on pyQT4's QMessagebox
-
-====  Dialog Origin Offset Widget
-This widget allows one to modify User System origin offsets directly +
-It is in a dialog form +
-If there is an Focus Overlay widget present, it will signal it to display. +
-
-It is based on pyQT4's QDialog
-
-====  DRO Widget
-This will display the current position of an axis. +
-
-It is based on pyQT4's
-
-==== Gcode Widget
-This displays Gcode in text form. It will highlight the currently running line. +
-
-It is based on pyQT4's QsciScintilla +
-
-==== Graphics Widget
-This Displays the current Gcode in a graphical form. +
-
-todo +
-It is based on pyQT4's QX11EmbedContainer and contains a pyGTK Gremlin Object. +
-
-====  Gstat_bool_label Widget
-This will display a label based on true/false states of the machine controller. +
-You can select different text based on true or false. +
-You can use Rich text for different fonts/colors etc. +
-These states are selectable: +
-CSS Mode +
-Diameter Mode +
-FPR Mode +
-Metric Mode +
-
-It is based on pyQT4's QLabel
-
-====  Gstat Label Widget
-This will display a label based on variable states of the machine controller. +
-You can change how the state will be display by substituting  +
-You can use Rich text for different fonts/colors etc. +
-These states are selectable: +
-CSS Mode +
-Feed Override  +
-Rapid Override  +
-Spindle Override  +
-Jograte  +
-Jogincr  +
-Tool Number  +
-Current Feedrate  +
-Requested Spindle Speed  +
-User System  +
-
-It is based on pyQT4's QLabel
-
-====  Gstat Slider Widget
-
-todo +
-It is based on pyQT4's
-
-====  Jog Increments Widget
-
-todo +
-It is based on pyQT4's
-
-====  Led State Widget
-
-todo +
-It is based on pyQT4's
-
-====  Led Widget
-
-todo +
-It is based on pyQT4's
-
-=== MDI line Widget
-
-More todo +
-There are Embedded commands available from this Widget. +
-Type, in all capitols, any of these commands to load the respective program: +
-HALMETER +
-HALSHOW +
-HALSCOPE +
-STATUS +
-CALIBRATION +
-CLASSICLADDER +
-It is based on pyQT4's QLineEdit +
-
-====  Origin Offset Widget
-This widget allows one to modify User System origin offsets directly
-
-It is based on pyQT4's
-
-====  Screen options Widget
-
-todo +
-It is based on pyQT4's
-
-=== State Enable Gridlayout Widgets
-
-This is a container that other widgets can be placed in. +
-It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
-It can selectably react to machine on, interpreter idle, estop off, all-homed +
-It is based on pyQT4's QGridLayout +
-
-====  State Label Widget
-
-todo +
-It is based on pyQT4's
-
-====  Widget
-
-todo +
-It is based on pyQT4's
-
-====  Widget
-
-todo +
-It is based on pyQT4's
 
