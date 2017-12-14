@@ -14,16 +14,15 @@ license "GPL";
 
 #include "rtapi_math.h"
 
-#define SET_NEXT_STATE(out_pos, out_v, in_pos)		\
+#define SET_NEXT_STATE(out_pos)				\
     do {						\
 	out_old = out;					\
 	out = out_pos;					\
-	in_old = in_pos;				\
+	in_old = in;					\
 	return;						\
     } while (0)
 
-#define VALID_NEXT(pos, vel) ((pos) <= max_pos && (pos) >= min_pos	\
-			      && (vel) <= max_vel && (vel) >= min_vel)
+#define VALID_NEXT(pos) ((pos) <= max_pos && (pos) >= min_pos)
 
 FUNCTION(_) {
     double in_pos_lim, in_vel, min_vel, max_vel, min_pos, max_pos;
@@ -35,7 +34,7 @@ FUNCTION(_) {
     if (load) {
 	// Apply first order limit
 	in_pos_lim = fmin(max_, fmax(min_, in));
-	SET_NEXT_STATE(in_pos_lim, 0, in_pos_lim);
+	SET_NEXT_STATE(in_pos_lim);
 	return;
     }
 
@@ -73,45 +72,45 @@ FUNCTION(_) {
     // 
     // - If not at the limit line but in danger of overshooting it,
     //   slow down
-    if (vel_0_pos >= max_ && !VALID_NEXT(max_,0))     // can't follow max limit
-	SET_NEXT_STATE(min_pos, min_vel, in);
-    if (vel_0_pos <= min_ && !VALID_NEXT(min_,0))     // can't follow min limit
-	SET_NEXT_STATE(max_pos, max_vel, in);
+    if (vel_0_pos >= max_ && !VALID_NEXT(max_))       // can't follow max limit
+	SET_NEXT_STATE(min_pos);
+    if (vel_0_pos <= min_ && !VALID_NEXT(min_))       // can't follow min limit
+	SET_NEXT_STATE(max_pos);
     // - If input signal is headed out of bounds, or headed in bounds
     //   but no danger of overshooting, the limit is the goal
     if ((vel_match_in_pos < min_)                     // Input below min limit
 	|| (in <= min_ && vel_match_in_pos < vel_match_out_pos)) {
-	if (VALID_NEXT(min_,0))
-	    SET_NEXT_STATE(min_, 0, in);              // - Park at min limit
+	if (VALID_NEXT(min_))
+	    SET_NEXT_STATE(min_);                     // - Park at min limit
 	else
-	    SET_NEXT_STATE(min_pos, min_vel, in);     // - Head toward min limit
+	    SET_NEXT_STATE(min_pos);                  // - Head toward min limit
     }
     if ((vel_match_in_pos > max_)                     // Input above max limit
 	|| (in >= max_ && vel_match_in_pos > vel_match_out_pos)) {
-	if (VALID_NEXT(max_,0))
-	    SET_NEXT_STATE(max_, 0, in);              // - Park at max limit
+	if (VALID_NEXT(max_))
+	    SET_NEXT_STATE(max_);                     // - Park at max limit
 	else
-	    SET_NEXT_STATE(max_pos, max_vel, in);     // - Head toward min limit
+	    SET_NEXT_STATE(max_pos);                  // - Head toward min limit
     }
 
     // Follow input signal
     //
     // - Try to track input
-    if (VALID_NEXT(in, in_vel))
-	SET_NEXT_STATE(in, in_vel, in);
+    if (VALID_NEXT(in))
+	SET_NEXT_STATE(in);
     // - Try to match position and velocity without overshooting
     if (out > in) {                                   // Output > input:
 	if (vel_match_in_pos < vel_match_out_pos)     // - Not overshooting
-	    SET_NEXT_STATE(min_pos, min_vel, in);     //   - Move closer
+	    SET_NEXT_STATE(min_pos);                  //   - Move closer
 	else                                          // - Overshooting
-	    SET_NEXT_STATE(max_pos, max_vel, in);     //   - Back off
+	    SET_NEXT_STATE(max_pos);                  //   - Back off
     } else {                                          // Output <= input
 	if (vel_match_in_pos > vel_match_out_pos)     // - Not overshooting
-	    SET_NEXT_STATE(max_pos, max_vel, in);     //   - Move closer
+	    SET_NEXT_STATE(max_pos);                  //   - Move closer
 	else                                          // - Overshooting
-	    SET_NEXT_STATE(min_pos, min_vel, in);     //   - Back off
+	    SET_NEXT_STATE(min_pos);                  //   - Back off
     }
 
     // Shouldn't get here
-    SET_NEXT_STATE((max_pos-min_pos)/2, (max_vel-min_vel)/2, in);
+    SET_NEXT_STATE((max_pos-min_pos)/2);
 }
