@@ -22,12 +22,12 @@ for line in result_file.readlines():
     vel = float(vel)
     acc = float(acc)
 
-    if float(out) > params['max'] * 1.01:
+    if float(out) > params['max'] * 1.001:
         print "max=%.3f, in=%.3f, out=%.3f, max violation on line %s" % \
             (params['max'], float(in_val), out, line)
         retval = 1
 
-    if float(out) < params['min'] * 1.01:
+    if float(out) < params['min'] * 1.001:
         print "min=%.3f, in=%.3f, out=%.3f, min violation on line %s" % \
             (params['min'], float(in_val), out, line)
         retval = 1

@@ -8,6 +8,7 @@ pin in float maxv=1e20;
 pin in float maxa=1e20;
 variable double in_old;
 variable double out_old;
+variable double out_vel;
 function _;
 license "GPL";
 ;;
@@ -24,12 +25,18 @@ license "GPL";
 
 #define VALID_NEXT(pos) ((pos) <= max_pos && (pos) >= min_pos)
 
+// Distance = avg. velocity * time
+#define S_GIVEN_VI_VF_T(vi,vf,t) ((vf + vi)/2 * t)
+// Time = chg. velocity / acceleration
+#define T_GIVEN_VI_VF_A(vi,vf,a) (fabs((vf - vi) / a))
+// Final velocity = initial velocity + acceleration * time
+#define VF_GIVEN_VI_A_T(vi,a,t) (vi + a*t)
+
 FUNCTION(_) {
     double in_pos_lim, in_vel, min_vel, max_vel, min_pos, max_pos;
-    double vel_0_time, vel_0_pos;
+    double stop_pos_max, stop_pos_min, stop_time_max, stop_time_min;
     double vel_match_time, vel_match_in_pos, vel_match_out_pos;
-    int out_dir, out_dir_rel;
-    double out_vel = (out-out_old)/fperiod;
+    int out_dir_rel;
 
     if (load) {
 	// Apply first order limit
@@ -40,23 +47,29 @@ FUNCTION(_) {
 
     // Input velocity
     in_vel = (in - in_old) / fperiod;
+    // Output velocity
+    out_vel = 2 * (out-out_old)/fperiod - out_vel;
     // Most negative/positive velocity reachable in one period
-    min_vel = fmax(out_vel - maxa * fperiod, -maxv);
-    max_vel = fmin(out_vel + maxa * fperiod, maxv);
+    // - vf = vi + a * t
+    min_vel = fmax(VF_GIVEN_VI_A_T(out_vel, -maxa, fperiod), -maxv);
+    max_vel = fmin(VF_GIVEN_VI_A_T(out_vel,  maxa, fperiod),  maxv);
     // Most negative/positive position reachable in one period
-    min_pos = out + min_vel * fperiod;
-    max_pos = out + max_vel * fperiod;
+    // - cur. pos + (distance to reach min/max vel in one period)
+    min_pos = out + S_GIVEN_VI_VF_T(out_vel, min_vel, fperiod);
+    max_pos = out + S_GIVEN_VI_VF_T(out_vel, max_vel, fperiod);
 
-    // Direction (sign) of output movement
-    out_dir = (out_vel < 0) ? -1 : 1;
     // Direction of output movement relative to input movement
     out_dir_rel = (out_vel - in_vel < 0) ? -1 : 1;
 
-    // Respect max/min position limits:  stop at limit line
-    vel_0_time = fabs(out_vel/maxa);                  // min time to decel to stop
-    vel_0_pos = out                                   // position after stop
-	+ out_vel * (vel_0_time+fperiod)
-	+ 0.5 * (-out_dir * maxa) * pow(vel_0_time,2);
+    // Calculate shortest distance to stop after next step
+    stop_time_max = T_GIVEN_VI_VF_A(  // - time to decel from max_vel to 0
+	max_vel, 0.0, -maxa);
+    stop_pos_max = max_pos            // - distance to stop from max_pos
+	+ S_GIVEN_VI_VF_T(max_vel, 0.0, stop_time_max);
+    stop_time_min = T_GIVEN_VI_VF_A(  // - time to decel from min_vel to 0
+	min_vel, 0.0, -maxa);
+    stop_pos_min = min_pos            // - distance to stop from min_pos
+	+ S_GIVEN_VI_VF_T(min_vel, 0.0, stop_time_min);
 
     // Follow input signal:  match position and velocity
     // - min time for velocity match
@@ -72,9 +85,9 @@ FUNCTION(_) {
     // 
     // - If not at the limit line but in danger of overshooting it,
     //   slow down
-    if (vel_0_pos >= max_ && !VALID_NEXT(max_))       // can't follow max limit
+    if (stop_pos_max >= max_ && !VALID_NEXT(max_))    // can't follow max limit
 	SET_NEXT_STATE(min_pos);
-    if (vel_0_pos <= min_ && !VALID_NEXT(min_))       // can't follow min limit
+    if (stop_pos_min <= min_ && !VALID_NEXT(min_))    // can't follow min limit
 	SET_NEXT_STATE(max_pos);
     // - If input signal is headed out of bounds, or headed in bounds
     //   but no danger of overshooting, the limit is the goal
