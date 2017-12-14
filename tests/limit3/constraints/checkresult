@@ -3,17 +3,27 @@
 import sys
 import math
 
-max_value = 0.0
-min_value = -100.0
+# 101 + 1% fudge factor for overshoot
+max_value = 102
+min_value = -102
 
-max_vel = 315
-max_accel = 1975
+max_vel = 1500.0
+max_accel = 15800.0
 
 result_filename = sys.argv[1]
 result_file = open(result_filename, 'r')
 
 input_name = [ 'sine', 'cosine', 'square', 'sawtooth', 'triangle', 'limit3-output' ]
 retval = 0
+
+err_pat = ("%(kind)s violation l%(line)s/%(sig)s:  "
+           "%(out)s %(oval).3f > %(lim)s %(lval).3f")
+def print_err(**kwargs):
+    kwargs['sig']=(input_name[kwargs['mux_select']]
+                   if kwargs['mux_select'] < len(input_name)
+                   else "(unknown sig)")
+    print err_pat % kwargs
+    
 
 for line in result_file.readlines():
     (line, out_value, out_vel, out_accel, constraints_ok, mux_select) = line.split()
@@ -23,13 +33,24 @@ for line in result_file.readlines():
     constraints_ok = int(constraints_ok)
     mux_select = int(mux_select)
 
-    if constraints_ok != 1:
-	print "constraint violation on line %s" % line
-        if mux_select < len(input_name):
-	    print "input is %s" % input_name[mux_select]
-        else:
-	    print "input is unknown"
-	
-        retval = 1
+    if out_value > max_value:
+        print_err(kind="position", line=line, mux_select=mux_select,
+                  out="out", oval=out_value, lim="max", lval=max_value)
+        retval=1
+
+    if out_value < min_value:
+        print_err(kind="position", line=line, mux_select=mux_select,
+                  out="out", oval=out_value, lim="min", lval=min_value)
+        retval=1
+
+    if abs(out_vel) > max_vel:
+        print_err(kind="velocity", line=line, mux_select=mux_select,
+                  out="abs out", oval=out_value, lim="max", lval=max_vel)
+        retval=1
+
+    if abs(out_accel) > max_accel:
+        print_err(kind="accel", line=line, mux_select=mux_select,
+                  out="abs out", oval=out_value, lim="max", lval=max_accel)
+        retval=1
 
 sys.exit(retval)
