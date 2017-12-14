@@ -4,7 +4,7 @@ import sys
 import traceback
 import hal
 from optparse import Option, OptionParser
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 # Set up the base logger
 #   We have do do this before importing other modules because on import
@@ -219,7 +219,7 @@ class QTscreen:
             sys.exit(0)
 
         # initialize the window
-        self.app = QtGui.QApplication(sys.argv)
+        self.app = QtWidgets.QApplication(sys.argv)
         window = qt_makegui.MyWindow(xmlpath,self.halcomp)
  
         # load optional user handler file
@@ -293,12 +293,12 @@ class QTscreen:
 
         # theme (styles in QT speak)
         if opts.theme:
-            if not opts.theme in (QtGui.QStyleFactory.keys()):
+            if not opts.theme in (QtWidgets.QStyleFactory.keys()):
                 log.warning("{} theme not available".format(opts.theme))
                 if opts.debug:
-                    current_theme = QtGui.qApp.style().objectName()
+                    current_theme = QtWidgets.qApp.style().objectName()
                     themes=['\nQTscreen Available themes:']
-                    for i in (QtGui.QStyleFactory.keys()):
+                    for i in (QtWidgets.QStyleFactory.keys()):
                         if i == current_theme:
                             themes.append('  * green<{}>'.format(i))
                         else:
@@ -306,10 +306,10 @@ class QTscreen:
 
                     log.info('\n'.join(themes))
             else:
-                QtGui.qApp.setStyle(opts.theme)
+                QtWidgets.qApp.setStyle(opts.theme)
         # windows theme is default for screens
         elif INIPATH:
-            QtGui.qApp.setStyle('Windows')
+            QtWidgets.qApp.setStyle('Windows')
 
         # title
         if INIPATH:

@@ -14,7 +14,7 @@
 # it returns this name so Qtscreen can call the function to actually do something.
 # you can add or change these
 
-from PyQt4.QtCore import Qt
+from PyQt5.QtCore import Qt
 
 def key_pressed( event):
         """ Handle key presses (on any window) """

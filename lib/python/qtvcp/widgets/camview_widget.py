@@ -16,8 +16,8 @@
 # use open cv to do camera alignment
 
 import sys
-from PyQt4 import QtGui, QtCore
-
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
@@ -38,7 +38,7 @@ if __name__ != '__main__':
     from qtvcp.qt_glib import GStat
     GSTAT = GStat()
 
-class CamView(QtGui.QWidget, _HalWidgetBase):
+class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(CamView, self).__init__(parent)
         self.count = 0
@@ -50,8 +50,8 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
             self.cap = cv2.VideoCapture(0)
         self.setWindowTitle('Cam View')
         self.setGeometry(100,100,200,200)
-        self.text_color = QtGui.QColor(255,255,255)
-        self.font = QtGui.QFont("arial,helvetica", 40)
+        self.text_color = QColor(255,255,255)
+        self.font = QFont("arial,helvetica", 40)
         self.text = ''
         self.pix = None
 
@@ -66,7 +66,7 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
     ##################################
     def wheelEvent(self, event):
         super(CamView, self).wheelEvent(event)
-        mouse_state=QtGui.qApp.mouseButtons()
+        mouse_state=QtWidgets.qApp.mouseButtons()
         size = self.size()
         w = size.width()
         if event.delta() <0:
@@ -133,11 +133,11 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # fit to our 
-        self.pix = QtGui.QImage(frame, frame.shape[1], frame.shape[0], QtGui.QImage.Format_RGB888)
+        self.pix = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
         self.update()
 
     def paintEvent(self, event):
-        qp = QtGui.QPainter()
+        qp = QPainter()
         qp.begin(self)
         if self.pix:
             qp.drawImage(self.rect(), self.pix)
@@ -148,7 +148,7 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
 
     def deleteLater(self):
         self.cap.release()
-        super(QtGui.QWidget, self).deleteLater()
+        super(QtWidgets.QWidget, self).deleteLater()
 
     def drawText(self, event, qp):
         size = self.size()
@@ -177,7 +177,7 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
         size = self.size()
         w = size.width()/2
         h = size.height()/2
-        pen = QtGui.QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
+        pen = QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
         gp.setPen(pen)
         gp.translate(w,h)
         gp.rotate(self.rotation)
@@ -189,7 +189,7 @@ class CamView(QtGui.QWidget, _HalWidgetBase):
 if __name__ == '__main__':
 
     import sys
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     capture = CamView()
     capture.show()
     def jump():

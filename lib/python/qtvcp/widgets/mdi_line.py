@@ -14,8 +14,8 @@
 # GNU General Public License for more details.
 
 import os
-from PyQt4.QtGui import QLineEdit
-from PyQt4.QtCore import Qt, QEvent
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtCore import Qt, QEvent
 from qtvcp.qt_glib import GStat, Lcnc_Action
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.qt_istat import IStat

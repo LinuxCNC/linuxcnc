@@ -2,8 +2,8 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
@@ -87,15 +87,15 @@ class HandlerClass:
                     receiver.keyPressEvent(event)
                     event.accept()
                 return True
-            if isinstance(receiver,QtGui.QDialog):
+            if isinstance(receiver,QtWidgets.QDialog):
                 print 'dialog'
                 return True
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
         except Exception as e:
-            log.debug('Exception loading Macros:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            #log.debug('Exception loading Macros:', exc_info=e)
+            #print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
             #print 'from %s'% receiver
             return False
 

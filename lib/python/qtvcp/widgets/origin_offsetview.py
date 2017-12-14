@@ -1,6 +1,6 @@
 import sys, os
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 # Set up logging
 from qtvcp import logger
@@ -108,7 +108,8 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
 
     def showSelection(self, item):
         cellContent = item.data()
-        text = cellContent.toPyObject()  # test
+        #text = cellContent.toPyObject()  # test
+        text = cellContent
         log.debug('Text: {}, Row: {}, Column: {}'.format(text, item.row(), item.column()))
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
@@ -214,13 +215,13 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         except:
             return None, None, None, None, None, None, None, None, None
 
-    def dataChanged(self, new,old):
+    def dataChanged(self, new,old,x):
         row = new.row()
         col = new.column()
         data = self.tabledata[row][col]
 
         # Hack to not edit any rotational offset but Z axis
-        if row == 2 and not col == 3: return
+        if row == 1 and not col == 2: return
 
         # set the text style based on unit type
         if self.metric_display:
@@ -319,11 +320,14 @@ class MyTableModel(QAbstractTableModel):
         log.debug(self.arraydata[index.row()][index.column()])
         log.debug(">>> setData() role = {}".format(role))
         log.debug(">>> setData() index.column() = {}".format(index.column()))
-        if index.column() == 9:
-            v=str(value.toPyObject())
-        else:
-            v=float(value.toPyObject())
-        log.debug(">>> setData() value = ", v)
+        try:
+            if index.column() == 9:
+                v=str(value)
+            else:
+                v=float(value)
+        except:
+            return False
+        log.debug(">>> setData() value = ", value)
         # self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"), index, index)
         log.debug(">>> setData() index.row = {}".format(index.row()))
         log.debug(">>> setData() index.column = {}".format(index.column()))

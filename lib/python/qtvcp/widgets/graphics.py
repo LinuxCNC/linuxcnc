@@ -18,8 +18,9 @@ warnings.filterwarnings("ignore")
 import gtk
 warnings.filterwarnings("default")
 
-from PyQt4.QtCore import pyqtProperty, QSize
-from PyQt4.QtGui import QX11EmbedContainer
+from PyQt5.QtCore import pyqtProperty, QSize, QEvent
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QWindow, QResizeEvent
 from qtvcp.qt_glib import GStat
 import thread
 import gobject
@@ -35,6 +36,8 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 
+
+# Using a separate thread for GTK
 def run_gtk(self):
     try:
         gtk.gdk.threads_enter()
@@ -43,6 +46,9 @@ def run_gtk(self):
     except:
         pass
 
+##################################
+# Gremlin Subclass
+##################################
 # We subclass gremlin so we can change/add some behaivor
 class modded_gremlin(gremlin.Gremlin):
     def __init__(self,  *a, **kw):
@@ -203,15 +209,18 @@ class modded_gremlin(gremlin.Gremlin):
 
             return limit, homed, posstrs, droposstrs
 
-# This is the GTK embedding plug that will put the modded gremlin object into.
+###############################################
+# GTK Plug Class
+# This is the GTK embedding plug that will 
+# put the modded gremlin object into.
 # This get embedded into a QT container
-# It runs in it's own thread to update the GTK side of things
+# It runs in it's own thread to update the 
+# GTK side of things
+###############################################
 class PyApp(gtk.Plug):
-    def __init__(self,):
-        super(PyApp, self).__init__(0l)
-        #self.set_size_request(300, 300)
+    def __init__(self, Wid):
+        super(PyApp, self).__init__(Wid)
         self.connect("destroy", self.on_destroy)
-
         self.plug_id = self.get_id()
         vbox = gtk.VBox()
         self.add(vbox)
@@ -228,36 +237,48 @@ class PyApp(gtk.Plug):
         except:
             pass
 
-# This is the QT embedding container object.
-class Graphics(QX11EmbedContainer):
+##############################################
+# Container class
+# We embed Gremlin GTK object into this
+##############################################
+class Graphics(QWidget):
     def __init__(self, parent = None):
-        QX11EmbedContainer.__init__(self, parent)
-        self.pygtk = PyApp()
+        super(Graphics, self).__init__(parent)
+        self.pygtk = PyApp(0l)
         self.gremlin = self.pygtk.gremlin
         # run GTK in a separate thread
         try:
             thread.start_new_thread( run_gtk,(None) )
         except:
             pass
-        #QtCore.QObject.connect(self, QtCore.SIGNAL("error()"), self.embeddederror)
 
-        # embed GTK gremkin 
-        self.embedClient (self.pygtk.plug_id)
-
-        # gremlin defaults
-        #self.gremlin.enable_dro = False
+        # embed GTK gremlin 
+        self.embed_plug (self.pygtk.plug_id)
 
         self.gremlin.metric_units = False
         self.setview('p')
 
-    def embeddederror(self):
-        log.error('embed error')
+    # Embed a X11 window into a QT window using X window ID
+    def embed_plug(self, WID):
+        self.haveContainer = True
+        subWindow = QWindow.fromWinId(WID)
+        container = self.createWindowContainer(subWindow)
+        container.setParent(self)
+        container.show()
+        container.resize(330,360)
 
     def sizeHint(self):
         return QSize(300, 300)
 
     def closeEvent(self, event):
         self.pygtk.on_destroy(None)
+
+    def event(self, event):
+        if event.type() ==  QEvent.Resize:
+            w = QResizeEvent.size(event)
+            self.gremlin.set_size_request( w.width(), w.height())
+            #self.resize(QResizeEvent.size(event))
+        return True
 
 # property getter/setters
 

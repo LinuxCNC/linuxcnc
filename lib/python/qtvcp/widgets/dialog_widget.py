@@ -15,9 +15,10 @@
 # GNU General Public License for more details.
 
 import os
-from PyQt4.QtGui import QMessageBox, QFileDialog, QColor, QDesktopWidget, \
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, \
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout
-from PyQt4.QtCore import Qt, pyqtSlot, pyqtProperty
+from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
@@ -238,7 +239,7 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
             self.setDirectory(self.directory().absolutePath())
         GSTAT.emit('focus-overlay-changed',False,None,None)
         if fname:
-            #NOTE.notify('Error',str(fname),QtGui.QMessageBox.Information,10)
+            #NOTE.notify('Error',str(fname),QtWidgets.QMessageBox.Information,10)
             f = open(fname, 'r')
             ACTION.OPEN_PROGRAM(fname)
         return fname

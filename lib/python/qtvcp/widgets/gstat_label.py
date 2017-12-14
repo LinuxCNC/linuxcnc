@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
@@ -12,7 +12,7 @@ INI = IStat()
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
-class Lcnc_Gstat_Label(QtGui.QLabel, _HalWidgetBase):
+class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
 
     def __init__(self, parent=None):
 

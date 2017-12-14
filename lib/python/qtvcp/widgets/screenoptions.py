@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.lib.message import Message
@@ -14,9 +14,9 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 
-class Lcnc_ScreenOptions(QtGui.QWidget, _HalWidgetBase):
+class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent = None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True

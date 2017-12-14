@@ -1,5 +1,5 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 
 class Message:
     def __init__(self):
@@ -148,7 +148,7 @@ class Message:
 
 if __name__ == '__main__':
     import sys
-    from PyQt4.QtCore import *
+    from PyQt5.QtCore import *
     m = Message()
     app = QApplication(sys.argv)
     w = QWidget()

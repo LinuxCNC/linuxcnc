@@ -15,8 +15,8 @@
 #
 #################################################################################
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import pyqtProperty
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat, Lcnc_Action
 from qtvcp.qt_istat import IStat
@@ -33,9 +33,9 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 
-class Gstat_Slider(QtGui.QSlider, _HalWidgetBase):
+class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
     def __init__(self, parent = None):
-        QtGui.QSlider.__init__(self,parent)
+        QtWidgets.QSlider.__init__(self,parent)
         self._block_signal = False
         self.rapid = True
         self.feed = False

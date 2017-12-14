@@ -1,24 +1,25 @@
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from decimal import Decimal
 
 # applicationle widgets
-SIP_WIDGETS = [QtGui.QLineEdit]
+SIP_WIDGETS = [QtWidgets.QLineEdit]
 
-class MyFlatPushButton(QtGui.QPushButton):
+class MyFlatPushButton(QtWidgets.QPushButton):
     def __init__(self, caption, min_size=(50, 50)):
         self.MIN_SIZE = min_size
-        QtGui.QPushButton.__init__(self, caption)
+        QtWidgets.QPushButton.__init__(self, caption)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
     def sizeHint(self):
         return QtCore.QSize(self.MIN_SIZE[0], self.MIN_SIZE[1])
 
 
-class SoftInputWidget(QtGui.QDialog):
+class SoftInputWidget(QtWidgets.QDialog):
     def __init__(self, parent_object, keyboard_type='default'):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() |QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(self.windowFlags() |QtCore.Qt.FramelessWindowHint
+        | Qt.FramelessWindowHint)
         self.INPUT_WIDGET = None
         self.PARENT_OBJECT = parent_object
         self.signalMapper = QtCore.QSignalMapper(self)
@@ -42,7 +43,7 @@ class SoftInputWidget(QtGui.QDialog):
         @param   keyboard_type:
         @return:
         """
-        gl = QtGui.QVBoxLayout()
+        gl = QtWidgets.QVBoxLayout()
         self.setFont(self.PARENT_OBJECT.font())
         number_widget_list = []
         sym_list = range(0, 6)
@@ -113,7 +114,7 @@ class SoftInputWidget(QtGui.QDialog):
 
             if col == MAX_COL:
                 col = 0
-                v = QtGui.QHBoxLayout()
+                v = QtWidgets.QHBoxLayout()
                 v.addStretch()
                 v.setSpacing(5)
                 map(v.addWidget, tlist)
@@ -123,7 +124,7 @@ class SoftInputWidget(QtGui.QDialog):
             else:
                 col += 1
 
-        v = QtGui.QHBoxLayout()
+        v = QtWidgets.QHBoxLayout()
         v.setSpacing(5)
         v.addStretch()
         map(v.addWidget, tlist)
@@ -149,13 +150,13 @@ class SoftInputWidget(QtGui.QDialog):
             self.hide()
         else:
             # send keypress event to widget
-            QtGui.QApplication.sendEvent(w, keyPress)
+            QtWidgets.QApplication.sendEvent(w, keyPress)
 
         # line edit returnPressed event is triggering twise for press and release both
         # that is why do not send release event for special key
         if char_ord not in self.NO_ORD_KEY_LIST:
             keyRelease = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, char_ord, QtCore.Qt.NoModifier, '')
-            QtGui.QApplication.sendEvent(w, keyRelease)
+            QtWidgets.QApplication.sendEvent(w, keyRelease)
 
     def show_input_panel(self, widget):
         self.INPUT_WIDGET = widget
@@ -170,7 +171,7 @@ class SoftInputWidget(QtGui.QDialog):
 
         widget_rect         = widget.rect()
         widget_bottom       = widget.mapToGlobal(QtCore.QPoint(widget.frameGeometry().x(), widget.frameGeometry().y())).y()
-        screen_height       = QtGui.qApp.desktop().availableGeometry().height()
+        screen_height       = QtWidgets.qApp.desktop().availableGeometry().height()
         input_panel_height  = self.geometry().height() + 5
 
         if (screen_height - widget_bottom) > input_panel_height:
@@ -184,7 +185,7 @@ class SoftInputWidget(QtGui.QDialog):
         self.move(panelPos)
 
     def _get_line(self, vertical=True):
-        line = QtGui.QFrame()
+        line = QtWidgets.QFrame()
         line.setContentsMargins(0, 0, 0, 0)
         if vertical is True:
             line.setFrameShape(line.VLine)
@@ -223,9 +224,9 @@ class TouchInterface(QtCore.QObject):
         return False
 
 
-class TouchInputWidget(QtGui.QWidget):
+class TouchInputWidget(QtWidgets.QWidget):
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
         self.touch_interface = TouchInterface(self)
 
     def childEvent(self, event):
@@ -239,41 +240,41 @@ class ExampleWidget(TouchInputWidget):
     def __init__(self):
         TouchInputWidget.__init__(self)
 
-        self.txtNumeric    = QtGui.QLineEdit()
+        self.txtNumeric    = QtWidgets.QLineEdit()
         # actiate touch input
         self.txtNumeric.keyboard_type = 'numeric'
 
-        self.txtText = QtGui.QLineEdit()
+        self.txtText = QtWidgets.QLineEdit()
         # activate touch input
         self.txtText.keyboard_type = 'default'
 
-        gl = QtGui.QVBoxLayout()
+        gl = QtWidgets.QVBoxLayout()
         gl.addWidget(self.txtNumeric)
         gl.addWidget(self.txtText)
 
         self.setWindowTitle('Touch Input Demo')
         self.setLayout(gl)
 
-class ExampleDialog(QtGui.QDialog):
+class ExampleDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(ExampleDialog, self).__init__(parent)
         #TouchInputWidget.__init__(self)
-        #self =QtGui.QDialog()
+        #self =QtWidgets.QDialog()
         #self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.setWindowFlags( self.windowFlags() |QtCore.Qt.Tool |
                   QtCore.Qt.Dialog |
                  QtCore.Qt.WindowStaysOnTopHint |QtCore.Qt.WindowSystemMenuHint)
-        buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok)
-        b = buttonBox.button(QtGui.QDialogButtonBox.Ok)
+        buttonBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        b = buttonBox.button(QtWidgets.QDialogButtonBox.Ok)
         b.clicked.connect(lambda:self.close())
-        l = QtGui.QVBoxLayout()
+        l = QtWidgets.QVBoxLayout()
         self.setLayout(l)
 
         o = TouchInputWidget()
-        self.t = QtGui.QLineEdit()
+        self.t = QtWidgets.QLineEdit()
         self.t.keyboard_type = 'default'
 
-        gl = QtGui.QVBoxLayout()
+        gl = QtWidgets.QVBoxLayout()
         gl.addWidget(self.t)
         o.setLayout(gl)
         l.addWidget(o)
@@ -281,7 +282,7 @@ class ExampleDialog(QtGui.QDialog):
         l.addWidget(buttonBox)
 
 if __name__ == '__main__':
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     #ExampleWidget().show()
     ExampleDialog().show()
     #numEdit().show()

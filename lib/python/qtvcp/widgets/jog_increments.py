@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
@@ -13,7 +13,7 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 
-class Lcnc_JogIncrements(QtGui.QComboBox, _HalWidgetBase):
+class Lcnc_JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_JogIncrements, self).__init__(parent)
         for item in (INI.JOG_INCREMENTS):
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     combo = Lcnc_JogIncrements()
     combo.show()
     sys.exit(app.exec_())
