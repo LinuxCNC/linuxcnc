@@ -24,22 +24,22 @@ MODULE_LICENSE("GPL");
 
 
 #define PHY_MEM_BLOCK_SIZE      4096
-#define GPIO_PHY_MEM_OFFSET1    0x01C20800 // GPIO_A .. GPIO_I
+#define GPIO_PHY_MEM_OFFSET1    0x01C20800 // GPIO_A .. GPIO_G
 #define GPIO_PHY_MEM_OFFSET2    0x01F02C00 // GPIO_L
 #define GPIO_PIN_COUNT          43
 #define USE_GPIO_PORT_L         0 // 0 = don't use port L
 
 enum
 {
-    GPIO_A, GPIO_B, GPIO_C, GPIO_D, GPIO_E, // 22,  0, 19, 18, 16,
-    GPIO_F, GPIO_G, GPIO_H, GPIO_I, GPIO_L  //  7, 14,  0,  0, 12 pins
+    GPIO_A, GPIO_B, GPIO_C, GPIO_D,
+    GPIO_E, GPIO_F, GPIO_G, GPIO_L
 };
 
 #if USE_GPIO_PORT_L
-    #define GPIO_PORT_COUNT 10
+    #define GPIO_PORT_COUNT 8
     uint32_t * vrt_block_addr[2];
 #else
-    #define GPIO_PORT_COUNT 9
+    #define GPIO_PORT_COUNT 7
     uint32_t * vrt_block_addr[1];
 #endif
 
@@ -235,14 +235,14 @@ int32_t rtapi_app_main(void)
     }
 
     // adjust offset to correct value
-    vrt_offset >>= 2;
+    vrt_block_addr[0] += (vrt_offset/4);
 
     // add correct address values to global GPIO array
-    for ( n = GPIO_A; n <= GPIO_I; ++n )
+    for ( n = GPIO_A; n <= GPIO_G; ++n )
     {
         _GPIO_port_reg[n] =
             (struct _GPIO_PORT_REG_t *)
-            (vrt_block_addr[0] + vrt_offset + n*0x24);
+            (vrt_block_addr[0] + n*(0x24/4));
     }
 
 #if USE_GPIO_PORT_L
@@ -268,12 +268,10 @@ int32_t rtapi_app_main(void)
     }
 
     // adjust offset to correct value
-    vrt_offset >>= 2;
+    vrt_block_addr[1] += (vrt_offset/4);
 
     // add correct address values to global GPIO array
-    _GPIO_port_reg[GPIO_L] =
-        (struct _GPIO_PORT_REG_t *)
-        (vrt_block_addr[1] + vrt_offset + 0*0x24);
+    _GPIO_port_reg[GPIO_L] = (struct _GPIO_PORT_REG_t *) vrt_block_addr[1];
 #endif
 
     // no need to keep phy memory file open after mmap
