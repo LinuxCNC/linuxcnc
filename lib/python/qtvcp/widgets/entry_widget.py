@@ -19,7 +19,7 @@ class SoftInputWidget(QtWidgets.QDialog):
         QtWidgets.QDialog.__init__(self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() |QtCore.Qt.FramelessWindowHint
-        | Qt.FramelessWindowHint)
+        | QtCore.Qt.WindowStaysOnTopHint)
         self.INPUT_WIDGET = None
         self.PARENT_OBJECT = parent_object
         self.signalMapper = QtCore.QSignalMapper(self)

@@ -129,6 +129,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 if text:
                     self.text = text
                 self.show()
+                self.update()
                 log.debug('Overlay - Show')
                 os.system("beep -f 555 ")
             else:
