@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
@@ -11,7 +11,7 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 
-class GstatStacked(QtGui.QStackedWidget, _HalWidgetBase):
+class GstatStacked(QtWidgets.QStackedWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(GstatStacked, self).__init__(parent)
         self.auto = True

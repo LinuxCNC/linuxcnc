@@ -18,7 +18,7 @@
 # In the designer editor, it is possible to select what the button will do.
 #################################################################################
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat, Lcnc_Action
 from qtvcp.qt_istat import IStat
@@ -37,9 +37,9 @@ ACTION = Lcnc_Action()
 INI = IStat()
 AUX_PRGM = Aux_program_loader()
 
-class Lcnc_ActionButton(QtGui.QPushButton, _HalWidgetBase):
+class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent = None):
-        QtGui.QPushButton.__init__(self, parent)
+        QtWidgets.QPushButton.__init__(self, parent)
         #self.setCheckable(False)
         self._block_signal = False
         self.estop = True

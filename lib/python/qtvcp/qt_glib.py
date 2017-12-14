@@ -6,7 +6,7 @@ import math
 import gobject
 
 import _hal, hal
-from PyQt4.QtCore import QObject, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import _GStat as GladeVcpStat
 from qtvcp.qt_istat import IStat
 INI = IStat()
@@ -16,15 +16,15 @@ import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class QPin(QObject, hal.Pin):
+class QPin(hal.Pin, QObject):
     value_changed = pyqtSignal([int], [float], [bool] )
 
     REGISTRY = []
     UPDATE = False
 
     def __init__(self, *a, **kw):
-        QObject.__init__(self)
-        hal.Pin.__init__(self, *a, **kw)
+        super(QPin, self).__init__(*a, **kw)
+        QObject.__init__(self, None)
         self._item_wrap(self._item)
         self._prev = None
         self.REGISTRY.append(self)
@@ -83,7 +83,7 @@ class QComponent:
 # by subclassing it
 class _GStat(GladeVcpStat):
     def __init__(self):
-        GladeVcpStat.__init__(self)
+        super(_GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
 
 # used so all qtvcp widgets use the same instance of _gstat

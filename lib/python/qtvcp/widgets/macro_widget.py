@@ -1,12 +1,17 @@
 import os
-from PyQt4 import QtGui, QtCore, QtSvg
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+try:
+    from PyQt5 import QtSvg
+except:
+    log.critical("Can't import QsciScintilla - is package python-pyqt.qt5svg installed?", exc_info=e)
+from PyQt5 import QtWidgets, QtCore, QtGui
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.qt_istat import IStat
 from qtvcp.qt_glib import GStat, Lcnc_Action
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
 
 # Instantiate the libraries with global reference
 # INI holds ini details
@@ -21,7 +26,7 @@ ACTION = Lcnc_Action()
 ###########################################
 
 # We can add a svg image from a specific layer to QPushButton
-class CustomButton(QtGui.QPushButton):
+class CustomButton(QtWidgets.QPushButton):
     def __init__(self, parent=None,path = None, layer = 0):
         super(CustomButton, self).__init__(parent)
         if path == None:
@@ -85,7 +90,7 @@ class Custom_SVG(QtSvg.QSvgWidget):
 # It then opens the .ngc files ther eand searches for keynames
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
-class macroTab(QtGui.QWidget, _HalWidgetBase):
+class macroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(macroTab, self).__init__(parent)
         try:
@@ -93,22 +98,22 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
             self.filepath = os.path.join(tpath,'')
         except:
             self.filepath = None
-        self.stack = QtGui.QStackedWidget()
+        self.stack = QtWidgets.QStackedWidget()
 
         # add some buttons to run,cancel and menu
-        hbox = QtGui.QHBoxLayout()
-        self.okButton = QtGui.QPushButton("OK")
+        hbox = QtWidgets.QHBoxLayout()
+        self.okButton = QtWidgets.QPushButton("OK")
         self.okButton.pressed.connect(self.okChecked)
-        cancelButton = QtGui.QPushButton("Cancel")
+        cancelButton = QtWidgets.QPushButton("Cancel")
         cancelButton.pressed.connect(self.cancelChecked)
-        menuButton = QtGui.QPushButton("Menu")
+        menuButton = QtWidgets.QPushButton("Menu")
         menuButton.pressed.connect(self.menuChecked)
         hbox.addWidget(self.okButton)
         hbox.addWidget(cancelButton)
         hbox.insertSpacing(1,20)
         hbox.addWidget(menuButton)
         hbox.addStretch(0)
-        vbox = QtGui.QVBoxLayout()
+        vbox = QtWidgets.QVBoxLayout()
         vbox.addWidget(self.stack)
         vbox.addStretch(1)
         vbox.addLayout(hbox)
@@ -146,19 +151,19 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
         for i, tName in enumerate(tabName):
             # make a widget that is added to the stack
             w = TouchInputWidget()
-            hbox = QtGui.QHBoxLayout(w)
+            hbox = QtWidgets.QHBoxLayout(w)
             hbox.addStretch(1)
-            vbox = QtGui.QVBoxLayout()
+            vbox = QtWidgets.QVBoxLayout()
             w.setObjectName(tName)
             # add labels and edits
             for n, name in enumerate(self[tName][0]):
-                l = QtGui.QLabel(name[0])
+                l = QtWidgets.QLabel(name[0])
                 if name[1].lower() in('false','true'):
-                    self['%s%d'%(tName,n)] = QtGui.QRadioButton()
+                    self['%s%d'%(tName,n)] = QtWidgets.QRadioButton()
                     if name[1].lower() == 'true':
                         self['%s%d'%(tName,n)].setChecked(True)
                 else:
-                    self['%s%d'%(tName,n)] = QtGui.QLineEdit()
+                    self['%s%d'%(tName,n)] = QtWidgets.QLineEdit()
                     self['%s%d'%(tName,n)].keyboard_type = 'numeric'
                     self['%s%d'%(tName,n)].setText(name[1])
                 vbox.addWidget(l)
@@ -179,10 +184,10 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
     # using the magic comments parsed before this
     def _buildMenuPage(self, tabNames):
         col = row = 0
-        w = QtGui.QWidget()
-        hbox = QtGui.QHBoxLayout(w)
-        vbox = QtGui.QVBoxLayout()
-        grid = QtGui.QGridLayout()
+        w = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout(w)
+        vbox = QtWidgets.QVBoxLayout()
+        grid = QtWidgets.QGridLayout()
         grid.setSpacing(10)
         # we grid them in columns of (arbritrarily) 5
         # hopefully we don;t have too many macros...
@@ -197,8 +202,8 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
             # larger - the label is under the pic - if no erross
             btn = CustomButton('Oops\n',path=svgpath, layer= svg_num)
             btn.clicked.connect(self.menuButtonPress(i))
-            btn.setSizePolicy(QtGui.QSizePolicy.Preferred,
-                    QtGui.QSizePolicy.Expanding)
+            btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
+                    QtWidgets.QSizePolicy.Expanding)
             grid.addWidget(btn,row,col,1,1)
             row+=1
             if row >4:
@@ -214,12 +219,12 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
     # make something so the user may have some small clue.
     # probably should do more - subroutines/macros are not user friendly
     def _buildErrorTab(self):
-        w = QtGui.QWidget()
-        vbox = QtGui.QVBoxLayout(w)
+        w = QtWidgets.QWidget()
+        vbox = QtWidgets.QVBoxLayout(w)
         vbox.addStretch(1)
-        mess = QtGui.QLabel('No Usable Macros Found In:')
+        mess = QtWidgets.QLabel('No Usable Macros Found In:')
         vbox.addWidget(mess)
-        mess = QtGui.QLabel(self.filepath)
+        mess = QtWidgets.QLabel(self.filepath)
         vbox.addWidget(mess)
         # add the widget to the stack
         self.stack.addWidget(w)
@@ -289,7 +294,7 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
         for num, i in enumerate(self[name][0]):
             # Look for a radio button instance so we can convert to integers
             # other wise we assume text
-            if isinstance(self['%s%d'%(name,num)],QtGui.QRadioButton):
+            if isinstance(self['%s%d'%(name,num)],QtWidgets.QRadioButton):
                 data = str(1 *int(self['%s%d'%(name,num)].isChecked()))
             else:
                 data = str(self['%s%d'%(name,num)].text())
@@ -332,7 +337,7 @@ class macroTab(QtGui.QWidget, _HalWidgetBase):
 if __name__ == "__main__":
     # GSTAT may cause seg fault testing here
     import sys
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     #sw = QtSvg.QSvgWidget('LatheMacro.svg')
     sw = macroTab()
     sw.setGeometry(50,50,759,668)

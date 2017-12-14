@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 
 import sys,os
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 from qtvcp.qt_istat import IStat
@@ -29,9 +29,9 @@ log = logger.getLogger(__name__)
 GSTAT = GStat()
 INI = IStat()
 
-class Lcnc_DROLabel(QtGui.QLabel, _HalWidgetBase):
+class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent = None):
-        QtGui.QLabel.__init__(self,parent)
+        QtWidgets.QLabel.__init__(self,parent)
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0

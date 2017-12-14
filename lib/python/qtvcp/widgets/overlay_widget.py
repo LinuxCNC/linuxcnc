@@ -1,8 +1,9 @@
 #!/usr/bin/python2.7
 
 import os
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import  QColor, QImage, QResizeEvent, QPainter
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
 if __name__ != '__main__':

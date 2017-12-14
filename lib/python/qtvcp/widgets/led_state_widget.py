@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-from PyQt4.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.ledwidget import Lcnc_Led
 from qtvcp.qt_glib import GStat
 GSTAT = GStat()

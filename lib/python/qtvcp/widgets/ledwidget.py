@@ -1,7 +1,8 @@
 #!/usr/bin/python2.7
 
-from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
-from PyQt4.QtGui import QWidget, QColor, QPainter, QBrush, QRadialGradient
+from PyQt5.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
+from PyQt5.QtGui import  QColor, QPainter, QBrush, QRadialGradient
+from PyQt5.QtWidgets import QWidget
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 
 # Set up logging

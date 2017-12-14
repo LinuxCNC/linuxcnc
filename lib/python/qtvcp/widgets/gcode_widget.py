@@ -27,17 +27,17 @@
 # https://qscintilla.com/
 
 import sys, os
-from PyQt4.QtCore import SIGNAL, pyqtProperty
-from PyQt4.QtGui import QFont, QFontMetrics, QColor
+from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtGui import QFont, QFontMetrics, QColor
 
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
 try:
-    from PyQt4.Qsci import QsciScintilla, QsciLexerCustom
+    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
 except ImportError as e:
-    log.critical("Can't import QsciScintilla - is package python-qscintilla2 installed?", exc_info=e)
+    log.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
     sys.exit(1)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.qt_glib import GStat
@@ -196,9 +196,7 @@ class EditorBase(QsciScintilla):
         self.setMarginSensitivity(1, False)
         # setting marker margin width to zero make the marker highlight line
         self.setMarginWidth(1, 0)
-        #self.connect(self,
-        #    SIGNAL('marginClicked(int, int, Qt::KeyboardModifiers)'),
-        #    self.on_margin_clicked)
+        #self.matginClicked.connect(self.on_margin_clicked)
         self.markerDefine(QsciScintilla.RightArrow,
             self.ARROW_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ffe4e4"),

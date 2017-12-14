@@ -2,8 +2,9 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+from PyQt5 import QtGui
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.notify import Notify
@@ -127,7 +128,7 @@ class HandlerClass:
         self.jog_velocity = rate
 
     def on_error_message(self, w, message):
-        NOTE.notify('Error',message,QtGui.QMessageBox.Information,10)
+        NOTE.notify('Error',message,QtWidgets.QMessageBox.Information,10)
 
     def on_periodic(self,w):
         try:
@@ -228,12 +229,13 @@ class HandlerClass:
         self.w.overlay.bg_color = QtGui.QColor(0, 0, 0,200)
         self.w.overlay.show()
         #self.w.centralwidget.setEnabled(False)
-        fname = QtGui.QFileDialog.getOpenFileName(None, 'Open file',
+        fname = QtWidgets.QFileDialog.getOpenFileName(None, 'Open file',
                 os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
+        fname =fname[0]
         print fname
         if fname:
-            NOTE.notify('Error',str(fname),QtGui.QMessageBox.Information,10)
-            f = open(fname, 'r')
+            NOTE.notify('Error',str(fname),QtWidgets.QMessageBox.Information,10)
+            f = open(str(fname), 'r')
 
             self.cmnd.mode(linuxcnc.MODE_AUTO)
             self.cmnd.program_open(str(fname))

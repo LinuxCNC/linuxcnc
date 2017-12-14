@@ -21,7 +21,7 @@
 import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.qt_glib import QComponent
-from PyQt4.QtCore import QObject
+from PyQt5.QtCore import QObject
 
 # Set up logging
 import logger

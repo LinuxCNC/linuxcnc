@@ -1,5 +1,5 @@
 import os,sys
-from PyQt4 import QtCore,QtGui, uic
+from PyQt5 import QtCore, QtWidgets, uic
 import traceback
 
 # Set up logging
@@ -57,7 +57,7 @@ class MyEventFilter(QtCore.QObject):
         #Call Base Class Method to Continue Normal Event Processing
         return super(MyEventFilter,self).eventFilter(receiver, event)
 
-class MyWindow(QtGui.QMainWindow):
+class MyWindow(QtWidgets.QMainWindow):
     def __init__(self,filename,halcomp):
         super(MyWindow, self).__init__()
 
