@@ -67,47 +67,6 @@ net out-accel <= ddt.out-accel.out
 
 
 #
-# These comparators output True when the limit3 is obeying its
-# constraints.
-#
-
-loadrt wcomp names=wcomp.accel,wcomp.vel,wcomp.pos
-
-# Just a hair above limit3's accel limit.
-setp wcomp.accel.max 15801
-setp wcomp.accel.min -15801
-net out-accel => wcomp.accel.in
-net accel-ok <= wcomp.accel.out
-
-# Just a hair above limit3's velocity limit.
-setp wcomp.vel.max 1501
-setp wcomp.vel.min -1501
-net out-vel => wcomp.vel.in
-net vel-ok <= wcomp.vel.out
-
-setp wcomp.pos.max 105
-setp wcomp.pos.min -105
-net output => wcomp.pos.in
-net pos-ok <= wcomp.pos.out
-
-
-#
-# These AND components combine the three constraints from above and
-# compute a single "all constraints are ok" signal.
-#
-
-loadrt and2 count=2
-net vel-ok => and2.0.in0
-net accel-ok => and2.0.in1
-
-net derivatives-ok <= and2.0.out
-net derivatives-ok => and2.1.in0
-net pos-ok => and2.1.in1
-
-net constraints-ok <= and2.1.out
-
-
-#
 # This part cycles through the muxed signals.  It uses a charge pump to
 # generate a high-frequency square wave, and an encoder in counter-mode,
 # with a large scale, to produce a slowly growing number (the encoder
@@ -141,11 +100,11 @@ net mux-select => mux-gen.00.sel-int
 # validate it after the realtime part of the test completes.
 #
 
-loadrt sampler depth=1500 cfg=fffbu
-net output => sampler.0.pin.0
-net out-vel => sampler.0.pin.1
-net out-accel => sampler.0.pin.2
-net constraints-ok => sampler.0.pin.3
+loadrt sampler depth=1500 cfg=ffffu
+net input => sampler.0.pin.0
+net output => sampler.0.pin.1
+net out-vel => sampler.0.pin.2
+net out-accel => sampler.0.pin.3
 net mux-select => sampler.0.pin.4
 
 
@@ -161,11 +120,6 @@ addf mux-gen.00               t
 addf limit3.0                 t
 addf ddt.out-accel            t
 addf ddt.out-vel              t
-addf wcomp.accel              t
-addf wcomp.vel                t
-addf wcomp.pos                t
-addf and2.0                   t
-addf and2.1                   t
 addf sampler.0                t
 
 start
