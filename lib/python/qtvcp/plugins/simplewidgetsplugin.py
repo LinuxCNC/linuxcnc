@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.simple_widgets import Lcnc_PushButton
 from qtvcp.widgets.simple_widgets import Lcnc_CheckBox
 from qtvcp.widgets.simple_widgets import Lcnc_RadioButton

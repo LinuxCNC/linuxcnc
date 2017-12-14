@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from PyQt4.QtGui import QIcon, QPixmap, QAction, QDialog, QLabel,QTextFormat
-from PyQt4.QtCore import SIGNAL,pyqtProperty,QVariant
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, QPyDesignerPropertySheetExtension,QDesignerFormWindowInterface
+from PyQt5.QtGui import QIcon, QPixmap, QAction, QDialog, QLabel,QTextFormat
+from PyQt5.QtCore import pyqtProperty,QVariant
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, QPyDesignerPropertySheetExtension,QDesignerFormWindowInterface
 from qtvcp.widgets.gstat_label import Lcnc_Gstat_Label
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()

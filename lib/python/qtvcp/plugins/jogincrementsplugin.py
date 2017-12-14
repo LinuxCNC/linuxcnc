@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from PyQt4.QtGui import QIcon, QPixmap
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.jog_increments import Lcnc_JogIncrements
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()

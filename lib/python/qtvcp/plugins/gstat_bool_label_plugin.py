@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from PyQt4.QtGui import QIcon, QPixmap
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.gstat_bool_label import Lcnc_Gstat_Bool_Label
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
