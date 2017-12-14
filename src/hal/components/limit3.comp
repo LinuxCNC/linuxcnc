@@ -7,7 +7,7 @@ pin in float max_=1e20;
 pin in float maxv=1e20;
 pin in float maxa=1e20;
 variable double in_old;
-variable double out_vel;
+variable double out_old;
 function _;
 license "GPL";
 ;;
@@ -16,8 +16,8 @@ license "GPL";
 
 #define SET_NEXT_STATE(out_pos, out_v, in_pos)		\
     do {						\
+	out_old = out;					\
 	out = out_pos;					\
-	out_vel = out_v;				\
 	in_old = in_pos;				\
 	return;						\
     } while (0)
@@ -30,6 +30,7 @@ FUNCTION(_) {
     double vel_0_time, vel_0_pos;
     double vel_match_time, vel_match_in_pos, vel_match_out_pos;
     int out_dir, out_dir_rel;
+    double out_vel = (out-out_old)/fperiod;
 
     if (load) {
 	// Apply first order limit
