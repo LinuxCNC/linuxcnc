@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5 import QtGui
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.container_widgets import State_Enable_GridLayout
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin, \
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
                 QPyDesignerTaskMenuExtension, QExtensionFactory, \
                 QDesignerFormWindowInterface
 
@@ -49,11 +49,11 @@ class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.screenoptions"
 
-class GeoLocationDialog(QtGui.QDialog):
+class GeoLocationDialog(QtWidgets.QDialog):
 
    def __init__(self, widget, parent = None):
 
-      QtGui.QDialog.__init__(self, parent)
+      QtWidgets.QDialog.__init__(self, parent)
 
       self.widget = widget
 
@@ -61,7 +61,7 @@ class GeoLocationDialog(QtGui.QDialog):
       self.previewWidget.notify_option = widget.notify_option
       #self.previewWidget.longitude = widget.longitude
 
-      buttonBox = QtGui.QDialogButtonBox()
+      buttonBox = QtWidgets.QDialogButtonBox()
       okButton = buttonBox.addButton(buttonBox.Ok)
       cancelButton = \
          buttonBox.addButton(buttonBox.Cancel)
@@ -71,12 +71,12 @@ class GeoLocationDialog(QtGui.QDialog):
       self.connect(cancelButton, QtCore.SIGNAL("clicked()"),
                    self, QtCore.SLOT("reject()"))
 
-      layout = QtGui.QGridLayout()
-      self.c_notify = QtGui.QCheckBox("Desktop Notify Errors")
+      layout = QtWidgets.QGridLayout()
+      self.c_notify = QtWidgets.QCheckBox("Desktop Notify Errors")
       self.c_notify.setChecked(widget.desktop_notify )
-      self.c_errors = QtGui.QCheckBox("Catch Errors")
+      self.c_errors = QtWidgets.QCheckBox("Catch Errors")
       self.c_errors.setChecked(widget.catch_errors)
-      self.c_close = QtGui.QCheckBox("Catch close Event")
+      self.c_close = QtWidgets.QCheckBox("Catch close Event")
       self.c_close.setChecked(widget.close_event)
 
       layout.addWidget(self.c_notify)
@@ -110,7 +110,7 @@ class GeoLocationMenuEntry(QPyDesignerTaskMenuExtension):
       QPyDesignerTaskMenuExtension.__init__(self, parent)
 
       self.widget = widget
-      self.editStateAction = QtGui.QAction(
+      self.editStateAction = QtWidgets.QAction(
           self.tr("Select Options..."), self)
       self.connect(self.editStateAction,
           QtCore.SIGNAL("triggered()"), self.updateLocation)

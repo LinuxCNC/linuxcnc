@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from PyQt4.QtGui import QIcon, QPixmap
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.led_state_widget import Lcnc_State_Led
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
