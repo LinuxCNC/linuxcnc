@@ -1,11 +1,15 @@
 #!/usr/bin/python2
 
-import sys
+import sys, os, re
 
-max = 50.0
-min = -50.0
-maxvel = 4000
-maxacc = 10000
+halfile = os.path.join(os.path.dirname(__file__),"test.hal")
+param_re = re.compile(r'^setp\s+limit3.0.([^\s]+)\s+([-0-9]+)$')
+params = {}
+with open(halfile, 'r') as f:
+    for line in f:
+        m = param_re.match(line)
+        if m is None:  continue
+        params[m.group(1)] = int(m.group(2))
 
 result_filename = sys.argv[1]
 result_file = open(result_filename, 'r')
@@ -18,24 +22,24 @@ for line in result_file.readlines():
     vel = float(vel)
     acc = float(acc)
 
-    if float(out) > max * 1.01:
+    if float(out) > params['max'] * 1.01:
         print "max=%.3f, in=%.3f, out=%.3f, max violation on line %s" % \
-            (max, float(in_val), out, line)
+            (params['max'], float(in_val), out, line)
         retval = 1
 
-    if float(out) < min * 1.01:
+    if float(out) < params['min'] * 1.01:
         print "min=%.3f, in=%.3f, out=%.3f, min violation on line %s" % \
-            (min, float(in_val), out, line)
+            (params['min'], float(in_val), out, line)
         retval = 1
 
-    if abs(vel) > maxvel:
-        print "maxvel=%.3f, vel=%.3f, velocity violation on line %s" % \
-            (maxvel, vel, line)
+    if abs(vel) > params['maxv']:
+        print "maxv=%.3f, vel=%.3f, velocity violation on line %s" % \
+            (params['maxv'], vel, line)
         retval = 1
 
-    if abs(acc) > maxacc:
-        print "maxacc=%.3f, acc=%.3f, acceleration violation on line %s" % \
-            (maxacc, acc, line)
+    if abs(acc) > params['maxa']:
+        print "maxa=%.3f, acc=%.3f, acceleration violation on line %s" % \
+            (params['maxa'], acc, line)
         retval = 1
 
 sys.exit(retval)
