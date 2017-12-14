@@ -6,19 +6,19 @@ pin in float min_=-1e20;
 pin in float max_=1e20;
 pin in float maxv=1e20;
 pin in float maxa=1e20;
-variable double in_pos_old;
-variable double out_vel_old;
+variable double in_old;
+variable double out_vel;
 function _;
 license "GPL";
 ;;
 
 #include "rtapi_math.h"
 
-#define SET_NEXT_STATE(out_pos, out_vel, in_pos)	\
+#define SET_NEXT_STATE(out_pos, out_v, in_pos)		\
     do {						\
 	out = out_pos;					\
-	out_vel_old = out_vel;				\
-	in_pos_old = in_pos;				\
+	out_vel = out_v;				\
+	in_old = in_pos;				\
 	return;						\
     } while (0)
 
@@ -39,33 +39,33 @@ FUNCTION(_) {
     }
 
     // Input velocity
-    in_vel = (in - in_pos_old) / fperiod;
+    in_vel = (in - in_old) / fperiod;
     // Most negative/positive velocity reachable in one period
-    min_vel = fmax(out_vel_old - maxa * fperiod, -maxv);
-    max_vel = fmin(out_vel_old + maxa * fperiod, maxv);
+    min_vel = fmax(out_vel - maxa * fperiod, -maxv);
+    max_vel = fmin(out_vel + maxa * fperiod, maxv);
     // Most negative/positive position reachable in one period
     min_pos = out + min_vel * fperiod;
     max_pos = out + max_vel * fperiod;
 
     // Direction (sign) of output movement
-    out_dir = (out_vel_old < 0) ? -1 : 1;
+    out_dir = (out_vel < 0) ? -1 : 1;
     // Direction of output movement relative to input movement
-    out_dir_rel = (out_vel_old - in_vel < 0) ? -1 : 1;
+    out_dir_rel = (out_vel - in_vel < 0) ? -1 : 1;
 
     // Respect max/min position limits:  stop at limit line
-    vel_0_time = fabs(out_vel_old/maxa);              // min time to decel to stop
+    vel_0_time = fabs(out_vel/maxa);                  // min time to decel to stop
     vel_0_pos = out                                   // position after stop
-	+ out_vel_old * (vel_0_time+fperiod)
+	+ out_vel * (vel_0_time+fperiod)
 	+ 0.5 * (-out_dir * maxa) * pow(vel_0_time,2);
 
     // Follow input signal:  match position and velocity
     // - min time for velocity match
-    vel_match_time = fabs(out_vel_old-in_vel) / maxa;
+    vel_match_time = fabs(out_vel-in_vel) / maxa;
     // - input position after velocity match
     vel_match_in_pos = in + in_vel * vel_match_time;
     // - output position after velocity match
     vel_match_out_pos = out
-	+ out_vel_old * (vel_match_time+fperiod)
+	+ out_vel * (vel_match_time+fperiod)
 	+ 0.5 * (-out_dir_rel * maxa) * pow(vel_match_time,2);
 
     // Respect max/min position limits
