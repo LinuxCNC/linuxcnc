@@ -94,16 +94,27 @@ FUNCTION(_) {
     if ((vel_match_in_pos < min_)                     // Input below min limit
 	|| (in <= min_ && vel_match_in_pos < vel_match_out_pos)) {
 	if (VALID_NEXT(min_))
-	    SET_NEXT_STATE(min_);                     // - Park at min limit
+	    // Check if jumping right onto the limit at target velocity
+	    // would violate accel constraints
+	    // a = (vf-vi)/t; vf = (sf-si)/t
+	    if (fabs(min_-out)/fperiod/fperiod > maxa)
+		SET_NEXT_STATE(max_pos);              // - Accel away fm limit
+	    else
+		SET_NEXT_STATE(min_);                 // - Park at min limit
 	else
 	    SET_NEXT_STATE(min_pos);                  // - Head toward min limit
     }
     if ((vel_match_in_pos > max_)                     // Input above max limit
 	|| (in >= max_ && vel_match_in_pos > vel_match_out_pos)) {
 	if (VALID_NEXT(max_))
-	    SET_NEXT_STATE(max_);                     // - Park at max limit
+	    // Check if jumping right onto the limit at target velocity
+	    // would violate accel constraints
+	    if (fabs(max_-out)/fperiod/fperiod > maxa)
+		SET_NEXT_STATE(min_pos);              // - Accel away fm limit
+	    else
+		SET_NEXT_STATE(max_);                 // - Park at max limit
 	else
-	    SET_NEXT_STATE(max_pos);                  // - Head toward min limit
+	    SET_NEXT_STATE(max_pos);                  // - Head toward max limit
     }
 
     // Follow input signal
