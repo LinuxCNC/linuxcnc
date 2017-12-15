@@ -20,6 +20,7 @@
 // Michael Haberler 7/2011
 //
 
+#define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/class.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python/exception_translator.hpp>

@@ -65,6 +65,7 @@ suppression can produce more concise output. Future versions might
 include an option for suppressing superfluous commands.
 
 ****************************************************************************/
+#define BOOST_PYTHON_MAX_ARITY 4
 #include "python_plugin.hh"
 #include <boost/python/dict.hpp>
 #include <boost/python/extract.hpp>

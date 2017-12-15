@@ -36,6 +36,7 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 
+#define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/dict.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/object.hpp>

@@ -19,6 +19,7 @@
 // Michael Haberler 7/2011
 //
 
+#define BOOST_PYTHON_MAX_ARITY 9
 #include <boost/python/class.hpp>
 #include <boost/python/tuple.hpp>
 namespace bp = boost::python;
