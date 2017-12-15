@@ -18,6 +18,7 @@
  */
 // TODO: reuse interp converters
 
+#define BOOST_PYTHON_MAX_ARITY 7
 #include <boost/python/class.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python/implicit.hpp>
