@@ -6,6 +6,9 @@ pin in float min_=-1e20;
 pin in float max_=1e20;
 pin in float maxv=1e20;
 pin in float maxa=1e20;
+//pin out float debug1;
+//pin out float debug2;
+//pin out u32 debug3;
 variable double in_old;
 variable double out_old;
 variable double out_vel;
@@ -17,6 +20,9 @@ license "GPL";
 
 #define SET_NEXT_STATE(out_pos)				\
     do {						\
+	/*debug1 = a;*/					\
+	/*debug2 = t;*/					\
+	/*debug3 = reason;*/				\
 	out_old = out;					\
 	out = out_pos;					\
 	in_old = in;					\
@@ -37,6 +43,8 @@ FUNCTION(_) {
     double stop_pos_max, stop_pos_min, stop_time_max, stop_time_min;
     double vel_match_time, vel_match_in_pos, vel_match_out_pos;
     int out_dir_rel;
+    double a, v, s, t;
+    int reason = 0; // Used for debugging
 
     if (load) {
 	// Apply first order limit
@@ -47,7 +55,8 @@ FUNCTION(_) {
 
     // Input velocity
     in_vel = (in - in_old) / fperiod;
-    // Output velocity
+    // Output velocity:  v_cur = 2 * v_avg - v_prev
+    // - FIXME:  why does this appear to lag by a cycle?
     out_vel = 2 * (out-out_old)/fperiod - out_vel;
     // Most negative/positive velocity reachable in one period
     // - vf = vi + a * t
@@ -81,54 +90,79 @@ FUNCTION(_) {
 	+ out_vel * (vel_match_time+fperiod)
 	+ 0.5 * (-out_dir_rel * maxa) * pow(vel_match_time,2);
 
-    // Respect max/min position limits
-    // 
-    // - If not at the limit line but in danger of overshooting it,
-    //   slow down
-    if (stop_pos_max >= max_ && !VALID_NEXT(max_))    // can't follow max limit
+    // Goal:  head toward and stop at min position limit when:
+    // - Input signal is headed below min limit
+    // - Input signal is below min limit & headed back, but too early to chase
+    // - Output signal is moving toward min position limit and may overshoot
+    reason = 1000;
+    if ((vel_match_in_pos < min_)
+	|| (in <= min_ && vel_match_in_pos < vel_match_out_pos)
+	|| (stop_pos_min <= min_ && !VALID_NEXT(min_))) {
+	reason += 100;
+	t = 2 * (min_-out) / (out_vel + 0); // t:  time to decel to stop on lim
+	// Decide what to do, most urgent to least
+	if (VALID_NEXT(min_) && t < fperiod)
+	    // This period:  stop & lock on limit will stay within constraints
+	    SET_NEXT_STATE(min_);
+	reason += 100;
+	if (stop_time_max < fperiod) {
+	    // <= two periods:  finesse acceleration for a greased landing
+	    a = (0-out_vel)/t;             // a:  accel to decel to stop on lim
+	    v = out_vel + a * fperiod;     // v:  vel after accel a for 1 per.
+	    s = (v + out_vel)/2 * fperiod; // s:  dist after accel a for 1 per.
+	    SET_NEXT_STATE(out + s);
+	}
+	reason += 100;
+	if (stop_pos_min <= min_ && !VALID_NEXT(min_))
+	    // N periods:  in danger of overshoot; maximum deceleration
+	    SET_NEXT_STATE(max_pos);
+	reason += 100;
+	// No urgent timing:  maximum acceleration
 	SET_NEXT_STATE(min_pos);
-    if (stop_pos_min <= min_ && !VALID_NEXT(min_))    // can't follow min limit
-	SET_NEXT_STATE(max_pos);
-    // - If input signal is headed out of bounds, or headed in bounds
-    //   but no danger of overshooting, the limit is the goal
-    if ((vel_match_in_pos < min_)                     // Input below min limit
-	|| (in <= min_ && vel_match_in_pos < vel_match_out_pos)) {
-	if (VALID_NEXT(min_))
-	    // Check if jumping right onto the limit at target velocity
-	    // would violate accel constraints
-	    // a = (vf-vi)/t; vf = (sf-si)/t
-	    if (fabs(min_-out)/fperiod/fperiod > maxa)
-		SET_NEXT_STATE(max_pos);              // - Accel away fm limit
-	    else
-		SET_NEXT_STATE(min_);                 // - Park at min limit
-	else
-	    SET_NEXT_STATE(min_pos);                  // - Head toward min limit
     }
+    reason = 2000;
     if ((vel_match_in_pos > max_)                     // Input above max limit
-	|| (in >= max_ && vel_match_in_pos > vel_match_out_pos)) {
-	if (VALID_NEXT(max_))
-	    // Check if jumping right onto the limit at target velocity
-	    // would violate accel constraints
-	    if (fabs(max_-out)/fperiod/fperiod > maxa)
-		SET_NEXT_STATE(min_pos);              // - Accel away fm limit
-	    else
-		SET_NEXT_STATE(max_);                 // - Park at max limit
-	else
-	    SET_NEXT_STATE(max_pos);                  // - Head toward max limit
+	|| (in >= max_ && vel_match_in_pos > vel_match_out_pos)
+	|| (stop_pos_max >= max_ && !VALID_NEXT(max_))) {
+	reason += 100;
+	t = 2 * (max_-out) / (out_vel + 0); // t:  time to decel to stop on lim
+	// Decide what to do, most urgent to least
+	if (VALID_NEXT(max_) && t < fperiod)
+	    // This period:  stop & lock on limit will stay within constraints
+	    SET_NEXT_STATE(max_);
+	reason += 100;
+	if (stop_time_min < fperiod) {
+	    // <= two periods:  finesse acceleration for a greased landing
+	    a = (0-out_vel)/t;             // a:  accel to decel to stop on lim
+	    v = out_vel + a * fperiod;     // v:  vel after accel a for 1 per.
+	    s = (v + out_vel)/2 * fperiod; // s:  dist after accel a for 1 per.
+	    SET_NEXT_STATE(s + out);
+	}
+	reason += 100;
+	if (stop_pos_max >= max_ && !VALID_NEXT(max_))
+	    // N periods:  in danger of overshoot; maximum deceleration
+	    SET_NEXT_STATE(min_pos);
+	reason += 100;
+	// No urgent timing:  maximum acceleration
+	SET_NEXT_STATE(max_pos);
     }
 
     // Follow input signal
     //
+    reason = 3000;
     // - Try to track input
+    reason += 100;
     if (VALID_NEXT(in))
 	SET_NEXT_STATE(in);
     // - Try to match position and velocity without overshooting
     if (out > in) {                                   // Output > input:
+	reason += 100;
 	if (vel_match_in_pos < vel_match_out_pos)     // - Not overshooting
 	    SET_NEXT_STATE(min_pos);                  //   - Move closer
 	else                                          // - Overshooting
 	    SET_NEXT_STATE(max_pos);                  //   - Back off
     } else {                                          // Output <= input
+	reason += 200;
 	if (vel_match_in_pos > vel_match_out_pos)     // - Not overshooting
 	    SET_NEXT_STATE(max_pos);                  //   - Move closer
 	else                                          // - Overshooting
@@ -136,5 +170,6 @@ FUNCTION(_) {
     }
 
     // Shouldn't get here
+    reason = 4000;
     SET_NEXT_STATE((max_pos-min_pos)/2);
 }
