@@ -70,12 +70,12 @@ for line in result_file.readlines():
     # See if we've violated any constraints.
     #
 
-    if float(out) > params['max'] * 1.01:
+    if float(out) > params['max']:
         print "max=%.3f, in=%.3f, out=%.3f, max violation on sample %s" % \
             (params['max'], float(in_val), out, sample)
         retval = 1
 
-    if float(out) < params['min'] * 1.01:
+    if float(out) < params['min']:
         print "min=%.3f, in=%.3f, out=%.3f, min violation on sample %s" % \
             (params['min'], float(in_val), out, sample)
         retval = 1
