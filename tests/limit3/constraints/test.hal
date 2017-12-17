@@ -118,8 +118,8 @@ addf conv-float-u32.0         t
 addf siggen.0.update          t
 addf mux-gen.00               t
 addf limit3.0                 t
-addf ddt.out-accel            t
 addf ddt.out-vel              t
+addf ddt.out-accel            t
 addf sampler.0                t
 
 start
