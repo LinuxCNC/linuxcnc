@@ -971,6 +971,89 @@ PyObject *set_p(PyObject *self, PyObject *args) {
     return PyBool_FromLong(retval != 0);
 }
 
+
+/*######################################*/
+/* Get a Pin, Param or signal value     */
+PyObject *get_value(PyObject *self, PyObject *args) {
+    char *name;
+    hal_param_t *param;
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    hal_type_t type;
+    void *d_ptr;
+
+    if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search param list for name */
+    param = halpr_find_param_by_name(name);
+    if (param) {
+        /* found it */
+        type = param->type;
+        d_ptr = SHMPTR(param->data_ptr);
+        rtapi_mutex_give(&(hal_data->mutex));
+        /* convert to python value */
+        switch(type) {
+            case HAL_BIT: return PyBool_FromLong((long)*(hal_bit_t *)d_ptr);
+            case HAL_U32: return Py_BuildValue("l",  (unsigned long)*(hal_u32_t *)d_ptr);
+            case HAL_S32: return Py_BuildValue("l",  (long)*(hal_s32_t *)d_ptr);
+            case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+        }
+    }
+    /* not found, search pin list for name */
+    pin = halpr_find_pin_by_name(name);
+    if(pin) {
+        /* found it */
+        type = pin->type;
+        if (pin->signal != 0) {
+            sig = (hal_sig_t*)SHMPTR(pin->signal);
+            d_ptr = SHMPTR(sig->data_ptr);
+        } else {
+            sig = 0;
+            d_ptr = &(pin->dummysig);
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+        /* convert to python value */
+        switch(type) {
+            case HAL_BIT: return PyBool_FromLong((long)*(hal_bit_t *)d_ptr);
+            case HAL_U32: return Py_BuildValue("l",  (unsigned long)*(hal_u32_t *)d_ptr);
+            case HAL_S32: return Py_BuildValue("l",  (long)*(hal_s32_t *)d_ptr);
+            case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+        }
+    }
+    sig = halpr_find_sig_by_name(name);
+    if (sig != 0) {
+        /* found it */
+        type = sig->type;
+        d_ptr = SHMPTR(sig->data_ptr);
+        rtapi_mutex_give(&(hal_data->mutex));
+        /* convert to python value */
+        switch(type) {
+            case HAL_BIT: return PyBool_FromLong((long)*(hal_bit_t *)d_ptr);
+            case HAL_U32: return Py_BuildValue("l",  (unsigned long)*(hal_u32_t *)d_ptr);
+            case HAL_S32: return Py_BuildValue("l",  (long)*(hal_s32_t *)d_ptr);
+            case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
+            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+        }
+    }
+    /* error if here */
+    rtapi_mutex_give(&(hal_data->mutex));
+    PyErr_Format(PyExc_RuntimeError,
+    "Can't set value: pin / param %s not found", name);
+	return NULL;
+
+}
+
+
+
+
 struct shmobject {
     PyObject_HEAD
     halobject *comp;
@@ -1361,11 +1444,13 @@ PyMethodDef module_methods[] = {
     {"get_msg_level", get_msg_level, METH_NOARGS,
 	"Get the RTAPI message level"},
     {"new_sig", new_sig, METH_VARARGS,
-	"new_sig(signal_name, type): Create a new signal with the specified name.  'type' is one of HAL_BIT, HAL_FLOAT, HAL_S32, or HAL_U32."},
+	".new_sig('signal_name', type): Create a new signal with the specified name.  'type' is one of HAL_BIT, HAL_FLOAT, HAL_S32, or HAL_U32."},
     {"connect", connect, METH_VARARGS,
-	"connect(pin_name, signal_name): Connect the named pin to the named signal."},
+	".connect('pin_name', 'signal_name'): Connect the named pin to the named signal."},
     {"set_p", set_p, METH_VARARGS,
 	"set pin value"},
+    {"get_value", get_value, METH_VARARGS,
+	".get_value('name'}: Gets the pin, param or signal value"},
     {NULL},
 };
 
