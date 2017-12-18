@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 #    Copyright 2009 Alex Joni
 #
 #    This program is free software; you can redistribute it and/or modify

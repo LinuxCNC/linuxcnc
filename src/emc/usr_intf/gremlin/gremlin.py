@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #    Copyright (C) 2009-2012
 #    Jeff Epler <jepler@unpythonic.net>,
 #    Pavel Shramov <psha@kamba.psha.org.ru>,

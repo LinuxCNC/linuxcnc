@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # GladeVcp Widget - offsetpage
 #
 # Copyright (c) 2013 Chris Morley
