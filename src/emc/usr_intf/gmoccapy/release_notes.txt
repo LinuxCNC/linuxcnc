@@ -1,3 +1,12 @@
+ver 2.3.4
+- introduced new keyboard shortcuts (not case sensitive)
+  R = run program
+  P = pause program
+  S = resume program
+  This keys will only work in auto mode, not being in edit mode and 
+  a program must be loaded. Pause and resume do only work if a 
+  program is running and / or paused.
+
 ver 2.3.3.2
 - toggling the chk_toggle_readout, raised an exception on 5 axis config
 
