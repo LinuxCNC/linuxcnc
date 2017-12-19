@@ -120,6 +120,7 @@ class _GStat(gobject.GObject):
         'current-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_PYOBJECT,
                             gobject.TYPE_PYOBJECT,)),
         'requested-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'actual-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
 
         'spindle-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'feed-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
@@ -174,7 +175,6 @@ class _GStat(gobject.GObject):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
-
         self.old = {}
         try:
             self.stat.poll()
@@ -213,6 +213,7 @@ class _GStat(gobject.GObject):
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
         self.old['spindle-speed']= self.stat.spindle[0]['speed']
+        self.old['actual-spindle-speed']= hal.get_value('spindle.0.speed-in') * 60
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
 
@@ -407,6 +408,11 @@ class _GStat(gobject.GObject):
         spindle_spd_new = self.old['spindle-speed']
         if spindle_spd_new != spindle_spd_old:
             self.emit('requested-spindle-speed-changed', spindle_spd_new)
+        # actual spindle speed
+        act_spindle_spd_old = old.get('actual-spindle-speed', None)
+        act_spindle_spd_new = self.old['actual-spindle-speed']
+        if act_spindle_spd_new != act_spindle_spd_old:
+            self.emit('actual-spindle-speed-changed', act_spindle_spd_new)
         # spindle override
         spindle_or_old = old.get('spindle-or', None)
         spindle_or_new = self.old['spindle-or']
