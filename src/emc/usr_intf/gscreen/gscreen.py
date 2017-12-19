@@ -4542,7 +4542,10 @@ class Gscreen:
         systemlabel = (_("Machine"),"G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
         tool = str(self.data.tool_in_spindle)
         if tool == None: tool = "None"
-        self.widgets.system.set_text((_("Tool %s     %s")%(tool,systemlabel[self.data.system])))
+        self.widgets.system.set_text((_("Tool %(t)s     %(l)s")%
+             ({'t':tool,
+               'l':systemlabel[self.data.system]
+             })))
 
     def update_coolant_leds(self):
         # coolant
@@ -4585,7 +4588,11 @@ class Gscreen:
         # Mode / view
         modenames = self.data.mode_labels
         time = strftime("%a, %d %b %Y  %I:%M:%S %P    ", localtime())
-        self.widgets.mode_label.set_label( _("%s   View -%s               %s")% (modenames[self.data.mode_order[0]],self.data.plot_view[0],time) )
+        self.widgets.mode_label.set_label( _("%(n)s   View -%(v)s               %(t)s")%
+              ({'n':modenames[self.data.mode_order[0]],
+                'v':self.data.plot_view[0],
+                't':time
+              }))
 
     def update_units_button_label(self):
         label = self.widgets.metric_select.get_label()
