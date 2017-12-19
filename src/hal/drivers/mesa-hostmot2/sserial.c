@@ -1196,7 +1196,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                         HM2_ERR("error adding pin '%s', aborting\n", name);
                         return r;
                     }
-                    if (data_dir != HAL_IN) {
+                    if (data_dir == HAL_OUT) {
                         rtapi_snprintf(name, sizeof(name), "%s.%s-%02d-not",
                                        chan->name,
                                        chan->confs[i].NameString,
@@ -1210,7 +1210,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                             return r;
                         }
                     }
-                    if (data_dir != HAL_OUT){
+                    if (data_dir == HAL_IN){
                         rtapi_snprintf(name, sizeof(name), "%s.%s-%02d-invert",
                                        chan->name,
                                        chan->confs[i].NameString,
@@ -1307,7 +1307,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     return r;
                 }
-                if (data_dir != HAL_IN) {
+                if (data_dir == HAL_OUT) {
                     rtapi_snprintf(name, sizeof(name), "%s.%s-not",
                                    chan->name,
                                    chan->confs[i].NameString);
@@ -1320,7 +1320,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                         return r;
                     }
                 }
-                if (data_dir != HAL_OUT) {
+                if (data_dir == HAL_IN) {
                     chan->pins[i].invert = hal_malloc(sizeof(hal_bit_t));
                     rtapi_snprintf(name, sizeof(name), "%s.%s-invert",
                                    chan->name,
