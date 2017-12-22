@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-from PyQt5.QtGui import QIcon, QPixmap, QAction, QDialog, QLabel,QTextFormat
+from PyQt5.QtGui import QIcon, QPixmap, QTextFormat
+from PyQt5.QtWidgets import QDialog, QLabel
 from PyQt5.QtCore import pyqtProperty,QVariant
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, QPyDesignerPropertySheetExtension,QDesignerFormWindowInterface
 from qtvcp.widgets.gstat_label import Lcnc_Gstat_Label
