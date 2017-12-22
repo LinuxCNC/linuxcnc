@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 # -*- encoding: utf-8 -*-
 #    GLADE_VCP
 #    Copyright 2010 Chris Morley

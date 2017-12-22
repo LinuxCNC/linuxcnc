@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding:UTF-8 -*-
 """
     A try of a new GUI for LinuxCNC based on gladevcp and Python
@@ -537,7 +537,7 @@ class gmoccapy( object ):
                                                                         False, bool ) )
 
         # check the highlighting type
-        # the following would load the python language
+        # the following would load the python2 language
         # self.widgets.gcode_view.set_language("python")
         LANGDIR = os.path.join( BASE, "share", "gtksourceview-2.0", "language-specs" )
         file_path = os.path.join( LANGDIR, "gcode.lang" )

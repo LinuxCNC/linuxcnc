@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #http://stackoverflow.com/questions/361/generate-list-of-all-possible-permutations-of-a-string
 def nextPermutation(perm):
     k0 = None

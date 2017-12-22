@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #    This is 'comp', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #

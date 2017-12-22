@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import os
 import sys
 from stat import S_ISREG, S_ISDIR

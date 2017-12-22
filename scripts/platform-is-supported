@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #
 # This script returns 0 when run on a platform supported by the current
 # branch of LinuxCNC, and 1 when run on an unsupported platform.  It is
