@@ -186,19 +186,6 @@ color: rgb(255, 255, 255);</string>
       <number>1</number>
      </property>
     </widget>
-    <widget class="Graphics" name="graphics">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>10</y>
-       <width>401</width>
-       <height>211</height>
-      </rect>
-     </property>
-     <property name="dro" stdset="0">
-      <bool>false</bool>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_18">
      <property name="geometry">
       <rect>
@@ -317,6 +304,16 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <string/>
      </property>
     </widget>
+    <widget class="Lcnc_Graphics5" name="lcnc_Graphics5">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>0</y>
+       <width>400</width>
+       <height>231</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="GcodeEditor" name="gcodeeditor">
     <property name="geometry">
@@ -333,8 +330,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog">
      <property name="geometry">
       <rect>
-       <x>480</x>
-       <y>310</y>
+       <x>671</x>
+       <y>335</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -716,7 +713,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>15</number>
     </property>
     <property name="color">
-     <color alpha="255">
+     <color>
       <red>85</red>
       <green>255</green>
       <blue>0</blue>
@@ -2369,26 +2366,20 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QFrame</extends>
-   <header>qtvcp.widgets.gcode_widget</header>
+   <class>Lcnc_CamViewDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_Dialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>State_Enable_GridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_ActionButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.action_button</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.drowidget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_State_Led</class>
-   <extends>Lcnc_Led</extends>
-   <header>qtvcp.widgets.led_state_widget</header>
   </customwidget>
   <customwidget>
    <class>Lcnc_Led</class>
@@ -2401,40 +2392,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_OriginOffsetDialog</class>
+   <class>Lcnc_FileDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_Dialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_Gstat_Bool_Label</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_bool_label</header>
-  </customwidget>
-  <customwidget>
-   <class>GstatStacked</class>
-   <extends>QStackedWidget</extends>
-   <header>qtvcp.widgets.gstat_stacked</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_Gstat_Label</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_label</header>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_ToolDialog</class>
-   <extends>Lcnc_Dialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>Gstat_Slider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.gstat_slider</header>
   </customwidget>
   <customwidget>
    <class>Lcnc_ScreenOptions</class>
@@ -2443,25 +2403,41 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>Gstat_Slider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.gstat_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.drowidget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_OriginOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_State_Led</class>
+   <extends>Lcnc_Led</extends>
+   <header>qtvcp.widgets.led_state_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_Gstat_Label</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.gstat_label</header>
+  </customwidget>
+  <customwidget>
    <class>Lcnc_MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_FileDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>Graphics</class>
+   <class>Lcnc_Graphics5</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.graphics</header>
-  </customwidget>
-  <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
+   <header>qtvcp.widgets.graphics5</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -2470,15 +2446,42 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_CamViewDialog</class>
-   <extends>QDialog</extends>
+   <class>GcodeEditor</class>
+   <extends>QsciScintilla</extends>
+   <header>qtvcp.widgets.gcode_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GstatStacked</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.gstat_stacked</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_Gstat_Bool_Label</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.gstat_bool_label</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_ToolDialog</class>
+   <extends>Lcnc_Dialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>State_Enable_GridLayout</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.container_widgets</header>
-   <container>1</container>
+   <class>QsciScintilla</class>
+   <extends>QFrame</extends>
+   <header>Qsci/qsciscintilla.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
