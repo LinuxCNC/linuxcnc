@@ -323,7 +323,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         pass
 
     def line_changed(self, line, index):
-        log.debug('Line changed: {}'.format(GSTAT.is_auto_mode()))
+        #log.debug('Line changed: {}'.format(GSTAT.is_auto_mode()))
         self.line_text = str(self.text(line)).strip()
         self.line = line
         if GSTAT.is_auto_running() == False:
