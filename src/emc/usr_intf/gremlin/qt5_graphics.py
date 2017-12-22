@@ -54,7 +54,7 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
 class Window(QWidget):
     def __init__(self, inifile):
         super(Window, self).__init__()
-        self.glWidget = GLWidget()
+        self.glWidget = Lcnc_3dGraphics()
   
         self.xSlider = self.createSlider()
         self.ySlider = self.createSlider()
@@ -107,14 +107,14 @@ class Window(QWidget):
         return slider
 
 
-class GLWidget(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
+class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
     zRotationChanged = pyqtSignal(int)
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
     def __init__(self, parent=None):
-        super(GLWidget, self).__init__(parent)
+        super(Lcnc_3dGraphics, self).__init__(parent)
         glnav.GlNavBase.__init__(self)
 
         def C(s):
@@ -161,7 +161,8 @@ class GLWidget(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         temp = self.inifile.find("DISPLAY", "LATHE")
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
-        self.show_offsets = False
+        self.show_offsets = True
+        self.show_overlay = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
@@ -389,7 +390,21 @@ class GLWidget(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glLoadIdentity()
         GL.glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
-  
+
+    def wheelEvent(self, _event):
+        # Use the mouse wheel to zoom in/out
+        a = _event.angleDelta().y()/200
+        if a < 0:
+            self.zoomin()
+        else:
+            self.zoomout()
+
+        d = - float(_event.angleDelta().y()) / 200.0 #* self.radius_
+        print a,d,self.distance 
+        #self.translate([0.0, 0.0, d])
+        self.updateGL()
+        _event.accept()
+
     def mousePressEvent(self, event):
         self.lastPos = event.pos()
   

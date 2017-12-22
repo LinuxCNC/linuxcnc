@@ -424,6 +424,7 @@ class GlCanonDraw:
         self.trajcoordinates = "unknown"
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
+        self.show_overlay = True
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
@@ -1313,6 +1314,7 @@ class GlCanonDraw:
         ypos = self.winfo_height()
         glOrtho(0.0, self.winfo_width(), 0.0, ypos, -1.0, 1.0)
         glMatrixMode(GL_MODELVIEW)
+
         glPushMatrix()
         glLoadIdentity()
 
@@ -1323,19 +1325,20 @@ class GlCanonDraw:
         maxlen = max([len(p) for p in posstrs])
         pixel_width = charwidth * max(len(p) for p in posstrs)
 
-        glDepthFunc(GL_ALWAYS)
-        glDepthMask(GL_FALSE)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-        glColor3f(*self.colors['overlay_background'])
-        glBlendColor(0,0,0,1-self.colors['overlay_alpha'])
-        glBegin(GL_QUADS)
-        glVertex3f(0, ypos, 1)
-        glVertex3f(0, ypos - 8 - linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+42, ypos - 8 - linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+42, ypos, 1)
-        glEnd()
-        glDisable(GL_BLEND)
+        if self.show_overlay:
+            glDepthFunc(GL_ALWAYS)
+            glDepthMask(GL_FALSE)
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
+            glColor3f(*self.colors['overlay_background'])
+            glBlendColor(0,0,0,1-self.colors['overlay_alpha'])
+            glBegin(GL_QUADS)
+            glVertex3f(0, ypos, 1)
+            glVertex3f(0, ypos - 8 - linespace*len(posstrs), 1)
+            glVertex3f(pixel_width+42, ypos - 8 - linespace*len(posstrs), 1)
+            glVertex3f(pixel_width+42, ypos, 1)
+            glEnd()
+            glDisable(GL_BLEND)
 
         maxlen = 0
         ypos -= linespace+5

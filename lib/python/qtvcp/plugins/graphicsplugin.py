@@ -3,8 +3,43 @@
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.graphics import Graphics
+from qtvcp.widgets.graphics5 import Lcnc_Graphics5
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
+
+####################################
+# Graphics5
+####################################
+class LcncGraphics5Plugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return Lcnc_Graphics5(parent)
+    def name(self):
+        return "Lcnc_Graphics5"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_Graphics5')))
+    def toolTip(self):
+        return "Graphics5 widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="Lcnc_Graphics5" name="lcnc_Graphics5" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.Graphics5"
+
+
 
 class GraphicsPlugin(QPyDesignerCustomWidgetPlugin):
 
