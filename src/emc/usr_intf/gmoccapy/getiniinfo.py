@@ -93,6 +93,16 @@ class GetIniInfo:
             if axisletter in axis_list:
                 continue
             axis_list.append(axisletter)
+
+        # to much axes given, can only handle 9
+        if len(axis_list) > 9:
+            message = _("**** GMOCCAPY GETINIINFO : ****")
+            message += _("**** gmoccapy can only handle 9 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(axis_list))
+            message += _("**** gmoccapy will not start ****\n\n")
+            print(message)
+            #dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            sys.exit()
+
         return axis_list
 
     def get_joint_axis_relation(self):
@@ -104,23 +114,28 @@ class GetIniInfo:
         if temp[0].lower() != "trivkins":
             print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is not trivkins")
             print("Will use mode to switch between Joints and World mode")
-            print("hopefully supported by the used <<%s>> module\n"%temp[0])
-            return None
+            print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+            # pumakins = 6 axis XYZABC
+            # scarakins = 4 axis XYZA
+            # genhexkins = 6 axis XYZABC
+            # need to be checked from coordinates and transfered to axis dict
+            # should never return None
+            #return None
 
         # follow the order given in $ man trivkins
-        # Joint numbers are assigned sequentialy according to  the  axis  letters
-        # specified with the coordinates= parameter.
+        # Joint numbers are assigned sequentially according to  the  axis  letters
+        # specified with the coordinates parameter.
         #
-        # If the coordinates= parameter is omitted, joint numbers are assigned
+        # If the coordinates parameter is omitted, joint numbers are assigned
         # sequentially to every known axis letter ("xyzabcuvw").
 
         joint_axis_dic = {}
         coordinates = None
         for entry in temp:
-            print("Entry =", entry )
+            print("Entry = {0}".format(entry))
             if "coordinates" in entry.lower():
                 coordinates = entry.split("=")[1].lower()
-                print("found the following coordinates", coordinates )
+                print("found the following coordinates {0}".format(coordinates))
             if "kinstype" in entry.lower():
                 print ("found kinstype", entry.split("=")[1])
                 # we will not take care of this one, because linuxcnc will take
@@ -134,8 +149,8 @@ class GetIniInfo:
 
         # at this point we should have the coordinates of the config, we will check if the amount of
         # coordinates does match the [KINS] JOINTS part
-        print("Number of joints = ", self.get_joints())
-        print("%s COORDINATES found = %s" %(len(coordinates), coordinates))
+        print("Number of joints = {0}".format(self.get_joints()))
+        print("{0} COORDINATES found = {1}".format(len(coordinates), coordinates))
 
         # let us check if there are double letters, as that would be a gantry machine
         double_axis_letter = []
@@ -153,7 +168,7 @@ class GetIniInfo:
                     axisletter = axisletter + str(count)
                     count += 1
                 joint_axis_dic[axisletter] = joint
-                print("axis %s = joint %s" %(axisletter, joint_axis_dic[axisletter]))
+                print("axis {0} = joint {1}".format(axisletter, joint_axis_dic[axisletter]))
         else:
             print("\n**** GMOCCAPY GETINIINFO **** ")
             print("Amount of joints from [KINS]JOINTS= is not identical with axisletters")

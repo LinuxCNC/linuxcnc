@@ -340,7 +340,7 @@ class gmoccapy(object):
         self.widgets.chk_auto_units.set_active(self.prefs.getpref("use_auto_units", True, bool))
         self.on_chk_show_dro_btn_toggled(None)
         self.on_chk_auto_units_toggled(None)
-        if self.widgets.Combi_DRO_x.machine_units == 0:
+        if self.widgets.Combi_DRO_0.machine_units == 0:
             self.widgets.tbtn_units.set_active(True)
 
         self.widgets.tbtn_rel.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -495,17 +495,13 @@ class gmoccapy(object):
         self.widgets.adj_dro_digits.set_value(self.dro_digits)
         # the adjustment change signal will set the dro_digits correct, so no extra need here.
 
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("actual", self.dro_actual)
+        for dro in range(9):
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property("actual", self.dro_actual)
 
         self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
@@ -560,20 +556,20 @@ class gmoccapy(object):
             self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_minus, 0, 1, 1, 2, gtk.SHRINK, gtk.SHRINK)
 
             # The Y DRO we make to a second X DRO to indicate the diameter
-            self.widgets.Combi_DRO_y.set_to_diameter(True)
-            self.widgets.Combi_DRO_y.set_property("joint_number", 0)
+            self.widgets.Combi_DRO_1.set_to_diameter(True)
+            self.widgets.Combi_DRO_1.set_property("joint_number", 0)
 
             # we change the axis letters of the DRO's
-            self.widgets.Combi_DRO_x.change_axisletter("R")
-            self.widgets.Combi_DRO_y.change_axisletter("D")
+            self.widgets.Combi_DRO_0.change_axisletter("R")
+            self.widgets.Combi_DRO_1.change_axisletter("D")
 
             # and we will have to change the colors of the Y DRO according to the settings
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.widgets.Combi_DRO_y.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-            self.widgets.Combi_DRO_y.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-            self.widgets.Combi_DRO_y.set_property("actual", self.dro_actual)
+            self.widgets.Combi_DRO_1.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.widgets.Combi_DRO_1.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.widgets.Combi_DRO_1.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.widgets.Combi_DRO_1.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+            self.widgets.Combi_DRO_1.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+            self.widgets.Combi_DRO_1.set_property("actual", self.dro_actual)
 
             # For gremlin we don"t need the following button
             if self.backtool_lathe:
@@ -621,50 +617,78 @@ class gmoccapy(object):
         self.axis_list = self.get_ini_info.get_axis_list()
         self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
 
-        # if we receive a None, that means we do not have a trivial kinematics
-        # like a scara or robot
-        if self.joint_axis_dic == None:
-            self._init_extra_axes()
+        self.widgets.spc_ang_jog_vel.hide()
+        for dro in range(9):
+            print("hide DRO {0}".format(dro))
+            self.widgets["Combi_DRO_{0}".format(dro)].hide()
+
+        for axis in ("x","y","z","a","b","c","u","v","w"):
+            if axis in self.axis_list:
+                # if there is a double letter in the dict it will be called
+                # i.e. y0 and y1, so we need to put that in a try exept
+                try:
+                    dro = self.joint_axis_dic[axis]
+                except: # double letters lead here 
+                    # add a zero to get the correct entry
+                    axis+="0"
+                    print("axis is now", axis)
+                    dro = self.joint_axis_dic[axis]
+                    # we only need the first letter for the DRO letter
+                    # so we cut the rest
+                    axis = axis[0]
+                # initialize the DRO with the correct joint and show them    
+                print("Combi_DRO_{0} = joint {1} = axis {2}".format(dro, dro, axis))
+                self.widgets["Combi_DRO_{0}".format(dro)].set_joint(dro)
+                self.widgets["Combi_DRO_{0}".format(dro)].change_axisletter(axis.upper())
+                self.widgets["Combi_DRO_{0}".format(dro)].show()
+                print("show DRO {0}".format(dro))
+
+                if axis in ("a","b","c"):                  
+                    print("axis {0} is a rotary axis".format(axis))
+                    self.widgets.spc_ang_jog_vel.show()
+
+        self._rearange_dro()
+
+    def _rearange_dro(self):
+
+        # we have to re-arrange the DRO's, so first remove them all
+        for dro in range(9):
+            self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
+            print("removed Combi_DRO_{0}".format(dro))
+
+        self.widgets.tbl_DRO.set_homogeneous(False)
+
+        if len(self.axis_list) <= 4:
+            self.widgets.tbl_DRO.resize(4,1)
+
+        if len(self.axis_list) == 1:
+            print("found one axis")
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+
+        if len(self.axis_list) == 2:
+            print("found two axis")
+            # Check if we are in Lathe mode, than display three DRO!
+            # need to extent the DRO of Joint 1 to the right            
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
+
+        if len(self.axis_list) == 3:
+            print("found three axis")
+            # need to rearange the DRO of Joint 2 one line down
+            # and extent to the right
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
             return
 
-        self._init_extra_axes()
-
-        for axis in self.joint_axis_dic:
-            if len(axis) > 1:
-                # means we do have double letters in coordinates, i.e. gantry
-                # will return (x,y0,y1,z)
-                # we only take the first axis, as we aspect the second one to be the slave
-                if "0" in axis:
-                    pass
-                else:
-                    continue
-            if axis == self.axisletter_four:
-                print("Combi_DRO_4 = joint {0}".format(self.joint_axis_dic[axis]))
-                self.widgets.Combi_DRO_4.set_joint(self.joint_axis_dic[axis])
-            elif axis == self.axisletter_five:
-                print("Combi_DRO_5 = joint {0}".format(self.joint_axis_dic[axis]))
-                self.widgets.Combi_DRO_5.set_joint(self.joint_axis_dic[axis])
-            else:
-                print("Combi_DRO_{0} = joint {1}".format(axis[0], self.joint_axis_dic[axis]))
-                self.widgets["Combi_DRO_{0}".format(axis[0])].set_joint(self.joint_axis_dic[axis])
-
-    def _init_extra_axes(self):
-        # to much axes given, can only handle 5
-        if len(self.axis_list) > 5:
-            message = _("**** GMOCCAPY INFO : ****")
-            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(self.axis_list))
-            message += _("**** gmoccapy will not start ****\n\n")
-            print(message)
-            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
-            sys.exit()
-
-        # XYZ machine or lathe, lathe will be handled in _init_preferences
-        if len(self.axis_list) < 4:
-            self.widgets.Combi_DRO_4.hide()
-            self.widgets.Combi_DRO_5.hide()
-            self.widgets.btn_home_4.hide()
-            self.widgets.btn_home_5.hide()
-            return
+        if len(self.axis_list) == 4:
+            print("found four axis")
+            # need to rearange the DRO of Joint 2 and Joint 3
+            # and extent to the right
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
+            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_3, 0, 1, 3, 4)
 
         # find first 5_th axis
         if len(self.axis_list) == 5:
@@ -675,16 +699,16 @@ class gmoccapy(object):
             self.widgets.lbl_replace_set_value_5.hide()
             self.axisletter_five = self.axis_list[-1]
             self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
-            self.widgets.Combi_DRO_5.set_property("joint_number", self.axisnumber_five)
-            self.widgets.Combi_DRO_5.change_axisletter(self.axisletter_five.upper())
+            self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_five)
+            self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_five.upper())
 
             image = self.widgets["img_home_{0}".format(self.axisletter_five)]
             self.widgets.btn_home_5.set_image(image)
             self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
 
             if self.axisletter_five in "abc":
-                self.widgets.Combi_DRO_5.set_property("mm_text_template", "%11.2f")
-                self.widgets.Combi_DRO_5.set_property("imperial_text_template", "%11.2f")
+                self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
+                self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
 
             image = self.widgets["img_home_{0}".format(self.axisletter_five)]
             self.widgets.btn_home_5.set_image(image)
@@ -701,38 +725,33 @@ class gmoccapy(object):
             self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_five.upper()))
             self.widgets.btn_set_value_5.show()
 
-        if self.axisletter_five:
-            axis_four = list(set(self.axis_list) - set(("x", "y", "z")) - set(self.axisletter_five))
-        else:
-            self.widgets.lbl_replace_set_value_y.hide()
-            self.widgets.lbl_replace_set_value_4.hide()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.Combi_DRO_5.hide()
-            self.widgets.btn_home_5.hide()
-            axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
-        self.axisletter_four = axis_four[0]
-        self.axisnumber_four = "xyzabcuvw".index(self.axisletter_four)
-        self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_four)
-        self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_four.upper())
+#        else:
+#            print("found {0} axis".format(len(self.axis_list)))
+#            self.widgets.lbl_replace_set_value_y.hide()
+#            self.widgets.lbl_replace_set_value_4.hide()
+#            self.widgets.lbl_replace_4.hide()
+#            self.widgets.Combi_DRO_4.hide()
+#            self.widgets.btn_home_5.hide()
+#            axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
 
-        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
-        self.widgets.btn_home_4.set_image(image)
-        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
+#        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
+#        self.widgets.btn_home_4.set_image(image)
+#        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
         self.widgets.btn_home_4.show()
 
-        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
+#        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
         self.widgets.btn_4_plus.show()
-        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
+#        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
         self.widgets.btn_4_minus.show()
 
-        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
-        self.widgets.btn_set_value_4.set_image(image)
-        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
+#        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
+#        self.widgets.btn_set_value_4.set_image(image)
+#        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
         self.widgets.btn_set_value_4.show()
 
-        if self.axisletter_four in "abc":
-            self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
-            self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
+#        if self.axisletter_four in "abc":
+#            self.widgets.Combi_DRO_3.set_property("mm_text_template", "%11.2f")
+#            self.widgets.Combi_DRO_3.set_property("imperial_text_template", "%11.2f")
 
         # We have to change the size of the DRO, to make them fit the space
         
@@ -742,23 +761,19 @@ class gmoccapy(object):
         # if we have 4 axis, we split the size of all DRO
         elif len(self.axis_list) < 5:
             size = int(self.dro_size * 0.75)
-            for axis in self.axis_list:
-                if axis == self.axisletter_four:
-                    axis = 4
-                    self.widgets.tbl_DRO_45.set_homogeneous(False)
-                self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
+            self.widgets.tbl_DRO.set_homogeneous(False)
+            for dro in range(9):
+                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
 
         # if we have 5 axes, we will need some extra space:
         else:
-            for axis in self.axis_list:
+            for dro in range(9):
                 size = self.dro_size
-                if axis == self.axisletter_four:
-                    axis = 4
+                if dro == 4:
                     size = int(size * 0.65) # This factor is just testing to ensure the DRO is able to fit with number 9999.999
-                if axis == self.axisletter_five:
-                    axis = 5
+                if dro == 5:
                     size = int(size * 0.65)
-                self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
+                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -788,9 +803,9 @@ class gmoccapy(object):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
         # set the slider limits
-        self.widgets.spc_jog_vel.set_property("min", 0)
-        self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max)
-        self.widgets.spc_jog_vel.set_value(default_jog_vel)
+        self.widgets.spc_lin_jog_vel.set_property("min", 0)
+        self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max)
+        self.widgets.spc_lin_jog_vel.set_value(default_jog_vel)
 
         self.widgets.spc_spindle.set_property("min", self.spindle_override_min * 100)
         self.widgets.spc_spindle.set_property("max", self.spindle_override_max * 100)
@@ -834,11 +849,11 @@ class gmoccapy(object):
 
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
-            self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", _("mm/min"))
+            self.widgets.spc_lin_jog_vel.set_digits(0)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("mm/min"))
         else:
-            self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", _("inch/min"))
+            self.widgets.spc_lin_jog_vel.set_digits(2)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("inch/min"))
 
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
@@ -2080,20 +2095,20 @@ class gmoccapy(object):
 
     def _switch_to_g7(self, state):
         if state:
-            self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.widgets.Combi_DRO_0.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.widgets.Combi_DRO_0.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.widgets.Combi_DRO_0.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.widgets.Combi_DRO_1.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.widgets.Combi_DRO_1.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.widgets.Combi_DRO_1.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
             self.diameter_mode = True
         else:
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.widgets.Combi_DRO_1.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.widgets.Combi_DRO_1.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.widgets.Combi_DRO_1.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.widgets.Combi_DRO_0.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.widgets.Combi_DRO_0.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.widgets.Combi_DRO_0.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
             self.diameter_mode = False
 
     def on_key_event(self, widget, event, signal):
@@ -2540,7 +2555,7 @@ class gmoccapy(object):
                 axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_property(property, color)
         if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_property(property, color)
+            self.widgets.Combi_DRO_1.set_property(property, color)
             # check if G7 or G8 is active
             # this is set on purpose wrong, because we want the periodic
             # to update the state correctly
@@ -2622,8 +2637,8 @@ class gmoccapy(object):
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("imperial_text_template", format_string_inch)
 
         if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_property("mm_text_template", format_string_mm)
-            self.widgets.Combi_DRO_y.set_property("imperial_text_template", format_string_inch)
+            self.widgets.Combi_DRO_1.set_property("mm_text_template", format_string_mm)
+            self.widgets.Combi_DRO_1.set_property("imperial_text_template", format_string_inch)
 
     def on_chk_toggle_readout_toggled(self, widget, data=None):
         state = widget.get_active()
@@ -2646,12 +2661,12 @@ class gmoccapy(object):
                 axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_order(order)
         if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_order(order)
+            self.widgets.Combi_DRO_1.set_order(order)
         self._offset_changed(None, None)
 # from here only needed, if the DRO button will remain in gmoccapy
         if order[0] == "Abs" and self.widgets.tbtn_rel.get_label() != "Abs":
             self.widgets.tbtn_rel.set_active(False)
-        if order[0] == "Rel" and self.widgets.tbtn_rel.get_label() != self.widgets.Combi_DRO_x.system:
+        if order[0] == "Rel" and self.widgets.tbtn_rel.get_label() != self.widgets.Combi_DRO_0.system:
             self.widgets.tbtn_rel.set_active(True)
         if order[0] == "DTG":
             self.widgets.tbtn_dtg.set_active(True)
@@ -2660,7 +2675,7 @@ class gmoccapy(object):
 # to here only needed, if the DRO button will remain in gmoccapy
 
     def _offset_changed(self, pin, tooloffset):
-        if self.widgets.Combi_DRO_x.machine_units == _MM:
+        if self.widgets.Combi_DRO_0.machine_units == _MM:
             self.widgets.lbl_tool_offset_z.set_text("{0:.3f}".format(self.halcomp["tooloffset-z"]))
             self.widgets.lbl_tool_offset_x.set_text("{0:.3f}".format(self.halcomp["tooloffset-x"]))
         else:
@@ -2690,7 +2705,7 @@ class gmoccapy(object):
         # set gremlin_units
         self.widgets.gremlin.set_property("metric_units", metric_units)
 
-        widgetlist = ["spc_jog_vel"]
+        widgetlist = ["spc_lin_jog_vel"]
 
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
         # display units not equal machine units
@@ -2712,17 +2727,17 @@ class gmoccapy(object):
                 self._update_slider(widgetlist)
 
         if metric_units:
-            self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", _("mm/min"))
+            self.widgets.spc_lin_jog_vel.set_digits(0)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("mm/min"))
         else:
-            self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", _("inch/min"))
+            self.widgets.spc_lin_jog_vel.set_digits(2)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("inch/min"))
             
     def on_tbtn_rel_toggled(self, widget, data=None):
         if self.widgets.tbtn_dtg.get_active():
             self.widgets.tbtn_dtg.set_active(False)
         if widget.get_active():
-            widget.set_label(self.widgets.Combi_DRO_x.system)
+            widget.set_label(self.widgets.Combi_DRO_0.system)
             order = ["Rel", "Abs", "DTG"]
         else:
             widget.set_label("Abs")
@@ -2755,19 +2770,15 @@ class gmoccapy(object):
                 axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_to_inch(not metric_units)
         if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_to_inch(not metric_units)
+            self.widgets.Combi_DRO_1.set_to_inch(not metric_units)
         # set gremlin_units
         self.widgets.gremlin.set_property("metric_units", metric_units)
 
     def on_chk_auto_units_toggled(self, widget, data=None):
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_auto_units(self.widgets.chk_auto_units.get_active())
+        for dro in range(9):
+            self.widgets["Combi_DRO_{0}".format(dro)].set_auto_units(self.widgets.chk_auto_units.get_active())
         if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_auto_units(self.widgets.chk_auto_units.get_active())
+            self.widgets.Combi_DRO_1.set_auto_units(self.widgets.chk_auto_units.get_active())
         self.prefs.putpref("use_auto_units", self.widgets.chk_auto_units.get_active())
 
     def on_chk_show_dro_btn_toggled(self, widget, data=None):
@@ -2843,28 +2854,28 @@ class gmoccapy(object):
         self.prefs.putpref("turtle_jog_factor", self.turtle_jog_factor, int)
         self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
         if self.widgets.tbtn_turtle_jog.get_active():
-            self.widgets.spc_jog_vel.set_property("min", 0)
-            self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max / self.turtle_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.turtle_jog)
+            self.widgets.spc_lin_jog_vel.set_property("min", 0)
+            self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max / self.turtle_jog_factor)
+            self.widgets.spc_lin_jog_vel.set_value(self.turtle_jog)
 
     def on_tbtn_turtle_jog_toggled( self, widget, data = None ):
         # due to imperial and metric options we have to get first the values of the widget
-        max = self.widgets.spc_jog_vel.max
-        min = self.widgets.spc_jog_vel.min
-        value = self.widgets.spc_jog_vel.get_value()
+        max = self.widgets.spc_lin_jog_vel.max
+        min = self.widgets.spc_lin_jog_vel.min
+        value = self.widgets.spc_lin_jog_vel.get_value()
         
         if widget.get_active():
             self.rabbit_jog = value
             widget.set_image( self.widgets.img_turtle_jog )
-            self.widgets.spc_jog_vel.set_property("min", min)
-            self.widgets.spc_jog_vel.set_property("max", max / self.turtle_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.turtle_jog)
+            self.widgets.spc_lin_jog_vel.set_property("min", min)
+            self.widgets.spc_lin_jog_vel.set_property("max", max / self.turtle_jog_factor)
+            self.widgets.spc_lin_jog_vel.set_value(self.turtle_jog)
         else:
             self.turtle_jog = value
             widget.set_image( self.widgets.img_rabbit_jog )
-            self.widgets.spc_jog_vel.set_property("min", min)
-            self.widgets.spc_jog_vel.set_property("max", max * self.turtle_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.rabbit_jog)
+            self.widgets.spc_lin_jog_vel.set_property("min", min)
+            self.widgets.spc_lin_jog_vel.set_property("max", max * self.turtle_jog_factor)
+            self.widgets.spc_lin_jog_vel.set_value(self.rabbit_jog)
 
     def _on_turtle_jog_enable(self, pin):
         self.widgets.tbtn_turtle_jog.set_active(pin.get())
@@ -2895,7 +2906,7 @@ class gmoccapy(object):
         if data:
             value = self.stat.max_velocity
         else:
-            value = self.widgets.spc_jog_vel.get_value() / 60
+            value = self.widgets.spc_lin_jog_vel.get_value() / 60
 
         velocity = value * (1 / self.faktor)
 
@@ -3157,7 +3168,7 @@ class gmoccapy(object):
         if widget.get_active():
             self.widgets.box_info.hide()
             self.widgets.vbx_jog.hide()
-            self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
+            self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_0.metric_units)
             self.widgets.gremlin.set_property("enable_dro", True)
             if self.lathe_mode:
                 self.widgets.gremlin.set_property("show_lathe_radius", not self.diameter_mode)
@@ -3224,7 +3235,7 @@ class gmoccapy(object):
             if not self.lathe_mode:
                 diameter = self.halcomp["tool-diameter"]
             else:
-                diameter = int(self.widgets.Combi_DRO_x.get_position()[1] * 2)
+                diameter = int(self.widgets.Combi_DRO_0.get_position()[1] * 2)
             vc = abs(int(speed * self.spindle_override) * diameter * 3.14 / 1000)
         else:
             vc = 0
@@ -3791,7 +3802,7 @@ class gmoccapy(object):
                 size = int(size * 0.75)
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
             if self.lathe_mode:
-                self.widgets.Combi_DRO_y.set_property("font_size", size)
+                self.widgets.Combi_DRO_1.set_property("font_size", size)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())
@@ -3852,7 +3863,7 @@ class gmoccapy(object):
         self.prefs.putpref("log_actions", widget.get_active())
 
     def on_chk_show_dro_toggled(self, widget, data=None):
-        self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
+        self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_0.metric_units)
         self.widgets.gremlin.set_property("enable_dro", widget.get_active())
         self.prefs.putpref("enable_dro", widget.get_active())
         self.widgets.chk_show_offsets.set_sensitive(widget.get_active())
@@ -4306,7 +4317,7 @@ class gmoccapy(object):
                 self.so_counts = counts
                 self._check_counts(counts)
         if self.halcomp["jog.jog-velocity.count-enable"]:
-            if widget == "spc_jog_vel":
+            if widget == "spc_lin_jog_vel":
                 difference = (counts - self.jv_counts) * self.scale_jog_vel
                 if self.widgets.tbtn_turtle_jog.get_active():
                     difference = difference / self.turtle_jog_factor
@@ -4366,7 +4377,7 @@ class gmoccapy(object):
                 self.widgets.btn_feed_100.hide()
             else:
                 self.widgets.btn_feed_100.show()
-        # widget can also be spc_jog_vel and spc_rapid
+        # widget can also be spc_lin_jog_vel and spc_rapid
         self.widgets[widget].hide_button(pin.get())
         
         if pin.get():
@@ -4376,12 +4387,12 @@ class gmoccapy(object):
                 value = self.rabbit_jog = self.jog_rate_max * self.halcomp["jog.jog-velocity.direct-value"]
             elif not self.widgets.tbtn_turtle_jog.get_active():
                 value = self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * self.halcomp["jog.jog-velocity.direct-value"]
-            self.widgets.spc_jog_vel.set_value(value)
+            self.widgets.spc_lin_jog_vel.set_value(value)
 
     def _on_analog_value_changed(self, pin, widget):
         if not self.initialized:
             return
-        if widget == "spc_jog_vel" and not self.halcomp["jog.jog-velocity.analog-enable"]:
+        if widget == "spc_lin_jog_vel" and not self.halcomp["jog.jog-velocity.analog-enable"]:
             return
         if widget == "spc_feed" and not self.halcomp["feed.feed-override.analog-enable"]:
             return
@@ -4630,7 +4641,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_jog_vel")
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_lin_jog_vel")
         pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
         self.halcomp.newpin("feed.feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
@@ -4644,7 +4655,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_jog_vel")
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_lin_jog_vel")
         pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_rapid")
         pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
@@ -4652,7 +4663,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_jog_vel")
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_lin_jog_vel")
         pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_rapid")
 
