@@ -10,6 +10,7 @@ Chris Morley
 import sys
 import os
 
+from PyQt5.QtCore import pyqtProperty
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
@@ -34,15 +35,81 @@ log = logger.getLogger(__name__)
 class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
     def __init__(self, parent = None):
         super(Lcnc_Graphics5, self).__init__(parent)
-
+        self.colors['overlay_background'] = (0.0, 0.0, 0.57) # blue
+        self.colors['back'] = (0.0, 0.0, 0.75) # blue
+        self.show_overlay = False # no DRO or DRO overlay
 
     def _hal_init(self):
-        pass
-        #GSTAT.connect('file-loaded', self.load_program)
+        GSTAT.connect('file-loaded', self.load_program)
+        GSTAT.connect('reload-display',self.reloadfile)
+        GSTAT.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
+        GSTAT.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
 
     def load_program(self, g, fname):
         print fname
-        self.load()
+        self.load(fname)
+
+    def set_metric_units(self,w,state):
+        self.metric_units  = state
+        self.updateGL()
+
+    def set_spindle_speed(self,w,rate):
+        if rate <1: rate = 1
+        self.spindle_speed = rate
+    
+    def setview(self, value):
+        view = str(value).lower()
+        if self.lathe_option:
+            if view not in ['p','y','y2']:
+                return False
+        elif view not in ['p', 'x', 'y', 'z', 'z2']:
+            return False
+        self.current_view = view
+        if self.initialised:
+            self.set_current_view()
+
+    def reloadfile(self,w):
+        dist = self.get_zoom_distance()
+        try:
+            self.fileloaded(None,self._reload_filename)
+            self.set_zoom_distance(dist)
+        except:
+            pass
+
+# property getter/setters
+
+    # VIEW
+    def setview(self, view):
+        self.setview(view)
+    def getview(self):
+        return self.current_view
+    def resetview(self):
+        self.setview('p')
+    _view = pyqtProperty(str, getview, setview, resetview)
+
+    # DRO
+    def setdro(self,state):
+        self.enable_dro = state
+        self.updateGL()
+    def getdro(self):
+        return self.enable_dro
+    _dro = pyqtProperty(bool, getdro, setdro)
+
+    # DTG
+    def setdtg(self,state):
+        self.show_dtg = state
+        self.updateGL()
+    def getdtg(self):
+        return self.show_dtg
+    _dtg = pyqtProperty(bool, getdtg, setdtg)
+
+    # METRIC
+    def setmetric(self,state):
+        self.metric_units  = state
+        self.updateGL()
+    def getmetric(self):
+        return self.metric_units
+    _metric = pyqtProperty(bool, getmetric, setmetric)
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
