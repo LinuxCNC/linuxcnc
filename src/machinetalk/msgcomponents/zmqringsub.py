@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 #
 # run as  python zmqringsub.py [[destination] [optional list of ring names]]
 #

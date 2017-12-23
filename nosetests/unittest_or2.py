@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 
 from nose import with_setup
 from machinekit.nosetests.realtime import setup_module ,teardown_module

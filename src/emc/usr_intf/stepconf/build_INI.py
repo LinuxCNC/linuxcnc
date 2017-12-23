@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 #
 #    This is stepconf, a graphical configuration editor for Machinekit
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
