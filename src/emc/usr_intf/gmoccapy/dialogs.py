@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 
 '''
     This class is used to handle the dialogs from gmoccapy,

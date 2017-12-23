@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 '''Copied from m61-test'''
 
 import linuxcnc

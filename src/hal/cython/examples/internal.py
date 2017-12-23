@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 # vim: sts=4 sw=4 et
 
 # HAL internals introspection - the hal_data descriptor
