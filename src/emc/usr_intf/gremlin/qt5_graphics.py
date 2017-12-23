@@ -2,7 +2,7 @@
 
 import sys
 import math
-  
+
 from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
@@ -13,7 +13,7 @@ LIB_GOOD = True
 try:
     from OpenGL import GL
 except ImportError:
-    log.error('Qtvcp Error with camview - is python-opencv installed?')
+    log.error('Qtvcp Error with graphics - is python-openGL installed?')
     LIB_GOOD = False
 
 
@@ -121,7 +121,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             a = self.colors[s + "_alpha"]
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
-        #inifile = '../../configs/sim/qtscreen/qtdefault.ini'
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.inifile = linuxcnc.ini(inifile)
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
@@ -161,7 +160,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         temp = self.inifile.find("DISPLAY", "LATHE")
         self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
         self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
-        self.show_offsets = True
+        self.show_offsets = False
         self.show_overlay = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
@@ -185,7 +184,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
   
         self.trolltechGreen = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
         self.trolltechPurple = QColor.fromCmykF(0.39, 0.39, 0.0, 0.0)
-        self.realize()
+        #self.realize()
         #self.load()
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
@@ -234,6 +233,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         td = tempfile.mkdtemp()
         self._current_file = filename
+        print 'try loading'
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
@@ -243,6 +243,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
 
+            print 'get result'
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
@@ -251,7 +252,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         finally:
             shutil.rmtree(td)
-
+        print 'set_view'
         self.set_current_view()
 
 
@@ -302,9 +303,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_a_axis_wrapped(self): return self.a_axis_wrapped
     def get_b_axis_wrapped(self): return self.b_axis_wrapped
     def get_c_axis_wrapped(self): return self.c_axis_wrapped
-    def get_view(self):
-        view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
-        return view_dict.get(self.current_view, 3)
 
     def winfo_width(self):
         return self.geometry().width()
@@ -322,6 +320,16 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # redirect for conversion from pygtk to pyqt
     def _redraw(self):
         self.updateGL()
+    def select_prime(self, x, y):
+        self.select_primed = x, y
+
+    # This overrides glcannon.py method so we can not plot the DRO 
+    def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
+        if not self.show_overlay:
+            return limit, homed, [''], ['']
+        return glcanon.GlCanonDraw.dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+
+
 ####
 
 
@@ -358,6 +366,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.updateGL()
 
     def initializeGL(self):
+        self.realize()
+        GL.glEnable(GL.GL_CULL_FACE)
+        return
         self.qglClearColor(self.trolltechPurple.darker())
         self.object = self.makeObject()
         GL.glShadeModel(GL.GL_FLAT)
@@ -407,7 +418,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mousePressEvent(self, event):
         self.lastPos = event.pos()
-  
+        if (event.buttons() & Qt.LeftButton):
+            print event.pos(), event.pos().x()
+            self.select_prime(event.pos().x(), event.pos().y()) # select G-Code element
+
     def mouseMoveEvent(self, event):
         dx = event.x() - self.lastPos.x()
         dy = event.y() - self.lastPos.y()
@@ -418,7 +432,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         elif event.buttons() & Qt.RightButton:
             self.setXRotation(self.xRot + 8 * dy)
             self.setZRotation(self.zRot + 8 * dx)
-  
+        elif event.buttons() & Qt.MiddleButton:
+            print 'mid'
+            self.translateOrRotate(event.x(), event.y())
         self.lastPos = event.pos()
   
     def makeObject(self):
