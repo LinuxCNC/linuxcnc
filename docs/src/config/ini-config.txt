@@ -926,7 +926,9 @@ small, tight corners, since you're limited by cornering acceleration.
 * 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
    that compute world coordinates using kinematicsForward() when switching
    from joint to teleop mode.  Up to nine coordinate values (X Y Z A B C U V W)
-   may be specified, unused trailing items may be omitted.
+   may be specified, unused trailing items may be omitted. This value is only
+   used for machines with nontrivial kinematics. On machines with trivial
+   kinematics (mill, lathe, gantry types) this value is ignored.
    Note: the sim hexapod config requires a non-zero value for the Z coordinate.
 
 [WARNING]
