@@ -330,8 +330,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog">
      <property name="geometry">
       <rect>
-       <x>671</x>
-       <y>335</y>
+       <x>489</x>
+       <y>325</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -986,7 +986,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
     <property name="image_path" stdset="0">
-     <string>STD_IMAGE_DIR/linuxcnc-wizard.gif</string>
+     <string>STD_IMAGE_DIR/lcnc_swoop.png</string>
     </property>
    </widget>
    <widget class="Lcnc_Dialog" name="lcnc_dialog">
@@ -1820,6 +1820,79 @@ file</string>
        </property>
        <property name="run_action" stdset="0">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_19">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>190</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View P</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_20">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>190</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Z</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>z</string>
+       </property>
+      </widget>
+      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_21">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>240</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Y</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>y</string>
+       </property>
+      </widget>
+      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_22">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>240</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View X</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>x</string>
        </property>
       </widget>
      </widget>

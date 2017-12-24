@@ -35,9 +35,9 @@ class LcncGraphics5Plugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="Lcnc_Graphics5" name="lcnc_Graphics5" />\n'
+        return '<widget class="Lcnc_Graphics5" name="lcnc_graphics5" />\n'
     def includeFile(self):
-        return "qtvcp.widgets.Graphics5"
+        return "qtvcp.widgets.graphics5"
 
 
 

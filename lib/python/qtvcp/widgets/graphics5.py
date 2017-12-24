@@ -38,12 +38,17 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         self.colors['overlay_background'] = (0.0, 0.0, 0.57) # blue
         self.colors['back'] = (0.0, 0.0, 0.75) # blue
         self.show_overlay = False # no DRO or DRO overlay
+        print self.current_view
 
     def _hal_init(self):
         GSTAT.connect('file-loaded', self.load_program)
         GSTAT.connect('reload-display',self.reloadfile)
         GSTAT.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
         GSTAT.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
+        GSTAT.connect('view-changed', self.set_view_signal)
+
+    def set_view_signal(self,w,view):
+        self.set_view(view)
 
     def load_program(self, g, fname):
         print fname
@@ -57,7 +62,7 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         if rate <1: rate = 1
         self.spindle_speed = rate
     
-    def setview(self, value):
+    def set_view(self, value):
         view = str(value).lower()
         if self.lathe_option:
             if view not in ['p','y','y2']:
@@ -76,15 +81,30 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         except:
             pass
 
+    # overriding functions
+    def report_gcode_error(self, result, seq, filename):
+        error_str = gcode.strerror(result)
+        errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
+                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
+        print(errortext)
+        GSTAT.emit("graphics-gcode-error", errortext)
+
+    # Override gremlin's / glcannon.py function so we can emit a GObject signal
+    def update_highlight_variable(self,line):
+        self.highlight_line = line
+        if line == None:
+            line = -1
+        GSTAT.emit('graphics-line-selected', line)
+
 # property getter/setters
 
     # VIEW
     def setview(self, view):
-        self.setview(view)
+        self.set_view(view)
     def getview(self):
         return self.current_view
     def resetview(self):
-        self.setview('p')
+        self.set_view('p')
     _view = pyqtProperty(str, getview, setview, resetview)
 
     # DRO

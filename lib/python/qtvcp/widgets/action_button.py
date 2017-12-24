@@ -66,14 +66,16 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.feed_over = False
         self.rapid_over = False
         self.spindle_over = False
-        self.toggle_float = False
+        self.view_change = False
 
+        self.toggle_float = False
         self._toggle_state = 0
         self.joint_number = 0
         self.jog_incr_imperial = .010
         self.jog_incr_mm = .025
         self.float = 100.0
         self.float_alt = 50.0
+        self.view_type = 'p'
 
     ##################################################
     # This gets called by qtvcp_makepins
@@ -184,6 +186,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             GSTAT.connect('state-estop-reset', lambda w: self.setEnabled(GSTAT.machine_is_on()))
             GSTAT.connect('state-on', lambda w: _safecheck(True))
             GSTAT.connect('state-off', lambda w: _safecheck(False))
+        elif self.view_change:
+            pass
 
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
@@ -279,7 +283,11 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                 ACTION.SET_SPINDLE_RATE(self.float)
             self._toggle_state -=1
             self._toggle_state = self._toggle_state *-1
-
+        elif self.view_change:
+            try:
+                GSTAT.emit('view-changed','%s'% self.view_type)
+            except:
+                pass
         # defult error case
         else:
             log.error('No action recognised')
@@ -317,7 +325,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                     'launch_halmeter','launch_status', 'launch_halshow',
                     'auto','mdi','manual','macro_dialog','origin_offset_dialog',
                     'camview_dialog','jog_incr','feed_over', 'rapid_over',
-                    'spindle_over', 'jog_rate')
+                    'spindle_over', 'jog_rate','view_x', 'view_p')
 
         for i in data:
             if not i == picked:
@@ -583,6 +591,22 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_float_alt(self):
         self.float_alt = 100.0
 
+    def set_view_change(self, data):
+        self.view_change = data
+        if data:
+            self._toggle_properties('view_change')
+    def get_view_change(self):
+        return self.view_change
+    def reset_view_change(self):
+        self.view_change = False
+
+    def set_view_type(self, data):
+        self.view_type = data
+    def get_view_type(self):
+        return self.view_type
+    def reset_view_type(self):
+        self.view_type = 'p'
+
     # designer will show these properties in this order:
     # BOOL
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
@@ -610,13 +634,16 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     rapid_over_action = QtCore.pyqtProperty(bool, get_rapid_over, set_rapid_over, reset_rapid_over)
     spindle_over_action = QtCore.pyqtProperty(bool, get_spindle_over, set_spindle_over, reset_spindle_over)
     toggle_float_option = QtCore.pyqtProperty(bool, get_toggle_float, set_toggle_float, reset_toggle_float)
-
+    view_change_action = QtCore.pyqtProperty(bool, get_view_change, set_view_change, reset_view_change)
+ 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
     incr_imperial_number = QtCore.pyqtProperty(float, get_incr_imperial, set_incr_imperial, reset_incr_imperial)
     incr_mm_number = QtCore.pyqtProperty(float, get_incr_mm, set_incr_mm, reset_incr_mm)
     float_num = QtCore.pyqtProperty(float, get_float, set_float, reset_float)
     float_alt_num = QtCore.pyqtProperty(float, get_float_alt, set_float_alt, reset_float_alt)
+    view_type_string = QtCore.pyqtProperty(str, get_view_type, set_view_type, reset_view_type)
+
     ##############################
     # required class boiler code #
     ##############################
