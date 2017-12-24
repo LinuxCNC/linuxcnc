@@ -8,5 +8,5 @@ fi
 cp position.blank position.txt
 #Assume build without TP debug logging enabled
 linuxcnc $1 > test.log &
-python run_all_tests.py
+python2 run_all_tests.py
 fg

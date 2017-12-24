@@ -5,7 +5,7 @@
 #
 # run as:
 #    halrun -I pbring-demo.hal
-#    python pbring-demo.py
+#    python2 pbring-demo.py
 
 import time,os
 from machinetalk.protobuf.types_pb2 import *
