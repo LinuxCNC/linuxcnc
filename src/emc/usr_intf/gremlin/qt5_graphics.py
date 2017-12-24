@@ -143,7 +143,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         glcanon.GlCanonDraw.__init__(self, linuxcnc.stat(), self.logger)
 
         # set defaults
-        self.current_view = 'z'
+        self.current_view = 'p'
         self.fingerprint = ()
         self.select_primed = None
         self.lat = 0
@@ -171,6 +171,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
         self.show_offsets = False
         self.show_overlay = False
+        self.enable_dro = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
@@ -195,6 +196,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
         self.timer.start(100)
+        print 'view:',self.current_view
 
     def poll(self):
         s = self.stat
@@ -299,6 +301,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:
             return
         return getattr(self, 'set_view_%s' % self.current_view)()
+    def clear_live_plotter(self):
+        self.logger.clear()
+        self.update()
 
     def winfo_width(self):
         return self.geometry().width()
@@ -317,21 +322,29 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # gcannon assumes this function name
     def _redraw(self):
         self.updateGL()
-    def select_prime(self, x, y):
-        self.select_primed = x, y
 
     # This overrides glcannon.py method so we can not plot the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-        if not self.show_overlay:
+        if not self.enable_dro:
             return limit, homed, [''], ['']
-        return glcanon.GlCanonDraw.dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+        return parent_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
 
+    # provide access to glcannon's default function
+    def parent_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
+        return glcanon.GlCanonDraw.dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
 
     def minimumSizeHint(self):
         return QSize(50, 50)
 
     def sizeHint(self):
         return QSize(400, 400)
+
+    def normalizeAngle(self, angle):
+        while angle < 0:
+            angle += 360 * 16
+        while angle > 360 * 16:
+            angle -= 360 * 16
+        return angle
 
     def setXRotation(self, angle):
         angle = self.normalizeAngle(angle)
@@ -372,8 +385,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0)
         GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0)
         GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0)
-        if self.perspective: self.redraw_perspective()
-        else: self.redraw_ortho()
+        try:
+            if self.perspective: self.redraw_perspective()
+            else: self.redraw_ortho()
+        except:
+            pass
 
     # resizes the view to fit the window
     def resizeGL(self, width, height):
@@ -386,25 +402,47 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
+    ####################################
+    # view controls
+    ####################################
+    def select_prime(self, x, y):
+        self.select_primed = x, y
+
+    def select_fire(self):
+        if not self.select_primed: return
+        x, y = self.select_primed
+        self.select_primed = None
+        self.select(x, y)
+
+    def select_cancel(self, widget=None, event=None):
+        self.select_primed = None
+
     def wheelEvent(self, _event):
         # Use the mouse wheel to zoom in/out
         a = _event.angleDelta().y()/200
         if a < 0:
-            self.zoomin()
-        else:
             self.zoomout()
-
+        else:
+            self.zoomin()
         d = - float(_event.angleDelta().y()) / 200.0 #* self.radius_
-        print a,d,self.distance 
-        #self.translate([0.0, 0.0, d])
         self.updateGL()
         _event.accept()
 
     def mousePressEvent(self, event):
         self.lastPos = event.pos()
         if (event.buttons() & Qt.LeftButton):
-            print event.pos(), event.pos().x()
-            self.select_prime(event.pos().x(), event.pos().y()) # select G-Code element
+            self.select_prime(event.pos().x(), event.pos().y())
+        self.recordMouse(event.pos().x(), event.pos().y())
+
+    # event.buttons = current button state
+    # event_button  = event causing button
+    def mouseReleaseEvent(self, event):
+        if event.button() & Qt.LeftButton:
+            self.select_fire()
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() & Qt.RightButton:
+            self.clear_live_plotter()
 
     def mouseMoveEvent(self, event):
         dx = event.x() - self.lastPos.x()
@@ -421,14 +459,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.translateOrRotate(event.x(), event.y())
         self.lastPos = event.pos()
 
-    def normalizeAngle(self, angle):
-        while angle < 0:
-            angle += 360 * 16
-        while angle > 360 * 16:
-            angle -= 360 * 16
-        return angle
-
-
+###########
+# Testing
+###########
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
