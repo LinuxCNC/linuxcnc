@@ -16,8 +16,6 @@ except ImportError:
     log.error('Qtvcp Error with graphics - is python-openGL installed?')
     LIB_GOOD = False
 
-
-################################
 import pango
 import glnav
 from rs274 import glcanon
@@ -33,23 +31,8 @@ import os
 
 import thread
 
-class DummyProgress:
-    def nextphase(self, unused): pass
-    def progress(self): pass
-
-class StatCanon(glcanon.GLCanon, interpret.StatMixin):
-    def __init__(self, colors, geometry, lathe_view_option, stat, random):
-        glcanon.GLCanon.__init__(self, colors, geometry)
-        interpret.StatMixin.__init__(self, stat, random)
-        self.progress = DummyProgress()
-        self.lathe_view_option = lathe_view_option
-
-    def is_lathe(self): return self.lathe_view_option
-
-    def change_tool(self, pocket):
-        glcanon.GLCanon.change_tool(self,pocket)
-        interpret.StatMixin.change_tool(self,pocket)
-
+###################################
+# For stand alone window
 ###################################
 class Window(QWidget):
     def __init__(self, inifile):
@@ -106,7 +89,29 @@ class Window(QWidget):
   
         return slider
 
+#################
+# Helper class
+#################
+class DummyProgress:
+    def nextphase(self, unused): pass
+    def progress(self): pass
 
+class StatCanon(glcanon.GLCanon, interpret.StatMixin):
+    def __init__(self, colors, geometry, lathe_view_option, stat, random):
+        glcanon.GLCanon.__init__(self, colors, geometry)
+        interpret.StatMixin.__init__(self, stat, random)
+        self.progress = DummyProgress()
+        self.lathe_view_option = lathe_view_option
+
+    def is_lathe(self): return self.lathe_view_option
+
+    def change_tool(self, pocket):
+        glcanon.GLCanon.change_tool(self,pocket)
+        interpret.StatMixin.change_tool(self,pocket)
+
+###############################
+# widget for graphics plotting
+###############################
 class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
@@ -121,6 +126,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             a = self.colors[s + "_alpha"]
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
+        # requires linuxcnc running before laoding this widget
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.inifile = linuxcnc.ini(inifile)
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
@@ -132,8 +138,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             C('backplotprobing'),
             self.get_geometry()
         )
+        # start tracking linuxcnc position so we can plot it
         thread.start_new_thread(self.logger.start, (.01,))
         glcanon.GlCanonDraw.__init__(self, linuxcnc.stat(), self.logger)
+
+        # set defaults
         self.current_view = 'z'
         self.fingerprint = ()
         self.select_primed = None
@@ -181,28 +190,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.zRot = 0
   
         self.lastPos = QPoint()
-  
-        self.trolltechGreen = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
-        self.trolltechPurple = QColor.fromCmykF(0.39, 0.39, 0.0, 0.0)
-        #self.realize()
-        #self.load()
+
+        # add a 100ms timer to poll linuxcnc stats
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
         self.timer.start(100)
-####
-    def get_geometry(self):
-        temp = self.inifile.find("DISPLAY", "GEOMETRY")
-        if temp:
-            _geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
-            self._geometry = "".join(reversed(_geometry))
-        else:
-            self._geometry = 'XYZ'
-        return self._geometry
-
-    def set_current_view(self):
-        if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:
-            return
-        return getattr(self, 'set_view_%s' % self.current_view)()
 
     def poll(self):
         s = self.stat
@@ -218,14 +210,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if fingerprint != self.fingerprint:
             self.fingerprint = fingerprint
             self.update()
-
-        # return self.visible
         return True
 
     def load(self,filename = None):
         s = self.stat
         s.poll()
-        print 'filename',filename,s.file
         if not filename and s.file:
             filename = s.file
         elif not filename and not s.file:
@@ -233,7 +222,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         td = tempfile.mkdtemp()
         self._current_file = filename
-        print 'try loading'
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
@@ -242,8 +230,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
-
-            print 'get result'
             unitcode = "G%d" % (20 + (s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
@@ -252,10 +238,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         finally:
             shutil.rmtree(td)
-        print 'set_view'
         self.set_current_view()
 
-
+    # setup details when window shows
     def realize(self):
         self.set_current_view()
         s = self.stat
@@ -271,6 +256,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.font_charwidth = width
         glcanon.GlCanonDraw.realize(self)
 
+    # gettter / setters
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base
     def get_program_alpha(self): return self.program_alpha
@@ -291,7 +277,14 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
-
+    def get_geometry(self):
+        temp = self.inifile.find("DISPLAY", "GEOMETRY")
+        if temp:
+            _geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
+            self._geometry = "".join(reversed(_geometry))
+        else:
+            self._geometry = 'XYZ'
+        return self._geometry
     def is_lathe(self): return self.lathe_option
     def is_foam(self): return self.foam_option
     def get_current_tool(self):
@@ -299,10 +292,13 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if i[0] == self.stat.tool_in_spindle:
                 return i
     def get_highlight_line(self): return self.highlight_line
-
     def get_a_axis_wrapped(self): return self.a_axis_wrapped
     def get_b_axis_wrapped(self): return self.b_axis_wrapped
     def get_c_axis_wrapped(self): return self.c_axis_wrapped
+    def set_current_view(self):
+        if self.current_view not in ['p', 'x', 'y', 'y2', 'z', 'z2']:
+            return
+        return getattr(self, 'set_view_%s' % self.current_view)()
 
     def winfo_width(self):
         return self.geometry().width()
@@ -318,6 +314,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def swapbuffers(self):
         return
     # redirect for conversion from pygtk to pyqt
+    # gcannon assumes this function name
     def _redraw(self):
         self.updateGL()
     def select_prime(self, x, y):
@@ -330,51 +327,44 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         return glcanon.GlCanonDraw.dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
 
 
-####
-
-
     def minimumSizeHint(self):
         return QSize(50, 50)
-  
+
     def sizeHint(self):
         return QSize(400, 400)
-  
+
     def setXRotation(self, angle):
         angle = self.normalizeAngle(angle)
         if angle != self.xRot:
             self.xRot = angle
             self.xRotationChanged.emit(angle)
             self.updateGL()
-  
+
     def setYRotation(self, angle):
         angle = self.normalizeAngle(angle)
         if angle != self.yRot:
             self.yRot = angle
             self.yRotationChanged.emit(angle)
             self.updateGL()
-  
+
     def setZRotation(self, angle):
         angle = self.normalizeAngle(angle)
         if angle != self.zRot:
             self.zRot = angle
             self.zRotationChanged.emit(angle)
             self.updateGL()
-  
+
     def setZoom(self, zoom):
         self.distance = zoom/100.0
-        #print self.distance
         self.updateGL()
 
+    # called when widget is completely redrawn
     def initializeGL(self):
         self.realize()
         GL.glEnable(GL.GL_CULL_FACE)
         return
-        self.qglClearColor(self.trolltechPurple.darker())
-        self.object = self.makeObject()
-        GL.glShadeModel(GL.GL_FLAT)
-        GL.glEnable(GL.GL_DEPTH_TEST)
-        GL.glEnable(GL.GL_CULL_FACE)
 
+    # redraws the screen aprox every 100ms
     def paintGL(self):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         GL.glLoadIdentity()
@@ -382,21 +372,15 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0)
         GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0)
         GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0)
-        #if self._current_file == None:
-        #    GL.glCallList(self.object)
-        #    return
         if self.perspective: self.redraw_perspective()
         else: self.redraw_ortho()
-        #self.redraw()
-        #GL.glCallList(self.object)
-  
+
+    # resizes the view to fit the window
     def resizeGL(self, width, height):
         side = min(width, height)
         if side < 0:
             return
-  
         GL.glViewport((width - side) // 2, (height - side) // 2, side, side)
-  
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
         GL.glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0)
@@ -425,7 +409,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def mouseMoveEvent(self, event):
         dx = event.x() - self.lastPos.x()
         dy = event.y() - self.lastPos.y()
-  
+
         if event.buttons() & Qt.LeftButton:
             self.setXRotation(self.xRot + 8 * dy)
             self.setYRotation(self.yRot + 8 * dx)
@@ -436,89 +420,17 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             print 'mid'
             self.translateOrRotate(event.x(), event.y())
         self.lastPos = event.pos()
-  
-    def makeObject(self):
-        genList = GL.glGenLists(1)
-        GL.glNewList(genList, GL.GL_COMPILE)
-  
-        GL.glBegin(GL.GL_QUADS)
-  
-        x1 = +0.06
-        y1 = -0.14
-        x2 = +0.14
-        y2 = -0.06
-        x3 = +0.08
-        y3 = +0.00
-        x4 = +0.30
-        y4 = +0.22
-  
-        self.quad(x1, y1, x2, y2, y2, x2, y1, x1)
-        self.quad(x3, y3, x4, y4, y4, x4, y3, x3)
-  
-        self.extrude(x1, y1, x2, y2)
-        self.extrude(x2, y2, y2, x2)
-        self.extrude(y2, x2, y1, x1)
-        self.extrude(y1, x1, x1, y1)
-        self.extrude(x3, y3, x4, y4)
-        self.extrude(x4, y4, y4, x4)
-        self.extrude(y4, x4, y3, x3)
-  
-        NumSectors = 200
-  
-        for i in range(NumSectors):
-            angle1 = (i * 2 * math.pi) / NumSectors
-            x5 = 0.30 * math.sin(angle1)
-            y5 = 0.30 * math.cos(angle1)
-            x6 = 0.20 * math.sin(angle1)
-            y6 = 0.20 * math.cos(angle1)
-  
-            angle2 = ((i + 1) * 2 * math.pi) / NumSectors
-            x7 = 0.20 * math.sin(angle2)
-            y7 = 0.20 * math.cos(angle2)
-            x8 = 0.30 * math.sin(angle2)
-            y8 = 0.30 * math.cos(angle2)
-  
-            self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
-  
-            self.extrude(x6, y6, x7, y7)
-            self.extrude(x8, y8, x5, y5)
-  
-        GL.glEnd()
-        GL.glEndList()
-  
-        return genList
-  
-    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4):
-        self.qglColor(self.trolltechGreen)
-  
-        GL.glVertex3d(x1, y1, -0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x3, y3, -0.05)
-        GL.glVertex3d(x4, y4, -0.05)
-  
-        GL.glVertex3d(x4, y4, +0.05)
-        GL.glVertex3d(x3, y3, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x1, y1, +0.05)
-  
-    def extrude(self, x1, y1, x2, y2):
-        self.qglColor(self.trolltechGreen.darker(250 + int(100 * x1)))
-  
-        GL.glVertex3d(x1, y1, +0.05)
-        GL.glVertex3d(x2, y2, +0.05)
-        GL.glVertex3d(x2, y2, -0.05)
-        GL.glVertex3d(x1, y1, -0.05)
-  
+
     def normalizeAngle(self, angle):
         while angle < 0:
             angle += 360 * 16
         while angle > 360 * 16:
             angle -= 360 * 16
         return angle
-  
-  
+
+
 if __name__ == '__main__':
-  
+
     app = QApplication(sys.argv)
     if len(sys.argv) == 1:
         inifilename = None
