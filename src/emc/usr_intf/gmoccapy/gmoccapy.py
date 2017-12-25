@@ -118,6 +118,7 @@ from gmoccapy import notification  # this is the module we use for our error han
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs       # this takes the code of all our dialogs
+from gmoccapy import build_gui     # rearrange the GUI to fit user requirements
 
 _AUDIO_AVAILABLE = False
 try:
@@ -172,8 +173,6 @@ class gmoccapy(object):
         self.builder.set_translation_domain("gmoccapy")
         self.builder.add_from_file(XMLNAME)
         self.builder.connect_signals(self)
-
-        self.widgets = widgets.Widgets(self.builder)
 
         self.initialized = False  # will be set True after the window has been shown and all
                                   # basic settings has been finished, so we avoid some actions
@@ -230,53 +229,57 @@ class gmoccapy(object):
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
 
-        self.dialogs = dialogs.Dialogs()
-        self.dialogs.connect("play_sound", self._on_play_sound)
-
-        # check the arguments given from the command line (Ini file)
-        self.user_mode = False
-        self.logofile = None
-        for index, arg in enumerate(argv):
-            print(index, " = ", arg)
-            if arg == "-user_mode":
-                self.user_mode = True
-                self.widgets.tbtn_setup.set_sensitive(False)
-                message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("user mode selected")
-                print (message)
-            if arg == "-logo":
-                self.logofile = str(argv[ index + 1 ])
-                message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("logo entry found = {0}").format(self.logofile)
-                print (message)
-                self.logofile = self.logofile.strip("\"\'")
-                if not os.path.isfile(self.logofile):
-                    self.logofile = None
-                    message = _("**** GMOCCAPY INI Entry Error **** \n")
-                    message += _("Logofile entry found, but could not be converted to path.\n")
-                    message += _("The file path should not contain any spaces")
-                    print(message)
-
-        # check if the user want a Logo (given as command line argument)
-        if self.logofile:
-            self.widgets.img_logo.set_from_file(self.logofile)
-            self.widgets.img_logo.show()
-
-            page2 = self.widgets.ntb_jog_JA.get_nth_page(2)
-            self.widgets.ntb_jog_JA.reorder_child(page2, 0)
-            page1 = self.widgets.ntb_jog_JA.get_nth_page(1)
-            self.widgets.ntb_jog_JA.reorder_child(page1, -1)
+        # get all widgets as class, so they can be called directly
+        self.widgets = widgets.Widgets(self.builder)
 
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
 
+        # This class will edit the GUI to fit all the users needs, it has been introduced
+        # to separate the GUI code from the GUI building code and reaction code
+        self.gui_edit = build_gui.Build_GUI(self.widgets)
+
+        # This class will handle all the user preferences
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
 
-        self._get_axis_list()
-        # self._init_extra_axes() # will be called from _get_axis_list
+        # and this class will handle the dialogs
+        self.dialogs = dialogs.Dialogs()
+        self.dialogs.connect("play_sound", self._on_play_sound)
 
-        self._init_jog_increments()
+        # check the arguments given from the command line (Ini file)
+        self.user_mode = False
+        logofile = None
+        for index, arg in enumerate(argv):
+            print(index, " = ", arg)
+            if arg == "-user_mode":
+                self.user_mode = True
+#                self.widgets.tbtn_setup.set_sensitive(False)
+                message = _("**** GMOCCAPY INI Entry **** \n")
+                message += _("user mode selected")
+                print (message)
+                self.gui_edit._user_mode()
+            if arg == "-logo":
+                logofile = str(argv[ index + 1 ])
+                message = _("**** GMOCCAPY INI Entry **** \n")
+                message += _("logo entry found = {0}").format(logofile)
+                print (message)
+                logofile = logofile.strip("\"\'")
+                if not os.path.isfile(logofile):
+                    logofile = None
+                    message = _("**** GMOCCAPY INI Entry Error **** \n")
+                    message += _("Logofile entry found, but could not be converted to path.\n")
+                    message += _("The file path should not contain any spaces")
+                    print(message)
+                else:
+                    self.gui_edit._logo(logofile)
+
+        self.axis_list = self.gui_edit.axis_list
+        self.joint_axis_dic = self.gui_edit.joint_axis_dic
+        self.gui_edit._hide_unused_DRO()
+        self.gui_edit._rearange_dro()
+
+        self.active_increment, self.incr_rbt_list = self.gui_edit._init_jog_increments(self.on_increment_changed)
 
         self._init_hal_pins()
 
@@ -526,43 +529,43 @@ class gmoccapy(object):
 
         # Do we control a lathe?
         if self.lathe_mode:
-            # is this a backtool lathe?
-            self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
-
-            # we first hide the Y button to home and touch off
-            self.widgets.btn_home_y.hide()
-            self.widgets.btn_set_value_y.hide()
-            self.widgets.lbl_replace_y.show()
-            self.widgets.lbl_replace_set_value_y.show()
-            self.widgets.btn_tool_touchoff_x.show()
-            self.widgets.lbl_hide_tto_x.hide()
-
-            # we have to re-arrange the jog buttons, so first remove all button
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_minus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_plus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_minus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_plus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_minus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_plus)
-
-            # now we place them in a different order
-            if self.backtool_lathe:
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
-            else:
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_plus, 2, 3, 1, 2, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_minus, 0, 1, 1, 2, gtk.SHRINK, gtk.SHRINK)
-
-            # The Y DRO we make to a second X DRO to indicate the diameter
-            self.widgets.Combi_DRO_1.set_to_diameter(True)
-            self.widgets.Combi_DRO_1.set_property("joint_number", 0)
-
-            # we change the axis letters of the DRO's
-            self.widgets.Combi_DRO_0.change_axisletter("R")
-            self.widgets.Combi_DRO_1.change_axisletter("D")
-
+#            # is this a backtool lathe?
+#            self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
+#
+#            # we first hide the Y button to home and touch off
+#            self.widgets.btn_home_y.hide()
+#            self.widgets.btn_set_value_y.hide()
+#            self.widgets.lbl_replace_y.show()
+#            self.widgets.lbl_replace_set_value_y.show()
+#            self.widgets.btn_tool_touchoff_x.show()
+#            self.widgets.lbl_hide_tto_x.hide()
+#
+#            # we have to re-arrange the jog buttons, so first remove all button
+#            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_minus)
+#            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_plus)
+#            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_minus)
+#            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_plus)
+#            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_minus)
+#            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_plus)
+#
+#            # now we place them in a different order
+#            if self.backtool_lathe:
+#                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
+#                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
+#            else:
+#                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
+#                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
+#            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_plus, 2, 3, 1, 2, gtk.SHRINK, gtk.SHRINK)
+#            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_minus, 0, 1, 1, 2, gtk.SHRINK, gtk.SHRINK)
+#
+#            # The Y DRO we make to a second X DRO to indicate the diameter
+#            self.widgets.Combi_DRO_1.set_to_diameter(True)
+#            self.widgets.Combi_DRO_1.set_property("joint_number", 0)
+#
+#            # we change the axis letters of the DRO's
+#            self.widgets.Combi_DRO_0.change_axisletter("R")
+#            self.widgets.Combi_DRO_1.change_axisletter("D")
+#
             # and we will have to change the colors of the Y DRO according to the settings
             self.widgets.Combi_DRO_1.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
             self.widgets.Combi_DRO_1.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
@@ -570,30 +573,30 @@ class gmoccapy(object):
             self.widgets.Combi_DRO_1.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
             self.widgets.Combi_DRO_1.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
             self.widgets.Combi_DRO_1.set_property("actual", self.dro_actual)
-
-            # For gremlin we don"t need the following button
-            if self.backtool_lathe:
-                self.widgets.rbt_view_y2.set_active(True)
-            else:
-                self.widgets.rbt_view_y.set_active(True)
-            self.widgets.rbt_view_p.hide()
-            self.widgets.rbt_view_x.hide()
-            self.widgets.rbt_view_z.hide()
-
+#
+#            # For gremlin we don"t need the following button
+#            if self.backtool_lathe:
+#                self.widgets.rbt_view_y2.set_active(True)
+#            else:
+#                self.widgets.rbt_view_y.set_active(True)
+#            self.widgets.rbt_view_p.hide()
+#            self.widgets.rbt_view_x.hide()
+#            self.widgets.rbt_view_z.hide()
+#
             # check if G7 or G8 is active
             if "70" in self.stat.gcodes:
                 self._switch_to_g7(True)
             else:
                 self._switch_to_g7(False)
-
-        else:
-            # the Y2 view is not needed on a mill
-            self.widgets.rbt_view_y2.hide()
-            # X Offset is not necessary on a mill
-            self.widgets.lbl_tool_offset_x.hide()
-            self.widgets.lbl_offset_x.hide()
-            self.widgets.btn_tool_touchoff_x.hide()
-            self.widgets.lbl_hide_tto_x.show()
+#
+#        else:
+#            # the Y2 view is not needed on a mill
+#            self.widgets.rbt_view_y2.hide()
+#            # X Offset is not necessary on a mill
+#            self.widgets.lbl_tool_offset_x.hide()
+#            self.widgets.lbl_offset_x.hide()
+#            self.widgets.btn_tool_touchoff_x.hide()
+#            self.widgets.lbl_hide_tto_x.show()
 
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
@@ -612,168 +615,168 @@ class gmoccapy(object):
         self.command.teleop_enable(state)
         self.command.wait_complete()
 
-    def _get_axis_list(self):
-        # begin with an empty axis list
-        self.axis_list = self.get_ini_info.get_axis_list()
-        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
+#    def _get_axis_list(self):
+#        # begin with an empty axis list
+#        self.axis_list = self.get_ini_info.get_axis_list()
+#        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
+#
+#        self.widgets.spc_ang_jog_vel.hide()
+#        for dro in range(9):
+#            print("hide DRO {0}".format(dro))
+#            self.widgets["Combi_DRO_{0}".format(dro)].hide()
+#
+#        for axis in ("x","y","z","a","b","c","u","v","w"):
+#            if axis in self.axis_list:
+#                # if there is a double letter in the dict it will be called
+#                # i.e. y0 and y1, so we need to put that in a try exept
+#                try:
+#                    dro = self.joint_axis_dic[axis]
+#                except: # double letters lead here 
+#                    # add a zero to get the correct entry
+#                    axis+="0"
+#                    print("axis is now", axis)
+#                    dro = self.joint_axis_dic[axis]
+#                    # we only need the first letter for the DRO letter
+#                    # so we cut the rest
+#                    axis = axis[0]
+#                # initialize the DRO with the correct joint and show them    
+#                print("Combi_DRO_{0} = joint {1} = axis {2}".format(dro, dro, axis))
+#                self.widgets["Combi_DRO_{0}".format(dro)].set_joint(dro)
+#                self.widgets["Combi_DRO_{0}".format(dro)].change_axisletter(axis.upper())
+#                self.widgets["Combi_DRO_{0}".format(dro)].show()
+#                print("show DRO {0}".format(dro))
+#
+#                if axis in ("a","b","c"):                  
+#                    print("axis {0} is a rotary axis".format(axis))
+#                    self.widgets.spc_ang_jog_vel.show()
 
-        self.widgets.spc_ang_jog_vel.hide()
-        for dro in range(9):
-            print("hide DRO {0}".format(dro))
-            self.widgets["Combi_DRO_{0}".format(dro)].hide()
+#        self._rearange_dro()
 
-        for axis in ("x","y","z","a","b","c","u","v","w"):
-            if axis in self.axis_list:
-                # if there is a double letter in the dict it will be called
-                # i.e. y0 and y1, so we need to put that in a try exept
-                try:
-                    dro = self.joint_axis_dic[axis]
-                except: # double letters lead here 
-                    # add a zero to get the correct entry
-                    axis+="0"
-                    print("axis is now", axis)
-                    dro = self.joint_axis_dic[axis]
-                    # we only need the first letter for the DRO letter
-                    # so we cut the rest
-                    axis = axis[0]
-                # initialize the DRO with the correct joint and show them    
-                print("Combi_DRO_{0} = joint {1} = axis {2}".format(dro, dro, axis))
-                self.widgets["Combi_DRO_{0}".format(dro)].set_joint(dro)
-                self.widgets["Combi_DRO_{0}".format(dro)].change_axisletter(axis.upper())
-                self.widgets["Combi_DRO_{0}".format(dro)].show()
-                print("show DRO {0}".format(dro))
-
-                if axis in ("a","b","c"):                  
-                    print("axis {0} is a rotary axis".format(axis))
-                    self.widgets.spc_ang_jog_vel.show()
-
-        self._rearange_dro()
-
-    def _rearange_dro(self):
-
-        # we have to re-arrange the DRO's, so first remove them all
-        for dro in range(9):
-            self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
-            print("removed Combi_DRO_{0}".format(dro))
-
-        self.widgets.tbl_DRO.set_homogeneous(False)
-
-        if len(self.axis_list) <= 4:
-            self.widgets.tbl_DRO.resize(4,1)
-
-        if len(self.axis_list) == 1:
-            print("found one axis")
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-
-        if len(self.axis_list) == 2:
-            print("found two axis")
-            # Check if we are in Lathe mode, than display three DRO!
-            # need to extent the DRO of Joint 1 to the right            
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-
-        if len(self.axis_list) == 3:
-            print("found three axis")
-            # need to rearange the DRO of Joint 2 one line down
-            # and extent to the right
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
-            return
-
-        if len(self.axis_list) == 4:
-            print("found four axis")
-            # need to rearange the DRO of Joint 2 and Joint 3
-            # and extent to the right
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_3, 0, 1, 3, 4)
-
-        # find first 5_th axis
-        if len(self.axis_list) == 5:
-            self.widgets.lbl_replace_set_value_y.hide()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.lbl_replace_5.hide()
-            self.widgets.lbl_replace_set_value_4.hide()
-            self.widgets.lbl_replace_set_value_5.hide()
-            self.axisletter_five = self.axis_list[-1]
-            self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
-            self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_five)
-            self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_five.upper())
-
-            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
-            self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
-
-            if self.axisletter_five in "abc":
-                self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
-                self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
-
-            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
-            self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
-            self.widgets.btn_home_5.show()
-
-            self.widgets.btn_5_plus.set_label("{0}+".format(self.axisletter_five.upper()))
-            self.widgets.btn_5_plus.show()
-            self.widgets.btn_5_minus.set_label("{0}-".format(self.axisletter_five.upper()))
-            self.widgets.btn_5_minus.show()
-
-            image = self.widgets["img_touch_off_{0}".format(self.axisletter_five)]
-            self.widgets.btn_set_value_5.set_image(image)
-            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_five.upper()))
-            self.widgets.btn_set_value_5.show()
-
-#        else:
-#            print("found {0} axis".format(len(self.axis_list)))
+#    def _rearange_dro(self):
+#
+#        # we have to re-arrange the DRO's, so first remove them all
+#        for dro in range(9):
+#            self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
+#            print("removed Combi_DRO_{0}".format(dro))
+#
+#        self.widgets.tbl_DRO.set_homogeneous(False)
+#
+#        if len(self.axis_list) <= 4:
+#            self.widgets.tbl_DRO.resize(4,1)
+#
+#        if len(self.axis_list) == 1:
+#            print("found one axis")
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+#
+#        if len(self.axis_list) == 2:
+#            print("found two axis")
+#            # Check if we are in Lathe mode, than display three DRO!
+#            # need to extent the DRO of Joint 1 to the right            
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
+#
+#        if len(self.axis_list) == 3:
+#            print("found three axis")
+#            # need to rearange the DRO of Joint 2 one line down
+#            # and extent to the right
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
+#            return
+#
+#        if len(self.axis_list) == 4:
+#            print("found four axis")
+#            # need to rearange the DRO of Joint 2 and Joint 3
+#            # and extent to the right
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
+#            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_3, 0, 1, 3, 4)
+#
+#        # find first 5_th axis
+#        if len(self.axis_list) == 5:
 #            self.widgets.lbl_replace_set_value_y.hide()
-#            self.widgets.lbl_replace_set_value_4.hide()
 #            self.widgets.lbl_replace_4.hide()
-#            self.widgets.Combi_DRO_4.hide()
-#            self.widgets.btn_home_5.hide()
-#            axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
-
-#        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
-#        self.widgets.btn_home_4.set_image(image)
-#        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
-        self.widgets.btn_home_4.show()
-
-#        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
-        self.widgets.btn_4_plus.show()
-#        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
-        self.widgets.btn_4_minus.show()
-
-#        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
-#        self.widgets.btn_set_value_4.set_image(image)
-#        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
-        self.widgets.btn_set_value_4.show()
-
-#        if self.axisletter_four in "abc":
-#            self.widgets.Combi_DRO_3.set_property("mm_text_template", "%11.2f")
-#            self.widgets.Combi_DRO_3.set_property("imperial_text_template", "%11.2f")
-
-        # We have to change the size of the DRO, to make them fit the space
-        
-        # XYZ machine or lathe, no need to change the size
-        if len(self.axis_list) < 4:
-            return
-        # if we have 4 axis, we split the size of all DRO
-        elif len(self.axis_list) < 5:
-            size = int(self.dro_size * 0.75)
-            self.widgets.tbl_DRO.set_homogeneous(False)
-            for dro in range(9):
-                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
-
-        # if we have 5 axes, we will need some extra space:
-        else:
-            for dro in range(9):
-                size = self.dro_size
-                if dro == 4:
-                    size = int(size * 0.65) # This factor is just testing to ensure the DRO is able to fit with number 9999.999
-                if dro == 5:
-                    size = int(size * 0.65)
-                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
+#            self.widgets.lbl_replace_5.hide()
+#            self.widgets.lbl_replace_set_value_4.hide()
+#            self.widgets.lbl_replace_set_value_5.hide()
+#            self.axisletter_five = self.axis_list[-1]
+#            self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
+#            self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_five)
+#            self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_five.upper())
+#
+#            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
+#            self.widgets.btn_home_5.set_image(image)
+#            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
+#
+#            if self.axisletter_five in "abc":
+#                self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
+#                self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
+#
+#            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
+#            self.widgets.btn_home_5.set_image(image)
+#            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
+#            self.widgets.btn_home_5.show()
+#
+#            self.widgets.btn_5_plus.set_label("{0}+".format(self.axisletter_five.upper()))
+#            self.widgets.btn_5_plus.show()
+#            self.widgets.btn_5_minus.set_label("{0}-".format(self.axisletter_five.upper()))
+#            self.widgets.btn_5_minus.show()
+#
+#            image = self.widgets["img_touch_off_{0}".format(self.axisletter_five)]
+#            self.widgets.btn_set_value_5.set_image(image)
+#            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_five.upper()))
+#            self.widgets.btn_set_value_5.show()
+#
+##        else:
+##            print("found {0} axis".format(len(self.axis_list)))
+##            self.widgets.lbl_replace_set_value_y.hide()
+##            self.widgets.lbl_replace_set_value_4.hide()
+##            self.widgets.lbl_replace_4.hide()
+##            self.widgets.Combi_DRO_4.hide()
+##            self.widgets.btn_home_5.hide()
+##            axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
+#
+##        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
+##        self.widgets.btn_home_4.set_image(image)
+##        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
+#        self.widgets.btn_home_4.show()
+#
+##        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
+#        self.widgets.btn_4_plus.show()
+##        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
+#        self.widgets.btn_4_minus.show()
+#
+##        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
+##        self.widgets.btn_set_value_4.set_image(image)
+##        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
+#        self.widgets.btn_set_value_4.show()
+#
+##        if self.axisletter_four in "abc":
+##            self.widgets.Combi_DRO_3.set_property("mm_text_template", "%11.2f")
+##            self.widgets.Combi_DRO_3.set_property("imperial_text_template", "%11.2f")
+#
+#        # We have to change the size of the DRO, to make them fit the space
+#        
+#        # XYZ machine or lathe, no need to change the size
+#        if len(self.axis_list) < 4:
+#            return
+#        # if we have 4 axis, we split the size of all DRO
+#        elif len(self.axis_list) < 5:
+#            size = int(self.dro_size * 0.75)
+#            self.widgets.tbl_DRO.set_homogeneous(False)
+#            for dro in range(9):
+#                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
+#
+#        # if we have 5 axes, we will need some extra space:
+#        else:
+#            for dro in range(9):
+#                size = self.dro_size
+#                if dro == 4:
+#                    size = int(size * 0.65) # This factor is just testing to ensure the DRO is able to fit with number 9999.999
+#                if dro == 5:
+#                    size = int(size * 0.65)
+#                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -887,48 +890,48 @@ class gmoccapy(object):
             self.widgets.lbl_space_j5.hide()
         # if there are less joints, the above done should work correct
 
-    def _init_jog_increments(self):
-        # Now we will build the option buttons to select the Jog-rates
-        # We do this dynamically, because users are able to set them in INI File
-        # because of space on the screen only 10 items are allowed
-        # jogging increments
-
-        # We get the increments from INI File
-        self.jog_increments = self.get_ini_info.get_increments()
-        if len(self.jog_increments) > 10:
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** To many increments given in INI File for this screen ****"))
-            print(_("**** Only the first 10 will be reachable through this screen ****"))
-            # we shorten the incrementlist to 10 (first is default = 0)
-            self.jog_increments = self.jog_increments[0:11]
-
-        # The first radio button is created to get a radio button group
-        # The group is called according the name off  the first button
-        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
-        # One from the released button and one from the pressed button
-        # we make a list of the buttons to later add the hardware pins to them
-        label = _("Continuous")
-        rbt0 = gtk.RadioButton(None, label)
-        rbt0.connect("pressed", self.on_increment_changed, 0)
-        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
-        rbt0.set_property("draw_indicator", False)
-        rbt0.show()
-        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        rbt0.__name__ = "rbt0"
-        self.incr_rbt_list.append(rbt0)
-        # the rest of the buttons are now added to the group
-        # self.no_increments is set while setting the hal pins with self._check_len_increments
-        for item in range(1, len(self.jog_increments)):
-            rbt = "rbt{0}".format(item)
-            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
-            rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
-            self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
-            rbt.set_property("draw_indicator", False)
-            rbt.show()
-            rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-            rbt.__name__ = "rbt{0}".format(item)
-            self.incr_rbt_list.append(rbt)
-        self.active_increment = "rbt0"
+#    def _init_jog_increments(self):
+#        # Now we will build the option buttons to select the Jog-rates
+#        # We do this dynamically, because users are able to set them in INI File
+#        # because of space on the screen only 10 items are allowed
+#        # jogging increments
+#
+#        # We get the increments from INI File
+#        self.jog_increments = self.get_ini_info.get_increments()
+#        if len(self.jog_increments) > 10:
+#            print(_("**** GMOCCAPY INFO ****"))
+#            print(_("**** To many increments given in INI File for this screen ****"))
+#            print(_("**** Only the first 10 will be reachable through this screen ****"))
+#            # we shorten the incrementlist to 10 (first is default = 0)
+#            self.jog_increments = self.jog_increments[0:11]
+#
+#        # The first radio button is created to get a radio button group
+#        # The group is called according the name off  the first button
+#        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
+#        # One from the released button and one from the pressed button
+#        # we make a list of the buttons to later add the hardware pins to them
+#        label = _("Continuous")
+#        rbt0 = gtk.RadioButton(None, label)
+#        rbt0.connect("pressed", self.on_increment_changed, 0)
+#        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
+#        rbt0.set_property("draw_indicator", False)
+#        rbt0.show()
+#        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+#        rbt0.__name__ = "rbt0"
+#        self.incr_rbt_list.append(rbt0)
+#        # the rest of the buttons are now added to the group
+#        # self.no_increments is set while setting the hal pins with self._check_len_increments
+#        for item in range(1, len(self.jog_increments)):
+#            rbt = "rbt{0}".format(item)
+#            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
+#            rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
+#            self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
+#            rbt.set_property("draw_indicator", False)
+#            rbt.show()
+#            rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+#            rbt.__name__ = "rbt{0}".format(item)
+#            self.incr_rbt_list.append(rbt)
+#        self.active_increment = "rbt0"
 
     def _check_screen2(self):
         # second screen
@@ -2548,12 +2551,8 @@ class gmoccapy(object):
         self.turtle_jog = self.turtle_jog * self.faktor            
 
     def _change_dro_color(self, property, color):
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property(property, color)
+        for dro in range(9):
+            self.widgets["Combi_DRO_{0}".format(dro)].set_property(property, color)
         if self.lathe_mode:
             self.widgets.Combi_DRO_1.set_property(property, color)
             # check if G7 or G8 is active
@@ -2652,16 +2651,13 @@ class gmoccapy(object):
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
 
     def on_Combi_DRO_clicked(self, widget, joint_number, order):
+        print("clicked on DRO ", joint_number, order)
         if not self.toggle_readout:
             return
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_order(order)
-        if self.lathe_mode:
-            self.widgets.Combi_DRO_1.set_order(order)
+        for dro in range(9):
+            self.widgets["Combi_DRO_{0}".format(dro)].set_order(order)
+#        if self.lathe_mode:
+#            self.widgets.Combi_DRO_1.set_order(order)
         self._offset_changed(None, None)
 # from here only needed, if the DRO button will remain in gmoccapy
         if order[0] == "Abs" and self.widgets.tbtn_rel.get_label() != "Abs":
@@ -2888,8 +2884,8 @@ class gmoccapy(object):
         joint_btn = False
         joint_or_axis = widget.get_label()[0]
         if not joint_or_axis.lower() in "xyzabcuvw":
-            # OK, it may be a Joints button
-            if joint_or_axis in "01234567":
+            # OK, it seems to be a Joints button
+            if joint_or_axis in "012345678":
                 joint_btn = True
             else:
                 print ("unknown joint or axis {0}".format(joint_or_axis))
@@ -2898,6 +2894,7 @@ class gmoccapy(object):
         if not joint_btn:
             # get the axisnumber
             joint_axis_number = "xyzabcuvws".index(joint_or_axis.lower())
+            print joint_axis_number
         else:
             joint_axis_number = "01234567".index(joint_or_axis)
 
@@ -2938,20 +2935,21 @@ class gmoccapy(object):
             return
 
         joint_btn = False
-        joint_axis = widget.get_label()[0]
-        if not joint_axis.lower() in "xyzabcuvw":
+        joint_or_axis = widget.get_label()[0]
+        if not joint_or_axis.lower() in "xyzabcuvw":
             # OK, it may be a Joints button
-            if joint_axis in "01234567":
+            if joint_or_axis in "01234567":
                 joint_btn = True
             else:
-                print ("unknown axis {0}".format(joint_axis))
+                print ("unknown axis {0}".format(joint_or_axis))
                 return
 
         if not joint_btn:
             # get the axisnumber
-            joint_axis_number = "xyzabcuvw".index(joint_axis.lower())
+            joint_axis_number = "xyzabcuvw".index(joint_or_axis.lower())
+            print joint_axis_number
         else:
-            joint_axis_number = "01234567".index(joint_axis)
+            joint_axis_number = "01234567".index(joint_or_axis)
 
         if self.stat.motion_mode == 1:
             if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:

@@ -26,6 +26,7 @@
 
 from linuxcnc import ini
 import os
+import operator
 
 CONFIGPATH = os.environ['CONFIG_DIR']
 
@@ -183,6 +184,7 @@ class GetIniInfo:
                 if axisletter in coordinates:
                     joint_axis_dic[axisletter] = joint
 
+        #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
         return joint_axis_dic
 
     def get_no_force_homing(self):
