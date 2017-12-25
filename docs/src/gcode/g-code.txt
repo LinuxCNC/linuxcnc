@@ -2338,7 +2338,7 @@ It is an error if:
 (((G96, G97 Spindle Control Mode)))
 
 ----
-G96 <D-> S- (Constant Surface Speed)
+G96 <D-> S- (Constant Surface Speed Mode)
 G97 (RPM Mode)
 ----
 
