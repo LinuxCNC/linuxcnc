@@ -25,25 +25,25 @@ param rw bit is-bipolar-# [8] = 1 """Set this value to TRUE for a plus/minus
 option extra_setup yes;
 option count_function yes;
 
-variable u32 firstrun;
+variable unsigned firstrun;
 
-variable u32 *AD5754_1A;
-variable u32 *AD5754_1B;
-variable u32 *AD5754_1C;
-variable u32 *AD5754_1D;
-variable u32 *AD5754_2A;
-variable u32 *AD5754_2B;
-variable u32 *AD5754_2C;
-variable u32 *AD5754_2D;
-variable u32 *CPLD_write;
-variable u32 *CPLD_read;
-variable u32 *AD7329_write[8];
-variable u32 *AD7329_read[8];
+variable unsigned *AD5754_1A;
+variable unsigned *AD5754_1B;
+variable unsigned *AD5754_1C;
+variable unsigned *AD5754_1D;
+variable unsigned *AD5754_2A;
+variable unsigned *AD5754_2B;
+variable unsigned *AD5754_2C;
+variable unsigned *AD5754_2D;
+variable unsigned *CPLD_write;
+variable unsigned *CPLD_read;
+variable unsigned *AD7329_write[8];
+variable unsigned *AD7329_read[8];
 
 license "GPL";
 author "Andy Pugh / Cliff Blackburn";
 
-include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
+include "mesa-hostmot2/hostmot2.h";
 ;;
 
 // to parse the modparam
@@ -94,35 +94,35 @@ static int read(void *subdata) {
 
     *AD5754_1A = 0x00000000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[0] * scale(0) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[0] * scale(0) * 3276.799)));
 
     *AD5754_1B = 0x00010000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[1] * scale(1) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[1] * scale(1) * 3276.799)));
 
     *AD5754_1C = 0x00020000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[2] * scale(2) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[2] * scale(2) * 3276.799)));
 
     *AD5754_1D = 0x00030000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[3] * scale(3) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[3] * scale(3) * 3276.799)));
 
     *AD5754_2A = 0x00000000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[4] * scale(4) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[4] * scale(4) * 3276.799)));
 
     *AD5754_2B = 0x00010000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[5] * scale(5) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[5] * scale(5) * 3276.799)));
 
     *AD5754_2C = 0x00020000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[6] * scale(6) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[6] * scale(6) * 3276.799)));
 
     *AD5754_2D = 0x00030000 |  // address
                      (0x0000FFFF &  // mask
-                     (u32)((s16)(aout[7] * scale(7) * 3276.799)));
+                     (unsigned)((uint16_t)(aout[7] * scale(7) * 3276.799)));
 
     // Setup DAC, watchdog will have reset it if done in setup
     if(firstrun) {
@@ -152,7 +152,7 @@ static int read(void *subdata) {
 
     // Read ADC's into Pins
     for(i=0; i < 8; i++) {
-        analogue_in(i) = (double)((s16)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
+        analogue_in(i) = (double)((uint16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
     }
     return 0;
 }
