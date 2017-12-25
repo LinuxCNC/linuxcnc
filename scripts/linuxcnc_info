@@ -86,9 +86,9 @@ show "         cpu MHz" $(parse_cpuinfo "cpu MHz")
 show "         parport" $(cat /proc/ioports|grep parport)
 show "          serial" $(cat /proc/ioports|grep serial)
 echo
-echo "Varsions:"
+echo "Versions:"
 show "             gcc" $(gcc --version|head -1)
-show "          python" $(python --version 2>&1)
+show "          python" $(python2 --version 2>&1)
 show "             git" $(git --version)
 show "             tcl" $(echo "puts $::tcl_version"|tclsh)
 show "              tk" $(echo "puts $::tk_version;destroy ."|wish)

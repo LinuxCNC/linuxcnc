@@ -1,9 +1,9 @@
 #
 # interpret a g-code file, and generate preview commands
 #
-# run as python rs274preview.py <ngcfile>
+# run as python2 rs274preview.py <ngcfile>
 # to abort after first second:
-# python rs274preview.py -a <verybigngcfile>
+# python2 rs274preview.py -a <verybigngcfile>
 
 import sys
 import getopt

@@ -8,7 +8,7 @@ if [ -f "$2" ]
 then
     FILENAME="../"$2
 fi
-python machine_setup.py $FILENAME
+python2 machine_setup.py $FILENAME
 fg
 ./process_runlog.sh test.log
 #if [ -a movement.log ] 

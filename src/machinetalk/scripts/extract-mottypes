@@ -7,7 +7,7 @@
 
 egrep "^[[:space:]]+EMCMOT_" $1 | \
 sed -e "s/^\s*//g" -e "s/,.*$//g"   -e 's/;.*$//g' -e 's/\s.*$//g' | uniq |\
-python -c "`cat <<OOK
+python2 -c "`cat <<OOK
 offset = 1001
 import fileinput
 

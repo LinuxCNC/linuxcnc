@@ -15,7 +15,7 @@ operf rtapi_app > profile.log &
 linuxcnc -r circular_arcs.ini &
 LOCAL_LCNC_PID=$!
 echo $LOCAL_LCNC_PID
-(python machine_setup.py $1 && say_done) || say_failed
+(python2 machine_setup.py $1 && say_done) || say_failed
 #fg
 #End profiling
 pkill -9 axis

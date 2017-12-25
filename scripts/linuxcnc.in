@@ -758,7 +758,7 @@ else
             fi
         ;;
         *.py)
-            if ! python $CFGFILE ; then
+            if ! python2 $CFGFILE ; then
                 Cleanup
                 exit -1
             fi

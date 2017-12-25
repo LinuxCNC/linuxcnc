@@ -22,7 +22,7 @@ def single_launcher_file(tmpdir):
 [demo]
 name = Demo config
 description = My super demo
-command = python run.py
+command = python2 run.py
 variant = default
 '''
     ini = tmpdir.join('launcher.ini')
@@ -42,7 +42,7 @@ def test_reading_single_launcher_file_works(context, single_launcher_file):
     assert len(launchers) == 1
     assert launchers[0].name == 'Demo config'
     assert launchers[0].description == 'My super demo'
-    assert launchers[0].command == 'python run.py'
+    assert launchers[0].command == 'python2 run.py'
     assert launchers[0].info.variant == 'default'
 
 
