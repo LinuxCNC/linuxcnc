@@ -190,13 +190,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.yRot = 0
         self.zRot = 0
   
-        self.lastPos = QPoint()
-
         # add a 100ms timer to poll linuxcnc stats
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
         self.timer.start(100)
-        print 'view:',self.current_view
+
+        self.Green = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
 
     def poll(self):
         s = self.stat
@@ -373,23 +372,29 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     # called when widget is completely redrawn
     def initializeGL(self):
+        self.object = self.makeObject()
         self.realize()
         GL.glEnable(GL.GL_CULL_FACE)
         return
 
     # redraws the screen aprox every 100ms
     def paintGL(self):
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-        GL.glLoadIdentity()
-        GL.glTranslated(0.0, 0.0, -10.0)
-        GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0)
-        GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0)
-        GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0)
+        #GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        #GL.glLoadIdentity() # reset the model-view matrix
+        #GL.glTranslated(0.0, 0.0, -10.0)
+        #GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0) # rotate on x
+        #GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0) # rotate on y
+        #GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0) # rotate on z
         try:
             if self.perspective: self.redraw_perspective()
             else: self.redraw_ortho()
         except:
-            pass
+
+            #genList = GL.glGenLists(1)
+            #self.draw_small_origin(genList)
+            #GL.glCallList(genList)
+            # display something - probably in QtDesigner
+            GL.glCallList(self.object)
 
     # resizes the view to fit the window
     def resizeGL(self, width, height):
@@ -397,14 +402,20 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if side < 0:
             return
         GL.glViewport((width - side) // 2, (height - side) // 2, side, side)
-        GL.glMatrixMode(GL.GL_PROJECTION)
-        GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_PROJECTION) # To operate on projection-view matrix
+        GL.glLoadIdentity() # reset the model-view matrix
         GL.glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0)
-        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glMatrixMode(GL.GL_MODELVIEW) # To operate on model-view matrix
 
     ####################################
     # view controls
     ####################################
+    def set_prime(self, x, y):
+        if self.select_primed:
+            primedx, primedy = self.select_primed
+            distance = max(abs(x - primedx), abs(y - primedy))
+            if distance > 8: self.select_cancel()
+
     def select_prime(self, x, y):
         self.select_primed = x, y
 
@@ -424,15 +435,14 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.zoomout()
         else:
             self.zoomin()
-        d = - float(_event.angleDelta().y()) / 200.0 #* self.radius_
-        self.updateGL()
         _event.accept()
 
     def mousePressEvent(self, event):
-        self.lastPos = event.pos()
         if (event.buttons() & Qt.LeftButton):
             self.select_prime(event.pos().x(), event.pos().y())
+            #print self.winfo_width()/2 - event.pos().x(), self.winfo_height()/2 - event.pos().y()
         self.recordMouse(event.pos().x(), event.pos().y())
+        self.startZoom(event.pos().y())
 
     # event.buttons = current button state
     # event_button  = event causing button
@@ -445,19 +455,99 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.clear_live_plotter()
 
     def mouseMoveEvent(self, event):
-        dx = event.x() - self.lastPos.x()
-        dy = event.y() - self.lastPos.y()
-
+        # move
         if event.buttons() & Qt.LeftButton:
-            self.setXRotation(self.xRot + 8 * dy)
-            self.setYRotation(self.yRot + 8 * dx)
+            self.translateOrRotate(event.pos().x(), event.pos().y())
+        # rotate
         elif event.buttons() & Qt.RightButton:
-            self.setXRotation(self.xRot + 8 * dy)
-            self.setZRotation(self.zRot + 8 * dx)
+            self.set_prime(event.pos().x(), event.pos().y())
+            self.rotateOrTranslate(event.pos().x(), event.pos().y())
+        # zoom
         elif event.buttons() & Qt.MiddleButton:
-            print 'mid'
-            self.translateOrRotate(event.x(), event.y())
-        self.lastPos = event.pos()
+            self.continueZoom(event.pos().y())
+        
+
+    ############################################################
+    # display for when linuxcnc isn't runnimg - forQTDesigner
+    ############################################################
+    def makeObject(self):
+        genList = GL.glGenLists(1)
+        GL.glNewList(genList, GL.GL_COMPILE)
+  
+        GL.glBegin(GL.GL_QUADS)
+
+        # Make a tee section
+        x1 = +0.06
+        y1 = -0.14
+        x2 = +0.14
+        y2 = -0.06
+        x3 = +0.08
+        y3 = +0.00
+        x4 = +0.30
+        y4 = +0.22
+
+        # cross
+        self.quad(x1, y1, x2, y2, y2, x2, y1, x1)
+        # vertical line
+        self.quad(x3, y3, x4, y4, y4, x4, y3, x3)
+
+        # cross depth
+        self.extrude(x1, y1, x2, y2)
+        self.extrude(x2, y2, y2, x2)
+        self.extrude(y2, x2, y1, x1)
+        self.extrude(y1, x1, x1, y1)
+
+        # vertical depth
+        self.extrude(x3, y3, x4, y4)
+        self.extrude(x4, y4, y4, x4)
+        self.extrude(y4, x4, y3, x3)
+  
+        NumSectors = 200
+  
+        # Make a circle
+        for i in range(NumSectors):
+            angle1 = (i * 2 * math.pi) / NumSectors
+            x5 = 0.30 * math.sin(angle1)
+            y5 = 0.30 * math.cos(angle1)
+            x6 = 0.20 * math.sin(angle1)
+            y6 = 0.20 * math.cos(angle1)
+  
+            angle2 = ((i + 1) * 2 * math.pi) / NumSectors
+            x7 = 0.20 * math.sin(angle2)
+            y7 = 0.20 * math.cos(angle2)
+            x8 = 0.30 * math.sin(angle2)
+            y8 = 0.30 * math.cos(angle2)
+  
+            self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
+  
+            self.extrude(x6, y6, x7, y7)
+            self.extrude(x8, y8, x5, y5)
+  
+        GL.glEnd()
+        GL.glEndList()
+  
+        return genList
+  
+    def quad(self, x1, y1, x2, y2, x3, y3, x4, y4):
+        self.qglColor(self.Green)
+  
+        GL.glVertex3d(x1, y1, -0.05)
+        GL.glVertex3d(x2, y2, -0.05)
+        GL.glVertex3d(x3, y3, -0.05)
+        GL.glVertex3d(x4, y4, -0.05)
+  
+        GL.glVertex3d(x4, y4, +0.05)
+        GL.glVertex3d(x3, y3, +0.05)
+        GL.glVertex3d(x2, y2, +0.05)
+        GL.glVertex3d(x1, y1, +0.05)
+  
+    def extrude(self, x1, y1, x2, y2):
+        self.qglColor(self.Green.darker(250 + int(100 * x1)))
+  
+        GL.glVertex3d(x1, y1, +0.05)
+        GL.glVertex3d(x2, y2, +0.05)
+        GL.glVertex3d(x2, y2, -0.05)
+        GL.glVertex3d(x1, y1, -0.05)
 
 ###########
 # Testing
