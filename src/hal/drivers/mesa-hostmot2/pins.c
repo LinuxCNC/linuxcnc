@@ -301,7 +301,8 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
              return unknown;
              break;
 
-}
+    }
+
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
     return unknown;
 }
@@ -611,7 +612,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
                 pin->port_pin = i + 1;
                 break;
             default:
-                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+                HM2_ERR("%s: invalid port width %d\n", __FUNCTION__, hm2->idrom.port_width);
         }
         
         addr += 4;

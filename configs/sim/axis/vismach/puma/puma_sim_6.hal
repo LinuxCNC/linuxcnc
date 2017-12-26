@@ -129,3 +129,9 @@ net J5scaled scale.5.out pumagui.joint6
 #net j4 joint.4.pos-fb pumagui.joint5
 #net j5 joint.5.pos-fb pumagui.joint6
 #net j6 joint.6.pos-fb pumagui.grip
+
+setp pumakins.A2 400
+setp pumakins.A3 50
+setp pumakins.D3 100
+setp pumakins.D4 400
+setp pumakins.D6 95

@@ -22,7 +22,7 @@ msgstr ""
 #: emc/usr_intf/gmoccapy/gmoccapy.py:244
 #: emc/usr_intf/gmoccapy/gmoccapy.py:249
 msgid "**** GMOCCAPY INI Entry **** \n"
-msgstr "**** GMOCCAPY INI输入 **** \n"
+msgstr "**** GMOCCAPY INI 条目 **** \n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:245
 msgid "user mode selected"
@@ -34,11 +34,11 @@ msgstr "logo条目找到= {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:255
 msgid "**** GMOCCAPY INI Entry Error **** \n"
-msgstr "**** GMOCCAPY INI输入错误**** \n"
+msgstr "**** GMOCCAPY INI 条目错误**** \n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:256
 msgid "Logofile entry found, but could not be converted to path.\n"
-msgstr "找到Logofile项目，但无法转换为路径。\n"
+msgstr "找到Logofile条目，但无法转换为路径。\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:257
 msgid "The file path should not contain any spaces"
@@ -128,7 +128,7 @@ msgstr "**** GMOCCAPY 错误****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:926
 msgid "**** screen 2 GLADE ERROR: ****"
-msgstr "**** error con el archivo glade 2 ****"
+msgstr "**** 屏幕2 GLADE 错误 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:931
 msgid "**** No gmoccapy2.glade file present ****"

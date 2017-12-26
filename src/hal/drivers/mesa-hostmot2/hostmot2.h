@@ -1254,7 +1254,6 @@ void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
 int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
 int hm2_sserial_register_tram(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
 int hm2_sserial_read_configs(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
-void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
 
 //
 // Buffered SPI functions

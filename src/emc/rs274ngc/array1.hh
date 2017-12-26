@@ -6,6 +6,9 @@
 #ifndef __array_1_pyplusplus_hpp__
 #define __array_1_pyplusplus_hpp__
 
+#ifndef BOOST_PYTHON_MAX_ARITY
+#define BOOST_PYTHON_MAX_ARITY 4
+#endif
 #include <boost/python/iterator.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/object.hpp>

@@ -16,6 +16,7 @@
 #define _GNU_SOURCE
 #endif
 
+#define BOOST_PYTHON_MAX_ARITY 4
 #include "python_plugin.hh"
 #include <boost/python/dict.hpp>
 #include <boost/python/extract.hpp>

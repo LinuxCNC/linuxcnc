@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/exec.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/import.hpp>

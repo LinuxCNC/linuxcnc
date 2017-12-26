@@ -132,6 +132,9 @@ try:
     root_window.tk.call("set","::STATE_ESTOP_RESET"  ,linuxcnc.STATE_ESTOP_RESET)
     root_window.tk.call("set","::STATE_OFF"          ,linuxcnc.STATE_OFF)
     root_window.tk.call("set","::STATE_ON"           ,linuxcnc.STATE_ON)
+    root_window.tk.call("set","::TASK_MODE_MANUAL"   ,linuxcnc.MODE_MANUAL)
+    root_window.tk.call("set","::TASK_MODE_MDI"      ,linuxcnc.MODE_MDI)
+    root_window.tk.call("set","::TASK_MODE_AUTO"     ,linuxcnc.MODE_AUTO)
     root_window.tk.call("set","::INTERP_IDLE"        ,linuxcnc.INTERP_IDLE)
     root_window.tk.call("set","::INTERP_READING"     ,linuxcnc.INTERP_READING)
     root_window.tk.call("set","::INTERP_PAUSED"      ,linuxcnc.INTERP_PAUSED)
@@ -190,6 +193,7 @@ help1 = [
     (_("End"), _("Set G54 offset for active axis")),
     (_("Ctrl-End"), _("Set tool offset for loaded tool")),
     ("-, =", _("Jog active axis or joint")),
+    (";, '", _("Select Max velocity")),
 
     ("", ""),
     (_("Left, Right"), _("Jog first axis or joint")),

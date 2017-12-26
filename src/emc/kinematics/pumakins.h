@@ -3,6 +3,8 @@
 *   Kinematics for a puma typed robot
 *
 *   Derived from a work by Fred Proctor
+* 
+*  rdp added PUMA560_D6 (left the old values which may be used in puma560kins?)
 *
 * Author: 
 * License: GPL Version 2
@@ -24,6 +26,7 @@
 #define DEFAULT_PUMA560_A3  50.0
 #define DEFAULT_PUMA560_D3  70.0
 #define DEFAULT_PUMA560_D4 400.0
+#define DEFAULT_PUMA560_D6  70.0
 
 #define SINGULAR_FUZZ 0.000001
 #define FLAG_FUZZ     0.000001

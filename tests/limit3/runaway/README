@@ -1,0 +1,6 @@
+This test reproduces the runaway problem described in github issue #240:
+
+    https://github.com/LinuxCNC/linuxcnc/issues/240
+
+The input is a sine wave (sampled from siggen), amplitude 100, that is
+abruptly cut off a -42, on the way down on the first cycle.

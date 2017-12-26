@@ -19,6 +19,7 @@
 // Michael Haberler 7/2011
 //
 
+#define BOOST_PYTHON_MAX_ARITY 7
 #include <boost/python/object.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <map>

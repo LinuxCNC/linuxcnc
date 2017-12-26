@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.2.4"
+_RELEASE = " 2.3.3.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -396,7 +396,6 @@ class gmoccapy(object):
             self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
             self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
             # to set the hal pin with correct values we emit a toogled
-            self.widgets.chk_use_tool_measurement.emit("toggled")
             self.widgets.lbl_x_probe.set_label(str(xpos))
             self.widgets.lbl_y_probe.set_label(str(ypos))
             self.widgets.lbl_z_probe.set_label(str(zpos))
@@ -405,6 +404,11 @@ class gmoccapy(object):
             self.widgets.btn_zero_g92.hide()
             self.widgets.btn_block_height.show()
             self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** found valid probe config in INI File ****"))
+            print(_("**** will use auto tool measurement ****"))
+        self.widgets.chk_use_tool_measurement.emit("toggled")
+
 
         # should the tool in spindle be reloaded on startup?
         self.widgets.chk_reload_tool.set_active(self.prefs.getpref("reload_tool", True, bool))
@@ -1132,6 +1136,7 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property( "use_commanded", not self.dro_actual)
         self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
+        self.widgets.eb_blockheight_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
 
     # init the preview
     def _init_hardware_button_order( self ):
@@ -2627,6 +2632,8 @@ class gmoccapy(object):
         for axis in self.axis_list:
             if axis == self.axisletter_four:
                 axis = 4
+            if axis == self.axisletter_five:
+                axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
 
     def on_Combi_DRO_clicked(self, widget, joint_number, order):
@@ -3593,6 +3600,7 @@ class gmoccapy(object):
 
     def on_chk_use_tool_measurement_toggled(self, widget, data=None):
         if widget.get_active():
+            self.widgets.eb_blockheight_label.show()
             self.widgets.frm_probe_pos.set_sensitive(True)
             self.widgets.frm_probe_vel.set_sensitive(True)
             self.halcomp["toolmeasurement"] = True
@@ -3600,6 +3608,7 @@ class gmoccapy(object):
             self.halcomp["probevel"] = self.widgets.spbtn_probe_vel.get_value()
             self.halcomp["probeheight"] = self.widgets.spbtn_probe_height.get_value()
         else:
+            self.widgets.eb_blockheight_label.hide()
             self.widgets.frm_probe_pos.set_sensitive(False)
             self.widgets.frm_probe_vel.set_sensitive(False)
             self.halcomp["toolmeasurement"] = False
@@ -3615,7 +3624,8 @@ class gmoccapy(object):
 
     def on_btn_block_height_clicked(self, widget, data=None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
-        blockheight = self.dialogs.entry_dialog(self, data=None, header=_("Enter the block height"),
+        preset = self.prefs.getpref("blockheight", 0.0, float)
+        blockheight = self.dialogs.entry_dialog(self, data=preset, header=_("Enter the block height"),
                                                 label=_("Block height measured from base table"), integer=False)
 
         if blockheight == "CANCEL" or blockheight == "ERROR":
@@ -4494,6 +4504,9 @@ class gmoccapy(object):
                 self.command.rapidrate(1.0)
                 return
             self.widgets["btn_{0}_100".format(type)].emit("clicked")
+            
+    def _on_blockheight_value_changed(self, pin):
+        self.widgets.lbl_blockheight.set_text("blockheight = {0:.3f}".format(pin.get()))
 
 # =========================================================
 # The actions of the buttons
@@ -4649,7 +4662,10 @@ class gmoccapy(object):
 
         # make the pins for tool measurement
         self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        pin = self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        hal_glib.GPin(pin).connect("value_changed", self._on_blockheight_value_changed)
+        preset = self.prefs.getpref("blockheight", 0.0, float)
+        self.halcomp["blockheight"] = preset
         self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
         self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
         self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)

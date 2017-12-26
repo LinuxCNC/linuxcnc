@@ -33,6 +33,7 @@
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
+#define BOOST_PYTHON_MAX_ARITY 4
 #include "python_plugin.hh"
 #include "interp_python.hh"
 #include <boost/python/extract.hpp>

@@ -202,7 +202,7 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
                         int delay, int cpol, int cpha, int clear, int echo)
 {
     hostmot2_t *hm2;
-    rtapi_u32 buff;
+    rtapi_u32 buff = 0;
     int i;
     float board_mhz;
     i = hm2_get_bspi(&hm2, name);
@@ -241,10 +241,10 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
         |  (clear != 0) << 30
         | ((delay <= 0)? 0x10 : (rtapi_u32)((delay*board_mhz/1000.0)-1) & 0x1f) << 24
         | (cs & 0xF) << 16
-        | (((rtapi_u16)(board_mhz / (mhz * 2) - 1) & 0xF)) << 8
+        | (((rtapi_u16)(board_mhz / (mhz * 2) - 1) & 0xFF)) << 8
         | (cpha != 0) << 7
         | (cpol != 0) << 6
-        | (((rtapi_u16)(bits - 1)) & 0x1F);
+        | (((rtapi_u16)(bits - 1)) & 0x3F);
     HM2_DBG("BSPI %s Channel %i setup %x\n", name, chan, buff);
     hm2->bspi.instance[i].cd[chan] = buff;
     hm2->bspi.instance[i].conf_flag[chan] = true;
