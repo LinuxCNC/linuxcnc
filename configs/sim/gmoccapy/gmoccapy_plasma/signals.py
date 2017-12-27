@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # -*- coding:UTF-8 -*-
 """
     This file will control some options of the gmoccapy plasma screen

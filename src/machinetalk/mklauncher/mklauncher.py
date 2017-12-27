@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 import os
 import sys
@@ -41,9 +41,12 @@ class LauncherImportance(object):
         self._importances = {}
 
     def __setitem__(self, launcher_id, importance):
+        launcher_id = launcher_id.lower()
         self._importances[launcher_id] = importance
 
     def __getitem__(self, launcher_id):
+        ''' getitem is case insensitive since configparser does not use case sensitive key names '''
+        launcher_id = launcher_id.lower()
         if launcher_id in self._importances:
             return self._importances[launcher_id]
         else:

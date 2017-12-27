@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding:UTF-8 -*-
 """
     A try of a new GUI for LinuxCNC based on gladevcp and Python
@@ -96,9 +96,16 @@ BASE = os.path.abspath( os.path.join( os.path.dirname( sys.argv[0] ), ".." ) )
 LIBDIR = os.path.join( BASE, "lib", "python" )
 sys.path.insert( 0, LIBDIR )
 
+global debver
+with open("/etc/debian_version") as f:
+        debver = f.read()[0]
+print debver
+
 # as now we know the libdir path we can import our own modules
 from gmoccapy import widgets       # a class to handle the widgets
-from gmoccapy import player        # a class to handle sounds
+# Stretch does not have a gst module available
+if debver < 9:
+    from gmoccapy import player        # a class to handle sounds
 from gmoccapy import notification  # this is the module we use for our error handling
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
@@ -238,7 +245,10 @@ class gmoccapy( object ):
         self._init_dynamic_tabs()
         self._init_tooleditor()
         self._init_themes()
-        self._init_audio()
+	# Stretch does not have a gst module available
+	global debver
+	if debver < 9:
+	    self._init_audio()
         self._init_gremlin()
         self._init_hide_cursor()
         self._init_keyboard()
@@ -527,7 +537,7 @@ class gmoccapy( object ):
                                                                         False, bool ) )
 
         # check the highlighting type
-        # the following would load the python language
+        # the following would load the python2 language
         # self.widgets.gcode_view.set_language("python")
         LANGDIR = os.path.join( BASE, "share", "gtksourceview-2.0", "language-specs" )
         file_path = os.path.join( LANGDIR, "gcode.lang" )

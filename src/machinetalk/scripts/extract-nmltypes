@@ -7,7 +7,7 @@
 
 egrep "^#define[[:space:]]+EMC_.*NMLTYPE" $1 | \
 sed -e "s/#define\s//g" -e "s/NMLTYPE//g" | tr -d '[()]' | \
-python -c "`cat <<OOK
+python2 -c "`cat <<OOK
 offset = 10000
 from sys import stdin
 for line in stdin:

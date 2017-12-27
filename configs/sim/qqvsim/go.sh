@@ -13,4 +13,4 @@ ulimit -S -c unlimited # no limit on core dump size
 
 # for remote-ui
 mklauncher . &
-python run.py   # set_debug_level() inside run.py
+python2 run.py   # set_debug_level() inside run.py

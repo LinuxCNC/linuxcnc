@@ -2333,26 +2333,26 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-if test -n "${rtai_kernels}${xenomai_kernels}${shmdrv_kernels}"; then
+#if test -n "${rtai_kernels}${xenomai_kernels}${shmdrv_kernels}"; then
     # Kernel module tools only needed for kthreads
-    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-    if test $INSMOD = "none"
-    then
-	AC_MSG_ERROR([insmod not found])
-    fi
+#    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+#    if test $INSMOD = "none"
+#    then
+#	AC_MSG_ERROR([insmod not found])
+#    fi
 
-    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-    if test $RMMOD = "none"
-    then
-	AC_MSG_ERROR([rmmod not found])
-    fi
+#    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+#    if test $RMMOD = "none"
+#    then
+#	AC_MSG_ERROR([rmmod not found])
+#    fi
 
-    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-    if test $LSMOD = "none"
-    then
-	AC_MSG_ERROR([lsmod not found])
-    fi
-fi
+#    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+#    if test $LSMOD = "none"
+#    then
+#	AC_MSG_ERROR([lsmod not found])
+#    fi
+#fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
 if test $PIDOF = "none"
@@ -2423,7 +2423,7 @@ AC_ARG_WITH(python,
     [
         PYTHON=$withval
     ],[
-        PYTHON=python
+        PYTHON=python2
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none")
 if test $PYTHON = "none"
@@ -3120,7 +3120,7 @@ done
 cat machinekitcfg.py-tmp2 > $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 rm machinekitcfg.py-tmp2
 AC_MSG_CHECKING(usability of $BUILD_TOPLEVEL/lib/python/machinekit/config.py)
-python $BUILD_TOPLEVEL/lib/python/machinekit/config.py
+python2 $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 AC_MSG_RESULT(done)
 
 ##############################################################################

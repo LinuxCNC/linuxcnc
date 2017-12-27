@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 #
 #    This is stepconf, a graphical configuration editor for LinuxCNC
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>

@@ -18,7 +18,7 @@ SRCDIR=$(cd "$MYDIR/../src"; pwd)
 SWISHINDEX="$SRCDIR/.swishindex"
 
 function makerelative () {
-python -c '
+python2 -c '
 import os, sys
 here = os.getcwd()
 parents = [here + "/"]

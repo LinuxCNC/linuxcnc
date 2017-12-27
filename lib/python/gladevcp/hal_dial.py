@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # hal_dial.py
 
 # a pygtk widget that implements a dial with HAL pins

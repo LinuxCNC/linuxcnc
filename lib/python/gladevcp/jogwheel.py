@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 # GladeVcp Widget 
 # JogWheel widget, to simulate a real jogwheel

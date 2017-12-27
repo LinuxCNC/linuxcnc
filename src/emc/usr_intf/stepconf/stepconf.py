@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # -*- encoding: utf-8 -*-
 #
 #    This is stepconf, a graphical configuration editor for Machinekit

@@ -1611,10 +1611,10 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 # vtexport-objs += hal/vtable-example/vcode.o
 
 obj-m += jplan.o
-jplan-objs := hal/jplanner/jplan.o
+jplan-objs := hal/jplanner/jplan.o machinetalk/build/machinetalk/protobuf/jplan.npb.o
 
 obj-m += interpolate.o
-interpolate-objs := hal/interpolator/interpolate.o
+interpolate-objs := hal/interpolator/interpolate.o machinetalk/build/machinetalk/protobuf/ros.npb.o
 
 obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o

@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """Usage:
-    python teach.py nmlfile outputfile
+    python2 teach.py nmlfile outputfile
 If outputfile is not specified, writes to standard output.
 
 You must ". scripts/rip-environment" before running this script, if you use

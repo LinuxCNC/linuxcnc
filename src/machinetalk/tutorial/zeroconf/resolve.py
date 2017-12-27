@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #
 # example how to retrieve machinekit service URI's via zeroconf
 

@@ -20,6 +20,7 @@ test ${TRAVIS_PULL_REQUEST:-false} = false && IS_PR=false || IS_PR=true
 case $TAG in
     *_8) DISTRO=jessie ;;
     *_9) DISTRO=stretch ;;
+    *_10) DISTRO=buster ;;
 esac
 
 COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"

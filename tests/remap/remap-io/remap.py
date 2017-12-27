@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import linuxcnc
 import emccanon
 import interpreter

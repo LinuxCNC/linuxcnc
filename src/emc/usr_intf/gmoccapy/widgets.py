@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 '''
     This class is just to handle the widgets of gmoccapy,

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 #    This is a component of AXIS, a front-end for linuxcnc
 #    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net>
 #                         and Chris Radek <chris@timeguy.com>

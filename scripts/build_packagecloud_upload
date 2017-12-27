@@ -48,6 +48,7 @@ case $TAG in
     *_9) DISTRO=stretch ;;
     *) error "Unknown tag '$TAG'" ;;
 esac
+ARCH=${TAG/_*/}
 
 PACKAGECLOUD_REPO=${PACKAGECLOUD_REPO:-machinekit}
 PACKAGECLOUD_ARCHIVE=${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}/debian/${DISTRO}
@@ -66,4 +67,4 @@ case "${TAG}" in
 	;;
 esac
 # Push binary packages
-package_cloud push ${PACKAGECLOUD_ARCHIVE} ../*_$TAG.deb
+package_cloud push ${PACKAGECLOUD_ARCHIVE} ../*_$ARCH.deb
