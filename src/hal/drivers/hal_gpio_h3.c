@@ -279,11 +279,11 @@ int32_t rtapi_app_main(void)
 
 
     // allocate some space for the port data arrays (normal & inverted)
-    port_data           = hal_malloc(GPIO_PIN_COUNT);
-    port_data_inv       = hal_malloc(GPIO_PIN_COUNT);
-    port_param_inv      = hal_malloc(GPIO_PIN_COUNT);
-    port_param_reset    = hal_malloc(GPIO_PIN_COUNT);
-    port_reset_time     = hal_malloc(1);
+    port_data           = hal_malloc(GPIO_PIN_COUNT * sizeof(hal_bit_t *));
+    port_data_inv       = hal_malloc(GPIO_PIN_COUNT * sizeof(hal_bit_t *));
+    port_param_inv      = hal_malloc(GPIO_PIN_COUNT * sizeof(hal_bit_t));
+    port_param_reset    = hal_malloc(GPIO_PIN_COUNT * sizeof(hal_bit_t));
+    port_reset_time     = hal_malloc(sizeof(hal_u32_t));
     if ( port_data == 0         || port_data_inv == 0 ||
          port_param_inv == 0    || port_param_reset == 0 ||
          port_reset_time == 0 )
