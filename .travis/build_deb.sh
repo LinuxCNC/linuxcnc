@@ -43,7 +43,7 @@ RELEASE="1${UPSTREAM}.git${SHA1SHORT}~1${DISTRO}"
 # Generate debian/changelog entry
 #
 # https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
-mv debian/changelog debian/changelog.old
+rm -f debian/changelog
 cat > debian/changelog <<EOF
 machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
@@ -54,7 +54,7 @@ machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
 EOF
 cat debian/changelog # debug output
-cat debian/changelog.old >> debian/changelog
+cat debian/changelog.in >> debian/changelog
 
 # Whilst using arceye/mk-builder docker image, need -d switch
 # because new czmq4 libs were parachuted in and not installed onto the chroot fs
