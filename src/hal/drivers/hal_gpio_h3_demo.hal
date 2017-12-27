@@ -2,7 +2,7 @@
 
 loadrt hal_gpio_h3 output_pins=3,5,7,8
 newthread fast 100000
-newthread slow 1000000
+newthread slow 1000000 fp
 
 loadrt stepgen step_type=5 ctrl_type=v 
 
