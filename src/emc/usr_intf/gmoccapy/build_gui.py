@@ -82,6 +82,8 @@ class Build_GUI:
         self.widgets.ntb_jog_JA.reorder_child(page1, -1)
 
     def format_DRO(self):
+        print("**** GMOCCAPY GUI_edit INFO **** \n")
+        print("Entering format DRO")
         # first hide angular jog speed, as we do not know jet if we have an angular axis
         self.widgets.spc_ang_jog_vel.hide()
 
@@ -90,7 +92,8 @@ class Build_GUI:
             self.widgets["Combi_DRO_{0}".format(dro)].destroy()
             print(" Combi_DRO_{0} has been destroyed".format(dro))
         
-        # check with axis are used
+        # check with axis are used, in this case we have to use the joint axis dict, 
+        # as we have to set the DRO accordingly
         for dro in self.joint_axis_dic:
             if self.joint_axis_dic[dro][0] in self.double_axis_letter:
                 print ("we habe an double axis letter here !!")
@@ -109,20 +112,21 @@ class Build_GUI:
 
             # if we have an angular axis we will show the angular jog speed slider
             if self.joint_axis_dic[dro] in ("a","b","c"):                  
-                print("axis {0} is a rotary axis".format(self.joint_axis_dic[dro]))
+                print("**** GMOCCAPY GUI_edit INFO **** \n")
+                print("axis {0} is a rotary axis\n".format(self.joint_axis_dic[dro]))
+                print("Will display the angular jog slider\n")
                 self.widgets.spc_ang_jog_vel.show()
     
     def rearange_dro(self):
-     
         # we have to re-arrange the DRO's, so first we have 
-        # to remove the uswed ones from the dro_table
+        # to remove the unused ones from the dro_table
         for dro in range(len(self.axis_list)):
             self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
             print("removed Combi_DRO_{0}".format(dro))
 
-        # if we have less than 4 axis, we can resize the table, as we have 
+        # if we have less than 5 axis, we can resize the table, as we have 
         # enough space to to display each in its own line  
-        if len(self.axis_list) <= 5:
+        if len(self.axis_list) < 4:
             self.widgets.tbl_DRO.resize(len(self.axis_list),1)
             if len(self.axis_list) == 2:
                 print("found two axis")
@@ -132,22 +136,54 @@ class Build_GUI:
                     self.widgets.tbl_DRO.resize(len(self.axis_list + 1),1)
                     self._this_is_a_lathe()
                     return
-            for dro in self.joint_axis_dic:
+            for dro, axis in enumerate(self.axis_list):
                 self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
                                             0, 1, int(dro), int(dro + 1), ypadding = 0)
+
+        elif len(self.axis_list) == 4:
+            self.widgets.tbl_DRO.resize(4,1)
+            for dro, axis in enumerate(self.axis_list):
+                self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
+                                            0, 1, int(dro), int(dro + 1), ypadding = 0)
+                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", self.dro_size * 0.75)
+
+
+        elif len(self.axis_list) == 5:
+            self.widgets.tbl_DRO.resize(4,2)
+            for dro, axis in enumerate(self.axis_list):
+
+                if dro < 3:
+                    size = self.dro_size * 0.75
+                    self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
+                                                0, 2, int(dro), int(dro + 1), ypadding = 0)
+                else:
+                    size = self.dro_size * 0.65
+                    if dro == 3:
+                        self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
+                                                    0, 1, int(dro), int(dro + 1), ypadding = 0)
+                    else:
+                        self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
+                                                    1, 2, int(dro-1), int(dro), ypadding = 0)
+
+                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
 
 
         else:
             # we have more than 5 axis, now we need to arrange the DRO in 2 columns
+            print("**** GMOCCAPY GUI_edit INFO **** \n")
+            print("more than 5 axis ")
+            print(len(self.axis_list) % 2)
             if len(self.axis_list) % 2 == 0:
                 rows = len(self.axis_list) / 2
             else:
-                rows = len(self.axis_list) + 1 / 2
-                
+                rows = (len(self.axis_list) + 1) / 2
+
             self.widgets.tbl_DRO.resize(rows, 2)
+
             col = 0
             row = 0
-            for dro in self.joint_axis_dic:
+            for dro, axis in enumerate(self.axis_list):
+                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", self.dro_size * 0.65)
                 print ("dro = ", dro, "row = ", row, "col = ", col)
                 self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
                                             col, col+1, row, row + 1, ypadding = 0)
@@ -160,20 +196,91 @@ class Build_GUI:
                     col += 1
 
     def make_home_button(self, signal):
-        
-        for axis in self.joint_axis_dic:
-            image = gtk.Image()
-            file = "ref_{0}.png".format(self.joint_axis_dic[axis].lower())
-            filepath = os.path.join(IMAGEDIR, file)
-            image.set_from_file(filepath)
-            btn = gtk.Button()
-            btn.__name__ = "home_{0}.format(axis)"
-            btn.connect("clicked", signal, btn.__name__)
-            btn.add(image)
+        print("**** GMOCCAPY GUI_edit INFO **** \n")
+        print("Entering make home button")
+
+        self.widgets.btn_home_all.set_property("name", "btn_home_all")
+        self.widgets.btn_unhome_all.set_property("name", "btn_unhome_all")
+        self.widgets.btn_back_ref.set_property("name", "btn_back_ref")
+
+        if len(self.axis_list) <=5:
+            for pos, axis in enumerate(self.axis_list):
+                print("Pos = ",pos)
+                print("Axis = ",axis)
+    
+                file = "ref_{0}.png".format(axis)
+                filepath = os.path.join(IMAGEDIR, file)
+
+                btn = self.get_button_with_image(signal, axis, filepath)
+
+                self.widgets.hbtb_ref_axes.add(btn)
+                self.widgets.hbtb_ref_axes.reorder_child(btn, pos + 3)
+
+            for lbl in range(self.widgets.hbtb_ref_axes.child_get_property(btn,"position") + 1 , 8):
+                lbl_fill = gtk.Label()
+                lbl_fill.set_text(str(lbl))
+                lbl_fill.show()
+                self.widgets.hbtb_ref_axes.add(lbl_fill)
+                self.widgets.hbtb_ref_axes.reorder_child(lbl_fill, lbl)
+
+        elif len(self.axis_list) > 5 and len(self.axis_list) < 7:
+            # we can add as maximum 7 homing button without using arrows
+            print("**** GMOCCAPY GUI_edit INFO **** \n")
+            print("found more than 5 but less than 7 axis")
+            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_0)
+            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_3)
+            self.widgets.hbtb_ref_axes.reorder_child(self.widgets.btn_home_all, 0)
+            for pos, axis in enumerate(self.axis_list):
+
+                file = "ref_{0}.png".format(axis)
+                filepath = os.path.join(IMAGEDIR, file)
+
+                btn = self.get_button_with_image(signal, axis, filepath)
+                
+                self.widgets.hbtb_ref_axes.add(btn)
+                self.widgets.hbtb_ref_axes.reorder_child(btn, pos + 1)
+
+        # if there are more than 7 axis we have to add some arrows to
+        # allow the user to switch the visible homing buttons
+        else:
+            # how many joints do we have
+            axis_count = len(self.axis_list)
+            # remove all unneeded button, we do allow 8 joints (0 to 7)
+            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_0)
+            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_3)
+            self.widgets.hbtb_ref_axes.reorder_child(self.widgets.btn_home_all, 0)
+
+            # show the arrows to switch visible homing button)
+
+            btn = self.get_button_with_stock_image(self._on_btn_previous_clicked, "previous_button", stock=gtk.STOCK_GO_BACK)
+            btn.set_sensitive(False)
             self.widgets.hbtb_ref_axes.add(btn)
-            btn.show()
+            self.widgets.hbtb_ref_axes.reorder_child(btn, 1)
+
+            for pos, axis in enumerate(self.axis_list):
+
+                file = "ref_{0}.png".format(axis)
+                filepath = os.path.join(IMAGEDIR, file)
+
+                btn = self.get_button_with_image(signal, axis, filepath)
+                
+                self.widgets.hbtb_ref_axes.add(btn)
+                self.widgets.hbtb_ref_axes.reorder_child(btn, pos + 2)
+
+                if pos > 4:
+                    btn.hide()
+
+            btn = self.get_button_with_stock_image(self._on_btn_next_clicked, "next_button", stock=gtk.STOCK_GO_FORWARD)
+            self.widgets.hbtb_ref_axes.add(btn)
+            self.widgets.hbtb_ref_axes.reorder_child(btn, 7)
+
             
+            for axis in range(axis_count, 8):
+                pass
         return
+
+
+    def nonsense(self):
 
         if len(self.axis_list) == 3:
             print("configured for three axis")
@@ -411,3 +518,101 @@ class Build_GUI:
         self.active_increment = "rbt0"
         return self.active_increment, self.incr_rbt_list
 
+
+
+###############################################################################
+##                          helper functions                                 ##
+###############################################################################
+
+        
+    def get_button_with_image(self, signal, axis, filepath):
+        image = gtk.Image()
+        image.set_size_request(48,48)
+        image.set_from_file(filepath)
+
+        name = "home_{0}".format(axis)
+        btn = self._get_button(name, signal, image)
+        btn.set_property("tooltip-text", _("Press to home axis {0}".format(axis.upper())))
+        return btn
+
+    def get_button_with_stock_image(self, signal, name, stock):
+        image = gtk.Image()
+        image.set_size_request(48,48)
+        image.set_from_stock(stock, 48)
+
+        btn = self._get_button(name, signal, image)
+        btn.set_property("tooltip-text", _("Press to see {0}".format(name)))
+        return btn
+
+    def _get_button(self, name, signal, image):
+        btn = gtk.Button()
+        btn.set_size_request(85,56)
+        btn.add(image)
+        btn.set_property("name", name)
+        btn.connect("clicked", signal, name)
+        btn.show_all()
+        return btn
+
+    def _on_btn_previous_clicked(self, widget, data = None):
+        children = self.widgets.hbtb_ref_axes.get_children()
+        child_dic = {}
+        for child in children:
+            child_dic[child.name] = child
+            self.widgets.hbtb_ref_axes.remove(child)
+        
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_home_all"])
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["previous_button"])
+
+        print child_dic
+
+        for pos, axis in enumerate(self.axis_list[0 : 5]):
+            name = "home_{0}".format(axis.lower())
+            child_dic[name].show()
+            print name
+            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
+
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["next_button"])
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_unhome_all"])
+        self.widgets.hbtb_ref_axes.pack_end(child_dic["btn_back_ref"])
+        
+        child_dic["previous_button"].set_sensitive(False)
+        child_dic["next_button"].set_sensitive(True)
+
+        for axis in self.axis_list[5:]:
+            name = "home_{0}".format(axis.lower())
+            child_dic[name].hide()
+            print name
+            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
+
+    def _on_btn_next_clicked(self, widget, data = None):
+        children = self.widgets.hbtb_ref_axes.get_children()
+        child_dic = {}
+        for child in children:
+            child_dic[child.name] = child
+            self.widgets.hbtb_ref_axes.remove(child)
+        
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_home_all"])
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["previous_button"])
+
+        print child_dic
+
+        for pos, axis in enumerate(self.axis_list[len(self.axis_list) - 5 : len(self.axis_list)]):
+            name = "home_{0}".format(axis.lower())
+            child_dic[name].show()
+            print name
+            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
+            
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["next_button"])
+        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_unhome_all"])
+        self.widgets.hbtb_ref_axes.pack_end(child_dic["btn_back_ref"])
+        
+        child_dic["previous_button"].set_sensitive(True)
+        child_dic["next_button"].set_sensitive(False)
+            
+        for axis in self.axis_list[0:4]:
+            name = "home_{0}".format(axis.lower())
+            child_dic[name].hide()
+            print name
+            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
+
+        
