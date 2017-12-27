@@ -35,6 +35,8 @@ import locale
 from gladevcp.combi_dro import Combi_DRO
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
+DATADIR = os.path.join(BASE, "share", "gmoccapy")
+IMAGEDIR = os.path.join(DATADIR, "images")
 locale.setlocale(locale.LC_ALL, '')
 
 class Build_GUI:
@@ -160,9 +162,14 @@ class Build_GUI:
     def make_home_button(self, signal):
         
         for axis in self.joint_axis_dic:
-            btn = gtk.Button(self.joint_axis_dic[axis].upper())
+            image = gtk.Image()
+            file = "ref_{0}.png".format(self.joint_axis_dic[axis].lower())
+            filepath = os.path.join(IMAGEDIR, file)
+            image.set_from_file(filepath)
+            btn = gtk.Button()
             btn.__name__ = "home_{0}.format(axis)"
             btn.connect("clicked", signal, btn.__name__)
+            btn.add(image)
             self.widgets.hbtb_ref_axes.add(btn)
             btn.show()
             
