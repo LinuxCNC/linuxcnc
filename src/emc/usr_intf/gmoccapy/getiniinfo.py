@@ -168,8 +168,8 @@ class GetIniInfo:
                 if axisletter in double_axis_letter:
                     axisletter = axisletter + str(count)
                     count += 1
-                joint_axis_dic[axisletter] = joint
-                print("axis {0} = joint {1}".format(axisletter, joint_axis_dic[axisletter]))
+                joint_axis_dic[joint] = axisletter
+                print("joint {0} = axis {1}".format(joint, joint_axis_dic[joint]))
         else:
             print("\n**** GMOCCAPY GETINIINFO **** ")
             print("Amount of joints from [KINS]JOINTS= is not identical with axisletters")
@@ -182,10 +182,10 @@ class GetIniInfo:
             print("to switch to MDI or AUTO Mode\n")
             for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
                 if axisletter in coordinates:
-                    joint_axis_dic[axisletter] = joint
-
+                    joint_axis_dic[joint] = axisletter
+        print joint_axis_dic
         #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
-        return joint_axis_dic
+        return joint_axis_dic, double_axis_letter
 
     def get_no_force_homing(self):
         temp = self.inifile.find("TRAJ", "NO_FORCE_HOMING")

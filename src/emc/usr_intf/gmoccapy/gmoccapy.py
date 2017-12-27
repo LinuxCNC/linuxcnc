@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3.2"
+_RELEASE = " 3.0.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -258,7 +258,7 @@ class gmoccapy(object):
                 message = _("**** GMOCCAPY INI Entry **** \n")
                 message += _("user mode selected")
                 print (message)
-                self.gui_edit._user_mode()
+                self.gui_edit.user_mode()
             if arg == "-logo":
                 logofile = str(argv[ index + 1 ])
                 message = _("**** GMOCCAPY INI Entry **** \n")
@@ -272,12 +272,13 @@ class gmoccapy(object):
                     message += _("The file path should not contain any spaces")
                     print(message)
                 else:
-                    self.gui_edit._logo(logofile)
+                    self.gui_edit.logo(logofile)
 
         self.axis_list = self.gui_edit.axis_list
         self.joint_axis_dic = self.gui_edit.joint_axis_dic
-        self.gui_edit._hide_unused_DRO()
-        self.gui_edit._rearange_dro()
+        self.gui_edit.format_DRO()
+        self.gui_edit.rearange_dro()
+        self.gui_edit.make_home_button(self.on_btn_home_selected_clicked)
 
         self.active_increment, self.incr_rbt_list = self.gui_edit._init_jog_increments(self.on_increment_changed)
 

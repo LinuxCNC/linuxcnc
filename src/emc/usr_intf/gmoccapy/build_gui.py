@@ -28,9 +28,11 @@ import os                          # needed to get the paths and directories
 import gtk                         # base for pygtk widgets and constants
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import preferences   # this handles the preferences
+from gladevcp import combi_dro
 
 # localization
 import locale
+from gladevcp.combi_dro import Combi_DRO
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 locale.setlocale(locale.LC_ALL, '')
@@ -52,7 +54,7 @@ class Build_GUI:
         # get the axis list from INI
         self.axis_list = self.get_ini_info.get_axis_list()
         # get the joint axis relation from INI
-        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
+        self.joint_axis_dic, self.double_axis_letter = self.get_ini_info.get_joint_axis_relation()
         # if it's a lathe config, set the tooleditor style
         self.lathe_mode = self.get_ini_info.get_lathe()
         # the size of the DRO
@@ -64,11 +66,11 @@ class Build_GUI:
         
     
     # the user want to use a security mode
-    def _user_code(self):
+    def user_code(self):
         self.widgets.tbtn_setup.set_sensitive(False)
 
     # the user want a Logo 
-    def _logo(self,logofile):
+    def logo(self,logofile):
         self.widgets.img_logo.set_from_file(logofile)
         self.widgets.img_logo.show()
 
@@ -77,85 +79,97 @@ class Build_GUI:
         page1 = self.widgets.ntb_jog_JA.get_nth_page(1)
         self.widgets.ntb_jog_JA.reorder_child(page1, -1)
 
-    def _hide_unused_DRO(self):
+    def format_DRO(self):
         # first hide angular jog speed, as we do not know jet if we have an angular axis
         self.widgets.spc_ang_jog_vel.hide()
-        
-        # know we hide all DRO, as we we will not need to display unneeded ones
-        for dro in range(9):
-            print("hide DRO {0}".format(dro))
-            self.widgets["Combi_DRO_{0}".format(dro)].hide()
+
+        # we will destroy all Combi_DRO's not in use, so they do not use resources
+        for dro in range(len(self.axis_list), 9):
+            self.widgets["Combi_DRO_{0}".format(dro)].destroy()
+            print(" Combi_DRO_{0} has been destroyed".format(dro))
         
         # check with axis are used
-        for axis in ("x","y","z","a","b","c","u","v","w"):
-            if axis in self.axis_list:
-                # if there is a double letter in the dict it will be called
-                # i.e. y0 and y1, so we need to put that in a try except
-                try:
-                    dro = self.joint_axis_dic[axis]
-                except: # double letters lead here 
-                    # add a zero to get the correct entry
-                    axis+="0"
-                    print("axis is now", axis)
-                    dro = self.joint_axis_dic[axis]
-                    # we only need the first letter for the DRO letter
-                    # so we cut the rest
-                    axis = axis[0]
-                # initialize the DRO with the correct joint and show them    
-                print("Combi_DRO_{0} = joint {1} = axis {2}".format(dro, dro, axis))
-                self.widgets["Combi_DRO_{0}".format(dro)].set_joint_no(dro)
-                self.widgets["Combi_DRO_{0}".format(dro)].set_axis(axis)
-                self.widgets["Combi_DRO_{0}".format(dro)].change_axisletter(axis.upper())
-                self.widgets["Combi_DRO_{0}".format(dro)].show()
-#                print("show DRO {0}".format(dro))
-#                print("Joint of DRO {0}".format(dro))
-#                print("axis of  DRO {0}".format(axis))
-    
-                # if we have an angular axis we will show the angular jog speed slider
-                if axis in ("a","b","c"):                  
-                    print("axis {0} is a rotary axis".format(axis))
-                    self.widgets.spc_ang_jog_vel.show()
-    
-    def _rearange_dro(self):
+        for dro in self.joint_axis_dic:
+            if self.joint_axis_dic[dro][0] in self.double_axis_letter:
+                print ("we habe an double axis letter here !!")
+                if self.joint_axis_dic[dro][1] == 0:
+                    print("OK this is the master joint of axis {0}".format(self.joint_axis_dic[dro]))
+                    
+                else:
+                    continue
 
-        for axis in sorted(self.joint_axis_dic, key=self.joint_axis_dic.get, reverse=False):
-            print self.joint_axis_dic[axis], axis
-        
-        # we have to re-arrange the DRO's, so first remove them all from the table
-        for dro in range(9):
+            # initialize the DRO with the correct joint and axis values    
+            print("Combi_DRO_{0} = joint {1} = axis {2}".format(dro, dro, self.joint_axis_dic[dro]))
+            self.widgets["Combi_DRO_{0}".format(dro)].set_joint_no(dro)
+            self.widgets["Combi_DRO_{0}".format(dro)].set_axis(self.joint_axis_dic[dro])
+            self.widgets["Combi_DRO_{0}".format(dro)].change_axisletter(self.joint_axis_dic[dro].upper())
+            self.widgets["Combi_DRO_{0}".format(dro)].show()
+
+            # if we have an angular axis we will show the angular jog speed slider
+            if self.joint_axis_dic[dro] in ("a","b","c"):                  
+                print("axis {0} is a rotary axis".format(self.joint_axis_dic[dro]))
+                self.widgets.spc_ang_jog_vel.show()
+    
+    def rearange_dro(self):
+     
+        # we have to re-arrange the DRO's, so first we have 
+        # to remove the uswed ones from the dro_table
+        for dro in range(len(self.axis_list)):
             self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
             print("removed Combi_DRO_{0}".format(dro))
 
         # if we have less than 4 axis, we can resize the table, as we have 
         # enough space to to display each in its own line  
-        if len(self.axis_list) <= 4:
-            self.widgets.tbl_DRO.resize(4,1)
+        if len(self.axis_list) <= 5:
+            self.widgets.tbl_DRO.resize(len(self.axis_list),1)
+            if len(self.axis_list) == 2:
+                print("found two axis")
+                # Check if we are in lathe mode, than display three DRO!
+                # if it's a lathe config, set the tooleditor style
+                if self.lathe_mode:
+                    self.widgets.tbl_DRO.resize(len(self.axis_list + 1),1)
+                    self._this_is_a_lathe()
+                    return
+            for dro in self.joint_axis_dic:
+                self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
+                                            0, 1, int(dro), int(dro + 1), ypadding = 0)
 
-        if len(self.axis_list) == 1:
-            print("found one axis")
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-            return
 
-        if len(self.axis_list) == 2:
-            print("found two axis")
-            # Check if we are in lathe mode, than display three DRO!
-            # if it's a lathe config, set the tooleditor style
-            if self.lathe_mode:
-                self._this_is_a_lathe()
-                return
+        else:
+            # we have more than 5 axis, now we need to arrange the DRO in 2 columns
+            if len(self.axis_list) % 2 == 0:
+                rows = len(self.axis_list) / 2
             else:
-                # need to extent the DRO of Joint 1 to the right
-                self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-                self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-                return
+                rows = len(self.axis_list) + 1 / 2
+                
+            self.widgets.tbl_DRO.resize(rows, 2)
+            col = 0
+            row = 0
+            for dro in self.joint_axis_dic:
+                print ("dro = ", dro, "row = ", row, "col = ", col)
+                self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
+                                            col, col+1, row, row + 1, ypadding = 0)
+
+                print("DRO % 2 = ", dro % 2)
+                if (dro % 2 == 1):
+                    col = 0
+                    row +=1
+                else:
+                    col += 1
+
+    def make_home_button(self, signal):
+        
+        for axis in self.joint_axis_dic:
+            btn = gtk.Button(self.joint_axis_dic[axis].upper())
+            btn.__name__ = "home_{0}.format(axis)"
+            btn.connect("clicked", signal, btn.__name__)
+            self.widgets.hbtb_ref_axes.add(btn)
+            btn.show()
+            
+        return
 
         if len(self.axis_list) == 3:
-            print("found three axis")
-            # need to rearange the DRO of Joint 2 one line down
-            # and extent to the right
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
+            print("configured for three axis")
 
             # the Y2 view is not needed on a mill
             self.widgets.rbt_view_y2.hide()
@@ -168,13 +182,7 @@ class Build_GUI:
             return
 
         if len(self.axis_list) == 4:
-            print("found four axis")
-            # need to rearrange the DRO of Joint 2 and Joint 3
-            # and extent to the right
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
-            self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_3, 0, 1, 3, 4)
+            print("configured for four axis")
 
             # we need to find out the axis letters and set all axis corresponding
             self.widgets.lbl_replace_set_value_y.hide()
@@ -182,8 +190,6 @@ class Build_GUI:
             self.widgets.lbl_replace_4.hide()
             self.widgets.btn_home_5.hide()
             
-            
-
             #self.axis_no = "xyzabcuvws".index(axis.lower())
             #axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
 
@@ -206,6 +212,9 @@ class Build_GUI:
     #            self.widgets.Combi_DRO_3.set_property("mm_text_template", "%11.2f")
     #            self.widgets.Combi_DRO_3.set_property("imperial_text_template", "%11.2f")
               
+        return
+            
+
 
         if len(self.axis_list) == 5:
             self.widgets.lbl_replace_set_value_y.hide()
