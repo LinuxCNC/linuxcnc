@@ -3,4 +3,4 @@ net j1 scara.hal_meter_j1
 net j2 scara.hal_meter_j2
 net j3 scara.hal_meter_j3
 
-source postgui.hal
+
