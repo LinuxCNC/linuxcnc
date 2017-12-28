@@ -1320,7 +1320,7 @@ in absolute coordinates
 
  * X Pos. = The X position of the tool switch
  * Y Pos. = The Y position of the tool switch
- * Z Pos. = The X position of the tool switch, we will go as rapid move to 
+ * Z Pos. = The Z position of the tool switch, we will go as rapid move to 
  this coordinate
 
  * Max. Probe = is the distance to search for contact, an error will be
