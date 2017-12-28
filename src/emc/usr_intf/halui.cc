@@ -44,7 +44,9 @@ static int axis_mask = 0;
 #define MDI_MAX 64
 
 #pragma GCC diagnostic push
+#if defined(__GNUC__) && (__GNUC__ > 4)
 #pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
 
 #define HAL_FIELDS \
     FIELD(hal_bit_t,machine_on) /* pin for setting machine On */ \
