@@ -16,6 +16,13 @@
 
 
 
+#if !defined(TARGET_PLATFORM_H3)
+#error "This driver is for the H3 SoC platform only"
+#endif
+
+
+
+
 MODULE_AUTHOR("Mikhail Vydrenko");
 MODULE_DESCRIPTION("Driver for the Orange Pi (H3 SoC) GPIO pins");
 MODULE_LICENSE("GPL");
