@@ -238,7 +238,8 @@ class gmoccapy(object):
 
         # This class will edit the GUI to fit all the users needs, it has been introduced
         # to separate the GUI code from the GUI building code and reaction code
-        self.gui_edit = build_gui.Build_GUI(self.widgets)
+        self.gui = build_gui.Build_GUI(self.widgets)
+        self.gui.connect("home_clicked", self._home_selected)
 
         # This class will handle all the user preferences
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
@@ -258,7 +259,7 @@ class gmoccapy(object):
                 message = _("**** GMOCCAPY INI Entry **** \n")
                 message += _("user mode selected")
                 print (message)
-                self.gui_edit.user_mode()
+                self.gui.user_mode()
             if arg == "-logo":
                 logofile = str(argv[ index + 1 ])
                 message = _("**** GMOCCAPY INI Entry **** \n")
@@ -272,15 +273,15 @@ class gmoccapy(object):
                     message += _("The file path should not contain any spaces")
                     print(message)
                 else:
-                    self.gui_edit.logo(logofile)
+                    self.gui.logo(logofile)
 
-        self.axis_list = self.gui_edit.axis_list
-        self.joint_axis_dic = self.gui_edit.joint_axis_dic
-        self.gui_edit.format_DRO()
-        self.gui_edit.rearange_dro()
-        self.gui_edit.make_home_button(self.on_btn_home_selected_clicked)
+        self.axis_list = self.gui.axis_list
+        self.joint_axis_dic = self.gui.joint_axis_dic
+        self.gui.format_DRO()
+        self.gui.rearange_dro()
+        self.gui.make_home_button()
 
-        self.active_increment, self.incr_rbt_list = self.gui_edit._init_jog_increments(self.on_increment_changed)
+        self.active_increment, self.incr_rbt_list = self.gui._make_jog_increments(self.on_increment_changed)
 
         self._init_hal_pins()
 
@@ -891,49 +892,6 @@ class gmoccapy(object):
             self.widgets.lbl_space_j5.hide()
         # if there are less joints, the above done should work correct
 
-#    def _init_jog_increments(self):
-#        # Now we will build the option buttons to select the Jog-rates
-#        # We do this dynamically, because users are able to set them in INI File
-#        # because of space on the screen only 10 items are allowed
-#        # jogging increments
-#
-#        # We get the increments from INI File
-#        self.jog_increments = self.get_ini_info.get_increments()
-#        if len(self.jog_increments) > 10:
-#            print(_("**** GMOCCAPY INFO ****"))
-#            print(_("**** To many increments given in INI File for this screen ****"))
-#            print(_("**** Only the first 10 will be reachable through this screen ****"))
-#            # we shorten the incrementlist to 10 (first is default = 0)
-#            self.jog_increments = self.jog_increments[0:11]
-#
-#        # The first radio button is created to get a radio button group
-#        # The group is called according the name off  the first button
-#        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
-#        # One from the released button and one from the pressed button
-#        # we make a list of the buttons to later add the hardware pins to them
-#        label = _("Continuous")
-#        rbt0 = gtk.RadioButton(None, label)
-#        rbt0.connect("pressed", self.on_increment_changed, 0)
-#        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
-#        rbt0.set_property("draw_indicator", False)
-#        rbt0.show()
-#        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-#        rbt0.__name__ = "rbt0"
-#        self.incr_rbt_list.append(rbt0)
-#        # the rest of the buttons are now added to the group
-#        # self.no_increments is set while setting the hal pins with self._check_len_increments
-#        for item in range(1, len(self.jog_increments)):
-#            rbt = "rbt{0}".format(item)
-#            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
-#            rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
-#            self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
-#            rbt.set_property("draw_indicator", False)
-#            rbt.show()
-#            rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-#            rbt.__name__ = "rbt{0}".format(item)
-#            self.incr_rbt_list.append(rbt)
-#        self.active_increment = "rbt0"
-
     def _check_screen2(self):
         # second screen
         self.screen2 = False
@@ -1176,16 +1134,18 @@ class gmoccapy(object):
         ]
         self.h_tabs.append(tab_auto)
 
-        tab_ref = [(1, "btn_home_all"), (3, "btn_home_x"),
-                   (5, "btn_home_z"), (8, "btn_unhome_all"), (9, "btn_back_ref")
-        ]
-        if not self.lathe_mode:
-            tab_ref.append((4, "btn_home_y"))
-        if len(self.axis_list) == 4:
-            tab_ref.append((6, "btn_home_4"))
-        if len(self.axis_list) == 5:
-            tab_ref.append((6, "btn_home_4"))
-            tab_ref.append((7, "btn_home_5"))
+#        tab_ref = [(1, "btn_home_all"), (3, "btn_home_x"),
+#                   (5, "btn_home_z"), (8, "btn_unhome_all"), (9, "btn_back_ref")
+#        ]
+        tab_ref = self.gui.tab_ref
+        
+#        if not self.lathe_mode:
+#            tab_ref.append((4, "btn_home_y"))
+#        if len(self.axis_list) == 4:
+#            tab_ref.append((6, "btn_home_4"))
+#        if len(self.axis_list) == 5:
+#            tab_ref.append((6, "btn_home_4"))
+#            tab_ref.append((7, "btn_home_5"))
         self.h_tabs.append(tab_ref)
 
         tab_touch = [(0, "tbtn_edit_offsets"), (1, "btn_set_value_x"), (3, "btn_set_value_z"), (6, "btn_zero_g92"),
@@ -3075,37 +3035,7 @@ class gmoccapy(object):
         # -1 for all
         self.command.unhome(-1)
 
-    def on_btn_home_selected_clicked(self, widget, data=None):
-        if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-            # we can switch without any risk to joint mode and home the selected joint
-            # but if the machine is a gantry, we need to do special check, as
-            # on XYYZ machine joint 2 is not Z
-            if widget == self.widgets.btn_home_x:
-                if "x0" in self.joint_axis_dic:
-                    joint = self.joint_axis_dic["x0"]
-                else:
-                    joint = self.joint_axis_dic["x"]
-            elif widget == self.widgets.btn_home_y:
-                if "y0" in self.joint_axis_dic:
-                    joint = self.joint_axis_dic["y0"]
-                else:
-                    joint = self.joint_axis_dic["y"]
-            elif widget == self.widgets.btn_home_z:
-                if "z0" in self.joint_axis_dic:
-                    joint = self.joint_axis_dic["z0"]
-                else:
-                    joint = self.joint_axis_dic["z"]
-            elif widget == self.widgets.btn_home_4:
-                joint = self.joint_axis_dic[self.axisletter_four]
-            elif widget == self.widgets.btn_home_5:
-                joint = self.joint_axis_dic[self.axisletter_five]
-
-        else:
-            for button in range(0,8):
-                if widget == self.widgets["btn_home_j{0}".format(button)]:
-                    joint = button
-                    break
-
+    def _home_selected(self, object, joint):
         self.set_motion_mode(0)
         self.command.home(joint)
         
@@ -4533,13 +4463,27 @@ class gmoccapy(object):
         # from the list we declared under __init__ we get the button number
         nr = int(btn[-1])
         tab = self.h_tabs[page]  # see in the __init__ section for the declaration of self.tabs
-        button = None
+        widget_name = None
         # we check if there is a button or the user pressed a hardware button under
         # a non existing software button
         for index in tab:
             if int(index[0]) == nr:
                 # this is the name of the button
-                button = index[1]
+                widget_name = index[1]
+
+        if "lbl" in widget_name:
+            print("got a space label, will leave here")
+            return
+        
+        if page == _BB_HOME:
+            button = self.gui.home_button_dic[widget_name]
+            if not button.get_sensitive():
+                print("{0} not_sensitive".format(button.name))
+                return
+            button.emit("clicked")
+            print("Button {0} has been clicked".format(button.name))
+            return
+    
         if button:
             # only emit a signal if the button is sensitive, otherwise
             # running actions may be interrupted

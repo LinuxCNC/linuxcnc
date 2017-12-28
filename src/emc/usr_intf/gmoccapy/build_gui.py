@@ -26,9 +26,11 @@ Most information we need, can be taken from the INI file
 import sys                         # handle system calls
 import os                          # needed to get the paths and directories
 import gtk                         # base for pygtk widgets and constants
+import gobject                     # needed to send signals
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import preferences   # this handles the preferences
 from gladevcp import combi_dro
+
 
 # localization
 import locale
@@ -39,12 +41,33 @@ DATADIR = os.path.join(BASE, "share", "gmoccapy")
 IMAGEDIR = os.path.join(DATADIR, "images")
 locale.setlocale(locale.LC_ALL, '')
 
-class Build_GUI:
+# the class must inherit from gobject to be able to send signals
+class Build_GUI(gobject.GObject):
+    
+    '''
+    This file is part of gmoccapy and will handle all the GUI related code.
+    It will build part of the GUI dynamically, according to the user 
+    configuration. All relevant information will be read from the INI File.
+    '''
+
+    __gtype_name__ = 'Build_GUI'
+    __gproperties__ = {    }
+    __gproperties = __gproperties__
+
+    __gsignals__ = {
+#                    'clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
+#                    'units_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+                    'home_clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+#                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+                   }
+
+
 
     def __init__(self, widgets):
+        super(Build_GUI, self).__init__()
         self.get_ini_info = getiniinfo.GetIniInfo()
         self.widgets = widgets
-        
+                
         # This class will handle all the user preferences
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
         self.get_initial_data()
@@ -82,7 +105,7 @@ class Build_GUI:
         self.widgets.ntb_jog_JA.reorder_child(page1, -1)
 
     def format_DRO(self):
-        print("**** GMOCCAPY GUI_edit INFO **** \n")
+        print("**** GMOCCAPY build_GUI INFO ****")
         print("Entering format DRO")
         # first hide angular jog speed, as we do not know jet if we have an angular axis
         self.widgets.spc_ang_jog_vel.hide()
@@ -92,17 +115,16 @@ class Build_GUI:
             self.widgets["Combi_DRO_{0}".format(dro)].destroy()
             print(" Combi_DRO_{0} has been destroyed".format(dro))
         
-        # check with axis are used, in this case we have to use the joint axis dict, 
-        # as we have to set the DRO accordingly
+        # check with axis are used, in this case we have to use the 
+        # joint axis dict, as we have to set the DRO with the correct joint
         for dro in self.joint_axis_dic:
             if self.joint_axis_dic[dro][0] in self.double_axis_letter:
                 print ("we habe an double axis letter here !!")
                 if self.joint_axis_dic[dro][1] == 0:
-                    print("OK this is the master joint of axis {0}".format(self.joint_axis_dic[dro]))
-                    
+                    print("OK this is the master joint of axis {0}".format(self.joint_axis_dic[dro])) 
                 else:
                     continue
-
+            
             # initialize the DRO with the correct joint and axis values    
             print("Combi_DRO_{0} = joint {1} = axis {2}".format(dro, dro, self.joint_axis_dic[dro]))
             self.widgets["Combi_DRO_{0}".format(dro)].set_joint_no(dro)
@@ -112,19 +134,18 @@ class Build_GUI:
 
             # if we have an angular axis we will show the angular jog speed slider
             if self.joint_axis_dic[dro] in ("a","b","c"):                  
-                print("**** GMOCCAPY GUI_edit INFO **** \n")
+                print("**** GMOCCAPY build_GUI INFO ****")
                 print("axis {0} is a rotary axis\n".format(self.joint_axis_dic[dro]))
                 print("Will display the angular jog slider\n")
                 self.widgets.spc_ang_jog_vel.show()
     
     def rearange_dro(self):
         # we have to re-arrange the DRO's, so first we have 
-        # to remove the unused ones from the dro_table
+        # to remove them from the dro_table, otherwise we can not reorder them
         for dro in range(len(self.axis_list)):
             self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
-            print("removed Combi_DRO_{0}".format(dro))
 
-        # if we have less than 5 axis, we can resize the table, as we have 
+        # if we have less than 4 axis, we can resize the table, as we have 
         # enough space to to display each in its own line  
         if len(self.axis_list) < 4:
             self.widgets.tbl_DRO.resize(len(self.axis_list),1)
@@ -140,6 +161,7 @@ class Build_GUI:
                 self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
                                             0, 1, int(dro), int(dro + 1), ypadding = 0)
 
+        # having 4 DRO we need to reduce the size, to fit the availible space
         elif len(self.axis_list) == 4:
             self.widgets.tbl_DRO.resize(4,1)
             for dro, axis in enumerate(self.axis_list):
@@ -148,6 +170,8 @@ class Build_GUI:
                 self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", self.dro_size * 0.75)
 
 
+        # having 5 axis we will display 3 in an own line and to must share the line space
+        # size of the DRO must be reduced also
         elif len(self.axis_list) == 5:
             self.widgets.tbl_DRO.resize(4,2)
             for dro, axis in enumerate(self.axis_list):
@@ -167,12 +191,12 @@ class Build_GUI:
 
                 self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
 
-
+        # we have more than 5 axis, now we need to arrange the DRO in 2 columns
+        # and reduce there size
         else:
-            # we have more than 5 axis, now we need to arrange the DRO in 2 columns
-            print("**** GMOCCAPY GUI_edit INFO **** \n")
+            print("**** GMOCCAPY build_GUI INFO ****")
             print("more than 5 axis ")
-            print(len(self.axis_list) % 2)
+            # check if amount of axis is an even number and adapt the needed lines
             if len(self.axis_list) % 2 == 0:
                 rows = len(self.axis_list) / 2
             else:
@@ -184,212 +208,134 @@ class Build_GUI:
             row = 0
             for dro, axis in enumerate(self.axis_list):
                 self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", self.dro_size * 0.65)
-                print ("dro = ", dro, "row = ", row, "col = ", col)
                 self.widgets.tbl_DRO.attach(self.widgets["Combi_DRO_{0}".format(dro)], 
                                             col, col+1, row, row + 1, ypadding = 0)
 
-                print("DRO % 2 = ", dro % 2)
+                # calculate if we have to place in the first or the second column
                 if (dro % 2 == 1):
                     col = 0
                     row +=1
                 else:
                     col += 1
 
-    def make_home_button(self, signal):
-        print("**** GMOCCAPY GUI_edit INFO **** \n")
+    def make_home_button(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
         print("Entering make home button")
 
-        self.widgets.btn_home_all.set_property("name", "btn_home_all")
-        self.widgets.btn_unhome_all.set_property("name", "btn_unhome_all")
-        self.widgets.btn_back_ref.set_property("name", "btn_back_ref")
-
-        if len(self.axis_list) <=5:
-            for pos, axis in enumerate(self.axis_list):
-                print("Pos = ",pos)
-                print("Axis = ",axis)
+        # lets find out, how many axis we got
+        num_axis = len(self.axis_list)
+        
+        # as long as the number of axis is less 6 we can use the standard layout
+        # we can display 6 axis without the second space label
+        # and 7 axis if we do not display the first space label either
+        # if we have more than 7 axis, we need arrows to switch the visible ones
+        if num_axis < 7:
+            lbl = self._get_space_label("lbl_space_0")
+            self.widgets.hbtb_ref_axes.pack_end(lbl)
     
-                file = "ref_{0}.png".format(axis)
-                filepath = os.path.join(IMAGEDIR, file)
+        file = "ref_all.png"
+        filepath = os.path.join(IMAGEDIR, file)
+        btn = self._get_button_with_image("home_axis_0", filepath, None)
+        btn.set_property("tooltip-text", _("Press to home all axis"))
+        btn.connect("clicked", self._on_btn_home_clicked)
+        # we use pack_end, so the widgets will be moved from right to left
+        # and are displayed the way we want
+        self.widgets.hbtb_ref_axes.pack_end(btn)
 
-                btn = self.get_button_with_image(signal, axis, filepath)
-
-                self.widgets.hbtb_ref_axes.add(btn)
-                self.widgets.hbtb_ref_axes.reorder_child(btn, pos + 3)
-
-            for lbl in range(self.widgets.hbtb_ref_axes.child_get_property(btn,"position") + 1 , 8):
-                lbl_fill = gtk.Label()
-                lbl_fill.set_text(str(lbl))
-                lbl_fill.show()
-                self.widgets.hbtb_ref_axes.add(lbl_fill)
-                self.widgets.hbtb_ref_axes.reorder_child(lbl_fill, lbl)
-
-        elif len(self.axis_list) > 5 and len(self.axis_list) < 7:
-            # we can add as maximum 7 homing button without using arrows
-            print("**** GMOCCAPY GUI_edit INFO **** \n")
-            print("found more than 5 but less than 7 axis")
-            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_0)
-            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_3)
-            self.widgets.hbtb_ref_axes.reorder_child(self.widgets.btn_home_all, 0)
-            for pos, axis in enumerate(self.axis_list):
-
-                file = "ref_{0}.png".format(axis)
-                filepath = os.path.join(IMAGEDIR, file)
-
-                btn = self.get_button_with_image(signal, axis, filepath)
-                
-                self.widgets.hbtb_ref_axes.add(btn)
-                self.widgets.hbtb_ref_axes.reorder_child(btn, pos + 1)
-
-        # if there are more than 7 axis we have to add some arrows to
-        # allow the user to switch the visible homing buttons
-        else:
-            # how many joints do we have
-            axis_count = len(self.axis_list)
-            # remove all unneeded button, we do allow 8 joints (0 to 7)
-            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_0)
-            self.widgets.hbtb_ref_axes.remove(self.widgets.lbl_space_home_3)
-            self.widgets.hbtb_ref_axes.reorder_child(self.widgets.btn_home_all, 0)
-
-            # show the arrows to switch visible homing button)
-
-            btn = self.get_button_with_stock_image(self._on_btn_previous_clicked, "previous_button", stock=gtk.STOCK_GO_BACK)
+        if num_axis > 7:
+            # show the previous arrow to switch visible homing button)
+            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
             btn.set_sensitive(False)
-            self.widgets.hbtb_ref_axes.add(btn)
-            self.widgets.hbtb_ref_axes.reorder_child(btn, 1)
+            btn.set_property("tooltip-text", _("Press to display previous homing button"))
+            btn.connect("clicked", self._on_btn_previous_clicked)
+            self.widgets.hbtb_ref_axes.pack_end(btn)
 
-            for pos, axis in enumerate(self.axis_list):
+        # do not use this label, to allow one more axis
+        if num_axis < 6:
+            lbl = self._get_space_label("lbl_space_2")
+            self.widgets.hbtb_ref_axes.pack_end(lbl)
 
-                file = "ref_{0}.png".format(axis)
-                filepath = os.path.join(IMAGEDIR, file)
+        for pos, axis in enumerate(self.axis_list):
 
-                btn = self.get_button_with_image(signal, axis, filepath)
-                
-                self.widgets.hbtb_ref_axes.add(btn)
-                self.widgets.hbtb_ref_axes.reorder_child(btn, pos + 2)
+            file = "ref_{0}.png".format(axis)
+            filepath = os.path.join(IMAGEDIR, file)
 
+            name = "home_axis_{0}".format(axis)
+            btn = self._get_button_with_image(name, filepath, None)
+            btn.set_property("tooltip-text", _("Press to home axis {0}".format(axis.upper())))
+            btn.connect("clicked", self._on_btn_home_clicked)
+
+            self.widgets.hbtb_ref_axes.pack_end(btn)
+
+            # if we have more than 7 axis we need to hide some button
+            if num_axis > 7:
                 if pos > 4:
                     btn.hide()
 
-            btn = self.get_button_with_stock_image(self._on_btn_next_clicked, "next_button", stock=gtk.STOCK_GO_FORWARD)
-            self.widgets.hbtb_ref_axes.add(btn)
-            self.widgets.hbtb_ref_axes.reorder_child(btn, 7)
+        if num_axis > 7:
+            # show the next arrow to switch visible homing button)
+            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn.set_property("tooltip-text", _("Press to display next homing button"))
+            btn.connect("clicked", self._on_btn_next_clicked)
+            self.widgets.hbtb_ref_axes.pack_end(btn)
 
-            
-            for axis in range(axis_count, 8):
-                pass
-        return
+        # if there is space left, fill it with space labels
+        count = pos = self.widgets.hbtb_ref_axes.child_get_property(btn,"position")
+        for lbl in range( pos + 1 , 8):
+            count += 1
+            lbl = self._get_space_label("lbl_space_{0}".format(count))
+            self.widgets.hbtb_ref_axes.pack_end(lbl)
+ 
+        file = "unhome.png"
+        filepath = os.path.join(IMAGEDIR, file)
 
-
-    def nonsense(self):
-
-        if len(self.axis_list) == 3:
-            print("configured for three axis")
-
-            # the Y2 view is not needed on a mill
-            self.widgets.rbt_view_y2.hide()
-            # X Offset is not necessary on a mill
-            self.widgets.lbl_tool_offset_x.hide()
-            self.widgets.lbl_offset_x.hide()
-            self.widgets.btn_tool_touchoff_x.hide()
-            self.widgets.lbl_hide_tto_x.show()
-
-            return
-
-        if len(self.axis_list) == 4:
-            print("configured for four axis")
-
-            # we need to find out the axis letters and set all axis corresponding
-            self.widgets.lbl_replace_set_value_y.hide()
-            self.widgets.lbl_replace_set_value_4.hide()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.btn_home_5.hide()
-            
-            #self.axis_no = "xyzabcuvws".index(axis.lower())
-            #axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
-
-    #        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
-    #        self.widgets.btn_home_4.set_image(image)
-    #        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
-            self.widgets.btn_home_4.show()
-    
-    #        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
-            self.widgets.btn_4_plus.show()
-    #        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
-            self.widgets.btn_4_minus.show()
-    
-    #        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
-    #        self.widgets.btn_set_value_4.set_image(image)
-    #        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
-            self.widgets.btn_set_value_4.show()
-    
-    #        if self.axisletter_four in "abc":
-    #            self.widgets.Combi_DRO_3.set_property("mm_text_template", "%11.2f")
-    #            self.widgets.Combi_DRO_3.set_property("imperial_text_template", "%11.2f")
-              
-        return
-            
-
-
-        if len(self.axis_list) == 5:
-            self.widgets.lbl_replace_set_value_y.hide()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.lbl_replace_5.hide()
-            self.widgets.lbl_replace_set_value_4.hide()
-            self.widgets.lbl_replace_set_value_5.hide()
-            self.axisletter_five = self.axis_list[-1]
-            self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
-            self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_five)
-            self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_five.upper())
-
-            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
-            self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
-
-            if self.axisletter_five in "abc":
-                self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
-                self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
-
-            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
-            self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
-            self.widgets.btn_home_5.show()
-
-            self.widgets.btn_5_plus.set_label("{0}+".format(self.axisletter_five.upper()))
-            self.widgets.btn_5_plus.show()
-            self.widgets.btn_5_minus.set_label("{0}-".format(self.axisletter_five.upper()))
-            self.widgets.btn_5_minus.show()
-
-            image = self.widgets["img_touch_off_{0}".format(self.axisletter_five)]
-            self.widgets.btn_set_value_5.set_image(image)
-            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_five.upper()))
-            self.widgets.btn_set_value_5.show()
-
-
-        # We have to change the size of the DRO, to make them fit the space
+        name = "unhome_axis_0"
+        btn = self._get_button_with_image(name, filepath, None)
+        btn.set_property("tooltip-text", _("Press to unhome all axis"))
+        btn.connect("clicked", self._on_btn_unhome_clicked)
+        self.widgets.hbtb_ref_axes.pack_end(btn)
         
-        # XYZ machine or lathe, no need to change the size
-        if len(self.axis_list) < 4:
-            return
-        # if we have 4 axis, we split the size of all DRO
-        elif len(self.axis_list) < 5:
-            size = int(self.dro_size * 0.75)
-            self.widgets.tbl_DRO.set_homogeneous(False)
-            for dro in range(9):
-                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
+        name = "home_axis_back"
+        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn.set_property("tooltip-text", _("Press to returnn to main button list"))
+        btn.connect("clicked", self._on_btn_home_back_clicked)
+        self.widgets.hbtb_ref_axes.pack_end(btn)
+        
+        self.home_button_dic = {}
+        children = self.widgets.hbtb_ref_axes.get_children()
+        for child in children:
+            self.home_button_dic[child.name] = child
 
-        # if we have 5 axes, we will need some extra space:
-        else:
-            for dro in range(9):
-                size = self.dro_size
-                if dro == 4:
-                    size = int(size * 0.65) # This factor is just testing to ensure the DRO is able to fit with number 9999.999
-                if dro == 5:
-                    size = int(size * 0.65)
-                self.widgets["Combi_DRO_{0}".format(dro)].set_property("font_size", size)
+        self._get_tab_ref()
 
+    def _on_btn_home_clicked(self, widget):
+        # home axis or joint?
+        if "axis" in widget.name:
+            value = widget.name[-1]
+            # if widget.name is home_axis_0 the home all button has been clicked
+            # we send joint -1 to home all axis at once
+            if value == "0":
+                joint = -1
+                self.emit("home_clicked", joint)
+                return
+            # if the selected axis is a double axis we will only give the command
+            # to home tha master axis, witch should end with 0 
+            if value in self.double_axis_letter:
+                value = value + "0"
+            # now get the joint from directory by the value
+            joint = self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
+
+        self.emit("home_clicked", joint)
+
+    def _on_btn_unhome_clicked(self, widget):
+        self.emit("home_clicked", widget)
+
+    def _on_btn_home_back_clicked(self, widget):
+        self.emit("home_clicked", widget)
 
     def _this_is_a_lathe(self):
-        print("**** GMOCCAPY GUI_edit INFO **** \nWe have a lathe here")
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("we have a lathe here")
 
         # as in _hide_unused_DRO we did not check for lathe, we have to correct this now
 
@@ -472,7 +418,7 @@ class Build_GUI:
 #                    self._switch_to_g7(False)
 
 
-    def _init_jog_increments(self, signal):
+    def _make_jog_increments(self, signal):
         # Now we will build the option buttons to select the Jog-rates
         # We do this dynamically, because users are able to set them in INI File
         # because of space on the screen only 10 items are allowed
@@ -496,6 +442,7 @@ class Build_GUI:
         # we make a list of the buttons to later add the hardware pins to them
         label = _("Continuous")
         rbt0 = gtk.RadioButton(None, label)
+        rbt0.set_property("name","Continious")
         rbt0.connect("pressed", signal, 0)
         self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
         rbt0.set_property("draw_indicator", False)
@@ -506,113 +453,115 @@ class Build_GUI:
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
         for item in range(1, len(self.jog_increments)):
-            rbt = "rbt{0}".format(item)
+            name = "rbt{0}".format(item)
             rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
+            rbt.set_property("name",name)
             rbt.connect("pressed", signal, self.jog_increments[item])
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
             rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-            rbt.__name__ = "rbt{0}".format(item)
             self.incr_rbt_list.append(rbt)
         self.active_increment = "rbt0"
         return self.active_increment, self.incr_rbt_list
 
 
+###############################################################################
+##                       internal button handling                            ##
+###############################################################################
 
+    def _on_btn_previous_clicked(self, widget, data = None):
+        self._remove_homing_button()
+        self._put_home_all_and_previous()
+        self._put_axis_button(0 , 5)
+        self._put_unhome_and_back()
+        self._hide_homing_button(5,len(self.axis_list))
+        
+        self.home_button_dic["previous_button"].set_sensitive(False)
+        self.home_button_dic["next_button"].set_sensitive(True)
+
+        self._get_tab_ref()
+
+    def _on_btn_next_clicked(self, widget, data = None):
+        self._remove_homing_button()
+        self._put_home_all_and_previous()
+        self._put_axis_button(len(self.axis_list) - 5 , len(self.axis_list))
+        self._put_unhome_and_back()
+        self._hide_homing_button(0,len(self.axis_list) - 5)
+        
+        self.home_button_dic["previous_button"].set_sensitive(True)
+        self.home_button_dic["next_button"].set_sensitive(False)
+        
+        self._get_tab_ref()
+
+    def _remove_homing_button(self):
+        for child in self.home_button_dic:
+            self.widgets.hbtb_ref_axes.remove(self.home_button_dic[child])
+
+    def _put_home_all_and_previous(self):
+        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["home_axis_0"])
+        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["previous_button"])
+
+    def _put_axis_button(self, start, end):
+        for axis in self.axis_list[start : end]:
+            name = "home_axis_{0}".format(axis.lower())
+            self.home_button_dic[name].show()
+            self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic[name])
+
+    def _put_unhome_and_back(self):
+        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["next_button"])
+        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["unhome_axis_0"])
+        self.widgets.hbtb_ref_axes.pack_end(self.home_button_dic["home_axis_back"])
+
+    def _hide_homing_button(self, start, end):
+        for axis in self.axis_list[start:end]:
+            name = "home_axis_{0}".format(axis.lower())
+            self.home_button_dic[name].hide()
+            self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic[name])
+        
 ###############################################################################
 ##                          helper functions                                 ##
 ###############################################################################
-
         
-    def get_button_with_image(self, signal, axis, filepath):
+    def _get_button_with_image(self, name, filepath, stock):
         image = gtk.Image()
         image.set_size_request(48,48)
-        image.set_from_file(filepath)
-
-        name = "home_{0}".format(axis)
-        btn = self._get_button(name, signal, image)
-        btn.set_property("tooltip-text", _("Press to home axis {0}".format(axis.upper())))
+        btn = self._get_button(name, image)
+        if filepath:
+            image.set_from_file(filepath)
+        else:
+            image.set_from_stock(stock, 48)
         return btn
 
-    def get_button_with_stock_image(self, signal, name, stock):
-        image = gtk.Image()
-        image.set_size_request(48,48)
-        image.set_from_stock(stock, 48)
-
-        btn = self._get_button(name, signal, image)
-        btn.set_property("tooltip-text", _("Press to see {0}".format(name)))
-        return btn
-
-    def _get_button(self, name, signal, image):
+    def _get_button(self, name, image):
         btn = gtk.Button()
         btn.set_size_request(85,56)
         btn.add(image)
         btn.set_property("name", name)
-        btn.connect("clicked", signal, name)
         btn.show_all()
         return btn
 
-    def _on_btn_previous_clicked(self, widget, data = None):
-        children = self.widgets.hbtb_ref_axes.get_children()
-        child_dic = {}
-        for child in children:
-            child_dic[child.name] = child
-            self.widgets.hbtb_ref_axes.remove(child)
+    def _get_space_label(self, name):
+        lbl = gtk.Label("")
+        lbl.set_property("name", name)
+        lbl.set_size_request(85,56)
+        lbl.show()
+        return lbl
+
+    def _get_tab_ref(self):
+        # get the position of each button to be able to connect to hardware button
+        unsorted_tab_ref = []
+        for element in self.home_button_dic:
+            if self.home_button_dic[element].get_visible():
+                pos = self.widgets.hbtb_ref_axes.child_get_property(self.home_button_dic[element],"position")
+                unsorted_tab_ref.append((pos, element))
         
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_home_all"])
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["previous_button"])
-
-        print child_dic
-
-        for pos, axis in enumerate(self.axis_list[0 : 5]):
-            name = "home_{0}".format(axis.lower())
-            child_dic[name].show()
-            print name
-            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
-
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["next_button"])
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_unhome_all"])
-        self.widgets.hbtb_ref_axes.pack_end(child_dic["btn_back_ref"])
+        sorted_tab_ref = sorted(unsorted_tab_ref, key=lambda tub: tub[0])
         
-        child_dic["previous_button"].set_sensitive(False)
-        child_dic["next_button"].set_sensitive(True)
-
-        for axis in self.axis_list[5:]:
-            name = "home_{0}".format(axis.lower())
-            child_dic[name].hide()
-            print name
-            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
-
-    def _on_btn_next_clicked(self, widget, data = None):
-        children = self.widgets.hbtb_ref_axes.get_children()
-        child_dic = {}
-        for child in children:
-            child_dic[child.name] = child
-            self.widgets.hbtb_ref_axes.remove(child)
+        self.tab_ref=[]
+        for pos, entry in enumerate(sorted_tab_ref):
+            self.tab_ref.append((pos, entry[1]))
         
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_home_all"])
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["previous_button"])
-
-        print child_dic
-
-        for pos, axis in enumerate(self.axis_list[len(self.axis_list) - 5 : len(self.axis_list)]):
-            name = "home_{0}".format(axis.lower())
-            child_dic[name].show()
-            print name
-            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
-            
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["next_button"])
-        self.widgets.hbtb_ref_axes.pack_start(child_dic["btn_unhome_all"])
-        self.widgets.hbtb_ref_axes.pack_end(child_dic["btn_back_ref"])
-        
-        child_dic["previous_button"].set_sensitive(True)
-        child_dic["next_button"].set_sensitive(False)
-            
-        for axis in self.axis_list[0:4]:
-            name = "home_{0}".format(axis.lower())
-            child_dic[name].hide()
-            print name
-            self.widgets.hbtb_ref_axes.pack_start(child_dic[name])
-
+        for item in self.tab_ref:
+            print("Tab ref entry now", item)    
         
