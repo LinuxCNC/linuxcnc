@@ -180,7 +180,7 @@ Is the entry to tell linuxcnc/gmoccapy where to look for the ngc files.
 If not specified Gmoccapy will look in the following order for ngc files:
 linuxcnc/nc_files and then the users home directory.
 
-[[Configuration of tabs and side panels]]
+[[gmoccapy:configuration-of-tabs-and-side-panels]]
 .Configuration of tabs and side panels
 
 You can add embedded programs to gmoccapy like you can do in axis, touchy and
@@ -465,7 +465,7 @@ because they are not available before loading the GUI completely. It is possible
 to call several postgui hal files, making the config easier to debug. Just use 
 a postgui_call_list.hal file. Connections to user panel must be made in a 
 separate hal file, as the panels are loaded after the GUI. 
-See <<gmoccapy:Configuration of tabs and side panels, Tabs and side panels>> 
+See <<gmoccapy:configuration-of-tabs-and-side-panels, Tabs and side panels>>
 for details.
 
 === Right And Bottom Button Lists
