@@ -86,6 +86,13 @@ class _GStat(GladeVcpStat):
         super(_GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
 
+    # we override this function from hal_glib
+    #TODO why do we need to do this with qt5 and not qt4?
+    # seg fault without it
+    def set_timer(self):
+        gobject.threads_init()
+        gobject.timeout_add(100, self.update)
+
 # used so all qtvcp widgets use the same instance of _gstat
 # this keeps them all in synch
 # if you load more then one instance of QTvcp/Qtscreen each one has

@@ -19,11 +19,6 @@ from qtvcp.qt_istat import IStat
 GSTAT = GStat()
 INI = IStat()
 
-#TODO why do we need to do this
-# seg fault without it
-import gobject
-gobject.threads_init()
-
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
