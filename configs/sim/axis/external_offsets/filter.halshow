@@ -1,0 +1,21 @@
+# pins available depend on filter type (biquad,lowpass,etc)
+
+# lowpass:
+pin+filter.gain
+
+# biquad:
+pin+filter.enable
+param+filter.Q
+param+filter.d1
+param+filter.d2
+param+filter.f0
+param+filter.n0
+param+filter.n1
+param+filter.n2
+param+filter.s1
+param+filter.s2
+param+filter.type
+pin+filter.valid
+
+# movingavg:
+pin+filter.npts

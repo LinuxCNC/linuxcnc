@@ -1,0 +1,4 @@
+hpid.ini ------------- Torch height PID demo (in)
+hpid_mm.ini ---------- Torch height PID demo (mm)
+
+See the file hpid.txt for more info
