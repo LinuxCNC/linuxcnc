@@ -153,6 +153,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
             GSTAT.connect('all-homed', lambda w: self.setEnabled(True))
             GSTAT.connect('interp-paused', lambda w: self.setEnabled(True))
+            if self.run:
+                GSTAT.connect('file-loaded', lambda w,f: self.setEnabled(True))
 
         elif self.abort or self.pause:
             self.setEnabled(False)
