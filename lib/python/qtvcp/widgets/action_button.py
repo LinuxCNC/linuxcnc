@@ -601,6 +601,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.view_change = False
 
     def set_view_type(self, data):
+        if not data.lower() in('x','y','y2','z','z2','p'):
+            data = 'p'
         self.view_type = data
     def get_view_type(self):
         return self.view_type
