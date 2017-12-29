@@ -1408,7 +1408,7 @@ endif
 
 ifdef TARGET_PLATFORM_H3
 obj-$(CONFIG_HAL_GPIO) += hal_gpio_h3.o
-hal_gpio-objs := hal/drivers/hal_gpio_h3.o
+hal_gpio_h3-objs := hal/drivers/hal_gpio_h3.o
 endif
 
 ifdef TARGET_PLATFORM_CHIP
@@ -1855,7 +1855,7 @@ endif
 endif
 
 ifdef TARGET_PLATFORM_H3
-$(RTLIBDIR)/hal_gpio_h3$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
+$(RTLIBDIR)/hal_gpio_h3$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio_h3-objs))
 endif
 
 ifdef TARGET_PLATFORM_CHIP
