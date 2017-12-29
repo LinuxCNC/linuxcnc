@@ -185,11 +185,16 @@ class _GStat(gobject.GObject):
         except:
             pass
 
-        gobject.timeout_add(100, self.update)
         self.current_jog_rate = 15
         self.current_jog_distance = 0
         self.current_jog_distance_text =''
         self._is_all_homed = False
+        self.set_timer()
+
+    # we put this in a function so qtvcp
+    # can overide it to fix a seg fault
+    def set_timer(self):
+        gobject.timeout_add(100, self.update)
 
     def merge(self):
         self.old['state'] = self.stat.task_state
