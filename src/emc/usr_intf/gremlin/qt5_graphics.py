@@ -465,7 +465,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # zoom
         elif event.buttons() & Qt.MiddleButton:
             self.continueZoom(event.pos().y())
-        
+
+    def user_plot(self):
+        pass
+        GL.glCallList(self.object)
 
     ############################################################
     # display for when linuxcnc isn't runnimg - forQTDesigner

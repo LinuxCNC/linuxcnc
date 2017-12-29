@@ -1091,7 +1091,10 @@ class GlCanonDraw:
 
             if self.get_show_extents():
                 self.show_extents()
-
+        try:
+            self.user_plot()
+        except:
+            pass
         if self.get_show_live_plot() or self.get_show_program():
     
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
