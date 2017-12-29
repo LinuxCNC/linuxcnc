@@ -1,5 +1,30 @@
 #!/usr/bin/env python
 #    Copyright 2007 John Kasunich and Jeff Epler
+#       
+# modified by Rudy du Preez to fit with the kinematics component pumakins.c
+# Note: DH parameters in pumakins halfile should bet set to 
+#               A2=400, A3=50, D3=100, D4=400, D6=95
+#
+#                    z |   
+#                      | 
+#                      |__________y  top of the base.
+#                     /
+#                    / A2
+#                 x /
+#                  /_______
+#                   D3  /
+#                      / A3
+#                      |
+#                      |
+#                      | D4
+#                      |___
+#                      |
+#           tooltip    | D6
+#
+# or they should be changed below to fit. Otherwise you wont get straight lines
+# moving x or y or z in world mode. If all is correct the tool should rotate 
+# about its tip with no x,y,z movement for changes in A,B,C at any point in the 
+#  workspace.
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,120 +51,113 @@ c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint6", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("grip", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
-
 ###################
-# this stuff is the actual definition of the machine
-# ideally it would be in a separate file from the code above
-#
 
-# gripper fingers
-finger1 = CylinderZ(-0.02, 0.012, 0.1, 0.010)
-finger2 = CylinderZ(-0.02, 0.012, 0.1, 0.010)
-finger1 = HalRotate([finger1],c,"grip", 40,0,1,0)
-finger2 = HalRotate([finger2],c,"grip",-40,0,1,0)
-finger1 = Translate([finger1], 0.025,0.0,0.1)
-finger2 = Translate([finger2],-0.025,0.0,0.1)
-# "hand" - the part the fingers are attached to
-# "tooltip" for backplot will be the origin of the hand for now
+# tool  or finger 
+finger1 = CylinderZ(0, 5, 50, 5)
+
+# "tooltip" for backplot will be the tip of the finger
 tooltip = Capture()
+
+# "hand" - the part the finger is attached to
 link6 = Collection([
-	tooltip,
-	Box(-0.060, -0.015, 0.02, 0.060, 0.015, 0.1),
-	Box(-0.05, -0.05, 0.0, 0.05, 0.05, 0.02)])
+    finger1,
+	Box(-25, -25, -10, 25, 25, 0)])
+link6 = Translate([link6],0,0,-50)
+link6 = Collection([tooltip,link6])
 # assembly fingers, and make it rotate
-link6 = HalRotate([finger1,finger2,link6],c,"joint6",1,0,0,1)
+link6 = HalRotate([link6],c,"joint6",1,0,0,1)
 
 # moving part of wrist joint
 link5 = Collection([
-	CylinderZ( 0.055, 0.060, 0.070, 0.060),
-	CylinderX(-0.026, 0.050, 0.026, 0.050),
-	Box(-0.022, -0.050, 0.0, 0.022, 0.050, 0.055)])
-# move gripper to end of wrist and attach
+	CylinderZ( 27, 30, 35, 30),
+	CylinderX(-13, 25, 13, 25),
+	Box(-11, -25, 0, 11, 25, 27)])
+# move gripper to end of wrist and attach D6=95
 link5 = Collection([
 	link5,
-	Translate([link6],0,0,0.070)])
+	Translate([link6],0,0,95)])
 # make wrist bend
 link5 = HalRotate([link5],c,"joint5",1,1,0,0)
 
 # fixed part of wrist joint (rotates on end of arm)
 link4 = Collection([
-	CylinderX(-0.027, 0.045, -0.055, 0.045),
-	CylinderX( 0.027, 0.045,  0.055, 0.045),
-	Box(-0.030, -0.045, -0.060, -0.050, 0.045, 0.0),
-	Box( 0.030, -0.045, -0.060,  0.050, 0.045, 0.0),
-	Box(-0.050, -0.050, -0.090,  0.050, 0.050, -0.060)])
+	CylinderX(-13, 22, -27, 22),
+	CylinderX( 13, 22,  27, 22),
+	Box(-15, -22, -30, -25, 22, 0),
+	Box( 15, -22, -30,  25, 22, 0),
+	Box(-25, -25, -45,  25, 25, -30)])
 # attach wrist, move whole assembly forward so joint 4 is at origin
-link4 = Translate([link4,link5], 0, 0, 0.090)
+link4 = Translate([link4,link5], 0, 0, 0)
 # make joint 4 rotate
 link4 = HalRotate([link4],c,"joint4",1,0,0,1)
 
-# next chunk
+# next chunk  link length is D4=400
 link3 = Collection([
-	CylinderX(-0.08, 0.10, 0.08, 0.12),
-	CylinderZ(0.0, 0.07, 0.7, 0.05)])
-# move link4 forward and attach
+	CylinderY(-50,35,25,35),
+	CylinderZ(0.0, 35, 400-45, 25)])
+link3 = Translate([link3],0,50,0)
+link3 = Collection([
+    link3,
+    CylinderX(-50,40,40,40)])
+# move link4 forward and sideways (A3=50) and attach
 link3 = Collection([
 	link3,
-	Translate([link4],0.0, 0.0, 0.7)])
-# move whole assembly over so joint 3 is at origin
-link3 = Translate([link3],-0.08, 0.0, 0.0)
+	Translate([link4],0.0, 50, 400)])
+# move whole assembly over so joint 3 is at origin (D3=100)
+link3 = Translate([link3],100, 0, 0.0)
+# rotate to J3 zero position
+link3 = Rotate([link3],90,1,0,0)
 # make joint 3 rotate
 link3 = HalRotate([link3],c,"joint3",1,1,0,0)
 
 # elbow stuff
-link2 = Collection([
-	CylinderX(-0.1,0.1,-0.09,0.1),
-	CylinderX(-0.09,0.13,0.09,0.12),
-	CylinderX(0.09,0.10,0.12,0.08)])
+link2 = CylinderX(-50,50,50,50)
 # move elbow to end of upper arm
-link2 = Translate([link2],0.0,0.0,1.2)
-# rest of upper arm
+link2 = Translate([link2],0.0,0.0,400)
+# rest of upper arm (A2 = 400)
 link2 = Collection([
 	link2,
-	CylinderZ(1.2,0.08, 0.0, 0.1),
-	CylinderX(-0.14,0.17,0.14,0.15)])
+	CylinderZ(400, 40, 0, 50),
+	CylinderX(-70,85,70,85)])
 # move link 3 into place and attach
 link2 = Collection([
 	link2,
-	Translate([link3],-0.1,0.0,1.2)])
-# move whole assembly over so joint 2 is at origin
-link2 = Translate([link2],0.14, 0.0, 0.0)
+	Translate([link3], 0,0.0,400)])
+# rotate into zero J2 position
+link2 = Rotate([link2],90,1,0,0)
 # make joint 2 rotate
 link2 = HalRotate([link2],c,"joint2",1,1,0,0)
 
 # shoulder stuff
 link1 = Collection([
-	CylinderX(0.18,0.14,0.20,0.14),
-	CylinderX(-0.23,0.18,0.18,0.18),
-	CylinderX(-0.23,0.17,-0.29,0.13),
-	Box(-0.15,-0.15,0.0,0.15,0.15,-0.20)])
+	CylinderX(-70,70,70,70),
+	Box(-70,-70,0,70,70,-100)])
 # move link2 to end and attach
 link1 = Collection([
 	link1,
-	Translate([link2],0.20,0.0,0.0)])
+	link2])
 # move whole assembly up so joint 1 is at origin
-link1 = Translate([link1],0.0, 0.0, 0.2)
+link1 = Translate([link1],0.0, 0.0, 100)
 # make joint 1 rotate
 link1 = HalRotate([link1],c,"joint1",1,0,0,1)
 
 # stationary base
 link0 = Collection([
-	CylinderZ(1.9, 0.15, 2.0, 0.15),
-	CylinderZ(0.05, 0.25, 1.9, 0.13),
-	CylinderZ(0.00, 0.4, 0.07, 0.4)])
+	CylinderZ(750, 75, 800, 75),
+	CylinderZ(25, 90, 750, 50),
+	CylinderZ(0, 200, 35, 200)])
 # move link1 to top and attach
 link0 = Collection([
 	link0,
-	Translate([link1],0.0,0.0,2.0)])
+	Translate([link1],0.0,0.0,800)])
 
 # add a floor
-floor = Box(-1.5,-1.5,-0.02,1.5,1.5,0.0)
-
+floor = Box(-500,-500,-10,500,500,0.0)
 work = Capture()
 
 model = Collection([link0, floor, work])
 
-main(model, tooltip, work, 5)
+main(model, tooltip, work, 1500)

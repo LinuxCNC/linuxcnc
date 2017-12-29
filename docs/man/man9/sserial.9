@@ -39,7 +39,9 @@ Pins:
 
 (bit, in) .sserial.port-N.run: Enables the specific Smart Serial module.
 Setting this pin low will disable all boards on the port and puts the port in a
-pass-through mode where device parameter setting is possible.
+pass-through mode where device parameter setting is possible. It is necessary
+to toggle the state of this pin if there is a requirement to alter a
+remote parameter on a live system.
 This pin defaults to TRUE and can be left unconnected. However, toggling the pin
 low-to-high will re-enable a faulted drive so the pin could usefully be
 connected to the iocontrol.0.user-enable-out pin.
@@ -69,6 +71,21 @@ raised. If the increment were to be set to zero then no error would ever be
 raised, and the system would carry on regardless. Conversely setting decrement to 
 zero, threshold to 1 and limit to 1 means that absolutely no errors will be
 tolerated. (This structure is copied directly from vehicle ECU practice)
+
+Any other parameters than the ones above are created by the card istelf from
+data in the remote firmware. They may be set in the HAL file using "setp" in
+the usual way.
+
+NOTE: Because a Smart-Serial remote can only communicate non-process data
+to the host card in setup mode it is necessary to stop and re-start the
+smart-serial port associated with the card to alter the value of a parameter.
+
+HALSO NOTE: in the case of parameters beginning with "nv" (which are stored
+in non-volatile memory) the effect will not be seen until after the next
+power cycle of the drive.
+
+Unchanged values will not be re-written so it is safe to leave the
+"setp" commands in the HAL file or delete them as you see fit.
 
 .SH DEVICES
 The other pins and parameters created in HAL depend on the devices detected.
@@ -151,6 +168,7 @@ status.wd-reset / status.wd-reset-not
 Parameters:
 The following parameters are exported. See the pdf documentation downloadable
 from Mesa for further details
+
  hm2_5i25.0.8i20.0.1.angle-maxlim
  hm2_5i25.0.8i20.0.1.angle-minlim
  hm2_5i25.0.8i20.0.1.angle-scalemax
@@ -247,11 +265,11 @@ different signal nets.
 Parameters:
 
 (u32 ro) .7i76.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
-not be altered, and special utils are needed to do so. 
+not be altered.
 
 (u32 ro) .7i76.0.0.nvunitnumber: Indicates the serial number of the device and
-should match a siticker on the card. This can be useful for wokring out which 
-card is which. 
+should match a sticker on the card. This can be useful for working out which
+card is which.
 
 (u32 ro) .7i76.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
 is separate from the Anything-IO card timeout. This is unlikley to need to be 
@@ -275,7 +293,7 @@ value of 10,000 rpm on the spinout pin would produce 10V output. However, if
 spinout-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
 
 (u32 ro) .7i76.0.0.swrevision: The onboard firmware revision number. 
-Utilities exist to update and change this firmware. 
+Utilities (man setsserial for details) exist to update and change this firmware.
 
 .TP
 .SH 7i77
@@ -312,7 +330,7 @@ Parameters:
 (bit rw) .7i77.0.0.output-NN-invert: Invert the sense of the corresponding
 output pin.
 
-(bit rw) .7i77.0.0.spindir-invert: Invert the senseof the spindle direction pin.
+(bit rw) .7i77.0.0.spindir-invert: Invert the sense of the spindle direction pin.
 
 (bit rw) .7i77.0.0.spinena-invert: Invert the sense of the spindle-enable pin.
 
@@ -330,10 +348,6 @@ spinout-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
 allowable
 
 (float rw) .7i77.0.0.analogoutN-minlim: (N = 0 to 5) The minimum speed request.
-
-////
-***** CHECK ME ***** I'm not sure about the description on analogoutN-scalemax
-////
 
 (float rw) .7i77.0.0.analogoutN-scalemax: (N = 0 to 5) The analog speed scaling.
 This is the speed request which would correspond to full-scale output from the
@@ -363,11 +377,11 @@ the corresponding Parameter
 Parameters:
 
 (u32 ro) .7i69.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
-not be altered, and special utils are needed to do so. 
+not be altered.
 
 (u32 ro) .7i69.0.0.nvunitnumber: Indicates the serial number of the device and
-should match a siticker on the card. This can be useful for wokring out which 
-card is which. 
+should match a sticker on the card. This can be useful for working out which
+card is which.
 
 (u32 ro) .7i69.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
 is separate from the Anything-IO card timeout. This is unlikley to need to be 
@@ -377,7 +391,7 @@ changed.
 output pin. 
 
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
-Utilities exist to update and change this firmware. 
+Utilities exist to update and change this firmware.
 
 .TP
 .SH 7i70
@@ -413,18 +427,18 @@ different signal nets.
 Parameters:
 
 (u32 ro) .7i70.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
-not be altered, and special utils are needed to do so. 
+not be altered.
 
 (u32 ro) .7i70.0.0.nvunitnumber: Indicates the serial number of the device and
-should match a siticker on the card. This can be useful for wokring out which 
-card is which. 
+should match a sticker on the card. This can be useful for working out which
+card is which.
 
 (u32 ro) .7i70.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
 is separate from the Anything-IO card timeout. This is unlikley to need to be 
 changed. 
 
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
-Utilities exist to update and change this firmware. 
+Utilities exist to update and change this firmware.
 
 .TP
 .SH 7i71
@@ -454,18 +468,18 @@ Parameters:
 output pin. 
 
 (u32 ro) .7i71.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
-not be altered, and special utils are needed to do so. 
+not be altered.
 
 (u32 ro) .7i71.0.0.nvunitnumber: Indicates the serial number of the device and
-should match a siticker on the card. This can be useful for wokring out which 
-card is which. 
+should match a sticker on the card. This can be useful for determining which
+card is which.
 
 (u32 ro) .7i71.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
 is separate from the Anything-IO card timeout. This is unlikley to need to be 
 changed. 
 
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
-Utilities exist to update and change this firmware. 
+Utilities exist to update and change this firmware.
 
 .TP
 .SH 7i73
@@ -523,8 +537,7 @@ Parameters:
  (u32 ro) .7i73.0.1.nvwatchdogtimeout
  (u32 ro) .7i73.0.1.output-00-invert
  
- The above parameters are only settable with utility software, for further 
- details of their use see the Mesa manual. 
+ For further details of the use of the above see the Mesa manual.
 
 (bit rw) .7i73.0.1.output-01-invert: Invert the corresponding output bit. 
 

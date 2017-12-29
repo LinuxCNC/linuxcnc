@@ -16,6 +16,15 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+
+# Supply bindings missing from tcl8.6
+if {[bind Scale <Left>] == ""} {
+     bind Scale <Left> { tk::ScaleIncrement %W up little noRepeat }
+}
+if {[bind Scale <Right>] == ""} {
+     bind Scale <Right> { tk::ScaleIncrement %W down little noRepeat }
+}
+
 lappend auto_path $::linuxcnc::TCL_LIB_DIR
 
 . configure \
@@ -807,7 +816,7 @@ set _tabs_mdi [${pane_top}.tabs insert end mdi -text [_ "MDI \[F5\]"]]
 $_tabs_manual configure -borderwidth 2
 $_tabs_mdi configure -borderwidth 2
 
-${pane_top}.tabs itemconfigure mdi -raisecmd "[list focus ${_tabs_mdi}.command]; ensure_mdi"
+${pane_top}.tabs itemconfigure mdi -raisecmd "[list focus ${_tabs_mdi}.command];"
 #${pane_top}.tabs raise manual
 after idle {
     ${pane_top}.tabs raise manual
@@ -1841,7 +1850,8 @@ proc update_state {args} {
     }
 
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE} {
-        if {$::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state} {
+        if {   ($::last_interp_state != $::INTERP_IDLE || $::last_task_state != $::task_state) \
+            && $::task_mode == $::TASK_MODE_AUTO} {
             set_mode_from_tab
         }
         enable_group $::manualgroup
@@ -2003,7 +2013,6 @@ foreach {k v} {
     Home    LineStart       End     LineEnd
 } {
     set b [bind Entry <<$v>>]
-    puts [list Trying to fix bindings $k $v $b]
     if {$b != {}} { bind Entry <$k> $b }
 }
 

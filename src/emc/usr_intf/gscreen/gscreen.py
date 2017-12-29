@@ -1243,7 +1243,7 @@ class Gscreen:
             expects widget to be named statusbar1
         """
         self.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
-        self.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
+        self.homed_status_message = self.widgets.statusbar1.push(1,_("Ready For Homing"))
 
     def init_entry(self):
         return
@@ -1307,7 +1307,7 @@ class Gscreen:
         model.append((_("Follow System Theme"),))
         # if there is a local custom theme add it
         if self.data.local_theme:
-            model.append(("Local Config Theme",))
+            model.append((_("Local Config Theme"),))
         themes = []
         # add user themes
         if os.path.exists(userthemedir):
@@ -4542,7 +4542,10 @@ class Gscreen:
         systemlabel = (_("Machine"),"G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3")
         tool = str(self.data.tool_in_spindle)
         if tool == None: tool = "None"
-        self.widgets.system.set_text(("Tool %s     %s"%(tool,systemlabel[self.data.system])))
+        self.widgets.system.set_text((_("Tool %(t)s     %(l)s")%
+             ({'t':tool,
+               'l':systemlabel[self.data.system]
+             })))
 
     def update_coolant_leds(self):
         # coolant
@@ -4571,12 +4574,12 @@ class Gscreen:
     def update_jog_rate_label(self):
         rate = round(self.status.convert_units(self.data.jog_rate),2)
         if self.data.dro_units == self.data._MM:
-            text = "%4.2f mm/min"% (rate)
+            text = _("%4.2f mm/min")% (rate)
         else:
-            text = "%3.2f IPM"% (rate)
+            text = _("%3.2f IPM")% (rate)
         self.widgets.jog_rate.set_text(text)
         try:
-            text = "%4.2f DPM"% (self.data.angular_jog_rate)
+            text = _("%4.2f DPM")% (self.data.angular_jog_rate)
             self.widgets.angular_jog_rate.set_text(text)
         except:
             pass
@@ -4585,7 +4588,11 @@ class Gscreen:
         # Mode / view
         modenames = self.data.mode_labels
         time = strftime("%a, %d %b %Y  %I:%M:%S %P    ", localtime())
-        self.widgets.mode_label.set_label( _("%s   View -%s               %s")% (modenames[self.data.mode_order[0]],self.data.plot_view[0],time) )
+        self.widgets.mode_label.set_label( _("%(n)s   View -%(v)s               %(t)s")%
+              ({'n':modenames[self.data.mode_order[0]],
+                'v':self.data.plot_view[0],
+                't':time
+              }))
 
     def update_units_button_label(self):
         label = self.widgets.metric_select.get_label()

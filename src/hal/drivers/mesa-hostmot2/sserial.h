@@ -20,6 +20,7 @@
 #define __SSERIAL_H
 
 #include <rtapi_stdint.h>
+#include "hostmot2.h"
 
 #define HM2_SSERIAL_TYPE_8I20               0x30324938  // '8i20' as 4 ascii
 #define HM2_SSERIAL_TYPE_7I64               0x34364937  // '7i64' All newer cards self-declare
@@ -79,6 +80,7 @@
 #define LBP_BOOLEAN             0x07
 #define LBP_ENCODER             0x08
 #define LBP_FLOAT               0x10 // New for STMBL
+#define LBP_NONVOL_FLOAT        0x11 
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
 #define LBP_ENCODER_L           0x28 // part and full count fields. 
 
@@ -94,68 +96,6 @@ typedef struct {
     char NameString[HM2_SSERIAL_MAX_STRING_LENGTH+1];
     char Flags; //0x01 = graycode 0x02 = nowrap
 }hm2_sserial_data_t;
-
-static const hm2_sserial_data_t hm2_8i20_params[] = {
-    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_OUT,0.0,1.0,0,"degrees","angle"},
-    {LBP_DATA,0x10,LBP_SIGNED,LBP_OUT,-10.0,10.0,0,"amps","current"},
-    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,65535,0,"Deg C","card-temp"},
-    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,655.35,0,"volts","bus-voltage"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.current-lim"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.brake-on"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.brake-old"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.bus-underv"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.wd-reset"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.sw-reset"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.ext-reset"},
-    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.no-enable"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.pid-on"},
-    {LBP_DATA,0x06,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.watchdog"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.no-enable"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overtemp"},
-    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overcurrent"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.U-current"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.V-current"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.W-current"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-underv"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-high"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-overv"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.module"},
-    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overrun"},
-    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.framingr"}
-};
-static const hm2_sserial_data_t hm2_8i20_globals[] = { 
-    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,0,2164,"none","swrevision"},
-    {LBP_DATA,0x20,LBP_UNSIGNED,LBP_IN,0,0,2344,"none","unitnumber"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,32.768,2,"amps","nvmaxcurrent"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,36,"volts","nvbusundervmax"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,34,"volts","nvbusundervmin"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,38,"volts","nvbusoverv"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,40,"volts","nvbrakeonv"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,42,"volts","nvbrakeoffv"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,6,"bps","nvrembaudrate"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,10,"none","nvkqp"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,14,"none","nvkqihi"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,12,"none","nvkqilo"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,16,"none","nvkqil"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,18,"none","nvkdp"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,22,"none","nvkdihi"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,20,"none","nvkdilo"},
-    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,24,"none","nvkdil"}
-};
-
-static const hm2_sserial_data_t hm2_7i64_params[] = {
-    {LBP_DATA,0x18,LBP_BITS,LBP_OUT,0,0,0,"none","output"},
-    {LBP_DATA,0x18,LBP_BITS,LBP_IN,0,0,0,"none","input"},
-    {LBP_DATA,0x08,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,3.3,0,"volts","analog0"},
-    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,3.3,0,"volts","analog1"}
-};
 
 typedef struct {
     unsigned char RecordType;
@@ -187,9 +127,21 @@ typedef struct {
 }hm2_sserial_pins_t;
 
 typedef struct {
-    hal_u32_t u32_param;
-    hal_s32_t s32_param;
-    hal_float_t float_param;
+    int type;
+    union {
+        long long s64_param;
+        hal_u32_t u32_param;
+        hal_s32_t s32_param;
+        hal_float_t float_param;
+        hal_bit_t bit_param;
+    };
+    union {
+        long long s64_written;
+        hal_u32_t u32_written;
+        hal_s32_t s32_written;
+        hal_float_t float_written;
+        hal_bit_t bit_written;
+    };
     hal_u32_t timer_num;
     hal_bit_t *error;
 }hm2_sserial_params_t;
@@ -253,7 +205,13 @@ typedef struct {
     
     hal_bit_t *run;
     hal_u32_t *state;
-    rtapi_u32 timer;
+    hal_u32_t *state2;
+    hal_u32_t *state3;
+    hal_s32_t *debug;
+    hal_u32_t r_index;
+    hal_u32_t g_index;
+    int doit_err_count;
+    rtapi_s32 timer;
     bool ever_read;
 } hm2_sserial_instance_t;
 
@@ -263,5 +221,69 @@ typedef struct {
     int num_instances; // number of active instances
     hm2_sserial_instance_t *instance ;
 } hm2_sserial_t;
+
+// The 8i20 and 7i64 pre-date parameter discovery
+
+static const hm2_sserial_data_t hm2_8i20_params[] = {
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_OUT,0.0,1.0,0,"degrees","angle"},
+    {LBP_DATA,0x10,LBP_SIGNED,LBP_OUT,-10.0,10.0,0,"amps","current"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,65535,0,"Deg C","card-temp"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,655.35,0,"volts","bus-voltage"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.current-lim"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.brake-on"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.brake-old"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.bus-underv"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.wd-reset"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.sw-reset"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.ext-reset"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.no-enable"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.pid-on"},
+    {LBP_DATA,0x06,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.watchdog"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.no-enable"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overtemp"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overcurrent"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.U-current"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.V-current"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.W-current"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-underv"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-high"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-overv"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.module"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overrun"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.framingr"}
+};
+static const hm2_sserial_data_t hm2_8i20_globals[] = { 
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,0,2164,"none","swrevision"},
+    {LBP_DATA,0x20,LBP_UNSIGNED,LBP_IN,0,0,2344,"none","unitnumber"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,32.768,2,"amps","nvmaxcurrent"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,36,"volts","nvbusundervmax"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,34,"volts","nvbusundervmin"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,38,"volts","nvbusoverv"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,40,"volts","nvbrakeonv"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,42,"volts","nvbrakeoffv"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,6,"bps","nvrembaudrate"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,10,"none","nvkqp"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,14,"none","nvkqihi"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,12,"none","nvkqilo"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,16,"none","nvkqil"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,18,"none","nvkdp"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,22,"none","nvkdihi"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,20,"none","nvkdilo"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_OUT,0,0,24,"none","nvkdil"}
+};
+
+static const hm2_sserial_data_t hm2_7i64_params[] = {
+    {LBP_DATA,0x18,LBP_BITS,LBP_OUT,0,0,0,"none","output"},
+    {LBP_DATA,0x18,LBP_BITS,LBP_IN,0,0,0,"none","input"},
+    {LBP_DATA,0x08,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,3.3,0,"volts","analog0"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,3.3,0,"volts","analog1"}
+};
 
 #endif

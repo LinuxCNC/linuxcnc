@@ -657,7 +657,7 @@
                             <property name="homogeneous">True</property>
                             <child>
                               <widget class="GtkButton" id="set_tool">
-                                <property name="label">Set Tool</property>
+                                <property name="label" translatable="yes">Set Tool</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -672,7 +672,7 @@
                             </child>
                             <child>
                               <widget class="GtkButton" id="set_origin">
-                                <property name="label">Set Origin</property>
+                                <property name="label" translatable="yes">Set Origin</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -687,7 +687,7 @@
                             </child>
                             <child>
                               <widget class="GtkButton" id="macro">
-                                <property name="label">Macro</property>
+                                <property name="label" translatable="yes">Macro</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>

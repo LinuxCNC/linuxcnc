@@ -19,6 +19,9 @@
 #ifndef PYTHON_PLUGIN_HH
 #define PYTHON_PLUGIN_HH
 
+#ifndef BOOST_PYTHON_MAX_ARITY
+#define BOOST_PYTHON_MAX_ARITY 4
+#endif
 #include <boost/python/object.hpp>
 
 #include <vector>

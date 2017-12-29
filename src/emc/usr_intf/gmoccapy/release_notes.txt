@@ -1,3 +1,20 @@
+ver 2.3.3.2
+- toggling the chk_toggle_readout, raised an exception on 5 axis config
+
+ver 2.3.3.1
+- small changes to the code, as there was a possibility the
+  label was shown, even if auto tool measurement was not used
+
+ver 2.3.3
+- added a label at the button of the preview window to show the actual 
+  block-height value
+- the value is stored in the preference file and will be reloaded on start up,
+  the corresponding hal pin is set to that value
+- the block-height label is only visible, if the "use auto tool measurement" 
+  check-box is active!
+
+  Thanks to Rubenv and crislacuf for reporting
+
 ver 2.3.2.4
 - most of .format code rework done
 
@@ -6,7 +23,7 @@ ver 2.3.2.3
   not only report in terminal
 
 ver 2.3.2.2
-- ongoing reformating the code to new .format style
+- ongoing reformatting the code to new .format style
 
 ver 2.3.2.1
 - formating bug in Vc, when over 100, float can not be formated as int

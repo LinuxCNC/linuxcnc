@@ -60,7 +60,7 @@ name and end at the next section name.
 The following sections are used by LinuxCNC:
 
 * '[<<sec:emc-section,EMC>>]' general information
-* ' <<sec:display-section,DISPLAY>>]' settings related to the graphical user interface
+* '[<<sec:display-section,DISPLAY>>]' settings related to the graphical user interface
 * '[<<sec:filter-section,FILTER>>]' settings input filter programs
 * '[<<sec:rs274ngc-section,RS274NGC>>]' settings used by the g-code interpreter
 * '[<<sec:emcmot-section,EMCMOT>>]' settings used by the real time motion controller
@@ -926,7 +926,9 @@ small, tight corners, since you're limited by cornering acceleration.
 * 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
    that compute world coordinates using kinematicsForward() when switching
    from joint to teleop mode.  Up to nine coordinate values (X Y Z A B C U V W)
-   may be specified, unused trailing items may be omitted.
+   may be specified, unused trailing items may be omitted. This value is only
+   used for machines with nontrivial kinematics. On machines with trivial
+   kinematics (mill, lathe, gantry types) this value is ignored.
    Note: the sim hexapod config requires a non-zero value for the Z coordinate.
 
 [WARNING]

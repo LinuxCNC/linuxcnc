@@ -523,13 +523,13 @@ int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
 {
     zyx->y = atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
-    if (fabs(zyx->y - (2 * PM_PI)) < ZYX_Y_FUZZ) {
+    if (fabs(zyx->y - PM_PI_2) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
-	zyx->y = (2 * PM_PI);	/* force it */
+	zyx->y = PM_PI_2;	/* force it */
 	zyx->x = atan2(m->y.x, m->y.y);
-    } else if (fabs(zyx->y + (2 * PM_PI)) < ZYX_Y_FUZZ) {
+    } else if (fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
-	zyx->y = -(2 * PM_PI);	/* force it */
+	zyx->y = -PM_PI_2;	/* force it */
 	zyx->x = -atan2(m->y.z, m->y.y);
     } else {
 	zyx->z = atan2(m->x.y, m->x.x);
@@ -543,13 +543,13 @@ int pmMatRpyConvert(PmRotationMatrix const * const m, PmRpy * const rpy)
 {
     rpy->p = atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
-    if (fabs(rpy->p - (2 * PM_PI)) < RPY_P_FUZZ) {
+    if (fabs(rpy->p - PM_PI_2) < RPY_P_FUZZ) {
 	rpy->r = atan2(m->y.x, m->y.y);
-	rpy->p = (2 * PM_PI);	/* force it */
+	rpy->p = PM_PI_2;	/* force it */
 	rpy->y = 0.0;
-    } else if (fabs(rpy->p + (2 * PM_PI)) < RPY_P_FUZZ) {
-	rpy->r = -atan2(m->y.z, m->y.y);
-	rpy->p = -(2 * PM_PI);	/* force it */
+    } else if (fabs(rpy->p + PM_PI_2) < RPY_P_FUZZ) {
+	rpy->r = -atan2(m->y.x, m->y.y);
+	rpy->p = -PM_PI_2;	/* force it */
 	rpy->y = 0.0;
     } else {
 	rpy->r = atan2(m->y.z, m->z.z);

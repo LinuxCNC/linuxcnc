@@ -82,7 +82,9 @@ struct PTR {
 };
 
 #pragma GCC diagnostic push
+#if defined(__GNUC__) && (__GNUC__ > 4)
 #pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
 template<class T> struct NATIVE {};
 template<> struct NATIVE<hal_bit_t> { typedef bool type; };
 template<> struct NATIVE<hal_s32_t> { typedef rtapi_s32 type; };

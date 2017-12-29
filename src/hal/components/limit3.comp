@@ -7,97 +7,113 @@ pin in float min_=-1e20;
 pin in float max_=1e20;
 pin in float maxv=1e20;
 pin in float maxa=1e20;
-option data limit3_data;
+variable double in_pos_old;
+variable double out_vel_old;
 function _;
 license "GPL";
 ;;
 
 #include "rtapi_math.h"
 
-typedef struct {
-    double old_in;	/* previous input */
-    double old_out;	/* previous output */
-    double old_v;	/* previous 1st derivative */
-} limit3_data;
+#define SET_NEXT_STATE(out_pos, out_vel, in_pos)	\
+    do {						\
+	out = out_pos;					\
+	out_vel_old = out_vel;				\
+	in_pos_old = in_pos;				\
+        in_limit = (out != in);                         \
+	return;						\
+    } while (0)
+
+#define VALID_NEXT(pos, vel) ((pos) <= max_pos && (pos) >= min_pos	\
+			      && (vel) <= max_vel && (vel) >= min_vel)
 
 FUNCTION(_) {
-    double lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
-    double min_out, max_out, match_time, est_in, est_out;
-    int inlimit;
+    double in_pos_lim, in_vel, min_vel, max_vel, min_pos, max_pos;
+    double vel_0_time, vel_0_pos;
+    double vel_match_time, vel_match_in_pos, vel_match_out_pos;
+    int out_dir, out_dir_rel;
 
-    inlimit = 0;
-    /* apply first order limit */
-    lin = in;
-    if ( lin < min_ ) {
-	lin = min_;
-        inlimit = 1;
-    }
-    if ( lin > max_ ) {
-	lin = max_;
-        inlimit = 1;
-    }
-
-    if(load) {
-	data.old_in = data.old_out = out = lin;
-	data.old_v = 0;
-        in_limit = 1;
+    if (load) {
+	// Apply first order limit
+	in_pos_lim = fmin(max_, fmax(min_, in));
+	SET_NEXT_STATE(in_pos_lim, 0, in_pos_lim);
 	return;
     }
 
-    /* calculate input derivative */
-    dt = period * 0.000000001;
-    in_v = (lin - data.old_in) / dt;
-    /* determine v and out that can be reached in one period */
-    min_v = data.old_v - maxa * dt;
-    if ( min_v < -maxv ) {
-	min_v = -maxv;
+    // Input velocity
+    in_vel = (in - in_pos_old) / fperiod;
+    // Most negative/positive velocity reachable in one period
+    min_vel = fmax(out_vel_old - maxa * fperiod, -maxv);
+    max_vel = fmin(out_vel_old + maxa * fperiod, maxv);
+    // Most negative/positive position reachable in one period
+    min_pos = out + min_vel * fperiod;
+    max_pos = out + max_vel * fperiod;
+
+    // Direction (sign) of output movement
+    out_dir = (out_vel_old < 0) ? -1 : 1;
+    // Direction of output movement relative to input movement
+    out_dir_rel = (out_vel_old - in_vel < 0) ? -1 : 1;
+
+    // Respect max/min position limits:  stop at limit line
+    vel_0_time = fabs(out_vel_old/maxa);              // min time to decel to stop
+    vel_0_pos = out                                   // position after stop
+	+ out_vel_old * (vel_0_time+fperiod)
+	+ 0.5 * (-out_dir * maxa) * pow(vel_0_time,2);
+
+    // Follow input signal:  match position and velocity
+    // - min time for velocity match
+    vel_match_time = fabs(out_vel_old-in_vel) / maxa;
+    // - input position after velocity match
+    vel_match_in_pos = in + in_vel * vel_match_time;
+    // - output position after velocity match
+    vel_match_out_pos = out
+	+ out_vel_old * (vel_match_time+fperiod)
+	+ 0.5 * (-out_dir_rel * maxa) * pow(vel_match_time,2);
+
+    // Respect max/min position limits
+    // 
+    // - If not at the limit line but in danger of overshooting it,
+    //   slow down
+    if (vel_0_pos >= max_ && !VALID_NEXT(max_,0))     // can't follow max limit
+	SET_NEXT_STATE(min_pos, min_vel, in);
+    if (vel_0_pos <= min_ && !VALID_NEXT(min_,0))     // can't follow min limit
+	SET_NEXT_STATE(max_pos, max_vel, in);
+    // - If input signal is headed out of bounds, or headed in bounds
+    //   but no danger of overshooting, the limit is the goal
+    if ((vel_match_in_pos < min_)                     // Input below min limit
+	|| (in <= min_ && vel_match_in_pos < vel_match_out_pos)) {
+	if (VALID_NEXT(min_,0))
+	    SET_NEXT_STATE(min_, 0, in);              // - Park at min limit
+	else
+	    SET_NEXT_STATE(min_pos, min_vel, in);     // - Head toward min limit
     }
-    max_v = data.old_v + maxa * dt;
-    if ( max_v > maxv ) {
-	max_v = maxv;
+    if ((vel_match_in_pos > max_)                     // Input above max limit
+	|| (in >= max_ && vel_match_in_pos > vel_match_out_pos)) {
+	if (VALID_NEXT(max_,0))
+	    SET_NEXT_STATE(max_, 0, in);              // - Park at max limit
+	else
+	    SET_NEXT_STATE(max_pos, max_vel, in);     // - Head toward min limit
     }
-    min_out = data.old_out + min_v * dt;
-    max_out = data.old_out + max_v * dt;
-    if ( ( lin >= min_out ) && ( lin <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) {
-	/* we can follow the command without hitting a limit */
-	lout = lin;
-	data.old_v = ( lout - data.old_out ) / dt;
-    } else {
-	/* can't follow commanded path while obeying limits */ 
-        inlimit = 1;
-	/* determine which way we need to ramp to match v */
-	if ( in_v > data.old_v ) {
-	    ramp_a = maxa;
-	} else {
-	    ramp_a = -maxa;
-	}
-	/* determine how long the match would take */
-	match_time = ( in_v - data.old_v ) / ramp_a;
-	/* where we will be at the end of the match */
-	avg_v = ( in_v + data.old_v + ramp_a * dt ) * 0.5;
-	est_out = data.old_out + avg_v * match_time;
-	/* calculate the expected command position at that time */
-	est_in = data.old_in + in_v * match_time;
-	/* calculate position error at that time */
-	err = est_out - est_in;
-	/* calculate change in final position if we ramp in the
-	   opposite direction for one period */
-	dv = -2.0 * ramp_a * dt;
-	dp = dv * match_time;
-	/* decide what to do */
-	if ( fabs(err+dp*2.0) < fabs(err) ) {
-	    ramp_a = -ramp_a;
-	}
-	if ( ramp_a < 0.0 ) {
-	    lout = min_out;
-	    data.old_v = min_v;
-	} else {
-	    lout = max_out;
-	    data.old_v = max_v;
-	}
+
+    // Follow input signal
+    //
+    // - Try to track input
+    if (VALID_NEXT(in, in_vel))
+	SET_NEXT_STATE(in, in_vel, in);
+    // - Try to match position and velocity without overshooting
+    if (out > in) {                                   // Output > input:
+	if (vel_match_in_pos < vel_match_out_pos)     // - Not overshooting
+	    SET_NEXT_STATE(min_pos, min_vel, in);     //   - Move closer
+	else                                          // - Overshooting
+	    SET_NEXT_STATE(max_pos, max_vel, in);     //   - Back off
     }
-    data.old_out = lout;
-    data.old_in = lin;
-    out = lout;
-    in_limit = inlimit;
+    if (out < in) {                                   // Output < input
+	if (vel_match_in_pos > vel_match_out_pos)     // - Not overshooting
+	    SET_NEXT_STATE(max_pos, max_vel, in);     //   - Move closer
+	else                                          // - Overshooting
+	    SET_NEXT_STATE(min_pos, min_vel, in);     //   - Back off
+    }
+
+    // Shouldn't get here
+    SET_NEXT_STATE((max_pos-min_pos)/2, (max_vel-min_vel)/2, in);
 }

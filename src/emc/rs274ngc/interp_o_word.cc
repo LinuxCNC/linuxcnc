@@ -12,6 +12,7 @@
 *
 ********************************************************************/
 
+#define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/list.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/python/dict.hpp>
