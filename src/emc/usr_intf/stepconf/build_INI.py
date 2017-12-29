@@ -52,6 +52,8 @@ class INI:
         print >>file, _("# overwritten when you run stepconf again").encode('utf-8')
 
         print >>file
+        ##########################################
+        ################### EMC ##################
         print >>file, "[EMC]"
         print >>file, "MACHINE = %s" % self.d.machinename
         print >>file, "DEBUG = 0"
@@ -61,6 +63,9 @@ class INI:
         print >>file, "VERSION = 1.0"
 
         print >>file
+
+        ##########################################
+        ################# DISPLAY ################
         print >>file, "[DISPLAY]"
         if self.d.select_axis:
             print >>file, "DISPLAY = axis"
@@ -126,12 +131,17 @@ class INI:
         elif self.d.axes == XZ: coords = "X Z"
         elif self.d.axes == XYUV: coords = "X Y U V"
 
+        ##########################################
+        ################## KINS ##################
         print >>file,  "[KINS]"
         # trivial kinematics: no. of joints == no.of axes)
         # with trivkins, axes do not have to be consecutive
         print >>file, "JOINTS = %d"%num_joints
         print >>file, "KINEMATICS = trivkins coordinates=%s"%coords.replace(" ","")
         print >>file
+        
+        ##########################################
+        ################# FILTER #################
         print >>file, "[FILTER]"
         print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
         print >>file, "PROGRAM_EXTENSION = .py Python Script"
@@ -141,23 +151,31 @@ class INI:
         print >>file, "py = python"        
 
         print >>file
+
+        ##########################################
+        ################## TASK ##################
         print >>file, "[TASK]"
         print >>file, "TASK = milltask"
         print >>file, "CYCLE_TIME = 0.010"
         print >>file
-       
+
+        ##########################################
+        ################ RS274NGC ################
         print >>file, "[RS274NGC]"
         print >>file, "PARAMETER_FILE = linuxcnc.var"
         # Put my ngc file here
         subroutine_path = os.path.expanduser("~/linuxcnc/configs/%s" % (self.d.machinename))
         print >>file, "SUBROUTINE_PATH = ncsubroutines:%s" % subroutine_path
         # Test if exist manual change tool
-        if(self.d.manual_tool_change == True):
+        if(self.d.tool_change_type == TOOL_CHANGE_MANUAL):
             # From orangecat
-            print >>file, "REMAP=M6 modalgroup=6 ngc=tool-change"
-            print >>file, "REMAP=M600 modalgroup=6 ngc=tool-job-begin"
+            print >>file, "REMAP=M6 modalgroup=6 ngc=%s" % (FILE_TOOL_CHANGE)
+            print >>file, "REMAP=M600 modalgroup=6 ngc=%s" % (FILE_TOOL_JOB_BEGIN)
+            self.p.create_tool_change_routine()
+            self.p.create_tool_job_begin_routine()
         print >>file
-        
+        ##########################################
+        ################# EMCMOT #################
         base_period = self.p.ideal_period()
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
@@ -166,15 +184,19 @@ class INI:
         print >>file, "SERVO_PERIOD = 1000000"
 
         print >>file
+        ##########################################
+        ################## HAL ###################
         print >>file, "[HAL]"
         if self.d.halui:
-            print >>file,"HALUI = halui"          
+            print >>file,"HALUI = halui"
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         if self.d.customhal:
             print >>file, "HALFILE = %s" % FILE_CUSTOM_HALFILE
         if (self.d.guitype == GUI_IS_PYVCP and self.d.pyvcptype != PYVCP_NONE):
             print >>file, "POSTGUI_HALFILE = %s" % FILE_POSTGUI_CALL_LIST
-               
+
+        ##########################################
+        ################# HALUI ##################
         if (self.d.halui_custom == 1 or self.d.halui ==1):
            print >>file
            print >>file, "[HALUI]"
@@ -188,6 +210,8 @@ class INI:
                    print >>file, "MDI_COMMAND = %s" % mdi_command
 
         print >>file
+        ##########################################
+        ################## TRAJ ##################
         print >>file, "[TRAJ]"
         # [TRAJ]AXES notused for joints_axes
         print >>file, "COORDINATES = ",coords
@@ -199,6 +223,9 @@ class INI:
         print >>file, "DEFAULT_LINEAR_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
         print >>file
+
+        ##########################################
+        ################# EMCIO ##################
         print >>file, "[EMCIO]"
         print >>file, "EMCIO = io"
         print >>file, "CYCLE_TIME = 0.100"
@@ -228,14 +255,16 @@ class INI:
             self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
             self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
 
-        if(self.d.manual_tool_change == True):
+        if(self.d.tool_change_type == TOOL_CHANGE_MANUAL):
             # From orangecat
             print >>file, "TOOL_CHANGE_AT_G30 = 0"
+
         print >>file
         file.close()
         self.p.add_md5sum(filename)
         #print self.d.md5sums
 
+####################################################################
 #******************
 # HELPER FUNCTIONS
 #******************
@@ -315,30 +344,6 @@ class INI:
                     print >>file, "HOME_SEQUENCE = %s" % order[num]
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
-	"""
-    def hz(self, axname):
-        steprev = self.d[axname+"steprev"]
-        microstep = self.d[axname+"microstep"]
-        pulleynum = self.d[axname+"pulleynum"]
-        pulleyden = self.d[axname+"pulleyden"]
-        leadscrew = self.d[axname+"leadscrew"]
-        maxvel = self.d[axname+"maxvel"]
-        if self.d.units or axname == 'a': leadscrew = 1./leadscrew
-        pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
-        return abs(pps)
-
-    def minperiod(self, steptime=None, stepspace=None, latency=None):
-        if steptime is None: steptime = self.d.steptime
-        if stepspace is None: stepspace = self.d.stepspace
-        if latency is None: latency = self.d.latency
-        if self.a.doublestep(steptime):
-            return max(latency + steptime + stepspace + 5000, 4*steptime)
-        else:
-            return latency + max(steptime, stepspace)
-
-    def maxhz(self):
-        return 1e9 / self.minperiod()
-	"""
 
     def ideal_maxvel(self, scale):
         if self.p.doublestep():

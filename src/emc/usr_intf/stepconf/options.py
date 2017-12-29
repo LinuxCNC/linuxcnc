@@ -37,7 +37,10 @@ def options_prepare(self):
 	self.page_set_state('halui_page', self.w.halui.get_active())
 	self.w.ladderconnect.set_active(self.d.ladderconnect)
 	self.on_classicladder_toggled()
-	self.w.manualtoolchange.set_active(self.d.manualtoolchange)
+	if (self.d.tool_change_type == TOOL_CHANGE_MANUAL):
+		self.w.manualtoolchange.set_active(True)
+	else:
+		self.w.manualtoolchange.set_active(False)
 	if  not self.w.createconfig.get_active():
 	   if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
 			self.w.radiobutton4.set_active(True)
@@ -74,7 +77,8 @@ def options_finish(self):
 	self.d.floatsout = self.w.floatsout.get_value()
 	self.d.halui_custom = self.w.halui.get_active()  
 	self.d.ladderconnect = self.w.ladderconnect.get_active()
-	self.d.manualtoolchange = self.w.manualtoolchange.get_active()
+	if(self.w.manualtoolchange.get_active() == True):
+		self.d.tool_change_type = TOOL_CHANGE_MANUAL
 	self.d.probe_x_pos = float(self.w.probe_x_pos.get_text())
 	self.d.probe_y_pos = float(self.w.probe_y_pos.get_text())
 	self.d.probe_z_pos = float(self.w.probe_z_pos.get_text())

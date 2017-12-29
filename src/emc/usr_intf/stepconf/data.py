@@ -109,6 +109,8 @@ class Private_Data:
 		
 		#########################################
 		##### reset logic functions for hal files
+		# TIMEDELAY
+		self.maxtimedelay = 0
 		# OR2
 		self.maxor2 = 0
 		# MUX2
@@ -200,10 +202,10 @@ class Private_Data:
 		self.lut5_spindle_speed = 0
 		self.logic_spindle_speed = 0
 		self.or2_spindle_speed = 0
+		self.timedelay_spindle_at_speed = 0
 
 		# Homing
 		self.lut5_homing=0
-
 
 	# Boiler code
 	def __getitem__(self, item):
@@ -249,8 +251,7 @@ class Data:
 		self.halui_list_custom = []
 	
 		#self.hal_postgui = 0
-	
-		self.manualtoolchange = 1
+
 		self.customhal = 1 # include custom hal file
 	
 		# gui
@@ -281,14 +282,17 @@ class Data:
 		self.gladevcpname = "blank.ui"
 	
 		# Tool change
-		self.manual_tool_change = False
+		self.tool_change_type = TOOL_CHANGE_MANUAL
 		
 		# Position of probe switch
 		self.probe_x_pos = 10
 		self.probe_y_pos = 10
 		self.probe_z_pos = 100
 		self.probe_sensor_height = 40.0 # mm
-	
+		
+		# Spindle at speed
+		self.spindle_at_speed_timer = 4 # Seconds before move again
+		
 		self.classicladder = 0 # not included
 		self.tempexists = 0 # not present
 		self.laddername = "custom.clp"

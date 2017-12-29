@@ -91,27 +91,7 @@ def save(self,basedir):
 	# Extra subroutine
 	if (self.d.guitype == GUI_IS_PYVCP or self.d.guitype == GUI_IS_GLADEVCP ):
 		if(self.d.pyvcptype == PYVCP_DEFAULT or self.d.gladevcptype == GLADEVCP_DEFAULT): # default panel
-			# Subroutine
-			subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, "probe_tool_lenght.ngc"))
-			fngc = open(subroutine, "w")
-			print >>fngc, ("""o<probe_tool_lenght> sub
-(Set Z Zero for G54 coordinate)""")
-			print >>fngc, ("	G53 G0 X%d Y%d Z%d" % (self.d.probe_x_pos, self.d.probe_y_pos, self.d.probe_z_pos))
-			print >>fngc, ("""	G49 (Delete any reference)
-	G38.2 Z0 F200
-	G91 G0 Z1 (Off the switch)
-	(try again at lower speed)
-	G90
-	G38.2 Z0 F15
-	(reference length is #1000)
-	#1000=#5063 (save reference tool length)
-	G91 G0 Z1 (Off the switch)
-	(G54 G10 L20 P1 Z[#1000])""")
-			print >>fngc, ("	G54 G10 L20 P1 Z[%s] (switch height)" % (self.d.probe_sensor_height))
-			print >>fngc, ("""	G90 (done)
-o<probe_tool_lenght> endsub""")
-			fngc.close()
-
+			self.create_simple_probe_routine()
 	if (self.d.guitype == GUI_IS_PYVCP):
 		originalname = os.path.expanduser("~/linuxcnc/configs/%s/%s" % (self.d.machinename, self.d.pyvcpname))
 		if(self.d.pyvcptype == PYVCP_DEFAULT): # default panel
@@ -148,7 +128,6 @@ o<probe_tool_lenght> endsub""")
 		self.create_gladevcp_py(originalname)
 
 	if(self.d.manual_tool_change == True):
-		# From orangecat
 		self.create_tool_change_routine()
 		self.create_tool_job_begin_routine()
 

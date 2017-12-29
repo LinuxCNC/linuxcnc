@@ -81,6 +81,12 @@ class HAL:
 		elif self.d.axes == 2:
 			print >>file, "loadrt stepgen step_type=0,0"
 
+		# Spindle
+		TIMEDELAY = self._p.maxtimedelay
+		self._p.timedelay_spindle_at_speed = TIMEDELAY
+		TIMEDELAY += 1
+		self._p.maxtimedelay = TIMEDELAY
+
 		if encoder:
 			print >>file, "loadrt encoder num_chan=1"
 		if self.d.pyvcphaltype == 1:
@@ -92,7 +98,7 @@ class HAL:
 			print >>file, "loadrt charge_pump"
 			print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
 			print >>file, "net charge-pump <= charge-pump.out"
-		
+
 		if limits_homes:
 			LUT5 = self._p.maxlut5
 			self._p.lut5_homing = LUT5
@@ -140,6 +146,13 @@ class HAL:
 		print >>file, "addf stepgen.update-freq servo-thread"
 
 		print >>file, "###### Load logic functions ######"
+		# TIMEDELAY
+		if(self._p.maxtimedelay > 0):
+			print >>file, "# TIMEDELAY #"
+			print >>file, "loadrt timedelay count=%d" % self._p.maxtimedelay
+			for o in range(0, self._p.maxtimedelay):
+				print >>file, "addf timedelay.%d servo-thread" % o
+			print >>file
 		# AND2
 		if(self._p.maxand2 > 0):
 			print >>file, "# AND2 #"
@@ -241,7 +254,16 @@ class HAL:
 		print >>file, "net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs"
 		print >>file, "net spindle-cmd-rps     <= motion.spindle-speed-out-rps"
 		print >>file, "net spindle-cmd-rps-abs <= motion.spindle-speed-out-rps-abs"
-		print >>file, "net spindle-at-speed    => motion.spindle-at-speed"
+		#print >>file, "net spindle-at-speed    => motion.spindle-at-speed"
+		print >>file, "# Timer for waiting spindle is at speed"
+
+		print >>file, "setp timedelay.%d.on-delay %d" % (self._p.timedelay_spindle_at_speed, self.d.spindle_at_speed_timer)
+		print >>file, "net spindle-on => timedelay.%d.in" % (self._p.timedelay_spindle_at_speed)
+		print >>file, "net spindle-timer <= timedelay.%d.out" % (self._p.timedelay_spindle_at_speed)
+		print >>file, "net spindle-timer => motion.spindle-at-speed"
+		print >>file, ""
+
+		
 		if d_hal_output[ON] in outputs and not pwm:
 			print >>file, "net spindle-on <= motion.spindle-on"
 		if d_hal_output[CW] in outputs:
@@ -384,7 +406,7 @@ class HAL:
 			print >>file, "net estop-out => iocontrol.0.emc-enable-in"
 
 		print >>file
-		if self.d.manualtoolchange:
+		if(self.d.tool_change_type == TOOL_CHANGE_OLD):
 			print >>file, "loadusr -W hal_manualtoolchange"
 			print >>file, "net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change"
 			print >>file, "net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed"

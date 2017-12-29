@@ -70,13 +70,9 @@ def pport1_prepare(self):
 def pport1_finish(self):
 	for pin in (10,11,12,13,15):
 		p = 'pin%d' % pin
-		#self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
-		#self.d[p] = hal_input[self.w[p].get_active()]["index"]
 		self.d[p] = hal_input[self.w[p].get_active()]["name"]
 	for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
 		p = 'pin%d' % pin
-		#self.d[p] = self._p.hal_output_names[self.w[p].get_active()]
-		#self.d[p] = hal_output[self.w[p].get_active()]["index"]
 		self.d[p] = hal_output[self.w[p].get_active()]["name"]
 	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
 		p = 'pin%dinv' % pin

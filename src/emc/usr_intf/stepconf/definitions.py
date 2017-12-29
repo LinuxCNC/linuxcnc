@@ -84,6 +84,13 @@ GLADEVCP_DEFAULT = 1
 GLADEVCP_CUSTOM = 2
 GLADEVCP_NONE = 3
 
+# TOOL CHANGE
+FILE_TOOL_CHANGE = 'tool_change'
+FILE_TOOL_JOB_BEGIN = 'tool_job_begin'
+TOOL_CHANGE_MANUAL = 1
+TOOL_CHANGE_AUTO = 2
+TOOL_CHANGE_OLD = 3
+
 # Debounce timing ms
 DEBOUNCE_INPUT_TIME = 10
 
@@ -102,18 +109,15 @@ FILE_GLADEVCP_CUSTOM_HAL = 'gladevcp_custom.hal'
 FILE_GLADEVCP_DEFAULT_GUI = 'gladevcp_default.glade'
 FILE_GLADEVCP_CUSTOM_GUI = 'gladevcp_custom.glade'
 FILE_GLADEVCP_HANDLER = 'gladevcp_handler.py'
-# TOOL CHANGE
-FILE_TOOL_CHANGE = 'tool_change.ngc'
-FILE_TOOL_JOB_BEGIN = 'tool_job_begin.ngc'
 
 # HALUI MDI
 #MDI_G54X0 ='G10 L2 P1 X0 M100'
-MDI_G54X0 ='G54 G10 L20 P1 x0 M100'
-MDI_G54Y0 ='G54 G10 L20 P1 y0 M100'
-MDI_G54Z0 ='G54 G10 L20 P1 z0 M100'
-MDI_G54A0 ='G54 G10 L20 P1 a0 M100'
-MDI_G54U0 ='G54 G10 L20 P1 u0 M100'
-MDI_G54V0 ='G54 G10 L20 P1 v0 M100'
+MDI_G54X0 ='G10 L20 P1 x0 M100'
+MDI_G54Y0 ='G10 L20 P1 y0 M100'
+MDI_G54Z0 ='G10 L20 P1 z0 M100'
+MDI_G54A0 ='G10 L20 P1 a0 M100'
+MDI_G54U0 ='G10 L20 P1 u0 M100'
+MDI_G54V0 ='G10 L20 P1 v0 M100'
 
 THEMEDIR = "/usr/share/themes"
 
@@ -181,6 +185,7 @@ DOUT1=23
 DOUT2=24
 DOUT3=25
 UNUSED_OUTPUT=26
+TOOL_CHANGE=27
 
 # INPUT
 ESTOP_IN=0
@@ -267,7 +272,8 @@ d_hal_output = {
 	DOUT1:"dout-01",
 	DOUT2:"dout-02",
 	DOUT3:"dout-03",
-	UNUSED_OUTPUT:"unused-output"
+	UNUSED_OUTPUT:"unused-output",
+	TOOL_CHANGE:"tool-change"
 }
 
 hal_output = [
@@ -297,7 +303,8 @@ hal_output = [
 	{"name":d_hal_output[DOUT1], "human":_("Digital out 1"), 'index':DOUT1},
 	{"name":d_hal_output[DOUT2], "human":_("Digital out 2"), 'index':DOUT2},
 	{"name":d_hal_output[DOUT3], "human":_("Digital out 3"), 'index':DOUT3},
-	{"name":d_hal_output[UNUSED_OUTPUT], "human":_("Unused"), 'index':UNUSED_OUTPUT}
+	{"name":d_hal_output[UNUSED_OUTPUT], "human":_("Unused"), 'index':UNUSED_OUTPUT},
+	{"name":d_hal_output[TOOL_CHANGE], "human":_("Tool change"), 'index':TOOL_CHANGE}
 	]
 	
 d_hal_input = {
