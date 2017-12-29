@@ -20,6 +20,8 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         self.display_units_mm = False
         self._textTemplate = '%s'
         self._alt_textTemplate = 'None'
+        self._actual_RPM = 0
+
         self.feed_override = True
         self.rapid_override = False
         self.spindle_override = False
@@ -27,7 +29,9 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         self.jogincr = False
         self.tool_number = False
         self.current_feedrate = False
+        self.current_feedunit = False
         self.requested_spindle_speed = False
+        self.actual_spindle_speed = False
         self.user_system = False
         self.gcodes = False
         self.mcodes = False
@@ -50,8 +54,14 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         elif self.current_feedrate:
             GSTAT.connect('current-feed-rate', self._set_feedrate_text)
             GSTAT.connect('metric-mode-changed',self._switch_units)
+        elif self.current_feedunit:
+            GSTAT.connect('current-feed-rate', self._set_feedunit_text)
+            GSTAT.connect('metric-mode-changed',self._switch_units)
+            GSTAT.connect('actual-spindle-speed-changed', self._actual_rpm)
         elif self.requested_spindle_speed:
             GSTAT.connect('requested-spindle-speed-changed', lambda w,data: _f(data))
+        elif self.actual_spindle_speed:
+            GSTAT.connect('actual-spindle-speed-changed', lambda w,data: _f(data))
         elif self.user_system:
             GSTAT.connect('user-system-changed', self._set_user_system_text)
         elif self.gcodes:
@@ -67,6 +77,19 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         if self.display_units_mm != INI.MACHINE_IS_METRIC:
             data = INI.convert_units(data)
         self._set_text(data)
+
+    def _set_feedunit_text(self, widget, data):
+        if self.display_units_mm != INI.MACHINE_IS_METRIC:
+            data = INI.convert_units(data)
+        try:
+            data = (data/self._actual_RPM)
+            self._set_text(data)
+        except:
+            self.setText('')
+            return
+
+    def _actual_rpm(self,w, rpm):
+        self._actual_RPM = rpm
 
     def _set_user_system_text(self, widgets, data):
         self._set_text(int(data)+53)
@@ -88,8 +111,9 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
 
     def _toggle_properties(self, picked):
         data = ('feed_override','rapid_override','spindle_override','jograte',
-                'jogincr','tool_number','current_feedrate',
-                'requested_spindle_speed','user_system','gcodes','mcodes')
+                'jogincr','tool_number','current_feedrate', 'current_feedunit',
+                'requested_spindle_speed', 'actual_spindle_speed',
+                'user_system','gcodes','mcodes')
 
         for i in data:
             if not i == picked:
@@ -188,6 +212,16 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_current_feedrate(self):
         self.current_feedrate = False
 
+    # current feedunit status
+    def set_current_feedunit(self, data):
+        self.current_feedunit = data
+        if data:
+            self._toggle_properties('current_feedunit')
+    def get_current_feedunit(self):
+        return self.current_feedunit
+    def reset_current_feedunit(self):
+        self.current_feedunit = False
+
     # spindle speed status
     def set_requested_spindle_speed(self, data):
         self.requested_spindle_speed = data
@@ -197,6 +231,16 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         return self.requested_spindle_speed
     def reset_requested_spindle_speed(self):
         self.requested_spindle_speed = False
+
+    # spindle speed status
+    def set_actual_spindle_speed(self, data):
+        self.actual_spindle_speed = data
+        if data:
+            self._toggle_properties('actual_spindle_speed')
+    def get_actual_spindle_speed(self):
+        return self.actual_spindle_speed
+    def reset_actual_spindle_speed(self):
+        self.actual_spindle_speed = False
 
     # user_system status
     def set_user_system(self, data):
@@ -237,7 +281,9 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
     tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
     current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate, reset_current_feedrate)
+    current_FPU_status = QtCore.pyqtProperty(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
     requested_spindle_speed_status = QtCore.pyqtProperty(bool, get_requested_spindle_speed, set_requested_spindle_speed, reset_requested_spindle_speed)
+    actual_spindle_speed_status = QtCore.pyqtProperty(bool, get_actual_spindle_speed, set_actual_spindle_speed, reset_actual_spindle_speed)
     user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
