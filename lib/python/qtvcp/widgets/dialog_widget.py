@@ -54,7 +54,7 @@ class Lcnc_Dialog(QMessageBox):
 
     def showdialog(self, message, more_info=None, details=None, display_type=1,
                      icon=QMessageBox.Information, pinname=None, focus_text=None,
-                        focus_color=None):
+                        focus_color=None,play_alert=None):
         if focus_text:
             self.focus_text = focus_text
         if focus_color:
@@ -84,6 +84,8 @@ class Lcnc_Dialog(QMessageBox):
             self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.buttonClicked.connect(self.msgbtn)
         GSTAT.emit('focus-overlay-changed',True,self.focus_text,self._color)
+        if play_alert:
+            GSTAT.emit('play-alert',play_alert)
         retval = self.exec_()
         GSTAT.emit('focus-overlay-changed',False,None,None)
         log.debug("Value of pressed button: {}".format(retval))
@@ -154,9 +156,10 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
         self.changed = self.hal.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
         #self.hal_pin = self.hal.newpin(self.hal_name + 'change_button', hal.HAL_BIT, hal.HAL_IN)
         self.hal.comp.setprefix(oldname)
+        self.sound ='RING'
 
     def showtooldialog(self, message, more_info=None, details=None, display_type=1,
-                     icon=QMessageBox.Information):
+                     icon=QMessageBox.Information ):
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags( self.windowFlags() |Qt.Tool |
@@ -199,6 +202,7 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info:'
             GSTAT.emit('focus-overlay-changed',True,MESS, self._color)
+            GSTAT.emit('play-alert',self.sound)
             result = self.showtooldialog(MESS,MORE,DETAILS)
             GSTAT.emit('focus-overlay-changed',False,None,None)
             return result
