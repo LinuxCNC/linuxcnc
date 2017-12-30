@@ -509,9 +509,6 @@ class Combi_DRO(gtk.VBox):
         self._ORDER = [self._ORDER[2], self._ORDER[0], self._ORDER[1]]
         self._set_labels()
         self.emit("clicked", self.joint_number, self._ORDER)
-        print("CombiDRO Info", self.joint_number)
-        p = self.status.position
-        print("CombiDRO Info", p)
 
     # You can change the automatic given axisletter using this funktion
     # i.e. to use an axis as R or D insteadt of X on a lathe
