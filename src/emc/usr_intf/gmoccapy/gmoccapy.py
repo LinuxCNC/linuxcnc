@@ -234,6 +234,10 @@ class gmoccapy(object):
         self.gui.connect("estop_active", self._estop_active)
         self.gui.connect("on_active", self._on_active)
         self.gui.connect("set_manual", self._set_manual)
+        self.gui.connect("set_mdi", self._set_mdi)
+        self.gui.connect("set_auto", self._set_auto)
+        self.gui.connect("mdi_command", self._mdi_command)
+        self.gui.connect("mdi_abort", self._mdi_abort)
         self.gui.connect("exit", self._exit)
 
         # get all widgets as class, so they can be called directly
@@ -310,7 +314,6 @@ class gmoccapy(object):
         self._init_file_to_load()
 
         self._show_offset_tab(False)
-        self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
 
 
@@ -415,7 +418,6 @@ class gmoccapy(object):
         self.widgets.adj_start_spindle_RPM.set_value(self.spindle_start_rpm)
         self.widgets.gcode_view.set_sensitive(False)
         self.widgets.ntb_user_tabs.remove_page(0)
-        self._add_macro_button()
 
         if not self.get_ini_info.get_embedded_tabs()[2]:
             self.widgets.tbtn_user_tabs.set_sensitive(False)
@@ -511,14 +513,6 @@ class gmoccapy(object):
         self.command.wait_complete()
 
     def _init_preferences(self):
-        # check if NO_FORCE_HOMING is used in ini
-        self.no_force_homing = self.get_ini_info.get_no_force_homing()
-
-        # disable reload tool on start up, if True
-        if self.no_force_homing:
-            self.widgets.chk_reload_tool.set_sensitive(False)
-            self.widgets.chk_reload_tool.set_active(False)
-            self.widgets.lbl_reload_tool.set_visible(True)
 
         # if there is a INI Entry for default spindle speed, we will use that one as default
         # but if there is a setting in our preference file, that one will beet the INI entry
@@ -1218,25 +1212,6 @@ class gmoccapy(object):
             if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
                 self.widgets.ntb_preview.set_property("show-tabs", state)
 
-    def _show_tooledit_tab(self, state):
-        page = self.widgets.ntb_preview.get_nth_page(2)
-        if page.get_visible() and state or not page.get_visible() and not state:
-            return
-        if state:
-            page.show()
-            self.widgets.ntb_preview.set_property("show-tabs", not state)
-            self.widgets.vbx_jog.hide()
-            self.widgets.ntb_preview.set_current_page(2)
-            self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
-            if self.widgets.chk_use_kb_on_tooledit.get_active():
-                self.widgets.ntb_info.set_current_page(1)
-        else:
-            page.hide()
-            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
-                self.widgets.ntb_preview.set_property("show-tabs", not state)
-            self.widgets.vbx_jog.show()
-            self.widgets.ntb_preview.set_current_page(0)
-            self.widgets.ntb_info.set_current_page(0)
 
     def _show_iconview_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(3)
@@ -1354,22 +1329,18 @@ class gmoccapy(object):
         else:
             self.command.state(linuxcnc.STATE_OFF)
 
-    def _set_manual(self, widget, data=None):
+    def _set_manual(self, object):
         print("recieved set manual signal")
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
-
-    # The mode buttons
-    def on_rbt_manual_pressed(self, widget, data=None):
-        self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
-
-    def on_rbt_mdi_pressed(self, widget, data=None):
+    def _set_mdi(self, object):
+        print("recieved set mdi signal")
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
 
-    def on_rbt_auto_pressed(self, widget, data=None):
+    def _set_auto(self, object):
+        print("recieved set auto signal")
         self.command.mode(linuxcnc.MODE_AUTO)
         self.command.wait_complete()
 
@@ -1379,37 +1350,6 @@ class gmoccapy(object):
 
 # =========================================================
 # hal status Start
-
-    # use the hal_status widget to control buttons and
-    # actions allowed by the user and sensitive widgets
-    def on_hal_status_all_homed(self, widget):
-        self.all_homed = True
-        self.widgets.ntb_button.set_current_page(_BB_MANUAL)
-        widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
-        ]
-        self._sensitize_widgets(widgetlist, True)
-        self.set_motion_mode(1)
-        if self.widgets.chk_reload_tool.get_active():
-            # if there is already a tool in spindle, the user 
-            # homed the second time, unfortunately we will then
-            # not get out of MDI mode any more
-            # That happen, because the tool in spindle did not change, so the 
-            # tool info is not updated and we self.change_tool will not be reseted
-            if self.stat.tool_in_spindle != 0:
-                return
-            self.reload_tool()
-            self.command.mode(linuxcnc.MODE_MANUAL)
-
-    def on_hal_status_not_all_homed(self, widget, joints):
-        self.all_homed = False
-        if self.no_force_homing:
-            return
-        widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_touch", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
-        ]
-        self._sensitize_widgets(widgetlist, False)
-        self.set_motion_mode(0)
         
     def on_hal_status_file_loaded(self, widget, filename):
         widgetlist = ["btn_use_current" ]
@@ -1438,45 +1378,6 @@ class gmoccapy(object):
             self.halcomp["program.progress"] = 0.0
             # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
-    def on_hal_status_interp_idle(self, widget):
-        if self.load_tool:
-            return
-        widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
-                      "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
-                      "btn_load", "btn_edit", "tbtn_optional_blocks"
-        ]
-        if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
-            widgetlist.append("tbtn_setup")
-        if self.all_homed or self.no_force_homing:
-            widgetlist.append("rbt_mdi")
-            widgetlist.append("rbt_auto")
-            widgetlist.append("btn_index_tool")
-            widgetlist.append("btn_change_tool")
-            widgetlist.append("btn_select_tool_by_no")
-            widgetlist.append("btn_tool_touchoff_x")
-            widgetlist.append("btn_tool_touchoff_z")
-            widgetlist.append("btn_touch")
-        # This happen because hal_glib does emmit the signals in the order that idle is emited later that estop
-        if self.stat.task_state == linuxcnc.STATE_ESTOP or self.stat.task_state == linuxcnc.STATE_OFF:
-            self._sensitize_widgets(widgetlist, False)
-        else:
-            self._sensitize_widgets(widgetlist, True)
-        for btn in self.macrobuttons:
-            btn.set_sensitive(True)
-        if self.onboard:
-            self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
-        else:
-            self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
-        self.widgets.btn_run.set_sensitive(True)
-
-        if self.tool_change:
-            self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
-            self.tool_change = False
-
-        self.halcomp["program.current-line"] = 0
-        self.halcomp["program.progress"] = 0.0
-
     def on_hal_status_interp_run(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
@@ -1494,47 +1395,6 @@ class gmoccapy(object):
         self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
 
 
-
-    def on_hal_status_mode_mdi(self, widget):
-        print ("MDI Mode", self.tool_change)
-        # self.tool_change is set only if the tool change was commanded
-        # from tooledit widget/page, so we do not want to switch the
-        # screen layout to MDI, but set the manual widgets
-        if self.tool_change:
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
-            self.widgets.ntb_info.set_current_page(0)
-            self.widgets.ntb_jog.set_current_page(0)
-            return
-        # if MDI button is not sensitive, we are not ready for MDI commands
-        # so we have to abort external commands and get back to manual mode
-        # This will happen mostly, if we are in settings mode, as we do disable the mode button
-        if not self.widgets.rbt_mdi.get_sensitive():
-            self.command.abort()
-            self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
-            self._show_error((13, _("It is not possible to change to MDI Mode at the moment")))
-            return
-        else:
-            # if we are in user tabs, we must reset the button
-            if self.widgets.tbtn_user_tabs.get_active():
-                self.widgets.tbtn_user_tabs.set_active(False)
-            if self.widgets.chk_use_kb_on_mdi.get_active():
-                self.widgets.ntb_info.set_current_page(1)
-            else:
-                self.widgets.ntb_info.set_current_page(0)
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.ntb_button.set_current_page(_BB_MDI)
-            self.widgets.ntb_jog.set_current_page(1)
-            self.widgets.hal_mdihistory.entry.grab_focus()
-            self.widgets.rbt_mdi.set_active(True)
-            
-            # if the status changed, we reset the key event, otherwise the key press
-            # event will not change, if the user did the last change with keyboard shortcut
-            # This is caused, because we record the last key event to avoid multiple key
-            # press events by holding down the key. I.e. One press should only advance one increment
-            # on incremental jogging.
-            self.last_key_event = None, 0
 
 
     def on_hal_status_mode_auto(self, widget):
@@ -1590,63 +1450,7 @@ class gmoccapy(object):
             state = False
         self._sensitize_widgets(widgetlist, state)
             
-# hal status End
-# =========================================================
 
-    # There are some settings we can only do if the window is on the screen already
-    def on_window1_show(self, widget, data=None):
-
-        # it is time to get the correct estop state and set the button status
-        self.stat.poll()
-        if self.stat.task_state == linuxcnc.STATE_ESTOP:
-            self.widgets.tbtn_estop.set_active(True)
-            self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
-            self.widgets.tbtn_on.set_sensitive(False)
-        else:
-            self.widgets.tbtn_estop.set_active(False)
-            self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
-            self.widgets.tbtn_on.set_sensitive(True)
-
-        # if a file should be loaded, we will do so
-        file = self.prefs.getpref("open_file", "", str)
-        if file:
-            self.widgets.file_to_load_chooser.set_filename(file)
-            # self.command.program_open(file)
-            self.widgets.hal_action_open.load_file(file)
-
-        # check how to start the GUI
-        start_as = "rbtn_" + self.prefs.getpref("screen1", "window", str)
-        self.widgets[start_as].set_active(True)
-        if start_as == "rbtn_fullscreen":
-            self.widgets.window1.fullscreen()
-        elif start_as == "rbtn_maximized":
-            self.widgets.window1.maximize()
-        else:
-            self.xpos = int(self.prefs.getpref("x_pos", 40, float))
-            self.ypos = int(self.prefs.getpref("y_pos", 30, float))
-            self.width = int(self.prefs.getpref("width", 979, float))
-            self.height = int(self.prefs.getpref("height", 750, float))
-
-            # set the adjustments according to Window position and size
-            self.widgets.adj_x_pos.set_value(self.xpos)
-            self.widgets.adj_y_pos.set_value(self.ypos)
-            self.widgets.adj_width.set_value(self.width)
-            self.widgets.adj_height.set_value(self.height)
-
-            # move and resize the window
-            self.widgets.window1.move(self.xpos, self.ypos)
-            self.widgets.window1.resize(self.width, self.height)
-
-        self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
-
-        self.initialized = True
-
-        # does the user want to show screen2
-        self._check_screen2()
-        if self.screen2:
-            self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
 
     # kill application
     def _exit(self, object, data = None):
@@ -1656,41 +1460,16 @@ class gmoccapy(object):
         gtk.main_quit()
 
     # What to do if a macro button has been pushed
-    def _on_btn_macro_pressed( self, widget = None, data = None ):
-        o_codes = data.split()
-
-        command = str( "O<" + o_codes[0] + "> call" )
-
-        for code in o_codes[1:]:
-            parameter = self.dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
-                                                  label=_("Set parameter {0} to:").format(code), integer=False)
-            if parameter == "ERROR":
-                print(_("conversion error"))
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
-                                            ("Please enter only numerical values\nValues have not been applied"))
-                return
-            elif parameter == "CANCEL":
-                return
-            else:
-                pass
-            command = command + " [" + str(parameter) + "] "
-# TODO: Should not only clear the plot, but also the loaded program?
-        # self.command.program_open("")
-        # self.command.reset_interpreter()
-        self.widgets.gremlin.clear_live_plotter()
-# TODO: End
+    def _mdi_command(self, object, command):
+        print("recieved mdi command signal", command)
         self.command.mdi(command)
-        for btn in self.macrobuttons:
-            btn.set_sensitive(False)
-        # we change the widget_image and use the button to interrupt running macros
-        if not self.onboard:
-            self.widgets.btn_show_kbd.set_sensitive(True)
-        self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
-        self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
-        self.widgets.ntb_info.set_current_page(0)
+#        self.command.wait_complete()
 
-# helpers functions start
-# =========================================================
+    # Abort any MDI command
+    def _mdi_abort(self, object):
+        print("recieved abort signal")
+        self.command.abort()
+        self.command.wait_complete()
 
 
     def _switch_to_g7(self, state):
@@ -1976,46 +1755,46 @@ class gmoccapy(object):
                 print(_("**** replaced {0} to {1} ****").format(old_value, new_value))
             self.h_tabs[int_tab].append(item)
 
-    # check if macros are in the INI file and add them to MDI Button List
-    def _add_macro_button(self):
-        macros = self.get_ini_info.get_macros()
-
-        # if no macros at all are found, we receieve a NONW, so we have to check:
-        if not macros:
-            num_macros = 0
-        else:
-            num_macros = len( macros )
-
-        if num_macros > 9:
-            message = _( "**** GMOCCAPY INFO ****\n" )
-            message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
-            print( message )
-
-            num_macros = 9
-        for increment in range(0, num_macros):
-            name = macros[increment]
-            lbl = name.split()[0]
-            # shorten / break line of the name if it is to long
-            if len( lbl ) > 11:
-                lbl = lbl[0:10] + "\n" + lbl[11:20]
-            btn = gtk.Button( lbl, None, False )
-            btn.connect( "pressed", self._on_btn_macro_pressed, name )
-            btn.position = increment
-            # we add the button to a list to be able later to see what macro to execute
-            self.macrobuttons.append(btn)
-            self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
-            btn.show()
-        # if there is still place, we fill it with empty labels, to be sure the button will not be on different
-        # places if the amount of macros change.
-        if num_macros < 9:
-            for label_space in range(num_macros, 9):
-                lbl = "lbl_sp_{0}".format(label_space)
-                lbl = gtk.Label(lbl)
-                lbl.position = label_space
-                lbl.set_text("")
-                self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
-                lbl.show()
-        self.widgets.hbtb_MDI.non_homogeneous = False
+#    # check if macros are in the INI file and add them to MDI Button List
+#    def _add_macro_button(self):
+#        macros = self.get_ini_info.get_macros()
+#
+#        # if no macros at all are found, we receieve a NONW, so we have to check:
+#        if not macros:
+#            num_macros = 0
+#        else:
+#            num_macros = len( macros )
+#
+#        if num_macros > 9:
+#            message = _( "**** GMOCCAPY INFO ****\n" )
+#            message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
+#            print( message )
+#
+#            num_macros = 9
+#        for increment in range(0, num_macros):
+#            name = macros[increment]
+#            lbl = name.split()[0]
+#            # shorten / break line of the name if it is to long
+#            if len( lbl ) > 11:
+#                lbl = lbl[0:10] + "\n" + lbl[11:20]
+#            btn = gtk.Button( lbl, None, False )
+#            btn.connect( "pressed", self._on_btn_macro_pressed, name )
+#            btn.position = increment
+#            # we add the button to a list to be able later to see what macro to execute
+#            self.macrobuttons.append(btn)
+#            self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
+#            btn.show()
+#        # if there is still place, we fill it with empty labels, to be sure the button will not be on different
+#        # places if the amount of macros change.
+#        if num_macros < 9:
+#            for label_space in range(num_macros, 9):
+#                lbl = "lbl_sp_{0}".format(label_space)
+#                lbl = gtk.Label(lbl)
+#                lbl.position = label_space
+#                lbl.set_text("")
+#                self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
+#                lbl.show()
+#        self.widgets.hbtb_MDI.non_homogeneous = False
 
     def show_try_errors(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -2151,54 +1930,6 @@ class gmoccapy(object):
             else:
                 self.diameter_mode = True
 
-    def _update_toolinfo(self, tool):
-        toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
-        if toolinfo:
-            # Doku
-            # toolinfo[0] = cell toggle
-            # toolinfo[1] = tool number
-            # toolinfo[2] = pocket number
-            # toolinfo[3] = X offset
-            # toolinfo[4] = Y offset
-            # toolinfo[5] = Z offset
-            # toolinfo[6] = A offset
-            # toolinfo[7] = B offset
-            # toolinfo[8] = C offset
-            # toolinfo[9] = U offset
-            # toolinfo[10] = V offset
-            # toolinfo[11] = W offset
-            # toolinfo[12] = tool diameter
-            # toolinfo[13] = frontangle
-            # toolinfo[14] = backangle
-            # toolinfo[15] = tool orientation
-            # toolinfo[16] = tool info
-            self.widgets.lbl_tool_no.set_text(str(toolinfo[1]))
-            self.widgets.lbl_tool_dia.set_text(toolinfo[12])
-            self.halcomp["tool-diameter"] = float(locale.atof(toolinfo[12]))
-            self.widgets.lbl_tool_name.set_text(toolinfo[16])
-
-        # we do not allow touch off with no tool mounted, so we set the
-        # corresponding widgets unsensitized and set the description accordingly
-        if tool <= 0:
-            self.widgets.lbl_tool_no.set_text("0")
-            self.widgets.lbl_tool_dia.set_text("0")
-            self.widgets.lbl_tool_name.set_text(_("No tool description available"))
-            self.widgets.btn_tool_touchoff_x.set_sensitive(False)
-            self.widgets.btn_tool_touchoff_z.set_sensitive(False)
-        else:
-            self.widgets.btn_tool_touchoff_x.set_sensitive(True)
-            self.widgets.btn_tool_touchoff_z.set_sensitive(True)
-
-        if self.load_tool:
-            self.load_tool = False
-            self.on_hal_status_interp_idle(None)
-            return
-
-        if "G43" in self.active_gcodes and self.stat.task_mode != linuxcnc.MODE_AUTO:
-            self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
-            self.command.mdi("G43")
-            self.command.wait_complete()
 
 # helpers functions end
 # =========================================================
@@ -2239,13 +1970,8 @@ class gmoccapy(object):
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
 
 
-#    def _offset_changed(self, pin, tooloffset):
-#        if self.widgets.Combi_DRO_0.machine_units == _MM:
-#            self.widgets.lbl_tool_offset_z.set_text("{0:.3f}".format(self.halcomp["tooloffset-z"]))
-#            self.widgets.lbl_tool_offset_x.set_text("{0:.3f}".format(self.halcomp["tooloffset-x"]))
-#        else:
-#            self.widgets.lbl_tool_offset_z.set_text("{0:.4f}".format(self.halcomp["tooloffset-z"]))
-#            self.widgets.lbl_tool_offset_x.set_text("{0:.4f}".format(self.halcomp["tooloffset-x"]))
+    def _offset_changed(self, pin, tooloffset):
+        self.gui.offset_changed((self.halcomp["tooloffset-x"], self.halcomp["tooloffset-z"]))
 
     def on_offsetpage1_selection_changed(self, widget, system, name):
         if system not in self.system_list[1:] or self.widgets.tbtn_edit_offsets.get_active():
@@ -2859,30 +2585,7 @@ class gmoccapy(object):
         else:
             self.widgets.window2.hide()
 
-    def on_btn_show_kbd_clicked(self, widget, data=None):
-        # if the image is img_brake macro, we want to interrupt the running macro
-        if self.widgets.btn_show_kbd.get_image() == self.widgets.img_brake_macro:
-            self.command.abort()
-            for btn in self.macrobuttons:
-                btn.set_sensitive(True)
-            if self.onboard:
-                self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
-                self.widgets.btn_show_kbd.set_property("tooltip-text", _("This button will show or hide the keyboard"))
-            else:
-                self.widgets.btn_show_kbd.set_sensitive(False)
-                
-        elif self.widgets.ntb_info.get_current_page() == 1:
-            self.widgets.ntb_info.set_current_page(0)
-        else:
-            self.widgets.ntb_info.set_current_page(1)
-        # special case if we are in edit mode
-        if self.widgets.ntb_button.get_current_page() == _BB_EDIT:
-            if self.widgets.ntb_info.get_visible():
-                self.widgets.box_info.set_size_request(-1, 50)
-                self.widgets.ntb_info.hide()
-            else:
-                self.widgets.box_info.set_size_request(-1, 250)
-                self.widgets.ntb_info.show()
+
 
     def on_ntb_info_switch_page(self, widget, page, page_num, data=None):
         if self.stat.task_mode == linuxcnc.MODE_MDI:
@@ -2890,19 +2593,20 @@ class gmoccapy(object):
         elif self.stat.task_mode == linuxcnc.MODE_AUTO:
             self.widgets.gcode_view.grab_focus()
 
-    # Three back buttons to be able to leave notebook pages
-    # All use the same callback offset
-    def on_btn_back_clicked(self, widget, data=None):
-        if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
-            self.widgets.ntb_button.set_current_page(_BB_AUTO)
-            if self.widgets.tbtn_fullsize_preview1.get_active():
-                self.widgets.vbx_jog.set_visible(False)
-        elif self.widgets.ntb_button.get_current_page() == _BB_LOAD_FILE:  # File selection mode
-            self.widgets.ntb_button.set_current_page(_BB_AUTO)
-        else:  # else we go to main button on manual
-            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.ntb_preview.set_current_page(0)
+#    # Three back buttons to be able to leave notebook pages
+#    # All use the same callback offset
+#    def on_btn_back_clicked(self, widget, data=None):
+#        if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
+#            self.widgets.ntb_button.set_current_page(_BB_AUTO)
+#            if self.widgets.tbtn_fullsize_preview1.get_active():
+#                self.widgets.vbx_jog.set_visible(False)
+#        elif self.widgets.ntb_button.get_current_page() == _BB_LOAD_FILE:  # File selection mode
+#            self.widgets.ntb_button.set_current_page(_BB_AUTO)
+#        else:  # else we go to main button on manual
+#            pass
+#            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
+#            self.widgets.ntb_main.set_current_page(0)
+#            self.widgets.ntb_preview.set_current_page(0)
 
     # The offset settings, set to zero
     def on_btn_touch_clicked(self, widget, data=None):
@@ -3299,27 +3003,6 @@ class gmoccapy(object):
 
 # =========================================================
 # tool stuff
-    # This is used to reload the tool in spindle after starting the GUI
-    # This is called from the all_homed_signal
-    def reload_tool(self):
-        tool_to_load = self.prefs.getpref("tool_in_spindle", 0, int)
-        if tool_to_load == 0:
-            return
-        self.load_tool = True
-        self.tool_change = True
-
-        self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
-
-        command = "M61 Q {0} G43".format(tool_to_load)
-        self.command.mdi(command)
-        self.command.wait_complete()
-
-    def on_btn_tool_clicked(self, widget, data=None):
-        if self.widgets.tbtn_fullsize_preview.get_active():
-            self.widgets.tbtn_fullsize_preview.set_active(False)
-        self.widgets.ntb_button.set_current_page(_BB_TOOL)
-        self._show_tooledit_tab(True)
 
     # Here we create a manual tool change dialog
     def on_tool_change(self, widget):
@@ -3908,9 +3591,9 @@ class gmoccapy(object):
 
         # make pins to react to tool_offset changes
         pin = self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
-#        hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
+        hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
         pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
-#        hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
+        hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
         self.halcomp.newpin("tool-diameter", hal.HAL_FLOAT, hal.HAL_OUT)
 
         # make a pin to delete a notification message
