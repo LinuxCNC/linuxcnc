@@ -63,17 +63,17 @@ class Player:
             self.login = '/usr/share/sounds/LinuxMint/stereo/desktop-login.ogg'
             self.logout = '/usr/share/sounds/LinuxMint/stereo/desktop-logout.ogg'
             if not  os.path.exists(self.error):
-                log.error('Audio player - Mint sound File not found'.format(self.error))
-        else:
-            self.error = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
-            self.ready = '/usr/share/sounds/LinuxMint/stereo/message.oga'
-            self.done = '/usr/share/sounds/freedesktop/stereo/complete.oga'
-            self.attention = '/usr/share/sounds/freedesktop/stereo/suspend-error.oga'
-            self.ring = '/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga'
-            self.login = '/usr/share/sounds/freedesktop/stereo/service-login.oga'
-            self.logout = '/usr/share/sounds/freedesktop/stereo/service-logout.oga'
-            if not  os.path.exists(self.error):
-                log.error('Audio player - Default sound File not found'.format(self.error))
+                log.error('Audio player - Mint sound File not found {}'.format(self.error))
+            return
+        self.error = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
+        self.ready = '/usr/share/sounds/LinuxMint/stereo/message.oga'
+        self.done = '/usr/share/sounds/freedesktop/stereo/complete.oga'
+        self.attention = '/usr/share/sounds/freedesktop/stereo/suspend-error.oga'
+        self.ring = '/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga'
+        self.login = '/usr/share/sounds/freedesktop/stereo/service-login.oga'
+        self.logout = '/usr/share/sounds/freedesktop/stereo/service-logout.oga'
+        if not  os.path.exists(self.error):
+            log.error('Audio player - Default sound File not found {}'.format(self.error))
 
     # play sounds on these messages from GStat
     # play-sound allows an arbrtrary absolute file name
@@ -92,7 +92,7 @@ class Player:
         try:
             self['play_%s'%f.lower()]()
         except:
-            log.error('Audio player - Alert not found'.format(f))
+            log.error('Audio player - Alert not found {}'.format(f))
 
     # check if a file exists then play it
     def run(self,sfile):
@@ -103,7 +103,7 @@ class Player:
             self.player.set_property("uri", "file://" + sfile)
             self.player.set_state(gst.STATE_PLAYING)
         else:
-            log.error('Audio player - File not found'.format(sfile))
+            log.error('Audio player - File not found {}'.format(sfile))
 
     # this gets messages back from GStreamer to control playback
     def on_message(self, bus, message):
@@ -115,7 +115,7 @@ class Player:
             #Error ocurred, print and stop
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
-            log.error('Audio player - Error'.format(err, debug))
+            log.error('Audio player - Error {}'.format(err, debug))
             #print "Error: %s" % err, debug
 
     # play builtin alert sounds
