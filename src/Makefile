@@ -1406,6 +1406,11 @@ obj-m += hal_arm335xQEP.o
 hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
 endif
 
+ifdef TARGET_PLATFORM_H3
+obj-$(CONFIG_HAL_GPIO) += hal_gpio_h3.o
+hal_gpio_h3-objs := hal/drivers/hal_gpio_h3.o
+endif
+
 ifdef TARGET_PLATFORM_CHIP
 obj-$(CONFIG_HAL_GPIO) += hal_chip_gpio.o
 hal_chip_gpio-objs := hal/drivers/hal_chip_gpio.o hal/drivers/chip/mmap_gpio.o
@@ -1847,6 +1852,10 @@ $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs)
 $(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
 $(RTLIBDIR)/hal_arm335xQEP$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_arm335xQEP-objs))
 endif
+endif
+
+ifdef TARGET_PLATFORM_H3
+$(RTLIBDIR)/hal_gpio_h3$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio_h3-objs))
 endif
 
 ifdef TARGET_PLATFORM_CHIP
