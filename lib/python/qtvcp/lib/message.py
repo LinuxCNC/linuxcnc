@@ -1,5 +1,18 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
+from qtvcp.qt_glib import GStat
+from qtvcp.qt_istat import IStat
+import hal
+
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+# Instantiate the libraries with global reference
+# GSTAT gives us status messages from linuxcnc
+GSTAT = GStat()
+INI = IStat()
 
 class Message:
     def __init__(self):
@@ -9,13 +22,17 @@ class Message:
         self.INFO = QMessageBox.Information
         self.WARNING = QMessageBox.Warning
         self.CRITICAL = QMessageBox.Critical
+        self._color = QColor(0, 0, 0, 150)
+        self.focus_text =' '
+        self.play_sounds = True
+        self.use_focus_overlay = True
 
-    def showdialog(self, message, more_info=None, details=None, display_type=1,
+    def showDialog(self, message, more_info=None, details=None, display_type=1,
                      icon=QMessageBox.Information, pinname=None):
         msg = QMessageBox()
         msg.setWindowModality(Qt.ApplicationModal)
         msg.setIcon(icon)
-        #msg.setWindowTitle("MessageBox demo")
+        msg.setWindowTitle("User MessageBox")
         msg.setTextFormat(Qt.RichText)
         msg.setText('<b>%s</b>'% message)
         if more_info:
@@ -27,19 +44,14 @@ class Message:
         else:
             msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.buttonClicked.connect(self.msgbtn)
-
+        # block on answer
         retval = msg.exec_()
-        print "value of pressed message box button:", retval
-        if retval == QMessageBox.No:
-            return False
-        else:
-            return True
+        log.debug('value of pressed message box button: {}'.format(retval))
+        self.dialog_return(None,retval==QMessageBox.Yes,display_type,pinname)
 
     def msgbtn(self, i):
-        print "Button pressed is:",i.text()
-
-
-
+        pass
+        #print "Button pressed is:",i.text()
 
     # This is part of the user message system
     # There is status that prints to the status bar
@@ -47,104 +59,84 @@ class Message:
     # there is yes/no dialog where the user must choose between yes or no
     # you can combine status and dialog messages so they print to the status bar 
     # and pop a dialog
-    def on_printmessage(self, pin, pinname,boldtext,text,type):
+    def on_printmessage(self, pin, pinname, boldtext, text, details, type, icon):
         if not pin.get(): return
-        if boldtext == "NONE": boldtext = None
+        if self.play_sounds:
+            GSTAT.emit('play-alert','READY')
+        if boldtext == "NONE": boldtext = ''
         if "status" in type:
             if boldtext:
                 statustext = boldtext
             else:
                 statustext = text
-            self.notify(_("INFO:"),statustext,INFO_ICON)
+            if self.NOTIFY:
+                self.NOTIFY.notify(_("INFO:"),statustext)
         if "dialog" in type or "okdialog" in type:
+            if self.use_focus_overlay:
+                GSTAT.emit('focus-overlay-changed', True, self.focus_text, self._color)
             if pin.get():
-                self.halcomp[pinname + "-waiting"] = True
+                self.HALCOMP[pinname + "-waiting"] = True
             if "okdialog" in type:
-                self.warning_dialog(boldtext,True,text,pinname)
+                self.showDialog(boldtext,text,details,self.OK_TYPE,icon,pinname)
             else:
                 if pin.get():
-                    self.halcomp[pinname + "-response"] = 0
-                self.warning_dialog(boldtext,False,text,pinname)
+                    self.HALCOMP[pinname + "-response"] = 0
+                self.showDialog(boldtext,text,details,self.YN_TYPE,icon,pinname)
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acknowledge.
-    # dialog displays a GTK dialog box with yes or no buttons
-    # okdialog displays a GTK dialog box with an ok button
+    # dialog displays a  Messagebox with yes or no buttons
+    # okdialog displays a Messagebox with an ok button
     # dialogs require an answer before focus is sent back to main screen
-    def message_setup(self):
-        if not self.inifile:
-            return
-        m_boldtext = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
-        m_text = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
-        m_type = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
-        m_pinname = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
-        if len(m_text) != len(m_type):
-            print _("**** Gscreen ERROR:    Invalid message configuration (missing text or type) in INI File [DISPLAY] section")
-        if len(m_text) != len(m_pinname):
-            print _("**** Gscreen ERROR:    Invalid message configuration (missing pinname) in INI File [DISPLAY] section")
-        if len(m_text) != len(m_boldtext):
-            print _("**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in INI File [DISPLAY] section")
-        for bt,t,c ,name in zip(m_boldtext,m_text, m_type,m_pinname):
-            #print bt,t,c,name
-            if not ("status" in c) and not ("dialog" in c) and not ("okdialog" in c):
-                print _("**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"% c)
-                continue
-            if not name == None:
-                # this is how we make a pin that can be connected to a callback 
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
-                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
-                if ("dialog" in c):
-                    self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
-                    if not ("ok" in c):
-                        self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
+    def message_setup(self, hal_comp, notify):
+        self.HALCOMP = hal_comp
+        self.NOTIFY = notify
+        icon = QMessageBox.Question
+        if INI.ZIPPED_USRMESS:
+            for bt,t,d,style,name in (INI.ZIPPED_USRMESS):
+                if not ("status" in style) and not ("dialog" in style) and not ("okdialog" in style):
+                    log.debug('invalid message type {} in INI File [DISPLAY] section'.format(C))
+                    continue
+                if not name == None:
+                    # this is how we make a pin that can be connected to a callback 
+                    self[name] = self.HALCOMP.newpin(name, hal.HAL_BIT, hal.HAL_IO)
+                    self[name].value_changed.connect(self.dummy(self[name],name,bt,t,d,style,icon))
+                    if ("dialog" in style):
+                        self.HALCOMP.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                        if not ("ok" in style):
+                            self.HALCOMP.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
 
-    # display dialog
-    def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
-        if displaytype:
-            dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_INFO, gtk.BUTTONS_OK,message)
-        else:   
-            dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
-        # if there is a secondary message then the first message text is bold
-        if secondary:
-            dialog.format_secondary_text(secondary)
-        dialog.show_all()
-        try:
-            if "dialog_return" in dir(self.handler_instance):
-                dialog.connect("response", self.handler_instance.dialog_return,self,displaytype,pinname)
-            else:
-                dialog.connect("response", self.dialog_return,displaytype,pinname)
-        except:
-            dialog.destroy()
-            raise NameError (_('Dialog error - Is the dialog handler missing from the handler file?'))
-        if pinname == "TOOLCHANGE":
-            dialog.set_title(_("Manual Toolchange"))
-        else:
-            dialog.set_title(_("Operator Message"))
+    # This weird code is so we can get access to proper variables.
+    # using clicked.connect( self.on_printmessage(pin,name,bt,t,c) ) apparently doesn't easily
+    # add user data - it seems you only get the last set added
+    # found this closure technique hack on the web
+    # truely weird black magic
+    def dummy(self,pin,name,bt,t,d,c,i):
+        def calluser():
+            self.on_printmessage(pin,name,bt,t,d,c,i)
+        return calluser
 
     # message dialog returns a response here
-    # This includes the manual tool change dialog
-    # We know this by the pinname being called 'TOOLCHANGE' 
+    # update any hand shaking pins
     def dialog_return(self,widget,result,dialogtype,pinname):
-        if pinname == "TOOLCHANGE":
-            self.halcomp["tool-changed"] = True
-            widget.destroy()
-            try:
-                self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
-            except:
-                self.show_try_errors()
-            return
         if not dialogtype: # yes/no dialog
-            if result == gtk.RESPONSE_YES:result = True
-            else: result = False
             if pinname:
-                self.halcomp[pinname + "-response"] = result
+                self.HALCOMP[pinname + "-response"] = result
         if pinname:
-            self.halcomp[pinname + "-waiting"] = False
-        widget.destroy()
+            self.HALCOMP[pinname + "-waiting"] = False
+        # reset the HAL IO pin so it can fire again
+        self.HALCOMP[pinname] = False
+        if self.use_focus_overlay:
+            GSTAT.emit('focus-overlay-changed',False,None,None)
+
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 if __name__ == '__main__':
     import sys

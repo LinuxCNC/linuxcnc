@@ -26,6 +26,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.desktop_notify = True
         self.close_event = True
         self.play_sounds = True
+        self.user_messages = True
 
     def _hal_init(self):
         self.w = self.QTVCP_INSTANCE_
@@ -40,6 +41,8 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             except:
                 self.play_sounds = False
                 log.warning('Sound Option turned off')
+        if self.user_messages:
+            MSG.message_setup(self.hal, NOTE)
 
     def on_periodic(self,w):
         e = self.error.poll()

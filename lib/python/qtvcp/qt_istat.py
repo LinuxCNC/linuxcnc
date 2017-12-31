@@ -110,8 +110,29 @@ class IStat():
         self.MIN_SPINDLE_OVERRIDE = float(self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE") or 0.5) * 100
         self.MAX_FEED_OVERRIDE = float(self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE") or 1.5) * 100
 
-    # helper functions
+        # user message dialog system
+        self.USRMESS_BOLDTEXT = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
+        self.USRMESS_TEXT = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
+        self.USRMESS_TYPE = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
+        self.USRMESS_PINNAME = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
+        self.USRMESS_DETAILS = self.inifile.findall("DISPLAY", "MESSAGE_DETAILS")
+        self.USRMESS_ICON = self.inifile.findall("DISPLAY", "MESSAGE_ICON")
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_TYPE):
+            log.warning('Invalid message configuration (missing text or type) in INI File [DISPLAY] section ')
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_PINNAME):
+            log.warning('Invalid message configuration (missing pinname) in INI File [DISPLAY] section')
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_BOLDTEXT):
+            log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] sectioN')
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
+            log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
+        try:
+            self.ZIPPED_USRMESS = zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME)
+        except:
+            self.ZIPPED_USRMESS = None
 
+    ###################
+    # helper functions
+    ###################
     def convert_units(self, data):
         return data * self.MACHINE_UNIT_CONVERSION
 
