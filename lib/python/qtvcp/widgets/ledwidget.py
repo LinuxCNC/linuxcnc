@@ -37,10 +37,10 @@ class Lcnc_Led(QWidget, _HalWidgetBase):
     def _hal_init(self):
         if (self.has_hal_pins):
             _HalWidgetBase._hal_init(self)
-            self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect( lambda s: self.change_state(s))
             # not sure we need a flash pin
-            #self.hal_pin_flash = self.hal.newpin(self.hal_name+'-flash', hal.HAL_BIT, hal.HAL_IN)
+            #self.hal_pin_flash = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-flash', hal.HAL_BIT, hal.HAL_IN)
             #self.hal_pin_flash.value_changed.connect( lambda s: self.setFlashing(s))
 
     def change_state(self,data):

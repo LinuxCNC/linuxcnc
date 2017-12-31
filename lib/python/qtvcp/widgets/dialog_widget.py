@@ -148,14 +148,14 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
     def _hal_init(self):
         self.topParent = self.QTVCP_INSTANCE_
         #_HalWidgetBase._hal_init(self)
-        oldname = self.hal.comp.getprefix()
-        self.hal.comp.setprefix('hal_manualtoolchange')
-        self.hal_pin = self.hal.newpin('change', hal.HAL_BIT, hal.HAL_IN)
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('hal_manualtoolchange')
+        self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.HAL_BIT, hal.HAL_IN)
         self.hal_pin.value_changed.connect(self.tool_change)
-        self.tool_number = self.hal.newpin('number', hal.HAL_S32, hal.HAL_IN)
-        self.changed = self.hal.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
-        #self.hal_pin = self.hal.newpin(self.hal_name + 'change_button', hal.HAL_BIT, hal.HAL_IN)
-        self.hal.comp.setprefix(oldname)
+        self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
+        self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
+        #self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
+        self.HAL_GCOMP_.comp.setprefix(oldname)
         self.sound ='RING'
 
     def showtooldialog(self, message, more_info=None, details=None, display_type=1,

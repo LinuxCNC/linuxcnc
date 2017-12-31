@@ -28,6 +28,9 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.play_sounds = True
         self.user_messages = True
 
+    # self.QTVCP_INSTANCE_
+    # self.HAL_GCOMP_
+    # come from base class
     def _hal_init(self):
         self.w = self.QTVCP_INSTANCE_
         # connect to GStat to catch linuxcnc events
@@ -42,7 +45,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 self.play_sounds = False
                 log.warning('Sound Option turned off')
         if self.user_messages:
-            MSG.message_setup(self.hal, NOTE)
+            MSG.message_setup(self.HAL_GCOMP_, NOTE)
 
     def on_periodic(self,w):
         e = self.error.poll()
