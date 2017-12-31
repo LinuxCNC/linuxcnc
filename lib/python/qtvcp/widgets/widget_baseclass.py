@@ -25,7 +25,8 @@ import hal
 
 class _HalWidgetBase:
     def hal_init(self, comp, name, object, toplevel,PATHS):
-        self.hal, self.hal_name = comp, name
+        self.HAL_GCOMP_ = comp
+        self.HAL_NAME_ = name
         self.QT_OBJECT_ = object
         self.QTVCP_INSTANCE_ = toplevel
         self.PATHS_ = PATHS
@@ -37,8 +38,8 @@ class _HalWidgetBase:
 
 class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
-        self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin_not = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-not", hal.HAL_BIT, hal.HAL_OUT)
         self.connect.state_change.connect(lambda data: self.t_update(data))
 
     def t_update(self,state):
@@ -48,7 +49,7 @@ class _HalToggleBase(_HalWidgetBase):
 # reacts to HAL pin changes
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_OUT)
         self.connect.value_changed.connect(lambda data: self.l_update(data))
 
     def l_update(self, *a):
@@ -57,5 +58,5 @@ class _HalScaleBase(_HalWidgetBase):
 # reacts to HAL pin changes
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
         self.hal_pin.value_changed.connect( lambda s: self.setEnabled(s))

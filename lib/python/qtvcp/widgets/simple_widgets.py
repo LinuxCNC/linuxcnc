@@ -32,7 +32,7 @@ class Lcnc_LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent = None):
         QtWidgets.QLCDNumber.__init__(self, parent)
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin.value_changed.connect(lambda data: self.l_update(data))
     def l_update(self,data):
         self.display(data)
@@ -49,7 +49,7 @@ class Lcnc_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent = None):
         QtWidgets.QPushButton.__init__(self, parent)
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(str(self.hal_name), hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
         def _f(data):
                 self.hal_pin.set(data)
         self.pressed.connect(partial(-f, True))
@@ -59,9 +59,9 @@ class Lcnc_QSlider(QtWidgets.QSlider, _HalWidgetBase):
     def __init__(self, parent = None):
         QtWidgets.QSlider.__init__(self,parent)
     def _hal_init(self):
-        self.hal_pin_s = self.hal.newpin(str(self.hal_name+'-s'), hal.HAL_S32, hal.HAL_OUT)
-        self.hal_pin_f = self.hal.newpin(self.hal_name+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_scale = self.hal.newpin(self.hal_name+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.set(1)
         def _f(data):
             scale = self.hal_pin_scale.get()

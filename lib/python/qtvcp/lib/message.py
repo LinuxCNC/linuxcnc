@@ -75,12 +75,12 @@ class Message:
             if self.use_focus_overlay:
                 GSTAT.emit('focus-overlay-changed', True, self.focus_text, self._color)
             if pin.get():
-                self.HALCOMP[pinname + "-waiting"] = True
+                self.HAL_GCOMP_[pinname + "-waiting"] = True
             if "okdialog" in type:
                 self.showDialog(boldtext,text,details,self.OK_TYPE,icon,pinname)
             else:
                 if pin.get():
-                    self.HALCOMP[pinname + "-response"] = 0
+                    self.HAL_GCOMP_[pinname + "-response"] = 0
                 self.showDialog(boldtext,text,details,self.YN_TYPE,icon,pinname)
 
     # search for and set up user requested message system.
@@ -89,7 +89,7 @@ class Message:
     # okdialog displays a Messagebox with an ok button
     # dialogs require an answer before focus is sent back to main screen
     def message_setup(self, hal_comp, notify):
-        self.HALCOMP = hal_comp
+        self.HAL_GCOMP_ = hal_comp
         self.NOTIFY = notify
         icon = QMessageBox.Question
         if INI.ZIPPED_USRMESS:
@@ -99,12 +99,12 @@ class Message:
                     continue
                 if not name == None:
                     # this is how we make a pin that can be connected to a callback 
-                    self[name] = self.HALCOMP.newpin(name, hal.HAL_BIT, hal.HAL_IO)
+                    self[name] = self.HAL_GCOMP_.newpin(name, hal.HAL_BIT, hal.HAL_IO)
                     self[name].value_changed.connect(self.dummy(self[name],name,bt,t,d,style,icon))
                     if ("dialog" in style):
-                        self.HALCOMP.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                        self.HAL_GCOMP_.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                         if not ("ok" in style):
-                            self.HALCOMP.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
+                            self.HAL_GCOMP_.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
 
     # This weird code is so we can get access to proper variables.
     # using clicked.connect( self.on_printmessage(pin,name,bt,t,c) ) apparently doesn't easily
@@ -121,11 +121,11 @@ class Message:
     def dialog_return(self,widget,result,dialogtype,pinname):
         if not dialogtype: # yes/no dialog
             if pinname:
-                self.HALCOMP[pinname + "-response"] = result
+                self.HAL_GCOMP_[pinname + "-response"] = result
         if pinname:
-            self.HALCOMP[pinname + "-waiting"] = False
+            self.HAL_GCOMP_[pinname + "-waiting"] = False
         # reset the HAL IO pin so it can fire again
-        self.HALCOMP[pinname] = False
+        self.HAL_GCOMP_[pinname] = False
         if self.use_focus_overlay:
             GSTAT.emit('focus-overlay-changed',False,None,None)
 
