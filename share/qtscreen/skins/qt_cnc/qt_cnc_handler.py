@@ -10,9 +10,8 @@ from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
-from qtvcp.lib.message import Message
 from qtvcp.lib.preferences import Access
-from qtvcp.lib.audio_player import Player as sound
+
 from qtvcp.qt_glib import GStat
 
 # Set up logging
@@ -30,7 +29,6 @@ import os
 KEYBIND = Keylookup()
 GSTAT = GStat()
 NOTE = Notify()
-MSG = Message()
 PREFS = Access()
 
 ###################################
@@ -66,8 +64,6 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        #SOUND = sound()
-        #SOUND._hal_init()
         # Give notify library a reference to the statusbar
         NOTE.statusbar = self.w.statusBar
         if self.desktop_notify:
@@ -79,7 +75,6 @@ class HandlerClass:
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
-
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
