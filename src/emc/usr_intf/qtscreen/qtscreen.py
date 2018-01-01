@@ -5,6 +5,7 @@ import traceback
 import hal
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
+from qtvcp.qt_glib import GStat
 
 # Set up the base logger
 #   We have do do this before importing other modules because on import
@@ -21,6 +22,7 @@ log = logger.initBaseLogger('QTSCREEN', log_file=None, log_level=logger.DEBUG)
 
 from qtvcp import qt_makepins, qt_makegui
 
+GSTAT = GStat()
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -242,6 +244,8 @@ class QTscreen:
             if "initialized__" in dir(window.handler_instance):
                 log.debug('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
+        # All Widgets should be added now - synch them to linuxcnc
+        GSTAT.forced_update()
 
         # User components are set up so report that we are ready
         log.debug('Set HAL ready')
