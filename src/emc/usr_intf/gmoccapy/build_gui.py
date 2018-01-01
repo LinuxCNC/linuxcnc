@@ -50,6 +50,7 @@ from gmoccapy import dialogs       # this takes the code of all our dialogs
 
 
 from gladevcp.combi_dro import Combi_DRO
+from lxml.cssselect import is_int
 
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
@@ -140,11 +141,13 @@ class Build_GUI(gobject.GObject):
                     'set_manual'      : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                     'set_mdi'         : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                     'set_auto'        : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+                    'set_motion_mode' : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
                     'mdi_command'     : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
                     'mdi_abort'       : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                     'home_clicked'    : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
                     'unhome_clicked'  : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
                     'jog_incr_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+                    'error'           : (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
 
                     'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                    }
@@ -183,12 +186,12 @@ class Build_GUI(gobject.GObject):
         self._get_ini_data()
         self._get_pref_data()
 
-        # make al widgets we create dynamically
+        # make all widgets we create dynamically
         self._make_DRO()
-        self._make_home_button()
+        self._make_ref_button()
         self._make_jog_increments()
         self._make_macro_button()
-
+ 
         # set initial values for the GUI
         self._set_initial_values()
 
@@ -203,6 +206,8 @@ class Build_GUI(gobject.GObject):
         
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME, self.builder, None)
 
+        # finally show the main window
+        self.widgets.window1.show()
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -230,97 +235,106 @@ class Build_GUI(gobject.GObject):
             self.dro_dic[dro.name] = dro
         self._arange_dro()
 
-    def _make_home_button(self):
+    def _make_ref_button(self):
         print("**** GMOCCAPY build_GUI INFO ****")
         print("**** Entering make home button")
 
-        # lets find out, how many axis we got
-        num_axis = len(self.axis_list)
+        # check if we need axis or joint homing button
+        if self.trivial_kinematics:
+            # lets find out, how many axis we got
+            dic = self.axis_list
+            name_prefix = "axis"
+        else:
+            # lets find out, how many joints we got
+            dic = self.joint_axis_dic
+            name_prefix = "joint"
+        num_elements = len(dic)
         
         # as long as the number of axis is less 6 we can use the standard layout
         # we can display 6 axis without the second space label
         # and 7 axis if we do not display the first space label either
         # if we have more than 7 axis, we need arrows to switch the visible ones
-        if num_axis < 7:
+        if num_elements < 7:
             lbl = self._get_space_label("lbl_space_0")
-            self.widgets.hbtb_ref_axes.pack_end(lbl)
+            self.widgets.hbtb_ref.pack_end(lbl)
     
         file = "ref_all.png"
         filepath = os.path.join(IMAGEDIR, file)
-        btn = self._get_button_with_image("home_axis_0", filepath, None)
-        btn.set_property("tooltip-text", _("Press to home all axis"))
+        btn = self._get_button_with_image("ref_all", filepath, None)
+        btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
         btn.connect("clicked", self._on_btn_home_clicked)
         # we use pack_end, so the widgets will be moved from right to left
         # and are displayed the way we want
-        self.widgets.hbtb_ref_axes.pack_end(btn)
+        self.widgets.hbtb_ref.pack_end(btn)
 
-        if num_axis > 7:
+        if num_elements > 7:
             # show the previous arrow to switch visible homing button)
             btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
             btn.set_sensitive(False)
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_clicked)
-            self.widgets.hbtb_ref_axes.pack_end(btn)
+            self.widgets.hbtb_ref.pack_end(btn)
 
         # do not use this label, to allow one more axis
-        if num_axis < 6:
+        if num_elements < 6:
             lbl = self._get_space_label("lbl_space_2")
-            self.widgets.hbtb_ref_axes.pack_end(lbl)
+            self.widgets.hbtb_ref.pack_end(lbl)
 
-        for pos, axis in enumerate(self.axis_list):
+        for pos, elem in enumerate(dic):
 
-            file = "ref_{0}.png".format(axis)
+            file = "ref_{0}.png".format(elem)
             filepath = os.path.join(IMAGEDIR, file)
 
-            name = "home_axis_{0}".format(axis)
+            name = "home_{0}_{1}".format(name_prefix, elem)
             btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to home axis {0}".format(axis.upper())))
+            btn.set_property("tooltip-text", _("Press to home {0} {1}".format(name_prefix, elem)))
             btn.connect("clicked", self._on_btn_home_clicked)
 
-            self.widgets.hbtb_ref_axes.pack_end(btn)
+            self.widgets.hbtb_ref.pack_end(btn)
 
             # if we have more than 7 axis we need to hide some button
-            if num_axis > 7:
+            if num_elements > 7:
                 if pos > 4:
                     btn.hide()
 
-        if num_axis > 7:
+        if num_elements > 7:
             # show the next arrow to switch visible homing button)
             btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_clicked)
-            self.widgets.hbtb_ref_axes.pack_end(btn)
+            self.widgets.hbtb_ref.pack_end(btn)
 
         # if there is space left, fill it with space labels
-        count = pos = self.widgets.hbtb_ref_axes.child_get_property(btn,"position")
-        for lbl in range( pos + 1 , 8):
-            count += 1
+        start = self.widgets.hbtb_ref.child_get_property(btn,"position")
+        for count in range( start + 1 , 8):
+            print("Count = ", count)
             lbl = self._get_space_label("lbl_space_{0}".format(count))
-            self.widgets.hbtb_ref_axes.pack_end(lbl)
+            self.widgets.hbtb_ref.pack_end(lbl)
  
         file = "unhome.png"
         filepath = os.path.join(IMAGEDIR, file)
-
-        name = "unhome_axis_0"
+        name = "unref_all"
         btn = self._get_button_with_image(name, filepath, None)
-        btn.set_property("tooltip-text", _("Press to unhome all axis"))
+        btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
         btn.connect("clicked", self._on_btn_unhome_clicked)
-        self.widgets.hbtb_ref_axes.pack_end(btn)
+        self.widgets.hbtb_ref.pack_end(btn)
         
-        name = "home_axis_back"
+        name = "home_back"
         btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
-        btn.set_property("tooltip-text", _("Press to returnn to main button list"))
+        btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
-        self.widgets.hbtb_ref_axes.pack_end(btn)
+        self.widgets.hbtb_ref.pack_end(btn)
         
-        self.home_button_dic = {}
-        children = self.widgets.hbtb_ref_axes.get_children()
+        self.ref_button_dic = {}
+        children = self.widgets.hbtb_ref.get_children()
         for child in children:
-            self.home_button_dic[child.name] = child
+            self.ref_button_dic[child.name] = child
 
         self._get_tab_ref()
 
     def _make_jog_increments(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make jog increments")
         # Now we will build the option buttons to select the Jog-rates
         # We do this dynamically, because users are able to set them in INI File
         # because of space on the screen only 10 items are allowed
@@ -367,13 +381,16 @@ class Build_GUI(gobject.GObject):
 
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make macro button")
+
         self.macro_dic = {}
         macros = self.get_ini_info.get_macros()
 
         # if no macros at all are found, we receive a NONE, so we have to check:
         if not macros:
             num_macros = 0
-            return
+            # no return here, otherwise we will not get filling labels
         else:
             num_macros = len( macros )
 
@@ -604,29 +621,29 @@ class Build_GUI(gobject.GObject):
                 break
 
     def _remove_homing_button(self):
-        for child in self.home_button_dic:
-            self.widgets.hbtb_ref_axes.remove(self.home_button_dic[child])
+        for child in self.ref_button_dic:
+            self.widgets.hbtb_ref.remove(self.ref_button_dic[child])
 
     def _put_home_all_and_previous(self):
-        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["home_axis_0"])
-        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["previous_button"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["previous_button"])
 
-    def _put_axis_button(self, start, end):
+    def _put_ref_button(self, start, end):
         for axis in self.axis_list[start : end]:
             name = "home_axis_{0}".format(axis.lower())
-            self.home_button_dic[name].show()
-            self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic[name])
+            self.ref_button_dic[name].show()
+            self.widgets.hbtb_ref.pack_start(self.ref_button_dic[name])
 
-    def _put_unhome_and_back(self):
-        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["next_button"])
-        self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic["unhome_axis_0"])
-        self.widgets.hbtb_ref_axes.pack_end(self.home_button_dic["home_axis_back"])
+    def _put_unref_and_back(self):
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["next_button"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["unref_all"])
+        self.widgets.hbtb_ref.pack_end(self.ref_button_dic["home_back"])
 
     def _hide_homing_button(self, start, end):
         for axis in self.axis_list[start:end]:
             name = "home_axis_{0}".format(axis.lower())
-            self.home_button_dic[name].hide()
-            self.widgets.hbtb_ref_axes.pack_start(self.home_button_dic[name])
+            self.ref_button_dic[name].hide()
+            self.widgets.hbtb_ref.pack_start(self.ref_button_dic[name])
 
 ###############################################################################
 ##                       internal button handling                            ##
@@ -773,51 +790,47 @@ class Build_GUI(gobject.GObject):
 ##                       bottom buttons (homing)                             ##
 ###############################################################################
 
-    def _on_btn_previous_clicked(self, widget, data = None):
+# ToDo Start : must fit also the joints button
+    def _on_btn_previous_clicked(self, widget):
         self._remove_homing_button()
         self._put_home_all_and_previous()
-        self._put_axis_button(0 , 5)
-        self._put_unhome_and_back()
+        self._put_ref_button(0 , 5)
+        self._put_unref_and_back()
         self._hide_homing_button(5,len(self.axis_list))
         
-        self.home_button_dic["previous_button"].set_sensitive(False)
-        self.home_button_dic["next_button"].set_sensitive(True)
+        self.ref_button_dic["previous_button"].set_sensitive(False)
+        self.ref_button_dic["next_button"].set_sensitive(True)
 
         self._get_tab_ref()
 
-    def _on_btn_next_clicked(self, widget, data = None):
+    def _on_btn_next_clicked(self, widget):
         self._remove_homing_button()
         self._put_home_all_and_previous()
-        self._put_axis_button(len(self.axis_list) - 5 , len(self.axis_list))
-        self._put_unhome_and_back()
+        self._put_ref_button(len(self.axis_list) - 5 , len(self.axis_list))
+        self._put_unref_and_back()
         self._hide_homing_button(0,len(self.axis_list) - 5)
         
-        self.home_button_dic["previous_button"].set_sensitive(True)
-        self.home_button_dic["next_button"].set_sensitive(False)
+        self.ref_button_dic["previous_button"].set_sensitive(True)
+        self.ref_button_dic["next_button"].set_sensitive(False)
         
         self._get_tab_ref()
 
     def _on_btn_home_clicked(self, widget):
         # home axis or joint?
+        print("on button home clicker = ", widget.name)
         if "axis" in widget.name:
             value = widget.name[-1]
-            # if widget.name is home_axis_0 the home all button has been clicked
-            # we send joint -1 to home all axis at once
-            if value == "0":
-                joint = -1
-                self.emit("home_clicked", joint)
-                return
-            # if the selected axis is a double axis we will only give the command
-            # to home tha master axis, witch should end with 0 
-            if value in self.double_axis_letter:
-                value = value + "0"
             # now get the joint from directory by the value
             joint = self._get_joint_from_joint_axis_dic(value)
+        elif "joint" in widget.name:
+            joint = int(widget.name[-1])
+        elif "all" in widget.name:
+            joint = -1
 
         self.emit("home_clicked", joint)
 
     def _on_btn_unhome_clicked(self, widget):
-        self.emit("unhome_clicked", widget)
+        self.emit("unhome_clicked", -1)
 
     def _on_btn_home_back_clicked(self, widget):
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
@@ -1122,13 +1135,13 @@ class Build_GUI(gobject.GObject):
         lbl.set_size_request(85,56)
         lbl.show()
         return lbl
-
+    
     def _get_tab_ref(self):
         # get the position of each button to be able to connect to hardware button
         unsorted_tab_ref = []
-        for element in self.home_button_dic:
-            if self.home_button_dic[element].get_visible():
-                pos = self.widgets.hbtb_ref_axes.child_get_property(self.home_button_dic[element],"position")
+        for element in self.ref_button_dic:
+            if self.ref_button_dic[element].get_visible():
+                pos = self.widgets.hbtb_ref.child_get_property(self.ref_button_dic[element],"position")
                 unsorted_tab_ref.append((pos, element))
         
         sorted_tab_ref = sorted(unsorted_tab_ref, key=lambda tub: tub[0])
@@ -1136,8 +1149,12 @@ class Build_GUI(gobject.GObject):
         self.tab_ref=[]
         for pos, entry in enumerate(sorted_tab_ref):
             self.tab_ref.append((pos, entry[1]))
-        
+
     def _get_joint_from_joint_axis_dic(self, value):
+        # if the selected axis is a double axis we will get the joint from the
+        # master axis, witch should end with 0 
+        if value in self.double_axis_letter:
+            value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
 
     def _arange_dro(self):
@@ -1214,7 +1231,9 @@ class Build_GUI(gobject.GObject):
         self.jog_increments = self.get_ini_info.get_increments()
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
-
+        # do we use a identity kinematics or do we have to distingish 
+        # JOINT and Axis modes?
+        self.trivial_kinematics = self.get_ini_info.get_trivial_kinematics()
 
     def _get_pref_data(self):
         # the size of the DRO
@@ -1229,6 +1248,9 @@ class Build_GUI(gobject.GObject):
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
         self.max_spindle_rev = self.prefs.getpref("spindle_bar_max", 6000.0, float)
+        
+        self.unlock_code = self.prefs.getpref("unlock_code", "123", str)  # get unlock code
+
 
     def _sens_widgets(self, widgetlist, value):
         for name in widgetlist:
@@ -1472,11 +1494,11 @@ class Build_GUI(gobject.GObject):
         # if MDI button is not sensitive, we are not ready for MDI commands
         # so we have to abort external commands and get back to manual mode
         # This will happen mostly, if we are in settings mode, as we do disable the mode button
-        if self.widgets.tbtn_setup.get_active():
+        if not self.widgets.rbt_mdi.get_sensitive():
             self.emit("mdi_abort")
             self.emit("set_manual")
             sleep(0.1)
-#            self._show_error((13, _("It is not possible to change to MDI Mode at the moment")))
+            self.emit("error",(13, _("It is not possible to change to MDI Mode at the moment")))
             return
 
         # if we are in user tabs, we must reset the button
@@ -1499,6 +1521,61 @@ class Build_GUI(gobject.GObject):
         # on incremental jogging.
         self.last_key_event = None, 0
 
+    def on_hal_status_mode_auto(self, widget):
+        print("GUI Builder MDI Mode")
+        # if Auto button is not sensitive, we are not ready for AUTO commands
+        # so we have to abort external commands and get back to manual mode
+        # This will happen mostly, if we are in settings mode, as we do disable the mode button
+        if not self.widgets.rbt_auto.get_sensitive():
+            self.emit("mdi_abort")
+            self.emit("set_manual")
+            sleep(0.1)
+            self.emit("error",(13, _("It is not possible to change to Auto Mode at the moment")))
+            return
+
+        # if we are in user tabs, we must reset the button
+        if self.widgets.tbtn_user_tabs.get_active():
+            self.widgets.tbtn_user_tabs.set_active(False)
+        self.widgets.ntb_main.set_current_page(0)
+        self.widgets.ntb_button.set_current_page(_BB_AUTO)
+        self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_jog.set_current_page(2)
+        self.widgets.rbt_auto.set_active(True)
+        
+        # if the status changed, we reset the key event, otherwise the key press
+        # event will not change, if the user did the last change with keyboard shortcut
+        # This is caused, because we record the last key event to avoid multiple key
+        # press events by holding down the key. I.e. One press should only advance one increment
+        # on incremental jogging.
+        self.last_key_event = None, 0
+
+    def on_hal_status_motion_mode_changed(self, widget, new_mode):
+        print("GUI Builder motion Mode changed")
+        # Motion mode change in identity kinematics makes no sense
+        # so we will not react on the signal and correct the misbehavior
+        # self.stat.motion_mode returns following values
+        # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
+        # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
+        self.motion_mode = new_mode
+
+        if new_mode == 1 and not self.trivial_kinematics:
+            self.widgets.gremlin.set_property("enable_dro", True)
+            self.widgets.gremlin.use_joints_mode = True
+            self.widgets.tbtn_switch_mode.set_active(True)
+            self.widgets.ntb_jog_JA.set_page(1)
+            state = False
+        else:
+            if not self.widgets.tbtn_fullsize_preview.get_active():
+                self.widgets.gremlin.set_property("enable_dro", False)
+            self.widgets.gremlin.use_joints_mode = False
+            self.widgets.tbtn_switch_mode.set_active(False)
+            self.widgets.ntb_jog_JA.set_page(0)
+            state = True
+        if not self.machine_on:
+            state = False
+
+        widgetlist = ("rbt_mdi", "rbt_auto")
+        self._sens_widgets(widgetlist, state)
 
     def on_hal_status_interp_idle(self, widget):
         print("GUI Builder Interpreter IDLE")
@@ -1549,9 +1626,7 @@ class Build_GUI(gobject.GObject):
         ]
         self._sens_widgets(widgetlist, True)
 
-# ToDo Start : we need to add a signal of motion mode changed to GStat
-#        self.set_motion_mode(1)
-# ToDo End : we need to add a signal of motion mode changed to GStat
+        self.emit("set_motion_mode", 1)
 
         if self.widgets.chk_reload_tool.get_active():
             # if there is already a tool in spindle, the user 
@@ -1575,9 +1650,7 @@ class Build_GUI(gobject.GObject):
         ]
         self._sens_widgets(widgetlist, False)
 
-# ToDo Start : we need to add a signal of motion mode changed to GStat
-#        self.set_motion_mode(0)
-# ToDo End : we need to add a signal of motion mode changed to GStat
+        self.emit("set_motion_mode", 0)
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         # need to save the tool in spindle as preference, to be able to reload it on startup
@@ -1755,6 +1828,31 @@ class Build_GUI(gobject.GObject):
         ]
         self._sens_widgets(widgetlist, False)
 
+        # initialize the kinematics related widgets
+        if not self.trivial_kinematics:
+            self.widgets.gremlin.set_property( "enable_dro", True )
+            self.widgets.gremlin.use_joints_mode = True
+            self.widgets.tbtn_switch_mode.show()
+            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
+            self.widgets.tbtn_switch_mode.set_sensitive(False)
+            self.widgets.tbtn_switch_mode.set_active(True)
+            self.widgets.lbl_replace_mode_btn.hide()
+            self.widgets.ntb_jog_JA.set_page(1)
+        else:
+            self.widgets.gremlin.set_property( "enable_dro", False )
+            self.widgets.gremlin.use_joints_mode = False
+            self.widgets.tbtn_switch_mode.hide()
+            self.widgets.lbl_replace_mode_btn.show()
+            self.widgets.ntb_jog_JA.set_page(0)
+
+        # get the way to unlock the setting
+        unlock = self.prefs.getpref("unlock_way", "use", str)
+        # and set the corresponding button active
+        self.widgets["rbt_{0}_unlock".format(unlock)].set_active(True)
+        # if Hal pin should be used, only set the button active, if the pin is high
+        if unlock == "hal" and not self.halcomp["unlock-settings"]:
+            self.widgets.tbtn_setup.set_sensitive(False)
+
 ###############################################################################
 ##                   initial clicking and toggling                           ##
 ###############################################################################    
@@ -1782,7 +1880,9 @@ class Build_GUI(gobject.GObject):
         self.estop_active = True  # will handle the estop state
         self.machine_on = False   # will handle the machine is on state
         self.mode = "MAN"         # The actaul mode
-        self.interpreter = "idle" # The interpreter state
+        self.interpreter = "IDLE" # The interpreter state
+
+        self.motion_mode = 0      # initial start will be done in Joints mode
  
         self.user_mode = False    # user is not allowed to access settings page
  

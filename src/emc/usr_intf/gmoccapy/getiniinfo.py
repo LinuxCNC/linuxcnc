@@ -108,20 +108,7 @@ class GetIniInfo:
 
     def get_joint_axis_relation(self):
         # we will find out the relation between joint and axis.
-        # first we look if the kinematics module will be loaded with the coordinates parameter
         temp = self.inifile.find("KINS", "KINEMATICS").split()
-        print("found kinematics module", temp)
-
-        if temp[0].lower() != "trivkins":
-            print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is not trivkins")
-            print("Will use mode to switch between Joints and World mode")
-            print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
-            # pumakins = 6 axis XYZABC
-            # scarakins = 4 axis XYZA
-            # genhexkins = 6 axis XYZABC
-            # need to be checked from coordinates and transfered to axis dict
-            # should never return None
-            #return None
 
         # follow the order given in $ man trivkins
         # Joint numbers are assigned sequentially according to  the  axis  letters
@@ -137,11 +124,6 @@ class GetIniInfo:
             if "coordinates" in entry.lower():
                 coordinates = entry.split("=")[1].lower()
                 print("found the following coordinates {0}".format(coordinates))
-            if "kinstype" in entry.lower():
-                print ("found kinstype", entry.split("=")[1])
-                # we will not take care of this one, because linuxcnc will take
-                # care about the differences between KINEMATICS_IDENTITY and others
-                # a additional check is done on some places within the gmoccapy code
 
         if not coordinates:
             print("no coordinates found in [KINS] KINEMATICS, we will use order from")
@@ -150,6 +132,7 @@ class GetIniInfo:
 
         # at this point we should have the coordinates of the config, we will check if the amount of
         # coordinates does match the [KINS] JOINTS part
+        print("\n**** GMOCCAPY GETINIINFO **** ")
         print("Number of joints = {0}".format(self.get_joints()))
         print("{0} COORDINATES found = {1}".format(len(coordinates), coordinates))
 
@@ -186,6 +169,25 @@ class GetIniInfo:
         print joint_axis_dic
         #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
         return joint_axis_dic, double_axis_letter
+
+    def get_trivial_kinematics(self):
+        temp = self.inifile.find("KINS", "KINEMATICS").split()
+        print("found kinematics module", temp)
+
+        if temp[0].lower() == "trivkins":
+            print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is trivkins")
+            print("Will use mode to switch between Joints and World mode")
+            print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+            return True
+        else:
+            print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is not trivkins")
+            print("Will use mode to switch between Joints and World mode")
+            print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+            # I.e.
+            # pumakins = 6 axis XYZABC
+            # scarakins = 4 axis XYZA
+            # genhexkins = 6 axis XYZABC
+            return False
 
     def get_no_force_homing(self):
         temp = self.inifile.find("TRAJ", "NO_FORCE_HOMING")

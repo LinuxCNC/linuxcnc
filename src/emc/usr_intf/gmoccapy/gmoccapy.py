@@ -112,7 +112,6 @@ LIBDIR = os.path.join(BASE, "lib", "python")
 sys.path.insert(0, LIBDIR)
 
 # as now we know the libdir path we can import our own modules
-from gmoccapy import widgets       # a class to handle the widgets
 from gmoccapy import notification  # this is the module we use for our error handling
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
@@ -238,6 +237,7 @@ class gmoccapy(object):
         self.gui.connect("set_auto", self._set_auto)
         self.gui.connect("mdi_command", self._mdi_command)
         self.gui.connect("mdi_abort", self._mdi_abort)
+        self.gui.connect("error", self._show_error)
         self.gui.connect("exit", self._exit)
 
         # get all widgets as class, so they can be called directly
@@ -294,16 +294,13 @@ class gmoccapy(object):
         # finally show the window
         self.widgets.window1.show()
 
-        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            self._init_joints_btn()
-
         self._init_dynamic_tabs()
         self._init_tooleditor()
         self._init_themes()
         self._init_audio()
         self._init_gremlin()
         self._init_hardware_button_order()
-        self._init_kinematics_type()
+#        self._init_kinematics_type()
         self._init_hide_cursor()
         self._init_offsetpage()
         self._init_keybindings()
@@ -373,14 +370,6 @@ class gmoccapy(object):
         else:
             self.widgets.btn_from_line.set_sensitive(True)
 
-        # get the way to unlock the setting
-        unlock = self.prefs.getpref("unlock_way", "use", str)
-        # and set the corresponding button active
-        self.widgets["rbt_{0}_unlock".format(unlock)].set_active(True)
-        # if Hal pin should be used, only set the button active, if the pin is high
-        if unlock == "hal" and not self.halcomp["unlock-settings"]:
-            self.widgets.tbtn_setup.set_sensitive(False)
-        self.unlock_code = self.prefs.getpref("unlock_code", "123", str)  # get unlock code
 
         # check if the user want to display preview window instead of offsetpage widget
         state = self.prefs.getpref("show_preview_on_offset", False, bool)
@@ -588,33 +577,6 @@ class gmoccapy(object):
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
         self.widgets.adj_dro_size.set_value(self.dro_size)
 
-    def _init_joints_btn(self):
-        # if we have identity kinematics, we do not need to check for the joints button
-        if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-            return
-        # how many joints do we have
-        joints_count = self.stat.joints
-        # hide all unneeded button, we do allow 8 joints (0 to 7)
-        for joint in range(joints_count, 8):
-            self.widgets["btn_j{0}_minus".format(joint)].hide()
-            self.widgets["btn_j{0}_plus".format(joint)].hide()
-
-            # and now the joint homing button
-            # but only 6 joints are shown, so we leave here
-            if joint == 7:
-                continue
-            self.widgets["btn_home_j{0}".format(joint)].hide()
-            self.widgets["lbl_space_j{0}".format(joint)].show()
-        if joints_count < 7:
-            self.widgets.btn_sel_prev_joints.hide()
-            self.widgets.btn_sel_next_joints.hide()
-            self.widgets.lbl_space_j7.hide()
-        if joints_count < 6:
-            self.widgets.lbl_space_jall.show()
-            self.widgets.lbl_space_j6.hide()
-            self.widgets.lbl_space_sel_prev_joints.show()
-            self.widgets.lbl_space_j5.hide()
-        # if there are less joints, the above done should work correct
 
     def _check_screen2(self):
         # second screen
@@ -919,28 +881,28 @@ class gmoccapy(object):
                        (4, "rbt_auto"), (5, "tbtn_setup"), (6, "tbtn_user_tabs")
         ]
 
-    def _init_kinematics_type (self):
-        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            self.widgets.gremlin.set_property( "enable_dro", True )
-            self.widgets.gremlin.use_joints_mode = True
-            self.widgets.tbtn_switch_mode.show()
-            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
-            self.widgets.tbtn_switch_mode.set_sensitive(False)
-            self.widgets.tbtn_switch_mode.set_active(True)
-            self.widgets.lbl_replace_mode_btn.hide()
-            self.widgets.ntb_jog_JA.set_page(1)
-            self.h_tabs[_BB_MANUAL].append((6, "btn_tool"))
-            page9 = self.widgets.ntb_button.get_nth_page(9)
-            self.widgets.ntb_button.reorder_child(page9, _BB_HOME)
-            page4 = self.widgets.ntb_button.get_nth_page(4)
-            self.widgets.ntb_button.reorder_child(page4, -1)
-            self._reset_joint_button_order_to_default()        
-        else:
-            self.widgets.gremlin.set_property( "enable_dro", False )
-            self.widgets.gremlin.use_joints_mode = False
-            self.widgets.tbtn_switch_mode.hide()
-            self.widgets.lbl_replace_mode_btn.show()
-            self.widgets.ntb_jog_JA.set_page(0)
+#    def _init_kinematics_type (self):
+#        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+#            self.widgets.gremlin.set_property( "enable_dro", True )
+#            self.widgets.gremlin.use_joints_mode = True
+#            self.widgets.tbtn_switch_mode.show()
+#            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
+#            self.widgets.tbtn_switch_mode.set_sensitive(False)
+#            self.widgets.tbtn_switch_mode.set_active(True)
+#            self.widgets.lbl_replace_mode_btn.hide()
+#            self.widgets.ntb_jog_JA.set_page(1)
+#            self.h_tabs[_BB_MANUAL].append((6, "btn_tool"))
+#            page9 = self.widgets.ntb_button.get_nth_page(9)
+#            self.widgets.ntb_button.reorder_child(page9, _BB_HOME)
+#            page4 = self.widgets.ntb_button.get_nth_page(4)
+#            self.widgets.ntb_button.reorder_child(page4, -1)
+#            self._reset_joint_button_order_to_default()        
+#        else:
+#            self.widgets.gremlin.set_property( "enable_dro", False )
+#            self.widgets.gremlin.use_joints_mode = False
+#            self.widgets.tbtn_switch_mode.hide()
+#            self.widgets.lbl_replace_mode_btn.show()
+#            self.widgets.ntb_jog_JA.set_page(0)
 
     # init the function to hide the cursor
     def _init_hide_cursor(self):
@@ -1168,7 +1130,7 @@ class gmoccapy(object):
     def _show_user_message(self, pin, message):
         if message[1] == "status":
             if pin.get():
-                self._show_error((0, message[0]))
+                self._show_error(pin,(0, message[0]))
         elif message[1] == "okdialog":
             self.halcomp["messages." + message[2] + "-waiting"] = 0
             if pin.get():
@@ -1243,7 +1205,7 @@ class gmoccapy(object):
 
         error = self.error_channel.poll()
         if error:
-            self._show_error(error)
+            self._show_error(self, error)
 
         if self.gcodes != self.stat.gcodes:
             self._update_active_gcodes()
@@ -1267,7 +1229,8 @@ class gmoccapy(object):
         # keep the timer running
         return True
 
-    def _show_error(self, error):
+    def _show_error(self, object, error):
+        print("recieved error signal with content = ", error)
         kind, text = error
         # print kind,text
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
@@ -1312,7 +1275,7 @@ class gmoccapy(object):
             self.command.wait_complete()
             self.stat.poll()
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
-                self._show_error((11, _("ERROR : External ESTOP is set, could not change state!")))
+                self._show_error(object,(11, _("ERROR : External ESTOP is set, could not change state!")))
 
     # toggle machine on / off button
     def _on_active(self, object, state):
@@ -1324,7 +1287,7 @@ class gmoccapy(object):
             self.command.wait_complete()
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
-                self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch activated?")))
+                self._show_error(object,(11, _("ERROR : Could not switch the machine on, is limit switch activated?")))
                 return
         else:
             self.command.state(linuxcnc.STATE_OFF)
@@ -1395,61 +1358,6 @@ class gmoccapy(object):
         self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
 
 
-
-
-    def on_hal_status_mode_auto(self, widget):
-        print ("AUTO Mode")
-        # if Auto button is not sensitive, we are not ready for AUTO commands
-        # so we have to abort external commands and get back to manual mode
-        # This will happen mostly, if we are in settings mode, as we do disable the mode button
-        if not self.widgets.rbt_auto.get_sensitive():
-            self.command.abort()
-            self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
-            self._show_error((13, _("It is not possible to change to Auto Mode at the moment")))
-            return
-        else:
-            # if we are in user tabs, we must reset the button
-            if self.widgets.tbtn_user_tabs.get_active():
-                self.widgets.tbtn_user_tabs.set_active(False)
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.ntb_button.set_current_page(_BB_AUTO)
-            self.widgets.ntb_info.set_current_page(0)
-            self.widgets.ntb_jog.set_current_page(2)
-            self.widgets.rbt_auto.set_active(True)
-            
-            # if the status changed, we reset the key event, otherwise the key press
-            # event will not change, if the user did the last change with keyboard shortcut
-            # This is caused, because we record the last key event to avoid multiple key
-            # press events by holding down the key. I.e. One press should only advance one increment
-            # on incremental jogging.
-            self.last_key_event = None, 0
-
-    def on_hal_status_motion_mode_changed(self, widget, new_mode):
-        # Motion mode change in identity kinematics makes no sense
-        # so we will not react on the signal and correct the misbehavior
-        # self.stat.motion_mode return
-        # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
-        # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
-
-        widgetlist = ("rbt_mdi", "rbt_auto")
-        if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            self.widgets.gremlin.set_property("enable_dro", True)
-            self.widgets.gremlin.use_joints_mode = True
-            self.widgets.tbtn_switch_mode.set_active(True)
-            self.widgets.ntb_jog_JA.set_page(1)
-            state = False
-        else:
-            if not self.widgets.tbtn_fullsize_preview.get_active():
-                self.widgets.gremlin.set_property("enable_dro", False)
-            self.widgets.gremlin.use_joints_mode = False
-            self.widgets.tbtn_switch_mode.set_active(False)
-            self.widgets.ntb_jog_JA.set_page(0)
-            state = True
-        if self.stat.task_state != linuxcnc.STATE_ON:
-            state = False
-        self._sensitize_widgets(widgetlist, state)
-            
 
 
     # kill application
@@ -1564,7 +1472,7 @@ class gmoccapy(object):
         if keyname == "F3" or keyname == "F5":
             if self.stat.interp_state != linuxcnc.INTERP_IDLE:
                 if signal: # Otherwise the message will be shown twice
-                    self._show_error((13, _("Mode change is only allowed if the interpreter is idle!")))
+                    self._show_error(keyname,(13, _("Mode change is only allowed if the interpreter is idle!")))
                 return
             else:
                 # F3 change to manual mode
@@ -1755,46 +1663,6 @@ class gmoccapy(object):
                 print(_("**** replaced {0} to {1} ****").format(old_value, new_value))
             self.h_tabs[int_tab].append(item)
 
-#    # check if macros are in the INI file and add them to MDI Button List
-#    def _add_macro_button(self):
-#        macros = self.get_ini_info.get_macros()
-#
-#        # if no macros at all are found, we receieve a NONW, so we have to check:
-#        if not macros:
-#            num_macros = 0
-#        else:
-#            num_macros = len( macros )
-#
-#        if num_macros > 9:
-#            message = _( "**** GMOCCAPY INFO ****\n" )
-#            message += _( "**** found more than 9 macros, only the first 9 will be used ****" )
-#            print( message )
-#
-#            num_macros = 9
-#        for increment in range(0, num_macros):
-#            name = macros[increment]
-#            lbl = name.split()[0]
-#            # shorten / break line of the name if it is to long
-#            if len( lbl ) > 11:
-#                lbl = lbl[0:10] + "\n" + lbl[11:20]
-#            btn = gtk.Button( lbl, None, False )
-#            btn.connect( "pressed", self._on_btn_macro_pressed, name )
-#            btn.position = increment
-#            # we add the button to a list to be able later to see what macro to execute
-#            self.macrobuttons.append(btn)
-#            self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
-#            btn.show()
-#        # if there is still place, we fill it with empty labels, to be sure the button will not be on different
-#        # places if the amount of macros change.
-#        if num_macros < 9:
-#            for label_space in range(num_macros, 9):
-#                lbl = "lbl_sp_{0}".format(label_space)
-#                lbl = gtk.Label(lbl)
-#                lbl.position = label_space
-#                lbl.set_text("")
-#                self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
-#                lbl.show()
-#        self.widgets.hbtb_MDI.non_homogeneous = False
 
     def show_try_errors(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -2103,7 +1971,7 @@ class gmoccapy(object):
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
         index = len(self.notification.messages)
         text = _("Halo, welcome to the test message {0}").format(index)
-        self._show_error((13, text))
+        self._show_error(widget,(13, text))
 
     def on_chk_turtle_jog_toggled(self, widget, data=None):
         state = widget.get_active()
@@ -2264,47 +2132,17 @@ class gmoccapy(object):
 # =========================================================
 # The homing functions
 
-    def _unhome_signal(self, widget, data=None):
+    def _unhome_signal(self, object, joint):
         self.set_motion_mode(0)
         self.all_homed = False
         # -1 for all
-        self.command.unhome(-1)
+        self.command.unhome(joint)
 
     def _home_signal(self, object, joint):
+        print("home signal joint", joint)
         self.set_motion_mode(0)
         self.command.home(joint)
         
-    def on_btn_sel_next_joints_clicked(self, widget, data=None):
-        widget.hide()
-        for item in range(0, 3):
-            self.widgets["btn_home_j{0}".format(item)].hide()
-        for item in range(5, 8):
-            self.widgets["btn_home_j{0}".format(item)].show()
-        self.widgets.btn_sel_prev_joints.show()
-
-        #reorder the hardware button handling list
-        self._replace_list_item(9, "btn_home_j0", "btn_sel_prev_joints")
-        self._replace_list_item(9, "btn_home_j5", "btn_sel_next_joints")
-        self._replace_list_item(9, "btn_home_j4", "btn_home_j6")
-        self._replace_list_item(9, "btn_home_j3", "btn_home_j5")
-        self._replace_list_item(9, "btn_home_j2", "btn_home_j4")
-        self._replace_list_item(9, "btn_home_j1", "btn_home_j3")
-
-    def on_btn_sel_prev_joints_clicked(self, widget, data=None):
-        widget.hide()
-        for item in range(0,3):
-            self.widgets["btn_home_j{0}".format(item)].show()
-        for item in range(5,8):
-            self.widgets["btn_home_j{0}".format(item)].hide()
-        self.widgets.btn_sel_next_joints.show()
-        self._reset_joint_button_order_to_default()
-        
-    def _reset_joint_button_order_to_default(self):
-        if self.stat.joints < 6:
-            return
-        self.h_tabs[_BB_HOME] = [(0, "btn_home_j_all"), (1, "btn_home_j0"), (2, "btn_home_j1"), (3, "btn_home_j2"), (4, "btn_home_j3"),
-                   (5, "btn_home_j4"), (6, "btn_home_j5"), (7, "btn_sel_next_joints"), (8, "btn_unhome_j_all"), (9, "btn_back_joints")
-        ]
 
 # The homing functions
 # =========================================================
@@ -2324,7 +2162,7 @@ class gmoccapy(object):
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.widgets.chk_ignore_limits.get_active():
             if not self._check_limits():
-                self._show_error((11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
+                self._show_error(widget,(11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
                 return
             self.command.override_limits()
 
@@ -3370,7 +3208,7 @@ class gmoccapy(object):
             if self.stat.motion_mode == 1 and pin.get():
                 message = _("Axis jogging is only allowed in world mode, but you are in joint mode!")
                 print(message)
-                self._show_error((13, message))
+                self._show_error(pin,(13, message))
                 return
 
         if axis not in "xyz":
@@ -3391,7 +3229,7 @@ class gmoccapy(object):
         if self.stat.motion_mode != 1 and pin.get():
             message = _("Joint jogging is only allowed in joint mode, but you are in world mode!")
             print(message)
-            self._show_error((13, message))
+            self._show_error(pin,(13, message))
             return
 
         if direction == 1:
