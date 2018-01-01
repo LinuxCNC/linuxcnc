@@ -10,9 +10,8 @@ from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
-from qtvcp.lib.preferences import Access
 
-from qtvcp.qt_glib import GStat
+from qtvcp.qt_glib import GStat, Lcnc_Action
 
 # Set up logging
 from qtvcp import logger
@@ -29,7 +28,7 @@ import os
 KEYBIND = Keylookup()
 GSTAT = GStat()
 NOTE = Notify()
-
+ACTION = Lcnc_Action()
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -64,8 +63,7 @@ class HandlerClass:
         # Give notify library a reference to the statusbar
         NOTE.statusbar = self.w.statusBar
         NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
-        #GSTAT.emit('play-alert','READY')
-        GSTAT.forced_update()
+        GSTAT.emit('play-alert','READY')
         # set custom theme
         self.STYLE.dark_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
@@ -118,16 +116,21 @@ class HandlerClass:
             else:
                 print 'abort'
                 self.cmnd.abort()
+            self.w.button_home.click()
 
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
-            self.w.button_estop.click()
+            ACTION.SET_ESTOP_STATE(GSTAT.estop_is_clear())
     def on_keycall_POWER(self,event,state,shift,cntrl):
         if state:
-            self.w.button_machineon.click()
+            ACTION.SET_MACHINE_STATE(not GSTAT.machine_is_on())
     def on_keycall_HOME(self,event,state,shift,cntrl):
         if state:
-            self.w.button_home.click()
+            if GSTAT.is_all_homed():
+                ACTION.SET_MACHINE_UNHOMED(-1)
+            else:
+                ACTION.SET_MACHINE_HOMING(-1)
+
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
             self.w.lcnc_originoffsetdialog.load_dialog()
@@ -137,39 +140,41 @@ class HandlerClass:
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
             self.w.lcnc_macrotabdialog.load_dialog()
+
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:
-            self.w.jog_pos_x.pressed.emit()
+            GSTAT.do_jog(0, 1, GSTAT.current_jog_distance)
         else:
-            self.w.jog_pos_x.released.emit()
+            GSTAT.do_jog(0, 0, GSTAT.current_jog_distance)
     def on_keycall_XNEG(self,event,state,shift,cntrl):
         if state:
-            self.w.jog_neg_x.pressed.emit()
+            GSTAT.do_jog(0, -1, GSTAT.current_jog_distance)
         else:
-            self.w.jog_neg_x.released.emit()
+            GSTAT.do_jog(0, 0, GSTAT.current_jog_distance)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
         if state:
-            self.w.jog_pos_y.pressed.emit()
+            GSTAT.do_jog(1, 1, GSTAT.current_jog_distance)
         else:
-            self.w.jog_pos_y.released.emit()
+            GSTAT.do_jog(1, 0, GSTAT.current_jog_distance)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
         if state:
-            self.w.jog_neg_y.pressed.emit()
+            GSTAT.do_jog(1, -1, GSTAT.current_jog_distance)
         else:
-            self.w.jog_neg_y.released.emit()
+            GSTAT.do_jog(1, 0, GSTAT.current_jog_distance)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
         if state:
-            self.w.jog_pos_z.pressed.emit()
+            GSTAT.do_jog(2, 1, GSTAT.current_jog_distance)
         else:
-            self.w.jog_pos_z.released.emit()
+            GSTAT.do_jog(2, 0, GSTAT.current_jog_distance)
+
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
         if state:
-            self.w.jog_neg_z.pressed.emit()
+            GSTAT.do_jog(2, -1, GSTAT.current_jog_distance)
         else:
-            self.w.jog_neg_z.released.emit()
+            GSTAT.do_jog(2, 0, GSTAT.current_jog_distance)
 
     ###########################
     # **** closing event **** #
