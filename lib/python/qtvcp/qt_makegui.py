@@ -142,7 +142,8 @@ class MyWindow(QtWidgets.QMainWindow):
                             add_handler(method, f)
             except Exception as e:
                 log.exception("Trouble looking for handlers in '{}':".format(basename), exc_info=e)
-#                traceback.print_exc()
+                # we require a working handler file!
+                sys.exit()
 
         # Wrap lists in Trampoline, unwrap single functions
         for n,v in list(handlers.items()):

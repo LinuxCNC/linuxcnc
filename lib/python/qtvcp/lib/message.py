@@ -25,6 +25,7 @@ class Message:
         self._color = QColor(0, 0, 0, 150)
         self.focus_text =' '
         self.play_sounds = True
+        self.alert_sound = 'READY'
         self.use_focus_overlay = True
 
     def showDialog(self, message, more_info=None, details=None, display_type=1,
@@ -62,7 +63,7 @@ class Message:
     def on_printmessage(self, pin, pinname, boldtext, text, details, type, icon):
         if not pin.get(): return
         if self.play_sounds:
-            GSTAT.emit('play-alert','READY')
+            GSTAT.emit('play-alert',self.alert_sound)
         if boldtext == "NONE": boldtext = ''
         if "status" in type:
             if boldtext:
@@ -88,9 +89,8 @@ class Message:
     # dialog displays a  Messagebox with yes or no buttons
     # okdialog displays a Messagebox with an ok button
     # dialogs require an answer before focus is sent back to main screen
-    def message_setup(self, hal_comp, notify):
+    def message_setup(self, hal_comp):
         self.HAL_GCOMP_ = hal_comp
-        self.NOTIFY = notify
         icon = QMessageBox.Question
         if INI.ZIPPED_USRMESS:
             for bt,t,d,style,name in (INI.ZIPPED_USRMESS):
@@ -105,6 +105,15 @@ class Message:
                         self.HAL_GCOMP_.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                         if not ("ok" in style):
                             self.HAL_GCOMP_.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
+
+    # a hacky way to adjust future options
+    # using it to adjust runtime options from a preference file in screenoptions (presently)
+    # 'with great power comes ....'
+    def message_option(self, option, data):
+        try:
+            self[option] = data
+        except:
+            pass
 
     # This weird code is so we can get access to proper variables.
     # using clicked.connect( self.on_printmessage(pin,name,bt,t,c) ) apparently doesn't easily

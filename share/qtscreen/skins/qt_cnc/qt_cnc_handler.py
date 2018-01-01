@@ -29,7 +29,7 @@ import os
 KEYBIND = Keylookup()
 GSTAT = GStat()
 NOTE = Notify()
-PREFS = Access()
+
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -51,11 +51,6 @@ class HandlerClass:
         self.PATH = paths.CONFIGPATH
         self.IMAGE_PATH = paths.IMAGEDIR
         self.STYLE = Styles(widgets, paths)
-
-        # Read user preferences
-        self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
-        self.shutdown_check = PREFS.getpref('shutdown_check', True, bool)
-
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
@@ -64,11 +59,12 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
+        if self.w.PREFS_:
+            print 'Using preference file:',self.w.PREFS_.fn
         # Give notify library a reference to the statusbar
         NOTE.statusbar = self.w.statusBar
-        if self.desktop_notify:
-            NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
-            GSTAT.emit('play-alert','READY')
+        NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
+        #GSTAT.emit('play-alert','READY')
         GSTAT.forced_update()
         # set custom theme
         self.STYLE.dark_style()
