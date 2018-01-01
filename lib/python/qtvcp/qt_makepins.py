@@ -20,6 +20,7 @@
 
 import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
+from qtvcp.widgets.screenoptions import Lcnc_ScreenOptions
 from qtvcp.qt_glib import QComponent
 from PyQt5.QtCore import QObject
 
@@ -33,21 +34,24 @@ class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug,PATH):
 
         self.hal = QComponent(halcomp)
-        self.widgets = {}
-
+        # see if a screen options widget is present
+        # if is is then initiate the preference file
+        # and pass a preference object to the window
+        # it's then available to all HALified objects
+        for widget in window.findChildren(QObject):
+            idname = widget.objectName()
+            if isinstance(widget, _HalWidgetBase):
+                if isinstance(widget, Lcnc_ScreenOptions):
+                    preference = widget._pref_init()
+                    window['PREFS_'] = preference
         # parse for HAL objects:
+        # initiate the hal function on each
         log.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
                 log.debug('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init(self.hal, str(idname), widget, window,PATH)
-                self.widgets[idname] = widget
-
-    def __getitem__(self, item):
-        return self.widgets[item]
-    def __setitem__(self, item, value):
-        self.widgets[item] = value
+                widget.hal_init(self.hal, str(idname), widget, window,PATH,preference)
 
 if __name__ == "__main__":
     print "qtvcp_make_pins cannot be run on its own"

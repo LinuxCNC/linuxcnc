@@ -24,12 +24,13 @@ import hal
 ###########################
 
 class _HalWidgetBase:
-    def hal_init(self, comp, name, object, toplevel,PATHS):
+    def hal_init(self, comp, name, object, toplevel,PATHS, preference):
         self.HAL_GCOMP_ = comp
         self.HAL_NAME_ = name
         self.QT_OBJECT_ = object
         self.QTVCP_INSTANCE_ = toplevel
         self.PATHS_ = PATHS
+        self.PREFS_ = preference
         self._hal_init()
 
     def _hal_init(self):
