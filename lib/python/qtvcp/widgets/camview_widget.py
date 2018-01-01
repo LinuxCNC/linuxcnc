@@ -46,8 +46,6 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.rotation = 0
         self.scale = 1
         self.gap = 5
-        if LIB_GOOD:
-            self.cap = cv2.VideoCapture(0)
         self.setWindowTitle('Cam View')
         self.setGeometry(100,100,200,200)
         self.text_color = QColor(255,255,255)
@@ -57,7 +55,16 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if LIB_GOOD:
-            GSTAT.connect('periodic', self.nextFrameSlot)
+            try:
+                self.cap = cv2.VideoCapture(0)
+                #print v4l2-ctl --device <webcam> --list-ctrls
+            except:
+                log.error('Video capture error: {}'.format(self.cap))
+            else:
+                if self.cap.isOpened():
+                    GSTAT.connect('periodic', self.nextFrameSlot)
+                else:
+                    log.warning('Video capture error: no camera ?')
 
     ##################################
     # no button scroll = circle dismater
