@@ -166,11 +166,7 @@ class gmoccapy(object):
         self.stat.poll()
         self.error_channel.poll()
 
-        self.initialized = False  # will be set True after the window has been shown and all
-                                  # basic settings has been finished, so we avoid some actions
-                                  # because we cause click or toggle events when initializing
-                                  # widget states.
-
+        self.initialized = False
         self.start_line = 0  # needed for start from line
 
         self.active_gcodes = []   # this are the formated G code values
@@ -194,10 +190,6 @@ class gmoccapy(object):
         self.incr_rbt_list = []   # we use this list to add hal pin to the button later
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
-
-        # needed to display the labels
-        self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
-        self.dro_size = 28           # The size of the DRO, user may want them bigger on bigger screen
 
         self.notification = notification.Notification()  # Our own message system
         self.notification.connect("message_deleted", self._on_message_deleted)
@@ -235,6 +227,7 @@ class gmoccapy(object):
         self.gui.connect("set_manual", self._set_manual)
         self.gui.connect("set_mdi", self._set_mdi)
         self.gui.connect("set_auto", self._set_auto)
+        self.gui.connect("set_motion_mode", self._set_motion_mode)
         self.gui.connect("mdi_command", self._mdi_command)
         self.gui.connect("mdi_abort", self._mdi_abort)
         self.gui.connect("error", self._show_error)
@@ -299,8 +292,6 @@ class gmoccapy(object):
         self._init_themes()
         self._init_audio()
         self._init_gremlin()
-        self._init_hardware_button_order()
-#        self._init_kinematics_type()
         self._init_hide_cursor()
         self._init_offsetpage()
         self._init_keybindings()
@@ -309,45 +300,6 @@ class gmoccapy(object):
 
         # now we initialize the file to load widget
         self._init_file_to_load()
-
-        self._show_offset_tab(False)
-        self._show_iconview_tab(False)
-
-
-
-
-        # tool measurement probe settings
-        xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
-        if not xpos or not ypos or not zpos or not maxprobe:
-            self.widgets.chk_use_tool_measurement.set_active(False)
-            self.widgets.chk_use_tool_measurement.set_sensitive(False)
-            self.widgets.btn_block_height.set_sensitive(False)
-            self.widgets.lbl_tool_measurement.show()
-            self.widgets.btn_zero_g92.show()
-            self.widgets.btn_block_height.hide()
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** no valid probe config in INI File ****"))
-            print(_("**** disabled tool measurement ****"))
-        else:
-            self.widgets.lbl_tool_measurement.hide()
-            self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
-            self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
-            self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
-            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
-            # to set the hal pin with correct values we emit a toogled
-            self.widgets.lbl_x_probe.set_label(str(xpos))
-            self.widgets.lbl_y_probe.set_label(str(ypos))
-            self.widgets.lbl_z_probe.set_label(str(zpos))
-            self.widgets.lbl_maxprobe.set_label(str(maxprobe))
-            self.widgets.btn_block_height.set_sensitive(True)
-            self.widgets.btn_zero_g92.hide()
-            self.widgets.btn_block_height.show()
-            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** found valid probe config in INI File ****"))
-            print(_("**** will use auto tool measurement ****"))
-        self.widgets.chk_use_tool_measurement.emit("toggled")
-
 
         # and the rest of the widgets
         self.widgets.rbt_manual.set_active(True)
@@ -496,7 +448,7 @@ class gmoccapy(object):
         cycle_time = self.get_ini_info.get_cycle_time()
         gobject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
-    def set_motion_mode(self, state):
+    def _set_motion_mode(self, object, state):
         # 1:teleop, 0: joint
         self.command.teleop_enable(state)
         self.command.wait_complete()
@@ -801,108 +753,7 @@ class gmoccapy(object):
         self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
         self.widgets.eb_blockheight_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
 
-    # init the preview
-    def _init_hardware_button_order( self ):
-        # This is needed only because we connect all the horizontal button
-        # to hal pins, so the user can connect them to hardware buttons
-        self.h_tabs = []
-        tab_main = [(0, "btn_homing"), (1, "btn_touch"), (3, "btn_tool"),
-                    (8, "tbtn_fullsize_preview"), (9, "btn_exit")
-        ]
-        self.h_tabs.append(tab_main)
 
-        tab_mdi = [(9, "btn_show_kbd")]
-        self.h_tabs.append(tab_mdi)
-
-        tab_auto = [(0, "btn_load"), (1, "btn_run"), (2, "btn_stop"), (3, "tbtn_pause"),
-                    (4, "btn_step"), (5, "btn_from_line"), (6, "tbtn_optional_blocks"),
-                    (7, "tbtn_optional_stops"), (8, "tbtn_fullsize_preview1"), (9, "btn_edit")
-        ]
-        self.h_tabs.append(tab_auto)
-
-#        tab_ref = [(1, "btn_home_all"), (3, "btn_home_x"),
-#                   (5, "btn_home_z"), (8, "btn_unhome_all"), (9, "btn_back_ref")
-#        ]
-        tab_ref = self.gui.tab_ref
-        
-#        if not self.lathe_mode:
-#            tab_ref.append((4, "btn_home_y"))
-#        if len(self.axis_list) == 4:
-#            tab_ref.append((6, "btn_home_4"))
-#        if len(self.axis_list) == 5:
-#            tab_ref.append((6, "btn_home_4"))
-#            tab_ref.append((7, "btn_home_5"))
-        self.h_tabs.append(tab_ref)
-
-        tab_touch = [(0, "tbtn_edit_offsets"), (1, "btn_set_value_x"), (3, "btn_set_value_z"), (6, "btn_zero_g92"),
-                     (8, "btn_set_selected"), (9, "btn_back_zero")
-        ]
-        if not self.lathe_mode:
-            tab_touch.append((2, "btn_set_value_y"))
-
-        if len(self.axis_list) == 4:
-            tab_touch.append((4, "btn_set_value_4"))
-        if len(self.axis_list) == 5:
-            tab_touch.append((4, "btn_set_value_4"))
-            tab_touch.append((5, "btn_set_value_5"))
-
-        self.h_tabs.append(tab_touch)
-        
-        tab_setup = [(0, "btn_delete"), (4, "btn_classicladder"), (5, "btn_hal_scope"), (6, "btn_status"),
-                     (7, "btn_hal_meter"), (8, "btn_calibration"), (9, "btn_show_hal")
-        ]
-        self.h_tabs.append(tab_setup)
-
-        tab_edit = [(0, "btn_open_edit"), (2, "btn_save"), (3, "btn_save_as"), (4, "btn_save_and_run"),
-                    (6, "btn_new"), (8, "btn_keyb"), (9, "btn_back_edit")
-        ]
-        self.h_tabs.append(tab_edit)
-
-        tab_tool = [(0, "btn_delete_tool"), (1, "btn_add_tool"), (2, "btn_reload_tooltable"),
-                    (3, "btn_apply_tool_changes"), (4, "btn_select_tool_by_no"), (5, "btn_index_tool"),
-                    (6, "btn_change_tool"), (8, "btn_tool_touchoff_z"), (9, "btn_back_tool")
-        ]
-        if self.lathe_mode:
-            tab_tool.append((7, "btn_tool_touchoff_x"))
-        self.h_tabs.append(tab_tool)
-
-        tab_file = [(0, "btn_home"), (1, "btn_dir_up"), (3, "btn_sel_prev"), (4, "btn_sel_next"),
-                    (5, "btn_jump_to"), (7, "btn_select"), (9, "btn_back_file_load")
-        ]
-        self.h_tabs.append(tab_file)
-        
-        tab_ref_joints = [(0, "btn_home_j_all"), (1, "btn_home_j0"), (2, "btn_home_j1"), (3, "btn_home_j2"), (4, "btn_home_j3"),
-                   (5, "btn_home_j4"), (6, "btn_home_j5"), (7, "btn_sel_next_joints"), (8, "btn_unhome_j_all"), (9, "btn_back_joints")
-        ]
-        self.h_tabs.append(tab_ref_joints)
-        
-
-        self.v_tabs = [(0, "tbtn_estop"), (1, "tbtn_on"), (2, "rbt_manual"), (3, "rbt_mdi"),
-                       (4, "rbt_auto"), (5, "tbtn_setup"), (6, "tbtn_user_tabs")
-        ]
-
-#    def _init_kinematics_type (self):
-#        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-#            self.widgets.gremlin.set_property( "enable_dro", True )
-#            self.widgets.gremlin.use_joints_mode = True
-#            self.widgets.tbtn_switch_mode.show()
-#            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
-#            self.widgets.tbtn_switch_mode.set_sensitive(False)
-#            self.widgets.tbtn_switch_mode.set_active(True)
-#            self.widgets.lbl_replace_mode_btn.hide()
-#            self.widgets.ntb_jog_JA.set_page(1)
-#            self.h_tabs[_BB_MANUAL].append((6, "btn_tool"))
-#            page9 = self.widgets.ntb_button.get_nth_page(9)
-#            self.widgets.ntb_button.reorder_child(page9, _BB_HOME)
-#            page4 = self.widgets.ntb_button.get_nth_page(4)
-#            self.widgets.ntb_button.reorder_child(page4, -1)
-#            self._reset_joint_button_order_to_default()        
-#        else:
-#            self.widgets.gremlin.set_property( "enable_dro", False )
-#            self.widgets.gremlin.use_joints_mode = False
-#            self.widgets.tbtn_switch_mode.hide()
-#            self.widgets.lbl_replace_mode_btn.show()
-#            self.widgets.ntb_jog_JA.set_page(0)
 
     # init the function to hide the cursor
     def _init_hide_cursor(self):
@@ -1151,47 +1002,8 @@ class gmoccapy(object):
         else:
             print(_("**** GMOCCAPY ERROR **** /n Message type {0} not supported").format(message[1]))
 
-    def _show_offset_tab(self, state):
-        page = self.widgets.ntb_preview.get_nth_page(1)
-        if page.get_visible() and state or not page.get_visible() and not state:
-            return
-        if state:
-            page.show()
-            self.widgets.ntb_preview.set_property("show-tabs", state)
-            self.widgets.ntb_preview.set_current_page(1)
-            self.widgets.offsetpage1.mark_active((self.system_list[self.stat.g5x_index]).lower())
-            if self.widgets.chk_use_kb_on_offset.get_active():
-                self.widgets.ntb_info.set_current_page(1)
-        else:
-            names = self.widgets.offsetpage1.get_names()
-            for system, name in names:
-                system_name = "system_name_{0}".format(system)
-                self.prefs.putpref(system_name, name)
-            page.hide()
-            self.widgets.tbtn_edit_offsets.set_active(False)
-            self.widgets.ntb_preview.set_current_page(0)
-            self.widgets.ntb_info.set_current_page(0)
-            if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
-                self.widgets.ntb_preview.set_property("show-tabs", state)
 
 
-    def _show_iconview_tab(self, state):
-        page = self.widgets.ntb_preview.get_nth_page(3)
-        if page.get_visible() and state or not page.get_visible() and not state:
-            return
-        if state:
-            page.show()
-            self.widgets.ntb_preview.set_property("show-tabs", not state)
-            self.widgets.ntb_preview.set_current_page(3)
-            if self.widgets.chk_use_kb_on_file_selection.get_active():
-                self.widgets.box_info.show()
-                self.widgets.ntb_info.set_current_page(1)
-        else:
-            page.hide()
-            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
-                self.widgets.ntb_preview.set_property("show-tabs", not state)
-            self.widgets.ntb_preview.set_current_page(0)
-            self.widgets.ntb_info.set_current_page(0)
 
     # every 100 milli seconds this gets called
     # check linuxcnc for status, error and then update the readout
@@ -1422,9 +1234,9 @@ class gmoccapy(object):
                 if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
                     # Mode 1 = joint ; Mode 3 = teleop
                     if self.stat.motion_mode != 1:
-                        self.set_motion_mode(0) # set joint mode
+                        self._set_motion_mode(None, 0) # set joint mode
                     else:
-                        self.set_motion_mode(1) # set teleop mode
+                        self._set_motion_mode(None, 1) # set teleop mode
             return True
 
         # This will avoid executing the key press event several times caused by keyboard auto repeat
@@ -2060,7 +1872,7 @@ class gmoccapy(object):
             if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
                 # this may happen, because the joints / axes has been unhomed
                 print("wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
+                self_set_motion_mode(1)
                 JOGMODE = 0
             else:
                 JOGMODE = 1
@@ -2098,7 +1910,7 @@ class gmoccapy(object):
             if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
                 # this may happen, because the joints / axes has been unhomed
                 print("wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
+                self_set_motion_mode(1)
                 JOGMODE = 0
             else:
                 JOGMODE = 1
@@ -2133,14 +1945,14 @@ class gmoccapy(object):
 # The homing functions
 
     def _unhome_signal(self, object, joint):
-        self.set_motion_mode(0)
+        self._set_motion_mode(object, 0)
         self.all_homed = False
         # -1 for all
         self.command.unhome(joint)
 
     def _home_signal(self, object, joint):
         print("home signal joint", joint)
-        self.set_motion_mode(0)
+        self._set_motion_mode(object, 0)
         self.command.home(joint)
         
 
@@ -2166,19 +1978,6 @@ class gmoccapy(object):
                 return
             self.command.override_limits()
 
-    def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
-        if widget.get_active():
-            self.widgets.box_info.hide()
-            self.widgets.vbx_jog.hide()
-            self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_0.metric_units)
-            self.widgets.gremlin.set_property("enable_dro", True)
-            if self.lathe_mode:
-                self.widgets.gremlin.set_property("show_lathe_radius", not self.diameter_mode)
-        else:
-            self.widgets.box_info.show()
-            self.widgets.vbx_jog.show()
-            if not self.widgets.chk_show_dro.get_active():
-                self.widgets.gremlin.set_property("enable_dro", False)
         
 
 # =========================================================
@@ -2431,60 +2230,7 @@ class gmoccapy(object):
         elif self.stat.task_mode == linuxcnc.MODE_AUTO:
             self.widgets.gcode_view.grab_focus()
 
-#    # Three back buttons to be able to leave notebook pages
-#    # All use the same callback offset
-#    def on_btn_back_clicked(self, widget, data=None):
-#        if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
-#            self.widgets.ntb_button.set_current_page(_BB_AUTO)
-#            if self.widgets.tbtn_fullsize_preview1.get_active():
-#                self.widgets.vbx_jog.set_visible(False)
-#        elif self.widgets.ntb_button.get_current_page() == _BB_LOAD_FILE:  # File selection mode
-#            self.widgets.ntb_button.set_current_page(_BB_AUTO)
-#        else:  # else we go to main button on manual
-#            pass
-#            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
-#            self.widgets.ntb_main.set_current_page(0)
-#            self.widgets.ntb_preview.set_current_page(0)
 
-    # The offset settings, set to zero
-    def on_btn_touch_clicked(self, widget, data=None):
-        self.widgets.ntb_button.set_current_page(_BB_TOUCH_OFF)
-        self._show_offset_tab(True)
-        if self.widgets.rbtn_show_preview.get_active():
-            self.widgets.ntb_preview.set_current_page(0)
-
-    def on_tbtn_edit_offsets_toggled(self, widget, data=None):
-        state = widget.get_active()
-        self.widgets.offsetpage1.edit_button.set_active(state)
-        widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
-                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92"
-        ]
-        self._sensitize_widgets(widgetlist, not state)
-
-        if state:
-            self.widgets.ntb_preview.set_current_page(1)
-        else:
-            self.widgets.ntb_preview.set_current_page(0)
-
-        # we have to replace button calls in our list to make all hardware button
-        # activate the correct button call
-        if state and self.widgets.chk_use_tool_measurement.get_active():
-            self.widgets.btn_zero_g92.show()
-            self.widgets.btn_block_height.hide()
-            self._replace_list_item(4, "btn_block_height", "btn_zero_g92")
-        elif not state and self.widgets.chk_use_tool_measurement.get_active():
-            self.widgets.btn_zero_g92.hide()
-            self.widgets.btn_block_height.show()
-            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
-
-        if not state:  # we must switch back to manual mode, otherwise jogging is not possible
-            self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
-
-        # show virtual keyboard?
-        if state and self.widgets.chk_use_kb_on_offset.get_active():
-            self.widgets.ntb_info.set_current_page(1)
-            self.widgets.ntb_preview.set_current_page(1)
 
     def on_btn_zero_g92_clicked(self, widget, data=None):
         self.command.mode(linuxcnc.MODE_MDI)
@@ -3015,15 +2761,6 @@ class gmoccapy(object):
                 self.alert_sound = file
                 self.prefs.putpref("audio_alert", file)
 
-    def on_tbtn_switch_mode_toggled(self, widget, data=None):
-        if widget.get_active():
-            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
-            # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
-            # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
-            self.set_motion_mode(0)
-        else:
-            self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
-            self.set_motion_mode(1)
 
 # =========================================================
 # Hal Pin Handling Start
@@ -3253,93 +2990,44 @@ class gmoccapy(object):
 
 # =========================================================
 # The actions of the buttons
-    def _on_h_button_changed(self, pin):
+    def _button_pin_changed(self, pin):
         # we check if the button is pressed ore release,
         # otherwise a signal will be emitted, if the button is released and
         # the signal drob down to zero
         if not pin.get():
             return
-        # lets see on witch button_box we are
-        page = self.widgets.ntb_button.get_current_page()
-        # witch button has been pressed
-        btn = str(pin.name)
-        # from the list we declared under __init__ we get the button number
-        nr = int(btn[-1])
-        tab = self.h_tabs[page]  # see in the __init__ section for the declaration of self.tabs
-        widget_name = None
-        # we check if there is a button or the user pressed a hardware button under
-        # a non existing software button
-        for index in tab:
-            if int(index[0]) == nr:
-                # this is the name of the button
-                widget_name = index[1]
 
-        if "lbl" in widget_name:
-            print("got a space label, will leave here")
-            return
-        
-        if page == _BB_HOME:
-            button = self.gui.home_button_dic[widget_name]
-            if not button.get_sensitive():
-                print("{0} not_sensitive".format(button.name))
-                return
-            button.emit("clicked")
-            print("Button {0} has been clicked".format(button.name))
-            return
-    
-        if button:
-            # only emit a signal if the button is sensitive, otherwise
-            # running actions may be interrupted
-            if not self.widgets[button].get_sensitive():
-                print("{0} not_sensitive".format(button))
-                return
-            self.widgets[button].emit("clicked")
-            print("Button {0} has been clicked".format(button))
+        if "h-button" in pin.name:
+            location = "bottom"
+        elif "v-button" in pin.name:
+            location = "right"
         else:
-            # as we are generating the macro buttons dynamically, we can"t use the same
-            # method as above, here is how we do it
-            if page == 1:  # macro page
-                # does the user press a valid hardware button?
-                if nr < len(self.macrobuttons):
-                    button = self.macrobuttons[nr]  # This list is generated in add_macros_buttons(self)
-                    # is the button sensitive?
-                    if not button.get_sensitive():
-                        print("{0} not_sensitive".format(button))
-                        return
-                    button.emit("pressed")
-                else:
-                    print("No function on this button")
-            else:
-                print("No function on this button")
+            print(_("Recieved a not clasified signal from pin {0}".format(pin.name)))
+            return
 
-    def _on_v_button_changed(self, pin):
-        if not pin.get():
+        number = int(pin.name[-1])
+        if number is not number:
+            print(_("Could not translate {0} to number".format(pin.name)))
             return
-        btn = str(pin.name)
-        nr = int(btn[-1])
-        tab = self.v_tabs  # see in the __init__ section for the declaration of self.tabs
-        button = None
-        for index in tab:
-            if int(index[0]) == nr:
-                # this is the name of the button
-                button = index[1]
-        if button:
-            # only emit a signal if the button is sensitive, otherwise
-            # running actions may be interrupted
-            if self.widgets[button].get_sensitive() == False:
-                print("{0} not_sensitive".format(button))
-                return
-            button_pressed_list = ("rbt_manual", "rbt_mdi", "rbt_auto")
-            button_toggled_list = ("tbtn_setup")
-            if button in button_pressed_list:
-                self.widgets[button].set_active(True)
-                self.widgets[button].emit("pressed")
-            elif button in button_toggled_list:
-                self.widgets[button].set_active(not self.widgets[button].get_active())
-            else:
-                self.widgets[button].emit("clicked")
+            
+        button = self.gui._get_child_button(location, number)
+        if not button:
+            print(_("no button here"))
+            return
+        elif button == -1:
+            print(_("the button is not sensitive"))
+            return
+ 
+        if type(button[0]) == gtk.ToggleButton:
+            button[0].set_active(not button[0].get_active())
+            print(_("Button {0} has been toggled".format(button[1])))
+        elif type(button[0]) == gtk.RadioButton:
+            button[0].set_active(True)
+            button[0].emit("pressed")        
+            print(_("Button {0} has been pressed".format(button[1])))
         else:
-            print("No button found in v_tabs from {0}".format(pin.name))
+            button[0].emit("clicked")
+            print(_("Button {0} has been clicked".format(button[1])))
 
 # We need extra HAL pins here is where we do it.
 # we make pins for the hardware buttons witch can be placed around the
@@ -3348,12 +3036,12 @@ class gmoccapy(object):
         # generate the horizontal button pins
         for h_button in range(0, 10):
             pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_h_button_changed)
+            hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # generate the vertical button pins
         for v_button in range(0, 7):
             pin = self.halcomp.newpin("v-button.button-{0}".format(v_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_v_button_changed)
+            hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:

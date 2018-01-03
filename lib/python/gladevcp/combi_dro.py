@@ -441,6 +441,7 @@ class Combi_DRO(gtk.VBox):
         self._set_labels()
 
     def _all_homed(self, widget, data = None):
+        print("Combi DRO all homed")
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             return
         if not self.homed:

@@ -52,6 +52,8 @@ from gmoccapy import dialogs       # this takes the code of all our dialogs
 from gladevcp.combi_dro import Combi_DRO
 from lxml.cssselect import is_int
 
+from hal_glib import GStat
+
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
@@ -179,22 +181,24 @@ class Build_GUI(gobject.GObject):
         self.dialogs = dialogs.Dialogs()
 
         self.get_ini_info = getiniinfo.GetIniInfo()
-#        self.widgets = widgets
         self._RELEASE = _RELEASE
+
         # This class will handle all the user preferences
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
+
+        # set initial values for the GUI
+        self._set_initial_values()
+
         self._get_ini_data()
         self._get_pref_data()
 
         # make all widgets we create dynamically
         self._make_DRO()
         self._make_ref_button()
+        self._make_touch_button()
         self._make_jog_increments()
         self._make_macro_button()
  
-        # set initial values for the GUI
-        self._set_initial_values()
-
         # check for virtual keyboard
         self._init_keyboard()
 
@@ -202,12 +206,11 @@ class Build_GUI(gobject.GObject):
         self._init_widgets()
         self._activate_widgets()
         
-        self._get_tab_ref()
-        
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME, self.builder, None)
 
         # finally show the main window
         self.widgets.window1.show()
+
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -230,14 +233,14 @@ class Build_GUI(gobject.GObject):
             dro.set_axis(axis)
             dro.change_axisletter(axis.upper())
             dro.show()
-            dro.set_property("name", "Combi_DRO_{0}".format(axis.upper()))
+            dro.set_property("name", "Combi_DRO_{0}".format(axis))
             dro.connect("clicked", self._on_DRO_clicked)
             self.dro_dic[dro.name] = dro
         self._arange_dro()
 
     def _make_ref_button(self):
         print("**** GMOCCAPY build_GUI INFO ****")
-        print("**** Entering make home button")
+        print("**** Entering make ref button")
 
         # check if we need axis or joint homing button
         if self.trivial_kinematics:
@@ -256,16 +259,16 @@ class Build_GUI(gobject.GObject):
         # if we have more than 7 axis, we need arrows to switch the visible ones
         if num_elements < 7:
             lbl = self._get_space_label("lbl_space_0")
-            self.widgets.hbtb_ref.pack_end(lbl)
+            self.widgets.hbtb_ref.pack_start(lbl)
     
         file = "ref_all.png"
         filepath = os.path.join(IMAGEDIR, file)
         btn = self._get_button_with_image("ref_all", filepath, None)
         btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
         btn.connect("clicked", self._on_btn_home_clicked)
-        # we use pack_end, so the widgets will be moved from right to left
+        # we use pack_start, so the widgets will be moved from right to left
         # and are displayed the way we want
-        self.widgets.hbtb_ref.pack_end(btn)
+        self.widgets.hbtb_ref.pack_start(btn)
 
         if num_elements > 7:
             # show the previous arrow to switch visible homing button)
@@ -273,12 +276,12 @@ class Build_GUI(gobject.GObject):
             btn.set_sensitive(False)
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_clicked)
-            self.widgets.hbtb_ref.pack_end(btn)
+            self.widgets.hbtb_ref.pack_start(btn)
 
         # do not use this label, to allow one more axis
         if num_elements < 6:
             lbl = self._get_space_label("lbl_space_2")
-            self.widgets.hbtb_ref.pack_end(lbl)
+            self.widgets.hbtb_ref.pack_start(lbl)
 
         for pos, elem in enumerate(dic):
 
@@ -290,7 +293,7 @@ class Build_GUI(gobject.GObject):
             btn.set_property("tooltip-text", _("Press to home {0} {1}".format(name_prefix, elem)))
             btn.connect("clicked", self._on_btn_home_clicked)
 
-            self.widgets.hbtb_ref.pack_end(btn)
+            self.widgets.hbtb_ref.pack_start(btn)
 
             # if we have more than 7 axis we need to hide some button
             if num_elements > 7:
@@ -302,14 +305,13 @@ class Build_GUI(gobject.GObject):
             btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_clicked)
-            self.widgets.hbtb_ref.pack_end(btn)
+            self.widgets.hbtb_ref.pack_start(btn)
 
         # if there is space left, fill it with space labels
         start = self.widgets.hbtb_ref.child_get_property(btn,"position")
         for count in range( start + 1 , 8):
-            print("Count = ", count)
             lbl = self._get_space_label("lbl_space_{0}".format(count))
-            self.widgets.hbtb_ref.pack_end(lbl)
+            self.widgets.hbtb_ref.pack_start(lbl)
  
         file = "unhome.png"
         filepath = os.path.join(IMAGEDIR, file)
@@ -317,20 +319,114 @@ class Build_GUI(gobject.GObject):
         btn = self._get_button_with_image(name, filepath, None)
         btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
         btn.connect("clicked", self._on_btn_unhome_clicked)
-        self.widgets.hbtb_ref.pack_end(btn)
+        self.widgets.hbtb_ref.pack_start(btn)
         
         name = "home_back"
         btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
-        self.widgets.hbtb_ref.pack_end(btn)
+        self.widgets.hbtb_ref.pack_start(btn)
         
         self.ref_button_dic = {}
         children = self.widgets.hbtb_ref.get_children()
         for child in children:
             self.ref_button_dic[child.name] = child
 
-        self._get_tab_ref()
+    def _make_touch_button(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make touch button")
+
+        dic = self.axis_list
+        num_elements = len(dic)
+        end = 7
+
+        if self._check_toolmeasurement():
+            # we will have 3 buttons on the right side
+            end -= 1
+
+        btn = gtk.ToggleButton(_("  edit\noffsets"))
+        btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
+        btn.set_property("tooltip-text", _("Press to edit the offsets"))
+        btn.set_property("name", "edit_offsets")
+        btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+
+        if num_elements > 6:
+            # show the previous arrow to switch visible touch button)
+            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+            btn.set_property("tooltip-text", _("Press to display previous homing button"))
+            btn.connect("clicked", self._on_btn_previous_touch_clicked)
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            end -= 1
+            btn.hide()
+        
+        for pos, elem in enumerate(dic):
+            file = "touch_{0}.png".format(elem)
+            filepath = os.path.join(IMAGEDIR, file)
+
+            name = "touch_{0}".format(elem)
+            btn = self._get_button_with_image(name, filepath, None)
+            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
+#            btn.connect("clicked", self._on_btn_touch_clicked)
+
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            
+            if pos > end - 2:
+                btn.hide()
+
+        if num_elements > (end - 1):
+            # show the next arrow to switch visible homing button)
+            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn.set_property("tooltip-text", _("Press to display next homing button"))
+            btn.connect("clicked", self._on_btn_next_touch_clicked)
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            btn.show()
+            end -= 1
+
+        # if there is space left, fill it with space labels
+        start = self.widgets.hbtb_touch_off.child_get_property(btn,"position")
+        for count in range( start + 1 , end):
+            print("Count = ", count)
+            lbl = self._get_space_label("lbl_space_{0}".format(count))
+            self.widgets.hbtb_touch_off.pack_start(lbl)
+            lbl.show()
+
+        btn = gtk.Button(_("zero\n G92"))
+#        btn.connect(self.on_btn_zero_g92_clicked)
+        btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
+        btn.set_property("name", "zero_offsets")
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+
+        if self._check_toolmeasurement():
+            btn = gtk.Button(_(" Block\nHeight"))
+#            btn.connect(self.on_btn_block_height_clicked)
+            btn.set_property("tooltip-text", _("Press to enter new value for block height"))
+            btn.set_property("name", "block_height")
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            btn.show()
+
+        print("tool measurement OK = ",self._check_toolmeasurement())
+
+        btn = gtk.Button(_("    set\nselected"))
+#        btn.connect(self.on_btn_set_selected_clicked)
+        btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
+        btn.set_property("name", "set_active")
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+
+        name = "touch_back"
+        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn.set_property("tooltip-text", _("Press to return to main button list"))
+        btn.connect("clicked", self._on_btn_home_back_clicked)
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+        
+        self.touch_button_dic = {}
+        children = self.widgets.hbtb_touch_off.get_children()
+        for child in children:
+            self.touch_button_dic[child.name] = child
 
     def _make_jog_increments(self):
         print("**** GMOCCAPY build_GUI INFO ****")
@@ -384,7 +480,6 @@ class Build_GUI(gobject.GObject):
         print("**** GMOCCAPY build_GUI INFO ****")
         print("**** Entering make macro button")
 
-        self.macro_dic = {}
         macros = self.get_ini_info.get_macros()
 
         # if no macros at all are found, we receive a NONE, so we have to check:
@@ -401,32 +496,43 @@ class Build_GUI(gobject.GObject):
             num_macros = 9
 
         for pos in range(0, num_macros):
-            print pos, macros[pos]
             name = macros[pos]
             lbl = name.split()[0]
             # shorten / break line of the name if it is to long
             if len( lbl ) > 11:
                 lbl = lbl[0:10] + "\n" + lbl[11:20]
             btn = gtk.Button( lbl, None, False )
+            btn.set_property("name","macro_{0}".format(pos))
             btn.connect( "pressed", self._on_btn_macro_pressed, name )
             btn.position = pos
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
 
-            # we add the button to a dictionary to be check what macro to execute
-            self.macro_dic[pos] = btn
         # if there is still place, we fill it with empty labels, to be sure the button will not be on different
         # places if the amount of macros change.
         if num_macros < 9:
-            for label_space in range(num_macros, 9):
-                lbl = "lbl_sp_{0}".format(label_space)
-                lbl = gtk.Label(lbl)
-                lbl.position = label_space
+            for pos in range(num_macros, 9):
+                lbl = gtk.Label()
+                lbl.set_property("name","lbl_space_{0}".format(pos))
                 lbl.set_text("")
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
-        self.widgets.hbtb_MDI.non_homogeneous = False
 
+#        self.widgets.hbtb_MDI.non_homogeneous = False
+
+        file = "keyboard.png"
+        filepath = os.path.join(IMAGEDIR, file)
+
+        name = "keyboard"
+        btn = self._get_button_with_image(name, filepath, None)
+        btn.set_property("tooltip-text", _("Press to display the virtual keyboard"))
+#        btn.connect("clicked", self.on_btn_show_kbd_clicked)
+        self.widgets.hbtb_MDI.pack_start(btn)
+
+        self.macro_dic = {}
+        children = self.widgets.hbtb_MDI.get_children()
+        for child in children:
+            self.macro_dic[child.name] = child
 
 # =============================================================
 # Onboard keybord handling Start
@@ -481,7 +587,8 @@ class Build_GUI(gobject.GObject):
         self.widgets.btn_show_kbd.set_sensitive(False)
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
         self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
-        self.widgets.btn_keyb.set_sensitive(False)
+#        self.widgets.btn_keyb.set_sensitive(False)
+        self.macro_dic["keyboard"].set_sensitive(False)
 
     def _kill_keyboard(self):
         try:
@@ -620,30 +727,43 @@ class Build_GUI(gobject.GObject):
                 print("**** Will display the angular jog slider\n")
                 break
 
-    def _remove_homing_button(self):
-        for child in self.ref_button_dic:
-            self.widgets.hbtb_ref.remove(self.ref_button_dic[child])
+    def _remove_button(self, dic, box):
+        for child in dic:
+            box.remove(dic[child])
 
     def _put_home_all_and_previous(self):
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"])
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["previous_button"])
 
-    def _put_ref_button(self, start, end):
+    def _put_button(self, start, end, dic, box):
+        if dic == self.ref_button_dic:
+            prefix = "home_axis"
+        elif dic == self.touch_button_dic:
+            prefix = "touch"
         for axis in self.axis_list[start : end]:
-            name = "home_axis_{0}".format(axis.lower())
-            self.ref_button_dic[name].show()
-            self.widgets.hbtb_ref.pack_start(self.ref_button_dic[name])
+            name = prefix + "_{0}".format(axis.lower())
+            dic[name].show()
+            box.pack_start(dic[name])
+
+    def _put_set_active_and_back(self):
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["set_active"])
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["touch_back"])
 
     def _put_unref_and_back(self):
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["next_button"])
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["unref_all"])
-        self.widgets.hbtb_ref.pack_end(self.ref_button_dic["home_back"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["home_back"])
 
-    def _hide_homing_button(self, start, end):
+    def _hide_button(self, start, end, dic, box):
+        if dic == self.ref_button_dic:
+            prefix = "home_axis"
+        elif dic == self.touch_button_dic:
+            prefix = "touch"
+         
         for axis in self.axis_list[start:end]:
-            name = "home_axis_{0}".format(axis.lower())
-            self.ref_button_dic[name].hide()
-            self.widgets.hbtb_ref.pack_start(self.ref_button_dic[name])
+            name = prefix + "_{0}".format(axis.lower())
+            dic[name].hide()
+            box.pack_start(dic[name])
 
 ###############################################################################
 ##                       internal button handling                            ##
@@ -771,19 +891,53 @@ class Build_GUI(gobject.GObject):
 ##                       bottom buttons (manual)                             ##
 ###############################################################################
 
+    # display the homing button
     def on_btn_homing_clicked(self, widget, data=None):
         self.widgets.ntb_button.set_current_page(_BB_HOME)
 
+    # display the offste button
+    def on_btn_touch_clicked(self, widget, data=None):
+        self.widgets.ntb_button.set_current_page(_BB_TOUCH_OFF)
+        self._show_offset_tab(True)
+#        if self.widgets.rbtn_show_preview.get_active():
+#            self.widgets.ntb_preview.set_current_page(0)
 
-    # If button exit is clicked, press emergency button before closing the application
-    def on_btn_exit_clicked(self, widget, data=None):
-        self.widgets.window1.destroy()
-
+    # display the tool button
     def on_btn_tool_clicked(self, widget, data=None):
         if self.widgets.tbtn_fullsize_preview.get_active():
             self.widgets.tbtn_fullsize_preview.set_active(False)
         self.widgets.ntb_button.set_current_page(_BB_TOOL)
         self._show_tooledit_tab(True)
+
+    def on_tbtn_switch_mode_toggled(self, widget):
+        if widget.get_active():
+            self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
+            # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
+            # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
+            self.emit("set_motion_mode", 0)
+        else:
+            self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
+            self.emit("set_motion_mode", 1)
+
+    def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
+        if widget.get_active():
+            self.widgets.box_info.hide()
+            self.widgets.vbx_jog.hide()
+            dro = self.dro_dic[self.dro_dic.keys()[0]]
+            self.widgets.gremlin.set_property("metric_units", dro.metric_units)
+            self.widgets.gremlin.set_property("enable_dro", True)
+            if self.lathe_mode:
+                self.widgets.gremlin.set_property("show_lathe_radius", not self.diameter_mode)
+        else:
+            self.widgets.box_info.show()
+            self.widgets.vbx_jog.show()
+            if not self.widgets.chk_show_dro.get_active():
+                self.widgets.gremlin.set_property("enable_dro", False)
+
+    # If button exit is clicked, press emergency button before closing the application
+    def on_btn_exit_clicked(self, widget, data=None):
+        self.widgets.window1.destroy()
+
 
 ###############################################################################
 ##                       internal button handling                            ##
@@ -792,29 +946,72 @@ class Build_GUI(gobject.GObject):
 
 # ToDo Start : must fit also the joints button
     def _on_btn_previous_clicked(self, widget):
-        self._remove_homing_button()
+        self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
         self._put_home_all_and_previous()
-        self._put_ref_button(0 , 5)
+        self._put_button(0 , 5,
+                         self.ref_button_dic, self.widgets.hbtb_ref)
         self._put_unref_and_back()
-        self._hide_homing_button(5,len(self.axis_list))
+        self._hide_button(5,len(self.axis_list),
+                          self.ref_button_dic, self.widgets.hbtb_ref)
         
         self.ref_button_dic["previous_button"].set_sensitive(False)
         self.ref_button_dic["next_button"].set_sensitive(True)
 
-        self._get_tab_ref()
-
     def _on_btn_next_clicked(self, widget):
-        self._remove_homing_button()
+        self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
         self._put_home_all_and_previous()
-        self._put_ref_button(len(self.axis_list) - 5 , len(self.axis_list))
+        self._put_button(len(self.axis_list) - 5 , len(self.axis_list),
+                             self.ref_button_dic, self.widgets.hbtb_ref)
         self._put_unref_and_back()
-        self._hide_homing_button(0,len(self.axis_list) - 5)
+        self._hide_button(0,len(self.axis_list) - 5,
+                                self.ref_button_dic, self.widgets.hbtb_ref)
         
         self.ref_button_dic["previous_button"].set_sensitive(True)
         self.ref_button_dic["next_button"].set_sensitive(False)
         
-        self._get_tab_ref()
+    def _on_btn_next_touch_clicked(self, widget):
+        self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
 
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["previous_button"])
+        self.touch_button_dic["previous_button"].show()
+
+        self._put_button(len(self.axis_list) - 6 , len(self.axis_list),
+                         self.touch_button_dic, self.widgets.hbtb_touch_off)
+        self._put_set_active_and_back()
+
+        self._hide_button(0,len(self.axis_list) - 6,
+                          self.touch_button_dic, self.widgets.hbtb_touch_off)
+        
+
+    def _on_btn_previous_touch_clicked(self, widget):
+        self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
+
+        if self._check_toolmeasurement():
+            correct = 1
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
+
+        if self._check_toolmeasurement():
+            end = 4
+        else:
+            end = 5
+            
+        self._put_button(0 , end,
+                         self.touch_button_dic, self.widgets.hbtb_touch_off)
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["next_button"])
+        self.touch_button_dic["next_button"].show()
+
+        if self._check_toolmeasurement():
+            self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["block_height"])
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"])
+        self._put_set_active_and_back()
+
+        self._hide_button(end,len(self.axis_list),
+                          self.touch_button_dic, self.widgets.hbtb_touch_off)
+     
     def _on_btn_home_clicked(self, widget):
         # home axis or joint?
         print("on button home clicker = ", widget.name)
@@ -836,6 +1033,39 @@ class Build_GUI(gobject.GObject):
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_preview.set_current_page(0)
+
+###############################################################################
+##                       internal button handling                            ##
+##                          touch off buttons                                ##
+###############################################################################
+
+    def on_tbtn_edit_offsets_toggled(self, widget):
+        state =  not widget.get_active()
+        self.widgets.offsetpage1.edit_button.set_active(not state)
+
+        for widget in self.touch_button_dic:
+            if self.touch_button_dic[widget].name == "edit_offsets":
+                continue
+            else:
+                self.touch_button_dic[widget].set_sensitive(state)
+
+        widgetlist = ["ntb_jog"]
+        self._sens_widgets(widgetlist, state)
+
+        if state:
+            self.widgets.ntb_preview.set_current_page(0)
+        else:
+            self.widgets.ntb_preview.set_current_page(1)
+
+        # we must switch back to manual mode, otherwise jogging is not possible
+        if not state:
+            self.emit("set_manual")
+            sleep(0.1)
+
+        # show virtual keyboard?
+        if state and self.widgets.chk_use_kb_on_offset.get_active():
+            self.widgets.ntb_info.set_current_page(1)
+            self.widgets.ntb_preview.set_current_page(1)
 
 
 ###############################################################################
@@ -1016,11 +1246,11 @@ class Build_GUI(gobject.GObject):
 
     def on_chk_auto_units_toggled(self, widget, data=None):
         for axis in self.axis_list:
-            dro_name = "Combi_DRO_{0}".format(axis.upper())
+            dro_name = "Combi_DRO_{0}".format(axis)
             dro = self.dro_dic[dro_name]
             dro.set_auto_units(self.widgets.chk_auto_units.get_active())
         if self.lathe_mode:
-            self.dro_dic["Combi_DRO_Y"].set_auto_units(self.widgets.chk_auto_units.get_active())
+            self.dro_dic["Combi_DRO_y"].set_auto_units(self.widgets.chk_auto_units.get_active())
         self.prefs.putpref("use_auto_units", self.widgets.chk_auto_units.get_active())
 
     def on_chk_show_dro_btn_toggled(self, widget, data=None):
@@ -1110,7 +1340,34 @@ class Build_GUI(gobject.GObject):
 ###############################################################################
 ##                          helper functions                                 ##
 ###############################################################################
-        
+
+    def _check_toolmeasurement(self):
+        # tool measurement probe settings
+        xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
+        if not xpos or not ypos or not zpos or not maxprobe:
+            self.widgets.chk_use_tool_measurement.set_active(False)
+            self.widgets.chk_use_tool_measurement.set_sensitive(False)
+            self.widgets.lbl_tool_measurement.show()
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** no valid probe config in INI File ****"))
+            print(_("**** disabled tool measurement ****"))
+            return False
+        else:
+            self.widgets.lbl_tool_measurement.hide()
+            self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
+            self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
+            self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
+            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
+            # to set the hal pin with correct values we emit a toogled
+            self.widgets.lbl_x_probe.set_label(str(xpos))
+            self.widgets.lbl_y_probe.set_label(str(ypos))
+            self.widgets.lbl_z_probe.set_label(str(zpos))
+            self.widgets.lbl_maxprobe.set_label(str(maxprobe))
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** found valid probe config in INI File ****"))
+            print(_("**** will use auto tool measurement ****"))
+            return True
+
     def _get_button_with_image(self, name, filepath, stock):
         image = gtk.Image()
         image.set_size_request(48,48)
@@ -1135,21 +1392,44 @@ class Build_GUI(gobject.GObject):
         lbl.set_size_request(85,56)
         lbl.show()
         return lbl
-    
-    def _get_tab_ref(self):
-        # get the position of each button to be able to connect to hardware button
-        unsorted_tab_ref = []
-        for element in self.ref_button_dic:
-            if self.ref_button_dic[element].get_visible():
-                pos = self.widgets.hbtb_ref.child_get_property(self.ref_button_dic[element],"position")
-                unsorted_tab_ref.append((pos, element))
-        
-        sorted_tab_ref = sorted(unsorted_tab_ref, key=lambda tub: tub[0])
-        
-        self.tab_ref=[]
-        for pos, entry in enumerate(sorted_tab_ref):
-            self.tab_ref.append((pos, entry[1]))
 
+    # this handles the relation between hardware button and the software button    
+    def _get_child_button(self, location, number = None):
+        # get the position of each button to be able to connect to hardware button
+        self.child_button_dic = {}
+        
+        if location == "bottom":
+            page = self.widgets.ntb_button.get_current_page()
+            container = self.widgets.ntb_button.get_children()[page]
+        elif location == "right":
+            container = self.widgets.vbtb_main
+        else:
+            print(_("got wrong location to locate the childs"))
+            
+        children = container.get_children()
+        hidden = 0
+        for child in children:
+            if not child.get_visible():
+                hidden +=1
+            else:
+                if type(child) != gtk.Label:
+                    pos = container.child_get_property(child, "position")
+                    name = child.name
+                    if name == None:
+                        name = gtk.Buildable.get_name(child)
+                    self.child_button_dic[pos - hidden] = (child, name)
+        
+        if number is not None:
+            try:
+                if self.child_button_dic[number][0].get_sensitive():
+                    return self.child_button_dic[number]
+                else:
+                    return -1
+            except:
+                return None
+        else:
+            return self.child_button_dic
+        
     def _get_joint_from_joint_axis_dic(self, value):
         # if the selected axis is a double axis we will get the joint from the
         # master axis, witch should end with 0 
@@ -1157,6 +1437,10 @@ class Build_GUI(gobject.GObject):
             value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
 
+#    def _get_widget_from_dic(self, dic, name):
+#        print dic
+#        return #dic.keys()[dic.values().index(name)]
+        
     def _arange_dro(self):
         # if we have less than 4 axis, we can resize the table, as we have 
         # enough space to display each one in it's own line  
@@ -1173,7 +1457,7 @@ class Build_GUI(gobject.GObject):
         elif len(self.axis_list) == 5:
             self.widgets.tbl_DRO.resize(4,2)
             for dro, axis in enumerate(self.axis_list):
-                dro_name = "Combi_DRO_{0}".format(axis.upper())
+                dro_name = "Combi_DRO_{0}".format(axis)
                 if dro < 3:
                     size = self.dro_size * 0.75
                     self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
@@ -1203,7 +1487,7 @@ class Build_GUI(gobject.GObject):
         col = 0
         row = 0
         for dro, axis in enumerate(self.axis_list):
-            dro_name = "Combi_DRO_{0}".format(axis.upper())
+            dro_name = "Combi_DRO_{0}".format(axis)
 
             self.dro_dic[dro_name].set_property("font_size", dro_size)
             self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
@@ -1284,26 +1568,6 @@ class Build_GUI(gobject.GObject):
         self.widgets.btn_exit.set_sensitive(not state)
         self.widgets.chk_ignore_limits.set_sensitive(not state)
 
-    def _show_tooledit_tab(self, state):
-        page = self.widgets.ntb_preview.get_nth_page(2)
-        if page.get_visible() and state or not page.get_visible() and not state:
-            return
-        if state:
-            page.show()
-            self.widgets.ntb_preview.set_property("show-tabs", not state)
-            self.widgets.vbx_jog.hide()
-            self.widgets.ntb_preview.set_current_page(2)
-            self.widgets.tooledit1.set_selected_tool(self.tool_in_spindle)
-            if self.widgets.chk_use_kb_on_tooledit.get_active():
-                self.widgets.ntb_info.set_current_page(1)
-        else:
-            page.hide()
-            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
-                self.widgets.ntb_preview.set_property("show-tabs", not state)
-            self.widgets.vbx_jog.show()
-            self.widgets.ntb_preview.set_current_page(0)
-            self.widgets.ntb_info.set_current_page(0)
-
     def _reset_GUI(self):
         # on switching the machine on, we reset the GUI to standard view
         self.widgets.ntb_main.set_current_page(0)
@@ -1312,6 +1576,9 @@ class Build_GUI(gobject.GObject):
         self.widgets.vbx_jog.show()
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.tbtn_fullsize_preview.set_active(False)
+        self._show_offset_tab(False)
+        self._show_tooledit_tab(False)
+        self._show_iconview_tab(False)
 
     # This is used to reload the tool in spindle after starting the GUI
     # This is called from the all_homed_signal
@@ -1378,8 +1645,9 @@ class Build_GUI(gobject.GObject):
             sleep(0.1)
 
     def offset_changed(self, tooloffset):
+        dro = self.dro_dic[self.dro_dic.keys()[0]]
         try: 
-            if self.dro_dic["Combi_DRO_X"].machine_units == _MM:
+            if dro.machine_units == _MM:
                 self.widgets.lbl_tool_offset_z.set_text("{0:.3f}".format(tooloffset[1]))
                 self.widgets.lbl_tool_offset_x.set_text("{0:.3f}".format(tooloffset[0]))
             else:
@@ -1387,6 +1655,8 @@ class Build_GUI(gobject.GObject):
                 self.widgets.lbl_tool_offset_x.set_text("{0:.4f}".format(tooloffset[0]))
         except:
             print("We do not have a X axis, very strange")
+
+
 
 
 ###############################################################################
@@ -1411,7 +1681,7 @@ class Build_GUI(gobject.GObject):
 ##                        hal status handling                                ##
 ###############################################################################
 
-    def on_hal_status_state_estop_reset(self, widget=None):
+    def on_hal_status_state_estop_reset(self, object):
         print("GUI Builder estop_reset")
         self.estop_active = False
         self.widgets.tbtn_estop.set_active(True)
@@ -1425,7 +1695,7 @@ class Build_GUI(gobject.GObject):
 
         self.emit("set_manual")
 
-    def on_hal_status_state_estop(self, widget=None):
+    def on_hal_status_state_estop(self, object):
         print("GUI Builder estop")
         self.estop_active = True
         self.widgets.tbtn_estop.set_active(False)
@@ -1435,7 +1705,7 @@ class Build_GUI(gobject.GObject):
         self.widgets.tbtn_on.set_sensitive(False)
         self.widgets.chk_ignore_limits.set_sensitive(False)
 
-    def on_hal_status_state_off(self, widget):
+    def on_hal_status_state_off(self, object):
         print("GUI Builder machine OFF")
         self.machine_on = False
 
@@ -1445,7 +1715,7 @@ class Build_GUI(gobject.GObject):
             self.widgets.tbtn_on.set_active(False)
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
 
-    def on_hal_status_state_on(self, widget):
+    def on_hal_status_state_on(self, object):
         print("GUI Builder machine ON")
         self.machine_on = True
 
@@ -1457,9 +1727,10 @@ class Build_GUI(gobject.GObject):
 
         self._reset_GUI()
 
-    def on_hal_status_mode_manual(self, widget):
+    def on_hal_status_mode_manual(self, object):
         self.mode = "MAN"
         print("GUI Builder Manual Mode")
+        self._reset_GUI()
         self.widgets.rbt_manual.set_active(True)
         # if setup page is activated, we must leave here, otherwise the pages will be reset
         if self.widgets.tbtn_setup.get_active():
@@ -1480,8 +1751,10 @@ class Build_GUI(gobject.GObject):
         # press should only advance one increment on incremental jogging.
         self.last_key_event = None, 0
 
-    def on_hal_status_mode_mdi(self, widget):
+    def on_hal_status_mode_mdi(self, object):
+        self.mode = "MDI"
         print("GUI Builder MDI Mode")
+        self._reset_GUI()
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -1521,8 +1794,10 @@ class Build_GUI(gobject.GObject):
         # on incremental jogging.
         self.last_key_event = None, 0
 
-    def on_hal_status_mode_auto(self, widget):
+    def on_hal_status_mode_auto(self, object):
+        self.mode = "AUTO"
         print("GUI Builder MDI Mode")
+        self._reset_GUI()
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to abort external commands and get back to manual mode
         # This will happen mostly, if we are in settings mode, as we do disable the mode button
@@ -1549,8 +1824,8 @@ class Build_GUI(gobject.GObject):
         # on incremental jogging.
         self.last_key_event = None, 0
 
-    def on_hal_status_motion_mode_changed(self, widget, new_mode):
-        print("GUI Builder motion Mode changed")
+    def on_hal_status_motion_mode_changed(self, object, new_mode):
+        print("GUI Builder motion Mode changed", new_mode)
         # Motion mode change in identity kinematics makes no sense
         # so we will not react on the signal and correct the misbehavior
         # self.stat.motion_mode returns following values
@@ -1577,7 +1852,7 @@ class Build_GUI(gobject.GObject):
         widgetlist = ("rbt_mdi", "rbt_auto")
         self._sens_widgets(widgetlist, state)
 
-    def on_hal_status_interp_idle(self, widget):
+    def on_hal_status_interp_idle(self, object):
         print("GUI Builder Interpreter IDLE")
         self.interpreter = "IDLE"
         if self.load_tool:
@@ -1598,12 +1873,16 @@ class Build_GUI(gobject.GObject):
             self._sens_widgets(widgetlist, False)
         else:
             self._sens_widgets(widgetlist, True)
-        for pos in self.macro_dic:
-            self.macro_dic[pos].set_sensitive(True)
-        if self.onboard:
-            self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
-        else:
-            self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
+        for widget in self.macro_dic:
+            self.macro_dic[widget].set_sensitive(True)
+
+## ToDo : add widgets to glade file or add them separate
+#        if self.onboard:
+#            self.macro_dic["keyboard"].set_image(self.widgets.img_keyboard)
+#        else:
+#            self.macro_dic["keyboard"].set_image(self.widgets.img_brake_macro)
+## ToDo : add widgets to glade file or add them separate
+
         self.widgets.btn_run.set_sensitive(True)
 
         if self.tool_change:
@@ -1617,7 +1896,7 @@ class Build_GUI(gobject.GObject):
 
     # use the hal_status widget to control buttons and
     # actions allowed by the user and sensitive widgets
-    def on_hal_status_all_homed(self, widget):
+    def on_hal_status_all_homed(self, object):
         print("GUI Builder All homed")
         self.all_homed = True
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
@@ -1625,8 +1904,6 @@ class Build_GUI(gobject.GObject):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
         ]
         self._sens_widgets(widgetlist, True)
-
-        self.emit("set_motion_mode", 1)
 
         if self.widgets.chk_reload_tool.get_active():
             # if there is already a tool in spindle, the user 
@@ -1638,10 +1915,13 @@ class Build_GUI(gobject.GObject):
                 return
             self._reload_tool()
 
+        self.emit("set_motion_mode", 1)
+        sleep(0.1)
         self.emit("set_manual")
 
 
-    def on_hal_status_not_all_homed(self, widget, joints):
+    def on_hal_status_not_all_homed(self, object, joints):
+        print("GUI Builder Not all homed")
         self.all_homed = False
         if self.no_force_homing:
             return
@@ -1653,14 +1933,19 @@ class Build_GUI(gobject.GObject):
         self.emit("set_motion_mode", 0)
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
+        print("GUI Builder tool in spindle changed")
         # need to save the tool in spindle as preference, to be able to reload it on startup
         self.prefs.putpref("tool_in_spindle", new_tool_no, int)
         self._update_toolinfo(new_tool_no)
 
+    def on_hal_status_user_system_changed(self, object, system):
+        print("GUI Builder user system changed")
+        print("System is now ", system)
+        self.system = self.system_dic[system]
 
 
 ###############################################################################
-##                            modify widgets                                 ##
+##                       modify / hide widgets                               ##
 ###############################################################################
 
     # the user want to use a security mode
@@ -1668,15 +1953,70 @@ class Build_GUI(gobject.GObject):
         self.user_mode = True
         self.widgets.tbtn_setup.set_sensitive(False)
         
-#    def update_widgets(self, state):
-#        widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-#                      "hbox_jog_vel", "ntb_jog_JA", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
-#                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-#                      "btn_spindle_100", "spc_rapid", "spc_spindle",
-#                      "btn_tool_touchoff_x", "btn_tool_touchoff_z"
-#        ]
-#        self._sensitize_widgets(widgetlist, state)
+    def _show_offset_tab(self, state):
+        print("Build GUI _show offset tab")
+        page = self.widgets.ntb_preview.get_nth_page(1)
+        if page.get_visible() and state or not page.get_visible() and not state:
+            return
+        if state:
+            page.show()
+            self.widgets.ntb_preview.set_property("show-tabs", state)
+            self.widgets.ntb_preview.set_current_page(1)
+            self.widgets.offsetpage1.mark_active(self.system)
+            if self.widgets.chk_use_kb_on_offset.get_active():
+                self.widgets.ntb_info.set_current_page(1)
+        else:
+            names = self.widgets.offsetpage1.get_names()
+            for system, name in names:
+                system_name = "system_name_{0}".format(system)
+                self.prefs.putpref(system_name, name)
+            page.hide()
+            btn = self.touch_button_dic["edit_offsets"]
+            btn.set_active(False)
+            self.widgets.ntb_preview.set_current_page(0)
+            self.widgets.ntb_info.set_current_page(0)
+            if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
+                self.widgets.ntb_preview.set_property("show-tabs", state)
+            else:
+                self.widgets.ntb_preview.set_property("show-tabs", not state)
 
+    def _show_tooledit_tab(self, state):
+        page = self.widgets.ntb_preview.get_nth_page(2)
+        if page.get_visible() and state or not page.get_visible() and not state:
+            return
+        if state:
+            page.show()
+            self.widgets.ntb_preview.set_property("show-tabs", not state)
+            self.widgets.vbx_jog.hide()
+            self.widgets.ntb_preview.set_current_page(2)
+            self.widgets.tooledit1.set_selected_tool(self.tool_in_spindle)
+            if self.widgets.chk_use_kb_on_tooledit.get_active():
+                self.widgets.ntb_info.set_current_page(1)
+        else:
+            page.hide()
+            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
+                self.widgets.ntb_preview.set_property("show-tabs", not state)
+            self.widgets.vbx_jog.show()
+            self.widgets.ntb_preview.set_current_page(0)
+            self.widgets.ntb_info.set_current_page(0)
+
+    def _show_iconview_tab(self, state):
+        page = self.widgets.ntb_preview.get_nth_page(3)
+        if page.get_visible() and state or not page.get_visible() and not state:
+            return
+        if state:
+            page.show()
+            self.widgets.ntb_preview.set_property("show-tabs", not state)
+            self.widgets.ntb_preview.set_current_page(3)
+            if self.widgets.chk_use_kb_on_file_selection.get_active():
+                self.widgets.box_info.show()
+                self.widgets.ntb_info.set_current_page(1)
+        else:
+            page.hide()
+            if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
+                self.widgets.ntb_preview.set_property("show-tabs", not state)
+            self.widgets.ntb_preview.set_current_page(0)
+            self.widgets.ntb_info.set_current_page(0)
 
 ###############################################################################
 ##                     set widgets to start value                            ##
@@ -1713,7 +2053,7 @@ class Build_GUI(gobject.GObject):
         self.widgets.tbtn_user_tabs.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_edit_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+#        self.widgets.tbtn_edit_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_switch_mode.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
         # set start colors of the color selection button
@@ -1725,7 +2065,7 @@ class Build_GUI(gobject.GObject):
 
         # set the colors for the DRO
         for axis in self.axis_list:
-            dro_name = "Combi_DRO_{0}".format(axis.upper())
+            dro_name = "Combi_DRO_{0}".format(axis)
             dro = self.dro_dic[dro_name]
             dro.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
             dro.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
@@ -1743,8 +2083,9 @@ class Build_GUI(gobject.GObject):
         self.widgets.chk_show_dro_btn.set_active(self.prefs.getpref("show_dro_btn", False, bool))
         self.widgets.chk_auto_units.set_active(self.prefs.getpref("use_auto_units", True, bool))
 
+        dro = self.dro_dic[self.dro_dic.keys()[0]]
         try: 
-            if self.dro_dic["Combi_DRO_X"].machine_units == _INCH:
+            if dro.machine_units == _INCH:
                 self.widgets.tbtn_units.set_active(True)
         except:
             print("We do not have a X axis, very strange")
@@ -1816,7 +2157,8 @@ class Build_GUI(gobject.GObject):
             self.widgets.lbl_reload_tool.set_visible(True)
 
         self._show_tooledit_tab(False)
-
+        self._show_offset_tab(False)
+        self._show_iconview_tab(False)
 
         # call the function to change the button status
         # so every thing is ready to start
@@ -1872,6 +2214,12 @@ class Build_GUI(gobject.GObject):
 
     # initial values for the GUI
     def _set_initial_values(self):
+        # needed to react to system changes
+        system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
+        self.system_dic = {}
+        for pos, system in enumerate(system_list):
+            self.system_dic[str(pos)] = system
+        self.system = self.system_dic["1"]
         self.initialized = False  # will be set True after the window has been shown and all
                                   # basic settings has been finished, so we avoid some actions
                                   # because we cause click or toggle events when initializing

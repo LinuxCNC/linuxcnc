@@ -137,7 +137,7 @@ class _GStat(gobject.GObject):
         'g-code-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'metric-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'user_system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'user-system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -504,7 +504,7 @@ class _GStat(gobject.GObject):
         self.emit('optional-stop-changed',optional_stop_new)
         # user system G5x
         system_new = self.old['g5x-index']
-        self.emit('user_system_changed',system_new)
+        self.emit('user-system_changed',system_new)
         # radius mode g8
         radius_new = self.old['radius']
         self.emit('radius-mode',radius_new)
@@ -519,7 +519,7 @@ class _GStat(gobject.GObject):
         self.emit('g-code-changed',g_code_new)
         # metric units G21
         metric_new = self.old['metric']
-        self.emit('metric_mode_changed',metric_new)
+        self.emit('metric-mode-changed',metric_new)
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
