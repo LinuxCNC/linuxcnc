@@ -1,0 +1,43 @@
+component dummy_stepgen """
+    A dummy stepgen compatible component. Just feeds back the position-cmd""";
+
+pin in s32 rawcounts;
+pin out s32 counts;
+pin in float position-scale;
+pin in float position-cmd;
+pin in float velocity-cmd;
+pin in bit enable;
+pin out float position-fb;
+pin in float frequency;
+pin io float maxvel;
+pin io float maxaccel;
+pin io u32 steplen;
+pin io u32 stepspace;
+pin io u32 dirsetup;
+pin io u32 dirhold;
+pin io u32 dirdelay;
+pin out bit step;
+pin out bit dir;
+pin out bit up;
+pin out bit down;
+
+variable hal_float_t  current_position = 0.0;
+
+function read;
+function write;
+
+license "GPL";
+author "Alexander Roessler";
+;;
+
+FUNCTION(read)
+{
+    current_position = position_cmd;
+    return 0;
+}
+
+FUNCTION(write)
+{
+    position_fb = current_position;
+    return 0;
+}
