@@ -254,11 +254,13 @@ class QTscreen:
         # embed window in another program
         if opts.parent:
             log.critical('Xembed Option not available yet')
+            print opts.parent
             sys.exit(1)
-            window = xembed.reparent(window, opts.parent)
+            #window = xembed.reparent(window, opts.parent)
             forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
-            if forward:
-                xembed.keyboard_forward(window, forward)
+            print forward
+            #if forward:
+                #xembed.keyboard_forward(window, forward)
 
         # for window resize and or position options
         if "+" in opts.geometry:
