@@ -220,7 +220,7 @@ the lambda function accepts the widget instance (w) that GObject sends it and th
 self._flip_state(True) +
 Lambda was used to strip the (w) object before calling the self._flip_state function. +
 It also allowed use to send self._flip_state() the True state. +
-you will also see code like this:
+you will also see code like this (no lambda):
 ----
 GSTAT.connect('current-feed-rate', self._set_feedrate_text)
 ----

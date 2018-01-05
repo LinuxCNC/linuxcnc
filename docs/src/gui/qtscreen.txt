@@ -12,6 +12,28 @@ QTscreen is customizable - you can add different buttons and status LEDs etc. +
 .QT_cnc - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
 
+=== INI Settings
+
+If you are using this to make a CNC control screen: +
+Under the [DISPLAY] heading:
+
+----
+DISPLAY = qtscreen <screen_name>
+  options:
+    -d debugging on
+    -a set window always on top
+    -c HAL component name. Default is to use the UI file name.
+    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET
+    -m maximise window
+    -f fullscreen the window
+    -t theme. Default is system theme
+    <screen_name> is the base name of the .ui and _handler.py files.
+    If <screen_name> is missing the default screen will be loaded.
+----
+QTscreen assumes the UI file and the handler file use this same base name. +
+QTscreen will search the LinuxCNC configuration file that was launched first for the files,  +
+then in the system skin folder. the skin folders holds standard screens. +
+
 == Overview
 
 There are two files that can be used, individually or in combination to add +
@@ -197,27 +219,6 @@ to see available themes load qtscreen with -d -t SHOWTHEMES +
 
 Qtscreen can also be customized with Qt stylesheets using css. +
 
-=== INI Settings
-
-If you are using this to make a CNC control screen: +
-Under the [DISPLAY] heading:
-
-----
-DISPLAY = qtscreen <screen_name>
-  options:
-    -d debugging on
-    -a set window always on top
-    -c HAL component name. Default is to use the UI file name.
-    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET
-    -m maximise window
-    -f fullscreen the window
-    -t theme. Default is system theme
-    <screen_name> is the base name of the .ui and _handler.py files.
-    If <screen_name> is missing the default screen will be loaded.
-----
-QTscreen assumes the UI file and the handler file use this same base name. +
-QTscreen will search the LinuxCNC configuration file that was launched first for the files,  +
-then in the system skin folder. the skin folders holds standard screens. +
 
 === Build a Qtscreen Panel
 
