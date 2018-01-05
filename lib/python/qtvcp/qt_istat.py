@@ -129,6 +129,9 @@ class IStat():
             self.ZIPPED_USRMESS = zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME)
         except:
             self.ZIPPED_USRMESS = None
+        self.TAB_NAMES = self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")
+        self.TAB_LOCATION = self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")
+        self.TAB_CMD   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
 
     ###################
     # helper functions
