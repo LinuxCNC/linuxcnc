@@ -32,7 +32,7 @@ log = logger.getLogger(__name__)
 
 class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug,PATH):
-
+        preference = None
         self.hal = QComponent(halcomp)
         # see if a screen options widget is present
         # if is is then initiate the preference file
