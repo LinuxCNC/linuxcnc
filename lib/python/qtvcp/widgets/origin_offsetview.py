@@ -15,18 +15,18 @@ log.debug('sys.argv: {}'.format(sys.argv))
 
 import linuxcnc
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat, Lcnc_Action
-from qtvcp.qt_istat import IStat
-GSTAT = GStat()
-ACTION = Lcnc_Action()
-INI = IStat()
+from qtvcp.core import Status, Action, Info
+
+STATUS = Status()
+ACTION = Action()
+INFO = Info()
 
 
 class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Lcnc_OriginOffsetView, self).__init__(parent)
 
-        self.filename = INI.PARAMETER_FILE
+        self.filename = INFO.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
@@ -43,13 +43,13 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
 
     def _hal_init(self):
         self.delay = 0
-        GSTAT.connect('all-homed', lambda w: self.setEnabled(True))
-        GSTAT.connect('periodic', self.periodic_check)
-        GSTAT.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
-        GSTAT.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
-        GSTAT.connect('user-system-changed', self._convert_system)
+        STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('periodic', self.periodic_check)
+        STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
+        STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
+        STATUS.connect('user-system-changed', self._convert_system)
         for num in range(0,9):
-            if num in (INI.AVAILABLE_AXES_INT):
+            if num in (INFO.AVAILABLE_AXES_INT):
                 continue
             self.hideColumn(num)
 
@@ -135,19 +135,19 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         g92 = self.status.g92_offset
         rot = self.status.rotation_xy
 
-        if self.metric_display != INI.MACHINE_IS_METRIC:
-            ap = INI.convert_units_9(ap)
-            tool = INI.convert_units_9(tool)
-            g92 = INI.convert_units_9(g92)
-            g54 = INI.convert_units_9(g54)
-            g55 = INI.convert_units_9(g55)
-            g56 = INI.convert_units_9(g56)
-            g57 = INI.convert_units_9(g57)
-            g58 = INI.convert_units_9(g58)
-            g59 = INI.convert_units_9(g59)
-            g59_1 = INI.convert_units_9(g59_1)
-            g59_2 = INI.convert_units_9(g59_2)
-            g59_3 = INI.convert_units_9(g59_3)
+        if self.metric_display != INFO.MACHINE_IS_METRIC:
+            ap = INFO.convert_units_9(ap)
+            tool = INFO.convert_units_9(tool)
+            g92 = INFO.convert_units_9(g92)
+            g54 = INFO.convert_units_9(g54)
+            g55 = INFO.convert_units_9(g55)
+            g56 = INFO.convert_units_9(g56)
+            g57 = INFO.convert_units_9(g57)
+            g58 = INFO.convert_units_9(g58)
+            g59 = INFO.convert_units_9(g59)
+            g59_1 = INFO.convert_units_9(g59_1)
+            g59_2 = INFO.convert_units_9(g59_2)
+            g59_3 = INFO.convert_units_9(g59_3)
 
         # set the text style based on unit type
         if self.metric_display:
@@ -255,7 +255,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
 
                 ACTION.UPDATE_VAR_FILE()
                 ACTION.RESTORE_RECORDED_MODE()
-                GSTAT.emit('reload-display')
+                STATUS.emit('reload-display')
                 self.reload_offsets()
         except Exception as e:
             log.exception("offsetpage widget error: MDI call error", exc_info=e)

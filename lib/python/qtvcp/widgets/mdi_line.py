@@ -16,19 +16,18 @@
 import os
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtCore import Qt, QEvent
-from qtvcp.qt_glib import GStat, Lcnc_Action
+from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
-from qtvcp.qt_istat import IStat
 
 # Instiniate the libraries with global reference
-# GSTAT gives us status messages from linuxcnc
+# STATUS gives us status messages from linuxcnc
 # AUX_PRGM holds helper program loadr
 # INI holds ini details
 # ACTION gives commands to linuxcnc
-GSTAT = GStat()
+STATUS = Status()
 AUX_PRGM = Aux_program_loader()
-INI = IStat()
-ACTION = Lcnc_Action()
+INFO = Info()
+ACTION = Action()
 
 # Set up logging
 from qtvcp import logger
@@ -39,12 +38,12 @@ class Lcnc_MDILine(QLineEdit):
     def __init__(self, parent = None):
         QLineEdit.__init__(self,parent)
 
-        GSTAT.connect('state-off', lambda w: self.setEnabled(False))
-        GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-        GSTAT.connect('interp-idle', lambda w: self.setEnabled(GSTAT.machine_is_on() and ( GSTAT.is_all_homed() or INI.NO_HOME_REQUIRED ) ))
-        GSTAT.connect('interp-run', lambda w: self.setEnabled(not GSTAT.is_auto_mode() ) )
-        GSTAT.connect('all-homed', lambda w: self.setEnabled(GSTAT.machine_is_on() ) )
-        GSTAT.connect('mdi-line-selected', self.external_line_selected)
+        STATUS.connect('state-off', lambda w: self.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on() and ( STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED ) ))
+        STATUS.connect('interp-run', lambda w: self.setEnabled(not STATUS.is_auto_mode() ) )
+        STATUS.connect('all-homed', lambda w: self.setEnabled(STATUS.machine_is_on() ) )
+        STATUS.connect('mdi-line-selected', self.external_line_selected)
         self.returnPressed.connect(self.submit)
 
     def submit(self):
@@ -65,33 +64,33 @@ class Lcnc_MDILine(QLineEdit):
         else:
             ACTION.CALL_MDI(text+'\n')
             try:
-                fp = os.path.expanduser(INI.MDI_HISTORY_PATH)
+                fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
                 fp = open(fp, 'a')
                 fp.write(text + "\n")
                 fp.close()
             except:
                 pass
-            GSTAT.emit('reload-mdi-history')
+            STATUS.emit('reload-mdi-history')
 
     # Gcode widget can emit a signal to this
     def external_line_selected(self, w, text, filename):
         log.debug('Ext line selected: {}, {}'.format(text, filename))
-        if filename == INI.MDI_HISTORY_PATH:
+        if filename == INFO.MDI_HISTORY_PATH:
             self.setText(text)
 
     def event(self, event):
         #if event.type() == QEvent.FocusIn:
-        #    GSTAT.emit('reload-mdi-history')
+        #    STATUS.emit('reload-mdi-history')
         return super(Lcnc_MDILine,self).event(event)
 
     def keyPressEvent(self, event):
         super(Lcnc_MDILine, self).keyPressEvent(event)
         if event.key() == Qt.Key_Up:
             log.debug('up')
-            GSTAT.emit('move-text-lineup')
+            STATUS.emit('move-text-lineup')
         if event.key() == Qt.Key_Down:
             log.debug('down')
-            GSTAT.emit('move-text-linedown')
+            STATUS.emit('move-text-linedown')
 
 # for testing without editor:
 def main():

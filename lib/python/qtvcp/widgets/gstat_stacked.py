@@ -3,8 +3,8 @@
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat
-GSTAT = GStat()
+from qtvcp.core import Status
+STATUS = Status()
 
 # Set up logging
 from qtvcp import logger
@@ -23,9 +23,9 @@ class GstatStacked(QtWidgets.QStackedWidget, _HalWidgetBase):
             log.debug('index: {}'.format(index))
             self.setCurrentIndex(index)
         if self.auto:
-            GSTAT.connect('mode-auto', lambda w: _switch(2))
+            STATUS.connect('mode-auto', lambda w: _switch(2))
         if self.mdi:
-            GSTAT.connect('mode-mdi', lambda w: _switch(1))
+            STATUS.connect('mode-mdi', lambda w: _switch(1))
         if self.manual:
-            GSTAT.connect('mode-manual', lambda w: _switch(0))
+            STATUS.connect('mode-manual', lambda w: _switch(0))
 

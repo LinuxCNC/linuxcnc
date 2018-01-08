@@ -3,10 +3,10 @@
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat
-from qtvcp.qt_istat import IStat
-GSTAT = GStat()
-INI = IStat()
+from qtvcp.core import Status, Info
+
+STATUS = Status()
+INFO = Info()
 
 # Set up logging
 from qtvcp import logger
@@ -40,47 +40,47 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         def _f(data):
             self._set_text(data)
         if self.feed_override:
-            GSTAT.connect('feed-override-changed', lambda w,data: _f(data))
+            STATUS.connect('feed-override-changed', lambda w,data: _f(data))
         elif self.rapid_override:
-            GSTAT.connect('rapid-override-changed', lambda w,data: _f(data))
+            STATUS.connect('rapid-override-changed', lambda w,data: _f(data))
         elif self.spindle_override:
-            GSTAT.connect('spindle-override-changed', lambda w,data: _f(data))
+            STATUS.connect('spindle-override-changed', lambda w,data: _f(data))
         elif self.jograte:
-            GSTAT.connect('jograte-changed', lambda w,data: _f(data))
+            STATUS.connect('jograte-changed', lambda w,data: _f(data))
         elif self.jogincr:
-            GSTAT.connect('jogincrement-changed', lambda w,data,text: _f(text))
+            STATUS.connect('jogincrement-changed', lambda w,data,text: _f(text))
         elif self.tool_number:
-            GSTAT.connect('tool-in-spindle-changed', lambda w,data: _f(data))
+            STATUS.connect('tool-in-spindle-changed', lambda w,data: _f(data))
         elif self.current_feedrate:
-            GSTAT.connect('current-feed-rate', self._set_feedrate_text)
-            GSTAT.connect('metric-mode-changed',self._switch_units)
+            STATUS.connect('current-feed-rate', self._set_feedrate_text)
+            STATUS.connect('metric-mode-changed',self._switch_units)
         elif self.current_feedunit:
-            GSTAT.connect('current-feed-rate', self._set_feedunit_text)
-            GSTAT.connect('metric-mode-changed',self._switch_units)
-            GSTAT.connect('actual-spindle-speed-changed', self._actual_rpm)
+            STATUS.connect('current-feed-rate', self._set_feedunit_text)
+            STATUS.connect('metric-mode-changed',self._switch_units)
+            STATUS.connect('actual-spindle-speed-changed', self._actual_rpm)
         elif self.requested_spindle_speed:
-            GSTAT.connect('requested-spindle-speed-changed', lambda w,data: _f(data))
+            STATUS.connect('requested-spindle-speed-changed', lambda w,data: _f(data))
         elif self.actual_spindle_speed:
-            GSTAT.connect('actual-spindle-speed-changed', lambda w,data: _f(data))
+            STATUS.connect('actual-spindle-speed-changed', lambda w,data: _f(data))
         elif self.user_system:
-            GSTAT.connect('user-system-changed', self._set_user_system_text)
+            STATUS.connect('user-system-changed', self._set_user_system_text)
         elif self.gcodes:
-            GSTAT.connect('g-code-changed', lambda w,data: _f(data))
+            STATUS.connect('g-code-changed', lambda w,data: _f(data))
         elif self.mcodes:
-            GSTAT.connect('m-code-changed', lambda w,data: _f(data))
+            STATUS.connect('m-code-changed', lambda w,data: _f(data))
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s
             self.setText(tmpl(data))
 
     def _set_feedrate_text(self, widget, data):
-        if self.display_units_mm != INI.MACHINE_IS_METRIC:
-            data = INI.convert_units(data)
+        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+            data = INFO.convert_units(data)
         self._set_text(data)
 
     def _set_feedunit_text(self, widget, data):
-        if self.display_units_mm != INI.MACHINE_IS_METRIC:
-            data = INI.convert_units(data)
+        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+            data = INFO.convert_units(data)
         try:
             data = (data/self._actual_RPM)
             self._set_text(data)

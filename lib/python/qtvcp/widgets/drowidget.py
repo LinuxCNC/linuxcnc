@@ -17,17 +17,17 @@
 import sys,os
 from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat
-from qtvcp.qt_istat import IStat
+from qtvcp.core import Status, Info
+
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
 # Instantiate the libraries with global reference
 # INI holds ini details
-# GSTAT gives us status messages from linuxcnc
-GSTAT = GStat()
-INI = IStat()
+# STATUS gives us status messages from linuxcnc
+STATUS = Status()
+INFO = Info()
 
 class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent = None):
@@ -40,16 +40,16 @@ class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.setText('--------------')
 
     def _hal_init(self):
-        # get position update from gstat every 100 ms
-        GSTAT.connect('current-position',self.update)
-        GSTAT.connect('metric-mode-changed',self._switch_units)
-        GSTAT.connect('diameter-mode', self._switch_modes)
+        # get position update from STATUS every 100 ms
+        STATUS.connect('current-position',self.update)
+        STATUS.connect('metric-mode-changed',self._switch_units)
+        STATUS.connect('diameter-mode', self._switch_modes)
 
     def update(self,widget,absolute,relative,dtg):
-        if self.display_units_mm != INI.MACHINE_IS_METRIC:
-            absolute = INI.convert_units_9(absolute)
-            relative = INI.convert_units_9(relative)
-            dtg = INI.convert_units_9(dtg)
+        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+            absolute = INFO.convert_units_9(absolute)
+            relative = INFO.convert_units_9(relative)
+            dtg = INFO.convert_units_9(dtg)
 
         if self.display_units_mm:
             tmpl = lambda s: self.mm_text_template % s

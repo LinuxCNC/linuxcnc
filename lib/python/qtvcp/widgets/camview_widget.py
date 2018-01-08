@@ -35,8 +35,8 @@ except:
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # This avoids segfault when testing directly in python
 if __name__ != '__main__':
-    from qtvcp.qt_glib import GStat
-    GSTAT = GStat()
+    from qtvcp.core import Status
+    STATUS = Status()
 
 class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -59,7 +59,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if LIB_GOOD:
-                GSTAT.connect('periodic', self.nextFrameSlot)
+                STATUS.connect('periodic', self.nextFrameSlot)
 
     ##################################
     # no button scroll = circle dismater

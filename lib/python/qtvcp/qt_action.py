@@ -1,116 +1,20 @@
-#!/usr/bin/env python
-# vim: sts=4 sw=4 et
-
 import linuxcnc
-import math
-import gobject
-
-import _hal, hal
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal
-from hal_glib import _GStat as GladeVcpStat
-from qtvcp.qt_istat import IStat
-INI = IStat()
 
 # Set up logging
 import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class QPin(hal.Pin, QObject):
-    value_changed = pyqtSignal([int], [float], [bool] )
-
-    REGISTRY = []
-    UPDATE = False
-
-    def __init__(self, *a, **kw):
-        super(QPin, self).__init__(*a, **kw)
-        QObject.__init__(self, None)
-        self._item_wrap(self._item)
-        self._prev = None
-        self.REGISTRY.append(self)
-        self.update_start()
-
-    def update(self):
-        tmp = self.get()
-        if tmp != self._prev:
-            self.value_changed.emit(tmp)
-        self._prev = tmp
-
-    @classmethod
-    def update_all(self):
-        if not self.UPDATE:
-            return
-        kill = []
-        for p in self.REGISTRY:
-            try:
-                p.update()
-            except Exception as e:
-                kill.append(p)
-                log.error("Error updating pin {}; Removing".format(p))
-                log.exception(e)
-        for p in kill:
-            self.REGISTRY.remove(p)
-        return self.UPDATE
-
-    @classmethod
-    def update_start(self, timeout=100):
-        if QPin.UPDATE:
-            return
-        QPin.UPDATE = True
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_all)
-        self.timer.start(100)
-
-    @classmethod
-    def update_stop(self, timeout=100):
-        QPin.UPDATE = False
-
-class QComponent:
-    def __init__(self, comp):
-        if isinstance(comp, QComponent):
-            comp = comp.comp
-        self.comp = comp
-
-    def newpin(self, *a, **kw): return QPin(_hal.component.newpin(self.comp, *a, **kw))
-    def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
-
-    def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
-
-    def __getitem__(self, k): return self.comp[k]
-    def __setitem__(self, k, v): self.comp[k] = v
-
-# use the same Gstat as gladeVCP uses
-# by subclassing it
-class _GStat(GladeVcpStat):
-    def __init__(self):
-        super(_GStat, self).__init__()
-        self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-
-    # we override this function from hal_glib
-    #TODO why do we need to do this with qt5 and not qt4?
-    # seg fault without it
-    def set_timer(self):
-        gobject.threads_init()
-        gobject.timeout_add(100, self.update)
-
-# used so all qtvcp widgets use the same instance of _gstat
-# this keeps them all in synch
-# if you load more then one instance of QTvcp/Qtscreen each one has
-# it's own instance of _gstat
-class GStat(_GStat):
-    _instance = None
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = _GStat.__new__(cls, *args, **kwargs)
-        return cls._instance
+from qtvcp.core import Status, Info
+INFO = Info()
+STATUS = Status()
 
 ################################################################
 # Action class
 ################################################################
-class Lcnc_Action():
+class _Lcnc_Action(object):
     def __init__(self):
         self.cmd = linuxcnc.command()
-        self.gstat = GStat()
         self.tmp = None
 
     def SET_ESTOP_STATE(self, state):
@@ -156,12 +60,12 @@ class Lcnc_Action():
 
     def OPEN_PROGRAM(self, fname):
         self.ensure_mode(linuxcnc.MODE_AUTO)
-        flt = INI.get_filter_program(str(fname))
+        flt = INFO.get_filter_program(str(fname))
         if not flt:
             self.cmd.program_open(str(fname))
         else:
             self.open_filter_program(str(fname), flt)
-        self.gstat.emit('reload-display')
+        STATUS.emit('reload-display')
 
     def SET_AXIS_ORIGIN(self,axis,value):
         m = "G10 L20 P0 %s%f"%(axis,value)
@@ -169,7 +73,7 @@ class Lcnc_Action():
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         self.ensure_mode(premode)
-        self.gstat.emit('reload-display')
+        STATUS.emit('reload-display')
 
     def RUN(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -180,7 +84,7 @@ class Lcnc_Action():
         self.cmd.abort()
 
     def PAUSE(self):
-        if not self.gstat.stat.paused:
+        if not STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_PAUSE)
         else:
             log.debug('resume')
@@ -193,19 +97,19 @@ class Lcnc_Action():
     def SET_SPINDLE_RATE(self, rate):
         self.cmd.spindleoverride(rate/100.0)
     def SET_JOG_RATE(self, rate):
-        self.gstat.set_jog_rate(float(rate))
+        STATUS.set_jog_rate(float(rate))
     def SET_JOG_INCR(self, incr):
         pass
 
     def ZERO_G92_OFFSET (self, widget):
         self.CALL_MDI("G92.1")
-        self.gstat.emit('reload-display')
+        STATUS.emit('reload-display')
     def ZERO_ROTATIONAL_OFFSET(self, widget):
         self.CALL_MDI("G10 L2 P0 R 0")
-        self.gstat.emit('reload-display')
+        STATUS.emit('reload-display')
 
     def RECORD_CURRENT_MODE(self):
-        mode = self.gstat.get_current_mode()
+        mode = STATUS.get_current_mode()
         self.last_mode = mode
         return mode
 
@@ -217,7 +121,7 @@ class Lcnc_Action():
     ######################################
 
     def ensure_mode(self, *modes):
-        truth, premode = self.gstat.check_for_modes(modes)
+        truth, premode = STATUS.check_for_modes(modes)
         if truth is False:
             self.cmd.mode(modes[0])
             self.cmd.wait_complete()
@@ -264,19 +168,19 @@ class FilterProgram:
                               stderr=subprocess.PIPE,
                               env=env)
         p.stdin.close()  # No input for you
-        self.gstat = GStat()
+        STATUS = GStat()
         self.p = p
         self.stderr_text = []
         self.program_filter = program_filter
         self.callback = callback
-        self.gid = self.gstat.connect('periodic', self.update)
+        self.gid = STATUS.connect('periodic', self.update)
         #progress = Progress(1, 100)
         #progress.set_text(_("Filtering..."))
 
     def update(self, w):
         if self.p.poll() is not None:
             self.finish()
-            self.gstat.disconnect(self.gid)
+            STATUS.disconnect(self.gid)
             return False
 
         r,w,x = select.select([self.p.stderr], [], [], 0)

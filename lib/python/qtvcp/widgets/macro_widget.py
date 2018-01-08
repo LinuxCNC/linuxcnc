@@ -10,16 +10,15 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInputWidget
-from qtvcp.qt_istat import IStat
-from qtvcp.qt_glib import GStat, Lcnc_Action
+from qtvcp.core import Status, Action, Info
 
 # Instantiate the libraries with global reference
 # INI holds ini details
-# GSTAT gives us status messages from linuxcnc
+# STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
-INI = IStat()
-GSTAT = GStat()
-ACTION = Lcnc_Action()
+INFO = Info()
+STATUS = Status()
+ACTION = Action()
 
 ###########################################
 # helper widget for SVG display on Button
@@ -30,7 +29,7 @@ class CustomButton(QtWidgets.QPushButton):
     def __init__(self, parent=None,path = None, layer = 0):
         super(CustomButton, self).__init__(parent)
         if path == None:
-            tpath = os.path.expanduser(INI.SUB_PATH)
+            tpath = os.path.expanduser(INFO.SUB_PATH)
             path = os.path.join(tpath,'LatheMacro.svg')
         self.r = QtSvg.QSvgRenderer(path)
         self.basename = 'layer'
@@ -94,7 +93,7 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(macroTab, self).__init__(parent)
         try:
-            tpath = os.path.expanduser(INI.SUB_PATH)
+            tpath = os.path.expanduser(INFO.SUB_PATH)
             self.filepath = os.path.join(tpath,'')
         except:
             self.filepath = None
@@ -125,8 +124,8 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         self.okButton.setEnabled(False)
-        GSTAT.connect('not-all-homed', lambda w, axis: self.okButton.setEnabled(False))
-        GSTAT.connect('all-homed', lambda w: self.okButton.setEnabled(True))
+        STATUS.connect('not-all-homed', lambda w, axis: self.okButton.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: self.okButton.setEnabled(True))
 
     # Build a stack per macro found
     # it finds the icon info from the macro file
@@ -335,7 +334,7 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
         return setattr(self, item, value)
 
 if __name__ == "__main__":
-    # GSTAT may cause seg fault testing here
+    # STATUS may cause seg fault testing here
     import sys
     app = QtWidgets.QApplication(sys.argv)
     #sw = QtSvg.QSvgWidget('LatheMacro.svg')

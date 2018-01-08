@@ -12,7 +12,7 @@ from qtvcp.lib.message import Message
 from qtvcp.lib.preferences import Access
 from qtvcp.widgets.overlay_widget import FocusOverlay
 
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 import linuxcnc
 import sys
 import os
@@ -22,7 +22,7 @@ import os
 ###########################################
 
 KEYBIND = Keylookup()
-GSTAT = GStat()
+STATUS = Status()
 AUX_PRGM = Aux_program_loader()
 NOTE = Notify()
 MSG = Message()
@@ -50,11 +50,11 @@ class HandlerClass:
         self.IMAGE_PATH = paths.IMAGEDIR
         #print paths.CONFIGPATH
         # connect to GStat to catch linuxcnc events
-        GSTAT.connect('state-estop', self.say_estop)
-        GSTAT.connect('state-on', self.on_state_on)
-        GSTAT.connect('state-off', self.on_state_off)
-        GSTAT.connect('jograte-changed', self.on_jograte_changed)
-        GSTAT.connect('periodic', self.on_periodic)
+        STATUS.connect('state-estop', self.say_estop)
+        STATUS.connect('state-on', self.on_state_on)
+        STATUS.connect('state-off', self.on_state_off)
+        STATUS.connect('jograte-changed', self.on_jograte_changed)
+        STATUS.connect('periodic', self.on_periodic)
 
         # Read user preferences
         self.desktop_notify = PREFS.getpref('desktop_notify', True, bool)
@@ -76,7 +76,7 @@ class HandlerClass:
         self.w.jog_slider.setValue(self.jog_velocity)
         self.w.feed_slider.setValue(100)
         self.w.rapid_slider.setValue(100)
-        GSTAT.forced_update()
+        STATUS.forced_update()
 
         # add a backgrund image
 
@@ -109,7 +109,7 @@ class HandlerClass:
             return False
 
     ########################
-    # callbacks from GSTAT #
+    # callbacks from STATUS #
     ########################
     def say_estop(self,w):
         print 'saying estop'
@@ -155,11 +155,11 @@ class HandlerClass:
         name = self.w.sender().text()
         print name
         if 'X' in name:
-            GSTAT.set_axis_origin('x',0)
+            STATUS.set_axis_origin('x',0)
         elif 'Y' in name:
-            GSTAT.set_axis_origin('y',0)
+            STATUS.set_axis_origin('y',0)
         elif 'Z' in name:
-            GSTAT.set_axis_origin('z',0)
+            STATUS.set_axis_origin('z',0)
 
     def launch_status(self):
         AUX_PRGM.load_status()
@@ -168,7 +168,7 @@ class HandlerClass:
         AUX_PRGM.load_halmeter()
 
     def change_jograte(self, rate):
-        GSTAT.set_jog_rate(float(rate))
+        STATUS.set_jog_rate(float(rate))
 
     def change_feedrate(self, rate):
         self.cmnd.feedrate(rate/100.0)
@@ -239,7 +239,7 @@ class HandlerClass:
 
             self.cmnd.mode(linuxcnc.MODE_AUTO)
             self.cmnd.program_open(str(fname))
-            GSTAT.emit('file-loaded', fname)
+            STATUS.emit('file-loaded', fname)
         #self.w.centralwidget.setEnabled(True)
         self.w.overlay.hide()
 
@@ -254,8 +254,8 @@ class HandlerClass:
         self.cmnd.abort()
 
     def pausefile_clicked(self):
-        print 'pause file',GSTAT.stat.paused
-        if not GSTAT.stat.paused:
+        print 'pause file',STATUS.stat.paused
+        if not STATUS.stat.paused:
             #self.cmnd.mode(linuxcnc.MODE_AUTO)
             self.cmnd.auto(linuxcnc.AUTO_PAUSE)
         else:
@@ -267,7 +267,7 @@ class HandlerClass:
     #####################
 
     def continous_jog(self, axis, direction):
-        GSTAT.do_jog(axis, direction)
+        STATUS.do_jog(axis, direction)
 
     #####################
     # KEY BINDING CALLS #

@@ -20,8 +20,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat, Lcnc_Action
-from qtvcp.qt_istat import IStat
+from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 import linuxcnc
 
@@ -30,11 +29,12 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 # Instiniate the libraries with global reference
-# GSTAT gives us status messages from linuxcnc
+# STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
-GSTAT = GStat()
-ACTION = Lcnc_Action()
-INI = IStat()
+# INFO is INI file details
+STATUS = Status()
+ACTION = Action()
+INFO = Info()
 AUX_PRGM = Aux_program_loader()
 
 class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
@@ -80,7 +80,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     ##################################################
     # This gets called by qtvcp_makepins
     # It infers HAL involvement but there is none
-    # GSTAT is used to synch the buttons in case
+    # STATUS is used to synch the buttons in case
     # other entities change linuxcnc's state
     # also some buttons are disabled/enabled based on
     # linuxcnc state / possible actions
@@ -96,47 +96,47 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             self._block_signal = False
 
         def test():
-            return (GSTAT.machine_is_on() and \
-                ( GSTAT.is_all_homed() or INI.NO_HOME_REQUIRED) and \
-                    GSTAT.is_file_loaded() )
+            return (STATUS.machine_is_on() and \
+                ( STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED) and \
+                    STATUS.is_file_loaded() )
 
         if self.estop:
             # Estop starts with button down - in estop which
             # backwards logic for the button...
             if self.isCheckable():_safecheck(True)
-            GSTAT.connect('state-estop', lambda w: _safecheck(True))
-            GSTAT.connect('state-estop-reset', lambda w: _safecheck(False))
+            STATUS.connect('state-estop', lambda w: _safecheck(True))
+            STATUS.connect('state-estop-reset', lambda w: _safecheck(False))
 
         elif self.machine_on:
             #self.setEnabled(False)
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop-reset', lambda w: self.setEnabled(True))
-            GSTAT.connect('state-on', lambda w: _safecheck(True))
-            GSTAT.connect('state-off', lambda w: _safecheck(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
+            STATUS.connect('state-on', lambda w: _safecheck(True))
+            STATUS.connect('state-off', lambda w: _safecheck(False))
 
         elif self.home:
             #self.setEnabled(False)
-            GSTAT.connect('state-off', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('interp-idle', lambda w: self.setEnabled(GSTAT.machine_is_on()))
-            GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
-            GSTAT.connect('all-homed', lambda w: _safecheck(True))
-            GSTAT.connect('not-all-homed', lambda w, axis: _safecheck(False, axis))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: _safecheck(True))
+            STATUS.connect('not-all-homed', lambda w, axis: _safecheck(False, axis))
 
         elif self.load_dialog:
-            GSTAT.connect('state-off', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('interp-idle', lambda w: self.setEnabled(GSTAT.machine_is_on()))
-            GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
-            GSTAT.connect('all-homed', lambda w: _safecheck(True))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: _safecheck(True))
 
         elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog:
             pass
         elif self.jog_joint_pos or self.jog_joint_neg:
-            GSTAT.connect('state-off', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('interp-idle', lambda w: self.setEnabled(GSTAT.machine_is_on()))
-            GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             if self.jog_joint_pos:
                 self.pressed.connect(lambda : self.jog_action(1))
             else:
@@ -147,21 +147,21 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             return
 
         elif self.zero_axis or self.run:
-            GSTAT.connect('state-off', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('interp-idle', lambda w: self.setEnabled(test()))
-            GSTAT.connect('interp-run', lambda w: self.setEnabled(False))
-            GSTAT.connect('all-homed', lambda w: self.setEnabled(True))
-            GSTAT.connect('interp-paused', lambda w: self.setEnabled(True))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(test()))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
             if self.run:
-                GSTAT.connect('file-loaded', lambda w,f: self.setEnabled(True))
+                STATUS.connect('file-loaded', lambda w,f: self.setEnabled(True))
 
         elif self.abort or self.pause:
             self.setEnabled(False)
-            GSTAT.connect('state-off', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('interp-idle', lambda w: self.setEnabled(test()))
-            GSTAT.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(test()))
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
 
         elif self.launch_halmeter:
             pass
@@ -170,24 +170,24 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         elif self.launch_halshow:
             pass
         elif self.auto:
-            GSTAT.connect('mode-auto', lambda w: _safecheck(True))
-            GSTAT.connect('mode-mdi', lambda w: _safecheck(False))
-            GSTAT.connect('mode-manual', lambda w: _safecheck(False))
+            STATUS.connect('mode-auto', lambda w: _safecheck(True))
+            STATUS.connect('mode-mdi', lambda w: _safecheck(False))
+            STATUS.connect('mode-manual', lambda w: _safecheck(False))
         elif self.mdi:
-            GSTAT.connect('mode-mdi', lambda w: _safecheck(True))
-            GSTAT.connect('mode-manual', lambda w: _safecheck(False))
-            GSTAT.connect('mode-auto', lambda w: _safecheck(False))
+            STATUS.connect('mode-mdi', lambda w: _safecheck(True))
+            STATUS.connect('mode-manual', lambda w: _safecheck(False))
+            STATUS.connect('mode-auto', lambda w: _safecheck(False))
         elif self.manual:
-            GSTAT.connect('mode-manual', lambda w: _safecheck(True))
-            GSTAT.connect('mode-mdi', lambda w: _safecheck(False))
-            GSTAT.connect('mode-auto', lambda w: _safecheck(False))
+            STATUS.connect('mode-manual', lambda w: _safecheck(True))
+            STATUS.connect('mode-mdi', lambda w: _safecheck(False))
+            STATUS.connect('mode-auto', lambda w: _safecheck(False))
         elif self.jog_incr:
-            GSTAT.connect('metric-mode-changed', lambda w,data:  self.incr_action())
+            STATUS.connect('metric-mode-changed', lambda w,data:  self.incr_action())
         elif self.feed_over or self.rapid_over or self.spindle_over or self.jog_rate:
-            GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-            GSTAT.connect('state-estop-reset', lambda w: self.setEnabled(GSTAT.machine_is_on()))
-            GSTAT.connect('state-on', lambda w: _safecheck(True))
-            GSTAT.connect('state-off', lambda w: _safecheck(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('state-on', lambda w: _safecheck(True))
+            STATUS.connect('state-off', lambda w: _safecheck(False))
         elif self.view_change:
             pass
 
@@ -204,13 +204,13 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             if self.isCheckable():
                 ACTION.SET_ESTOP_STATE(state)
             else:
-                ACTION.SET_ESTOP_STATE(GSTAT.estop_is_clear())
+                ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
         elif self.machine_on:
            if self.isCheckable():
                 ACTION.SET_MACHINE_STATE(state)
            else:
-                log.debug('gstat machine is on: {}'.format(GSTAT.machine_is_on))
-                ACTION.SET_MACHINE_STATE(not GSTAT.machine_is_on())
+                log.debug('gstat machine is on: {}'.format(STATUS.machine_is_on))
+                ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
         elif self.home:
            if self.isCheckable():
                 if state:
@@ -218,7 +218,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                 else:
                     ACTION.SET_MACHINE_UNHOMED(self.joint_number)
            else:
-                if GSTAT.is_all_homed():
+                if STATUS.is_all_homed():
                     ACTION.SET_MACHINE_UNHOMED(self.joint_number)
                 else:
                     ACTION.SET_MACHINE_HOMING(self.joint_number)
@@ -229,13 +229,13 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         elif self.pause:
             ACTION.PAUSE()
         elif self.load_dialog:
-            GSTAT.emit('load-file-request')
+            STATUS.emit('load-file-request')
         elif self.camview_dialog:
-            GSTAT.emit('dialog-request','CAMVIEW')
+            STATUS.emit('dialog-request','CAMVIEW')
         elif self.macro_dialog:
-            GSTAT.emit('dialog-request','MACRO')
+            STATUS.emit('dialog-request','MACRO')
         elif self.origin_offset_dialog:
-            GSTAT.emit('dialog-request','ORIGINOFFSET')
+            STATUS.emit('dialog-request','ORIGINOFFSET')
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:
@@ -287,7 +287,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             self._toggle_state = self._toggle_state *-1
         elif self.view_change:
             try:
-                GSTAT.emit('view-changed','%s'% self.view_type)
+                STATUS.emit('view-changed','%s'% self.view_type)
             except:
                 pass
         # defult error case
@@ -295,24 +295,24 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             log.error('No action recognised')
 
     def jog_action(self,direction):
-        if direction == 0 and GSTAT.current_jog_distance != 0: return
+        if direction == 0 and STATUS.current_jog_distance != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
-        GSTAT.do_jog(self.joint_number, direction, GSTAT.current_jog_distance)
+        STATUS.do_jog(self.joint_number, direction, STATUS.current_jog_distance)
 
     def incr_action(self):
-        if GSTAT.is_metric_mode():
+        if STATUS.is_metric_mode():
             if self.jog_incr_mm:
                 text = '%s mm'% str(self.jog_incr_mm)
-                GSTAT.set_jog_increments(self.jog_incr_mm,text)
+                STATUS.set_jog_increments(self.jog_incr_mm,text)
             else:
-                GSTAT.set_jog_increments(0, 'Continous')
+                STATUS.set_jog_increments(0, 'Continous')
         else:
             if self.jog_incr_imperial:
                 text = '''%s "'''% str(self.jog_incr_imperial)
-                GSTAT.set_jog_increments(self.jog_incr_imperial, text)
+                STATUS.set_jog_increments(self.jog_incr_imperial, text)
             else:
-                GSTAT.set_jog_increments(0, 'Continous')
+                STATUS.set_jog_increments(0, 'Continous')
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor

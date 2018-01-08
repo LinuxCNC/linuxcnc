@@ -2,8 +2,8 @@
 
 from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.ledwidget import Lcnc_Led
-from qtvcp.qt_glib import GStat
-GSTAT = GStat()
+from qtvcp.core import Status
+STATUS = Status()
 
 # Set up logging
 from qtvcp import logger
@@ -34,30 +34,30 @@ class Lcnc_State_Led(Lcnc_Led,):
     def _hal_init(self):
 
         if self.is_estopped:
-            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
-            GSTAT.connect('state-estop-reset', lambda w:self._flip_state(False))
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+            STATUS.connect('state-estop-reset', lambda w:self._flip_state(False))
         elif self.is_on:
-            GSTAT.connect('state-on', lambda w:self._flip_state(True))
-            GSTAT.connect('state-off', lambda w:self._flip_state(False))
+            STATUS.connect('state-on', lambda w:self._flip_state(True))
+            STATUS.connect('state-off', lambda w:self._flip_state(False))
         elif self.is_homed:
-            GSTAT.connect('all-homed', lambda w:self._flip_state(True) )
-            GSTAT.connect('not-all-homed', lambda w,axis:self._flip_state(False) )
+            STATUS.connect('all-homed', lambda w:self._flip_state(True) )
+            STATUS.connect('not-all-homed', lambda w,axis:self._flip_state(False) )
         elif self.is_idle:
-            GSTAT.connect('interp-idle', lambda w:self._flip_state(False) )
-            GSTAT.connect('interp-run', lambda w:self._flip_state(False) )
+            STATUS.connect('interp-idle', lambda w:self._flip_state(False) )
+            STATUS.connect('interp-run', lambda w:self._flip_state(False) )
         elif self.is_paused:
-            GSTAT.connect('program-pause-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('program-pause-changed', lambda w,data:self._flip_state(data))
         elif self.is_flood:
-            GSTAT.connect('flood-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('flood-changed', lambda w,data:self._flip_state(data))
         elif self.is_mist:
-            GSTAT.connect('mist-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('mist-changed', lambda w,data:self._flip_state(data))
         elif self.is_block_delete:
-            GSTAT.connect('block-delete-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('block-delete-changed', lambda w,data:self._flip_state(data))
         elif self.is_optional_stop:
-            GSTAT.connect('optional-stop-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('optional-stop-changed', lambda w,data:self._flip_state(data))
         elif self.is_joint_homed:
-            GSTAT.connect('homed', lambda w,data: self.joint_homed(data))
-            GSTAT.connect('not-all-homed', lambda w,data: self.joints_unhomed(data))
+            STATUS.connect('homed', lambda w,data: self.joint_homed(data))
+            STATUS.connect('not-all-homed', lambda w,data: self.joints_unhomed(data))
 
     def _flip_state(self, data):
             if self.invert_state:

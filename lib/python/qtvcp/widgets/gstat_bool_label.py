@@ -3,8 +3,8 @@
 from PyQt5 import QtCore, QtWidgets
 import os
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat
-GSTAT = GStat()
+from qtvcp.core import Status
+STATUS = Status()
 
 # Set up logging
 from qtvcp import logger
@@ -25,13 +25,13 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
         def _f(data):
             self._set_text(data)
         if self.metric_mode:
-            GSTAT.connect('metric-mode-changed', lambda w,data: _f(data))
+            STATUS.connect('metric-mode-changed', lambda w,data: _f(data))
         elif self.css_mode:
-            GSTAT.connect('css-mode', lambda w,data: _f(data))
+            STATUS.connect('css-mode', lambda w,data: _f(data))
         elif self.fpr_mode:
-            GSTAT.connect('fpr-mode', lambda w,data: _f(data))
+            STATUS.connect('fpr-mode', lambda w,data: _f(data))
         elif self.diameter_mode:
-            GSTAT.connect('diameter-mode', lambda w,data: _f(data))
+            STATUS.connect('diameter-mode', lambda w,data: _f(data))
 
     def _set_text(self, data):
             if data:
@@ -107,6 +107,6 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    label = Lcnc_Gstat_Bool_Label()
+    label = Lcnc_STATUS_Bool_Label()
     label.show()
     sys.exit(app.exec_())

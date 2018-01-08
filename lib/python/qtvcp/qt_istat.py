@@ -7,7 +7,7 @@ log = logger.getLogger(__name__)
 # Set the log level for this module
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class IStat():
+class _IStat(object):
 
     def __init__(self):
 
@@ -166,3 +166,9 @@ class IStat():
         except:
             return all_extensions[0]
 
+class IStat(_IStat):
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _IStat.__new__(cls, *args, **kwargs)
+        return cls._instance

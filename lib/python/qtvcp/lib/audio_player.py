@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# This library is used to play sounds launched from GSTAT messages
+# This library is used to play sounds launched from STATUS messages
 # it has uses OS builtin sounds or can play arbritray files
 #######################################################################
 
@@ -32,11 +32,11 @@ except:
     log.error('no audio alerts available - Is python-gst0.10 installed?')
 
 import os
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Instiniate the libraries with global reference
-# GSTAT gives us status messages from linuxcnc
-GSTAT = GStat()
+# STATUS gives us status messages from linuxcnc
+STATUS = Status()
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
@@ -81,8 +81,8 @@ class Player:
     # use the function name les 'play_'
     def _register_messages(self):
         if LIB_GOOD:
-            GSTAT.connect('play-sound', lambda w,f: self.run(f))
-            GSTAT.connect('play-alert', self.jump)
+            STATUS.connect('play-sound', lambda w,f: self.run(f))
+            STATUS.connect('play-alert', self.jump)
 
     # jump to a builtin alert sound
     # we use this so we can trap errors easily

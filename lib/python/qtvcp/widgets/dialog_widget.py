@@ -23,19 +23,18 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import macroTab
-from qtvcp.qt_glib import GStat, Lcnc_Action
-from qtvcp.qt_istat import IStat
+from qtvcp.core import Status, Action, Info
 
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
 # Instantiate the libraries with global reference
-# GSTAT gives us status messages from linuxcnc
+# STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
-GSTAT = GStat()
-ACTION = Lcnc_Action()
-INI = IStat()
+STATUS = Status()
+ACTION = Action()
+INFO = Info()
 
 class Lcnc_Dialog(QMessageBox):
     def __init__(self, parent = None):
@@ -83,11 +82,11 @@ class Lcnc_Dialog(QMessageBox):
         else:
             self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.buttonClicked.connect(self.msgbtn)
-        GSTAT.emit('focus-overlay-changed',True,self.focus_text,self._color)
+        STATUS.emit('focus-overlay-changed',True,self.focus_text,self._color)
         if play_alert:
-            GSTAT.emit('play-alert',play_alert)
+            STATUS.emit('play-alert',play_alert)
         retval = self.exec_()
-        GSTAT.emit('focus-overlay-changed',False,None,None)
+        STATUS.emit('focus-overlay-changed',False,None,None)
         log.debug("Value of pressed button: {}".format(retval))
         if retval == QMessageBox.No:
             return False
@@ -201,10 +200,10 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
             MORE = 'Please Insert Tool %d'% self.tool_number.get()
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info:'
-            GSTAT.emit('focus-overlay-changed',True,MESS, self._color)
-            GSTAT.emit('play-alert',self.sound)
+            STATUS.emit('focus-overlay-changed',True,MESS, self._color)
+            STATUS.emit('play-alert',self.sound)
             result = self.showtooldialog(MESS,MORE,DETAILS)
-            GSTAT.emit('focus-overlay-changed',False,None,None)
+            STATUS.emit('focus-overlay-changed',False,None,None)
             return result
 
     #**********************
@@ -223,25 +222,25 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         self.setWindowModality(Qt.ApplicationModal)
         self.setFileMode(QFileDialog.ExistingFile)
         self.setDirectory( os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
-        exts = INI.get_qt_filter_extensions()
+        exts = INFO.get_qt_filter_extensions()
         self.setNameFilter(exts)
 
     def _hal_init(self):
-        GSTAT.connect('load-file-request', lambda w: self.load_dialog())
-        GSTAT.connect('dialog-request', self._external_request)
+        STATUS.connect('load-file-request', lambda w: self.load_dialog())
+        STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, cmd):
         if cmd =='FILE':
             self.load_dialog()
 
     def load_dialog(self):
-        GSTAT.emit('focus-overlay-changed',True,'Open Gcode',self._color)
+        STATUS.emit('focus-overlay-changed',True,'Open Gcode',self._color)
         #self.move( 400, 400 )
         fname = None
         if (self.exec_()):
             fname = self.selectedFiles()[0]
             self.setDirectory(self.directory().absolutePath())
-        GSTAT.emit('focus-overlay-changed',False,None,None)
+        STATUS.emit('focus-overlay-changed',False,None,None)
         if fname:
             #NOTE.notify('Error',str(fname),QtWidgets.QMessageBox.Information,10)
             f = open(fname, 'r')
@@ -289,10 +288,10 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.setMinimumSize(200,200)
         buttonBox = QDialogButtonBox()
         buttonBox.setEnabled(False)
-        GSTAT.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
-        GSTAT.connect('all-homed', lambda w: buttonBox.setEnabled(True))
-        GSTAT.connect('state-estop', lambda w: buttonBox.setEnabled(False))
-        GSTAT.connect('state-estop-reset', lambda w: buttonBox.setEnabled(GSTAT.machine_is_on() and GSTAT.is_all_homed()))
+        STATUS.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: buttonBox.setEnabled(True))
+        STATUS.connect('state-estop', lambda w: buttonBox.setEnabled(False))
+        STATUS.connect('state-estop-reset', lambda w: buttonBox.setEnabled(STATUS.machine_is_on() and STATUS.is_all_homed()))
         for i in('X','Y','Z'):
             b = 'button_%s'%i
             self[b] = QPushButton('Zero %s'%i)
@@ -314,7 +313,7 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
 
     def _hal_init(self):
         self.topParent = self.QTVCP_INSTANCE_
-        GSTAT.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, cmd):
         if cmd =='ORIGINOFFSET':
@@ -333,7 +332,7 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
         ACTION.SET_AXIS_ORIGIN(index,0)
 
     def load_dialog(self):
-        GSTAT.emit('focus-overlay-changed',True,'Set Origin Offsets',self._color)
+        STATUS.emit('focus-overlay-changed',True,'Set Origin Offsets',self._color)
         # move to botton laeft of parent
         ph = self.topParent.geometry().height()
         px = self.topParent.geometry().x()
@@ -343,7 +342,7 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.setGeometry( px, py+ph-dh, dw, dh )
         self.show()
         self.exec_()
-        GSTAT.emit('focus-overlay-changed',False,None,None)
+        STATUS.emit('focus-overlay-changed',False,None,None)
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -404,14 +403,14 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
 
     def _hal_init(self):
         self.topParent = self.QTVCP_INSTANCE_
-        GSTAT.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, cmd):
         if cmd =='CAMVIEW':
             self.load_dialog()
 
     def load_dialog(self):
-        GSTAT.emit('focus-overlay-changed',True,'Cam View Dialog',self._color)
+        STATUS.emit('focus-overlay-changed',True,'Cam View Dialog',self._color)
         # move to botton laeft of parent
         ph = self.topParent.geometry().height()
         px = self.topParent.geometry().x()
@@ -421,7 +420,7 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
         self.setGeometry( px, py+ph-dh, dw, dh )
         self.show()
         self.exec_()
-        GSTAT.emit('focus-overlay-changed',False,None,None)
+        STATUS.emit('focus-overlay-changed',False,None,None)
 
     #**********************
     # Designer properties
@@ -478,7 +477,7 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         # gotta call this since we instantiated this out of qtvcp's knowledge
         self.tab._hal_init()
         self.topParent = self.QTVCP_INSTANCE_
-        GSTAT.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, cmd):
         if cmd =='MACRO':
@@ -498,7 +497,7 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         self.close()
 
     def load_dialog(self):
-        GSTAT.emit('focus-overlay-changed',True,'Lathe Macro Dialog',self._color)
+        STATUS.emit('focus-overlay-changed',True,'Lathe Macro Dialog',self._color)
         self.tab.stack.setCurrentIndex(0)
         # move to botton laeft of parent
         ph = self.topParent.geometry().height()
@@ -509,7 +508,7 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         self.setGeometry( px, py+ph-dh, dw, dh )
         self.show()
         self.exec_()
-        GSTAT.emit('focus-overlay-changed',False,None,None)
+        STATUS.emit('focus-overlay-changed',False,None,None)
 
     #**********************
     # Designer properties

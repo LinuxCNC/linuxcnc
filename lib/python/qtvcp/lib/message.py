@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from qtvcp.qt_glib import GStat
-from qtvcp.qt_istat import IStat
+from qtvcp.core import Status, Info
 import hal
 
 # Set up logging
@@ -10,9 +9,9 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 # Instantiate the libraries with global reference
-# GSTAT gives us status messages from linuxcnc
-GSTAT = GStat()
-INI = IStat()
+# STATUS gives us status messages from linuxcnc
+STATUS = Status()
+INFO = Info()
 
 class Message:
     def __init__(self):
@@ -63,7 +62,7 @@ class Message:
     def on_printmessage(self, pin, pinname, boldtext, text, details, type, icon):
         if not pin.get(): return
         if self.play_sounds:
-            GSTAT.emit('play-alert',self.alert_sound)
+            STATUS.emit('play-alert',self.alert_sound)
         if boldtext == "NONE": boldtext = ''
         if "status" in type:
             if boldtext:
@@ -74,7 +73,7 @@ class Message:
                 self.NOTIFY.notify(_("INFO:"),statustext)
         if "dialog" in type or "okdialog" in type:
             if self.use_focus_overlay:
-                GSTAT.emit('focus-overlay-changed', True, self.focus_text, self._color)
+                STATUS.emit('focus-overlay-changed', True, self.focus_text, self._color)
             if pin.get():
                 self.HAL_GCOMP_[pinname + "-waiting"] = True
             if "okdialog" in type:
@@ -92,8 +91,8 @@ class Message:
     def message_setup(self, hal_comp):
         self.HAL_GCOMP_ = hal_comp
         icon = QMessageBox.Question
-        if INI.ZIPPED_USRMESS:
-            for bt,t,d,style,name in (INI.ZIPPED_USRMESS):
+        if INFO.ZIPPED_USRMESS:
+            for bt,t,d,style,name in (INFO.ZIPPED_USRMESS):
                 if not ("status" in style) and not ("dialog" in style) and not ("okdialog" in style):
                     log.debug('invalid message type {} in INI File [DISPLAY] section'.format(C))
                     continue
@@ -136,7 +135,7 @@ class Message:
         # reset the HAL IO pin so it can fire again
         self.HAL_GCOMP_[pinname] = False
         if self.use_focus_overlay:
-            GSTAT.emit('focus-overlay-changed',False,None,None)
+            STATUS.emit('focus-overlay-changed',False,None,None)
 
     ##############################
     # required class boiler code #

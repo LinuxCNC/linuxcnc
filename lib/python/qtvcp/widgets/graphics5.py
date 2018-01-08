@@ -14,10 +14,9 @@ from PyQt5.QtCore import pyqtProperty
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
-from qtvcp.qt_glib import GStat
-from qtvcp.qt_istat import IStat
-GSTAT = GStat()
-INI = IStat()
+from qtvcp.core import Status, Info
+STATUS = Status()
+INFO = Info()
 
 # Set up logging
 from qtvcp import logger
@@ -36,11 +35,11 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         print self.current_view
 
     def _hal_init(self):
-        GSTAT.connect('file-loaded', self.load_program)
-        GSTAT.connect('reload-display',self.reloadfile)
-        GSTAT.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
-        GSTAT.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
-        GSTAT.connect('view-changed', self.set_view_signal)
+        STATUS.connect('file-loaded', self.load_program)
+        STATUS.connect('reload-display',self.reloadfile)
+        STATUS.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
+        STATUS.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
+        STATUS.connect('view-changed', self.set_view_signal)
 
     def set_view_signal(self,w,view):
         self.set_view(view)
@@ -82,14 +81,14 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
                      + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
         print(errortext)
-        GSTAT.emit("graphics-gcode-error", errortext)
+        STATUS.emit("graphics-gcode-error", errortext)
 
     # Override gremlin's / glcannon.py function so we can emit a GObject signal
     def update_highlight_variable(self,line):
         self.highlight_line = line
         if line == None:
             line = -1
-        GSTAT.emit('graphics-line-selected', line)
+        STATUS.emit('graphics-line-selected', line)
 
 # property getter/setters
 
