@@ -3,8 +3,8 @@ import linuxcnc
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat
-GSTAT = GStat()
+from qtvcp.core import Status
+STATUS = Status()
 
 # Set up logging
 from qtvcp import logger
@@ -24,26 +24,26 @@ class State_Enable_GridLayout(QWidget,_HalWidgetBase):
         self.setEnabled(False)
 
     def _hal_init(self):
-        GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         if self.is_on:
-            GSTAT.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
         if self.is_homed:
-            GSTAT.connect('all-homed', lambda w: self.setEnabled(True) )
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True) )
         if self.is_idle:
-            GSTAT.connect('interp-run', lambda w: self.setEnabled(False) )
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False) )
         elif self.is_not_idle:
-            GSTAT.connect('interp-run', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(True))
         if not (self.is_idle or self.is_not_idle or self.is_on or self.is_homed):
-            GSTAT.connect('state-estop-reset', lambda w: self.setEnabled(True))
+            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
         else:
-            GSTAT.connect('interp-idle',self.idle_check)
+            STATUS.connect('interp-idle',self.idle_check)
 
     def idle_check(self,w):
         state = True
         if self.is_homed:
-            state = state and ( GSTAT.is_all_homed() or self.no_home_required )
+            state = state and ( STATUS.is_all_homed() or self.no_home_required )
         if self.is_on:
-            state = state and GSTAT.machine_is_on()
+            state = state and STATUS.machine_is_on()
         if self.is_idle:
             state = state and True
         elif self.is_not_idle:

@@ -18,15 +18,14 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat, Lcnc_Action
-from qtvcp.qt_istat import IStat
+from qtvcp.core import Status, Action, Info
 
 # Instiniate the libraries with global reference
-# GSTAT gives us status messages from linuxcnc
+# STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
-GSTAT = GStat()
-ACTION = Lcnc_Action()
-INI = IStat()
+STATUS = Status()
+ACTION = Action()
+INFO = Info()
 
 # Set up logging
 from qtvcp import logger
@@ -43,20 +42,20 @@ class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
         self.jograte = False
 
     def _hal_init(self):
-        GSTAT.connect('state-estop', lambda w: self.setEnabled(False))
-        GSTAT.connect('state-estop-reset', lambda w: self.setEnabled(True))
+        STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+        STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
         if self.rapid:
-            GSTAT.connect('rapid-override-changed', lambda w, data: self.setValue(data))
+            STATUS.connect('rapid-override-changed', lambda w, data: self.setValue(data))
         if self.feed:
-            GSTAT.connect('feed-override-changed', lambda w, data: self.setValue(data))
-            self.setMaximum(int(INI.MAX_FEED_OVERRIDE ))
+            STATUS.connect('feed-override-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(int(INFO.MAX_FEED_OVERRIDE ))
         if self.spindle:
-            GSTAT.connect('spindle-override-changed', lambda w, data: self.setValue(data))
-            self.setMaximum(int(INI.MAX_SPINDLE_OVERRIDE ))
-            self.setMinimum(int(INI.MIN_SPINDLE_OVERRIDE ))
+            STATUS.connect('spindle-override-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(int(INFO.MAX_SPINDLE_OVERRIDE ))
+            self.setMinimum(int(INFO.MIN_SPINDLE_OVERRIDE ))
         if self.jograte:
-            GSTAT.connect('jograte-changed', lambda w, data: self.setValue(data))
-            self.setMaximum(int(INI.MAX_LINEAR_JOG_VEL ))
+            STATUS.connect('jograte-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL ))
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)

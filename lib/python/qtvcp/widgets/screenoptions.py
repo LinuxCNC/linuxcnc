@@ -9,9 +9,9 @@ from qtvcp.lib.message import Message
 from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 
-GSTAT = GStat()
+STATUS = Status()
 NOTE = Notify()
 MSG = Message()
 
@@ -53,9 +53,9 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.usrMsg_doFocusOverlay = self.PREFS_.getpref('focusOverlay_on_user_messages', True, bool,'SCREEN_OPTIONS')
             self.play_shutdown_sounds = self.PREFS_.getpref('sound_on_shutdown', True, bool,'SCREEN_OPTIONS')
 
-        # connect to GStat to catch linuxcnc events
+        # connect to STATUS to catch linuxcnc events
         if self.catch_errors:
-            GSTAT.connect('periodic', self.on_periodic)
+            STATUS.connect('periodic', self.on_periodic)
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
         if self.play_sounds:
@@ -95,7 +95,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                if self.desktop_notify:
                     NOTE.notify('DISPLAY',text,None,4)
             if self.play_sounds and self.mchnMsg_sound_doPlay:
-                GSTAT.emit('play-alert','ERROR')
+                STATUS.emit('play-alert','ERROR')
 
     def closeEvent(self, event):
         if self.close_event:
@@ -110,7 +110,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 event.ignore()
                 return
             if self.play_sounds and self.play_shutdown_sounds:
-                GSTAT.emit('play-alert','LOGOUT')
+                STATUS.emit('play-alert','LOGOUT')
                 import time
                 time.sleep(2) 
             event.accept()

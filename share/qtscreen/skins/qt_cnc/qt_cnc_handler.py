@@ -11,7 +11,7 @@ from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
 
-from qtvcp.qt_glib import GStat, Lcnc_Action
+from qtvcp.qt_glib import Status, Action
 
 # Set up logging
 from qtvcp import logger
@@ -26,9 +26,9 @@ import os
 ###########################################
 
 KEYBIND = Keylookup()
-GSTAT = GStat()
+STATUS = Status()
 NOTE = Notify()
-ACTION = Lcnc_Action()
+ACTION = Action()
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -63,7 +63,7 @@ class HandlerClass:
         # Give notify library a reference to the statusbar
         NOTE.statusbar = self.w.statusBar
         NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
-        GSTAT.emit('play-alert','READY')
+        STATUS.emit('play-alert','READY')
         # set custom theme
         self.STYLE.dark_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
@@ -94,7 +94,7 @@ class HandlerClass:
             return False
 
     ########################
-    # callbacks from GSTAT #
+    # callbacks from STATUS #
     ########################
 
     #######################
@@ -111,7 +111,7 @@ class HandlerClass:
     def on_keycall_ABORT(self,event,state,shift,cntrl):
         if state:
             print 'abort'
-            if GSTAT.stat.interp_state == linuxcnc.INTERP_IDLE:
+            if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
                 print 'abort'
@@ -120,13 +120,13 @@ class HandlerClass:
 
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
-            ACTION.SET_ESTOP_STATE(GSTAT.estop_is_clear())
+            ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
     def on_keycall_POWER(self,event,state,shift,cntrl):
         if state:
-            ACTION.SET_MACHINE_STATE(not GSTAT.machine_is_on())
+            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
     def on_keycall_HOME(self,event,state,shift,cntrl):
         if state:
-            if GSTAT.is_all_homed():
+            if STATUS.is_all_homed():
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
@@ -143,38 +143,38 @@ class HandlerClass:
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:
-            GSTAT.do_jog(0, 1, GSTAT.current_jog_distance)
+            STATUS.do_jog(0, 1, STATUS.current_jog_distance)
         else:
-            GSTAT.do_jog(0, 0, GSTAT.current_jog_distance)
+            STATUS.do_jog(0, 0, STATUS.current_jog_distance)
     def on_keycall_XNEG(self,event,state,shift,cntrl):
         if state:
-            GSTAT.do_jog(0, -1, GSTAT.current_jog_distance)
+            STATUS.do_jog(0, -1, STATUS.current_jog_distance)
         else:
-            GSTAT.do_jog(0, 0, GSTAT.current_jog_distance)
+            STATUS.do_jog(0, 0, STATUS.current_jog_distance)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
         if state:
-            GSTAT.do_jog(1, 1, GSTAT.current_jog_distance)
+            STATUS.do_jog(1, 1, STATUS.current_jog_distance)
         else:
-            GSTAT.do_jog(1, 0, GSTAT.current_jog_distance)
+            STATUS.do_jog(1, 0, STATUS.current_jog_distance)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
         if state:
-            GSTAT.do_jog(1, -1, GSTAT.current_jog_distance)
+            STATUS.do_jog(1, -1, STATUS.current_jog_distance)
         else:
-            GSTAT.do_jog(1, 0, GSTAT.current_jog_distance)
+            STATUS.do_jog(1, 0, STATUS.current_jog_distance)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
         if state:
-            GSTAT.do_jog(2, 1, GSTAT.current_jog_distance)
+            STATUS.do_jog(2, 1, STATUS.current_jog_distance)
         else:
-            GSTAT.do_jog(2, 0, GSTAT.current_jog_distance)
+            STATUS.do_jog(2, 0, STATUS.current_jog_distance)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
         if state:
-            GSTAT.do_jog(2, -1, GSTAT.current_jog_distance)
+            STATUS.do_jog(2, -1, STATUS.current_jog_distance)
         else:
-            GSTAT.do_jog(2, 0, GSTAT.current_jog_distance)
+            STATUS.do_jog(2, 0, STATUS.current_jog_distance)
 
     ###########################
     # **** closing event **** #

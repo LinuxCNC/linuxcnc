@@ -5,9 +5,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import  QColor, QImage, QResizeEvent, QPainter
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 if __name__ != '__main__':
-    GSTAT = GStat()
+    STATUS = Status()
 
 # Set up logging
 from qtvcp import logger
@@ -115,7 +115,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # it should work with any main window but doesn't.
     # this worked so i stopped looking why
     # this also sets up following show or hide etc based on
-    # GSTAT messages
+    # STATUS messages
     # adjust image path name at runtime
     def _hal_init(self):
         self.top_level = self.QTVCP_INSTANCE_
@@ -135,7 +135,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
             else:
                 self.hide()
                 log.debug('Overlay - Hide')
-        GSTAT.connect('focus-overlay-changed', lambda w, data, text, color: _f(data, text, color))
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: _f(data, text, color))
         # look for special path names and change to real path
         if 'STD_IMAGE_DIR/' in self._image_path:
             t = self._image_path.split('STD_IMAGE_DIR/',)[1]

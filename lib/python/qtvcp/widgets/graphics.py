@@ -21,7 +21,7 @@ warnings.filterwarnings("default")
 from PyQt5.QtCore import pyqtProperty, QSize, QEvent
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QWindow, QResizeEvent
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 import thread
 import gobject
 
@@ -35,7 +35,7 @@ gobject.threads_init()
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
-
+STATUS = Status()
 
 # Using a separate thread for GTK
 def run_gtk(self):
@@ -60,11 +60,10 @@ class modded_gremlin(gremlin.Gremlin):
         self.enable_dro = True
         self.colors['overlay_background'] = (0.0, 0.0, 0.57)
         self.colors['back'] = (0.0, 0.0, 0.75)
-        self.qstat = GStat()
-        self.qstat.connect('file-loaded',self.fileloaded)
-        self.qstat.connect('reload-display',self.reloadfile)
-        self.qstat.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
-        self.qstat.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
+        STATUS.connect('file-loaded',self.fileloaded)
+        STATUS.connect('reload-display',self.reloadfile)
+        STATUS.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
+        STATUS.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
 
     def set_metric_units(self,w,state):
         self.metric_units  = state
