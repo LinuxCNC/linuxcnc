@@ -88,12 +88,12 @@ In this cut down example we will add properties that can be changed in Designer.
 ###############################
 from PyQt4.QtCore import pyqtProperty
 from qtvcp.widgets.ledwidget import Lcnc_Led
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 
 ###########################################
 # **** instantiate libraries section **** #
 ###########################################
-GSTAT = GStat()
+STATUS = Status()
 
 ##########################################
 # custom widget class defintion
@@ -109,11 +109,11 @@ class Lcnc_State_Led(Lcnc_Led,):
 
     def _hal_init(self):
         if self.is_estopped:
-            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
-            GSTAT.connect('state-estop-reset', lambda w:self._flip_state(False))
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+            STATUS.connect('state-estop-reset', lambda w:self._flip_state(False))
         elif self.is_on:
-            GSTAT.connect('state-on', lambda w:self._flip_state(True))
-            GSTAT.connect('state-off', lambda w:self._flip_state(False))
+            STATUS.connect('state-on', lambda w:self._flip_state(True))
+            STATUS.connect('state-off', lambda w:self._flip_state(False))
 
     def _flip_state(self, data):
             if self.invert_state:
@@ -161,7 +161,7 @@ class Lcnc_State_Led(Lcnc_Led,):
 This is where we import libraries that our widget class needs. +
 We import pyqtProperty so we can interact with the Designer editor. +
 we import lcnc_led because our custom widget is based on it. +
-We import GStat because it gives us status messages fron linuxcnc. +
+We import Status because it gives us status messages fron linuxcnc. +
 
 ==== In the ' instantiate libraries' section
 Typically we instantiated the libraries outside of the widget class so that the +
@@ -186,15 +186,15 @@ the other attributes are for the selectable options of our widget. +
 ----
     def _hal_init(self):
         if self.is_estopped:
-            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
-            GSTAT.connect('state-estop-reset', lambda w:self._flip_state(False))
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+            STATUS.connect('state-estop-reset', lambda w:self._flip_state(False))
         elif self.is_on:
-            GSTAT.connect('state-on', lambda w:self._flip_state(True))
-            GSTAT.connect('state-off', lambda w:self._flip_state(False))
+            STATUS.connect('state-on', lambda w:self._flip_state(True))
+            STATUS.connect('state-off', lambda w:self._flip_state(False))
 ----
-This function connects GSTAT (linuxcnc status message library) to our widget so that the LED will on or off based on +
+This function connects STATUS (linuxcnc status message library) to our widget so that the LED will on or off based on +
 the selected state of the controller. We have two states we can choose from is_estopped or is_on +
-Depending on which is active our widget get connected to the appropriate GSTAT messages. +
+Depending on which is active our widget get connected to the appropriate STATUS messages. +
 _hal_int() is called on each widget that inherited _HalWidgetBase, when Qtvcp first builds the screen. +
 You might wonder why it's called on this widget since we didn't have _HalWidgetBase in our class +
 definition (class Lcnc_State_Led(Lcnc_Led):) - it's called because Lcnc_Led inherits  _HalWidgetBase +
@@ -209,10 +209,10 @@ in this function you have access to some extra information. (though we don't use
 ----
 We could use this information to create HAL pins or look up image paths etc. +
 ----
-            GSTAT.connect('state-estop', lambda w:self._flip_state(True))
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
 ----
-lets look at this line more closely. GSTAT is very common theme is widget building. +
-GSTAT use GObject message system to send messages to widgets that register to it. +
+lets look at this line more closely. STATUS is very common theme is widget building. +
+STATUS use GObject message system to send messages to widgets that register to it. +
 This line is the register process. +
 'state-estop' is the message we wish to act on. there are many messages available. +
 'lambda w:self._flip_state(True)' is what happens when the message is caught. +
@@ -222,7 +222,7 @@ Lambda was used to strip the (w) object before calling the self._flip_state func
 It also allowed use to send self._flip_state() the True state. +
 you will also see code like this (no lambda):
 ----
-GSTAT.connect('current-feed-rate', self._set_feedrate_text)
+STATUS.connect('current-feed-rate', self._set_feedrate_text)
 ----
 and the function called looks like this:
 ----
@@ -237,7 +237,7 @@ in which the widget and any data must be accepted by the function. +
             self.change_state(data)
 ----
 This is the function that actually flips the state of the LED. +
-It is what gets called when the appropriate GSTAT message is accepted. +
+It is what gets called when the appropriate STATUS message is accepted. +
 
 ====  Designer properties setter/getters/resetters
 This is how Designer sets the attributes of the widget. +

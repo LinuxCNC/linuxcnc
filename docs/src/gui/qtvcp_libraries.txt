@@ -3,29 +3,30 @@
 libraries are prebuilt python modules that give added features to QTvcp. +
 In this way you can select what features you want - yet don't have to build common ones yourself. +
 
-=== GSTAT
+=== STATUS
 
-GSTAT is a library that sends GObject messages based on linuxcnc's current state. +
+STATUS is a library that sends GObject messages based on linuxcnc's current state. +
+It is an extension of gladevcp's GStat object. +
 It also has some functions to do things such as jogging. +
-You connect a function call to the GSTAT message you are interested in. +
-QTvcp will call this function when the message is sent from GSTAT. +
+You connect a function call to the STATUS message you are interested in. +
+QTvcp will call this function when the message is sent from STATUS. +
 
 To import this modules add this python code to your import section: +
 [source,python]
 ----
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 ----
 To instantiate the module so you can use it add this python code to your instantiate section: +
 [source,python]
 ----
-GSTAT = GStat()
+STATUS = Status()
 ----
 To connect to messages use GObject syntax. For example to catch machine on and off messages, +
 place these commands into the INITIALIZE section: +
 [source,python]
 ----
-        GSTAT.connect('state-on', self.on_state_on)
-        GSTAT.connect('state-off', self.on_state_off)
+        STATUS.connect('state-on', self.on_state_on)
+        STATUS.connect('state-off', self.on_state_off)
 ----
 In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
 When linuxcnc is in machine off state the function self.on_state_off will be called. +
@@ -194,7 +195,7 @@ for response.+
 yes/no messages require the user to select yes or no buttons to close the dialog.+
 yes/no messages have three hal pins - one to show the dialog, one for waiting,+
 and one for the answer.+
-By default it will send GSTAT messages for focus_overlay anf alert sound.+
+By default it will send STATUS messages for focus_overlay anf alert sound.+
 These will silently fail if those options are not set up.+
 
 Here is a sample INI code. It would be under the [DISPLAY] heading.+
@@ -255,10 +256,10 @@ Also all widgets can have access to a specific preference file at initialization
 This module allows playing non-blocking sounds using gstreamer.+
 There are default alert sounds using Mint or freedesktop default sounds.+
 You can play arbitrary sounds or even songs by specifying the path.+
-GSTAT has messages to control this module.+
+STATUS has messages to control this module.+
 The screenoptions widget can automatically set up the audio system.+
 
 === virtual keyboard
 
-This library allows you to use GSTAT messages to launch a virtual keyboard.+
+This library allows you to use STATUS messages to launch a virtual keyboard.+
 It uses onboard or matchbox library for the keyboard.+

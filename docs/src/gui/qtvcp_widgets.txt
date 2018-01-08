@@ -42,7 +42,7 @@ This widget places a colored overlay over the screen usually while a dialog is s
 ro create a 'focused' feel.+
 It can also show a translucent image.+
 It can also display message text and buttons.+
-This widget can be controller with GSTAT messages.+
+This widget can be controller with STATUS messages.+
 
 ==== Grid Layout Widget
 
@@ -144,7 +144,7 @@ It is based on pyQT's QStacked widget.
 
 This widet allows the user to select jog increment values for jogging. +
 The jogging values come from the INI file under: '[DISPLAY]', "INCREMENTS" +
-This will be available to all widgets through GSTAT. +
+This will be available to all widgets through STATUS. +
 
 It is based on pyQT's combobox
 

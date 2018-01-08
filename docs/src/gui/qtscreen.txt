@@ -69,7 +69,7 @@ It's broken up in sections for ease of discussion. +
 
 from PyQt4 import QtGui
 from qtvcp.lib.keybindings import Keylookup
-from qtvcp.qt_glib import GStat
+from qtvcp.core import Status
 import linuxcnc
 import sys
 import os
@@ -79,7 +79,7 @@ import os
 ###########################################
 
 KEYBIND = Keylookup()
-GSTAT = GStat()
+STATUS = Status()
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -100,8 +100,8 @@ class HandlerClass:
         self.jog_velocity = 10.0
 
         # connect to GStat to catch linuxcnc events
-        GSTAT.connect('state-on', self.on_state_on)
-        GSTAT.connect('state-off', self.on_state_off)
+        STATUS.connect('state-on', self.on_state_on)
+        STATUS.connect('state-off', self.on_state_off)
 
     #######################################
     # **** Special Functions SECTION **** #
@@ -112,7 +112,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     # you could still make arbritrary HAL pins here
     def initialized__(self):
-        GSTAT.forced_update()
+        STATUS.forced_update()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -132,7 +132,7 @@ class HandlerClass:
             return False
 
     #####################################
-    # **** GSTAT CALLBACKS SECTION **** #
+    # **** STATUS CALLBACKS SECTION **** #
     #####################################
 
     def on_state_on(self,w):
@@ -149,18 +149,18 @@ class HandlerClass:
         name = self.w.sender().text()
         print name
         if 'X' in name:
-            GSTAT.set_axis_origin('x',0)
+            STATUS.set_axis_origin('x',0)
         elif 'Y' in name:
-            GSTAT.set_axis_origin('y',0)
+            STATUS.set_axis_origin('y',0)
         elif 'Z' in name:
-            GSTAT.set_axis_origin('z',0)
+            STATUS.set_axis_origin('z',0)
 
     #######################################
     # **** GENERAL FUNCTIONS SECTION **** #
     #######################################
 
     def continous_jog(self, axis, direction):
-        GSTAT.continuous_jog(axis, direction)
+        STATUS.continuous_jog(axis, direction)
 
     #################################
     # **** KEY BINDING SECTION **** #
