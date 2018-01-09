@@ -22,11 +22,6 @@
 
 #include <rtapi_list.h>
 
-// please God where do these live in real life?
-#define INT32_MIN (-2147483647-1)
-#define INT32_MAX (2147483647)
-#define UINT32_MAX (4294967295U)
-
 #include "rtapi.h"
 #include "hal.h"
 #include "sserial.h"
