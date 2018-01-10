@@ -482,6 +482,15 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.STEPA, 6],[S.STEPB, 6],[S.STEPA, 7],[S.STEPB, 7],[S.GPIOI, 0],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],
         [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
 
+    ['5i25-Internal Data', '5i25', 'G540x2', '5i25', 'hm2_pci', 2,3, 0,0, 2,1, 0,0, 10,2, 0,0, 0,0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
+        # TAB 3
+        [S.GPIOI, 0],[S.PWMP, 0],[S.STEPA, 0],[S.GPIOI, 0],[S.STEPB, 0],[S.GPIOI, 0],[S.STEPA, 4],[S.STEPA, 1],[S.GPIOI, 0],[S.STEPB, 1],
+        [S.STEPA, 2],[S.STEPB, 2],[S.STEPA, 3],[S.STEPB, 3],[S.ENCA, 0],[S.ENCB, 0],[S.ENCI, 0],
+        [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],
+        # TAB 2
+        [S.GPIOI, 0],[S.PWMP, 1],[S.STEPA, 5],[S.GPIOI, 0],[S.STEPB, 5],[S.GPIOI, 0],[S.STEPA, 9],[S.STEPA, 6],[S.GPIOI, 0],[S.STEPB, 6],
+        [S.STEPA, 7],[S.STEPB, 7],[S.STEPA, 8],[S.STEPB, 8],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],
+        [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
 
     # 5i20 #####################
     ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
