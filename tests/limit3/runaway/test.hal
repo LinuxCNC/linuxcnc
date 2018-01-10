@@ -1,6 +1,6 @@
 setexact_for_test_suite_only
 
-loadrt sampler cfg=fff depth=4000
+loadrt sampler cfg=ffff depth=3200
 loadrt streamer cfg=f depth=4096
 
 loadrt limit3
@@ -16,17 +16,18 @@ net in => sampler.0.pin.0
 net out <= limit3.0.out
 net out => sampler.0.pin.1
 
-loadrt ddt names=vel
+loadrt ddt names=vel,acc
 net out => vel.in
-net vel <= vel.out => sampler.0.pin.2
+net vel <= vel.out => sampler.0.pin.2 => acc.in
+net acc <= acc.out => sampler.0.pin.3
 
 loadrt threads name1=t period1=1000000
 
 addf streamer.0 t
 addf limit3.0 t
-addf sampler.0 t
 addf vel t
-
+addf acc t
+addf sampler.0 t
 start
 
 loadusr halstreamer input
