@@ -247,8 +247,8 @@ class INI:
                     factor = 2.0
                 else:
                     factor = 1.25
-                    print >>file, "STEPGEN_MAXVEL = %.2f" % (float(get("maxvel")) * factor)
-                    print >>file, "STEPGEN_MAXACCEL = %.2f" % (float(get("maxacc")) * factor)
+                print >>file, "STEPGEN_MAXVEL = %.2f" % (float(get("maxvel")) * factor)
+                print >>file, "STEPGEN_MAXACCEL = %.2f" % (float(get("maxacc")) * factor)
 
         print >>file, "P = %s" % get("P")
         print >>file, "I = %s" % get("I") 
