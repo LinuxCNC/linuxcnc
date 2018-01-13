@@ -1,0 +1,127 @@
+setexact_for_test_suite_only
+
+
+#
+# This siggen produces test patters for limit3 to try to follow.
+#
+
+loadrt siggen
+setp siggen.0.frequency 2
+setp siggen.0.amplitude 100
+setp siggen.0.offset 0
+
+net sine <= siggen.0.sine
+net cosine <= siggen.0.cosine
+net square <= siggen.0.square
+net sawtooth <= siggen.0.sawtooth
+net triangle <= siggen.0.triangle
+
+
+#
+# This mux selects one of the available input patterns.  Later in this
+# file, after loading the limit3 component, we'll add the output of
+# limit3 as another option in this mux.
+#
+
+loadrt mux_generic config=ff8
+
+net sine => mux-gen.00.in-float-00
+net cosine => mux-gen.00.in-float-01
+net square => mux-gen.00.in-float-02
+net sawtooth => mux-gen.00.in-float-03
+net triangle => mux-gen.00.in-float-04
+
+net input <= mux-gen.00.out-float
+
+
+#
+# Here's the limit3, the component under test.
+#
+# These pos/vel/accel limits are just a hair above the limits of the
+# input sine wave.
+#
+
+loadrt limit3
+setp limit3.0.min -101
+setp limit3.0.max 101
+setp limit3.0.maxv 1500
+setp limit3.0.maxa 15800
+
+net input => limit3.0.in
+net output <= limit3.0.out
+net output => mux-gen.00.in-float-05
+
+
+#
+# Compute the velocity and acceleration of the limit3 output.
+#
+
+loadrt ddt names=ddt.out-accel,ddt.out-vel
+
+net output => ddt.out-vel.in
+
+net out-vel <= ddt.out-vel.out
+net out-vel => ddt.out-accel.in
+
+net out-accel <= ddt.out-accel.out
+
+
+#
+# This part cycles through the muxed signals.  It uses a charge pump to
+# generate a high-frequency square wave, and an encoder in counter-mode,
+# with a large scale, to produce a slowly growing number (the encoder
+# position).  The encoder position is converted from a float to a u32,
+# and fed to the mux select pin.
+#
+
+loadrt charge_pump
+
+# The heartbeat toggles every other time the thread runs (so at 500 Hz).
+net heartbeat <= charge-pump.out
+
+# The scale of the encoder makes the .position output move forward by
+# about 1.0 per second.
+loadrt encoder num_chan=1
+encoder.0.counter-mode = 1
+encoder.0.position-scale = 500
+
+net heartbeat => encoder.0.phase-A
+net encoder-position <= encoder.0.position
+
+loadrt conv_float_u32
+net encoder-position => conv-float-u32.0.in
+
+net mux-select <= conv-float-u32.0.out
+net mux-select => mux-gen.00.sel-int
+
+
+#
+# This sampler reports everything we care about out to disk, so we can
+# validate it after the realtime part of the test completes.
+#
+
+loadrt sampler depth=1500 cfg=ffffu
+net input => sampler.0.pin.0
+net output => sampler.0.pin.1
+net out-vel => sampler.0.pin.2
+net out-accel => sampler.0.pin.3
+net mux-select => sampler.0.pin.4
+
+
+loadrt threads name1=t period1=1000000 fp1=1
+
+addf charge-pump              t
+addf encoder.update-counters  t
+addf encoder.capture-position t
+addf conv-float-u32.0         t
+
+addf siggen.0.update          t
+addf mux-gen.00               t
+addf limit3.0                 t
+addf ddt.out-vel              t
+addf ddt.out-accel            t
+addf sampler.0                t
+
+start
+
+loadusr -w halsampler -t -n 5100
