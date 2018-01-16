@@ -124,12 +124,14 @@ def md5sum(self, filename):
 	try:
 		f = open(filename, "rb")
 	except IOError:
+		print "error open %s file" % filename
 		return None
 	else:
 		return hashlib.md5(f.read()).hexdigest()
 
 def add_md5sum(self, filename, mode="r"):
-	self.d.md5sums.append((filename, self.md5sum(filename)))
+	md5 = self.md5sum(filename)
+	self.d.md5sums.append((filename, md5))
 
 def __getitem__(self, item):
 	return getattr(self, item)

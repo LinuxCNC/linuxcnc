@@ -109,7 +109,7 @@ O<tool_change> SUB
 	print >>fngc, "#<_ToolChangeY> =     %.2f     ( machine Y coordinate to pause at for manual tool changing )" % self.d.probe_y_pos
 	print >>fngc, "#<_MistOnDuringProbe> =   %d     ( set to 1 for mist, or 2 for coolant, or 0 for nothing during probing, to clear switch of swarf )" % 1
 
-	print >>fngc, ("(DEBUG, 5183 #5183, 5063 #5063, 5223 #5223)")
+	#print >>fngc, ("(DEBUG, 5183 #5183, 5063 #5063, 5223 #5223)")
 
 	print >>fngc, ("""
 (-------------------------------------------------------------------------------------------------------)
@@ -120,7 +120,7 @@ O105 IF [ #<_ToolDidFirst> EQ 0 ]
 	G49                                         ( clear tool length compensation prior to saving state if this is first time )
 O105 ENDIF
 
-
+M6                                             ( do the normal M6 stuff )
 O107 IF [#<_UseInches> EQ 1 ]
 	#<ToolDiamIn> = #5410
 	#<ToolDiamMM> = [ #<ToolDiamIn> * 25.4 ]
@@ -129,7 +129,6 @@ O107 ELSE
 	#<ToolDiamIn> = [ #<ToolDiamMM> / 25.4 ]
 O107 ENDIF
 
-M6                                             ( do the normal M6 stuff )
 O210 IF [ EXISTS[#<_lastTool>] EQ 0 ]
 	#<_lastTool> = -1                           ( return 0 if _OldTool doesn't exists )
 O210 ENDIF
@@ -155,10 +154,13 @@ G40                                            ( turn cutter radius compensation
 G53 G1 F[#<_TravelFeed>] Z[#<_TravelZ>]      ( go to high travel level on Z )
 G53 G0 X[#<_ProbeX>] Y[#<_ProbeY>]           ( to probe switch )
 O102 IF [ #<_current_tool> EQ 0 AND #<ToolDiamIn> EQ 0 ]
-    (MSG, Change tool then click Resume )
+	(MSG, Change tool then click Resume )
 O102 ELSE
-    #<ToolDiamMM> = [ #<ToolDiamIn> * 25.4 ]
-    (DEBUG, Change to tool #<_current_tool> with diameter #<ToolDiamMM>mm, #<ToolDiamIn>in then click Resume )
+	O108 IF [#<_UseInches> EQ 1 ]
+		(DEBUG, Change to tool #<_current_tool> with diameter #<ToolDiamIn>inches then click Resume )
+	O108 ELSE
+		(DEBUG, Change to tool #<_current_tool> with diameter #<ToolDiamMM>mm then click Resume )
+	O108 ENDIF
 O102 ENDIF
 M0                                           ( pause execution )
 
@@ -187,7 +189,7 @@ G38.2 Z[#<_ProbeRetract>*-1.25] F[#<_ProbeFeed2>]   ( trip switch very slowly )"
 O200 ENDIF
 #<_ToolZDiff> = [#<_ToolZLast> - #<_ToolZRef>]
 """)
-	print >>fngc, ("(DEBUG, ToolZRef> #<_ToolZRef>, ToolZLast #<_ToolZLast>, DIFF #<_ToolZDiff>, 5183 #5183, 5063 #5063)")
+	#print >>fngc, ("(DEBUG, ToolZRef> #<_ToolZRef>, ToolZLast #<_ToolZLast>, DIFF #<_ToolZDiff>, 5183 #5183, 5063 #5063)")
 	print >>fngc, ("""M9                                           ( turn off mist )
 G90                                          ( use absolute positioning )
 G53 G1 F[#<_TravelFeed>] Z[#<_TravelZ>]      ( return to safe level )
@@ -201,169 +203,6 @@ O<tool-change> ENDSUB
 M2
 %""")
 	fngc.close()
-	# END
-#(G53 G1 F[#<_TravelFeed>] Z[#5183]            ( return to where we were in Z ))
-#####################################################################################################################
-# Why using the first tool as reference? I can touch off the single tool every time I need.
-def create_tool_change_routine_old(self):
-	# Subroutine from orangecat
-	subroutine = os.path.expanduser("~/linuxcnc/configs/%s/%s%s" % (self.d.machinename, FILE_TOOL_CHANGE, ".ngc"))
-	fngc = open(subroutine, "w")
-	print >>fngc, ("""
-O<tool_change> SUB
-( Filename: tool-change.ngc )
-( LinuxCNC Manual Tool-Change Subroutines for Milling Machines version 1.1: subroutine 1/2 )
-(  BEFORE USING CHANGE "CONFIGURATION PARAMETERS" BELOW FOR YOUR MACHINE! )
-(  )
-( In the LinuxCNC .ini config file, under the [RS274NGC] section add: )
-(    # change/add/use SUBROUTINE_PATH to point to the location where these tool-change subroutines are located: )
-(    SUBROUTINE_PATH = /home/linuxcnc/linuxcnc/nc_files )
-(    REMAP=M6    modalgroup=6 ngc=tool-change )
-(    REMAP=M600  modalgroup=6 ngc=tool-job-begin )
-( and under the [EMCIO] section add: )
-(    TOOL_CHANGE_AT_G30 = 0 )
-( and ensure neither TOOL_CHANGE_POSITION nor TOOL_CHANGE_QUILL_UP is set. )
-(  )
-( In the LinuxCNC .hal config file, map some input pin to be the probe input, e.g.: )
-(    net probe-z parport.0.pin-12-in => motion.probe-input )
-(  )
-( Usage: M6 in the g-code will invoke a manual tool change with automatic tool height adjustment. )
-(        M600 is used at the beginning of the first g-code file of a job so that the next M6 will measure the tool for reference )
-(             instead of caluculating a tool length offset. It can also be invoked manually through the MDI before a job starts. )
-(  )
-( General theory of operation: touches each tool off to the tool height sensor. The first tool is used as the reference, all )
-(     subsequent tools adjust the tool offset. The tip of the tool is always placed back at the position it started in before )
-(     any of the subroutines are called. It is moved away by raising Z to _TravelZ before moving towards the switch, and when )
-(     moving back from the switch again moves at height _TravelZ before going straight back down to the original position. Set )
-(     all necessary modes to ensure correct operation no matter what state the program is in when this is called. We eliminate )
-(     almost all side effects by saving and restoring the modal state. )
-(  )
-( Side effects: sets G30, sets motion mode to G1. )
-
-(------------------------------- CONFIGURATION PARAMETERS ----------------------------------------------)""")
-	if(self.d.units == INCH):
-		units = 1
-	else:
-		units = 0
-
-	"""
-O211 IF [ #<lastTool> EQ #<_current_tool> ]
-	return                                  ( do not request tool length check if is the same tool )
-O211 ENDIF
-
-	"""
-	print >>fngc, "#<_UseInches> =           %d     ( set to 1 to use inches here, or 0 to use millimeters; should match units on tool.tbl dimensions )" % units
-	print >>fngc, "#<_TravelZ> =          %.2f     ( machine Z coordinate for travelling, typically near max Z to avoid ever hitting the work )" % (self.d.zmaxlim -10)
-	print >>fngc, "#<_TravelFeed> =     %.2f     ( feedrate used for general Z moves when avoiding G0 )" % 1000.0
-	print >>fngc, "#<_ProbeX> =          %.2f     ( machine X coordinate of switch/touch-off plate )" % self.d.probe_x_pos
-	print >>fngc, "#<_ProbeY> =            %.2f    ( machine Y coordinate of switch/touch-off plate )" % self.d.probe_y_pos
-	print >>fngc, "#<_ProbeFastZ> =        %.2f     ( machine Z coord to move to before starting probe, longest tool should not touch switch at this Z )" % self.d.probe_z_pos
-	print >>fngc, "#<_ProbeMinZ> =       %.2f     ( machine Z coord to stop probe, shortest tool must touch switch at this Z, must be > min Z )" % (self.d.probe_sensor_height + 10)
-	print >>fngc, "#<_ProbeRetract> =      %.2f     ( small distance to retract before approaching switch/touch-off plate second time )" % 1.5
-	print >>fngc, "#<_ProbeFastFeed> =   %.2f     ( feed rate for moving to _ProbeFastZ )" % 400.0
-	print >>fngc, "#<_ProbeFeed1> =       %.2f     ( feed rate for touching switch/touch-off plate first time )" % 80.0 
-	print >>fngc, "#<_ProbeFeed2> =       %.2f     ( feed rate for touching switch/touch-off plate second time )" % 10.0 
-	print >>fngc, "#<_ToolChangeX> =       %.2f     ( machine X coordinate to pause at for manual tool changing )" % self.d.probe_x_pos
-	print >>fngc, "#<_ToolChangeY> =     %.2f     ( machine Y coordinate to pause at for manual tool changing )" % self.d.probe_y_pos
-	print >>fngc, "#<_MistOnDuringProbe> =   %d     ( set to 1 for mist, or 2 for coolant, or 0 for nothing during probing, to clear switch of swarf )" % 1
-	print >>fngc, ("""
-(-------------------------------------------------------------------------------------------------------)
-
-O100 IF [ EXISTS[#<_ToolDidFirst>] EQ 0 ]
-	#<_ToolDidFirst> = 0
-O100 ENDIF
-O105 IF [ #<_ToolDidFirst> EQ 0 ]
-	G49                                         ( clear tool length compensation prior to saving state if this is first time )
-O105 ENDIF
-
-O107 IF [#<_UseInches> EQ 1 ]
-	#<ToolDiamIn> = #5410
-	#<ToolDiamMM> = [ #<ToolDiamIn> * 25.4 ]
-O107 ELSE
-	#<ToolDiamMM> = #5410
-	#<ToolDiamIn> = [ #<ToolDiamMM> / 25.4 ]
-O107 ENDIF
-
-M6                                             ( do the normal M6 stuff )
-O210 IF [ EXISTS[#<_lastTool>] EQ 0 ]
-	#<_lastTool> = -1                           ( return 0 if _OldTool doesn't exists )
-O210 ENDIF
-
-O211 IF [ #<_lastTool> EQ #<_current_tool> ]
-	(DEBUG, current tool #<_current_tool> same as last tool #<_lastTool>)
-	O211 return                                  ( do not request tool length check if is the same tool )
-O211 ENDIF
-#<_lastTool> = #<_current_tool>                  ( Save current tool number )
-
-M70                                            ( save current modal state )
-
-M9                                             ( turn off coolant, will be restored on return if it was on )
-M5                                             ( turn off spindle, cannot be on during the probe )
-G[21 - #<_UseInches>]                          ( use inches or millimeters as required here, units will be restored on return )
-G30.1                                          ( save current position in #5181-#5183... )
-G49                                            ( clear tool length compensation )
-G90                                            ( use absolute positioning here )
-G94                                            ( use feedrate in units/min )
-G40                                            ( turn cutter radius compensation off here )
-
-O200 IF [ #<_ToolDidFirst> EQ 0 ]
-  G53 G1 F[#<_TravelFeed>] Z[#<_TravelZ>]      ( go to high travel level on Z )
-  G53 G0 X[#<_ProbeX>] Y[#<_ProbeY>]           ( to probe switch )
-  G53 G1 F[#<_ProbeFastFeed>] Z[#<_ProbeFastZ>]( move tool closer to switch -- we shouldn't hit it )
-  G54 G1 F[#<_ProbeFeed1>] G91                 ( use relative positioning )
-  O101 IF [ #<_MistOnDuringProbe> EQ 1 OR #<_MistOnDuringProbe> EQ 2 ]
-    M[7 + #<_MistOnDuringProbe> - 1]           ( turn on mist/coolant )
-  O101 ENDIF
-  G38.2 Z[#<_ProbeMinZ> - #<_ProbeFastZ>] F[#<_ProbeFeed1>]    ( trip switch slowly )
-  G0 Z[#<_ProbeRetract>]                       ( go up slightly )
-  G38.2 Z[#<_ProbeRetract>*-1.25] F[#<_ProbeFeed2>]   ( trip switch very slowly )
-  M9                                           ( turn off mist )
-  G90                                          ( use absolute positioning )
-  #<_ToolZRef> = #5063                         ( save trip point )
-  #<_ToolZLast> = #<_ToolZRef>                 ( save last tool Z position )
-  G53 G1 F[#<_TravelFeed>] Z[#<_TravelZ>]      ( return to safe level )
-  G53 G0 X[#5181] Y[#5182]                     ( return to where we were in X Y)
-  G53 G1 F[#<_TravelFeed>] Z[#5183]            ( return to where we were in Z )
-  M72                                          ( restore modal state )
-  #<_ToolDidFirst> = 1                         ( we have been in this section to set reference value already )
-O200 ELSE
-  G53 G1 F[#<_TravelFeed>] Z[#<_TravelZ>]      ( go to high travel level on Z )
-  G53 G0 X[#<_ToolChangeX>] Y[#<_ToolChangeY>] ( nice place for changing tool )
-  O102 IF [ #<_current_tool> EQ 0 AND #<ToolDiamIn> EQ 0 ]
-    (MSG, Change tool then click Resume )
-  O102 ELSE
-    #<ToolDiamMM> = [ #<ToolDiamIn> * 25.4 ]
-    (DEBUG, Change to tool #<_current_tool> with diameter #<ToolDiamMM>mm, #<ToolDiamIn>in then click Resume )
-  O102 ENDIF
-  M0                                           ( pause execution )
- 
-  G53 G0 X[#<_ProbeX>] Y[#<_ProbeY>]           ( to high place directly over switch )
-  G53 G1 F[#<_ProbeFastFeed>] Z[#<_ProbeFastZ>]( move tool closer to switch -- we shouldn't hit it )
-  G54 G1 F[#<_ProbeFeed1>] G91                 ( use relative positioning )
-  O103 IF [ #<_MistOnDuringProbe> EQ 1 OR #<_MistOnDuringProbe> EQ 2 ]
-    M[7 + #<_MistOnDuringProbe> - 1]           ( turn on mist/coolant )
-  O103 ENDIF
-  G38.2 Z[#<_ProbeMinZ> - #<_ProbeFastZ>] F[#<_ProbeFeed1>]     ( trip switch slowly )
-  G0 Z[#<_ProbeRetract>]                       ( go up slightly )
-  G38.2 Z[#<_ProbeRetract>*-1.25] F[#<_ProbeFeed2>]   ( trip switch very slowly )
-  M9                                           ( turn off mist )
-  G90                                          ( use absolute positioning )
-  #<_ToolZ> = #5063                            ( save new tool length )
-  G43.1 Z[#<_ToolZ> - #<_ToolZRef>]            ( set new tool length Z offset, we do this now to show operator even though it has to be set again after M72 )
-  G53 G1 F[#<_TravelFeed>] Z[#<_TravelZ>]      ( return to high travel level )
-  G53 G0 X[#5181] Y[#5182]                     ( return to where we were in X Y)
-  G53 G1 F[#<_TravelFeed>] Z[#5183 - #<_ToolZLast> + #<_ToolZ>]   ( return to where we were in Z, ajusting for tool length change )
-  #<_ToolZLast> = #<_ToolZ>                    ( save last tool length )
-  
-  M72                                          ( restore modal state )
-  G43.1 Z[#<_ToolZ> - #<_ToolZRef>]            ( set new tool length Z offset )
-O200 ENDIF
-
-O<tool-change> ENDSUB
-M2
-%""")
-	fngc.close()
-	# END
 
 
 def create_tool_job_begin_routine(self):

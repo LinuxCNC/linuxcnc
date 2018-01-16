@@ -36,10 +36,12 @@ def finished_finish(self):
 
 def build_config(self):
 	base = self.build_base()
-	self.save(base)
 	self.a.save_preferences()
+	# Reset md5sums for recalculate
+	self.d.md5sums = []
 	self.a.INI.write_inifile(base)
 	self.a.HAL.write_halfile(base)
+	self.save(base)
 	self.copy(base, "tool.tbl")
 	if self.warning_dialog(MESS_QUIT,False):
 		Gtk.main_quit()
