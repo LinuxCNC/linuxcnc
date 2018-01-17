@@ -16,6 +16,7 @@ Build-Depends: debhelper (>= 6),
     libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc,
     graphviz, inkscape,
     intltool,
+    desktop-file-utils,
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
