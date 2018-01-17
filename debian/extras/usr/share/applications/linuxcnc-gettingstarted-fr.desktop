@@ -9,3 +9,4 @@ Terminal=false
 Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

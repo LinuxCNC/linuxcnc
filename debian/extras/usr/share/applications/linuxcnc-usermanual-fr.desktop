@@ -9,3 +9,4 @@ Name=French User Manual
 Comment=The LinuxCNC User Manual
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

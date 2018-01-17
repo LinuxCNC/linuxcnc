@@ -9,3 +9,4 @@ Name=Stepconf Wizard
 Comment=Stepper Configuration Wizard
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

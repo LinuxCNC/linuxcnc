@@ -9,3 +9,4 @@ Terminal=false
 Comment=Installation and Configuration Manual (French)
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

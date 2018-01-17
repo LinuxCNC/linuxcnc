@@ -9,3 +9,4 @@ Name=Latency Test
 Comment=Test your computers's latency
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;
