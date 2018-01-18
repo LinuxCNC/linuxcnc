@@ -59,19 +59,19 @@ forward kinematics iteration is controlled by hal pins.
 .B genhexkins.platform.\fIN\fB.z
 Parameters describing the \fIN\fRth joint's coordinates.
 .TQ
-.B genhexkins.convergence-criterion
+.B genhexkins.convergence\-criterion
 Minimum error value that ends iterations with converged solution.
 .TQ
-.B genhexkins.limit-iterations
+.B genhexkins.limit\-iterations
 Limit of iterations, if exceeded iterations stop with no convergence.
 .TQ
-.B genhexkins.max-error
+.B genhexkins.max\-error
 Maximum error value, if exceeded iterations stop with no convergence.
 .TQ
-.B genhexkins.last-iterations
+.B genhexkins.last\-iterations
 Number of iterations spent for the last forward kinematics solution.
 .TQ
-.B genhexkins.max-iterations
+.B genhexkins.max\-iterations
 Maximum number of iterations spent for a converged solution during current
 session.
 .SS maxkins \- 5-axis kinematics example
@@ -88,11 +88,11 @@ links. The DH definitions are the ones used by John J Craig in
 "Introduction to Robotics: Mechanics and Control" The parameters for the
 manipulator are defined by hal pins.
 .TP
-.B genserkins.A-\fIN
+.B genserkins.A\-\fIN
 .TQ
-.B genserkins.ALPHA-\fIN
+.B genserkins.ALPHA\-\fIN
 .TQ
-.B genserkins.D-\fIN
+.B genserkins.D\-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
 
 .SS pumakins \- kinematics for puma typed robots

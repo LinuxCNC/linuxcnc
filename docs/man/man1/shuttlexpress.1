@@ -26,7 +26,7 @@ returns to center when released.
 .SH UDEV
 The shuttlexpress module needs read permission to the ShuttleXpress
 /dev/hidraw* device files.  This can be accomplished by adding a file
-\fB/etc/udev/rules.d/99-shuttlexpress.rules\fR, with the following
+\fB/etc/udev/rules.d/99\-shuttlexpress.rules\fR, with the following
 contents:
 
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0b33", ATTRS{idProduct}=="0020", MODE="0444"
@@ -52,25 +52,25 @@ notice the first click.
 
 .SH Pins
 .TP
-(bit out) \fIshuttlexpress.0.button-0\fR
+(bit out) \fIshuttlexpress.0.button\-0\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-0-not\fR
+(bit out) \fIshuttlexpress.0.button\-0\-not\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-1\fR
+(bit out) \fIshuttlexpress.0.button\-1\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-1-not\fR
+(bit out) \fIshuttlexpress.0.button\-1\-not\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-2\fR
+(bit out) \fIshuttlexpress.0.button\-2\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-2-not\fR
+(bit out) \fIshuttlexpress.0.button\-2\-not\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-3\fR
+(bit out) \fIshuttlexpress.0.button\-3\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-3-not\fR
+(bit out) \fIshuttlexpress.0.button\-3\-not\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-4\fR
+(bit out) \fIshuttlexpress.0.button\-4\fR
 .TP
-(bit out) \fIshuttlexpress.0.button-4-not\fR
+(bit out) \fIshuttlexpress.0.button\-4\-not\fR
 
     The five buttons around the outside, starting with the
     counter-clockwise-most one.
@@ -81,18 +81,18 @@ notice the first click.
     Accumulated counts from the jog wheel (the inner wheel).
 
 .TP
-(s32 out) \fIshuttlexpress.0.spring-wheel-s32\fR
+(s32 out) \fIshuttlexpress.0.spring\-wheel\-s32\fR
 
     The current deflection of the spring-wheel (the outer wheel).
-    It's 0 at rest, and ranges from -7 at the counter-clockwise
+    It's 0 at rest, and ranges from \-7 at the counter-clockwise
     extreme to +7 at the clockwise extreme.
 
 .TP
-(float out) \fIshuttlexpress.0.spring-wheel-f\fR
+(float out) \fIshuttlexpress.0.spring\-wheel\-f\fR
 
     The current deflection of the spring-wheel (the outer wheel).
-    It's 0.0 at rest, -1.0 at the counter-clockwise extreme, and +1.0
+    It's 0.0 at rest, \-1.0 at the counter-clockwise extreme, and +1.0
     at the clockwise extreme.  (The ShuttleXpress device reports the
-    spring-wheel position as an integer from -7 to +7, so this pin
+    spring-wheel position as an integer from \-7 to +7, so this pin
     reports only 15 discrete values in its range.)
 

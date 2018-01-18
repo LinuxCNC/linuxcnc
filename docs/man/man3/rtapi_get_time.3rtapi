@@ -37,7 +37,7 @@ especially in kernel space. Also note that rtapi_print() will NOT
 print \fIlong long\fRs.  Most time measurements are relative, and should
 be done like this:
 .RS
-deltat = (long int)(end_time - start_time);
+deltat = (long int)(end_time \- start_time);
 .RE
 where end_time and start_time are longlong values returned from rtapi_get_time,
 and deltat is an ordinary long int (32 bits).  This will work for times up to a
@@ -50,11 +50,11 @@ Returns the current time in nanoseconds or CPU clocks.
 Certain versions of the Linux kernel provide a global variable \fBcpu_khz\fR.
 Computing 
 .RS
-	deltat = (end_clocks - start_clocks) / cpu_khz:
+	deltat = (end_clocks \- start_clocks) / cpu_khz:
 .RE
 gives the duration measured in milliseconds.  Computing
 .RS
-	deltat = (end_clocks - start_clocks) * 1000000 / cpu_khz:
+	deltat = (end_clocks \- start_clocks) * 1000000 / cpu_khz:
 .RE
 gives the duration measured in nanoseconds for deltas less than about 9
 trillion clocks (e.g., 3000 seconds at 3GHz).

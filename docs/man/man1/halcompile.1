@@ -29,39 +29,39 @@ halcompile \- Build, compile and install LinuxCNC HAL components
 .PD 0
 .RS 5
 .PP
-\fBhalcompile\fR [\fB--compile\fR|\fB--preprocess\fR|\fB--document\fR|\fB--view-doc\fR] compfile...
+\fBhalcompile\fR [\fB\-\-compile\fR|\fB\-\-preprocess\fR|\fB\-\-document\fR|\fB\-\-view\-doc\fR] compfile...
 .RE
 .PP
-\fIsudo\fR \fBhalcompile\fR [\fB--install\fR|\fB--install-doc\fR] compfile...
+\fIsudo\fR \fBhalcompile\fR [\fB\-\-install\fR|\fB\-\-install\-doc\fR] compfile...
 .RS 5
 .PP
-\fBhalcompile\fR \fB--compile\fR \fB--userspace\fR cfile...
+\fBhalcompile\fR \fB\-\-compile\fR \fB\-\-userspace\fR cfile...
 .RE
 .PP
-\fIsudo\fR \fBhalcompile\fR \fB--install\fR \fB--userspace\fR cfile...
+\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR cfile...
 .PP
-\fIsudo\fR \fBhalcompile\fR \fB--install\fR \fB--userspace\fR pyfile...
+\fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR pyfile...
 .PD
 .SH DESCRIPTION
 \fBhalcompile\fR performs many different functions:
 .IP \(bu 4
-Compile \fB.comp\fR and \fB.c\fR files into \fB.so\fR or \fB.ko\fR HAL realtime components (the \fB--compile\fR flag)
+Compile \fB.comp\fR and \fB.c\fR files into \fB.so\fR or \fB.ko\fR HAL realtime components (the \fB\-\-compile\fR flag)
 .IP \(bu 4
-Compile \fB.comp\fR and \fB.c\fR files into HAL userspace components (the \fB--compile --userspace\fR flag)
+Compile \fB.comp\fR and \fB.c\fR files into HAL userspace components (the \fB\-\-compile \-\-userspace\fR flag)
 .IP \(bu 4
-Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB--preprocess\fR flag)
+Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
 .IP \(bu 4
-Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files (the \fB--document\fR flag)
+Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files (the \fB\-\-document\fR flag)
 .IP \(bu 4
-Display documentation from \fB.comp\fR files onscreen (the \fB--view-doc\fR flag)
+Display documentation from \fB.comp\fR files onscreen (the \fB\-\-view\-doc\fR flag)
 .IP \(bu 4
-Compile and install \fB.comp\fR and \fB.c\fR files into the proper directory for HAL realtime components (the \fB--install\fR flag), which may require \fIsudo\fR to write to system directories.
+Compile and install \fB.comp\fR and \fB.c\fR files into the proper directory for HAL realtime components (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
-Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL userspace components (the \fB--install --userspace\fR flag), which may require \fIsudo\fR to write to system directories.
+Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL userspace components (the \fB\-\-install \-\-userspace\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
-Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the proper system directory (the \fB--install\fR flag), which may require \fIsudo\fR to write to system directories.
+Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the proper system directory (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
-Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB--preprocess\fR flag)
+Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
 .SH "SEE ALSO"
 \fIHalcompile HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
 

@@ -50,19 +50,19 @@ The \fBtype \fRparameter of the configuration string determines how the I/O bits
 .TP
 The pins created by the hal_parport component depends on how it is configured in the \fBcfg="" \fRstring passed to it.  (\fISee OPTIONS\fR.)
 
-\fBparport.<p>.pin-<n>-out (bit) \fRDrives a physical output pin.
+\fBparport.<p>.pin\-<n>\-out (bit) \fRDrives a physical output pin.
 
-\fBparport.<p>.pin-<n>-in (bit) \fRTracks a physical input pin.
+\fBparport.<p>.pin\-<n>\-in (bit) \fRTracks a physical input pin.
 
-\fBparport.<p>.pin-<n>-in-not (bit) \fRTracks a physical input pin, but inverted.
+\fBparport.<p>.pin\-<n>\-in\-not (bit) \fRTracks a physical input pin, but inverted.
 
-For each pin created, \fB<p> \fRis the port number, and \fB<n> \fRis the physical pin number in the 25 pin D-shell connector.
+For each pin created, \fB<p> \fRis the port number, and \fB<n> \fRis the physical pin number in the 25 pin D\-shell connector.
 
-For each physical output pin, the driver creates a single HAL pin, for example: \fBparport.0.pin-14-out\fR.
+For each physical output pin, the driver creates a single HAL pin, for example: \fBparport.0.pin\-14\-out\fR.
 
-For each physical input pin, the driver creates two HAL pins, for example: \fBparport.0.pin-12-in \fRand \fBparport.0.pin-12-in-not\fR.
+For each physical input pin, the driver creates two HAL pins, for example: \fBparport.0.pin\-12\-in \fRand \fBparport.0.pin\-12\-in\-not\fR.
 
-The \fB-in \fRHAL pin is TRUE if the physical pin is high, and FALSE if the physical pin is low. The \fB-in-not \fRHAL pin is inverted and is FALSE if the physical pin is high.
+The \fB\-in \fRHAL pin is TRUE if the physical pin is high, and FALSE if the physical pin is low. The \fB\-in\-not \fRHAL pin is inverted and is FALSE if the physical pin is high.
 
 The following lists the input and output pins by the type setting used in the cfg="" string.
 
@@ -73,30 +73,30 @@ The following lists the input and output pins by the type setting used in the cf
 \fBx\fR: Pins 1,10,11,12,13,14,15,16 and 17 are input pins and pins 2,3,4,5,6,7,8,9 are output pins. (\fISee USAGE section\fR.)
 .SH PARAMETERS
 .TP
-\fBparport.<p>.pin-<n>-out-invert (bit)
+\fBparport.<p>.pin\-<n>\-out\-invert (bit)
 \fRInverts an output pin.
 .TP
-\fBparport.<p>.pin-<n>-out-reset (bit)
-\fR(only for out pins) TRUE if this pin should be reset when the -reset function is executed.
+\fBparport.<p>.pin\-<n>\-out\-reset (bit)
+\fR(only for out pins) TRUE if this pin should be reset when the .reset function is executed.
 .TP
-\fBparport.<p>.reset-time' (U32)
+\fBparport.<p>.reset\-time' (U32)
 \fRThe time (in nanoseconds) between a pin is set by write and reset by the reset function if it is enabled.
 .SH FUNCTIONS
 .TP
 \fBparport.<p>.read(funct)
-\fRReads physical input pins of port <portnum> and updates HAL -in and -in-not pins.
+\fRReads physical input pins of port <portnum> and updates HAL \-in and \-in\-not pins.
 .TP
-\fBparport.read-all (funct)
-Reads physical input pins of all ports and updates HAL -in and -in-not pins.
+\fBparport.read\-all (funct)
+Reads physical input pins of all ports and updates HAL \-in and \-in\-not pins.
 .TP
 \fBparport.<p>.write (funct)
-Reads HAL -out pins of port <p> and updates that port’s physical output pins.
+Reads HAL \-out pins of port <p> and updates that port’s physical output pins.
 .TP
-\fBparport.write-all (funct)
-Reads HAL -out pins of all ports and updates all physical output pins.
+\fBparport.write\-all (funct)
+Reads HAL \-out pins of all ports and updates all physical output pins.
 .TP
 \fBparport.<p>.reset (funct)
-Waits until \fIreset-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI-out-reset \fRand \fI-out-invert \fRsettings. reset must be later in the same thread as write. 'If '\fI-out-reset \fRis TRUE, then the reset function will set the pin to the value of \fI-out-invert\fR. This can be used in conjunction with stepgen’s doublefreq to produce one step per period. The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
+Waits until \fIreset\-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI\-out\-reset \fRand \fI\-out\-invert \fRsettings. reset must be later in the same thread as write. 'If '\fI\-out\-reset \fRis TRUE, then the reset function will set the pin to the value of \fI\-out\-invert\fR. This can be used in conjunction with stepgen’s doublefreq to produce one step per period. The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
 .SH USAGE
 The hal_parport component is a driver for the traditional PC parallel port. The port has a total of 25 physical pins of which 17 are used for signals. The original parallel port divided those pins into three groups: data, control, and status. The data group consists of 8 output pins, the control group consists of 4 output pins, and the status group consists of 5 input pins.
 
@@ -161,17 +161,17 @@ This will enable two system-detected parallel ports, the first in output mode an
 
 You must also direct LinuxCNC to run the read and write functions.
 
-      \fBaddf parport.read-all base-thread
-      \fBaddf parport.write-all base-thread
+      \fBaddf parport.read\-all base\-thread
+      \fBaddf parport.write\-all base\-thread
 .TP
 \fBFunctions multiple ports
 
 You can direct LinuxCNC to ruin the read and write functions for all the attached ports.
 
-      \fBaddf parport.0.read base-thread
-      \fBaddf parport.0.write base-thread
+      \fBaddf parport.0.read base\-thread
+      \fBaddf parport.0.write base\-thread
 
-\fRThe individual functions are provided for situations where one port needs to be updated in a very fast thread, but other ports can be updated in a slower thread to save CPU time. It is probably not a good idea to use both an -all function and an individual function at the same time.
+\fRThe individual functions are provided for situations where one port needs to be updated in a very fast thread, but other ports can be updated in a slower thread to save CPU time. It is probably not a good idea to use both an \-all function and an individual function at the same time.
 .SH SEE ALSO
 Parallel Port Driver (Hardware Drivers Section of LinuxCNC Docs)   PCI Parallel Port Example (Hardware Examples Section of LinuxCNC Docs)
 .SH AUTHOR

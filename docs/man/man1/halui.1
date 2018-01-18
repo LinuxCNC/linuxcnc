@@ -28,14 +28,14 @@
 halui \- observe HAL pins and command LinuxCNC through NML
 .SH SYNOPSIS
 .B halui
-[\fB-ini <path-to-ini>\fR]
+[\fB\-ini <path-to-ini>\fR]
 .SH DESCRIPTION
 \fBhalui\fR is used to build a User Interface using hardware knobs
 and switches. It exports a big number of pins, and acts accordingly 
 when these change.
 .SH OPTIONS
 .TP
-\fB-ini name\fR
+\fB\-ini name\fR
 use the \fIname\fR as the configuration file. Note: halui must find the 
 nml file specified in the ini, usually that file is in the same 
 folder as the ini, so it makes sense to run halui from that folder.
@@ -55,31 +55,31 @@ pin for clearing most errors
 
 .SS tool
 .TP
-.B halui.tool.length-offset.a\fR float out \fR
+.B halui.tool.length\-offset.a\fR float out \fR
 current applied tool length offset for the A axis
 .TP
-.B halui.tool.length-offset.b\fR float out \fR
+.B halui.tool.length\-offset.b\fR float out \fR
 current applied tool length offset for the B axis
 .TP
-.B halui.tool.length-offset.c\fR float out \fR
+.B halui.tool.length\-offset.c\fR float out \fR
 current applied tool length offset for the C axis
 .TP
-.B halui.tool.length-offset.u\fR float out \fR
+.B halui.tool.length\-offset.u\fR float out \fR
 current applied tool length offset for the U axis
 .TP
-.B halui.tool.length-offset.v\fR float out \fR
+.B halui.tool.length\-offset.v\fR float out \fR
 current applied tool length offset for the V axis
 .TP
-.B halui.tool.length-offset.w\fR float out \fR
+.B halui.tool.length\-offset.w\fR float out \fR
 current applied tool length offset for the W axis
 .TP
-.B halui.tool.length-offset.x\fR float out \fR
+.B halui.tool.length\-offset.x\fR float out \fR
 current applied tool length offset for the X axis
 .TP
-.B halui.tool.length-offset.y\fR float out \fR
+.B halui.tool.length\-offset.y\fR float out \fR
 current applied tool length offset for the Y axis
 .TP
-.B halui.tool.length-offset.z\fR float out \fR
+.B halui.tool.length\-offset.z\fR float out \fR
 current applied tool length offset for the Z axis
 .TP
 .B halui.tool.number\fR u32 out \fR
@@ -87,13 +87,13 @@ current selected tool
 
 .SS spindle
 .TP
-.B halui.spindle.brake-is-on\fR bit out \fR
+.B halui.spindle.brake\-is\-on\fR bit out \fR
 status pin that tells us if brake is on
 .TP
-.B halui.spindle.brake-off\fR bit in \fR
+.B halui.spindle.brake\-off\fR bit in \fR
 pin for deactivating the spindle brake
 .TP
-.B halui.spindle.brake-on\fR bit in \fR
+.B halui.spindle.brake\-on\fR bit in \fR
 pin for activating the spindle brake
 .TP
 .B halui.spindle.decrease\fR bit in \fR
@@ -105,16 +105,16 @@ a rising edge on this pin makes the spindle go forward
 .B halui.spindle.increase\fR bit in \fR
 a rising edge on this pin increases the current spindle speed by 100
 .TP
-.B halui.spindle.is-on\fR bit out \fR
+.B halui.spindle.is\-on\fR bit out \fR
 status pin telling if the spindle is on
 .TP
 .B halui.spindle.reverse\fR bit in \fR
 a rising edge on this pin makes the spindle go reverse
 .TP
-.B halui.spindle.runs-backward\fR bit out \fR
+.B halui.spindle.runs\-backward\fR bit out \fR
 status pin telling if the spindle is running backward
 .TP
-.B halui.spindle.runs-forward\fR bit out \fR
+.B halui.spindle.runs\-forward\fR bit out \fR
 status pin telling if the spindle is running forward
 .TP
 .B halui.spindle.start\fR bit in \fR
@@ -125,54 +125,54 @@ a rising edge on this pin stops the spindle
 
 .SS spindle override
 .TP
-.B halui.spindle-override.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+.B halui.spindle\-override.count\-enable\fR bit in \fR (default: \fBTRUE\fR)
 When TRUE, modify spindle override when counts changes.
 .TP
-.B halui.spindle-override.counts\fR s32 in \fR
+.B halui.spindle\-override.counts\fR s32 in \fR
 counts X scale = spindle override percentage
 .TP
-.B halui.spindle-override.decrease\fR bit in \fR
-pin for decreasing the SO (-=scale)
+.B halui.spindle\-override.decrease\fR bit in \fR
+pin for decreasing the SO (\-=scale)
 .TP
-.B halui.spindle-override.direct-value\fR bit in \fR
+.B halui.spindle\-override.direct\-value\fR bit in \fR
 pin to enable direct spindle override value input
 .TP
-.B halui.spindle-override.increase\fR bit in \fR
+.B halui.spindle\-override.increase\fR bit in \fR
 pin for increasing the SO (+=scale)
 .TP
-.B halui.spindle-override.scale\fR float in \fR
+.B halui.spindle\-override.scale\fR float in \fR
 pin for setting the scale of counts for SO
 .TP
-.B halui.spindle-override.value\fR float out \fR
+.B halui.spindle\-override.value\fR float out \fR
 current FO value
 
 .SS program
 .TP
-.B halui.program.block-delete.is-on\fR bit out \fR
+.B halui.program.block\-delete.is\-on\fR bit out \fR
 status pin telling that block delete is on
 .TP
-.B halui.program.block-delete.off\fR bit in \fR
+.B halui.program.block\-delete.off\fR bit in \fR
 pin for requesting that block delete is off
 .TP
-.B halui.program.block-delete.on\fR bit in \fR
+.B halui.program.block\-delete.on\fR bit in \fR
 pin for requesting that block delete is on
 .TP
-.B halui.program.is-idle\fR bit out \fR
+.B halui.program.is\-idle\fR bit out \fR
 status pin telling that no program is running
 .TP
-.B halui.program.is-paused\fR bit out \fR
+.B halui.program.is\-paused\fR bit out \fR
 status pin telling that a program is paused
 .TP
-.B halui.program.is-running\fR bit out \fR
+.B halui.program.is\-running\fR bit out \fR
 status pin telling that a program is running
 .TP
-.B halui.program.optional-stop.is-on\fR bit out \fR
+.B halui.program.optional\-stop.is\-on\fR bit out \fR
 status pin telling that the optional stop is on
 .TP
-.B halui.program.optional-stop.off\fR bit in \fR
+.B halui.program.optional\-stop.off\fR bit in \fR
 pin requesting that the optional stop is off
 .TP
-.B halui.program.optional-stop.on\fR bit in \fR
+.B halui.program.optional\-stop.on\fR bit in \fR
 pin requesting that the optional stop is on
 .TP
 .B halui.program.pause\fR bit in \fR
@@ -196,19 +196,19 @@ pin for stopping a program
 .B halui.mode.auto\fR bit in \fR
 pin for requesting auto mode
 .TP
-.B halui.mode.is-auto\fR bit out \fR
+.B halui.mode.is\-auto\fR bit out \fR
 pin for auto mode is on
 .TP
-.B halui.mode.is-joint\fR bit out \fR
+.B halui.mode.is\-joint\fR bit out \fR
 pin showing joint by joint jog mode is on
 .TP
-.B halui.mode.is-manual\fR bit out \fR
+.B halui.mode.is\-manual\fR bit out \fR
 pin for manual mode is on
 .TP
-.B halui.mode.is-mdi\fR bit out \fR
+.B halui.mode.is\-mdi\fR bit out \fR
 pin for mdi mode is on
 .TP
-.B halui.mode.is-teleop\fR bit out \fR
+.B halui.mode.is\-teleop\fR bit out \fR
 pin showing coordinated jog mode is on
 .TP
 .B halui.mode.joint\fR bit in \fR
@@ -225,16 +225,16 @@ pin for requesting coordinated jog mode
 
 .SS mdi \fR(optional)
 .TP
-.B halui.mdi-command-XX\fR bit in
+.B halui.mdi\-command\-XX\fR bit in
 \fBhalui\fR looks for ini variables named [HALUI]MDI_COMMAND, and
 exports a pin for each command it finds.  When the pin is driven TRUE,
 \fBhalui\fR runs the specified MDI command.  XX is a two digit number
 starting at 00.  If no [HALUI]MDI_COMMAND variables are set in the ini
-file, no halui.mdi-command-XX pins will be exported by halui.
+file, no halui.mdi\-command\-XX pins will be exported by halui.
 
 .SS mist
 .TP
-.B halui.mist.is-on\fR bit out \fR
+.B halui.mist.is\-on\fR bit out \fR
 pin for mist is on
 .TP
 .B halui.mist.off\fR bit in \fR
@@ -243,45 +243,45 @@ pin for stopping mist
 .B halui.mist.on\fR bit in \fR
 pin for starting mist
 
-.SS max-velocity
+.SS max\-velocity
 .TP
-.B halui.max-velocity.count-enable\fR bit in \fR (default: \fBTRUE\fR)
-When True, modify max velocity when halui.max-velocity.counts changes.
+.B halui.max\-velocity.count\-enable\fR bit in \fR (default: \fBTRUE\fR)
+When True, modify max velocity when halui.max\-velocity.counts changes.
 .TP
-.B halui.max-velocity.counts\fR s32 in \fR
-When .count-enable is True, halui changes the max velocity in response
+.B halui.max\-velocity.counts\fR s32 in \fR
+When .count\-enable is True, halui changes the max velocity in response
 to changes to this pin.  It's usually connected to an MPG encoder on
-an operator's panel or jog pendant.  When .count-enable is False, halui
+an operator's panel or jog pendant.  When .count\-enable is False, halui
 ignores this pin.
 .TP
-.B halui.max-velocity.direct-value\fR bit in \fR
+.B halui.max\-velocity.direct\-value\fR bit in \fR
 When this pin is True, halui commands the max velocity directly to
 (.counts * .scale).  When this pin is False, halui commands the max
 velocity in a relative way: change max velocity by an amount equal to
 (change in .counts * .scale).
 .TP
-.B halui.max-velocity.increase\fR bit in \fR
+.B halui.max\-velocity.increase\fR bit in \fR
 A positive edge (a False to True transition) on this pin increases the
 max velocity by the value of the .scale pin.  (Note that halui always
-responds to this pin, independent of the .count-enable pin.)
+responds to this pin, independent of the .count\-enable pin.)
 .TP
-.B halui.max-velocity.decrease\fR bit in \fR
+.B halui.max\-velocity.decrease\fR bit in \fR
 A positive edge (a False to True transition) on this pin decreases the
 max velocity by the value of the .scale pin.  (Note that halui always
-responds to this pin, independent of the .count-enable pin.)
+responds to this pin, independent of the .count\-enable pin.)
 .TP
-.B halui.max-velocity.scale\fR float in \fR
+.B halui.max\-velocity.scale\fR float in \fR
 This pin controls the scale of changes to the max velocity.  Each unit
 change in .counts, and each positive edge on .increase and .decrease,
 changes the max velocity by .scale.  The units of the .scale pin are
-machine-units per second.
+machine\-units per second.
 .TP
-.B halui.max-velocity.value\fR float out \fR
-Current value for maximum velocity, in machine-units per second.
+.B halui.max\-velocity.value\fR float out \fR
+Current value for maximum velocity, in machine\-units per second.
 
 .SS machine
 .TP 
-.B halui.machine.is-on\fR bit out \fR
+.B halui.machine.is\-on\fR bit out \fR
 pin for machine is On/Off
 .TP 
 .B halui.machine.off\fR bit in \fR
@@ -292,7 +292,7 @@ pin for setting machine On
 
 .SS lube
 .TP
-.B halui.lube.is-on\fR bit out \fR
+.B halui.lube.is\-on\fR bit out \fR
 pin for lube is on
 .TP
 .B halui.lube.off\fR bit in \fR
@@ -303,28 +303,28 @@ pin for starting lube
 
 .SS joint
 .TP
-.B halui.joint.N.has-fault\fR bit out \fR
+.B halui.joint.N.has\-fault\fR bit out \fR
 status pin telling that joint N has a fault
 .TP
 .B halui.joint.N.home\fR bit in \fR
 pin for homing joint N
 .TP
-.B halui.joint.N.is-homed\fR bit out \fR
+.B halui.joint.N.is\-homed\fR bit out \fR
 status pin telling that joint N is homed
 .TP
-.B halui.joint.N.is-selected\fR bit out \fR
+.B halui.joint.N.is\-selected\fR bit out \fR
 status pin that joint N is selected
 .TP
-.B halui.joint.N.on-hard-max-limit\fR bit out \fR
+.B halui.joint.N.on\-hard\-max\-limit\fR bit out \fR
 status pin telling that joint N is on the positive hardware limit
 .TP
-.B halui.joint.N.on-hard-min-limit\fR bit out \fR
+.B halui.joint.N.on\-hard\-min\-limit\fR bit out \fR
 status pin telling that joint N is on the negative hardware limit
 .TP
-.B halui.joint.N.on-soft-max-limit\fR bit out \fR
+.B halui.joint.N.on\-soft\-max\-limit\fR bit out \fR
 status pin telling that joint N is on the positive software limit
 .TP
-.B halui.joint.N.on-soft-min-limit\fR bit out \fR
+.B halui.joint.N.on\-soft\-min\-limit\fR bit out \fR
 status pin telling that joint N is on the negative software limit
 .TP
 .B halui.joint.N.select\fR bit in \fR
@@ -339,25 +339,25 @@ pin for unhoming joint N
 .B halui.joint.selected\fR u32 out \fR
 The number of the currently selected joint (default: joint 0).
 .TP
-.B halui.joint.selected.has-fault\fR bit out \fR
+.B halui.joint.selected.has\-fault\fR bit out \fR
 status pin selected joint is faulted
 .TP
 .B halui.joint.selected.home\fR bit in \fR
 pin for homing the selected joint 
 .TP
-.B halui.joint.selected.is-homed\fR bit out \fR
+.B halui.joint.selected.is\-homed\fR bit out \fR
 status pin telling that the selected joint is homed
 .TP
-.B halui.joint.selected.on-hard-max-limit\fR bit out \fR
+.B halui.joint.selected.on\-hard\-max\-limit\fR bit out \fR
 status pin telling that the selected joint is on the positive hardware limit
 .TP
-.B halui.joint.selected.on-hard-min-limit\fR bit out \fR
+.B halui.joint.selected.on\-hard\-min\-limit\fR bit out \fR
 status pin telling that the selected joint is on the negative hardware limit
 .TP
-.B halui.joint.selected.on-soft-max-limit\fR bit out \fR
+.B halui.joint.selected.on\-soft\-max\-limit\fR bit out \fR
 status pin telling that the selected joint is on the positive software limit
 .TP
-.B halui.joint.selected.on-soft-min-limit\fR bit out \fR
+.B halui.joint.selected.on\-soft\-min\-limit\fR bit out \fR
 status pin telling that the selected joint is on the negative software limit
 .TP
 .B halui.joint.selected.unhome\fR bit in \fR
@@ -368,45 +368,45 @@ pin for unhoming the selected joint
 .B halui.jog.deadband\fR float in \fR
 pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
 .TP
-.B halui.jog-speed\fR float in \fR
+.B halui.jog\-speed\fR float in \fR
 pin for setting jog speed for plus/minus jogging.
 .TP
 .B halui.jog.N.analog\fR float in \fR
 pin for jogging the axis N using an float value (e.g. joystick)
 .TP
 .B halui.jog.N.increment\fR float in \fR
-pin for setting the jog increment for axis N when using increment-plus/minus
+pin for setting the jog increment for axis N when using increment\-plus/minus
 .TP
-.B halui.jog.N.increment-minus\fR bit in \fR
+.B halui.jog.N.increment\-minus\fR bit in \fR
 a rising edge will will make axis N jog in the negative direction by the increment amount
 .TP
-.B halui.jog.N.increment-plus\fR bit in \fR
+.B halui.jog.N.increment\-plus\fR bit in \fR
 a rising edge will will make axis N jog in the positive direction by the increment amount
 .TP
 .B halui.jog.N.minus\fR bit in \fR
-pin for jogging axis N in negative direction at the halui.jog-speed velocity
+pin for jogging axis N in negative direction at the halui.jog\-speed velocity
 .TP
 .B halui.jog.N.plus\fR bit in \fR
-pin for jogging axis N in positive direction at the halui.jog-speed velocity
+pin for jogging axis N in positive direction at the halui.jog\-speed velocity
 .TP
 .B halui.jog.selected.increment\fR float in \fR
-pin for setting the jog increment for the selected axis when using increment-plus/minus
+pin for setting the jog increment for the selected axis when using increment\-plus/minus
 .TP
-.B halui.jog.selected.increment-minus\fR bit in \fR
+.B halui.jog.selected.increment\-minus\fR bit in \fR
 a rising edge will will make the selected axis jog in the negative direction by the increment amount
 .TP
-.B halui.jog.selected.increment-plus\fR bit in \fR
+.B halui.jog.selected.increment\-plus\fR bit in \fR
 a rising edge will will make the selected axis jog in the positive direction by the increment amount
 .TP
 .B halui.jog.selected.minus\fR bit in \fR
-pin for jogging the selected axis in negative direction at the halui.jog-speed velocity
+pin for jogging the selected axis in negative direction at the halui.jog\-speed velocity
 .TP
 .B halui.jog.selected.plus\fR
-pin for jogging the selected axis  bit in \fRin positive direction at the halui.jog-speed velocity
+pin for jogging the selected axis  bit in \fRin positive direction at the halui.jog\-speed velocity
 
 .SS flood
 .TP
-.B halui.flood.is-on\fR bit out \fR
+.B halui.flood.is\-on\fR bit out \fR
 pin for flood is on
 .TP
 .B halui.flood.off\fR bit in \fR
@@ -417,48 +417,48 @@ pin for starting flood
 
 .SS feed override
 .TP
-.B halui.feed-override.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+.B halui.feed\-override.count\-enable\fR bit in \fR (default: \fBTRUE\fR)
 When TRUE, modify feed override when counts changes.
 .TP
-.B halui.feed-override.counts\fR s32 in \fR
+.B halui.feed\-override.counts\fR s32 in \fR
 counts X scale = feed override percentage
 .TP
-.B halui.feed-override.decrease\fR bit in \fR
-pin for decreasing the FO (-=scale)
+.B halui.feed\-override.decrease\fR bit in \fR
+pin for decreasing the FO (\-=scale)
 .TP
-.B halui.feed-override.direct-value\fR bit in \fR
+.B halui.feed\-override.direct\-value\fR bit in \fR
 pin to enable direct value feed override input
 .TP
-.B halui.feed-override.increase\fR bit in \fR
+.B halui.feed\-override.increase\fR bit in \fR
 pin for increasing the FO (+=scale)
 .TP
-.B halui.feed-override.scale\fR float in \fR
+.B halui.feed\-override.scale\fR float in \fR
 pin for setting the scale on changing the FO
 .TP
-.B halui.feed-override.value\fR float out \fR
+.B halui.feed\-override.value\fR float out \fR
 current Feed Override value
 
 .SS rapid override
 .TP
-.B halui.rapid-override.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+.B halui.rapid\-override.count\-enable\fR bit in \fR (default: \fBTRUE\fR)
 When TRUE, modify Rapid Override when counts changes.
 .TP
-.B halui.rapid-override.counts\fR s32 in \fR
+.B halui.rapid\-override.counts\fR s32 in \fR
 counts X scale = Rapid Override percentage
 .TP
-.B halui.rapid-override.decrease\fR bit in \fR
-pin for decreasing the Rapid Override (-=scale)
+.B halui.rapid\-override.decrease\fR bit in \fR
+pin for decreasing the Rapid Override (\-=scale)
 .TP
-.B halui.rapid-override.direct-value\fR bit in \fR
+.B halui.rapid\-override.direct\-value\fR bit in \fR
 pin to enable direct value Rapid Override input
 .TP
-.B halui.rapid-override.increase\fR bit in \fR
+.B halui.rapid\-override.increase\fR bit in \fR
 pin for increasing the Rapid Override (+=scale)
 .TP
-.B halui.rapid-override.scale\fR float in \fR
+.B halui.rapid\-override.scale\fR float in \fR
 pin for setting the scale on changing the Rapid Override
 .TP
-.B halui.rapid-override.value\fR float out \fR
+.B halui.rapid\-override.value\fR float out \fR
 current Rapid Override value
 
 .SS estop
@@ -466,7 +466,7 @@ current Rapid Override value
 .B halui.estop.activate\fR bit in \fR
 pin for setting Estop (LinuxCNC internal) On
 .TP
-.B halui.estop.is-activated\fR bit out \fR
+.B halui.estop.is\-activated\fR bit out \fR
 pin for displaying Estop state (LinuxCNC internal) On/Off
 .TP
 .B halui.estop.reset\fR bit in \fR
@@ -474,19 +474,19 @@ pin for resetting Estop (LinuxCNC internal) Off
 
 .SS axis
 .TP
-.B halui.axis.N.pos-commanded\fR float out \fR float out \fR
+.B halui.axis.N.pos\-commanded\fR float out \fR float out \fR
 Commanded axis position in machine coordinates
 .TP
-.B halui.axis.N.pos-feedback\fR float out \fR float out \fR
+.B halui.axis.N.pos\-feedback\fR float out \fR float out \fR
 Feedback axis position in machine coordinates
 .TP
-.B halui.axis.N.pos-relative\fR float out \fR float out \fR
+.B halui.axis.N.pos\-relative\fR float out \fR float out \fR
 Commanded axis position in relative coordinates
 
 .SS home
 .TP 
-.B halui.home-all\fR bit in \fR
-pin for requesting home-all 
+.B halui.home\-all\fR bit in \fR
+pin for requesting home\-all 
 (only available when a valid homing sequence is specified)
 
 .SH "SEE ALSO"

@@ -8,14 +8,14 @@ rtapi_task_self \- Retrieve ID of current task
 void rtapi_task_self()
 
 .SH DESCRIPTION
-\fBrtapi_task_self\fR retrieves the current task, or -EINVAL if not in a
+\fBrtapi_task_self\fR retrieves the current task, or \-EINVAL if not in a
 realtime task (e.g., in startup or shutdown code).
 
 .SH REALTIME CONSIDERATIONS
 May be called from init/cleanup code, and from within realtime tasks.
 
 .SH RETURN VALUE
-The task number previously returned by \fBrtapi_task_new\fR or -EINVAL.
+The task number previously returned by \fBrtapi_task_new\fR or \-EINVAL.
 
 .SH SEE ALSO
 \fBrtapi_task_new(3rtapi)\fR
