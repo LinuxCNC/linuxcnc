@@ -35,7 +35,7 @@ between 0 and 1.
 
 .SH PARAMETERS
 .TP
-.B lcd.\fINN\fB.decimal-separator\fR (u32) rw
+.B lcd.\fINN\fB.decimal\-separator\fR (u32) rw
 Sets the decimal separator used for floating point numbers. The default value is
 46 (0x2E) which corresponds to ".". If a comma is required then set this
 parameter to 44 (0x2C).
@@ -87,7 +87,7 @@ default and is not strictly necessary.
 
 "0" Pad the number to the specified width with the numeral 0. 
 
-"+" Force display of a + symbol before positive numbers. This (like the - sign)
+"+" Force display of a + symbol before positive numbers. This (like the \- sign)
 will appear immediately to the left of the digits for a space-padded number 
 and in the extreme left position for a 0-padded number. 
 
@@ -101,7 +101,7 @@ digits. The integer data types will never fill more than 10 decimal digits.
 Following the width specifier should be the decimal specifier. This can only be
 a full-stop character (.) as the comma (,) is used as the instance separator. 
 Currently lcd does not access the locale information to determine the correct
-separator and the \fBdecimal-separator\fR parameter should be used. 
+separator and the \fBdecimal\-separator\fR parameter should be used. 
 
 Following the decimal separator should be a number that determines how many
 places of decimals to display. This entry is ignored in the case of integer
@@ -122,7 +122,7 @@ variable format width, with a sign only shown for negative numbers. both %f and
 
 \fB%i %d\fR (For example %+ 4d) Creates a signed (s32) HAL pin. The example would 
 display the value at a fixed 4 characters, space padded, width including the + 
-giving a range of +999 to -999. %i and %d create identical output. 
+giving a range of +999 to \-999. %i and %d create identical output. 
 
 \fB%u\fR (for example %08u) Creates an unsigned (u32) HAL pin. The example would be a
 fixed 8 characters wide, padded with zeros. 

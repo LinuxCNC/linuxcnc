@@ -18,7 +18,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python-xlib, python-gtkglext1, python-configobj,
     tclreadline, procps, psmisc, module-init-tools | kmod, tclx,
     mesa-utils, blt
-Description: PC based motion controller for real-time Linux
+Description: motion controller for CNC machines and robots
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
@@ -28,7 +28,7 @@ Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
-Description: PC based motion controller for real-time Linux
+Description: motion controller for CNC machines and robots (English documentation)
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
@@ -40,7 +40,7 @@ Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
-Description: PC based motion controller for real-time Linux
+Description: motion controller for CNC machines and robots (French documentation)
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
@@ -52,7 +52,7 @@ Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
-Description: PC based motion controller for real-time Linux
+Description: motion controller for CNC machines and robots (Spanish documentation)
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).

@@ -32,9 +32,9 @@ kins \- kinematics definitions for LinuxCNC
 .PP
 .B loadrt tripodkins
 .PP
-.B loadrt xyzac-trt-kins
+.B loadrt xyzac\-trt\-kins
 .PP
-.B loadrt xyzbc-trt-kins
+.B loadrt xyzbc\-trt\-kins
 .PP
 .B loadrt 5axiskins
 .PP
@@ -149,7 +149,7 @@ per-coordinate jogging is available.
 .TP
 X = 0.5*(JOINT_0 + JOINT_1)
 .TQ
-Y = 0.5*(JOINT_0 - JOINT_1)
+Y = 0.5*(JOINT_0 \- JOINT_1)
 .TQ
 Z = JOINT_2
 .TP
@@ -176,49 +176,49 @@ forward kinematics iteration is controlled by hal pins.
 .B genhexkins.platform.\fIN\fB.z
 Parameters describing the \fIN\fRth joint's coordinates.
 .TQ
-.B genhexkins.spindle-offset
+.B genhexkins.spindle\-offset
 Added to all joints Z coordinates to change the machine origin.
 Facilitates adjusting spindle position.
 .TQ
-.B genhexkins.base-n.\fIN\fB.x
+.B genhexkins.base\-n.\fIN\fB.x
 .TQ
-.B genhexkins.base-n.\fIN\fB.y
+.B genhexkins.base\-n.\fIN\fB.y
 .TQ
-.B genhexkins.base-n.\fIN\fB.z
+.B genhexkins.base\-n.\fIN\fB.z
 .TQ
-.B genhexkins.platform-n.\fIN\fB.x
+.B genhexkins.platform\-n.\fIN\fB.x
 .TQ
-.B genhexkins.platform-n.\fIN\fB.y
+.B genhexkins.platform\-n.\fIN\fB.y
 .TQ
-.B genhexkins.platform-n.\fIN\fB.z
+.B genhexkins.platform\-n.\fIN\fB.z
 Parameters describing unit vectors of \fIN\fRth joint's axis. Used to
 calculate strut length correction for cardanic joints and non-captive
 actuators.
 .TQ
-.B genhexkins.screw-lead
+.B genhexkins.screw\-lead
 Lead of strut actuator screw, positive for the right-handed thread.
 Default is 0 (strut length correction disabled).
 .TQ
 .B genhexkins.correction.\fIN\fB
 Current values of strut length correction for non-captive actuators with
 cardanic joints.
-.B genhexkins.convergence-criterion
+.B genhexkins.convergence\-criterion
 Minimum error value that ends iterations with converged solution.
 .TQ
-.B genhexkins.limit-iterations
+.B genhexkins.limit\-iterations
 Limit of iterations, if exceeded iterations stop with no convergence.
 .TQ
-.B genhexkins.max-error
+.B genhexkins.max\-error
 Maximum error value, if exceeded iterations stop with no convergence.
 .TQ
-.B genhexkins.last-iterations
+.B genhexkins.last\-iterations
 Number of iterations spent for the last forward kinematics solution.
 .TQ
-.B genhexkins.max-iterations
+.B genhexkins.max\-iterations
 Maximum number of iterations spent for a converged solution during current
 session.
 .TQ
-.B genhexkins.tool-offset
+.B genhexkins.tool\-offset
 TCP offset from platform origin along Z to implement RTCP function. To
 avoid joints jump change tool offset only when the platform is not tilted.
 
@@ -231,11 +231,11 @@ links. The DH definitions are the ones used by John J Craig in
 "Introduction to Robotics: Mechanics and Control" The parameters for the
 manipulator are defined by hal pins.
 .TP
-.B genserkins.A-\fIN
+.B genserkins.A\-\fIN
 .TQ
-.B genserkins.ALPHA-\fIN
+.B genserkins.ALPHA\-\fIN
 .TQ
-.B genserkins.D-\fIN
+.B genserkins.D\-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
 
 .SS maxkins \- 5-axis kinematics example
@@ -305,11 +305,11 @@ locations (the motors), giving three degrees of freedom in position (XYZ)
 .B tripodkins.Cy
 The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 
-.SS xyzac-trt-kins \- 5 Axis mill (Table Rotary/Tilting)
+.SS xyzac\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
 Tilting table (A) and horizontal rotary mounted tothe table (C)
 (5 Joints)
 
-.SS xyzbc-trt-kins \- 5 Axis mill (Table Rotary/Tilting)
+.SS xyzbc\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
 Tilting table (B) and horizontal rotary mounted to table (C axis)
 (5 Joints)
 

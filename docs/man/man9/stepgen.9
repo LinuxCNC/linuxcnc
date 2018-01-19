@@ -42,16 +42,16 @@ Some of the stepping types are described below, but for more details (including
 timing diagrams) see the \fBstepgen\fR section of the HAL reference manual.
 .TP
 type 0: step/dir
-Two pins, one for step and one for direction.  \fBmake-pulses\fR must run at least twice for each step (once to set the step pin true, once to clear it).  This limits the maximum step rate to half (or less) of the rate that can be reached by types 2-14.  The parameters \fBsteplen\fR and \fBstepspace\fR can further lower the maximum step rate.  Parameters \fBdirsetup\fR and \fBdirhold\fR also apply to this step type.
+Two pins, one for step and one for direction.  \fBmake\-pulses\fR must run at least twice for each step (once to set the step pin true, once to clear it).  This limits the maximum step rate to half (or less) of the rate that can be reached by types 2-14.  The parameters \fBsteplen\fR and \fBstepspace\fR can further lower the maximum step rate.  Parameters \fBdirsetup\fR and \fBdirhold\fR also apply to this step type.
 .TP
 type 1: up/down
-Two pins, one for 'step up' and one for 'step down'.  Like type 0, \fBmake-pulses\fR must run twice per step, which limits the maximum speed.
+Two pins, one for 'step up' and one for 'step down'.  Like type 0, \fBmake\-pulses\fR must run twice per step, which limits the maximum speed.
 .TP
 type 2: quadrature
-Two pins, phase-A and phase-B.  For forward motion, A leads B.  Can advance by one step every time \fBmake-pulses\fR runs.
+Two pins, phase\-A and phase\-B.  For forward motion, A leads B.  Can advance by one step every time \fBmake\-pulses\fR runs.
 .TP
 type 3: three phase, full step
-Three pins, phase-A, phase-B, and phase-C.  Three steps per full cycle, then repeats.  Only one phase is high at a time - for forward motion the pattern is A, then B, then C, then A again.
+Three pins, phase\-A, phase\-B, and phase\-C.  Three steps per full cycle, then repeats.  Only one phase is high at a time - for forward motion the pattern is A, then B, then C, then A again.
 .TP
 type 4: three phase, half step
 Three pins, phases A through C.  Six steps per full cycle.  First A is high alone, then A and B together, then B alone, then B and C together, etc.
@@ -73,33 +73,33 @@ This uses the waveform specified by the \fBuser_step_type\fR module parameter,
 which may have up to 10 steps and 5 phases.
 .SH FUNCTIONS
 .TP 
-\fBstepgen.make-pulses \fR(no floating-point)
-Generates the step pulses, using information computed by \fBupdate-freq\fR.  Must be called as frequently as possible, to maximize the attainable step rate and minimize jitter.  Operates on all channels at once.
+\fBstepgen.make\-pulses \fR(no floating-point)
+Generates the step pulses, using information computed by \fBupdate\-freq\fR.  Must be called as frequently as possible, to maximize the attainable step rate and minimize jitter.  Operates on all channels at once.
 .TP
-\fBstepgen.capture-position \fR(uses floating point)
+\fBstepgen.capture\-position \fR(uses floating point)
 Captures position feedback value from the high speed code and makes it available on a pin for use elsewhere in the system.  Operates on all channels at once.
 .TP
-\fBstepgen.update-freq \fR(uses floating point)
-Accepts a velocity or position command and converts it into a form usable by \fBmake-pulses\fR for step generation.  Operates on all
+\fBstepgen.update\-freq \fR(uses floating point)
+Accepts a velocity or position command and converts it into a form usable by \fBmake\-pulses\fR for step generation.  Operates on all
 channels at once.
 
 .SH PINS
 .TP
 \fBstepgen.\fIN\fB.counts\fR s32 out
 The current position, in counts, for channel \fIN\fR.  Updated by
-\fBcapture-position\fR.
+\fBcapture\-position\fR.
 .TP
-\fBstepgen.\fIN\fB.position-fb\fR float out
-The current position, in length units (see parameter \fBposition-scale\fR).  Updated by \fBcapture-position\fR. The resolution of \fBposition-fb\fR is much finer than a single step.  If you need to see individual steps, use \fBcounts\fR.
+\fBstepgen.\fIN\fB.position\-fb\fR float out
+The current position, in length units (see parameter \fBposition\-scale\fR).  Updated by \fBcapture\-position\fR. The resolution of \fBposition\-fb\fR is much finer than a single step.  If you need to see individual steps, use \fBcounts\fR.
 .TP
 \fBstepgen.\fIN\fB.enable\fR bit in
 Enables output steps - when false, no steps are generated.
 .TP
-\fBstepgen.\fIN\fB.velocity-cmd\fR float in (velocity mode only)
-Commanded velocity, in length units per second (see parameter \fBposition-scale\fR).
+\fBstepgen.\fIN\fB.velocity\-cmd\fR float in (velocity mode only)
+Commanded velocity, in length units per second (see parameter \fBposition\-scale\fR).
 .TP
-\fBstepgen.\fIN\fB.position-cmd\fR float in (position mode only)
-Commanded position, in length units (see parameter \fBposition-scale\fB).
+\fBstepgen.\fIN\fB.position\-cmd\fR float in (position mode only)
+Commanded position, in length units (see parameter \fBposition\-scale\fB).
 .TP
 \fBstepgen.\fIN\fB.step\fR bit out (step type 0 only)
 Step pulse output.
@@ -113,8 +113,8 @@ Count up output, pulses for forward steps.
 \fBstepgen.\fIN\fB.down\fR bit out (step type 1 only)
 Count down output, pulses for reverse steps.
 .TP
-\fBstepgen.\fIN\fB.phase-A\fR thru \fBphase-E\fR bit out (step types 2-14 only)
-Output bits.  \fBphase-A\fR and \fBphase-B\fR are present for step types 2-14, \fBphase-C\fR for types 3-14, \fBphase-D\fR for types 5-14, and \fBphase-E\fR for types 11-14.  Behavior depends on selected stepping type.
+\fBstepgen.\fIN\fB.phase\-A\fR thru \fBphase\-E\fR bit out (step types 2-14 only)
+Output bits.  \fBphase\-A\fR and \fBphase\-B\fR are present for step types 2-14, \fBphase\-C\fR for types 3-14, \fBphase\-D\fR for types 5-14, and \fBphase\-E\fR for types 11-14.  Behavior depends on selected stepping type.
 
 .SH PARAMETERS
 .TP
@@ -125,13 +125,13 @@ The current step rate, in steps per second, for channel \fIN\fR.
 The acceleration/deceleration limit, in length units per second squared.
 .TP
 \fBstepgen.\fIN\fB.maxvel\fR float rw
-The maximum allowable velocity, in length units per second.  If the requested maximum velocity cannot be reached with the current combination of scaling and \fBmake-pulses\fR thread period, it will be reset to the highest attainable value.
+The maximum allowable velocity, in length units per second.  If the requested maximum velocity cannot be reached with the current combination of scaling and \fBmake\-pulses\fR thread period, it will be reset to the highest attainable value.
 .TP
-\fBstepgen.\fIN\fB.position-scale\fR float rw
+\fBstepgen.\fIN\fB.position\-scale\fR float rw
 The scaling for position feedback, position command, and velocity command, in steps per length unit.
 .TP
 \fBstepgen.\fIN\fB.rawcounts\fR s32 ro
-The position in counts, as updated by \fBmake-pulses\fR.  (Note: this is updated more frequently than the \fBcounts\fR pin.)
+The position in counts, as updated by \fBmake\-pulses\fR.  (Note: this is updated more frequently than the \fBcounts\fR pin.)
 .TP
 \fBstepgen.\fIN\fB.steplen\fR u32 rw
 The length of the step pulses, in nanoseconds.  Measured from rising edge to falling edge.
