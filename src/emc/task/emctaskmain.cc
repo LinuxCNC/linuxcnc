@@ -2178,7 +2178,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (execute_msg->command[0] != 0) {
 	    char * command = execute_msg->command;
 	    if (command[0] == (char) 0xff) {
-		// Empty command recieved. Consider it is NULL
+		// Empty command received. Consider it is NULL
 		command = NULL;
 	    } else {
 		// record initial MDI command

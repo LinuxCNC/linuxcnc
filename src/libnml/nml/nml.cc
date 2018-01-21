@@ -1049,7 +1049,7 @@ NMLTYPE NML::read()
 	case CMS_READ_OK:
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
-		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ("NML: New data received but type of %d is invalid.\n",
 		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
@@ -1102,7 +1102,7 @@ NMLTYPE NML::read()
 	error_type = NML_NO_ERROR;
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
-		("NML: New data recieved but type of %d is invalid.\n",
+		("NML: New data received but type of %d is invalid.\n",
 		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
@@ -1142,7 +1142,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	case CMS_READ_OK:
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
-		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ("NML: New data received but type of %d is invalid.\n",
 		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
@@ -1224,7 +1224,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
     case CMS_READ_OK:
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
-		("NML: New data recieved but type of %d is invalid.\n",
+		("NML: New data received but type of %d is invalid.\n",
 		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
@@ -1326,7 +1326,7 @@ NMLTYPE NML::peek()
 	case CMS_READ_OK:
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
-		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ("NML: New data received but type of %d is invalid.\n",
 		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
@@ -1372,7 +1372,7 @@ NMLTYPE NML::peek()
     case CMS_READ_OK:
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
-		("NML: New data recieved but type of %d is invalid.\n",
+		("NML: New data received but type of %d is invalid.\n",
 		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
@@ -1824,7 +1824,7 @@ int NML::write_if_read(NMLmsg * nml_msg, int *serial_number)
 *  in a neutral format before being sent over the network or into a
 *  neutral buffer.
 *        (cms->mode == CMS_ENCODE)
-*   iii. The process calling this is a server which recieved a neutrally
+*   iii. The process calling this is a server which received a neutrally
 * encoded buffer over the network which must be converted to native
 * format before being written into a raw buffer.
 *        (cms->mode == CMS_DECODE)

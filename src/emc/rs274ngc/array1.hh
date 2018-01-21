@@ -68,7 +68,7 @@ struct const_array_1_t{
     const_array_1_t( TItemType const * const data )
     : m_data( data ){
         if( !data ){
-            throw std::runtime_error( "const_array_1_t: pointer to null has been recieved." );
+            throw std::runtime_error( "const_array_1_t: pointer to null has been received." );
         }
     }
 
@@ -101,7 +101,7 @@ struct array_1_t{
     array_1_t( TItemType * data )
     : m_data( data ){
         if( !data ){
-            throw std::runtime_error( "array_1_t: pointer to null has been recieved." );
+            throw std::runtime_error( "array_1_t: pointer to null has been received." );
         }
     }
 

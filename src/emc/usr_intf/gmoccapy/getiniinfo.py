@@ -119,7 +119,7 @@ class GetIniInfo:
             temp = 10.0
         return float(temp) * 60
 
-# ToDo : This may not be needed, as it could be recieved from linuxcnc.stat
+# ToDo : This may not be needed, as it could be received from linuxcnc.stat
     def get_max_velocity(self):
         # max velocity settings: more then one place to check
         # This is the maximum velocity of the machine

@@ -234,7 +234,7 @@ void TCPMEM::verify_bufname()
     }
     returned_serial_number = getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -303,7 +303,7 @@ CMS_DIAGNOSTICS_INFO *TCPMEM::get_diagnostics_info()
     recvd_bytes = 0;
     returned_serial_number = getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -697,7 +697,7 @@ CMS_STATUS TCPMEM::handle_old_replies()
 	    returned_serial_number =
 		(CMS_STATUS) getbe32(temp_buffer);
 	    rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-		"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+		"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 		socket_fd, returned_serial_number, buffer_number);
 	    if (returned_serial_number != serial_number) {
 		rcs_print_error
@@ -717,7 +717,7 @@ CMS_STATUS TCPMEM::handle_old_replies()
 	    timedout_request_writeid = ntohl(*((uint32_t *) temp_buffer + 3));
 	    header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
 	    if (message_size > max_encoded_message_size) {
-		rcs_print_error("Recieved message is too big. (%ld > %ld)\n",
+		rcs_print_error("Received message is too big. (%ld > %ld)\n",
 		    message_size, max_encoded_message_size);
 		fatal_error_occurred = 1;
 		reconnect_needed = 1;
@@ -798,7 +798,7 @@ CMS_STATUS TCPMEM::handle_old_replies()
 	returned_serial_number =
 	    (CMS_STATUS) getbe32(temp_buffer);
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	    "TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	    "TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
 	if (returned_serial_number != serial_number) {
 	    rcs_print_error
@@ -834,7 +834,7 @@ CMS_STATUS TCPMEM::handle_old_replies()
 	returned_serial_number =
 	    (CMS_STATUS) getbe32(temp_buffer);
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	    "TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	    "TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
 	if (returned_serial_number != serial_number) {
 	    rcs_print_error
@@ -997,7 +997,7 @@ CMS_STATUS TCPMEM::read()
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
 
     if (returned_serial_number != serial_number) {
@@ -1016,7 +1016,7 @@ CMS_STATUS TCPMEM::read()
     id = ntohl(*((uint32_t *) temp_buffer + 3));
     header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
     if (message_size > max_encoded_message_size) {
-	rcs_print_error("Recieved message is too big. (%ld > %ld)\n",
+	rcs_print_error("Received message is too big. (%ld > %ld)\n",
 	    message_size, max_encoded_message_size);
 	fatal_error_occurred = 1;
 	reconnect_needed = 1;
@@ -1200,7 +1200,7 @@ CMS_STATUS TCPMEM::blocking_read(double _blocking_timeout)
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
 
     if (returned_serial_number != serial_number) {
@@ -1219,7 +1219,7 @@ CMS_STATUS TCPMEM::blocking_read(double _blocking_timeout)
     id = ntohl(*((uint32_t *) temp_buffer + 3));
     header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
     if (message_size > max_encoded_message_size) {
-	rcs_print_error("Recieved message is too big. (%ld > %ld)\n",
+	rcs_print_error("Received message is too big. (%ld > %ld)\n",
 	    message_size, max_encoded_message_size);
 	fatal_error_occurred = 1;
 	reconnect_needed = 1;
@@ -1387,7 +1387,7 @@ CMS_STATUS TCPMEM::peek()
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
 
     if (returned_serial_number != serial_number) {
@@ -1406,7 +1406,7 @@ CMS_STATUS TCPMEM::peek()
     header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
     if (message_size > max_encoded_message_size) {
 	reconnect_needed = 1;
-	rcs_print_error("Recieved message is too big. (%ld > %ld)\n",
+	rcs_print_error("Received message is too big. (%ld > %ld)\n",
 	    message_size, max_encoded_message_size);
 	reenable_sigpipe();
 	return (status = CMS_MISC_ERROR);
@@ -1546,7 +1546,7 @@ CMS_STATUS TCPMEM::write(void *user_data)
 	returned_serial_number =
 	    (CMS_STATUS) getbe32(temp_buffer);
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	    "TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	    "TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
 
 	if (returned_serial_number != serial_number) {
@@ -1666,7 +1666,7 @@ CMS_STATUS TCPMEM::write_if_read(void *user_data)
 	returned_serial_number =
 	    (CMS_STATUS) getbe32(temp_buffer);
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	    "TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	    "TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
 	if (returned_serial_number != serial_number) {
 	    rcs_print_error
@@ -1754,7 +1754,7 @@ int TCPMEM::check_if_read()
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -1834,7 +1834,7 @@ int TCPMEM::get_queue_length()
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -1914,7 +1914,7 @@ int TCPMEM::get_msg_count()
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -1994,7 +1994,7 @@ int TCPMEM::get_space_available()
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -2060,7 +2060,7 @@ CMS_STATUS TCPMEM::clear()
     }
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	socket_fd, returned_serial_number, buffer_number);
 
     if (returned_serial_number != serial_number) {
@@ -2117,7 +2117,7 @@ int TCPMEM::login(const char *name, const char *passwd)
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%d, buffer_number=%d\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%d, buffer_number=%d\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error
@@ -2162,7 +2162,7 @@ int TCPMEM::login(const char *name, const char *passwd)
     recvd_bytes = 0;
     returned_serial_number = (CMS_STATUS) getbe32(temp_buffer);
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPMEM recieved_reply: fd = %d, serial_number=%d, buffer_number=%d\n",
+	"TCPMEM received_reply: fd = %d, serial_number=%d, buffer_number=%d\n",
 	socket_fd, returned_serial_number, buffer_number);
     if (returned_serial_number != serial_number) {
 	rcs_print_error

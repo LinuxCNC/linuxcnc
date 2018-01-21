@@ -2,7 +2,7 @@ component mesa_uart "An example component demonstrating how to access the Hostmo
 
 description """This component creates 16 input and 16 output pins. It transmits 
 {name}.N.tx-bytes on the selected UART every thread cycle and reads up to 16
-bytes each cycle out of the recieve FIFO and writes the values to the associated
+bytes each cycle out of the receive FIFO and writes the values to the associated
 output pins. {name}.rx-bytes indicates how many pins have been written to. 
 (pins > rx-bytes simply hold their previous value)
 
@@ -40,7 +40,7 @@ license "GPL";
 include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
 
 pin in u32 tx-data-##[16] "Data to be transmitted";
-pin out u32 rx-data-##[16] "Data recieved";
+pin out u32 rx-data-##[16] "Data received";
 pin in s32 tx-bytes "Number of bytes to transmit";
 pin out s32 rx-bytes "Number of Bytes received";
 
