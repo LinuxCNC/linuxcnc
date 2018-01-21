@@ -939,7 +939,7 @@ int NML::check_if_read()
 /***********************************************************
 * NML Member Function: get_queue_length()
 * Purpose:
-*  Returns the number of messages queued in the buffer if queing
+*  Returns the number of messages queued in the buffer if queueing
 * was enabled for this buffer. 0 otherwise.
 ************************************************************/
 int NML::get_queue_length()
@@ -2280,12 +2280,12 @@ int NML::print_queue_info()
 	return (-1);
     }
     if (!cms->queuing_enabled) {
-	rcs_print_error("NML::print_queue_info() - Queing Not Enabled.\n");
+	rcs_print_error("NML::print_queue_info() - Queueing Not Enabled.\n");
 	return (-1);
     }
     if (cms->ProcessType != CMS_LOCAL_TYPE) {
 	rcs_print_error
-	    ("NML::print_queue_info() - REMOTE Connection: Queing Data Not Available.\n");
+	    ("NML::print_queue_info() - REMOTE Connection: Queueing Data Not Available.\n");
 	return (-1);
     }
     rcs_print
