@@ -117,7 +117,7 @@ _compat = {
     emccanon.CANON_PLANE_VW : (("u","r"),_xyz,"VW"),
     emccanon.CANON_PLANE_UW : (("v","r"),_xyz,"UW")}           
 
-# extract and pass parameters from current block, merged with extra paramters on a continuation line
+# extract and pass parameters from current block, merged with extra parameters on a continuation line
 # keep tjose parameters across invocations
 # export the parameters into the oword procedure
 def cycle_prolog(self,**words):
