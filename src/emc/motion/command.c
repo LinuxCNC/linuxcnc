@@ -8,7 +8,7 @@
 *
 *   Most of the configs would be better off being passed via an ioctl
 *   implimentation leaving pure realtime data to be handled by
-*   emcmotCommmandHandler() - This would provide a small performance
+*   emcmotCommandHandler() - This would provide a small performance
 *   increase on slower systems.
 *
 * jmk says:
