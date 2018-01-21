@@ -1872,7 +1872,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                         break;
                     case LBP_BOOLEAN:
                         buff = 0;
-                        if (*pin->boolean ^ *pin->invert){
+                        if (*pin->boolean ^ ((conf->DataDir == LBP_OUT)?(*pin->invert):0)){
                             buff = (~0ull >> (64 - conf->DataLength));
                         }
                         break;
@@ -2016,7 +2016,9 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 break;
             case LBP_BOOLEAN:
                 *pin->boolean = (buff != 0);
-                *pin->boolean2 = (buff == 0);
+                if(conf->DataDir == LBP_IN){
+                    *pin->boolean2 = (buff == 0);
+                }
                 break;
             case LBP_ENCODER_H:
             case LBP_ENCODER_L:
