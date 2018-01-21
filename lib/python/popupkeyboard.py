@@ -141,7 +141,7 @@ class PopupKeyboard:
 
         if use_coord_buttons: self.support_coord_buttons()
 
-        # making it insensitive clears the inital selection region
+        # making it insensitive clears the initial selection region
         self.num_entry.set_state(gtk.STATE_INSENSITIVE)
         self.num_entry.modify_text(gtk.STATE_INSENSITIVE
                       ,gtk.gdk.color_parse('black'))

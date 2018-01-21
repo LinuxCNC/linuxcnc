@@ -10,7 +10,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 # Support for demo type ini files where the pos-cmd  and pos-fb pins are
 # 'shortcircuit' connected together is included.
 #
-# The moveoff component may be initalized with settings from the ini file
+# The moveoff component may be initialized with settings from the ini file
 #
 # Usage:
 #   1) Specify this file in the ini file as [HAL]HALFILE

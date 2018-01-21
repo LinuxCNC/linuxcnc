@@ -226,7 +226,7 @@ void RunBackIfStopped( void )
 // the main function is divided into  NOGUI true or NOGUI FALSE
 // The difference between them is mostly about checking if a program has already been loaded (only when GUI is to be shown)
 // if rungs are used and a ladder program was not specified on the command line
-// then a program is already in memory so we dont re initallize memory we just start the GUI
+// then a program is already in memory so we dont re initialize memory we just start the GUI
 
 int main( int   argc, char *argv[] )
 {

@@ -220,7 +220,7 @@ class Pages:
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
         self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
-        # here we initalise the mesa configure page data
+        # here we initialise the mesa configure page data
         #TODO is this right place?
         self.d._mesa0_configured = False
         self.d._mesa1_configured = False
