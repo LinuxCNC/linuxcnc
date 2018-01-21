@@ -20,7 +20,7 @@
  * Each loop has a number of pins and parameters
  * When the 'num_chan=' method is used, names begin with 'pid.x.', where
  * 'x' is the channel number.  Channel numbers  start at zero.
- * When the 'names=' method is used, names begin with the specifed names,
+ * When the 'names=' method is used, names begin with the specified names,
  * e.g., for 'names=PID', the pin/parameter begin with "PID."
  *
  * The three most important pins are 'command', 'feedback', and
@@ -544,7 +544,7 @@ Pid_Export(Pid *this, int compId,char* prefix)
 
 /*
  * Perform an auto-tune operation. Sets up a limit cycle using the specified
- * tune effort. Averages the amplitude and period over the specifed number of
+ * tune effort. Averages the amplitude and period over the specified number of
  * cycles. This characterizes the process and determines the ultimate gain
  * and period, which are then used to calculate PID.
  *

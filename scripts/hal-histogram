@@ -177,7 +177,7 @@ proc config {} {
       --verbose  {set ::HH(opt,verbose) 1 }
       -*         {usage "Unknown args:$::argv"}
       default    {  if {[llength $::argv] > 1} {
-                      usage "Too many pins were specifed: <$::argv>"
+                      usage "Too many pins were specified: <$::argv>"
                     } else {
                       set ::HH(pinname) $::argv
                     }

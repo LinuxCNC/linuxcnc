@@ -570,7 +570,7 @@ def spath_from_files(pre_file,sub_files,pst_file):
     # when there is no ini file for path because
     #   linuxcnc not running
     # and
-    #   no ini specifed on cmd line
+    #   no ini specified on cmd line
     l = []
 
     slist = []
