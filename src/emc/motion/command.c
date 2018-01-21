@@ -439,7 +439,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_AXIS_ABORT: //FIXME-AJ: rename
 	    /* abort one joint */
 	    /* can happen at any time */
-	    /* this command stops a single joint.  It is only usefull
+	    /* this command stops a single joint.  It is only useful
 	       in free mode, so in coord or teleop mode it does
 	       nothing. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "AXIS_ABORT");

@@ -510,7 +510,7 @@ class Combi_DRO(gtk.VBox):
     def change_axisletter(self, letter):
         '''
         changes the automaticaly given axisletter
-        very usefull to change an lathe DRO from X to R or D
+        very useful to change an lathe DRO from X to R or D
 
         Combi_DRO.change_axisletter(letter)
 

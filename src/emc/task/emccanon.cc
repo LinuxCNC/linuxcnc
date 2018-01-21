@@ -2250,7 +2250,7 @@ void ENABLE_FEED_OVERRIDE()
     interp_list.append(set_fo_enable_msg);
 }
 
-//refers to adaptive feed override (HAL input, usefull for EDM for example)
+//refers to adaptive feed override (HAL input, useful for EDM for example)
 void DISABLE_ADAPTIVE_FEED()
 {
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;

@@ -347,7 +347,7 @@ void SocketModbusMasterLoop( void )
 				{
 				    if ( ModbusTimeAfterTransmit>0 )
 				    {
-				    	// usefull for USB-RS485 dongle...
+				    	// useful for USB-RS485 dongle...
 				    	if( ModbusDebugLevel>=3 )
 						printf("INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n",ModbusTimeAfterTransmit);
 					DoPauseMilliSecs( ModbusTimeAfterTransmit );
