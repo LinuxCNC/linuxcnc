@@ -16,8 +16,8 @@
  *
  *
  * The following items are exported to the HAL. <boardId> is read
- * from the jumper settings on the MOTENC-100 board and is formated
- * as "%d". <channel> is formated as "%02d".
+ * from the jumper settings on the MOTENC-100 board and is formatted
+ * as "%d". <channel> is formatted as "%02d".
  *
  * Encoders:
  *   Parameters:

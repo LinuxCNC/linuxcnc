@@ -11,7 +11,7 @@
  *
  *
  * The following items are exported to the HAL. <id> is
- * the component id number and is formated as "%d".
+ * the component id number and is formatted as "%d".
  *
  *  Pins (former parameters):
  *        u32       boss_plc.<id>.amp-ready-delay
