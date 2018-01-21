@@ -47,21 +47,19 @@ loop:
 
 loadrt orient names=orient
 .br
-loadrt pid    names=orient-pid
+loadrt pid names=orient-pid
 .br
-net orient-angle  motion.spindle-orient-angle orient.angle
+net orient-angle motion.spindle-orient-angle orient.angle
 .br
-net orient-mode   motion.spindle-orient-mode  orient.mode
+net orient-mode motion.spindle-orient-mode orient.mode
 .br
-net orient-enable motion.spindle-orient       orient.enable orient-pid.enable
+net orient-enable motion.spindle-orient orient.enable orient-pid.enable
 .br
-net spindle-in-pos  orient.is-oriented motion.spindle-is-oriented
+net spindle-in-pos orient.is-oriented motion.spindle-is-oriented
 .br
-net spindle-pos    ...encoder..position orient.position orient-pid.feedback
+net spindle-pos encoder.position orient.position orient-pid.feedback
 .br
 net orient-command orient.command orient-pid.command
-.br
-net spindle-in-pos orient.0.is-oriented => motion.spindle-is-oriented
 .br
 """;
 
