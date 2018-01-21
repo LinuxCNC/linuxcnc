@@ -131,7 +131,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 7:
-				sprintf( BuffLabel, "Number of Arithmetic Expresions " );
+				sprintf( BuffLabel, "Number of Arithmetic Expressions " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
 			case 8:
