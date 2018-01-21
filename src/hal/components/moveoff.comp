@@ -80,7 +80,7 @@ hazards \\fBbefore\\fR use on hardware.
 The module personality item sets the number of joints supported (default==3,
 maximum is 9).
 
-Use of the names= option for naming is \\fBrequired\\fR for compatibilty
+Use of the names= option for naming is \\fBrequired\\fR for compatibility
 with the gui provided as scripts/moveoff_gui:
   loadrt moveoff names=\\fBmv\\fR personality=number_of_joints
 
