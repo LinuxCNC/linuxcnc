@@ -260,7 +260,7 @@ static void update(void *arg, long period)
 	tmpin += fifo->depth;
     }
     *(str->curr_depth) = tmpin - tmpout;
-    /* don't preceed if there are no valid clock*/
+    /* don't proceed if there are no valid clock*/
     if (doclk==0){
        return;
     }
