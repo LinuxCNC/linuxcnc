@@ -987,7 +987,7 @@ void OpenConfigWindowGtk( void )
 	if ( !GTK_WIDGET_VISIBLE( ConfigWindow ) )
 	{ 
 		gtk_widget_show (ConfigWindow);
-		MessageInStatusBar("Openned Configuration window. Press again to update changes and close");
+		MessageInStatusBar("Opened Configuration window. Press again to update changes and close");
 #ifdef GTK2
 		gtk_window_present( GTK_WINDOW(ConfigWindow) );
 #endif

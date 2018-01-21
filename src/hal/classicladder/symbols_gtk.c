@@ -166,7 +166,7 @@ void OpenSymbolsWindow( void )
 	if ( !GTK_WIDGET_VISIBLE( SymbolsWindow ) )
 	{ DisplaySymbols();
 		gtk_widget_show (SymbolsWindow);
-		MessageInStatusBar("openned SYMBOLS window. Press again to close");
+		MessageInStatusBar("opened SYMBOLS window. Press again to close");
 #ifdef GTK2
 		gtk_window_present( GTK_WINDOW(SymbolsWindow) );
 #endif
