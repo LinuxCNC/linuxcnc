@@ -174,7 +174,7 @@ CMS::CMS(long s)
 
     mode = CMS_NOT_A_MODE;	/* Force user to set the mode before using. */
 
-    open();			/* Allocate memory and intialize XDR streams */
+    open();			/* Allocate memory and initialize XDR streams */
 }
 
 /* Constructor used by cms_config. */
@@ -595,7 +595,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	enable_diagnostics = 0;
     }
 
-    open();			/* Allocate memory and intialize XDR streams */
+    open();			/* Allocate memory and initialize XDR streams */
     if (enable_diagnostics) {
 	setup_diag_proc_info();
     }

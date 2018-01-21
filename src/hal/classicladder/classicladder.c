@@ -222,7 +222,7 @@ void RunBackIfStopped( void )
 		InfosGene->LadderStoppedToRunBack = FALSE;
 	}
 }
-// after processing options and intiallising HAL, MODBUS and registering shared memory
+// after processing options and initializing HAL, MODBUS and registering shared memory
 // the main function is divided into  NOGUI true or NOGUI FALSE
 // The difference between them is mostly about checking if a program has already been loaded (only when GUI is to be shown)
 // if rungs are used and a ladder program was not specified on the command line

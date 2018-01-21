@@ -191,7 +191,7 @@ class Widgets:
         return r
 
 # a class for holding data
-# here we intialize the data
+# here we initialize the data
 class Data:
     def __init__(self):
         # constants for mode idenity
@@ -555,7 +555,7 @@ class Gscreen:
         dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
         self.prefs = preferences.preferences(temp)
 
-        # Intialize prefereces either from the handler file or from Gscreen
+        # Initialize prefereces either from the handler file or from Gscreen
         if "initialize_preferences" in dir(self.handler_instance):
             self.handler_instance.initialize_preferences()
         else:

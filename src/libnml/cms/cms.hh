@@ -434,7 +434,7 @@ class CMS {
   private:
     unsigned long encode_state;	/* Store position for save, restore. */
     unsigned long decode_state;	/* Store position for save, restore. */
-    void open(void);		/* Allocate memory and intialize XDR streams */
+    void open(void);		/* Allocate memory and initialize XDR streams */
     static int number_of_cms_objects;	/* Used to decide when to initialize
 					   and cleanup PC-NFS Toolkit DLLs */
 
