@@ -2,7 +2,7 @@ component bitslice "Converts an unsigned-32 input into individual bits";
 description """This component creates individual bit-outputs for each bit of an
 unsigned-32 input. The number of bits can be limited by the "personality"
 modparam.
-The inverse process can be perfomed by the weighted_sum HAL component.""";
+The inverse process can be performed by the weighted_sum HAL component.""";
 pin in u32 in "The input value";
 pin out bit out-##[32:personality];
 author "Andy Pugh";
