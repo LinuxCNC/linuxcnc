@@ -43,7 +43,7 @@ pin out float out "Filter output.";
 pin in bit enable = 0 "Filter enable. When false, the in is passed to out \
 without any filtering. A transition from false to true causes filter \
 coefficients to be calculated according to parameters";
-pin out bit valid = 0 "When false, indicates an error occured when caclulating \
+pin out bit valid = 0 "When false, indicates an error occurred when caclulating \
 filter coefficients.";
 
 param rw u32 type_ = 0 "Filter type determines the type of filter \

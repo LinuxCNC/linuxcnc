@@ -1601,7 +1601,7 @@ if `interpreter.throw_exceptions` is nonzero (default 1), and self.execute() ret
 `InterpreterException` is raised. InterpreterException has the
 following attributes:
 
-`line_number`:: where the error occured
+`line_number`:: where the error occurred
 `line_text`:: the NGC statement causing the error
 `error_message`:: the interpreter's error message
 

@@ -43,11 +43,11 @@ class LinkedList;
 
 enum CMS_STATUS {
 /* ERROR conditions */
-    CMS_MISC_ERROR = -1,	/* A miscellaneous error occured. */
-    CMS_UPDATE_ERROR = -2,	/* An error occured during an update. */
-    CMS_INTERNAL_ACCESS_ERROR = -3,	/* An error occured during an
+    CMS_MISC_ERROR = -1,	/* A miscellaneous error occurred. */
+    CMS_UPDATE_ERROR = -2,	/* An error occurred during an update. */
+    CMS_INTERNAL_ACCESS_ERROR = -3,	/* An error occurred during an
 					   internal access function. */
-    CMS_NO_MASTER_ERROR = -4,	/* An error occured becouse the master was
+    CMS_NO_MASTER_ERROR = -4,	/* An error occurred becouse the master was
 				   not started */
     CMS_CONFIG_ERROR = -5,	/* There was an error in the configuration */
     CMS_TIMED_OUT = -6,		/* operation timed out. */

@@ -344,7 +344,7 @@ example '##2'  means the value of the parameter whose index is the
    1: toolchanger faulted, 0: normal. Volatile.
 
 * '5601' - Toolchanger fault code. Used with the iocontrol-v2 component.
-   Reflects the value of the 'toolchanger-reason' HAL pin if a fault occured.
+   Reflects the value of the 'toolchanger-reason' HAL pin if a fault occurred.
    Volatile.
 
 .Numbered Parameters Persistence

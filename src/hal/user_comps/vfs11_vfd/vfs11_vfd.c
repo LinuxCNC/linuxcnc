@@ -122,7 +122,7 @@
 
 // status registers
 // the _T suffixed denotes the same layout as the previous register
-// but has the status before a trip occured
+// but has the status before a trip occurred
 #define SR_OP_FREQUENCY		0xFD00		// 0.01Hz units
 #define SR_OP_FREQUENCY_T	0xFE00
 #define SR_INV_OPSTATUS		0xFD01		// main status register, bits in ST_* below

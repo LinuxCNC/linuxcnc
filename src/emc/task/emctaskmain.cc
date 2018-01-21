@@ -2678,7 +2678,7 @@ static int emcTaskExecute(void)
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
 	    emcStatus->task.delayLeft = 0;
 	    if (emcStatus->task.input_timeout != 0)
-		emcStatus->task.input_timeout = 1; // timeout occured
+		emcStatus->task.input_timeout = 1; // timeout occurred
 	    emcTaskEager = 1;
 	}
 	// delay can be also be because we wait for an input

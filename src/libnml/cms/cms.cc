@@ -1503,18 +1503,18 @@ const char *CMS::status_string(int status_type)
     switch (status_type) {
 	/* ERROR conditions */
     case CMS_MISC_ERROR:
-	return ("CMS_MISC_ERROR:   A miscellaneous  error occured.");
+	return ("CMS_MISC_ERROR:   A miscellaneous  error occurred.");
 
     case CMS_UPDATE_ERROR:
-	return ("CMS_UPDATE_ERROR: An error occured during an update. ");
+	return ("CMS_UPDATE_ERROR: An error occurred during an update. ");
 
     case CMS_INTERNAL_ACCESS_ERROR:
 	return
-	    ("CMS_INTERNAL_ACCESS_ERROR: An error occured during an internal access function. ");
+	    ("CMS_INTERNAL_ACCESS_ERROR: An error occurred during an internal access function. ");
 
     case CMS_NO_MASTER_ERROR:
 	return
-	    ("CMS_NO_MASTER_ERROR: An error occured becouse the master was not started.");
+	    ("CMS_NO_MASTER_ERROR: An error occurred becouse the master was not started.");
 
     case CMS_CONFIG_ERROR:
 	return ("CMS_CONFIG_ERROR: There was an error in the configuration.");

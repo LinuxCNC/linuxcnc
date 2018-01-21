@@ -124,7 +124,7 @@ void HalWriteFloatOutputs(void) {
 // This function first checks to see if at least 1 millisecond has gone by
 // if the period is under 1 MS then if will not refresh rungs yet but 
 // will keep track of how many NS were left over. Does this each period
-// till at least 1 MS has occured, if more then 1 MS then keeps track of
+// till at least 1 MS has occurred, if more then 1 MS then keeps track of
 // leftover NS for accuracy. Bottom line is you can run classiclader in
 // a thread faster than 1 millisecond but it will not refresh the rungs
 // any faster (it can be slower though). If your refresh is too slow and 

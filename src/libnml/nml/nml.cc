@@ -747,7 +747,7 @@ int NML::reset()
 * Notes:
 *  1. Use if(NULL != ???) to avoid deleting objects that were
 * never constructed.
-*  2. The delete channel function was added because an error occured in
+*  2. The delete channel function was added because an error occurred in
 * running a server unded WIN32. An exception would occur as
 * the last NML channel was being deleted from within nml_cleanup.
 * After two days of being unable to debug this problem I
@@ -850,7 +850,7 @@ int NML::get_total_subdivisions()
 *  Clears the CMS buffer associated with this NML channel.
 *
 *  Returns:
-* 0 if no error occured or -1 if error occured.
+* 0 if no error occurred or -1 if error occurred.
 *
 * Notes:
 *  1. Some buffers can be identified as PHANTOM in the config file.
@@ -1393,7 +1393,7 @@ NMLTYPE NML::peek()
 * specific format or vice versa. (Performing byte-swapping etc.)
 * Returns:
 *  0  The format was successful.
-*  -1 An error occured.
+*  -1 An error occurred.
 * Notes:
 *  1. There are 3 conditions under which format_output may be
 * called.
@@ -1565,7 +1565,7 @@ int NML::format_output()
 * NMLmsg &nml_msg - Reference to the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 *************************************************************/
 int NML::write(NMLmsg & nml_msg, int *serial_number)
 {
@@ -1579,7 +1579,7 @@ int NML::write(NMLmsg & nml_msg, int *serial_number)
 * NMLmsg *nml_msg - Address of the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 *************************************************************/
 int NML::write(NMLmsg * nml_msg, int *serial_number)
 {
@@ -1655,7 +1655,7 @@ int NML::write(NMLmsg * nml_msg, int *serial_number)
 * NMLmsg &nml_msg - Reference to the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 * Check error_type for more info.
 *************************************************************/
 int NML::set_error()
@@ -1726,7 +1726,7 @@ int NML::set_error()
 * NMLmsg &nml_msg - Reference to the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 * Check error_type for more info.
 *************************************************************/
 int NML::write_if_read(NMLmsg & nml_msg, int *serial_number)
@@ -1742,7 +1742,7 @@ int NML::write_if_read(NMLmsg & nml_msg, int *serial_number)
 *  NMLmsg *nml_msg - Address of the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured.
+*  -1 - An error occurred.
 * (Timeouts, and unread buffers  are considered errors.)
 * Check error_type for more info.
 ************************************************************/
