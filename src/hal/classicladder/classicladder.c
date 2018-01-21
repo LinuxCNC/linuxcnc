@@ -186,7 +186,7 @@ void process_options (int argc, char *argv[])
 //for EMC: do_exit
 static void do_exit(int unused) {
 		hal_exit(compId);
-		printf("ERROR CLASSICLADDER-   Error intializing classicladder user module.\n");
+		printf("ERROR CLASSICLADDER-   Error initializing classicladder user module.\n");
 		exit(0);
 }
 void DoPauseMilliSecs( int Time )
