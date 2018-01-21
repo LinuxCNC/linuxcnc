@@ -79,7 +79,7 @@ void VerifyDirectorySelected( char * NewDir )
 				}
 				else
 				{
-					printf("ERROR whith path directory given for project !!!\n");
+					printf("ERROR with path directory given for project !!!\n");
 					InfosGene->CurrentProjectFileName[ 0 ] = '\0';
 				}
 			}
