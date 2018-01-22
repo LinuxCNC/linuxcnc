@@ -1,0 +1,32 @@
+(From the original PR text by @MX-Master)
+
+I have some files for those people who wants to make a quick test of GPIO driver with Orange Pi One board. 
+
+I made two MicroSD images (8Gb, 16Gb) with a couple of HOWTO files. MicroSD image - it's Debian Jessie (built by Armbian) with real-time kernel (4.13, RT-PREEMPT), 
+with Machinekit and some tweaks installed:
+
+8GB image
+http://topcnc.ru/opi1_cnc/opi1_machinekit_8G.rar
+
+16GB image
+http://topcnc.ru/opi1_cnc/opi1_machinekit_16G.rar
+
+HOWTOs:
+
+Hardware.pdf
+http://topcnc.ru/opi1_cnc/1%20-%20Hardware.pdf
+
+Copy SD image to SD card.pdf
+http://topcnc.ru/opi1_cnc/2%20-%20copy%20SD%20image%20to%20SD%20card.pdf
+
+Control.pdf
+http://topcnc.ru/opi1_cnc/3%20-%20Control.pdf
+
+Remote Control.pdf
+http://topcnc.ru/opi1_cnc/4%20-%20Remote%20Control.pdf
+
+Machinekit, LinuxCNC and GPIO.pdf
+http://topcnc.ru/opi1_cnc/5%20-%20Machinekit,%20LinuxCNC%20and%20GPIO.pdf
+
+Wiring.pdf
+http://topcnc.ru/opi1_cnc/6%20-%20Wiring.pdf
