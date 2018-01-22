@@ -715,7 +715,7 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
     *pocket = -1;
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
         if(settings->tool_table[i].toolno == toolno)
-            *pocket = i;
+            *pocket = settings->tool_table[i].pocketno;
     }
 
     CHKS((*pocket == -1), (_("Requested tool %d not found in the tool table")), toolno);

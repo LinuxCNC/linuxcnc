@@ -50,6 +50,7 @@ static bool scan_old_style(
 	} else {
 	    /* lathe tool */
 	    toolTable[pocket].toolno = toolno;
+	    toolTable[pocket].pocketno = pocket;
 	    toolTable[pocket].offset.tran.z = zoffset;
 	    toolTable[pocket].offset.tran.x = xoffset;
 	    toolTable[pocket].diameter = diameter;
@@ -137,7 +138,7 @@ int loadToolTable(const char *filename,
     while (!feof(fp)) {
         const char *token;
         char *buff, *comment;
-        int toolno, orientation, valid = 1;
+        int toolno, pocket, orientation, valid = 1;
         EmcPose offset;  // tlo
         double diameter, frontangle, backangle;
 
@@ -249,6 +250,7 @@ int loadToolTable(const char *filename,
         }
         if (valid) {
             toolTable[pocket].toolno = toolno;
+            toolTable[pocket].pocketno = pocket;
             toolTable[pocket].offset = offset;
             toolTable[pocket].diameter = diameter;
             toolTable[pocket].frontangle = frontangle;
