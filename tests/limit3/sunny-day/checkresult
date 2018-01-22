@@ -50,8 +50,7 @@ for line in result_file.readlines():
     # 
 
     error = math.fabs(in_value - out_value)
-    threshold = math.fabs(0.001 * in_value) + 0.001
-    if error > threshold:
+    if error > 0.0:
         print "input=%.6f, output=%.6f, error=%.6f, threshold=%.6f, following failure on line %s" % (in_value, out_value, error, threshold, line)
         retval = 1
 

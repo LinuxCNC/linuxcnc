@@ -25,7 +25,7 @@
 .TH hy_vfd "1" "April 25, 2015" "Huanyang VFD" "LinuxCNC Documentation"
 
 .SH NAME
-\fBhy_vfd\fR - HAL userspace component for Huanyang VFDs
+\fBhy_vfd\fR \- HAL userspace component for Huanyang VFDs
 
 .SH SYNOPSIS
 .B hy_vfd
@@ -100,73 +100,73 @@ plate to program the VFDs registers, and alternative values for the
 above registers.
 .SH OPTIONS
 .B
-.IP -d,\ --device\ <path>
+.IP \-d,\ \-\-device\ <path>
 (default /dev/ttyS0) Set the name of the serial device node to use.
 .B
-.IP -g,\ --debug
+.IP \-g,\ \-\-debug
 Turn on debug messages. Note that if there are serial errors, this may
 become annoying.  Debug mode will cause all serial communication messages
 to be printed in hex on the terminal.
 .B
-.IP -n,\ --name\ <string>
+.IP \-n,\ \-\-name\ <string>
 (default hy_vfd) Set the name of the HAL module. The HAL comp name will be
 set to <string>, and all pin and parameter names will begin with <string>.
 .B
-.IP -b,\ --bits\ <n>
+.IP \-b,\ \-\-bits\ <n>
 (default 8) Set number of data bits to <n>, where n must be from 5
 to 8 inclusive.  This must match the setting in register PD165 of the
 Huanyang VFD.
 .B
-.IP -p,\ --parity\ [even,odd,none]
+.IP \-p,\ \-\-parity\ [even,odd,none]
 (default odd) Set serial parity to even, odd, or none.  This must match
 the setting in register PD165 of the Huanyang VFD.
 .B
-.IP -r,\ --rate\ <n>
+.IP \-r,\ \-\-rate\ <n>
 (default 38400) Set baud rate to <n>. It is an error if the rate is
 not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600, 19200,
 38400, 57600, 115200.  This must match the setting in register PD164 of
 the Huanyang VFD.
 .B
-.IP -s,\ --stopbits\ [1,2]
+.IP \-s,\ \-\-stopbits\ [1,2]
 (default 1) Set serial stop bits to 1 or 2.  This must match the setting
 in register PD165 of the HuanyangVFD.
 .B
-.IP -t,\ --target\ <n>
+.IP \-t,\ \-\-target\ <n>
 (default 1) Set HYCOMM target (slave) number. This must match the device
 number you set on the Hyanyang VFD in register PD163.
 .B
-.IP -F,\ --max-frequency\ <n>
+.IP \-F,\ \-\-max\-frequency\ <n>
 (default: read from VFD) If specified, program register PD005 of the VFD
 with the specified max frequency of <n> Hz (and use the same max frequency
 in the hy_vfd driver).  If not specified, read the max frequency to use
 from register PD005 of the VFD.
 .B
-.IP -f,\ --min-frequency\ <n>
+.IP \-f,\ \-\-min\-frequency\ <n>
 (default: read from VFD) If specified, program register PD011 of the
 VFD with the specified minimum frequency of <n> Hz (and use the same
 minimum frequency in the hy_vfd driver).  If not specified, read the
 minimum frequency to use from register PD011 of the VFD.
 .B
-.IP -V,\ --motor-voltage\ <n>
+.IP \-V,\ \-\-motor\-voltage\ <n>
 (default: read from VFD) If specified, program register PD141 of the VFD
 with the specified max motor voltage of <n> Volts.  If not specified,
 read the max motor voltage from register PD141 of the VFD.
 .B
-.IP -I,\ --motor-current\ <n>
+.IP \-I,\ \-\-motor\-current\ <n>
 (default: read from VFD) If specified, program register PD142 of the
 VFD with the specified max motor current of <n> Amps.  If not specified,
 read the max motor current from register PD142 of the VFD.
 .B
-.IP -S,\ --motor-speed\ <n>
+.IP \-S,\ \-\-motor\-speed\ <n>
 (default: compute from value read from VFD P144) This command-line
 argument is the motor's max speed.  If specified, compute the motor's
 speed at 50 Hz from this argument and from the motor's max frequency
-(from the --max-frequency argument or from P011 if --max-frequency is
+(from the \-\-max\-frequency argument or from P011 if \-\-max\-frequency is
 not specified) and program register PD144 of the VFD.  If not specified,
 read the motor's speed at 50 Hz from register P144 of the VFD, and use
 that and the max frequency to compute the motor's max speed.
 .B
-.IP -P,\ --motor-poles\ <n>
+.IP \-P,\ \-\-motor\-poles\ <n>
 (default: read value from VFD P143) This command-line argument is the
 number of poles in the motor.  If specified, this value is sent to the
 VFD's register PD143.  If not specified, the value is read from PD143
@@ -201,13 +201,13 @@ and reported on the corresponding HAL pin.
 .IP <name>.Tmp
 (float, out)
 .B
-.IP <name>.spindle-forward
+.IP <name>.spindle\-forward
 (bit, in)
 .B
-.IP <name>.spindle-reverse
+.IP <name>.spindle\-reverse
 (bin, in)
 .B
-.IP <name>.spindle-on
+.IP <name>.spindle\-on
 (bin, in)
 .B
 .IP <name>.CNTR
@@ -216,78 +216,78 @@ and reported on the corresponding HAL pin.
 .IP <name>.CNST
 (float, out)
 .B
-.IP <name>.CNST-run
+.IP <name>.CNST\-run
 (bit, out)
 .B
-.IP <name>.CNST-jog
+.IP <name>.CNST\-jog
 (bit, out)
 .B
-.IP <name>.CNST-command-rf
+.IP <name>.CNST\-command\-rf
 (bit, out)
 .B
-.IP <name>.CNST-running
+.IP <name>.CNST\-running
 (bit, out)
 .B
-.IP <name>.CNST-jogging
+.IP <name>.CNST\-jogging
 (bit, out)
 .B
-.IP <name>.CNST-running-rf
+.IP <name>.CNST\-running\-rf
 (bit, out)
 .B
-.IP <name>.CNST-bracking
+.IP <name>.CNST\-bracking
 (bit, out)
 .B
-.IP <name>.CNST-track-start
+.IP <name>.CNST\-track\-start
 (bit, out)
 .B
-.IP <name>.speed-command
+.IP <name>.speed\-command
 (float, in)
 .B
-.IP <name>.spindle-speed-fb
+.IP <name>.spindle\-speed\-fb
 (float, out) Current spindle speed as reported by Huanyang VFD.
 .B
-.IP <name>.spindle-at-speed-tolerance
+.IP <name>.spindle\-at\-speed\-tolerance
 (float, in) Spindle speed error tolerance.  If the actual spindle
-speed is within .spindle-at-speed-tolerance of the commanded speed,
-then the .spindle-at-speed pin will go True.  The
-default .spindle-at-speed-tolerance is 0.02, which means the actual
+speed is within .spindle\-at\-speed\-tolerance of the commanded speed,
+then the .spindle\-at\-speed pin will go True.  The
+default .spindle\-at\-speed\-tolerance is 0.02, which means the actual
 speed must be within 2% of the commanded spindle speed.
 .B
-.IP <name>.spindle-at-speed
+.IP <name>.spindle\-at\-speed
 (bit, out) True when the current spindle speed is
-within .spindle-at-speed-tolerance of the commanded speed.
+within .spindle\-at\-speed\-tolerance of the commanded speed.
 .B
-.IP <name>.frequency-command
+.IP <name>.frequency\-command
 (float, out)
 .B
-.IP <name>.max-freq
+.IP <name>.max\-freq
 (float, out)
 .B
-.IP <name>.base-freq
+.IP <name>.base\-freq
 (float, out)
 .B
-.IP <name>.freq-lower-limit
+.IP <name>.freq\-lower\-limit
 (float, out)
 .B
-.IP <name>.rated-motor-voltage
+.IP <name>.rated\-motor\-voltage
 (float, out)
 .B
-.IP <name>.rated-motor-current
+.IP <name>.rated\-motor\-current
 (float, out)
 .B
-.IP <name>.rated-motor-rev
+.IP <name>.rated\-motor\-rev
 (float, out)
 .B
 .B
-.IP <name>.motor-poles
+.IP <name>.motor\-poles
 (u32, out)
 .B
-.IP <name>.hycomm-ok
+.IP <name>.hycomm\-ok
 (bit, out)
 
 .SH PARAMETERS
 .B
-.IP <name>.error-count
+.IP <name>.error\-count
 (s32, RW)
 .B
 .IP <name>.retval

@@ -1,6 +1,5 @@
 [Desktop Entry]
-Encoding=UTF-8
-Version=
+Version=1.0
 Type=Application
 Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode.html
 Icon=linuxcncicon
@@ -10,3 +9,4 @@ Name=G-Code Quick Reference
 Comment=Quick reference for G, M, and O codes in LinuxCNC
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

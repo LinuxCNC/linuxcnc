@@ -1,29 +1,97 @@
-This package was debianized by Alex Joni on
-Sat, 01 Jan 2006,
-also debianized by Paul Corner on
-Thur, 14 Oct 2004
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: LinuxCNC
+Upstream-Contact: emc-developers@lists.sourceforge.net
+Source: https://github.com/linuxcnc/linuxcnc
+Comment: 
+ Much of LinuxCNC is derived from EMC1, a work of Fred Proctor, Tom Kramer,
+ Will Shackleford, and others.  That work was originally released into
+ the public domain.  It was used as the basis of LinuxCNC, but received
+ extensive modifications.  LinuxCNC is NOT public domain.  Anyone wishing
+ to use the public domain code in a way that is not compatible with the
+ (L)GPL must locate the original EMC1 code - they may NOT use LinuxCNC.
 
-Copyright:
+Files: *
+Copyright: the LinuxCNC developers
+License: GPL-2+
 
-LinuxCNC is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Files: src/hal/classicladder/*
+Copyright: the LinuxCNC developers
+License: LGPL-2.1+
 
-****************************************************************
+Files: src/libnml/*
+Copyright: the LinuxCNC developers
+License: LGPL-2
 
-Notice:  Most of LinuxCNC is covered by the GNU General Public
-License.  Some portions are covered by the GNU Lesser
-General Public License (mostly interface definitions).
-Both licenses are included in their entirety below.
+Files: src/libnml/inifile*
+Copyright: the LinuxCNC developers
+License: GPL-2
 
-Much of LinuxCNC is derived from EMC1, a work of Fred Proctor, Tom Kramer,
-Will Shackleford, and others.  That work was originally released into
-the public domain.  It was used as the basis of LinuxCNC, but received
-extensive modifications.  LinuxCNC is NOT public domain.  Anyone wishing
-to use the public domain code in a way that is not compatible with the
-(L)GPL must locate the original EMC1 code - they may NOT use LinuxCNC.
+Files: src/rtapi/*
+Copyright: the LinuxCNC developers
+License: LGPL-2.1+
 
-******************************************************************
+License: GPL-2
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; version 2 of the License.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
 
-The complete text of GPL version 2 can be found in the file
-/usr/share/common-licenses/GPL-2 on Debian systems.
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+License: LGPL-2
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; version 2.0 of the license.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public License along
+ with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU Lesser General Public
+ License version 2.1 can be found in ‘/usr/share/common-licenses/LGPL-2’.
+
+License: LGPL-2.1+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 2.1, or (at your option)
+ any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public License along
+ with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU Lesser General Public
+ License version 2.1 can be found in ‘/usr/share/common-licenses/LGPL-2.1’.

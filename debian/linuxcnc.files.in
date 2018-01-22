@@ -16,6 +16,7 @@ usr/share/axis/tcl/*
 usr/share/glade3
 usr/share/doc/linuxcnc/gcode.html
 usr/share/doc/linuxcnc/gcode_fr.html
+usr/share/doc/linuxcnc/gcode_vi.html
 usr/share/doc/linuxcnc/UPDATING
 usr/share/doc/linuxcnc/NEWS
 usr/share/doc/linuxcnc/AUTHORS

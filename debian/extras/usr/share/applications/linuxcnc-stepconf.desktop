@@ -1,6 +1,5 @@
 [Desktop Entry]
-Encoding=UTF-8
-Version=
+Version=1.0
 Type=Application
 Exec=/usr/bin/stepconf
 Icon=linuxcncicon
@@ -10,3 +9,4 @@ Name=Stepconf Wizard
 Comment=Stepper Configuration Wizard
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

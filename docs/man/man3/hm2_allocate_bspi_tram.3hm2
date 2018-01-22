@@ -22,7 +22,7 @@ It should be called only when all the frames have been defined by calls to
 hm2_tram_add_bspi_frame(). 
 
 .SH RETURN VALUE
-Returns 0 on success and -1 on failure.
+Returns 0 on success and \-1 on failure.
 
 .SH SEE ALSO
 man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame

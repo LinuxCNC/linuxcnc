@@ -91,7 +91,7 @@ of FIFO
 .I M
 of the output file).  The pin type depends on the config string.
 .TP
-\fBsampler.\fIN\fB.curr-depth\fR s32 output
+\fBsampler.\fIN\fB.curr\-depth\fR s32 output
 Current number of samples in the FIFO.  When this reaches
 .I depth
 new data will begin overwriting old data, and some samples
@@ -118,14 +118,14 @@ is true, and can be reset by the
 command.
 
 .TP
-\fBsampler.\fIN\fB.sample-num\fR s32 read/write
+\fBsampler.\fIN\fB.sample\-num\fR s32 read/write
 A number that identifies the sample.  It is automatically incremented for each
 sample, and can be reset using the
 .B setp
 command.  The sample number can optionally be printed in the first column of the output from
 .BR halsampler ,
 using the
-.I -t
+.I \-t
 option. (see
 .BR "man 1 halsampler" )
 
