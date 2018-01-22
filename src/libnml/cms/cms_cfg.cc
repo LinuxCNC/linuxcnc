@@ -840,7 +840,7 @@ int cms_create(CMS ** cms, const char *buffer_line, const char *proc_line,
 	    } else if ((*cms)->status < 0) {
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
-			("cms_config: Error  %d(%s) occured during TTYMEM create.\n",
+			("cms_config: Error  %d(%s) occurred during TTYMEM create.\n",
 			(*cms)->status,
 			(*cms)->status_string((*cms)->status));
 		}
@@ -865,7 +865,7 @@ int cms_create(CMS ** cms, const char *buffer_line, const char *proc_line,
 	    } else if ((*cms)->status < 0) {
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
-			("cms_config: Error  %d(%s) occured during STPCMEM create.\n",
+			("cms_config: Error  %d(%s) occurred during STPCMEM create.\n",
 			(*cms)->status,
 			(*cms)->status_string((*cms)->status));
 		}
@@ -885,7 +885,7 @@ int cms_create(CMS ** cms, const char *buffer_line, const char *proc_line,
 	    } else if ((*cms)->status < 0) {
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
-			("cms_config: Error  %d(%s) occured during TPCMEM create.\n",
+			("cms_config: Error  %d(%s) occurred during TPCMEM create.\n",
 			(*cms)->status,
 			(*cms)->status_string((*cms)->status));
 		}
@@ -915,7 +915,7 @@ int cms_create(CMS ** cms, const char *buffer_line, const char *proc_line,
 	    } else if ((*cms)->status < 0) {
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
-			("cms_config: %d(%s) Error occured during SHMEM create.\n",
+			("cms_config: %d(%s) Error occurred during SHMEM create.\n",
 			(*cms)->status,
 			(*cms)->status_string((*cms)->status));
 		}
@@ -947,7 +947,7 @@ int cms_create(CMS ** cms, const char *buffer_line, const char *proc_line,
 	    if ((*cms)->status < 0) {
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
-			("cms_config: %d(%s) Error occured during LOCMEM create.\n",
+			("cms_config: %d(%s) Error occurred during LOCMEM create.\n",
 			(*cms)->status,
 			(*cms)->status_string((*cms)->status));
 		}

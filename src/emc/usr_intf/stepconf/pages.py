@@ -142,7 +142,7 @@ class Pages:
 # All Page Methods
 #####################################################
 #***************
-# Intialize
+# Initialize
 #***************
     def initialize(self):
         # one time initialized data

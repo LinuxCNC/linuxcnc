@@ -174,7 +174,7 @@ CMS::CMS(long s)
 
     mode = CMS_NOT_A_MODE;	/* Force user to set the mode before using. */
 
-    open();			/* Allocate memory and intialize XDR streams */
+    open();			/* Allocate memory and initialize XDR streams */
 }
 
 /* Constructor used by cms_config. */
@@ -601,7 +601,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	enable_diagnostics = 0;
     }
 
-    open();			/* Allocate memory and intialize XDR streams */
+    open();			/* Allocate memory and initialize XDR streams */
     if (enable_diagnostics) {
 	setup_diag_proc_info();
     }
@@ -1509,18 +1509,18 @@ const char *CMS::status_string(int status_type)
     switch (status_type) {
 	/* ERROR conditions */
     case CMS_MISC_ERROR:
-	return ("CMS_MISC_ERROR:   A miscellaneous  error occured.");
+	return ("CMS_MISC_ERROR:   A miscellaneous  error occurred.");
 
     case CMS_UPDATE_ERROR:
-	return ("CMS_UPDATE_ERROR: An error occured during an update. ");
+	return ("CMS_UPDATE_ERROR: An error occurred during an update. ");
 
     case CMS_INTERNAL_ACCESS_ERROR:
 	return
-	    ("CMS_INTERNAL_ACCESS_ERROR: An error occured during an internal access function. ");
+	    ("CMS_INTERNAL_ACCESS_ERROR: An error occurred during an internal access function. ");
 
     case CMS_NO_MASTER_ERROR:
 	return
-	    ("CMS_NO_MASTER_ERROR: An error occured becouse the master was not started.");
+	    ("CMS_NO_MASTER_ERROR: An error occurred becouse the master was not started.");
 
     case CMS_CONFIG_ERROR:
 	return ("CMS_CONFIG_ERROR: There was an error in the configuration.");

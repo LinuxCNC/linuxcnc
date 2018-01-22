@@ -30,7 +30,7 @@
 
     myfile.glade is an XML file which specifies the layout of the VCP.
 
-    -g option allows setting of the inital position of the panel
+    -g option allows setting of the initial position of the panel
 """
 import sys, os, subprocess
 import traceback

@@ -377,8 +377,8 @@ int PythonPlugin::configure(const char *iniFilename,
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 
 	if (PyRun_SimpleString(pycmd)) {
-	    logPP(-1, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
-	    exception_msg = "exeception running:" + std::string((const char*)pycmd);
+	    logPP(-1, "%s:%d: exception running '%s'",iniFilename, lineno, pycmd);
+	    exception_msg = "exception running:" + std::string((const char*)pycmd);
 	    status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
 	    return status;
 	}
@@ -390,8 +390,8 @@ int PythonPlugin::configure(const char *iniFilename,
 	sprintf(pycmd, "import sys\nsys.path.append(\"%s\")", inistring);
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 	if (PyRun_SimpleString(pycmd)) {
-	    logPP(-1, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
-	    exception_msg = "exeception running " + std::string((const char*)pycmd);
+	    logPP(-1, "%s:%d: exception running '%s'",iniFilename, lineno, pycmd);
+	    exception_msg = "exception running " + std::string((const char*)pycmd);
 	    status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	    return status;
 	}

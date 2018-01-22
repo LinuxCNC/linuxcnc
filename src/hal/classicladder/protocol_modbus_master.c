@@ -506,7 +506,7 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		FindNextReqFromTable( );
 	if ( CurrentReq!=-1 )
 	{
-		// start of the usefull frame depend if serial or IP
+		// start of the useful frame depend if serial or IP
 		int OffsetHeader = LGT_MODBUS_IP_HEADER;
 		// Modbus/RTU on serial used ?
 		if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
@@ -583,7 +583,7 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 	if ( CurrentReq!=-1 )
 	{
 		char FrameOk = FALSE;
-		// start of the usefull frame depend if serial or IP
+		// start of the useful frame depend if serial or IP
 		int OffsetHeader = LGT_MODBUS_IP_HEADER;
 		if ( LgtResponse > 0 )
 		{

@@ -2775,7 +2775,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                     ptypetree = self.d._sserialliststore
                     signaltocheck = _PD.hal_sserial_names
-                # this suppresses errors because of unused and unintialized sserial instances
+                # this suppresses errors because of unused and uninitialized sserial instances
                 elif pintype == None and "sserial" in ptype: return
                 else :
                     print "**** ERROR mesa-data-transfer: error unknown pin type:",pintype,"of ",ptype
@@ -2912,7 +2912,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     # case of GPIO options selected on the basic page such as limit/homing types.
     # it will grey out I/O tabs according to the selected board type. 
     # it uses GTK signal blocking to block on_general_pin_change and on_mesa_pintype_changed methods.
-    # Since this method is for intialization, there is no need to check for changes and this speeds up
+    # Since this method is for initialization, there is no need to check for changes and this speeds up
     # the update.  
     # 'self._p.MESA_FIRMWAREDATA' holds all the firmware d.
     # 'self.d.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)

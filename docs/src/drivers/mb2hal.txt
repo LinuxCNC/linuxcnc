@@ -46,7 +46,7 @@ HAL_MODULE_NAME=mb2hal
 
 #OPTIONAL: Insert a delay of "FLOAT seconds" between transactions in order
 #to not to have a lot of logging and facilitate the debugging.
-#Usefull when using DEBUG=3 (NOT INIT_DEBUG=3)
+#Useful when using DEBUG=3 (NOT INIT_DEBUG=3)
 #It affects ALL transactions.
 #Use "0.0" for normal activity.
 

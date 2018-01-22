@@ -43,11 +43,11 @@ class LinkedList;
 
 enum CMS_STATUS {
 /* ERROR conditions */
-    CMS_MISC_ERROR = -1,	/* A miscellaneous error occured. */
-    CMS_UPDATE_ERROR = -2,	/* An error occured during an update. */
-    CMS_INTERNAL_ACCESS_ERROR = -3,	/* An error occured during an
+    CMS_MISC_ERROR = -1,	/* A miscellaneous error occurred. */
+    CMS_UPDATE_ERROR = -2,	/* An error occurred during an update. */
+    CMS_INTERNAL_ACCESS_ERROR = -3,	/* An error occurred during an
 					   internal access function. */
-    CMS_NO_MASTER_ERROR = -4,	/* An error occured becouse the master was
+    CMS_NO_MASTER_ERROR = -4,	/* An error occurred becouse the master was
 				   not started */
     CMS_CONFIG_ERROR = -5,	/* There was an error in the configuration */
     CMS_TIMED_OUT = -6,		/* operation timed out. */
@@ -435,7 +435,7 @@ class CMS {
   private:
     unsigned long encode_state;	/* Store position for save, restore. */
     unsigned long decode_state;	/* Store position for save, restore. */
-    void open(void);		/* Allocate memory and intialize XDR streams */
+    void open(void);		/* Allocate memory and initialize XDR streams */
     static int number_of_cms_objects;	/* Used to decide when to initialize
 					   and cleanup PC-NFS Toolkit DLLs */
 

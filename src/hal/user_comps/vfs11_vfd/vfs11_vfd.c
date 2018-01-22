@@ -68,13 +68,13 @@
  * VFS-11 parameters:
  *
  * There are dozens of parameters. Some can be stored permanently in EEPROM (setup parameters),
- * some in RAM (operating paramters), and some can be stored both in EEPROM and RAM. The manual
+ * some in RAM (operating parameters), and some can be stored both in EEPROM and RAM. The manual
  * is a bit unclear which parameters are RAM/EEPROM/both.
  *
  * There are two communication protocols to talk to the VF-S11, a proprietary but documented
  * "Toshiba Inverter Protocol" (TIP), and a simple Modbus subset. TIP can set EEPROM and RAM
  * parameters and hence can be used for initial inverter configuration. Modbus control can only
- * set operating paramters in RAM. So any setup parameters which you'd like to change (like,
+ * set operating parameters in RAM. So any setup parameters which you'd like to change (like,
  * e.g. maximum output frequency) need to be set up differently, either through the operating
  * panel, or through a Windows program supplied by Toshiba named PCS001Z.
  *
@@ -122,7 +122,7 @@
 
 // status registers
 // the _T suffixed denotes the same layout as the previous register
-// but has the status before a trip occured
+// but has the status before a trip occurred
 #define SR_OP_FREQUENCY		0xFD00		// 0.01Hz units
 #define SR_OP_FREQUENCY_T	0xFE00
 #define SR_INV_OPSTATUS		0xFD01		// main status register, bits in ST_* below

@@ -517,7 +517,7 @@ enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION, RET_
 
 typedef block *block_pointer;
 
-// parameters will go to a std::map<const char *,paramter_value_pointer>
+// parameters will go to a std::map<const char *,parameter_value_pointer>
 typedef struct parameter_value_struct {
     double value;
     unsigned attr;

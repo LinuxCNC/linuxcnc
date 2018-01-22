@@ -61,20 +61,20 @@ hal_export_funct(3hal)
 .SH Interpretation of license strings
 
 \fBMODULE_LICENSE\fR follows the kernel's definition of license strings.  Notably,
-"GPL" indicates "GNU Public License v2 \fIor later\fR".  (emphasis ours).
+"GPL" indicates "GNU General Public License v2 \fIor later\fR".  (emphasis ours).
 
 .IP \fB"GPL"\fR
-GNU Public License v2 or later
+GNU General Public License v2 or later
 .IP \fB"GPL\ v2"\fR
-GNU Public License v2
+GNU General Public License v2
 .IP \fB"GPL\ and\ additional\ rights"\fR
-GNU Public License v2 rights and more
+GNU General Public License v2 rights and more
 .IP \fB"Dual\ BSD/GPL"\fR
-GNU Public License v2 or BSD license choice
+GNU General Public License v2 or BSD license choice
 .IP \fB"Dual\ MIT/GPL"\fR
-GNU Public License v2 or MIT license choice
+GNU General Public License v2 or MIT license choice
 .IP \fB"Dual\ MPL/GPL"\fR
-GNU Public License v2 or Mozilla license choice
+GNU General Public License v2 or Mozilla license choice
 .IP \fB"Proprietary"\fR
 Non-free products
 .P

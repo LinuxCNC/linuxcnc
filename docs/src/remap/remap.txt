@@ -1601,7 +1601,7 @@ if `interpreter.throw_exceptions` is nonzero (default 1), and self.execute() ret
 `InterpreterException` is raised. InterpreterException has the
 following attributes:
 
-`line_number`:: where the error occured
+`line_number`:: where the error occurred
 `line_text`:: the NGC statement causing the error
 `error_message`:: the interpreter's error message
 
@@ -1811,7 +1811,7 @@ These wrap a NGC procedure so it can act as a cycle, meaning the
 motion code is retained after finishing execution. If the next line
 just contains parameter words (e.g. new X,Y values), the code is
 executed again with the new parameter words merged into the set of the
-paramters given in the first invocation.
+parameters given in the first invocation.
 
 These routines are designed to work in conjunction with an
 <<_the_argspec_parameter,`argspec=<words>` parameter>>. While this is
@@ -2406,7 +2406,7 @@ results.
 
 .Interpreter action on a Tx command
 
-All the interpreter does is evaluate the toolnumber paramter, looks up
+All the interpreter does is evaluate the toolnumber parameter, looks up
 its corresponding pocket, remembers it in the `selected_pocket`
 variable for later, and  queues a canon command
 (SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.

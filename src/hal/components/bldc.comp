@@ -686,7 +686,7 @@ FUNCTION(_) {
         case 0x03:
         case 0x0B:
             rtapi_print_msg(RTAPI_MSG_ERR, "Both Hall Sensors and Absolute "
-                            "encoder specfied on the same motor. Only the"
+                            "encoder specified on the same motor. Only the"
                             "Encoder will be used\n");
             in_type = 0x02;
             return;

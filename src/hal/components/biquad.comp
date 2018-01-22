@@ -45,7 +45,7 @@ is passed to the \\fBout\\fR pin without any filtering.  \
 A \\fBtransition from false to true\\fR causes filter \
 coefficients to be calculated according to the current \
 \\fBtype\\fR and the describing pin and parameter settings";
-pin out bit valid = 0 "When false, indicates an error occured when calculating \
+pin out bit valid = 0 "When false, indicates an error occurred when calculating \
 filter coefficients (require 2>\\fBQ\\fR>0.5 and \\fBf0\\fR>sampleRate/2)";
 
 pin   in u32 type_ = 0 "Filter type determines the type of filter \

@@ -348,7 +348,7 @@ example '##2'  means the value of the parameter whose index is the
    1: toolchanger faulted, 0: normal. Volatile.
 
 * '5601' - Toolchanger fault code. Used with the iocontrol-v2 component.
-   Reflects the value of the 'toolchanger-reason' HAL pin if a fault occured.
+   Reflects the value of the 'toolchanger-reason' HAL pin if a fault occurred.
    Volatile.
 
 .Numbered Parameters Persistence
@@ -443,7 +443,7 @@ for the first time. Local named parameters vanish when their scope is
 left: when a subroutine returns, all its local parameters are deleted
 and cannot be referred to anymore.
 
-It is an error to use a non-existent named paramater within an
+It is an error to use a non-existent named parameter within an
 expression, or at the right-hand side of an assignment. Printing the
 value of a non-existent named parameter with a DEBUG statement - like
 '(DEBUG, #<no_such_parameter>)' will display the string '######'.

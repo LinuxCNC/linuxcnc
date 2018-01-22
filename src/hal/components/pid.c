@@ -64,7 +64,7 @@
     All of the limits (max____) are implemented such that if the
     parameter value is zero, there is no limit.
 
-    A number of internal values which may be usefull for testing
+    A number of internal values which may be useful for testing
     and tuning are also available as parameters.  To avoid cluttering
     the parameter list, these are only exported if "debug=1" is
     specified on the insmod command line.
