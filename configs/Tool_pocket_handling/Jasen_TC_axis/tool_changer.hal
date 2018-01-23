@@ -1,0 +1,36 @@
+# connect iocontrol pins to digital hal pin, as if we use remap, 
+# the pocket number is not handled correct
+net io-tool-prepare     iocontrol.0.tool-prepare
+net io-tool-prepared    iocontrol.0.tool-prepared
+net io-tool-change      iocontrol.0.tool-change
+net io-tool-changed     iocontrol.0.tool-change
+
+############################## Tx pins ##############################
+net tool-prep-number-f  motion.analog-out-00
+net tool-prep-pocket-f  motion.analog-out-01
+net tool-prepare        motion.digital-out-00
+net tool-prepared       motion.digital-out-02
+
+############################## M6 pins ##############################
+net tool-number-f       motion.analog-out-02
+net tool-change         motion.digital-out-01
+net tool-changed        motion.digital-out-03
+
+############################## Spindle Pin ##############################
+#net spindle_has_stoped
+
+############################## Doors ##############################
+#net cover_closed    hm2_5i20.0.gpio.035.in
+#net cover_opened    hm2_5i20.0.gpio.036.in
+
+
+############################## Covers ##############################
+# Öffnet die linke Klappe Verknüpfung unter ToolChangeTest.hal
+net valvle_cover_left    hm2_5i20.0.gpio.05.out
+
+############################## Changing valve ##############################
+#net fix_tool           
+#net loose_tool             
+
+
+

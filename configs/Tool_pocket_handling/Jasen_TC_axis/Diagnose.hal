@@ -1,0 +1,68 @@
+# connect iocontrol pins to keep them happy
+# iocontrol.0 pin                motion pin
+# tool-prepare                   digital-out-00
+# tool-prepared                  digital-in-00
+# tool-change                    digital-out-01
+# tool-changed                   digital-in-01
+# tool-prep-number               analog-out-00
+# tool-prep-pocket               analog-out-01
+# tool-number                    analog-out-02
+
+
+loadrt conv_s32_float   names=prep-pocket-2float,prep-tool-2float,tool-no-2float
+addf   prep-pocket-2float   servo-thread
+addf   prep-tool-2float     servo-thread
+addf   tool-no-2float       servo-thread
+
+############################## Tx pins ##############################
+net tool-prepare        iocontrol.0.tool-prepare       =>  motion.digital-in-00
+net tool-prepare        gladevcp.led_tool_prepare
+
+net tool-prepared       iocontrol.0.tool-prepared      <=  motion.digital-out-00
+net tool-prepared       gladevcp.led_tool_prepared
+
+net tool-prep-pocket-i  iocontrol.0.tool-prep-pocket   =>  prep-pocket-2float.in
+net tool-prep-pocket-f  prep-pocket-2float.out         =>  motion.analog-in-01
+net tool-prep-pocket-f  gladevcp.txt_prepare_pocket
+
+net tool-prep-number-i  iocontrol.0.tool-prep-number   =>  prep-tool-2float.in
+net tool-prep-number-f  prep-tool-2float.out           =>  motion.analog-in-00
+net tool-prep-number-f  gladevcp.txt_tool_prepare_no
+
+
+
+############################## M6 pins ##############################
+net tool-change         iocontrol.0.tool-change        =>  motion.digital-in-01
+net tool-change         gladevcp.led_tool_change
+
+net tool-changed        iocontrol.0.tool-changed       <=  motion.digital-out-01
+net tool-changed        gladevcp.led_tool_changed
+
+net tool-number-i       iocontrol.0.tool-number        =>  tool-no-2float.in
+net tool-number-f       tool-no-2float.out             =>  motion.analog-in-02
+net tool-number-f       gladevcp.txt_tool_number
+
+
+############################## Spindle Pin ##############################
+net spindle_has_stoped => gladevcp.led_spindle_stoped
+
+
+############################## Cover ##############################
+# Öffnet die  Klappe Verknüpfung
+net valvle_cover        motion.digital-out-02     #=> hm2_......
+
+net cover_opened        motion.digital-in-02      #<= hm2_......
+net cover_opened        gladevcp.led_cover_opened
+
+net cover_closed        motion.digital-in-03      #<= hm2_......
+net cover_closed        gladevcp.led_cover_closed
+
+############################## Changing fork ##############################
+net fork_down           gladevcp.led_fork_down
+net fork_up             gladevcp.led_fork_up
+
+############################## Coolant ##############################
+net coolant-flood => gladevcp.led_coolant_on
+net coolant-off   => gladevcp.led_coolant_off
+
+

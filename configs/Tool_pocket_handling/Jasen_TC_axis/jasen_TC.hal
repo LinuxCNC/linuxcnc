@@ -1,0 +1,13 @@
+# Hal file to be able to simulate Jasens Tool Changer
+
+
+net opened      jasen_TC.cover-opened         =>   jasen_TC.led_opened
+net closed      jasen_TC.cover-closed         =>   jasen_TC.led_closed
+
+net open        jasen_TC.cover_open           =>   jasen_TC.open-cover
+net auto        jasen_TC.cover_auto           =>   jasen_TC.auto-cover
+net close       jasen_TC.cover_close          =>   jasen_TC.close-cover
+
+#net tool-prep   iocontrol.0.tool-prep-number  =>   jasen_TC.selected-tool
+
+

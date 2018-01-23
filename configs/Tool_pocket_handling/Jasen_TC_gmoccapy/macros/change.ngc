@@ -1,0 +1,82 @@
+; connect iocontrol pins to keep them happy
+; iocontrol.0 pin                motion pin
+; tool-prepare                   digital-out-00
+; tool-prepared                  digital-in-00
+; tool-change                    digital-out-01
+; tool-changed                   digital-in-01
+; tool-prep-number               analog-out-00
+; tool-prep-pocket               analog-out-01
+; tool-number                    analog-out-02
+
+o<change> sub
+(debug, tool = #<tool> ; pocket = #<pocket>)
+
+
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
+O100 if [#<_task> EQ 0]
+        (debug, Task ist Null)
+O100     return [999]
+O100 endif
+
+; =======================================================================================================
+
+; assert the equivalent of the iocontrol.0.tool-change pin
+; which is now motion.digital-out-01
+M64 P1
+
+; =======================================================================================================
+
+#<Akt_WZ_Nr> = #1
+(DEBUG, Aktuelles Werkzeug = #<Akt_WZ_Nr>)
+#<Neue_WZ_Nr> = #<tool>
+(DEBUG, Neues Werkzeug = #<Neue_WZ_Nr>)
+#<Neuer_Platz> = #<pocket>
+(DEBUG, Neuer Werkzeugplatz = #<Neuer_Platz>)
+
+; =======================================================================================================
+
+
+#<Y-Pos> = [#<_ini[TOOLCHANGER]FIRST_TOOL_Y>] 
+;#<Y-Pos> = [ [#<Y-Pos>] + [#<pocket>] * [#<_ini[TOOLCHANGER]DIFF_RACK>] ]
+
+; Move over the first tool
+G53 G0 Z[#<_ini[TOOLCHANGER]OVER_TOOL_Z>]
+G53 G0 X[#<_ini[TOOLCHANGER]FIRST_TOOL_X>] Y[#<Y-Pos>]
+G53 G0 Z[#<_ini[TOOLCHANGER]PICK_Z>]
+
+
+
+; =======================================================================================================
+
+; finish the tool change
+M68 E2 Q[#<Neue_WZ_Nr>]   ; motion.analog-out-02 sets the tool-number
+M68 E1 Q0                 ; motion.analog-out-01 reset the tool-prepare-pocket
+M68 E0 Q0                 ; motion.analog-out-00 reset the tool-prepare-number
+
+; =======================================================================================================
+
+; =======================================================================================================
+
+; Switch of tool change signal     motion.digital-out-01
+; Tool Change Signal abschalten    motion.digital-out-01
+; Turn on tool changed signal      motion.digital-out-03
+; Tool Chnaged signal einschalten  motion.digital-out-03
+M65 P1   ; tool change
+M64 P1   ; tool changed
+
+; =======================================================================================================
+
+; =======================================================================================================
+
+; Reset tool changed pin           motion.digital-out-03
+;G4 P1 ; DEBUG Verögerung
+;M65 P1
+
+; =======================================================================================================
+
+; signal success be returning a value > 0:
+o<change> endsub [1]
+
+M2

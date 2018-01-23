@@ -1,0 +1,33 @@
+; =======================================================================================================
+
+; T_CODE
+
+; This demonstrates doing an T remapped to a named oword sub
+; to activate, incantate as follows in the ini file:
+;
+; [RS274NGC]
+; # remap T command to a named oword subroutine.
+; T_COMMAND=o<t_code>call
+
+; parameter #1: the tool number requested in the last T (prepare) command
+;               Die Werkzeugnummer des einzuwechselnden Werkzeuges
+; parameter #2: pocket of new tool
+;               Die Werkzeugplatznummer des einzuwechselnden Werkzeuges
+;               Attention: the pocket number is not handled correctly by the normal remap!
+;               Achtung: Die Werkzeugplatznummer wird von normalen Remap nicht korrect zurück geliefert
+;
+; we do handle the pocket issue in cange prolog of stdglue.py
+;
+; This code have to return a positiv value, otherwise the interpreter will not do anything
+; Es muss ein positiver Wert zurück gegeben werden um Erfolg zu signalisieren
+
+; =======================================================================================================
+
+o<t_code> sub
+
+    (debug, selected_tool=#<tool> selected_pocket=#<pocket>)
+    M64 P0
+
+; returning a positive value to commit:
+o<t_code> endsub [1]
+m2
