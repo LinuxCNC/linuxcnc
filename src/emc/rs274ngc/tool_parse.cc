@@ -104,7 +104,6 @@ int loadToolTable(const char *filename,
     FILE *fp;
     char buffer[CANON_TOOL_ENTRY_LEN];
     char orig_line[CANON_TOOL_ENTRY_LEN];
-    int pocket = 0;
 
     if(!filename) return -1;
 
