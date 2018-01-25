@@ -21,7 +21,7 @@
 import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screenoptions import Lcnc_ScreenOptions
-from qtvcp.qt_glib import QComponent
+from qtvcp.core import QComponent
 from PyQt5.QtCore import QObject
 
 # Set up logging

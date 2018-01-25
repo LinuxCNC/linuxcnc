@@ -11,7 +11,7 @@ from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
 
-from qtvcp.qt_glib import Status, Action
+from qtvcp.core import Status, Action
 
 # Set up logging
 from qtvcp import logger
