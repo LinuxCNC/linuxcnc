@@ -22,19 +22,27 @@ from qtvcp import logger
 log = logger.getLogger(__name__)
 
 # try to add ability for audio feedback to user.
-LIB_GOOD = True
+PY_LIB_GOOD = GST_LIB_GOOD = True
 try:
     import pygst
     pygst.require("0.10")
     import gst
 except:
-    LIB_GOOD = False
-    log.error('no audio alerts available - Is python-gst0.10 installed?')
+    PY_LIB_GOOD = False
+    import subprocess
+    p = subprocess.Popen('gst-launch-1.0', shell=True,
+          stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, close_fds=True)
+    output, error = p.communicate()
+    if p.returncode > 1:
+        log.warning('audio alerts - Is python-gst0.10 installed?')
+        log.warning('no audio alerts available - Is gstreamer-1.0-tools installed?')
+        GST_LIB_GOOD = False
 
 import os
 from qtvcp.core import Status
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-# Instiniate the libraries with global reference
+# Instaniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
 
@@ -43,7 +51,7 @@ STATUS = Status()
 class Player:
     def __init__(self):
         self.set_sounds()
-        if LIB_GOOD:
+        if PY_LIB_GOOD:
             self.player = gst.element_factory_make("playbin", "player")
             self.player.set_property("uri", "file://" + self.error)
             #Enable message bus to check for errors in the pipeline
@@ -66,7 +74,7 @@ class Player:
                 log.error('Audio player - Mint sound File not found {}'.format(self.error))
             return
         self.error = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
-        self.ready = '/usr/share/sounds/LinuxMint/stereo/message.oga'
+        self.ready = '/usr/share/sounds/freedesktop/stereo/message.oga'
         self.done = '/usr/share/sounds/freedesktop/stereo/complete.oga'
         self.attention = '/usr/share/sounds/freedesktop/stereo/suspend-error.oga'
         self.ring = '/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga'
@@ -80,9 +88,43 @@ class Player:
     # play-alert uses internal builtins
     # use the function name les 'play_'
     def _register_messages(self):
-        if LIB_GOOD:
+        if PY_LIB_GOOD:
             STATUS.connect('play-sound', lambda w,f: self.run(f))
             STATUS.connect('play-alert', self.jump)
+        elif GST_LIB_GOOD:
+            STATUS.connect('play-sound', lambda w,f: self.os_run(f))
+            STATUS.connect('play-alert', self.os_jump)
+
+    # jump to a builtin alert sound
+    # This uses the system to play the sound because gst is not available
+    # this can still fail if gstreamer/tools are not available 
+    def os_jump(self,w,f):
+        if 'beep' in f.lower():
+            self.os_beep
+            return
+        elif 'speak' in f.lower():
+            self.os_speak(f)
+            return
+        cmd = 'gst-launch-1.0 playbin uri=file://%s '% self[f.lower()]
+        p = subprocess.Popen(cmd, shell=True,
+          stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, close_fds=True)
+
+    def os_run(self,f):
+        try:
+            cmd = 'gst-launch-1.0 playbin uri=file://%s '% f
+            p = subprocess.Popen(cmd, shell=True,
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, close_fds=True)
+        except:
+            log.error('Audio player using system - file not found {}'.format(f))
+
+    def os_beep(self):
+        os.system("beep -f 555 ")
+
+    def os_speak(self,f):
+        cmd = f.lower().lstrip('speak')
+        os.system('''espeak -s 160 -v m3 -p 1 '%s' '''% cmd)
 
     # jump to a builtin alert sound
     # we use this so we can trap errors easily
