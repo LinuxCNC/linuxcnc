@@ -7,16 +7,23 @@ import sys
 # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
     # callback work around:
     # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
+
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
+# If the library is missing don't crash the GUI
+# send an error and just make a blank widget.
+LIB_GOOD = True
 try:
     NOTIFY_AVAILABLE = False
     import pynotify
     if not pynotify.init("notify"):
-        print "**** Notify INFO: There was a problem initializing the pynotify module"
+        log.warning('There was a problem initializing the pynotify module')
     else:
         NOTIFY_AVAILABLE = True
 except:
-    print "**** Notify INFO: You don't seem to have pynotify installed"
-    sys.exit()
+    log.warning('''You don't seem to have pynotify installed''')
 
 class Notify:
     def __init__(self):
@@ -42,6 +49,7 @@ class Notify:
         except Exception as e: print(e)
 
     def show_notification(self, title, message, icon=None, timeout=4):
+	if not NOTIFY_AVAILABLE: return
         uri = ""
         try:
             if icon:
