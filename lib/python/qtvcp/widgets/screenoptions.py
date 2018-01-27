@@ -96,6 +96,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                     NOTE.notify('DISPLAY',text,None,4)
             if self.play_sounds and self.mchnMsg_sound_doPlay:
                 STATUS.emit('play-alert','ERROR')
+                STATUS.emit('play-alert','SPEAK %s '% text)
 
     def closeEvent(self, event):
         if self.close_event:
@@ -112,7 +113,11 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             if self.play_sounds and self.play_shutdown_sounds:
                 STATUS.emit('play-alert','LOGOUT')
                 import time
-                time.sleep(2) 
+                time.sleep(2)
+                try:
+                    self.QTVCP_INSTANCE_.handler_instance.closing_cleanup__()
+                except:
+                    pass
             event.accept()
 
     ########################################################################

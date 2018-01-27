@@ -179,6 +179,10 @@ class HandlerClass:
     ###########################
     # **** closing event **** #
     ###########################
+    def closing_cleanup__(self):
+        print'CLOSING'
+        STATUS.emit('play-alert','SPEAK Goodbye')
+        #os.system("espeak -s 160 -v mb-us3 -p 1 'Goodbye'")
 
     ##############################
     # required class boiler code #
