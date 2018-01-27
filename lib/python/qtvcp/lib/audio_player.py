@@ -129,6 +129,12 @@ class Player:
     # jump to a builtin alert sound
     # we use this so we can trap errors easily
     def jump(self,w,f):
+        if 'beep' in f.lower():
+            self.os_beep
+            return
+        elif 'speak' in f.lower():
+            self.os_speak(f)
+            return
         if self.player.get_state()[1] == gst.STATE_PLAYING:
             self.player.set_state(gst.STATE_NULL)
         try:
