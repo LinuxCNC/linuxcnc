@@ -5,7 +5,7 @@ log = logger.getLogger(__name__)
 try:
     from PyQt5 import QtSvg
 except:
-    log.critical("Can't import QsciScintilla - is package python-pyqt.qt5svg installed?", exc_info=e)
+    log.critical("Qtvcp error with macro_widget - is package python-pyqt.qt5svg installed?")
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
