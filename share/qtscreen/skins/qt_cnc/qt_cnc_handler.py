@@ -63,7 +63,7 @@ class HandlerClass:
         # Give notify library a reference to the statusbar
         NOTE.statusbar = self.w.statusBar
         NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
-        STATUS.emit('play-alert','READY')
+        STATUS.emit('play-alert','SPEAK This is a test screen for Qtscreen')
         # set custom theme
         self.STYLE.dark_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
