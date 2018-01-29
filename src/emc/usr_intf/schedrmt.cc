@@ -71,7 +71,7 @@
   
   ==> HELLO <==
   
-  Hello <password> <cleint> <version>
+  Hello <password> <client> <version>
   If a valid password was entered the server will respond with
   
   HELLO ACK <Server Name> <Server Version>
@@ -970,7 +970,7 @@ static int helpHello(connectionRecType *context)
   strcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
   strcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
   strcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the cleint requested version or latest version support by server if");
+  strcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
   strcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
   strcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
   strcat(context->outBuf, "  Hello Nak\n\r");

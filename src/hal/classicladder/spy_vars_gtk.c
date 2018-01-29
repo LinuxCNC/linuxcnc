@@ -477,13 +477,13 @@ void OpenSpyVarsWindow( )
 	switch (toggle)
 	{
 	case 0 :	gtk_widget_show( SpyBoolVarsWindow ); gtk_widget_hide( SpyFreeVarsWindow );
-			MessageInStatusBar("openned BOOL (bit) variable window. press again for WORD window");	
+			MessageInStatusBar("opened BOOL (bit) variable window. press again for WORD window");
 		break;
 	case 1 :        gtk_widget_hide( SpyBoolVarsWindow ); gtk_widget_show( SpyFreeVarsWindow );
-			MessageInStatusBar("openned WORD (s32) variable window. press again for both windows");
+			MessageInStatusBar("opened WORD (s32) variable window. press again for both windows");
 		break;
 	case 2 :	gtk_widget_show( SpyBoolVarsWindow ); gtk_widget_show( SpyFreeVarsWindow );
-			MessageInStatusBar("openned BOTH variable windows. press again to close them.");
+			MessageInStatusBar("opened BOTH variable windows. press again to close them.");
 		break;
 	case 3 :	gtk_widget_hide( SpyBoolVarsWindow ); gtk_widget_hide( SpyFreeVarsWindow );
 			MessageInStatusBar("");

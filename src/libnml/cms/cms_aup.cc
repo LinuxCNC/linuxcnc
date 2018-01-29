@@ -341,7 +341,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(short int &x)
 	long number = strtol(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d: %s occured during strtol of(%s).\n",
+		("CMS_ASCII_UPDATER: Error %d: %s occurred during strtol of(%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -402,7 +402,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short int &x)
 	    number = strtoul(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d: %s occured during strtoul of (%s).\n",
+		("CMS_ASCII_UPDATER: Error %d: %s occurred during strtoul of (%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -469,7 +469,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int &x)
 	long number = strtol(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d: %s occured during strtol of (%s).\n",
+		("CMS_ASCII_UPDATER: Error %d: %s occurred during strtol of (%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -535,7 +535,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int &x)
 	    number = strtoul(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d:%s occured during strtoul of (%s).\n",
+		("CMS_ASCII_UPDATER: Error %d:%s occurred during strtoul of (%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -595,7 +595,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long int &x)
 	long number = strtol(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d occured during strtol.\n",
+		("CMS_ASCII_UPDATER: Error %d occurred during strtol.\n",
 		errno);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -649,7 +649,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned long int &x)
 	    number = strtoul(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d:%s occured during strtoul of(%s).\n",
+		("CMS_ASCII_UPDATER: Error %d:%s occurred during strtoul of(%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -704,7 +704,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(float &x)
 	double number = strtod(end_current_string, (char **) NULL);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d occured during strtol.\n",
+		("CMS_ASCII_UPDATER: Error %d occurred during strtol.\n",
 		errno);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -766,7 +766,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(double &x)
 	double number = strtod(end_current_string, (char **) NULL);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d occured during strtol.\n",
+		("CMS_ASCII_UPDATER: Error %d occurred during strtol.\n",
 		errno);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -821,7 +821,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long double &x)
 	double number = strtod(end_current_string, (char **) NULL);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d occured during strtol.\n",
+		("CMS_ASCII_UPDATER: Error %d occurred during strtol.\n",
 		errno);
 	    return (status = CMS_UPDATE_ERROR);
 	}

@@ -293,8 +293,8 @@ int ModbusinoSlave::loop(uint16_t* tab_reg, uint16_t nb_reg)
     }
 
     /* Returns a positive value if successful,
-       0 if a slave filtering has occured,
-       -1 if an undefined error has occured,
+       0 if a slave filtering has occurred,
+       -1 if an undefined error has occurred,
        -2 for MODBUS_EXCEPTION_ILLEGAL_FUNCTION
        etc */
     return rc;

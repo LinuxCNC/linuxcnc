@@ -220,26 +220,26 @@ int SerialReceive( char * Buff, int MaxBuffLength, int TimeOutResp )
 	if ( PortIsOpened )
 	{
 
-// the select is used it no char at all is received (else read() block...)
-int recep_descrip;
-fd_set myset;
-struct timeval tv;
-FD_ZERO( &myset);
-// add descrip to survey and set time-out wanted !
-FD_SET( fd, &myset );
-tv.tv_sec = TimeOutResp / 1000; //seconds
-tv.tv_usec = (TimeOutResp % 1000) * 1000; //micro-seconds
-if ( ModbusDebugLevel>=3 )
-	printf("select() for serial reading...\n");
-recep_descrip = select( 16, &myset, NULL, NULL, &tv );
-if ( recep_descrip>0 )
-{
-		if ( ModbusDebugLevel>=2 )
-			printf("Serial reading...\n");
-		NbrCarsReceived = read(fd,Buff,MaxBuffLength);
-		if ( ModbusDebugLevel>=2 )
-			printf("%d chars found\n", NbrCarsReceived);
-}
+                // the select is used it no char at all is received (else read() block...)
+                int recep_descrip;
+                fd_set myset;
+                struct timeval tv;
+                FD_ZERO( &myset);
+                // add descrip to survey and set time-out wanted !
+                FD_SET( fd, &myset );
+                tv.tv_sec = TimeOutResp / 1000; //seconds
+                tv.tv_usec = (TimeOutResp % 1000) * 1000; //micro-seconds
+                if ( ModbusDebugLevel>=3 )
+                        printf("select() for serial reading...\n");
+                recep_descrip = select( 16, &myset, NULL, NULL, &tv );
+                if ( recep_descrip>0 )
+                {
+                        if ( ModbusDebugLevel>=2 )
+                                printf("Serial reading...\n");
+                        NbrCarsReceived = read(fd,Buff,MaxBuffLength);
+                        if ( ModbusDebugLevel>=2 )
+                                printf("%d chars found\n", NbrCarsReceived);
+                }
 	}
 	return NbrCarsReceived;
 }

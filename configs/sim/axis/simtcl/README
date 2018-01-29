@@ -3,7 +3,7 @@ The simtcl configuration files make use of the tcl language for configuration in
 Configurations in this directory also demonstrate the use of a twopass method of processing ".hal" and ".tcl" files.  This method is enabled by the ini file setting of [HAL]TWOPASS=anything.  With twopass processing, the loadrt specifiers for a module can be specified in multiple places.
 
 o twopass_compat
-  verify compatibilty with .hal halfiles
+  verify compatibility with .hal halfiles
 
 o twopass_basic
   use LIB example basic_sim

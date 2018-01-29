@@ -186,7 +186,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 		}
 		nrecv = 0;
 	    } else if (nrecv == 0) {
-		rcs_print_error("recvn: Premature EOF recieved.\n");
+		rcs_print_error("recvn: Premature EOF received.\n");
 		return (-2);
 	    }
 	}

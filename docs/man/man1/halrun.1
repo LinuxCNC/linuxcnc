@@ -51,13 +51,13 @@ Abstraction Layer) from the command line.  When invoked, \fBhalrun\fR:
     The session will use \fBhalcmd\fR(1) unless \-T is specified in
     which case \fBhaltcl\fR(1) will be used.
 
-    If a filename is specifed and neither the \-I nor the \-T option
+    If a filename is specified and neither the \-I nor the \-T option
     is included, the filename will be processed by the command
     interpreter corresponding to the filename extension (\fBhalcmd\fR
     or \fBhaltcl\fR).  After processing, the realtime environment
     will be torn down.
 
-    If a filename is specifed and the \-I or \-T option is included,
+    If a filename is specified and the \-I or \-T option is included,
     the file is processed by the appropriate command interpreter and
     then an interactive session is started for \fBhalcmd\fR or
     \fBhaltcl\fR according to the \-I or \-T option.
@@ -65,7 +65,7 @@ Abstraction Layer) from the command line.  When invoked, \fBhalrun\fR:
 .SH OPTIONS
 .TP
 \fBhalcmd_opts\fR
-When a .hal file is specifed, the \fBhalcmd_opts\fR are
+When a .hal file is specified, the \fBhalcmd_opts\fR are
 passed to \fBhalcmd\fR.  See the man page for \fBhalcmd\fR(1).
 When a .tcl file is specified, the only valid options are:
     \-i inifile

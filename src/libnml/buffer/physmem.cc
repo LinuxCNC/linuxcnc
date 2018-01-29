@@ -118,7 +118,7 @@ int PHYSMEM_HANDLE::read(void *_to, long _read_size)
     if (!(physmem_read_local_address_is_null_error_print_count % 100000)) {
 	rcs_print_error
 	    ("PHYSMEM_HANDLE: Cannot read from physical memory when local address is NULL.\n");
-	rcs_print_error("(This error has occured %d times.)\n",
+	rcs_print_error("(This error has occurred %d times.)\n",
 	    physmem_read_local_address_is_null_error_print_count + 1);
     }
     physmem_read_local_address_is_null_error_print_count++;
@@ -166,7 +166,7 @@ int PHYSMEM_HANDLE::write(void *_from, long _write_size)
     if (!(physmem_write_local_address_is_null_error_print_count % 100000)) {
 	rcs_print_error
 	    ("PHYSMEM_HANDLE: Cannot write to physical memory when local address is NULL.\n");
-	rcs_print_error("(This error has occured %d times.)\n",
+	rcs_print_error("(This error has occurred %d times.)\n",
 	    physmem_write_local_address_is_null_error_print_count + 1);
     }
     physmem_write_local_address_is_null_error_print_count++;

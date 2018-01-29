@@ -483,7 +483,7 @@ Note that in particular, the motion mode (G1 etc) is NOT restored.
  * executing within a G-code subroutine. The state saved with 'M70'
  within a subroutine behaves exactly like a local named parameter - it
  can be referred to only within this subroutine invocation with an
- 'M72' and when the subroutine exits, the paramter goes away.
+ 'M72' and when the subroutine exits, the parameter goes away.
 
 A recursive invocation of a subroutine introduces a new call level.
 

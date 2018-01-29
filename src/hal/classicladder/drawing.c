@@ -908,7 +908,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 	}
 	else
 	{
-		// only usefull to see abnormal elements in a rung (eraser bug in versions < 0.7.124)
+		// only useful to see abnormal elements in a rung (eraser bug in versions < 0.7.124)
 		if ( Element.Type>=EDIT_CNX_WITH_TOP )
 		{
 			sprintf( BufTxt, "(%d)", Element.Type );

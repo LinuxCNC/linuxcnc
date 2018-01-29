@@ -632,7 +632,7 @@ Section.
     HALFILES are found using a search.  If the named file is found in the directory
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
-    A HALFILE may also be specifed as an absolute path (when the name starts with
+    A HALFILE may also be specified as an absolute path (when the name starts with
     a '/' character).  Absolute paths are not recommended as their use may limit
     relocation of configurations.
 

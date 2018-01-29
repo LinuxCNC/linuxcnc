@@ -138,7 +138,7 @@ struct bitfile_chunk *bitfile_find_chunk(struct bitfile *bf, char tag, int n);
 
 /* 'bitfile_print_chunk' searches a caller supplied struct bitfile for a
    chunk whose tag matches 'tag', and prints the body of that chunk as a
-   string, preceeded by a caller supplied title.  If no match is found
+   string, preceded by a caller supplied title.  If no match is found
    it prints nothing.  This is handy for printing out the contents of
    the standard Xilinx 'a' through 'd' fields, but will print binary
    junk if invoked on the 'e' chunk (the actual bitstream), or any chunk

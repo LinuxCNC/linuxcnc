@@ -255,10 +255,10 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     # we are not sync, so 
     def _on_value_changed(self, widget):
         value = widget.get_value()
-        self.emit("value_changed", value)
         if value != self._value:
             self._value = value
             self.set_value(self._value)
+        self.emit("value_changed", value)
 
     # if the value does change from hal side, we have to update the scaled value 
     def _on_scale_changed(self, pin):

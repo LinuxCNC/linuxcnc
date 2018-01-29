@@ -623,7 +623,7 @@ def clicked(self, axis_number, order):
     axis_number = the joint number of the widget
     order = the actual order of the DRO in the widget
     '''
-    print("Klick recieved from ", axis_number)
+    print("Click received from ", axis_number)
     print("Order = ", order)
     print(self.get_position())
 #    self.set_property("joint_number", 0)

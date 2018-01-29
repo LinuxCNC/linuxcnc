@@ -230,7 +230,7 @@ class Widgets:
         return r
 
 # a class for holding data
-# here we intialize the data
+# here we initialize the data
 class Data:
     def __init__(self):
         # constants for mode idenity
@@ -602,7 +602,7 @@ class Gscreen:
         dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
         self.prefs = preferences.preferences(temp)
 
-        # Intialize prefereces either from the handler file or from Gscreen
+        # Initialize prefereces either from the handler file or from Gscreen
         if "initialize_preferences" in dir(self.handler_instance):
             self.handler_instance.initialize_preferences()
         else:
@@ -1415,7 +1415,7 @@ class Gscreen:
         for axis in self.data.axis_list:
             self.data.sensitive_on_off.append("axis_%s"% axis)
 
-    # buttons that need to be sensitive based on the interpeter runing or being idle
+    # buttons that need to be sensitive based on the interpreter running or being idle
     def init_sensitive_run_idle(self):
         """creates a list of widgets that need to be sensitive to interpeter run/idle
            list is held in data.sensitive_run/idle

@@ -482,7 +482,7 @@ int rtapi_app_main(void)
     }
     else {
         rtapi_print_msg(RTAPI_MSG_ERR, 
-                        "Unknown commmand or wrong number of parameters to " 
+                        "Unknown command or wrong number of parameters to "
                         "setsserial command");
         return -1;
     }
