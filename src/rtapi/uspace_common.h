@@ -357,9 +357,10 @@ static int detect_rtai() {
 #endif
 #ifdef USPACE_XENOMAI
 static int detect_xenomai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-xenomai") != 0;
+//struct utsname u;
+//    uname(&u);
+//    return strcasestr (u.release, "-xenomai") != 0;
+     return 1;
 }
 #else
 static int detect_xenomai() {

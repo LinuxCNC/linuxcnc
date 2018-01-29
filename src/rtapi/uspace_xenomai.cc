@@ -1,12 +1,14 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_uspace.hh"
-#include <posix/pthread.h>
+#include <pthread.h>
 #include <atomic>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
-
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
 namespace
 {
 struct RtaiTask : rtapi_task {
@@ -56,6 +58,7 @@ struct XenomaiApp : RtapiApp {
             return -errno;
         if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
             return -errno;
+	rtapi_print("policy = %d SCHED_FIFO = %d\n",policy, SCHED_FIFO);
         if(pthread_attr_setschedpolicy(&attr, policy) < 0)
             return -errno;
         if(pthread_attr_setschedparam(&attr, &param) < 0)
