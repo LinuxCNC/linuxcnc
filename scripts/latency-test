@@ -75,33 +75,13 @@ loadrt threads name1=slow period1=$SERVO
 loadrt timedelta count=1
 addf timedelta.0 slow
 start
-loadusr -Wn lat pyvcp lat.xml
 net sl timedelta.0.max => lat.sl
 net sj timedelta.0.jitter => lat.sj
 net st timedelta.0.out => lat.st
 net reset lat.reset => timedelta.0.reset
-waitusr lat
 loadusr -w bash latexit.sh
 EOF
 
-cat > lat.xml <<EOF
-<pyvcp>
-<title title="LinuxCNC / HAL Latency Test"/>
-<axisoptions/>
-<table>
-<tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
-<text>
-"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
-
-While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
-</text>
-</label>
-<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12"/><label text="Max Jitter (ns)" font="Helvetica 12 bold"/><label text="Last interval (ns)" font="Helvetica 12"/>
-<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
-<tablerow/><button text="Reset Statistics" halpin="reset"/>
-</table>
-</pyvcp>
-EOF
 
 cat > latexit.sh <<EOF
 L=\$((halcmd gets sj
@@ -117,43 +97,21 @@ loadrt timedelta count=2
 addf timedelta.0 fast
 addf timedelta.1 slow
 start
-loadusr -Wn lat pyvcp lat.xml
-net sl timedelta.1.max => lat.sl
-net sj timedelta.1.jitter => lat.sj
-net st timedelta.1.out => lat.st
-net bl timedelta.0.max => lat.bl
-net bj timedelta.0.jitter => lat.bj
-net bt timedelta.0.out => lat.bt
-net reset lat.reset => timedelta.0.reset timedelta.1.reset
-waitusr lat
-loadusr -w bash latexit.sh
+loadusr -w bash latstart.sh
 EOF
 
-cat > lat.xml <<EOF
-<pyvcp>
-<title title="LinuxCNC / HAL Latency Test"/>
-<axisoptions/>
-<table>
-<tablerow/><tablespan columns="5"/><label wraplength="5i" justify="left">
-<text>
-"""Let this test run for a few minutes, then note the maximum Jitter. You will use it while configuring LinuxCNC.
-
-While the test is running, you should "abuse" the computer. Move windows around on the screen. Surf the web. Copy some large files around on the disk. Play some music. Run an OpenGL program such as glxgears. The idea is to put the PC through its paces while the latency test checks to see what the worst case numbers are."""
-</text>
-</label>
-<tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12"/><label text="Max Jitter (ns)" font="Helvetica 12 bold"/><label text="Last interval (ns)" font="Helvetica 12"/>
-<tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
-<tablerow/><label text="Base thread ($BASE_HUMAN):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica 12 bold"/><s32 halpin="bt"/>
-<tablerow/><button text="Reset Statistics" halpin="reset"/>
-</table>
-</pyvcp>
-EOF
-
-cat > latexit.sh <<EOF
-L=\$((halcmd gets sj; halcmd gets bj;
-    if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
-    ) | sort -n | tail -1)
-echo \$L > $HOME/.latency
+cat > latstart.sh <<EOF
+while true
+do
+  sl=\$(halcmd getp timedelta.1.max)
+  sj=\$(halcmd getp timedelta.1.jitter)
+  st=\$(halcmd getp timedelta.1.out)
+  bl=\$(halcmd getp timedelta.0.max)
+  bj=\$(halcmd getp timedelta.0.jitter)
+  bt=\$(halcmd getp timedelta.0.out)
+  echo "servo: Max = \$sl jitter = \$sj out = \$st base: Max = \$bl jitter = \$bj out = \$bt "
+  sleep 1
+done
 EOF
 fi
 
