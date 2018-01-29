@@ -491,7 +491,7 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
         self.set_sensitive(self.machine_on())
         return False
 
-class EMC_Action_Home(_EMC_Action):
+class EMC_Action_UnHome(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
     axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to unhome. -1 to unhome all')
