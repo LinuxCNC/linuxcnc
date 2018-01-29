@@ -17,3 +17,5 @@
 /configure
 /.html-images-stamp
 /.htmldoc-stamp
+*.h.in~
+*.gitignore
