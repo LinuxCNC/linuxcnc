@@ -4,6 +4,80 @@ linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
+linuxcnc (1:2.7.12) unstable; urgency=medium
+
+  * docs: clean up net commands in orient docs
+  * docs: fix hyphen/minus confusion in manpages
+  * docs: fix axis name error in gmoccapy "Probe Information"
+  * docs: add G20/G21 unit info to G-code Quick Ref
+  * docs: make G96/G97 comments consistent
+  * docs: [TRAJ]HOME is ignored on trivial kinematics machines
+  * docs: fix a typo in mux_generic manpage
+  * docs: improve docstring for `linuxcnc.wait_complete()`
+  * docs: improve .motion-type pin info in motion manpage
+  * docs: add G99 to G-code Quick Ref
+  * docs: new Chinese translations
+  * docs: fixup capitalization of variables in Homing docs
+  * docs: clarify valid values of HOME_OFFSET
+  * docs: add Chinese translation
+  * docs: improve milltask manpage
+  * docs: remove mention of ancient "bfloat" program from hm2_7i43 manpage
+  * docs: fix typos here and there
+
+  * axis gui: remove a startup-time debug message
+  * axis gui: fix cursor keys in MDI window
+  * axis gui: add 'Select Max velocity' key bindings in quick ref
+  * axis gui: fix jog speed key bindings (#268)
+  * axis gui: don't try to convert unicode to unicode
+  * gmoccapy gui: fix bug with lathe DRO size and missing gst
+  * gscreen gui: fix DRO display with VCP in 'industrial' config
+
+  * limit3: complete rewrite, much better behavior
+
+  * stepconf: restore translation
+
+  * pncconf: fix stepgen MAXVEL and MAXACCEL setting with backlash
+  * pncconf: add internal firmware for g540x2
+  * pncconf: add internal data for 7i92 and 7i80HD cards
+  * pncconf: restore translation
+
+  * hm2: stop a spurious "IOPort ignored" warning
+  * hm2: fix a copy/paste bug in an error message
+  * hm2 sserial: quiet excessive warning messages
+  * hm2 sserial: fix bug with spurious port shutdown
+  * hm2 dpll: fix even-numbered timers (#211)
+  * hm2 7i34, 7i90: don't silently fail with blank config strings
+
+  * puma: update puma kins, vismach model, and configs for D6 joint
+
+  * glcanon: fix a "DRO disappears" bug with wrapped rotaries
+
+  * linuxcnctop: decrease CPU usage and memory leakiness
+  * linuxcnctop: split long lines at whitespace
+  * linuxcnctop: fix display of some sequence-type data
+
+  * sim_pin: improve help for signals with no writers
+
+  * motion: cancel unlock requests when motion disabled
+
+  * rtapi: fix a sched_setaffinity error on uspace with old glibc
+
+  * tests: protect sim.var file, dpkg removes *.orig
+  * tests: increased coverage of limit3 tests
+
+  * src/configure: verify python's pango & cairo modules are installed
+
+  * build: rebuild gmoccapy.pot
+  * fix a typo in maintainer docs
+
+  * packaging: add Keywords to all .desktop files
+  * packaging: validate desktop files
+  * packaging: update debian/copyright to conform to DEP-5
+  * packaging: improve short descriptions
+  * packaging: build-depend on intltool (for buiding gmoccapy.pot)
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 24 Jan 2018 21:59:53 -0700
+
 linuxcnc (1:2.7.11) unstable; urgency=medium
 
   * doc changes for the transition to github

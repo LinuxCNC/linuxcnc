@@ -229,6 +229,8 @@ sudo apt-get dist-upgrade
 . Install the Preempt-RT kernel and modules
 +
 ----
+sudo apt-get install linux-image-rt-amd64
+or
 sudo apt-get install linux-image-rt-686-pae
 ----
 
