@@ -505,6 +505,7 @@ class EMC_Action_Home(_EMC_Action):
 
     def on_activate(self, w):
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
+        self.linuxcnc.teleop_enable(False)
         self.linuxcnc.unhome(self.axis)
 
 def prompt_areyousure(type, message, secondary=None):
@@ -543,6 +544,7 @@ class EMC_Action_Home(_EMC_Action):
             if not prompt_areyousure(gtk.MESSAGE_WARNING,
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
+        self.linuxcnc.teleop_enable(False)
         self.linuxcnc.home(self.axis)
 
 
