@@ -131,7 +131,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 self.show()
                 self.update()
                 log.debug('Overlay - Show')
-                os.system("beep -f 555 ")
+                STATUS.emit('play-alert','BEEP')
+                #os.system("beep -f 555 ")
             else:
                 self.hide()
                 log.debug('Overlay - Hide')
