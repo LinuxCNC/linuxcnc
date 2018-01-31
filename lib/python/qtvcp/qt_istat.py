@@ -103,6 +103,8 @@ class _IStat(object):
                 self.ANGULAR_INCREMENTS.insert(0, "Continuous")
         else:
             self.ANGULAR_INCREMENTS = ["Continuous","1","45","180","360"]
+        self.TRAJ_COORDINATES = self.inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+        self.JOINT_COUNT = int(self.inifile.find("KINS","JOINTS"))
         self.DEFAULT_LINEAR_JOG_VEL = float(self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY") or 1) * 60
         self.MAX_LINEAR_JOG_VEL = float(self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY") or 5) * 60
         self.DEFAULT_SPINDLE_SPEED = int(self.inifile.find("DISPLAY","MAX_SPINDLE_SPEED") or 200)
