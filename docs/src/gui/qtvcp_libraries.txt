@@ -7,7 +7,7 @@ In this way you can select what features you want - yet don't have to build comm
 
 STATUS is a library that sends GObject messages based on linuxcnc's current state. +
 It is an extension of gladevcp's GStat object. +
-It also has some functions to do things such as jogging. +
+It also has some functions to give status on such things as internal jog rate. +
 You connect a function call to the STATUS message you are interested in. +
 QTvcp will call this function when the message is sent from STATUS. +
 
@@ -31,9 +31,9 @@ place these commands into the INITIALIZE section: +
 In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
 When linuxcnc is in machine off state the function self.on_state_off will be called. +
 
-=== IStat
+=== INFO
 
-IStat is a library to collect and filters data from the INI file. +
+IINFO is a library to collect and filters data from the INI file. +
 
 The available data and defaults: +
 ----
@@ -85,18 +85,18 @@ get_qt_filter_extensions(self,):
 To import this modules add this python code to your import section: +
 [source,python]
 ----
-from qtvcp.qt_istat import IStat
+from qtvcp.core import Info
 ----
 To instantiate the module so you can use it in a handler file add this python code to your instantiate section: +
 [source,python]
 ----
-INI = IStat()
+INFO = Info()
 ----
-To access IStat data use this general syntax  +
+To access INFO data use this general syntax  +
 [source,python]
 ----
-home_state = INI.NO_HOME_REQUIRED
-if INI.MACHINE_IS_METRIC is True:
+home_state = INFO.NO_HOME_REQUIRED
+if INFO.MACHINE_IS_METRIC is True:
     print 'Metric based'
 ----
 
@@ -108,12 +108,12 @@ It tries to hide incidental details and add convenience methods to developers. +
 To import this modules add this python code to your import section: +
 [source,python]
 ----
-from qtvcp.qt_glib import Lcnc_Action
+from qtvcp.core import Action
 ----
 To instantiate the module so you can use it add this python code to your instantiate section: +
 [source,python]
 ----
-ACTION = Lcnc_Action()
+ACTION = Action()
 ----
 To access Lcnc_Action commands use general syntax such as these: +
 [source,python]
@@ -122,6 +122,7 @@ ACTION.SET_ESTOP_STATE(state)
 ACTION.SET_MACHINE_STATE(state)
 ACTION.SET_AUTO_MODE()
 ACTION.RUN()
+ACTION.DO_JOG(joint_number, direction)
 ----
 
 === aux_program_loader
@@ -238,13 +239,13 @@ you can set the title, message, icon, and timeout.+
 Notify keeps a list of all the alarm messages since starting in self.alarmpage .+
 If you click 'show all messages' in the notify popup, it will print then to the terminal.+
 
-The sceenoptions widget can automatically set up the notify system.+
+The screenoptions widget can automatically set up the notify system.+
 
 === preferences
 
 This module allows one to load and save preference data permanently to storage media.+
 +
-The sceenoptions widget can automatically set up the preference system.+
+The screenoptions widget can automatically set up the preference system.+
 qtvcp searches for the screenoption widget first and if found calls _pref_init().+
 This will create the preference object and return it to qtvcp to pass to all the widgets and
  add it to the window object attributes. In this case the preferences object would be accesable 
@@ -254,10 +255,57 @@ Also all widgets can have access to a specific preference file at initialization
 === audio player
 
 This module allows playing non-blocking sounds using gstreamer.+
+It can play sounds using the beep library (currently blocks while beeping) +
+It can speak using the espeak library (currently blocks while speaking) +
 There are default alert sounds using Mint or freedesktop default sounds.+
 You can play arbitrary sounds or even songs by specifying the path.+
 STATUS has messages to control this module.+
 The screenoptions widget can automatically set up the audio system.+
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.lib.audio_player import Player
+----
+To instantiate the module so you can use it add this python code to your instantiated section: +
+_resister_messages() function searches for default sounds on the system, if there are none, you +
+can specify then directly +
+[source,python]
+----
+SOUND = Player()
+SOUND._register_messages()
+----
+To play sounds using STATUS messages use these general syntax: +
+[source,python]
+----
+STATUS.emit('play-alert','LOGOUT')
+STATUS.emit('play-alert','BEEP')
+STATUS.emit('play-alert','SPEAK This is a test screen for Qtscreen')
+STATUS.emit('play-sound', 'PATH TO SOUND')
+----
+There are default alerts to choose from: +
+----
+ERROR
+
+READY
+
+ATTENTION
+
+RING
+
+DONE
+
+LOGIN
+
+LOGOUT
+----
+There are three beeps:
+----
+BEEP_RING
+
+BEEP_START
+
+BEEP
+----
 
 === virtual keyboard
 
