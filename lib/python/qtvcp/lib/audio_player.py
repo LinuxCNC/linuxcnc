@@ -100,7 +100,7 @@ class Player:
     # this can still fail if gstreamer/tools are not available 
     def os_jump(self,w,f):
         if 'beep' in f.lower():
-            self.os_beep
+            self[f.lower()]()
             return
         elif 'speak' in f.lower():
             self.os_speak(f)
@@ -119,18 +119,11 @@ class Player:
         except:
             log.error('Audio player using system - file not found {}'.format(f))
 
-    def os_beep(self):
-        os.system("beep -f 555 ")
-
-    def os_speak(self,f):
-        cmd = f.lower().lstrip('speak')
-        os.system('''espeak -s 160 -v m3 -p 1 '%s' '''% cmd)
-
     # jump to a builtin alert sound
     # we use this so we can trap errors easily
     def jump(self,w,f):
         if 'beep' in f.lower():
-            self.os_beep
+            self[f.lower()]()
             return
         elif 'speak' in f.lower():
             self.os_speak(f)
@@ -195,17 +188,24 @@ class Player:
         self.player.set_property("uri", "file://" + self.login)
         self.player.set_state(gst.STATE_PLAYING)
 
-    def play_beep_ring(self):
+    def beep_ring(self):
         os.system('''for n in 1 2 3 ; do
             for f in 1 2 1 2 1 2 1 2 1 2 ; do
             beep -f ${f}000 -l 20
             done
             done''')
 
-    def play_beep_start(self):
+    def beep_start(self):
         os.system('''beep -f165.4064 -l100 \-n -f130.813 -l100 -n 
             -f261.626 -l100 -n -f523.251 -l100 -n -f1046.50 -l100 
             -n -f2093.00 -l100 -n -f4186.01 -l10''')
+
+    def beep(self):
+        os.system("beep -f 555 ")
+
+    def os_speak(self,f):
+        cmd = f.lower().lstrip('speak')
+        os.system('''espeak -s 160 -v m3 -p 1 '%s' '''% cmd)
 
     ##############################
     # required class boiler code #
