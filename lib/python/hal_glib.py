@@ -189,6 +189,7 @@ class _GStat(gobject.GObject):
             pass
 
         self.current_jog_rate = 15
+        self.angular_jog_velocity = 360
         self.current_jog_distance = 0
         self.current_jog_distance_text =''
         self._is_all_homed = False

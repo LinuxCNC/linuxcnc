@@ -104,6 +104,7 @@ class _GStat(GladeVcpStat):
     def __init__(self):
         super(_GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
+        self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
 
     # we override this function from hal_glib
     #TODO why do we need to do this with qt5 and not qt4?
