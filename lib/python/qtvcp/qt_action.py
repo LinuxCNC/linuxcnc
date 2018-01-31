@@ -116,15 +116,19 @@ class _Lcnc_Action(object):
     def RESTORE_RECORDED_MODE(self):
         self.ensure_mode(self.last_mode)
 
-    def DO_JOG(self, axisnum, direction, distance=0):
+    def DO_JOG(self, axisnum, direction):
+        distance = STATUS.current_jog_distance
+        if axisnum in (3,4,5):
+            rate = STATUS.angular_jog_velocity/60
+        else:
+            rate = STATUS.current_jog_rate/60
+        self.JOG(axisnum, direction, rate, distance)
+
+    def JOG(self, axisnum, direction, rate, distance=0):
         jjogmode,j_or_a = STATUS.get_jog_info(axisnum)
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
-            if axisnum in (3,4,5):
-                rate = STATUS.angular_jog_velocity
-            else:
-                rate = STATUS.current_jog_rate/60
             if distance == 0:
                 self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
             else:
