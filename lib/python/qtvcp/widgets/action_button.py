@@ -298,7 +298,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         if direction == 0 and STATUS.current_jog_distance != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
-        ACTION.DO_JOG(self.joint_number, direction, STATUS.current_jog_distance)
+        ACTION.DO_JOG(self.joint_number, direction)
 
     def incr_action(self):
         if STATUS.is_metric_mode():
