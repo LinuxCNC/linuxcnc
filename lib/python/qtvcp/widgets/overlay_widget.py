@@ -6,6 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import  QColor, QImage, QResizeEvent, QPainter
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
+
 if __name__ != '__main__':
     STATUS = Status()
 
@@ -118,6 +119,11 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # STATUS messages
     # adjust image path name at runtime
     def _hal_init(self):
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('overlay_play_sound', False, bool,'SCREEN_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('overlay_sound_type', 'RING', str,'SCREEN_OPTIONS')
+        else:
+            self.play_sound = False
         self.top_level = self.QTVCP_INSTANCE_
         self.newParent()
         def _f(data,text,color):
@@ -131,7 +137,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 self.show()
                 self.update()
                 log.debug('Overlay - Show')
-                STATUS.emit('play-alert','BEEP')
+                if self.play_sound:
+                    STATUS.emit('play-alert','%s'% self.sound_type)
                 #os.system("beep -f 555 ")
             else:
                 self.hide()

@@ -155,7 +155,11 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
         self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
         #self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
         self.HAL_GCOMP_.comp.setprefix(oldname)
-        self.sound ='RING'
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool,'DIALOG_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'RING', str,'DIALOG_OPTIONS')
+        else:
+            self.play_sound = False
 
     def showtooldialog(self, message, more_info=None, details=None, display_type=1,
                      icon=QMessageBox.Information ):
@@ -201,7 +205,8 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info:'
             STATUS.emit('focus-overlay-changed',True,MESS, self._color)
-            STATUS.emit('play-alert',self.sound)
+            if self.play_sound:
+                STATUS.emit('play-alert', self.sound_type)
             result = self.showtooldialog(MESS,MORE,DETAILS)
             STATUS.emit('focus-overlay-changed',False,None,None)
             return result
@@ -228,6 +233,11 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
     def _hal_init(self):
         STATUS.connect('load-file-request', lambda w: self.load_dialog())
         STATUS.connect('dialog-request', self._external_request)
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('fileDialog_play_sound', True, bool,'DIALOG_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('fileDialog_sound_type', 'RING', str,'DIALOG_OPTIONS')
+        else:
+            self.play_sound = False
 
     def _external_request(self, w, cmd):
         if cmd =='FILE':
@@ -235,6 +245,9 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed',True,'Open Gcode',self._color)
+        if self.play_sound:
+
+            STATUS.emit('play-alert', self.sound_type)
         #self.move( 400, 400 )
         fname = None
         if (self.exec_()):
