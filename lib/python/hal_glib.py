@@ -210,7 +210,6 @@ class _GStat(gobject.GObject):
         if self.stat.call_level == 0:
             self.old['file']  = self.stat.file
         self.old['paused']= self.stat.paused
-        self.old['file']  = self.stat.file
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
