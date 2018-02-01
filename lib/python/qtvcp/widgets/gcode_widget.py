@@ -279,7 +279,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
     # when switching from MDI to AUTO we need to reload the
     # last (linuxcnc loaded) program.
     def reload_last(self,w):
-        self.load_text(self._last_filename)
+        self.load_text(STATUS.old['file'])
         self.setCursorPosition(0,0)
 
     # With the auto_show__mdi option, MDI history is shown
@@ -294,12 +294,12 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
     def load_text(self, filename):
         try:
             fp = os.path.expanduser(filename)
+            self.setText(open(fp).read())
         except:
             log.error('File path is not valid: {}'.format(filename))
             self.setText('')
             return
 
-        self.setText(open(fp).read())
         self.last_line = None
         self.ensureCursorVisible()
         self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
