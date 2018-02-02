@@ -467,7 +467,7 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * docs: add warning about entering a root password during install
   * docs: improve contributing intructions
   * docs: add a bit more info on ngcgui
-  * docs: update max AIO from 16 to 64 in motion manpage 
+  * docs: update max AIO from 16 to 64 in motion manpage
   * docs: update homing diagram (dxf and image)
   * docs: clarify homing variable names
   * docs: add missing keyboard short cuts to Axis documentation
@@ -920,7 +920,7 @@ linuxcnc (1:2.7.0~pre3) wheezy; urgency=low
   * encoder: document the surprising encoder num_chan=0 behavior in manpage
 
   * gladevcp: jogwheel improvements
-  * gladevcp: fix a bug forground color of combi_dro 
+  * gladevcp: fix a bug forground color of combi_dro
   * gladevcp: add hiny versions of the hal_bar and led widgets
 
   * pyvcp: fix a bug in radio button widget
@@ -1738,9 +1738,9 @@ linuxcnc (1:2.5.5) lucid; urgency=low
   * AXIS: fix shift-jog being too slow on inch configs displaying mm
   * Docs: many fixes and updates
   * HAL: biquad: fix crash when first enabled
-  * HAL: comp: fail to build some kinds of buggy comp code, 
+  * HAL: comp: fail to build some kinds of buggy comp code,
     instead of successfully compiling and then crashing at runtime.
-  * HAL: comp: reject comp files whose names don't match the 
+  * HAL: comp: reject comp files whose names don't match the
     component name
   * HAL: edge: fix out-invert pin on first invocation
   * HAL: edge: fix output pulse width
@@ -1861,7 +1861,7 @@ linuxcnc (1:2.5.2) lucid; urgency=low
 linuxcnc (1:2.5.1) lucid; urgency=low
 
   * Motion: fix incorrect spindle direction after G43 in CSS+M4 mode
-  * Interpreter: allow G10 L1 to set front/back angles when not 
+  * Interpreter: allow G10 L1 to set front/back angles when not
     also changing offsets
   * Interpreter: correctly report G96/G97 mode to the UI
   * Interpreter: explicitly set the default spindle mode at startup
@@ -2029,7 +2029,7 @@ linuxcnc (1:2.5.0) lucid; urgency=low
   * Touchy: support for metric configurations
   * Touchy: support panel indicators for status readout
   * Touchy: use appropriate jog and maxvel increments for metric and degrees
-  * Touchy: turning the wheel during a continuous jog changes the current 
+  * Touchy: turning the wheel during a continuous jog changes the current
     jog speed
 
   * add a G code language spec for gedit
