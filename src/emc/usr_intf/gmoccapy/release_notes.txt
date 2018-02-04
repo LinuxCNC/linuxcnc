@@ -1,3 +1,7 @@
+ver 2.3.3.3
+- editing offsets, leaded to a error output in the console, due to missing
+  widget btn_zero_x
+
 ver 2.3.3.2
 - toggling the chk_toggle_readout, raised an exception on 5 axis config
 
