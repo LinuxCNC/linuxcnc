@@ -268,6 +268,8 @@ extern "C" {
         double arcBlendRampFreq;
         double arcBlendTangentKinkRatio;
         double maxFeedScale;
+	double ext_offset_vel;	/* velocity for an external axis offset */
+	double ext_offset_acc;	/* acceleration for an external axis offset */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -613,6 +615,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int kb_ajog_active;	/* non-zero during a keyboard jog */
 	int wheel_ajog_active;	/* non-zero during a wheel jog */
 	int locking_joint;	/* locking_joint number, -1 ==> notused*/
+
+	double      ext_offset_vel_limit;	/* upper limit of axis speed for ext offset */
+	double      ext_offset_acc_limit;	/* upper limit of axis accel for ext offset */
+	int         old_eoffset_counts;
+	simple_tp_t ext_offset_tp;/* planner for external coordinate offsets*/
     } emcmot_axis_t;
 
     typedef struct {
@@ -720,7 +727,9 @@ Suggestion: Split this in to an Error and a Status flag register..
         EmcPose tool_offset;
         int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
         int spindle_is_atspeed; /* hal input */
-	unsigned char tail;	/* flag count for mutex detect */
+        unsigned char tail;     /* flag count for mutex detect */
+        int external_offsets_applied;
+        EmcPose eoffset_pose;
         
     } emcmot_status_t;
 

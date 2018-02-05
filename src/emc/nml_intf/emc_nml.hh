@@ -1211,6 +1211,8 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     double analog_output[EMCMOT_MAX_AIO]; //motion analog outputs queried by interp
     int debug;			// copy of EMC_DEBUG global
     int on_soft_limit;
+    int external_offsets_applied;
+    EmcPose eoffset_pose;
 };
 
 // declarations for EMC_TASK classes

@@ -1,0 +1,13 @@
+# remove the perturbation signal from zo.perturb)
+# and connect it to sum with sim:tovolts.out (S:scaled)
+
+unlinkp zo.perturb
+unlinkp sim:torch.in
+
+loadrt  sum2   names=summer
+addf    summer servo-thread
+
+net S:scaled   => summer.in0
+
+net E:perturb  => summer.in1
+net S:torch.in <= summer.out => sim:torch.in

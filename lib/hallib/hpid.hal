@@ -1,0 +1,156 @@
+# LIB:hpid.hal: Connections for eoffset_pid component
+
+# User inifile settings:
+#    USER_inifile: [AXIS_Z]HPID_PGAIN
+#    USER_inifile: [AXIS_Z]HPID_IGAIN
+#    USER_inifile: [AXIS_Z]HPID_DGAIN
+#    USER_inifile: [AXIS_Z]HPID_K
+#    USER_inifile: [AXIS_Z]HPID_FNUM
+#
+# User managed signals for required hal pins:
+#    E:request     (motion.analog-out-00)  USER_writes (M68 E0  Qtorchvoltage)
+#    E:enable-in-a (motion.spindle-on)     USER_writes (M3 S1)
+#    E:enable-in-b (motion.digital-out-01) USER_writes (M64/M65 P1)
+#    E:enable-in-c (motion.digital-out-02) USER_writes (M64/M65 P2 (optional))
+#    E:arc-ok      (motion.digital-in-00)  USER_reads  (M66 P0 L1 typ)
+
+# Using this [HAL]HALFILE=LIB:hpid.hal simplifies use of
+# the external offset component (eoffset_pid) by using
+# standardizing connections and signal naming conventions.
+#
+# If special configurations require modifications, instead
+# of editing this file, use additional halfiles to
+# unlink pins or delete signals with the halcmds 'unlinkp'
+# and 'delsig'.
+#
+# Hal activities of this file:
+#
+#   1) loadrt & addf the eoffsets_pid component (zo)
+#
+#   2) Create signals and make all of the MANDATORY
+#      connections that can be made without knowledge of
+#      the user configuration between zo.* and:
+#        axis.z.*  (external offset pins for z coordinate)
+#        motion.*  (motion module pins)
+#        halui.*   (halui pins)
+#
+#   3) Create signals for additional MANDATORY connections
+#      whose source connection must be defined elsewhere
+#      by the user configuration:
+#        E:arc-ok
+#        E:feedback
+#      These signals MUST BE CONNECTED ELSEWHERE in
+#      subsequent user halfiles.
+#
+#   4) Create signals for OPTIONAL connections.
+#      Source pin connection must be defined elsewhere:
+#        E:enable-in-c
+#        E:minimum-vel
+#        E:hold-request
+#        E:perturb
+#      Sink pin connection must be defined elsewhere:
+#        E:is-off
+#
+#   6) Create signals for debug/halscope usage (DBG:*)
+
+
+#-----------------------------------------------------------
+# Begin
+loadrt eoffset_pid names=zo
+
+# eoffset_pid (zo) settings:
+setp zo.pgain [AXIS_Z]HPID_PGAIN
+setp zo.igain [AXIS_Z]HPID_IGAIN
+setp zo.dgain [AXIS_Z]HPID_DGAIN
+setp zo.k     [AXIS_Z]HPID_K
+setp zo.fnum  [AXIS_Z]HPID_FNUM
+
+# order so offset computation precedes motion-* threads
+addf zo       servo-thread 1
+
+#-----------------------------------------------------------
+# required standard connections TO zo
+net  E:is-on          <= halui.machine.is-on
+net  E:is-on          => zo.is-on
+
+net  E:units-per-mm   <= halui.machine.units-per-mm
+net  E:units-per-mm   => zo.units-per-mm
+
+net  E:active         <= motion.eoffset-active
+net  E:active         => zo.active
+
+#-----------------------------------------------------------
+# required standard connections FROM zo
+net  E:eoffset-enable <= zo.enable-out
+net  E:eoffset-enable => axis.z.eoffset-enable
+
+net  E:clear          <= zo.clear
+net  E:clear          => axis.z.eoffset-clear
+
+net  E:scale          <= zo.kreciprocal
+net  E:scale          => axis.z.eoffset-scale
+
+net  E:kcounts        <= zo.kcounts
+net  E:kcounts        => axis.z.eoffset-counts
+
+#net E:feedback       <= USER_sources (mandatory)
+net  E:feedback       => zo.feedback
+
+#-----------------------------------------------------------
+# E:request => pidcommand  (use M68 to set analog out pin 0)
+net  E:request        <= motion.analog-out-00
+net  E:request        => zo.command
+
+#-----------------------------------------------------------
+# current velocity (corner lockout)
+net  E:current-vel    <= motion.current-vel
+net  E:current-vel    => zo.current-vel
+
+#-----------------------------------------------------------
+# pin used to start/stop torch:
+net  E:enable-in-a    <= motion.spindle-on
+net  E:enable-in-a    => zo.enable-in-a
+
+#-----------------------------------------------------------
+# GCODE must issue this final enable using M64
+# after verifying arc and asserting E:arc-ok:
+net  E:enable-in-b    <= motion.digital-out-01
+net  E:enable-in-b    => zo.enable-in-b
+
+#-----------------------------------------------------------
+# signals with source elsewhere
+
+# E:arc-ok is read by GCODE using M66 prior to final enable:
+#net E:arc-ok         <= USER_sources (mandatory)
+net  E:arc-ok         => motion.digital-in-00
+
+# extra zo enable (a,b,c are anded together):
+setp zo.enable-in-c   1
+# default to 1, use elsewhere as required
+#net E:enable-in-c    <= USER_sources (optional)
+net  E:enable-in-c    => zo.enable-in-c
+
+# provision to perturb input to pid command
+#net E:perturb        <= USER_sources (optional)
+net  E:perturb        => zo.perturb
+
+# cornerlock minimum velocity (units/sec)
+#net E:minimum-vel    <= USER_sources (optional)
+net  E:minimum-vel    => zo.minimum-vel
+
+# zo hold-request
+#net E:hold-request   <= USER_sources (optional)
+net  E:hold-request   => zo.hold-request
+
+#-----------------------------------------------------------
+# signals with sink elsewhere
+
+# E:is-off (sim:hpid_panel.hal)
+#net E:is-off         => USER_sinks   (optional)
+net  E:is-off         <= zo.is-off
+
+#-----------------------------------------------------------
+# signals for debugging/halscope usage:
+net  DBG:error        <= zo.dbg-error
+net  DBG:holding      <= zo.dbg-holding
+net  DBG:state        <= zo.dbg-state
