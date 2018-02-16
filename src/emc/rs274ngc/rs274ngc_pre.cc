@@ -81,6 +81,7 @@ include an option for suppressing superfluous commands.
 #include <libintl.h>
 #include <set>
 #include <stdexcept>
+#include <new>
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -1651,7 +1652,6 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	_setup.sequence_number = sub->sequence_number;
 	logDebug("unwind_call: setting sequence number=%d from frame %d",
 		_setup.sequence_number,_setup.call_level);
-
     }
     // call_level == 0 here.
  
@@ -2540,4 +2540,9 @@ context_struct::context_struct()
     memset(saved_g_codes, 0, sizeof(saved_g_codes));
     memset(saved_m_codes, 0, sizeof(saved_m_codes));
     memset(saved_settings, 0, sizeof(saved_settings));
+}
+
+void context_struct::clear()
+{
+    new (this) context_struct();
 }
