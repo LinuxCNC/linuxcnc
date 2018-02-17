@@ -8,6 +8,7 @@ from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WID
 from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
+from qtvcp.widgets.gcode_widget import GcodeEditor as GCODE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify
 
@@ -76,12 +77,18 @@ class HandlerClass:
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
-            if isinstance(receiver, OFFVIEW_WIDGET) or isinstance(receiver, MDI_WIDGET):
+            if isinstance(receiver, OFFVIEW_WIDGET) or \
+                isinstance(receiver, MDI_WIDGET):
                 if is_pressed:
                     receiver.keyPressEvent(event)
                     event.accept()
                 return True
-            if isinstance(receiver,QtWidgets.QDialog):
+            elif isinstance(receiver, GCODE) and STATUS.is_man_mode() == False:
+                if is_pressed:
+                    receiver.keyPressEvent(event)
+                    event.accept()
+                return True
+            elif isinstance(receiver,QtWidgets.QDialog):
                 print 'dialog'
                 return True
         try:
