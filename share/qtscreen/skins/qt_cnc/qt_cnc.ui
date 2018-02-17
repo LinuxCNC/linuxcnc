@@ -373,6 +373,34 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_8">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>70</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="feed_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="user_system_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="GcodeEditor" name="gcodeeditor">
     <property name="geometry">
@@ -988,34 +1016,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
     <property name="actual_spindle_speed_status" stdset="0">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_8">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>560</y>
-      <width>51</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="midLineWidth">
-     <number>0</number>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="textFormat">
-     <enum>Qt::RichText</enum>
-    </property>
-    <property name="textTemplate" stdset="0">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="feed_override_status" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="user_system_status" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -2494,7 +2494,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>lcnc_state_label_4</zorder>
    <zorder>lcnc_state_label_5</zorder>
    <zorder>lcnc_state_label_6</zorder>
-   <zorder>lcnc_state_label_8</zorder>
    <zorder>lcnc_tooldialog</zorder>
    <zorder>lcnc_dialog</zorder>
    <zorder>lcnc_filedialog</zorder>
@@ -2545,6 +2544,11 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
   </customwidget>
   <customwidget>
    <class>Lcnc_Dialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>Lcnc_MacroTabDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
@@ -2612,11 +2616,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <extends>QWidget</extends>
    <header>qtvcp.widgets.graphics5</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Lcnc_MacroTabDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
