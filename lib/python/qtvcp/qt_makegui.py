@@ -1,5 +1,5 @@
 import os,sys
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5 import QtGui, QtCore, QtWidgets, uic
 import traceback
 
 # Set up logging
@@ -35,6 +35,12 @@ class MyEventFilter(QtCore.QObject):
         return (pressed,key,code,shift,ctrl)
 
     def eventFilter(self, receiver, event):
+        # in pyqt5 QWindow gets all events before the widgets inside it do
+        # we need the widgets inside it to get their events first
+        # this line line provides that.
+        # (pyqt4 did not require this)
+        if isinstance(receiver, QtGui.QWindow):
+            return super(MyEventFilter,self).eventFilter(receiver, event)
         if(event.type() == QtCore.QEvent.KeyPress):
             handled = False
             if (self.has_key_p_handler):
