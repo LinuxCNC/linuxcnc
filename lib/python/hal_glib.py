@@ -679,9 +679,13 @@ class _GStat(gobject.GObject):
     def estop_is_clear(self):
         return self.old['state'] > linuxcnc.STATE_ESTOP
 
+    def is_man_mode(self):
+        return self.old['mode']  == linuxcnc.MODE_MANUAL
+
+    def is_mdi_mode(self):
+        return self.old['mode']  == linuxcnc.MODE_MDI
+
     def is_auto_mode(self):
-        self.stat.poll()
-        #print 'is auto mode?',self.old['mode']  == linuxcnc.MODE_AUTO
         return self.old['mode']  == linuxcnc.MODE_AUTO
 
     def is_auto_running(self):
