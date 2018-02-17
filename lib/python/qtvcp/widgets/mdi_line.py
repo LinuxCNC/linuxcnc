@@ -78,11 +78,6 @@ class Lcnc_MDILine(QLineEdit):
         if filename == INFO.MDI_HISTORY_PATH:
             self.setText(text)
 
-    def event(self, event):
-        #if event.type() == QEvent.FocusIn:
-        #    STATUS.emit('reload-mdi-history')
-        return super(Lcnc_MDILine,self).event(event)
-
     def keyPressEvent(self, event):
         super(Lcnc_MDILine, self).keyPressEvent(event)
         if event.key() == Qt.Key_Up:
