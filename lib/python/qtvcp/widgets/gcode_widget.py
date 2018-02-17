@@ -252,6 +252,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         super(GcodeEditor, self).__init__(parent)
         self._last_filename = None
         self.auto_show_mdi = True
+        self.last_line = None
         #self.setEolVisibility(True)
 
     def _hal_init(self):
