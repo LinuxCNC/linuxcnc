@@ -216,7 +216,7 @@ int32_t rtapi_app_main(void)
     int32_t     mem_fd;
     uint32_t    vrt_offset = 0;
     off_t       phy_block_addr = 0;
-    int32_t     n, retval;
+    int32_t     n, retval, p;
     int8_t      *data, *token;
     uint8_t     pin;
     int8_t      name[HAL_NAME_LEN + 1];
@@ -356,15 +356,15 @@ int32_t rtapi_app_main(void)
             if ( len < 1 ) continue;
 
             // if we have the GPIO pin name
-            if ( *token[0] == 'P' && len >= 3 && len <= 4 )
+            if ( token[0] == 'P' && len >= 3 && len <= 4 )
             {
                 uint8_t pin_found = 0;
 
                 // trying to find a valid port name
-                for ( int8_t p = GPIO_PORT_COUNT; p--; )
+                for ( p = GPIO_PORT_COUNT; p--; )
                 {
                     // if valid port name found
-                    if ( *token[1] == _GPIO_port_info[p].name )
+                    if ( token[1] == _GPIO_port_info[p].name )
                     {
                         // trying to find a correct pin number
                         pin = (uint8_t) strtol(token[2], NULL, 10);
@@ -406,7 +406,7 @@ int32_t rtapi_app_main(void)
                 }
             }
             // if we have the OPI pin number
-            else if ( *token[0] >= '0' && *token[0] <= '9' && len <= 2 )
+            else if ( token[0] >= '0' && token[0] <= '9' && len <= 2 )
             {
                 // trying to find a correct pin number
                 pin = (uint8_t) strtol(token, NULL, 10);
@@ -471,15 +471,15 @@ int32_t rtapi_app_main(void)
             if ( len < 1 ) continue;
 
             // if we have the GPIO pin name
-            if ( *token[0] == 'P' && len >= 3 && len <= 4 )
+            if ( token[0] == 'P' && len >= 3 && len <= 4 )
             {
                 uint8_t pin_found = 0;
 
                 // trying to find a valid port name
-                for ( int8_t p = GPIO_PORT_COUNT; p--; )
+                for ( p = GPIO_PORT_COUNT; p--; )
                 {
                     // if valid port name found
-                    if ( *token[1] == _GPIO_port_info[p].name )
+                    if ( token[1] == _GPIO_port_info[p].name )
                     {
                         // trying to find a correct pin number
                         pin = (uint8_t) strtol(token[2], NULL, 10);
@@ -539,7 +539,7 @@ int32_t rtapi_app_main(void)
                 }
             }
             // if we have the OPI pin number
-            else if ( *token[0] >= '0' && *token[0] <= '9' && len <= 2 )
+            else if ( token[0] >= '0' && token[0] <= '9' && len <= 2 )
             {
                 // trying to find a correct pin number
                 pin = (uint8_t) strtol(token, NULL, 10);
