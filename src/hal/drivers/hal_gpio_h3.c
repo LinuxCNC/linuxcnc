@@ -367,7 +367,7 @@ int32_t rtapi_app_main(void)
                     if ( token[1] == _GPIO_port_info[p].name )
                     {
                         // trying to find a correct pin number
-                        pin = (uint8_t) strtol(token[2], NULL, 10);
+                        pin = (uint8_t) strtol(&token[2], NULL, 10);
 
                         // if a correct pin number wasn't found
                         if ( pin >= _GPIO_port_info[p].pins_count )
@@ -396,6 +396,8 @@ int32_t rtapi_app_main(void)
                         {
                             PIN_EXPORT_FAILED_MSG_AND_RETURN;
                         }
+
+                        break;
                     }
                 }
 
@@ -482,7 +484,7 @@ int32_t rtapi_app_main(void)
                     if ( token[1] == _GPIO_port_info[p].name )
                     {
                         // trying to find a correct pin number
-                        pin = (uint8_t) strtol(token[2], NULL, 10);
+                        pin = (uint8_t) strtol(&token[2], NULL, 10);
 
                         // if a correct pin number wasn't found
                         if ( pin >= _GPIO_port_info[p].pins_count )
@@ -529,6 +531,8 @@ int32_t rtapi_app_main(void)
                             hal_exit(comp_id);
                             return -1;
                         }
+
+                        break;
                     }
                 }
 
