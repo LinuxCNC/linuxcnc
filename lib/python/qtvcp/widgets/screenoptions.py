@@ -99,7 +99,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                if self.desktop_notify:
                     NOTE.notify('DISPLAY',text,None,4)
             if self.play_sounds and self.mchnMsg_play_sound:
-                STATUS.emit('play-alert','%s'% self.mchnMsg_play_sound)
+                STATUS.emit('play-alert','%s'% self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
                     STATUS.emit('play-alert','SPEAK %s '% text)
 
