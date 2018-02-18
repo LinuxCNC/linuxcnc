@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-PyQt5 widget that embeds a pygtk gremlin widget in it's self.
-Chris Morley 
-
-
+PyQt5 widget for plotting gcode.
 """
 import sys
 import os
@@ -24,7 +21,6 @@ log = logger.getLogger(__name__)
 
 ##############################################
 # Container class
-# We embed Gremlin GTK object into this
 ##############################################
 class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
     def __init__(self, parent = None):
@@ -32,12 +28,12 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         self.colors['overlay_background'] = (0.0, 0.0, 0.57) # blue
         self.colors['back'] = (0.0, 0.0, 0.75) # blue
         self.show_overlay = False # no DRO or DRO overlay
-        print self.current_view
+        self._reload_filename = None
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
         STATUS.connect('reload-display',self.reloadfile)
-        STATUS.connect('requested-spindle-speed-changed',self.set_spindle_speed)# FIXME should be actual speed
+        STATUS.connect('actual-spindle-speed-changed',self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w,f: self.set_metric_units(w,f))
         STATUS.connect('view-changed', self.set_view_signal)
 
@@ -45,7 +41,8 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
         self.set_view(view)
 
     def load_program(self, g, fname):
-        print fname
+        log.debug('load the display: {}'.format(fname))
+        self._reload_filename = fname
         self.load(fname)
 
     def set_metric_units(self,w,state):
@@ -68,11 +65,13 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
             self.set_current_view()
 
     def reloadfile(self,w):
+        log.debug('reload the display: {}'.format(self._reload_filename))
         dist = self.get_zoom_distance()
         try:
-            self.fileloaded(None,self._reload_filename)
+            self.load_program(None,self._reload_filename)
             self.set_zoom_distance(dist)
         except:
+            print 'error',self._reload_filename
             pass
 
     # overriding functions
