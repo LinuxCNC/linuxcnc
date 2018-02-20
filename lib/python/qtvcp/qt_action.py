@@ -101,6 +101,15 @@ class _Lcnc_Action(object):
     def SET_JOG_INCR(self, incr):
         pass
 
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100):
+        self.cmd.spindle(direction,rpm)
+    def SET_SPINDLE_FASTER(self):
+        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE)
+    def SET_SPINDLE_SLOWER(self):
+        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE)
+    def SET_SPINDLE_STOP(self):
+        self.cmd.spindle(linuxcnc.SPINDLE_OFF)
+
     def ZERO_G92_OFFSET (self, widget):
         self.CALL_MDI("G92.1")
         STATUS.emit('reload-display')

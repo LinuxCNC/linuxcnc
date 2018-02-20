@@ -67,6 +67,11 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.rapid_over = False
         self.spindle_over = False
         self.view_change = False
+        self.spindle_fwd = False
+        self.spindle_rev = False
+        self.spindle_stop = False
+        self.spindle_up = False
+        self.spindle_down = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -190,6 +195,15 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('state-off', lambda w: _safecheck(False))
         elif self.view_change:
             pass
+        elif self.spindle_fwd or self.spindle_rev or self.spindle_stop or \
+                self.spindle_up or self.spindle_down:
+            STATUS.connect('mode-manual', lambda w: _safecheck(True))
+            STATUS.connect('mode-mdi', lambda w: _safecheck(False))
+            STATUS.connect('mode-auto', lambda w: _safecheck(False))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-on', lambda w: self.setEnabled(True))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
 
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
@@ -290,6 +304,16 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                 STATUS.emit('view-changed','%s'% self.view_type)
             except:
                 pass
+        elif self.spindle_fwd:
+            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD,INFO.DEFAULT_SPINDLE_SPEED)
+        elif self.spindle_rev:
+            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE,INFO.DEFAULT_SPINDLE_SPEED)
+        elif self.spindle_stop:
+            ACTION.SET_SPINDLE_STOP()
+        elif self.spindle_up:
+            ACTION.SET_SPINDLE_FASTER()
+        elif self.spindle_down:
+            ACTION.SET_SPINDLE_SLOWER()
         # defult error case
         else:
             log.error('No action recognised')
@@ -327,7 +351,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                     'launch_halmeter','launch_status', 'launch_halshow',
                     'auto','mdi','manual','macro_dialog','origin_offset_dialog',
                     'camview_dialog','jog_incr','feed_over', 'rapid_over',
-                    'spindle_over', 'jog_rate','view_x', 'view_p')
+                    'spindle_over', 'jog_rate','view_x', 'view_p', 'spindle_fwd',
+                    'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down')
 
         for i in data:
             if not i == picked:
@@ -557,6 +582,51 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_spindle_over(self):
         self.spindle_over = False
 
+    def set_spindle_fwd(self, data):
+        self.spindle_fwd = data
+        if data:
+            self._toggle_properties('spindle_fwd')
+    def get_spindle_fwd(self):
+        return self.spindle_fwd
+    def reset_spindle_fwd(self):
+        self.spindle_fwd = False
+
+    def set_spindle_rev(self, data):
+        self.spindle_rev = data
+        if data:
+            self._toggle_properties('spindle_rev')
+    def get_spindle_rev(self):
+        return self.spindle_rev
+    def reset_spindle_rev(self):
+        self.spindle_rev = False
+
+    def set_spindle_stop(self, data):
+        self.spindle_stop = data
+        if data:
+            self._toggle_properties('spindle_stop')
+    def get_spindle_stop(self):
+        return self.spindle_stop
+    def reset_spindle_stop(self):
+        self.spindle_stop = False
+
+    def set_spindle_up(self, data):
+        self.spindle_up = data
+        if data:
+            self._toggle_properties('spindle_up')
+    def get_spindle_up(self):
+        return self.spindle_up
+    def reset_spindle_up(self):
+        self.spindle_up = False
+
+    def set_spindle_down(self, data):
+        self.spindle_down = data
+        if data:
+            self._toggle_properties('spindle_down')
+    def get_spindle_down(self):
+        return self.spindle_down
+    def reset_spindle_down(self):
+        self.spindle_down = False
+
     def set_toggle_float(self, data):
         self.toggle_float = data
     def get_toggle_float(self):
@@ -638,6 +708,11 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     rapid_over_action = QtCore.pyqtProperty(bool, get_rapid_over, set_rapid_over, reset_rapid_over)
     spindle_over_action = QtCore.pyqtProperty(bool, get_spindle_over, set_spindle_over, reset_spindle_over)
     toggle_float_option = QtCore.pyqtProperty(bool, get_toggle_float, set_toggle_float, reset_toggle_float)
+    spindle_fwd_action = QtCore.pyqtProperty(bool, get_spindle_fwd, set_spindle_fwd, reset_spindle_fwd)
+    spindle_rev_action = QtCore.pyqtProperty(bool, get_spindle_rev, set_spindle_rev, reset_spindle_rev)
+    spindle_stop_action = QtCore.pyqtProperty(bool, get_spindle_stop, set_spindle_stop, reset_spindle_stop)
+    spindle_up_action = QtCore.pyqtProperty(bool, get_spindle_up, set_spindle_up, reset_spindle_up)
+    spindle_down_action = QtCore.pyqtProperty(bool, get_spindle_down, set_spindle_down, reset_spindle_down)
     view_change_action = QtCore.pyqtProperty(bool, get_view_change, set_view_change, reset_view_change)
  
     # NON BOOL
