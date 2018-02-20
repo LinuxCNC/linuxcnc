@@ -60,7 +60,7 @@ endif
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp

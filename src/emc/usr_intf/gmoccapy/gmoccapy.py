@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3.2"
+_RELEASE = " 2.3.3.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3488,9 +3488,10 @@ class gmoccapy(object):
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
         state = widget.get_active()
         self.widgets.offsetpage1.edit_button.set_active(state)
-        widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
-                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92"
-        ]
+        widgetlist = ["btn_set_value_x", "btn_set_value_y", "btn_set_value_z", 
+                      "btn_set_selected", "ntb_jog", "btn_set_selected", 
+                      "btn_zero_g92"
+                      ]
         self._sensitize_widgets(widgetlist, not state)
 
         if state:

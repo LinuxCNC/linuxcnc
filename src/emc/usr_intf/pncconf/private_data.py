@@ -33,7 +33,8 @@ class Private_Data:
         # This holds page information:
         # [widget name,title.initialized state,active state]
         # The widget name is also the filename 'widget.glade'
-        # if not initialized, the page will be loaded and added, only if page is shown (and signals selected in glade editor will be ignored)
+        # if not initialized, the page will be loaded and added,
+        # only if page is shown (and signals selected in glade editor will be ignored)
         self.available_page =[['intro', _('PNCconf'),True,True],
                                 ['start',_('Start'),True,True],
                                 ['base',_('Base Information'),True,True],
@@ -102,8 +103,10 @@ class Private_Data:
         #****************************************
         (   self.NUSED,self.DUMMY ) = self.pintype_notused = [ _("Not Used"),_("Dummy") ]
         (   self.AMP8I20,self.DUMMY2 ) = self.pintype_8i20 = [ _("8i20 Servo Drive"),_("Dummy") ]
-        (   self.POTO,self.POTE,self.POTD ) = self.pintype_potentiometer = [ _("POT Output"),_("POT Enable"),_("POT Dir") ]
-        (   self.GPIOI,self.GPIOO,self.GPIOD) = self.pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
+        (   self.POTO,self.POTE,self.POTD ) = self.pintype_potentiometer = [
+             _("POT Output"),_("POT Enable"),_("POT Dir") ]
+        (   self.GPIOI,self.GPIOO,self.GPIOD) = self.pintype_gpio = [
+             _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
         (   self.ENCA,self.ENCB,self.ENCI,self.ENCM 
         ) = self.pintype_encoder = [
             _("Quad Enc-A"),_("Quad Enc-B"),_("Quad Enc-I"),_("Quad Enc-M") ]
@@ -123,22 +126,31 @@ class Private_Data:
         (   self.PWMP,self.PWMD,self.PWME ) = self.pintype_pwm = [ _("PWM Gen-P"),_("PWM Gen-D"),_("PWM Gen-E") ]
         (   self.PDMP,self.PDMD,self.PDME ) = self.pintype_pdm = [ _("PDM Gen-P"),_("PDM Gen-D"),_("PDM Gen-E") ]
         (   self.UDMU,self.UDMD,self.UDME ) = self.pintype_udm = [ _("UDM -Up"),_("UDM-Down"),_("UDM-E") ]
+
         (   self.TPPWMA,self.TPPWMB,self.TPPWMC,self.TPPWMAN,self.TPPWMBN,self.TPPWMCN,self.TPPWME,self.TPPWMF
         ) = self.pintype_tp_pwm = [
             _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
             _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"),_("Motor Enable"),_("Motor Fault") ]
 
         (   self.TXDATA0,self.RXDATA0,self.TXEN0,
-            self.TXDATA1,self.RXDATA1,self.TXEN1,self.TXDATA2,self.RXDATA2,self.TXEN2,
-            self.TXDATA3,self.RXDATA3,self.TXEN3,self.TXDATA4,self.RXDATA4,self.TXEN4,
-            self.TXDATA5,self.RXDATA5,self.TXEN5,self.TXDATA6,self.RXDATA6,self.TXEN6,
-            self.TXDATA7,self.RXDATA7,self.TXEN7,self.SS7I76M0,self.SS7I76M2,self.SS7I76M3,
+            self.TXDATA1,self.RXDATA1,self.TXEN1,
+            self.TXDATA2,self.RXDATA2,self.TXEN2,
+            self.TXDATA3,self.RXDATA3,self.TXEN3,
+            self.TXDATA4,self.RXDATA4,self.TXEN4,
+            self.TXDATA5,self.RXDATA5,self.TXEN5,
+            self.TXDATA6,self.RXDATA6,self.TXEN6,
+            self.TXDATA7,self.RXDATA7,self.TXEN7,
+            self.SS7I76M0,self.SS7I76M2,self.SS7I76M3,
             self.SS7I77M0,self.SS7I77M1,self.SS7I77M3,self.SS7I77M4
         ) = self.pintype_sserial = [ _("SSERIAL-P0-TX"),_("SSERIAL-P0-RX"),_("SSERIAL-P0-EN"),
-            _("SSERIAL-P1-TX"),_("SSERIAL-P1-RX"),_("SSERIAL-P1-EN"),_("SSERIAL-P2-TX"),_("SSERIAL-P2-RX"),_("SSERIAL-P2-EN"),
-            _("SSERIAL-P3-TX"),_("SSERIAL-P3-RX"),_("SSERIAL-P3-EN"),_("SSERIAL-P4-TX"),_("SSERIAL-P4-RX"),_("SSERIAL-P4-EN"),
-            _("SSERIAL-P5-TX"),_("SSERIAL-P5-RX"),_("SSERIAL-P5-EN"),_("SSERIAL-P6-TX"),_("SSERIAL-P6-RX"),_("SSERIAL-P6-EN"),
-            _("SSERIAL-P7-TX"),_("SSERIAL-P7-RX"),_("SSERIAL-P7-EN"),_("7i76 I/O (SS0)"),_("7i76 I/O (SS2)"),_("7i76 I/O (SS3)"),
+            _("SSERIAL-P1-TX"),_("SSERIAL-P1-RX"),_("SSERIAL-P1-EN"),
+            _("SSERIAL-P2-TX"),_("SSERIAL-P2-RX"),_("SSERIAL-P2-EN"),
+            _("SSERIAL-P3-TX"),_("SSERIAL-P3-RX"),_("SSERIAL-P3-EN"),
+            _("SSERIAL-P4-TX"),_("SSERIAL-P4-RX"),_("SSERIAL-P4-EN"),
+            _("SSERIAL-P5-TX"),_("SSERIAL-P5-RX"),_("SSERIAL-P5-EN"),
+            _("SSERIAL-P6-TX"),_("SSERIAL-P6-RX"),_("SSERIAL-P6-EN"),
+            _("SSERIAL-P7-TX"),_("SSERIAL-P7-RX"),_("SSERIAL-P7-EN"),
+            _("7i76 I/O (SS0)"),_("7i76 I/O (SS2)"),_("7i76 I/O (SS3)"),
             _("7i77 I/O-SS0"),_("7i77 Analog-SS1"),_("7i77 I/O-SS3"),_("7i77 Analog-SS4"),]
 
         (   self.ANALOGIN, self.DUMMY3) = self.pintype_analog_in = [ _("Analog Input"),_("Dummy")]
@@ -150,7 +162,8 @@ class Private_Data:
         self.human_notused_names = [ [_("Unused Unused"),[] ] ]
         (   self.UNUSED_OUTPUT,
             S.ON,S.CW,S.CCW,S.BRAKE,
-            S.MIST,S.FLOOD,S.ESTOP,S.AMP,S.XAMP,S.YAMP,S.ZAMP,S.AAMP,
+            S.MIST,S.FLOOD,S.ESTOP,S.AMP,
+            S.XAMP,S.YAMP,S.ZAMP,S.AAMP,
             S.PUMP,S.FORCE_PIN_TRUE,S.DOUT0,S.DOUT1,S.DOUT2,S.DOUT3,
             S.X_HALL1_OUT,S.X_HALL2_OUT,S.X_HALL3_OUT,S.X_C1_OUT,S.X_C2_OUT,S.X_C4_OUT,S.X_C8_OUT,
             S.Y_HALL1_OUT,S.Y_HALL2_OUT,S.Y_HALL3_OUT,S.Y_C1_OUT,S.Y_C2_OUT,S.Y_C4_OUT,S.Y_C8_OUT,
@@ -160,7 +173,8 @@ class Private_Data:
         ) = self.hal_output_names = [
             "unused-output", 
             "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
-            "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "x-enable", "y-enable", "z-enable", "a-enable",
+            "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled",
+            "x-enable", "y-enable", "z-enable", "a-enable",
             "charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
             "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
             "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
@@ -170,49 +184,76 @@ class Private_Data:
 
         spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
         coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
-        control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
-            _("A Amplifier Enable"),_("Charge Pump"),_("Force Pin True")]
+        control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),
+            _("Y Amplifier Enable"),_("Z Amplifier Enable"), _("A Amplifier Enable"),
+            _("Charge Pump"),_("Force Pin True")]
         digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
-        xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
-        ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
-        zmotor_control = [_("Z HALL 1"),_("Z HALL 2"),_("Z HALL 3"),_("Z Gray C1"),_("Z Gray C2"),_("Z Gray C4"),_("Z Gray C8")]
-        amotor_control = [_("A HALL 1"),_("A HALL 2"),_("A HALL 3"),_("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
-        smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),_("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
-        self.human_output_names = [ [_("Unused Output"),[]],[_("Spindle"),spindle_output],[_("Coolant"),coolant_output],
-            [_("Control"),control_output],[_("Digital"),digital_output],[_("X BLDC Control"),xmotor_control],
-            [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],[_("A BLDC Control"),amotor_control],
-            [_(" S BLDC Control"),smotor_control],[_("Custom Signals"),[]]  ]
+        xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),
+                _("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
+        ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),
+                _("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
+        zmotor_control = [_("Z HALL 1"),_("Z HALL 2"),_("Z HALL 3"),
+                _("Z Gray C1"),_("Z Gray C2"),_("Z Gray C4"),_("Z Gray C8")]
+        amotor_control = [_("A HALL 1"),_("A HALL 2"),_("A HALL 3"),
+                _("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
+        smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),
+                _("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
+
+        self.human_output_names = [ [_("Unused Output"),[]],[_("Spindle"),spindle_output],
+            [_("Coolant"),coolant_output],[_("Control"),control_output],
+            [_("Digital"),digital_output],[_("X BLDC Control"),xmotor_control],
+            [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],
+            [_("A BLDC Control"),amotor_control],[_(" S BLDC Control"),smotor_control],
+            [_("Custom Signals"),[]]  ]
 
         limit = [_("X Minimum Limit"), _("Y Minimum Limit"), _("Z Minimum Limit"), _("A Minimum Limit"),
             _("X Maximum Limit"), _("Y Maximum Limit"), _("Z Maximum Limit"), _("A Maximum Limit"),
             _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
             _("All Limits") ]
         home = [_("X Home"), _("Y Home"), _("Z Home"), _("A Home"),_("All Home") ]
-        home_limits_shared = [ _("X Minimum Limit + Home"), _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"),
-                             _("A Minimum Limit + Home"),_("X Maximum Limit + Home"), _("Y Maximum Limit + Home"), _("Z Maximum Limit + Home"),
-                             _("A Maximum Limit + Home"),_("X Both Limit + Home"), _("Y Both Limit + Home"), _("Z Both Limit + Home"),
-                             _("A Both Limit + Home"),_("All Limits + Home") ]
+
+        home_limits_shared = [_("X Minimum Limit + Home"),
+            _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"),
+            _("A Minimum Limit + Home"),_("X Maximum Limit + Home"),
+            _("Y Maximum Limit + Home"), _("Z Maximum Limit + Home"),
+            _("A Maximum Limit + Home"),_("X Both Limit + Home"), 
+            _("Y Both Limit + Home"), _("Z Both Limit + Home"),
+            _("A Both Limit + Home"), _("All Limits + Home") ]
+
         digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3") ]
         axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
-        override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
-            _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),_("Spindle Override incr B"),
-            _("Spindle Override incr C"),_("Spindle Override incr D"), _("Max Vel Override incr A"),_("Max Vel Override incr B"),
-            _("Max Vel Override incr C"),_("Max Vel Override incr D"), _("Feed Override enable"), _("Spindle Override enable"),
+        override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),
+            _("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
+            _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),
+            _("Spindle Override incr B"),_("Spindle Override incr C"),_("Spindle Override incr D"),
+            _("Max Vel Override incr A"),_("Max Vel Override incr B"),_("Max Vel Override incr C"),
+            _("Max Vel Override incr D"), _("Feed Override enable"), _("Spindle Override enable"),
             _("Max Vel Override enable") ]
-        spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed"),_("Gear Select A"),]
+        spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),
+            _("Spindle Up-To-Speed"),_("Gear Select A"),]
         operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
         control = [_("ESTOP In"), _("Probe In") ]
-        xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
-        ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
-        zmotor_control = [_("Z HALL 1"),_("Z HALL 2"),_("Z HALL 3"),_("Z Gray C1"),_("Z Gray C2"),_("Z Gray C4"),_("Z Gray C8")]
-        amotor_control = [_("A HALL 1"),_("A HALL 2"),_("A HALL 3"),_("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
-        smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),_("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
-        rapid = [_("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),_("Jog A +"),_("Jog A -"),
+        xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),
+            _("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
+        ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),
+            _("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
+        zmotor_control = [_("Z HALL 1"),_("Z HALL 2"),_("Z HALL 3"),
+            _("Z Gray C1"),_("Z Gray C2"),_("Z Gray C4"),_("Z Gray C8")]
+        amotor_control = [_("A HALL 1"),_("A HALL 2"),_("A HALL 3"),
+            _("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
+        smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),
+            _("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
+        rapid = [_("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),
+            _("Jog Z +"),_("Jog Z -"),_("Jog A +"),_("Jog A -"),
             _("Jog button selected +"),_("Jog button selected -") ]
-        self.human_input_names = [ [_("Unused Input"),[]],[_("Limits"),limit],[_("Home"),home],[_("Limts/Home Shared"),home_limits_shared],
-            [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],[_("Spindle"),spindle],
-            [_("Operation"),operation],[_("External Control"),control],[_("Axis rapid"),rapid],[_("X BLDC Control"),xmotor_control],
-            [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],[_("A BLDC Control"),amotor_control],
+
+        self.human_input_names = [ [_("Unused Input"),[]],[_("Limits"),limit],
+            [_("Home"),home],[_("Limts/Home Shared"),home_limits_shared],
+            [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],
+            [_("Spindle"),spindle],[_("Operation"),operation],[_("External Control"),control],
+            [_("Axis rapid"),rapid],[_("X BLDC Control"),xmotor_control],
+            [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],
+            [_("A BLDC Control"),amotor_control],
             [_("S BLDC Control"),smotor_control],[_("Custom Signals"),[]] ]
 
         (   S.UNUSED_INPUT,
@@ -322,81 +363,129 @@ class Private_Data:
         axis = [_("X Encoder"),_("Y Encoder"), _("Z Encoder"),_("A Encoder"),_("Spindle Encoder")]
         mpg = [_("X Hand Wheel"), _("Y Hand Wheel"), _("Z Hand Wheel"), _("A Hand Wheel") ,_("Multi Hand Wheel")]
         over = [_("Feed Override"),_("spindle Override"),_("Max Vel Override")]
-        self.human_encoder_input_names = [ [_("Unused Encoder"),[]],[_("Axis Encoder"), axis],[_("MPG Jog Controls"), mpg],
-            [_("Override MPG control"), over],[_("Custom Signals"),[]] ]
+        self.human_encoder_input_names = [ [_("Unused Encoder"),[]],[_("Axis Encoder"), axis],
+            [_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
+            [_("Custom Signals"),[]] ]
 
-        self.human_resolver_input_names =[ [_("Unused Resolver"),[]],[_("X Resolver"), []],[_("Y Resolver"), []],[_("Z Resolver"), []],
+        self.human_resolver_input_names =[ [_("Unused Resolver"),[]],[_("X Resolver"), []],
+            [_("Y Resolver"), []],[_("Z Resolver"), []],
             [_("A Resolver"), []],[_("S Resolver"), []],[_("Custom Signals"),[]] ]
-        (   S.USED_RESOLVER,S.X_RESOLVER,S.Y_RESOLVER,S.Z_RESOLVER,S.A_RESOLVER,S.S_RESOLVER
-        ) = self.hal_resolver_input_names = ["unused-resolver","x-resolver","y-resolver","z-resolver","a-resolver","s-resolver"]
+
+        (   S.USED_RESOLVER,S.X_RESOLVER,S.Y_RESOLVER,
+                S.Z_RESOLVER,S.A_RESOLVER,S.S_RESOLVER
+        ) = self.hal_resolver_input_names = ["unused-resolver","x-resolver","y-resolver",
+                "z-resolver","a-resolver","s-resolver"]
 
         self.human_8i20_input_names =[ [_("Unused 8I20"),[]],[_("X Axis"), []],[_("Y Axis"), []],[_("Z Axis"), []],
             [_("A Axis"), []],[_("Spindle"), []],[_("Custom Signals"),[]] ]
+
         (   S.USED_8I20,S.X_8I20,S.Y_8I20,S.Z_8I20,S.A_8I20,S_8I20
         ) = self.hal_8i20_input_names =[
             "unused-8i20","x-8i20","y-8i20","z-8i20","a-8i20","s-8i20"]
 
-        self.human_pot_output_names =[ [_("Unused Analog Output"),[]],[_("Spindle Output"), []],[_("Custom Signals"),[]] ]
-        (   S.USED_POT,S_POT_OUT,S_POT_ENABLE  )= self.hal_pot_output_names = ["unused-pot","s-pot-output","s-pot-enable"]
+        self.human_pot_output_names =[ [_("Unused Analog Output"),[]],[_("Spindle Output"), []],
+            [_("Custom Signals"),[]] ]
+
+        (   S.USED_POT,S_POT_OUT,S_POT_ENABLE  )= self.hal_pot_output_names = ["unused-pot",
+            "s-pot-output","s-pot-enable"]
 
         (   S.UNUSED_STEPGEN,
-            S.X_STEPGEN_STEP,S.X_STEPGEN_DIR,S.X_STEPGEN_PHC,S.X_STEPGEN_PHD,S.X_STEPGEN_PHE,S.X_STEPGEN_PHF,
-            S.Y_STEPGEN_STEP,S.X_STEPGEN_DIR,S.X_STEPGEN_PHC,S.X_STEPGEN_PHD,S.X_STEPGEN_PHE,S.X_STEPGEN_PHF,
-            S.Z_STEPGEN_STEP,S.Z_STEPGEN_DIR,S.Z_STEPGEN_PHC,S.Z_STEPGEN_PHD,S.Z_STEPGEN_PHE,S.Z_STEPGEN_PHF,
-            S.A_STEPGEN_STEP,S.A_STEPGEN_DIR,S.A_STEPGEN_PHC,S.A_STEPGEN_PHD,S.A_STEPGEN_PHE,S.A_STEPGEN_PHF,
-            S.SPINDLE_STEPGEN_STEP,S.SPINDLE_STEPGEN_DIR,S.SPINDLE_STEPGEN_PHC,S.SPINDLE_STEPGEN_PHD,S.SPINDLE_STEPGEN_PHE,S.SPINDLE_STEPGEN_PHF,
-            S.X2_STEPGEN_STEP,S.X2_STEPGEN_DIR,S.X2_STEPGEN_PHC,S.X2_STEPGEN_PHD,S.X2_STEPGEN_PHE,S.X2_STEPGEN_PHF,
-            S.Y2_STEPGEN_STEP,S.Y2_STEPGEN_DIR,S.Y2_STEPGEN_PHC,S.Y2_STEPGEN_PHD,S.Y2_STEPGEN_PHE,S.Y2_STEPGEN_PHF,
-            S.Z2_STEPGEN_STEP,S.Z2_STEPGEN_DIR,S.Z2_STEPGEN_PHC,S.Z2_STEPGEN_PHD,S.Z2_STEPGEN_PHE,S.Z2_STEPGEN_PHF,
-            S.CHARGE_PUMP_STEP,S.CHARGE_PUMP_DIR,S.CHARGE_PUMP_PHC,S.CHARGE_PUMP_PHD,S.CHARGE_PUMP_PHE,S.CHARGE_PUMP_PHF
+            S.X_STEPGEN_STEP,S.X_STEPGEN_DIR,S.X_STEPGEN_PHC,
+            S.X_STEPGEN_PHD,S.X_STEPGEN_PHE,S.X_STEPGEN_PHF,
+            S.Y_STEPGEN_STEP,S.X_STEPGEN_DIR,S.X_STEPGEN_PHC,
+            S.X_STEPGEN_PHD,S.X_STEPGEN_PHE,S.X_STEPGEN_PHF,
+            S.Z_STEPGEN_STEP,S.Z_STEPGEN_DIR,S.Z_STEPGEN_PHC,
+            S.Z_STEPGEN_PHD,S.Z_STEPGEN_PHE,S.Z_STEPGEN_PHF,
+            S.A_STEPGEN_STEP,S.A_STEPGEN_DIR,S.A_STEPGEN_PHC,
+            S.A_STEPGEN_PHD,S.A_STEPGEN_PHE,S.A_STEPGEN_PHF,
+            S.SPINDLE_STEPGEN_STEP,S.SPINDLE_STEPGEN_DIR,S.SPINDLE_STEPGEN_PHC,
+            S.SPINDLE_STEPGEN_PHD,S.SPINDLE_STEPGEN_PHE,S.SPINDLE_STEPGEN_PHF,
+            S.X2_STEPGEN_STEP,S.X2_STEPGEN_DIR,S.X2_STEPGEN_PHC,
+            S.X2_STEPGEN_PHD,S.X2_STEPGEN_PHE,S.X2_STEPGEN_PHF,
+            S.Y2_STEPGEN_STEP,S.Y2_STEPGEN_DIR,S.Y2_STEPGEN_PHC,
+            S.Y2_STEPGEN_PHD,S.Y2_STEPGEN_PHE,S.Y2_STEPGEN_PHF,
+            S.Z2_STEPGEN_STEP,S.Z2_STEPGEN_DIR,S.Z2_STEPGEN_PHC,
+            S.Z2_STEPGEN_PHD,S.Z2_STEPGEN_PHE,S.Z2_STEPGEN_PHF,
+            S.CHARGE_PUMP_STEP,S.CHARGE_PUMP_DIR,S.CHARGE_PUMP_PHC,
+            S.CHARGE_PUMP_PHD,S.CHARGE_PUMP_PHE,S.CHARGE_PUMP_PHF
         ) = self.hal_stepper_names =[
             "unused-stepgen", 
-            "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f",
-            "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c", "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
-            "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
-            "a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",
-            "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", "s-stepgen-phase-f",
-            "x2-stepgen-step", "x2-stepgen-dir", "x2-stepgen-phase-c", "x2-stepgen-phase-d", "x2-stepgen-phase-e", "x2-stepgen-phase-f",
-            "y2-stepgen-step", "y2-stepgen-dir", "y2-stepgen-phase-c", "y2-stepgen-phase-d", "y2-stepgen-phase-e", "y2-stepgen-phase-f",
-            "z2-stepgen-step", "z2-stepgen-dir", "z2-stepgen-phase-c", "z2-stepgen-phase-d", "z2-stepgen-phase-e", "z2-stepgen-phase-f",
+            "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c",
+            "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f",
+            "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c",
+            "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
+            "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c",
+            "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
+            "a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c",
+            "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",
+            "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c",
+            "s-stepgen-phase-d", "s-stepgen-phase-e", "s-stepgen-phase-f",
+            "x2-stepgen-step", "x2-stepgen-dir", "x2-stepgen-phase-c",
+            "x2-stepgen-phase-d", "x2-stepgen-phase-e", "x2-stepgen-phase-f",
+            "y2-stepgen-step", "y2-stepgen-dir", "y2-stepgen-phase-c",
+            "y2-stepgen-phase-d", "y2-stepgen-phase-e", "y2-stepgen-phase-f",
+            "z2-stepgen-step", "z2-stepgen-dir", "z2-stepgen-phase-c",
+            "z2-stepgen-phase-d", "z2-stepgen-phase-e", "z2-stepgen-phase-f",
             "charge-pump-out","cp-dir","cp-pc","cp-pd","cp-fe","cp-pf"]
 
-        self.human_stepper_names = [ [_("Unused StepGen"),[]],[_("X Axis StepGen"),[]],[_("Y Axis StepGen"),[]],[_("Z Axis StepGen"),[]],
-            [_("A Axis StepGen"),[]],[_("Spindle StepGen"),[]],[_("X2 Tandem StepGen"),[]],[_("Y2 Tandem StepGen"),[]],
-            [_("Z2 Tandem StepGen"),[]],[_("Charge Pump StepGen"),[]],[_("Custom Signals"),[]] ]
+        self.human_stepper_names = [ [_("Unused StepGen"),[]],[_("X Axis StepGen"),[]],
+            [_("Y Axis StepGen"),[]],[_("Z Axis StepGen"),[]],
+            [_("A Axis StepGen"),[]],[_("Spindle StepGen"),[]],
+            [_("X2 Tandem StepGen"),[]],[_("Y2 Tandem StepGen"),[]],
+            [_("Z2 Tandem StepGen"),[]],[_("Charge Pump StepGen"),[]],
+            [_("Custom Signals"),[]] ]
 
         (   S.UNUSED_TPPWM,
-            S.X_TPPWM_A,S.X_TPPWM_B,S.X_TPPWM_C,S.X_TPPWM_AN,S.X_TPPWM_BN,S.X_TPPWM_CN,S.X_TPPWM_ENABLE,S.X_TPPWM_FAULT,
-            S.Y_TPPWM_A,S.Y_TPPWM_B,S.Y_TPPWM_C,S.Y_TPPWM_AN,S.Y_TPPWM_BN,S.Y_TPPWM_CN,S.Y_TPPWM_ENABLE,S.Y_TPPWM_FAULT,
-            S.Z_TPPWM_A,S.Z_TPPWM_B,S.Z_TPPWM_C,S.Z_TPPWM_AN,S.Z_TPPWM_BN,S.Z_TPPWM_CN,S.Z_TPPWM_ENABLE,S.Z_TPPWM_FAULT,
-            S.A_TPPWM_A,S.A_TPPWM_B,S.A_TPPWM_C,S.A_TPPWM_AN,S.A_TPPWM_BN,S.A_TPPWM_CN,S.A_TPPWM_ENABLE,S.A_TPPWM_FAULT,
-            S_TPPWM_A,S.S_TPPWM_B,S.S_TPPWM_C,S.S_TPPWM_AN,S.S_TPPWM_BN,S.S_TPPWM_CN,S.S_TPPWM_ENABLE,S.S_TPPWM_FAULT
+            S.X_TPPWM_A,S.X_TPPWM_B,S.X_TPPWM_C,S.X_TPPWM_AN,
+            S.X_TPPWM_BN,S.X_TPPWM_CN,S.X_TPPWM_ENABLE,S.X_TPPWM_FAULT,
+            S.Y_TPPWM_A,S.Y_TPPWM_B,S.Y_TPPWM_C,S.Y_TPPWM_AN,
+            S.Y_TPPWM_BN,S.Y_TPPWM_CN,S.Y_TPPWM_ENABLE,S.Y_TPPWM_FAULT,
+            S.Z_TPPWM_A,S.Z_TPPWM_B,S.Z_TPPWM_C,S.Z_TPPWM_AN,
+            S.Z_TPPWM_BN,S.Z_TPPWM_CN,S.Z_TPPWM_ENABLE,S.Z_TPPWM_FAULT,
+            S.A_TPPWM_A,S.A_TPPWM_B,S.A_TPPWM_C,S.A_TPPWM_AN,
+            S.A_TPPWM_BN,S.A_TPPWM_CN,S.A_TPPWM_ENABLE,S.A_TPPWM_FAULT,
+            S_TPPWM_A,S.S_TPPWM_B,S.S_TPPWM_C,S.S_TPPWM_AN,
+            S.S_TPPWM_BN,S.S_TPPWM_CN,S.S_TPPWM_ENABLE,S.S_TPPWM_FAULT
         ) = self.hal_tppwm_output_names= [
             "unused-tppwm",
-            "x-tppwm-a","x-tppwm-b","x-tppwm-c","x-tppwm-anot","x-tppwm-bnot","x-tppwm-cnot", "x-tppwm-enable","x-tppwm-fault",
-            "y-tppwm-a","y-tppwm-b","y-tppwm-c","y-tppwm-anot","y-tppwm-bnot","y-tppwm-cnot", "y-tppwm-enable","y-tppwm-fault",
-            "z-tppwm-a","z-tppwm-b","z-tppwm-c","z-tppwm-anot","z-tppwm-bnot","z-tppwm-cnot", "z-tppwm-enable","z-tppwm-fault",
-            "a-tppwm-a","a-tppwm-b","a-tppwm-c","a-tppwm-anot","a-tppwm-bnot","a-tppwm-cnot", "a-tppwm-enable","a-tppwm-fault",
-            "s-tppwm-a","s-tppwm-b","s-tppwm-c","s-tppwm-anot","s-tppwm-bnot","s-tppwm-cnot", "s-tppwm-enable","s-tppwm-fault"]
+            "x-tppwm-a","x-tppwm-b","x-tppwm-c","x-tppwm-anot",
+            "x-tppwm-bnot","x-tppwm-cnot", "x-tppwm-enable","x-tppwm-fault",
+            "y-tppwm-a","y-tppwm-b","y-tppwm-c","y-tppwm-anot",
+            "y-tppwm-bnot","y-tppwm-cnot", "y-tppwm-enable","y-tppwm-fault",
+            "z-tppwm-a","z-tppwm-b","z-tppwm-c","z-tppwm-anot",
+            "z-tppwm-bnot","z-tppwm-cnot", "z-tppwm-enable","z-tppwm-fault",
+            "a-tppwm-a","a-tppwm-b","a-tppwm-c","a-tppwm-anot",
+            "a-tppwm-bnot","a-tppwm-cnot", "a-tppwm-enable","a-tppwm-fault",
+            "s-tppwm-a","s-tppwm-b","s-tppwm-c","s-tppwm-anot",
+            "s-tppwm-bnot","s-tppwm-cnot", "s-tppwm-enable","s-tppwm-fault"]
 
-        self.human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]],[_("X Axis BL Driver"),[]],[ _("Y Axis BL Driver"),[]],
-            [_("Z Axis BL Driver"),[]],[_("A Axis BL Driver"),[]],[_("S Axis BL Driver"),[]],[_("Custom Signals"),[]] ]
+        self.human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]], [_("X Axis BL Driver"),[]],
+            [ _("Y Axis BL Driver"),[]], [_("Z Axis BL Driver"),[]],
+            [_("A Axis BL Driver"),[]], [_("S Axis BL Driver"),[]],
+            [_("Custom Signals"),[]] ]
 
-        (   S.UNUSED_SSERIAL,S.A8I20_T,S.A8I20_R,S.A8I20_E,S.I7I64_T,S.I7I64_R,S.I7I64_E,S.I7I69_T,S.I7I69_R,S.I7I69_E,
-            S.I7I70_T,S.I7I70_R,S.I7I70_E,S.I7I71_T,S.I7I71_R,S.I7I71_E,S.
-            I7I76_M0_T,S.I7I76_M0_R,S.I7I76_M0_E,S.I7I76_M2_T,S.I7I76_M2_R,S.I7I76_M2_E,
-            S.I7I77_M0_T,S.I7I77_M0_R,S.I7I77_M0_E,S.I7I77_M3_T,S.I7I77_M3_R,S.I7I77_M3_E,S.I7I73_M0_T,S.I7I73_M0_R,S.I7I73_M0_E,
-S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3_E
+        (   S.UNUSED_SSERIAL, S.A8I20_T, S.A8I20_R, S.A8I20_E,
+            S.I7I64_T, S.I7I64_R, S.I7I64_E, S.I7I69_T, S.I7I69_R, S.I7I69_E,
+            S.I7I70_T, S.I7I70_R, S.I7I70_E, S.I7I71_T, S.I7I71_R, S.I7I71_E, 
+            S.I7I76_M0_T, S.I7I76_M0_R, S.I7I76_M0_E, S.I7I76_M2_T, S.I7I76_M2_R, S.I7I76_M2_E,
+            S.I7I77_M0_T, S.I7I77_M0_R, S.I7I77_M0_E, S.I7I77_M3_T, S.I7I77_M3_R, S.I7I77_M3_E,
+            S.I7I73_M0_T, S.I7I73_M0_R, S.I7I73_M0_E, S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E,
+            S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3_E,
         ) = self.hal_sserial_names = [
-            "unused-sserial",
-            "8i20-t","8i20-r","8i20-e","7i64-t","7i64-r","7i64-e","7i69-t","7i69-r","7i69-e","7i70-t","7i70-r","7i70-e",
-            "7i71-t","7i71-r","7i71-e","7i76-m0-t","7i76-m0-r","7i76-m0-e", "7i76-m2-t","7i76-m2-r","7i76-m2-e",
+            "unused-sserial","8i20-t","8i20-r","8i20-e",
+            "7i64-t","7i64-r","7i64-e","7i69-t","7i69-r","7i69-e",
+            "7i70-t","7i70-r","7i70-e","7i71-t","7i71-r","7i71-e",
+            "7i76-m0-t","7i76-m0-r","7i76-m0-e", "7i76-m2-t","7i76-m2-r","7i76-m2-e",
             "7i77-m0-t","7i77-m0-r","7i77-m0-e","7i77-m3-t","7i77-m3-r","7i77-m3-e",
             "7i73-m1-t","7i73-m1-r","7i73-m1-e","7i84-m0-t","7i84-m0-r","7i84-m0-e","7i84-m3-t","7i84-m3-r","7i84-m3-e"]
  
-        self.human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]],[ _("7i69 I/O Card"),[]],
-                        [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],[ _("7i76 Mode 0 I/O Card"),[]],[ _("7i76 Mode 2 I/O Card"),[]],
-                        [ _("7i77 Mode 0 I/O Card"),[]],[ _("7i77 Mode 3 I/O Card"),[]],[ _("7i73 Mode 1 Pendant Card"),[]],[ _("7i84 Mode 1 I/O Card"),[]],[ _("7i84 Mode 3 I/O Card"),[]] ]
+        self.human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],
+            [ _("7i64 I/O Card"),[]],[ _("7i69 I/O Card"),[]],
+            [ _("7i70 I/O Card"),[]],[ _("7i71 I/O Card"),[]],
+            [ _("7i76 Mode 0 I/O Card"),[]],[ _("7i76 Mode 2 I/O Card"),[]],
+            [ _("7i77 Mode 0 I/O Card"),[]],[ _("7i77 Mode 3 I/O Card"),[]],
+            [ _("7i73 Mode 1 Pendant Card"),[]],
+            [ _("7i84 Mode 1 I/O Card"),[]],[ _("7i84 Mode 3 I/O Card"),[]], ]
 
         (S.UNUSED_ANALOG_IN) = self.hal_analog_input_names = ["unused-analog-input"]
         self.human_analog_input_names = [ [_("Unused Analog In"),[]],[_("Custom Signals"),[]] ]
@@ -407,7 +496,7 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         self._BOARDTITLE = 0;self._BOARDNAME = 1;self._FIRMWARE = 2;self._DIRECTORY = 3;self._HALDRIVER = 4;
         self._MAXENC = 5;self._ENCPINS = 6;self._MAXRES = 7;self._RESPINS = 8;self._MAXPWM = 9;
         self._PWMPINS = 10;self._MAXTPPWM = 11;self._TTPWMPINMS = 12;self._MAXSTEP = 13;self._STEPPINS = 14;
-        self._MAXSSERIALPORTS = 15;self._MAXSSERIALCHANNELS = 16;self._HASWATCHDOG = 25;
+        self._MAXSSERIALPORTS = 15;self._MAXSSERIALCHANNELS = 16;self._SSDEVICES=17;self._HASWATCHDOG = 25;
         self._MAXGPIO = 26;self._LOWFREQ = 27;self._HIFREQ = 28;self._NUMOFCNCTRS = 29;self._STARTOFDATA = 30
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, number of pins per encoder,
@@ -416,13 +505,15 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
 # max tppwmgens , # of pins
 # max step gens, number of pins per step gen,
 # max smart serial, number of channels,
-# spare,spare,spare,spare,spare,spare,spare,spare,
+# discovered sserial devices,
+# spare,spare,spare,spare,spare,spare,spare,
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
         self.MESA_INTERNAL_FIRMWAREDATA = [
     # 5i25 ####################
-    ['5i25-Internal Data', '5i25', '7i76x2 -With One 7i76', '5i25', 'hm2_pci', 1,3, 0,0, 0,3, 0,0, 5,2, 1,2, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+    ['5i25-Internal Data', '5i25', '7i76x2 -With One 7i76', '5i25', 'hm2_pci',
+         1,3, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # TAB 3
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
@@ -432,7 +523,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ["5i25-Internal Data", "5i25", "7i76x2", "5i24", "hm2_pci", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [3,2],
+    ["5i25-Internal Data", "5i25", "7i76x2", "5i25", "hm2_pci",
+         2,3, 0,0, 0,3, 0,0, 10,2, 1,4, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [3,2],
         # TAB 3
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
@@ -442,7 +534,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['5i25-Internal Data', '5i25', '7i77_7i76', '5i25', 'hm2_pci', 6,3, 0,0, 0,3, 0,0, 5,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+    ['5i25-Internal Data', '5i25', '7i77_7i76', '5i25', 'hm2_pci',
+         6,3, 0,0, 0,3, 0,0, 5,2, 1,5, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # Tab 3
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -452,7 +545,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.SS7I76M3,0],[S.RXDATA3,0],[S.TXDATA4,0],[S.RXDATA4,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['5i25-Internal Data', '5i25', '7i77x2 With One 7i77', '5i25', 'hm2_pci', 6,3, 0,0, 0,3, 0,0, 0,2, 1,3, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+    ['5i25-Internal Data', '5i25', '7i77x2 With One 7i77', '5i25', 'hm2_pci',
+         6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # TAB 3
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -462,7 +556,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['5i25-Internal Data', '5i25', '7i77x2', '5i25', 'hm2_pci', 12,3, 0,0, 0,3, 0,0, 0,2, 1,6, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2], 
+    ['5i25-Internal Data', '5i25', '7i77x2', '5i25', 'hm2_pci',
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2], 
         # TAB 3
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -472,7 +567,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.MXEI, 3],[S.MXE0, 4],[S.MXE1, 4],[S.MXEI, 4],[S.MXE0, 5],[S.MXE1, 5],[S.MXEI, 5],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['5i25-Internal Data', '5i25', 'prob_rfx2', '5i25', 'hm2_pci', 2,3, 0,0, 2,3, 0,0, 8,2, 0,0, 0,0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
+    ['5i25-Internal Data', '5i25', 'prob_rfx2', '5i25', 'hm2_pci',
+        2,3, 0,0, 2,3, 0,0, 8,2, 0,0, [],0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
         # TAB 3
         [S.GPIOI, 0],[S.PWMP, 0],[S.STEPA, 0],[S.GPIOI, 0],[S.STEPB, 0],[S.PWMD, 0],[S.STEPA, 1],[S.GPIOI, 0],[S.STEPB, 1],[S.STEPA, 2],
         [S.STEPB, 2],[S.STEPA, 3],[S.STEPB, 3],[S.GPIOI, 0],[S.ENCA, 0],[S.ENCB, 0],[S.ENCI, 0],
@@ -493,7 +589,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
 
     # 5i20 #####################
-    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
+    ["5i20", "5i20", "SV12", "5i20", "hm2_pci",
+        12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
         [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
         [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
@@ -501,7 +598,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
         [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10]
     ],
-    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 4,2, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci",
+        8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
       [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
       [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
       [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
@@ -511,7 +609,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
      ],
 
     # 7i76e ####################
-    ['7i76e-Internal Data', '7i76e', '7i76e', '7i76', 'hm2_eth', 1,3, 0,0, 0,3, 0,0, 5,2, 1,2, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+    ['7i76e-Internal Data', '7i76e', '7i76e', '7i76', 'hm2_eth',
+        1,3, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
         # TAB 1
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
@@ -526,7 +625,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     # 7i92 ####################
-    ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "5i92", "hm2_eth", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+    ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "5i92", "hm2_eth",
+         2,3, 0,0, 0,3, 0,0, 10,2, 1,4, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
         # TAB 2
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
@@ -536,7 +636,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ["7i92-Internal Data", "7i92", "7i76x2", "7i92", "hm2_eth", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+    ["7i92-Internal Data", "7i92", "7i76x2", "7i92", "hm2_eth",
+        2,3, 0,0, 0,3, 0,0, 10,2, 1,4, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
         # TAB 2
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
@@ -546,7 +647,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['7i92-Internal Data', '7i92', '7i77x2 with on 7i77', '7i92', 'hm2_eth', 12,3, 0,0, 0,3, 0,0, 0,2, 1,6, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+    ['7i92-Internal Data', '7i92', '7i77x2 with on 7i77', '7i92', 'hm2_eth',
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -556,7 +658,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['7i92-Internal Data', '7i92', '7i77x2', '7i92', 'hm2_eth', 12,3, 0,0, 0,3, 0,0, 0,2, 1,6, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+    ['7i92-Internal Data', '7i92', '7i77x2', '7i92', 'hm2_eth',
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -567,7 +670,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     # 7i80HD #################
-    ["7i80HD-Internal Data", "7i80HD", "SV12", "7i80HD", "hm2_eth", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
+    ["7i80HD-Internal Data", "7i80HD", "SV12", "7i80HD", "hm2_eth",
+        12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
         [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
         [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
@@ -575,7 +679,8 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
         [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10],],
 
-    ["7i80HD-Internal Data", "7i80HD", "SVST8_4", "7i80HD", "hm2_eth", 8,3, 0,0, 8,3, 0,0, 4,2, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
+    ["7i80HD-Internal Data", "7i80HD", "SVST8_4", "7i80HD", "hm2_eth",
+      8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
       [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
       [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
       [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
