@@ -1333,10 +1333,7 @@ class HAL:
             print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, jnum)
             print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, jnum)
             print >>file, "setp   " + steppinname + ".step_type        0"
-            if closedloop:
-                print >>file, "setp   " + steppinname + ".control-type     1"
-            else:
-                print >>file, "setp   " + steppinname + ".control-type     0"
+            print >>file, "setp   " + steppinname + ".control-type     1"
             print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, jnum)
             print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, jnum)
             for i in stepinvertlist2:
