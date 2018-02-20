@@ -257,6 +257,8 @@ int Interp::execute_call(setup_pointer settings,
 		// Set return location to repeat this block for next
 		// iteration
 		previous_frame->position = eblock->offset;
+		// Unbump line number for next iteration
+		previous_frame->sequence_number--;
 
 	    } else
 		// No loops remain; reset loop counter
