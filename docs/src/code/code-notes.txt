@@ -1092,8 +1092,8 @@ zero TLO), so that the spindle can be conveniently emptied when needed.
 
 === The Tool Table
 
-LinuxCNC keeps track of tools in a file called the _tool table_.
-The tool table records the following information for each tool:
+LinuxCNC keeps track of tools in a file called the <<sec:tool-table,tool
+table>>.  The tool table records the following information for each tool:
 
 tool number::
 
