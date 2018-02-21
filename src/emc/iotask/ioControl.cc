@@ -874,8 +874,6 @@ int main(int argc, char *argv[])
                     *(iocontrol_data->tool_prep_number) = 0;
                 } else {
                     *(iocontrol_data->tool_prep_number) = emcioStatus.tool.toolTable[p].toolno;
-		    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE: mismatch: tooltable[%d]=%d, got %d\n", 
-				    p, emcioStatus.tool.toolTable[p].toolno, t);
                 }
                 /* then set the prepare pin to tell external logic to get started */
                 *(iocontrol_data->tool_prepare) = 1;
