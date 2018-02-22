@@ -62,7 +62,8 @@ into E-stop, and when the "Lube Off" command gets sent to the controller.
 
 .TP
 \fBiocontrol.0.tool\-prep\-pocket
-(s32, Out) The pocket number (location in tool storage mechanism) of the next tool, as described in the tool table
+(s32, Out) This is the pocket number (location in the tool storage
+mechanism) of the tool requested by the most recent T-word.
 
 .TP
 \fBiocontrol.0.tool\-prepare 
@@ -79,6 +80,18 @@ into E-stop, and when the "Lube Off" command gets sent to the controller.
 .TP
 \fBiocontrol.0.user\-request\-enable 
 (Bit, Out) TRUE when the user has requested that estop be cleared
+
+.SH PARAMETERS
+
+.TP
+\fBiocontrol.0.tool\-prep\-index
+(s32, RO) IO's internal array index of the prepped tool requested
+by the most recent T-word.  0 if no tool is prepped.  On Random
+toolchanger machines this is tool's pocket number (ie, the same as the
+tool\-prep\-pocket pin), on Non-random toolchanger machines this is
+a small integer corresponding to the tool's location in the internal
+representation of the tool table.  This parameter returns to 0 after a
+successful tool change (M6).
 
 .SH SEE ALSO
 \fBmotion\fR(9)
