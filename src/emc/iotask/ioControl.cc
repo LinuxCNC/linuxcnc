@@ -867,7 +867,7 @@ int main(int argc, char *argv[])
                 // it doesn't make sense to prep the spindle pocket
                 if(random_toolchanger && p == 0) break;
 
-                /* set tool number first */
+                // Set HAL pins/params for tool number, pocket, and index.
                 iocontrol_data->tool_prep_index = p;
                 *(iocontrol_data->tool_prep_pocket) = random_toolchanger? p: fms[p];
                 if(!random_toolchanger && p == 0) {
