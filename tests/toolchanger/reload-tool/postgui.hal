@@ -1,0 +1,22 @@
+
+net tool-change <= iocontrol.0.tool-change
+net tool-change => test-ui.tool-change
+
+net tool-changed <= test-ui.tool-changed
+net tool-changed => iocontrol.0.tool-changed
+
+net tool-prepare <= iocontrol.0.tool-prepare
+net tool-prepare => test-ui.tool-prepare
+
+net tool-prepared <= test-ui.tool-prepared
+net tool-prepared => iocontrol.0.tool-prepared
+
+net tool-number <= iocontrol.0.tool-number
+net tool-number => test-ui.tool-number
+
+net tool-prep-number <= iocontrol.0.tool-prep-number
+net tool-prep-number => test-ui.tool-prep-number
+
+net tool-prep-pocket <= iocontrol.0.tool-prep-pocket
+net tool-prep-pocket => test-ui.tool-prep-pocket
+
