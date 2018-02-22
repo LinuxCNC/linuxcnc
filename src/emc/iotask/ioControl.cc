@@ -875,6 +875,7 @@ int main(int argc, char *argv[])
 
                 // it doesn't make sense to prep the spindle pocket
                 if (random_toolchanger && p == 0) {
+                    emcioStatus.tool.pocketPrepped = 0;
                     break;
                 }
 
