@@ -648,6 +648,11 @@ class Data:
         self.loadcompbase = []
         self.addcompbase = []
 
+        self.xhomesequence = 1
+        self.yhomesequence = 2
+        self.zhomesequence = 0
+        self.ahomesequence = 3
+
         # common axis data
         for temp in("x","y","z","a","s"):
 
@@ -5020,6 +5025,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis+"homesearchvel"].set_text("%d" % (d[axis+"homesearchvel"]*60))
             w[axis+"homelatchvel"].set_text("%d" % (d[axis+"homelatchvel"]*60))
             w[axis+"homefinalvel"].set_text("%d" % (d[axis+"homefinalvel"]*60))
+            w[axis+"homesequence"].set_text("%d" % d[axis+"homesequence"])
             set_active("searchdir")
             set_active("latchdir")
             set_active("usehomeindex")
