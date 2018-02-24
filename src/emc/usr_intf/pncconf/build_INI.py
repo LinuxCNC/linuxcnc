@@ -240,7 +240,7 @@ class INI:
         jnum = 0
         # Always X AXIS
         self.write_one_axis(file, 'x')
-        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("x2"))
+        tandemjoint = self.a.tandem_check('x')
         self.write_one_joint(file, 0, "x", "LINEAR", all_homes, bool(not tandemjoint is None))
         if tandemjoint:
             jnum += 1
@@ -250,7 +250,7 @@ class INI:
         # Maybe add Y AXIS
         if self.d.axes in(0,1): # xyz or xyza
             self.write_one_axis(file, 'y')
-            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("y2"))
+            tandemjoint = self.a.tandem_check('y')
             self.write_one_joint(file, 0, "y", "LINEAR", all_homes, bool(not tandemjoint is None))
             if tandemjoint:
                 jnum += 1
@@ -259,7 +259,7 @@ class INI:
 
         # Always add Z AXIS
         self.write_one_axis(file, 'z')
-        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("z2"))
+        tandemjoint = self.a.tandem_check('z')
         self.write_one_joint(file, 0, "z", "LINEAR", all_homes, bool(not tandemjoint is None))
         if tandemjoint:
             jnum += 1
@@ -269,7 +269,7 @@ class INI:
         # Maybe add A AXIS
         if self.d.axes == 1: # xyza
             self.write_one_axis(file, 'a')
-            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("a2"))
+            tandemjoint = self.a.tandem_check('a')
             self.write_one_joint(file, 0, "a", "LINEAR", all_homes, bool(not tandemjoint is None))
             if tandemjoint:
                 jnum += 1
