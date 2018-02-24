@@ -39,6 +39,7 @@ class Private_Data:
                                 ['start',_('Start'),True,True],
                                 ['base',_('Base Information'),True,True],
                                 ['screen',_('Screen'),True,True],
+                                ['vcp',_('VCP'),True,True],
                                 ['external',_('External Controls'),True,True],
                                 ['mesa0',_('Mesa Card 0'),False,True],
                                 ['mesa1',_('Mesa Card 1'),False,True],
@@ -61,8 +62,9 @@ class Private_Data:
         self.prepare_block = False
         self._AXIS = 1
         self._TKLINUXCNC = 2
-        self._NOTUSED = 3
+        self._GMOCCAPY = 3
         self._TOUCHY = 4
+
         self._SSCOMBOLEN = 60
         self._IMPERIAL = 0
         self._METRIC = 1

@@ -33,6 +33,8 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.frontend == _PD._TKLINUXCNC:
             print >>file, "DISPLAY = tklinuxcnc"
+        elif self.d.frontend == _PD._GMOCCAPY:
+            print >>file, "DISPLAY = gmoccapy"
         elif self.d.frontend == _PD._TOUCHY:
             print >>file, "DISPLAY = touchy"
         if self.d.gladevcp:
@@ -124,7 +126,7 @@ class INI:
         print >>file, "HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         print >>file, "HALFILE = custom.hal"
-        if self.d.frontend == _PD._AXIS:
+        if self.d.frontend in( _PD._AXIS, _PD._GMOCCAPY):
             print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
