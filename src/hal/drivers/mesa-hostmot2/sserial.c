@@ -1494,13 +1494,6 @@ int hm2_sserial_register_tram(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
 
     // Register the TRAM WRITE
 
-    r = hm2_register_tram_write_region(hm2, chan->reg_cs_addr, sizeof(rtapi_u32),
-                                       &(chan->reg_cs_write));
-    if (r < 0) {HM2_ERR("error registering tram write region for sserial"
-                        "interface cs register (%d)\n", r);
-        goto fail1;
-    }
-
     if (chan->num_write_bits > 0){
         r = hm2_register_tram_write_region(hm2, chan->reg_0_addr, sizeof(rtapi_u32),
                                            &(chan->reg_0_write));
@@ -1532,6 +1525,13 @@ int hm2_sserial_register_tram(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
         }
     } else {
         chan->reg_2_write = NULL;
+    }
+
+    r = hm2_register_tram_write_region(hm2, chan->reg_cs_addr, sizeof(rtapi_u32),
+                                       &(chan->reg_cs_write));
+    if (r < 0) {HM2_ERR("error registering tram write region for sserial"
+                        "interface cs register (%d)\n", r);
+        goto fail1;
     }
 
     return 0;
