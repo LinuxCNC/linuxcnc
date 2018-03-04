@@ -1,7 +1,5 @@
-POC     FMS     LEN     DIAM    COMMENT
-
-1       1       0.5     0.0625  first tool
-2       2       0.7     0.125
-3       3       0.5     0.25
-4       4       0.7     1.0
-32      32      0.5     0.0     last tool
+T1 P1 Z0.5 D0.0625;first tool
+T2 P2 Z0.7 D0.125;
+T3 P3 Z0.5 D0.25;
+T4 P4 Z0.7 D1.0;
+T32 P32 Z0.5 D0.0;last tool

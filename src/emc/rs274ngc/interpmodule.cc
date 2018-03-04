@@ -109,10 +109,10 @@ static bp::object errorStack(Interp &interp)
 
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 {
-    int status, pocket;
+    int status, pocket, index;
     setup *settings  =  &interp._setup;
 
-    status = interp.find_tool_pocket(settings, toolno, &pocket);
+    status = interp.find_tool_pocket(settings, toolno, &index, &pocket);
     return bp::make_tuple(status, pocket);
 }
 
@@ -726,10 +726,10 @@ static inline void set_retract_mode(Interp &interp, RETRACT_MODE value)  {
     interp._setup.retract_mode = value;
 }
 static inline int get_selected_pocket (Interp &interp)  {
-    return interp._setup.selected_pocket;
+    return interp._setup.selected_tool_index;
 }
 static inline void set_selected_pocket(Interp &interp, int value)  {
-    interp._setup.selected_pocket = value;
+    interp._setup.selected_tool_index = value;
 }
 static inline int get_selected_tool (Interp &interp)  {
     return interp._setup.selected_tool;

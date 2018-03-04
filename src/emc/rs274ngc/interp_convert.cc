@@ -1905,7 +1905,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                                           setup_pointer settings)       //!< pointer to machine settings              
 {
   double radius;
-  int pocket_number, orientation;
+  int pocket_number, realpocket, orientation;
 
   CHKS((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
@@ -1930,7 +1930,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[7]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHP((find_tool_pocket(settings, tool, &pocket_number)));
+          CHP((find_tool_pocket(settings, tool, &pocket_number, &realpocket)));
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].diameter) / 2.0;
       orientation = settings->tool_table[pocket_number].orientation;
@@ -3090,10 +3090,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      // now also accept M61 Q0 - unload tool
 	      CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
 	      
-	      int pocket;
+	      int pocket, realpocket;
 	      
 	      // make sure selected tool exists
-	      CHP((find_tool_pocket(settings, toolno, &pocket)));
+	      CHP((find_tool_pocket(settings, toolno, &pocket, &realpocket)));
 	      settings->current_pocket = pocket;
 	      settings->toolchange_flag = true;
 	      CHANGE_TOOL_NUMBER(settings->current_pocket);
@@ -3125,7 +3125,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     // finally unload the last tool, G43 mode is canceled.
 
       if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
-        if(settings->selected_pocket > 0) {
+        if(settings->selected_tool_index > 0) {
             struct block_struct g43;
             init_block(&g43);
             block->g_modes[_gees[G_43]] = G_43;
@@ -3576,14 +3576,14 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 // G10 L10 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
-    int pocket = -1, toolno;
+    int pocket = -1, toolno, realpocket;
     int q;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
     int direct = block->l_number == 1;
 
     is_near_int(&toolno, block->p_number);
 
-    CHP((find_tool_pocket(settings, toolno, &pocket)));
+    CHP((find_tool_pocket(settings, toolno, &pocket, &realpocket)));
 
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
 	   block->a_flag || block->b_flag || block->c_flag ||
@@ -5087,7 +5087,7 @@ spindle and make new entry moves if necessary.
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
 
-  if (settings->selected_pocket < 0) {
+  if (settings->selected_tool_index < 0) {
     ERS(NCE_TXX_MISSING_FOR_M6);
   }
 
@@ -5165,9 +5165,9 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       settings->w_current = w_end;
   }
 
-  CHANGE_TOOL(settings->selected_pocket);
+  CHANGE_TOOL(settings->tool_table[settings->selected_tool_index].toolno);
 
-  settings->current_pocket = settings->selected_pocket;
+  settings->current_pocket = settings->selected_tool_index;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = true; 
   set_tool_parameters();
@@ -5209,7 +5209,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
                                       setup_pointer settings)   //!< pointer to machine settings                 
 {
-  int pocket_number;
+  int pocket_number, pocket;//TODO: rename pocket_number
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
 
@@ -5221,7 +5221,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
       if(block->h_flag) {
-        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+        CHP((find_tool_pocket(settings, block->h_number, &pocket_number, &pocket)));
     } else if (settings->toolchange_flag) {
         // Tool change is in progress, so the "current tool" is in its
         // original pocket still.
@@ -5257,7 +5257,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->w_flag) tool_offset.w = block->w_number;
   } else if (g_code == G_43_2) {
     CHKS((!block->h_flag), (_("G43.2: H-word missing")));
-    CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+    CHP((find_tool_pocket(settings, block->h_number, &pocket_number, &pocket)));
     tool_offset = settings->tool_offset;
     tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
     tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
@@ -5322,10 +5322,10 @@ A zero t_number is allowed and means no tool should be selected.
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings             
 {
-  int pocket;
-  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-  SELECT_POCKET(pocket, block->t_number);
-  settings->selected_pocket = pocket;
+  int index, pocket;
+  CHP((find_tool_pocket(settings, block->t_number, &index, &pocket)));
+  SELECT_POCKET(index, block->t_number);
+  settings->selected_tool_index = index;
   settings->selected_tool = block->t_number;
   return INTERP_OK;
 }

@@ -49,6 +49,7 @@ FILE * _outfile=NULL;      /* where to print, set in main */
 
 static CANON_PLANE       _active_plane = CANON_PLANE_XY;
 static int               _active_slot = 1;
+static int               _prep_slot = -1;
 static int               _feed_mode = 0;
 static double            _feed_rate = 0.0;
 static int               _flood = 0;
@@ -641,13 +642,17 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 
 void CHANGE_TOOL(int slot)
 {
-  PRINT1("CHANGE_TOOL(%d)\n", slot);
-  _active_slot = slot;
-  _tools[0] = _tools[slot];
+  //_prep_slot == 0 means unload tool
+  PRINT1("CHANGE_TOOL(%d)\n", _prep_slot == 0?0:_tools[_prep_slot].toolno);
+  _active_slot = _prep_slot;
+  _tools[0] = _tools[_prep_slot];
 }
 
 void SELECT_POCKET(int slot, int tool)
-{PRINT1("SELECT_POCKET(%d)\n", slot);}
+{
+  _prep_slot = slot;
+  PRINT1("SELECT_POCKET(%d)\n", tool);
+}
 
 void CHANGE_TOOL_NUMBER(int slot)
 {

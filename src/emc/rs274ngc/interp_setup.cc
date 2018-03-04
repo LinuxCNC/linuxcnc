@@ -120,7 +120,7 @@ setup::setup() :
     program_z (0.0),
     retract_mode(R_PLANE),
     random_toolchanger(0),
-    selected_pocket(0),
+    selected_tool_index(0),
     selected_tool(0),
     sequence_number(0),
     speed (0.0),

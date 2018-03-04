@@ -26,7 +26,7 @@ class Canon:
     def get_axis_mask(self): return 7 # (x y z)
     def get_block_delete(self): return False
     def get_tool(self, pocket):
-        return -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+        return -1, -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
 
 parameter = tempfile.NamedTemporaryFile()
 canon = Canon()

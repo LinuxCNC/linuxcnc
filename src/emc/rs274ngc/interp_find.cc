@@ -706,18 +706,21 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
   return (theta);
 }
 
-int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
+int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *index, int *pocket)
 {
     if(!settings->random_toolchanger && toolno == 0) {
+        *index = 0;
         *pocket = 0;
         return INTERP_OK;
     }
-    *pocket = -1;
+    *index = -1;
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        if(settings->tool_table[i].toolno == toolno)
-            *pocket = i;
+        if(settings->tool_table[i].toolno == toolno){
+            *index = i;
+            *pocket = settings->tool_table[i].pocketno;
+        }
     }
 
-    CHKS((*pocket == -1), (_("Requested tool %d not found in the tool table")), toolno);
+    CHKS((*index == -1), (_("Requested tool %d not found in the tool table")), toolno);
     return INTERP_OK;
 }

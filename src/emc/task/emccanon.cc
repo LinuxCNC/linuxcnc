@@ -2016,18 +2016,18 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
-	linearMoveMsg.feed_mode = 0;
+	    linearMoveMsg.feed_mode = 0;
         linearMoveMsg.indexrotary = -1;
 
-	int old_feed_mode = canon.feed_mode;
-	if(canon.feed_mode)
-	    STOP_SPEED_FEED_SYNCH();
+	    int old_feed_mode = canon.feed_mode;
+        if(canon.feed_mode)
+            STOP_SPEED_FEED_SYNCH();
 
         if(vel && acc) 
             interp_list.append(linearMoveMsg);
 
-	if(old_feed_mode)
-	    START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+        if(old_feed_mode)
+            START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
 
         canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
