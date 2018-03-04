@@ -152,15 +152,15 @@ def change_prolog(self, **words):
                 return INTERP_ERROR
             print "change_prolog: Toolchanger soft fault %d" % int(self.params[5601])
             
-	if self.selected_pocket < 0:
+        if self.selected_pocket < 0:
             self.set_errormsg("M6: no tool prepared")
             return INTERP_ERROR
-	if self.cutter_comp_side:
+        if self.cutter_comp_side:
             self.set_errormsg("Cannot change tools with cutter radius compensation on")
             return INTERP_ERROR
-	self.params["tool_in_spindle"] = self.current_tool
-	self.params["selected_tool"] = self.selected_tool
-	self.params["current_pocket"] = self.current_pocket # this is probably nonsense
+        self.params["tool_in_spindle"] = self.current_tool
+        self.params["selected_tool"] = self.selected_tool
+        self.params["current_pocket"] = self.current_pocket # this is probably nonsense
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
     except Exception, e:
