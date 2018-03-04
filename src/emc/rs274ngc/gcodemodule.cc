@@ -532,7 +532,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
-       !PyArg_ParseTuple(result, "iiddddddddddddi", &t.toolno, &t.pocketno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
+       !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
                           &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
                           &t.diameter, &t.frontangle, &t.backangle, &t.orientation))
             interp_error ++;
@@ -768,6 +768,7 @@ out_error:
         pinterp->close();
     }
     if(interp_error) {
+        //printf ("interp error: %i,%s\n", interp_error, PyExc_RuntimeError);
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
                     "interp_error > 0 but no Python exception set");
