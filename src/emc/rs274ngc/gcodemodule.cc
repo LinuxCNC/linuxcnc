@@ -532,7 +532,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
-       !PyArg_ParseTuple(result, "iiddddddddddddi", &t.toolno, &t.pocketno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
+       !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
                           &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
                           &t.diameter, &t.frontangle, &t.backangle, &t.orientation))
             interp_error ++;
