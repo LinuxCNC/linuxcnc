@@ -205,6 +205,8 @@ proc ::tp::loadrt_substitute {arg1 args} {
         #puts C_newparms=<$parms>
       }
     }
+    # handle "\n" (ref lcd.c component)
+    set pair [string map {\n \\n} $pair]
 
     set l     [split $pair =]
     set item  [lindex $l 0]
