@@ -726,7 +726,7 @@ static inline void set_retract_mode(Interp &interp, RETRACT_MODE value)  {
     interp._setup.retract_mode = value;
 }
 static inline int get_selected_pocket (Interp &interp)  {
-    return interp._setup.selected_tool_index;
+    return interp._setup.tool_table[interp._setup.selected_tool_index].pocketno;
 }
 static inline void set_selected_pocket(Interp &interp, int value)  {
     interp._setup.selected_tool_index = value;
