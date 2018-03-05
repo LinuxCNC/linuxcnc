@@ -653,7 +653,7 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_CURRENT_TOOL:
-	*value = _setup.tool_table[_setup.current_pocket].toolno;
+	*value = _setup.tool_table[0].toolno;
 	break;
 
     case NP_SELECTED_POCKET:
@@ -661,7 +661,7 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_CURRENT_POCKET:
-	*value = _setup.tool_table[_setup.current_pocket].pocketno;
+	*value = _setup.current_pocket;
 	break;
 
     case NP_SELECTED_TOOL:

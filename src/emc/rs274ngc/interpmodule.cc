@@ -729,13 +729,15 @@ static inline int get_selected_pocket (Interp &interp)  {
     return interp._setup.tool_table[interp._setup.selected_tool_index].pocketno;
 }
 static inline void set_selected_pocket(Interp &interp, int value)  {
-    interp._setup.selected_tool_index = value;
+    //TODO: set selected_tool_index via lookup.
+    // interp._setup.selected_tool_index = value;
 }
 static inline int get_selected_tool (Interp &interp)  {
     return interp._setup.selected_tool;
 }
 static inline void set_selected_tool(Interp &interp, int value)  {
-    interp._setup.selected_tool = value;
+    //TODO: set selected_tool_index via lookup. selected_tool is not used anywhere
+    // interp._setup.selected_tool = value;
 }
 static inline int get_sequence_number (Interp &interp)  {
     return interp._setup.sequence_number;
@@ -777,6 +779,7 @@ static inline int get_current_tool(Interp &interp)  {
     return interp._setup.tool_table[0].toolno;
 }
 static inline void set_current_tool(Interp &interp, int value)  {
+    //TODO: it does not seem like a good idea to set the toolno without changing everything else.
     interp._setup.tool_table[0].toolno = value;
 }
 

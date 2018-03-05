@@ -3094,9 +3094,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      
 	      // make sure selected tool exists
 	      CHP((find_tool_pocket(settings, toolno, &pocket, &realpocket)));
-	      settings->current_pocket = pocket;
+	      settings->current_pocket = realpocket;
 	      settings->toolchange_flag = true;
-	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      CHANGE_TOOL_NUMBER(pocket);
 	      set_tool_parameters();
 	  }
 	  break;
@@ -3717,7 +3717,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     // there tools don't have a home pocket, and instead we updated pocket
     // 0 (the spindle) directly when modifying the loaded tool.
     //
-    if ((!settings->random_toolchanger) && (settings->current_pocket == pocket)) {
+    if ((!settings->random_toolchanger) && (settings->current_pocket == realpocket)) {
        settings->tool_table[0] = settings->tool_table[pocket];
     }
 
@@ -3758,7 +3758,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     // information to pocket 0 of the tool table (which signifies the
     // spindle)
     if (   !_setup.random_toolchanger
-        && pocket == settings->current_pocket) {
+        && realpocket == settings->current_pocket) {
         SET_TOOL_TABLE_ENTRY(0,
                              settings->tool_table[pocket].toolno,
                              settings->tool_table[pocket].offset,
@@ -5086,7 +5086,6 @@ spindle and make new entry moves if necessary.
 
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
-
   if (settings->selected_tool_index < 0) {
     ERS(NCE_TXX_MISSING_FOR_M6);
   }
@@ -5167,7 +5166,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
   CHANGE_TOOL(settings->tool_table[settings->selected_tool_index].toolno);
 
-  settings->current_pocket = settings->selected_tool_index;
+  settings->current_pocket = settings->tool_table[settings->selected_tool_index].pocketno;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = true; 
   set_tool_parameters();
@@ -5225,7 +5224,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     } else if (settings->toolchange_flag) {
         // Tool change is in progress, so the "current tool" is in its
         // original pocket still.
-        pocket_number = settings->current_pocket;
+        //TODO: find right tool, current pocket is now the real pocket number, not the index
+        pocket_number = 0;//settings->current_pocket;
     } else {
         // Tool change is done so the current tool is in pocket 0 (aka the
         // spindle).

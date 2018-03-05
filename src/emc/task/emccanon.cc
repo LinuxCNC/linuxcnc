@@ -2532,14 +2532,14 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
     CANON_TOOL_TABLE retval;
 
     if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
-	retval.toolno = -1;
+	    retval.toolno = -1;
         ZERO_EMC_POSE(retval.offset);
         retval.frontangle = 0.0;
         retval.backangle = 0.0;
-	retval.diameter = 0.0;
+	    retval.diameter = 0.0;
         retval.orientation = 0;
     } else {
-	retval = emcStatus->io.tool.toolTable[pocket];
+	    retval = emcStatus->io.tool.toolTable[pocket];
     }
 
     return retval;
@@ -2889,11 +2889,9 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
 int GET_EXTERNAL_TOOL_SLOT()
 {
     int toolno = emcStatus->io.tool.toolInSpindle;
-    int pocket;
-
-    for (pocket = 1; pocket < CANON_POCKETS_MAX; pocket++) {
-        if (emcStatus->io.tool.toolTable[pocket].toolno == toolno) {
-            return pocket;
+    for (int i = 1; i < CANON_POCKETS_MAX; i++) {
+        if (emcStatus->io.tool.toolTable[i].toolno == toolno) {
+            return emcStatus->io.tool.toolTable[i].pocketno;
         }
     }
 
