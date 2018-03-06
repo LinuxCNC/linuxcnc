@@ -28,14 +28,14 @@ for tuning, but are otherwise unnecessary.
 
 .SH NAMING
 The names for pins, parameters, and functions are prefixed as:
-  \fBpid.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBpid.N.\fR for N=0,1,...,num\-1 when using \fBnum_chan=num\fR
   \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
 
 The \fBpid.N.\fR format is shown in the following descriptions.
 
 .SH FUNCTIONS
 
-\fBpid.\fIN\fB.do-pid-calcs\fR (uses floating-point)
+\fBpid.\fIN\fB.do\-pid\-calcs\fR (uses floating-point)
 Does the PID calculations for control loop \fIN\fR.
 
 .SH PINS
@@ -67,22 +67,22 @@ The actual (feedback) value, from some sensor such as an encoder.
 \fBpid.\fIN\fB.output\fR float out
 The output of the PID loop, which goes to some actuator such as a motor.
 .TP
-\fBpid.\fIN\fB.command-deriv\fR float in
+\fBpid.\fIN\fB.command\-deriv\fR float in
 The derivative of the desired (commanded) value for the control loop.  If no
 signal is connected then the derivative will be estimated numerically.
 .TP
-\fBpid.\fIN\fB.feedback-deriv\fR float in
+\fBpid.\fIN\fB.feedback\-deriv\fR float in
 The derivative of the actual (feedback) value for the control loop.  If no
 signal is connected then the derivative will be estimated numerically.  When
 the feedback is from a quantized position source (e.g., encoder feedback
 position), behavior of the D term can be improved by using a better velocity
 estimate here, such as the velocity output of encoder(9) or hostmot2(9).
 .TP
-\fBpid.\fIN\fB.error-previous-target\fR bit in
+\fBpid.\fIN\fB.error\-previous\-target\fR bit in
 Use previous invocation's target vs. current position for error calculation,
 like the motion controller expects.  This may make torque-mode position loops
 and loops requiring a large I gain easier to tune, by eliminating
-velocity-dependent following error.
+velocity\-dependent following error.
 .TP
 \fBpid.\fIN\fB.error\fR float out
 The difference between command and feedback.
@@ -91,13 +91,13 @@ The difference between command and feedback.
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
 .TP
-\fBpid.\fIN\fB.index-enable\fR bit in
-On the falling edge of \fBindex-enable\fR, pid does not update the
+\fBpid.\fIN\fB.index\-enable\fR bit in
+On the falling edge of \fBindex\-enable\fR, pid does not update the
 internal command derivative estimate.  On systems which use the encoder
-index pulse, this pin should be connected to the index-enable signal.
+index pulse, this pin should be connected to the index\-enable signal.
 When this is not done, and FF1 is nonzero, a step change in the input
 command causes a single-cycle spike in the PID output.  On systems which use
-exactly one of the \fB-deriv\fR inputs, this affects the D term as well.
+exactly one of the \fB\-deriv\fR inputs, this affects the D term as well.
 .TP
 \fBpid.\fIN\fB.bias\fR float in
 \fBbias\fR is a constant amount that is added to the output.  In most cases
@@ -183,11 +183,11 @@ When true, the current PID output is saturated.  That is,
 \fBoutput\fR = \(+- \fBmaxoutput\fR.
 .RE
 .TP
-\fBpid.\fIN\fB.saturated-s\fR float out
+\fBpid.\fIN\fB.saturated\-s\fR float out
 .TQ
-\fBpid.\fIN\fB.saturated-count\fR s32 out
+\fBpid.\fIN\fB.saturated\-count\fR s32 out
 When true, the output of PID was continually saturated for this many seconds
-(\fBsaturated-s\fR) or periods (\fBsaturated-count\fR).
+(\fBsaturated\-s\fR) or periods (\fBsaturated\-count\fR).
 .SH PARAMETERS
 .TP
 \fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)

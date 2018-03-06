@@ -480,7 +480,7 @@ extern int hal_unlink(const char *pin_name);
     'name' is the name of the new parameter.  It must be no longer than
     .HAL_NAME_LEN.  If there is already a parameter with the same
     name the call will fail.
-    'dir' is the parameter direction.  HAL_RO paramters are read only from
+    'dir' is the parameter direction.  HAL_RO parameters are read only from
     outside, and are written to by the component itself, typically to provide a
     view "into" the component for testing or troubleshooting.  HAL_RW
     parameters are writable from outside and also sometimes modified by the
@@ -535,7 +535,7 @@ extern int hal_param_s32_newf(hal_param_dir_t dir,
     functions above.
     'type' is the hal type of the new parameter - the type of data
     that will be stored in the parameter.
-    'dir' is the parameter direction.  HAL_RO paramters are read only from
+    'dir' is the parameter direction.  HAL_RO parameters are read only from
     outside, and are written to by the component itself, typically to provide a
     view "into" the component for testing or troubleshooting.  HAL_RW
     parameters are writable from outside and also sometimes modified by the

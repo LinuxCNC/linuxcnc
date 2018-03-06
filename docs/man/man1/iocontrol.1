@@ -9,7 +9,7 @@
 iocontrol \- accepts NML I/O commands, interacts with HAL in userspace
 
 .SH SYNOPSIS
-\fBloadusr io [-ini \fIinifile\fB]
+\fBloadusr io [\-ini \fIinifile\fB]
 
 
 .SH DESCRIPTION
@@ -22,15 +22,15 @@ The inifile is searched for in the directory from which halcmd was run, unless a
 .SH PINS
 
 .TP
-\fBiocontrol.0.coolant-flood
+\fBiocontrol.0.coolant\-flood
 (Bit, Out) TRUE when flood coolant is requested
 
 .TP
-\fBiocontrol.0.coolant-mist 
+\fBiocontrol.0.coolant\-mist 
 (Bit, Out) TRUE when mist coolant is requested
 
 .TP
-\fBiocontrol.0.emc-enable-in 
+\fBiocontrol.0.emc\-enable\-in 
 (Bit, In) Should be driven FALSE when an external estop condition exists.
 
 .TP
@@ -45,40 +45,53 @@ into E-stop, and when the "Lube Off" command gets sent to the controller.
 (Bit, In) Should be driven FALSE when lubrication tank is empty.
 
 .TP
-\fBiocontrol.0.tool-change 
+\fBiocontrol.0.tool\-change 
 (Bit, Out) TRUE when a tool change is requested
 
 .TP
-\fBiocontrol.0.tool-changed 
+\fBiocontrol.0.tool\-changed 
 (Bit, In) Should be driven TRUE when a tool change is completed.
 
 .TP
-\fBiocontrol.0.tool-number
+\fBiocontrol.0.tool\-number
 (s32, Out) Current tool number
 
 .TP
-\fBiocontrol.0.tool-prep-number 
+\fBiocontrol.0.tool\-prep\-number 
 (s32, Out) The number of the next tool, from the RS274NGC T-word
 
 .TP
-\fBiocontrol.0.tool-prep-pocket
-(s32, Out) The pocket number (location in tool storage mechanism) of the next tool, as described in the tool table
+\fBiocontrol.0.tool\-prep\-pocket
+(s32, Out) This is the pocket number (location in the tool storage
+mechanism) of the tool requested by the most recent T-word.
 
 .TP
-\fBiocontrol.0.tool-prepare 
+\fBiocontrol.0.tool\-prepare 
 (Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
 
 .TP
-\fBiocontrol.0.tool-prepared 
+\fBiocontrol.0.tool\-prepared 
 (Bit, In) Should be driven TRUE when a tool prepare is completed.
 
 .TP
-\fBiocontrol.0.user-enable-out 
+\fBiocontrol.0.user\-enable\-out 
 (Bit, Out) FALSE when an internal estop condition exists
 
 .TP
-\fBiocontrol.0.user-request-enable 
+\fBiocontrol.0.user\-request\-enable 
 (Bit, Out) TRUE when the user has requested that estop be cleared
+
+.SH PARAMETERS
+
+.TP
+\fBiocontrol.0.tool\-prep\-index
+(s32, RO) IO's internal array index of the prepped tool requested
+by the most recent T-word.  0 if no tool is prepped.  On Random
+toolchanger machines this is tool's pocket number (ie, the same as the
+tool\-prep\-pocket pin), on Non-random toolchanger machines this is
+a small integer corresponding to the tool's location in the internal
+representation of the tool table.  This parameter returns to 0 after a
+successful tool change (M6).
 
 .SH SEE ALSO
 \fBmotion\fR(9)

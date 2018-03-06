@@ -48,7 +48,7 @@ encoder monitoring has been interrupted. Typically this will only be at machine
 power-off.
 The alignment process involves powering the motor phases in such a way as to
 put the motor in a known position. The encoder counts are then stored in the
-\\fBoffset\\fP parameter. The alignement process will tend to cause a following
+\\fBoffset\\fP parameter. The alignment process will tend to cause a following
 error if it is triggered while the axis is enabled, so should be set before the
 matching axis.N.enable pin. The complementary \\fBinit-done\\fP pin can be used
 to handle the required sequencing.
@@ -346,7 +346,7 @@ smoother (trapezoidal commutation induces 13% torque ripple).
 To use an encoder for commutation a reference 0-degrees point must be found.
 The component uses the convention that motor zero is the point that an unloaded
 motor aligns to with a positive voltage on the A (or U) terminal and the B & C
-(or V and W) terminals connected together and to -ve voltage. There will be
+(or V and W) terminals connected together and to \-ve voltage. There will be
 two such positions on a 4-pole motor, 3 on a 6-pole and so on. They are all
 functionally equivalent as far as driving the motor is concerned.
 If the motor has Hall sensors then the motor can be started in trapezoidal
@@ -686,7 +686,7 @@ FUNCTION(_) {
         case 0x03:
         case 0x0B:
             rtapi_print_msg(RTAPI_MSG_ERR, "Both Hall Sensors and Absolute "
-                            "encoder specfied on the same motor. Only the"
+                            "encoder specified on the same motor. Only the"
                             "Encoder will be used\n");
             in_type = 0x02;
             return;

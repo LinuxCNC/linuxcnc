@@ -331,16 +331,25 @@ class HandlerClass:
         self.widgets["spindle-at-speed"].set_property("on_color","black")
         self.gscreen.init_unlock_code()
         self.gscreen.init_state()
-        for i in self.data.axis_list:
-            self.widgets["dro_%s1"%i].show()
-            self.widgets["dro_%s2"%i].show()
-            self.widgets["dro_%s3"%i].show()
-            self.widgets["axis_%s"%i].show()
-            self.widgets["home_%s"%i].show()
+        for i in ('x','y','z','a','b','c','u','v','w'):
+            if i in self.data.axis_list:
+                self.widgets["dro_%s1"%i].show()
+                self.widgets["dro_%s2"%i].show()
+                self.widgets["dro_%s3"%i].show()
+                self.widgets["axis_%s"%i].show()
+                self.widgets["home_%s"%i].show()
+            else:
+                self.widgets["dro_%s1"%i].hide()
+                self.widgets["dro_%s2"%i].hide()
+                self.widgets["dro_%s3"%i].hide()
+                self.widgets["axis_%s"%i].hide()
+                self.widgets["home_%s"%i].hide()
+
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
         self.widgets.offsetpage1.set_font("sans 18")
         self.widgets.offsetpage1.set_row_visible("1",False)
         self.widgets.tooledit1.set_font("sans 18")
+
         if self.data.embedded_keyboard:
             self.gscreen.launch_keyboard()
 

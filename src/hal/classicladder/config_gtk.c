@@ -131,7 +131,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 7:
-				sprintf( BuffLabel, "Number of Arithmetic Expresions " );
+				sprintf( BuffLabel, "Number of Arithmetic Expressions " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
 			case 8:
@@ -987,7 +987,7 @@ void OpenConfigWindowGtk( void )
 	if ( !GTK_WIDGET_VISIBLE( ConfigWindow ) )
 	{ 
 		gtk_widget_show (ConfigWindow);
-		MessageInStatusBar("Openned Configuration window. Press again to update changes and close");
+		MessageInStatusBar("Opened Configuration window. Press again to update changes and close");
 #ifdef GTK2
 		gtk_window_present( GTK_WINDOW(ConfigWindow) );
 #endif

@@ -851,6 +851,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/pins.o	  \
     hal/drivers/mesa-hostmot2/dpll.o  \
     hal/drivers/mesa-hostmot2/led.o	  \
+    hal/drivers/mesa-hostmot2/ssr.o       \
     hal/drivers/mesa-hostmot2/tram.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/bitfile.o   \

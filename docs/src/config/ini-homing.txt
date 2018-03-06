@@ -281,3 +281,39 @@ A hal pin (motion.homing-inhibit) is provided to disallow
 homing inititiation for both "Home All" and individual joint
 homing.
 
+Some systems take advantage of the provisions for synchronizing
+final joint homing moves as controlled by negative
+[JOINT_N]HOME_SEQUENCE= ini file items.  By default, the
+synchronization provisions disallow *joint* jogging prior to
+homing in order to prevent *joint* jogs that could misalign the
+machine (gantry racking for example).
+
+System integrators can allow *joint* jogging prior to homing with
+hal logic that switches the [JOINT_N]HOME_SEQUENCE items.  This
+logic should also assert the *motion.homing-inhibit* pin to ensure
+that homing is not inadvertently initiated when *joint* jogging
+is enabled.
+
+Example: Synced joints 0,1 using negative sequence (-1) for
+synchronized homing with a switch (allow_jjog) that selects a
+positive sequence (1) for *joint* jogging prior to homing
+(partial hal code):
+
+----
+loadrt mux2 names=home_sequence_mux
+setp home_sequence_mux.in0 -1
+setp home_sequence_mux.in1  1
+addf home_sequence_mux servo-thread
+...
+net home_seq <= home_sequence_mux.out
+net home_seq => ini.0.home_sequence => ini.1.home_sequence
+# allow_jjog: from a virtual panel or hardware  switch
+net hsequence_select <= allow_jjog
+net hsequence_select => home_sequence_mux.sel => motion.homing-inhibit
+----
+
+[NOTE]
+
+Inihal pins (like ini.N.home_sequence) are not available until
+milltask starts so execution of the above hal commands should be
+deferred using a postgui halfile or an [APPLICATION]APP= script.

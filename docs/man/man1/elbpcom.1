@@ -6,28 +6,28 @@ elbpcom \- Communicate with Mesa ethernet cards
 Common options:
 .RS
 .SY elbpcom
-.BI [--ip= IP ]
-.BI [--port= PORT ]
-.BI [--timeout= TIMEOUT ]
+.BI [\-\-ip= IP ]
+.BI [\-\-port= PORT ]
+.BI [\-\-timeout= TIMEOUT ]
 .RE
 
 Reading data:
 .RS
 .SY elbpcom
 .BI [ common\ options ]
-.BI --space= SPACE
-.B [--info]
-.BI --address= ADDRESS
-.BI --read= LENGTH
+.BI \-\-space= SPACE
+.B [\-\-info]
+.BI \-\-address= ADDRESS
+.BI \-\-read= LENGTH
 .RE
 
 Writing data:
 .RS
 .SY elbpcom
 .BI [ common\ options ]
-.BI --space= SPACE
-.BI --address= ADDRESS
-.BI --write= HEXDATA
+.BI \-\-space= SPACE
+.BI \-\-address= ADDRESS
+.BI \-\-write= HEXDATA
 .RE
 
 Sending arbitrary packets:
@@ -51,16 +51,16 @@ is a more appropriate tool.
 
 If not specified, the default values are
 .RS
-.BI --ip= 192.168.1.121
-.BI --port= 27181
-.BI --timeout= .2
+.BI \-\-ip= 192.168.1.121
+.BI \-\-port= 27181
+.BI \-\-timeout= .2
 .RE 
 
 This example demonstrates reading the HOSTMOT2 identifying string from the
 IDROM in space 0:
 .RS
 .nf
-$ elbpcom --space 0 --address 0x104 --read 8
+$ elbpcom \-\-space 0 \-\-address 0x104 \-\-read 8
 > 82420401
 < 484f53544d4f5432
       HOSTMOT2
@@ -71,9 +71,9 @@ Finally, the response is shown in ASCII, with "." replacing any non-ASCII
 characters.  This is similar to the following invocations of mesaflash:
 .RS
 .nf
-$ ./mesaflash  --device 7i80 --rpo 0x104
+$ ./mesaflash  \-\-device 7i80 \-\-rpo 0x104
 54534F48
-$ ./mesaflash  --device 7i80 --rpo 0x108
+$ ./mesaflash  \-\-device 7i80 \-\-rpo 0x108
 32544F4D
 .fi
 .RE

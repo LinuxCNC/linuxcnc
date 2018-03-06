@@ -875,7 +875,7 @@ desired G28 position has been stored with G28.1.
 G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
 5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units' as 
-specifed in the ini file. All axes defined in the ini file will be moved when
+specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
 the <<sec.machine-corrdinate-system,machine origin>>.
 
@@ -909,7 +909,7 @@ desired G30 position has been stored with G30.1.
 G30 functions the same as G28 but uses the values stored in
 <<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
 final point to move to. The parameter values are 'absolute' machine
-coordinates in the native machine 'units' as specifed in the ini file.
+coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
 positions are stored with G30.1 then all axes will go to the
 <<sec.machine-corrdinate-system,machine origin>>.

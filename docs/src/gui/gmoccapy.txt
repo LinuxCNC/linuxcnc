@@ -297,7 +297,7 @@ markup language. Detailed information about the markup language can be found at
 https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
 
 ----
-MESSAGE_TEXT    = The text to be displayed, may be pango markup formated
+MESSAGE_TEXT    = The text to be displayed, may be pango markup formatted
 MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
 MESSAGE_PINNAME = is the name of the hal pin group to be created
 ----

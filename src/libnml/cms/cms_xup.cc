@@ -628,7 +628,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(double *x, unsigned int len)
     return (status);
 }
 
-/* NOTE: Because XDR does not include seperate facilities for long doubles. */
+/* NOTE: Because XDR does not include separate facilities for long doubles. */
 /* Some resolution will be lost if long doubles are passed through XDR. */
 /* This routine is included only for the sake of completeness. */
 /* Avoid using long doubles in NML messages. */

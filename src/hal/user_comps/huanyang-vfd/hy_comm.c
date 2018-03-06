@@ -312,7 +312,7 @@ static int hycomm_send(hycomm_param_t *hc_param, uint8_t *query, int query_lengt
 	Function to monitor for the reply from the hycomm slave. 
 	This function blocks for timeout seconds if there is no reply. 
  
-	Returns a negative number is an error occured.
+	Returns a negative number is an error occurred.
 	The variable msg_length is assigned th number of characters
 	received.
 	

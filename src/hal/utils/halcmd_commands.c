@@ -184,7 +184,7 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     rtapi_mutex_give(&(hal_data->mutex));
     
     /* check that both pins have the same type, 
-       don't want to create a sig, which after that won't be usefull */
+       don't want to create a sig, which after that won't be useful */
     if (first_pin->type != second_pin->type) {
 	halcmd_error("pins '%s' and '%s' not of the same type\n",
                 first_pin_name, second_pin_name);

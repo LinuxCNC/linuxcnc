@@ -28,15 +28,15 @@ Portnumber can be 0 or 1. Port 0 is closes to the card bracket.
 .SH PINS
 
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin-[\fIPINNUMBER\fB\fR] OUT bit 
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR] OUT bit 
 .TQ
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin-[\fIPINNUMBER\fB\fR]-not OUT bit 
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR]\-not OUT bit 
 Connect a hal bit signal to this pin to read an i/o point from the card.
-The PINNUMBER represents the position in the relay rack. Eg. PINNUMBER 0 is position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector. The \fB-not\fR pin is
+The PINNUMBER represents the position in the relay rack. Eg. PINNUMBER 0 is position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector. The \fB\-not\fR pin is
 inverted so that LOW gives TRUE and HIGH gives FALSE.
 
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout-[\fIPINNUMBER\fB\fR] IN bit  
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout\-[\fIPINNUMBER\fB\fR] IN bit  
 Connect a hal bit signal to this pin to write to an i/o point of the card.
 The PINNUMBER represents the position in the relay rack.Eg. PINNUMBER 23 is position 23 in a opto22 relay rack and would be pin 1 on the 50 pin header connector.
 
@@ -46,18 +46,18 @@ Turns one of the on board LEDS on/off. LEDS are numbered 0 to 3.
 
 .SH PARAMETERS
 .TP
-\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout-[\fIPINNUMBER\fB\fR]-invert W bit  
-When TRUE, invert the meaning of the corresponding \fB-out\fR pin so that TRUE
+\fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBout\-[\fIPINNUMBER\fB\fR]\-invert W bit  
+When TRUE, invert the meaning of the corresponding \fB\-out\fR pin so that TRUE
 gives LOW and FALSE gives HIGH.
 
 .SH FUNCTIONS
 
 .TP
-\fBopto_ac5.0.digital-read
+\fBopto_ac5.0.digital\-read
 Add this to a thread to read all the input points.
 
 .TP
-\fBopto_ac5.0.digital-write
+\fBopto_ac5.0.digital\-write
 Add this to a thread to write all the output points and LEDS.
 
 .SH BUGS
@@ -65,4 +65,4 @@ All boards are loaded with the same port configurations  as the first board.
 
 .SH SEE ALSO
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?OptoPciAc5
+http://wiki.linuxcnc.org/cgi\-bin/wiki.pl?OptoPciAc5

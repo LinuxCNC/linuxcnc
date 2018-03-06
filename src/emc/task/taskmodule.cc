@@ -255,15 +255,15 @@ BOOST_PYTHON_MODULE(emctask) {
     def("operator_error",
 	operator_error,
 	operator_error_overloads ( args("id"),
-				   "send an error messsage to the operator screen with an optional message id"  ));
+				   "send an error message to the operator screen with an optional message id"  ));
     def("operator_text",
 	operator_text,
 	operator_text_overloads ( args("id"),
-				   "send a informational messsage to the operator screen"  ));
+				   "send a informational message to the operator screen"  ));
     def("operator_display",
 	operator_display,
 	operator_display_overloads ( args("id"),
-				   "send a messsage to the operator display"  ));
+				   "send a message to the operator display"  ));
 
 
 #define VAL(X)  .value(#X, X)

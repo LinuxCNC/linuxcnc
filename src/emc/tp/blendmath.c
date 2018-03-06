@@ -887,7 +887,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 
 
 /**
- * Setup blend paramaters based on two circular arc segments.
+ * Setup blend parameters based on two circular arc segments.
  * This function populates the geom structure and "input" fields of
  * the blend parameter structure. It returns an error if the segments
  * are not coplanar, or if one or both segments is not a circular arc.
@@ -1029,7 +1029,7 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
 }
 
 /**
- * Setup blend paramaters based on two linear segments.
+ * Setup blend parameters based on two linear segments.
  * This function populates the geom structure and "input" fields of the blend parameter structure based.
  * @param geom Stores simplified geometry used to calculate blend params.
  * @param param Abstracted parameters for blending calculations

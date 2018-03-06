@@ -875,7 +875,7 @@ class pyvcp_spinbox(Spinbox):
             [ <halpin>"my-spinbox"</halpin> ]
             [ <min_>55</min_> ]   sets the minimum value to 55
             [ <max_>123</max_> ]  sets the maximum value to 123
-            [ <initval>100</initval> ]  sets intial value to 100  TJP 12 04 2007
+            [ <initval>100</initval> ]  sets initial value to 100  TJP 12 04 2007
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013            
         </spinbox>
     """
@@ -1336,7 +1336,7 @@ class pyvcp_checkbutton(Checkbutton):
         <checkbutton>
             [ <halpin>"my-checkbutton"</halpin> ]
             [ <text>"Name of Button"</text>]  text set in widget
-            [ <initval>1</initval> ]  sets intial value to 1, all values >=0.5 are assumed to be 1
+            [ <initval>1</initval> ]  sets initial value to 1, all values >=0.5 are assumed to be 1
         </checkbutton>
     """
     n=0
@@ -1445,7 +1445,7 @@ class pyvcp_scale(Scale):
             [ <orient>HORIZONTAL</orient>  ] aligns the scale horizontal
             [ <min_>-33</min_> ] sets the minimum value to -33
             [ <max_>26</max_> ] sets the maximum value to 26
-            [ <initval>10</initval> ]  sets intial value to 10
+            [ <initval>10</initval> ]  sets initial value to 10
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013
         </scale>
 

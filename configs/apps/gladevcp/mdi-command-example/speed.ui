@@ -22,7 +22,7 @@
         <child>
           <object class="HAL_Button" id="hal_button1">
             <property name="label" translatable="yes">  Pass speed as
-paramter in MDI
+parameter in MDI
     command</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>

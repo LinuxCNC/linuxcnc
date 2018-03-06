@@ -2163,7 +2163,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (execute_msg->command[0] != 0) {
 	    char * command = execute_msg->command;
 	    if (command[0] == (char) 0xff) {
-		// Empty command recieved. Consider it is NULL
+		// Empty command received. Consider it is NULL
 		command = NULL;
 	    } else {
 		// record initial MDI command
@@ -2662,7 +2662,7 @@ static int emcTaskExecute(void)
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
 	    emcStatus->task.delayLeft = 0;
 	    if (emcStatus->task.input_timeout != 0)
-		emcStatus->task.input_timeout = 1; // timeout occured
+		emcStatus->task.input_timeout = 1; // timeout occurred
 	    emcTaskEager = 1;
 	}
 	// delay can be also be because we wait for an input

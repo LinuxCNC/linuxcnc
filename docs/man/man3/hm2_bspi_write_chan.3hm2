@@ -23,7 +23,7 @@ the main loop for regular data transfers (but is appropriate to use for on-the-
 fly setup changes).
 
 .SH RETURN VALUE
-Returns 0 on success and -1 on failure.
+Returns 0 on success and \-1 on failure.
 
 .SH SEE ALSO
 man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame

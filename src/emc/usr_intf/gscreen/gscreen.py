@@ -76,8 +76,8 @@ update_spindle_bar_error_ct_max = 3
 # standard - you can't set how long the message stays up for.
 # I suggest fixing this with a PPA off the net
 # https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
+NOTIFY_AVAILABLE = False
 try:
-    NOTIFY_AVAILABLE = False
     import pynotify
     if not pynotify.init("Gscreen"):
         print "**** GSCREEN INFO: There was a problem initializing the pynotify module"
@@ -86,16 +86,16 @@ try:
 except:
     print "**** GSCREEN INFO: You don't seem to have pynotify installed"
 
+_AUDIO_AVAILABLE = False
 # try to add ability for audio feedback to user.
 try:
-    _AUDIO_AVAILABLE = False
     import pygst
     pygst.require("0.10")
     import gst
     _AUDIO_AVAILABLE = True
     print "**** GSCREEN INFO: audio available!"
 except:
-    print "**** GSCREEN INFO: no audio alerts available - PYGST libray not installed?"
+    print "**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 libray installed?"
 
 # BASE is the absolute path to linuxcnc base
 # libdir is the path to Gscreen python files
@@ -230,7 +230,7 @@ class Widgets:
         return r
 
 # a class for holding data
-# here we intialize the data
+# here we initialize the data
 class Data:
     def __init__(self):
         # constants for mode idenity
@@ -531,8 +531,12 @@ class Gscreen:
         self.keylookup = keybindings.Keylookup()
 
         if _AUDIO_AVAILABLE:
-            self.audio = Player()
-            self.data.audio_available = True       
+            try:
+                self.audio = Player()
+                self.data.audio_available = True
+            except:
+                print "**** GSCREEN WARNING: Audio test failed - Is gstreamer0.10-plugins-base installed?"
+                self.data.audio_available = False
 
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc)
@@ -602,7 +606,7 @@ class Gscreen:
         dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
         self.prefs = preferences.preferences(temp)
 
-        # Intialize prefereces either from the handler file or from Gscreen
+        # Initialize prefereces either from the handler file or from Gscreen
         if "initialize_preferences" in dir(self.handler_instance):
             self.handler_instance.initialize_preferences()
         else:
@@ -1415,7 +1419,7 @@ class Gscreen:
         for axis in self.data.axis_list:
             self.data.sensitive_on_off.append("axis_%s"% axis)
 
-    # buttons that need to be sensitive based on the interpeter runing or being idle
+    # buttons that need to be sensitive based on the interpreter running or being idle
     def init_sensitive_run_idle(self):
         """creates a list of widgets that need to be sensitive to interpeter run/idle
            list is held in data.sensitive_run/idle
@@ -3322,7 +3326,7 @@ class Gscreen:
                 n.set_urgency(pynotify.URGENCY_CRITICAL)
                 n.set_timeout(int(timeout * 1000) )
                 n.show()
-            if _AUDIO_AVAILABLE:
+            if self.data.audio_available:
                 if icon == ALERT_ICON:
                     self.audio.set_sound(self.data.error_sound)
                 else:

@@ -371,8 +371,15 @@ static PyMemberDef Stat_members[] = {
 
 // io
 // EMC_TOOL_STAT io.tool
-    {(char*)"pocket_prepped", T_INT, O(io.tool.pocketPrepped), READONLY},
-    {(char*)"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
+    {(char*)"pocket_prepped", T_INT, O(io.tool.pocketPrepped), READONLY,
+        (char*)"The index into the stat.tool_table list of the tool currently prepped for\n"
+        "tool change, or -1 no tool is prepped.  On a Random toolchanger this is the\n"
+        "same as the tool's pocket number.  On a Non-random toolchanger it's a random\n"
+        "small integer."
+    },
+    {(char*)"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY,
+        (char*)"The tool number of the currently loaded tool, or 0 if no tool is loaded."
+    },
 
 // EMC_COOLANT_STAT io.cooland
     {(char*)"mist", T_INT, O(io.coolant.mist), READONLY},
@@ -675,7 +682,10 @@ static PyGetSetDef Stat_getsetlist[] = {
         "feed rate, and spindle speed."
     },
     {(char*)"tool_offset", (getter)Stat_tool_offset},
-    {(char*)"tool_table", (getter)Stat_tool_table},
+    {(char*)"tool_table", (getter)Stat_tool_table, (setter)NULL,
+        (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
+        "tool id (tool number), diameter, offsets, etc."
+    },
     {(char*)"axes", (getter)Stat_axes},
     {NULL}
 };

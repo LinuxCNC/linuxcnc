@@ -22,8 +22,8 @@ The desired location within the thread.  This determines when the function will
 run, in relation to other functions in the thread.  A positive number indicates
 the desired location as measured from the beginning of the thread, and a
 negative is measured from the end.  So +1 means this function will become the
-first one to run, +5 means it will be the fifth one to run, -2 means it will be
-next to last, and -1 means it will be last.  Zero is illegal.  
+first one to run, +5 means it will be the fifth one to run, \-2 means it will be
+next to last, and \-1 means it will be last.  Zero is illegal.  
 
 .SH DESCRIPTION
 \fBhal_add_funct_to_thread\fR adds a function exported by a realtime HAL

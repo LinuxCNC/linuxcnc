@@ -5,11 +5,11 @@ description
 Sim_parport is used to replace the pins of a real parport without changing
 any of the pins names in the rest of the config.
 .br
-It has pass-through pins (ending in -fake) that allows connecting to other components.
+It has pass-through pins (ending in \-fake) that allows connecting to other components.
 
-eg pin-02-in     will follow     pin-02-in-fake 's logic.
+eg pin\-02\-in     will follow     pin\-02\-in\-fake 's logic.
 .br
-pin_01_out-fake     will follow    pin_01_out (possibly modified by pin_01_out-invert)
+pin_01_out\-fake     will follow    pin_01_out (possibly modified by pin_01_out\-invert)
 
 It creates all possible pins of both 'in' and 'out' options of the hal_parport component.
 .br
