@@ -179,37 +179,37 @@ def create_halui_mdi(self):
 	# X
 	self._p.halui_list.append(MDI_G54X0)
 	self._p.halui_mdi_x_null = len(self._p.halui_list) -1
-	self._p.halui_list.append("G0 x0 F1000")
+	self._p.halui_list.append(MDI_G54TOX0)
 	self._p.halui_mdi_x_zero = len(self._p.halui_list) -1
 
 	# Y
 	if self.d.axes in(0, 1, 3):
 		self._p.halui_list.append(MDI_G54Y0)
 		self._p.halui_mdi_y_null = len(self._p.halui_list) -1
-		self._p.halui_list.append("G0 y0 F1000")
+		self._p.halui_list.append(MDI_G54TOY0)
 		self._p.halui_mdi_y_zero = len(self._p.halui_list) -1
 	# Z
 	if self.d.axes in(0, 1, 2):
 		self._p.halui_list.append(MDI_G54Z0)
 		self._p.halui_mdi_z_null = len(self._p.halui_list) -1
-		self._p.halui_list.append("G0 z0 F400")
+		self._p.halui_list.append(MDI_G54TOZ0)
 		self._p.halui_mdi_z_zero = len(self._p.halui_list) -1
 	# A
 	if self.d.axes == 1:
 		self._p.halui_list.append(MDI_G54A0)
 		self._p.halui_mdi_a_null = len(self._p.halui_list) -1
-		self._p.halui_list.append("G0 a0 F1000")
+		self._p.halui_list.append(MDI_G54TOA0)
 		self._p.halui_mdi_a_zero = len(self._p.halui_list) -1
 	# UV
 	if self.d.axes == 3:
 		self._p.halui_list.append(MDI_G54U0)
 		self._p.halui_mdi_u_null = len(self._p.halui_list) -1
-		self._p.halui_list.append("G0 u0 F1000")
+		self._p.halui_list.append(MDI_G54TOU0)
 		self._p.halui_mdi_u_zero = len(self._p.halui_list) -1
 
 		self._p.halui_list.append(MDI_G54V0)
 		self._p.halui_mdi_v_null = len(self._p.halui_list) -1
-		self._p.halui_list.append("G0 v0 F1000")
+		self._p.halui_list.append(MDI_G54TOV0)
 		self._p.halui_mdi_v_zero = len(self._p.halui_list) -1
 
 	# Set save position
