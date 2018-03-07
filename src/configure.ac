@@ -1562,7 +1562,7 @@ if test "$PYTHON" = "none"; then
 fi
 
 AC_MSG_CHECKING([python version])
-if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2070000'
+if ! $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x2070000)'
 then
     AC_MSG_ERROR(Python version too old (2.7 or newer required))
 fi
