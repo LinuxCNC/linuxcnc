@@ -1111,12 +1111,11 @@ def main():
             else:
                 raise SystemExit("Unrecognized file type for mode %s: %r" % (modename[mode], f))
         except:
-            ex_type, ex_value, exc_tb = sys.exc_info()
             try:
                 os.unlink(outfile)
             except: # os.error:
                 pass
-            raise ex_type, ex_value, exc_tb
+            raise
 if __name__ == '__main__':
     main()
 
