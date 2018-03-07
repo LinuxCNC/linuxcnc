@@ -351,7 +351,7 @@ static int comp_id;
     
     print("", file=f)
     for name, fp in functions:
-        if names.has_key(name):
+        if name in names:
             Error("Duplicate item name: %s" % name)
         print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
         names[name] = 1
