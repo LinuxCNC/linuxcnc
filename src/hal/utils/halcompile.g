@@ -390,7 +390,7 @@ static int comp_id;
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
         print >>f, "    r = extra_setup(inst, prefix, extra_arg);"
-	print >>f, "    if(r != 0) return r;"
+        print >>f, "    if(r != 0) return r;"
         # the extra_setup() function may have changed the personality
         if has_personality:
             print >>f, "    personality = inst->_personality;"
@@ -510,8 +510,8 @@ static int comp_id;
                 print >>f, "        r = export(buf, i, personality[i%16]);"
             else:
                 print >>f, "        r = export(buf, i);"
-	    print >>f, "    }"
-	else:
+                print >>f, "    }"
+        else:
             print >>f, "    if(count && names[0]) {"
             print >>f, "        rtapi_print_msg(RTAPI_MSG_ERR," \
                             "\"count= and names= are mutually exclusive\\n\");"
@@ -549,7 +549,7 @@ static int comp_id;
         if options.get("constructable") and not options.get("singleton"):
             print >>f, "    hal_set_constructor(comp_id, export_1);"
         print >>f, "    if(r) {"
-	if options.get("extra_cleanup"):
+        if options.get("extra_cleanup"):
             print >>f, "    extra_cleanup();"
         print >>f, "        hal_exit(comp_id);"
         print >>f, "    } else {"
@@ -560,7 +560,7 @@ static int comp_id;
 
         print >>f
         print >>f, "void rtapi_app_exit(void) {"
-	if options.get("extra_cleanup"):
+        if options.get("extra_cleanup"):
             print >>f, "    extra_cleanup();"
         print >>f, "    hal_exit(comp_id);"
         print >>f, "}"
