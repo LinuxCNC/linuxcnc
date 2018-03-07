@@ -247,35 +247,39 @@ class INI:
         if tandemjoint:
             jnum += 1
             self.write_one_joint(file, jnum, "x", "LINEAR", all_homes, True)
+        jnum += 1
         print >>file, "#******************************************"
 
         # Maybe add Y AXIS
         if self.d.axes in(0,1): # xyz or xyza
             self.write_one_axis(file, 'y')
             tandemjoint = self.a.tandem_check('y')
-            self.write_one_joint(file, 0, "y", "LINEAR", all_homes, bool(not tandemjoint is None))
+            self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, bool(not tandemjoint is None))
             if tandemjoint:
                 jnum += 1
                 self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, True)
+            jnum += 1
             print >>file, "#******************************************"
 
         # Always add Z AXIS
         self.write_one_axis(file, 'z')
         tandemjoint = self.a.tandem_check('z')
-        self.write_one_joint(file, 0, "z", "LINEAR", all_homes, bool(not tandemjoint is None))
+        self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, bool(not tandemjoint is None))
         if tandemjoint:
             jnum += 1
             self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, True)
+        jnum += 1
         print >>file, "#******************************************"
 
         # Maybe add A AXIS
         if self.d.axes == 1: # xyza
             self.write_one_axis(file, 'a')
             tandemjoint = self.a.tandem_check('a')
-            self.write_one_joint(file, 0, "a", "LINEAR", all_homes, bool(not tandemjoint is None))
+            self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, bool(not tandemjoint is None))
             if tandemjoint:
                 jnum += 1
                 self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, True)
+            jnum += 1
             print >>file, "#******************************************"
 
         # always add SPINDLE

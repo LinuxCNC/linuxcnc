@@ -190,7 +190,7 @@ class Pages:
         # we use this later to high light missing axis info
         self.w.xencoderscale.realize()
         self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
-        self.w.window1.set_geometry_hints(min_width=880)
+        self.w.window1.set_geometry_hints(min_width=750)
 
 #************
 # INTRO PAGE

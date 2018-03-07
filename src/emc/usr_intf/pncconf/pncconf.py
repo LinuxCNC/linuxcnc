@@ -388,6 +388,9 @@ class Data:
         self.axissize = [False,0,0]
         self.axisposition = [False,0,0]
 
+        # Gmoccapy
+        self.gmcpytheme = "Follow System Theme"
+
         # Touchy only
         self.touchysize = [False,0,0]
         self.touchyposition = [False,0,0]
@@ -2068,7 +2071,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             self._p.MESA_FIRMWAREDATA.append(firmdata)
         self.window.hide()
 
-    def parse_xml(self, boardtitle, firmname, xml_path):
+    def parse_xml(self, driver, boardtitle, firmname, xml_path):
             def search(elementlist):
                 for i in elementlist:
                     temp = root.find(i)
@@ -2113,8 +2116,6 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             modules = root.findall(".//modules")[0]
             if "7i43" in boardname:
                 driver = "hm2_7i43"
-            else:
-                driver = "hm2_pci"
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
                 print k
@@ -2390,7 +2391,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         return output
 
     def parse_discovery(self,info,boardnum=0):
-        BOARDNAME = ''
+        DRIVER = BOARDNAME = ''
         WATCHDOG = NUMCONS = NUMCONPINS = ENCODERS = MUXENCODERS = 0
         RESOLVERS = NUMSSCHANNELS = SSERIALPORTS = 0
         PWMGENS = LEDS = STEPGENS = TPPWMGEN = 0
@@ -2421,7 +2422,11 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         for l_num,i in enumerate(lines):
             i = i.lstrip()
             temp2 = i.split(" ")
-
+            #print i,temp2
+            if 'ETH' in i:
+                DRIVER = 'hm2_eth'
+            if 'PCI' in i:
+                DRIVER = 'hm2_pci'
             if 'BOARDNAME' in i:
                 BOARDNAME = temp2[2].strip('MESA').lower()
                 add_text(ELEMENT,'BOARDNAME',BOARDNAME)
@@ -2554,18 +2559,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         firmname = "~/mesa%d_discovered.xml"%boardnum
         filename = os.path.expanduser(firmname)
         DOC.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        return BOARDNAME, firmname, filename
+        return DRIVER, BOARDNAME, firmname, filename
 
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
-        boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
         boardname = 'Discovered:%s'% boardname
-        firmdata = self.parse_xml( boardname,firmname,path)
+        firmdata = self.parse_xml( driver,boardname,firmname,path)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
         # add firmname to combo box if it's not there
-        model = self.w["mesa%s_firmware"%bdnum].get_model()
+        model = self.widgets["mesa%s_firmware"%bdnum].get_model()
         flag = True
         for search,item in enumerate(model):
             if model[search][0]  == firmname:
@@ -2574,13 +2579,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         if flag:
             model.append((firmname,))
             search = 0
-            model = self.w["mesa%s_firmware"%bdnum].get_model()
+            model = self.widgets["mesa%s_firmware"%bdnum].get_model()
             for search,item in enumerate(model):
                 if model[search][0]  == firmname:
-                    self.w["mesa%s_firmware"%bdnum].set_active(search)
+                    self.widgets["mesa%s_firmware"%bdnum].set_active(search)
                     break
         # add boardtitle
-        model = self.w["mesa%s_boardtitle"%bdnum].get_model()
+        model = self.widgets["mesa%s_boardtitle"%bdnum].get_model()
         flag2 = True
         for search,item in enumerate(model):
             if model[search][0]  == boardname:
@@ -2589,11 +2594,11 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         if flag2:
             model.append((boardname,))
             search = 0
-            model = self.w["mesa%s_boardtitle"%bdnum].get_model()
+            model = self.widgets["mesa%s_boardtitle"%bdnum].get_model()
             for search,item in enumerate(model):
-                print model[search][0], boardname
+                #print model[search][0], boardname
                 if model[search][0]  == boardname:
-                    self.w["mesa%s_boardtitle"%bdnum].set_active(search)
+                    self.widgets["mesa%s_boardtitle"%bdnum].set_active(search)
                     break
         # update if there was a change
         if flag or flag2:
@@ -2751,20 +2756,28 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     def get_installed_themes(self):
             data1 = self.d.gladevcptheme
             data2 = prefs.getpref('gtk_theme', 'Follow System Theme', str)
+            data3 = self.d.gmcpytheme
             model = self.widgets.themestore
             model.clear()
             model.append((_("Follow System Theme"),))
-            temp1 = temp2 = 0
+            model2 = self.widgets.glade_themestore
+            model2.clear()
+            model2.append((_("Follow System Theme"),))
+            temp1 = temp2 = temp3 = 0
             names = os.listdir(_PD.THEMEDIR)
             names.sort()
             for search,dirs in enumerate(names):
                 model.append((dirs,))
+                model2.append((dirs,))
                 if dirs  == data1:
                     temp1 = search+1
                 if dirs  == data2:
                     temp2 = search+1
+                if dirs  == data3:
+                    temp3 = search+1
             self.widgets.gladevcptheme.set_active(temp1)
             self.widgets.touchytheme.set_active(temp2)
+            self.widgets.gmcpy_theme.set_active(temp3)
 
     def gladevcp_sanity_check(self):
                 if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/gvcp-panel.ui" % self.d.machinename)):
@@ -4051,7 +4064,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         for i, k in enumerate(model):
             itr = model.get_iter(i)
             title = model.get_value(itr,2)
-            print 'first:',title
+            #print 'first:',title
             # check first set
             if title == signal_name :return itr
             cld_itr = model.iter_children(itr)
@@ -4061,12 +4074,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     if gcld_itr != None:
                         while gcld_itr != None:
                             title = model.get_value(gcld_itr,2)
-                            print title
+                            #print title
                             # check third set
                             if title == signal_name :return gcld_itr
                             gcld_itr = model.iter_next(gcld_itr)  
                     title = model.get_value(cld_itr,2)
-                    print title
+                    #print title
                     # check second set
                     if title == signal_name :return cld_itr
                     cld_itr = model.iter_next(cld_itr)
@@ -5958,9 +5971,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 board0_ip = ''' board_ip="192.168.1.121"'''
             if '7i76e' in board1 or '7i92' in board1 or '7i80' in board0:
                 board1_ip = ''' board_ip="192.168.1.121"'''
-            if not "5i25" in board0:
+            if 'eth' in driver0:
+                firmstring0 =''
+            elif not "5i25" in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
-            if not "5i25" in board1:
+            if 'eth' in driver1:
+                firmstring1 =''
+            elif not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
 
             # TODO fix this hardcoded hack: only one serialport

@@ -675,7 +675,7 @@ class Private_Data:
 
     # 7i92 ####################
     ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "5i92", "hm2_eth",
-         2,3, 0,0, 0,3, 0,0, 10,2, 1,4, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+         1,3, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
         # TAB 2
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
@@ -697,7 +697,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['7i92-Internal Data', '7i92', '7i77x2 with on 7i77', '7i92', 'hm2_eth',
-        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+        6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
