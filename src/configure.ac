@@ -1574,8 +1574,8 @@ AC_MSG_RESULT($LIBPYTHON)
 
 AC_MSG_CHECKING([match between tk and Tkinter versions])
     
-PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TK_VERSION)'`"
+PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TCL_VERSION)'`"
 
 if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
     AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
@@ -1589,7 +1589,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(location of Python header files)
-INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
+INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_vars().get("INCLUDEPY"))'`
 AC_MSG_RESULT($INCLUDEPY)
 
 AC_MSG_CHECKING([for Python headers])
@@ -1619,7 +1619,7 @@ AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
     [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
+SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
 AC_MSG_RESULT($SITEPY)
 
 AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
