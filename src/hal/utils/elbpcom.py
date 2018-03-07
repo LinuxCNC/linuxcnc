@@ -64,11 +64,11 @@ def transact(sdata, quiet=False, response=True):
     if not response: return
     try:
         data, daddr = s.recvfrom(1280)
-        if not quiet: print "<", data.encode("hex")
-        if not quiet: print "     ", re.sub('[^ -~]', '.', data)
+        if not quiet: print ("<", data.encode("hex"))
+        if not quiet: print ("     ", re.sub('[^ -~]', '.', data))
         return data
     except socket.timeout:
-        if not quiet: print "! no response"
+        if not quiet: print ("! no response")
         return None
 
 def interact():
@@ -96,35 +96,35 @@ def optimal_size(space, info, address, nbytes):
     if info: return 2
     info = transact(make_read_request(space, True, 2, True, 2, 4).encode("hex"), quiet=True)
     if info is None:
-        raise RuntimeError, "Failed to get information about memory space %d" % space
+        raise RuntimeError("Failed to get information about memory space %d" % space)
     memsizes, memranges = struct.unpack("<HH", info)
     maxaddr = 1 << (memranges & 0x3f)
     #print "# Note: space %d has maxaddr %d (memsizes=0x%x memranges=0x%x)" % (space, maxaddr, memsizes, memranges)
     # This gets the wrong limit with my firmware on space 6, so disabling it
-    #if address + nbytes >= maxaddr: raise ValueError, "Address out of range (address=%d nbytes=%d maxaddr=%d)" % (address, nbytes, maxaddr)
+    #if address + nbytes >= maxaddr: raise ValueError("Address out of range (address=%d nbytes=%d maxaddr=%d)" % (address, nbytes, maxaddr))
     for i in (3,2,1,0):
         b = (1<<i)
         if address % b or nbytes % b or not memsizes & b: continue
         return b
-    raise ValueError, "Access size incompatible with address or length (address=%d nbytes=%d memsizes=%d)" % (address, nbytes, memsizes)
+    raise ValueError("Access size incompatible with address or length (address=%d nbytes=%d memsizes=%d)" % (address, nbytes, memsizes))
 
 if options.read:
-    if options.space is None: raise SystemExit, "--read must specifiy --space"
-    if options.address is None: raise SystemExit, "--read must specifiy --address"
+    if options.space is None: raise SystemExit("--read must specifiy --space")
+    if options.address is None: raise SystemExit("--read must specifiy --address")
     size = optimal_size(options.space, options.info, options.address, options.read if options.increment else 0)
     command = make_read_request(options.space, options.info, size, options.increment, options.address, options.read)
     command = command.encode("hex")
-    print ">", command
+    print (">", command)
     transact(command)
 
 elif options.write:
-    if options.space is None: raise SystemExit, "--write must specifiy --space"
-    if options.address is None: raise SystemExit, "--write must specifiy --address"
+    if options.space is None: raise SystemExit("--write must specifiy --space")
+    if options.address is None: raise SystemExit("--write must specifiy --address")
     write = options.write.decode("hex")
     size = optimal_size(options.space, options.info, options.address, len(write) if options.increment else 0)
     command = make_write_request(options.space, options.info, size, options.increment, options.address, write)
     command = command.encode("hex")
-    print ">", command
+    print (">", command)
     transact(command, response=False)
 
 elif args:
