@@ -1096,7 +1096,7 @@ def main():
                 try: os.unlink(outfile)
                 except os.error: pass
                 open(outfile, "w").writelines(lines)
-                os.chmod(outfile, 0555)
+                os.chmod(outfile, 0o555)
             elif f.endswith(".c") and mode != PREPROCESS:
                 initialize()
                 tempdir = tempfile.mkdtemp()
