@@ -13,6 +13,4 @@ net  Zvel => vel_xz.in1 vel_yz.in1
 net XZvel <= vel_xz.out
 net YZvel <= vel_yz.out
 
-show funct ddt*
-show funct vel*
-show signal *vel
+show signal Zvel
