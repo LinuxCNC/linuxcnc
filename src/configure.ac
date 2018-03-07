@@ -1569,7 +1569,7 @@ fi
 AC_MSG_RESULT(OK)
 
 AC_MSG_CHECKING([version of python libraries])
-LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print("python" + (distutils.sysconfig.get_config_vars().get("LDVERSION") or distutils.sysconfig.get_config_vars().get("VERSION")))'`
 AC_MSG_RESULT($LIBPYTHON)
 
 AC_MSG_CHECKING([match between tk and Tkinter versions])
