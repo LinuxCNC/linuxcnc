@@ -1561,13 +1561,12 @@ if test "$PYTHON" = "none"; then
     AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])
 fi
 
-#TODO: fix version check
-#AC_MSG_CHECKING([python version])
-#if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2070000'
-#then
-#    AC_MSG_ERROR(Python version too old (2.7 or newer required))
-#fi
-#AC_MSG_RESULT(OK)
+AC_MSG_CHECKING([python version])
+if ! $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x2070000)'
+then
+    AC_MSG_ERROR(Python version too old (2.7 or newer required))
+fi
+AC_MSG_RESULT(OK)
 
 AC_MSG_CHECKING([version of python libraries])
 LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print("python" + (distutils.sysconfig.get_config_vars().get("LDVERSION") or distutils.sysconfig.get_config_vars().get("VERSION")))'`
