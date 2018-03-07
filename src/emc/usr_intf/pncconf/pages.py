@@ -60,7 +60,7 @@ class Pages:
             gtk.main_quit()
             return True
         else:
-            return False
+            return True
 
     # seaches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
