@@ -519,6 +519,7 @@ class Data:
         self.mesa0_boardtitle = "5i25-Internal Data"        
         self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]  
         self.mesa0_parportaddrs = "0x378"
+        self.mesa0_card_addrs = "192.168.1.121"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 20000
         self.mesa0_pdm_frequency = 6000000
@@ -537,6 +538,7 @@ class Data:
         self.mesa1_boardtitle = "5i25-Internal Data"
         self.mesa1_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa1_parportaddrs = "0x378"
+        self.mesa1_card_addrs = "192.168.1.121"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 20000
         self.mesa1_pdm_frequency = 6000000
@@ -2066,7 +2068,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             self.pbar.set_fraction(n*1.0/len(firmlist))
             while gtk.events_pending():
                 gtk.main_iteration()
-            firmdata = self.parse_xml(boardtitle, currentfirm,os.path.join(
+            # XMLs don't tell us the driver type so set to None (parse will guess)
+            firmdata = self.parse_xml(None,boardtitle, currentfirm,os.path.join(
                                 self._p.FIRMDIR,boardtitle,currentfirm+".xml"))
             self._p.MESA_FIRMWAREDATA.append(firmdata)
         self.window.hide()
@@ -2114,8 +2117,15 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 return
             hifreq = int(text)/1000000
             modules = root.findall(".//modules")[0]
-            if "7i43" in boardname:
-                driver = "hm2_7i43"
+            if driver == None:
+                if "7i43" in boardname:
+                    driver = "hm2_7i43"
+                elif "7i90" in boardname:
+                    driver = "hm2_7i90"
+                elif '7i76e' in boardname or '7i92' in boardname or '7i80' in boardname:
+                    driver = 'hm2_eth'
+                else:
+                    driver = 'hm2_pci'
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
                 print k
@@ -3127,7 +3137,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def on_mesa_firmware_changed(self, widget,boardnum):
         if self.firmware_block:
             return
-        #print "**** INFO firmware %d changed"% boardnum
+        print "**** INFO firmware %d changed"% boardnum
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
         if active < 0:
@@ -3191,11 +3201,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 else:
                     self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_PD._MAXPWM])
                 self.widgets["mesa%d_pdm_frequency"% boardnum].set_sensitive(d[_PD._MAXPWM])
-                if "7i43" in title:
-                    self.widgets["mesa%d_parportaddrs"% boardnum].show()
+
+                if 'eth' in d[_PD._HALDRIVER] or "7i43" in title or '7i90' in title:
+                    self.widgets["mesa%d_card_addrs_hbox"% boardnum].show()
+                    if '7i43' in title or '7i90' in title:
+                        self.widgets["mesa%d_parportaddrs"% boardnum].show()
+                        self.widgets["mesa%d_card_addrs"% boardnum].hide()
+                    else:
+                        self.widgets["mesa%d_parportaddrs"% boardnum].hide()
+                        self.widgets["mesa%d_card_addrs"% boardnum].show()
                     self.widgets["mesa%d_parporttext"% boardnum].show()
                 else:
-                    self.widgets["mesa%d_parportaddrs"% boardnum].hide()
+                    self.widgets["mesa%d_card_addrs_hbox"% boardnum].hide()
                     self.widgets["mesa%d_parporttext"% boardnum].hide()
                 break
   
@@ -5967,16 +5984,16 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa0_parportaddrs
             if '7i43' in board1:
                 mesa1_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa1_parportaddrs
-            if '7i76e' in board0 or '7i92' in board0 or '7i80' in board0:
-                board0_ip = ''' board_ip="192.168.1.121"'''
-            if '7i76e' in board1 or '7i92' in board1 or '7i80' in board0:
-                board1_ip = ''' board_ip="192.168.1.121"'''
             if 'eth' in driver0:
                 firmstring0 =''
+                if self.d.mesa0_card_addrs:
+                    board0_ip = ''' board_ip="%s"''' % self.d.mesa0_card_addrs
             elif not "5i25" in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
             if 'eth' in driver1:
                 firmstring1 =''
+                if self.d.mesa1_card_addrs:
+                    board1_ip = ''' board_ip="%s"'''% self.d.mesa1_card_addrs
             elif not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
 

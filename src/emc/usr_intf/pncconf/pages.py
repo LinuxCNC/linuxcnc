@@ -858,6 +858,7 @@ class Pages:
         self.a.init_mesa_options(0)
         self._p.prepare_block = False
         self.w.mesa0_parportaddrs.set_text(self.d.mesa0_parportaddrs)
+        self.w.mesa0_card_addrs.set_text(self.d.mesa0_card_addrs)
 
     def mesa0_finish(self):
         model = self.w.mesa0_boardtitle.get_model()
@@ -873,6 +874,7 @@ class Pages:
             return True # don't advance page
         self.d.mesa0_boardtitle = self.w.mesa0_boardtitle.get_active_text()
         self.d.mesa0_parportaddrs = self.w.mesa0_parportaddrs.get_text()
+        self.d.mesa0_card_addrs = self.w.mesa0_card_addrs.get_text()
         self.a.mesa_data_transfer(0)
         if self.d.number_mesa <2:
             error = self.a.signal_sanity_check()
@@ -908,6 +910,7 @@ class Pages:
         self.w.mesa1_boardtitle.set_active(temp)
         self.a.init_mesa_options(1)
         self.w.mesa1_parportaddrs.set_text(self.d.mesa1_parportaddrs)
+        self.w.mesa1_card_addrs.set_text(self.d.mesa1_card_addrs)
 
     def mesa1_finish(self):
         model = self.w.mesa1_boardtitle.get_model()
@@ -923,6 +926,7 @@ class Pages:
             return True
         self.d.mesa1_boardtitle = self.w.mesa1_boardtitle.get_active_text()
         self.d.mesa1_parportaddrs = self.w.mesa1_parportaddrs.get_text()
+        self.d.mesa1_card_addrs = self.w.mesa1_card_addrs.get_text()
         self.a.mesa_data_transfer(1)
         error = self.a.signal_sanity_check()
         if error: return True
