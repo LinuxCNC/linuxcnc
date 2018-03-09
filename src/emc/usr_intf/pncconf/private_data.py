@@ -719,7 +719,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     # 7i80HD #################
-    ["7i80HD-Internal Data", "7i80HD", "SV12", "7i80HD", "hm2_eth",
+    ["7i80HD-Internal Data", "7i80", "SV12", "7i80HD", "hm2_eth",
         12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
         [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
@@ -728,7 +728,7 @@ class Private_Data:
         [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
         [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10],],
 
-    ["7i80HD-Internal Data", "7i80HD", "SVST8_4", "7i80HD", "hm2_eth",
+    ["7i80HD-Internal Data", "7i80", "SVST8_4", "7i80HD", "hm2_eth",
       8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
       [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
       [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
