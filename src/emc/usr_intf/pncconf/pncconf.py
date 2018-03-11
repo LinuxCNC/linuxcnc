@@ -5714,13 +5714,23 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def update_gladevcp(self):
         i = self.widgets.gladevcp.get_active()
         self.widgets.gladevcpbox.set_sensitive( i )
-        if self.widgets.sideembededgvcp.get_active() and not self.d.frontend == _PD._AXIS:
-            if self.d.frontend == _PD._TOUCHY: self.widgets.centerembededgvcp.set_active(True)
-            else: self.widgets.standalonegvcp.set_active(True)
-        self.widgets.sideembededgvcp.set_sensitive(self.d.frontend == _PD._AXIS)
-        self.widgets.centerembededgvcp.set_sensitive(self.d.frontend == _PD._TOUCHY or self.d.frontend == _PD._AXIS)
-        if self.widgets.centerembededgvcp.get_active() and not ( self.d.frontend == _PD._AXIS or self.d.frontend == _PD._TOUCHY ):
+        if self.d.frontend == _PD._TOUCHY:
+            self.widgets.centerembededgvcp.set_active(True)
+            self.widgets.centerembededgvcp.set_sensitive(True)
+            self.widgets.sideembededgvcp.set_sensitive(False)
+            self.widgets.standalonegvcp.set_sensitive(False)
+        elif self.d.frontend == _PD._GMOCCAPY or self.d.frontend == _PD._AXIS:
+            self.widgets.sideembededgvcp.set_sensitive(True)
+            self.widgets.centerembededgvcp.set_sensitive(True)
+            self.widgets.standalonegvcp.set_sensitive(False)
+            if not self.widgets.centerembededgvcp.get_active() and not self.widgets.sideembededgvcp.get_active():
+                self.widgets.centerembededgvcp.set_active(True)
+        else:
+            self.widgets.sideembededgvcp.set_sensitive(False)
+            self.widgets.centerembededgvcp.set_sensitive(False)
+            self.widgets.standalonegvcp.set_sensitive(True)
             self.widgets.standalonegvcp.set_active(True)
+
         i = self.widgets.standalonegvcp.get_active()
         self.widgets.gladevcpsize.set_sensitive(i)
         self.widgets.gladevcpposition.set_sensitive(i)

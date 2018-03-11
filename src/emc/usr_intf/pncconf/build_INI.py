@@ -41,11 +41,24 @@ class INI:
             theme = self.d.gladevcptheme
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
-            if self.d.centerembededgvcp:
-                print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
-            elif self.d.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
+            if self.d.frontend in(_PD._AXIS, _PD._TOUCHY):
+                if self.d.centerembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = GladeVCP"
+                    print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+                elif self.d.sideembededgvcp:
+                    print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
+            elif self.d.frontend == _PD._GMOCCAPY:
+                if self.d.centerembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = Center_panel"
+                    print >>file, "EMBED_TAB_LOCATION = ntb_preview"
+                elif self.d.sideembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = Right Panel"
+                    print >>file, "EMBED_TAB_LOCATION = box_right"
+                else:
+                    print >>file, "EMBED_TAB_NAME = User Panel"
+                    print >>file, "EMBED_TAB_LOCATION = ntb_user_tabs"
+                print >>file, "EMBED_TAB_COMMAND = gladevcp -c gladevcp %s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+
         if self.d.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp

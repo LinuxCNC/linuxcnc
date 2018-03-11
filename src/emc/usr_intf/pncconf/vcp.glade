@@ -80,6 +80,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="active">True</property>
                                                 <property name="draw_indicator">True</property>
@@ -96,6 +97,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <property name="group">pyvcpblank</property>
@@ -111,6 +113,7 @@
                                                 <property name="label" translatable="yes">XYZ buttons (uses Halui)</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <property name="group">pyvcpblank</property>
@@ -127,6 +130,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <property name="group">pyvcpblank</property>
@@ -143,6 +147,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
                                               </object>
@@ -171,6 +176,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                       </object>
                                                     </child>
@@ -180,6 +186,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                       </object>
                                                       <packing>
@@ -336,6 +343,7 @@
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">True</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="xalign">0.51999998092651367</property>
                                                     <signal name="clicked" handler="on_displaypanel_clicked" swapped="no"/>
                                                     <child>
@@ -427,6 +435,7 @@ panel</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="xalign">0.55000001192092896</property>
                         <property name="draw_indicator">True</property>
@@ -486,6 +495,7 @@ panel</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="active">True</property>
                                                 <property name="draw_indicator">True</property>
@@ -503,6 +513,7 @@ panel</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <property name="group">gladesample</property>
@@ -520,21 +531,13 @@ panel</property>
                                               <object class="GtkExpander" id="gladegeometry">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
+                                                <property name="expanded">True</property>
                                                 <child>
                                                   <object class="GtkTable" id="table14">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="n_rows">7</property>
                                                     <property name="n_columns">5</property>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
                                                     <child>
                                                       <object class="GtkSpinButton" id="gladevcpheight">
                                                         <property name="visible">True</property>
@@ -653,6 +656,7 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                         <signal name="toggled" handler="on_gladevcp_toggled" swapped="no"/>
                                                       </object>
@@ -667,6 +671,7 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                         <signal name="toggled" handler="on_gladevcp_toggled" swapped="no"/>
                                                       </object>
@@ -677,6 +682,7 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                         <property name="group">centerembededgvcp</property>
                                                         <signal name="toggled" handler="on_gladevcp_toggled" swapped="no"/>
@@ -693,6 +699,7 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                         <property name="group">centerembededgvcp</property>
                                                       </object>
@@ -708,6 +715,7 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="active">True</property>
                                                         <property name="draw_indicator">True</property>
                                                       </object>
@@ -723,6 +731,7 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="draw_indicator">True</property>
                                                       </object>
                                                       <packing>
@@ -761,6 +770,15 @@ panel</property>
                                                         <property name="top_attach">3</property>
                                                         <property name="bottom_attach">4</property>
                                                       </packing>
+                                                    </child>
+                                                    <child>
+                                                      <placeholder/>
+                                                    </child>
+                                                    <child>
+                                                      <placeholder/>
+                                                    </child>
+                                                    <child>
+                                                      <placeholder/>
                                                     </child>
                                                   </object>
                                                 </child>
@@ -847,6 +865,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -861,6 +880,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -875,6 +895,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -889,6 +910,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -903,6 +925,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -917,6 +940,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -933,6 +957,7 @@ panel</property>
                                                     <property name="has_tooltip">True</property>
                                                     <property name="tooltip_markup">Requires Classicladder touch-off program</property>
                                                     <property name="tooltip_text" translatable="yes">Requires Classicladder touch-off program</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="draw_indicator">True</property>
                                                   </object>
                                                   <packing>
@@ -970,6 +995,7 @@ panel</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">True</property>
+                                                    <property name="use_action_appearance">False</property>
                                                     <property name="xalign">0.51999998092651367</property>
                                                     <signal name="clicked" handler="on_displaygladevcp_clicked" swapped="no"/>
                                                     <child>
@@ -1061,6 +1087,7 @@ panel</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="xalign">0.55000001192092896</property>
                         <property name="draw_indicator">True</property>
