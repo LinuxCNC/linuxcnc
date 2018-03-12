@@ -3508,34 +3508,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
         self.widgets["mesa%dsserial0_4"% boardnum].hide()
         currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        if currentboard == "5i20" or currentboard == "5i23" \
-            or currentboard == "5i24" or currentboard == "7i80HD":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-        if currentboard == "5i22":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()
-        if currentboard == "5i25":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-        if currentboard in ("7i76e","7i92"):
-            for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
-                self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
-
-        if currentboard == "7i43":
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-        if currentboard == "3x20":
-            self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()
-            self.widgets["mesa%dcon6table"% boardnum].show()
-            self.widgets["mesa%dcon7table"% boardnum].show()
-            self.widgets["mesa%dcon8table"% boardnum].show()
-            self.widgets["mesa%dcon9table"% boardnum].show()
-
+        for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
+            self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
 
 #        self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.d["mesa%d_boardtitle"%boardnum],
 #            self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._FIRMWARE]))
