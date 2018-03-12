@@ -55,7 +55,9 @@ class Pages:
         self.w.help_window.hide()
         return True
     def on_print_7i76_button_clicked(self,widget):
-        self.a.print_image()
+        self.a.print_image('map_7i76')
+    def on_print_7i77_button_clicked(self,widget):
+        self.a.print_image('map_7i77')
 
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):

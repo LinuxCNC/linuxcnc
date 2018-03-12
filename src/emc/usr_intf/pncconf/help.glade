@@ -316,30 +316,56 @@ possible.</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkVBox" id="vbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkAlignment" id="alignment2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="xscale">0.070000000298023224</property>
+                    <child>
+                      <object class="GtkButton" id="print_7i77_button">
+                        <property name="label" translatable="yes">Print Map</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <signal name="clicked" handler="on_print_7i77_button_clicked" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage" id="map_7i77_image">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
             </child>
             <child type="tab">
               <object class="GtkLabel" id="label3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">page 2</property>
+                <property name="label" translatable="yes">7i77</property>
               </object>
               <packing>
                 <property name="position">1</property>
-                <property name="tab_fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child type="tab">
-              <object class="GtkLabel" id="label4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">page 3</property>
-              </object>
-              <packing>
-                <property name="position">2</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
