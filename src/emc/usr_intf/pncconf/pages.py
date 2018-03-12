@@ -54,6 +54,8 @@ class Pages:
     def on_help_window_delete_event(self, *args):
         self.w.help_window.hide()
         return True
+    def on_print_7i76_button_clicked(self,widget):
+        self.a.print_image()
 
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):

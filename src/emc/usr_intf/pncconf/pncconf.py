@@ -1465,6 +1465,8 @@ class App:
         self.widgets.helppic0.set_from_file(axisdiagram)
         axisdiagram = os.path.join(self._p.HELPDIR,"lathe_diagram.png")
         self.widgets.helppic1.set_from_file(axisdiagram)
+        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.jpg"))
+        self.widgets.map_7i76_image.set_from_pixbuf(self.map_7i76)
         #self.widgets.openloopdialog.hide()
 
         self.p.initialize()
@@ -1662,6 +1664,22 @@ class App:
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
         self.widgets.help_window.present()
+
+    def print_page(self,print_dialog, context, n):
+        ctx = context.get_cairo_context()
+        gdkcr = gtk.gdk.CairoContext(ctx)
+        gdkcr.set_source_pixbuf(self.map_7i76, 0,0)
+        gdkcr.paint ()
+
+    def print_image(self):
+        print 'print image'
+        print_dialog = gtk.PrintOperation()
+        print_dialog.set_n_pages(1)
+        print_dialog.connect("draw-page", self.print_page)
+        res = print_dialog.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, self.widgets.help_window)
+
+        if res == gtk.PRINT_OPERATION_RESULT_APPLY:
+            settings = print_dialog.get_print_settings()
 
     # check for realtime kernel
     def check_for_rt(self):
