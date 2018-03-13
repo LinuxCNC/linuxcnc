@@ -33,17 +33,32 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.frontend == _PD._TKLINUXCNC:
             print >>file, "DISPLAY = tklinuxcnc"
+        elif self.d.frontend == _PD._GMOCCAPY:
+            print >>file, "DISPLAY = gmoccapy"
         elif self.d.frontend == _PD._TOUCHY:
             print >>file, "DISPLAY = touchy"
         if self.d.gladevcp:
             theme = self.d.gladevcptheme
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
-            if self.d.centerembededgvcp:
-                print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
-            elif self.d.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
+            if self.d.frontend in(_PD._AXIS, _PD._TOUCHY):
+                if self.d.centerembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = GladeVCP"
+                    print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+                elif self.d.sideembededgvcp:
+                    print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
+            elif self.d.frontend == _PD._GMOCCAPY:
+                if self.d.centerembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = Center_panel"
+                    print >>file, "EMBED_TAB_LOCATION = ntb_preview"
+                elif self.d.sideembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = Right Panel"
+                    print >>file, "EMBED_TAB_LOCATION = box_right"
+                else:
+                    print >>file, "EMBED_TAB_NAME = User Panel"
+                    print >>file, "EMBED_TAB_LOCATION = ntb_user_tabs"
+                print >>file, "EMBED_TAB_COMMAND = gladevcp -c gladevcp %s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+
         if self.d.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -124,7 +139,7 @@ class INI:
         print >>file, "HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         print >>file, "HALFILE = custom.hal"
-        if self.d.frontend == _PD._AXIS:
+        if self.d.frontend in( _PD._AXIS, _PD._GMOCCAPY):
             print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
@@ -240,40 +255,44 @@ class INI:
         jnum = 0
         # Always X AXIS
         self.write_one_axis(file, 'x')
-        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("x2"))
+        tandemjoint = self.a.tandem_check('x')
         self.write_one_joint(file, 0, "x", "LINEAR", all_homes, bool(not tandemjoint is None))
         if tandemjoint:
             jnum += 1
             self.write_one_joint(file, jnum, "x", "LINEAR", all_homes, True)
+        jnum += 1
         print >>file, "#******************************************"
 
         # Maybe add Y AXIS
         if self.d.axes in(0,1): # xyz or xyza
             self.write_one_axis(file, 'y')
-            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("y2"))
-            self.write_one_joint(file, 0, "y", "LINEAR", all_homes, bool(not tandemjoint is None))
+            tandemjoint = self.a.tandem_check('y')
+            self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, bool(not tandemjoint is None))
             if tandemjoint:
                 jnum += 1
                 self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, True)
+            jnum += 1
             print >>file, "#******************************************"
 
         # Always add Z AXIS
         self.write_one_axis(file, 'z')
-        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("z2"))
-        self.write_one_joint(file, 0, "z", "LINEAR", all_homes, bool(not tandemjoint is None))
+        tandemjoint = self.a.tandem_check('z')
+        self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, bool(not tandemjoint is None))
         if tandemjoint:
             jnum += 1
             self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, True)
+        jnum += 1
         print >>file, "#******************************************"
 
         # Maybe add A AXIS
         if self.d.axes == 1: # xyza
             self.write_one_axis(file, 'a')
-            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("a2"))
-            self.write_one_joint(file, 0, "a", "LINEAR", all_homes, bool(not tandemjoint is None))
+            tandemjoint = self.a.tandem_check('a')
+            self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, bool(not tandemjoint is None))
             if tandemjoint:
                 jnum += 1
                 self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, True)
+            jnum += 1
             print >>file, "#******************************************"
 
         # always add SPINDLE

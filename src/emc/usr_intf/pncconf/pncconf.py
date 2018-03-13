@@ -388,6 +388,9 @@ class Data:
         self.axissize = [False,0,0]
         self.axisposition = [False,0,0]
 
+        # Gmoccapy
+        self.gmcpytheme = "Follow System Theme"
+
         # Touchy only
         self.touchysize = [False,0,0]
         self.touchyposition = [False,0,0]
@@ -516,6 +519,7 @@ class Data:
         self.mesa0_boardtitle = "5i25-Internal Data"        
         self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]  
         self.mesa0_parportaddrs = "0x378"
+        self.mesa0_card_addrs = "192.168.1.121"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 20000
         self.mesa0_pdm_frequency = 6000000
@@ -534,6 +538,7 @@ class Data:
         self.mesa1_boardtitle = "5i25-Internal Data"
         self.mesa1_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa1_parportaddrs = "0x378"
+        self.mesa1_card_addrs = "192.168.1.121"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 20000
         self.mesa1_pdm_frequency = 6000000
@@ -862,68 +867,78 @@ class Data:
         #encoders
         temp =[]; i = False
         for i in  self.halencoderinputsignames:
-            temp.append(i)
+            temp.append((i,i+"-a"))
             for j in(["-a","-b","-i","-m"]):
                 _PD.hal_encoder_input_names.append(i+j)
-        if i:  _PD.human_encoder_input_names[4][1]= temp
+        end = len(_PD.human_encoder_input_names)-1
+        if i:  _PD.human_encoder_input_names[end][1]= temp
         #resolvers
         temp = []; i = False
         for i in  self.halresolversignames:
             temp.append(i)
             _PD.hal_resolver_input_names.append(i)
-        if i: _PD.human_resolver_input_names[6][1]= temp
+        end = len(_PD.human_resolver_input_names)-1
+        if i: _PD.human_resolver_input_names[end][1]= temp
         # 8I20 amplifier card
         temp = []; i = False
         for i in  self.hal8i20signames:
             temp.append(i)
             _PD.hal_8i20_input_names.append(i)
-        if i: _PD.human_8i20_input_names[6][1]= temp
+        end = len(_PD.human_8i20_input_names)-1
+        if i: _PD.human_8i20_input_names[end][1]= temp
         # potentiometer
         temp = []; i = False
         for i in  self.halpotsignames:
             temp.append(i)
             for j in(["-output","-enable"]):
                 _PD.hal_pot_output_names.append(i+j)
-        if i: _PD.human_pot_output_names[2][1]= temp
+        end = len(_PD.human_pot_output_names)-1
+        if i: _PD.human_pot_output_names[end][1]= temp
         # analog input
         temp = []; i = False
         for i in  self.halanaloginsignames:
             temp.append(i)
             _PD.hal_analog_input_names.append(i)
-        if i: _PD.human_analog_input_names[1][1]= temp
+        end = len(_PD.human_analog_input_names)-1
+        if i: _PD.human_analog_input_names[end][1]= temp
         #pwm
         temp =[]; i = False
         for i in  self.halpwmoutputsignames:
-            temp.append(i)
+            temp.append((i,i+"-pulse"))
             for j in(["-pulse","-dir","-enable"]):
                 _PD.hal_pwm_output_names.append(i+j)
-        if i: _PD.human_pwm_output_names[6][1]= temp
+        end = len(_PD.human_pwm_output_names)-1
+        if i: _PD.human_pwm_output_names[end][1]= temp
         # tppwm
         temp =[]; i = False
         for i in  self.haltppwmoutputsignames:
             temp.append(i)
             for j in(["-a","-b","-c","-anot","-bnot","-cnot","-fault","-enable"]):
                 _PD.hal_tppwm_output_names.append(i+j)
-        if i:  _PD.human_tppwm_output_names[2][1]= temp
+        end = len(_PD.human_tppwm_output_names)-1
+        if i:  _PD.human_tppwm_output_names[end][1]= temp
         # GPIO Input
         temp = []; i = False
         for i in  self.halinputsignames:
-            temp.append(i)
+            temp.append((i, i))
             _PD.hal_input_names.append(i)
-        if i: _PD.human_input_names[16][1]= temp
+        end = len(_PD.human_input_names)-1
+        if i: _PD.human_input_names[end][1]= temp
         # GPIO Output
         temp = []; i = False
         for i in  self.haloutputsignames:
             temp.append(i)
             _PD.hal_output_names.append(i)
-        if i: _PD.human_output_names[10][1]= temp
+        end = len(_PD.human_output_names)-1
+        if i: _PD.human_output_names[end][1]= temp
         # steppers
         temp = []; i = False
         for i in  self.halsteppersignames:
-            temp.append(i)
+            temp.append((i,i+"-step"))
             for j in(["-step","-dir","-c","-d","-e","-f"]):
                 _PD.hal_stepper_names.append(i+j)
-        if i: _PD.human_stepper_names[6][1]= temp
+        end = len(_PD.human_stepper_names)-1
+        if i: _PD.human_stepper_names[end][1]= temp
 
         warnings = []
         warnings2 = []
@@ -1450,6 +1465,10 @@ class App:
         self.widgets.helppic0.set_from_file(axisdiagram)
         axisdiagram = os.path.join(self._p.HELPDIR,"lathe_diagram.png")
         self.widgets.helppic1.set_from_file(axisdiagram)
+        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.jpg"))
+        self.widgets.map_7i76_image.set_from_pixbuf(self.map_7i76)
+        self.map_7i77 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
+        self.widgets.map_7i77_image.set_from_pixbuf(self.map_7i77)
         #self.widgets.openloopdialog.hide()
 
         self.p.initialize()
@@ -1586,16 +1605,6 @@ class App:
                     c = raw_input("\n**** Debug Pause! ****")
                 return
 
-    def gtk_main_quit(self, *args):
-        gtk.main_quit()
-
-    def on_window1_delete_event(self, *args):
-        if self.warning_dialog (_("Quit PNCconfig and discard changes?"),False):
-            gtk.main_quit()
-            return False
-        else:
-            return True
-
     def query_dialog(self,title, message):
         def responseToDialog(entry, dialog, response):
             dialog.response(response)
@@ -1657,6 +1666,24 @@ class App:
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
         self.widgets.help_window.present()
+
+    def print_page(self,print_dialog, context, n, imagename):
+        ctx = context.get_cairo_context()
+        gdkcr = gtk.gdk.CairoContext(ctx)
+        gdkcr.set_source_pixbuf(self[imagename], 0,0)
+        gdkcr.paint ()
+
+    def print_image(self,image_name):
+        print 'print image'
+        print_dialog = gtk.PrintOperation()
+        print_dialog.set_n_pages(1)
+        settings = gtk.PrintSettings()
+        settings.set_orientation(gtk.PAGE_ORIENTATION_LANDSCAPE)
+        print_dialog.set_print_settings(settings)
+        print_dialog.connect("draw-page", self.print_page, image_name)
+        res = print_dialog.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, self.widgets.help_window)
+        if res == gtk.PRINT_OPERATION_RESULT_APPLY:
+            settings = print_dialog.get_print_settings()
 
     # check for realtime kernel
     def check_for_rt(self):
@@ -1777,15 +1804,101 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         for number,text in enumerate(_PD.pintype_sserial):
             self.d._sserialliststore.append([text,number])
 
+    # comboboxes with 3 levels
+    def fill_combobox_models2(self):
+        templist = [ ["_gpioisignaltree",_PD.human_input_names,1,'hal_input_names'],
+                    ["_steppersignaltree",_PD.human_stepper_names,1,'hal_stepper_names'],
+                    ["_encodersignaltree",_PD.human_encoder_input_names,1,'hal_encoder_input_names'],
+                    ["_muxencodersignaltree",_PD.human_encoder_input_names,1,'hal_encoder_input_names'],
+                    ["_pwmsignaltree",_PD.human_pwm_output_names,1,'hal_pwm_output_names'],]
+        for item in templist:
+            #print "\ntype",item[0]
+            count = 0
+            end = len(item[1])-1
+            # treestore(parentname,parentnum,signalname,signaltreename,signal index number)
+            self.d[item[0]]= gtk.TreeStore(str,int,str,str,int)
+            for i,parent in enumerate(item[1]):
+                ############################
+                # if there are no children:
+                ############################
+                if not isinstance(parent[1], list):
+                    signame = parent[1]
+                    index = _PD[item[3]].index(parent[1])
+                    #print 'no children:', signame, index
+                    # add parent and get reference for child
+                    # This entry is selectable it has a signal attached to it
+                    piter = self.d[item[0]].append(None, [parent[0], index,signame,item[3],0])
+                    #print parent,parentnum,count,signame,item[3],i,signame,count
+                else:
+                    # If list is empty it's a custome signal - with no signals yet
+                  if len(parent[1]) == 0:
+                    piter = self.d[item[0]].append(None, [parent[0], 0,'none',item[3],0])
+                  else:
+                    #print "parsing child",parent[1]
+                    # add parent title
+                    ##########################
+                    # if there are children:
+                    # add an entry to first list that cannot be selected 
+                    # (well it always gives the unused signal - 0)
+                    # because we need users to select from the next column
+                    ##########################
+                    piter = self.d[item[0]].append(None, [parent[0],0,signame,item[3],0])
+                    for j,child in enumerate(parent[1]):
+                        #############################
+                        # If grandchildren
+                        #############################
+                        if isinstance(child[1], list):
+                            ##########################
+                            # if there are children:
+                            # add an entry to second list that cannot be selected 
+                            # (well it always gives the unused signal - 0)
+                            # because we need users to select from the next column
+                            ##########################
+                            citer = self.d[item[0]].append(piter, [child[0], 0,signame,item[3],0])
+                            #print 'add to CHILD list',child[0]
+                            #print 'String:',child[1]
+                            
+                            for k,grandchild in enumerate(child[1]):
+                                #print 'raw grand:  ', grandchild
+                                #############################
+                                # If GREAT children
+                                #############################
+                                #print grandchild[0],grandchild[1]
+                                if isinstance(grandchild[1], list):
+                                    #print 'ERROR combo boxes can not have GREAT children yet add'
+                                    #print 'skipping'
+                                    continue
+                                else:
+                                    #############################
+                                    # If No GREAT children
+                                    ############################
+
+                                    humanName = grandchild[0]
+                                    sigName = grandchild[1]
+                                    index = _PD[item[3]].index(grandchild[1])
+                                    halNameArray = item[3]
+                                    #print 'adding to grandchild to childlist:  ', humanName,index,sigName,halNameArray,index
+                                    self.d[item[0]].append(citer, [humanName, index,sigName,halNameArray,index])
+                        ####################
+                        # No grandchildren
+                        ####################
+                        else:
+                            #print' add to child - no grandchild',child
+                            humanName = child[0]
+                            sigName = child[1]
+                            index = _PD[item[3]].index(child[1])
+                            halNameArray = item[3]
+                            #print child[0],index,sigName,item[3],index
+                            self.d[item[0]].append(piter, [humanName, index,sigName,halNameArray,index])
+                            count +=item[2]
+
+    # combobox with 2 levels
     def fill_combobox_models(self):
         templist = [ ["_gpioosignaltree",_PD.human_output_names,1,'hal_output_names'],
-                     ["_gpioisignaltree",_PD.human_input_names,1,'hal_input_names'],
-                     ["_encodersignaltree",_PD.human_encoder_input_names,4,'hal_encoder_input_names'],
+                     
+                     
                      ["_resolversignaltree",_PD.human_resolver_input_names,1,'hal_resolver_input_names'],
-                     ["_pwmsignaltree",_PD.human_pwm_output_names,3,'hal_pwm_output_names'],
                      ["_tppwmsignaltree",_PD.human_tppwm_output_names,8,'hal_tppwm_output_names'],
-                     ["_steppersignaltree",_PD.human_stepper_names,6,'hal_stepper_names'],
-                     ["_muxencodersignaltree",_PD.human_encoder_input_names,4,'hal_encoder_input_names'],
                      ["_8i20signaltree",_PD.human_8i20_input_names,1,'hal_8i20_input_names'],
                      ["_potsignaltree",_PD.human_pot_output_names,2,'hal_pot_output_names'],
                      ["_analoginsignaltree",_PD.human_analog_input_names,1,'hal_analog_input_names'],
@@ -1798,28 +1911,79 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             # treestore(parentname,parentnum,signalname,signaltreename,signal index number)
             self.d[item[0]]= gtk.TreeStore(str,int,str,str,int)
             for i,parent in enumerate(item[1]):
+                ############################
+                # if there are no children:
+                ############################
                 if len(parent[1]) == 0:
                     # if combobox has a 'custom' signal choice then the index must be 0
-                    if i == end and not item[0] =="_sserialsignaltree":temp = 0 
-                    else:temp = count
+                    if i == end and not item[0] =="_sserialsignaltree":parentnum = 0 
+                    else:parentnum = count
                     #print "length of human names:",len(parent[1])
-                    # this adds the index number (temp) of the signal
+                    # this adds the index number (parentnum) of the signal
                     try:
                         signame=_PD[item[3]][count]
                     except:
                         signame = 'none'
-                    piter = self.d[item[0]].append(None, [parent[0], temp,signame,item[3],count])
-                    #print parent,temp,count,signame,item[3],i,signame,count
+                    # add parent and get reference for child
+                    piter = self.d[item[0]].append(None, [parent[0], parentnum,signame,item[3],count])
+                    #print parent,parentnum,count,signame,item[3],i,signame,count
                     if count == 0: count = 1
                     else: count +=item[2]
+                ##########################
+                # if there are children:
+                ##########################
                 else:
-                    #print "parsing child"
+                    #print "parsing child",signame
+                    # add parent title
                     piter = self.d[item[0]].append(None, [parent[0],0,signame,item[3],count])
                     for j,child in enumerate(parent[1]):
-                        signame=_PD[item[3]][count]
-                        #print i,count,parent[0],child,signame,item[3], _PD[item[3]].index(signame),count
-                        self.d[item[0]].append(piter, [child, count,signame,item[3],count])
-                        count +=item[2]
+                        #print len(child[1]), child[0]
+                        #if item[0] =='_gpioisignaltree':
+                            #print item[0], child[0],len(child[1])
+                        #############################
+                        # If grandchildren
+                        #############################
+                        if len(child[1]) > 1:
+                            # add child and get reference
+                            citer = self.d[item[0]].append(piter, [child[0], 0,signame,item[3],count])
+                            #if item[0] =='_gpioisignaltree':
+                                #print 'add to CHILD list',child[0]
+                                #print 'Strig:',child[1]
+                            for k,grandchild in enumerate(child[1]):
+                                #print 'raw grand:  ', grandchild
+                                #############################
+                                # If greatchildren
+                                #############################
+                                #print grandchild[0],grandchild[1]
+                                if len(grandchild) > 1:
+                                    #print 'add to grandchild child list',grandchild[0]
+                                    index = _PD[item[3]].index(grandchild[1])
+                                    self.d[item[0]].append(citer, [grandchild[0],index,grandchild[1],item[3],index])
+                                    continue
+                                else:
+                                    #############################
+                                    # If No greatchildren
+                                    #############################
+                                    try:
+                                        signame=_PD[item[3]][count]
+                                    except:
+                                        signame = 'none'
+                                    #print 'adding to grandchild to childlist:  ', grandchild,signame,item[3],count
+                                    # add grandchild
+                                    self.d[item[0]].append(piter, [child,0,signame,item[3],count])
+                                    #count +=item[2]
+
+                        ####################
+                        # No grandchildren
+                        ####################
+                        else:
+                            #print' add to child - no grandchild',child
+                            signame=_PD[item[3]][count]
+                            #print i,count,parent[0],child,signame,item[3], _PD[item[3]].index(signame),count
+                            self.d[item[0]].append(piter, [child, count,signame,item[3],count])
+                            count +=item[2]
+                            
+        self.fill_combobox_models2()
         self.d._notusedsignaltree = gtk.TreeStore(str,int,str,str,int)
         self.d._notusedsignaltree.append(None, [_PD.human_notused_names[0][0],0,'unused-unused','_notusedsignaltree',0])
         # make a filter for sserial encoder as they can't be used for AXES
@@ -1926,12 +2090,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             self.pbar.set_fraction(n*1.0/len(firmlist))
             while gtk.events_pending():
                 gtk.main_iteration()
-            firmdata = self.parse_xml(boardtitle, currentfirm,os.path.join(
+            # XMLs don't tell us the driver type so set to None (parse will guess)
+            firmdata = self.parse_xml(None,boardtitle, currentfirm,os.path.join(
                                 self._p.FIRMDIR,boardtitle,currentfirm+".xml"))
             self._p.MESA_FIRMWAREDATA.append(firmdata)
         self.window.hide()
 
-    def parse_xml(self, boardtitle, firmname, xml_path):
+    def parse_xml(self, driver, boardtitle, firmname, xml_path):
             def search(elementlist):
                 for i in elementlist:
                     temp = root.find(i)
@@ -1974,10 +2139,15 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 return
             hifreq = int(text)/1000000
             modules = root.findall(".//modules")[0]
-            if "7i43" in boardname:
-                driver = "hm2_7i43"
-            else:
-                driver = "hm2_pci"
+            if driver == None:
+                if "7i43" in boardname:
+                    driver = "hm2_7i43"
+                elif "7i90" in boardname:
+                    driver = "hm2_7i90"
+                elif '7i76e' in boardname or '7i92' in boardname or '7i80' in boardname:
+                    driver = 'hm2_eth'
+                else:
+                    driver = 'hm2_pci'
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
                 print k
@@ -2253,7 +2423,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         return output
 
     def parse_discovery(self,info,boardnum=0):
-        BOARDNAME = ''
+        DRIVER = BOARDNAME = ''
         WATCHDOG = NUMCONS = NUMCONPINS = ENCODERS = MUXENCODERS = 0
         RESOLVERS = NUMSSCHANNELS = SSERIALPORTS = 0
         PWMGENS = LEDS = STEPGENS = TPPWMGEN = 0
@@ -2284,7 +2454,11 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         for l_num,i in enumerate(lines):
             i = i.lstrip()
             temp2 = i.split(" ")
-
+            #print i,temp2
+            if 'ETH' in i:
+                DRIVER = 'hm2_eth'
+            if 'PCI' in i:
+                DRIVER = 'hm2_pci'
             if 'BOARDNAME' in i:
                 BOARDNAME = temp2[2].strip('MESA').lower()
                 add_text(ELEMENT,'BOARDNAME',BOARDNAME)
@@ -2417,18 +2591,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         firmname = "~/mesa%d_discovered.xml"%boardnum
         filename = os.path.expanduser(firmname)
         DOC.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        return BOARDNAME, firmname, filename
+        return DRIVER, BOARDNAME, firmname, filename
 
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
-        boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
         boardname = 'Discovered:%s'% boardname
-        firmdata = self.parse_xml( boardname,firmname,path)
+        firmdata = self.parse_xml( driver,boardname,firmname,path)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
         # add firmname to combo box if it's not there
-        model = self.w["mesa%s_firmware"%bdnum].get_model()
+        model = self.widgets["mesa%s_firmware"%bdnum].get_model()
         flag = True
         for search,item in enumerate(model):
             if model[search][0]  == firmname:
@@ -2437,13 +2611,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         if flag:
             model.append((firmname,))
             search = 0
-            model = self.w["mesa%s_firmware"%bdnum].get_model()
+            model = self.widgets["mesa%s_firmware"%bdnum].get_model()
             for search,item in enumerate(model):
                 if model[search][0]  == firmname:
-                    self.w["mesa%s_firmware"%bdnum].set_active(search)
+                    self.widgets["mesa%s_firmware"%bdnum].set_active(search)
                     break
         # add boardtitle
-        model = self.w["mesa%s_boardtitle"%bdnum].get_model()
+        model = self.widgets["mesa%s_boardtitle"%bdnum].get_model()
         flag2 = True
         for search,item in enumerate(model):
             if model[search][0]  == boardname:
@@ -2452,11 +2626,11 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         if flag2:
             model.append((boardname,))
             search = 0
-            model = self.w["mesa%s_boardtitle"%bdnum].get_model()
+            model = self.widgets["mesa%s_boardtitle"%bdnum].get_model()
             for search,item in enumerate(model):
-                print model[search][0], boardname
+                #print model[search][0], boardname
                 if model[search][0]  == boardname:
-                    self.w["mesa%s_boardtitle"%bdnum].set_active(search)
+                    self.widgets["mesa%s_boardtitle"%bdnum].set_active(search)
                     break
         # update if there was a change
         if flag or flag2:
@@ -2614,20 +2788,28 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     def get_installed_themes(self):
             data1 = self.d.gladevcptheme
             data2 = prefs.getpref('gtk_theme', 'Follow System Theme', str)
+            data3 = self.d.gmcpytheme
             model = self.widgets.themestore
             model.clear()
             model.append((_("Follow System Theme"),))
-            temp1 = temp2 = 0
+            model2 = self.widgets.glade_themestore
+            model2.clear()
+            model2.append((_("Follow System Theme"),))
+            temp1 = temp2 = temp3 = 0
             names = os.listdir(_PD.THEMEDIR)
             names.sort()
             for search,dirs in enumerate(names):
                 model.append((dirs,))
+                model2.append((dirs,))
                 if dirs  == data1:
                     temp1 = search+1
                 if dirs  == data2:
                     temp2 = search+1
+                if dirs  == data3:
+                    temp3 = search+1
             self.widgets.gladevcptheme.set_active(temp1)
             self.widgets.touchytheme.set_active(temp2)
+            self.widgets.gmcpy_theme.set_active(temp3)
 
     def gladevcp_sanity_check(self):
                 if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/gvcp-panel.ui" % self.d.machinename)):
@@ -2977,7 +3159,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def on_mesa_firmware_changed(self, widget,boardnum):
         if self.firmware_block:
             return
-        #print "**** INFO firmware %d changed"% boardnum
+        print "**** INFO firmware %d changed"% boardnum
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
         if active < 0:
@@ -3041,11 +3223,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 else:
                     self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_PD._MAXPWM])
                 self.widgets["mesa%d_pdm_frequency"% boardnum].set_sensitive(d[_PD._MAXPWM])
-                if "7i43" in title:
-                    self.widgets["mesa%d_parportaddrs"% boardnum].show()
+
+                if 'eth' in d[_PD._HALDRIVER] or "7i43" in title or '7i90' in title:
+                    self.widgets["mesa%d_card_addrs_hbox"% boardnum].show()
+                    if '7i43' in title or '7i90' in title:
+                        self.widgets["mesa%d_parportaddrs"% boardnum].show()
+                        self.widgets["mesa%d_card_addrs"% boardnum].hide()
+                    else:
+                        self.widgets["mesa%d_parportaddrs"% boardnum].hide()
+                        self.widgets["mesa%d_card_addrs"% boardnum].show()
                     self.widgets["mesa%d_parporttext"% boardnum].show()
                 else:
-                    self.widgets["mesa%d_parportaddrs"% boardnum].hide()
+                    self.widgets["mesa%d_card_addrs_hbox"% boardnum].hide()
                     self.widgets["mesa%d_parporttext"% boardnum].hide()
                 break
   
@@ -3341,34 +3530,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
         self.widgets["mesa%dsserial0_4"% boardnum].hide()
         currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        if currentboard == "5i20" or currentboard == "5i23" \
-            or currentboard == "5i24" or currentboard == "7i80HD":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-        if currentboard == "5i22":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()
-        if currentboard == "5i25":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-        if currentboard in ("7i76e","7i92"):
-            for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
-                self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
-
-        if currentboard == "7i43":
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-        if currentboard == "3x20":
-            self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()
-            self.widgets["mesa%dcon6table"% boardnum].show()
-            self.widgets["mesa%dcon7table"% boardnum].show()
-            self.widgets["mesa%dcon8table"% boardnum].show()
-            self.widgets["mesa%dcon9table"% boardnum].show()
-
+        for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
+            self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
 
 #        self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.d["mesa%d_boardtitle"%boardnum],
 #            self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._FIRMWARE]))
@@ -3908,6 +4071,36 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                 # set pinv unset
                                 self.widgets[pinv].set_active(False)
 
+
+
+    def find_sig_name_iter(self,model, signal_name):
+        for i, k in enumerate(model):
+            itr = model.get_iter(i)
+            title = model.get_value(itr,2)
+            #print 'first:',title
+            # check first set
+            if title == signal_name :return itr
+            cld_itr = model.iter_children(itr)
+            if cld_itr != None:
+                while cld_itr != None:
+                    gcld_itr = model.iter_children(cld_itr)
+                    if gcld_itr != None:
+                        while gcld_itr != None:
+                            title = model.get_value(gcld_itr,2)
+                            #print title
+                            # check third set
+                            if title == signal_name :return gcld_itr
+                            gcld_itr = model.iter_next(gcld_itr)  
+                    title = model.get_value(cld_itr,2)
+                    #print title
+                    # check second set
+                    if title == signal_name :return cld_itr
+                    cld_itr = model.iter_next(cld_itr)
+        # return first entry if no signal name is found
+        return model.get_iter_first()
+
+
+
     def mesa_mainboard_data_to_widgets(self,boardnum):
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
@@ -3944,6 +4137,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[pinv].set_active(datapinv)
                     return
 
+
+
+
+                # TODO fix this for cmboboxes withgrandchildren
+                # we are searching through human names - why not just search the model?
+
                 # type GPIO
                 # if compnum  = 100  then it means that the GPIO type can not
                 # be changed from what the firmware designates it as.
@@ -3970,27 +4169,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             signal = _PD.hal_output_names
                             tree = self.d._gpioosignaltree
                         self.widgets[p].set_model(tree)
-                        try:
-                            signalindex = signal.index(datap)
-                        except:
-                            if debug: print "**** INFO: PNCCONF warning no GPIO signal named: %s\n       found for pin %s"% (datap , p)
-                            signalindex = 0
-                        #print "gpio temp ptype:",dataptype,datap,signalindex
-                        count = 0
-                        temp = (0) # set unused gpio if no match
-                        if signalindex > 0:
-                            for row,parent in enumerate(human):
-                                if len(parent[1]) == 0:continue
-                                for column,child in enumerate(parent[1]):
-                                    count +=1
-                                    #print row,column,count,parent[0],child
-                                    if count == signalindex:
-                                        #print "match",row,column
-                                        break
-                                if count >= signalindex:break
-                            temp = (row,column)
-                        treeiter = tree.get_iter(temp)
-                        self.widgets[p].set_active_iter(treeiter)
+                        itr = self.find_sig_name_iter(tree, datap)
+                        self.widgets[p].set_active_iter(itr)
 
                 # type encoder / mux encoder
                 # we find the data's signal index
@@ -4001,31 +4181,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # can be filtered and that screws with the relationship of
                 # signalname array vrs model row
                 elif widgetptype == _PD.ENCA or widgetptype in(_PD.MXE0,_PD.MXE1):
-                    try:
-                        signalindex = _PD.hal_encoder_input_names.index(datap)
-                    except:
-                        if debug: print "**** INFO: PNCCONF warning no ENCODER signal named: %s\n     found for pin %s"% (datap ,p)
-                        signalindex = 0
                     #print "ENC ->dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
-
                     pinmodel = self.widgets[p].get_model()
-                    temp = (0)
-                    # don't search if we know it's unused
-                    if signalindex > 0:
-                        for row,parent in enumerate(pinmodel):
-                                #print row,parent[2]
-                                for column,child in enumerate(parent.iterchildren()):
-                                    #print 'signalname:',child[2],'index:',child[4]
-                                    # try to match the signal index # of the model and the data
-                                    if child[4] == signalindex:
-                                        #print 'match',child[2],child[4]
-                                        temp = (row,column)
-                                        break
-                                if not temp == (0):
-                                    break
-                    treeiter = pinmodel.get_iter(temp)
-                    self.widgets[p].set_active_iter(treeiter)
-
+                    itr = self.find_sig_name_iter(pinmodel, datap)
+                    self.widgets[p].set_active_iter(itr)
 
                 # type resolver
                 elif widgetptype in(_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU):
@@ -4176,38 +4335,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         #print "udm",self.d._udmcontrolliststore
                         self.widgets[ptype].set_model(self.d._udmcontrolliststore)
                         self.widgets[ptype].set_active(2)
-                    try:
-                        signalindex = _PD.hal_pwm_output_names.index(datap)
-                    except:
-                        if debug: print "**** INFO: PNCCONF warning no PWM / PDM signal named: %s\n     found for pin %s"% (datap ,p)
-                        signalindex = 0
-                    #print "dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
-                    count = -2
-                    temp = (0) # set unused pwm
-                    if signalindex > 0:
-                        #print "\n parsing PWM names"
-                        for row,parent in enumerate(_PD.human_pwm_output_names):
-                            if row == 0: continue
-                            if len(parent[1]) == 0:
-                                    count += 3
-                                    #print row,count,"parent-",parent[0]
-                                    if count == signalindex:
-                                        #print "match",row
-                                        temp = (row)
-                                        break
-                                    continue
-                            #print "parsing child"
-                            for column,child in enumerate(parent[1]):
-                                count +=3
-                                #print row,column,count,parent[0],child
-                                if count == signalindex:
-                                    #print "match",row
-                                    temp = (row,column)
-                                    break
-                            if count >= signalindex:break
-                    #print "temp",temp
-                    treeiter = self.d._pwmsignaltree.get_iter(temp)
-                    self.widgets[p].set_active_iter(treeiter)
+                    itr = self.find_sig_name_iter(self.d._pwmsignaltree, datap)
+                    self.widgets[p].set_active_iter(itr)
  
                 # type tp 3 pwm for direct brushless motor control 
                 elif widgetptype == _PD.TPPWMA:
@@ -4248,35 +4377,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[ptype].set_active(0)
                     self.widgets[p].set_active(0)
                     self.widgets[pinv].set_active(datapinv)
-                    try:
-                        signalindex = _PD.hal_stepper_names.index(self.d[p])
-                    except:
-                        if debug: print "**** INFO: PNCCONF warning no STEPPER signal named: %s\n     found for pin %s"% (datap ,p)
-                        signalindex = 0
-                    count = -5
-                    #print "stepper,dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
-                    temp = (0)# set default to unused stepper
-                    if signalindex > 0:
-                       for row,parent in enumerate(_PD.human_stepper_names):
-                          if row == 0:continue
-                          if len(parent[1]) == 0:
-                             count += 6
-                             #print row,count,parent[0]
-                             if count == signalindex:
-                                #print "match",row
-                                temp = (row)
-                                break
-                             continue
-                       for column,child in enumerate(parent[1]):
-                           count +=6
-                           #print row,column,count,parent[0],child
-                           if count == signalindex:
-                               #print "match",row
-                               temp = (row,column)
-                               break
-                           if count >= signalindex:break
-                    treeiter = self.d._steppersignaltree.get_iter(temp)
-                    self.widgets[p].set_active_iter(treeiter)
+                    itr = self.find_sig_name_iter(self.d._steppersignaltree, datap)
+                    self.widgets[p].set_active_iter(itr)
 
                 # type smartserial
                 # we do things differently here
@@ -4359,7 +4461,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.haloutputsignames
                     relatedsearch = ["dummy"]
                     relatedending = [""]
-                    customindex = 10
+                    customindex = len(humansignallist)-1
                 # for GPIO input
                 elif widgetptype == _PD.GPIOI:
                     #print"ptype GPIOI\n"
@@ -4368,7 +4470,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halinputsignames
                     relatedsearch = ["dummy"]
                     relatedending = [""]
-                    customindex = 16
+                    customindex = len(humansignallist)-1
                 # for stepgen pins
                 elif widgetptype == _PD.STEPA:
                     #print"ptype step\n"
@@ -4377,7 +4479,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halsteppersignames
                     relatedsearch = [_PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF]
                     relatedending = ["-step","-dir","-c","-d","-e","-f"]
-                    customindex = 6
+                    customindex = len(humansignallist)-1
                 # for encoder pins
                 elif widgetptype == _PD.ENCA: 
                     #print"\nptype encoder"
@@ -4386,7 +4488,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halencoderinputsignames
                     relatedsearch = [_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM]
                     relatedending = ["-a","-b","-i","-m"]
-                    customindex = 4
+                    customindex = len(humansignallist)-1
                 # for mux encoder pins
                 elif widgetptype in(_PD.MXE0,_PD.MXE1): 
                     #print"\nptype encoder"
@@ -4395,7 +4497,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halencoderinputsignames
                     relatedsearch = ["dummy","dummy","dummy","dummy",]
                     relatedending = ["-a","-b","-i","-m"]
-                    customindex = 4
+                    customindex = len(humansignallist)-1
                 # resolvers 
                 elif widgetptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
                     halsignallist = 'hal_resolver_input_names'
@@ -4403,7 +4505,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halresolversignames
                     relatedsearch = ["dummy"]
                     relatedending = [""]
-                    customindex = 1
+                    customindex = len(humansignallist)-1
                 # 8i20 amplifier 
                 elif widgetptype == _PD.AMP8I20:
                     halsignallist = 'hal_8i20_input_names'
@@ -4411,7 +4513,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.hal8i20signames
                     relatedsearch = ["dummy"]
                     relatedending = [""]
-                    customindex = 1
+                    customindex = len(humansignallist)-1
                 # potentiometer output
                 elif widgetptype == _PD.POTO:
                     halsignallist = 'hal_pot_output_names'
@@ -4427,7 +4529,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halanaloginsignames
                     relatedsearch = ["dummy"]
                     relatedending = [""]
-                    customindex = 1
+                    customindex = len(humansignallist)-1
                 # for PWM,PDM,UDM pins
                 elif widgetptype in(_PD.PWMP,_PD.PDMP,_PD.UDMU): 
                     #print"ptype pwmp\n"
@@ -4436,7 +4538,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.halpwmoutputsignames
                     relatedsearch = [_PD.PWMP,_PD.PWMD,_PD.PWME]
                     relatedending = ["-pulse","-dir","-enable"]
-                    customindex = 6
+                    customindex = len(humansignallist)-1
                 elif widgetptype == _PD.TPPWMA: 
                     #print"ptype pdmp\n"
                     halsignallist = 'hal_tppwm_output_names'
@@ -4444,7 +4546,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     addsignalto = self.d.haltppwmoutputsignames
                     relatedsearch = [_PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF]
                     relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
-                    customindex = 6
+                    customindex = len(humansignallist)-1
                 elif widgetptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,_PD.SS7I76M0,_PD.SS7I76M3,
                                      _PD.SS7I76M2,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                     portnum = 0 #TODO support more ports
@@ -4612,7 +4714,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 if custom:
                     legal_name = pinchanged.replace(" ","_")
                     addsignalto.append ((legal_name))
-                    #print "add"+legal_name+"to human list"
+                    print "add: "+legal_name+" to human list",humansignallist[customindex][1]
                     humansignallist[customindex][1].append ((legal_name))
                     endoftree = len(basetree)-1
                     customiter = basetree.get_iter((endoftree,))
@@ -4684,6 +4786,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             #self.w[pinname].set_model(tree)
             # an error probably means the signal name cannot be found
             # set it as unused rather then error
+
+            itr = self.find_sig_name_iter(tree, datap)
+            self.widgets[pinname].set_active_iter(itr)
+            return
             try:
                 signalindex = signal.index(datap)
             except:
@@ -5604,13 +5710,23 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def update_gladevcp(self):
         i = self.widgets.gladevcp.get_active()
         self.widgets.gladevcpbox.set_sensitive( i )
-        if self.widgets.sideembededgvcp.get_active() and not self.d.frontend == _PD._AXIS:
-            if self.d.frontend == _PD._TOUCHY: self.widgets.centerembededgvcp.set_active(True)
-            else: self.widgets.standalonegvcp.set_active(True)
-        self.widgets.sideembededgvcp.set_sensitive(self.d.frontend == _PD._AXIS)
-        self.widgets.centerembededgvcp.set_sensitive(self.d.frontend == _PD._TOUCHY or self.d.frontend == _PD._AXIS)
-        if self.widgets.centerembededgvcp.get_active() and not ( self.d.frontend == _PD._AXIS or self.d.frontend == _PD._TOUCHY ):
+        if self.d.frontend == _PD._TOUCHY:
+            self.widgets.centerembededgvcp.set_active(True)
+            self.widgets.centerembededgvcp.set_sensitive(True)
+            self.widgets.sideembededgvcp.set_sensitive(False)
+            self.widgets.standalonegvcp.set_sensitive(False)
+        elif self.d.frontend == _PD._GMOCCAPY or self.d.frontend == _PD._AXIS:
+            self.widgets.sideembededgvcp.set_sensitive(True)
+            self.widgets.centerembededgvcp.set_sensitive(True)
+            self.widgets.standalonegvcp.set_sensitive(False)
+            if not self.widgets.centerembededgvcp.get_active() and not self.widgets.sideembededgvcp.get_active():
+                self.widgets.centerembededgvcp.set_active(True)
+        else:
+            self.widgets.sideembededgvcp.set_sensitive(False)
+            self.widgets.centerembededgvcp.set_sensitive(False)
+            self.widgets.standalonegvcp.set_sensitive(True)
             self.widgets.standalonegvcp.set_active(True)
+
         i = self.widgets.standalonegvcp.get_active()
         self.widgets.gladevcpsize.set_sensitive(i)
         self.widgets.gladevcpposition.set_sensitive(i)
@@ -5732,6 +5848,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 #********************
 # Common Helper functions
 #********************
+
+    def tandem_check(self, letter):
+        tandem_stepper = self.d.make_pinname(self.stepgen_sig("%s2"%letter))
+        tandem_pwm = self.d.make_pinname(self.pwmgen_sig("%s2"%letter))
+        print letter, bool(tandem_stepper or tandem_pwm), tandem_stepper, tandem_pwm
+        return bool(tandem_stepper or tandem_pwm)
 
     def stepgen_sig(self, axis):
            thisaxisstepgen =  axis + "-stepgen-step" 
@@ -5868,13 +5990,17 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa0_parportaddrs
             if '7i43' in board1:
                 mesa1_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa1_parportaddrs
-            if '7i76e' in board0 or '7i92' in board0 or '7i80' in board0:
-                board0_ip = ''' board_ip="192.168.1.121"'''
-            if '7i76e' in board1 or '7i92' in board1 or '7i80' in board0:
-                board1_ip = ''' board_ip="192.168.1.121"'''
-            if not "5i25" in board0:
+            if 'eth' in driver0:
+                firmstring0 =''
+                if self.d.mesa0_card_addrs:
+                    board0_ip = ''' board_ip="%s"''' % self.d.mesa0_card_addrs
+            elif not "5i25" in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
-            if not "5i25" in board1:
+            if 'eth' in driver1:
+                firmstring1 =''
+                if self.d.mesa1_card_addrs:
+                    board1_ip = ''' board_ip="%s"'''% self.d.mesa1_card_addrs
+            elif not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
 
             # TODO fix this hardcoded hack: only one serialport
@@ -6018,7 +6144,7 @@ if __name__ == "__main__":
     usage = "usage: pncconf -h for options"
     parser = OptionParser(usage=usage)
     parser.add_option("-d", action="store", metavar='all', dest="debug",
-                        help="Print debug info and ignore realtime/kernel tests.\nUse 'alldev' to show all the page tabs. 'step','excl','5i25','rawfirm','curfirm'")
+                        help="Print debug info and ignore realtime/kernel tests.\nUse 'alldev' to show all the page tabs. 'step' to stop at each debug print,'excl','5i25','rawfirm','curfirm'")
     (options, args) = parser.parse_args()
     if options.debug:
         app = App(dbgstate=options.debug)
