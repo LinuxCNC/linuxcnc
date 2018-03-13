@@ -1,4 +1,4 @@
-STEPCONF_MODULES = axis_helper_functions gui_pyvcp gui_gladevcp tool_change build_INI build_HAL import_mach definitions preset general_helper_functions data
+STEPCONF_MODULES = axis_helper_functions gui_pyvcp gui_gladevcp tool_change build_INI build_HAL import_mach definitions preset general_helper_functions data pages
 
 STEPCONF_GLADEFILES := \
 	main_page \
