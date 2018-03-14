@@ -550,10 +550,9 @@ the PID block is at its maximum or minimum limit.
 * '(float) pid.<loopnum>.saturated_s' - The time the output has been saturated. 
 * '(s32) pid.<loopnum>.saturated_count' - The time the output has been saturated. 
 
-.Parameters
-
 The PID gains, limits, and other 'tunable' features of the loop are
-implemented as parameters.
+available as pins so that they can be adjusted dynamically for more
+advanced tuning possibilities.
 
 * '(float) pid.<loopnum>.Pgain' - Proportional gain 
 * '(float) pid.<loopnum>.Igain' - Integral gain 
@@ -574,8 +573,7 @@ implemented as parameters.
 * '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2nd derivative 
 * '(float) pid.<loopnum>.maxoutput' - Limit on output value
 
-All of the 'max' limits are implemented such that if the parameter
-value is zero, there is no limit.
+.Parameters 
 
 If 'debug=1' was specified when the component was installed, four
 additional parameters will be exported:
