@@ -2141,7 +2141,8 @@ class TclCommands(nf.TclCommands):
             ((_("All files"), "*"),)
         f = root_window.tk.call("tk_getOpenFile", "-initialdir", open_directory,
             "-filetypes", types)
-        if not f: return
+        if type(f) is tuple and not len(f): return
+        if not len(str(f)): return
         o.set_highlight_line(None)
         f = str(f)
         open_directory = os.path.dirname(f)
