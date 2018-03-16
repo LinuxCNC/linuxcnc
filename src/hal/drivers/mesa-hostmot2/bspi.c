@@ -177,7 +177,7 @@ EXPORT_SYMBOL_GPL(hm2_bspi_write_chan);
 int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
 {
     hostmot2_t *hm2;
-    rtapi_u32 buff;
+    rtapi_u32 buff = val;
     int i, r;
     i = hm2_get_bspi(&hm2, name);
     if (i < 0){
