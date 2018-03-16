@@ -152,7 +152,7 @@ static int read(void *subdata) {
 
     // Read ADC's into Pins
     for(i=0; i < 8; i++) {
-        analogue_in(i) = (double)((uint16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
+        analogue_in(i) = (double)((int16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
     }
     return 0;
 }
