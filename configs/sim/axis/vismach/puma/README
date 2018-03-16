@@ -1,5 +1,9 @@
 The puma configuration is a set of files that makes up a very basic LinuxCNC puma simulation using ini, tbl, var. It is very similar to the sim config template, yet with 6 joints defined.
 
+puma_cube.ini
+-------------
+introductory puma config for testing
+
 puma.ini
 -------------
 Config file for a PUMA type robot.
