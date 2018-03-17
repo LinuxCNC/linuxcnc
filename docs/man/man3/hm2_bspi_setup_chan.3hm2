@@ -55,6 +55,10 @@ than 32 bits and the next data in the FIFO contains the other bits.
 .IP noecho
 Set to 1 for devices which do not return data (such as DACs).
 
+.IP samplelate
+Set to 1 to sample the received SPI data 1/2 SPI clock later than normal.
+This is useful when high clock rates or isolation cause significant delays from clock to received data.
+
 .SH REALTIME CONSIDERATIONS
 Call only from within user or init/cleanup code, not from relatime tasks.
 
