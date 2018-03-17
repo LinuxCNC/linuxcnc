@@ -56,6 +56,9 @@ than 32 bits and the next data in the FIFO contains the other bits.
 is sense-inverted, it should be set to 1 for devices which do not return data
 (such as DACs). 
 
+.SH REALTIME CONSIDERATIONS
+Call only from within user or init/cleanup code, not from relatime tasks.
+
 .SH RETURN VALUE
 Returns 0 on success and \-1 on failure.
 
