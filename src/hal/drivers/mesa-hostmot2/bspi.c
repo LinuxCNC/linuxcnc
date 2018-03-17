@@ -177,7 +177,7 @@ EXPORT_SYMBOL_GPL(hm2_bspi_write_chan);
 int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
 {
     hostmot2_t *hm2;
-    rtapi_u32 buff;
+    rtapi_u32 buff = val;
     int i, r;
     i = hm2_get_bspi(&hm2, name);
     if (i < 0){
@@ -199,7 +199,7 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
 
 EXPORT_SYMBOL_GPL(hm2_bspi_setup_chan);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
-                        int delay, int cpol, int cpha, int clear, int echo)
+                        int delay, int cpol, int cpha, int clear, int echo, int samplelate)
 {
     hostmot2_t *hm2;
     rtapi_u32 buff = 0;
@@ -239,6 +239,7 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
 
     buff = (echo != 0) << 31
         |  (clear != 0) << 30
+        |  (samplelate != 0) << 29
         | ((delay <= 0)? 0x10 : (rtapi_u32)((delay*board_mhz/1000.0)-1) & 0x1f) << 24
         | (cs & 0xF) << 16
         | (((rtapi_u16)(board_mhz / (mhz * 2) - 1) & 0xFF)) << 8
