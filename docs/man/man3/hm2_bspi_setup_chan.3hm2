@@ -8,7 +8,7 @@ hm2_bspi_setup_chan \- setup a Hostmot2 bspi channel
 .SH SYNTAX
 .HP
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
-int delay, int cpol, int cpha, int clear, int echo)
+int delay, int cpol, int cpha, int noclear, int noecho)
 
 .SH DESCRIPTION
 \fBhm2_bspi_setup_chan\fR allows a realtime component to claim and configure
@@ -47,14 +47,13 @@ sets the chip select valid delay (in nS)
 .IP cpha\ and\ cpol
 Set the clock phase and polarity (according to the device datasheet). 
 
-.IP clear
+.IP noclear
 controls whether the frame clear bit is set after the 32 bit buffer 
 transfer. This parameter should be set to 1 when the frame length is greater 
 than 32 bits and the next data in the FIFO contains the other bits.
 
-.IP echo 
-is sense-inverted, it should be set to 1 for devices which do not return data
-(such as DACs). 
+.IP noecho
+Set to 1 for devices which do not return data (such as DACs).
 
 .SH REALTIME CONSIDERATIONS
 Call only from within user or init/cleanup code, not from relatime tasks.
