@@ -141,8 +141,8 @@ typedef union {
     inside a larger structure.
 */
 typedef struct {
-    int next;			/* next element in list */
-    int prev;			/* previous element in list */
+    intptr_t next;			/* next element in list */
+    intptr_t prev;			/* previous element in list */
 } hal_list_t;
 
 /** HAL "oldname" data structure.
