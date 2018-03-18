@@ -355,7 +355,8 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 
     block_pointer cblock = &CONTROLLING_BLOCK(*settings);
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
-    context_pointer previous_frame = &settings->sub_context[settings->call_level - 1];
+    context_pointer previous_frame = settings->call_level > 0 ?
+        &settings->sub_context[settings->call_level - 1] : nullptr;
 
     // if level is not zero, in a call
     // otherwise in a defn
