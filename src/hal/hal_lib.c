@@ -887,18 +887,22 @@ int hal_signal_new(const char *name, hal_type_t type)
 	return -EINVAL;
     }
     /* allocate memory for the signal value */
+/*
+because accesses will later be through pointer of type hal_data_u,
+allocate something that big.  Otherwise, gcc -fsanitize=undefined will
+issue diagnostics like
+    hal/hal_lib.c:3203:35: runtime error: member access within misaligned address 0x7fcf3d11f10b for type 'union hal_data_u', which requires 8 byte alignment
+on accesses through hal_data_u.
+
+This does increase memory usage somewhat, but is required for compliance
+with the C standard.
+*/
     switch (type) {
     case HAL_BIT:
-	data_addr = shmalloc_up(sizeof(hal_bit_t));
-	break;
     case HAL_S32:
-	data_addr = shmalloc_up(sizeof(hal_s32_t));
-	break;
     case HAL_U32:
-	data_addr = shmalloc_up(sizeof(hal_u32_t));
-	break;
     case HAL_FLOAT:
-	data_addr = shmalloc_up(sizeof(hal_float_t));
+        data_addr = shmalloc_up(sizeof(hal_data_u));
 	break;
     default:
 	rtapi_mutex_give(&(hal_data->mutex));
