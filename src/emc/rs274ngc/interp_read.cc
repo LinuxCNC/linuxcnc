@@ -3014,8 +3014,8 @@ int Interp::read_text(
     }
     _setup.sequence_number++;   /* moved from version1, was outside if */
     if (strlen(raw_line) == (LINELEN - 1)) { // line is too long. need to finish reading the line to recover
-      for (; fgetc(inport) != '\n';) {
-      }                         // could also look for EOF
+      for (; fgetc(inport) != '\n' && !feof(inport) ;) {
+      }
       ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (strlen(raw_line) - 1);        // index set on last char
