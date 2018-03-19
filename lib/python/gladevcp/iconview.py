@@ -140,14 +140,14 @@ class IconFileSelection(gtk.HBox):
 #        self.btn_go_down = gtk.Button()
 #        self.btn_go_down.set_size_request(56,56)
 #        image = gtk.Image()
-#        image.set_from_stock(gtk.STOCK_GO_DOWN,48)
+#        image.set_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_LARGE_TOOLBAR)
 #        self.btn_go_down.set_image(image)
 #        self.buttonbox.add(self.btn_go_down)
 #
 #        self.btn_go_up = gtk.Button()
 #        self.btn_go_up.set_size_request(56,56)
 #        image = gtk.Image()
-#        image.set_from_stock(gtk.STOCK_GO_UP,48)
+#        image.set_from_stock(gtk.STOCK_GO_UP, gtk.ICON_SIZE_LARGE_TOOLBAR)
 #        self.btn_go_up.set_image(image)
 #        self.buttonbox.add(self.btn_go_up)
 # ToDo : End
