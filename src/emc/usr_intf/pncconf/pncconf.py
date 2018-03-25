@@ -1465,7 +1465,7 @@ class App:
         self.widgets.helppic0.set_from_file(axisdiagram)
         axisdiagram = os.path.join(self._p.HELPDIR,"lathe_diagram.png")
         self.widgets.helppic1.set_from_file(axisdiagram)
-        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.jpg"))
+        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.png"))
         self.widgets.map_7i76_image.set_from_pixbuf(self.map_7i76)
         self.map_7i77 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
         self.widgets.map_7i77_image.set_from_pixbuf(self.map_7i77)
