@@ -1,0 +1,5 @@
+o<m191> sub
+#502=1; hbc index
+M68 E#502 Q#<P>
+M66 P#502 L3 Q1000
+o<m191> end sub

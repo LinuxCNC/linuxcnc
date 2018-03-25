@@ -1,0 +1,27 @@
+o<g30> sub
+o100 if [EXISTS[#<_ini[PROBE]HBP_TEMP>]]
+    M190 S#<_ini[PROBE]HBP_TEMP>
+o100 endif
+#501=38; probe selection io index
+#502=0; probe enable io index
+#510=#<_x>; probe x
+#511=#<_y>; probe y
+o101 if [EXISTS[#<x>]]
+    #510=#<x>
+o101 endif
+o102 if [EXISTS[#<y>]]
+    #511=#<y>
+o102 endif
+M65 P#502; disable probe sensor if it was enabled
+M68 E#501 Q0; select probe
+G10 L2 P1 Z0.0; reset z offset
+G0 Z#<_ini[PROBE]START_Z>
+G43 H#<_ini[PROBE]TOOL_NR>
+G0 X#510 Y#511
+M64 P#502; enable probe sensor
+G38.2 Z#<_ini[AXIS_2]MIN_LIMIT> F#<_ini[PROBE]SEARCH_VEL>; probe Z axis
+M65 P#502; disable probe sensor
+G10 L20 P1 Z0.0; set Z offset
+G49
+G0 X#514 Y#515 Z#<_ini[PROBE]END_Z>
+o<g30> end sub

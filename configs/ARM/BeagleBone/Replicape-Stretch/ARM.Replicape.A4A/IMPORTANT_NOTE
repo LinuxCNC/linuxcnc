@@ -1,0 +1,3 @@
+This folder (ARM.Replicape.A4A) is deprecated, and is only compatible with Machinekit 2015 version and Replicape Rev A4A.
+
+The ARM.Replicape.B3 folder works on Machinekit 2016-11, and is compatible with Replicape B3 and A4A despite the name.

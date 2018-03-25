@@ -1,0 +1,39 @@
+o<m420> sub
+#500=26; light io start index
+#501=0; not synchronized
+#502=#500
+o104 if [EXISTS[#<t>]]
+    #502=[#<t>*4+#500]
+o104 endif
+#503=[#502+1]
+#504=[#502+2]
+#505=[#502+3]
+o100 if [EXISTS[#<r>]]
+    o110 if [#501 EQ 1]
+        M67 E#502 Q#<r>
+    o110 else
+        M68 E#502 Q#<r>
+    o110 endif
+o100 endif
+o101 if [EXISTS[#<e>]]
+    o111 if [#501 EQ 1]
+        M67 E#503 Q#<e>
+    o111 else
+        M68 E#503 Q#<e>
+    o111 endif
+o101 endif
+o102 if [EXISTS[#<d>]]
+    o112 if [#501 EQ 1]
+        M67 E#504 Q#<d>
+    o112 else
+        M68 E#504 Q#<d>
+    o112 endif
+o102 endif
+o103 if [EXISTS[#<p>]]
+    o113 if [#501 EQ 1]
+        M67 E#505 Q#<p>
+    o113 else
+        M68 E#505 Q#<p>
+    o113 endif
+o103 endif
+o<m420> end sub 

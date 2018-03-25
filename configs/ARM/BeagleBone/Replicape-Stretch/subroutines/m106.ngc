@@ -1,0 +1,18 @@
+o<m106> sub
+#500=12; fan io start index
+#501=1; synchronized
+#502=#500
+o100 if [EXISTS[#<i>]]
+    o110 if [#<i> EQ 1]
+        #501=0
+    o110 endif
+o100 endif
+o101 if [EXISTS[#<t>]]
+    #502=[#<t>+#500]
+o101 endif
+o102 if [#501 EQ 1]
+    M67 E#502 Q#<P>
+o102 else
+    M68 E#502 Q#<P>
+o102 endif
+o<m106> end sub
