@@ -832,7 +832,7 @@ int main (int argc,char **argv)
 			}
 		} while(dev_handle == NULL && !do_exit);
 
-		printf("%s: found XHC-HB04 device\n",modname);
+		if (dev_handle) printf("%s: found XHC-HB04 device\n",modname);
 
 		if (dev_handle) {
 			if 	(libusb_kernel_driver_active(dev_handle, 0) == 1) {
