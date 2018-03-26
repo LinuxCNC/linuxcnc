@@ -430,6 +430,7 @@ void handle_step(xhc_t *xhc)
 void cb_response_in(struct libusb_transfer *transfer)
 {
 	int i;
+	if (do_exit) return;
 
 	if (transfer->actual_length > 0) {
 		if (simu_mode) hexdump(in_buf, transfer->actual_length);
@@ -872,9 +873,10 @@ int main (int argc,char **argv)
 			}
 			*(xhc.hal->connected) = 0;
 			printf("%s: connection lost, cleaning up\n",modname);
-			libusb_cancel_transfer(transfer_in);
+			assert (0 == libusb_cancel_transfer(transfer_in));
+			assert (0 == libusb_handle_events_completed(ctx, nullptr));
 			libusb_free_transfer(transfer_in);
-			libusb_release_interface(dev_handle, 0);
+			assert (0 == libusb_release_interface(dev_handle, 0));
 			libusb_close(dev_handle);
 		}
 		else {
