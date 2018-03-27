@@ -1,0 +1,134 @@
+#!/usr/bin/python
+# encoding: utf-8 
+# vim: set sw=4 sts=4 et:
+
+'''
+A machinekit/LinuxCNC user module for Replicape PWM control
+Interface with PCA9685 on SMBus
+
+The PWM is enabled when the "enable" pin is turned on
+
+The following pins are exported
+* enable
+  Enable the PWM
+* out.x
+  PWM output for channel 0 to 15. Values are from 0.0 to 1.0
+* watchdog
+  A pin that toggles at every loop informing HAL that this component is alive
+
+Copyright (c) 2013 Sam Wong
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+'''
+
+import argparse
+import glob
+import sys
+import time
+
+import hal
+import smbus
+
+parser = argparse.ArgumentParser(description='HAL component to configure Replicape hardware')
+parser.add_argument('-n', '--name', help='HAL component name', required=True)
+parser.add_argument('-b', '--bus_id', help='I2C bus id', default=2)
+# 0x70 is the ALL Call address of PCA9685
+parser.add_argument('-a', '--address', help='I2C device address', default=0x70)
+parser.add_argument('-i', '--interval', help='HAL update loop interval', default=0.05)
+parser.add_argument('-d', '--debug', help='Debug - Turn off all output and exit', action='store_true')
+args = parser.parse_args()
+
+loop_interval = float(args.interval)
+PCA9685_ADDR = int(args.address)
+PCA9685_MODE1 = 0x0
+PCA9685_PRESCALE = 0xFE
+PCA9685_ALL_LED_ON_L = 0xFA
+N = 16
+
+bus = None
+try:
+    bus = smbus.SMBus(int(args.bus_id))
+except IOError:
+    print("Unable to set up PWM chip")
+    exit(-1)
+
+def initChip():
+    bus.write_byte(0x00, 0x06) # Broadcast Reset
+    time.sleep(0.01)
+
+    freq = 100
+    prescaleval = 25000000
+    prescaleval /= 4096
+    prescaleval /= float(freq)
+    prescaleval -= 1
+    prescale = int(prescaleval + 0.5)
+
+    bus.write_byte_data(PCA9685_ADDR, PCA9685_MODE1, 0x11) # Sleep
+    bus.write_byte_data(PCA9685_ADDR, PCA9685_PRESCALE, prescale)
+    bus.write_byte_data(PCA9685_ADDR, PCA9685_MODE1, 0x21) # Out of sleep
+    time.sleep(0.01)
+    bus.write_byte_data(PCA9685_ADDR, PCA9685_MODE1, 0xA1) # Restart, AI, Allcall
+
+def turnOff():
+    bus.write_i2c_block_data(PCA9685_ADDR, PCA9685_ALL_LED_ON_L, [0, 0, 0, 0x10]); # All off
+    if (not args.debug):
+        for i in range(0,N):
+            onPins[i].value = 0
+            oldOutputs[i] = 0
+
+for i in range(0,N):
+    oldOutputs = 0.0
+
+if (not args.debug):
+    # Initialize HAL
+    h = hal.component(args.name)
+    enablePin = h.newpin("enable", hal.HAL_BIT, hal.HAL_IN)
+    halWatchdogPin = h.newpin("watchdog", hal.HAL_BIT, hal.HAL_OUT)
+    outPins = [None] * N
+    onPins = [None] * N
+    oldOutputs = [0] * N
+    for i in range(0,N):
+        outPins[i] = h.newpin(("%d.out" % i), hal.HAL_FLOAT, hal.HAL_IN)
+        onPins[i] = h.newpin(("%d.on" % i), hal.HAL_BIT, hal.HAL_OUT)
+        onPins[i].value = 0
+    h.ready()
+
+initChip()
+turnOff()
+
+if (args.debug):
+    exit(0)
+
+def commit():
+    for i in range(0,N):
+        if (outPins[i].value != oldOutputs[i]):
+            oldOutputs[i] = outPins[i].value
+            off = min(1.0, oldOutputs[i])
+            off = int(off * 4095)
+            onPins[i].value = off > 0
+            bytes = [0x00, 0x00, off & 0xFF, off >> 8]
+            bus.write_i2c_block_data(PCA9685_ADDR, 0x06 + (4 * i), bytes)
+
+watchdog = True
+try:
+    oldEnable = False
+    while True:
+	watchdog = not watchdog
+        enable = enablePin.value
+        if enable:
+            commit()
+        if oldEnable and not enable:
+            turnOff()
+        oldEnable = enable
+
+        halWatchdogPin.value = watchdog
+        time.sleep(loop_interval)
+except BaseException as e:
+    turnOff()
+    print(("exiting HAL component %s: %s") % (args.name, e))
+    h.exit()
+
