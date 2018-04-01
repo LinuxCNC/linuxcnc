@@ -138,12 +138,12 @@ modules:  userspace
 	    )\
 	)
 
-ifeq ($(HAVE_KERNEL_THREADS),yes)
-    @test -f ../libexec/linuxcnc_module_helper -a \
-	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
-	    ! -u ../libexec/linuxcnc_module_helper \) \
-        && need_setuid=1; 
-endif
+#ifeq ($(HAVE_KERNEL_THREADS),yes)
+#    @test -f ../libexec/linuxcnc_module_helper -a \
+#	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
+#	    ! -u ../libexec/linuxcnc_module_helper \) \
+#        && need_setuid=1; 
+#endif
 
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
@@ -275,9 +275,9 @@ SUBDIRS := \
 	\
 	po \
 
-ifeq ($(HAVE_KERNEL_THREADS),yes)
-SUBDIRS += module_helper
-endif
+#ifeq ($(HAVE_KERNEL_THREADS),yes)
+#SUBDIRS += module_helper
+#endif
 
 ifeq ($(BUILD_WEBTALK),yes)
 SUBDIRS += machinetalk/webtalk
@@ -833,13 +833,13 @@ clean: depclean modclean docclean
 fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
-ifeq ($(HAVE_KERNEL_THREADS),yes)
-CHECK_KFLAV_SWITCH=-k
-endif
+#ifeq ($(HAVE_KERNEL_THREADS),yes)
+#CHECK_KFLAV_SWITCH=-k
+#endif
 setuid:
-ifeq ($(HAVE_KERNEL_THREADS),yes)
-	$(call fix_perms,../libexec/linuxcnc_module_helper)
-endif
+#ifeq ($(HAVE_KERNEL_THREADS),yes)
+#	$(call fix_perms,../libexec/linuxcnc_module_helper)
+#endif
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(BUILD_THREAD_FLAVORS),\
@@ -1103,9 +1103,9 @@ endif
 
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-ifeq ($(HAVE_KERNEL_THREADS),yes)
-	$(SETUID) ../libexec/linuxcnc_module_helper $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-endif
+#ifeq ($(HAVE_KERNEL_THREADS),yes)
+#	$(SETUID) ../libexec/linuxcnc_module_helper $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+#endif
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
@@ -1134,14 +1134,14 @@ endif
 		done; \
 	    fi; \
 	done
-ifeq ($(USE_SHMDRV),yes)
-	for srcdir in ../rtlib/shmdrv/*; do \
-	    kver=`basename $$srcdir`; \
-	    echo Installing shmdrv.ko module for kernel version $$kver; \
-	    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-	    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-	done;
-endif
+#ifeq ($(USE_SHMDRV),yes)
+#	for srcdir in ../rtlib/shmdrv/*; do \
+#	    kver=`basename $$srcdir`; \
+#	    echo Installing shmdrv.ko module for kernel version $$kver; \
+#	    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
+#	    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
+#	done;
+#endif
 endif # ! RUN_IN_PLACE
 
 CONF=../configs
@@ -1440,16 +1440,16 @@ endif
 
 # these won't compile as-is with userland threading
 
-ifneq ($(BUILD_SYS),user-dso)
-obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
-hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
-obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
-hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
-obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
-opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
-obj-$(CONFIG_HAL_GM) += hal_gm.o
-hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
-endif
+#ifneq ($(BUILD_SYS),user-dso)
+#obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
+#hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
+#obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
+#hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
+#obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
+#opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
+#obj-$(CONFIG_HAL_GM) += hal_gm.o
+#hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
+#endif
 
 # Gnu make 'expression' syntax is pathetic. What were these guys smoking?
 # turn on by default
@@ -1824,9 +1824,9 @@ $(RTLIBDIR)/hal_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_parport-objs)
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
 
 
-ifeq ($(BUILD_SYS),user-dso)
+#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
-endif
+#endif
 
 ifeq ($(USERMODE_PCI),yes)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
@@ -1834,21 +1834,21 @@ $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
 $(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
 $(RTLIBDIR)/setsserial$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(setsserial-objs))
-ifeq ($(BUILD_SYS),user-dso)
+#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
-endif
+#endif
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 
 ifdef TARGET_PLATFORM_SOCFPGA
-ifeq ($(BUILD_SYS),user-dso)
+#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_soc_ol$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_soc_ol-objs))
-endif
+#endif
 endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
-ifeq ($(BUILD_SYS),user-dso)
+#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hal_pru$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru-objs))
 $(RTLIBDIR)/hal_pru_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru_generic-objs))
 $(RTLIBDIR)/hal_prudebug$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_prudebug-objs))
@@ -1856,7 +1856,7 @@ $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
 $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs))
 $(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
 $(RTLIBDIR)/hal_arm335xQEP$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_arm335xQEP-objs))
-endif
+#endif
 endif
 
 ifdef TARGET_PLATFORM_H3
