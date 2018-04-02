@@ -41,6 +41,8 @@ char *get_cpuinfo_revision(char *revision)
          rpi_found = 1;
       else if (strcmp(hardware, "BCM2709") == 0)
          rpi_found = 1;
+      else if (strcmp(hardware, "BCM2835") == 0)
+         rpi_found = 1;
       sscanf(buffer, "Revision	: %s", revision);
    }
    fclose(fp);
