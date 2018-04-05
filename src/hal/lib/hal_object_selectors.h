@@ -24,18 +24,6 @@
 //    these can be extended as needed.
 
 //--------------------------------------------------------------------
-// use this selector to retrieve a pointer to a HAL object descriptor
-// selected by the standard selection (type, object ID/object name):
-//
-// selector-specific arguments:
-//
-// returned HAL object descriptor or NULL if not found
-//     .user_ptr1 = NULL,  // holy water - init to zero
-// };
-int yield_match(hal_object_ptr o, foreach_args_t *args);
-
-
-//--------------------------------------------------------------------
 // use this selector to retrieve the name of a HAL object
 // selected by the standard selection (type, object ID/object name prefix):
 //
