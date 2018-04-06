@@ -38,7 +38,7 @@ loadrt tp
 loadrt hostmot2
 
 # load low-level driver
-newinst [HOSTMOT2](DRIVER) [HOSTMOT2]DEVNAME -- config=[HOSTMOT2](CONFIG)  debug=1
+newinst [HOSTMOT2](DRIVER) [HOSTMOT2](DEVNAME) -- config=[HOSTMOT2](CONFIG)  debug=1
 
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES  #tp=tp kins=trivkins
 
