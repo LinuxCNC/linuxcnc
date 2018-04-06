@@ -1518,7 +1518,7 @@ int do_unloadrt_cmd(char *name)
 	goto FATAL;
 
     args.user_arg1 = 0; // now unload those which exported vtables
-    halg_foreach(1, &args, unload_rt_cb);
+    ret = halg_foreach(1, &args, unload_rt_cb);
     if (ret < 0)
 	goto FATAL;
     return 0;
