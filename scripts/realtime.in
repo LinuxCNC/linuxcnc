@@ -180,17 +180,24 @@ Load(){
     # rtapi_msgd creates the global segment containing the error ring buffer
     # so start this first:
 
-    ${rtapi_msgd} --instance=$MK_INSTANCE $NAME_CMD \
-	--rtmsglevel=$DEBUG \
-	--usrmsglevel=$DEBUG \
-	--halsize=$HAL_SIZE $MSGD_OPTS || \
-	(echo "rtapi_msgd startup failed - aborting"; exit $?)
+    local cmd=(${rtapi_msgd} --instance=$MK_INSTANCE $NAME_CMD
+			     --rtmsglevel=$DEBUG
+			     --usrmsglevel=$DEBUG
+			     --halsize=$HAL_SIZE $MSGD_OPTS)
+    [ $DEBUG -eq 0 ] || echo "rtapi_msgd command:  ${cmd[@]}" >&2
+    "${cmd[@]}" || (
+	e=$?; echo "rtapi_msgd startup failed - aborting" >&2; exit $e)
 
     # rtapi_app_<flavor> now handles the kernel module loading
     # for kthreads as needed
+    local cmd=(${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS)
     if [ $DEBUG -gt 0 ] ; then
-	    ${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS  || \
-		(echo "rtapi_app startup failed - aborting"; exit $?)
+	echo "rtapi_app command:  ${cmd[@]}" >&2
+	"${cmd[@]}" || (
+	    e=$?; echo "rtapi_app startup failed; aborting" >&2; exit $e)
+    else
+	"${cmd[@]}" 2>&1 || (
+	    e=$?; echo "rtapi_app startup failed; aborting" >&2; exit $e)
     fi
     # wait until rtapi_app responds, meaning setup is complete
     # this avoids startup races
@@ -333,7 +340,8 @@ CheckUnloaded(){
 
     MSGD_PID=`$PIDOF msgd:$MK_INSTANCE`
     if [ "$MSGD_PID" != "" ] ; then
-	echo "instance $MK_INSTANCE still running - process msgd:$MK_INSTANCE present (pid $MSGD_PID) !"
+	echo "instance $MK_INSTANCE still running;" \
+	     "process msgd:$MK_INSTANCE present (pid $MSGD_PID) !" >&2
 	exit 1
     fi
 
@@ -343,8 +351,9 @@ CheckUnloaded(){
 
     RTAPI_PID=`$PIDOF rtapi:$MK_INSTANCE`
     if [ "$RTAPI_PID" != "" ] ; then
-	echo "instance $MK_INSTANCE inproperly shutdown!"
-	echo "msgd:$MK_INSTANCE gone, but rtapi:$MK_INSTANCE alive (pid $RTAPI_PID)"
+	echo "instance $MK_INSTANCE inproperly shutdown!" >&2
+	echo "msgd:$MK_INSTANCE gone," \
+	     "but rtapi:$MK_INSTANCE alive (pid $RTAPI_PID)" >&2
 	exit 1
     fi
 
@@ -359,9 +368,11 @@ CheckUnloaded(){
 
     for seg in `ls $POSIXSHM 2>/dev/null` ; do
 	if pids=`fuser $seg  2>/dev/null` ; then
-	    echo instance $MK_INSTANCE: shared memory $seg still in use by pid: $pids !
+	    echo "instance $MK_INSTANCE: " \
+		 "shared memory $seg still in use by pid: $pids !" >&2
 	else
-	    echo instance $MK_INSTANCE: leftover shared memory $seg unused, removing
+	    echo "instance $MK_INSTANCE: " \
+		 "leftover shared memory $seg unused, removing" >&2
 	    rm -f $seg
 	fi
     done
@@ -376,7 +387,7 @@ CheckUnloaded(){
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
 	if $LSMOD | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    echo "ERROR: Could not unload '$module'"
+	    echo "ERROR: Could not unload '$module'" >&2
 	    STATUS=error
 	fi
     done
