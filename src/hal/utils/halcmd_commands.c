@@ -1215,13 +1215,19 @@ bool inst_name_exists(const int use_halmutex, char *name)
     }
 }
 
-int loadrt(const int use_halmutex, char *mod_name, char *args[])
+int loadrt(const int use_halmutex, char *mod_path, char *args[])
 {
     char *cp1;
     int n, retval;
     char arg_string[MAX_CMD_LEN+1];
 
-    retval = rtapi_loadrt(rtapi_instance, mod_name, (const char **)args);
+    // Get the basename of args->name
+    char *mod_name = mod_path; // default case:  module loaded by rpath
+    for (int i=0; mod_path[i] != 0; i++)
+      if (mod_path[i] == '/')
+        mod_name = mod_path + i + 1;
+
+    retval = rtapi_loadrt(rtapi_instance, mod_path, (const char **)args);
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d:\n%s\n"
 		     "See %s for more information.\n",

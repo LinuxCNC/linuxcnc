@@ -577,30 +577,37 @@ static int do_callfunc_cmd(int instance,
 
 
 static int do_load_cmd(int instance,
-		       string name,
+		       string path,
 		       pbstringarray_t args,
 		       machinetalk::Container &pbreply)
 {
-    char module_name[PATH_MAX];
+    char module_path[PATH_MAX];
     int retval;
+
+    // For modules given as paths, use the path basename as the module name
+    string name = path;
+    if (name.find_last_of("/") != string::npos)
+      name = name.substr(name.find_last_of("/") + 1);
 
     if (modules.count(name) == 0) {
 	if (kernel_threads(flavor)) {
 	    string cmdargs = pbconcat(args, " ", "'");
-	    retval = run_module_helper("insert %s %s", name.c_str(), cmdargs.c_str());
+	    retval = run_module_helper(
+              "insert %s %s", path.c_str(), cmdargs.c_str());
 	    if (retval) {
-		note_printf(pbreply, "couldnt insmod %s - see dmesg\n", name.c_str());
+		note_printf(
+                  pbreply, "couldnt insmod %s - see dmesg\n", path.c_str());
 	    } else {
 		modules[name] = modinfo();
 		loading_order.push_back(name);
 	    }
 	    return retval;
 	} else {
-	    strncpy(module_name, (name + flavor->mod_ext).c_str(),
+	    strncpy(module_path, (path + flavor->mod_ext).c_str(),
 		    PATH_MAX);
 	    modinfo_t mi = modinfo_t();
 
-	    mi.handle = dlopen(module_name, RTLD_GLOBAL |RTLD_NOW);
+	    mi.handle = dlopen(module_path, RTLD_GLOBAL |RTLD_NOW);
 	    if (!mi.handle) {
 		string errmsg(dlerror());
 		note_printf(pbreply, "%s: dlopen: %s",
@@ -610,7 +617,7 @@ static int do_load_cmd(int instance,
 	    }
 	    // first load of a module. Record default instanceparams
 	    // so they can be replayed before newinst
-	    record_instparms(module_name, mi);
+	    record_instparms(module_path, mi);
 
 	    // retrieve the address of rtapi_switch_struct
 	    // so rtapi functions can be called and members
@@ -653,7 +660,7 @@ static int do_load_cmd(int instance,
 	    loading_order.push_back(name);
 
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n",
-			    name.c_str(), module_name);
+			    name.c_str(), module_path);
 	    return 0;
 	}
     } else {
@@ -1805,6 +1812,7 @@ static int record_instparms(char *fname, modinfo_t &mi)
     // so walk the rpath and stat
     boost::split(tokens, rp, boost::is_any_of(":"),
 			 boost::algorithm::token_compress_on);
+    tokens.push_back(string(fname));
 
     for(i = 0; i < tokens.size() && csize < 0; i++) {
 	pn = tokens[i]+ "/" + fname;
