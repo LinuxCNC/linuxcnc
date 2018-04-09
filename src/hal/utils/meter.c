@@ -64,6 +64,7 @@
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
+#include <gdk/gdkkeysyms.h>
 
 /***********************************************************************
 *                            TYPEDEFS                                  *
@@ -131,6 +132,7 @@ static char *data_value(int type, void *valptr);
 static void create_probe_window(probe_t * probe);
 static void apply_selection(GtkWidget * widget, gpointer data);
 static void close_selection(GtkWidget * widget, gpointer data);
+static gboolean key_press(GtkWidget * clist, GdkEventKey *event, gpointer user_data);
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer data);
 static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
@@ -656,14 +658,16 @@ static void create_probe_window(probe_t * probe)
 	/* set up a callback for when the user selects a line */
 	gtk_signal_connect(GTK_OBJECT(probe->lists[n]), "select_row",
 	    GTK_SIGNAL_FUNC(selection_made), probe);
+	/* set up a callback for when the user presses a key */
+	gtk_signal_connect(GTK_OBJECT(probe->lists[n]), "key_press_event",
+	    GTK_SIGNAL_FUNC(key_press), probe );
 	/* It isn't necessary to shadow the border, but it looks nice :) */
 	gtk_clist_set_shadow_type(GTK_CLIST(probe->lists[n]), GTK_SHADOW_OUT);
 	/* set list for single selection only */
 	gtk_clist_set_selection_mode(GTK_CLIST(probe->lists[n]),
 	    GTK_SELECTION_BROWSE);
 	/* put the list into the scrolled window */
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW
-	    (scrolled_window), probe->lists[n]);
+	gtk_container_add(GTK_CONTAINER(scrolled_window), probe->lists[n]);
 	gtk_widget_show(probe->lists[n]);
 	/* create a box for the tab label */
 	hbox = gtk_hbox_new(TRUE, 0);
@@ -742,6 +746,46 @@ static void close_selection(GtkWidget * widget, gpointer data)
     // we need to rebuild the lists anyways, 
     // so rebuilding it doesn't take that longer
     gtk_widget_destroy(probe->window);
+}
+
+static gboolean key_press(GtkWidget *clist, GdkEventKey *event, gpointer user_data)
+{
+    gchar *name, *key;
+    int row, data_good;
+    probe_t *probe;
+
+    /* get a pointer to the probe data structure */
+    probe = (probe_t *) user_data;
+
+    /*printf("key pressed: %s\n",gdk_keyval_name(event->keyval) );*/
+    if (event->keyval) {
+        row = 0; data_good = 1;
+
+        while (data_good != 0) {
+            key = (gdk_keyval_name (event->keyval));
+            data_good = gtk_clist_get_text(GTK_CLIST(clist), row, 0, &name );
+            printf("check: %s %c\n",key,name[0]);
+
+            /* is keypress same as first letter of name? */
+            if (*key == name[0]) {
+                gtk_clist_moveto(GTK_CLIST(probe->lists[probe->listnum]), row, 0,.5,0);
+
+                /* This code would select the found name but didn't move
+                    the cursor position. So after jumping to the selected
+                    letter, if you cursored, it would jump back to the
+                    previous selection- I think too confusing - shame I preferred
+                    the behaivour */
+
+                /*gtk_clist_undo_selection (GTK_CLIST(probe->lists[probe->listnum]));
+                gtk_clist_select_row(GTK_CLIST(probe->lists[probe->listnum]), row, 0);
+                gtk_clist_get_text(GTK_CLIST(clist), row, 0, &(probe->pickname));
+                apply_selection(GTK_WIDGET(probe->window), probe);*/
+                return 0;
+            }
+            row++;
+        }
+    }
+    return 0;
 }
 
 /* If we come here, then the user has selected a row in the list. */

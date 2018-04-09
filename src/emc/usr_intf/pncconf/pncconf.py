@@ -1465,6 +1465,10 @@ class App:
         self.widgets.helppic0.set_from_file(axisdiagram)
         axisdiagram = os.path.join(self._p.HELPDIR,"lathe_diagram.png")
         self.widgets.helppic1.set_from_file(axisdiagram)
+        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.png"))
+        self.widgets.map_7i76_image.set_from_pixbuf(self.map_7i76)
+        self.map_7i77 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
+        self.widgets.map_7i77_image.set_from_pixbuf(self.map_7i77)
         #self.widgets.openloopdialog.hide()
 
         self.p.initialize()
@@ -1662,6 +1666,24 @@ class App:
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
         self.widgets.help_window.present()
+
+    def print_page(self,print_dialog, context, n, imagename):
+        ctx = context.get_cairo_context()
+        gdkcr = gtk.gdk.CairoContext(ctx)
+        gdkcr.set_source_pixbuf(self[imagename], 0,0)
+        gdkcr.paint ()
+
+    def print_image(self,image_name):
+        print 'print image'
+        print_dialog = gtk.PrintOperation()
+        print_dialog.set_n_pages(1)
+        settings = gtk.PrintSettings()
+        settings.set_orientation(gtk.PAGE_ORIENTATION_LANDSCAPE)
+        print_dialog.set_print_settings(settings)
+        print_dialog.connect("draw-page", self.print_page, image_name)
+        res = print_dialog.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, self.widgets.help_window)
+        if res == gtk.PRINT_OPERATION_RESULT_APPLY:
+            settings = print_dialog.get_print_settings()
 
     # check for realtime kernel
     def check_for_rt(self):
@@ -3508,34 +3530,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
         self.widgets["mesa%dsserial0_4"% boardnum].hide()
         currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        if currentboard == "5i20" or currentboard == "5i23" \
-            or currentboard == "5i24" or currentboard == "7i80HD":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-        if currentboard == "5i22":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()
-        if currentboard == "5i25":
-            self.widgets["mesa%dcon2table"% boardnum].show()
-            self.widgets["mesa%dcon3table"% boardnum].show()
-        if currentboard in ("7i76e","7i92"):
-            for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
-                self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
-
-        if currentboard == "7i43":
-            self.widgets["mesa%dcon3table"% boardnum].show()
-            self.widgets["mesa%dcon4table"% boardnum].show()
-        if currentboard == "3x20":
-            self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()
-            self.widgets["mesa%dcon6table"% boardnum].show()
-            self.widgets["mesa%dcon7table"% boardnum].show()
-            self.widgets["mesa%dcon8table"% boardnum].show()
-            self.widgets["mesa%dcon9table"% boardnum].show()
-
+        for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
+            self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
 
 #        self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.d["mesa%d_boardtitle"%boardnum],
 #            self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._FIRMWARE]))

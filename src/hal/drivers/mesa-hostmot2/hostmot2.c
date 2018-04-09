@@ -1076,7 +1076,7 @@ static void hm2_release_device(struct rtapi_device *dev) {
 }
 
 static int dummy_queue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr,
-        void *buffer, int size) {
+        const void *buffer, int size) {
     if(size >= 0) return this->write(this, addr, buffer, size);
     return 1; // success
 }
