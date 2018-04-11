@@ -1818,7 +1818,7 @@ int Interp::read_name(
   int done = 0;
   int i;
 
-  CHKS(((line[*counter] != '<') && !isalpha(line[*(counter)])),
+  CHKS((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // skip over the '<'
@@ -2029,7 +2029,7 @@ int Interp::read_parameter_setting(
   *counter = (*counter + 1);
 
   // named parameters look like '<letter...>' or '<_letter.....>'
-  if((line[*counter] == '<') || isalpha(line[*(counter)]))
+  if(line[*counter] == '<')
   {
       CHP(read_named_parameter_setting(line, counter, &param, parameters));
 
@@ -2151,7 +2151,7 @@ int Interp::read_named_parameter_setting(
   *param = paramNameBuf;
 
   logDebug("entered %s", name);
-  CHKS(((line[*counter] != '<') && !isalpha(line[*(counter)])),
+  CHKS((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   status=read_name(line, counter, paramNameBuf);
