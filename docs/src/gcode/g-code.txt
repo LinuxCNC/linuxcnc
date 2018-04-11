@@ -1004,19 +1004,22 @@ G33.1 X- Y- Z- K-
 ----------------
 * 'K' - distance per revolution
 
+[WARNING]
+For Z only tapping preposition the XY location prior to calling G33.1 and only
+use a Z word in the G33.1. If the coordinates specified are not the current
+coordinates when calling G33.1 for tapping the move will not be along the Z axis
+but will be a coordinated, spindle-synchronized move from the current location
+to the location specified and back.
+
 For rigid tapping (spindle synchronized motion with return),
 code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved
 for each revolution of the spindle.
+
 A rigid tapping move consists of the following sequence:
 
-[WARNING]
-If the X Y coordinates specified are not the current coordinates when
-calling G33.1 for tapping the move will not be along the Z axis
-but will <<gcode:g0,rapid move>> from the current location to
-the X Y location specified.
-
-. A move to the specified coordinate, synchronized with the spindle at
-   the given ratio and starting with a spindle index pulse.
+. A move from the current coordinate to the specified coordinate, synchronized
+   with the spindle at the given ratio and starting from the current coordinate
+   with a spindle index pulse.
 . When reaching the endpoint, a command to reverse the spindle (e.g.,
    from clockwise to counterclockwise).
 . Continued synchronized motion beyond the specified end coordinate
@@ -1030,8 +1033,7 @@ the X Y location specified.
 . An *unsynchronized* move back to the original coordinate.
 
 Spindle-synchronized motions wait for spindle index,
-so multiple passes line up.
-'G33.1' moves end at the original coordinate.
+so multiple passes line up.'G33.1' moves end at the original coordinate.
 
 All the axis words are optional, except that at least one must be used.
 
