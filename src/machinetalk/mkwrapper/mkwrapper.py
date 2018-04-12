@@ -705,10 +705,10 @@ class LinuxCNCWrapper():
                 txToolResult.CopyFrom(toolResult)
             id = toolResult.id
             if id in toolMap:
-                toolResult.pocket = toolMap[id]['pocket']
-                toolResult.comment = toolMap[id]['comment']
-                txToolResult.pocket = toolMap[id]['pocket']
-                txToolResult.comment = toolMap[id]['comment']
+                toolResult.pocket = toolMap[id]['pocket'] or 0
+                toolResult.comment = toolMap[id]['comment'] or ''
+                txToolResult.pocket = toolMap[id]['pocket'] or 0
+                txToolResult.comment = toolMap[id]['comment'] or ''
 
     def update_tool_table(self, toolTable):
         if self.toolTablePath is '':
