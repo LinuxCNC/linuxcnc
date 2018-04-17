@@ -462,11 +462,11 @@ static int hm2_7i90_setup(void) {
             // we found a board, and were guessing addresses so failing here is OK
                 return 0;
             } else {
-            THIS_ERR(
-                "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
-                board[i].port.base,
-                board[i].port.base_hi,
-                (board[i].epp_wide ? "ON" : "OFF"));
+                THIS_ERR(
+                    "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
+                    board[i].port.base,
+                    board[i].port.base_hi,
+                    (board[i].epp_wide ? "ON" : "OFF"));
                 return r;
             }
         }
