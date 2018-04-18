@@ -571,8 +571,9 @@ int main(int argc, char* argv[]) {
                 break;
 
             case EMCMOT_SPINDLE_ON:
-                log_print("SPINDLE_ON speed=%f, css_factor=%f, xoffset=%f\n", c->vel, c->ini_maxvel, c->acc);
-                emcmotStatus->spindle_cmd.velocity_rpm_out = c->vel;
+                log_print("SPINDLE_ON speed=%f, css_factor=%f, xoffset=%f\n",
+                          c->spindle_speed, c->css_factor, c->css_xoffset);
+                emcmotStatus->spindle_cmd.velocity_rpm_out = c->spindle_speed;
                 break;
 
             case EMCMOT_SPINDLE_OFF:
