@@ -242,7 +242,7 @@ class HAL:
             print >>file, "net all-limit <= lut5.0.out"
             if self.d.axes == 2:
                 print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
-                print >>file, "net homing-z <= axis.1.homing => lut5.0.in-1"
+                print >>file, "net homing-z <= axis.2.homing => lut5.0.in-2"
             elif self.d.axes == 0:
                 print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
                 print >>file, "net homing-y <= axis.1.homing => lut5.0.in-1"
@@ -256,7 +256,7 @@ class HAL:
 
         if self.d.axes == 2:
             self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'z')
+            self.connect_axis(file, 2, 'z')
         elif self.d.axes == 0:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
