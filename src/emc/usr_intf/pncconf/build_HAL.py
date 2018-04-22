@@ -351,7 +351,7 @@ class HAL:
 
         if self.d.axes == 2:
             self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'z')
+            self.connect_axis(file, 2, 'z')
             self.connect_axis(file, 2, 's')
         elif self.d.axes == 0:
             self.connect_axis(file, 0, 'x')
