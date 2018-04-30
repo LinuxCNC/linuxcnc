@@ -1110,12 +1110,12 @@ def main():
                     shutil.rmtree(tempdir) 
             else:
                 raise SystemExit("Unrecognized file type for mode %s: %r" % (modename[mode], f))
-        except:
+        except Exception as e:
             try:
-                os.unlink(outfile)
+                if outfile is not None: os.unlink(outfile)
             except: # os.error:
                 pass
-            raise
+            raise e
 if __name__ == '__main__':
     main()
 
