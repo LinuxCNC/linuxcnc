@@ -185,6 +185,7 @@ endif
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 INCLUDE += -I$(INCLUDEPY)
+INCLUDE += `pkg-config --cflags libtirpc`
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
@@ -198,6 +199,7 @@ LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
 LDFLAGS := -Wl,-rpath-link,../lib
 endif
+LDFLAGS += -ltirpc
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
