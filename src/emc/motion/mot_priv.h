@@ -33,6 +33,7 @@
 typedef struct {
     hal_float_t *coarse_pos_cmd;/* RPI: commanded position, w/o comp */
     hal_float_t *joint_vel_cmd;	/* RPI: commanded velocity, w/o comp */
+    hal_float_t *joint_acc_cmd;	/* RPI: commanded acceleration, w/o comp */
     hal_float_t *backlash_corr;	/* RPI: correction for backlash */
     hal_float_t *backlash_filt;	/* RPI: filtered backlash correction */
     hal_float_t *backlash_vel;	/* RPI: backlash speed variable */
