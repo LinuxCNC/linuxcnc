@@ -456,7 +456,7 @@ static int hm2_7i90_setup(void) {
                 board[i].port.base,
                 board[i].port.base_hi,
                 (board[i].epp_wide ? "ON" : "OFF"));
-                return r;
+            return r;
         }
 
         THIS_PRINT(
