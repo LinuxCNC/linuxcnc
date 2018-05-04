@@ -1153,7 +1153,10 @@ static void get_pos_cmds(long period)
             /* copy free TP output to pos_cmd and coarse_pos */
             joint->pos_cmd = joint->free_tp.curr_pos;
             joint->vel_cmd = joint->free_tp.curr_vel;
-            joint->acc_cmd = 0.0;//TODO: add acceleration output to simple_tp
+            //no acceleration output form simple_tp, but the pin will
+            //still show the acceleration from the interpolation.
+            //its delayed, but thats ok during jogging or homing.
+            joint->acc_cmd = 0.0;
             joint->coarse_pos = joint->free_tp.curr_pos;
             /* update joint status flag and overall status flag */
             if ( joint->free_tp.active ) {
