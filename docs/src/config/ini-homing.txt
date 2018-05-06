@@ -169,6 +169,7 @@ A HOME_IS_SHARED setting is silently ignored.
 [NOTE]
 A request to rehome the joint is silently ignored.
 
+[[sec:homing-section]](((HOME SEQUENCE)))
 
 === HOME_SEQUENCE (((HOME SEQUENCE)))
 
