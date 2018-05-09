@@ -1,3 +1,49 @@
+linuxcnc (1:2.7.13) unstable; urgency=medium
+
+  * docs: correct g33.1 warning and text
+  * docs: describe motion.program-line in motion manpage
+  * docs: remove last mention of pins from PID description in rtcomps
+  * docs: update the PID section of rtcomps (#388)
+  * docs: add missing num_sserials info to hm2 manpage
+  * docs: add missing .tool-prep-index parameter to io manpage
+  * docs: add some docstrings to the linuxcnc python module
+  * docs: make the tool table docs more findable
+  * docs: fix a spelling error in bldc manpage
+  * docs: M19 is no longer an unused M-code
+
+  * axis GUI: fix file open dialog with recent py/tcl (#414)
+
+  * gscreen industrial GUI: fix DRO display if VCP panel added
+  * gscreen GUI: fix error if gstreamer library missing
+
+  * stepconf: fix lathe configs; Z axis must be 2 not 1
+
+  * pncconf: fix lathe configs z axis should be 2 not 1
+  * pncconf: fix tandem stepper command signals
+  * pncconf: fix control type with tandem axes
+
+  * gladevcp: fix a warning about icon size
+
+  * interp: require < after # for named parameters (#424)
+
+  * hm2 7i90: fix indentation for legibility
+  * halrmt: fix confusing indentation
+  * classicladder: fix indentation
+
+  * io: fix a misleading comment
+  * io: update the status buffer when prepping the loaded tool
+  * io: set the HAL pins/params even for the loaded tool
+  * io: remove an incorrect debug message
+
+  * test: add tests of reloading the loaded tool
+  * test: add a test for interp variable name bug (#424)
+
+  * packaging: use dh_prep instead of deprecated 'dh_clean -k'
+  * packaging: remove trailing whitespace in changelog
+  * packaging: note copyright on yapps
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 08 May 2018 21:12:41 -0600
+
 linuxcnc (1:2.7.12) unstable; urgency=medium
 
   * docs: clean up net commands in orient docs
