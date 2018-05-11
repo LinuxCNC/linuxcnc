@@ -5464,9 +5464,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 board0_ip = ''' board_ip="192.168.1.121"'''
             if '7i76e' in board1 or '7i92' in board1 or '7i80' in board1:
                 board1_ip = ''' board_ip="192.168.1.121"'''
-            if not "5i25" in board0:
+            if 'eth' in driver0:
+                firmstring0 =''
+            elif not "5i25" in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
-            if not "5i25" in board1:
+            if 'eth' in driver1:
+                firmstring1 =''
+            elif not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
 
             # TODO fix this hardcoded hack: only one serialport
