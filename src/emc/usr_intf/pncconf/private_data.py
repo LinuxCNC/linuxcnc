@@ -526,7 +526,7 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     # 7i92 ####################
-    ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "5i92", "hm2_eth", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+    ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "7i92", "hm2_eth", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
         # TAB 2
         [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
         [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
