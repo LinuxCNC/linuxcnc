@@ -10,6 +10,8 @@
 set ::mandatory_items {KINS KINEMATICS
                        KINS JOINTS
                       }
+set ::axis_min_limit_default -1e99 ;# ref: src/emc/ini/iniaxis.cc
+set ::axis_max_limit_default +1e99 ;# ref: src/emc/ini/iniaxis.cc
 #----------------------------------------------------------------------
 proc err_exit msg {
   puts "\n$::progname: ERROR"
@@ -53,17 +55,24 @@ proc joints_for_trivkins {coords} {
 proc validate_identity_kins_limits {} {
   set emsg ""
   foreach c [uniq $::kins(coordinates)] {
+    set missing_axis_min_limit 0
+    set missing_axis_max_limit 0
     if ![info exists ::AXIS_[set c](MIN_LIMIT)] {
-      set ::AXIS_[set c](MIN_LIMIT) -1e99 ;# ref: src/emc/ini/iniaxis.cc
+      set ::AXIS_[set c](MIN_LIMIT) $::axis_min_limit_default
+      set missing_axis_min_limit 1
     }
     if ![info exists ::AXIS_[set c](MAX_LIMIT)] {
-      set ::AXIS_[set c](MAX_LIMIT)  1e99 ;# ref: src/emc/ini/iniaxis.cc
+      set ::AXIS_[set c](MAX_LIMIT) $::axis_max_limit_default
+      set missing_axis_max_limit 1
     }
     foreach j $::kins(jointidx,$c) {
       if [info exists  ::JOINT_[set j](MIN_LIMIT)] {
          set jlim [set ::JOINT_[set j](MIN_LIMIT)]
          set clim [set  ::AXIS_[set c](MIN_LIMIT)]
          if {$jlim > $clim} {
+           if $missing_axis_min_limit {
+             lappend emsg "Unspecified \[AXIS_$c\]MIN_LIMIT, default used: $::axis_min_limit_default"
+           }
            lappend emsg "\[JOINT_$j\]MIN_LIMIT > \[AXIS_$c\]MIN_LIMIT ($jlim > $clim)"
          }
       }
@@ -71,6 +80,9 @@ proc validate_identity_kins_limits {} {
          set jlim [set ::JOINT_[set j](MAX_LIMIT)]
          set clim [set  ::AXIS_[set c](MAX_LIMIT)]
          if {$jlim < $clim} {
+           if $missing_axis_max_limit {
+             lappend emsg "Unspecified \[AXIS_$c\]MAX_LIMIT, default used: $::axis_max_limit_default"
+           }
            lappend emsg "\[JOINT_$j\]MAX_LIMIT < \[AXIS_$c\]MAX_LIMIT ($jlim < $clim)"
          }
       }
@@ -116,7 +128,7 @@ if [info exists ::kins(coordinates)] {
   set ::kins(coordinates) {X Y Z A B C U V W}
 }
 
-# list of joints for each coord --> ::kins(jointidx,coordinateletter) 
+# list of joints for each coord --> ::kins(jointidx,coordinateletter)
 switch $::kins(module) {
   trivkins {joints_for_trivkins $::kins(coordinates)}
   default  {
