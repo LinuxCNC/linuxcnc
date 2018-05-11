@@ -566,6 +566,16 @@ S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E, S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3
         [S.MXEI, 3],[S.MXE0, 4],[S.MXE1, 4],[S.MXEI, 4],[S.MXE0, 5],[S.MXE1, 5],[S.MXEI, 5],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ["7i92-Internal Data", "7i92", "7i77_7i76", "7i92", "hm2_eth", 6,3, 0,0, 0,3, 0,0, 5,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+        # TAB 2
+        [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
+        [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 1
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.SS7I76M3,0],[S.RXDATA3,0],[S.TXDATA4,0],[S.RXDATA4,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
     # 7i80HD #################
     ["7i80HD-Internal Data", "7i80HD", "SV12", "7i80HD", "hm2_eth", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
