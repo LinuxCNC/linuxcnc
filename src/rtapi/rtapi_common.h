@@ -150,6 +150,8 @@ typedef struct {
     size_t stacksize;
     int period;
     int ratio;
+    long pll_correction;
+    long pll_correction_limit;
     task_state_t state;		/* task state */
     int prio;			/* priority */
     int owner;			/* owning module */
