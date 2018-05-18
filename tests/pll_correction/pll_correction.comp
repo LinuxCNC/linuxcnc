@@ -20,14 +20,18 @@ pin out u32 ref_lo;
 pin out u32 cycle_count = 0;
 
 // Buffer for average
-variable int numsamps = 1000;
+// - Number of samples here must match numsamps in checkresult
+// - Number of samples here must be 1/4 halsampler -n ### in pll_correction.hal
+pin in u32 numsamps;
 variable int samps[1000];
 variable int samp_last;
 pin out s32 samp_avg;
 
+// Mode:  number of samples where pll error under 1% of period
+pin out u32 mode;
+
 // PLL settings
-pin out bit pll_on;
-variable int pll_periods = 10; // Lock on to this many phases in the future
+pin in u32 pll_periods; // Lock on to this many phases in the future
 // Monitor phase difference
 pin out s32 phase_diff;
 
@@ -66,9 +70,7 @@ FUNCTION(_) {
   phase_diff = time(now) - time(time_base);
 
   // Incremental phase error
-  pll_err = phase_diff - (
-    // Maintain 0 err in beginning, period*pll_periods later
-    !(pll_on = (cycle_count > numsamps*2)) ? 0 : period*pll_periods);
+  pll_err = phase_diff - period*pll_periods;
 
   // Adjust phase
   rtapi_task_pll_set_correction(-pll_err);
@@ -76,11 +78,19 @@ FUNCTION(_) {
   // Get reference (unused)
   time_set(ref, rtapi_task_pll_get_reference());
   
-  // Averages
+  // Average
   samps[(samp_last++)%numsamps] = pll_err;
   samp_avg = 0;
-  for (int i=0; i<min(numsamps,samp_last); i++) samp_avg += samps[i];
-  samp_avg /= min(numsamps,samp_last);
+  int avgsamps = min(numsamps,samp_last);
+  for (int i=0; i<min(numsamps,samp_last); i++)
+    // Avoid integer overflow by dividing first (round result)
+    samp_avg += (samps[i] + avgsamps/2)/avgsamps;
+
+  // Mode
+  mode = 0;
+  for (int i=0; i<min(numsamps,samp_last); i++)
+    if (samps[i] < period*0.01)
+      mode++;
 
   // Updates for next cycle
   time_set(prev, time(now));
