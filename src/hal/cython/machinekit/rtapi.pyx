@@ -218,7 +218,7 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_loadrt '%s' failed: %s" % (args,strerror(-r)))
 
-        return hal.components[name]
+        return hal.components[name.split('/')[-1]]
 
     def unloadrt(self,char *name, int instance=0):
         if name == NULL:
