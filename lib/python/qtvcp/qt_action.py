@@ -196,7 +196,6 @@ class FilterProgram:
                               stderr=subprocess.PIPE,
                               env=env)
         p.stdin.close()  # No input for you
-        STATUS = GStat()
         self.p = p
         self.stderr_text = []
         self.program_filter = program_filter
