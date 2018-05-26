@@ -224,6 +224,9 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         super(Lcnc_FileDialog, self).__init__(parent)
         self._state = False
         self._color = QColor(0, 0, 0, 150)
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
         self.setFileMode(QFileDialog.ExistingFile)
         self.setDirectory( os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
