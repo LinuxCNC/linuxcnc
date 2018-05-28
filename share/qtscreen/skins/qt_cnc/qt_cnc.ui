@@ -2358,6 +2358,50 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_30">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>30</y>
+       <width>101</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Override_Limits</string>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="Lcnc_State_Led" name="lcnc_state_led_9">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>30</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_flood_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_block_delete_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_limits_overriden_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_3">
     <property name="geometry">
@@ -2717,7 +2761,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
-   <extends>QsciScintilla</extends>
+   <extends>QFrame</extends>
    <header>qtvcp.widgets.gcode_widget</header>
    <container>1</container>
   </customwidget>
@@ -2747,11 +2791,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <class>Lcnc_ToolDialog</class>
    <extends>Lcnc_Dialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>QsciScintilla</class>
-   <extends>QFrame</extends>
-   <header>Qsci/qsciscintilla.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

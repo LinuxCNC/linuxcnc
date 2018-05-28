@@ -72,6 +72,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.spindle_stop = False
         self.spindle_up = False
         self.spindle_down = False
+        self.limits_override = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -204,6 +205,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
+        elif self.limits_override:
+            STATUS.connect('hard-limits-tripped', lambda w, data: self.setEnabled(data))
 
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
@@ -314,6 +317,9 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             ACTION.SET_SPINDLE_FASTER()
         elif self.spindle_down:
             ACTION.SET_SPINDLE_SLOWER()
+        elif self.limits_override:
+            ACTION.SET_LIMITS_OVERRIDE()
+
         # defult error case
         else:
             log.error('No action recognised')
@@ -352,7 +358,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                     'auto','mdi','manual','macro_dialog','origin_offset_dialog',
                     'camview_dialog','jog_incr','feed_over', 'rapid_over',
                     'spindle_over', 'jog_rate','view_x', 'view_p', 'spindle_fwd',
-                    'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down')
+                    'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
+                    'limits_override')
 
         for i in data:
             if not i == picked:
@@ -634,6 +641,15 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_toggle_float(self):
         self.toggle_float = False
 
+    def set_limits_override(self, data):
+        self.limits_override = data
+        if data:
+            self._toggle_properties('limits_override')
+    def get_limits_override(self):
+        return self.limits_override
+    def reset_limits_override(self):
+        self.limits_override = False
+
     # NON BOOL VARIABLES
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -714,7 +730,8 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     spindle_up_action = QtCore.pyqtProperty(bool, get_spindle_up, set_spindle_up, reset_spindle_up)
     spindle_down_action = QtCore.pyqtProperty(bool, get_spindle_down, set_spindle_down, reset_spindle_down)
     view_change_action = QtCore.pyqtProperty(bool, get_view_change, set_view_change, reset_view_change)
- 
+    limits_override_action = QtCore.pyqtProperty(bool, get_limits_override, set_limits_override, reset_limits_override)
+
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
     incr_imperial_number = QtCore.pyqtProperty(float, get_incr_imperial, set_incr_imperial, reset_incr_imperial)

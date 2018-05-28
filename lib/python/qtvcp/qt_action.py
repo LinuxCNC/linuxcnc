@@ -44,6 +44,9 @@ class _Lcnc_Action(object):
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
 
+    def SET_LIMITS_OVERRIDE(self):
+        self.cmd.override_limits()
+
     def SET_MDI_MODE(self):
         self.ensure_mode(linuxcnc.MODE_MDI)
 

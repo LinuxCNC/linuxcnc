@@ -29,9 +29,15 @@ class Lcnc_State_Led(Lcnc_Led,):
         self.is_block_delete = False
         self.is_optional_stop = False
         self.is_joint_homed = False
+        self.is_limits_overriden = False
+
         self.joint_number = 0
 
     def _hal_init(self):
+        def only_false(data):
+            if data:
+                return
+            self._flip_state(False)
 
         if self.is_estopped:
             STATUS.connect('state-estop', lambda w:self._flip_state(True))
@@ -58,6 +64,9 @@ class Lcnc_State_Led(Lcnc_Led,):
         elif self.is_joint_homed:
             STATUS.connect('homed', lambda w,data: self.joint_homed(data))
             STATUS.connect('not-all-homed', lambda w,data: self.joints_unhomed(data))
+        elif self.is_limits_overriden:
+            STATUS.connect('override-limits-changed', self.check_override_limits)
+            STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
 
     def _flip_state(self, data):
             if self.invert_state:
@@ -71,6 +80,13 @@ class Lcnc_State_Led(Lcnc_Led,):
     def joints_unhomed(self,jlist):
         if str(self.joint_number) in jlist:
             self._flip_state(False)
+
+    def check_override_limits(self, w, data):
+        for i in data:
+            if i == 1:
+                self._flip_state(True)
+                return
+        self._flip_state(False)
 
 # property getter/setters
 
@@ -175,6 +191,17 @@ class Lcnc_State_Led(Lcnc_Led,):
         self.is_joint_homed = False
     is_joint_homed_status = pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
 
+    # machine_is_limits_overriden status
+    def set_is_limits_overriden(self, data):
+        self.is_limits_overriden = data
+    def get_is_limits_overriden(self):
+        return self.is_limits_overriden
+    def reset_is_limits_overriden(self):
+        self.is_limits_overriden = False
+    is_limits_overriden_status = pyqtProperty(bool, get_is_limits_overriden, set_is_limits_overriden, reset_is_limits_overriden)
+
+    # Non bool
+
     # machine_joint_number status
     def set_joint_number(self, data):
         self.joint_number = data
@@ -183,6 +210,8 @@ class Lcnc_State_Led(Lcnc_Led,):
     def reset_joint_number(self):
         self.joint_number = 0
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
+
+
 
 if __name__ == "__main__":
 
