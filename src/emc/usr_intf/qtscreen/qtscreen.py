@@ -332,6 +332,7 @@ class QTscreen:
         # start loop
         self.app.exec_()
         self.halcomp.exit()
+        self.shutdown()
         sys.exit(0)
 
     # finds the postgui file name and INI file path
@@ -345,10 +346,14 @@ class QTscreen:
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", postgui_halfile])
             if res: raise SystemExit, res
 
+    def shutdown(self):
+        STATUS.shutdown()
+
 # starts qtscreen
 if __name__ == "__main__":
     try:
         APP = QTscreen()
     except KeyboardInterrupt:
+        APP.shutdown()
         sys.exit(0)
 

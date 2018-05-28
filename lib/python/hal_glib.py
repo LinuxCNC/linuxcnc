@@ -160,6 +160,9 @@ class _GStat(gobject.GObject):
         'play-sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'play-alert': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'virtual-keyboard': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+
+        'shutdown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -787,6 +790,9 @@ class _GStat(gobject.GObject):
         j_or_a = axisnum
         if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
         return jjogmode,j_or_a
+
+    def shutdown(self):
+        self.emit('shutdown')
 
     def __getitem__(self, item):
         return getattr(self, item)
