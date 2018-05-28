@@ -285,7 +285,7 @@ int hal_init(const char *name)
 
 int hal_exit(int comp_id)
 {
-    int *prev, next;
+    rtapi_intptr_t *prev, next;
     hal_comp_t *comp;
     char name[HAL_NAME_LEN + 1];
 
@@ -605,7 +605,8 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
 int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     void **data_ptr_addr, int comp_id)
 {
-    int *prev, next, cmp;
+    rtapi_intptr_t *prev, next;
+    int cmp;
     hal_pin_t *new, *ptr;
     hal_comp_t *comp;
 
@@ -724,7 +725,8 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 
 int hal_pin_alias(const char *pin_name, const char *alias)
 {
-    int *prev, next, cmp;
+    rtapi_intptr_t *prev, next;
+    int cmp;
     hal_pin_t *pin, *ptr;
     hal_oldname_t *oldname;
 
@@ -852,7 +854,8 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 int hal_signal_new(const char *name, hal_type_t type)
 {
 
-    int *prev, next, cmp;
+    rtapi_intptr_t *prev, next;
+    int cmp;
     hal_sig_t *new, *ptr;
     void *data_addr;
 
@@ -884,18 +887,22 @@ int hal_signal_new(const char *name, hal_type_t type)
 	return -EINVAL;
     }
     /* allocate memory for the signal value */
+/*
+because accesses will later be through pointer of type hal_data_u,
+allocate something that big.  Otherwise, gcc -fsanitize=undefined will
+issue diagnostics like
+    hal/hal_lib.c:3203:35: runtime error: member access within misaligned address 0x7fcf3d11f10b for type 'union hal_data_u', which requires 8 byte alignment
+on accesses through hal_data_u.
+
+This does increase memory usage somewhat, but is required for compliance
+with the C standard.
+*/
     switch (type) {
     case HAL_BIT:
-	data_addr = shmalloc_up(sizeof(hal_bit_t));
-	break;
     case HAL_S32:
-	data_addr = shmalloc_up(sizeof(hal_s32_t));
-	break;
     case HAL_U32:
-	data_addr = shmalloc_up(sizeof(hal_u32_t));
-	break;
     case HAL_FLOAT:
-	data_addr = shmalloc_up(sizeof(hal_float_t));
+        data_addr = shmalloc_up(sizeof(hal_data_u));
 	break;
     default:
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -966,7 +973,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 int hal_signal_delete(const char *name)
 {
     hal_sig_t *sig;
-    int *prev, next;
+    rtapi_intptr_t *prev, next;
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1287,7 +1294,8 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
 int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
     int comp_id)
 {
-    int *prev, next, cmp;
+    rtapi_intptr_t *prev, next;
+    int cmp;
     hal_param_t *new, *ptr;
     hal_comp_t *comp;
 
@@ -1495,7 +1503,8 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 
 int hal_param_alias(const char *param_name, const char *alias)
 {
-    int *prev, next, cmp;
+    rtapi_intptr_t *prev, next;
+    int cmp;
     hal_param_t *param, *ptr;
     hal_oldname_t *oldname;
 
@@ -1625,7 +1634,8 @@ int hal_param_alias(const char *param_name, const char *alias)
 int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id)
 {
-    int *prev, next, cmp;
+    rtapi_intptr_t *prev, next;
+    int cmp;
     hal_funct_t *new, *fptr;
     hal_comp_t *comp;
     char buf[HAL_NAME_LEN + 1];
@@ -1922,7 +1932,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 extern int hal_thread_delete(const char *name)
 {
     hal_thread_t *thread;
-    int *prev, next;
+    rtapi_intptr_t *prev, next;
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -3096,7 +3106,7 @@ static hal_thread_t *alloc_thread_struct(void)
 
 static void free_comp_struct(hal_comp_t * comp)
 {
-    int *prev, next;
+    rtapi_intptr_t *prev, next;
 #ifdef RTAPI
     hal_funct_t *funct;
 #endif /* RTAPI */
@@ -3367,7 +3377,7 @@ static void free_thread_struct(hal_thread_t * thread)
     hal_list_t *list_root, *list_entry;
 /*! \todo Another #if 0 */
 #if 0
-    int *prev, next;
+    rtapi_intptr_t *prev, next;
     char time[HAL_NAME_LEN + 1], tmax[HAL_NAME_LEN + 1];
     hal_param_t *param;
 #endif

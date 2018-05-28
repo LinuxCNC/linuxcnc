@@ -808,6 +808,14 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 HM2_ERR("Remote setup failure on instance %i\n",
                         inst->device_id);
                 goto fail0;}
+            // Nothing happens without a "Do It" command
+            if ((r = hm2_register_tram_write_region(hm2,inst->command_reg_addr,
+                                       sizeof(rtapi_u32),
+                                       &inst->command_reg_write)) < 0){
+                HM2_ERR("error registering tram DoIt write to sserial "
+                "command register (%d)\n", i);
+                goto fail0;}
+
             if ((r = hm2_sserial_stopstart(hm2, md, inst, 0x900)) < 0 ){
                 HM2_ERR("Failed to restart device %i on instance\n",
                         inst->device_id);
@@ -951,7 +959,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
                                       sizeof(rtapi_u32),
                                       &inst->command_reg_read);
     if (r < 0) {
-        HM2_ERR("error registering tram write region for sserial"
+        HM2_ERR("error registering tram read region for sserial"
                 "command register (%d)\n", index);
         return -EINVAL;
     }
@@ -960,17 +968,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
                                       sizeof(rtapi_u32),
                                       &inst->data_reg_read);
     if (r < 0) {
-        HM2_ERR("error registering tram write region for sserial "
-                "command register (%d)\n", index);
-        return -EINVAL;
-
-    }
-    // Nothing happens without a "Do It" command
-    r = hm2_register_tram_write_region(hm2, inst->command_reg_addr,
-                                       sizeof(rtapi_u32),
-                                       &inst->command_reg_write);
-    if (r < 0) {
-        HM2_ERR("error registering tram write region for sserial "
+        HM2_ERR("error registering tram read region for sserial "
                 "command register (%d)\n", index);
         return -EINVAL;
 

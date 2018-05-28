@@ -224,7 +224,7 @@ int hm2_7i90_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
 
 
 
-int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i90_t *board = this->private;
 
@@ -456,7 +456,7 @@ static int hm2_7i90_setup(void) {
                 board[i].port.base,
                 board[i].port.base_hi,
                 (board[i].epp_wide ? "ON" : "OFF"));
-                return r;
+            return r;
         }
 
         THIS_PRINT(

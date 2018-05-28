@@ -228,7 +228,7 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
 
 
 
-int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 

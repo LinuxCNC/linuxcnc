@@ -4285,7 +4285,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
         }
         length = strlen(line);
         if (length == (LINELEN - 1)) {       // line is too long. need to finish reading the line
-          for (; fgetc(_setup.file_pointer) != '\n';);
+          for (; fgetc(_setup.file_pointer) != '\n' && !feof(_setup.file_pointer););
           continue;
         }
         for (index = (length - 1);      // index set on last char

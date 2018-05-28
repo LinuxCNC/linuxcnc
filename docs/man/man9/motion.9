@@ -228,6 +228,8 @@ G38.x uses the value on this pin to determine when the probe has made contact. T
 
 .TP
 \fBmotion.program\-line\fR OUT S32
+The current program line while executing. Zero if not running or between
+lines while single stepping.
 
 .TP
 \fBmotion.requested\-vel\fR OUT FLOAT
@@ -430,6 +432,10 @@ TRUE if the joint is using the "free planner" and has come to a stop
 .TP
 \fBjoint.\fIN\fB.joint\-vel\-cmd\fR OUT FLOAT
 The joint's commanded velocity
+
+.TP
+\fBjoint.\fIN\fB.joint\-acc\-cmd\fR OUT FLOAT
+The joint's commanded acceleration
 
 .TP
 \fBjoint.\fIN\fB.kb\-jog\-active\fR OUT BIT

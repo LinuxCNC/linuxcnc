@@ -48,7 +48,7 @@ The component was written specifically to support the Mesa 7i73 pendant
 controller, however it may be of use streaming data to other character devices
 and, as the output format mimics the ADM3 terminal format, it could be used
 to stream data to a serial device. Perhaps even a genuine ADM3. 
-The strings contain a mixture of text values which are displayed directly, 
+The strings contain a mixture of text values (which are displayed directly), 
 "escaped" formatting codes and numerical format descriptors. 
 For a detailed description of formatting codes see: 
 http://en.wikipedia.org/wiki/Printf
@@ -66,6 +66,9 @@ is necessary to allow the format to wrap and omit the \en code.
 tab.)
 
  \eNN inserts the character defined by the hexadecimal code NN. 
+ As the ',' character is used in the format string to separate LCD instances
+ it must be represented by \e2C in the format string. (the decimal
+ separator is handled differently)
  
  \e\e Inserts a literal \e.
 
@@ -101,7 +104,8 @@ digits. The integer data types will never fill more than 10 decimal digits.
 Following the width specifier should be the decimal specifier. This can only be
 a full-stop character (.) as the comma (,) is used as the instance separator. 
 Currently lcd does not access the locale information to determine the correct
-separator and the \fBdecimal\-separator\fR parameter should be used. 
+separator but the \fBdecimal\-separator\fR HAL parameter can be used to
+choose any desired separator.
 
 Following the decimal separator should be a number that determines how many
 places of decimals to display. This entry is ignored in the case of integer

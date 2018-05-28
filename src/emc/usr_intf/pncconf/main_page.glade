@@ -1,32 +1,77 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">0.5</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-go-back</property>
+  </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">±</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">+</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">-</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">PNCconf - Mesa Card Configuration Wizard</property>
     <property name="resizable">False</property>
     <property name="window_position">center</property>
-    <signal name="destroy_event" handler="on_window1_destroy"/>
-    <signal name="delete_event" handler="on_window1_destroy"/>
+    <signal name="destroy-event" handler="on_window1_destroy" swapped="no"/>
+    <signal name="delete-event" handler="on_window1_destroy" swapped="no"/>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkHButtonBox" id="hbuttonbox1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="layout_style">end</property>
                 <child>
                   <object class="GtkButton" id="button_help">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_button_help_clicked"/>
+                    <signal name="clicked" handler="on_button_help_clicked" swapped="no"/>
                     <child>
                       <object class="GtkLabel" id="label_help">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Help</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -45,10 +90,11 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_window1_destroy"/>
+                    <signal name="clicked" handler="on_window1_destroy" swapped="no"/>
                     <child>
                       <object class="GtkLabel" id="label_cancel">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Cancel</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -65,54 +111,66 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkHBox" id="hbox2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkImage" id="image1">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="stock">gtk-info</property>
                     <property name="icon-size">6</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkLabel" id="title_label">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
-                      <attribute name="scale" value="1.500000"/>
+                      <attribute name="scale" value="1.5"/>
                     </attributes>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkHButtonBox" id="hbuttonbox2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="layout_style">end</property>
                 <child>
                   <object class="GtkButton" id="button_back">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_button_back_clicked"/>
+                    <signal name="clicked" handler="on_button_back_clicked" swapped="no"/>
                     <child>
                       <object class="GtkLabel" id="label_back">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Back</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -131,13 +189,15 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_button_fwd_clicked"/>
+                    <signal name="clicked" handler="on_button_fwd_clicked" swapped="no"/>
                     <child>
                       <object class="GtkHBox" id="hbox7">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkLabel" id="label_fwd">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="ypad">6</property>
                             <property name="label" translatable="yes">Start</property>
                             <attributes>
@@ -145,14 +205,19 @@
                             </attributes>
                           </object>
                           <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkImage" id="apply_image">
+                            <property name="can_focus">False</property>
                             <property name="stock">gtk-apply</property>
                           </object>
                           <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -168,12 +233,14 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -184,23 +251,31 @@
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="opening_text">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">This program creates configuration files (.ini and .hal) for  milling machines and lathes connected to a Mesa Card.
-</property>
+
+It is a recommended stategy to start with very basic axes options, get them functional then go back and add other options such as VFD spindle control  or advanced limit/home control etc.</property>
                     <property name="wrap">True</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkImage" id="wizard_image">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="stock">gtk-missing-image</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -209,6 +284,7 @@
             <child type="tab">
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">page 1</property>
               </object>
               <packing>
@@ -230,6 +306,7 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -238,44 +315,5 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkImage" id="image3">
-    <property name="visible">True</property>
-    <property name="stock">gtk-go-back</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="value">1</property>
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="value">1</property>
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment3">
-    <property name="value">0.5</property>
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">&#xB1;</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">+</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">-</col>
-      </row>
-    </data>
   </object>
 </interface>
