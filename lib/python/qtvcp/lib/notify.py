@@ -8,6 +8,8 @@ import sys
     # callback work around:
     # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 
+from qtvcp.core import Status
+STATUS = Status()
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
@@ -29,7 +31,9 @@ class Notify:
     def __init__(self):
         self._n=[]
         self.statusbar = None
+        self.notify_list = []
         self.alarmpage = []
+        STATUS.connect('shutdown', self.cleanup)
 
     # This prints a message in the status bar (if available)
     # the system notifier (if available)
@@ -65,6 +69,7 @@ class Notify:
         n.connect('closed', self.handle_closed)
         #self._n.add_action('You Clicked The Button', 'Remove Fire', self.OnClicked)
         n.show()
+        self.notify_list.append(n)
 
     def handle_closed(self,n):
         pass
@@ -92,3 +97,8 @@ class Notify:
             self.alarmpage.append(message)
         except:
             pass
+
+    def cleanup(self, w):
+        for i in self.notify_list:
+            i.close()
+
