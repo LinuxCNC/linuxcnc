@@ -205,7 +205,7 @@ class Player:
 
     def os_speak(self,f):
         cmd = f.lower().lstrip('speak')
-        os.system('''espeak -s 160 -v m3 -p 1 '%s' '''% cmd)
+        os.system('''espeak -s 160 -v m3 -p 1 "%s" '''% cmd)
 
     ##############################
     # required class boiler code #
