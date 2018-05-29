@@ -10,19 +10,19 @@
     <x>0</x>
     <y>0</y>
     <width>1027</width>
-    <height>874</height>
+    <height>790</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1027</width>
-    <height>874</height>
+    <height>790</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1027</width>
-    <height>874</height>
+    <height>790</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -240,7 +240,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
     <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_7">
      <property name="geometry">
       <rect>
-       <x>290</x>
+       <x>280</x>
        <y>190</y>
        <width>131</width>
        <height>31</height>
@@ -266,23 +266,6 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="current_feedrate_status" stdset="0">
       <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_21">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>191</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);
-font: 75 18pt &quot;Noto Sans&quot;;</string>
-     </property>
-     <property name="text">
-      <string>Velocity</string>
      </property>
     </widget>
     <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label">
@@ -344,7 +327,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <rect>
        <x>100</x>
        <y>190</y>
-       <width>131</width>
+       <width>91</width>
        <height>31</height>
       </rect>
      </property>
@@ -401,13 +384,58 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QLabel" name="label_22">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>190</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 18pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Velocity:</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+    </widget>
+    <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label_3">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>191</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="true_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;mmPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="false_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
    </widget>
    <widget class="GcodeEditor" name="gcodeeditor">
     <property name="geometry">
      <rect>
       <x>210</x>
       <y>250</y>
-      <width>801</width>
+      <width>811</width>
       <height>201</height>
      </rect>
     </property>
@@ -509,89 +537,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <number>0</number>
      </property>
     </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>820</x>
-      <y>760</y>
-      <width>191</width>
-      <height>101</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Monitor Programs</string>
-    </property>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_7">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>30</y>
-       <width>91</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Hal Meter</string>
-     </property>
-     <property name="launch_halmeter_action" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_8">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>30</y>
-       <width>91</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Status</string>
-     </property>
-     <property name="launch_status_action" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>490</y>
-      <width>101</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Estop&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>520</y>
-      <width>101</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Machine On&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
    </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
@@ -772,7 +717,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>490</y>
+      <y>480</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -791,7 +736,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>520</y>
+      <y>530</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -1283,7 +1228,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_5">
     <property name="geometry">
      <rect>
-      <x>940</x>
+      <x>950</x>
       <y>470</y>
       <width>61</width>
       <height>61</height>
@@ -1448,44 +1393,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_13">
-    <property name="geometry">
-     <rect>
-      <x>620</x>
-      <y>790</y>
-      <width>81</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Cam View</string>
-    </property>
-    <property name="camview_dialog_action" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="macro_dialog_action" stdset="0">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_14">
-    <property name="geometry">
-     <rect>
-      <x>530</x>
-      <y>790</y>
-      <width>81</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>offsets</string>
-    </property>
-    <property name="origin_offset_dialog_action" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="macro_dialog_action" stdset="0">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="GstatStacked" name="gstatstacked">
     <property name="geometry">
      <rect>
@@ -1506,9 +1413,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-10</y>
+        <y>0</y>
         <width>191</width>
-        <height>451</height>
+        <height>441</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -1712,58 +1619,11 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         </widget>
        </widget>
       </widget>
-      <widget class="Lcnc_ActionButton" name="button_estop">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>10</y>
-         <width>81</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
-       </property>
-       <property name="text">
-        <string>Estop</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="Lcnc_ActionButton" name="button_machineon">
-       <property name="geometry">
-        <rect>
-         <x>90</x>
-         <y>10</y>
-         <width>101</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
-       </property>
-       <property name="text">
-        <string>Power</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="estop_action" stdset="0">
-        <bool>false</bool>
-       </property>
-       <property name="machine_on_action" stdset="0">
-        <bool>true</bool>
-       </property>
-      </widget>
       <widget class="Lcnc_ActionButton" name="button_home">
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>80</y>
+         <y>10</y>
          <width>131</width>
          <height>41</height>
         </rect>
@@ -1790,7 +1650,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_25">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>130</x>
          <y>150</y>
          <width>55</width>
          <height>32</height>
@@ -1821,7 +1681,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_26">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>10</x>
          <y>150</y>
          <width>55</width>
          <height>32</height>
@@ -1840,7 +1700,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_27">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>130</x>
          <y>190</y>
          <width>55</width>
          <height>32</height>
@@ -1856,7 +1716,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_28">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>10</x>
          <y>190</y>
          <width>55</width>
          <height>32</height>
@@ -1883,6 +1743,44 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
        </property>
        <property name="spindle_stop_action" stdset="0">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_14">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>70</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>offsets</string>
+       </property>
+       <property name="origin_offset_dialog_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="macro_dialog_action" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_13">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>70</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cam View</string>
+       </property>
+       <property name="camview_dialog_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="macro_dialog_action" stdset="0">
+        <bool>false</bool>
        </property>
       </widget>
      </widget>
@@ -2402,6 +2300,53 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="Lcnc_ActionButton" name="button_estop">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Estop</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="Lcnc_ActionButton" name="button_machineon">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Power</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="machine_on_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_3">
     <property name="geometry">
@@ -2428,7 +2373,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <rect>
       <x>850</x>
       <y>460</y>
-      <width>161</width>
+      <width>171</width>
       <height>221</height>
      </rect>
     </property>
@@ -2528,7 +2473,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <rect>
       <x>350</x>
       <y>720</y>
-      <width>661</width>
+      <width>671</width>
       <height>41</height>
      </rect>
     </property>
@@ -2541,13 +2486,14 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <zorder>label_11</zorder>
    </widget>
    <widget class="QFrame" name="frame_auto_8">
     <property name="geometry">
      <rect>
       <x>680</x>
       <y>680</y>
-      <width>331</width>
+      <width>341</width>
       <height>41</height>
      </rect>
     </property>
@@ -2564,11 +2510,24 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <widget class="Lcnc_MDILine" name="mdi_line">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>60</x>
        <y>6</y>
        <width>271</width>
        <height>31</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;MDI:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>
@@ -2577,7 +2536,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <rect>
       <x>370</x>
       <y>725</y>
-      <width>631</width>
+      <width>651</width>
       <height>31</height>
      </rect>
     </property>
@@ -2611,9 +2570,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>frame</zorder>
    <zorder>gcodeeditor</zorder>
    <zorder>state_enable_gridLayout</zorder>
-   <zorder>groupBox</zorder>
-   <zorder>label_3</zorder>
-   <zorder>label_5</zorder>
    <zorder>label_6</zorder>
    <zorder>label_7</zorder>
    <zorder>label_8</zorder>
@@ -2655,8 +2611,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>lcnc_gstat_label_2</zorder>
    <zorder>lcnc_macrotabdialog</zorder>
    <zorder>lcnc_originoffsetdialog</zorder>
-   <zorder>lcnc_actionbutton_13</zorder>
-   <zorder>lcnc_actionbutton_14</zorder>
    <zorder>gstatstacked</zorder>
    <zorder>gstat_slider</zorder>
    <zorder>gstat_slider_2</zorder>
@@ -2671,10 +2625,11 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>frame_auto_8</zorder>
    <zorder>focusoverlay</zorder>
    <zorder>gcodes_label</zorder>
+   <zorder>label_11</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

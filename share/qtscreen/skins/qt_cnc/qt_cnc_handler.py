@@ -28,7 +28,6 @@ import os
 
 KEYBIND = Keylookup()
 STATUS = Status()
-NOTE = Notify()
 ACTION = Action()
 
 ###################################
@@ -61,9 +60,6 @@ class HandlerClass:
     def initialized__(self):
         if self.w.PREFS_:
             print 'Using preference file:',self.w.PREFS_.fn
-        # Give notify library a reference to the statusbar
-        NOTE.statusbar = self.w.statusBar
-        NOTE.notify('Welcome','This is a test screen for Qtscreen',None,4)
         STATUS.emit('play-alert','SPEAK This is a test screen for Qtscreen')
         # set custom theme
         self.STYLE.dark_style()
@@ -188,8 +184,6 @@ class HandlerClass:
     ###########################
     def closing_cleanup__(self):
         print'CLOSING'
-        STATUS.emit('play-alert','SPEAK Goodbye')
-        #os.system("espeak -s 160 -v mb-us3 -p 1 'Goodbye'")
 
     ##############################
     # required class boiler code #
@@ -344,6 +338,16 @@ background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1
     def dark_style(self):
         bgpath = self.IMAGE_PATH+'/hazzy_bg_black.png'
         self.w.setStyleSheet('''#MainWindow {background: black; }
+QStatusBar {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+padding: 1px;
+border-style: solid;
+border: 2px solid gray;
+border-radius: 8px;
+}
+
 QLineEdit {
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
