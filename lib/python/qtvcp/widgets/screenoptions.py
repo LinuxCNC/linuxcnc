@@ -47,16 +47,20 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.desktop_notify = self.PREFS_.getpref('desktop_notify', True, bool,'SCREEN_OPTIONS')
             self.close_event = self.PREFS_.getpref('shutdown_check', True, bool,'SCREEN_OPTIONS')
             self.play_sounds = self.PREFS_.getpref('sound_player_on', True, bool,'SCREEN_OPTIONS')
-            self.mchnMsg_play_sound = self.PREFS_.getpref('mchnMsg_play_sound', True, bool,'SCREEN_OPTIONS')
-            self.mchnMsg_speak_errors = self.PREFS_.getpref('mchnMsg_speak_errors', True, bool,'SCREEN_OPTIONS')
-            self.mchnMsg_sound_type = self.PREFS_.getpref('mchnMsg_sound_type', 'ERROR', str,'SCREEN_OPTIONS')
-            self.usrMsg_play_sound = self.PREFS_.getpref('usermsg_play_sound', True, bool,'SCREEN_OPTIONS')
-            self.usrMsg_sound_type = self.PREFS_.getpref('userMsg_sound_type', 'RING', str,'SCREEN_OPTIONS')
-            self.usrMsg_use_FocusOverlay = self.PREFS_.getpref('userMsg_use_focusOverlay', True, bool,'SCREEN_OPTIONS')
-            self.shutdown_play_sound = self.PREFS_.getpref('shutdown_play_sound', True, bool,'SCREEN_OPTIONS')
-            self.shutdown_alert_sound_type = self.PREFS_.getpref('shutdown_alert_sound_type', 'ATTENTION', str,'SCREEN_OPTIONS')
-            self.shutdown_exit_sound_type = self.PREFS_.getpref('shutdown_exit_sound_type', 'LOGOUT', str,'SCREEN_OPTIONS')
-
+            self.mchnMsg_play_sound = self.PREFS_.getpref('mchnMsg_play_sound', True, bool,'MCH_MSG_OPTIONS')
+            self.mchnMsg_speak_errors = self.PREFS_.getpref('mchnMsg_speak_errors', True, bool,'MCH_MSG_OPTIONS')
+            self.mchnMsg_sound_type = self.PREFS_.getpref('mchnMsg_sound_type', 'ERROR', str,'MCH_MSG_OPTIONS')
+            self.usrMsg_play_sound = self.PREFS_.getpref('usermsg_play_sound', True, bool,'USR_MSG_OPTIONS')
+            self.usrMsg_sound_type = self.PREFS_.getpref('userMsg_sound_type', 'RING', str,'USR_MSG_OPTIONS')
+            self.usrMsg_use_FocusOverlay = self.PREFS_.getpref('userMsg_use_focusOverlay', True, bool,'USR_MSG_OPTIONS')
+            self.shutdown_play_sound = self.PREFS_.getpref('shutdown_play_sound', True, bool,'SHUTDOWN_OPTIONS')
+            self.shutdown_alert_sound_type = self.PREFS_.getpref('shutdown_alert_sound_type', 'ATTENTION', str,'SHUTDOWN_OPTIONS')
+            self.shutdown_exit_sound_type = self.PREFS_.getpref('shutdown_exit_sound_type', 'LOGOUT', str,'SHUTDOWN_OPTIONS')
+            self.shutdown_msg_title = self.PREFS_.getpref('shutdown_msg_title', 'Do you want to Shutdown now?', str,'SHUTDOWN_OPTIONS')
+            self.shutdown_msg_detail = self.PREFS_.getpref('shutdown_msg_detail', 'This option can be changed in the preference file', str,'SHUTDOWN_OPTIONS')
+            self.notify_start_title = self.PREFS_.getpref('notify_start_title', 'Welcome', str,'NOTIFY_OPTIONS')
+            self.notify_start_detail = self.PREFS_.getpref('notify_start_detail', 'This is a test screen for Qtscreen', str,'NOTIFY_OPTIONS')
+            self.notify_start_timeout = self.PREFS_.getpref('notify_start_timeout', 10 , int,'NOTIFY_OPTIONS')
         # connect to STATUS to catch linuxcnc events
         if self.catch_errors:
             STATUS.connect('periodic', self.on_periodic)
@@ -77,6 +81,13 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 MSG.message_option('play_sounds', False)
             MSG.message_option('alert_sound', self.usrMsg_sound_type)
             MSG.message_option('use_focus_overlay', self.usrMsg_use_FocusOverlay)
+        # If there is a widget named statusBar give a reference to desktop notify
+        try:
+            NOTE.statusbar = self.QTVCP_INSTANCE_.statusBar
+        except Exception as e:
+           log.info('Exception adding status to notify:', exc_info=e)
+        if self.desktop_notify:
+            NOTE.notify(self.notify_start_title,self.notify_start_detail,None,self.notify_start_timeout,self.notify_start_timeout)
 
     # This is called early by qt_makegui.py for access to 
     # be able to pass the preference object to ther widgets
@@ -91,13 +102,13 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             kind, text = e
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 if self.desktop_notify:
-                    NOTE.notify('ERROR',text,None,4)
+                    NOTE.notify('ERROR',text,None,0,4)
             elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
                if self.desktop_notify:
-                    NOTE.notify('OP MESSAGE',text,None,4)
+                    NOTE.notify('OP MESSAGE',text,None,0,4)
             elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
                if self.desktop_notify:
-                    NOTE.notify('DISPLAY',text,None,4)
+                    NOTE.notify('DISPLAY',text,None,0,4)
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-alert','%s'% self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
@@ -108,8 +119,8 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.play_sounds and self.play_shutdown_sounds:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.lcnc_dialog.showdialog('Do you want to shutdown now?',
-                None, details='You can set a preference to not see this message',
+            answer = self.QTVCP_INSTANCE_.lcnc_dialog.showdialog(self.shutdown_msg_title,
+                None, details = self.shutdown_msg_detail,
                 icon=MSG.CRITICAL, display_type=MSG.YN_TYPE,focus_text='ARE YOU SURE',
                  focus_color=QtGui.QColor(100, 0, 0,150), play_alert = sound )
             if not answer:

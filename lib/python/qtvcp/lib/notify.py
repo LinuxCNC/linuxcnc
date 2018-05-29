@@ -38,12 +38,13 @@ class Notify:
     # This prints a message in the status bar (if available)
     # the system notifier (if available)
     # adds an entry to the alarm page (if available)
-    def notify(self,title,message,icon="",timeout=2):
+    def notify(self,title,message,icon="",status_timeout=0, timeout=2):
         messageid = None
         try:
-            self.show_status(message, timeout)
+            self.show_status(message, status_timeout)
         except:
             pass
+            print 'no status'
         try:
             self.add_alarm_entry(message)
         except:
@@ -89,8 +90,8 @@ class Notify:
     def show_status(self, message, timeout=4):
         try:
             messageid = self.statusbar.showMessage(message, timeout * 1000)
-        except:
-            pass
+        except Exception as e:
+            log.warning('Error adding msg to  statusbar:', exc_info=e)
 
     def add_alarm_entry(self, message):
         try:
