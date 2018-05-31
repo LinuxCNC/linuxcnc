@@ -11,7 +11,10 @@ from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
         QWidget)
-from PyQt5.QtOpenGL import QGLWidget
+try:
+    from PyQt5.QtOpenGL import QGLWidget
+except ImportError:
+    log.critical("Qtvcp error with qt5_graphics - is package python-pyqt5.qtopengl installed?")
 
 LIB_GOOD = True
 try:
