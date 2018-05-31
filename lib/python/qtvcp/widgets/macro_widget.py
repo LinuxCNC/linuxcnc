@@ -5,7 +5,7 @@ log = logger.getLogger(__name__)
 try:
     from PyQt5 import QtSvg
 except:
-    log.critical("Qtvcp error with macro_widget - is package python-pyqt.qt5svg installed?")
+    log.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
