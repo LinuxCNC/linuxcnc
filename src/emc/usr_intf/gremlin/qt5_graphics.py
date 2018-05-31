@@ -3,6 +3,10 @@
 import sys
 import math
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+
 from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
