@@ -538,77 +538,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>570</y>
-      <width>72</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Flood&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>600</y>
-      <width>72</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Mist&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>520</y>
-      <width>111</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Block Delete&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>550</y>
-      <width>111</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Single Block&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>580</y>
-      <width>111</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Optional Stop&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
@@ -620,19 +549,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     </property>
     <property name="text">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Homing Requied&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="Lcnc_Led" name="lcnc_led_7">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>550</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="diameter">
-     <number>10</number>
     </property>
    </widget>
    <widget class="QLabel" name="label_13">
@@ -1035,7 +951,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <x>120</x>
       <y>570</y>
       <width>31</width>
-      <height>20</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="diameter">
@@ -1055,9 +971,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>600</y>
+      <y>610</y>
       <width>31</width>
-      <height>20</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="diameter">
@@ -2256,10 +2172,10 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_30">
+    <widget class="Lcnc_ActionButton" name="actionbutton_override_limits">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>150</x>
        <y>30</y>
        <width>101</width>
        <height>27</height>
@@ -2347,6 +2263,106 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="Lcnc_ActionButton" name="actionbutton_flood">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>71</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Flood</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="flood_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="Lcnc_ActionButton" name="actionbutton_mist">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>150</y>
+       <width>71</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Mist</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="mist_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="Lcnc_ActionButton" name="actionbutton_block_delete">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>60</y>
+       <width>101</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Block Delete</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="block_delete_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="Lcnc_ActionButton" name="actionbutton_optional_stop">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>120</y>
+       <width>101</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Optional Stop</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="block_delete_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="optional_stop_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <zorder>actionbutton_override_limits</zorder>
+    <zorder>lcnc_state_led_9</zorder>
+    <zorder>button_estop</zorder>
+    <zorder>button_machineon</zorder>
+    <zorder>actionbutton_flood</zorder>
+    <zorder>actionbutton_mist</zorder>
+    <zorder>actionbutton_block_delete</zorder>
+    <zorder>label_10</zorder>
+    <zorder>actionbutton_optional_stop</zorder>
    </widget>
    <widget class="QFrame" name="frame_auto_3">
     <property name="geometry">
@@ -2486,7 +2502,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <zorder>label_11</zorder>
    </widget>
    <widget class="QFrame" name="frame_auto_8">
     <property name="geometry">
@@ -2570,13 +2585,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>frame</zorder>
    <zorder>gcodeeditor</zorder>
    <zorder>state_enable_gridLayout</zorder>
-   <zorder>label_6</zorder>
-   <zorder>label_7</zorder>
-   <zorder>label_8</zorder>
-   <zorder>label_9</zorder>
-   <zorder>label_10</zorder>
    <zorder>label_12</zorder>
-   <zorder>lcnc_led_7</zorder>
    <zorder>label_13</zorder>
    <zorder>label_14</zorder>
    <zorder>label_15</zorder>
@@ -2625,7 +2634,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>frame_auto_8</zorder>
    <zorder>focusoverlay</zorder>
    <zorder>gcodes_label</zorder>
-   <zorder>label_11</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
