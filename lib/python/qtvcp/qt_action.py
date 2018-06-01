@@ -146,6 +146,36 @@ class _Lcnc_Action(object):
             else:
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
+    def TOGGLE_FLOOD(self):
+        self.cmd.flood(not(STATUS.stat.flood))
+    def SET_FLOOD_ON(self):
+        self.cmd.flood(1)
+    def SET_FLOOD_OFF(self):
+        self.cmd.flood(0)
+
+    def TOGGLE_MIST(self):
+        self.cmd.mist(not(STATUS.stat.mist))
+    def SET_MIST_ON(self):
+        self.cmd.mist(1)
+    def SET_MIST_OFF(self):
+        self.cmd.mist(0)
+
+    def RELOAD_TOOLTABLE(self):
+        self.cmd.load_tool_table()                
+
+    def TOGGLE_OPTIONAL_STOP(self):
+        self.cmd.set_optional_stop(not(STATUS.stat.optional_stop))
+    def SET_OPTIONAL_STOP_ON(self):
+        self.cmd.set_optional_stop(True)
+    def SET_OPTIONAL_STOP_OFF(self):
+        self.cmd.set_optional_stop(False)
+
+    def TOGGLE_BLOCK_DELETE(self):
+        self.cmd.set_block_delete(not(STATUS.stat.block_delete))
+    def SET_BLOCK_DELETE_ON(self):
+        self.cmd.set_block_delete(True)
+    def SET_BLOCK_DELETE_OFF(self):
+        self.cmd.set_block_delete(False)
 
     ######################################
     # Action Helper functions
