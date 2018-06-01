@@ -73,6 +73,10 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.spindle_up = False
         self.spindle_down = False
         self.limits_override = False
+        self.flood = False
+        self.mist = False
+        self.block_delete = False
+        self.optional_stop = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -207,6 +211,30 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
         elif self.limits_override:
             STATUS.connect('hard-limits-tripped', lambda w, data: self.setEnabled(data))
+        elif self.flood:
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-on', lambda w: self.setEnabled(True))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('flood-changed', lambda w,data: _safecheck(data))
+        elif self.mist:
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-on', lambda w: self.setEnabled(True))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('mist-changed', lambda w,data: _safecheck(data))
+        elif self.block_delete:
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
+            STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
+            STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
+            STATUS.connect('block-delete-changed', lambda w,data: _safecheck(data))
+        elif self.optional_stop:
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
+            STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
+            STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
+            STATUS.connect('optional-stop-changed', lambda w,data: _safecheck(data))
 
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
@@ -319,6 +347,38 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
             ACTION.SET_SPINDLE_SLOWER()
         elif self.limits_override:
             ACTION.SET_LIMITS_OVERRIDE()
+        elif self.flood:
+            if self.isCheckable() is False:
+                ACTION.TOGGLE_FLOOD()
+            else:
+                if state:
+                    ACTION.SET_FLOOD_ON()
+                else:
+                    ACTION.SET_FLOOD_OFF()
+        elif self.mist:
+            if self.isCheckable() is False:
+                ACTION.TOGGLE_MIST()
+            else:
+                if state:
+                    ACTION.SET_MIST_ON()
+                else:
+                    ACTION.SET_MIST_OFF()
+        elif self.optional_stop:
+            if self.isCheckable() is False:
+                ACTION.TOGGLE_OPTIONAL_STOP()
+            else:
+                if state:
+                    ACTION.SET_OPTIONAL_STOP_ON()
+                else:
+                    ACTION.SET_OPTIONAL_STOP_OFF()
+        elif self.block_delete:
+            if self.isCheckable() is False:
+                ACTION.TOGGLE_BLOCK_DELETE()
+            else:
+                if state:
+                    ACTION.SET_BLOCK_DELETE_ON()
+                else:
+                    ACTION.SET_BLOCK_DELETE_OFF()
 
         # defult error case
         else:
@@ -359,7 +419,7 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
                     'camview_dialog','jog_incr','feed_over', 'rapid_over',
                     'spindle_over', 'jog_rate','view_x', 'view_p', 'spindle_fwd',
                     'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
-                    'limits_override')
+                    'limits_override', 'flood', 'mist', 'optional_stop', 'block_delete')
 
         for i in data:
             if not i == picked:
@@ -650,6 +710,43 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_limits_override(self):
         self.limits_override = False
 
+    def set_flood(self, data):
+        self.flood = data
+        if data:
+            self._toggle_properties('flood')
+    def get_flood(self):
+        return self.flood
+    def reset_flood(self):
+        self.flood = False
+
+    def set_mist(self, data):
+        self.mist = data
+        if data:
+            self._toggle_properties('mist')
+    def get_mist(self):
+        return self.mist
+    def reset_mist(self):
+        self.mist = False
+
+    def set_block_delete(self, data):
+        self.block_delete = data
+        if data:
+            self._toggle_properties('block_delete')
+    def get_block_delete(self):
+        return self.block_delete
+    def reset_block_delete(self):
+        self.block_delete = False
+
+    def set_optional_stop(self, data):
+        self.optional_stop = data
+        if data:
+            self._toggle_properties('optional_stop')
+    def get_optional_stop(self):
+        return self.optional_stop
+    def reset_optional_stop(self):
+        self.optional_stop = False
+
+
     # NON BOOL VARIABLES
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -731,6 +828,10 @@ class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
     spindle_down_action = QtCore.pyqtProperty(bool, get_spindle_down, set_spindle_down, reset_spindle_down)
     view_change_action = QtCore.pyqtProperty(bool, get_view_change, set_view_change, reset_view_change)
     limits_override_action = QtCore.pyqtProperty(bool, get_limits_override, set_limits_override, reset_limits_override)
+    flood_action = QtCore.pyqtProperty(bool, get_flood, set_flood, reset_flood)
+    mist_action = QtCore.pyqtProperty(bool, get_mist, set_mist, reset_mist)
+    block_delete_action = QtCore.pyqtProperty(bool, get_block_delete, set_block_delete, reset_block_delete)
+    optional_stop_action = QtCore.pyqtProperty(bool, get_optional_stop, set_optional_stop, reset_optional_stop)
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
