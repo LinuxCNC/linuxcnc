@@ -21,6 +21,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         self._textTemplate = '%s'
         self._alt_textTemplate = 'None'
         self._actual_RPM = 0
+        self._diameter = 1
 
         self.feed_override = True
         self.rapid_override = False
@@ -32,13 +33,16 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         self.current_feedunit = False
         self.requested_spindle_speed = False
         self.actual_spindle_speed = False
+        self.actual_surface_speed = False
         self.user_system = False
         self.gcodes = False
         self.mcodes = False
+        self.tool_diameter = False
 
     def _hal_init(self):
         def _f(data):
             self._set_text(data)
+
         if self.feed_override:
             STATUS.connect('feed-override-changed', lambda w,data: _f(data))
         elif self.rapid_override:
@@ -57,7 +61,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         elif self.current_feedunit:
             STATUS.connect('current-feed-rate', self._set_feedunit_text)
             STATUS.connect('metric-mode-changed',self._switch_units)
-            STATUS.connect('actual-spindle-speed-changed', self._actual_rpm)
+            STATUS.connect('actual-spindle-speed-changed', self._set_actual_rpm)
         elif self.requested_spindle_speed:
             STATUS.connect('requested-spindle-speed-changed', lambda w,data: _f(data))
         elif self.actual_spindle_speed:
@@ -68,9 +72,18 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('g-code-changed', lambda w,data: _f(data))
         elif self.mcodes:
             STATUS.connect('m-code-changed', lambda w,data: _f(data))
+        elif self.tool_diameter:
+            STATUS.connect('tool-info-changed', lambda w,data: self._tool_info(data,'diameter'))
+        elif self.actual_surface_speed:
+            STATUS.connect('tool-info-changed', lambda w,data: self._ss_tool_diam(data))
+            STATUS.connect('actual-spindle-speed-changed', lambda w,data: self._ss_spindle_speed(data))
+            STATUS.connect('metric-mode-changed',self._switch_units)
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s
+            self.setText(tmpl(data))
+    def _set_alt_text(self, data):
+            tmpl = lambda s: str(self._alt_textTemplate) % s
             self.setText(tmpl(data))
 
     def _set_feedrate_text(self, widget, data):
@@ -88,7 +101,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
             self.setText('')
             return
 
-    def _actual_rpm(self,w, rpm):
+    def _set_actual_rpm(self,w, rpm):
         self._actual_RPM = rpm
 
     def _set_user_system_text(self, widgets, data):
@@ -100,6 +113,31 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
+
+    def _tool_info(self,data,field):
+        if data.id is not -1:
+            if field == 'diameter':
+                print data.diameter
+                self._set_text(data.diameter)
+                return
+        self._set_text(0)
+
+    def _ss_tool_diam(self,data):
+        if data.id is not -1:
+            self._diameter = data.diameter
+        else:
+            self._diameter = 1
+        self. _set_surface_speed()
+    def _ss_spindle_speed(self,rpm):
+        self._actual_RPM = rpm
+        self._set_surface_speed()
+    # TODO some sort of metric conversion for tool diameter
+    def _set_surface_speed(self):
+        circ = 3.14 * self._diameter
+        if self.display_units_mm:
+            self._set_alt_text(circ * self._actual_RPM)
+        else:
+            self._set_text(circ * self._actual_RPM)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -113,7 +151,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
         data = ('feed_override','rapid_override','spindle_override','jograte',
                 'jogincr','tool_number','current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
-                'user_system','gcodes','mcodes')
+                'user_system','gcodes','mcodes','tool_diameter','actual_surface_speed')
 
         for i in data:
             if not i == picked:
@@ -272,6 +310,26 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_mcodes(self):
         self.mcodes = False
 
+ # tool_diameter status
+    def set_tool_diameter(self, data):
+        self.tool_diameter = data
+        if data:
+            self._toggle_properties('tool_diameter')
+    def get_tool_diameter(self):
+        return self.tool_diameter
+    def reset_tool_diameter(self):
+        self.tool_diameter = False
+
+ # actual_surface_speed status
+    def set_actual_surface_speed(self, data):
+        self.actual_surface_speed = data
+        if data:
+            self._toggle_properties('actual_surface_speed')
+    def get_actual_surface_speed(self):
+        return self.actual_surface_speed
+    def reset_actual_surface_speed(self):
+        self.actual_surface_speed = False
+
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
@@ -287,6 +345,8 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
+    tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
+    actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed, reset_actual_surface_speed)
 
     # boilder code
     def __getitem__(self, item):
