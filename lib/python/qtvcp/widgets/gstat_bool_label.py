@@ -39,6 +39,22 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
             else:
                 self.setText(self._false_textTemplate)
 
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('metric_mode','css_mode','fpr_mode','diameter_mode',
+                )
+
+        for i in data:
+            if not i == picked:
+                self[i+'_status'] = False
+
 # property getter/setters
 
     def set_true_textTemplate(self, data):
@@ -52,7 +68,6 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
         return self._true_textTemplate
     def reset_true_textTemplate(self):
         self._true_textTemplate = '%s'
-    true_textTemplate = QtCore.pyqtProperty(str, get_true_textTemplate, set_true_textTemplate, reset_true_textTemplate)
 
     def set_false_textTemplate(self, data):
         self._false_textTemplate = data
@@ -64,43 +79,65 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
         return self._false_textTemplate
     def reset_false_textTemplate(self):
         self._false_textTemplate = '%s'
-    false_textTemplate = QtCore.pyqtProperty(str, get_false_textTemplate, set_false_textTemplate, reset_false_textTemplate)
 
     # metric mode status
     def set_metric_mode(self, data):
         self.metric_mode = data
+        if data:
+            self._toggle_properties('metric_mode')
     def get_metric_mode(self):
         return self.metric_mode
     def reset_metric_mode(self):
         self.metric_mode = True
-    metric_mode_status = QtCore.pyqtProperty(bool, get_metric_mode, set_metric_mode, reset_metric_mode)
 
     # css mode status
     def set_css_mode(self, data):
         self.css_mode = data
+        if data:
+            self._toggle_properties('css_mode')
     def get_css_mode(self):
         return self.css_mode
     def reset_css_mode(self):
         self.css_mode = True
-    css_mode_status = QtCore.pyqtProperty(bool, get_css_mode, set_css_mode, reset_css_mode)
 
     # fpr mode status
     def set_fpr_mode(self, data):
         self.fpr_mode = data
+        if data:
+            self._toggle_properties('fpr_modee')
     def get_fpr_mode(self):
         return self.fpr_mode
     def reset_fpr_mode(self):
         self.fpr_mode = True
-    fpr_mode_status = QtCore.pyqtProperty(bool, get_fpr_mode, set_fpr_mode, reset_fpr_mode)
 
     # diameter mode status
     def set_diameter_mode(self, data):
         self.diameter_mode = data
+        if data:
+            self._toggle_properties('diameter_mode')
     def get_diameter_mode(self):
         return self.diameter_mode
     def reset_diameter_mode(self):
         self.diameter_mode = True
+
+
+    # designer will show these properties in this order:
+    # BOOL
+    metric_mode_status = QtCore.pyqtProperty(bool, get_metric_mode, set_metric_mode, reset_metric_mode)
+    css_mode_status = QtCore.pyqtProperty(bool, get_css_mode, set_css_mode, reset_css_mode)
+    fpr_mode_status = QtCore.pyqtProperty(bool, get_fpr_mode, set_fpr_mode, reset_fpr_mode)
     diameter_mode_status = QtCore.pyqtProperty(bool, get_diameter_mode, set_diameter_mode, reset_diameter_mode)
+
+    # Non BOOL 
+    true_textTemplate = QtCore.pyqtProperty(str, get_true_textTemplate, set_true_textTemplate, reset_true_textTemplate)
+    false_textTemplate = QtCore.pyqtProperty(str, get_false_textTemplate, set_false_textTemplate, reset_false_textTemplate)
+
+    # boilder code
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 
 if __name__ == "__main__":
 

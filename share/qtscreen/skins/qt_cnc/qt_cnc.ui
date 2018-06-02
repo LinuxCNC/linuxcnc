@@ -309,17 +309,17 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <property name="text">
       <string/>
      </property>
-     <property name="true_textTemplate" stdset="0">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;DIAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="false_textTemplate" stdset="0">
-      <string/>
-     </property>
      <property name="metric_mode_status" stdset="0">
       <bool>false</bool>
      </property>
      <property name="diameter_mode_status" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="true_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;DIAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="false_textTemplate" stdset="0">
+      <string/>
      </property>
     </widget>
     <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_9">
@@ -2212,6 +2212,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="is_block_delete_status" stdset="0">
       <bool>false</bool>
      </property>
+     <property name="is_limits_overridden_status" stdset="0">
+      <bool>true</bool>
+     </property>
      <property name="is_limits_overriden_status" stdset="0">
       <bool>true</bool>
      </property>
@@ -2354,15 +2357,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <zorder>actionbutton_override_limits</zorder>
-    <zorder>lcnc_state_led_9</zorder>
-    <zorder>button_estop</zorder>
-    <zorder>button_machineon</zorder>
-    <zorder>actionbutton_flood</zorder>
-    <zorder>actionbutton_mist</zorder>
-    <zorder>actionbutton_block_delete</zorder>
-    <zorder>label_10</zorder>
-    <zorder>actionbutton_optional_stop</zorder>
    </widget>
    <widget class="QFrame" name="frame_auto_3">
     <property name="geometry">
