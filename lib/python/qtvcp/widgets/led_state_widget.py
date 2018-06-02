@@ -29,7 +29,7 @@ class Lcnc_State_Led(Lcnc_Led,):
         self.is_block_delete = False
         self.is_optional_stop = False
         self.is_joint_homed = False
-        self.is_limits_overriden = False
+        self.is_limits_overridden = False
 
         self.joint_number = 0
 
@@ -64,7 +64,7 @@ class Lcnc_State_Led(Lcnc_Led,):
         elif self.is_joint_homed:
             STATUS.connect('homed', lambda w,data: self.joint_homed(data))
             STATUS.connect('not-all-homed', lambda w,data: self.joints_unhomed(data))
-        elif self.is_limits_overriden:
+        elif self.is_limits_overridden:
             STATUS.connect('override-limits-changed', self.check_override_limits)
             STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
 
@@ -88,6 +88,24 @@ class Lcnc_State_Led(Lcnc_Led,):
                 return
         self._flip_state(False)
 
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('is_paused','is_estopped','is_on','is_idle','is_homed',
+                'is_flood','is_mist','is_block_delete','is_optional_stop',
+                'is_joint_homed','is_limits_overridden',
+                )
+
+        for i in data:
+            if not i == picked:
+                self[i+'_status'] = False
+
 # property getter/setters
 
     # invert status
@@ -97,108 +115,116 @@ class Lcnc_State_Led(Lcnc_Led,):
         return self.invert_state
     def reset_invert_state(self):
         self.invert_state = False
-    invert_state_status = pyqtProperty(bool, get_invert_state, set_invert_state, reset_invert_state)
 
     # machine is paused status
     def set_is_paused(self, data):
         self.is_paused = data
+        if data:
+            self._toggle_properties('is_paused')
     def get_is_paused(self):
         return self.is_paused
     def reset_is_paused(self):
         self.is_paused = False
-    is_paused_status = pyqtProperty(bool, get_is_paused, set_is_paused, reset_is_paused)
 
     # machine is estopped status
     def set_is_estopped(self, data):
         self.is_estopped = data
+        if data:
+            self._toggle_properties('is_estopped')
     def get_is_estopped(self):
         return self.is_estopped
     def reset_is_estopped(self):
         self.is_estopped = False
-    is_estopped_status = pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
 
     # machine is on status
     def set_is_on(self, data):
         self.is_on = data
+        if data:
+            self._toggle_properties('is_on')
     def get_is_on(self):
         return self.is_on
     def reset_is_on(self):
         self.is_on = False
-    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
 
     # machine is idle status
     def set_is_idle(self, data):
         self.is_idle = data
-        if (data and self.is_not_idle):
-            self.is_not_idle = False
+        if data:
+            self._toggle_properties('is_idle')
     def get_is_idle(self):
         return self.is_idle
     def reset_is_idle(self):
         self.is_idle = False
-    is_idle_status = pyqtProperty(bool, get_is_idle, set_is_idle, reset_is_idle)
 
     # machine_is_homed status
     def set_is_homed(self, data):
         self.is_homed = data
+        if data:
+            self._toggle_properties('is_homed')
     def get_is_homed(self):
         return self.is_homed
     def reset_is_homed(self):
         self.is_homed = False
-    is_homed_status = pyqtProperty(bool, get_is_homed, set_is_homed, reset_is_homed)
 
     # machine is_flood status
     def set_is_flood(self, data):
         self.is_flood = data
+        if data:
+            self._toggle_properties('is_flood')
     def get_is_flood(self):
         return self.is_flood
     def reset_is_flood(self):
         self.is_flood = False
-    is_flood_status = pyqtProperty(bool, get_is_flood, set_is_flood, reset_is_flood)
 
     # machine is_mist status
     def set_is_mist(self, data):
         self.is_mist = data
+        if data:
+            self._toggle_properties('is_mist')
     def get_is_mist(self):
         return self.is_mist
     def reset_is_mist(self):
         self.is_mist = False
-    is_mist_status = pyqtProperty(bool, get_is_mist, set_is_mist, reset_is_mist)
 
     # machine_is_block_delete status
     def set_is_block_delete(self, data):
         self.is_block_delete = data
+        if data:
+            self._toggle_properties('is_block_delete')
     def get_is_block_delete(self):
         return self.is_block_delete
     def reset_is_block_delete(self):
         self.is_block_delete = False
-    is_block_delete_status = pyqtProperty(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
 
     # machine_is_optional_stop status
     def set_is_optional_stop(self, data):
         self.is_optional_stop = data
+        if data:
+            self._toggle_properties('is_optional_stop')
     def get_is_optional_stop(self):
         return self.is_optional_stop
     def reset_is_optional_stop(self):
         self.is_optional_stop = False
-    is_optional_stop_status = pyqtProperty(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
 
     # machine_is_joint_homed status
     def set_is_joint_homed(self, data):
         self.is_joint_homed = data
+        if data:
+            self._toggle_properties('is_joint_homed')
     def get_is_joint_homed(self):
         return self.is_joint_homed
     def reset_is_joint_homed(self):
         self.is_joint_homed = False
-    is_joint_homed_status = pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
 
-    # machine_is_limits_overriden status
-    def set_is_limits_overriden(self, data):
-        self.is_limits_overriden = data
-    def get_is_limits_overriden(self):
-        return self.is_limits_overriden
-    def reset_is_limits_overriden(self):
-        self.is_limits_overriden = False
-    is_limits_overriden_status = pyqtProperty(bool, get_is_limits_overriden, set_is_limits_overriden, reset_is_limits_overriden)
+    # machine_is_limits_overridden status
+    def set_is_limits_overridden(self, data):
+        self.is_limits_overridden = data
+        if data:
+            self._toggle_properties('is_limits_overridden')
+    def get_is_limits_overridden(self):
+        return self.is_limits_overridden
+    def reset_is_limits_overridden(self):
+        self.is_limits_overridden = False
 
     # Non bool
 
@@ -209,9 +235,30 @@ class Lcnc_State_Led(Lcnc_Led,):
         return self.joint_number
     def reset_joint_number(self):
         self.joint_number = 0
+
+    # designer will show these properties in this order:
+    # BOOL
+    invert_state_status = pyqtProperty(bool, get_invert_state, set_invert_state, reset_invert_state)
+    is_paused_status = pyqtProperty(bool, get_is_paused, set_is_paused, reset_is_paused)
+    is_estopped_status = pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
+    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
+    is_idle_status = pyqtProperty(bool, get_is_idle, set_is_idle, reset_is_idle)
+    is_homed_status = pyqtProperty(bool, get_is_homed, set_is_homed, reset_is_homed)
+    is_flood_status = pyqtProperty(bool, get_is_flood, set_is_flood, reset_is_flood)
+    is_mist_status = pyqtProperty(bool, get_is_mist, set_is_mist, reset_is_mist)
+    is_block_delete_status = pyqtProperty(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
+    is_optional_stop_status = pyqtProperty(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
+    is_joint_homed_status = pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
+    is_limits_overridden_status = pyqtProperty(bool, get_is_limits_overridden, set_is_limits_overridden, reset_is_limits_overridden)
+
+    # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
 
-
+    # boilder code
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 if __name__ == "__main__":
 
