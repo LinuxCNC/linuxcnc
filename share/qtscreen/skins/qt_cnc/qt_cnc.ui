@@ -600,7 +600,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Offset #&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Diameter&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_17">
@@ -790,9 +790,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_4">
     <property name="geometry">
      <rect>
-      <x>780</x>
+      <x>760</x>
       <y>490</y>
-      <width>51</width>
+      <width>71</width>
       <height>41</height>
      </rect>
     </property>
@@ -2398,26 +2398,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
-   <widget class="QFrame" name="frame_auto_5">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>460</y>
-      <width>171</width>
-      <height>221</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-   </widget>
    <widget class="QFrame" name="frame_auto_6">
     <property name="geometry">
      <rect>
@@ -2565,12 +2545,96 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <bool>false</bool>
     </property>
    </widget>
+   <widget class="QFrame" name="frame_auto_5">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>460</y>
+      <width>171</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="Lcnc_Gstat_Label" name="lcnc_gstat_label">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>530</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="tool_diameter_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_10">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>590</y>
+      <width>251</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;200.00&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SFPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%.2f&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SFPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alt_textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%.2f&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SMPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="requested_spindle_speed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="actual_spindle_speed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="actual_surface_speed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <zorder>frame_auto_5</zorder>
+   <zorder>lcnc_state_label_4</zorder>
+   <zorder>lcnc_gstat_label</zorder>
    <zorder>frame_auto_10</zorder>
    <zorder>frame_auto_9</zorder>
    <zorder>frame_auto_6</zorder>
    <zorder>frame_auto_7</zorder>
    <zorder>frame_auto_4</zorder>
-   <zorder>frame_auto_5</zorder>
    <zorder>frame_auto_3</zorder>
    <zorder>frame_auto_2</zorder>
    <zorder>lcnc_drolabel_y</zorder>
@@ -2592,7 +2656,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>lcnc_state_label</zorder>
    <zorder>lcnc_state_label_2</zorder>
    <zorder>lcnc_state_label_3</zorder>
-   <zorder>lcnc_state_label_4</zorder>
    <zorder>lcnc_state_label_5</zorder>
    <zorder>lcnc_state_label_6</zorder>
    <zorder>lcnc_tooldialog</zorder>
@@ -2628,6 +2691,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>frame_auto_8</zorder>
    <zorder>focusoverlay</zorder>
    <zorder>gcodes_label</zorder>
+   <zorder>lcnc_state_label_10</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
