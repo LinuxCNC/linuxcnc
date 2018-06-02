@@ -115,6 +115,7 @@ class _GStat(gobject.GObject):
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'tool-info-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
@@ -287,6 +288,7 @@ class _GStat(gobject.GObject):
             mcodes = mcodes + ("%s "%i)
             #active_mcodes.append("M%s "%i)
         self.old['m-code'] = mcodes
+        self.old['tool-info']  = self.stat.tool_table[0]
 
     def update(self):
         try:
@@ -532,6 +534,10 @@ class _GStat(gobject.GObject):
         m_code_new = self.old['m-code']
         if m_code_new != m_code_old:
             self.emit('m-code-changed',m_code_new)
+        tool_info_old = old.get('tool-info', None)
+        tool_info_new = self.old['tool-info']
+        if tool_info_new != tool_info_old:
+            self.emit('tool-info-changed', tool_info_new)
 
         # AND DONE... Return true to continue timeout
         self.emit('periodic')
@@ -619,6 +625,8 @@ class _GStat(gobject.GObject):
         self.emit('actual-spindle-speed-changed', spindle_spd_new)
         self.emit('jograte-changed', self.current_jog_rate)
         self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)
+        tool_info_new = self.old['tool-info']
+        self.emit('tool-info-changed', tool_info_new)
 
     # ********** Helper function ********************
     def get_position(self):
