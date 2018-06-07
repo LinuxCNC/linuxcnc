@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+# coding=utf-8
 
 import os
 import sys
@@ -539,7 +540,7 @@ class Mklauncher(object):
             for launcher in self.rx.launcher:
                 if not launcher.HasField('index') \
                    or not launcher.HasField('importance'):
-                    self._send_command_wrong_params()
+                    self._send_command_wrong_params(identity)
                     continue
 
                 index = launcher.index

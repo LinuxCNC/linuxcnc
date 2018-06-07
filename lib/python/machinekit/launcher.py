@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import sys
 from time import *
@@ -23,7 +24,7 @@ def check_command(command):
                                shell=True)
     process.wait()
     if process.returncode != 0:
-        print((command + ' not found, check Machinekit installation'))
+        print(command + ' not found, check Machinekit installation')
         sys.exit(1)
 
 
@@ -46,7 +47,7 @@ def cleanup_session():
                 pid = int(line.split(None, 1)[0])
                 pids.append(pid)
 
-    if pids != []:
+    if any(pids):
         stop_realtime()
         sys.stdout.write("cleaning up leftover session... ")
         sys.stdout.flush()
@@ -75,7 +76,7 @@ def start_process(command, check=True, wait=1.0):
     if check:
         sleep(wait)
         process.poll()
-        if (process.returncode is not None):
+        if process.returncode is not None:
             raise subprocess.CalledProcessError(process.returncode, command, None)
     _processes.append(process)
     sys.stdout.write('done\n')
@@ -84,8 +85,8 @@ def start_process(command, check=True, wait=1.0):
 # stops a registered process by its name
 def stop_process(command):
     for process in _processes:
-        processCommand = process.command.split(None, 1)[0]
-        if command == processCommand:
+        process_command = process.command.split(None, 1)[0]
+        if command == process_command:
             sys.stdout.write('stopping ' + command + '... ')
             sys.stdout.flush()
             os.killpg(process.pid, signal.SIGTERM)
@@ -117,8 +118,8 @@ def load_hal_file(filename, ini=None):
         if ini is not None:
             from machinekit import config
             config.load_ini(ini)
-        globals = {}
-        execfile(filename, globals)
+        globals_ = {}
+        execfile(filename, globals_)
     else:
         command = 'halcmd'
         if ini is not None:

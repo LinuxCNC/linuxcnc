@@ -1,150 +1,120 @@
-#!/usr/bin/python2
+"""A setuptools based setup module.
+See:
+https://packaging.python.org/en/latest/distributing.html
+https://github.com/pypa/sampleproject
+"""
 
-from distutils.core import setup
-
-# See README for usage instructions.
-import os
-import subprocess
-import sys
-import shutil
+from os import path
+# Always prefer setuptools over distutils
+from setuptools import setup, find_packages
+# To use a consistent encoding
+from codecs import open
 
 PROJECT = 'machinetalk'
 PROJECT_NAME = '%s-protobuf' % PROJECT
 DESCRIPTION = "Protobuf Python modules for %s" % PROJECT
-VERSION = "v1.0.7"
+VERSION = "1.1.0"
 AUTHOR = "Alexander Roessler"
 AUTHOR_EMAIL = "alex@machinekoder.com"
 PROJECT_URL = 'https://github.com/machinekit/%s' % PROJECT_NAME
 DOWNLOAD_URL = 'https://github.com/machinekit/%s/archive/%s.tar.gz' % (PROJECT_NAME, VERSION)
+KEYWORDS = 'protobuf machinekit motion-control hal'
 
-# We must use setuptools, not distutils, because we need to use the
-# namespace_packages option for the "google" package.
-try:
-  from setuptools import setup, Extension, find_packages
-except ImportError:
-  try:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, Extension, find_packages
-  except ImportError:
-    sys.stderr.write(
-        "Could not import setuptools; make sure you have setuptools or "
-        "ez_setup installed.\n"
-    )
-    raise
+here = path.abspath(path.dirname(__file__))
 
-from distutils.command.clean import clean as _clean
+# Get the long description from the README file
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
-if sys.version_info[0] == 3:
-  # Python 3
-  from distutils.command.build_py import build_py_2to3 as _build_py
-else:
-  # Python 2
-  from distutils.command.build_py import build_py as _build_py
-from distutils.spawn import find_executable
+setup(
+    name=PROJECT_NAME,
 
-# Find the Protocol Compiler.
-if 'PROTOC' in os.environ and os.path.exists(os.environ['PROTOC']):
-  protoc = os.environ['PROTOC']
-elif os.path.exists("./src/protoc"):
-  protoc = "./src/protoc"
-elif os.path.exists("./src/protoc.exe"):
-  protoc = "./src/protoc.exe"
-elif os.path.exists("./vsprojects/Debug/protoc.exe"):
-  protoc = "./vsprojects/Debug/protoc.exe"
-elif os.path.exists("./vsprojects/Release/protoc.exe"):
-  protoc = "./vsprojects/Release/protoc.exe"
-else:
-  protoc = find_executable("protoc")
+    # Versions should comply with PEP440.  For a discussion on single-sourcing
+    # the version across setup.py and the project code, see
+    # https://packaging.python.org/en/latest/single_source_version.html
+    version=VERSION,
 
-google_protobuf_includedir = subprocess.check_output(["pkg-config", "--variable=includedir", "protobuf"]).decode().strip()
+    description=DESCRIPTION,
+    long_description=long_description,
 
-def generate_proto(source, require = True):
-  """Invokes the Protocol Compiler to generate a _pb2.py from the given
-  .proto file.  Does nothing if the output already exists and is newer than
-  the input."""
+    # The project's main homepage.
+    url=PROJECT_URL,
+    download_url=DOWNLOAD_URL,
 
-  if not require and not os.path.exists(source):
-    return
+    # Author details
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
 
-  output = source.replace(".proto", "_pb2.py").replace("./src/", "")
+    # Choose your license
+    license='MIT',
 
-  if (not os.path.exists(output) or
-      (os.path.exists(source) and
-       os.path.getmtime(source) > os.path.getmtime(output))):
-    print("Generating %s..." % output)
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[
+        # How mature is this project? Common values are
+        #   3 - Alpha
+        #   4 - Beta
+        #   5 - Production/Stable
+        'Development Status :: 5 - Production/Stable',
 
-    if not os.path.exists(source):
-      sys.stderr.write("Can't find required file: %s\n" % source)
-      sys.exit(-1)
+        # Indicate who your project is intended for
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Object Brokering',
 
-    if protoc is None:
-      sys.stderr.write(
-          "protoc is not installed nor found in ./src. "
-          "Please compile it or install the binary package.\n"
-      )
-      sys.exit(-1)
+        # Pick your license as you wish (should match "license" above)
+        'License :: OSI Approved :: MIT License',
 
-    protoc_command = [protoc, "-I./src", "-I" + google_protobuf_includedir, "--python_out=.", source]
-    print("Command: %s" % protoc_command)
-    if subprocess.call(protoc_command) != 0:
-      sys.exit(-1)
+        # Specify the Python versions you support here. In particular, ensure
+        # that you indicate whether you support Python 2, Python 3 or both.
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ],
 
-def create_init(path):
-  if not os.path.exists(path):
-    os.mkdir(path)
+    # What does your project relate to?
+    keywords=KEYWORDS,
 
-  initfile = os.path.join(path, '__init__.py')
-  if not os.path.exists(initfile):
-    content = "__import__('pkg_resources').declare_namespace(__name__)\n"
-    with open(initfile, 'w') as f:
-      f.write(content)
+    # You can just specify the packages manually here if your project is
+    # simple. Or you can use find_packages().
+    packages=find_packages(where='python', exclude=['contrib', 'docs', 'tests']),
+    package_dir={'': 'python'},  # Our packages live under src but src is not a package itself
 
-class clean(_clean):
-  def run(self):
-    # delete _init_ files
-    shutil.rmtree(PROJECT)
+    # Alternatively, if you want to distribute just a my_module.py, uncomment
+    # this:
+    #py_modules=["corenlp_protobuf"],
 
-    # Delete generated files in the code tree.
-    for (dirpath, dirnames, filenames) in os.walk("."):
-      for filename in filenames:
-        filepath = os.path.join(dirpath, filename)
-        if filepath.endswith("_pb2.py") or filepath.endswith(".pyc"):
-          os.remove(filepath)
-    # _clean is an old-style class, so super() doesn't work.
-    _clean.run(self)
+    # List run-time dependencies here.  These will be installed by pip when
+    # your project is installed. For an analysis of "install_requires" vs pip's
+    # requirements files see:
+    # https://packaging.python.org/en/latest/requirements.html
+    install_requires=['protobuf'],
 
+    # List additional groups of dependencies here (e.g. development
+    # dependencies). You can install these using the following syntax,
+    # for example:
+    # $ pip install -e .[dev,test]
+    extras_require={
+        'dev': ['check-manifest'],
+        'test': ['coverage'],
+    },
 
-class build_py(_build_py):
-  def run(self):
-    source_path = './src/%s/protobuf/' % PROJECT
+    # If there are data files included in your packages that need to be
+    # installed, specify them here.  If using Python 2.6 or less, then these
+    # have to be included in MANIFEST.in as well.
+    package_data={
+    },
 
-    # Generate necessary .proto file if it doesn't exist.
-    for entry in os.listdir(source_path):
-      filepath = os.path.join(source_path, entry)
-      if os.path.isfile(filepath) and filepath.endswith('.proto'):
-          generate_proto(filepath)
+    # Although 'package_data' is the preferred approach, in some case you may
+    # need to place data files outside of your packages. See:
+    # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
+    # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
+    data_files=[],
 
-    # _build_py is an old-style class, so super() doesn't work.
-    _build_py.run(self)
-
-if __name__ == '__main__':
-      # create __init__ files
-      create_init(PROJECT)
-      create_init(PROJECT + '/protobuf')
-      # start the setup
-      setup(name=PROJECT_NAME,
-            version=VERSION,
-            description=DESCRIPTION,
-            url=PROJECT_URL,
-            download_url=DOWNLOAD_URL,
-            author=AUTHOR,
-            author_email=AUTHOR_EMAIL,
-            namespace_packages=[PROJECT],
-            packages=find_packages(),
-            install_requires=['setuptools', 'protobuf'],
-            cmdclass={
-                'clean': clean,
-                'build_py': build_py,
-            }
-            )
+    # To provide executable scripts, use entry points in preference to the
+    # "scripts" keyword. Entry points provide cross-platform support and allow
+    # pip to create the appropriate form of executable for the target platform.
+    entry_points={
+    },
+)
