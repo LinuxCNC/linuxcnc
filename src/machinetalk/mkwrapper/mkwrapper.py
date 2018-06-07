@@ -17,7 +17,7 @@ import re
 import codecs
 import ConfigParser
 import linuxcnc
-from machinekit import service
+from machinekit import service, hal
 from machinekit import config
 
 from pyftpdlib.authorizers import DummyAuthorizer
@@ -374,6 +374,7 @@ class StatusValues(object):
         self.motion = EmcStatusMotion()
         self.task = EmcStatusTask()
         self.interp = EmcStatusInterp()
+        self.ui = EmcStatusUI()
 
     def clear(self):
         self.io.Clear()
@@ -381,6 +382,7 @@ class StatusValues(object):
         self.motion.Clear()
         self.task.Clear()
         self.interp.Clear()
+        self.ui.Clear()
 
 
 class LinuxCNCWrapper(object):
@@ -421,6 +423,9 @@ class LinuxCNCWrapper(object):
         self.interpSubscribed = False
         self.interpFullUpdate = False
         self.interpFirstrun = True
+        self.uiSubscribed = False
+        self.uiFullUpdate = False
+        self.uiFirstrun = True
         self.statusServiceSubscribed = False
 
         self.textSubscribed = False
@@ -840,6 +845,9 @@ class LinuxCNCWrapper(object):
 
     def update_motion_float(self, prop, value):
         return self.update_proto_float(self.status.motion, self.statusTx.motion, prop, value)
+
+    def update_ui_value(self, prop, value):
+        return self.update_proto_value(self.status.ui, self.statusTx.ui, prop, value)
 
     def update_config(self, stat):
         modified = False
@@ -1412,6 +1420,69 @@ class LinuxCNCWrapper(object):
         elif modified:
             self.send_motion(self.statusTx.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
+    def update_ui(self, _stat):
+        modified = False
+
+        if self.uiFirstrun:
+            self.status.ui.spindle_brake_visible = False
+            self.status.ui.spindle_cw_visible = False
+            self.status.ui.spindle_ccw_visible = False
+            self.status.ui.spindle_stop_visible = False
+            self.status.ui.spindle_plus_visible = False
+            self.status.ui.spindle_minus_visible = False
+            self.status.ui.spindle_override_visible = False
+            self.status.ui.coolant_flood_visible = False
+            self.status.ui.coolant_mist_visible = False
+
+            modified |= self.update_ui_value('spindle_brake_visible', self.get_ui_element_visible(
+                "motion.spindle-brake"
+            ))
+            modified |= self.update_ui_value('spindle_cw_visible', self.get_ui_element_visible(
+                "motion.spindle-forward", "motion.spindle-on", "motion.spindle-speed-out",
+                "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_ccw_visible', self.get_ui_element_visible(
+                "motion.spindle-reverse", "motion.spindle-speed-out", "motion.spindle-speed-out-abs",
+                "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_stop_visible', self.get_ui_element_visible(
+                "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on",
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_plus_visible', self.get_ui_element_visible(
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_minus_visible', self.get_ui_element_visible(
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_override_visible', self.get_ui_element_visible(
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('coolant_flood_visible', self.get_ui_element_visible(
+                "iocontrol.0.coolant-flood"
+            ))
+            modified |= self.update_ui_value('coolant_mist_visible', self.get_ui_element_visible(
+                "iocontrol.0.coolant-mist"
+            ))
+
+        if self.uiFullUpdate:
+            self.add_pparams()
+            self.send_ui(self.status.ui, MT_EMCSTAT_FULL_UPDATE)
+            self.uiFullUpdate = False
+        elif modified:
+            self.send_ui(self.statusTx.ui, MT_EMCSTAT_INCREMENTAL_UPDATE)
+
+    @staticmethod
+    def get_ui_element_visible(*hal_pins):
+        for name in hal_pins:
+            if hal.pins[name].linked:
+                return True
+        return False
+
     def update_status(self, stat):
         self.statusTx.clear()
         if (self.ioSubscribed):
@@ -1424,6 +1495,8 @@ class LinuxCNCWrapper(object):
             self.update_motion(stat)
         if (self.configSubscribed):
             self.update_config(stat)
+        if self.uiSubscribed:
+            self.update_ui(stat)
 
     def update_error(self, error):
         with self.errorNoteLock:
@@ -1465,53 +1538,59 @@ class LinuxCNCWrapper(object):
     def preview_error(self, error, line):
         self.add_error("%s\non line %s" % (error, str(line)))
 
-    def send_config(self, data, type):
+    def send_config(self, data, type_):
         self.txStatus.emc_status_config.MergeFrom(data)
         if self.debug:
             print("sending config message")
-        self.send_status_msg('config', type)
+        self.send_status_msg('config', type_)
 
-    def send_io(self, data, type):
+    def send_io(self, data, type_):
         self.txStatus.emc_status_io.MergeFrom(data)
         if self.debug:
             print("sending io message")
-        self.send_status_msg('io', type)
+        self.send_status_msg('io', type_)
 
-    def send_task(self, data, type):
+    def send_task(self, data, type_):
         self.txStatus.emc_status_task.MergeFrom(data)
         if self.debug:
             print("sending task message")
-        self.send_status_msg('task', type)
+        self.send_status_msg('task', type_)
 
-    def send_motion(self, data, type):
+    def send_motion(self, data, type_):
         self.txStatus.emc_status_motion.MergeFrom(data)
         if self.debug:
             print("sending motion message")
-        self.send_status_msg('motion', type)
+        self.send_status_msg('motion', type_)
 
-    def send_interp(self, data, type):
+    def send_interp(self, data, type_):
         self.txStatus.emc_status_interp.MergeFrom(data)
         if self.debug:
             print("sending interp message")
-        self.send_status_msg('interp', type)
+        self.send_status_msg('interp', type_)
 
-    def send_status_msg(self, topic, type):
+    def send_ui(self, data, type_):
+        self.txStatus.emc_status_ui.MergeFrom(data)
+        if self.debug:
+            print("sending ui message")
+        self.send_status_msg('ui', type_)
+
+    def send_status_msg(self, topic, type_):
         with self.statusLock:
-            self.txStatus.type = type
+            self.txStatus.type = type_
             txBuffer = self.txStatus.SerializeToString()
             self.statusSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
             self.txStatus.Clear()
 
-    def send_error_msg(self, topic, type):
+    def send_error_msg(self, topic, type_):
         with self.errorLock:
-            self.txError.type = type
+            self.txError.type = type_
             txBuffer = self.txError.SerializeToString()
             self.errorSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
             self.txError.Clear()
 
-    def send_command_msg(self, identity, type):
+    def send_command_msg(self, identity, type_):
         with self.commandLock:
-            self.txCommand.type = type
+            self.txCommand.type = type_
             txBuffer = self.txCommand.SerializeToString()
             self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
             self.txCommand.Clear()
@@ -1532,6 +1611,8 @@ class LinuxCNCWrapper(object):
             self.send_status_msg('motion', MT_PING)
         if (self.configSubscribed):
             self.send_status_msg('config', MT_PING)
+        if self.uiSubscribed:
+            self.send_status_msg('ui', MT_PING)
 
     def ping_error(self):
         if self.newErrorSubscription:        # not very clear
@@ -1567,12 +1648,18 @@ class LinuxCNCWrapper(object):
             elif subscription == 'interp':
                 self.interpSubscribed = status
                 self.interpFullUpdate = status
+            elif subscription == 'ui':
+                self.uiSubscribed = status
+                self.uiFullUpdate = status
 
-            self.statusServiceSubscribed = self.motionSubscribed \
-            or self.taskSubscribed \
-            or self.ioSubscribed \
-            or self.configSubscribed \
-            or self.interpSubscribed
+            self.statusServiceSubscribed = (
+                    self.motionSubscribed
+                    or self.taskSubscribed
+                    or self.ioSubscribed
+                    or self.configSubscribed
+                    or self.interpSubscribed
+                    or self.uiSubscribed
+                )
 
             if self.debug:
                 print(("process status called " + subscription + ' ' + str(status)))
