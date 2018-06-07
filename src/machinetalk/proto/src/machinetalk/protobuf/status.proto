@@ -497,3 +497,20 @@ message EmcStatusUserCommand {
     required int32          index = 1;   /// User command index.
     optional string         command = 2; /// User command separated by semicolon. E.g. G1A20;G1A0 Remove Filament.
 }
+
+/**
+ * EMC status user interface message.
+ */
+message EmcStatusUI {
+    option (nanopb_msgopt).msgid = 1117;
+
+    optional bool spindle_brake_visible = 1;     /// Spindle brake control visible
+    optional bool spindle_cw_visible = 2;        /// Spindle CW control visible
+    optional bool spindle_ccw_visible = 3;       /// Spindle CCW control visible
+    optional bool spindle_stop_visible = 4;      /// Spindle stop control visible
+    optional bool spindle_plus_visible = 5;      /// Spindle plus control visible
+    optional bool spindle_minus_visible = 6;     /// Spindle minus control visible
+    optional bool spindle_override_visible = 7;  /// Spindle override control visible
+    optional bool coolant_flood_visible = 8;     /// Coolant flood control visible
+    optional bool coolant_mist_visible = 9;      /// Coolant mist control visible
+}

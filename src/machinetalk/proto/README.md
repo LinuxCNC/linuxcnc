@@ -32,6 +32,7 @@ pip install machinetalk-protobuf
 Alternatively you can install the Python modules directly from the source code.
 
 ```sh
+make
 python setup.py build
 sudo python setup.py install
 ```
