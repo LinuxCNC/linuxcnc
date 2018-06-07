@@ -1,8 +1,6 @@
 #!/usr/bin/python2
 # -*- coding: UTF-8 -*
 import os
-import sys
-from stat import *
 import zmq
 import threading
 import multiprocessing
@@ -28,7 +26,6 @@ from pyftpdlib.servers import FTPServer
 
 from google.protobuf.message import DecodeError
 from machinetalk.protobuf.message_pb2 import Container
-from machinetalk.protobuf.config_pb2 import *
 from machinetalk.protobuf.types_pb2 import *
 from machinetalk.protobuf.status_pb2 import *
 from machinetalk.protobuf.preview_pb2 import *
@@ -48,7 +45,7 @@ def getFreePort():
     return port
 
 
-class CustomFTPHandler(FTPHandler):
+class CustomFTPHandler(object, FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
@@ -138,7 +135,7 @@ class FileService(threading.Thread):
         self.shutdown.set()
 
 
-class PreviewCanonData():
+class PreviewCanonData(object):
     def __init__(self):
         self.tools = []
         self.randomToolchanger = False
@@ -149,7 +146,7 @@ class PreviewCanonData():
         self.linearUnits = 1.0
 
 
-class PreviewCanon():
+class PreviewCanon(object):
     def __init__(self, canon, debug=False):
         self.c = canon
         self.debug = debug
@@ -187,7 +184,7 @@ class PreviewCanon():
 
 # Preview class works concurrently using multiprocessing
 # Queues are used for communication
-class Preview():
+class Preview(object):
     def __init__(self, stat, randomToolchanger=False, parameterFile="", initcode="", debug=False):
         self.debug = debug
         self.filename = ""
@@ -369,7 +366,7 @@ class Preview():
             print("Preview exiting")
 
 
-class StatusValues():
+class StatusValues(object):
 
     def __init__(self):
         self.io = EmcStatusIo()
@@ -386,7 +383,7 @@ class StatusValues():
         self.interp.Clear()
 
 
-class LinuxCNCWrapper():
+class LinuxCNCWrapper(object):
 
     def __init__(self, context, host='', loopback=False,
                 iniFile=None, svcUuid=None,
@@ -580,7 +577,7 @@ class LinuxCNCWrapper():
         poll.register(self.statusSocket, zmq.POLLIN)
         poll.register(self.errorSocket, zmq.POLLIN)
         poll.register(self.commandSocket, zmq.POLLIN)
-    
+
         next_poll = time.time() + self.pollInterval
         polldelay = (self.pollInterval) * 1000 # convert to ms
         while not self.shutdown.is_set():
@@ -591,7 +588,7 @@ class LinuxCNCWrapper():
                 self.process_error(self.errorSocket)
             if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
                 self.process_command(self.commandSocket)
-            
+
             polldelay = (next_poll - time.time()) * 1000 # convert to ms
             if (polldelay > 0):
                 continue
@@ -927,7 +924,7 @@ class LinuxCNCWrapper():
             modified |= self.update_config_value('min_spindle_override', value)
 
             value = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
-            modified |= self.update_config_value('default_spindle_speed', value) 
+            modified |= self.update_config_value('default_spindle_speed', value)
 
             value = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
             modified |= self.update_config_value('default_linear_velocity', value)
@@ -1000,7 +997,7 @@ class LinuxCNCWrapper():
             elif angularUnits in ['rad', 'radian']:
                 angularUnitsConverted = ANGULAR_UNITS_RADIAN
             elif angularUnits in ['grad', 'gon']:
-                angularUnitsConverted = ANGULAR_UNTIS_GRAD
+                angularUnitsConverted = ANGULAR_UNITS_GRAD
             else:
                 angularUnitsConverted = ANGULAR_UNITS_DEGREES
             modified |= self.update_config_value('angular_units', angularUnitsConverted)
@@ -1439,7 +1436,7 @@ class LinuxCNCWrapper():
             return
 
         kind, text = error
-        text = unicode(text, 'utf-8')
+        text = text.encode('utf-8')
         self.txError.note.append(text)
 
         if (kind == linuxcnc.NML_ERROR):
@@ -1913,7 +1910,7 @@ class LinuxCNCWrapper():
                     adaptiveFeed = self.rx.emc_command_params.enable
                     self.command.set_adaptive_feed(adaptiveFeed)
                     if self.rx.HasField('ticket'):
-                        self.wait_complete(identit, self.rx.ticket)
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
