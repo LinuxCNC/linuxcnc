@@ -1830,6 +1830,10 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     // All seems well, handle the pins.
     for (r = 0 ; r < inst->num_remotes ; r++ ) {
         hm2_sserial_remote_t *chan = &inst->remotes[r];
+
+        // Only update this channel's pins if no transfer error
+        if (*inst->data_reg_read & (1 << chan->index)) continue;
+
         bitcount = 0;
         if (chan->reg_0_write) *chan->reg_0_write = 0;
         if (chan->reg_1_write) *chan->reg_1_write = 0;
@@ -1891,7 +1895,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                         }
                         break;
                     default:
-                        HM2_ERR("Unsupported output datatype %i (name: ""%s"")\n",
+                        HM2_ERR("Unsupported output datatype 0x%02X (name: ""%s"")\n",
                                 conf->DataType, conf->NameString);
                         conf->DataType = 0; // Warn once, then ignore
                 }
@@ -2121,7 +2125,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 break;
             }
             default:
-                HM2_ERR_NO_LL("Unsupported input datatype %02X (name: ""%s"")\n",
+                HM2_ERR_NO_LL("Unsupported input datatype 0x%02X (name: ""%s"")\n",
                         conf->DataType, conf->NameString);
 
                 conf->DataType = 0; // Only warn once, then ignore
