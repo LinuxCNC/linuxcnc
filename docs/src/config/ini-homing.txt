@@ -92,9 +92,9 @@ The value must be a positive number.
 
 Can hold the values YES / NO. The default value for this parameter is NO.
 This flag determines whether LinuxCNC will ignore the limit switch input
-for this joint while homing. Setting this to YES will not ignore limit inputs
+for this joint while homing. This setting will not ignore limit inputs
 for other joints. If you do not have a separate home switch set this to YES and
-case connect the limit switch signal to the home switch input in HAL. LinuxCNC
+connect the limit switch signal to the joint home switch input in HAL. LinuxCNC
 will ignore the limit switch input for this joint while homing. To use only
 one input for all homing and limits you will have to block the limit signals
 of the joints not homing in HAL and home one joint at a time.
