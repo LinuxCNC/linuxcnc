@@ -168,7 +168,10 @@ lines while single stepping.
 
 .TP
 \fBmotion.requested\-vel\fR OUT FLOAT 
-The requested velocity with no adjustments for feed override
+The current requested velocity in user units per second.  This value is
+the F-word setting from the G-code file, possibly reduced to accomodate
+machine velocity and acceleration limits. The value on this pin does
+not reflect the feed override or any other adjustments.
 
 .TP
 \fBmotion.spindle\-at\-speed\fR IN BIT 
