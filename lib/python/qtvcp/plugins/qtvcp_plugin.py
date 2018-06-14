@@ -24,7 +24,7 @@ from qtvcp.plugins.ledplugin import LedPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plug import StateEnableGridLayoutPlugin
-from qtvcp.plugins.graphicsplugin import *
+from qtvcp.plugins.graphicsplugin import LcncGraphics5Plugin
 from qtvcp.plugins.lcnc_widgetplugin import *
 from qtvcp.plugins.ledstateplugin import LedStatePlugin
 from qtvcp.plugins.gstat_label_plugin import GstatLabelPlugin
