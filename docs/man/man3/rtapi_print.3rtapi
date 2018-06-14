@@ -15,7 +15,7 @@ rtapi_print, rtapi_print_msg \- print diagnostic messages
 .HP
  void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
 .HP
- rtapi_msg_handler_t \fBrtapi_set_msg_handler\fR(void);
+ rtapi_msg_handler_t \fBrtapi_get_msg_handler\fR(void);
 .SH  ARGUMENTS
 .IP \fIlevel\fR
 A message level: One of \fBRTAPI_MSG_ERR\fR,
