@@ -2,7 +2,7 @@
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.graphics import Graphics
+#from qtvcp.widgets.graphics import Graphics
 from qtvcp.widgets.graphics5 import Lcnc_Graphics5
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
@@ -40,7 +40,7 @@ class LcncGraphics5Plugin(QPyDesignerCustomWidgetPlugin):
         return "qtvcp.widgets.graphics5"
 
 
-
+# GTK gremlin embedded widget
 class GraphicsPlugin(QPyDesignerCustomWidgetPlugin):
 
     # The __init__() method is only used to set up the plugin and define its

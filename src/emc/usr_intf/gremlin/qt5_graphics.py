@@ -3,6 +3,13 @@
 import sys
 import math
 
+import warnings
+# supress 'RuntimeWarning: PyOS_InputHook is not available for interactive'
+# this warning is caused by pyqt owning the Inputhook
+warnings.filterwarnings("ignore")
+import gtk
+warnings.filterwarnings("default")
+
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)

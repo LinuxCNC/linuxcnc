@@ -130,10 +130,9 @@ class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = Graphics()
-    widget.sizeHint(300,300)
+    widget = Lcnc_Graphics5()
     widget.show()
     sys.exit(app.exec_())
