@@ -8,7 +8,7 @@ log = logger.getLogger(__name__)
 
 # localization
 import locale
-log.debug('sys.argv: {}'.format(sys.argv))
+#log.debug('sys.argv: {}'.format(sys.argv))
 #BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 #LOCALEDIR = os.path.join(BASE, "share", "locale")
 #locale.setlocale(locale.LC_ALL, '')
