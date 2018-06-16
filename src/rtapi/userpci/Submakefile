@@ -21,8 +21,12 @@ hostmot2-objs +=			  \
     rtapi/userpci/device.o		  \
     rtapi/userpci/firmware.o		  \
     rtapi/userpci/string.o
-endif
 
+setsserial-objs +=			  \
+    rtapi/userpci/device.o		  \
+    rtapi/userpci/firmware.o		  \
+    rtapi/userpci/string.o
+endif
 
 clean: userpci-clean
 userpci-clean:
