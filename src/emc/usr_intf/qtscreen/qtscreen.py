@@ -40,6 +40,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-t', dest='theme', default="", help="Set QT style. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
+          , Option( '--push_xid', action='store_true', dest='push_XID'
+                  , help="reparent window into a plug add push the plug xid number to standardout")
           , Option( '-u', dest='usermod', default="", help='file path of user defined handler file')
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
                   , help='pass USEROPTs to Python modules')
@@ -251,7 +253,7 @@ class QTscreen:
         log.debug('Set HAL ready')
         self.halcomp.ready()
 
-        # embed window in another program
+        # embed an external program into us
         if opts.parent:
             log.critical('Xembed Option not available yet')
             print opts.parent
@@ -261,6 +263,12 @@ class QTscreen:
             print forward
             #if forward:
                 #xembed.keyboard_forward(window, forward)
+
+        # push the window id for embedment into an external program
+        if opts.push_XID:
+            wid = int(window.winId())
+            print >> sys.stdout,wid
+            sys.stdout.flush()
 
         # for window resize and or position options
         if "+" in opts.geometry:
