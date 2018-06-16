@@ -18,7 +18,11 @@
 //
 //    The code in this file is based on UFLBP.PAS by Peter C. Wallace.  
 
-#include <linux/firmware.h>
+#include "config_module.h"
+#include RTAPI_INC_SLAB_H
+#include RTAPI_INC_CTYPE_H
+#include RTAPI_INC_STRING_H
+
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
@@ -34,8 +38,6 @@ MODULE_LICENSE("GPL");
 
 static char *cmd;
 RTAPI_MP_STRING(cmd, "smart-serial setting commands");
-
-char **cmd_list;
 
 hostmot2_t *hm2;
 hm2_sserial_remote_t *remote;
@@ -421,6 +423,7 @@ fail0:
 int rtapi_app_main(void)
 {
     int cnt;
+    char **cmd_list;
     
     comp_id = hal_init("setsserial");
     hal_ready(comp_id);
