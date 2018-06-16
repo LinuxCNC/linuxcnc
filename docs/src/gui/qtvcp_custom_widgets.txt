@@ -1,16 +1,17 @@
-== QTvcp Building Custom Widgets
+= QTvcp Building Custom Widgets
 
-Builing custom widgets allows one to use the Qt Designer editor to place +
-a custom widget rather then doing it in a handler file. + 
+Building custom widgets allows one to use the Qt Designer editor to place +
+a custom widget rather then doing it manually in a handler file. +
+A useful custom widgets would be a great way to contribute back to linuxcnc. +
 
-=== Widgets
+== Widgets
 
 Widget is the general name for the UI objects such as buttons and labels in pyQT. +
 There are also special widgets made for linuxcnc that make integration easier. +
 This widgets can be placed with qt Designer editor - allowing one to see the result +
 before actually loading the panel in linuxcnc. +
 
-=== Designer
+== Designer
 Qt Designer is a What You See is What You Get editor for placing pyQT widgets. +
 It's orginal intend was for builting the graphic widgets for programs. +
 We leverage it to build screens and panels for linuxcnc. +
@@ -18,10 +19,10 @@ In Qt Designer linuxcnc widgets are split in three heading on the left side of t
 One is for HAL only widgets. +
 One is for Linuxcnc controller widgets +
 And one is for dialog widgets. +
-+
+ +
 For Designer to add custom widgets to it's editor it must have a plugin added to the right folder. +
 
-==== Custom Hal Widgets
+=== Custom Hal Widgets
 Hal widgets are the simplest to show example of. +
 qtvcp/widgets/simple_widgets.py holds many HAL only widgets. +
 Lets look at a snippet of simple_widgets.py. +
@@ -33,32 +34,34 @@ Lets look at a snippet of simple_widgets.py. +
 ###############################
 # Imports
 ###############################
-from PyQt4 import QtGui
+from PyQt5 import QtWidgets
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase, _HalSensitiveBase
 import hal
 
 ######################
 # WIDGET
 ######################
 
-class Lcnc_GridLayout(QtGui.QWidget, _HalSensitiveBase):
+class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent = None):
-        QtGui.QGridLayout.__init__(self, parent)
+        QtWidgets.QGridLayout.__init__(self, parent)
 ----
 
-==== In the 'Imports' section
+=== In the 'Imports' section
 
 This is where we import libraries that our widget class needs. +
-In this case we need access to pyqt's GUI library and linuxcnc's hal library +
+In this case we need access to pyqt's QtWidgets library, linuxcnc's hal library +
+and qtvcp's widget baseclass _HalSensitiveBase for automatic HAL pin setup. +
 
  +
-==== In the 'WIDGETS' section
+=== In the 'WIDGETS' section
 Ok here is our custom widget based on pyQT's QGridLaayout widget. +
 grid layot allows one to place objects in a grid fashion. +
 But this grid_layout also will enable and disable all widgets inside it +
 based on the state of a HAL pin. +
 Line by Line: +
  +
-' class Lcnc_GridLayout(QtGui.QWidget, _HalSensitiveBase):' +
+' class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):' +
  +
 This defines the class name and the libraries in inherits from. +
 this class named Lcnc_GridLayout inheriets the functions of QWidget and _HalSensitiveBase. +
@@ -70,11 +73,11 @@ It adds the function to make the widget be enabled or disabled based on a HAL in
  +
 This is the function called when the widget is first made (said instantiated)- this is pretty standard. +
  +
-'        QtGui.QGridLayout.__init__(self, parent)' +
+'        QtWidgets.QGridLayout.__init__(self, parent)' +
  +
 This function intializes the pyQT's gridlayout widget pretty standard other the the pyQT widget name will change +
 
-==== Custom Controller Widgets
+=== Custom Controller Widgets
 Widget that interact with linuxcnc's controller are only a little more complicated +
 they require some extra libraries. +
 In this cut down example we will add properties that can be changed in Designer. +
@@ -86,7 +89,7 @@ In this cut down example we will add properties that can be changed in Designer.
 ###############################
 # Imports
 ###############################
-from PyQt4.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.ledwidget import Lcnc_Led
 from qtvcp.core import Status
 
@@ -156,24 +159,29 @@ class Lcnc_State_Led(Lcnc_Led,):
     is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
 ----
 
-==== In the 'Imports' section
+=== In the 'Imports' section
 
 This is where we import libraries that our widget class needs. +
 We import pyqtProperty so we can interact with the Designer editor. +
 we import lcnc_led because our custom widget is based on it. +
 We import Status because it gives us status messages fron linuxcnc. +
 
-==== In the ' instantiate libraries' section
+=== In the ' instantiate libraries' section
 Typically we instantiated the libraries outside of the widget class so that the +
 reference to it is global - meaning you don't need to use self. in front of it. +
 By convention we use all capital letters in the name. +
 
-==== In the 'custom widget class definition' section
+=== In the 'custom widget class definition' section
 This is the meat and potatoes of our custom widget. +
 ----
 class Lcnc_State_Led(Lcnc_Led):
     def __init__(self, parent=None):
         super(Lcnc_State_Led, self).__init__(parent)
+        self.has_hal_pins = False
+        self.setState(False)
+        self.is_estopped = False
+        self.is_on = False
+        self.invert_state = False
 ----
 This defines the name of our custom widget and what other class it inherits from, in this case +
 we inherit Lcnc_Led - a Qtvcp widget that represents a status light. +
@@ -201,11 +209,12 @@ definition (class Lcnc_State_Led(Lcnc_Led):) - it's called because Lcnc_Led inhe
  +
 in this function you have access to some extra information. (though we don't use them in this example) +
 ----
-        self.hal = the HAL component instance
-        self.hal_name = This widgets name as a string
+        self.HAL_GCOMP = the HAL component instance
+        self.HAL_NAME = This widgets name as a string
         self.QT_OBJECT_ = This widgets pyQt object instance
         self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
         self.PATHS_ = The instance of Qtvcp's path library
+        self.PREFS_ = the isnstance of an optional preference file
 ----
 We could use this information to create HAL pins or look up image paths etc. +
 ----
@@ -239,17 +248,17 @@ in which the widget and any data must be accepted by the function. +
 This is the function that actually flips the state of the LED. +
 It is what gets called when the appropriate STATUS message is accepted. +
 
-====  Designer properties setter/getters/resetters
+===  Designer properties setter/getters/resetters
 This is how Designer sets the attributes of the widget. +
 thes can also be called directly in the widget. +
 
-==== Designer properties
+=== Designer properties
 This is the registering of properties in Designer. +
 The property name is the text that is used in Designer. +
 These property names cannot be the same as the attributes they represent. +
 These properties show in Designer in the order they appear here. +
 
-=== Widget Plugins
+== Widget Plugins
 We must register our custom widget for Designer to use them. +
 Here is a typical sample +
 It would need to be added to qtvcp/plugins/ +
@@ -259,8 +268,8 @@ to import it. +
 ----
 #!/usr/bin/env python
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.simple_widgets import Lcnc_GridLayout
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()

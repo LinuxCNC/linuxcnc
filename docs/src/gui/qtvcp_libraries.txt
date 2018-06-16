@@ -1,9 +1,9 @@
-== Libraries modules
+= QTvcp Libraries modules
 
 libraries are prebuilt python modules that give added features to QTvcp. +
 In this way you can select what features you want - yet don't have to build common ones yourself. +
 
-=== STATUS
+== STATUS
 
 STATUS is a library that sends GObject messages based on linuxcnc's current state. +
 It is an extension of gladevcp's GStat object. +
@@ -31,7 +31,7 @@ place these commands into the INITIALIZE section: +
 In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
 When linuxcnc is in machine off state the function self.on_state_off will be called. +
 
-=== INFO
+== INFO
 
 IINFO is a library to collect and filters data from the INI file. +
 
@@ -92,7 +92,7 @@ To instantiate the module so you can use it in a handler file add this python co
 ----
 INFO = Info()
 ----
-To access INFO data use this general syntax  +
+To access INFO data use this general syntax: +
 [source,python]
 ----
 home_state = INFO.NO_HOME_REQUIRED
@@ -100,10 +100,10 @@ if INFO.MACHINE_IS_METRIC is True:
     print 'Metric based'
 ----
 
-=== Lcnc_Action
+=== Action
 
 This library is used to command linuxcnc's motion controller. +
-It tries to hide incidental details and add convenience methods to developers. +
+It tries to hide incidental details and add convenience methods for developers. +
 
 To import this modules add this python code to your import section: +
 [source,python]
@@ -125,7 +125,7 @@ ACTION.RUN()
 ACTION.DO_JOG(joint_number, direction)
 ----
 
-=== aux_program_loader
+== aux_program_loader
 
 This module allows an easy way to load auxiliary programs linuxcnc often uses. +
 To import this modules add this python code to your import section: +
@@ -136,25 +136,26 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 To instantiate the module so you can use it add this python code to your instantiated section: +
 [source,python]
 ----
-AUX_PRGM = Aux_program_loader() +
+AUX_PRGM = Aux_program_loader()
 ----
 
-==== HALmeter
+=== HALmeter
 
 ----
     Halmeter is used to display one HAL pin data.
-    load a halmeter with AUX_PRGM.load_halmeter()
+    load a halmeter with:
+AUX_PRGM.load_halmeter()
 ----
 
-==== classicladder user program
+=== classicladder user program
 
 Todo
 
-==== linuxcnc status program
+=== linuxcnc status program
 
 Todo
 
-==== HALshow configure display program
+=== HALshow configure display program
 
 Todo
 
@@ -162,44 +163,44 @@ Todo
 
 Todo
 
-==== tooledit program
+=== tooledit program
 
 Todo
 
-==== calibration
+=== calibration
 
 Todo
 
-==== onboard/matchbox keyboard
+=== onboard/matchbox keyboard
 
 Todo
 
-=== Keybindings
+== Keybindings
 
-This module is used to allow each keypress to control a behavior such as jogging.
-It's used inside the handler file to facilitate keyboard jogging etc.+
+This module is used to allow each keypress to control a behavior such as jogging. +
+It's used inside the handler file to facilitate keyboard jogging etc. +
 
-=== Messages
+== Messages
 
-This modules is used to display pop up dialog messages on the screen.+
-These are defined in the INI file and controlled by HAL pins.+
-'Boldtext' is generally a title.
-'text' is below that and usually longer.+
-'Detail' is hidden unless clicked on.+
-'pinname' is the basename of the HAL pins.+
-'type' specifies whether its a yes/no, ok, or status message.+
-Status messages will be shown in the status bar and the notify dialog.+
-it requires no user intervention.+
-ok messages require the user to click ok to close the dialog.+
+This modules is used to display pop up dialog messages on the screen. +
+These are defined in the INI file and controlled by HAL pins. +
+'Boldtext' is generally a title. +
+'text' is below that and usually longer. +
+'Detail' is hidden unless clicked on. +
+'pinname' is the basename of the HAL pins. +
+'type' specifies whether its a yes/no, ok, or status message. +
+Status messages will be shown in the status bar and the notify dialog. +
+it requires no user intervention. +
+ok messages require the user to click ok to close the dialog. +
 ok messages have one HAL pin to launch the dialog and one to signify it's waiting 
-for response.+
-yes/no messages require the user to select yes or no buttons to close the dialog.+
-yes/no messages have three hal pins - one to show the dialog, one for waiting,+
-and one for the answer.+
-By default it will send STATUS messages for focus_overlay anf alert sound.+
-These will silently fail if those options are not set up.+
+for response. +
+yes/no messages require the user to select yes or no buttons to close the dialog. +
+yes/no messages have three hal pins - one to show the dialog, one for waiting, +
+and one for the answer. +
+By default it will send STATUS messages for focus_overlay anf alert sound. +
+These will silently fail if those options are not set up. +
 
-Here is a sample INI code. It would be under the [DISPLAY] heading.+
+Here is a sample INI code. It would be under the [DISPLAY] heading. +
 
 [source,{ini}]
 ----
@@ -225,50 +226,54 @@ MESSAGE_DETAILS = BOTH DETAILS
 MESSAGE_TYPE = okdialog status
 MESSAGE_PINNAME = bothtest
 ----
-The screenoptions widget can automatically set up the message system.+
-=== notify
+The screenoptions widget can automatically set up the message system. +
 
-This module is used to send messages that are integrated into the desktop.+
-it uses the pynotify library.+
+== notify
 
-Ubuntu does not follow the standard - you can't set how long the message stays up for.+
-I suggest fixing this with a PPA off the net+
- https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid+
+This module is used to send messages that are integrated into the desktop. +
+it uses the pynotify library. +
+
+Ubuntu/Mint does not follow the standard - you can't set how long the message stays up for. +
+I suggest fixing this with a PPA off the net +
+ https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid +
 
 you can set the title, message, icon, and timeout.+
-Notify keeps a list of all the alarm messages since starting in self.alarmpage .+
-If you click 'show all messages' in the notify popup, it will print then to the terminal.+
+Notify keeps a list of all the alarm messages since starting in self.alarmpage. +
+If you click 'show all messages' in the notify popup, it will print then to the terminal. +
+ +
+The screenoptions widget can automatically set up the notify system. +
 
-The screenoptions widget can automatically set up the notify system.+
+== preferences
 
-=== preferences
+This module allows one to load and save preference data permanently to storage media. +
+ +
+The screenoptions widget can automatically set up the preference system. +
+qtvcp searches for the screenoption widget first and if found calls _pref_init(). +
+This will create the preference object and return it to qtvcp to pass to all the widgets and +
+add it to the window object attributes. In this case the preferences object would be accesable + 
+from the handler file's initialized_ method as self.w.PREFS_ +
+Also all widgets can have access to a specific preference file at initialization time. +
+ +
+The screenoptions widget can automatically set up the preference file. +
 
-This module allows one to load and save preference data permanently to storage media.+
-+
-The screenoptions widget can automatically set up the preference system.+
-qtvcp searches for the screenoption widget first and if found calls _pref_init().+
-This will create the preference object and return it to qtvcp to pass to all the widgets and
- add it to the window object attributes. In this case the preferences object would be accesable 
-from the handler file's initialized_ method as self.w.PREFS_+
-Also all widgets can have access to a specific preference file at initialization time.+
+== audio player
 
-=== audio player
-
-This module allows playing non-blocking sounds using gstreamer.+
+This module allows playing non-blocking sounds using gstreamer. +
 It can play sounds using the beep library (currently blocks while beeping) +
-It can speak using the espeak library (currently blocks while speaking) +
+It can speak using the espeak library (non blocks while speaking) +
 There are default alert sounds using Mint or freedesktop default sounds.+
-You can play arbitrary sounds or even songs by specifying the path.+
-STATUS has messages to control this module.+
-The screenoptions widget can automatically set up the audio system.+
-To import this modules add this python code to your import section: +
+You can play arbitrary sounds or even songs by specifying the path. +
+STATUS has messages to control this module. +
+The screenoptions widget can automatically set up the audio system. +
+Or to import this modules manually add this python code to your import section: +
 [source,python]
 ----
 from qtvcp.lib.audio_player import Player
 ----
 To instantiate the module so you can use it add this python code to your instantiated section: +
-_resister_messages() function searches for default sounds on the system, if there are none, you +
-can specify then directly +
+_resister_messages() function connects the audio player to the STATUS library for sounds can be played +
+with the STATUS message system. +
+
 [source,python]
 ----
 SOUND = Player()
@@ -307,7 +312,7 @@ BEEP_START
 BEEP
 ----
 
-=== virtual keyboard
+== virtual keyboard
 
-This library allows you to use STATUS messages to launch a virtual keyboard.+
-It uses onboard or matchbox library for the keyboard.+
+This library allows you to use STATUS messages to launch a virtual keyboard. +
+It uses onboard or matchbox library for the keyboard. +

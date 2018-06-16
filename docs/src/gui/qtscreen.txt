@@ -2,8 +2,6 @@
 
 = QTscreen
 
-== Intro
-
 QTscreen is an infrastructure to display a custom screen or VCP panel in LinuxCNC. +
 It displays a UI file built with the QTDesigner screen editor or combines this +
 with python programming to create a GUI screen for running a CNC machine. +
@@ -12,7 +10,30 @@ QTscreen is customizable - you can add different buttons and status LEDs etc. +
 .QT_cnc - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
 
-=== INI Settings
+= QTvcp Widgets
+
+Qtscreen uses QTvcp widgets for linuxcnc integration.
+Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
+You are free to use any available widgets in the QTDesigner editor. +
+There are also special widgets made for linuxcnc that make integration easier. +
+This are split in three heading on the left side of the editor. +
+One is for HAL only widgets. +
+One is for cnc control widgets. +
+One is for dialog widgets. +
+you are free to mix them in any way on your panel. +
+A very important widget is the screenoptions widget. It does not add anything visually to the screen. +
+But allows important details to be selected rather then be coded in the handler file. +
+
+= Overview
+
+There are two files that can be used, individually or in combination to add +
+customization. Normally QTscreen uses the stock UI and handler file. +
+You can specify QTscreen to use 'local' UI and handler files. +
+One is not restricted to adding a custom panel on the right or a custom tab. +
+QTscreen leverages 'QT Designer' (the editor) and 'PyQT5' (the widget toolkit). +
+QTvcp has some special widgets and actions added just for LinuxCNC. +
+
+== INI Settings
 
 If you are using this to make a CNC control screen: +
 Under the [DISPLAY] heading:
@@ -34,23 +55,15 @@ QTscreen assumes the UI file and the handler file use this same base name. +
 QTscreen will search the LinuxCNC configuration file that was launched first for the files,  +
 then in the system skin folder. the skin folders holds standard screens. +
 
-== Overview
 
-There are two files that can be used, individually or in combination to add +
-customization. Normally QTscreen uses the stock UI and handler file. +
-You can specify QTscreen to use 'local' UI and handler files. +
-One is not restricted to adding a custom panel on the right or a custom tab. +
-QTscreen leverages 'QT Designer' (the editor) and 'PyQT4' (the widget toolkit). +
-QTvcp has some special widgets and actions added just for LinuxCNC. +
-
-=== QTDesigner UI File
+== QTDesigner UI File
 
 A designer file is a text file organized in the XML standard that describes the +
-layout and the widgets of the screen. Pyqt4 uses this file to build the display +
+layout and the widgets of the screen. Pyqt5 uses this file to build the display +
 and react to those widgets. The QTDesigner editor makes it relatively easy to build +
 and edit this file. +
 
-=== Handler Files
+== Handler Files
 
 A handler file is a file containing python code, which QTscreen adds to it's +
 default routines. A handler file allows one to modify defaults, or add logic +
@@ -67,7 +80,8 @@ It's broken up in sections for ease of discussion. +
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt4 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status
 import linuxcnc
@@ -118,18 +132,29 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if self.w.mdi_line == receiver and code not in(16777216,16777264,16777216):
-            if is_pressed:
-                self.w.mdi_line.keyPressEvent(event)
-                event.accept()
-            return True
+        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+            if isinstance(receiver, OFFVIEW_WIDGET) or \
+                isinstance(receiver, MDI_WIDGET):
+                if is_pressed:
+                    receiver.keyPressEvent(event)
+                    event.accept()
+                return True
+            elif isinstance(receiver, GCODE) and STATUS.is_man_mode() == False:
+                if is_pressed:
+                    receiver.keyPressEvent(event)
+                    event.accept()
+                return True
+            elif isinstance(receiver,QtWidgets.QDialog):
+                print 'dialog'
+                return True
         try:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
-        except AttributeError:
+        except Exception as e:
             print 'no function %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            #print 'from %s'% receiver
             return False
+
 
     #####################################
     # **** STATUS CALLBACKS SECTION **** #
@@ -197,19 +222,23 @@ class HandlerClass:
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
 ----
-=== Libraries
-
+== Libraries modules
 Qtscreen as built does little more then display the screen and react to widgets. +
 For more prebuilt behaviours there are available libraries. +
 (found in lib/python/qtvcp/lib in RIP linuxcnc install) +
+libraries are prebuilt python modules that give added features to QTvcp. +
+In this way you can select what features you want - yet don't have to build common ones yourself. +
+Such libraries include: +
 
+audio_player +
 aux_program_loader +
 keybindings +
 message +
 preferences +
 notify +
+virtual_keyboard +
 
-=== Themes
+== Themes
 
 Themes are a way to modify the look and feel of the widgets on the screen. +
 For instance the color or size of buttons and sliders can be changed using
@@ -220,12 +249,12 @@ to see available themes load qtscreen with -d -t SHOWTHEMES +
 Qtscreen can also be customized with Qt stylesheets using css. +
 
 
-=== Build a Qtscreen Panel
+== Build a Qtscreen Panel
 
 To build a panel or screen use QTDesigner to build a design you like. +
 Save this UI file to your configuration folder with a name of your choice, ending with .ui +
 
-==== Local Files
+=== Local Files
 
 If present, local UI files in the configuration folder will be loaded instead +
 of the stock UI files. Local UI files allow you to use your customized +
@@ -233,27 +262,8 @@ designs rather then the default screens. +
 QTscreen will look for MYNAME.ui and MYNAME_handler.py in the launched configuration folder. +
 
 
-==== Modifying Stock Screens
+=== Modifying Stock Screens
 If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
 
-== Libraries modules
-Qtscreen as built does little more then display the screen and react to widgets. +
-For more prebuilt behaviours there are available libraries. +
-(found in lib/python/qtvcp/lib in RIP linuxcnc install) +
-libraries are prebuilt python modules that give added features to QTvcp. +
-In this way you can select what features you want - yet don't have to build common ones yourself. +
-Such libraries include keybindings, preference recording, desktop notification etc. +
-
-== QTvcp Widgets
-
-Qtscreen uses QTvcp widgets for linuxcnc integration.
-Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
-You are free to use any available widgets in the QTDesigner editor. +
-There are also special widgets made for linuxcnc that make integration easier. +
-This are split in three heading on the left side of the editor. +
-One is for HAL only widgets. +
-One is for cnc control widgets. +
-One is for dialog widgets. +
-you are free to mix them in any way on your panel. +
 
 
