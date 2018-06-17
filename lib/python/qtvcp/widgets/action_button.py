@@ -20,6 +20,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.simple_widgets import Indicated_PushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 import linuxcnc
@@ -37,9 +38,9 @@ ACTION = Action()
 INFO = Info()
 AUX_PRGM = Aux_program_loader()
 
-class Lcnc_ActionButton(QtWidgets.QPushButton, _HalWidgetBase):
+class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent = None):
-        QtWidgets.QPushButton.__init__(self, parent)
+        Indicated_PushButton.__init__(self, parent)
         #self.setCheckable(False)
         self._block_signal = False
         self.estop = True
