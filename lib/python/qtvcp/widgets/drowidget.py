@@ -35,6 +35,7 @@ class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0
+        self.display_units_mm = 0
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setText('--------------')
