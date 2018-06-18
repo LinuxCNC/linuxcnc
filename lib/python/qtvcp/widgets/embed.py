@@ -49,9 +49,9 @@ class Embed(QWidget):
         child = Popen(c.split(), stdin = subprocess.PIPE,
                                                    stdout = subprocess.PIPE,
                                                    )
-        sid = child.stdout.readline()
-        self.WID = long(sid)
-        print 'XID:',sid
+        #sid = child.stdout.readline()
+        #self.WID = long(sid)
+        #print 'XID:',sid
 
     def launch_xid(self,cmd):
         c = cmd.split()
@@ -60,19 +60,22 @@ class Embed(QWidget):
                                                    stdout = subprocess.PIPE,
                                                    )
         sid = self.ob.stdout.readline()
+        self.WID = int(sid)
         print 'XID:',sid
         self.embed_plug(int(sid))
 
 
     def launch_ob(self):
+
         self.ob = subprocess.Popen( ["matchbox-keyboard", "--xid"],
-                                                   stdin = subprocess.PIPE,
+                                                   
                                                    stdout = subprocess.PIPE,
                                                    close_fds = True )
         sid = self.ob.stdout.readline()
         print 'XID:',sid
         self.WID = int(sid)
-        self.embed_plug(int(sid))
+        print int(sid)
+        self.embed_plug(self.WID)
 
     # Embed a X11 window into a QT window using X window ID
     def embed_plug(self, WID):
@@ -81,12 +84,13 @@ class Embed(QWidget):
 
         self.haveContainer = True
         subWindow = QWindow.fromWinId(int(WID))
-        container = self.createWindowContainer(subWindow,self)
-        sub_win_id = int(container.winId())
-        container.setParent(self)
+        self.container = self.createWindowContainer(subWindow,self)
+        sub_win_id = int(self.container.winId())
+        self.container.setParent(self)
         #container.setGeometry(500, 500, 450, 400)
-        container.show()
-        container.resize(330,360)
+        self.container.show()
+        #self.container.resize(600,600)
+        self.resize(500,400)
         return sub_win_id
 
     def sizeHint(self):
@@ -99,8 +103,13 @@ class Embed(QWidget):
         if event.type() ==  QEvent.Resize:
             w = QResizeEvent.size(event)
             print( w.width(), w.height())
+            try:
+                self.container.resize(w.width(), w.height())
+            except:
+                pass
             if self.WID:
-                self.xlib_size_request(w.width(),w.height())
+                pass
+                #self.xlib_size_request(w.width(),w.height())
             #self.resize(QResizeEvent.size(event))
         return True
 
@@ -144,8 +153,8 @@ if __name__ == "__main__":
     widget = Embed()
     #widget.launch('halcmd loadusr gladevcp -x {XID} ../../gladevcp/offsetpage.glade')
     #widget.launch_xid('halcmd loadusr gladevcp -d --xid  ../../gladevcp/offsetpage.glade &')
-    widget.launch('mplayer -wid {XID} tv://0 -vf rectangle=-1:2:-1:240,rectangle=2:-1:320:-1')
-    #widget.launch_ob()
+    #widget.launch('mplayer -wid {XID} tv://0 -vf rectangle=-1:2:-1:240,rectangle=2:-1:320:-1')
+    widget.launch_ob()
     #widget.sizeHint(300,300)
     widget.show()
     sys.exit(app.exec_())
