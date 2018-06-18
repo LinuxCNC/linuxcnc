@@ -1,3 +1,16 @@
+linuxcnc (1:2.7.14) unstable; urgency=medium
+
+  * docs: improve motion.requested-vel description
+
+  * stepconf: fix wrong stepgen number in lathe config
+
+  * pncconf: only put firmware directory info for cards that need it
+  * pncconf: fix typo for loading second 7i80
+  * pncconf: fix firmware data typo 7i92-7i76_with one 7i76
+  * pncconf: add 7i92-7i77_7i76 firmware data
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 18 Jun 2018 12:22:48 -0600
+
 linuxcnc (1:2.7.13) unstable; urgency=medium
 
   * docs: correct g33.1 warning and text
