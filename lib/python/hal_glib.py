@@ -152,6 +152,7 @@ class _GStat(gobject.GObject):
         'graphics-gcode-error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'view_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'reload-mdi-history': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'reload-message-history': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'move-text-lineup': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'move-text-linedown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'load-file-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),

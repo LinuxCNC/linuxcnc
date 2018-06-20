@@ -260,7 +260,9 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         if self.auto_show_mdi:
             STATUS.connect('mode-mdi', self.load_mdi)
             STATUS.connect('reload-mdi-history', self.load_mdi)
+            STATUS.connect('reload-message-history', self.load_manual)
             STATUS.connect('mode-auto', self.reload_last)
+            STATUS.connect('mode-manual', self.load_manual)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)
         STATUS.connect('file-loaded', self.load_program)
@@ -291,6 +293,12 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         #self.zoomTo(10)
         #print 'font point size', self.font().pointSize()
         self.setCursorPosition(self.lines(),0)
+
+    # With the auto_show__mdi option, MDI history is shown
+    def load_manual(self,w):
+        if STATUS.is_man_mode():
+            self.load_text(INFO.MESSAGE_HISTORY_PATH)
+            self.setCursorPosition(self.lines(),0)
 
     def load_text(self, filename):
         try:
@@ -327,7 +335,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         #log.debug('Line changed: {}'.format(STATUS.is_auto_mode()))
         self.line_text = str(self.text(line)).strip()
         self.line = line
-        if STATUS.is_auto_running() == False:
+        if STATUS.is_mdi_mode() and STATUS.is_auto_running() == False:
             STATUS.emit('mdi-line-selected',self.line_text, self._last_filename)
 
     def select_lineup(self,w):
