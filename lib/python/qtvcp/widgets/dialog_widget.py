@@ -264,6 +264,7 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
             self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
             f = open(fname, 'r')
             ACTION.OPEN_PROGRAM(fname)
+            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         return fname
 
     #**********************

@@ -260,7 +260,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         if self.auto_show_mdi:
             STATUS.connect('mode-mdi', self.load_mdi)
             STATUS.connect('reload-mdi-history', self.load_mdi)
-            STATUS.connect('reload-message-history', self.load_manual)
+            STATUS.connect('machine-log-changed', self.load_manual)
             STATUS.connect('mode-auto', self.reload_last)
             STATUS.connect('mode-manual', self.load_manual)
             STATUS.connect('move-text-lineup', self.select_lineup)
@@ -297,7 +297,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
     # With the auto_show__mdi option, MDI history is shown
     def load_manual(self,w):
         if STATUS.is_man_mode():
-            self.load_text(INFO.MESSAGE_HISTORY_PATH)
+            self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
             self.setCursorPosition(self.lines(),0)
 
     def load_text(self, filename):
