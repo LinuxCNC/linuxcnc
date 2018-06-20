@@ -229,9 +229,9 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
         self.setFileMode(QFileDialog.ExistingFile)
-        self.setDirectory( os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
         exts = INFO.get_qt_filter_extensions()
         self.setNameFilter(exts)
+        self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
 
     def _hal_init(self):
         STATUS.connect('load-file-request', lambda w: self.load_dialog())
@@ -239,6 +239,8 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('fileDialog_play_sound', True, bool,'DIALOG_OPTIONS')
             self.sound_type = self.PREFS_.getpref('fileDialog_sound_type', 'RING', str,'DIALOG_OPTIONS')
+            last_path = self.PREFS_.getpref('last_file_path', self.default_path, str, 'BOOK_KEEPING')
+            self.setDirectory(last_path)
         else:
             self.play_sound = False
 
@@ -247,18 +249,19 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
             self.load_dialog()
 
     def load_dialog(self):
+
         STATUS.emit('focus-overlay-changed',True,'Open Gcode',self._color)
         if self.play_sound:
-
             STATUS.emit('play-alert', self.sound_type)
         #self.move( 400, 400 )
         fname = None
         if (self.exec_()):
             fname = self.selectedFiles()[0]
-            self.setDirectory(self.directory().absolutePath())
+            path = self.directory().absolutePath()
+            self.setDirectory(path)
         STATUS.emit('focus-overlay-changed',False,None,None)
         if fname:
-            #NOTE.notify('Error',str(fname),QtWidgets.QMessageBox.Information,10)
+            self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
             f = open(fname, 'r')
             ACTION.OPEN_PROGRAM(fname)
         return fname
