@@ -9,27 +9,18 @@ import sys
     # http://stackoverflow.com/questions/8727937/callbacks-and-gtk-main-loop
 
 from qtvcp.core import Status
-STATUS = Status()
+from qtvcp.lib import sys_notify
+
 # Set up logging
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
-# If the library is missing don't crash the GUI
-# send an error and just make a blank widget.
-LIB_GOOD = True
-try:
-    NOTIFY_AVAILABLE = False
-    import pynotify
-    if not pynotify.init("notify"):
-        log.warning('There was a problem initializing the pynotify module')
-    else:
-        NOTIFY_AVAILABLE = True
-except:
-    log.warning('''You don't seem to have pynotify installed''')
+STATUS = Status()
+sys_notify.init('notify')
+
 
 class Notify:
     def __init__(self):
-        self._n=[]
         self.statusbar = None
         self.notify_list = []
         self.alarmpage = []
@@ -38,7 +29,7 @@ class Notify:
     # This prints a message in the status bar (if available)
     # the system notifier (if available)
     # adds an entry to the alarm page (if available)
-    def notify(self,title,message,icon="",status_timeout=0, timeout=2):
+    def notify(self, title, message,icon="", status_timeout=0, timeout=2):
         messageid = None
         try:
             self.show_status(message, status_timeout)
@@ -54,20 +45,11 @@ class Notify:
         except Exception as e: print(e)
 
     def show_notification(self, title, message, icon=None, timeout=4):
-	if not NOTIFY_AVAILABLE: return
-        uri = ""
-        try:
-            if icon:
-                uri = "file://" + icon
-        except:
-            print 'ERROR Notify - Icon filename error - %s'% icon
-        n =  pynotify.Notification(title,message)
-        self._n.append(n)
-        #n.set_hint_string("x-canonical-append","True")
-        n.set_urgency(pynotify.URGENCY_LOW)
-        n.set_timeout(int(timeout * 1000) )
-        n.add_action("action_click","Show All Messages",self.action_callback,None) # Arguments
-        n.connect('closed', self.handle_closed)
+        n = sys_notify.Notification(title, message, icon)
+        n.setUrgency(sys_notify.Urgency.LOW)
+        n.setTimeout(int(timeout * 1000))
+        n.addAction("action_click","Show All Messages", self.action_callback)
+        n.onClose(self.handle_closed)
         #self._n.add_action('You Clicked The Button', 'Remove Fire', self.OnClicked)
         n.show()
         self.notify_list.append(n)
@@ -77,12 +59,12 @@ class Notify:
         #print self._n
         #print n
 
-    def OnClicked(self,notification, signal_text):
+    def OnClicked(self, notification, signal_text):
         print '1: ' + str(notification)
         print '2: ' + str(signal_text)
         notification.close()
 
-    def action_callback(self,*args,**kwds):
+    def action_callback(self, *args, **kwds):
         print '\nAll recorded messages:'
         for num,i in enumerate(self.alarmpage):
             print num,i
