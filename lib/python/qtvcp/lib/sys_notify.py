@@ -100,9 +100,10 @@ class Notification(object):
             icon (str, optional):     The icon to display with the notification
             timeout (TYPE, optional): The time in ms before the notification hides, -1 for default, 0 for never
         """
-
         self.title = title              # title of the notification
         self.body = body                # the body text of the notification
+        if icon is None:
+            icon = ''                   # Fix for legacy use
         self.icon = icon                # the path to the icon to use
         self.timeout = timeout          # time in ms before the notification disappears
         self.hints = {}                 # dict of various display hints
