@@ -2,6 +2,8 @@
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
+import os
+import time
 from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -9,11 +11,12 @@ from qtvcp.lib.message import Message
 from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
-from qtvcp.core import Status
+from qtvcp.core import Status, Info
 
 STATUS = Status()
 NOTE = Notify()
 MSG = Message()
+INFO = Info()
 
 try:
     SOUND = Player()
@@ -88,6 +91,14 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
            log.info('Exception adding status to notify:', exc_info=e)
         if self.desktop_notify:
             NOTE.notify(self.notify_start_title,self.notify_start_detail,None,self.notify_start_timeout,self.notify_start_timeout)
+        try:
+            timestamp = time.strftime("%a, %b %d %Y %X ---\n")        
+            fp = os.path.expanduser(INFO.MESSAGE_HISTORY_PATH)
+            fp = open(fp, 'a')
+            fp.write('\n--- Qtscreen loaded on: ' + timestamp)
+            fp.close()
+        except:
+            log.warning('Message history: path valid?')
 
     # This is called early by qt_makegui.py for access to 
     # be able to pass the preference object to ther widgets
@@ -113,6 +124,15 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 STATUS.emit('play-alert','%s'% self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
                     STATUS.emit('play-alert','SPEAK %s '% text)
+            try:
+                timestamp = time.strftime("%a%d %H:%M ")
+                fp = os.path.expanduser(INFO.MESSAGE_HISTORY_PATH)
+                fp = open(fp, 'a')
+                fp.write(timestamp + text + "\n")
+                fp.close()
+                STATUS.emit('reload-message-history')
+            except:
+                log.warning('Message history: path valid?: {}'.format(fp))
 
     def closeEvent(self, event):
         if self.close_event:
