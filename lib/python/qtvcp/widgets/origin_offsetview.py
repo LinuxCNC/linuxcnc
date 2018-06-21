@@ -1,25 +1,47 @@
-import sys, os
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+#!/usr/bin/env python2.7
+#
+# Qtvcp widget
+# Copyright (c) 2017 Chris Morley
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+###############################################################################
 
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
-
-# localization
+import sys
+import os
 import locale
-#log.debug('sys.argv: {}'.format(sys.argv))
+
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
+from PyQt5.QtWidgets import QTableView, QAbstractItemView
+import linuxcnc
+
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.core import Status, Action, Info
+from qtvcp import logger
+
 #BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 #LOCALEDIR = os.path.join(BASE, "share", "locale")
 #locale.setlocale(locale.LC_ALL, '')
 
-import linuxcnc
-from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Action, Info
-
+# Instiniate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# INI holds ini details
+# ACTION gives commands to linuxcnc
+# LOG is for running code logging
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
@@ -48,7 +70,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         STATUS.connect('user-system-changed', self._convert_system)
-        for num in range(0,9):
+        for num in range(0, 9):
             if num in (INFO.AVAILABLE_AXES_INT):
                 continue
             self.hideColumn(num)
@@ -63,19 +85,19 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         self.metric_display = state
 
     def get_table_data(self):
-        self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0,'Absolute Position'],
-                          [None, None, 2, None, None, None, None, None, None,'Rotational Offsets'],
-                          [0, 0, 3, 0, 0, 0, 0, 0, 0,'G92 Offsets'],
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0,'Current Tool'],
-                          [0, 0, 4, 0, 0, 0, 0, 0, 0,'System 1'],
-                          [0, 0, 5, 0, 0, 0, 0, 0, 0,'System 2'],
-                          [0, 0, 6, 0, 0, 0, 0, 0, 0,'System 3'],
-                          [0, 0, 7, 0, 0, 0, 0, 0, 0,'System 4'],
-                          [0, 0, 8, 0, 0, 0, 0, 0, 0,'System 5'],
-                          [0, 0, 9, 0, 0, 0, 0, 0, 0,'System 6'],
-                          [0, 0, 10, 0, 0, 0, 0, 0, 0,'System 7'],
-                          [0, 0, 11, 0, 0, 0, 0, 0, 0,'System 8'],
-                          [0, 0, 12, 0, 0, 0, 0, 0, 0,'System 9']]
+        self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 'Absolute Position'],
+                          [None, None, 2, None, None, None, None, None, None, 'Rotational Offsets'],
+                          [0, 0, 3, 0, 0, 0, 0, 0, 0, 'G92 Offsets'],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 'Current Tool'],
+                          [0, 0, 4, 0, 0, 0, 0, 0, 0, 'System 1'],
+                          [0, 0, 5, 0, 0, 0, 0, 0, 0, 'System 2'],
+                          [0, 0, 6, 0, 0, 0, 0, 0, 0, 'System 3'],
+                          [0, 0, 7, 0, 0, 0, 0, 0, 0, 'System 4'],
+                          [0, 0, 8, 0, 0, 0, 0, 0, 0, 'System 5'],
+                          [0, 0, 9, 0, 0, 0, 0, 0, 0, 'System 6'],
+                          [0, 0, 10, 0, 0, 0, 0, 0, 0, 'System 7'],
+                          [0, 0, 11, 0, 0, 0, 0, 0, 0, 'System 8'],
+                          [0, 0, 12, 0, 0, 0, 0, 0, 0, 'System 9']]
         self.reload_offsets()
 
     def createTable(self):
@@ -83,7 +105,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         self.setSelectionMode(QAbstractItemView.SingleSelection)
 
         # set the table model
-        header = [ 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Name']
+        header = ['X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Name']
         vheader = ['ABS', 'Rot', 'G92', 'Tool', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3']
         tablemodel = MyTableModel(self.tabledata, header, vheader, self)
         self.setModel(tablemodel)
@@ -110,7 +132,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         cellContent = item.data()
         #text = cellContent.toPyObject()  # test
         text = cellContent
-        log.debug('Text: {}, Row: {}, Column: {}'.format(text, item.row(), item.column()))
+        LOG.debug('Text: {}, Row: {}, Column: {}'.format(text, item.row(), item.column()))
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
@@ -120,7 +142,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
     # Reload the offsets into display
     def reload_offsets(self):
         g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = self.read_file()
-        if g54 == None: return
+        if g54 is None: return
         # Get the offsets arrays and convert the units if the display
         # is not in machine native units
         try:
@@ -162,7 +184,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
             for column in range(0, 9):
                 if row == 1:
                     if column == 2:
-                        self.tabledata[row][column]  = locale.format(degree_tmpl, rot)
+                        self.tabledata[row][column] = locale.format(degree_tmpl, rot)
                     else:
                         self.tabledata[row][column] = " "
                 else:
@@ -182,10 +204,10 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
             g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
             g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
             g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            if self.filename == None:
+            if self.filename is None:
                 return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
             if not os.path.exists(self.filename):
-                log.error('File does not exist: yellow<{}>'.format(self.filename))
+                LOG.error('File does not exist: yellow<{}>'.format(self.filename))
                 return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
             logfile = open(self.filename, "r").readlines()
             for line in logfile:
@@ -215,7 +237,7 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
         except:
             return None, None, None, None, None, None, None, None, None
 
-    def dataChanged(self, new,old,x):
+    def dataChanged(self, new, old, x):
         row = new.row()
         col = new.column()
         data = self.tabledata[row][col]
@@ -234,19 +256,19 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
                 qualified = float(data)
                 #qualified = float(locale.atof(data))
         except Exception as e:
-            log.exception(e)
+            LOG.exception(e)
         # now update linuxcnc to the change
         try:
             if self.IS_RUNNING:
                 ACTION.RECORD_CURRENT_MODE()
-                if row == 0: # current Origin
+                if row == 0:  # current Origin
                     ACTION.CALL_MDI("G10 L2 P0 %s %10.4f" % (self.axisletters[col], qualified))
-                elif row == 1: # rotational
-                    if col == 2: # Z axis only
+                elif row == 1:  # rotational
+                    if col == 2:  # Z axis only
                         ACTION.CALL_MDI("G10 L2 P0 R %10.4f" % (qualified))
-                elif row == 2: # G92 offset
+                elif row == 2:  # G92 offset
                     ACTION.CALL_MDI("G92 %s %10.4f" % (self.axisletters[col], qualified))
-                elif row == 3: # Tool
+                elif row == 3:  # Tool
                     if not self.current_tool == 0:
                         ACTION.CALL_MDI("G10 L1 P%d %s %10.4f" % (self.current_tool, self.axisletters[col], qualified))
                         ACTION.CALL_MDI('g43')
@@ -258,19 +280,20 @@ class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
                 STATUS.emit('reload-display')
                 self.reload_offsets()
         except Exception as e:
-            log.exception("offsetpage widget error: MDI call error", exc_info=e)
+            LOG.exception("offsetpage widget error: MDI call error", exc_info=e)
             self.reload_offsets()
 
     # only update every 10th time periodic calls
-    def periodic_check(self,w):
-        if self.delay <99:
-            self.delay +=1
+    def periodic_check(self, w):
+        if self.delay < 99:
+            self.delay += 1
             return
         else:
             self.delay = 0
         if self.filename:
             self.reload_offsets()
         return True
+
 
 #########################################
 # custom model
@@ -282,7 +305,7 @@ class MyTableModel(QAbstractTableModel):
             datain: a list of lists\n
             headerdata: a list of strings
         """
-        QAbstractTableModel.__init__(self, parent)
+        super(MyTableModel, self).__init__(parent)
         self.arraydata = datain
         self.headerdata = headerdata
         self.Vheaderdata = vheaderdata
@@ -306,31 +329,30 @@ class MyTableModel(QAbstractTableModel):
         if not index.isValid():
             return None
         # print(">>> flags() index.column() = ", index.column())
-        if index.column() == 9 and index.row() in(0,1,2,3) :
+        if index.column() == 9 and index.row() in(0, 1, 2, 3):
             return Qt.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
             return Qt.NoItemFlags
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-
     def setData(self, index, value, role):
         if not index.isValid():
             return False
-        log.debug(self.arraydata[index.row()][index.column()])
-        log.debug(">>> setData() role = {}".format(role))
-        log.debug(">>> setData() index.column() = {}".format(index.column()))
+        LOG.debug(self.arraydata[index.row()][index.column()])
+        LOG.debug(">>> setData() role = {}".format(role))
+        LOG.debug(">>> setData() index.column() = {}".format(index.column()))
         try:
             if index.column() == 9:
-                v=str(value)
+                v = str(value)
             else:
-                v=float(value)
+                v = float(value)
         except:
             return False
-        log.debug(">>> setData() value = ", value)
+        LOG.debug(">>> setData() value = ", value)
         # self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"), index, index)
-        log.debug(">>> setData() index.row = {}".format(index.row()))
-        log.debug(">>> setData() index.column = {}".format(index.column()))
+        LOG.debug(">>> setData() index.row = {}".format(index.row()))
+        LOG.debug(">>> setData() index.column = {}".format(index.column()))
         self.arraydata[index.row()][index.column()] = v
         self.dataChanged.emit(index, index)
         return True
@@ -357,5 +379,3 @@ if __name__ == "__main__":
     w = Lcnc_OriginOffsetView()
     w.show()
     sys.exit(app.exec_())
-
-

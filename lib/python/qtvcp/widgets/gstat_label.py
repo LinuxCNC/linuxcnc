@@ -1,21 +1,36 @@
 #!/usr/bin/python2.7
+# QTVcp Widget
+#
+# Copyright (c) 2017 Chris Morley
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+###############################################################################
 
 from PyQt5 import QtCore, QtWidgets
 
+from qtvcp import logger
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
 
+# Instantiate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# INFO is INI file details
+# LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+LOG = logger.getLogger(__name__)
 
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
 
 class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
-
     def __init__(self, parent=None):
-
         super(Lcnc_Gstat_Label, self).__init__(parent)
         self.display_units_mm = False
         self._textTemplate = '%s'
@@ -44,40 +59,40 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
             self._set_text(data)
 
         if self.feed_override:
-            STATUS.connect('feed-override-changed', lambda w,data: _f(data))
+            STATUS.connect('feed-override-changed', lambda w, data: _f(data))
         elif self.rapid_override:
-            STATUS.connect('rapid-override-changed', lambda w,data: _f(data))
+            STATUS.connect('rapid-override-changed', lambda w, data: _f(data))
         elif self.spindle_override:
-            STATUS.connect('spindle-override-changed', lambda w,data: _f(data))
+            STATUS.connect('spindle-override-changed', lambda w, data: _f(data))
         elif self.jograte:
-            STATUS.connect('jograte-changed', lambda w,data: _f(data))
+            STATUS.connect('jograte-changed', lambda w, data: _f(data))
         elif self.jogincr:
-            STATUS.connect('jogincrement-changed', lambda w,data,text: _f(text))
+            STATUS.connect('jogincrement-changed', lambda w, data, text: _f(text))
         elif self.tool_number:
-            STATUS.connect('tool-in-spindle-changed', lambda w,data: _f(data))
+            STATUS.connect('tool-in-spindle-changed', lambda w, data: _f(data))
         elif self.current_feedrate:
             STATUS.connect('current-feed-rate', self._set_feedrate_text)
-            STATUS.connect('metric-mode-changed',self._switch_units)
+            STATUS.connect('metric-mode-changed', self._switch_units)
         elif self.current_feedunit:
             STATUS.connect('current-feed-rate', self._set_feedunit_text)
-            STATUS.connect('metric-mode-changed',self._switch_units)
+            STATUS.connect('metric-mode-changed', self._switch_units)
             STATUS.connect('actual-spindle-speed-changed', self._set_actual_rpm)
         elif self.requested_spindle_speed:
-            STATUS.connect('requested-spindle-speed-changed', lambda w,data: _f(data))
+            STATUS.connect('requested-spindle-speed-changed', lambda w, data: _f(data))
         elif self.actual_spindle_speed:
-            STATUS.connect('actual-spindle-speed-changed', lambda w,data: _f(data))
+            STATUS.connect('actual-spindle-speed-changed', lambda w, data: _f(data))
         elif self.user_system:
             STATUS.connect('user-system-changed', self._set_user_system_text)
         elif self.gcodes:
-            STATUS.connect('g-code-changed', lambda w,data: _f(data))
+            STATUS.connect('g-code-changed', lambda w, data: _f(data))
         elif self.mcodes:
-            STATUS.connect('m-code-changed', lambda w,data: _f(data))
+            STATUS.connect('m-code-changed', lambda w, data: _f(data))
         elif self.tool_diameter:
-            STATUS.connect('tool-info-changed', lambda w,data: self._tool_info(data,'diameter'))
+            STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data, 'diameter'))
         elif self.actual_surface_speed:
-            STATUS.connect('tool-info-changed', lambda w,data: self._ss_tool_diam(data))
-            STATUS.connect('actual-spindle-speed-changed', lambda w,data: self._ss_spindle_speed(data))
-            STATUS.connect('metric-mode-changed',self._switch_units)
+            STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
+            STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
+            STATUS.connect('metric-mode-changed', self._switch_units)
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s
@@ -101,34 +116,33 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
             self.setText('')
             return
 
-    def _set_actual_rpm(self,w, rpm):
+    def _set_actual_rpm(self, w, rpm):
         self._actual_RPM = rpm
 
     def _set_user_system_text(self, widgets, data):
         self._set_text(int(data)+53)
 
-    def _set_machine_units(self,u,c):
+    def _set_machine_units(self, u, c):
         self.machine_units_mm = u
         self.unit_convert = c
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
 
-    def _tool_info(self,data,field):
+    def _tool_info(self, data, field):
         if data.id is not -1:
             if field == 'diameter':
-                print data.diameter
                 self._set_text(data.diameter)
                 return
         self._set_text(0)
 
-    def _ss_tool_diam(self,data):
+    def _ss_tool_diam(self, data):
         if data.id is not -1:
             self._diameter = data.diameter
         else:
             self._diameter = 1
         self. _set_surface_speed()
-    def _ss_spindle_speed(self,rpm):
+    def _ss_spindle_speed(self, rpm):
         self._actual_RPM = rpm
         self._set_surface_speed()
     # TODO some sort of metric conversion for tool diameter
@@ -148,21 +162,21 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('feed_override','rapid_override','spindle_override','jograte',
-                'jogincr','tool_number','current_feedrate', 'current_feedunit',
+        data = ('feed_override', 'rapid_override', 'spindle_override', 'jograte',
+                'jogincr', 'tool_number', 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
-                'user_system','gcodes','mcodes','tool_diameter','actual_surface_speed')
+                'user_system', 'gcodes', 'mcodes', 'tool_diameter', 'actual_surface_speed')
 
         for i in data:
             if not i == picked:
-                self[i+'_status'] = False
+                self[i + '_status'] = False
 
     def set_textTemplate(self, data):
         self._textTemplate = data
         try:
             self._set_text(100.0)
         except Exception as e:
-            log.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
+            LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
             self.setText('Error')
     def get_textTemplate(self):
         return self._textTemplate
@@ -290,7 +304,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_user_system(self):
         self.user_system = False
 
- # gcodes status
+    # gcodes status
     def set_gcodes(self, data):
         self.gcodes = data
         if data:
@@ -300,7 +314,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_gcodes(self):
         self.gcodes = False
 
- # mcodes status
+    # mcodes status
     def set_mcodes(self, data):
         self.mcodes = data
         if data:
@@ -310,7 +324,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_mcodes(self):
         self.mcodes = False
 
- # tool_diameter status
+    # tool_diameter status
     def set_tool_diameter(self, data):
         self.tool_diameter = data
         if data:
@@ -320,7 +334,7 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_tool_diameter(self):
         self.tool_diameter = False
 
- # actual_surface_speed status
+    # actual_surface_speed status
     def set_actual_surface_speed(self, data):
         self.actual_surface_speed = data
         if data:
@@ -334,19 +348,24 @@ class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
     rapid_override_status = QtCore.pyqtProperty(bool, get_rapid_override, set_rapid_override, reset_rapid_override)
-    spindle_override_status = QtCore.pyqtProperty(bool, get_spindle_override, set_spindle_override, reset_spindle_override)
+    spindle_override_status = QtCore.pyqtProperty(bool, get_spindle_override, set_spindle_override,
+                                                  reset_spindle_override)
     jograte_status = QtCore.pyqtProperty(bool, get_jograte, set_jograte, reset_jograte)
     jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
     tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
-    current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate, reset_current_feedrate)
+    current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate,
+                                                  reset_current_feedrate)
     current_FPU_status = QtCore.pyqtProperty(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
-    requested_spindle_speed_status = QtCore.pyqtProperty(bool, get_requested_spindle_speed, set_requested_spindle_speed, reset_requested_spindle_speed)
-    actual_spindle_speed_status = QtCore.pyqtProperty(bool, get_actual_spindle_speed, set_actual_spindle_speed, reset_actual_spindle_speed)
+    requested_spindle_speed_status = QtCore.pyqtProperty(bool, get_requested_spindle_speed,
+                                                         set_requested_spindle_speed, reset_requested_spindle_speed)
+    actual_spindle_speed_status = QtCore.pyqtProperty(bool, get_actual_spindle_speed, set_actual_spindle_speed,
+                                                      reset_actual_spindle_speed)
     user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
     tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
-    actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed, reset_actual_surface_speed)
+    actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
+                                                      reset_actual_surface_speed)
 
     # boilder code
     def __getitem__(self, item):

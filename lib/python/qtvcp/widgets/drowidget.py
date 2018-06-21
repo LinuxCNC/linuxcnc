@@ -14,24 +14,30 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os
+import sys
+import os
+
 from PyQt5 import QtCore, QtWidgets
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
-
-# Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
 
 # Instantiate the libraries with global reference
-# INI holds ini details
+# INFO holds INI file details
 # STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
-    def __init__(self, parent = None):
-        QtWidgets.QLabel.__init__(self,parent)
+    def __init__(self, parent=None):
+        super(Lcnc_DROLabel, self).__init__(parent)
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0
@@ -42,11 +48,11 @@ class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
 
     def _hal_init(self):
         # get position update from STATUS every 100 ms
-        STATUS.connect('current-position',self.update)
-        STATUS.connect('metric-mode-changed',self._switch_units)
+        STATUS.connect('current-position', self.update)
+        STATUS.connect('metric-mode-changed', self._switch_units)
         STATUS.connect('diameter-mode', self._switch_modes)
 
-    def update(self,widget,absolute,relative,dtg):
+    def update(self, widget, absolute, relative, dtg):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             absolute = INFO.convert_units_9(absolute)
             relative = INFO.convert_units_9(relative)
@@ -75,7 +81,7 @@ class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
     def _switch_units(self, widget, data):
         self.display_units_mm = data
 
-    def _switch_modes(self,w,mode):
+    def _switch_modes(self, w, mode):
         self.diameter = mode
 
     def set_to_inch(self):
@@ -119,7 +125,5 @@ def main():
     widget = Lcnc_DROLabel()
     widget.show()
     sys.exit(app.exec_())
-if __name__ == "__main__":	
+if __name__ == "__main__":
     main()
-
-

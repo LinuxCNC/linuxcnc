@@ -1,19 +1,38 @@
 #!/usr/bin/python2.7
+# Qtvcp widget
+#
+# Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+#################################################################################
 
 from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.ledwidget import Lcnc_Led
 from qtvcp.core import Status
-STATUS = Status()
-
-# Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+
+# Instantiate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
+STATUS = Status()
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Lcnc_State_Led(Lcnc_Led,):
 
     def __init__(self, parent=None):
-
         super(Lcnc_State_Led, self).__init__(parent)
         self.has_hal_pins = False
         self.setState(False)
@@ -40,30 +59,30 @@ class Lcnc_State_Led(Lcnc_Led,):
             self._flip_state(False)
 
         if self.is_estopped:
-            STATUS.connect('state-estop', lambda w:self._flip_state(True))
-            STATUS.connect('state-estop-reset', lambda w:self._flip_state(False))
+            STATUS.connect('state-estop', lambda w: self._flip_state(True))
+            STATUS.connect('state-estop-reset', lambda w: self._flip_state(False))
         elif self.is_on:
-            STATUS.connect('state-on', lambda w:self._flip_state(True))
-            STATUS.connect('state-off', lambda w:self._flip_state(False))
+            STATUS.connect('state-on', lambda w: self._flip_state(True))
+            STATUS.connect('state-off', lambda w: self._flip_state(False))
         elif self.is_homed:
-            STATUS.connect('all-homed', lambda w:self._flip_state(True) )
-            STATUS.connect('not-all-homed', lambda w,axis:self._flip_state(False) )
+            STATUS.connect('all-homed', lambda w: self._flip_state(True))
+            STATUS.connect('not-all-homed', lambda w, axis: self._flip_state(False))
         elif self.is_idle:
-            STATUS.connect('interp-idle', lambda w:self._flip_state(False) )
-            STATUS.connect('interp-run', lambda w:self._flip_state(False) )
+            STATUS.connect('interp-idle', lambda w: self._flip_state(False))
+            STATUS.connect('interp-run', lambda w: self._flip_state(False))
         elif self.is_paused:
-            STATUS.connect('program-pause-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('program-pause-changed', lambda w, data: self._flip_state(data))
         elif self.is_flood:
-            STATUS.connect('flood-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('flood-changed', lambda w, data: self._flip_state(data))
         elif self.is_mist:
-            STATUS.connect('mist-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('mist-changed', lambda w, data: self._flip_state(data))
         elif self.is_block_delete:
-            STATUS.connect('block-delete-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('block-delete-changed', lambda w, data: self._flip_state(data))
         elif self.is_optional_stop:
-            STATUS.connect('optional-stop-changed', lambda w,data:self._flip_state(data))
+            STATUS.connect('optional-stop-changed', lambda w, data: self._flip_state(data))
         elif self.is_joint_homed:
-            STATUS.connect('homed', lambda w,data: self.joint_homed(data))
-            STATUS.connect('not-all-homed', lambda w,data: self.joints_unhomed(data))
+            STATUS.connect('homed', lambda w, data: self.joint_homed(data))
+            STATUS.connect('not-all-homed', lambda w, data: self.joints_unhomed(data))
         elif self.is_limits_overridden:
             STATUS.connect('override-limits-changed', self.check_override_limits)
             STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
@@ -77,7 +96,7 @@ class Lcnc_State_Led(Lcnc_Led,):
         if int(joint) == self.joint_number:
             self._flip_state(True)
 
-    def joints_unhomed(self,jlist):
+    def joints_unhomed(self, jlist):
         if str(self.joint_number) in jlist:
             self._flip_state(False)
 
@@ -97,10 +116,9 @@ class Lcnc_State_Led(Lcnc_Led,):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('is_paused','is_estopped','is_on','is_idle','is_homed',
-                'is_flood','is_mist','is_block_delete','is_optional_stop',
-                'is_joint_homed','is_limits_overridden',
-                )
+        data = ('is_paused', 'is_estopped', 'is_on', 'is_idle', 'is_homed',
+                'is_flood', 'is_mist', 'is_block_delete', 'is_optional_stop',
+                'is_joint_homed', 'is_limits_overridden')
 
         for i in data:
             if not i == picked:
@@ -249,7 +267,8 @@ class Lcnc_State_Led(Lcnc_Led,):
     is_block_delete_status = pyqtProperty(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
     is_optional_stop_status = pyqtProperty(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
     is_joint_homed_status = pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
-    is_limits_overridden_status = pyqtProperty(bool, get_is_limits_overridden, set_is_limits_overridden, reset_is_limits_overridden)
+    is_limits_overridden_status = pyqtProperty(bool, get_is_limits_overridden, set_is_limits_overridden,
+                                               reset_is_limits_overridden)
 
     # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)

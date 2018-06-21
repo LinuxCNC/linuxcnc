@@ -1,18 +1,39 @@
+#!/usr/bin/env python
+# Qtvcp
+#
+# Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+
 import os
 import linuxcnc
+
 from PyQt5.QtWidgets import QWidget, QGridLayout
 from PyQt5.QtCore import pyqtProperty
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
-STATUS = Status()
-
-# Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
 
-class State_Enable_GridLayout(QWidget,_HalWidgetBase):
-    def __init__(self, parent = None):
-        QGridLayout.__init__(self, parent)
+# Instiniate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
+STATUS = Status()
+LOG = logger.getLogger(__name__)
+
+
+class State_Enable_GridLayout(QWidget, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(State_Enable_GridLayout, self).__init__(parent)
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         self.inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.ini = linuxcnc.ini(self.inifile)
@@ -28,20 +49,20 @@ class State_Enable_GridLayout(QWidget,_HalWidgetBase):
         if self.is_on:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
         if self.is_homed:
-            STATUS.connect('all-homed', lambda w: self.setEnabled(True) )
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         if self.is_idle:
-            STATUS.connect('interp-run', lambda w: self.setEnabled(False) )
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         elif self.is_not_idle:
             STATUS.connect('interp-run', lambda w: self.setEnabled(True))
         if not (self.is_idle or self.is_not_idle or self.is_on or self.is_homed):
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
         else:
-            STATUS.connect('interp-idle',self.idle_check)
+            STATUS.connect('interp-idle', self.idle_check)
 
-    def idle_check(self,w):
+    def idle_check(self, w):
         state = True
         if self.is_homed:
-            state = state and ( STATUS.is_all_homed() or self.no_home_required )
+            state = state and (STATUS.is_all_homed() or self.no_home_required)
         if self.is_on:
             state = state and STATUS.machine_is_on()
         if self.is_idle:
@@ -92,4 +113,3 @@ class State_Enable_GridLayout(QWidget,_HalWidgetBase):
     def reset_is_homed(self):
         self.is_homed = False
     is_homed_status = pyqtProperty(bool, get_is_homed, set_is_homed, reset_is_homed)
-

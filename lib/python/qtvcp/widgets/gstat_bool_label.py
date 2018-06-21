@@ -1,14 +1,36 @@
 #!/usr/bin/python2.7
+# QTVcp Widget
+#
+# Copyright (c) 2017 Chris Morley
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+###############################################################################
+
+import os
 
 from PyQt5 import QtCore, QtWidgets
-import os
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
-STATUS = Status()
-
-# Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+
+# Instantiate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
+STATUS = Status()
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -25,19 +47,19 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
         def _f(data):
             self._set_text(data)
         if self.metric_mode:
-            STATUS.connect('metric-mode-changed', lambda w,data: _f(data))
+            STATUS.connect('metric-mode-changed', lambda w, data: _f(data))
         elif self.css_mode:
-            STATUS.connect('css-mode', lambda w,data: _f(data))
+            STATUS.connect('css-mode', lambda w, data: _f(data))
         elif self.fpr_mode:
-            STATUS.connect('fpr-mode', lambda w,data: _f(data))
+            STATUS.connect('fpr-mode', lambda w, data: _f(data))
         elif self.diameter_mode:
-            STATUS.connect('diameter-mode', lambda w,data: _f(data))
+            STATUS.connect('diameter-mode', lambda w, data: _f(data))
 
     def _set_text(self, data):
-            if data:
-                self.setText(self._true_textTemplate)
-            else:
-                self.setText(self._false_textTemplate)
+        if data:
+            self.setText(self._true_textTemplate)
+        else:
+            self.setText(self._false_textTemplate)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -48,12 +70,10 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('metric_mode','css_mode','fpr_mode','diameter_mode',
-                )
-
+        data = ('metric_mode', 'css_mode', 'fpr_mode', 'diameter_mode')
         for i in data:
             if not i == picked:
-                self[i+'_status'] = False
+                self[i + '_status'] = False
 
 # property getter/setters
 
@@ -62,7 +82,7 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
         try:
             self._set_text(True)
         except Exception as e:
-            log.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
+            LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
             self.setText('Error')
     def get_true_textTemplate(self):
         return self._true_textTemplate
@@ -120,7 +140,6 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
     def reset_diameter_mode(self):
         self.diameter_mode = True
 
-
     # designer will show these properties in this order:
     # BOOL
     metric_mode_status = QtCore.pyqtProperty(bool, get_metric_mode, set_metric_mode, reset_metric_mode)
@@ -128,9 +147,11 @@ class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
     fpr_mode_status = QtCore.pyqtProperty(bool, get_fpr_mode, set_fpr_mode, reset_fpr_mode)
     diameter_mode_status = QtCore.pyqtProperty(bool, get_diameter_mode, set_diameter_mode, reset_diameter_mode)
 
-    # Non BOOL 
-    true_textTemplate = QtCore.pyqtProperty(str, get_true_textTemplate, set_true_textTemplate, reset_true_textTemplate)
-    false_textTemplate = QtCore.pyqtProperty(str, get_false_textTemplate, set_false_textTemplate, reset_false_textTemplate)
+    # Non BOOL
+    true_textTemplate = QtCore.pyqtProperty(str, get_true_textTemplate,
+                                            set_true_textTemplate, reset_true_textTemplate)
+    false_textTemplate = QtCore.pyqtProperty(str, get_false_textTemplate,
+                                             set_false_textTemplate, reset_false_textTemplate)
 
     # boilder code
     def __getitem__(self, item):

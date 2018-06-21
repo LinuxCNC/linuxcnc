@@ -19,22 +19,25 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
+from qtvcp import logger
 
-# Instiniate the libraries with global reference
+# Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
+# INFO is INI file details
+# LOG is for running code logging
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+LOG = logger.getLogger(__name__)
 
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
-    def __init__(self, parent = None):
-        QtWidgets.QSlider.__init__(self,parent)
+    def __init__(self, parent=None):
+        super(Gstat_Slider, self).__init__(parent)
         self._block_signal = False
         self.rapid = True
         self.feed = False
@@ -48,20 +51,19 @@ class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
             STATUS.connect('rapid-override-changed', lambda w, data: self.setValue(data))
         if self.feed:
             STATUS.connect('feed-override-changed', lambda w, data: self.setValue(data))
-            self.setMaximum(int(INFO.MAX_FEED_OVERRIDE ))
+            self.setMaximum(int(INFO.MAX_FEED_OVERRIDE))
         if self.spindle:
             STATUS.connect('spindle-override-changed', lambda w, data: self.setValue(data))
-            self.setMaximum(int(INFO.MAX_SPINDLE_OVERRIDE ))
-            self.setMinimum(int(INFO.MIN_SPINDLE_OVERRIDE ))
+            self.setMaximum(int(INFO.MAX_SPINDLE_OVERRIDE))
+            self.setMinimum(int(INFO.MIN_SPINDLE_OVERRIDE))
         if self.jograte:
             STATUS.connect('jograte-changed', lambda w, data: self.setValue(data))
-            self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL ))
+            self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)
 
     def _action(self, value):
-        #self.cmnd.feedrate(rate/100.0)
         if self.rapid:
             ACTION.SET_RAPID_RATE(value)
         elif self.feed:
@@ -71,7 +73,7 @@ class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
         elif self.jograte:
             ACTION.SET_JOG_RATE(value)
 
-   #########################################################################
+    #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
     # it will use the get set and reset calls to do those actions
@@ -80,7 +82,7 @@ class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('rapid','feed','spindle','jograte')
+        data = ('rapid', 'feed', 'spindle', 'jograte')
 
         for i in data:
             if not i == picked:
@@ -135,4 +137,3 @@ class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
-

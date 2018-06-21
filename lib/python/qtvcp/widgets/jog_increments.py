@@ -1,16 +1,36 @@
 #!/usr/bin/python2.7
+# qtvcp
+#
+# Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+#################################################################################
 
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
+from qtvcp import logger
 
+# Instantiate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# INFO is INI file details
+# LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+LOG = logger.getLogger(__name__)
 
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Lcnc_JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
@@ -25,11 +45,11 @@ class Lcnc_JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
 
     def selectionchange(self, i):
         text = str(self.currentText())
-        log.debug("Current index: {}, selection changed {}".format(i, text))
+        LOG.debug("Current index: {}, selection changed {}".format(i, text))
         try:
             inc = self.parse_increment(text)
-        except  Exception as e:
-            log.debug('Exception parsing increment', exc_info=e)
+        except Exception as e:
+            LOG.debug('Exception parsing increment', exc_info=e)
             inc = 0
         STATUS.set_jog_increments(inc, text)
 

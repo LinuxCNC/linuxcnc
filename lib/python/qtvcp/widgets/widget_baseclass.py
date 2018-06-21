@@ -19,12 +19,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import hal
 
+
 ###########################
 """ Set of base classes """
 ###########################
-
 class _HalWidgetBase:
-    def hal_init(self, comp, name, object, toplevel,PATHS, preference):
+    def hal_init(self, comp, name, object, toplevel, PATHS, preference):
         self.HAL_GCOMP_ = comp
         self.HAL_NAME_ = name
         self.QT_OBJECT_ = object
@@ -37,15 +37,17 @@ class _HalWidgetBase:
         """ Child HAL initialization functions """
         pass
 
+
 class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
         self.hal_pin_not = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-not", hal.HAL_BIT, hal.HAL_OUT)
         self.connect.state_change.connect(lambda data: self.t_update(data))
 
-    def t_update(self,state):
+    def t_update(self, state):
         self.hal_pin.set(bool(state))
         self.hal_pin_not.set(not bool(state))
+
 
 # reacts to HAL pin changes
 class _HalScaleBase(_HalWidgetBase):
@@ -56,8 +58,9 @@ class _HalScaleBase(_HalWidgetBase):
     def l_update(self, *a):
         self.hal_pin.set(self.get_value())
 
+
 # reacts to HAL pin changes
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
-        self.hal_pin.value_changed.connect( lambda s: self.setEnabled(s))
+        self.hal_pin.value_changed.connect(lambda s: self.setEnabled(s))

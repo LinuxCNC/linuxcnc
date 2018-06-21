@@ -1,13 +1,34 @@
+#!/usr/bin/env python
+# QTVcp Widget
+#
+# Copyright (c) 2017 Chris Morley
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# Fond on Code Cookbook
+#
+# This widget pops up an onscreen keyboard for entries
+# Used in the Macro widget
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 from decimal import Decimal
 
 # applicationle widgets
 SIP_WIDGETS = [QtWidgets.QLineEdit]
 
+
 class MyFlatPushButton(QtWidgets.QPushButton):
     def __init__(self, caption, min_size=(50, 50)):
         self.MIN_SIZE = min_size
-        QtWidgets.QPushButton.__init__(self, caption)
+        super(MyFlatPushButton, self).__init__(caption)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
     def sizeHint(self):
@@ -16,10 +37,10 @@ class MyFlatPushButton(QtWidgets.QPushButton):
 
 class SoftInputWidget(QtWidgets.QDialog):
     def __init__(self, parent_object, keyboard_type='default'):
-        QtWidgets.QDialog.__init__(self)
+        super(SoftInputWidget, self).__init__()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() |QtCore.Qt.FramelessWindowHint
-        | QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint |
+                            QtCore.Qt.WindowStaysOnTopHint)
         self.INPUT_WIDGET = None
         self.PARENT_OBJECT = parent_object
         self.signalMapper = QtCore.QSignalMapper(self)
@@ -51,6 +72,7 @@ class SoftInputWidget(QtWidgets.QDialog):
             button = MyFlatPushButton(str(sym))
             button.KEY_CHAR = ord(str(sym))
             number_widget_list.append(button)
+
         number_widget_list.append('new_row')
         sym_list = range(6, 10)
         for sym in sym_list:
@@ -64,6 +86,21 @@ class SoftInputWidget(QtWidgets.QDialog):
         button = MyFlatPushButton('-')
         button.KEY_CHAR = ord('-')
         number_widget_list.append(button)
+
+        # alphabets
+        alpha_widget_list = []
+        sym_list = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+                    'new_row',
+                    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
+                    'new_row',
+                    'z', 'x', 'c', 'v', 'b', 'n', 'm']
+        for sym in sym_list:
+            if sym == 'new_row':
+                alpha_widget_list.append('new_row')
+            else:
+                button = MyFlatPushButton(sym)
+                button.KEY_CHAR = ord(sym)
+                alpha_widget_list.append(button)
 
         # back space
         control_widget_list = []
@@ -86,17 +123,19 @@ class SoftInputWidget(QtWidgets.QDialog):
         control_widget_list.append('sep')
 
         MAX_COL = 10
-        col     = 0
-        tlist   = list()
+        col = 0
+        tlist = list()
         if keyboard_type == 'numeric':
             widget_list = number_widget_list
         elif keyboard_type == 'alpha':
+            print 'alpha'
             widget_list = alpha_widget_list
         else:
+            print 'custom key layout', keyboard_type
             widget_list = list()
             widget_list.extend(number_widget_list)
             widget_list.append('new_row')
-            #widget_list.extend(alpha_widget_list)
+            widget_list.extend(alpha_widget_list)
 
         widget_list.append('new_row')
         widget_list.extend(control_widget_list)
@@ -169,10 +208,11 @@ class SoftInputWidget(QtWidgets.QDialog):
         widget = self.INPUT_WIDGET
         if not widget: return
 
-        widget_rect         = widget.rect()
-        widget_bottom       = widget.mapToGlobal(QtCore.QPoint(widget.frameGeometry().x(), widget.frameGeometry().y())).y()
-        screen_height       = QtWidgets.qApp.desktop().availableGeometry().height()
-        input_panel_height  = self.geometry().height() + 5
+        widget_rect = widget.rect()
+        widget_bottom = widget.mapToGlobal(QtCore.QPoint(widget.frameGeometry().x(),
+                                                         widget.frameGeometry().y())).y()
+        screen_height = QtWidgets.qApp.desktop().availableGeometry().height()
+        input_panel_height = self.geometry().height() + 5
 
         if (screen_height - widget_bottom) > input_panel_height:
             # display input panel at bottom of widget
@@ -204,9 +244,10 @@ class SoftInputWidget(QtWidgets.QDialog):
 class TouchInterface(QtCore.QObject):
     def __init__(self, PARENT_WIDGET):
         QtCore.QObject.__init__(self)
-        self._PARENT_WIDGET        = PARENT_WIDGET
-        self._input_panel_all      = SoftInputWidget(PARENT_WIDGET, 'default')
-        self._input_panel_numeric  = SoftInputWidget(PARENT_WIDGET, 'numeric')
+        self._PARENT_WIDGET = PARENT_WIDGET
+        self._input_panel_alpha = SoftInputWidget(PARENT_WIDGET, 'alpha')
+        self._input_panel_numeric = SoftInputWidget(PARENT_WIDGET, 'numeric')
+        self._input_panel_full = SoftInputWidget(PARENT_WIDGET, 'default')
 
     def childEvent(self, event):
         if event.type() == QtCore.QEvent.ChildAdded:
@@ -216,17 +257,18 @@ class TouchInterface(QtCore.QObject):
     def eventFilter(self, widget, event):
         if self._PARENT_WIDGET.focusWidget() == widget and event.type() == QtCore.QEvent.MouseButtonPress:
             if hasattr(widget, 'keyboard_type'):
-                if widget.keyboard_type == 'default':
-                    self._input_panel_all.show_input_panel(widget)
-                elif widget.keyboard_type == 'numeric':
+                if widget.keyboard_type.lower() == 'alpha':
+                    self._input_panel_alpha.show_input_panel(widget)
+                elif widget.keyboard_type.lower() == 'numeric':
                     self._input_panel_numeric.show_input_panel(widget)
-
+                else:
+                    self._input_panel_full.show_input_panel(widget)
         return False
 
 
 class TouchInputWidget(QtWidgets.QWidget):
     def __init__(self):
-        QtWidgets.QWidget.__init__(self)
+        super(TouchInputWidget, self).__init__()
         self.touch_interface = TouchInterface(self)
 
     def childEvent(self, event):
@@ -238,9 +280,9 @@ class TouchInputWidget(QtWidgets.QWidget):
 
 class ExampleWidget(TouchInputWidget):
     def __init__(self):
-        TouchInputWidget.__init__(self)
+        super(ExampleWidget, self).__init__()
 
-        self.txtNumeric    = QtWidgets.QLineEdit()
+        self.txtNumeric = QtWidgets.QLineEdit()
         # actiate touch input
         self.txtNumeric.keyboard_type = 'numeric'
 
@@ -255,35 +297,51 @@ class ExampleWidget(TouchInputWidget):
         self.setWindowTitle('Touch Input Demo')
         self.setLayout(gl)
 
+
 class ExampleDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(ExampleDialog, self).__init__(parent)
         #TouchInputWidget.__init__(self)
         #self =QtWidgets.QDialog()
         #self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setWindowFlags( self.windowFlags() |QtCore.Qt.Tool |
-                  QtCore.Qt.Dialog |
-                 QtCore.Qt.WindowStaysOnTopHint |QtCore.Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.Tool |
+                            QtCore.Qt.Dialog | QtCore.Qt.WindowStaysOnTopHint |
+                            QtCore.Qt.WindowSystemMenuHint)
         buttonBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
         b = buttonBox.button(QtWidgets.QDialogButtonBox.Ok)
-        b.clicked.connect(lambda:self.close())
+        b.clicked.connect(lambda: self.end())
         l = QtWidgets.QVBoxLayout()
         self.setLayout(l)
 
         o = TouchInputWidget()
-        self.t = QtWidgets.QLineEdit()
-        self.t.keyboard_type = 'default'
+        txt = QtWidgets.QLineEdit()
+        txt.keyboard_type = 'alpha'
+
+        Num = QtWidgets.QLineEdit()
+        # actiate touch input
+        Num.keyboard_type = 'numeric'
+
+        All = QtWidgets.QLineEdit()
+        # actiate touch input
+        All.keyboard_type = 'all'
 
         gl = QtWidgets.QVBoxLayout()
-        gl.addWidget(self.t)
+        gl.addWidget(txt)
+        gl.addWidget(Num)
+        gl.addWidget(All)
         o.setLayout(gl)
         l.addWidget(o)
 
         l.addWidget(buttonBox)
 
+    def end(self):
+        sys.exit()
+
 if __name__ == '__main__':
+    import sys
     app = QtWidgets.QApplication([])
     #ExampleWidget().show()
-    ExampleDialog().show()
+    test = ExampleDialog()
+    test.show()
     #numEdit().show()
-    app.exec_()
+    sys.exit(app.exec_())

@@ -1,49 +1,72 @@
+#!/usr/bin/python2.7
+#
+# Qtvcp Widgets
+# Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+#################################################################################
+
 import os
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
-try:
-    from PyQt5 import QtSvg
-except:
-    log.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.core import Status, Action, Info
+from qtvcp import logger
 
 # Instantiate the libraries with global reference
-# INI holds ini details
+# INFO holds INI file details
 # STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
+# LOG is for running code logging
 INFO = Info()
 STATUS = Status()
 ACTION = Action()
+LOG = logger.getLogger(__name__)
 
-###########################################
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+try:
+    from PyQt5 import QtSvg
+except:
+    LOG.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
+
+
+###############################################################
 # helper widget for SVG display on Button
-###########################################
-
+#
 # We can add a svg image from a specific layer to QPushButton
+###############################################################
 class CustomButton(QtWidgets.QPushButton):
-    def __init__(self, parent=None,path = None, layer = 0):
+    def __init__(self, parent=None, path=None, layer=0):
         super(CustomButton, self).__init__(parent)
-        if path == None:
+        if path is None:
             tpath = os.path.expanduser(INFO.SUB_PATH)
-            path = os.path.join(tpath,'LatheMacro.svg')
+            path = os.path.join(tpath, 'LatheMacro.svg')
         self.r = QtSvg.QSvgRenderer(path)
         self.basename = 'layer'
         self.setLayerNumber(layer)
 
     def setLayerNumber(self, num):
-        temp = '%s%d'% (self.basename, int(num))
-        if  self.r.elementExists(temp):
+        temp = '%s%d' % (self.basename, int(num))
+        if self.r.elementExists(temp):
             self.Num = int(num)
             self.layer = temp
         else:
             self.Num = 0
             self.layer = 'layer0'
-            log.error("MacrosTab SVG Button-No Layer Found: {}".format(temp))
+            LOG.error("MacrosTab SVG Button-No Layer Found: {}".format(temp))
 
     def paintEvent(self, event):
         super(CustomButton, self).paintEvent(event)
@@ -52,27 +75,28 @@ class CustomButton(QtWidgets.QPushButton):
         self.r.render(qp, self.layer)
         qp.end()
 
-###################################
-# helper widget for SVG display
-###################################
 
+####################################################
+# helper widget for SVG display
+#
 # class to display certain layers of an svg file
 # instantiate it with layer number or
 # set layer number after with setLayerNumbet(int)
+####################################################
 class Custom_SVG(QtSvg.QSvgWidget):
-    def __init__(self, parent=None,layer = 0):
+    def __init__(self, parent=None, layer=0):
         super(Custom_SVG, self).__init__(parent)
         self.basename = 'layer'
-        self.layer = 'layer%d'% layer
+        self.layer = 'layer%d' % layer
         self.num = layer
 
     def setLayerNumber(self, num):
-        temp = '%s%d'% (self.basename, int(num))
-        if  self.renderer().elementExists(temp):
+        temp = '%s%d' % (self.basename, int(num))
+        if self.renderer().elementExists(temp):
             self.Num = int(num)
             self.layer = temp
         else:
-            log.error("MacrosTab SVG-No Layer Found: {}".format(temp))
+            LOG.error("MacrosTab SVG-No Layer Found: {}".format(temp))
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
@@ -81,20 +105,21 @@ class Custom_SVG(QtSvg.QSvgWidget):
         s.render(qp, self.layer)
         qp.end()
 
-##########################
-# Macro tab widget
-##########################
 
+###############################################################################
+# Macro tab widget
+#
 # macro tab widget parses the subroutine path for /lathe
 # It then opens the .ngc files ther eand searches for keynames
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
+###############################################################################
 class macroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(macroTab, self).__init__(parent)
         try:
             tpath = os.path.expanduser(INFO.SUB_PATH)
-            self.filepath = os.path.join(tpath,'')
+            self.filepath = os.path.join(tpath, '')
         except:
             self.filepath = None
         self.stack = QtWidgets.QStackedWidget()
@@ -109,7 +134,7 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
         menuButton.pressed.connect(self.menuChecked)
         hbox.addWidget(self.okButton)
         hbox.addWidget(cancelButton)
-        hbox.insertSpacing(1,20)
+        hbox.insertSpacing(1, 20)
         hbox.addWidget(menuButton)
         hbox.addStretch(0)
         vbox = QtWidgets.QVBoxLayout()
@@ -120,7 +145,6 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.setLayout(vbox)
         # add everything else
         self.buildStack()
-
 
     def _hal_init(self):
         self.okButton.setEnabled(False)
@@ -136,8 +160,8 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
     # anything goes wrong display an eror page
     def buildStack(self):
         tabName = self._findMacros()
-        log.debug("Macros Found: {}".format(tabName))
-        if tabName == None:
+        LOG.debug("Macros Found: {}".format(tabName))
+        if tabName is None:
             self._buildErrorTab()
             return
         self._buildMenuPage(tabName)
@@ -157,22 +181,22 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
             # add labels and edits
             for n, name in enumerate(self[tName][0]):
                 l = QtWidgets.QLabel(name[0])
-                if name[1].lower() in('false','true'):
-                    self['%s%d'%(tName,n)] = QtWidgets.QRadioButton()
+                if name[1].lower() in('false', 'true'):
+                    self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
                     if name[1].lower() == 'true':
-                        self['%s%d'%(tName,n)].setChecked(True)
+                        self['%s%d' % (tName, n)].setChecked(True)
                 else:
-                    self['%s%d'%(tName,n)] = QtWidgets.QLineEdit()
-                    self['%s%d'%(tName,n)].keyboard_type = 'numeric'
-                    self['%s%d'%(tName,n)].setText(name[1])
+                    self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
+                    self['%s%d' % (tName, n)].keyboard_type = 'numeric'
+                    self['%s%d' % (tName, n)].setText(name[1])
                 vbox.addWidget(l)
-                vbox.addWidget(self['%s%d'%(tName,n)])
+                vbox.addWidget(self['%s%d' % (tName, n)])
             #add the SVG pic layer
             svg_info = self[tName][1]
             #print self.filepath+svg_info[0], svg_info[1]
-            svgpath = os.path.join(self.filepath,svg_info[0])
-            self['sw%d'%i] = Custom_SVG(svgpath,  int(svg_info[1]))
-            hbox.addWidget(self['sw%d'%i])
+            svgpath = os.path.join(self.filepath, svg_info[0])
+            self['sw%d' % i] = Custom_SVG(svgpath,  int(svg_info[1]))
+            hbox.addWidget(self['sw%d' % i])
             vbox.addStretch(1)
             hbox.addLayout(vbox)
             # add the widget to the stack
@@ -197,17 +221,17 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
             except:
                 svg_num = self[tName][1][1]
             svgpath = os.path.join(self.filepath, svg_name)
-            # label is the only way i hav efound to make the buttons
-            # larger - the label is under the pic - if no erross
-            btn = CustomButton('Oops\n',path=svgpath, layer= svg_num)
+            # label is the only way I have found to make the buttons
+            # larger - the label is under the pic - if no errors
+            btn = CustomButton('Oops\n', path=svgpath, layer=svg_num)
             btn.clicked.connect(self.menuButtonPress(i))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                    QtWidgets.QSizePolicy.Expanding)
-            grid.addWidget(btn,row,col,1,1)
-            row+=1
-            if row >4:
+                              QtWidgets.QSizePolicy.Expanding)
+            grid.addWidget(btn, row, col, 1, 1)
+            row += 1
+            if row > 4:
                 row = 0
-                col +=1
+                col += 1
         vbox.addLayout(grid)
         vbox.addStretch(1)
         hbox.addLayout(vbox)
@@ -251,8 +275,8 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
                         third_line = temp.readline().strip()
                         # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
-                        'MACRODEFAULT' in second_line and \
-                        'MACROSVG' in third_line:
+                                'MACRODEFAULT' in second_line and \
+                                'MACROSVG' in third_line:
                             name = os.path.splitext(f)[0]
                             # yes, now keep everything after '='
                             macros = first_line.split('=')[1]
@@ -263,10 +287,10 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
                             d = defaults.split(',')
                             s = svg_data.split(',')
                             # combine titles with defaults in to a list
-                            for num, (m_item, d_item) in enumerate(zip(m,d)):
+                            for num, (m_item, d_item) in enumerate(zip(m, d)):
                                 #print num,m_item,d_item
                                 if num == 0:
-                                    temp=[]
+                                    temp = []
                                     temp.append((m_item, d_item))
                                     continue
                                 temp.append((m_item, d_item))
@@ -277,7 +301,7 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
                             # make a list of pages, which is also the macro program name
                             tName.append(name)
         except Exception as e:
-            log.debug('Exception loading Macros:', exc_info=e)
+            LOG.debug('Exception loading Macros:', exc_info=e)
             return None
         return tName
 
@@ -285,22 +309,22 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
     # and builds the macro command from the data
     # then sends it to the controller
     def runMacro(self):
-        cmd=''
+        cmd = ''
         name = str(self.stack.currentWidget().objectName())
-        if name == '':return
+        if name == '': return
         macro = name
         #print 'macro', macro
         for num, i in enumerate(self[name][0]):
             # Look for a radio button instance so we can convert to integers
             # other wise we assume text
-            if isinstance(self['%s%d'%(name,num)],QtWidgets.QRadioButton):
-                data = str(1 *int(self['%s%d'%(name,num)].isChecked()))
+            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
+                data = str(1 * int(self['%s%d' % (name, num)].isChecked()))
             else:
-                data = str(self['%s%d'%(name,num)].text())
+                data = str(self['%s%d' % (name, num)].text())
             if data != '':
-                cmd=cmd+'['+ data +'] '
-        command = str( "O<" + macro + "> call " +cmd )
-        log.debug("Macro command: {}".format(command))
+                cmd = cmd + '[' + data + '] '
+        command = str("O<" + macro + "> call " + cmd)
+        LOG.debug("Macro command: {}".format(command))
         ACTION.CALL_MDI(command)
 
     # This could be 'class patched' to do something else
@@ -320,8 +344,8 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
     # This weird code is just so we can get the index
     # number from a menu button press
     # using clicked.connect() apparently doesn't easily
-    # add user data 
-    def menuButtonPress(self,data):
+    # add user data
+    def menuButtonPress(self, data):
         def calluser():
             self.stack.setCurrentIndex(data+1)
         return calluser
@@ -339,6 +363,6 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     #sw = QtSvg.QSvgWidget('LatheMacro.svg')
     sw = macroTab()
-    sw.setGeometry(50,50,759,668)
+    sw.setGeometry(50, 50, 759, 668)
     sw.show()
     sys.exit(app.exec_())
