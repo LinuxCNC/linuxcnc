@@ -26,24 +26,33 @@
 # http://pyqt.sourceforge.net/Docs/QScintilla2/index.html
 # https://qscintilla.com/
 
-import sys, os
+import sys
+import os
+
 from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
-
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
 
 try:
     from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
 except ImportError as e:
-    log.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
+    LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
     sys.exit(1)
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
+from qtvcp import logger
 
+# Instantiate the libraries with global reference
+# INFO holds INI file details
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 ##############################################################
 # Simple custom lexer for Gcode
@@ -58,37 +67,37 @@ class GcodeLexer(QsciLexerCustom):
             3: 'Assignment',
             4: 'Value',
             }
-        for key,value in self._styles.iteritems():
+        for key, value in self._styles.iteritems():
             setattr(self, value, key)
         font = QFont()
         font.setFamily('Courier')
         font.setFixedPitch(True)
         font.setPointSize(12)
         font.setBold(True)
-        self.setFont(font,2)
+        self.setFont(font, 2)
 
     # Paper sets the background color of each style of text
-    def setPaperBackground(self,color,style=None):
+    def setPaperBackground(self, color, style=None):
         if style is None:
-            for i in range(0,5):
-                self.setPaper(color,i)
+            for i in range(0, 5):
+                self.setPaper(color, i)
         else:
-            self.setPaper(color,style)
+            self.setPaper(color, style)
 
     def description(self, style):
         return self._styles.get(style, '')
 
     def defaultColor(self, style):
         if style == self.Default:
-            return QColor('#000000') # black
+            return QColor('#000000')  # black
         elif style == self.Comment:
-            return QColor('#000000') # black
+            return QColor('#000000')  # black
         elif style == self.Key:
-            return QColor('#0000CC') # blue
+            return QColor('#0000CC')  # blue
         elif style == self.Assignment:
-            return QColor('#CC0000') # red
+            return QColor('#CC0000')  # red
         elif style == self.Value:
-            return QColor('#00CC00') # green
+            return QColor('#00CC00')  # green
         return QsciLexerCustom.defaultColor(self, style)
 
     def styleText(self, start, end):
@@ -109,8 +118,7 @@ class GcodeLexer(QsciLexerCustom):
                 editor.SendScintilla(
                     editor.SCI_GETTEXTRANGE, start, end, source)
             else:
-                source = unicode(editor.text()
-                                ).encode('utf-8')[start:end]
+                source = unicode(editor.text()).encode('utf-8')[start:end]
         if not source:
             return
 
@@ -144,15 +152,15 @@ class GcodeLexer(QsciLexerCustom):
                     set_style(1, self.Comment)
                     continue
                 elif graymode:
-                    if (msg and char.lower() in ('m','s','g',',','d','e','b','u')):
+                    if (msg and char.lower() in ('m', 's', 'g', ',', 'd', 'e', 'b', 'u')):
                         set_style(1, self.Assignment)
                         if char == ',': msg = False
                     else:
                         set_style(1, self.Comment)
                     continue
-                elif char in ('%','<','>','#','='):
+                elif char in ('%', '<', '>', '#', '='):
                     state = self.Assignment
-                elif char in ('[',']'):
+                elif char in ('[', ']'):
                     state = self.Value
                 elif char.isalpha():
                     state = self.Key
@@ -164,6 +172,7 @@ class GcodeLexer(QsciLexerCustom):
 
             # folding implementation goes here
             index += 1
+
 
 ##########################################################
 # Base editor class
@@ -198,9 +207,9 @@ class EditorBase(QsciScintilla):
         self.setMarginWidth(1, 0)
         #self.matginClicked.connect(self.on_margin_clicked)
         self.markerDefine(QsciScintilla.RightArrow,
-            self.ARROW_MARKER_NUM)
+                          self.ARROW_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ffe4e4"),
-            self.ARROW_MARKER_NUM)
+                                      self.ARROW_MARKER_NUM)
 
         # Brace matching: enable for a brace immediately before or after
         # the current position
@@ -231,7 +240,7 @@ class EditorBase(QsciScintilla):
         self.setMinimumSize(200, 100)
 
     # must set lexer paper background color _and_ editor background color it seems
-    def set_background_color(self,color):
+    def set_background_color(self, color):
         self.SendScintilla(QsciScintilla.SCI_STYLESETBACK, QsciScintilla.STYLE_DEFAULT, QColor(color))
         self.lexer.setPaperBackground(QColor(color))
 
@@ -241,6 +250,7 @@ class EditorBase(QsciScintilla):
             self.markerDelete(nline, self.ARROW_MARKER_NUM)
         else:
             self.markerAdd(nline, self.ARROW_MARKER_NUM)
+
 
 ##########################################################
 # Gcode widget
@@ -270,42 +280,42 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
 
-    def load_program(self, w, filename = None):
+    def load_program(self, w, filename=None):
         if filename is None:
-            filename =  self._last_filename
+            filename = self._last_filename
         else:
             self._last_filename = filename
         self.load_text(filename)
         #self.zoomTo(6)
-        self.setCursorPosition(0,0)
+        self.setCursorPosition(0, 0)
 
     # when switching from MDI to AUTO we need to reload the
     # last (linuxcnc loaded) program.
-    def reload_last(self,w):
+    def reload_last(self, w):
         self.load_text(STATUS.old['file'])
-        self.setCursorPosition(0,0)
+        self.setCursorPosition(0, 0)
 
     # With the auto_show__mdi option, MDI history is shown
-    def load_mdi(self,w):
+    def load_mdi(self, w):
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
         #print 'font point size', self.font().pointSize()
         #self.zoomTo(10)
         #print 'font point size', self.font().pointSize()
-        self.setCursorPosition(self.lines(),0)
+        self.setCursorPosition(self.lines(), 0)
 
     # With the auto_show__mdi option, MDI history is shown
-    def load_manual(self,w):
+    def load_manual(self, w):
         if STATUS.is_man_mode():
             self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
-            self.setCursorPosition(self.lines(),0)
+            self.setCursorPosition(self.lines(), 0)
 
     def load_text(self, filename):
         try:
             fp = os.path.expanduser(filename)
             self.setText(open(fp).read())
         except:
-            log.error('File path is not valid: {}'.format(filename))
+            LOG.error('File path is not valid: {}'.format(filename))
             self.setText('')
             return
 
@@ -315,40 +325,39 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
 
     def highlight_line(self, w, line):
         if STATUS.is_auto_running():
-            if not STATUS.old['file']  == self._last_filename:
-                log.debug('should reload the display')
+            if not STATUS.old['file'] == self._last_filename:
+                LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
-        if 1==1:
-            self.markerAdd(line, self.ARROW_MARKER_NUM)
-            if self.last_line:
-                self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
-            self.setCursorPosition(line,0)
-            self.ensureCursorVisible()
-            self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
-            self.last_line = line
+        self.markerAdd(line, self.ARROW_MARKER_NUM)
+        if self.last_line:
+            self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
+        self.setCursorPosition(line, 0)
+        self.ensureCursorVisible()
+        self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
+        self.last_line = line
 
     def set_line_number(self, w, line):
         pass
 
     def line_changed(self, line, index):
-        #log.debug('Line changed: {}'.format(STATUS.is_auto_mode()))
+        #LOG.debug('Line changed: {}'.format(STATUS.is_auto_mode()))
         self.line_text = str(self.text(line)).strip()
         self.line = line
-        if STATUS.is_mdi_mode() and STATUS.is_auto_running() == False:
-            STATUS.emit('mdi-line-selected',self.line_text, self._last_filename)
+        if STATUS.is_mdi_mode() and STATUS.is_auto_running() is False:
+            STATUS.emit('mdi-line-selected', self.line_text, self._last_filename)
 
-    def select_lineup(self,w):
-        line,col = self.getCursorPosition()
-        log.debug(line)
-        self.setCursorPosition(line-1,0)
-        self.highlight_line(None,line-1)
-
-    def select_linedown(self,w):
+    def select_lineup(self, w):
         line, col = self.getCursorPosition()
-        log.debug(line)
-        self.setCursorPosition(line+1,0)
-        self.highlight_line(None,line+1)
+        LOG.debug(line)
+        self.setCursorPosition(line-1, 0)
+        self.highlight_line(None, line-1)
+
+    def select_linedown(self, w):
+        line, col = self.getCursorPosition()
+        LOG.debug(line)
+        self.setCursorPosition(line+1, 0)
+        self.highlight_line(None, line+1)
 
     # designer recognized getter/setters
     # auto_show_mdi status
@@ -371,4 +380,3 @@ if __name__ == "__main__":
 
     editor.setText(open(sys.argv[0]).read())
     app.exec_()
-

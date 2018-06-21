@@ -16,12 +16,13 @@
 # use open cv to do camera alignment
 
 import sys
+import thread as Thread
+
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
-import thread as Thread
-# Set up logging
+
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
-log = logger.getLogger(__name__)
 
 # If the library is missing don't crash the GUI
 # send an error and just make a blank widget.
@@ -29,14 +30,17 @@ LIB_GOOD = True
 try:
     import cv2
 except:
-    log.error('Qtvcp Error with camview - is python-opencv installed?')
+    LOG.error('Qtvcp Error with camview - is python-opencv installed?')
     LIB_GOOD = False
 
-from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-# This avoids segfault when testing directly in python
-if __name__ != '__main__':
+# Instiniate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
+if __name__ != '__main__':  # This avoids segfault when testing directly in python
     from qtvcp.core import Status
     STATUS = Status()
+LOG = logger.getLogger(__name__)
+
 
 class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -50,8 +54,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.scale = 1
         self.gap = 5
         self.setWindowTitle('Cam View')
-        self.setGeometry(100,100,200,200)
-        self.text_color = QColor(255,255,255)
+        self.setGeometry(100, 100, 200, 200)
+        self.text_color = QColor(255, 255, 255)
         self.font = QFont("arial,helvetica", 40)
         self.text = ''
         self.pix = None
@@ -59,7 +63,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if LIB_GOOD:
-                STATUS.connect('periodic', self.nextFrameSlot)
+            STATUS.connect('periodic', self.nextFrameSlot)
 
     ##################################
     # no button scroll = circle dismater
@@ -68,52 +72,51 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     ##################################
     def wheelEvent(self, event):
         super(CamView, self).wheelEvent(event)
-        mouse_state=QtWidgets.qApp.mouseButtons()
+        mouse_state = QtWidgets.qApp.mouseButtons()
         size = self.size()
         w = size.width()
-        if event.angleDelta().y() <0:
-            if mouse_state==QtCore.Qt.NoButton:
-                self.diameter -=2
-            if mouse_state==QtCore.Qt.LeftButton:
+        if event.angleDelta().y() < 0:
+            if mouse_state == QtCore.Qt.NoButton:
+                self.diameter -= 2
+            if mouse_state == QtCore.Qt.LeftButton:
                 self.scale -= .1
-            if mouse_state==QtCore.Qt.RightButton:
-                self.rotation -=2
+            if mouse_state == QtCore.Qt.RightButton:
+                self.rotation -= 2
         else:
-            if mouse_state==QtCore.Qt.NoButton:
-                self.diameter +=2
-            if mouse_state==QtCore.Qt.LeftButton:
-                self.scale +=.1
-            if mouse_state==QtCore.Qt.RightButton:
-                self.rotation +=2
+            if mouse_state == QtCore.Qt.NoButton:
+                self.diameter += 2
+            if mouse_state == QtCore.Qt.LeftButton:
+                self.scale += .1
+            if mouse_state == QtCore.Qt.RightButton:
+                self.rotation += 2
         if self.diameter < 2: self.diameter = 2
         if self.diameter > w: self.diameter = w
-        if self.rotation >360: self.rotation = 0
+        if self.rotation > 360: self.rotation = 0
         if self.rotation < 0: self.rotation = 360
         if self.scale < 1: self.scale = 1
         if self.scale > 5: self.scale = 5
 
-    def nextFrameSlot(self,w):
+    def nextFrameSlot(self, w):
         if not self.video: return
         if not self.isVisible(): return
         # don't update at the full 100ms rate
-        self.count +=1
-        if self.count <30:return
+        self.count += 1
+        if self.count < 30: return
         self.count = 0
 
         ############################
         # capture a freme from cam
         ############################
-        ret,frame = self.video.read()
+        ret, frame = self.video.read()
         if not ret: return
-        #print 'before',frame.shape
         (oh, ow) = frame.shape[:2]
-        #print oh,ow
+
         #############################
         # scale image bigger
         #############################
         scale = self.scale
-        #print scale
-        frame = cv2.resize(frame, None, fx=scale, fy=scale, interpolation = cv2.INTER_CUBIC)
+        frame = cv2.resize(frame, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+
         ##########################
         # crop to the original size of the frame
         # measure from center so we zoom on center
@@ -126,7 +129,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         coh = oh/2
         cow = ow/2
         # NOTE: its img[y: y + h, x: x + w]
-        frame = frame[ ch-coh:ch+coh, cw-cow:cw+cow, ]
+        frame = frame[ch-coh:ch+coh, cw-cow:cw+cow]
 
         ########################################
         # My webcam yields frames in BGR format
@@ -143,7 +146,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             try:
                 self.video = WebcamVideoStream(src=0).start()
             except:
-                log.error('Video capture error: {}'.format(    self.video))
+                LOG.error('Video capture error: {}'.format(self.video))
 
     def hideEvent(self, event):
         if LIB_GOOD:
@@ -182,7 +185,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         rady = self.diameter/2
         # draw red circles
         gp.setPen(QtCore.Qt.red)
-        center = QtCore.QPoint(w/2,h/2)
+        center = QtCore.QPoint(w/2, h/2)
         gp.drawEllipse(center, radx, rady)
 
     def drawCrossHair(self, event, gp):
@@ -191,18 +194,19 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         h = size.height()/2
         pen = QPen(QtCore.Qt.yellow, 1, QtCore.Qt.SolidLine)
         gp.setPen(pen)
-        gp.translate(w,h)
+        gp.translate(w, h)
         gp.rotate(self.rotation)
         gp.drawLine(-w, 0, 0-self.gap, 0)
         gp.drawLine(0+self.gap, 0, w, 0)
         gp.drawLine(0, 0+self.gap, 0, h)
         gp.drawLine(0, 0-self.gap, 0, -h)
- 
+
+
 class WebcamVideoStream:
     def __init__(self, src=0):
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = cv2.VideoCapture(src) 
+        self.stream = cv2.VideoCapture(src)
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
@@ -211,9 +215,9 @@ class WebcamVideoStream:
 
     def start(self):
         # start the thread to read frames from the video stream
-        Thread.start_new_thread( self._update,() )
+        Thread.start_new_thread(self._update, ())
         return self
- 
+
     def _update(self):
         # keep looping infinitely until the thread is stopped
         while True:
@@ -223,11 +227,11 @@ class WebcamVideoStream:
                 return
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
- 
+
     def read(self):
         # return the frame most recently read
-        return (self.grabbed,self.frame)
- 
+        return (self.grabbed, self.frame)
+
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
@@ -238,10 +242,10 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     capture = CamView()
     capture.show()
+
     def jump():
         capture.nextFrameSlot(None)
     timer = QtCore.QTimer()
     timer.timeout.connect(jump)
     timer.start(10)
     sys.exit(app.exec_())
-

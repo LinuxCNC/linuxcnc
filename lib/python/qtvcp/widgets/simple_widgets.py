@@ -20,34 +20,36 @@ import hal
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+LOG = logger.getLogger(__name__)
 
-
-######################
-# REAL WIDGETS
-######################
 
 # reacts to HAL pin changes
 class Lcnc_LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
-    def __init__(self, parent = None):
-        QtWidgets.QLCDNumber.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(Lcnc_LCDNumber, self).__init__(parent)
+
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin.value_changed.connect(lambda data: self.l_update(data))
-    def l_update(self,data):
+
+    def l_update(self, data):
         self.display(data)
 
+
 class Lcnc_CheckBox(QtWidgets.QCheckBox, _HalToggleBase):
-    def __init__(self, parent = None):
-        QtWidgets.QCheckBox.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(Lcnc_CheckBox, self).__init__(parent)
+
 
 class Lcnc_RadioButton(QtWidgets.QRadioButton, _HalToggleBase):
-    def __init__(self, parent = None):
-        QtWidgets.QRadioButton.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(Lcnc_RadioButton, self).__init__(parent)
+
 
 class Lcnc_QSlider(QtWidgets.QSlider, _HalWidgetBase):
-    def __init__(self, parent = None):
-        QtWidgets.QSlider.__init__(self,parent)
+    def __init__(self, parent=None):
+        super(Lcnc_QSlider, self).__init__(parent)
+
     def _hal_init(self):
         self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
         self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
@@ -59,15 +61,16 @@ class Lcnc_QSlider(QtWidgets.QSlider, _HalWidgetBase):
             self.hal_pin_f.set(data*scale)
         self.valueChanged.connect(partial(-f))
 
+
 class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
-    def __init__(self, parent = None):
-        QtWidgets.QGridLayout.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(Lcnc_GridLayout, self).__init__(parent)
 
 
 # LED indicator on the right corner
 class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
-    def __init__(self, parent = None):
-        QtWidgets.QPushButton.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(Indicated_PushButton, self).__init__(parent)
         self._indicator_state = False
         self.draw_indicator = False
         self._HAL_pin = True
@@ -77,10 +80,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
     def _hal_init(self):
         if self._HAL_pin:
-            self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_+ '-led', hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.led_update(data))
 
-    def led_update(self,data):
+    def led_update(self, data):
         self._indicator_state = data
         self.update()
 
@@ -91,25 +94,26 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         if self.draw_indicator:
             self.paintIndicator()
 
+    # Paint specified size a triangle at the top right
     def paintIndicator(self):
             p = QtGui.QPainter(self)
             rect = p.window()
-            top_right = rect.topRight() 
+            top_right = rect.topRight()
             if self.width() < self.height():
                 size = self.width() * self._size
             else:
                 size = self.height() * self._size
-            if  self._indicator_state:
+            if self._indicator_state:
                 color = self._on_color
             else:
                 color = self._off_color
             triangle = QtGui.QPolygon([top_right, top_right - QtCore.QPoint(size, 0),
-                                   top_right + QtCore.QPoint(0, size)])
+                                       top_right + QtCore.QPoint(0, size)])
             p.setPen(QtGui.QPen(QtGui.QBrush(QtGui.QColor(0, 0, 0, 120)), 6))
             p.drawLine(triangle.point(1), triangle.point(2))
             p.setBrush(QtGui.QBrush(color))
             p.setPen(color)
-            p.drawPolygon(triangle) 
+            p.drawPolygon(triangle)
 
     def set_indicator(self, data):
         self.draw_indicator = data
@@ -152,11 +156,12 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
 
-class Lcnc_PushButton(Indicated_PushButton, _HalWidgetBase):
-    def __init__(self, parent = None):
-        Indicated_PushButton.__init__(self, parent)
 
-    # make the super class indicator's HAL pins
+class Lcnc_PushButton(Indicated_PushButton, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(Lcnc_PushButton, self).__init__(parent)
+
+    # make the super class (pushbutton) HAL pins
     # then the button pins
     def _hal_init(self):
         super(Lcnc_PushButton, self)._hal_init()
@@ -165,4 +170,3 @@ class Lcnc_PushButton(Indicated_PushButton, _HalWidgetBase):
                 self.hal_pin.set(data)
         self.pressed.connect(partial(_f, True))
         self.released.connect(partial(_f, False))
-

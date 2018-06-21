@@ -1,18 +1,39 @@
 #!/usr/bin/python2.7
+#
+# Qtvcp widget
+# Copyright (c) 2017 Chris Morley
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+###############################################################################
 
 import os
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import  QColor, QImage, QResizeEvent, QPainter
+
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
+from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty
+from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
+from qtvcp import logger
 
+# Instantiate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
 if __name__ != '__main__':
     STATUS = Status()
+LOG = logger.getLogger(__name__)
 
-# Set up logging
-from qtvcp import logger
-log = logger.getLogger(__name__)
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 ################################################################
 # Overlay base class
@@ -39,8 +60,8 @@ class OverlayWidget(QWidget):
     def newParent(self):
         self.parent = self.top_level
         self.last = self.parent
-        if not self.last == None:
-            log.debug('last removed: {}'.format(self.last))
+        if self.last is not None:
+            LOG.debug('last removed: {}'.format(self.last))
             self.last.removeEventFilter(self)
         if not self.parent: return
         self.parent.installEventFilter(self)
@@ -71,7 +92,7 @@ class OverlayWidget(QWidget):
                 self.hide()
                 self.closeEvent(event)
                 event.accept()
-        return super(OverlayWidget,self).eventFilter(obj, event)
+        return super(OverlayWidget, self).eventFilter(obj, event)
 
     # Tracks our instanance of focus widget changes
     # most importantly the paint event
@@ -93,6 +114,7 @@ class OverlayWidget(QWidget):
             return True
         return False
 
+
 ####################################################################
 # subclass for using as a fancy dialog focus overlay
 ####################################################################
@@ -100,7 +122,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FocusOverlay, self).__init__(parent)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.bg_color = QColor(0, 0, 0,150)
+        self.bg_color = QColor(0, 0, 0, 150)
         self.text = "Loading..."
         self._state = False
         self._image_path = '~/emc-dev/linuxcnc-wizard.gif'
@@ -120,43 +142,43 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # adjust image path name at runtime
     def _hal_init(self):
         if self.PREFS_:
-            self.play_sound = self.PREFS_.getpref('overlay_play_sound', False, bool,'SCREEN_OPTIONS')
-            self.sound_type = self.PREFS_.getpref('overlay_sound_type', 'RING', str,'SCREEN_OPTIONS')
+            self.play_sound = self.PREFS_.getpref('overlay_play_sound', False, bool, 'SCREEN_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('overlay_sound_type', 'RING', str, 'SCREEN_OPTIONS')
         else:
             self.play_sound = False
         self.top_level = self.QTVCP_INSTANCE_
         self.newParent()
-        def _f(data,text,color):
+        def _f(data, text, color):
             if data:
                 if color:
                     self.bg_color = color
                 else:
-                    self.bg_color = QColor(0, 0, 0,150)
+                    self.bg_color = QColor(0, 0, 0, 150)
                 if text:
                     self.text = text
                 self.show()
                 self.update()
-                log.debug('Overlay - Show')
+                LOG.debug('Overlay - Show')
                 if self.play_sound:
-                    STATUS.emit('play-alert','%s'% self.sound_type)
+                    STATUS.emit('play-alert', '%s' % self.sound_type)
                 #os.system("beep -f 555 ")
             else:
                 self.hide()
-                log.debug('Overlay - Hide')
+                LOG.debug('Overlay - Hide')
         STATUS.connect('focus-overlay-changed', lambda w, data, text, color: _f(data, text, color))
         # look for special path names and change to real path
         if 'STD_IMAGE_DIR/' in self._image_path:
-            t = self._image_path.split('STD_IMAGE_DIR/',)[1]
-            d =  os.path.join(self.PATHS_.IMAGEDIR,t)
+            t = self._image_path.split('STD_IMAGE_DIR/', )[1]
+            d = os.path.join(self.PATHS_.IMAGEDIR, t)
         elif 'CONFIG_DIR/' in self._image_path:
-            t = self._image_path.split('CONFIG_DIR/',)[1]
-            d =  os.path.join(self.PATHS_.CONFIGPATH,t)
+            t = self._image_path.split('CONFIG_DIR/', )[1]
+            d = os.path.join(self.PATHS_.CONFIGPATH, t)
         else:
             return
         if os.path.exists(d):
             self._image = QImage(d)
         else:
-            log.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
+            LOG.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
 
     # Ok paint everything
     def paintEvent(self, event):
@@ -174,9 +196,9 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 
     # The basic overlay -transparence is set by bg_color
     def colorBackground(self, qp):
-        qp.fillRect(self.rect(),self.bg_color)
+        qp.fillRect(self.rect(), self.bg_color)
 
-    # we can add an image like a watermark transparence set by 
+    # we can add an image like a watermark transparence set by
     # _image_transp
     def draw_image(self, qp):
         #print self._image, self._image_transp
@@ -187,7 +209,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # old code for text is skipped
     def drawText(self, qp):
         qp.setOpacity(1.0)
-        self.mb.setText('<html><head/><body><p><span style=" font-size:30pt; font-weight:600;">%s</span></p></body></html>'%self.text)
+        self.mb.setText('<html><head/><body><p><span style=" font-size:30pt; \
+                        font-weight:600;">%s</span></p></body></html>' % self.text)
         return
         size = self.size()
         w = size.width()
@@ -202,7 +225,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # buttons could be used as a dialog but would require a focus widget per
     # dialog action or some fancy coding for responses.
     def box(self):
-        self.mb=QLabel('<html><head/><body><p><span style=" font-size:30pt; font-weight:600;">%s</span></p></body></html>'%self.text,self)
+        self.mb = QLabel('<html><head/><body><p><span style=" font-size:30pt; \
+                       font-weight:600;">%s</span></p></body></html>' % self.text, self)
         self.mb.setStyleSheet("background-color: black; color: white")
         self.mb.setAlignment(Qt.AlignVCenter | Qt.AlignCenter)
         hbox = QHBoxLayout()
@@ -288,21 +312,22 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def setimage_path(self, data):
         self._image_path = str(data)
         try:
-            path = os.path.expanduser( self._image_path)
+            path = os.path.expanduser(self._image_path)
             self._image = QImage(path)
         except Exception as e:
-            log.debug('Focus Overlay image path error: {}'.format(self._image_path))
+            LOG.debug('Focus Overlay image path error: {}'.format(self._image_path))
     def getimage_path(self):
         return self._image_path
     def resetimage_path(self):
         self._image_path = False
 
-    overlay_color = pyqtProperty(QColor, getOverayColor, setOverayColor,resetOverayColor)
+    overlay_color = pyqtProperty(QColor, getOverayColor, setOverayColor, resetOverayColor)
     state = pyqtProperty(bool, getState, setState, resetState)
     show_image_option = pyqtProperty(bool, getshow_image, setshow_image, resetshow_image)
     image_transparency = pyqtProperty(float, get_image_transp, set_image_transp, reset_image_transp)
     show_buttons_option = pyqtProperty(bool, getshow_buttons, setshow_buttons, resetshow_buttons)
     image_path = pyqtProperty(str, getimage_path, setimage_path, resetimage_path)
+
 
 #################
 # Testing
@@ -316,15 +341,15 @@ def main():
     w.setGeometry(300, 300, 250, 150)
     w.setWindowTitle('Test')
 
-    l = QLabel('Hello, world!',w)
+    l = QLabel('Hello, world!', w)
     l.show()
-    log.debug('Label: {}'.format(l))
+    LOG.debug('Label: {}'.format(l))
 
     # class patching is my new thing
     # class patch the OK button
     def newOk(w):
         print 'Ok'
-        w.text ='OK'
+        w.text = 'OK'
         # make update
         w.hide()
         w.show()
@@ -337,12 +362,11 @@ def main():
     f.newParent()
     # set with qtproperty call
     f.setshow_buttons(True)
- 
+
     w.show()
 
-
     timer2 = QTimer()
-    timer2.timeout.connect(lambda : f.show())
+    timer2.timeout.connect(lambda: f.show())
     timer2.start(1500)
 
     sys.exit(app.exec_())
@@ -350,5 +374,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

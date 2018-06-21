@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# qtVcp actions
+# Qtvcp action widget
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
 #
@@ -14,34 +14,38 @@
 # GNU General Public License for more details.
 
 # Action buttons are used to change linuxcnc behaivor do to button pushing.
-# By making the button 'checkable' in the designer editor, the buton will toggle.
+# By making the button 'checkable' in the designer editor,
+# the buton will toggle.
 # In the designer editor, it is possible to select what the button will do.
-#################################################################################
+###############################################################################
 
 from PyQt5 import QtCore, QtWidgets
+import linuxcnc
+
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.simple_widgets import Indicated_PushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
-import linuxcnc
-
-# Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
 
-# Instiniate the libraries with global reference
+# Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
 # INFO is INI file details
+# LOG is for running code logging
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
 AUX_PRGM = Aux_program_loader()
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 
 class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
-    def __init__(self, parent = None):
-        Indicated_PushButton.__init__(self, parent)
-        #self.setCheckable(False)
+    def __init__(self, parent=None):
+        super(Lcnc_ActionButton, self).__init__(parent)
         self._block_signal = False
         self.estop = True
         self.machine_on = False
@@ -101,20 +105,20 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     # without setting an infinite loop
     ###################################################
     def _hal_init(self):
-        def _safecheck(state,data=None):
+        def _safecheck(state, data=None):
             self._block_signal = True
             self.setChecked(state)
             self._block_signal = False
 
         def test():
-            return (STATUS.machine_is_on() and \
-                ( STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED) and \
-                    STATUS.is_file_loaded() )
+            return (STATUS.machine_is_on()
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED)
+                    and STATUS.is_file_loaded())
 
         if self.estop:
             # Estop starts with button down - in estop which
             # backwards logic for the button...
-            if self.isCheckable():_safecheck(True)
+            if self.isCheckable(): _safecheck(True)
             STATUS.connect('state-estop', lambda w: _safecheck(True))
             STATUS.connect('state-estop-reset', lambda w: _safecheck(False))
 
@@ -149,10 +153,10 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             if self.jog_joint_pos:
-                self.pressed.connect(lambda : self.jog_action(1))
+                self.pressed.connect(lambda: self.jog_action(1))
             else:
-                self.pressed.connect(lambda : self.jog_action(-1))
-            self.released.connect(lambda : self.jog_action(0))
+                self.pressed.connect(lambda: self.jog_action(-1))
+            self.released.connect(lambda: self.jog_action(0))
             # jog button use diferent action signals so
             # leave early to aviod the standard 'clicked' signal
             return
@@ -165,7 +169,7 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
             if self.run:
-                STATUS.connect('file-loaded', lambda w,f: self.setEnabled(True))
+                STATUS.connect('file-loaded', lambda w, f: self.setEnabled(True))
 
         elif self.abort or self.pause:
             self.setEnabled(False)
@@ -193,7 +197,7 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('mode-mdi', lambda w: _safecheck(False))
             STATUS.connect('mode-auto', lambda w: _safecheck(False))
         elif self.jog_incr:
-            STATUS.connect('metric-mode-changed', lambda w,data:  self.incr_action())
+            STATUS.connect('metric-mode-changed', lambda w, data:  self.incr_action())
         elif self.feed_over or self.rapid_over or self.spindle_over or self.jog_rate:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(STATUS.machine_is_on()))
@@ -216,26 +220,26 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
-            STATUS.connect('flood-changed', lambda w,data: _safecheck(data))
+            STATUS.connect('flood-changed', lambda w, data: _safecheck(data))
         elif self.mist:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
-            STATUS.connect('mist-changed', lambda w,data: _safecheck(data))
+            STATUS.connect('mist-changed', lambda w, data: _safecheck(data))
         elif self.block_delete:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
-            STATUS.connect('block-delete-changed', lambda w,data: _safecheck(data))
+            STATUS.connect('block-delete-changed', lambda w, data: _safecheck(data))
         elif self.optional_stop:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
-            STATUS.connect('optional-stop-changed', lambda w,data: _safecheck(data))
+            STATUS.connect('optional-stop-changed', lambda w, data: _safecheck(data))
 
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
@@ -243,7 +247,7 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     ###################################
     # Here we do the actions
     ###################################
-    def action(self,state = None):
+    def action(self, state=None):
         # don't do anything if the signal is blocked
         if self._block_signal: return
         if self.estop:
@@ -252,18 +256,18 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
             else:
                 ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
         elif self.machine_on:
-           if self.isCheckable():
+            if self.isCheckable():
                 ACTION.SET_MACHINE_STATE(state)
-           else:
+            else:
                 log.debug('gstat machine is on: {}'.format(STATUS.machine_is_on))
                 ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
         elif self.home:
-           if self.isCheckable():
+            if self.isCheckable():
                 if state:
                     ACTION.SET_MACHINE_HOMING(self.joint_number)
                 else:
                     ACTION.SET_MACHINE_UNHOMED(self.joint_number)
-           else:
+            else:
                 if STATUS.is_all_homed():
                     ACTION.SET_MACHINE_UNHOMED(self.joint_number)
                 else:
@@ -277,17 +281,17 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.load_dialog:
             STATUS.emit('load-file-request')
         elif self.camview_dialog:
-            STATUS.emit('dialog-request','CAMVIEW')
+            STATUS.emit('dialog-request', 'CAMVIEW')
         elif self.macro_dialog:
-            STATUS.emit('dialog-request','MACRO')
+            STATUS.emit('dialog-request', 'MACRO')
         elif self.origin_offset_dialog:
-            STATUS.emit('dialog-request','ORIGINOFFSET')
+            STATUS.emit('dialog-request', 'ORIGINOFFSET')
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:
                 axis = j[self.joint_number]
             except IndexError:
-                log.error("can't zero origin for specified joint {}".format(self.joint_number))
+                LOG.error("can't zero origin for specified joint {}".format(self.joint_number))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
         elif self.launch_halmeter:
             AUX_PRGM.load_halmeter()
@@ -308,38 +312,38 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
                 ACTION.SET_JOG_RATE(self.float_alt)
             else:
                 ACTION.SET_JOG_RATE(self.float)
-            self._toggle_state -=1
-            self._toggle_state = self._toggle_state *-1
+            self._toggle_state -= 1
+            self._toggle_state = self._toggle_state * -1
         elif self.feed_over:
             if self.toggle_float and not self._toggle_state:
                 ACTION.SET_FEED_RATE(self.float_alt)
             else:
                 ACTION.SET_FEED_RATE(self.float)
-            self._toggle_state -=1
-            self._toggle_state = self._toggle_state *-1
+            self._toggle_state -= 1
+            self._toggle_state = self._toggle_state * -1
         elif self.rapid_over:
             if self.toggle_float and not self._toggle_state:
                 ACTION.SET_RAPID_RATE(self.float_alt)
             else:
                 ACTION.SET_RAPID_RATE(self.float)
-            self._toggle_state -=1
-            self._toggle_state = self._toggle_state *-1
+            self._toggle_state -= 1
+            self._toggle_state = self._toggle_state * -1
         elif self.spindle_over:
             if self.toggle_float and not self._toggle_state:
                 ACTION.SET_SPINDLE_RATE(self.float_alt)
             else:
                 ACTION.SET_SPINDLE_RATE(self.float)
-            self._toggle_state -=1
-            self._toggle_state = self._toggle_state *-1
+            self._toggle_state -= 1
+            self._toggle_state = self._toggle_state * -1
         elif self.view_change:
             try:
-                STATUS.emit('view-changed','%s'% self.view_type)
+                STATUS.emit('view-changed', '%s' % self.view_type)
             except:
                 pass
         elif self.spindle_fwd:
-            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD,INFO.DEFAULT_SPINDLE_SPEED)
+            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED)
         elif self.spindle_rev:
-            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE,INFO.DEFAULT_SPINDLE_SPEED)
+            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED)
         elif self.spindle_stop:
             ACTION.SET_SPINDLE_STOP()
         elif self.spindle_up:
@@ -383,9 +387,9 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
 
         # defult error case
         else:
-            log.error('No action recognised')
+            LOG.error('No action recognised')
 
-    def jog_action(self,direction):
+    def jog_action(self, direction):
         if direction == 0 and STATUS.current_jog_distance != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
@@ -394,13 +398,13 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     def incr_action(self):
         if STATUS.is_metric_mode():
             if self.jog_incr_mm:
-                text = '%s mm'% str(self.jog_incr_mm)
-                STATUS.set_jog_increments(self.jog_incr_mm,text)
+                text = '%s mm' % str(self.jog_incr_mm)
+                STATUS.set_jog_increments(self.jog_incr_mm, text)
             else:
                 STATUS.set_jog_increments(0, 'Continous')
         else:
             if self.jog_incr_imperial:
-                text = '''%s "'''% str(self.jog_incr_imperial)
+                text = '''%s "''' % str(self.jog_incr_imperial)
                 STATUS.set_jog_increments(self.jog_incr_imperial, text)
             else:
                 STATUS.set_jog_increments(0, 'Continous')
@@ -413,20 +417,20 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('estop','machine_on','home','run','abort','pause',
-                    'load_dialog','jog_joint_pos', 'jog_joint_neg','zero_axis',
-                    'launch_halmeter','launch_status', 'launch_halshow',
-                    'auto','mdi','manual','macro_dialog','origin_offset_dialog',
-                    'camview_dialog','jog_incr','feed_over', 'rapid_over',
-                    'spindle_over', 'jog_rate','view_x', 'view_p', 'spindle_fwd',
-                    'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
-                    'limits_override', 'flood', 'mist', 'optional_stop', 'block_delete')
+        data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause',
+                'load_dialog', 'jog_joint_pos', 'jog_joint_neg', 'zero_axis',
+                'launch_halmeter', 'launch_status', 'launch_halshow',
+                'auto', 'mdi', 'manual', 'macro_dialog', 'origin_offset_dialog',
+                'camview_dialog', 'jog_incr', 'feed_over', 'rapid_over',
+                'spindle_over', 'jog_rate', 'view_x', 'view_p', 'spindle_fwd',
+                'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
+                'limits_override', 'flood', 'mist', 'optional_stop', 'block_delete')
 
         for i in data:
             if not i == picked:
                 self[i+'_action'] = False
 
-    # BOOL VARIABLES
+    # BOOL VARIABLES----------------------
     def set_estop(self, data):
         self.estop = data
         if data:
@@ -747,8 +751,7 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_optional_stop(self):
         self.optional_stop = False
 
-
-    # NON BOOL VARIABLES
+    # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
     def get_incr_imperial(self):
@@ -787,7 +790,7 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.view_change = False
 
     def set_view_type(self, data):
-        if not data.lower() in('x','y','y2','z','z2','p'):
+        if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p'):
             data = 'p'
         self.view_type = data
     def get_view_type(self):
@@ -806,8 +809,11 @@ class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
     abort_action = QtCore.pyqtProperty(bool, get_abort, set_abort, reset_abort)
     pause_action = QtCore.pyqtProperty(bool, get_pause, set_pause, reset_pause)
     load_dialog_action = QtCore.pyqtProperty(bool, get_load_dialog, set_load_dialog, reset_load_dialog)
-    camview_dialog_action = QtCore.pyqtProperty(bool, get_camview_dialog, set_camview_dialog, reset_camview_dialog)
-    origin_offset_dialog_action = QtCore.pyqtProperty(bool, get_origin_offset_dialog, set_origin_offset_dialog, reset_origin_offset_dialog)
+    camview_dialog_action = QtCore.pyqtProperty(bool,
+                                                get_camview_dialog, set_camview_dialog, reset_camview_dialog)
+    origin_offset_dialog_action = QtCore.pyqtProperty(bool,
+                                                      get_origin_offset_dialog, set_origin_offset_dialog,
+                                                      reset_origin_offset_dialog)
     macro_dialog_action = QtCore.pyqtProperty(bool, get_macro_dialog, set_macro_dialog, reset_macro_dialog)
     launch_halmeter_action = QtCore.pyqtProperty(bool, get_launch_halmeter, set_launch_halmeter, reset_launch_halmeter)
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)

@@ -1,21 +1,37 @@
 #!/usr/bin/python2.7
+# qtvcp
+#
+# Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+#################################################################################
 
 from PyQt5.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
-from PyQt5.QtGui import  QColor, QPainter, QBrush, QRadialGradient
+from PyQt5.QtGui import QColor, QPainter, QBrush, QRadialGradient
 from PyQt5.QtWidgets import QWidget
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
-
-# Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+
+# Instantiate the libraries with global reference
+# LOG is for running code logging
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Lcnc_Led(QWidget, _HalWidgetBase):
-
     def __init__(self, parent=None):
-
         super(Lcnc_Led, self).__init__(parent)
-
         self._diamX = 0
         self._diamY = 0
         self._diameter = 15
@@ -38,12 +54,12 @@ class Lcnc_Led(QWidget, _HalWidgetBase):
         if (self.has_hal_pins):
             _HalWidgetBase._hal_init(self)
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
-            self.hal_pin.value_changed.connect( lambda s: self.change_state(s))
+            self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
             # not sure we need a flash pin
             #self.hal_pin_flash = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-flash', hal.HAL_BIT, hal.HAL_IN)
             #self.hal_pin_flash.value_changed.connect( lambda s: self.setFlashing(s))
 
-    def change_state(self,data):
+    def change_state(self, data):
         self.state = data
         if data and self.flash:
             self.setFlashing(True)
@@ -167,7 +183,6 @@ class Lcnc_Led(QWidget, _HalWidgetBase):
     def setFlashRate(self, value):
         self._flashRate = value
         self.update()
-
 
     diameter = pyqtProperty(int, getDiameter, setDiameter)
     color = pyqtProperty(QColor, getColor, setColor)
