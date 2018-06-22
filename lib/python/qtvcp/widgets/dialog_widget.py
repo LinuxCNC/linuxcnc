@@ -21,9 +21,9 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
-from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
+from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
-from qtvcp.widgets.macro_widget import macroTab
+from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -41,9 +41,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_Dialog(QMessageBox):
+class LcncDialog(QMessageBox):
     def __init__(self, parent=None):
-        super(Lcnc_Dialog, self).__init__(parent)
+        super(LcncDialog, self).__init__(parent)
         self.setTextFormat(Qt.RichText)
         self.setText('<b>Sample Text?</b>')
         self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -102,7 +102,7 @@ class Lcnc_Dialog(QMessageBox):
         geom = self.frameGeometry()
         geom.moveCenter(QDesktopWidget().availableGeometry().center())
         self.setGeometry(geom)
-        super(Lcnc_Dialog, self).showEvent(event)
+        super(LcncDialog, self).showEvent(event)
 
     def msgbtn(self, i):
         LOG.debug("Button pressed is: {}".format(i.text()))
@@ -137,9 +137,9 @@ class Lcnc_Dialog(QMessageBox):
 ################################################################################
 # Tool Change Dialog
 ################################################################################
-class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
+class ToolDialog(LcncDialog, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_ToolDialog, self).__init__(parent)
+        super(ToolDialog, self).__init__(parent)
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
@@ -226,9 +226,9 @@ class Lcnc_ToolDialog(Lcnc_Dialog, _HalWidgetBase):
 ################################################################################
 # File Open Dialog
 ################################################################################
-class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
+class FileDialog(QFileDialog, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_FileDialog, self).__init__(parent)
+        super(FileDialog, self).__init__(parent)
         self._state = False
         self._color = QColor(0, 0, 0, 150)
         options = QFileDialog.Options()
@@ -304,9 +304,9 @@ class Lcnc_FileDialog(QFileDialog, _HalWidgetBase):
 ################################################################################
 # origin Offset Dialog
 ################################################################################
-class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
+class OriginOffsetDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_OriginOffsetDialog, self).__init__(parent)
+        super(OriginOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
         self.setWindowModality(Qt.ApplicationModal)
@@ -410,9 +410,9 @@ class Lcnc_OriginOffsetDialog(QDialog, _HalWidgetBase):
 ################################################################################
 # CamView Dialog
 ################################################################################
-class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
+class CamViewDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_CamViewDialog, self).__init__(parent)
+        super(CamViewDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
 
@@ -480,11 +480,11 @@ class Lcnc_CamViewDialog(QDialog, _HalWidgetBase):
 
 
 ################################################################################
-# macroTab Dialog
+# MacroTab Dialog
 ################################################################################
-class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
+class MacroTabDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_MacroTabDialog, self).__init__(parent)
+        super(MacroTabDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
 
@@ -496,10 +496,10 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
         self.resize(600, 400)
         # patch class to call our button methods rather then the
         # original methods (Gotta do before instantiation)
-        macroTab.cancelChecked = self._cancel
-        macroTab.okChecked = self._ok
+        MacroTab.cancelChecked = self._cancel
+        MacroTab.okChecked = self._ok
         # ok now instantiate patched class
-        self.tab = macroTab()
+        self.tab = MacroTab()
         l = QVBoxLayout()
         self.setLayout(l)
         l.addWidget(self.tab)
@@ -516,13 +516,13 @@ class Lcnc_MacroTabDialog(QDialog, _HalWidgetBase):
 
     # This method is called instead of MacroTab's cancelChecked method
     # we do this so we can use it's buttons to hide our dialog
-    # rather then close the macroTab widget
+    # rather then close the MacroTab widget
     def _cancel(self):
         self.close()
 
     # This method is called instead of MacroTab's okChecked() method
     # we do this so we can use it's buttons to hide our dialog
-    # rather then close the macroTab widget
+    # rather then close the MacroTab widget
     def _ok(self):
         self.tab.runMacro()
         self.close()
@@ -576,7 +576,7 @@ def main():
     from PyQt4.QtGui import QApplication
 
     app = QApplication(sys.argv)
-    widget = Lcnc_ToolDialog()
+    widget = ToolDialog()
     widget.show()
     sys.exit(app.exec_())
 if __name__ == "__main__":

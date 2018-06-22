@@ -20,7 +20,7 @@
 
 import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
-from qtvcp.widgets.screenoptions import Lcnc_ScreenOptions
+from qtvcp.widgets.screenoptions import ScreenOptions
 from qtvcp.core import QComponent
 from PyQt5.QtCore import QObject
 
@@ -34,14 +34,14 @@ class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug,PATH):
         preference = None
         self.hal = QComponent(halcomp)
-        # see if a screen options widget is present
+        # see if a screenoptions widget is present
         # if is is then initiate the preference file
         # and pass a preference object to the window
         # it's then available to all HALified objects
         for widget in window.findChildren(QObject):
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
-                if isinstance(widget, Lcnc_ScreenOptions):
+                if isinstance(widget, ScreenOptions):
                     preference = widget._pref_init()
                     window['PREFS_'] = preference
         # parse for HAL objects:

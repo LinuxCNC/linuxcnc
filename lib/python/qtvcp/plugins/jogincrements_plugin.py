@@ -1,15 +1,15 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.ledwidget import Lcnc_Led
+from qtvcp.widgets.jog_increments import JogIncrements
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
-class LedPlugin(QPyDesignerCustomWidgetPlugin):
+class JogIncrementsPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):
-        super(LedPlugin, self).__init__(parent)
+        super(JogIncrementsPlugin, self).__init__(parent)
 
         self.initialized = False
 
@@ -23,16 +23,16 @@ class LedPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_Led(parent)
+        return JogIncrements(parent)
 
     def name(self):
-        return "Lcnc_Led"
+        return "JogIncrements"
 
     def group(self):
         return "Linuxcnc - HAL"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_led')))
+        return QIcon(QPixmap(ICON.get_path('jogincrements')))
 
     def toolTip(self):
         return ""
@@ -47,7 +47,7 @@ class LedPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_Led" name="lcnc_led" />\n'
+        return '<widget class="JogIncrements" name="jogincrements" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.ledwidget"
+        return "qtvcp.widgets.jog_increments"

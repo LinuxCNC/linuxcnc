@@ -16,7 +16,7 @@
 #################################################################################
 
 from PyQt5.QtCore import pyqtProperty
-from qtvcp.widgets.ledwidget import Lcnc_Led
+from qtvcp.widgets.ledwidget import LED
 from qtvcp.core import Status
 from qtvcp import logger
 
@@ -30,10 +30,10 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_State_Led(Lcnc_Led,):
+class StateLED(LED):
 
     def __init__(self, parent=None):
-        super(Lcnc_State_Led, self).__init__(parent)
+        super(StateLED, self).__init__(parent)
         self.has_hal_pins = False
         self.setState(False)
 
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     import sys
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
-    led = Lcnc_State_Led()
+    led = StateLED()
     led.show()
     #led.startFlashing()
     sys.exit(app.exec_())

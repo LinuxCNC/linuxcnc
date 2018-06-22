@@ -35,9 +35,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_DROLabel(QtWidgets.QLabel, _HalWidgetBase):
+class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_DROLabel, self).__init__(parent)
+        super(DROLabel, self).__init__(parent)
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0
@@ -122,7 +122,7 @@ def main():
     from PyQt4.QtGui import QApplication
 
     app = QApplication(sys.argv)
-    widget = Lcnc_DROLabel()
+    widget = DROLabel()
     widget.show()
     sys.exit(app.exec_())
 if __name__ == "__main__":

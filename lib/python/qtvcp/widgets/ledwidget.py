@@ -29,9 +29,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_Led(QWidget, _HalWidgetBase):
+class LED(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_Led, self).__init__(parent)
+        super(LED, self).__init__(parent)
         self._diamX = 0
         self._diamY = 0
         self._diameter = 15
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     import sys
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
-    led = Lcnc_Led()
+    led = LED()
     led.show()
     led.setFlashing(True)
     sys.exit(app.exec_())

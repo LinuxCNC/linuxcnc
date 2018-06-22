@@ -31,9 +31,9 @@ STATUS = Status()
 LOG = logger.getLogger(__name__)
 
 
-class State_Enable_GridLayout(QWidget, _HalWidgetBase):
+class StateEnableGridLayout(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(State_Enable_GridLayout, self).__init__(parent)
+        super(StateEnableGridLayout, self).__init__(parent)
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         self.inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.ini = linuxcnc.ini(self.inifile)

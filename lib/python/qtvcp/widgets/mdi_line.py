@@ -36,9 +36,9 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 
-class Lcnc_MDILine(QLineEdit):
+class MDILine(QLineEdit):
     def __init__(self, parent=None):
-        super(Lcnc_MDILine, self).__init__(parent)
+        super(MDILine, self).__init__(parent)
 
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -82,7 +82,7 @@ class Lcnc_MDILine(QLineEdit):
             self.setText(text)
 
     def keyPressEvent(self, event):
-        super(Lcnc_MDILine, self).keyPressEvent(event)
+        super(MDILine, self).keyPressEvent(event)
         if event.key() == Qt.Key_Up:
             LOG.debug('up')
             STATUS.emit('move-text-lineup')
@@ -97,7 +97,7 @@ def main():
     from PyQt4.QtGui import QApplication
 
     app = QApplication(sys.argv)
-    widget = Lcnc_MDILine()
+    widget = MDILine()
     widget.show()
     sys.exit(app.exec_())
 if __name__ == "__main__":

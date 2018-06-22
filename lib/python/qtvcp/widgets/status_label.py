@@ -29,9 +29,9 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 
 
-class Lcnc_Gstat_Label(QtWidgets.QLabel, _HalWidgetBase):
+class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_Gstat_Label, self).__init__(parent)
+        super(StatusLabel, self).__init__(parent)
         self.display_units_mm = False
         self._textTemplate = '%s'
         self._alt_textTemplate = 'None'

@@ -3,10 +3,10 @@
 ############################
 
 from PyQt5 import QtCore, QtWidgets
-from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
-from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
-from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
-from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
+from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
+from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
+from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
+from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action
 
@@ -126,13 +126,13 @@ class HandlerClass:
                 ACTION.SET_MACHINE_HOMING(-1)
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
-            self.w.lcnc_originoffsetdialog.load_dialog()
+            self.w.originoffsetdialog.load_dialog()
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            self.w.lcnc_camviewdialog.load_dialog()
+            self.w.camviewdialog.load_dialog()
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
-            self.w.lcnc_macrotabdialog.load_dialog()
+            self.w.macrotabdialog.load_dialog()
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:
             STATUS.do_jog(0, 1, STATUS.current_jog_distance)

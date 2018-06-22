@@ -24,9 +24,9 @@ LOG = logger.getLogger(__name__)
 
 
 # reacts to HAL pin changes
-class Lcnc_LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
+class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_LCDNumber, self).__init__(parent)
+        super(LCDNumber, self).__init__(parent)
 
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_IN)
@@ -36,19 +36,19 @@ class Lcnc_LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
         self.display(data)
 
 
-class Lcnc_CheckBox(QtWidgets.QCheckBox, _HalToggleBase):
+class CheckBox(QtWidgets.QCheckBox, _HalToggleBase):
     def __init__(self, parent=None):
-        super(Lcnc_CheckBox, self).__init__(parent)
+        super(CheckBox, self).__init__(parent)
 
 
-class Lcnc_RadioButton(QtWidgets.QRadioButton, _HalToggleBase):
+class RadioButton(QtWidgets.QRadioButton, _HalToggleBase):
     def __init__(self, parent=None):
-        super(Lcnc_RadioButton, self).__init__(parent)
+        super(RadioButton, self).__init__(parent)
 
 
-class Lcnc_QSlider(QtWidgets.QSlider, _HalWidgetBase):
+class Slider(QtWidgets.QSlider, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_QSlider, self).__init__(parent)
+        super(Slider, self).__init__(parent)
 
     def _hal_init(self):
         self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
@@ -62,9 +62,9 @@ class Lcnc_QSlider(QtWidgets.QSlider, _HalWidgetBase):
         self.valueChanged.connect(partial(-f))
 
 
-class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
+class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent=None):
-        super(Lcnc_GridLayout, self).__init__(parent)
+        super(GridLayout, self).__init__(parent)
 
 
 # LED indicator on the right corner
@@ -157,14 +157,14 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
 
 
-class Lcnc_PushButton(Indicated_PushButton, _HalWidgetBase):
+class PushButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_PushButton, self).__init__(parent)
+        super(PushButton, self).__init__(parent)
 
     # make the super class (pushbutton) HAL pins
     # then the button pins
     def _hal_init(self):
-        super(Lcnc_PushButton, self)._hal_init()
+        super(PushButton, self)._hal_init()
         self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
         def _f(data):
                 self.hal_pin.set(data)

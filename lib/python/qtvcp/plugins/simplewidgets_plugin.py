@@ -2,12 +2,12 @@
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.simple_widgets import Lcnc_PushButton
-from qtvcp.widgets.simple_widgets import Lcnc_CheckBox
-from qtvcp.widgets.simple_widgets import Lcnc_RadioButton
-from qtvcp.widgets.simple_widgets import Lcnc_LCDNumber
-from qtvcp.widgets.simple_widgets import Lcnc_QSlider
-from qtvcp.widgets.simple_widgets import Lcnc_GridLayout
+from qtvcp.widgets.simple_widgets import PushButton
+from qtvcp.widgets.simple_widgets import CheckBox
+from qtvcp.widgets.simple_widgets import RadioButton
+from qtvcp.widgets.simple_widgets import LCDNumber
+from qtvcp.widgets.simple_widgets import Slider
+from qtvcp.widgets.simple_widgets import GridLayout
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -37,11 +37,11 @@ class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # This factory method creates new instances of our custom widget
     def createWidget(self, parent):
-        return Lcnc_PushButton(parent)
+        return PushButton(parent)
 
     # This method returns the name of the custom widget class
     def name(self):
-        return "Lcnc_PushButton"
+        return "PushButton"
 
     # Returns the name of the group in Qt Designer's widget box
     def group(self):
@@ -49,7 +49,7 @@ class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # Returns the icon
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_pushbutton')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('pushbutton')))
 
     # Returns a tool tip short description
     def toolTip(self):
@@ -67,7 +67,7 @@ class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
     # Returns an XML description of a custom widget instance that describes
     # default values for its properties.
     def domXml(self):
-        return '<widget class="Lcnc_PushButton" name="lcnc_pushbutton" />\n'
+        return '<widget class="PushButton" name="pushbutton" />\n'
 
     # Returns the module containing the custom widget class. It may include
     # a module path.
@@ -88,13 +88,13 @@ class CheckBoxPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return Lcnc_CheckBox(parent)
+        return CheckBox(parent)
     def name(self):
-        return "Lcnc_CheckBox"
+        return "CheckBox"
     def group(self):
         return "Linuxcnc - HAL"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_checkbox')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('checkbox')))
     def toolTip(self):
         return "HAL Checkbox widget"
     def whatsThis(self):
@@ -102,7 +102,7 @@ class CheckBoxPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return False
     def domXml(self):
-        return '<widget class="Lcnc_CheckBox" name="lcnc_checkbox" />\n'
+        return '<widget class="CheckBox" name="checkbox" />\n'
     def includeFile(self):
         return "qtvcp.widgets.simple_widgets"
 
@@ -120,13 +120,13 @@ class RadioButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return Lcnc_RadioButton(parent)
+        return RadioButton(parent)
     def name(self):
-        return "Lcnc_RadioButton"
+        return "RadioButton"
     def group(self):
         return "Linuxcnc - HAL"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_radiobutton')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('radiobutton')))
     def toolTip(self):
         return "HAL Radiobutton widget"
     def whatsThis(self):
@@ -134,7 +134,7 @@ class RadioButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return False
     def domXml(self):
-        return '<widget class="Lcnc_RadioButton" name="lcnc_radiobutton" />\n'
+        return '<widget class="RadioButton" name="radiobutton" />\n'
     def includeFile(self):
         return "qtvcp.widgets.simple_widgets"
 ####################################
@@ -151,13 +151,13 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return Lcnc_LCDNumber(parent)
+        return LCDNumber(parent)
     def name(self):
-        return "Lcnc_LCDNumber"
+        return "LCDNumber"
     def group(self):
         return "Linuxcnc - HAL"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('Lcnc_LCDNumber')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('LCDNumber')))
     def toolTip(self):
         return "HAL LCD Display widget"
     def whatsThis(self):
@@ -165,16 +165,16 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return False
     def domXml(self):
-        return '<widget class="Lcnc_LCDNumber" name="lcnc_lcdnumber" />\n'
+        return '<widget class="LCDNumber" name="lcdnumber" />\n'
     def includeFile(self):
         return "qtvcp.widgets.simple_widgets"
 
 ####################################
 # Slider
 ####################################
-class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
+class SliderPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        super(QSliderPlugin, self).__init__(parent)
+        super(SliderPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -183,13 +183,13 @@ class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return Lcnc_QSlider(parent)
+        return Slider(parent)
     def name(self):
-        return "Lcnc_QSlider"
+        return "Slider"
     def group(self):
         return "Linuxcnc - HAL"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('Lcnc_QSlider')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('slider')))
     def toolTip(self):
         return "HAL Slider widget"
     def whatsThis(self):
@@ -198,7 +198,7 @@ class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
         return False
     def domXml(self):
         return("""
-                <widget class="Lcnc_QSlider" name="lcnc_qslider">
+                <widget class="Slider" name="slider">
                     <property name=\"maximum\">
                         <number>100</number>
                     </property>
@@ -224,13 +224,13 @@ class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return Lcnc_GridLayout(parent)
+        return GridLayout(parent)
     def name(self):
-        return "Lcnc_GridLayout"
+        return "GridLayout"
     def group(self):
         return "Linuxcnc - HAL"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_gridlayout')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gridlayout')))
     def toolTip(self):
         return "HAL enable/disable GridLayout widget"
     def whatsThis(self):
@@ -238,6 +238,6 @@ class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="Lcnc_GridLayout" name="lcnc_gridlayout" />\n'
+        return '<widget class="GridLayout" name="gridlayout" />\n'
     def includeFile(self):
         return "qtvcp.widgets.simple_widgets"

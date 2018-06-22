@@ -5,7 +5,7 @@ from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
                 QPyDesignerTaskMenuExtension, QExtensionFactory, \
                 QDesignerFormWindowInterface
 
-from qtvcp.widgets.screenoptions import Lcnc_ScreenOptions
+from qtvcp.widgets.screenoptions import ScreenOptions
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -31,13 +31,13 @@ class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return Lcnc_ScreenOptions(parent)
+        return ScreenOptions(parent)
     def name(self):
-        return "Lcnc_ScreenOptions"
+        return "ScreenOptions"
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_screenoptions')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('screenoptions')))
     def toolTip(self):
         return "ScreenOptions widget"
     def whatsThis(self):
@@ -45,7 +45,7 @@ class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="Lcnc_ScreenOptions" name="lcnc_screenoptions" />\n'
+        return '<widget class="ScreenOptions" name="screenoptions" />\n'
     def includeFile(self):
         return "qtvcp.widgets.screenoptions"
 
@@ -57,7 +57,7 @@ class GeoLocationDialog(QtWidgets.QDialog):
 
       self.widget = widget
 
-      self.previewWidget = Lcnc_ScreenOptions()
+      self.previewWidget = ScreenOptions()
       self.previewWidget.notify_option = widget.notify_option
       #self.previewWidget.longitude = widget.longitude
 
@@ -136,7 +136,7 @@ class GeoLocationTaskMenuFactory(QExtensionFactory):
       if iid != "com.trolltech.Qt.Designer.TaskMenu":
           return None
 
-      if isinstance(obj, Lcnc_ScreenOptions):
+      if isinstance(obj, ScreenOptions):
           return GeoLocationMenuEntry(obj, parent)
 
       return None

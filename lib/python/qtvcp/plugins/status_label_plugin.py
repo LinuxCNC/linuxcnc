@@ -4,14 +4,14 @@ from PyQt5.QtGui import QIcon, QPixmap, QTextFormat
 from PyQt5.QtWidgets import QDialog, QLabel
 from PyQt5.QtCore import pyqtProperty,QVariant
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, QPyDesignerPropertySheetExtension,QDesignerFormWindowInterface
-from qtvcp.widgets.gstat_label import Lcnc_Gstat_Label
+from qtvcp.widgets.status_label import StatusLabel
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
-class GstatLabelPlugin(QPyDesignerCustomWidgetPlugin):
+class StatusLabelPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):
-        super(GstatLabelPlugin, self).__init__(parent)
+        super(StatusLabelPlugin, self).__init__(parent)
 
         self.initialized = False
 
@@ -30,16 +30,16 @@ class GstatLabelPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_Gstat_Label(parent)
+        return StatusLabel(parent)
 
     def name(self):
-        return "Lcnc_Gstat_Label"
+        return "StatusLabel"
 
     def group(self):
         return "Linuxcnc - Controller"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_gstat_label')))
+        return QIcon(QPixmap(ICON.get_path('statuslabel')))
 
     def toolTip(self):
         return ""
@@ -54,7 +54,7 @@ class GstatLabelPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_Gstat_Label" name="lcnc_gstat_label" />\n'
+        return '<widget class="StatusLabel" name="statuslabel" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.gstat_label"
@@ -71,7 +71,7 @@ class GstatLabelPropertySheetExtension(QExtensionFactory):
       if iid != "com.trolltech.Qt.Designer.PropertySheet":
           return None
 
-      if isinstance(obj, Lcnc_Gstat_Label):
+      if isinstance(obj, StatusLabel):
           return GstatLabelPropertySheet(obj, parent)
 
       return None
@@ -87,9 +87,9 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
         self.temp_flag = True
         #print dir(self.widget.pyqtConfigure.__sizeof__)
         #print self.widget.pyqtConfigure.__sizeof__()
-        for i in Lcnc_Gstat_Label.__dict__:
+        for i in StatusLabel.__dict__:
             #print i
-            if 'PyQt4.QtCore.pyqtProperty'  in str(Lcnc_Gstat_Label.__dict__[i]):
+            if 'PyQt4.QtCore.pyqtProperty'  in str(StatusLabel.__dict__[i]):
                 self.propertylist.append(i)
                 print i
         #print dir(self.widget)
@@ -148,7 +148,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
             self.widget.setGeometry(value)
         if prop is 'text':
             self.widget.setText(value)
-        if 'status' in prop:
+        if 'Status' in prop:
             self.do_alt_text_test(prop, index,value)
         self.widget[prop] = value
 

@@ -83,9 +83,9 @@ class CustomButton(QtWidgets.QPushButton):
 # instantiate it with layer number or
 # set layer number after with setLayerNumbet(int)
 ####################################################
-class Custom_SVG(QtSvg.QSvgWidget):
+class CustomSVG(QtSvg.QSvgWidget):
     def __init__(self, parent=None, layer=0):
-        super(Custom_SVG, self).__init__(parent)
+        super(CustomSVG, self).__init__(parent)
         self.basename = 'layer'
         self.layer = 'layer%d' % layer
         self.num = layer
@@ -114,9 +114,9 @@ class Custom_SVG(QtSvg.QSvgWidget):
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
 ###############################################################################
-class macroTab(QtWidgets.QWidget, _HalWidgetBase):
+class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(macroTab, self).__init__(parent)
+        super(MacroTab, self).__init__(parent)
         try:
             tpath = os.path.expanduser(INFO.SUB_PATH)
             self.filepath = os.path.join(tpath, '')
@@ -195,7 +195,7 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
             svg_info = self[tName][1]
             #print self.filepath+svg_info[0], svg_info[1]
             svgpath = os.path.join(self.filepath, svg_info[0])
-            self['sw%d' % i] = Custom_SVG(svgpath,  int(svg_info[1]))
+            self['sw%d' % i] = CustomSVG(svgpath,  int(svg_info[1]))
             hbox.addWidget(self['sw%d' % i])
             vbox.addStretch(1)
             hbox.addLayout(vbox)
@@ -300,6 +300,8 @@ class macroTab(QtWidgets.QWidget, _HalWidgetBase):
                             #print'group:',name, self[name]
                             # make a list of pages, which is also the macro program name
                             tName.append(name)
+        except (TypeError):
+            return None
         except Exception as e:
             LOG.debug('Exception loading Macros:', exc_info=e)
             return None
@@ -362,7 +364,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     #sw = QtSvg.QSvgWidget('LatheMacro.svg')
-    sw = macroTab()
+    sw = MacroTab()
     sw.setGeometry(50, 50, 759, 668)
     sw.show()
     sys.exit(app.exec_())

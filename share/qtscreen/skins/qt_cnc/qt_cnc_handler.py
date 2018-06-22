@@ -4,10 +4,10 @@
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-from qtvcp.widgets.origin_offsetview import Lcnc_OriginOffsetView as OFFVIEW_WIDGET
-from qtvcp.widgets.dialog_widget import Lcnc_CamViewDialog as CAMVIEW
-from qtvcp.widgets.dialog_widget import Lcnc_MacroTabDialog as LATHEMACRO
-from qtvcp.widgets.mdi_line import Lcnc_MDILine as MDI_WIDGET
+from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
+from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
+from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
+from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_widget import GcodeEditor as GCODE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.notify import Notify

@@ -31,9 +31,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class GstatStacked(QtWidgets.QStackedWidget, _HalWidgetBase):
+class StatusStacked(QtWidgets.QStackedWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(GstatStacked, self).__init__(parent)
+        super(StatusStacked, self).__init__(parent)
         self.auto = True
         self.mdi = True
         self.manual = True

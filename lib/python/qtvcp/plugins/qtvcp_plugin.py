@@ -19,20 +19,20 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # HAL only widgets
-from qtvcp.plugins.simplewidgetsplugin import *
-from qtvcp.plugins.ledplugin import LedPlugin
+from qtvcp.plugins.simplewidgets_plugin import *
+from qtvcp.plugins.led_plugin import LEDPlugin
 
 # Linuxcnc widgets
-from qtvcp.plugins.container_plug import StateEnableGridLayoutPlugin
-from qtvcp.plugins.graphicsplugin import LcncGraphics5Plugin
-from qtvcp.plugins.lcnc_widgetplugin import *
-from qtvcp.plugins.ledstateplugin import LedStatePlugin
-from qtvcp.plugins.gstat_label_plugin import GstatLabelPlugin
-from qtvcp.plugins.gstat_bool_label_plugin import GstatBoolLabelPlugin
+from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
+from qtvcp.plugins.graphics_plugin import GCodeGraphicsPlugin
+from qtvcp.plugins.widgets_plugin import *
+from qtvcp.plugins.state_led_plugin import StateLEDPlugin
+from qtvcp.plugins.status_label_plugin import StatusLabelPlugin
+from qtvcp.plugins.state_label_plugin import StateLabelPlugin
 from qtvcp.plugins.actionbutton_plugin import ActionButtonPlugin
 from qtvcp.plugins.dialog_plugin import *
-from qtvcp.plugins.overlayplugin import FocusOverlayPlugin
-from qtvcp.plugins.gstat_slider_plugin import GstatSliderPlugin
-from qtvcp.plugins.screenoptionsplugin import LcncScreenOptionsPlugin
-from qtvcp.plugins.jogincrementsplugin import JogIncrementsPlugin
-from qtvcp.plugins.camviewplugin import CamViewPlugin
+from qtvcp.plugins.overlay_plugin import FocusOverlayPlugin
+from qtvcp.plugins.status_slider_plugin import StatusSliderPlugin
+from qtvcp.plugins.screenoptions_plugin import LcncScreenOptionsPlugin
+from qtvcp.plugins.jogincrements_plugin import JogIncrementsPlugin
+from qtvcp.plugins.camview_plugin import CamViewPlugin

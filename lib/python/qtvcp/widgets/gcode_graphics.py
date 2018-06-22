@@ -45,9 +45,9 @@ LOG = logger.getLogger(__name__)
 ##############################################
 # Container class
 ##############################################
-class Lcnc_Graphics5(Lcnc_3dGraphics, _HalWidgetBase):
+class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_Graphics5, self).__init__(parent)
+        super( GCodeGraphics, self).__init__(parent)
         self.colors['overlay_background'] = (0.0, 0.0, 0.57)  # blue
         self.colors['back'] = (0.0, 0.0, 0.75)  # blue
         self.show_overlay = False  # no DRO or DRO overlay
@@ -156,6 +156,6 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = Lcnc_Graphics5()
+    widget =  GCodeGraphics()
     widget.show()
     sys.exit(app.exec_())

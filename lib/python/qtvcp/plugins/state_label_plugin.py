@@ -2,14 +2,14 @@
 
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.gstat_bool_label import Lcnc_Gstat_Bool_Label
+from qtvcp.widgets.state_label import StateLabel
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
-class GstatBoolLabelPlugin(QPyDesignerCustomWidgetPlugin):
+class StateLabelPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):
-        super(GstatBoolLabelPlugin, self).__init__(parent)
+        super(StateLabelPlugin, self).__init__(parent)
 
         self.initialized = False
 
@@ -22,16 +22,16 @@ class GstatBoolLabelPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_Gstat_Bool_Label(parent)
+        return StateLabel(parent)
 
     def name(self):
-        return "Lcnc_Gstat_Bool_Label"
+        return "StateLabel"
 
     def group(self):
         return "Linuxcnc - Controller"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_gstat_bool_label')))
+        return QIcon(QPixmap(ICON.get_path('statelabel')))
 
     def toolTip(self):
         return ""
@@ -46,7 +46,7 @@ class GstatBoolLabelPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label" />\n'
+        return '<widget class="StateLabel" name="statelabel" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.gstat_bool_label"

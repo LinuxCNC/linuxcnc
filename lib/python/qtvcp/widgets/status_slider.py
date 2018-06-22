@@ -35,9 +35,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Gstat_Slider(QtWidgets.QSlider, _HalWidgetBase):
+class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Gstat_Slider, self).__init__(parent)
+        super(StatusSlider, self).__init__(parent)
         self._block_signal = False
         self.rapid = True
         self.feed = False
