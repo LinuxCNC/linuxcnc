@@ -13,9 +13,8 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # The __init__() method is only used to set up the plugin and define its
     # initialized variable.
-    def __init__(self, parent = None):
-
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+    def __init__(self, parent=None):
+        super(ActionButtonPlugin, self).__init__(parent)
         self.initialized = False
 
     # The initialize() and isInitialized() methods allow the plugin to set up

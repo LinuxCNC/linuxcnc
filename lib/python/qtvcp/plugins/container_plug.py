@@ -11,7 +11,7 @@ ICON = Icon()
 ####################################
 class StateEnableGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(StateEnableGridLayoutPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:

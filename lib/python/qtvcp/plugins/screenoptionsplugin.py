@@ -14,7 +14,7 @@ ICON = Icon()
 ####################################
 class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(LcncScreenOptionsPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
