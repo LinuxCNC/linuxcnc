@@ -219,7 +219,7 @@ class QTscreen:
         try:
             self.halcomp = hal.component(opts.component)
         except:
-            log.critial("Asking for a HAL component using a name that already exists?")
+            log.critical("Asking for a HAL component using a name that already exists?")
             sys.exit(0)
 
         # initialize the window
