@@ -16,7 +16,7 @@ ICON = Icon()
 ####################################
 class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(LcncDROLabelPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -48,7 +48,7 @@ class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class Lcnc_MDIlinePlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(Lcnc_MDIlinePlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -80,7 +80,7 @@ class Lcnc_MDIlinePlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(GcodeEditorPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -112,7 +112,7 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class GstatStackedPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(GstatStackedPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -144,7 +144,7 @@ class GstatStackedPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class Lcnc_OriginOffsetViewPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(Lcnc_OriginOffsetViewPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:

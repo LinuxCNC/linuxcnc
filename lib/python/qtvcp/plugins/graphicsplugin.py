@@ -12,7 +12,7 @@ ICON = Icon()
 ####################################
 class LcncGraphics5Plugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(LcncGraphics5Plugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -46,8 +46,7 @@ class GraphicsPlugin(QPyDesignerCustomWidgetPlugin):
     # The __init__() method is only used to set up the plugin and define its
     # initialized variable.
     def __init__(self, parent = None):
-
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(GraphicsPlugin, self).__init__(parent)
         self.initialized = False
 
     # The initialize() and isInitialized() methods allow the plugin to set up

@@ -19,8 +19,7 @@ class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
     # The __init__() method is only used to set up the plugin and define its
     # initialized variable.
     def __init__(self, parent = None):
-
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(PushButtonPlugin, self).__init__(parent)
         self.initialized = False
 
     # The initialize() and isInitialized() methods allow the plugin to set up
@@ -80,7 +79,7 @@ class PushButtonPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class CheckBoxPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(CheckBoxPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -112,7 +111,7 @@ class CheckBoxPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class RadioButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(RadioButtonPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -143,7 +142,7 @@ class RadioButtonPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(LCDNumberPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -175,7 +174,7 @@ class LCDNumberPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(QSliderPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
@@ -216,7 +215,7 @@ class QSliderPlugin(QPyDesignerCustomWidgetPlugin):
 ####################################
 class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent = None):
-        QPyDesignerCustomWidgetPlugin.__init__(self)
+        super(LcncGridLayoutPlugin, self).__init__(parent)
         self.initialized = False
     def initialize(self, formEditor):
         if self.initialized:
