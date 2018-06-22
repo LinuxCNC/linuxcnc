@@ -2,7 +2,7 @@
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.action_button import Lcnc_ActionButton
+from qtvcp.widgets.action_button import ActionButton
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -32,11 +32,11 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # This factory method creates new instances of our custom widget
     def createWidget(self, parent):
-        return Lcnc_ActionButton(parent)
+        return ActionButton(parent)
 
     # This method returns the name of the custom widget class
     def name(self):
-        return "Lcnc_ActionButton"
+        return "ActionButton"
 
     # Returns the name of the group in Qt Designer's widget box
     def group(self):
@@ -44,7 +44,7 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # Returns the icon
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_actionbutton')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('actionbutton')))
 
     # Returns a tool tip short description
     def toolTip(self):
@@ -62,7 +62,7 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
     # Returns an XML description of a custom widget instance that describes
     # default values for its properties.
     def domXml(self):
-        return '<widget class="Lcnc_ActionButton" name="lcnc_actionbutton" />\n'
+        return '<widget class="ActionButton" name="actionbutton" />\n'
 
     # Returns the module containing the custom widget class. It may include
     # a module path.

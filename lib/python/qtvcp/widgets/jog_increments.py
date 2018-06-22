@@ -33,9 +33,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
+class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_JogIncrements, self).__init__(parent)
+        super(JogIncrements, self).__init__(parent)
         for item in (INFO.JOG_INCREMENTS):
             self.addItem(item)
         self.currentIndexChanged.connect(self.selectionchange)
@@ -85,6 +85,6 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    combo = Lcnc_JogIncrements()
+    combo = JogIncrements()
     combo.show()
     sys.exit(app.exec_())

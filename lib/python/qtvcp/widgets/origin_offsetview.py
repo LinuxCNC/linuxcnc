@@ -44,9 +44,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_OriginOffsetView(QTableView, _HalWidgetBase):
+class OriginOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_OriginOffsetView, self).__init__(parent)
+        super(OriginOffsetView, self).__init__(parent)
 
         self.filename = INFO.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
@@ -376,6 +376,6 @@ class MyTableModel(QAbstractTableModel):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    w = Lcnc_OriginOffsetView()
+    w = OriginOffsetView()
     w.show()
     sys.exit(app.exec_())

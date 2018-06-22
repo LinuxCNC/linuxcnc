@@ -1,38 +1,37 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.jog_increments import Lcnc_JogIncrements
+from qtvcp.widgets.status_slider import StatusSlider
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
-class JogIncrementsPlugin(QPyDesignerCustomWidgetPlugin):
+class StatusSliderPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):
-        super(JogIncrementsPlugin, self).__init__(parent)
+        super(StatusSliderPlugin, self).__init__(parent)
 
         self.initialized = False
 
-    def initialize(self, core):
+    def initialize(self, formEditor):
         if self.initialized:
             return
-
         self.initialized = True
 
     def isInitialized(self):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_JogIncrements(parent)
+        return StatusSlider(parent)
 
     def name(self):
-        return "Lcnc_JogIncrements"
+        return "StatusSlider"
 
     def group(self):
-        return "Linuxcnc - HAL"
+        return "Linuxcnc - Controller"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_jogincrements')))
+        return QIcon(QPixmap(ICON.get_path('statusslider')))
 
     def toolTip(self):
         return ""
@@ -47,7 +46,9 @@ class JogIncrementsPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_JogIncrements" name="lcnc_jogincrements" />\n'
+        return '<widget class="StatusSlider" name="statusslider" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.jog_increments"
+        return "qtvcp.widgets.Status_Slider"
+
+

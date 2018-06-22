@@ -32,9 +32,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_Gstat_Bool_Label(QtWidgets.QLabel, _HalWidgetBase):
+class StateLabel(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_Gstat_Bool_Label, self).__init__(parent)
+        super(StateLabel, self).__init__(parent)
 
         self._true_textTemplate = 'True'
         self._false_textTemplate = 'False'

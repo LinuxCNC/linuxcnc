@@ -32,7 +32,7 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
+   <widget class="DROLabel" name="drolabel_y">
     <property name="geometry">
      <rect>
       <x>450</x>
@@ -52,7 +52,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>0</number>
     </property>
    </widget>
-   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_z">
+   <widget class="DROLabel" name="drolabel_z">
     <property name="geometry">
      <rect>
       <x>450</x>
@@ -81,7 +81,7 @@ font: 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>0</number>
     </property>
    </widget>
-   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
+   <widget class="DROLabel" name="drolabel_x">
     <property name="geometry">
      <rect>
       <x>450</x>
@@ -123,7 +123,7 @@ border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_blue.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Lcnc_DROLabel" name="lcnc_drolabel">
+    <widget class="DROLabel" name="drolabel">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -146,7 +146,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <number>1</number>
      </property>
     </widget>
-    <widget class="Lcnc_DROLabel" name="lcnc_drolabel_2">
+    <widget class="DROLabel" name="drolabel_2">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -166,7 +166,7 @@ color: rgb(255, 255, 255);</string>
       <number>1</number>
      </property>
     </widget>
-    <widget class="Lcnc_DROLabel" name="lcnc_drolabel_3">
+    <widget class="DROLabel" name="drolabel_3">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -237,7 +237,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <string>Z</string>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_7">
+    <widget class="StatusLabel" name="state_label_7">
      <property name="geometry">
       <rect>
        <x>280</x>
@@ -268,7 +268,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label">
+    <widget class="StateLabel" name="StateLabel">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -287,7 +287,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <string/>
      </property>
     </widget>
-    <widget class="Lcnc_Graphics5" name="lcnc_Graphics5">
+    <widget class="GCodeGraphics" name="Graphics">
      <property name="geometry">
       <rect>
        <x>420</x>
@@ -297,7 +297,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       </rect>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label_2">
+    <widget class="StateLabel" name="StateLabel_2">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -322,7 +322,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <string/>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_9">
+    <widget class="StatusLabel" name="state_label_9">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -356,7 +356,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_8">
+    <widget class="StatusLabel" name="state_label_8">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -404,7 +404,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <enum>Qt::AutoText</enum>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label_3">
+    <widget class="StateLabel" name="statelabel_3">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -442,7 +442,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="horizontalScrollBarPolicy">
      <enum>Qt::ScrollBarAlwaysOff</enum>
     </property>
-    <widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog">
+    <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
        <x>489</x>
@@ -453,7 +453,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout">
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout">
     <property name="geometry">
      <rect>
       <x>610</x>
@@ -471,7 +471,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="is_homed_status" stdset="0">
      <bool>true</bool>
     </property>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton">
+    <widget class="ActionButton" name="actionbutton">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -493,7 +493,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <number>2</number>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_2">
+    <widget class="ActionButton" name="actionbutton_2">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -515,7 +515,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <number>1</number>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_3">
+    <widget class="ActionButton" name="actionbutton_3">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -616,7 +616,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label">
+   <widget class="StatusLabel" name="state_label">
     <property name="geometry">
      <rect>
       <x>130</x>
@@ -641,7 +641,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_2">
+   <widget class="StatusLabel" name="state_label_2">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -660,7 +660,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_3">
+   <widget class="StatusLabel" name="state_label_3">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -685,7 +685,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_4">
+   <widget class="StatusLabel" name="state_label_4">
     <property name="geometry">
      <rect>
       <x>760</x>
@@ -713,7 +713,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_5">
+   <widget class="StatusLabel" name="state_label_5">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -744,7 +744,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_6">
+   <widget class="StatusLabel" name="state_label_6">
     <property name="geometry">
      <rect>
       <x>410</x>
@@ -778,7 +778,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_ToolDialog" name="lcnc_tooldialog">
+   <widget class="ToolDialog" name="tooldialog">
     <property name="geometry">
      <rect>
       <x>480</x>
@@ -810,7 +810,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <string>STD_IMAGE_DIR/lcnc_swoop.png</string>
     </property>
    </widget>
-   <widget class="Lcnc_Dialog" name="lcnc_dialog">
+   <widget class="LcncDialog" name="lcncdialog">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -823,7 +823,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="Lcnc_FileDialog" name="lcnc_filedialog">
+   <widget class="FileDialog" name="filedialog">
     <property name="geometry">
      <rect>
       <x>390</x>
@@ -843,7 +843,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </color>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="led_home_x">
+   <widget class="StateLED" name="led_home_x">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -875,7 +875,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="led_home_y">
+   <widget class="StateLED" name="led_home_y">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -910,7 +910,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>1</number>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="led_home_z">
+   <widget class="StateLED" name="led_home_z">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -945,7 +945,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <number>2</number>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_9">
+   <widget class="ActionButton" name="actionbutton_9">
     <property name="geometry">
      <rect>
       <x>360</x>
@@ -967,7 +967,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_10">
+   <widget class="ActionButton" name="actionbutton_10">
     <property name="geometry">
      <rect>
       <x>490</x>
@@ -992,7 +992,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_11">
+   <widget class="ActionButton" name="actionbutton_11">
     <property name="geometry">
      <rect>
       <x>610</x>
@@ -1017,7 +1017,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="Lcnc_ScreenOptions" name="lcnc_ScreenOptions">
+   <widget class="ScreenOptions" name="ScreenOptions">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -1027,7 +1027,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      </rect>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_gstat_label_2">
+   <widget class="StatusLabel" name="StatusLabel_2">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -1043,7 +1043,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_MacroTabDialog" name="lcnc_macrotabdialog">
+   <widget class="MacroTabDialog" name="macrotabdialog">
     <property name="geometry">
      <rect>
       <x>390</x>
@@ -1056,7 +1056,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="Lcnc_OriginOffsetDialog" name="lcnc_originoffsetdialog">
+   <widget class="OriginOffsetDialog" name="originoffsetdialog">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -1069,7 +1069,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="GstatStacked" name="gstatstacked">
+   <widget class="StatusStacked" name="StatusStacked">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1103,7 +1103,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_5">
+      <widget class="StateEnableGridLayout" name="state_enable_gridLayout_5">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -1139,7 +1139,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="Lcnc_ActionButton" name="jog_pos_x">
+        <widget class="ActionButton" name="jog_pos_x">
          <property name="geometry">
           <rect>
            <x>130</x>
@@ -1158,7 +1158,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="Lcnc_ActionButton" name="jog_neg_x">
+        <widget class="ActionButton" name="jog_neg_x">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1177,7 +1177,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="Lcnc_ActionButton" name="jog_pos_z">
+        <widget class="ActionButton" name="jog_pos_z">
          <property name="geometry">
           <rect>
            <x>130</x>
@@ -1202,7 +1202,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
           <number>2</number>
          </property>
         </widget>
-        <widget class="Lcnc_ActionButton" name="jog_neg_z">
+        <widget class="ActionButton" name="jog_neg_z">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1230,7 +1230,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
           <number>2</number>
          </property>
         </widget>
-        <widget class="Lcnc_ActionButton" name="jog_neg_y">
+        <widget class="ActionButton" name="jog_neg_y">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -1258,7 +1258,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
           <number>1</number>
          </property>
         </widget>
-        <widget class="Lcnc_ActionButton" name="jog_pos_y">
+        <widget class="ActionButton" name="jog_pos_y">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -1283,7 +1283,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
           <number>1</number>
          </property>
         </widget>
-        <widget class="Lcnc_JogIncrements" name="lcnc_jogincrements">
+        <widget class="JogIncrements" name="JogIncrements">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -1295,7 +1295,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         </widget>
        </widget>
       </widget>
-      <widget class="Lcnc_ActionButton" name="button_home">
+      <widget class="ActionButton" name="button_home">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -1323,7 +1323,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <number>-1</number>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_25">
+      <widget class="ActionButton" name="actionbutton_25">
        <property name="geometry">
         <rect>
          <x>130</x>
@@ -1354,7 +1354,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_26">
+      <widget class="ActionButton" name="actionbutton_26">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1373,7 +1373,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_27">
+      <widget class="ActionButton" name="actionbutton_27">
        <property name="geometry">
         <rect>
          <x>130</x>
@@ -1389,7 +1389,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_28">
+      <widget class="ActionButton" name="actionbutton_28">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1405,7 +1405,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_29">
+      <widget class="ActionButton" name="actionbutton_29">
        <property name="geometry">
         <rect>
          <x>70</x>
@@ -1421,7 +1421,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_14">
+      <widget class="ActionButton" name="actionbutton_14">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1440,7 +1440,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_13">
+      <widget class="ActionButton" name="actionbutton_13">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -1459,7 +1459,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="Lcnc_State_Led" name="lcnc_state_led_3">
+      <widget class="StateLED" name="StateLED_3">
        <property name="geometry">
         <rect>
          <x>140</x>
@@ -1509,7 +1509,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_12">
+      <widget class="ActionButton" name="actionbutton_12">
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -1546,7 +1546,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="Lcnc_ActionButton" name="actionbutton_load">
+      <widget class="ActionButton" name="actionbutton_load">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -1566,7 +1566,7 @@ file</string>
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_4">
+      <widget class="ActionButton" name="actionbutton_4">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -1585,7 +1585,7 @@ file</string>
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_19">
+      <widget class="ActionButton" name="actionbutton_19">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -1601,7 +1601,7 @@ file</string>
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_20">
+      <widget class="ActionButton" name="actionbutton_20">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -1620,7 +1620,7 @@ file</string>
         <string>z</string>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_21">
+      <widget class="ActionButton" name="actionbutton_21">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -1639,7 +1639,7 @@ file</string>
         <string>y</string>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_22">
+      <widget class="ActionButton" name="actionbutton_22">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -1658,7 +1658,7 @@ file</string>
         <string>x</string>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_23">
+      <widget class="ActionButton" name="actionbutton_23">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -1677,7 +1677,7 @@ file</string>
         <string>y2</string>
        </property>
       </widget>
-      <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_24">
+      <widget class="ActionButton" name="actionbutton_24">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -1699,7 +1699,7 @@ file</string>
      </widget>
     </widget>
    </widget>
-   <widget class="Gstat_Slider" name="gstat_slider">
+   <widget class="StatusSlider" name="StatusSlider">
     <property name="geometry">
      <rect>
       <x>860</x>
@@ -1721,7 +1721,7 @@ file</string>
      <number>10</number>
     </property>
    </widget>
-   <widget class="Gstat_Slider" name="gstat_slider_2">
+   <widget class="StatusSlider" name="StatusSlider_2">
     <property name="geometry">
      <rect>
       <x>860</x>
@@ -1749,7 +1749,7 @@ file</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Gstat_Slider" name="gstat_slider_6">
+   <widget class="StatusSlider" name="StatusSlider_6">
     <property name="geometry">
      <rect>
       <x>860</x>
@@ -1780,7 +1780,7 @@ file</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Gstat_Slider" name="gstat_slider_5">
+   <widget class="StatusSlider" name="StatusSlider_5">
     <property name="geometry">
      <rect>
       <x>860</x>
@@ -1808,7 +1808,7 @@ file</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="mcodes_label">
+   <widget class="StatusLabel" name="mcodes_label">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -1833,7 +1833,7 @@ file</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_15">
+   <widget class="ActionButton" name="actionbutton_15">
     <property name="geometry">
      <rect>
       <x>955</x>
@@ -1855,7 +1855,7 @@ file</string>
      <double>75.000000000000000</double>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_16">
+   <widget class="ActionButton" name="actionbutton_16">
     <property name="geometry">
      <rect>
       <x>955</x>
@@ -1880,7 +1880,7 @@ file</string>
      <double>25.000000000000000</double>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_17">
+   <widget class="ActionButton" name="actionbutton_17">
     <property name="geometry">
      <rect>
       <x>955</x>
@@ -1908,7 +1908,7 @@ file</string>
      <double>90.000000000000000</double>
     </property>
    </widget>
-   <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_18">
+   <widget class="ActionButton" name="actionbutton_18">
     <property name="geometry">
      <rect>
       <x>955</x>
@@ -1961,7 +1961,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Lcnc_ActionButton" name="actionbutton_override_limits">
+    <widget class="ActionButton" name="actionbutton_override_limits">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -1977,7 +1977,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led_9">
+    <widget class="StateLED" name="StateLED_9">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -2008,7 +2008,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="button_estop">
+    <widget class="ActionButton" name="button_estop">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -2030,7 +2030,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="button_machineon">
+    <widget class="ActionButton" name="button_machineon">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -2055,7 +2055,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="actionbutton_flood">
+    <widget class="ActionButton" name="actionbutton_flood">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -2077,7 +2077,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="actionbutton_mist">
+    <widget class="ActionButton" name="actionbutton_mist">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -2099,7 +2099,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="actionbutton_block_delete">
+    <widget class="ActionButton" name="actionbutton_block_delete">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -2121,7 +2121,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="actionbutton_optional_stop">
+    <widget class="ActionButton" name="actionbutton_optional_stop">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -2146,7 +2146,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led_8">
+    <widget class="StateLED" name="StateLED_8">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -2178,7 +2178,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led_7">
+    <widget class="StateLED" name="StateLED_7">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -2210,7 +2210,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led_5">
+    <widget class="StateLED" name="StateLED_5">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -2239,7 +2239,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led_6">
+    <widget class="StateLED" name="StateLED_6">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -2268,7 +2268,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="led_machine_on">
+    <widget class="StateLED" name="led_machine_on">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -2297,7 +2297,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led">
+    <widget class="StateLED" name="StateLED">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -2316,7 +2316,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_6">
+    <widget class="ActionButton" name="actionbutton_6">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -2338,7 +2338,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_5">
+    <widget class="ActionButton" name="actionbutton_5">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -2360,7 +2360,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="Lcnc_State_Led" name="lcnc_state_led_4">
+    <widget class="StateLED" name="StateLED_4">
      <property name="geometry">
       <rect>
        <x>300</x>
@@ -2419,7 +2419,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_7">
+    <widget class="ActionButton" name="actionbutton_7">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -2438,7 +2438,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <double>0.010000000000000</double>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_8">
+    <widget class="ActionButton" name="actionbutton_8">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -2457,7 +2457,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <double>0.100000000000000</double>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_30">
+    <widget class="ActionButton" name="actionbutton_30">
      <property name="geometry">
       <rect>
        <x>110</x>
@@ -2476,7 +2476,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <double>1.000000000000000</double>
      </property>
     </widget>
-    <widget class="Lcnc_ActionButton" name="lcnc_actionbutton_31">
+    <widget class="ActionButton" name="actionbutton_31">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -2597,7 +2597,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Lcnc_MDILine" name="mdi_line">
+    <widget class="MDILine" name="mdi_line">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -2621,7 +2621,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
     </widget>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="gcodes_label">
+   <widget class="StatusLabel" name="gcodes_label">
     <property name="geometry">
      <rect>
       <x>370</x>
@@ -2666,7 +2666,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_gstat_label">
+   <widget class="StatusLabel" name="StatusLabel">
     <property name="geometry">
      <rect>
       <x>760</x>
@@ -2688,7 +2688,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_state_label_10">
+   <widget class="StatusLabel" name="state_label_10">
     <property name="geometry">
      <rect>
       <x>410</x>
@@ -2729,8 +2729,8 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     </property>
    </widget>
    <zorder>frame_auto_5</zorder>
-   <zorder>lcnc_state_label_4</zorder>
-   <zorder>lcnc_gstat_label</zorder>
+   <zorder>state_label_4</zorder>
+   <zorder>StatusLabel</zorder>
    <zorder>frame_auto_10</zorder>
    <zorder>frame_auto_9</zorder>
    <zorder>frame_auto_6</zorder>
@@ -2738,9 +2738,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>frame_auto_4</zorder>
    <zorder>frame_auto_3</zorder>
    <zorder>frame_auto_2</zorder>
-   <zorder>lcnc_drolabel_y</zorder>
-   <zorder>lcnc_drolabel_z</zorder>
-   <zorder>lcnc_drolabel_x</zorder>
+   <zorder>drolabel_y</zorder>
+   <zorder>drolabel_z</zorder>
+   <zorder>drolabel_x</zorder>
    <zorder>frame</zorder>
    <zorder>gcodeeditor</zorder>
    <zorder>state_enable_gridLayout</zorder>
@@ -2750,37 +2750,37 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>label_16</zorder>
    <zorder>label_17</zorder>
    <zorder>line</zorder>
-   <zorder>lcnc_state_label</zorder>
-   <zorder>lcnc_state_label_2</zorder>
-   <zorder>lcnc_state_label_3</zorder>
-   <zorder>lcnc_state_label_5</zorder>
-   <zorder>lcnc_state_label_6</zorder>
-   <zorder>lcnc_tooldialog</zorder>
-   <zorder>lcnc_dialog</zorder>
-   <zorder>lcnc_filedialog</zorder>
+   <zorder>state_label</zorder>
+   <zorder>state_label_2</zorder>
+   <zorder>state_label_3</zorder>
+   <zorder>state_label_5</zorder>
+   <zorder>state_label_6</zorder>
+   <zorder>tooldialog</zorder>
+   <zorder>dialog</zorder>
+   <zorder>filedialog</zorder>
    <zorder>led_home_x</zorder>
    <zorder>led_home_y</zorder>
    <zorder>led_home_z</zorder>
-   <zorder>lcnc_actionbutton_9</zorder>
-   <zorder>lcnc_actionbutton_10</zorder>
-   <zorder>lcnc_actionbutton_11</zorder>
-   <zorder>lcnc_ScreenOptions</zorder>
-   <zorder>lcnc_gstat_label_2</zorder>
-   <zorder>lcnc_macrotabdialog</zorder>
-   <zorder>lcnc_originoffsetdialog</zorder>
-   <zorder>gstatstacked</zorder>
-   <zorder>gstat_slider</zorder>
-   <zorder>gstat_slider_2</zorder>
-   <zorder>gstat_slider_6</zorder>
-   <zorder>gstat_slider_5</zorder>
+   <zorder>actionbutton_9</zorder>
+   <zorder>actionbutton_10</zorder>
+   <zorder>actionbutton_11</zorder>
+   <zorder>ScreenOptions</zorder>
+   <zorder>StatusLabel_2</zorder>
+   <zorder>macrotabdialog</zorder>
+   <zorder>originoffsetdialog</zorder>
+   <zorder>StatusStacked</zorder>
+   <zorder>StatusSlider</zorder>
+   <zorder>StatusSlider_2</zorder>
+   <zorder>StatusSlider_6</zorder>
+   <zorder>StatusSlider_5</zorder>
    <zorder>mcodes_label</zorder>
-   <zorder>lcnc_actionbutton_15</zorder>
-   <zorder>lcnc_actionbutton_16</zorder>
-   <zorder>lcnc_actionbutton_17</zorder>
-   <zorder>lcnc_actionbutton_18</zorder>
+   <zorder>actionbutton_15</zorder>
+   <zorder>actionbutton_16</zorder>
+   <zorder>actionbutton_17</zorder>
+   <zorder>actionbutton_18</zorder>
    <zorder>frame_auto_8</zorder>
    <zorder>gcodes_label</zorder>
-   <zorder>lcnc_state_label_10</zorder>
+   <zorder>state_label_10</zorder>
    <zorder>focusoverlay</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
@@ -2791,83 +2791,83 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Lcnc_CamViewDialog</class>
+   <class>CamViewDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Dialog</class>
+   <class>LcncDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_MacroTabDialog</class>
+   <class>MacroTabDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>State_Enable_GridLayout</class>
+   <class>StateEnableGridLayout</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.container_widgets</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Led</class>
+   <class>LED</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.ledwidget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_JogIncrements</class>
+   <class>JogIncrements</class>
    <extends>QComboBox</extends>
    <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_FileDialog</class>
+   <class>FileDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_ScreenOptions</class>
+   <class>ScreenOptions</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.screenoptions</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Gstat_Slider</class>
+   <class>StatusSlider</class>
    <extends>QSlider</extends>
-   <header>qtvcp.widgets.gstat_slider</header>
+   <header>qtvcp.widgets.status_slider</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_DROLabel</class>
+   <class>DROLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.drowidget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_OriginOffsetDialog</class>
+   <class>OriginOffsetDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_State_Led</class>
-   <extends>Lcnc_Led</extends>
-   <header>qtvcp.widgets.led_state_widget</header>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Gstat_Label</class>
+   <class>StatusLabel</class>
    <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_label</header>
+   <header>qtvcp.widgets.status_label</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_MDILine</class>
+   <class>MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Graphics5</class>
+   <class>GCodeGraphics</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.graphics5</header>
+   <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -2877,9 +2877,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>GstatStacked</class>
+   <class>StatusStacked</class>
    <extends>QStackedWidget</extends>
-   <header>qtvcp.widgets.gstat_stacked</header>
+   <header>qtvcp.widgets.status_stacked</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -2889,18 +2889,18 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_ActionButton</class>
+   <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Gstat_Bool_Label</class>
+   <class>StateLabel</class>
    <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_bool_label</header>
+   <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_ToolDialog</class>
-   <extends>Lcnc_Dialog</extends>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
  </customwidgets>

@@ -43,9 +43,9 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_ActionButton(Indicated_PushButton, _HalWidgetBase):
+class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_ActionButton, self).__init__(parent)
+        super(ActionButton, self).__init__(parent)
         self._block_signal = False
         self.estop = True
         self.machine_on = False
@@ -863,7 +863,7 @@ if __name__ == "__main__":
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
 
-    widget = Lcnc_ActionButton('Action')
+    widget = ActionButton('Action')
     # this doesn't get called without qtvcp loading the widget
     widget._hal_init()
 

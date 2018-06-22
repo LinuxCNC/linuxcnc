@@ -22,16 +22,16 @@ class DialogPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_Dialog(parent)
+        return LcncDialog(parent)
 
     def name(self):
-        return "Lcnc_Dialog"
+        return "LcncDialog"
 
     def group(self):
         return "Linuxcnc - Dialogs"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_dialog')))
+        return QIcon(QPixmap(ICON.get_path('lcncdialog')))
 
     def toolTip(self):
         return "Basic Message Dialog"
@@ -46,7 +46,7 @@ class DialogPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_Dialog" name="lcnc_dialog" />\n'
+        return '<widget class="LcncDialog" name="lcncdialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
@@ -71,16 +71,16 @@ class ToolDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_ToolDialog(parent)
+        return ToolDialog(parent)
 
     def name(self):
-        return "Lcnc_ToolDialog"
+        return "ToolDialog"
 
     def group(self):
         return "Linuxcnc - Dialogs"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_tooldialog')))
+        return QIcon(QPixmap(ICON.get_path('tooldialog')))
 
     def toolTip(self):
         return "Manual Tool Change Prompt Widgets"
@@ -95,7 +95,7 @@ class ToolDialogPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_ToolDialog" name="lcnc_tooldialog" />\n'
+        return '<widget class="ToolDialog" name="tooldialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
@@ -120,16 +120,16 @@ class FileDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_FileDialog(parent)
+        return FileDialog(parent)
 
     def name(self):
-        return "Lcnc_FileDialog"
+        return "FileDialog"
 
     def group(self):
         return "Linuxcnc - Dialogs"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_filedialog')))
+        return QIcon(QPixmap(ICON.get_path('iledialog')))
 
     def toolTip(self):
         return "Gcode File Selection Dialog"
@@ -144,7 +144,7 @@ class FileDialogPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_FileDialog" name="lcnc_filedialog" />\n'
+        return '<widget class="FileDialog" name="filedialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
@@ -169,16 +169,16 @@ class CamViewDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_CamViewDialog(parent)
+        return CamViewDialog(parent)
 
     def name(self):
-        return "Lcnc_CamViewDialog"
+        return "CamViewDialog"
 
     def group(self):
         return "Linuxcnc - Dialogs"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_camviewdialog')))
+        return QIcon(QPixmap(ICON.get_path('camviewdialog')))
 
     def toolTip(self):
         return "Web Cam View alignment Dialog"
@@ -193,7 +193,7 @@ class CamViewDialogPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_CamViewDialog" name="lcnc_camviewdialog" />\n'
+        return '<widget class="CamViewDialog" name="camviewdialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
@@ -218,16 +218,16 @@ class MacroTabDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_MacroTabDialog(parent)
+        return MacroTabDialog(parent)
 
     def name(self):
-        return "Lcnc_MacroTabDialog"
+        return "MacroTabDialog"
 
     def group(self):
         return "Linuxcnc - Dialogs"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_macrotabdialog')))
+        return QIcon(QPixmap(ICON.get_path('macrotabdialog')))
 
     def toolTip(self):
         return "Macro program Selection Dialog"
@@ -242,7 +242,7 @@ class MacroTabDialogPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_MacroTabDialog" name="lcnc_macrotabdialog" />\n'
+        return '<widget class="MacroTabDialog" name="_macrotabdialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
@@ -250,10 +250,10 @@ class MacroTabDialogPlugin(QPyDesignerCustomWidgetPlugin):
 ###############################################################################
 # OriginOffset Dialog
 ###############################################################################
-class Lcnc_OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
+class OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
 
     def __init__(self, parent=None):
-        super(Lcnc_OriginOffsetDialogPlugin, self).__init__(parent)
+        super(OriginOffsetDialogPlugin, self).__init__(parent)
 
         self.initialized = False
 
@@ -267,16 +267,16 @@ class Lcnc_OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
         return self.initialized
 
     def createWidget(self, parent):
-        return Lcnc_OriginOffsetDialog(parent)
+        return OriginOffsetDialog(parent)
 
     def name(self):
-        return "Lcnc_OriginOffsetDialog"
+        return "OriginOffsetDialog"
 
     def group(self):
         return "Linuxcnc - Dialogs"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_originoffsetdialog')))
+        return QIcon(QPixmap(ICON.get_path('originoffsetdialog')))
 
     def toolTip(self):
         return "Orgin Offset Editting Dialog"
@@ -291,7 +291,7 @@ class Lcnc_OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
     # default values for its properties. Each custom widget created by this
     # plugin will be configured using this description.
     def domXml(self):
-        return '<widget class="Lcnc_OriginOffsetDialog" name="lcnc_originoffsetdialog" />\n'
+        return '<widget class="OriginOffsetDialog" name="originoffsetdialog" />\n'
 
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"

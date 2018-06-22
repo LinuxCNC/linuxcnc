@@ -85,7 +85,7 @@ on</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_2">
+    <widget class="StateEnableGridLayout" name="state_enable_gridLayout_2">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -201,7 +201,7 @@ on</string>
       <string>Jog</string>
      </property>
     </widget>
-    <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_5">
+    <widget class="StateEnableGridLayout" name="state_enable_gridLayout_5">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -339,7 +339,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_blue.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="Lcnc_DROLabel" name="lcnc_drolabel">
+    <widget class="DROLabel" name="drolabel">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -365,7 +365,7 @@ font: 75 40pt &quot;Bitstream Vera Sans Mono&quot;;</string>
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="Lcnc_DROLabel" name="lcnc_drolabel_2">
+    <widget class="DROLabel" name="drolabel_2">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -386,7 +386,7 @@ color: rgb(255, 255, 255);</string>
       <number>1</number>
      </property>
     </widget>
-    <widget class="Lcnc_DROLabel" name="lcnc_drolabel_3">
+    <widget class="DROLabel" name="drolabel_3">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -409,7 +409,7 @@ color: rgb(255, 255, 255);</string>
       <number>2</number>
      </property>
     </widget>
-    <widget class="Graphics" name="graphics">
+    <widget class="GCodeGraphics" name="graphics">
      <property name="geometry">
       <rect>
        <x>320</x>
@@ -473,7 +473,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <string>Z</string>
      </property>
     </widget>
-    <widget class="Lcnc_Gstat_Label" name="lcnc_Gstat_Label_7">
+    <widget class="StatusLabel" name="StatusLabel_7">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -538,7 +538,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <string>Machine On</string>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_2">
+   <widget class="StateLED" name="state_led_2">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -586,7 +586,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <string>Estop</string>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led">
+   <widget class="StateLED" name="state_led">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -718,7 +718,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <string>Homing Required</string>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_3">
+   <widget class="StateLED" name="state_led_3">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -740,7 +740,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_State_Led" name="lcnc_state_led_4">
+   <widget class="StateLED" name="state_led_4">
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -759,7 +759,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_MDILine" name="mdi_line">
+   <widget class="MDILine" name="mdi_line">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -777,7 +777,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      </font>
     </property>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_3">
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_3">
     <property name="geometry">
      <rect>
       <x>680</x>
@@ -822,7 +822,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_4">
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_4">
     <property name="geometry">
      <rect>
       <x>680</x>
@@ -857,7 +857,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="State_Enable_GridLayout" name="state_enable_gridLayout_6">
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_6">
     <property name="geometry">
      <rect>
       <x>680</x>
@@ -892,7 +892,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      </property>
     </widget>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_Gstat_Label_6">
+   <widget class="StatusLabel" name="StatusLabel_6">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -923,7 +923,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_Gstat_Label_5">
+   <widget class="StatusLabel" name="StatusLabel_5">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -980,7 +980,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <string>Jog Inc</string>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_Gstat_Label_2">
+   <widget class="StatusLabel" name="StatusLabel_2">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -996,7 +996,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FO:&lt;/span&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_Gstat_Label">
+   <widget class="StatusLabel" name="StatusLabel">
     <property name="geometry">
      <rect>
       <x>120</x>
@@ -1031,7 +1031,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Label" name="lcnc_Gstat_Label_8">
+   <widget class="StatusLabel" name="StatusLabel_8">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -1059,7 +1059,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_z">
+   <widget class="DROLabel" name="drolabel_z">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -1089,7 +1089,7 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
      <number>1</number>
     </property>
    </widget>
-   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_y">
+   <widget class="DROLabel" name="drolabel_y">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -1109,7 +1109,7 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
      <number>1</number>
     </property>
    </widget>
-   <widget class="Lcnc_DROLabel" name="lcnc_drolabel_x">
+   <widget class="DROLabel" name="drolabel_x">
     <property name="geometry">
      <rect>
       <x>340</x>
@@ -1129,7 +1129,7 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
      <number>1</number>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label">
+   <widget class="StatusLabel" name="StatusLabel">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -1148,7 +1148,7 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000;&quot;&gt;Inch&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="Lcnc_Gstat_Bool_Label" name="lcnc_gstat_bool_label_2">
+   <widget class="StatusLabel" name="StatusLabel_2">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -1184,44 +1184,44 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_DROLabel</class>
+   <class>DROLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.drowidget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Lcnc_State_Led</class>
-   <extends>Lcnc_Led</extends>
-   <header>qtvcp.widgets.led_state_widget</header>
+   <class>StateLED</class>
+   <extends>Led</extends>
+   <header>qtvcp.widgets.state_led</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Led</class>
+   <class>Led</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.ledwidget</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Gstat_Label</class>
+   <class>StatusLabel</class>
    <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_label</header>
+   <header>qtvcp.widgets.status_label</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_MDILine</class>
+   <class>MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Graphics</class>
+   <class>GCodeGraphics</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.graphics</header>
+   <header>qtvcp.widgets.gcode_graphics</header>
   </customwidget>
   <customwidget>
-   <class>Lcnc_Gstat_Bool_Label</class>
+   <class>StateLabel</class>
    <extends>QLabel</extends>
-   <header>qtvcp.widgets.gstat_bool_label</header>
+   <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
-   <class>State_Enable_GridLayout</class>
+   <class>StateEnableGridLayout</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.container_widgets</header>
    <container>1</container>

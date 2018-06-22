@@ -21,6 +21,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.dialog_widget import LcncDialog as CloseDialog
 from qtvcp.lib.message import Message
 from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
@@ -43,6 +44,7 @@ MSG = Message()
 INFO = Info()
 MLOG = MachineLogger()
 LOG = logger.getLogger(__name__)
+
 try:
     SOUND = Player()
 except:
@@ -52,9 +54,9 @@ except:
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
+class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Lcnc_ScreenOptions, self).__init__(parent)
+        super(ScreenOptions, self).__init__(parent)
         self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
@@ -131,7 +133,8 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         # clear and add an intial machine log message
         STATUS.emit('update-machine-log', '', 'DELETE')
         MLOG.initial_greeting()
-
+        # We supply our own dialog for closing
+        self.CLOSE_DIALOG = CloseDialog()
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to ther widgets
     def _pref_init(self):
@@ -163,7 +166,7 @@ class Lcnc_ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.play_sounds and self.play_shutdown_sounds:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.lcnc_dialog.showdialog(self.shutdown_msg_title,
+            answer = self.CLOSE_DIALOG.showdialog(self.shutdown_msg_title,
                                                                  None,
                                                                  details=self.shutdown_msg_detail,
                                                                  icon=MSG.CRITICAL,
