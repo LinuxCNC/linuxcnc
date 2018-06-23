@@ -8,6 +8,8 @@ from qtvcp.widgets.simple_widgets import RadioButton
 from qtvcp.widgets.simple_widgets import LCDNumber
 from qtvcp.widgets.simple_widgets import Slider
 from qtvcp.widgets.simple_widgets import GridLayout
+from qtvcp.widgets.general_hal_output import GeneralHALOutput
+from qtvcp.widgets.general_hal_input import GeneralHALInput
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -241,3 +243,69 @@ class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="GridLayout" name="gridlayout" />\n'
     def includeFile(self):
         return "qtvcp.widgets.simple_widgets"
+
+
+####################################
+# GeneralHALOutput
+####################################
+class GeneralHALOutputPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(GeneralHALOutputPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return GeneralHALOutput(parent)
+    def name(self):
+        return "GeneralHALOutput"
+    def group(self):
+        return "Linuxcnc - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('generalhaloutput')))
+    def toolTip(self):
+        return "Generalized HAL Output Pin Widget"
+    def whatsThis(self):
+        return "Used to add HAl Pins to Arbritrary widgets"
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="GeneralHALOutput" name="generalhaloutput" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.general_hal_output"
+
+
+####################################
+# GeneralHALInput
+####################################
+class GeneralHALInputPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(GeneralHALInputPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return GeneralHALInput(parent)
+    def name(self):
+        return "GeneralHALInput"
+    def group(self):
+        return "Linuxcnc - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('generalhalinput')))
+    def toolTip(self):
+        return "Generalized HAL Input Pin Widget"
+    def whatsThis(self):
+        return "Used to add HAl Pins to Arbritrary widgets"
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="GeneralHALInput" name="generalhalinput" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.general_hal_input"
