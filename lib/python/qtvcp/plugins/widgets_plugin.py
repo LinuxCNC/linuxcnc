@@ -2,7 +2,7 @@
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.drowidget import DROLabel
+from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.widgets.gcode_widget import GcodeEditor
 from qtvcp.widgets.status_stacked import StatusStacked
@@ -41,7 +41,7 @@ class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
     def domXml(self):
         return '<widget class="DROLabel" name="drolabel" />\n'
     def includeFile(self):
-        return "qtvcp.widgets.drowidget"
+        return "qtvcp.widgets.dro_widget"
 
 ####################################
 # MDI edit line

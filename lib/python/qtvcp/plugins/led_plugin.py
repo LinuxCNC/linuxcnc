@@ -2,7 +2,7 @@
 
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
-from qtvcp.widgets.ledwidget import LED
+from qtvcp.widgets.led_widget import LED
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -50,4 +50,4 @@ class LEDPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="LED" name="led" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.ledwidget"
+        return "qtvcp.widgets.led_widget"
