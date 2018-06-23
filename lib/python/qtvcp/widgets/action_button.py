@@ -259,7 +259,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             if self.isCheckable():
                 ACTION.SET_MACHINE_STATE(state)
             else:
-                log.debug('gstat machine is on: {}'.format(STATUS.machine_is_on))
+                LOG.debug('gstat machine is on: {}'.format(STATUS.machine_is_on))
                 ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
         elif self.home:
             if self.isCheckable():
