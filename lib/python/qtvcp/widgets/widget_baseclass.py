@@ -16,7 +16,6 @@
 # _HalWidgetBase is the base class for most pyQt widgets
 # the other subclasses are for simple HAL widget functionality
 
-from PyQt5 import QtCore, QtGui, QtWidgets
 import hal
 
 
@@ -42,9 +41,9 @@ class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
         self.hal_pin_not = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-not", hal.HAL_BIT, hal.HAL_OUT)
-        self.connect.state_change.connect(lambda data: self.t_update(data))
+        #self.value_changed.connect(lambda data: self.pin_update(data))
 
-    def t_update(self, state):
+    def _pin_update(self, state):
         self.hal_pin.set(bool(state))
         self.hal_pin_not.set(not bool(state))
 
@@ -53,10 +52,10 @@ class _HalToggleBase(_HalWidgetBase):
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_OUT)
-        self.connect.value_changed.connect(lambda data: self.l_update(data))
+        self.value_changed.connect(lambda data: self.l_update(data))
 
     def l_update(self, *a):
-        self.hal_pin.set(self.get_value())
+        self.pin_value = self.hal_pin.get()
 
 
 # reacts to HAL pin changes

@@ -48,10 +48,10 @@ class LED(QWidget, _HalWidgetBase):
 
         self.setDiameter(self._diameter)
 
-        self.has_hal_pins = True
+        self._halpin_option = True
 
     def _hal_init(self):
-        if (self.has_hal_pins):
+        if (self._halpin_option):
             _HalWidgetBase._hal_init(self)
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
@@ -59,6 +59,7 @@ class LED(QWidget, _HalWidgetBase):
             #self.hal_pin_flash = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-flash', hal.HAL_BIT, hal.HAL_IN)
             #self.hal_pin_flash.value_changed.connect( lambda s: self.setFlashing(s))
 
+    @pyqtSlot(bool)
     def change_state(self, data):
         self.state = data
         if data and self.flash:
@@ -121,6 +122,13 @@ class LED(QWidget, _HalWidgetBase):
     def getDiameter(self):
         return self._diameter
 
+    def set_halpin_option(self, value):
+        self._halpin_option = value
+    def get_halpin_option(self):
+        return self._halpin_option
+    def reset_halpin_option(self):
+        self._halpin_option = True
+
     @pyqtSlot(int)
     def setDiameter(self, value):
         self._diameter = value
@@ -142,10 +150,11 @@ class LED(QWidget, _HalWidgetBase):
         self._alignment = value
         self.update()
 
-    def getAlignment(self):
-        return self._alignment
+    def resetAlignment(self):
+        self._alignment = Qt.AlignCenter
 
     @pyqtSlot(bool)
+    @pyqtSlot(int)
     def setState(self, value):
         self._state = value
         self.update()
@@ -184,9 +193,10 @@ class LED(QWidget, _HalWidgetBase):
         self._flashRate = value
         self.update()
 
+    halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     diameter = pyqtProperty(int, getDiameter, setDiameter)
     color = pyqtProperty(QColor, getColor, setColor)
-    alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment)
+    alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment,resetAlignment)
     state = pyqtProperty(bool, getState, setState, resetState)
     flashing = pyqtProperty(bool, getFlashState, setFlashState)
     flashRate = pyqtProperty(int, getFlashRate, setFlashRate)
