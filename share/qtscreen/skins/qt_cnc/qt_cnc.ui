@@ -2814,7 +2814,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
   <customwidget>
    <class>LED</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.ledwidget</header>
+   <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
    <class>JogIncrements</class>
@@ -2873,7 +2873,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
   <customwidget>
    <class>GcodeEditor</class>
    <extends>QFrame</extends>
-   <header>qtvcp.widgets.gcode_widget</header>
+   <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
   <customwidget>
