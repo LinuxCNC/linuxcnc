@@ -49,6 +49,6 @@ class StateLabelPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="StateLabel" name="statelabel" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.gstat_bool_label"
+        return "qtvcp.widgets.state_label"
 
 

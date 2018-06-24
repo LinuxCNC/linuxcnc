@@ -57,7 +57,7 @@ class StatusLabelPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="StatusLabel" name="statuslabel" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.gstat_label"
+        return "qtvcp.widgets.status_label"
 
 #*************************************************************************
 class GstatLabelPropertySheetExtension(QExtensionFactory):
