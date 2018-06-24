@@ -12,8 +12,8 @@ if [catch {hal setp motion.probe-input 0} msg] {
     puts "Remove the connection to use $this\n"
     exit
   } else {
-    puts "\nIs EMC running? <$msg>"
-    puts "Start EMC before starting $this\n"
+    puts "\nIs LinuxCNC running? <$msg>"
+    puts "Start LinuxCNC before starting $this\n"
   }
   exit
 }
@@ -32,13 +32,13 @@ pack [checkbutton .c -text Pulse -variable ::pulse] \
 proc probetouch {} {
   .l configure -bg red -fg white -text ProbeON
   if [catch {hal setp motion.probe-input 1} msg] {
-    puts stderr "Is EMC running? <$msg>"
+    puts stderr "Is LinuxCNC running? <$msg>"
     return
   }
   if $::pulse {
     after 100 proberelease
     if [catch {hal setp motion.probe-input 0} msg] {
-      puts stderr "Is EMC running? <$msg>"
+      puts stderr "Is LinuxCNC running? <$msg>"
       return
     }
   }
@@ -46,6 +46,6 @@ proc probetouch {} {
 proc proberelease {} {
   .l configure -bg lightgray -fg black -text ProbeOFF
   if [catch {hal setp motion.probe-input 0} msg] {
-    puts stderr "Is EMC running? <$msg>"
+    puts stderr "Is LinuxCNC running? <$msg>"
   }
 }
