@@ -49,4 +49,4 @@ class StateLEDPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="StateLED" name="stateled" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.led_state_widget"
+        return "qtvcp.widgets.state_led"

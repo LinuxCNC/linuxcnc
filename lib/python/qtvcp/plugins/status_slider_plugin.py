@@ -49,6 +49,6 @@ class StatusSliderPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="StatusSlider" name="statusslider" />\n'
 
     def includeFile(self):
-        return "qtvcp.widgets.Status_Slider"
+        return "qtvcp.widgets.status_slider"
 
 
