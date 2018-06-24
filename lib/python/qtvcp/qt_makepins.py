@@ -20,7 +20,7 @@
 
 import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
-from qtvcp.widgets.screenoptions import ScreenOptions
+from qtvcp.widgets.screen_options import ScreenOptions
 from qtvcp.core import QComponent
 from PyQt5.QtCore import QObject
 

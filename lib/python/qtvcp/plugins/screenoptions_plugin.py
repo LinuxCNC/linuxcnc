@@ -5,7 +5,7 @@ from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
                 QPyDesignerTaskMenuExtension, QExtensionFactory, \
                 QDesignerFormWindowInterface
 
-from qtvcp.widgets.screenoptions import ScreenOptions
+from qtvcp.widgets.screen_options import ScreenOptions
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -37,7 +37,7 @@ class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('screenoptions')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('screen_options')))
     def toolTip(self):
         return "ScreenOptions widget"
     def whatsThis(self):
@@ -45,9 +45,9 @@ class LcncScreenOptionsPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="ScreenOptions" name="screenoptions" />\n'
+        return '<widget class="ScreenOptions" name="screen_options" />\n'
     def includeFile(self):
-        return "qtvcp.widgets.screenoptions"
+        return "qtvcp.widgets.screen_options"
 
 class GeoLocationDialog(QtWidgets.QDialog):
 
