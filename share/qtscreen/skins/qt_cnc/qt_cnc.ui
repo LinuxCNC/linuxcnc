@@ -2829,7 +2829,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
   <customwidget>
    <class>ScreenOptions</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.screenoptions</header>
+   <header>qtvcp.widgets.screen_options</header>
    <container>1</container>
   </customwidget>
   <customwidget>
