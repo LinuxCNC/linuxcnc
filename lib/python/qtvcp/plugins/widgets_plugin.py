@@ -103,7 +103,7 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="GcodeEditor" name="gcodee_ditor" />\n'
+        return '<widget class="GcodeEditor" name="gcode_editor" />\n'
     def includeFile(self):
         return "qtvcp.widgets.gcode_editor"
 
