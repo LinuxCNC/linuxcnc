@@ -32,7 +32,7 @@ class LEDPlugin(QPyDesignerCustomWidgetPlugin):
         return "Linuxcnc - HAL"
 
     def icon(self):
-        return QIcon(QPixmap(ICON.get_path('lcnc_led')))
+        return QIcon(QPixmap(ICON.get_path('led')))
 
     def toolTip(self):
         return ""
