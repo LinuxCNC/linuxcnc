@@ -31,7 +31,7 @@ class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('drolabel')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('dro_label')))
     def toolTip(self):
         return "DRO Display Widget"
     def whatsThis(self):
@@ -39,7 +39,7 @@ class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="DROLabel" name="drolabel" />\n'
+        return '<widget class="DROLabel" name="dro_label" />\n'
     def includeFile(self):
         return "qtvcp.widgets.dro_widget"
 
@@ -95,7 +95,7 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
     def group(self):
         return "Linuxcnc - Controller"
     def icon(self):
-        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcodeeditor')))
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcode_editor')))
     def toolTip(self):
         return "Gcode display / editor Widget"
     def whatsThis(self):
@@ -103,9 +103,9 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="GcodeEditor" name="gcodeeditor" />\n'
+        return '<widget class="GcodeEditor" name="gcodee_ditor" />\n'
     def includeFile(self):
-        return "qtvcp.widgets.gcode_widget"
+        return "qtvcp.widgets.gcode_editor"
 
 ####################################
 # StatusStacked

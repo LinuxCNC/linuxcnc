@@ -16,7 +16,7 @@
 #################################################################################
 
 from PyQt5.QtCore import pyqtProperty
-from qtvcp.widgets.ledwidget import LED
+from qtvcp.widgets.led_widget import LED
 from qtvcp.core import Status
 from qtvcp import logger
 
