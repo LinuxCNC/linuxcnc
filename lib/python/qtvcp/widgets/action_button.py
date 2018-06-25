@@ -100,15 +100,35 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     # also some buttons are disabled/enabled based on
     # linuxcnc state / possible actions
     #
+    # If the indicator isn't controlled by a HAL pin
+    # then update it's state.
+    # It still might not show do to the draw_indicator option off
+    #
     # _safecheck blocks the outgoing signal so
     # the buttons can be synced with linuxcnc
     # without setting an infinite loop
     ###################################################
     def _hal_init(self):
+        super(ActionButton, self)._hal_init()
         def _safecheck(state, data=None):
             self._block_signal = True
             self.setChecked(state)
+            if self._HAL_pin is False:
+                self.indicator_update(state)
             self._block_signal = False
+
+        def _checkincrements(value, text):
+            value = round(value , 5)
+            scale = self.conversion(1/25.4)
+            if STATUS.is_metric_mode():
+                if round(self.jog_incr_mm * scale , 5) == value:
+                    _safecheck(True)
+                    return
+            else:
+                if self.jog_incr_imperial == value:
+                    _safecheck(True)
+                    return
+            _safecheck(False)
 
         def test():
             return (STATUS.machine_is_on()
@@ -198,6 +218,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('mode-auto', lambda w: _safecheck(False))
         elif self.jog_incr:
             STATUS.connect('metric-mode-changed', lambda w, data:  self.incr_action())
+            STATUS.connect('jogincrement-changed', lambda w, value, text: _checkincrements(value, text))
+
         elif self.feed_over or self.rapid_over or self.spindle_over or self.jog_rate:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(STATUS.machine_is_on()))
@@ -395,19 +417,36 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         ACTION.DO_JOG(self.joint_number, direction)
 
+    # We must convert the increments from current 'mode' units to
+    # whatever units the machine is based on.
     def incr_action(self):
-        if STATUS.is_metric_mode():
+        if STATUS.is_metric_mode():  # metirc mode G21
             if self.jog_incr_mm:
+                scale = self.conversion(1/25.4)
                 text = '%s mm' % str(self.jog_incr_mm)
-                STATUS.set_jog_increments(self.jog_incr_mm, text)
+                value = round(self.jog_incr_mm, 4)
             else:
-                STATUS.set_jog_increments(0, 'Continous')
+                scale = 1
+                value = 0
+                text = 'Continous'
         else:
             if self.jog_incr_imperial:
+                scale = self.conversion(1)
                 text = '''%s "''' % str(self.jog_incr_imperial)
-                STATUS.set_jog_increments(self.jog_incr_imperial, text)
+                value = round(self.jog_incr_imperial, 4)
             else:
-                STATUS.set_jog_increments(0, 'Continous')
+                scale = 1
+                value = 0
+                text = 'Continous'
+        STATUS.set_jog_increments(value * scale, text)
+
+    # convert the units based on what the machine is based on.
+    def conversion(self, data):
+        if INFO.MACHINE_IS_METRIC:
+            return INFO.convert_units(data)
+        else:
+            return data
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
