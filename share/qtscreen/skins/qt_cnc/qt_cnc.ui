@@ -963,6 +963,12 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="autoExclusive">
      <bool>true</bool>
     </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
+    </property>
     <property name="manual_action" stdset="0">
      <bool>true</bool>
     </property>
@@ -984,6 +990,12 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     </property>
     <property name="autoExclusive">
      <bool>true</bool>
+    </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
     </property>
     <property name="mdi_action" stdset="0">
      <bool>true</bool>
@@ -1009,6 +1021,12 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     </property>
     <property name="autoExclusive">
      <bool>true</bool>
+    </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
     </property>
     <property name="auto_action" stdset="0">
      <bool>true</bool>
@@ -2160,9 +2178,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="color">
       <color>
-       <red>0</red>
-       <green>202</green>
-       <blue>255</blue>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
       </color>
      </property>
      <property name="flashing" stdset="0">
@@ -2197,7 +2215,13 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
        <blue>0</blue>
       </color>
      </property>
+     <property name="state">
+      <bool>false</bool>
+     </property>
      <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="invert_state_status" stdset="0">
       <bool>false</bool>
      </property>
      <property name="is_paused_status" stdset="0">
@@ -2282,9 +2306,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="color">
       <color>
-       <red>0</red>
-       <green>200</green>
-       <blue>255</blue>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
       </color>
      </property>
      <property name="flashing" stdset="0">
@@ -2428,6 +2452,15 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
        <height>27</height>
       </rect>
      </property>
+     <property name="text">
+      <string>Fine</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2447,6 +2480,15 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
        <height>27</height>
       </rect>
      </property>
+     <property name="text">
+      <string>Med</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2465,6 +2507,15 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
        <width>45</width>
        <height>27</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>Large</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
@@ -2487,6 +2538,12 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="text">
       <string>Continous</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
@@ -2728,6 +2785,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <bool>true</bool>
     </property>
    </widget>
+   <zorder>lcncdialog</zorder>
    <zorder>frame_auto_5</zorder>
    <zorder>state_label_4</zorder>
    <zorder>StatusLabel</zorder>
@@ -2756,7 +2814,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>state_label_5</zorder>
    <zorder>state_label_6</zorder>
    <zorder>tooldialog</zorder>
-   <zorder>dialog</zorder>
    <zorder>filedialog</zorder>
    <zorder>led_home_x</zorder>
    <zorder>led_home_y</zorder>
@@ -2791,6 +2848,12 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
  </widget>
  <customwidgets>
   <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>CamViewDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
@@ -2801,7 +2864,38 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
    <class>MacroTabDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
+   <class>OriginOffsetDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
@@ -2812,9 +2906,10 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
+   <class>StatusStacked</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.status_stacked</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>JogIncrements</class>
@@ -2833,53 +2928,20 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.drowidget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>OriginOffsetDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>StateLED</class>
-   <extends>LED</extends>
-   <header>qtvcp.widgets.state_led</header>
-  </customwidget>
-  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
   </customwidget>
   <customwidget>
-   <class>MDILine</class>
-   <extends>QLineEdit</extends>
-   <header>qtvcp.widgets.mdi_line</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_graphics</header>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
    <extends>QFrame</extends>
    <header>qtvcp.widgets.gcode_editor</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusStacked</class>
-   <extends>QStackedWidget</extends>
-   <header>qtvcp.widgets.status_stacked</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -2892,11 +2954,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
-  </customwidget>
-  <customwidget>
-   <class>StateLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
    <class>ToolDialog</class>
