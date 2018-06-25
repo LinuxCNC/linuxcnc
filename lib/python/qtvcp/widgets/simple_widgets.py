@@ -73,7 +73,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         super(Indicated_PushButton, self).__init__(parent)
         self._indicator_state = False
         self.draw_indicator = False
-        self._HAL_pin = True
+        self._HAL_pin = False
         self._on_color = QtGui.QColor("red")
         self._off_color = QtGui.QColor("black")
         self._size = .3
@@ -81,9 +81,9 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def _hal_init(self):
         if self._HAL_pin:
             self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
-            self.hal_pin_led.value_changed.connect(lambda data: self.led_update(data))
+            self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
 
-    def led_update(self, data):
+    def indicator_update(self, data):
         self._indicator_state = data
         self.update()
 
