@@ -494,9 +494,9 @@ int _rtapi_task_pll_set_correction_hook(long value) {
     if (value < -(task->pll_correction_limit))
         value = -(task->pll_correction_limit);
     task->pll_correction = value;
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Task %d pll correction set to %ld\n",
-                    task_id, value);
+    /* rtapi_print_msg(RTAPI_MSG_DBG, */
+    /*     	    "Task %d pll correction set to %ld\n", */
+    /*                 task_id, value); */
     return 0;
 }
 
