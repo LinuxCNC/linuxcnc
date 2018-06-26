@@ -144,6 +144,7 @@ class _IStat(object):
         self.TAB_NAMES = self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")
         self.TAB_LOCATION = self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")
         self.TAB_CMD   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
+        self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
 
     ###################
     # helper functions

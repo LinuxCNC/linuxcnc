@@ -1543,6 +1543,44 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="ActionButton" name="actionbutton_32">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>190</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Go to 0</string>
+       </property>
+       <property name="mdi_command_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="command_text_string" stdset="0">
+        <string>MDI_COMMAND_LIST = 0</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_33">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>230</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Go to 1</string>
+       </property>
+       <property name="mdi_command_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="command_text_string" stdset="0">
+        <string>MDI_COMMAND_LIST=1</string>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_auto">
@@ -2324,10 +2362,10 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <widget class="StateLED" name="StateLED">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>90</x>
        <y>10</y>
-       <width>41</width>
-       <height>31</height>
+       <width>21</width>
+       <height>21</height>
       </rect>
      </property>
      <property name="diameter">
