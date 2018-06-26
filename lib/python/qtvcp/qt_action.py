@@ -57,6 +57,10 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s'%code)
 
+    def CALL_INI_MDI(self, number):
+        mdi = INFO.MDI_COMMAND_LIST[number]
+        self.CALL_MDI(mdi)
+
     def UPDATE_VAR_FILE(self):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.ensure_mode(linuxcnc.MODE_MDI)

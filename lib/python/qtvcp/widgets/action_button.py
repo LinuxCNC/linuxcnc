@@ -82,6 +82,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.mist = False
         self.block_delete = False
         self.optional_stop = False
+        self.mdi_command = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -91,6 +92,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.float = 100.0
         self.float_alt = 50.0
         self.view_type = 'p'
+        self.command_text = ''
 
     ##################################################
     # This gets called by qtvcp_makepins
@@ -262,7 +264,11 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('optional-stop-changed', lambda w, data: _safecheck(data))
-
+        elif self.mdi_command:
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
 
@@ -406,7 +412,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     ACTION.SET_BLOCK_DELETE_ON()
                 else:
                     ACTION.SET_BLOCK_DELETE_OFF()
-
+        elif self.mdi_command:
+            self.command_text = str(self.command_text)
+            if 'MDI_COMMAND_LIST' in self.command_text:
+                num = int(filter(str.isdigit, self.command_text))
+                ACTION.CALL_INI_MDI(num)
+            else:
+                ACTION.CALL_MDI(self.command_text)
         # defult error case
         else:
             LOG.error('No action recognised')
@@ -463,7 +475,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'camview_dialog', 'jog_incr', 'feed_over', 'rapid_over',
                 'spindle_over', 'jog_rate', 'view_x', 'view_p', 'spindle_fwd',
                 'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
-                'limits_override', 'flood', 'mist', 'optional_stop', 'block_delete')
+                'limits_override', 'flood', 'mist', 'optional_stop',
+                'command_text', 'block_delete')
 
         for i in data:
             if not i == picked:
@@ -790,6 +803,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_optional_stop(self):
         self.optional_stop = False
 
+    def set_mdi_command(self, data):
+        self.mdi_command = data
+        if data:
+            self._toggle_properties('mdi_command')
+    def get_mdi_command(self):
+        return self.mdi_command
+    def reset_mdi_command(self):
+        self.mdi_command = False
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -837,6 +859,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_view_type(self):
         self.view_type = 'p'
 
+    def set_command_text(self, data):
+        self.command_text = data
+        if data:
+            self._toggle_properties('command_text')
+    def get_command_text(self):
+        return self.command_text
+    def reset_command_text(self):
+        self.command_text = ''
+
     # designer will show these properties in this order:
     # BOOL
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
@@ -878,6 +909,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     mist_action = QtCore.pyqtProperty(bool, get_mist, set_mist, reset_mist)
     block_delete_action = QtCore.pyqtProperty(bool, get_block_delete, set_block_delete, reset_block_delete)
     optional_stop_action = QtCore.pyqtProperty(bool, get_optional_stop, set_optional_stop, reset_optional_stop)
+    mdi_command_action = QtCore.pyqtProperty(bool, get_mdi_command, set_mdi_command, reset_mdi_command)
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
@@ -886,6 +918,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     float_num = QtCore.pyqtProperty(float, get_float, set_float, reset_float)
     float_alt_num = QtCore.pyqtProperty(float, get_float_alt, set_float_alt, reset_float_alt)
     view_type_string = QtCore.pyqtProperty(str, get_view_type, set_view_type, reset_view_type)
+    command_text_string = QtCore.pyqtProperty(str, get_command_text, set_command_text, reset_command_text)
 
     ##############################
     # required class boiler code #
