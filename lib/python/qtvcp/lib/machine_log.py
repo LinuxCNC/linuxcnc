@@ -32,7 +32,26 @@ class MachineLogger():
         try:
             timestamp = time.strftime("%a, %b %d %Y %X ---\n")
             fp = open(self.mlp, 'a')
-            fp.write('\n--- Qtscreen Started on: ' + timestamp)
+
+            fp.write(""" $$$$$$\  $$$$$$$$\ """)
+            fp.write('\n')
+            fp.write('''$$  __$$\ \__$$  __|''')
+            fp.write('\n')
+            fp.write('$$ /  $$ |   $$ |  $$$$$$$\  $$$$$$$\  $$$$$$\   $$$$$$\   $$$$$$\  $$$$$$$\  ')
+            fp.write('\n')
+            fp.write('$$ |  $$ |   $$ | $$  _____|$$  _____|$$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ ')
+            fp.write('\n')
+            fp.write('$$ |  $$ |   $$ | \$$$$$$\  $$ /      $$ |  \__|$$$$$$$$ |$$$$$$$$ |$$ |  $$ |')
+            fp.write('\n')
+            fp.write('$$ $$\$$ |   $$ |  \____$$\ $$ |      $$ |      $$   ____|$$   ____|$$ |  $$ |')
+            fp.write('\n')
+            fp.write('\$$$$$$ /    $$ | $$$$$$$  |\$$$$$$$\ $$ |      \$$$$$$$\ \$$$$$$$\ $$ |  $$ |')
+            fp.write('\n')
+            fp.write(' \___$$$\    \__| \_______/  \_______|\__|       \_______| \_______|\__|  \__|')
+            fp.write('\n')
+            fp.write('     \___|        ')
+
+            fp.write('--- Qtscreen Started on: ' + timestamp)
             fp.close()
         except:
             log.warning('machine log history: path valid?')
@@ -71,3 +90,5 @@ class MachineLogger():
         fp.write('')
         fp.close()
         STATUS.emit('machine-log-changed')
+
+
