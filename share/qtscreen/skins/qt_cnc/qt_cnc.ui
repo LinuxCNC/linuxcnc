@@ -590,19 +590,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Diameter&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_17">
-    <property name="geometry">
-     <rect>
-      <x>700</x>
-      <y>560</y>
-      <width>72</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;TextLabel&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
@@ -1532,7 +1519,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <rect>
          <x>50</x>
          <y>80</y>
-         <width>71</width>
+         <width>91</width>
          <height>41</height>
         </rect>
        </property>
@@ -1547,13 +1534,14 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
        <property name="geometry">
         <rect>
          <x>50</x>
-         <y>190</y>
-         <width>71</width>
-         <height>31</height>
+         <y>180</y>
+         <width>91</width>
+         <height>41</height>
         </rect>
        </property>
        <property name="text">
-        <string>Go to 0</string>
+        <string>Go to
+Origion Zero</string>
        </property>
        <property name="mdi_command_action" stdset="0">
         <bool>true</bool>
@@ -1567,18 +1555,19 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <rect>
          <x>50</x>
          <y>230</y>
-         <width>71</width>
-         <height>31</height>
+         <width>91</width>
+         <height>41</height>
         </rect>
        </property>
        <property name="text">
-        <string>Go to 1</string>
+        <string>Go to
+ Machine Zero</string>
        </property>
        <property name="mdi_command_action" stdset="0">
         <bool>true</bool>
        </property>
        <property name="command_text_string" stdset="0">
-        <string>MDI_COMMAND_LIST=1</string>
+        <string>G53 G0 X0Y0Z0</string>
        </property>
       </widget>
      </widget>
@@ -2760,6 +2749,25 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="StatusLabel" name="statuslabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>151</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="gcodes_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tool_comment_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="StatusLabel" name="StatusLabel">
     <property name="geometry">
@@ -2844,7 +2852,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>label_14</zorder>
    <zorder>label_15</zorder>
    <zorder>label_16</zorder>
-   <zorder>label_17</zorder>
    <zorder>line</zorder>
    <zorder>state_label</zorder>
    <zorder>state_label_2</zorder>
