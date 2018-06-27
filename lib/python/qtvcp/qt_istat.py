@@ -145,6 +145,7 @@ class _IStat(object):
         self.TAB_LOCATION = self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")
         self.TAB_CMD   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
         self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        self.TOOL_FILE_PATH = (self.inifile.find("EMCIO", "TOOL_TABLE")) or None
 
     ###################
     # helper functions

@@ -9,7 +9,6 @@ from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import _GStat as GladeVcpStat
 from qtvcp.qt_istat import _IStat as IStat_Parent
 
-
 # Set up logging
 import logger
 log = logger.getLogger(__name__)
@@ -139,3 +138,17 @@ class Action(_Lcnc_Action):
             cls._instance = _Lcnc_Action.__new__(cls, *args, **kwargs)
         return cls._instance
 
+################################################################
+# TStat class
+################################################################
+from qtvcp.qt_tstat import _TStat as TStat_Parent
+class _TStat(TStat_Parent):
+    def __init__(self):
+        super(_TStat, self).__init__()
+
+class Tool(_TStat):
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _TStat.__new__(cls, *args, **kwargs)
+        return cls._instance

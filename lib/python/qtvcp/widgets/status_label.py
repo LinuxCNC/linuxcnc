@@ -18,7 +18,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from qtvcp import logger
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, Tool
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -26,6 +26,7 @@ from qtvcp.core import Status, Info
 # LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+TOOL = Tool()
 LOG = logger.getLogger(__name__)
 
 
@@ -53,6 +54,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.gcodes = False
         self.mcodes = False
         self.tool_diameter = False
+        self.tool_comment = False
 
     def _hal_init(self):
         def _f(data):
@@ -89,6 +91,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('m-code-changed', lambda w, data: _f(data))
         elif self.tool_diameter:
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data, 'diameter'))
+        elif self.tool_comment:
+            STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         elif self.actual_surface_speed:
             STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
@@ -136,6 +140,28 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                 return
         self._set_text(0)
 
+        # [0] = cell toggle
+        # [1] = tool number
+        # [2] = pocket number
+        # [3] = X offset
+        # [4] = Y offset
+        # [5] = Z offset
+        # [6] = A offset
+        # [7] = B offset
+        # [8] = C offset
+        # [9] = U offset
+        # [10] = V offset
+        # [11] = W offset
+        # [12] = tool diameter
+        # [13] = frontangle
+        # [14] = backangle
+        # [15] = tool orientation
+        # [16] = tool comment
+    def _tool_file_info(self, tool_entry, index):
+        toolnum = tool_entry[0]
+        tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
+        self._set_text(str(tool_table_line[index]))
+
     def _ss_tool_diam(self, data):
         if data.id is not -1:
             self._diameter = data.diameter
@@ -165,7 +191,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         data = ('feed_override', 'rapid_override', 'spindle_override', 'jograte',
                 'jogincr', 'tool_number', 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
-                'user_system', 'gcodes', 'mcodes', 'tool_diameter', 'actual_surface_speed')
+                'user_system', 'gcodes', 'mcodes', 'tool_diameter',
+                'tool_comment',  'actual_surface_speed')
 
         for i in data:
             if not i == picked:
@@ -334,6 +361,16 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     def reset_tool_diameter(self):
         self.tool_diameter = False
 
+    # tool_comment status
+    def set_tool_comment(self, data):
+        self.tool_comment = data
+        if data:
+            self._toggle_properties('tool_comment')
+    def get_tool_comment(self):
+        return self.tool_comment
+    def reset_tool_comment(self):
+        self.tool_comment = False
+
     # actual_surface_speed status
     def set_actual_surface_speed(self, data):
         self.actual_surface_speed = data
@@ -364,6 +401,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
     tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
+    tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
     actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
                                                       reset_actual_surface_speed)
 
