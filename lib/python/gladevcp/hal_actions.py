@@ -79,13 +79,12 @@ class _EMC_ActionBase(_HalWidgetBase):
 
     def is_all_homed(self):
         self.stat.poll()
-        axis_count = homed_count = 0
+        homed_count = 0
         for i,h in enumerate(self.stat.homed):
-            if h:
-                if self.stat.axis_mask & (1<<i): homed_count +=1
-            if self.stat.axis_mask & (1<<i) == 0: continue
-            axis_count += 1
-        if homed_count == axis_count:
+            #Don't worry about joint to axis mapping
+            if h: homed_count +=1
+        print self.stat.joints
+        if homed_count == self.stat.joints:
             return True
         return False
 

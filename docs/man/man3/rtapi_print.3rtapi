@@ -5,17 +5,17 @@ rtapi_print, rtapi_print_msg \- print diagnostic messages
 
 .SH SYNTAX
 .HP
- void rtapi_print(const char *\fIfmt\fR, \fI...\fR)
+void rtapi_print(const char *\fIfmt\fR, \fI...\fR)
 
 .HP
- void rtapi_print_msg(int level, const char *\fIfmt\fR, \fI...\fR)
+void rtapi_print_msg(int level, const char *\fIfmt\fR, \fI...\fR)
 
 .HP
- typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, const char *\fImsg\fR);
+typedef void(*\fBrtapi_msg_handler_t\fR)(msg_level_t \fIlevel\fR, const char *\fImsg\fR);
 .HP
- void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
+void \fBrtapi_set_msg_handler\fR(rtapi_msg_handler_t \fIhandler\fR);
 .HP
- rtapi_msg_handler_t \fBrtapi_set_msg_handler\fR(void);
+rtapi_msg_handler_t \fBrtapi_get_msg_handler\fR(void);
 .SH  ARGUMENTS
 .IP \fIlevel\fR
 A message level: One of \fBRTAPI_MSG_ERR\fR,
@@ -25,14 +25,14 @@ A message level: One of \fBRTAPI_MSG_ERR\fR,
 A function to call from \fBrtapi_print\fR or \fBrtapi_print_msg\fR to
 actually output the message.
 
-.IP \fIfmt\fI
-.IP \fI...\fI
-Other arguments are as for \fIprintf(3)\fR.
+.IP \fIfmt,\ ...\fR
+Other arguments are as for \fIrtapi_vsnprintf(3rtapi)\fR.
 
 .SH DESCRIPTION
 \fBrtapi_print\fR and \fBrtapi_print_msg\fR work like the standard C
 printf functions, except that a reduced set of formatting operations are
-supported.
+supported.  Notably, formatting long-long values is not supported, and
+formatting floating-point values has different behavior than standard printf.
 
 Depending on the RTOS, the default may be to print the message to stdout,
 stderr, a kernel log, etc.   In RTAPI code, the action may be changed by
@@ -56,4 +56,4 @@ None.
 
 .SH SEE ALSO
 \fBrtapi_set_msg_level(3rtapi)\fR, \fBrtapi_get_msg_level(3rtapi)\fR,
-\fBprintf(3)\fR
+\fBrtapi_vsnprintf(3rtapi)\fR

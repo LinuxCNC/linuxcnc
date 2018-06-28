@@ -150,9 +150,11 @@ These pins, parameters, and functions are created by the realtime
     running or between lines while single stepping.
 
 * 'motion.requested-vel' - 
-     (float, out) The current requested velocity in user units per second
-    from the F=n setting in the G Code file. No feed overrides or any other
-    adjustments are applied to this pin.
+     (float, out) The current requested velocity in user units per
+    second.  This value is the F-word setting from the G-code file,
+    possibly reduced to accomodate machine velocity and acceleration
+    limits. The value on this pin does not reflect the feed override or
+    any other adjustments.
 
 * 'motion.spindle-at-speed' - 
      (bit, in) Motion will pause until this pin is TRUE, under the
