@@ -3419,7 +3419,7 @@ int do_newring_cmd(char *ring, char *ring_size, char **opt)
 	    }
 
 	} else {
-	    halcmd_error("newring: invalid option '%s' (use one or several of: record stream"
+	    halcmd_error("newring: invalid option '%s' (use one or several of: record stream multi"
 			 " rtapi hal rmutex wmutex scratchpad=<size>)\n",s);
 	    return -EINVAL;
 	}
