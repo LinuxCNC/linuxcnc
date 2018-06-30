@@ -232,7 +232,10 @@ class _GStat(gobject.GObject):
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
         self.old['spindle-speed']= self.stat.spindle[0]['speed']
-        self.old['actual-spindle-speed']= hal.get_value('spindle.0.speed-in') * 60
+        try:
+            self.old['actual-spindle-speed']= hal.get_value('spindle.0.speed-in') * 60
+        except RuntimeError:
+             self.old['actual-spindle-speed'] = 0
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
 
