@@ -721,6 +721,9 @@ class _GStat(gobject.GObject):
         self.stat.poll()
         return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
 
+    def is_auto_paused(self):
+        return self.old['paused']
+
     def is_file_loaded(self):
         self.stat.poll()
         if self.stat.file:
