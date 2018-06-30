@@ -84,6 +84,9 @@ class _Lcnc_Action(object):
 
     def RUN(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
+        if STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_STEP)
+            return
         self.cmd.auto(linuxcnc.AUTO_RUN,0)
 
     def ABORT(self):
