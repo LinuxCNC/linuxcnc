@@ -47,14 +47,14 @@ class GeneralHALInput(QWidget, _HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name
-        if self._pin_type:
+        if self._bit_pin_type:
             ptype = hal.HAL_BIT
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda data: self.pin_update(data))
-
+        elif self._float_pin_type:
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_IN)
+            self.hal_pin.value_changed.connect(lambda data: self.pin_update(data))
         else:
-            ptype = hal.HAL_S32
-            ptype2 = hal.HAL_FLOAT
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_S32, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda data: self.pin_update(data))
 
