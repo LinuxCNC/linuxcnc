@@ -54,7 +54,7 @@ class _TStat(object):
         self.toolfile = INFO.TOOL_FILE_PATH
         self.tool_info = None
         self.current_tool_num = -1
-        self.model = []
+        self.model = None
 
     def GET_TOOL_INFO(self, toolnum):
         self.current_tool_num = int(toolnum)
@@ -89,14 +89,14 @@ class _TStat(object):
     # [15] = tool comments
     # Reload the tool file into the array model and update tool_info
     def _reload(self):
-        self.hash_code = self.md5sum(self.toolfile)
-        # clear the current liststore, search the tool file, and add each tool
-        if self.toolfile == None:return
-        self.model = []
-        #print "toolfile:",self.toolfile
+        if self.toolfile == None:
+            return None
         if not os.path.exists(self.toolfile):
             print "Toolfile does not exist"
-            return
+            return None
+        self.hash_code = self.md5sum(self.toolfile)
+        # clear the current liststore, search the tool file, and add each tool
+        self.model = []
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = None
         toolinfo_flag = False
