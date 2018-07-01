@@ -17,9 +17,10 @@
 import os
 
 from PyQt5.QtWidgets import QLineEdit
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt, QEvent, pyqtProperty
 
 from qtvcp.core import Status, Action, Info
+from qtvcp.widgets.entry_widget import SoftInputWidget
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
@@ -36,14 +37,15 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 
-class MDILine(QLineEdit):
+class MDI(QLineEdit):
     def __init__(self, parent=None):
-        super(MDILine, self).__init__(parent)
+        super(MDI, self).__init__(parent)
 
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
-                                                                and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED)))
+                                                                and (STATUS.is_all_homed()
+                                                                or INFO.NO_HOME_REQUIRED)))
         STATUS.connect('interp-run', lambda w: self.setEnabled(not STATUS.is_auto_mode()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(STATUS.machine_is_on()))
         STATUS.connect('mdi-line-selected', self.external_line_selected)
@@ -82,7 +84,7 @@ class MDILine(QLineEdit):
             self.setText(text)
 
     def keyPressEvent(self, event):
-        super(MDILine, self).keyPressEvent(event)
+        super(MDI, self).keyPressEvent(event)
         if event.key() == Qt.Key_Up:
             LOG.debug('up')
             STATUS.emit('move-text-lineup')
@@ -91,11 +93,42 @@ class MDILine(QLineEdit):
             STATUS.emit('move-text-linedown')
 
 
+class MDILine(MDI):
+    def __init__(self, parent=None):
+        super(MDILine, self).__init__(parent)
+        self._PARENT_WIDGET = parent
+        self.soft_keyboard = True
+        self._input_panel_full = SoftInputWidget(self, 'default')
+        self.installEventFilter(self)
+
+    # try/except is so designer will load
+    def eventFilter(self, widget, event):
+        if self.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
+            if self.soft_keyboard:
+                self._input_panel_full.show_input_panel(widget)
+                ACTION.SET_MDI_MODE()
+        return False
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #########################################################################
+
+    def set_soft_keyboard(self, data):
+        self.soft_keyboard = data
+    def get_soft_keyboard(self):
+        return self.soft_keyboard
+    def reset_soft_keyboard(self):
+        self.soft_keyboard = True
+
+    # designer will show these properties in this order:
+    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+
 # for testing without editor:
 def main():
     import sys
-    from PyQt4.QtGui import QApplication
-
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = MDILine()
     widget.show()

@@ -89,11 +89,11 @@ class SoftInputWidget(QtWidgets.QDialog):
 
         # alphabets
         alpha_widget_list = []
-        sym_list = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+        sym_list = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
                     'new_row',
-                    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
+                    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
                     'new_row',
-                    'z', 'x', 'c', 'v', 'b', 'n', 'm']
+                    'Z', 'X', 'C', 'V', 'B', 'N', 'M']
         for sym in sym_list:
             if sym == 'new_row':
                 alpha_widget_list.append('new_row')
@@ -102,8 +102,21 @@ class SoftInputWidget(QtWidgets.QDialog):
                 button.KEY_CHAR = ord(sym)
                 alpha_widget_list.append(button)
 
-        # back space
         control_widget_list = []
+
+        button = MyFlatPushButton('Up')
+        button.setToolTip('Cursor Up')
+        button.KEY_CHAR = QtCore.Qt.Key_Up
+        control_widget_list.append(button)
+        control_widget_list.append('sep')
+
+        button = MyFlatPushButton('Dwn')
+        button.setToolTip('Cursor Down')
+        button.KEY_CHAR = QtCore.Qt.Key_Down
+        control_widget_list.append(button)
+        control_widget_list.append('sep')
+
+        # back space
         button = MyFlatPushButton('<B')
         button.setToolTip('Backspace')
         button.KEY_CHAR = QtCore.Qt.Key_Backspace
@@ -111,13 +124,15 @@ class SoftInputWidget(QtWidgets.QDialog):
         control_widget_list.append('sep')
 
         # close
-        #button = MyFlatPushButton('X')
-        #button.KEY_CHAR = QtCore.Qt.Key_Escape
-        #control_widget_list.append(button)
-        #control_widget_list.append('sep')
+        button = MyFlatPushButton('Close')
+        button.setToolTip('Close Keyboard')
+        button.KEY_CHAR = QtCore.Qt.Key_Escape
+        control_widget_list.append(button)
+        control_widget_list.append('sep')
 
         # enter
-        button = MyFlatPushButton('Done', min_size=(110, 60))
+        button = MyFlatPushButton('Enter', min_size=(110, 60))
+        button.setToolTip('Enter Command')
         button.KEY_CHAR = QtCore.Qt.Key_Enter
         control_widget_list.append(button)
         control_widget_list.append('sep')
@@ -185,7 +200,7 @@ class SoftInputWidget(QtWidgets.QDialog):
         else:
             keyPress = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, char_ord, QtCore.Qt.NoModifier, chr(char_ord))
         # hide on enter or esc button click
-        if char_ord in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Escape):
+        if char_ord == QtCore.Qt.Key_Escape:
             self.hide()
         else:
             # send keypress event to widget
@@ -243,7 +258,7 @@ class SoftInputWidget(QtWidgets.QDialog):
 
 class TouchInterface(QtCore.QObject):
     def __init__(self, PARENT_WIDGET):
-        QtCore.QObject.__init__(self)
+        super(TouchInterface, self).__init__()
         self._PARENT_WIDGET = PARENT_WIDGET
         self._input_panel_alpha = SoftInputWidget(PARENT_WIDGET, 'alpha')
         self._input_panel_numeric = SoftInputWidget(PARENT_WIDGET, 'numeric')
@@ -252,9 +267,11 @@ class TouchInterface(QtCore.QObject):
     def childEvent(self, event):
         if event.type() == QtCore.QEvent.ChildAdded:
             if isinstance(event.child(), *SIP_WIDGETS):
-                event.child().installEventFilter(self)
+                print 'install'
+            event.child().installEventFilter(self)
 
     def eventFilter(self, widget, event):
+      try:
         if self._PARENT_WIDGET.focusWidget() == widget and event.type() == QtCore.QEvent.MouseButtonPress:
             if hasattr(widget, 'keyboard_type'):
                 if widget.keyboard_type.lower() == 'alpha':
@@ -264,11 +281,12 @@ class TouchInterface(QtCore.QObject):
                 else:
                     self._input_panel_full.show_input_panel(widget)
         return False
-
+      except:
+        return False
 
 class TouchInputWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super(TouchInputWidget, self).__init__()
+    def __init__(self, parent=None):
+        super(TouchInputWidget, self).__init__(parent)
         self.touch_interface = TouchInterface(self)
 
     def childEvent(self, event):

@@ -2685,10 +2685,23 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="geometry">
       <rect>
        <x>60</x>
-       <y>6</y>
+       <y>-4</y>
        <width>271</width>
-       <height>31</height>
+       <height>41</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="soft_keyboard_option" stdset="0">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLabel" name="label_11">
