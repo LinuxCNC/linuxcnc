@@ -41,7 +41,7 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class OriginOffsetView(QTableView, _HalWidgetBase):
@@ -349,7 +349,8 @@ class MyTableModel(QAbstractTableModel):
                 v = float(value)
         except:
             return False
-        LOG.debug(">>> setData() value = ", value)
+        LOG.debug(">>> setData() value = {}".format(value))
+        LOG.debug(">>> setData() qualified value = {}".format(v))
         # self.emit(SIGNAL("dataChanged(QModelIndex,QModelIndex)"), index, index)
         LOG.debug(">>> setData() index.row = {}".format(index.row()))
         LOG.debug(">>> setData() index.column = {}".format(index.column()))
@@ -375,7 +376,9 @@ class MyTableModel(QAbstractTableModel):
         self.emit(SIGNAL("layoutChanged()"))
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication([])
     w = OriginOffsetView()
+    w._hal_init()
     w.show()
     sys.exit(app.exec_())

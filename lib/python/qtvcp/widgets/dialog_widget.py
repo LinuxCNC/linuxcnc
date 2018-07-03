@@ -22,6 +22,7 @@ from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
+from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.core import Status, Action, Info
@@ -330,6 +331,112 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         v = QVBoxLayout()
         h = QHBoxLayout()
         self._o = OFFVIEW_WIDGET()
+        self._o._hal_init()
+        self.setLayout(v)
+        v.addWidget(self._o)
+        b = QPushButton('OK')
+        b.clicked.connect(lambda: self.close())
+        h.addWidget(b)
+        h.addWidget(buttonBox)
+        v.addLayout(h)
+        self.setModal(True)
+
+    def _hal_init(self):
+        self.topParent = self.QTVCP_INSTANCE_
+        STATUS.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, cmd):
+        if cmd == 'ORIGINOFFSET':
+            self.load_dialog()
+
+    # This weird code is just so we can get the axis
+    # letter
+    # using clicked.connect() apparently can't easily
+    # add user data
+    def zeroPress(self, data):
+        def calluser():
+            self.zeroAxis(data)
+        return calluser
+
+    def zeroAxis(self, index):
+        ACTION.SET_AXIS_ORIGIN(index, 0)
+
+    def load_dialog(self):
+        STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
+        # move to botton laeft of parent
+        ph = self.topParent.geometry().height()
+        px = self.topParent.geometry().x()
+        py = self.topParent.geometry().y()
+        dw = 450
+        dh = 300
+        self.setGeometry(px, py+ph-dh, dw, dh)
+        self.show()
+        self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+
+    # usual boiler code
+    # (used so we can use code such as self[SomeDataName]
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+    # **********************
+    # Designer properties
+    # **********************
+
+    @pyqtSlot(bool)
+    def setState(self, value):
+        self._state = value
+        if value:
+            self.show()
+        else:
+            self.hide()
+    def getState(self):
+        return self._state
+    def resetState(self):
+        self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    state = pyqtProperty(bool, getState, setState, resetState)
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
+
+
+################################################################################
+# Tool Offset Dialog
+################################################################################
+class ToolOffsetDialog(QDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(ToolOffsetDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+        self._state = False
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setMinimumSize(800, 200)
+        buttonBox = QDialogButtonBox()
+        buttonBox.setEnabled(False)
+        STATUS.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: buttonBox.setEnabled(True))
+        STATUS.connect('state-estop', lambda w: buttonBox.setEnabled(False))
+        STATUS.connect('state-estop-reset', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
+                                                                           and STATUS.is_all_homed()))
+        for i in('X', 'Y', 'Z'):
+            b = 'button_%s' % i
+            self[b] = QPushButton('Zero %s' % i)
+            self[b].clicked.connect(self.zeroPress('%s' % i))
+            buttonBox.addButton(self[b], 3)
+
+        v = QVBoxLayout()
+        h = QHBoxLayout()
+        self._o = TOOLVIEW_WIDGET()
         self._o._hal_init()
         self.setLayout(v)
         v.addWidget(self._o)
