@@ -5,6 +5,7 @@
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
+from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -16,7 +17,6 @@ from qtvcp.core import Status, Action
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
 
 import linuxcnc
 import sys
@@ -29,6 +29,9 @@ import os
 KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
+LOG = logger.getLogger(__name__)
+# Set the log level for this module
+#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -66,6 +69,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
+        KEYBIND.add_call('Key_F6','on_keycall_F6')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -74,7 +78,7 @@ class HandlerClass:
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
             if isinstance(receiver, OFFVIEW_WIDGET) or \
-                isinstance(receiver, MDI_WIDGET):
+                isinstance(receiver, MDI_WIDGET) or isinstance(receiver, TOOLVIEW_WIDGET):
                 if is_pressed:
                     receiver.keyPressEvent(event)
                     event.accept()
@@ -91,9 +95,9 @@ class HandlerClass:
             KEYBIND.call(self,event,is_pressed,shift,cntrl)
             return True
         except Exception as e:
-            #log.debug('Exception loading Macros:', exc_info=e)
-            #print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            #print 'from %s'% receiver
+            LOG.info('Exception loading Macros:', exc_info=e)
+            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            print 'from %s'% receiver
             return False
 
     ########################
@@ -136,13 +140,16 @@ class HandlerClass:
 
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
-            self.w.lcnc_originoffsetdialog.load_dialog()
+            self.w.originoffsetdialog.load_dialog()
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            self.w.lcnc_camviewdialog.load_dialog()
+            self.w.camviewdialog.load_dialog()
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
-            self.w.lcnc_macrotabdialog.load_dialog()
+            self.w.macrotabdialog.load_dialog()
+    def on_keycall_F6(self,event,state,shift,cntrl):
+        if state:
+            self.w.tooloffsetdialog.load_dialog()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
         if state:

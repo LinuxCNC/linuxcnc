@@ -26,7 +26,7 @@ import logger
 INFO = Info()
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 KEYWORDS = ['T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 
@@ -54,7 +54,7 @@ class _TStat(object):
         self.toolfile = INFO.TOOL_FILE_PATH
         self.tool_info = None
         self.current_tool_num = -1
-        self.model = None
+        self.model = []
 
     def GET_TOOL_INFO(self, toolnum):
         self.current_tool_num = int(toolnum)
@@ -150,22 +150,21 @@ class _TStat(object):
     def _save(self, new_model):
         if self.toolfile == None:return
         file = open(self.toolfile, "w")
-        #print self.toolfile
-        liststore = new_model
-        for row in liststore:
+        for row in new_model:
             values = [ value for value in row ]
             #print values
             line = ""
             for num,i in enumerate(values):
+                #print i
                 if num in (0,1): # tool# pocket#
                     line = line + "%s%d "%(KEYWORDS[num], i)
                 elif num == 15: # comments
                     test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
                 else:
-                    test = i.lstrip()  # floats
+                    test = str(i).lstrip()  # floats
                     line = line + "%s%s "%(KEYWORDS[num], test)
-
+            LOG.debug("Save line: {}".format(line))
             print >>file,line
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors

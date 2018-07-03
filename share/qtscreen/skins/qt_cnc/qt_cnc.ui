@@ -452,6 +452,19 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       </rect>
      </property>
     </widget>
+    <widget class="ToolOffsetDialog" name="tooloffsetdialog">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>30</y>
+       <width>380</width>
+       <height>247</height>
+      </rect>
+     </property>
+     <property name="state">
+      <bool>false</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="StateEnableGridLayout" name="state_enable_gridLayout">
     <property name="geometry">
@@ -2970,6 +2983,11 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>ToolOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
    <class>JogIncrements</class>
    <extends>QComboBox</extends>
    <header>qtvcp.widgets.jog_increments</header>
@@ -2978,6 +2996,12 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <class>FileDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ScreenOptions</class>
@@ -3003,20 +3027,14 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
-   <container>1</container>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
-  </customwidget>
-  <customwidget>
-   <class>ToolDialog</class>
-   <extends>LcncDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>
