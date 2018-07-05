@@ -54,7 +54,6 @@ FUNCTION(_)
     if ( ( lin >= min_out ) && ( lin <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) {
         /* we can follow the command without hitting a limit */
         lout = lin;
-        old_v = ( lout - old_out ) / dt;
     } else {
         /* can't follow commanded path while obeying limits */
         /* determine which way we need to ramp to match v */
@@ -82,12 +81,11 @@ FUNCTION(_)
         }
         if ( ramp_a < 0.0 ) {
             lout = min_out;
-            old_v = min_v;
         } else {
             lout = max_out;
-            old_v = max_v;
         }
     }
+    old_v = ( lout - old_out ) / dt;
     old_out = lout;
     old_in = lin;
     out = lout;

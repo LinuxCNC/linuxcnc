@@ -54,7 +54,6 @@ FUNCTION(_)
     {
         // we can follow the command without hitting a limit
         lout = lin;
-        old_v = ( lout - old_out ) / dt;
     }
     else
     {
@@ -83,17 +82,16 @@ FUNCTION(_)
         if ( ramp_a < 0.0 )
         {
             lout = min_out;
-            old_v = min_v;
         }
         else
         {
             lout = max_out;
-            old_v = max_v;
         }
     }
+    old_v = ( lout - old_out ) / dt;
     old_out = lout;
     old_in = lin;
     sf(out, lout);
 
-return 0;
+    return 0;
 }
