@@ -248,12 +248,6 @@ to see available themes load qtscreen with -d -t SHOWTHEMES +
 
 Qtscreen can also be customized with Qt stylesheets using css. +
 
-
-== Build a Qtscreen Panel
-
-To build a panel or screen use QTDesigner to build a design you like. +
-Save this UI file to your configuration folder with a name of your choice, ending with .ui +
-
 === Local Files
 
 If present, local UI files in the configuration folder will be loaded instead +
@@ -263,7 +257,106 @@ QTscreen will look for MYNAME.ui and MYNAME_handler.py in the launched configura
 
 
 === Modifying Stock Screens
+
 If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
+
+
+== Build a simple clean-sheet custom screen
+
+=== Overview
+
+To build a panel or screen use QTDesigner to build a design you like. +
+Save this design to your configuration folder with a name of your choice, ending with .ui +
+modify the configurations INI file to load Qtscreen with your new .ui file. +
+Then connect any required HAL pins in a HAL file +
+
+=== Get Designer to include linuxcnc widgets
+
+TODO +
+- how to get widget loading library +
+- where to put the library
+- how to get the library to find the widgets +
+- commands to launch designer with QT5 +
+
+
+=== build the screen .ui file
+
+When Designer is first started there is a 'New Form' dialog displayed. +
+Pick 'Main Window' and press the 'create' button. +
+Do not rename this window - Qtvcp requires the name to be 'MainWindow' +
+ +
+A mainwindow widget is Displayed. Grab the corner of the window and resize to +
+an appropriate size say 1000x600. right click on the window and click +
+set minimum size. Do it again and set maximum size.Our sample widget will +
+now not be resizable. +
+ +
+Drag and drop the screenoption widget onto the main window (anywhere). +
+This widget doesn't add anything visually but sets up some common options. +
+
+Drag and drop a FileDialog widget on the window anywhere. +
+This will show the dialog and we want it hidden. +
+On the right hand side there is a panel with tabs for a Property editor and +
+an object inspector. On the Object inspector click on the FileDialog. then +
+switch switch to the property Editor. Under the heading 'FileDialog' toggle +
+'State' until the dialog disappears. +
+
+Drag and drop a GCodeGraphics widget and a GcodeEditor widget. +
+Place and resize them as you see fit leaving some room for buttons. +
+
+Now we will add action buttons. +
+Add 7 action buttons on to the main window. If you double click the button, you +
+can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', +
+'Run', + 'Pause' and 'stop'. +
+Action buttons default to Estop action so we must change the the other buttons. +
+Select the 'Machine On' button. Now go to the 'Property Editor' on the right +
+side of Designer. Scroll down until you find the 'ActionButton' heading. +
+You will see a list of properies and values. find the 'machine on action' and +
+click the checkbox. the button will now control machine on/off. +
+Do the same for all the other button with the addition of: +
+
+ - With the 'Home' button we must also change the joint_number property to -1, +
+Which tells the controller to home all the axes rather then a specific axis. +
+
+ - With the 'Pause' button under the heading 'Indicated_PushButton' check the +
+'indicator_option' and under the 'QAbstactButton' heading check 'checkable'
+
+.Qt Designer - Selecting Pause button's properties
+image::images/designer_button_property.png["designer button property",align="left"]
+
+We then need to save this design as 'tester.ui' in the sim/qtscreen folder +
+We are saving it as tester as that is a file name that qtscreen recognizes and +
+will use a built in handler file to display it. +
+
+=== Handler file
+a handler file is required. It allows customizations to be written in python. +
+For instance keyboard controls are usually written in the handler file. +
+ +
+In this example the built in file 'tester_handler.py' is automatically used. +
+It does the minimum required to display the tester.ui defined screen and do +
+basic keyboard jogging. +
+
+=== INI
+
+If you are using Qtscreen to make a CNC control screen: +
+Under the '[DISPLAY]' heading: +
+ +
+'DISPLAY = qtscreen <screen_name>' +
+ +
+'<screen_name>' is the base name of the .ui and _handler.py files. +
+
+In our example there is already a sim configuration called tester, that we +
+will use to display our test screen.
+
+=== HAL
+
+If your screen used widgets with HAL pins the you must connect then in a HAL file. +
+Qtscreen looks under the heading '[HAL]' for the entry 'POSTGUI_HALFILE=<filename>' +
+Typically '<filename>' would be the screens base name + '_postgui' + '.hal' +
+eg. 'qtscreen_postgui.hal' +
+These commands are executed after the screen is built, guaranteeing the widget HAL +
+pins are available. +
+ +
+In our example there are no HAl pins to connect. +
 
 
 
