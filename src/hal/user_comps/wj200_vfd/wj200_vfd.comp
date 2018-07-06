@@ -13,6 +13,7 @@ pin out float heatsink_temp       "Temperature of drive heatsink";
 pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
 option userspace;
 option userinit yes;
+option usage yes;
 license "GPLv2 or greater";
 ;;
 /*
@@ -97,8 +98,8 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         int rc;
         uint8_t bits[16];
         uint16_t registers[2];
-	uint16_t currentRegister[1];
-	uint16_t temperatureRegister[1];
+	    uint16_t currentRegister[1];
+	    uint16_t temperatureRegister[1];
 
         /*read coils 0x000F thru 0x0019 in one step*/
         rc = modbus_read_bits(ctx, 0x000F-1, 11, bits);
@@ -154,6 +155,27 @@ void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 		modbus_strerror(errno));
 }
 
+void usage(int argc, char **argv) {
+    printf("Usage:  %s [options]\n", argv[0]);
+    printf("This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
+            "    loadusr wj200_vfd [options]\n"
+            "Options are:\n"
+            "-b or --baud <n> (default 9600)\n"
+			"    Set baud rate to <n>.  It is an error if the rate is not one of the following:\n"
+			"    9600, 19200, 38400, 57600, 115200\n"
+			"-p or --parity {E,O,N} (default N)\n"
+            "    Set serial parity to even, odd, or none.\n"
+            "-a or --data <n> (default 8)\n"
+			"    Set number of data bits to <n>, where n must be from 5 to 8 inclusive\n"
+			"-s or --stop {1,2} (default 1)\n"
+			"    Set serial stop bits to 1 or 2\n"
+            "-d or --device <path> (default /dev/ttyS0)\n"
+			"    Set the name of the serial device node to use\n"
+			"\nExample:\n"
+			"    loadusr -W wj200_vfd --device /dev/ttyUSB0 --baud 9600 --parity N --data 8 --stop 1\n"
+			"    loadusr -W wj200_vfd -d /dev/ttyUSB0 -a 9600 --parity N --data 8 --stop 1\n\n"
+			);
+}
 
 /* modbus connection settings*/
 char *device = "/dev/ttyS0";
@@ -166,49 +188,51 @@ modbus_t *ctx;
 void userinit(int argc, char **argv)
 {
 	int opt_index = 0;
-	int c = 0;
+	int opt = 0;
 
-	static struct option options[] = {
-		{"baud",   required_argument, 0, 0 },
-		{"parity", required_argument, 0, 0 },
-		{"databits", required_argument, 0, 0 },
-		{"stopbits", required_argument, 0, 0 },
-		{"device", required_argument, 0, 0 },
+	static char *option_string = "b:p:a:s:d:";
+    static struct option options[] = {
+		{"baud",   required_argument, 0, 'b' },
+		{"parity", required_argument, 0, 'p' },
+		{"databits", required_argument, 0, 'a' },
+		{"stopbits", required_argument, 0, 's' },
+		{"device", required_argument, 0, 'd' },
 		{0, 0, 0, 0}
 	};	
 
-	while(1) {
-		c = getopt_long(argc, argv, "", options, &opt_index);
-
-		if(c == -1)
-			break;
-
-		switch(opt_index) {
-			case 0:
+	while ((opt = getopt_long(argc, argv, option_string, options, &opt_index)) != -1) {
+    
+		switch(opt) {
+			
+			case 'b':
+			
 				baud = atoi(optarg);
 
 				if(baud == 0)
 				{
 					fprintf(stderr, 
-						"Invalid argument: buad must be a number. Given '%s'\n", 
+						"Invalid argument: baud must be a number. Given '%s'\n", 
 						optarg);
 					exit(1);
 				}
+                printf("wj200_vfd: baud set to %d\n", baud);
 				break;
 
-			case 1:
+			case 'p':
 				parity = toupper(optarg[0]);
 
-				if(parity != 'Y' && parity != 'N')
+				if(parity != 'O' && parity != 'N' && parity != 'E')
 				{
 					fprintf(stderr, 
 						"Invalid argument: parity must be 'y' or 'n'. Given '%s'\n", 
 						optarg);
 					exit(1);
 				}
+
+                printf("wj200_vfd: parity set to %c\n", parity);
 				break;
 
-			case 2:
+			case 'a':
 				data_bits = atoi(optarg);
 
 				if(data_bits == 0)
@@ -218,9 +242,10 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
+                printf("wj200_vfd: databits set to %d\n", data_bits);
 				break;
 
-			case 3:
+			case 's':
 				stop_bits = atoi(optarg);
 		
 				if(stop_bits == 0)
@@ -230,14 +255,17 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
+                printf("wj200_vfd: stopbits set to %d\n", stop_bits);
 				break;
-			case 4:
+			case 'd':
 				device = optarg;
+                printf("wj200_vfd: device set to %s\n", device);
 				break;
 
 
 			default:
-                                fprintf(stderr, "internal error: invalid option index!\n");
+                fprintf(stderr, "WARNING: invalid option index!\n");
+                usage(argc, argv);
 				exit(1);
 		}
 
@@ -248,8 +276,10 @@ void userinit(int argc, char **argv)
             for (int i = optind; i < argc; i ++) {
                 fprintf(stderr, "    %s\n", argv[i]);
             }
+            usage(argc, argv);
         }
 
+    printf("wj200_vfd: current settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d\n", device, baud, parity, data_bits, stop_bits);
 	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
 
 	if (ctx == NULL) {
