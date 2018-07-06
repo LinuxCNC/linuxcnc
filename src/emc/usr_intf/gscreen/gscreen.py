@@ -1318,9 +1318,6 @@ class Gscreen:
             names = os.listdir(userthemedir)
             names.sort()
             for dirs in names:
-                # don't add local custom themes
-                if 'Link' in dirs:
-                    continue
                 try:
                     sbdirs = os.listdir(os.path.join(userthemedir, dirs))
                     if 'gtk-2.0' in sbdirs:
