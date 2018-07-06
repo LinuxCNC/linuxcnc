@@ -195,6 +195,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
         elif self.abort or self.pause:
             self.setEnabled(False)
+            if self.pause:
+                STATUS.connect('program-pause-changed', lambda w, state: _safecheck(state))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(test()))
