@@ -24,6 +24,14 @@ from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
 
+# Instiniate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
+# LOG is for running code logging
+if __name__ != '__main__':  # This avoids segfault when testing directly in python
+    from qtvcp.core import Status
+    STATUS = Status()
+LOG = logger.getLogger(__name__)
+
 # If the library is missing don't crash the GUI
 # send an error and just make a blank widget.
 LIB_GOOD = True
@@ -33,13 +41,7 @@ except:
     LOG.error('Qtvcp Error with camview - is python-opencv installed?')
     LIB_GOOD = False
 
-# Instiniate the libraries with global reference
-# STATUS gives us status messages from linuxcnc
-# LOG is for running code logging
-if __name__ != '__main__':  # This avoids segfault when testing directly in python
-    from qtvcp.core import Status
-    STATUS = Status()
-LOG = logger.getLogger(__name__)
+
 
 
 class CamView(QtWidgets.QWidget, _HalWidgetBase):
