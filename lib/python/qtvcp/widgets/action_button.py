@@ -132,11 +132,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     return
             _safecheck(False)
 
-        def test():
+        def homed_on_loaded_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED)
                     and STATUS.is_file_loaded())
-
+        def homed_on_test():
+            return (STATUS.machine_is_on()
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
         if self.estop:
             # Estop starts with button down - in estop which
             # backwards logic for the button...
@@ -186,9 +188,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.zero_axis or self.run:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('interp-idle', lambda w: self.setEnabled(test()))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
             if self.run:
                 STATUS.connect('file-loaded', lambda w, f: self.setEnabled(True))
@@ -199,7 +202,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 STATUS.connect('program-pause-changed', lambda w, state: _safecheck(state))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('interp-idle', lambda w: self.setEnabled(test()))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_loaded_test()))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
 
         elif self.launch_halmeter:
