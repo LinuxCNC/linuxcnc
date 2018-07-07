@@ -13,7 +13,7 @@ import subprocess
 from PyQt5.QtCore import pyqtProperty, QSize, QEvent
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QWindow, QResizeEvent
-from qtvcp.qt_glib import GStat, IStat
+from qtvcp.core import Status, Info
 import thread
 import gobject
 from subprocess import Popen
@@ -27,7 +27,7 @@ from Xlib.xobject import drawable
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
-ISTAT = IStat()
+INFO = Info()
 
 ##############################################
 # Container class
@@ -109,7 +109,7 @@ class Embed(QWidget):
                 pass
             if self.WID:
                 pass
-                #self.xlib_size_request(w.width(),w.height())
+                self.xlib_size_request(w.width(),w.height())
             #self.resize(QResizeEvent.size(event))
         return True
 
@@ -117,7 +117,7 @@ class Embed(QWidget):
 
     def xlib_size_request(self,w,h):
             if self.fw == None:return
-            print w,h
+            print '---', w,h
             Klass = _event.ResizeRequest
             kw = dict(window=self.fw, width = w, height = h)
             msg = Klass(**kw)
@@ -140,7 +140,6 @@ class Nothing():
 
 
 
-
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
 
@@ -151,10 +150,10 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     widget = Embed()
-    #widget.launch('halcmd loadusr gladevcp -x {XID} ../../gladevcp/offsetpage.glade')
+    widget.launch('halcmd loadusr gladevcp -x {XID} ../../gladevcp/offsetpage.glade')
     #widget.launch_xid('halcmd loadusr gladevcp -d --xid  ../../gladevcp/offsetpage.glade &')
     #widget.launch('mplayer -wid {XID} tv://0 -vf rectangle=-1:2:-1:240,rectangle=2:-1:320:-1')
-    widget.launch_ob()
+    #widget.launch_ob()
     #widget.sizeHint(300,300)
     widget.show()
     sys.exit(app.exec_())
