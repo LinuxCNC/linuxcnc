@@ -6,6 +6,7 @@ import hal
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
 from qtvcp.core import Status
+from qtvcp.lib import xembed
 
 # Set up the base logger
 #   We have do do this before importing other modules because on import
@@ -253,14 +254,12 @@ class QTscreen:
         log.debug('Set HAL ready')
         self.halcomp.ready()
 
-        # embed an external program into us
+        # embed us into an X11 window (such as AXIS)
         if opts.parent:
-            log.critical('Xembed Option not available yet')
-            print opts.parent
-            sys.exit(1)
-            #window = xembed.reparent(window, opts.parent)
+            window = xembed.reparent_qt_to_x11(window, opts.parent)
             forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
-            print forward
+            log.critical('Forwarding events to AXIS is not functional yet')
+            #print forward
             #if forward:
                 #xembed.keyboard_forward(window, forward)
 
