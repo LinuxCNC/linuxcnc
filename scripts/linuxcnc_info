@@ -94,7 +94,9 @@ show "        LANGUAGE" $LANGUAGE
 show "            TERM" $TERM
 show "       COLORTERM" $COLORTERM
 show "         DISPLAY" $DISPLAY
+show "         DESKTOP" $DESKTOP_SESSION
 show "    display size" $(parse_after_colon $(xdpyinfo|grep dimensions))
+show "            PATH" $PATH
 echo
 echo "uname items:"
 show "     nodename -n" $(uname -n)
