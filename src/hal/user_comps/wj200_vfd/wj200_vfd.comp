@@ -13,7 +13,6 @@ pin out float heatsink_temp       "Temperature of drive heatsink";
 pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
 option userspace;
 option userinit yes;
-option usage yes;
 license "GPLv2 or greater";
 ;;
 /*
@@ -161,20 +160,20 @@ void usage(int argc, char **argv) {
             "    loadusr wj200_vfd [options]\n"
             "Options are:\n"
             "-b or --baud <n> (default 9600)\n"
-			"    Set baud rate to <n>.  It is an error if the rate is not one of the following:\n"
-			"    9600, 19200, 38400, 57600, 115200\n"
-			"-p or --parity {E,O,N} (default N)\n"
+	    "    Set baud rate to <n>.  It is an error if the rate is not one of the following:\n"
+	    "    9600, 19200, 38400, 57600, 115200\n"
+	    "-p or --parity {E,O,N} (default N)\n"
             "    Set serial parity to even, odd, or none.\n"
             "-a or --data <n> (default 8)\n"
-			"    Set number of data bits to <n>, where n must be from 5 to 8 inclusive\n"
-			"-s or --stop {1,2} (default 1)\n"
-			"    Set serial stop bits to 1 or 2\n"
+	    "    Set number of data bits to <n>, where n must be from 5 to 8 inclusive\n"
+	    "-s or --stop {1,2} (default 1)\n"
+	    "    Set serial stop bits to 1 or 2\n"
             "-d or --device <path> (default /dev/ttyS0)\n"
-			"    Set the name of the serial device node to use\n"
-			"\nExample:\n"
-			"    loadusr -W wj200_vfd --device /dev/ttyUSB0 --baud 9600 --parity N --data 8 --stop 1\n"
-			"    loadusr -W wj200_vfd -d /dev/ttyUSB0 -a 9600 --parity N --data 8 --stop 1\n\n"
-			);
+	    "    Set the name of the serial device node to use\n"
+	    "\nExample:\n"
+	    "    loadusr -W wj200_vfd --device /dev/ttyUSB0 --baud 9600 --parity N --data 8 --stop 1\n"
+	    "    loadusr -W wj200_vfd -d /dev/ttyUSB0 -a 9600 --parity N --data 8 --stop 1\n\n"
+	    );
 }
 
 /* modbus connection settings*/
@@ -191,7 +190,7 @@ void userinit(int argc, char **argv)
 	int opt = 0;
 
 	static char *option_string = "b:p:a:s:d:";
-    static struct option options[] = {
+        static struct option options[] = {
 		{"baud",   required_argument, 0, 'b' },
 		{"parity", required_argument, 0, 'p' },
 		{"databits", required_argument, 0, 'a' },
@@ -215,7 +214,7 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
-                printf("wj200_vfd: baud set to %d\n", baud);
+                                printf("wj200_vfd: baud set to %d\n", baud);
 				break;
 
 			case 'p':
@@ -224,12 +223,12 @@ void userinit(int argc, char **argv)
 				if(parity != 'O' && parity != 'N' && parity != 'E')
 				{
 					fprintf(stderr, 
-						"Invalid argument: parity must be 'y' or 'n'. Given '%s'\n", 
+						"Invalid argument: parity must be 'o' or 'e' or 'n'. Given '%s'\n", 
 						optarg);
 					exit(1);
 				}
 
-                printf("wj200_vfd: parity set to %c\n", parity);
+                                printf("wj200_vfd: parity set to %c\n", parity);
 				break;
 
 			case 'a':
@@ -242,7 +241,7 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
-                printf("wj200_vfd: databits set to %d\n", data_bits);
+                                printf("wj200_vfd: databits set to %d\n", data_bits);
 				break;
 
 			case 's':
@@ -255,17 +254,17 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
-                printf("wj200_vfd: stopbits set to %d\n", stop_bits);
+                                printf("wj200_vfd: stopbits set to %d\n", stop_bits);
 				break;
 			case 'd':
 				device = optarg;
-                printf("wj200_vfd: device set to %s\n", device);
+                                printf("wj200_vfd: device set to %s\n", device);
 				break;
 
 
 			default:
-                fprintf(stderr, "WARNING: invalid option index!\n");
-                usage(argc, argv);
+                                fprintf(stderr, "WARNING: invalid option index!\n");
+                                usage(argc, argv);
 				exit(1);
 		}
 
@@ -279,7 +278,7 @@ void userinit(int argc, char **argv)
             usage(argc, argv);
         }
 
-    printf("wj200_vfd: current settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d\n", device, baud, parity, data_bits, stop_bits);
+        printf("wj200_vfd: current settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d\n", device, baud, parity, data_bits, stop_bits);
 	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
 
 	if (ctx == NULL) {
