@@ -69,7 +69,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.play_shutdown_sounds = True
         self.user_messages = True
         self.use_pref_file = True
-        self.pref_filename = '~/.qtscreen_preferences'
+        self.pref_filename = '~/.qtvcp_screen_preferences'
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -99,7 +99,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                            'This option can be changed in the preference file',
                                                            str, 'SHUTDOWN_OPTIONS')
             self.notify_start_title = self.PREFS_.getpref('notify_start_title', 'Welcome', str, 'NOTIFY_OPTIONS')
-            self.notify_start_detail = self.PREFS_.getpref('notify_start_detail', 'This is a test screen for Qtscreen',
+            self.notify_start_detail = self.PREFS_.getpref('notify_start_detail', 'This is a test screen for QtVCP',
                                                            str, 'NOTIFY_OPTIONS')
             self.notify_start_timeout = self.PREFS_.getpref('notify_start_timeout', 10, int, 'NOTIFY_OPTIONS')
         # connect to STATUS to catch linuxcnc events
@@ -233,7 +233,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def get_pref_filename(self):
         return self.pref_filename
     def reset_pref_filename(self):
-        self.pref_filename = '~/.qtscreen_preferences'
+        self.pref_filename = '~/.qtvcp_screen_preferences'
 
     # designer will show these properties in this order:
     notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)

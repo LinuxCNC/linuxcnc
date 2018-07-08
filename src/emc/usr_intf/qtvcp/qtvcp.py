@@ -12,7 +12,7 @@ from qtvcp.lib import xembed
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-log = logger.initBaseLogger('QTSCREEN', log_file=None, log_level=logger.DEBUG)
+log = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
 
 # If log_file is none, logger.py will attempt to find the log file specified in
 # INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
@@ -61,14 +61,14 @@ class Paths():
 
     def add_screen_paths(self):
         # BASE is the absolute path to linuxcnc base
-        # libdir is the path to qtscreen python files
+        # libdir is the path to qtvcp python files
         # DATADIR is where the standarad UI files are
         # IMAGEDIR is for icons
         self.BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
         self.libdir = os.path.join(self.BASE, "lib", "python")
         sys.path.insert(0, self.libdir)
-        self.IMAGEDIR = os.path.join(self.BASE, "share","qtscreen","images")
-        self.SKINDIR = os.path.join(self.BASE, "share","qtscreen","skins")
+        self.IMAGEDIR = os.path.join(self.BASE, "share","qtvcp-screen","images")
+        self.SKINDIR = os.path.join(self.BASE, "share","qtvcp-screen","skins")
         #self.themedir = "/usr/share/themes"
         self.userthemedir = os.path.join(os.path.expanduser("~"), ".themes")
         # path to the configuration the user requested
@@ -127,7 +127,7 @@ class Paths():
             log.critical("No handler file found")
             sys.exit(0)
 
-class QTscreen: 
+class QTVCP: 
     def __init__(self):
         INIPATH = None
 
@@ -153,7 +153,7 @@ class QTscreen:
             logger.setGlobalLevel(logger.ERROR)
 
         # a specific path has been set to load from or...
-        # no path set but -ini is present: default qtscreen screen...or
+        # no path set but -ini is present: default qtvcp screen...or
         # oops error
         if args:
             basepath=args[0]
@@ -310,7 +310,7 @@ class QTscreen:
                 log.warning("{} theme not available".format(opts.theme))
                 if opts.debug:
                     current_theme = QtWidgets.qApp.style().objectName()
-                    themes=['\nQTscreen Available themes:']
+                    themes=['\nQTvcp Available themes:']
                     for i in (QtWidgets.QStyleFactory.keys()):
                         if i == current_theme:
                             themes.append('  * green<{}>'.format(i))
@@ -326,7 +326,7 @@ class QTscreen:
 
         # title
         if INIPATH:
-            title = 'QTscreen-%s'% opts.component
+            title = 'QTvcp-Screen-%s'% opts.component
         else:
             title = 'QTvcp-%s'% opts.component
         window.setWindowTitle(title)
@@ -356,10 +356,10 @@ class QTscreen:
     def shutdown(self):
         STATUS.shutdown()
 
-# starts qtscreen
+# starts Qtvcp
 if __name__ == "__main__":
     try:
-        APP = QTscreen()
+        APP = QTVCP()
     except KeyboardInterrupt:
         APP.shutdown()
         sys.exit(0)

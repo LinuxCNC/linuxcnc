@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1106</width>
+    <height>599</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="FocusOverlay" name="focusoverlay">
+    <property name="geometry">
+     <rect>
+      <x>-28</x>
+      <y>-116</y>
+      <width>831</width>
+      <height>691</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="ScreenOptions" name="screen_options">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>490</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="FileDialog" name="filedialog">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>40</y>
+      <width>629</width>
+      <height>433</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="GCodeGraphics" name="gcodegraphics">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>851</width>
+      <height>241</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="GcodeEditor" name="gcode_editor">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>250</y>
+      <width>851</width>
+      <height>301</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton">
+    <property name="geometry">
+     <rect>
+      <x>874</x>
+      <y>10</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Estop</string>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_2">
+    <property name="geometry">
+     <rect>
+      <x>980</x>
+      <y>10</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Machine On</string>
+    </property>
+    <property name="machine_on_action" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_3">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>60</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Home</string>
+    </property>
+    <property name="home_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="joint_number" stdset="0">
+     <number>-1</number>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_4">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>116</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load</string>
+    </property>
+    <property name="load_dialog_action" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_5">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>170</y>
+      <width>61</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Run</string>
+    </property>
+    <property name="run_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="load_dialog_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_6">
+    <property name="geometry">
+     <rect>
+      <x>1000</x>
+      <y>170</y>
+      <width>61</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pause</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="pause_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="load_dialog_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_7">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>250</y>
+      <width>61</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop</string>
+    </property>
+    <property name="abort_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="load_dialog_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <zorder>screen_options</zorder>
+   <zorder>filedialog</zorder>
+   <zorder>gcodegraphics</zorder>
+   <zorder>gcode_editor</zorder>
+   <zorder>actionbutton</zorder>
+   <zorder>actionbutton_2</zorder>
+   <zorder>actionbutton_3</zorder>
+   <zorder>actionbutton_4</zorder>
+   <zorder>focusoverlay</zorder>
+   <zorder>actionbutton_5</zorder>
+   <zorder>actionbutton_6</zorder>
+   <zorder>actionbutton_7</zorder>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1106</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QFrame</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
