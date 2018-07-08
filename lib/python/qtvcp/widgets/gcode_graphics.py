@@ -97,7 +97,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             print 'error', self._reload_filename
             pass
 
-    # overriding functions
+    ####################################################
+    # functions that override qt5_graphics
+    ####################################################
     def report_gcode_error(self, result, seq, filename):
         error_str = gcode.strerror(result)
         errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
@@ -105,14 +107,21 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         print(errortext)
         STATUS.emit("graphics-gcode-error", errortext)
 
-    # Override gremlin's / glcannon.py function so we can emit a GObject signal
+    # Override qt5_graphics / glcannon.py function so we can emit a GObject signal
     def update_highlight_variable(self, line):
         self.highlight_line = line
         if line is None:
             line = -1
         STATUS.emit('graphics-line-selected', line)
 
-# property getter/setters
+    # override user plot -One could add gl commands to plot static objects here
+    def user_plot(self):
+        return
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # property getter/setters
+    #########################################################################
 
     # VIEW
     def setview(self, view):
