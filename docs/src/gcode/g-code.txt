@@ -869,7 +869,7 @@ Only use G28 when your machine is homed to a repeatable position and the
 desired G28 position has been stored with G28.1.
 
 G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
-5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
+5161-5169 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units' as 
 specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
@@ -903,7 +903,7 @@ Only use G30 when your machine is homed to a repeatable position and the
 desired G30 position has been stored with G30.1.
 
 G30 functions the same as G28 but uses the values stored in
-<<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
+<<sub:numbered-parameters,parameters>> 5181-5189 as the X Y Z A B C U V W
 final point to move to. The parameter values are 'absolute' machine
 coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
@@ -2176,23 +2176,36 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 G92 axes
 ----
 
-G92 makes the current point have the coordinates you want (without
+[WARNING]
+Only use 'G92' after your machine has been positioned to the desired point. 
+
+'G92' makes the current point have the coordinates you want (without
 motion), where the axis words contain the axis numbers you want.
 All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the coordinate on
-that axis of the current point is not changed.
+If an axis word is not used for a given axis, the offset for that axis 
+will be zero. 
 
-When 'G92' is executed, the origins of all coordinate systems move.
-They move such that the value of the current controlled point, in the currently
-active coordinate system, becomes the specified value. All coordinate
-system's origins are offset this same distance.
+When 'G92' is executed, the <<sec.machine-corrdinate-system,origins>> 
+of all coordinate systems move. They move such that the value of the 
+current controlled point, in the currently active coordinate system, 
+becomes the specified value. All of the coordinate system's origins 
+(G53-G59.3) are offset this same distance. 
+
+'G92' uses the values stored in <<sub:numbered-parameters,parameters>> 
+5211-5219 as the X Y Z A B C U V W offset values for each axis. 
+The parameter values are 'absolute' machine coordinates 
+in the native machine 'units' as specified in the ini file.
+All axes defined in the ini file will be offset when G92 is active. 
+If an axis was not entered following the G92, that axis' offset 
+will be zero. 
 
 For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 x7' is programmed. This
+currently no 'G92' offset active. Then 'G92 X7' is programmed. This
 moves all origins -3 in X, which causes the
 current point to become X=7. This -3 is saved in parameter 5211.
 
-Being in incremental distance mode has no effect on the action of 'G92'.
+Being in incremental distance mode (G91 instead of G90) has no effect 
+on the action of 'G92'.
 
 'G92' offsets may be already be in effect when the 'G92' is called.
 If this is the case, the offset is replaced with a new
@@ -2216,9 +2229,8 @@ See the <<gcode:parameters,Parameters>> Section for more information.
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Reset G92 Offsets
 
-* 'G92.1' - reset G92 offsets to zero and set <<sub:numbered-parameters,parameters>>
-  5211 - 5219 to zero.
-* 'G92.2' - reset G92 offsets to zero.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available. 
 
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
