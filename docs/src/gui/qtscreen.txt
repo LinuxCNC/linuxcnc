@@ -13,7 +13,7 @@ image::images/qt_cnc.png["QTscreen Mill",align="left"]
 = QTvcp Widgets
 
 Qtscreen uses QTvcp widgets for linuxcnc integration.
-Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
+Widget is the general name for the UI objects such as buttons and labels in pyQT5. +
 You are free to use any available widgets in the QTDesigner editor. +
 There are also special widgets made for linuxcnc that make integration easier. +
 This are split in three heading on the left side of the editor. +
@@ -21,7 +21,8 @@ One is for HAL only widgets. +
 One is for cnc control widgets. +
 One is for dialog widgets. +
 you are free to mix them in any way on your panel. +
-A very important widget is the screenoptions widget. It does not add anything visually to the screen. +
+A very important widget is the screenoptions widget. +
+It does not add anything visually to the screen. +
 But allows important details to be selected rather then be coded in the handler file. +
 
 = Overview
@@ -262,6 +263,8 @@ If you wish to modify a stock screen, copy it's UI and handler file to your conf
 
 
 == Build a simple clean-sheet custom screen
+.Ugly custom screen
+image::images/qtvcp_tester.png["QTscreen Mill",align="left"]
 
 === Overview
 
@@ -272,12 +275,37 @@ Then connect any required HAL pins in a HAL file +
 
 === Get Designer to include linuxcnc widgets
 
-TODO +
-- how to get widget loading library +
-- where to put the library
-- how to get the library to find the widgets +
-- commands to launch designer with QT5 +
+You must have designer installed; These commands should add it: +
+Or use your package manager to install the same: +
+'sudo apt-get install qttools5-dev-tools' +
+'sudo apt-get install qttools5.dev' +
 
+Then you need the python-module loading library added. +
+Qtvcp uses QT5 with python2 - this combination is not normally available from +
+repositories. You can compile it your self or there are precompiled versions +
+available for common systems. +
+in 'lib/python/qtvcp/designer' there are folders based on system architectures +
+and then QT version. +
+You must pick the cpu architecture folder then pick the series; 5.5 or 5.7 of Qt. +
+currently Debian stretch uses 5.7, Mint 12 uses 5.5 +
+if in doubt check the version of QT5 on the system. +
+
+You must copy that proper version of 'libpyqt5_py2.so' to this folder: +
+'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer' +
+(x86_64-linux-gnu might be called something slightly different +
+on different systems) +
+
+You will require super user privileges to copy the file to the folder. +
+
+then you must link the qtvcp_plugin.py to the folder that designer will search. +
+
+This can be: +
+'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' +
+or +
+'~/.designer/plugins/python' +
+
+open a terminal, set the environment for linuxcnc '. scripts/rip-environment' +
+then load designer with : designer -qt=5 +
 
 === build the screen .ui file
 
@@ -306,11 +334,11 @@ Place and resize them as you see fit leaving some room for buttons. +
 Now we will add action buttons. +
 Add 7 action buttons on to the main window. If you double click the button, you +
 can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', +
-'Run', + 'Pause' and 'stop'. +
+'Run', 'Pause' and 'stop'. +
 Action buttons default to Estop action so we must change the the other buttons. +
 Select the 'Machine On' button. Now go to the 'Property Editor' on the right +
 side of Designer. Scroll down until you find the 'ActionButton' heading. +
-You will see a list of properies and values. find the 'machine on action' and +
+You will see a list of properties and values. find the 'machine on action' and +
 click the checkbox. the button will now control machine on/off. +
 Do the same for all the other button with the addition of: +
 
