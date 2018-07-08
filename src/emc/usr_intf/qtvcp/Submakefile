@@ -1,8 +1,8 @@
-PYTARGETS += ../bin/qtscreen
+PYTARGETS += ../bin/qtvcp
 
 
 
-../bin/qtscreen: emc/usr_intf/qtscreen/qtscreen.py
+../bin/qtvcp: emc/usr_intf/qtvcp/qtvcp.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)

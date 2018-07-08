@@ -54,7 +54,7 @@ class HandlerClass:
         self.IMAGE_PATH = paths.IMAGEDIR
         self.STYLE = Styles(widgets, paths)
     ##########################################
-    # Special Functions called from QTSCREEN
+    # Special Functions called from QTVCP
     ##########################################
 
     # at this point:
@@ -63,7 +63,7 @@ class HandlerClass:
     def initialized__(self):
         if self.w.PREFS_:
             print 'Using preference file:',self.w.PREFS_.fn
-        STATUS.emit('play-alert','SPEAK This is a test screen for Qtscreen')
+        STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
         # set custom theme
         self.STYLE.dark_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
