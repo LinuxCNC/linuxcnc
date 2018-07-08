@@ -12,7 +12,7 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 /*
 This module_helper program will be installed setuid and allows
@@ -28,10 +28,12 @@ In summary, I don't like this any more than you do, but I can't
 think of a better way.
 */
 
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/utsname.h>
 
 #include "config.h"
 
@@ -49,7 +51,7 @@ char *module_whitelist[] = {
 /* module path must start with this. */
 
 char *path_whitelist[] = {
-    "/lib/modules", RTDIR,
+    "/lib/modules", RTDIR, NULL,
 
     NULL
 };
@@ -57,7 +59,7 @@ char *path_whitelist[] = {
 /* module extension must be one of these */
 
 char *ext_whitelist[] = {
-    MODULE_EXT, NULL
+    ".ko", NULL
 };
 
 void error(int argc, char **argv) {
@@ -182,6 +184,8 @@ int main(int argc, char **argv) {
     int i;
     int inserting = 0;
     int res;
+    struct utsname u;
+    char buf[4096];
     char **exec_argv;
 
     if(geteuid() != 0) {
@@ -195,6 +199,21 @@ int main(int argc, char **argv) {
         perror("seteuid");
         return 1;
     }
+
+    res = uname(&u);
+    if(res != 0)
+    {
+        perror("uname");
+        return 1;
+    }
+
+    res = snprintf(buf, sizeof(buf), "/usr/realtime-%s/modules", u.release);
+    if(res < 0 || res >= sizeof(buf))
+    {
+        perror("snprintf");
+        return 1;
+    }
+    path_whitelist[2] = buf;
 
     if(argc < 3) error(argc, argv);
     if(strcmp(argv[1], "insert") && strcmp(argv[1], "remove")) error(argc, argv);

@@ -1,29 +1,29 @@
 # core HAL config file for simulation - 6 axis
 
 # load RT modules
-loadrt genserkins
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[TRAJ]AXES
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[KINS]JOINTS
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
 # create HAL signals for position commands from motion module
-net J0pos <= axis.0.motor-pos-cmd
-net J1pos <= axis.1.motor-pos-cmd
-net J2pos <= axis.2.motor-pos-cmd
-net J3pos <= axis.3.motor-pos-cmd
-net J4pos <= axis.4.motor-pos-cmd
-net J5pos <= axis.5.motor-pos-cmd
+net J0pos <= joint.0.motor-pos-cmd
+net J1pos <= joint.1.motor-pos-cmd
+net J2pos <= joint.2.motor-pos-cmd
+net J3pos <= joint.3.motor-pos-cmd
+net J4pos <= joint.4.motor-pos-cmd
+net J5pos <= joint.5.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-net J0pos => axis.0.motor-pos-fb
-net J1pos => axis.1.motor-pos-fb
-net J2pos => axis.2.motor-pos-fb
-net J3pos => axis.3.motor-pos-fb
-net J4pos => axis.4.motor-pos-fb
-net J5pos => axis.5.motor-pos-fb
+net J0pos => joint.0.motor-pos-fb
+net J1pos => joint.1.motor-pos-fb
+net J2pos => joint.2.motor-pos-fb
+net J3pos => joint.3.motor-pos-fb
+net J4pos => joint.4.motor-pos-fb
+net J5pos => joint.5.motor-pos-fb
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -55,33 +55,9 @@ setp genserkins.D-3 17.05
 setp genserkins.D-4 0 
 setp genserkins.D-5 2.2
 
-
-loadrt scale count=6
-
-addf scale.0 servo-thread
-addf scale.1 servo-thread
-addf scale.2 servo-thread
-addf scale.3 servo-thread
-addf scale.4 servo-thread
-addf scale.5 servo-thread
-
-net J0pos scale.0.in
-net J1pos scale.1.in
-net J2pos scale.2.in
-net J3pos scale.3.in
-net J4pos scale.4.in
-net J5pos scale.5.in
-
-setp scale.0.gain 1
-setp scale.1.gain 1
-setp scale.2.gain 1
-setp scale.3.gain 1
-setp scale.4.gain 1
-setp scale.5.gain 1
-
-net J0scaled scale.0.out puma560gui.joint1
-net J1scaled scale.1.out puma560gui.joint2
-net J2scaled scale.2.out puma560gui.joint3
-net J3scaled scale.3.out puma560gui.joint4
-net J4scaled scale.4.out puma560gui.joint5
-net J5scaled scale.5.out puma560gui.joint6
+net j0 joint.0.pos-fb puma560gui.joint1
+net j1 joint.1.pos-fb puma560gui.joint2
+net j2 joint.2.pos-fb puma560gui.joint3
+net j3 joint.3.pos-fb puma560gui.joint4
+net j4 joint.4.pos-fb puma560gui.joint5
+net j5 joint.5.pos-fb puma560gui.joint6

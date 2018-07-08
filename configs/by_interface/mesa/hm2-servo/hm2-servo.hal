@@ -26,10 +26,10 @@
 # ###################################
 
 # kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # standard components
 loadrt pid num_chan=3 
@@ -75,7 +75,7 @@ newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 net emcmot.00.enable => pid.0.enable
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.00.enable
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= joint.0.amp-enable-out 
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.counter-mode 0
@@ -84,26 +84,26 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-invert 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask-invert 0
 
-setp  hm2_[HOSTMOT2](BOARD).0.encoder.00.scale  [AXIS_0]INPUT_SCALE
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.00.scale  [JOINT_0]INPUT_SCALE
 net motor.00.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.00.position => pid.0.feedback
-net motor.00.pos-fb => axis.0.motor-pos-fb #push copy back to Axis GUI
+net motor.00.pos-fb => joint.0.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
-setp pid.0.Pgain [AXIS_0]P
-setp pid.0.Igain [AXIS_0]I
-setp pid.0.Dgain [AXIS_0]D
-setp pid.0.bias [AXIS_0]BIAS
-setp pid.0.FF0 [AXIS_0]FF0
-setp pid.0.FF1 [AXIS_0]FF1
-setp pid.0.FF2 [AXIS_0]FF2
-setp pid.0.deadband [AXIS_0]DEADBAND
-setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
+setp pid.0.Pgain [JOINT_0]P
+setp pid.0.Igain [JOINT_0]I
+setp pid.0.Dgain [JOINT_0]D
+setp pid.0.bias [JOINT_0]BIAS
+setp pid.0.FF0 [JOINT_0]FF0
+setp pid.0.FF1 [JOINT_0]FF1
+setp pid.0.FF2 [JOINT_0]FF2
+setp pid.0.deadband [JOINT_0]DEADBAND
+setp pid.0.maxoutput [JOINT_0]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  [AXIS_0]OUTPUT_SCALE
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  [JOINT_0]OUTPUT_SCALE
 
-net emcmot.00.pos-cmd axis.0.motor-pos-cmd => pid.0.command
+net emcmot.00.pos-cmd joint.0.motor-pos-cmd => pid.0.command
 net motor.00.command  pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
 
 
@@ -116,7 +116,7 @@ newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 net emcmot.01.enable => pid.1.enable
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.01.enable
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= joint.1.amp-enable-out 
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.counter-mode 0
@@ -125,26 +125,26 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-invert 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask-invert 0
 
-setp  hm2_[HOSTMOT2](BOARD).0.encoder.01.scale  [AXIS_1]INPUT_SCALE
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.01.scale  [JOINT_1]INPUT_SCALE
 net motor.01.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.01.position => pid.1.feedback
-net motor.01.pos-fb => axis.1.motor-pos-fb #push copy back to Axis GUI
+net motor.01.pos-fb => joint.1.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
-setp pid.1.Pgain [AXIS_1]P
-setp pid.1.Igain [AXIS_1]I
-setp pid.1.Dgain [AXIS_1]D
-setp pid.1.bias [AXIS_1]BIAS
-setp pid.1.FF0 [AXIS_1]FF0
-setp pid.1.FF1 [AXIS_1]FF1
-setp pid.1.FF2 [AXIS_1]FF2
-setp pid.1.deadband [AXIS_1]DEADBAND
-setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
+setp pid.1.Pgain [JOINT_1]P
+setp pid.1.Igain [JOINT_1]I
+setp pid.1.Dgain [JOINT_1]D
+setp pid.1.bias [JOINT_1]BIAS
+setp pid.1.FF0 [JOINT_1]FF0
+setp pid.1.FF1 [JOINT_1]FF1
+setp pid.1.FF2 [JOINT_1]FF2
+setp pid.1.deadband [JOINT_1]DEADBAND
+setp pid.1.maxoutput [JOINT_1]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale [AXIS_1]OUTPUT_SCALE
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale [JOINT_1]OUTPUT_SCALE
 
-net emcmot.01.pos-cmd axis.1.motor-pos-cmd => pid.1.command
+net emcmot.01.pos-cmd joint.1.motor-pos-cmd => pid.1.command
 net motor.01.command  pid.1.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.01.value
 
 
@@ -157,7 +157,7 @@ newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 net emcmot.02.enable => pid.2.enable
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.02.enable
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= joint.2.amp-enable-out 
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.counter-mode 0
@@ -166,26 +166,26 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-invert 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask-invert 0
 
-setp  hm2_[HOSTMOT2](BOARD).0.encoder.02.scale  [AXIS_2]INPUT_SCALE
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.02.scale  [JOINT_2]INPUT_SCALE
 net motor.02.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.02.position => pid.2.feedback
-net motor.02.pos-fb => axis.2.motor-pos-fb #push copy back to Axis GUI
+net motor.02.pos-fb => joint.2.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
-setp pid.2.Pgain [AXIS_2]P
-setp pid.2.Igain [AXIS_2]I
-setp pid.2.Dgain [AXIS_2]D
-setp pid.2.bias [AXIS_2]BIAS
-setp pid.2.FF0 [AXIS_2]FF0
-setp pid.2.FF1 [AXIS_2]FF1
-setp pid.2.FF2 [AXIS_2]FF2
-setp pid.2.deadband [AXIS_2]DEADBAND
-setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+setp pid.2.Pgain [JOINT_2]P
+setp pid.2.Igain [JOINT_2]I
+setp pid.2.Dgain [JOINT_2]D
+setp pid.2.bias [JOINT_2]BIAS
+setp pid.2.FF0 [JOINT_2]FF0
+setp pid.2.FF1 [JOINT_2]FF1
+setp pid.2.FF2 [JOINT_2]FF2
+setp pid.2.deadband [JOINT_2]DEADBAND
+setp pid.2.maxoutput [JOINT_2]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.scale [AXIS_2]OUTPUT_SCALE
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.scale [JOINT_2]OUTPUT_SCALE
 
-net emcmot.02.pos-cmd axis.2.motor-pos-cmd => pid.2.command
+net emcmot.02.pos-cmd joint.2.motor-pos-cmd => pid.2.command
 net motor.02.command  pid.2.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.02.value
 
 
@@ -221,10 +221,10 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 #
 
 net home-switch <= hm2_[HOSTMOT2](BOARD).0.gpio.025.in_not
-net home-switch => axis.0.home-sw-in
-net home-switch => axis.1.home-sw-in
-net home-switch => axis.2.home-sw-in
+net home-switch => joint.0.home-sw-in
+net home-switch => joint.1.home-sw-in
+net home-switch => joint.2.home-sw-in
 
 # only the Y servo has an index, X and Z home without using the index
-net y-index-enable hm2_[HOSTMOT2](BOARD).0.encoder.01.index-enable <=> axis.1.index-enable
+net y-index-enable hm2_[HOSTMOT2](BOARD).0.encoder.01.index-enable <=> joint.1.index-enable
 

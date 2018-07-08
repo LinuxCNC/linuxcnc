@@ -16,13 +16,14 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include <stdlib.h>
+#include <boost/noncopyable.hpp>
 
 /* Size of certain arrays */
 #define ACTIVE_G_CODES 16
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 3
 
-class InterpBase {
+class InterpBase : boost::noncopyable {
 public:
     virtual ~InterpBase();
     virtual char *error_text(int errcode, char *buf, size_t buflen) = 0;

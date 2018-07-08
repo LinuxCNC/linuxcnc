@@ -1,5 +1,3 @@
-# adapted from axis_9axis.ini for xhc-hb04 demo
-
 [DISPLAY]
 DISPLAY =               axis
 CYCLE_TIME =            0.100
@@ -35,195 +33,70 @@ USER_M_PATH       = ../../nc_files/ngcgui_lib/mfiles
 [EMCMOT]
 EMCMOT =                motmod
 COMM_TIMEOUT =          1.0
-COMM_WAIT =             0.010
 SERVO_PERIOD =          1000000
-
-[TRAJ]
-NO_FORCE_HOMING =       1
-AXES =                  9
-COORDINATES =           X Y Z A B C U V W
-HOME =                  0 0 0 0 0 0 0 0 0
-LINEAR_UNITS =          inch
-ANGULAR_UNITS =         degree
-CYCLE_TIME =            0.010
-DEFAULT_VELOCITY =      1.0
-DEFAULT_ANGULAR_VELOCITY = 45.0
-POSITION_FILE = position9.txt
-MAX_LINEAR_VELOCITY =   1.2
-MAX_ANGULAR_VELOCITY =  90.0
-
-[AXIS_0]
-TYPE =                  LINEAR
-HOME =                  0.000
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -10.0
-MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       5.0
-HOME_LATCH_VEL =        1.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-HOME_IS_SHARED =        1
-
-[AXIS_1]
-TYPE =                  LINEAR
-HOME =                  0.000
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -10.0
-MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       5.0
-HOME_LATCH_VEL =        1.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-
-[AXIS_2]
-TYPE =                  LINEAR
-HOME =                  0.0
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -2.0
-MAX_LIMIT =             4.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           1.0
-HOME_SEARCH_VEL =       5.0
-HOME_LATCH_VEL =        1.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         0
-HOME_IS_SHARED =        1
-
-[AXIS_3]
-TYPE =                  ANGULAR
-HOME =                  0.0
-MAX_VELOCITY =          90.0
-MAX_ACCELERATION =      1200.0
-BACKLASH =              0.000
-INPUT_SCALE =           40
-OUTPUT_SCALE =          1.000
-FERROR =                5.0
-MIN_FERROR =            1.0
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-
-[AXIS_4]
-TYPE =                  ANGULAR
-HOME =                  0.0
-MAX_VELOCITY =          90.0
-MAX_ACCELERATION =      1200.0
-BACKLASH =              0.000
-INPUT_SCALE =           40
-OUTPUT_SCALE =          1.000
-FERROR =                5.0
-MIN_FERROR =            1.0
-HOME_OFFSET =           45.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-
-[AXIS_5]
-TYPE =                  ANGULAR
-HOME =                  0.0
-MAX_VELOCITY =          90.0
-MAX_ACCELERATION =      1200.0
-BACKLASH =              0.000
-INPUT_SCALE =           40
-OUTPUT_SCALE =          1.000
-FERROR =                5.0
-MIN_FERROR =            1.0
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         1
-
-[AXIS_6]
-TYPE =                  LINEAR
-HOME =                  0.000
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -10.0
-MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         0
-HOME_IS_SHARED =        0
-
-[AXIS_7]
-TYPE =                  LINEAR
-HOME =                  0.000
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -10.0
-MAX_LIMIT =             10.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         0
-HOME_IS_SHARED =        0
-
-[AXIS_8]
-TYPE =                  LINEAR
-HOME =                  0.0
-MAX_VELOCITY =          1.2
-MAX_ACCELERATION =      20.0
-BACKLASH =              0.000
-INPUT_SCALE =           4000
-OUTPUT_SCALE =          1.000
-MIN_LIMIT =             -2.0
-MAX_LIMIT =             4.0
-FERROR =                0.050
-MIN_FERROR =            0.010
-HOME_OFFSET =           0.0
-HOME_SEARCH_VEL =       0.0
-HOME_LATCH_VEL =        0.0
-HOME_USE_INDEX =        NO
-HOME_IGNORE_LIMITS =    NO
-HOME_SEQUENCE =         0
-HOME_IS_SHARED =        0
 
 [EMCIO]
 EMCIO =                io
 CYCLE_TIME =           0.100
 TOOL_TABLE =           sim.tbl
 TOOL_CHANGE_POSITION = 0 0 2
+
+[AXIS_X]
+MIN_LIMIT = -10.0
+MAX_LIMIT = 10.0
+MAX_VELOCITY = 1.2
+MAX_ACCELERATION = 20.0
+
+[JOINT_0]
+TYPE =                  LINEAR
+MAX_VELOCITY =          1.2
+MAX_ACCELERATION =      20.0
+MIN_LIMIT =             -10.0
+MAX_LIMIT =             10.0
+HOME_SEARCH_VEL =       5.0
+HOME_LATCH_VEL =        1.0
+HOME_SEQUENCE =         0
+
+[AXIS_Y]
+MIN_LIMIT = -10.0
+MAX_LIMIT = 10.0
+MAX_VELOCITY = 1.2
+MAX_ACCELERATION = 20.0
+
+[JOINT_1]
+TYPE =                  LINEAR
+MAX_VELOCITY =          1.2
+MAX_ACCELERATION =      20.0
+MIN_LIMIT =             -10.0
+MAX_LIMIT =             10.0
+HOME_SEARCH_VEL =       5.0
+HOME_LATCH_VEL =        1.0
+HOME_SEQUENCE =         0
+
+[AXIS_Z]
+MIN_LIMIT = -2.0
+MAX_LIMIT = 4.0
+MAX_VELOCITY = 1.2
+MAX_ACCELERATION = 20.0
+
+[JOINT_2]
+TYPE =                  LINEAR
+MAX_VELOCITY =          1.2
+MAX_ACCELERATION =      20.0
+MIN_LIMIT =             -2.0
+MAX_LIMIT =             4.0
+HOME_SEARCH_VEL =       5.0
+HOME_LATCH_VEL =        1.0
+HOME_SEQUENCE =         0
+
+[AXIS_C]
+MAX_VELOCITY = 90.0
+MAX_ACCELERATION = 1200.0
+
+[JOINT_3]
+TYPE =                  ANGULAR
+MAX_VELOCITY =          90.0
+MAX_ACCELERATION =      1200.0
+HOME_SEARCH_VEL =       0.0
+HOME_LATCH_VEL =        0.0
+HOME_SEQUENCE =         0

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
  * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
@@ -40,7 +40,7 @@ class EmcIniFile : public IniFile {
 public:
                                 EmcIniFile(int errMask=0):IniFile(errMask){}
 
-    ErrorCode                   Find(EmcAxisType *result, const char *tag,
+    ErrorCode                   Find(EmcJointType *result, const char *tag,
                                      const char *section=NULL, int num = 1);
     ErrorCode                   Find(bool *result, const char *tag,
                                      const char *section, int num=1);
@@ -82,7 +82,7 @@ public:
                                 }
 
 private:
-    static StrIntPair           axisTypeMap[];
+    static StrIntPair           jointTypeMap[];
     static StrIntPair           boolMap[];
     static StrDoublePair        linearUnitsMap[];
     static StrDoublePair        angularUnitsMap[];

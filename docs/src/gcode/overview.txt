@@ -284,11 +284,15 @@ example '##2'  means the value of the parameter whose index is the
 
 * '5181-5189' - "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 
-* '5211-5219' - "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
+* '5210' - 1 if "G52" or "G92" offset is currently applied, 0
+   otherwise.  Volatile by default; persistent if
+   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
+   '.ini' file.
 
-* '5210' - 1 if "G92" offset is currently applied, 0 otherwise. Persistent.
-
-* '5211-5219' - 'G92' offset (X Y Z A B C U V W).
+* '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
+  V & W.  Volatile by default; persistent if
+  'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
+  '.ini' file.
 
 * '5220' - Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 
@@ -905,7 +909,7 @@ distance from the XY zero position increased with each line.
 
 .Polar Spiral
 
-image::images/polar01.png[align="center"]
+image::images/polar01.png[align="center", alt="Polar Spiral"]
 
 The following code will produce our square pattern.
 
@@ -923,7 +927,7 @@ end point distance is the same for each line.
 
 .Polar Square
 
-image::images/polar02.png[align="center"]
+image::images/polar02.png[align="center", alt="Polar Square"]
 
 It is an error if:
 
@@ -946,22 +950,22 @@ being in effect. The modal groups are shown in the following Table.
 
 [width="80%", cols="4,6", options="header"]
 |====
-|Modal Group Meaning                   |Member Words
-|Non-modal codes (Group 0)             |G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3,
-.2+|Motion (Group 1)                   |G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
-                                       |G82, G83, G84, G85, G86, G87, G88, G89
-|Plane selection (Group 2)             |G17, G18, G19, G17.1, G18.1, G19.1
-|Distance Mode (Group 3)               |G90, G91
-|Arc IJK Distance Mode (Group 4)       |G90.1, G91.1
-|Feed Rate Mode (Group 5)              |G93, G94, G95
-|Units (Group 6)                       |G20, G21
-|Cutter Diameter Compensation (Group 7)|G40, G41, G42, G41.1, G42.1
-|Tool Length Offset (Group 8)          |G43, G43.1, G49
-|Canned Cycles Return Mode (Group 10)  |G98, G99
-|Coordinate System (Group 12)          |G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Control Mode (Group 13)               |G61, G61.1, G64
-|Spindle Speed Mode (Group 14)         |G96, G97
-|Lathe Diameter Mode (Group 15)        |G7, G8
+|Modal Group Meaning                   | Member Words
+|Non-modal codes (Group 0)             | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3, 
+.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+                                       | G82, G83, G84, G85, G86, G87, G88, G89
+|Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
+|Distance Mode (Group 3)               | G90, G91
+|Arc IJK Distance Mode (Group 4)       | G90.1, G91.1
+|Feed Rate Mode (Group 5)              | G93, G94, G95
+|Units (Group 6)                       | G20, G21
+|Cutter Diameter Compensation (Group 7)| G40, G41, G42, G41.1, G42.1
+|Tool Length Offset (Group 8)          | G43, G43.1, G49
+|Canned Cycles Return Mode (Group 10)  | G98, G99
+|Coordinate System (Group 12)          | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Control Mode (Group 13)               | G61, G61.1, G64
+|Spindle Speed Mode (Group 14)         | G96, G97
+|Lathe Diameter Mode (Group 15)        | G7, G8
 |====
 
 .M-Code Modal Groups
@@ -992,7 +996,7 @@ G-code from group 1 is implicitly in effect on a line (by having been
 activated on an earlier line), and a group 0 G-code that uses axis
 words appears on the line, the activity of the group 1 G-code is
 suspended for that line. The axis word-using G-codes from group 0 are
-G10, G28, G30, and G92.
+G10, G28, G30, G52 and G92.
 
 It is an error to include any unrelated words on a line with 'O-' flow
 control.
@@ -1172,7 +1176,7 @@ position of each item on the line, but by the following list:
 * Set distance mode (G90, G91). 
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system 
-  data (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
+  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94). 
 * Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified
   (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
@@ -1259,15 +1263,4 @@ material removal rate.
   on the same line.
 * 'File ended with no percent sign or program end' - Every G code file must
   end in a M2 or M30 or be wrapped with the percent sign %.
-
-
-
-
-
-
-
-
-
-
-
 

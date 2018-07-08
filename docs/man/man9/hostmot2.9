@@ -122,6 +122,7 @@ The valid entries in the format string are:
  [num_sserials=\fIN\fB]
  [sserial_port_\fI0\fB=\fI00000000\fB]
  [num_leds=\fIN\fB]
+ [num_ssrs=\fIN\fB]
  [enable_raw]
 
 .TP
@@ -230,6 +231,11 @@ are enabled. Each BSPI driver can address 16 devices.
 \fBnum_leds\fR [optional, default: \-1]
 Only enable the first N of the LEDs on the FPGA board. If N is \-1, then HAL
 pins for all the LEDs will be created. If N=0 then no pins will be added.
+.TP
+\fBnum_ssrs\fR [optional, default: -1]
+Only enable the first N of the SSR modules on the FPGA board. If N is
+\-1, then HAL pins for all the SSR outputs will be created. If N=0 then
+no pins will be added.
 .TP
 \fBenable_raw\fR [optional]
 If specified, this turns on a raw access mode, whereby a user can peek and
@@ -505,7 +511,14 @@ Low order bits (see "h")
 g: (Gray-code). This is a modifier that indicates that the following
 format string is gray-code encoded. This is only valid for encoders (e, h l) and 
 unsigned (u) data types.
- 
+.TP
+m: (Multi-turn). This is a modifier that indicates that the following
+format string is a multi-turn encoder. This is only valid for encoders (e, h l).
+A jump in encoder position of more than half the full scale is interpreted as a
+full turn and the counts are wrapped. With a multi-turn encoder this is only
+likely to be a data glitch and will lead to a permanent offset. This flag
+endures that such encoders will never wrap.
+
 .TP
 Parameters:
 Two parameters is universally created for all SSI instances
@@ -1107,6 +1120,27 @@ value of the GPIO will be the inverse of the value on the "out" HAL pin.
 Only full GPIO pins and IO pins used as outputs by active module instances
 have this parameter.
 
+.PP
+When a physical I/O pin is used by a special function, the related
+.BR is_output ", and " is_opendrain
+HAL parameters are aliased to the special function.  For instance, if gpio 1
+is taken over by pwmgen 0's first output, then aliases like
+.B hm2_7i92.0.pwmgen.00.out0.invert_output
+(referring to
+.BR hm2_7i92.0.gpio.001.invert_output )
+will be automatically created.  When more than one GPIO is connected to the
+same special function, an extra .#. is inserted so that the settings for
+each related GPIO can be set separately.  For example, for the firmware
+SV12IM_2X7I48_72, the alias
+.B hm2_5i20.0.pwmgen.00.0.enable.invert_output
+(referring to 
+.BR hm2_5i20.0.gpio.000.invert_output )
+and
+.B hm2_5i20.0.pwmgen.00.1.enable.invert_output
+(referring to
+.BR hm2_5i20.0.gpio.023.invert_output )
+are both created.
+
 .SH led
 
 Creates HAL pins for the LEDs on the FPGA board.
@@ -1118,6 +1152,32 @@ Pins:
 The pins are numbered from CR01 upwards with the name
 corresponding to the PCB silkscreen. Setting the bit to "true" or 1 lights
 the led.
+
+.SH Solid State Relay
+
+SSRs have names like
+"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.ssr.\fI<Instance>\fR".
+"Instance" is a two-digit number that corresponds to the HostMot2 SSR
+instance number.  There are 'num_ssrs' instances, starting
+with 00.
+
+Each instance has a rate control pin and between 1 and 32 output pins.
+
+Pins:
+
+.TP
+(u32 in) rate
+Set the internal frequency of the SSR instance, in Hz (approximate).
+The valid range is 25 kHz to 25 MHz.  Values below the minimum will
+use the minimum, and values above the max will use the max.  1 MHz is a
+typical value, and appropriate for all Mesa cards, and is the default.
+Set to 0 to disable this SSR instance.
+
+.TP
+(bit in) out-NN
+The state of this SSR instance's NNth output.  Set to 0 to make
+the output pins act like an open switch (no connection), set to 1 to
+make them act like a closed switch.
 
 .SH Watchdog
 

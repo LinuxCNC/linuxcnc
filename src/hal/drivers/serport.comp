@@ -99,7 +99,7 @@ EXTRA_CLEANUP() {
 #define BREAK (1<<6)
 
 FUNCTION(read) { 
-    int i = inb(MSR);
+    int i = rtapi_inb(MSR);
 
     pin_9_in = (i & RI) == 0;
     pin_9_in_not = (i & RI) == RI;
@@ -121,6 +121,6 @@ FUNCTION(write) {
     if(!pin_7_out ^ !pin_7_out_invert) i |= RTS;
     if(!pin_3_out ^ !pin_3_out_invert) j |= BREAK;
 
-    outb(i, MCR);
-    outb(j, LCR);
+    rtapi_outb(i, MCR);
+    rtapi_outb(j, LCR);
 }

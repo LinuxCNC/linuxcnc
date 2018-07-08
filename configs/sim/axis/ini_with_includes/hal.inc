@@ -4,8 +4,5 @@
 #
 # list of hal config files to run through halcmd
 # files are executed in the order in which they appear
-HALFILE = core_sim.hal
-HALFILE = sim_spindle_encoder.hal
-HALFILE = axis_manualtoolchange.hal
-HALFILE = simulated_home.hal
+HALFILE = LIB:basic_sim.tcl
 HALUI   = halui

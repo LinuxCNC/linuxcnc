@@ -299,6 +299,7 @@
 #include <getopt.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#include <rtapi_mutex.h>
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halrmt may want to avoid libnml dependency */
@@ -3406,12 +3407,12 @@ void *readClient(void *arg)
       if ((buf[i] != '\n') && (buf[i] != '\r')) {
         context->inBuf[j] = buf[i];
 	j++;
-      } else {
-        if (j > 0) {
-          context->inBuf[j] = 0;
-          if (parseCommand(context) == -1) goto finished;
-          j = 0;
-	}
+      }
+      else if (j > 0)
+      {
+	context->inBuf[j] = 0;
+        if (parseCommand(context) == -1) goto finished;
+	j = 0;
       }
       i++;
     }

@@ -42,7 +42,7 @@ extern "C" {
 /* Common Definitions. */
 //#include "autokey.h"
 /* rw-rw-r-- permissions */
-#define MODE (0777)
+#define MODE (0700)
 static double last_non_zero_x;
 static double last_x;
 

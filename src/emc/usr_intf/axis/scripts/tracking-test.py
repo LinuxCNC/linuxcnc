@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright 2007 Ben Lipkowitz
 # You may distribute this software under the GNU GPL v2 or later
 #

@@ -69,6 +69,32 @@ static int iniLoad(const char *filename)
     return 0;
 }
 
+// based on code from
+// http://www.microhowto.info/howto/cause_a_process_to_become_a_daemon_in_c.html
+static void daemonize()
+{
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("daemonize: fork()");
+    } else if (pid) {
+        _exit(0);
+    }
+
+    if(setsid() < 0)
+        perror("daemonize: setsid()");
+
+    // otherwise the parent may deliver a SIGHUP to this process when it
+    // terminates
+    signal(SIGHUP,SIG_IGN);
+
+    pid=fork();
+    if (pid < 0) {
+        perror("daemonize: fork() 2");
+    } else if (pid) {
+        _exit(0);
+    }
+}
+
 static RCS_CMD_CHANNEL *emcCommandChannel = NULL;
 static RCS_STAT_CHANNEL *emcStatusChannel = NULL;
 static NML *emcErrorChannel = NULL;
@@ -181,6 +207,7 @@ int main(int argc, char *argv[])
 				     emc_nmlfile);
 	}
     }
+    daemonize();
     run_nml_servers();
 
     return 0;

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
  * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
@@ -33,17 +33,17 @@
 #include "emcIniFile.hh"
 
 
-IniFile::StrIntPair         EmcIniFile::axisTypeMap[] = {
-    {"LINEAR", EMC_AXIS_LINEAR},
-    {"ANGULAR", EMC_AXIS_ANGULAR},
+IniFile::StrIntPair         EmcIniFile::jointTypeMap[] = {
+    {"LINEAR", EMC_LINEAR},
+    {"ANGULAR", EMC_ANGULAR},
     { NULL, 0 },
 };
 
 EmcIniFile::ErrorCode
-EmcIniFile::Find(EmcAxisType *result,
+EmcIniFile::Find(EmcJointType *result,
                  const char *tag, const char *section, int num)
 {
-    return(IniFile::Find((int *)result, axisTypeMap, tag, section, num));
+    return(IniFile::Find((int *)result, jointTypeMap, tag, section, num));
 }
 
 

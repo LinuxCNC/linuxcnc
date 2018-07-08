@@ -98,12 +98,12 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 
     if (oflag) {
 	oflag = O_CREAT;
-	shm->id = shm_open(shm->name, O_RDWR, 0777);
+	shm->id = shm_open(shm->name, O_RDWR, 0700);
     }
 
     /* Create a new memory object */
     if (shm->id <= 0) {
-	shm->id = shm_open(shm->name, oflag | O_RDWR, 0777);
+	shm->id = shm_open(shm->name, oflag | O_RDWR, 0700);
 	if (shm->id == -1) {
 	    rcs_print_error("shm_open(%s,%d(0x%X),%d(0x%X)) failed:%s %d\n",
 		shm->name, oflag | O_RDWR, oflag | O_RDWR,

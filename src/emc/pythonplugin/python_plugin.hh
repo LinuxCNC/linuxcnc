@@ -14,13 +14,15 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #ifndef PYTHON_PLUGIN_HH
 #define PYTHON_PLUGIN_HH
 
-#include <boost/python.hpp>
-namespace bp = boost::python;
+#ifndef BOOST_PYTHON_MAX_ARITY
+#define BOOST_PYTHON_MAX_ARITY 4
+#endif
+#include <boost/python/object.hpp>
 
 #include <vector>
 #include <string>
@@ -61,16 +63,16 @@ public:
     int configure(const char *iniFilename = NULL, const char *section = NULL);
     bool is_callable(const char *module, const char *funcname);
     int call(const char *module,const char *callable,
-	     bp::object tupleargs, bp::object kwargs, bp::object &retval);
-    int run_string(const char *cmd, bp::object &retval, bool as_file = false);
-    int call_method(bp::object method, bp::object &retval);
+	     boost::python::object tupleargs, boost::python::object kwargs, boost::python::object &retval);
+    int run_string(const char *cmd, boost::python::object &retval, bool as_file = false);
+    int call_method(boost::python::object method, boost::python::object &retval);
 
     int plugin_status() { return status; };
     bool usable() { return (status >= PLUGIN_OK); }
     int initialize();
     std::string last_exception() { return exception_msg; };
     std::string last_errmsg() { return error_msg; };
-    bp::object main_namespace;
+    boost::python::object main_namespace;
 
 private:
     PythonPlugin(struct _inittab *inittab);       // nb: no public constructor

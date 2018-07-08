@@ -200,11 +200,33 @@ void hm2_ioport_cleanup(hostmot2_t *hm2) {
 }
 
 
+static int do_alias(const char *orig_base, const char *alias_base,
+        const char *suffix, int (*funct)(const char *, const char *)) {
+    char orig_name[HAL_NAME_LEN];
+    char alias_name[HAL_NAME_LEN];
+    snprintf(orig_name, sizeof(orig_name), "%s%s", orig_base, suffix);
+    snprintf(alias_name, sizeof(alias_name), "%s%s", alias_base, suffix);
+    return funct(orig_name, alias_name);
+}
+
+static void count_instances(hostmot2_t *hm2, int pin, int *this_instance, int *total_instances) {
+    int i;
+    int num_instances = 0;
+    for(i=0; i != hm2->num_pins; i++) {
+	if(i == pin) *this_instance = num_instances;
+        if(hm2->pin[i].gtag == hm2->pin[pin].gtag &&
+		hm2->pin[i].sec_unit == hm2->pin[pin].sec_unit &&
+		hm2->pin[i].sec_pin == hm2->pin[pin].sec_pin)
+	    num_instances++;
+    }
+    *total_instances = num_instances;
+}
 
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
     int r;
     int i;
+    const char *gtag_name, *funct_name;
 
     for (i = 0; i < hm2->num_pins; i ++) {
         // all pins get *some* gpio HAL presence
@@ -324,6 +346,56 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             }
 
             hm2->pin[i].instance->hal.param.is_output = 0;
+        }
+
+        // it's an output of some other module
+        if(hm2->pin[i].gtag != HM2_GTAG_IOPORT &&
+            hm2->pin[i].direction == HM2_PIN_DIR_IS_OUTPUT &&
+            (gtag_name = hm2_get_general_function_hal_name(hm2->pin[i].gtag)) &&
+            (funct_name = hm2_get_pin_secondary_hal_name(&hm2->pin[i])))
+        {
+	    int this_instance = -1;
+	    int total_instances = 0;
+	    count_instances(hm2, i, &this_instance, &total_instances);
+            char orig_base[HAL_NAME_LEN];
+            char alias_base[HAL_NAME_LEN];
+            sprintf(orig_base,
+                "%s.gpio.%03d",
+                hm2->llio->name,
+                i);
+	    if (total_instances == 0) {
+                HM2_ERR("error counting instances of %s, aborting\n", gtag_name);
+                return -EINVAL;
+            } else if(total_instances == 1) {
+		sprintf(alias_base,
+		    "%s.%s.%02d.%s",
+		    hm2->llio->name,
+		    gtag_name,
+		    hm2->pin[i].sec_unit,
+		    funct_name
+		    );
+	    } else {
+		sprintf(alias_base,
+		    "%s.%s.%02d.%d.%s",
+		    hm2->llio->name,
+		    gtag_name,
+		    hm2->pin[i].sec_unit,
+		    this_instance,
+		    funct_name
+		    );
+	    }
+            r = do_alias(orig_base, alias_base, ".invert_output",
+                hal_param_alias);
+            if (r < 0) {
+                HM2_ERR("Failed to add %s.invert_output alias, continuing\n",
+                    orig_base);
+            }
+            r = do_alias(orig_base, alias_base, ".is_opendrain",
+                hal_param_alias);
+            if (r < 0) {
+                HM2_ERR("Failed to add %s.is_opendrain alias, continuing\n",
+                    orig_base);
+            }
         }
     }
 

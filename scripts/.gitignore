@@ -6,3 +6,4 @@ realtime
 rtapi.conf
 linuxcncmkdesktop
 linuxcnc_var
+halcmd_twopass

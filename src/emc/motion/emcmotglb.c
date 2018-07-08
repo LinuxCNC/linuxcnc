@@ -14,8 +14,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 
 #include "emcmotglb.h"		/* these decls */
@@ -23,10 +21,10 @@
 
 char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN] = DEFAULT_EMCMOT_INIFILE;
 
+
 unsigned int SHMEM_KEY = DEFAULT_SHMEM_KEY;
 
 double EMCMOT_COMM_TIMEOUT = DEFAULT_EMCMOT_COMM_TIMEOUT;
-double EMCMOT_COMM_WAIT = DEFAULT_EMCMOT_COMM_WAIT;
 
 double VELOCITY = DEFAULT_VELOCITY;
 double ACCELERATION = DEFAULT_ACCELERATION;

@@ -30,12 +30,3 @@ Demonstration configs:
 6 zretract         onpause pyvcp panel
 7 pyvcp            onpause pyvcp panel
 8 gladevcp         onpause gladevcp panel
-
-NOTE: DECLINING usage (these will be deleted):
-  moveoff_demo2    onpause local
-  moveoff_demo3    onpause external
-  moveoff_demo4    onpause local
-  moveoff_demo4a   always  local
-  moveoff_demo5    onpause external
-  moveoff_demo5a   always  external
-  moveoff_demo6    onpause local

@@ -36,6 +36,21 @@ import gcode
 from hal_actions import _EMC_ActionBase
 from hal_glib import GStat
 
+def get_linuxcnc_ini_file():
+    """find linuxcnc ini file with pgrep"""
+    import subprocess
+    ps   = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
+                             stdout=subprocess.PIPE
+                           )
+    p,e = ps.communicate()
+
+    if ps.returncode:
+        print(_('\nhal_gremlin: cannot find inifile\n'))
+        return None
+
+    ans = p.split()[p.split().index('-ini')+1]
+    return ans
+
 class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gsignals__ = {
@@ -92,13 +107,22 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):
         gobject.GObject.__init__(self)
-        inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
-        inifile = linuxcnc.ini(inifile)
+        ini_filename = os.environ.get('INI_FILE_NAME')
+        if ini_filename is None:
+            ini_filename = get_linuxcnc_ini_file()
+            if ini_filename is not None:
+                os.putenv('INI_FILE_NAME',ini_filename)
+                os.environ['INI_FILE_NAME'] = ini_filename
+                os.chdir(os.path.dirname(ini_filename))
+        inifile = linuxcnc.ini(ini_filename)
         gremlin.Gremlin.__init__(self, inifile)
         self._reload_filename = None
         self.gstat = GStat()
         self.gstat.connect('file-loaded', self.fileloaded)
         self.gstat.connect('reload-display', self.reloadfile)
+        self.init_glcanondraw(
+             trajcoordinates=self.inifile.find('TRAJ','COORDINATES'),
+             kinsmodule=self.inifile.find('KINS','KINEMATICS'))
         self.show()
 
     def reloadfile(self,w):
@@ -205,13 +229,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
 
             # if its a lathe only show radius or diameter as per property
-            # we have to adjust the homing icon to line up:
             if self.is_lathe():
-                if homed[0]:
-                    homed.pop(0)
-                    homed.pop(0)
-                    homed.insert(0,1)
-                    homed.insert(0,0)
                 posstrs[0] = ""
                 if self.show_lathe_radius:
                     posstrs.insert(1, format % ("Rad", positions[0]))

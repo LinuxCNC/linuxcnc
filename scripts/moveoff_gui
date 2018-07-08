@@ -6,6 +6,7 @@
 #       ::env(HALLIB_DIR) will not exist
 set hallib_dir [exec linuxcnc_var HALLIB_DIR]
 source [file join $hallib_dir hal_procs_lib.tcl]
+source [file join $hallib_dir util_lib.tcl]
 
 # A gui to demonstrate the use of the moveoff component for
 # applying Hal-only offsets.
@@ -31,7 +32,7 @@ source [file join $hallib_dir hal_procs_lib.tcl]
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------
 proc wmposition {top} {
   set geo [wm geometry $top]
@@ -181,9 +182,9 @@ proc do_poll {} {
   }
 
   foreach aname $::MV(axes) {
-    set idx $::MV($aname,idx)
+    set jnum $::MV($aname,jnum)
     set ::MV(current,$aname) [format "$::MV(current,format)" \
-                             [hal getp $::m.offset-current-${idx}]]
+                             [hal getp $::m.offset-current-${jnum}]]
   }
 
   set waypoint_pct [hal getp $::m.waypoint-percent-used]
@@ -294,15 +295,15 @@ proc clear_resume {} {
 
 proc do_offset {aname} {
   if { ![hal getp motion.motion-enabled] } {return}
-  set idx $::MV($aname,idx)
-  hal setp $::m.offset-in-${idx} $::MV(offset,$aname)
+  set jnum $::MV($aname,jnum)
+  hal setp $::m.offset-in-${jnum} $::MV(offset,$aname)
   set ::MV(offset,$aname) [format "$::MV(offset,format)" \
                           $::MV(offset,$aname)]
 } ;# do_offset
 
 proc bump_offset {aname value} {
   if { ![hal getp motion.motion-enabled] } {return}
-  set idx $::MV($aname,idx)
+  set jnum $::MV($aname,jnum)
   switch $value {
     plus  {set ::MV(offset,$aname) [format "$::MV(offset,format)" \
                [expr $::MV(offset,$aname) + $::MV(increment)]]
@@ -313,7 +314,7 @@ proc bump_offset {aname value} {
                [expr $::MV(offset,$aname) - $::MV(increment)]]
           }
   }
-  hal setp $::m.offset-in-${idx} $::MV(offset,$aname)
+  hal setp $::m.offset-in-${jnum} $::MV(offset,$aname)
 } ;# bump_offset
 
 proc toggle_enable_backtrack {args} {
@@ -337,8 +338,8 @@ proc zero_all_offset_inputs {} {
   if {! $::MV(control_move_enable)} { return }
   foreach aname $::MV(axes) {
     set ::MV(offset,$aname) [format "$::MV(offset,format)" 0]
-    set idx $::MV($aname,idx)
-    hal setp $::m.offset-in-${idx} 0.0
+    set jnum $::MV($aname,jnum)
+    hal setp $::m.offset-in-${jnum} 0.0
   }
 } ;# zero_all_offset_inputs
 
@@ -383,7 +384,7 @@ proc make_gui {} {
   }
 
   foreach aname $::MV(axes) {
-    set idx $::MV($aname,idx)
+    set jnum $::MV($aname,jnum)
     set f2 [frame $t.[qid]]
 
     pack $f2 -fill x -expand 1
@@ -605,8 +606,8 @@ For info:\n$::MV(prog) --help | more"
         }
       }
       foreach aname $::MV(axes) {
-        set idx $::MV($aname,idx)
-        set pname $::m.offset-in-${idx}
+        set jnum $::MV($aname,jnum)
+        set pname $::m.offset-in-${jnum}
         if {[is_connected $pname] != "not_connected"} {
           return "Error: $pname is already connected"
         }
@@ -750,7 +751,7 @@ proc get_parms {} {
 
 proc set_restrictions_on_widgets {} {
   foreach aname $::MV(axes) {
-    set ans [is_connected $::m.offset-in-$::MV($aname,idx) sig]
+    set ans [is_connected $::m.offset-in-$::MV($aname,jnum) sig]
     if {$ans == "is_input"} {
        puts "$::MV(prog):$aname input is already connected <$sig>"
        set ::MV(show,entry) 0
@@ -761,13 +762,12 @@ proc set_restrictions_on_widgets {} {
 
 proc cross_reference {} {
   # return "" or errtxt
-  set letters {x y z a b c u v w}
   foreach aname $::MV(axes) {
-    set idx [lsearch $letters $aname]
-    set ::MV($aname,idx) $idx
-    set ::MV($idx,aname) $aname ;# cross-ref
-    if [catch {hal getp $::m.offset-current-${idx}} msg ] {
-      return "axis:$aname index=$idx $msg"
+    set jnum [joint_number_for_axis $aname]
+    set ::MV($aname,jnum) $jnum
+    set ::MV($jnum,aname) $aname ;# cross-ref
+    if [catch {hal getp $::m.offset-current-${jnum}} msg ] {
+      return "axis:$aname index=$jnum $msg"
     }
   }
   return "" ;# ok

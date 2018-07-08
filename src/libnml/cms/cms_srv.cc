@@ -821,7 +821,7 @@ void CMS_SERVER::run(int setup_CC_signal_local_port)
 void CMS_SERVER::initialize_write_request_space()
 {
     max_total_subdivisions = 1;
-    maximum_cms_size = 0;
+    maximum_cms_size = 1;
     CMS_SERVER_LOCAL_PORT *local_port;
     if (NULL == cms_local_ports) {
 	rcs_print_error

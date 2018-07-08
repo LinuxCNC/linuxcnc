@@ -1,8 +1,0 @@
-moveoff_demo4a
-
-This demo is identical to moveoff_demo4 except it uses the option:
-  -mode always
-
-Offsets are available all the time (program pause not required).
-
-See moveoff_demo4 for more information

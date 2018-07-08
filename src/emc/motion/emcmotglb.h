@@ -9,8 +9,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 #ifndef EMCMOTGLB_H
 #define EMCMOTGLB_H
@@ -34,7 +32,6 @@ extern "C" {
     extern unsigned int SHMEM_KEY;
 
     extern double EMCMOT_COMM_TIMEOUT;	/* seconds until timeout */
-    extern double EMCMOT_COMM_WAIT;	/* seconds to delay between tries */
 
     extern int num_axes;
 

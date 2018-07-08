@@ -1,0 +1,43 @@
+// This is a simple differential "kinematics" component for LinuxCNC HAL.
+// Copyright 2015-2016 Sebastian Kuzminsky <seb@highlab.com>
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+component differential "kinematics for a differential transmission";
+
+pin in float roll-cmd  "position command for roll (in degrees)";
+pin in float pitch-cmd "position command for pitch (in degrees)";
+
+pin out float roll-fb  "position feedback for roll (in degrees)";
+pin out float pitch-fb "position feedback for pitch (in degrees)";
+
+pin out float motor0-cmd "position command to motor0 (based on roll & pitch inputs)";
+pin out float motor1-cmd "position command to motor1 (based on roll & pitch inputs)";
+
+pin in float motor0-fb "position feedback from motor0";
+pin in float motor1-fb "position feedback from motor1";
+
+function _;
+license "GPL";
+
+;;
+
+FUNCTION(_) {
+    motor0_cmd = roll_cmd + pitch_cmd;
+    motor1_cmd = roll_cmd - pitch_cmd;
+
+    roll_fb = (motor0_fb + motor1_fb)/2;
+    pitch_fb = (motor0_fb - motor1_fb)/2;
+}

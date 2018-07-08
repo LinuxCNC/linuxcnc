@@ -88,11 +88,13 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
+|<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
 |<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
 |<<gcode:g80,G80>>                  |Cancel Motion Modes
 |<<gcode:g81,G81>>                  |Drilling Cycle
 |<<gcode:g82,G82>>                  |Drilling Cycle with Dwell
 |<<gcode:g83,G83>>                  |Drilling Cycle with Peck
+|<<gcode:g84,G84>>                  |Right-hand Tapping Cycle with Dwell
 |<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
 |<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
 |<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
@@ -357,7 +359,7 @@ G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 
 .G2 Example
 
-image::images/g2.png[align="center"]
+image::images/g2.png[align="center", alt="G2 Example"]
 
 In the next example we see the difference between the offsets for Y if
 we are doing a G2 or a G3 move. For the G2 move the start position is
@@ -375,7 +377,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 .G2-G3 Example
 
-image::images/g2-3.png[align="center"]
+image::images/g2-3.png[align="center", alt="G2-G3 Example"]
 
 In the next example we show how the arc can make a helix in the Z axis
 by adding the Z word.
@@ -589,7 +591,7 @@ M2
 
 .Sample NURBS Output
 
-image:images/nurbs01.png[align="center"]
+image:images/nurbs01.png[align="center", alt="Sample NURBS Output"]
 
 More information on NURBS can be found here:
 
@@ -702,8 +704,10 @@ Important Concepts:
   you have to use G54-59.3 to select a coordinate system.
 * When a rotation is in effect jogging an axis will only move that axis
   in a positive or negative direction and not along the rotated axis.
-* If a 'G92' origin offset was in effect before 'G10 L2',
-  it will continue to be in effect afterwards.
+* If a 'G52' local offset or 'G92' origin offset was in effect before
+  'G10 L2', it will continue to be in effect afterwards.
+* When programming a coordinate system with R, any 'G52' or 'G92' will
+  be applied *after* the rotation.
 * The coordinate system whose origin is set by a 'G10' command may be
   active or inactive at the time the 'G10' is executed.
   If it is currently active, the new coordinates take effect immediately.
@@ -749,7 +753,7 @@ G10 L10 P- axes <R- I- J- Q->
 
 G10 L10 changes the tool table entry for tool P so that if the
 tool offset is reloaded, with the machine in its current position
-and with the current G5x and G92 offsets active, the current coordinates
+and with the current G5x and G52/G92 offsets active, the current coordinates
 for the given axes will become the given values. The axes that are
 not specified in the G10 L10 command will not be changed. This could be
 useful with a probe move as described in the <<gcode:g38,G38>> section.
@@ -788,7 +792,7 @@ G10 L11 is just like G10 L10 except that instead of setting the entry
 according to the current offsets, it is set so that the current
 coordinates would become the given value if the new tool offset
 is reloaded and the machine is placed in the G59.3 coordinate
-system without any G92 offset active.
+system without any G52/G92 offset active.
 
 This allows the user to set the G59.3 coordinate system according to a
 fixed point on the machine, and then use that fixture to measure tools
@@ -869,7 +873,7 @@ Only use G28 when your machine is homed to a repeatable position and the
 desired G28 position has been stored with G28.1.
 
 G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
-5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
+5161-5169 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units' as 
 specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
@@ -903,7 +907,7 @@ Only use G30 when your machine is homed to a repeatable position and the
 desired G30 position has been stored with G30.1.
 
 G30 functions the same as G28 but uses the values stored in
-<<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
+<<sub:numbered-parameters,parameters>> 5181-5189 as the X Y Z A B C U V W
 final point to move to. The parameter values are 'absolute' machine
 coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
@@ -1485,6 +1489,37 @@ It is an error if:
 * the Q number is negative or zero.
 * the R number is not specified
 
+
+[[gcode:g74]]
+== G74 Left-hand Tapping Cycle, Dwell
+(((G74 Left-hand Tapping Cycle Dwell)))
+
+----
+G74 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+
+The 'G74' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
+
+    1. Preliminary motion, as described in the
+       <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
+
+    2. Disable Feed and Speed Overrides.
+
+    3. Move the Z-axis at the current feed rate to the Z position.
+
+    4. Stop Spindle.
+
+    5. Start spindle rotation clockwise.
+
+    6. Dwell for the P number of seconds.
+
+    7. Move the Z-axis at the current feed rate to clear Z
+
+    8. Restore Feed and Speed override enables to previous state
+
+The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+In example S100 F125 gives pitch of 1.25MM per revolution.
+
 [[gcode:g76]]
 == G76 Threading Cycle
 (((G76 Threading Cycle)))
@@ -1495,7 +1530,7 @@ G76 P- Z- I- J- R- K- Q- H- E- L-
 
 .G76 Threading
 
-image::images/g76-threads.png[align="center"]
+image::images/g76-threads.png[align="center", alt="G76 Threading"]
 
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
@@ -1612,7 +1647,7 @@ are the cutting moves.
 
 .G76 Example
 
-image::images/g76-01.png[align="center"]
+image::images/g76-01.png[align="center", alt="G76 Example"]
 
 [[gcode:g80-g89]]
 == Canned Cycles
@@ -1848,7 +1883,7 @@ being able to point a reader to a specific line of code.
 
 .G80 Cycle
     
-image::images/G81mult.png[align="center"]
+image::images/G81mult.png[align="center", alt="G80 Cycle"]
 
 The use of G80 in line N200 is optional because the G0 on the next
 line will turn off the G81 cycle. But using the G80 as shown in 
@@ -2053,10 +2088,35 @@ It is an error if:
 
 * the Q number is negative or zero.
 
-== G84 Right-Hand Tapping Cycle
+[[gcode:g84]]
+== G84 Right-hand Tapping Cycle, Dwell
+(((G84 Right-hand Tapping Cycle Dwell)))
 
-This code is currently unimplemented in LinuxCNC. It is accepted, but the
-behavior is undefined. See section <<gcode:g33.1,G33.1>>
+----
+G84 (X- Y- Z-) or (U- V- W-) R- L- P-
+----
+
+The 'G84' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
+
+    1. Preliminary motion, as described in the
+       <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
+
+    2. Disable Feed and Speed Overrides.
+
+    3. Move the Z-axis at the current feed rate to the Z position.
+
+    4. Stop spindle
+
+    5. Start spindle rotation counterclockwise.
+
+    6. Dwell for the P number of seconds.
+
+    7. Move the Z-axis at the current feed rate to clear Z
+
+    8. Restore Feed and Speed override enables to previous state
+
+The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+In example S100 F125 gives pitch of 1.25MM per revolution.
 
 [[gcode:g85]]
 == G85 Boring Cycle, Feed Out
@@ -2176,23 +2236,36 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 G92 axes
 ----
 
-G92 makes the current point have the coordinates you want (without
+[WARNING]
+Only use 'G92' after your machine has been positioned to the desired point. 
+
+'G92' makes the current point have the coordinates you want (without
 motion), where the axis words contain the axis numbers you want.
 All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the coordinate on
-that axis of the current point is not changed.
+If an axis word is not used for a given axis, the offset for that axis 
+will be zero. 
 
-When 'G92' is executed, the origins of all coordinate systems move.
-They move such that the value of the current controlled point, in the currently
-active coordinate system, becomes the specified value. All coordinate
-system's origins are offset this same distance.
+When 'G92' is executed, the <<sec.machine-corrdinate-system,origins>> 
+of all coordinate systems move. They move such that the value of the 
+current controlled point, in the currently active coordinate system, 
+becomes the specified value. All of the coordinate system's origins 
+(G53-G59.3) are offset this same distance. 
+
+'G92' uses the values stored in <<sub:numbered-parameters,parameters>> 
+5211-5219 as the X Y Z A B C U V W offset values for each axis. 
+The parameter values are 'absolute' machine coordinates 
+in the native machine 'units' as specified in the ini file.
+All axes defined in the ini file will be offset when G92 is active. 
+If an axis was not entered following the G92, that axis' offset 
+will be zero. 
 
 For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 x7' is programmed. This
+currently no 'G92' offset active. Then 'G92 X7' is programmed. This
 moves all origins -3 in X, which causes the
 current point to become X=7. This -3 is saved in parameter 5211.
 
-Being in incremental distance mode has no effect on the action of 'G92'.
+Being in incremental distance mode (G91 instead of G90) has no effect 
+on the action of 'G92'.
 
 'G92' offsets may be already be in effect when the 'G92' is called.
 If this is the case, the offset is replaced with a new
@@ -2206,19 +2279,21 @@ LinuxCNC stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a G92.1 (to erase them), or
 program a G92.2 (to remove them - they are still stored).
 
+[NOTE]
+The 'G52' command can also be used to change this offset; see the
+<<sec:g52-and-g92-offsets,Offsets>> Section for more details about
+'G92' and 'G52' and how they interact.
+
 See the <<cha:coordinate-system,Coordinate System>> Section for an
 overview of coordinate systems.
-
-See the <<sec:g92-offsets,Offsets>> Section for more information.
 
 See the <<gcode:parameters,Parameters>> Section for more information.
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Reset G92 Offsets
 
-* 'G92.1' - reset G92 offsets to zero and set <<sub:numbered-parameters,parameters>>
-  5211 - 5219 to zero.
-* 'G92.2' - reset G92 offsets to zero.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available. 
 
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets

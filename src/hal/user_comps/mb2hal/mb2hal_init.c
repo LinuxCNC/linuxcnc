@@ -115,6 +115,50 @@ retCode parse_common_section()
     return retOK;
 }
 
+#define NAME_ALLOC_SIZE 5
+retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
+{
+    char *fnct_name = "parse_pin_names";
+    int name_count = 0;
+    int name_buf_size = NAME_ALLOC_SIZE;
+    char **name_ptrs = malloc(sizeof(char *) * name_buf_size);
+    char *names = malloc(strlen(names_string)  + 1);
+    if(name_ptrs == NULL || names == NULL)
+    {
+        ERR(gbl.init_dbg, "Failed allocating memory");
+        return retERR;
+    }
+    strcpy(names, names_string);	// Keep the names in a buffer
+    char * name = strtok(names, ",");
+    while(name)
+    {
+        if(strlen(name) > HAL_NAME_LEN - 15) //this is only a rough estimate
+        {
+            ERR(gbl.init_dbg, "pin name '%s' is too long", name);
+            return retERR;
+        }
+        if(name_count >= name_buf_size)
+        {
+            name_count += NAME_ALLOC_SIZE;
+            name_ptrs = realloc(name_ptrs, sizeof(char *) * name_buf_size);
+            if(name_ptrs == NULL)
+            {
+                ERR(gbl.init_dbg, "Failed allocating memory");
+                return retERR;
+            }
+        }
+        name_ptrs[name_count++]=name;
+        name = strtok(NULL, ",");
+    }
+    if(name_count == 0)
+    {
+        ERR(gbl.init_dbg, "no pin names specified");
+        return retERR;
+    }
+    this_mb_tx->mb_tx_nelem = name_count;
+    this_mb_tx->mb_tx_names = name_ptrs;
+    return retOK;
+}
 
 retCode parse_transaction_section(const int mb_tx_num)
 {
@@ -218,9 +262,25 @@ retCode parse_transaction_section(const int mb_tx_num)
     }
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, this_mb_tx->mb_tx_1st_addr);
 
+
+    tag = "PIN_NAMES";
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
+    if (tmpstr != NULL) {
+        if(parse_pin_names(tmpstr, this_mb_tx) != retOK)
+        {
+            ERR(gbl.init_dbg, "[%s] [%s] [%s] list format error", section, tag, tmpstr);
+            return retERR;
+        }
+        DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, tmpstr);
+    }
+    else {
+        this_mb_tx->mb_tx_names = NULL;
+    }
+
     tag = "NELEMENTS";  //required
-    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_tx_nelem) != 0) {
-        ERR(gbl.init_dbg, "required [%s] [%s] not found", section, tag);
+    if (iniFindInt(gbl.ini_file_ptr, tag, section, &this_mb_tx->mb_tx_nelem) != 0 &&
+        this_mb_tx->mb_tx_names == NULL) {
+        ERR(gbl.init_dbg, "required [%s] [%s] or [%s] [PIN_NAMES] were not found", section, tag, section);
         return retERR;
     }
     if (this_mb_tx->mb_tx_nelem < 1) {

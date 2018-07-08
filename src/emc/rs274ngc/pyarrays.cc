@@ -13,12 +13,17 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 // Interpreter internals - Python bindings
 // Michael Haberler 7/2011
 
-#include <boost/python.hpp>
+// (at least in boost 1.55, return_internal_reference needs a definition
+// of boost::python::detail::get which comes from detail/caller.hpp.
+// At first sniff it's a boost bug but what can you do...)
+#define BOOST_PYTHON_MAX_ARITY 4
+#include <boost/python/detail/caller.hpp>
+#include <boost/python/return_internal_reference.hpp>
 namespace bp = boost::python;
 
 #include "rs274ngc.hh"

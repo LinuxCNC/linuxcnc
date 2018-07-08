@@ -188,7 +188,7 @@ Manager window.
 
 .Sections Manager Default Window
 
-image::images/Default_Sections_Manager.png[align="center"]
+image::images/Default_Sections_Manager.png[align="center", alt="Sections Manager Default Window"]
 
 This window allows you to name, create or delete sections and choose
 what language that section uses. This is also how you name a subroutine
@@ -201,7 +201,7 @@ Display window. Displayed is one empty rung.
 
 .Section Display Default Window
 
-image::images/Default_Section_Display.png[align="center"]
+image::images/Default_Section_Display.png[align="center", alt="Section Display Default Window"]
 
 Most of the buttons are self explanatory:
 
@@ -243,7 +243,7 @@ display one, the other, both, then none of the variable windows.
 
 .Bit Status Window
 
-image::images/Bit_Status.png[align="center"]
+image::images/Bit_Status.png[align="center",alt="Bit Status Window"]
 
 The Bit Status Window displays some of the boolean (on/off) variable data. 
 Notice all variables start with the % sign. The %I variables represent
@@ -261,7 +261,7 @@ unchecked if off.
 
 .Watch Window
 
-image::images/watch_window.png[align="center"]
+image::images/watch_window.png[align="center", alt="Watch Window"]
 
 The Watch Window displays variable status. The edit box beside it is
 the number stored in the variable and the drop-down box beside that
@@ -278,7 +278,7 @@ number/name and press the Enter Key.
 
 .Symbol Names window
 
-image::images/Default_Symbols_names.png[align="center"]
+image::images/Default_Symbols_names.png[align="center", alt="Symbol Names window"]
 
 This is a list of 'symbol' names to use instead of variable names to
 be displayed in the section window when the 'display symbols' check box
@@ -296,7 +296,7 @@ ladder program is connected to!
 
 .Editor Window
 
-image::images/Editor.png[align="center"]
+image::images/Editor.png[align="center", alt="Editor Window"]
 
 * 'Add' - adds a rung after the selected rung
 * 'Insert' - inserts a rung before the selected rung
@@ -355,7 +355,7 @@ setup tabs.
 
 .Config Window
 
-image::images/Config.png[align="center"]
+image::images/Config.png[align="center", alt="Config Window"]
 
 == Ladder objects
 
@@ -375,9 +375,9 @@ like to call it). If %B7 coil is 'energized' (on, true, etc) then %B7
 N.O. contact would be on. If %Q1 coil is 'energized' then %Q1 N.O.
 contact would be on (and HAL pin classicladder.0.out-01 would be true.)
 
-* 'N.O. Contact' -  image:images/ladder_action_load.png[] (Normally Open)
+* 'N.O. Contact' -  image:images/ladder_action_load.png[alt="Normally Open Contact"] (Normally Open)
    When the variable is false the switch is off.
-* 'N.C. Contact' - image:images/ladder_action_loadbar.png[] (Normally
+* 'N.C. Contact' - image:images/ladder_action_loadbar.png[alt="Normally Closed Contact"] (Normally
    Closed) When the variable is false the switch is on.
 * 'Rising Edge Contact' - When the variable changes from false to true,
    the switch is PULSED on.
@@ -572,7 +572,7 @@ will be set to True.
 
 .Assign/Compare Example
 
-image::images/AssignCompare-Ladder.png[align="center"]
+image::images/AssignCompare-Ladder.png[align="center", alt="Assign/Compare Example"]
 
 image::images/Assignment_Expression.png[align="center"]
 
@@ -788,11 +788,11 @@ program this page will not be displayed.
 
 .Config I/O
 
-image::images/Config-io.png[align="center"]
+image::images/Config-io.png[align="center", alt="Config I/O"]
 
 .Config Coms
 
-image::images/Config-com.png[align="center"]
+image::images/Config-com.png[align="center", alt="Config Coms"]
 
 * 'SERIAL PORT' - For IP blank. For serial the location/name of serial driver eg.
     /dev/ttyS0 ( or /dev/ttyUSB0 for a USB-to-serial converter).
@@ -956,7 +956,7 @@ Options page of Stepconf Wizard check off "Include Classic Ladder PLC".
 
 .Stepconf Classic Ladder
 
-image::images/stepconf_ladder.png[align="center"]
+image::images/stepconf_ladder.png[align="center", alt="Stepconf Classic Ladder"]
 
 === Add the Modules
 
@@ -992,20 +992,20 @@ circuit in a run the results are not predictable.
 
 .Section Display with Grid
 
-image::images/Section_Display_Grid.png[align="center"]
+image::images/Section_Display_Grid.png[align="center", alt="Section Display with Grid"]
 
 Now click on the N.O. Input in the Editor Window.
 
 .Editor Window
 
-image::images/Editor_NO_Input.png[align="center"]
+image::images/Editor_NO_Input.png[align="center", alt="Editor Window"]
 
 Now click in the upper left grid to place the N.O. Input into the
 ladder.
 
 .Section Display with Input
 
-image::images/Section_Display_Build01.png[align="center"]
+image::images/Section_Display_Build01.png[align="center", alt="Section Display with Input"]
 
 Repeat the above steps to add a N.O. Output to the upper right grid
 and use the Horizontal Connection to connect the two. It should look
@@ -1013,14 +1013,14 @@ like the following. If not, use the Eraser to remove unwanted sections.
 
 .Section Display with Rung
 
-image::images/Section_Display_Build02.png[align="center"]
+image::images/Section_Display_Build02.png[align="center", alt="Section Display with Rung"]
 
 Now click on the OK button in the Editor window. Now your Section
 Display should look like this.
 
 .Section Display Finished
 
-image::images/Section_Display_Build03.png[align="center"]
+image::images/Section_Display_Build03.png[align="center", alt="Section Display Finished"]
 
 To save the new file select Save As and give it a name. The .clp
 extension will be added automatically. It should default to the running
@@ -1028,7 +1028,7 @@ config directory as the place to save it.
 
 .Save As Dialog
 
-image::images/SaveAs.png[align="center"]
+image::images/SaveAs.png[align="center", alt="Save As Dialog"]
 
 Again if you used the Stepconf Wizard to add Classic Ladder you can
 skip this step.

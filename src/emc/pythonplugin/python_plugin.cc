@@ -14,7 +14,7 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "python_plugin.hh"
 #include "inifile.hh"
@@ -22,6 +22,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#define BOOST_PYTHON_MAX_ARITY 4
+#include <boost/python/exec.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/import.hpp>
+
+namespace bp = boost::python;
 
 #define MAX_ERRMSG_SIZE 256
 

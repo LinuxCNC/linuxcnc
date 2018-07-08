@@ -38,10 +38,10 @@
 #define setresult(t,s) Tcl_SetObjResult((t), Tcl_NewStringObj((s),-1))
 
 /*
-  Using tcl package Emc:
+  Using tcl package Linuxcnc:
   Using emcsh:
 
-  % package require Emc
+  % package require Linuxcnc
   % emc_init -ini inifilename # to start with an inifile
   or
   % emc_init # to start with the default inifilename (emc.ini)
@@ -51,7 +51,7 @@
 
   With -ini <inifile>, uses inifile instead of emc.ini.
 
-  Commands in the emc package are all prefixed with "emc_", which makes them
+  Commands in the Linuxcnc package are all prefixed with "emc_", which makes them
   somewhat inconvenient for typing but avoids name conflicts, e.g., open.
 
   Some commands take 0 or more arguments. 0 arguments means they return
@@ -150,26 +150,26 @@
   emc_tool
   Returns the id of the currently loaded tool
 
-  emc_tool_offset
+  emc_tool_offset X | Y | ...
   Returns the currently applied tool length offset
 
   emc_load_tool_table <file>
   Loads the tool table specified by <file>
 
   emc_home 0 | 1 | 2 | ...
-  Homes the indicated axis.
+  Homes the indicated joint.
 
   emc_unhome 0 | 1 | 2 | ...
-  Unhomes the indicated axis.
+  Unhomes the indicated joint.
 
   emc_jog_stop 0 | 1 | 2 | ...
-  Stop the axis jog
+  Stop the joint jog
 
   emc_jog 0 | 1 | 2 | ... <speed>
-  Jog the indicated axis at <speed>; sign of speed is direction
+  Jog the indicated joint at <speed>; sign of speed is direction
 
   emc_jog_incr 0 | 1 | 2 | ... <speed> <incr>
-  Jog the indicated axis by increment <incr> at the <speed>; sign of
+  Jog the indicated joint by increment <incr> at the <speed>; sign of
   speed is direction
 
   emc_feed_override {<percent>}
@@ -184,26 +184,26 @@
   With no args, returns the current spindle override, as a percent. With
   argument, set the spindle override to be the percent value
 
-  emc_abs_cmd_pos 0 | 1 | ...
-  Returns double obj containing the XYZ-SXYZ commanded pos in abs coords,
+  emc_abs_cmd_pos X | Y | ...
+  Returns double obj containing the commanded pos in abs coords,
   at given index, 0 = X, etc.
 
-  emc_abs_act_pos
-  Returns double objs containing the XYZ-SXYZ actual pos in abs coords
+  emc_abs_act_pos X | Y | ...
+  Returns double objs containing the actual pos in abs coords
 
-  emc_rel_cmd_pos 0 | 1 | ...
-  Returns double obj containing the XYZ-SXYZ commanded pos in rel coords,
-  at given index, 0 = X, etc., including tool length offset
+  emc_rel_cmd_pos  X | Y | ...
+  Returns double obj containing the commanded pos in rel coords,
+  including tool length offset
 
-  emc_rel_act_pos
-  Returns double objs containing the XYZ-SXYZ actual pos in rel coords,
+  emc_rel_act_pos  X | Y | ...
+  Returns double objs containing the actual pos in rel coords,
   including tool length offset
 
   emc_joint_pos
   Returns double objs containing the actual pos in absolute coords of individual
   joint/slider positions, excludes tool length offset
 
-  emc_pos_offset X | Y | Z | R | P | W
+  emc_pos_offset X | Y | Z | A | B | C | U | V | W
   Returns the position offset associated with the world coordinate provided
 
   emc_joint_limit 0 | 1 | ...
@@ -263,10 +263,10 @@
 
   emc_joint_units <joint>
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the corresponding native units of the specified axis. The type
-  of the axis (linear or angular) is used to resolve which type of units
+  for the corresponding native units of the specified joint. The type
+  of the joint (linear or angular) is used to resolve which type of units
   are returned. The units are obtained heuristically, based on the
-  EMC_AXIS_STAT::units numerical value of user units per mm or deg.
+  EMC_JOINT_STAT::units numerical value of user units per mm or deg.
   For linear joints, something close to 0.03937 is deemed "inch",
   1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
   For angular joints, something close to 1.000 is deemed "deg",
@@ -1025,8 +1025,9 @@ static int emc_tool_offset(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
+    char string[1];
     Tcl_Obj *tlobj;
-    int axis = 2;
+    string[0] = 'Z'; //default if not specified
 
     CHECKEMC
     if (objc > 2) {
@@ -1034,55 +1035,56 @@ static int emc_tool_offset(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    if (objc == 2) {
-	if (TCL_OK != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	    return TCL_ERROR;
-	}
-    }
     if (emcUpdateType == EMC_UPDATE_AUTO) {
 	updateStatus();
     }
 
-    if(axis == 0) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertLinearUnits
-			     (emcStatus->task.toolOffset.tran.x));
-    } else if(axis == 1) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertLinearUnits
-			     (emcStatus->task.toolOffset.tran.y));
-    } else if(axis == 2) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertLinearUnits
-			     (emcStatus->task.toolOffset.tran.z));
-    } else if(axis == 3) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertAngularUnits
-			     (emcStatus->task.toolOffset.a));
-    } else if(axis == 4) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertAngularUnits
-			     (emcStatus->task.toolOffset.b));
-    } else if(axis == 5) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertAngularUnits
-			     (emcStatus->task.toolOffset.c));
-    } else if(axis == 6) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertLinearUnits
-			     (emcStatus->task.toolOffset.u));
-    } else if(axis == 7) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertLinearUnits
-			     (emcStatus->task.toolOffset.v));
-    } else if(axis == 8) {
-	tlobj =
-	    Tcl_NewDoubleObj(convertLinearUnits
-			     (emcStatus->task.toolOffset.w));
-    } else {
-	setresult(interp,"emc_tool_offset: axis must be from 0..8");
-	return TCL_ERROR;
+    if (objc != 1) {
+       strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
     }
+
+    switch (string[0]) {
+    case 'x': case 'X':
+        tlobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                emcStatus->task.toolOffset.tran.x));
+        break;
+    case 'y': case 'Y':
+        tlobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                emcStatus->task.toolOffset.tran.y));
+        break;
+    case 'z': case 'Z':
+        tlobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                emcStatus->task.toolOffset.tran.z));
+        break;
+    case 'a': case 'A':
+        tlobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                 emcStatus->task.toolOffset.a));
+        break;
+    case 'b': case 'B':
+        tlobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                 emcStatus->task.toolOffset.b));
+        break;
+    case 'c': case 'C':
+        tlobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                 emcStatus->task.toolOffset.c));
+        break;
+    case 'u': case 'U':
+        tlobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                 emcStatus->task.toolOffset.u));
+        break;
+    case 'v': case 'V':
+        tlobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                 emcStatus->task.toolOffset.v));
+        break;
+    case 'w': case 'W':
+        tlobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                 emcStatus->task.toolOffset.w));
+        break;
+    default:
+        setresult(interp,"emc_tool_offset: bad coordinate letter argument");
+        return TCL_ERROR;
+    }
+
     Tcl_SetObjResult(interp, tlobj);
     return TCL_OK;
 }
@@ -1144,12 +1146,12 @@ static int emc_abs_cmd_pos(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    int axis;
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_abs_cmd_pos: need exactly 1 non-negative integer");
+	setresult(interp,"emc_abs_cmd_pos: need exactly 1 coordinate letter");
 	return TCL_ERROR;
     }
 
@@ -1157,51 +1159,48 @@ static int emc_abs_cmd_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	if (axis == 0) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    position.tran.x));
-	} else if (axis == 1) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    position.tran.y));
-	} else if (axis == 2) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    position.tran.z));
-	} else {
-	    if (axis == 3) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.position.a));
-	    } else if (axis == 4) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.position.b));
-	    } else if (axis == 5) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.position.c));
-	    } else if (axis == 6) {
-		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
-							traj.position.u));
-	    } else if (axis == 7) {
-		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
-							traj.position.v));
-	    } else if (axis == 8) {
-		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
-							traj.position.w));
-	    } else {
-		posobj = Tcl_NewDoubleObj(0.0);
-	    }
-	}
-    } else {
-	setresult(interp,"emc_abs_cmd_pos: bad integer argument");
-	return TCL_ERROR;
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+
+    switch (string[0]) {
+    case 'x': case 'X':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.position.tran.x));
+        break;
+    case 'y': case 'Y':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.position.tran.y));
+        break;
+    case 'z': case 'Z':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.position.tran.z));
+        break;
+    case 'a': case 'A':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.position.a));
+        break;
+    case 'b': case 'B':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.position.b));
+        break;
+    case 'c': case 'C':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.position.c));
+        break;
+    case 'u': case 'U':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.position.u));
+        break;
+    case 'v': case 'V':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.position.v));
+        break;
+    case 'w': case 'W':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.position.w));
+        break;
+    default:
+        setresult(interp,"emc_abs_cmd_pos: bad coordinate letter argument");
+        return TCL_ERROR;
     }
 
     Tcl_SetObjResult(interp, posobj);
@@ -1212,7 +1211,7 @@ static int emc_abs_act_pos(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    int axis;
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1225,60 +1224,48 @@ static int emc_abs_act_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	if (axis == 0) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    actualPosition.tran.
-						    x));
-	} else if (axis == 1) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    actualPosition.tran.
-						    y));
-	} else if (axis == 2) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    actualPosition.tran.
-						    z));
-	} else {
-	    if (axis == 3) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.
-							actualPosition.a));
-	    } else if (axis == 4) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.
-							actualPosition.b));
-	    } else if (axis == 5) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.
-							actualPosition.c));
-	    } else if (axis == 6) {
-		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
-							traj.
-							actualPosition.u));
-	    } else if (axis == 7) {
-		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
-							traj.
-							actualPosition.v));
-	    } else if (axis == 8) {
-		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
-							traj.
-							actualPosition.w));
-	    } else {
-		posobj = Tcl_NewDoubleObj(0.0);
-	    }
-	}
-    } else {
-	setresult(interp,"emc_abs_act_pos: bad integer argument");
-	return TCL_ERROR;
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+
+    switch (string[0]) {
+    case 'x': case 'X':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.actualPosition.tran.x));
+        break;
+    case 'y': case 'Y':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.actualPosition.tran.y));
+        break;
+    case 'z': case 'Z':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.actualPosition.tran.z));
+        break;
+    case 'a': case 'A':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.actualPosition.a));
+        break;
+    case 'b': case 'B':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.actualPosition.b));
+        break;
+    case 'c': case 'C':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.actualPosition.c));
+        break;
+    case 'u': case 'U':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.actualPosition.u));
+        break;
+    case 'v': case 'V':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.actualPosition.v));
+        break;
+    case 'w': case 'W':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.actualPosition.w));
+        break;
+    default:
+        setresult(interp,"emc_abs_act_pos: bad coordinate letter argument");
+        return TCL_ERROR;
     }
 
     Tcl_SetObjResult(interp, posobj);
@@ -1289,7 +1276,7 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    int axis;
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1302,70 +1289,69 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-        double d = 0.0;
-        switch(axis) {
-        case 0:
-            d = convertLinearUnits(emcStatus->motion.traj.position.tran.x -
-                                   emcStatus->task.g5x_offset.tran.x -
-                                   emcStatus->task.g92_offset.tran.x -
-                                   emcStatus->task.toolOffset.tran.x);
-            break;
-        case 1:
-            d = convertLinearUnits(emcStatus->motion.traj.position.tran.y -
-                                   emcStatus->task.g5x_offset.tran.y -
-                                   emcStatus->task.g92_offset.tran.y -
-                                   emcStatus->task.toolOffset.tran.y);
-            break;
-        case 2:
-            d = convertLinearUnits(emcStatus->motion.traj.position.tran.z -
-                                   emcStatus->task.g5x_offset.tran.z -
-                                   emcStatus->task.g92_offset.tran.z -
-                                   emcStatus->task.toolOffset.tran.z);
-            break;
-        case 3:
-            d = convertAngularUnits(emcStatus->motion.traj.position.a -
-                                    emcStatus->task.g5x_offset.a -
-                                    emcStatus->task.g92_offset.a -
-                                    emcStatus->task.toolOffset.a);
-            break;
-        case 4:
-            d = convertAngularUnits(emcStatus->motion.traj.position.b -
-                                    emcStatus->task.g5x_offset.b -
-                                    emcStatus->task.g92_offset.b -
-                                    emcStatus->task.toolOffset.b);
-            break;
-        case 5:
-            d = convertAngularUnits(emcStatus->motion.traj.position.c -
-                                    emcStatus->task.g5x_offset.c -
-                                    emcStatus->task.g92_offset.c -
-                                    emcStatus->task.toolOffset.c);
-            break;
-        case 6:
-            d = convertLinearUnits(emcStatus->motion.traj.position.u -
-                                   emcStatus->task.g5x_offset.u -
-                                   emcStatus->task.g92_offset.u -
-                                   emcStatus->task.toolOffset.u);
-            break;
-        case 7:
-            d = convertLinearUnits(emcStatus->motion.traj.position.v -
-                                   emcStatus->task.g5x_offset.v -
-                                   emcStatus->task.g92_offset.v -
-                                   emcStatus->task.toolOffset.v);
-            break;
-        case 8:
-            d = convertLinearUnits(emcStatus->motion.traj.position.w -
-                                   emcStatus->task.g5x_offset.w -
-                                   emcStatus->task.g92_offset.w -
-                                   emcStatus->task.toolOffset.w);
-            break;
-        }
-        posobj = Tcl_NewDoubleObj(d);
-    } else {
-	setresult(interp,"emc_rel_cmd_pos: bad integer argument");
-	return TCL_ERROR;
-    }
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
 
+    double d = 0.0;
+    switch (string[0]) {
+    case 'x': case 'X':
+        d = convertLinearUnits(emcStatus->motion.traj.position.tran.x -
+                               emcStatus->task.g5x_offset.tran.x -
+                               emcStatus->task.g92_offset.tran.x -
+                               emcStatus->task.toolOffset.tran.x);
+        break;
+    case 'y': case 'Y':
+        d = convertLinearUnits(emcStatus->motion.traj.position.tran.y -
+                               emcStatus->task.g5x_offset.tran.y -
+                               emcStatus->task.g92_offset.tran.y -
+                               emcStatus->task.toolOffset.tran.y);
+        break;
+    case 'z': case 'Z':
+        d = convertLinearUnits(emcStatus->motion.traj.position.tran.z -
+                               emcStatus->task.g5x_offset.tran.z -
+                               emcStatus->task.g92_offset.tran.z -
+                               emcStatus->task.toolOffset.tran.z);
+        break;
+    case 'a': case 'A':
+        d = convertAngularUnits(emcStatus->motion.traj.position.a -
+                                emcStatus->task.g5x_offset.a -
+                                emcStatus->task.g92_offset.a -
+                                emcStatus->task.toolOffset.a);
+        break;
+    case 'b': case 'B':
+        d = convertAngularUnits(emcStatus->motion.traj.position.b -
+                                emcStatus->task.g5x_offset.b -
+                                emcStatus->task.g92_offset.b -
+                                emcStatus->task.toolOffset.b);
+        break;
+    case 'c': case 'C':
+        d = convertAngularUnits(emcStatus->motion.traj.position.c -
+                                emcStatus->task.g5x_offset.c -
+                                emcStatus->task.g92_offset.c -
+                                emcStatus->task.toolOffset.c);
+        break;
+    case 'u': case 'U':
+        d = convertLinearUnits(emcStatus->motion.traj.position.u -
+                               emcStatus->task.g5x_offset.u -
+                               emcStatus->task.g92_offset.u -
+                               emcStatus->task.toolOffset.u);
+        break;
+    case 'v': case 'V':
+        d = convertLinearUnits(emcStatus->motion.traj.position.v -
+                               emcStatus->task.g5x_offset.v -
+                               emcStatus->task.g92_offset.v -
+                               emcStatus->task.toolOffset.v);
+        break;
+    case 'w': case 'W':
+        d = convertLinearUnits(emcStatus->motion.traj.position.w -
+                               emcStatus->task.g5x_offset.w -
+                               emcStatus->task.g92_offset.w -
+                               emcStatus->task.toolOffset.w);
+        break;
+    default:
+        setresult(interp,"emc_rel_cmd_pos: bad coordinate letter argument");
+        return TCL_ERROR;
+    }
+    posobj = Tcl_NewDoubleObj(d);
     Tcl_SetObjResult(interp, posobj);
     return TCL_OK;
 }
@@ -1374,7 +1360,7 @@ static int emc_rel_act_pos(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    int axis;
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1387,70 +1373,70 @@ static int emc_rel_act_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-        double d = 0.0;
-        switch(axis) {
-        case 0:
-            d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.x -
-                                   emcStatus->task.g5x_offset.tran.x -
-                                   emcStatus->task.g92_offset.tran.x -
-                                   emcStatus->task.toolOffset.tran.x);
-            break;
-        case 1:
-            d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.y -
-                                   emcStatus->task.g5x_offset.tran.y -
-                                   emcStatus->task.g92_offset.tran.y -
-                                   emcStatus->task.toolOffset.tran.y);
-            break;
-        case 2:
-            d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.z -
-                                   emcStatus->task.g5x_offset.tran.z -
-                                   emcStatus->task.g92_offset.tran.z -
-                                   emcStatus->task.toolOffset.tran.z);
-            break;
-        case 3:
-            d = convertAngularUnits(emcStatus->motion.traj.actualPosition.a -
-                                    emcStatus->task.g5x_offset.a -
-                                    emcStatus->task.g92_offset.a -
-                                    emcStatus->task.toolOffset.a);
-            break;
-        case 4:
-            d = convertAngularUnits(emcStatus->motion.traj.actualPosition.b -
-                                    emcStatus->task.g5x_offset.b -
-                                    emcStatus->task.g92_offset.b -
-                                    emcStatus->task.toolOffset.b);
-            break;
-        case 5:
-            d = convertAngularUnits(emcStatus->motion.traj.actualPosition.c -
-                                    emcStatus->task.g5x_offset.c -
-                                    emcStatus->task.g92_offset.c -
-                                    emcStatus->task.toolOffset.c);
-            break;
-        case 6:
-            d = convertLinearUnits(emcStatus->motion.traj.actualPosition.u -
-                                   emcStatus->task.g5x_offset.u -
-                                   emcStatus->task.g92_offset.u -
-                                   emcStatus->task.toolOffset.u);
-            break;
-        case 7:
-            d = convertLinearUnits(emcStatus->motion.traj.actualPosition.v -
-                                   emcStatus->task.g5x_offset.v -
-                                   emcStatus->task.g92_offset.v -
-                                   emcStatus->task.toolOffset.v);
-            break;
-        case 8:
-            d = convertLinearUnits(emcStatus->motion.traj.actualPosition.w -
-                                   emcStatus->task.g5x_offset.w -
-                                   emcStatus->task.g92_offset.w -
-                                   emcStatus->task.toolOffset.w);
-            break;
-        }
-        posobj = Tcl_NewDoubleObj(d);
-    } else {
-	setresult(interp,"emc_rel_act_pos: bad integer argument");
-	return TCL_ERROR;
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+
+    double d = 0.0;
+    switch (string[0]) {
+    case 'x': case 'X':
+        d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.x -
+                               emcStatus->task.g5x_offset.tran.x -
+                               emcStatus->task.g92_offset.tran.x -
+                               emcStatus->task.toolOffset.tran.x);
+        break;
+    case 'y': case 'Y':
+        d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.y -
+                               emcStatus->task.g5x_offset.tran.y -
+                               emcStatus->task.g92_offset.tran.y -
+                               emcStatus->task.toolOffset.tran.y);
+        break;
+    case 'z': case 'Z':
+        d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.z -
+                               emcStatus->task.g5x_offset.tran.z -
+                               emcStatus->task.g92_offset.tran.z -
+                               emcStatus->task.toolOffset.tran.z);
+        break;
+    case 'a': case 'A':
+        d = convertAngularUnits(emcStatus->motion.traj.actualPosition.a -
+                                emcStatus->task.g5x_offset.a -
+                                emcStatus->task.g92_offset.a -
+                                emcStatus->task.toolOffset.a);
+        break;
+    case 'b': case 'B':
+        d = convertAngularUnits(emcStatus->motion.traj.actualPosition.b -
+                                emcStatus->task.g5x_offset.b -
+                                emcStatus->task.g92_offset.b -
+                                emcStatus->task.toolOffset.b);
+        break;
+    case 'c': case 'C':
+        d = convertAngularUnits(emcStatus->motion.traj.actualPosition.c -
+                                emcStatus->task.g5x_offset.c -
+                                emcStatus->task.g92_offset.c -
+                                emcStatus->task.toolOffset.c);
+        break;
+    case 'u': case 'U':
+        d = convertLinearUnits(emcStatus->motion.traj.actualPosition.u -
+                               emcStatus->task.g5x_offset.u -
+                               emcStatus->task.g92_offset.u -
+                               emcStatus->task.toolOffset.u);
+        break;
+    case 'v': case 'V':
+        d = convertLinearUnits(emcStatus->motion.traj.actualPosition.v -
+                               emcStatus->task.g5x_offset.v -
+                               emcStatus->task.g92_offset.v -
+                               emcStatus->task.toolOffset.v);
+        break;
+    case 'w': case 'W':
+        d = convertLinearUnits(emcStatus->motion.traj.actualPosition.w -
+                               emcStatus->task.g5x_offset.w -
+                               emcStatus->task.g92_offset.w -
+                               emcStatus->task.toolOffset.w);
+        break;
+    default:
+        setresult(interp,"emc_rel_act_pos: bad coordinate letter argument");
+        return TCL_ERROR;
     }
 
+    posobj = Tcl_NewDoubleObj(d);
     Tcl_SetObjResult(interp, posobj);
     return TCL_OK;
 }
@@ -1459,7 +1445,7 @@ static int emc_joint_pos(ClientData clientdata,
 			 Tcl_Interp * interp, int objc,
 			 Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1472,8 +1458,8 @@ static int emc_joint_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	posobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].input);
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	posobj = Tcl_NewDoubleObj(emcStatus->motion.joint[joint].input);
     } else {
 	setresult(interp,"emc_joint_pos: bad integer argument");
 	return TCL_ERROR;
@@ -1487,12 +1473,12 @@ static int emc_pos_offset(ClientData clientdata,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
-    char string[256];
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_pos_offset: need exactly 1 non-negative integer");
+	setresult(interp,"emc_pos_offset: need exactly 1 coordinate letter");
 	return TCL_ERROR;
     }
 
@@ -1500,37 +1486,47 @@ static int emc_pos_offset(ClientData clientdata,
 	updateStatus();
     }
 
-    strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
 
-    if (string[0] == 'X') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x));
-    } else if (string[0] == 'Y') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y));
-    } else if (string[0] == 'Z') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z));
-    } else if (string[0] == 'A') {
-	posobj =
-	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a));
-    } else if (string[0] == 'B') {
-	posobj =
-	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b));
-    } else if (string[0] == 'C') {
-	posobj =
-	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c));
-    } else if (string[0] == 'U') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.u + emcStatus->task.g92_offset.u));
-    } else if (string[0] == 'V') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.v + emcStatus->task.g92_offset.v));
-    } else if (string[0] == 'W') {
-	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.w + emcStatus->task.g92_offset.w));
-    } else {
-	setresult(interp,"emc_pos_offset: bad integer argument");
+    switch (string[0]) {
+    case 'x': case 'X':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.x
+                                                    +emcStatus->task.g92_offset.tran.x));
+        break;
+    case 'y': case 'Y':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.y
+                                                    +emcStatus->task.g92_offset.tran.y));
+        break;
+    case 'z': case 'Z':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.z
+                                                    +emcStatus->task.g92_offset.tran.z));
+        break;
+    case 'a': case 'A':
+	posobj = Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.a
+                                                    +emcStatus->task.g92_offset.a));
+        break;
+    case 'b': case 'B':
+	posobj = Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.b
+                                                    +emcStatus->task.g92_offset.b));
+        break;
+    case 'c': case 'C':
+	posobj = Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.g5x_offset.c
+                                                    +emcStatus->task.g92_offset.c));
+        break;
+    case 'u': case 'U':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.u
+                                                    +emcStatus->task.g92_offset.u));
+        break;
+    case 'v': case 'V':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.v
+                                                    +emcStatus->task.g92_offset.v));
+        break;
+    case 'w': case 'W':
+	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.w
+                                                    +emcStatus->task.g92_offset.w));
+        break;
+    default:
+	setresult(interp,"emc_pos_offset: bad coordinate letter argument");
 	return TCL_ERROR;
     }
 
@@ -1555,21 +1551,21 @@ static int emc_joint_limit(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_limit: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	if (emcStatus->motion.axis[joint].minHardLimit) {
+	if (emcStatus->motion.joint[joint].minHardLimit) {
 	    setresult(interp,"minhard");
 	    return TCL_OK;
-	} else if (emcStatus->motion.axis[joint].minSoftLimit) {
+	} else if (emcStatus->motion.joint[joint].minSoftLimit) {
 	    setresult(interp,"minsoft");
 	    return TCL_OK;
-	} else if (emcStatus->motion.axis[joint].maxSoftLimit) {
+	} else if (emcStatus->motion.joint[joint].maxSoftLimit) {
 	    setresult(interp,"maxsoft");
 	    return TCL_OK;
-	} else if (emcStatus->motion.axis[joint].maxHardLimit) {
+	} else if (emcStatus->motion.joint[joint].maxHardLimit) {
 	    setresult(interp,"maxsoft");
 	    return TCL_OK;
 	} else {
@@ -1599,12 +1595,12 @@ static int emc_joint_fault(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_fault: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	if (emcStatus->motion.axis[joint].fault) {
+	if (emcStatus->motion.joint[joint].fault) {
 	    setresult(interp,"fault");
 	    return TCL_OK;
 	} else {
@@ -1631,7 +1627,7 @@ static int emc_override_limit(ClientData clientdata,
 	    updateStatus();
 	}
 	// motion overrides all axes at same time, so just reference index 0
-	obj = Tcl_NewIntObj(emcStatus->motion.axis[0].overrideLimits);
+	obj = Tcl_NewIntObj(emcStatus->motion.joint[0].overrideLimits);
 	Tcl_SetObjResult(interp, obj);
 	return TCL_OK;
     }
@@ -1677,12 +1673,12 @@ static int emc_joint_homed(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_homed: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	if (emcStatus->motion.axis[joint].homed) {
+	if (emcStatus->motion.joint[joint].homed) {
 	    setresult(interp,"homed");
 	    return TCL_OK;
 	} else {
@@ -1724,40 +1720,40 @@ static int emc_mdi(ClientData clientdata,
 static int emc_home(ClientData clientdata,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_home: need axis");
+	setresult(interp,"emc_home: need joint");
 	return TCL_ERROR;
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	sendHome(axis);
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	sendHome(joint);
 	return TCL_OK;
     }
 
-    setresult(interp,"emc_home: need axis as integer, 0..");
+    setresult(interp,"emc_home: need joint as integer, 0..");
     return TCL_ERROR;
 }
 
 static int emc_unhome(ClientData clientdata,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
 
     CHECKEMC
     if (objc != 2) {
-	setresult(interp,"emc_unhome: need axis");
+	setresult(interp,"emc_unhome: need joint");
 	return TCL_ERROR;
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	sendUnHome(axis);
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	sendUnHome(joint);
 	return TCL_OK;
     }
 
-    setresult(interp,"emc_unhome: need axis as integer, 0..");
+    setresult(interp,"emc_unhome: need joint as integer, 0..");
     return TCL_ERROR;
 }
 
@@ -1765,20 +1761,23 @@ static int emc_jog_stop(ClientData clientdata,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
+    int jjogmode;
 
     CHECKEMC
-    if (objc != 2) {
-	setresult(interp,"emc_jog_stop: need axis");
+    if (objc != 3) {
+	setresult(interp,"emc_jog_stop: need joint,jogmode");
 	return TCL_ERROR;
     }
-
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	setresult(interp,"emc_jog_stop: need axis as integer, 0..");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	setresult(interp,"emc_jog_stop: need joint as integer, 0|1");
 	return TCL_ERROR;
     }
-
-    if (0 != sendJogStop(axis)) {
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &jjogmode)) {
+	setresult(interp,"emc_jog_stop: need jogmode as integer, 0..");
+	return TCL_ERROR;
+    }
+    if (0 != sendJogStop(joint, jjogmode)) {
 	setresult(interp,"emc_jog_stop: can't send jog stop msg");
 	return TCL_OK;
     }
@@ -1789,25 +1788,30 @@ static int emc_jog_stop(ClientData clientdata,
 static int emc_jog(ClientData clientdata,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
+    int jjogmode;
     double speed;
 
     CHECKEMC
-    if (objc != 3) {
-	setresult(interp,"emc_jog: need axis and speed");
+    if (objc != 4) {
+	setresult(interp,"emc_jog: need joint,jjogmode and speed");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	setresult(interp,"emc_jog: need axis as integer, 0..");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	setresult(interp,"emc_jog: need joint as integer, 0|1");
 	return TCL_ERROR;
     }
-    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &jjogmode)) {
+	setresult(interp,"emc_jog: need jogmode as integer, 0..");
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &speed)) {
 	setresult(interp,"emc_jog: need speed as real number");
 	return TCL_ERROR;
     }
 
-    if (0 != sendJogCont(axis, speed)) {
+    if (0 != sendJogCont(joint, jjogmode, speed)) {
 	setresult(interp,"emc_jog: can't jog");
 	return TCL_OK;
     }
@@ -1819,30 +1823,34 @@ static int emc_jog_incr(ClientData clientdata,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
+    int jjogmode;
     double speed;
     double incr;
 
     CHECKEMC
-    if (objc != 4) {
-	setresult(interp,"emc_jog_incr: need axis, speed, and increment");
+    if (objc != 5) {
+	setresult(interp,"emc_jog_incr: need jjogmode,joint, speed, and increment");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	setresult(interp,"emc_jog_incr: need axis as integer, 0..");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	setresult(interp,"emc_jog_incr: need joint as integer, 0|1");
 	return TCL_ERROR;
     }
-    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &jjogmode)) {
+	setresult(interp,"emc_jog_incr: need jogmode as integer, 0..");
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &speed)) {
 	setresult(interp,"emc_jog_incr: need speed as real number");
 	return TCL_ERROR;
     }
-    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &incr)) {
+    if (0 != Tcl_GetDoubleFromObj(0, objv[4], &incr)) {
 	setresult(interp,"emc_jog_incr: need increment as real number");
 	return TCL_ERROR;
     }
-
-    if (0 != sendJogIncr(axis, speed, incr)) {
+    if (0 != sendJogIncr(joint, jjogmode, speed, incr)) {
 	setresult(interp,"emc_jog_incr: can't jog");
 	return TCL_OK;
     }
@@ -2266,16 +2274,16 @@ static int emc_joint_type(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_type: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	switch (emcStatus->motion.axis[joint].axisType) {
-	case EMC_AXIS_LINEAR:
+	switch (emcStatus->motion.joint[joint].jointType) {
+	case EMC_LINEAR:
 	    setresult(interp,"linear");
 	    break;
-	case EMC_AXIS_ANGULAR:
+	case EMC_ANGULAR:
 	    setresult(interp,"angular");
 	    break;
 	default:
@@ -2307,28 +2315,28 @@ static int emc_joint_units(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_units: joint out of bounds");
 	    return TCL_ERROR;
 	}
 
-	switch (emcStatus->motion.axis[joint].axisType) {
-	case EMC_AXIS_LINEAR:
+	switch (emcStatus->motion.joint[joint].jointType) {
+	case EMC_LINEAR:
 	    /* try mm */
-	    if (CLOSE(emcStatus->motion.axis[joint].units, 1.0,
+	    if (CLOSE(emcStatus->motion.joint[joint].units, 1.0,
 		      LINEAR_CLOSENESS)) {
 		setresult(interp,"mm");
 		return TCL_OK;
 	    }
 	    /* now try inch */
 	    else if (CLOSE
-		     (emcStatus->motion.axis[joint].units, INCH_PER_MM,
+		     (emcStatus->motion.joint[joint].units, INCH_PER_MM,
 		      LINEAR_CLOSENESS)) {
 		setresult(interp,"inch");
 		return TCL_OK;
 	    }
 	    /* now try cm */
-	    else if (CLOSE(emcStatus->motion.axis[joint].units, CM_PER_MM,
+	    else if (CLOSE(emcStatus->motion.joint[joint].units, CM_PER_MM,
 			   LINEAR_CLOSENESS)) {
 		setresult(interp,"cm");
 		return TCL_OK;
@@ -2338,23 +2346,23 @@ static int emc_joint_units(ClientData clientdata,
 	    return TCL_OK;
 	    break;
 
-	case EMC_AXIS_ANGULAR:
+	case EMC_ANGULAR:
 	    /* try degrees */
-	    if (CLOSE(emcStatus->motion.axis[joint].units, 1.0,
+	    if (CLOSE(emcStatus->motion.joint[joint].units, 1.0,
 		      ANGULAR_CLOSENESS)) {
 		setresult(interp,"deg");
 		return TCL_OK;
 	    }
 	    /* now try radians */
 	    else if (CLOSE
-		     (emcStatus->motion.axis[joint].units, RAD_PER_DEG,
+		     (emcStatus->motion.joint[joint].units, RAD_PER_DEG,
 		      ANGULAR_CLOSENESS)) {
 		setresult(interp,"rad");
 		return TCL_OK;
 	    }
 	    /* now try grads */
 	    else if (CLOSE
-		     (emcStatus->motion.axis[joint].units, GRAD_PER_DEG,
+		     (emcStatus->motion.joint[joint].units, GRAD_PER_DEG,
 		      ANGULAR_CLOSENESS)) {
 		setresult(interp,"grad");
 		return TCL_OK;
@@ -2966,67 +2974,67 @@ static int emc_motion_command_status(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_axis_backlash(ClientData clientdata,
+static int emc_joint_backlash(ClientData clientdata,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *valobj;
-    int axis;
+    int joint;
     double backlash;
 
-    // syntax is emc_axis_backlash <axis> {<backlash>}
+    // syntax is emc_joint_backlash <joint> {<backlash>}
     // if <backlash> is not specified, returns current value,
     // otherwise, sets backlash to specified value
 
     CHECKEMC
     // check number of args supplied
     if ((objc < 2) || (objc > 3)) {
-	setresult(interp,"emc_axis_backlash: need <axis> {<backlash>}");
+	setresult(interp,"emc_joint_backlash: need <joint> {<backlash>}");
 	return TCL_ERROR;
     }
-    // get axis number
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	setresult(interp,"emc_axis_backlash: need axis as integer, 0..EMC_AXIS_MAX-1");
+    // get joint number
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
+	joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	setresult(interp,"emc_joint_backlash: need joint as integer, 0..EMCMOT_MAX_JOINTS-1");
 	return TCL_ERROR;
     }
     // test for get or set
     if (objc == 2) {
 	// want to get present value
-	valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].backlash);
+	valobj = Tcl_NewDoubleObj(emcStatus->motion.joint[joint].backlash);
 	Tcl_SetObjResult(interp, valobj);
 	return TCL_OK;
     } else {
 	// want to set new value
 	if (0 != Tcl_GetDoubleFromObj(0, objv[2], &backlash)) {
-	    setresult(interp,"emc_axis_backlash: need backlash as real number");
+	    setresult(interp,"emc_joint_backlash: need backlash as real number");
 	    return TCL_ERROR;
 	}
 	// write it out
-	sendAxisSetBacklash(axis, backlash);
+	sendJointSetBacklash(joint, backlash);
 	return TCL_OK;
     }
 }
 
-static int emc_axis_enable(ClientData clientdata,
+static int emc_joint_enable(ClientData clientdata,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    int axis;
+    int joint;
     int val;
     Tcl_Obj *enobj;
 
-    // syntax is emc_axis_output <axis> {0 | 1}
+    // syntax is emc_joint_output <joint> {0 | 1}
 
     CHECKEMC
     if (objc < 2) {
-	setresult(interp,"emc_axis_enable: need <axis>");
+	setresult(interp,"emc_joint_enable: need <joint>");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	setresult(interp,"emc_axis_enable: need axis as integer, 0..EMC_AXIS_MAX-1");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
+	joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	setresult(interp,"emc_joint_enable: need joint as integer, 0..EMCMOT_MAX_JOINTS-1");
 	return TCL_ERROR;
     }
 
@@ -3034,49 +3042,49 @@ static int emc_axis_enable(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	enobj = Tcl_NewIntObj(emcStatus->motion.axis[axis].enabled);
+	enobj = Tcl_NewIntObj(emcStatus->motion.joint[joint].enabled);
 	Tcl_SetObjResult(interp, enobj);
 	return TCL_OK;
     }
     // else we were given 0 or 1 to enable/disable it
     if (0 != Tcl_GetIntFromObj(0, objv[2], &val)) {
-	setresult(interp,"emc_axis_enable: need 0, 1 for disable, enable");
+	setresult(interp,"emc_joint_enable: need 0, 1 for disable, enable");
 	return TCL_ERROR;
     }
 
-    sendAxisEnable(axis, val);
+    sendJointEnable(joint, val);
     return TCL_OK;
 }
 
-static int emc_axis_load_comp(ClientData clientdata,
+static int emc_joint_load_comp(ClientData clientdata,
 			      Tcl_Interp * interp, int objc,
 			      Tcl_Obj * CONST objv[])
 {
-    int axis, type;
+    int joint, type;
     char file[256];
 
     CHECKEMC
-    // syntax is emc_axis_load_comp <axis> <file>
+    // syntax is emc_joint_load_comp <joint> <file>
 
     if (objc != 4) {
-	setresult(interp,"emc_axis_load_comp: need <axis> <file> <type>");
+	setresult(interp,"emc_joint_load_comp: need <joint> <file> <type>");
 	return TCL_ERROR;
     }
 
-    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
-	setresult(interp,"emc_axis_load_comp: need axis as integer, 0..EMC_AXIS_MAX-1");
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
+	joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	setresult(interp,"emc_joint_load_comp: need joint as integer, 0..EMCMOT_MAX_JOINTS-1");
 	return TCL_ERROR;
     }
     // copy objv[1] to file arg, to make sure it's not modified
     strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
 
     if (0 != Tcl_GetIntFromObj(0, objv[3], &type)) {
-	setresult(interp,"emc_axis_load_comp: <type> must be an int");
+	setresult(interp,"emc_joint_load_comp: <type> must be an int");
     }
 
     // now write it out
-    sendAxisLoadComp(axis, file, type);
+    sendJointLoadComp(joint, file, type);
     return TCL_OK;
 }
 
@@ -3198,7 +3206,7 @@ static int emc_probed_pos(ClientData clientdata,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
-    int axis;
+    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -3211,47 +3219,49 @@ static int emc_probed_pos(ClientData clientdata,
 	updateStatus();
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
-	if (axis == 0) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    probedPosition.tran.
-						    x));
-	} else if (axis == 1) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    probedPosition.tran.
-						    y));
-	} else if (axis == 2) {
-	    posobj =
-		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
-						    probedPosition.tran.
-						    z));
-	} else {
-	    if (axis == 3) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.
-							probedPosition.a));
-	    } else if (axis == 4) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.
-							probedPosition.b));
-	    } else if (axis == 5) {
-		posobj =
-		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
-							traj.
-							probedPosition.c));
-	    } else {
-		posobj = Tcl_NewDoubleObj(0.0);
-	    }
-	}
-    } else {
-	setresult(interp,"emc_probed_pos: bad integer argument");
-	return TCL_ERROR;
-    }
+    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
 
+    switch (string[0]) {
+    case 'x': case 'X':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.probedPosition.tran.x));
+        break;
+    case 'y': case 'Y':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.probedPosition.tran.y));
+        break;
+    case 'z': case 'Z':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.probedPosition.tran.z));
+        break;
+    case 'a': case 'A':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.probedPosition.a));
+        break;
+    case 'b': case 'B':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.probedPosition.b));
+        break;
+    case 'c': case 'C':
+        posobj = Tcl_NewDoubleObj(convertAngularUnits(
+                                  emcStatus->motion.traj.probedPosition.c));
+        break;
+    case 'u': case 'U':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.probedPosition.u));
+        break;
+    case 'v': case 'V':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.probedPosition.v));
+        break;
+    case 'w': case 'W':
+        posobj = Tcl_NewDoubleObj(convertLinearUnits(
+                                  emcStatus->motion.traj.probedPosition.w));
+        break;
+    default:
+        setresult(interp,"emc_probed_pos: bad coordinate letter argument");
+        return TCL_ERROR;
+    }
     Tcl_SetObjResult(interp, posobj);
     return TCL_OK;
 }
@@ -3766,13 +3776,13 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_motion_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_backlash", emc_axis_backlash,
+    Tcl_CreateObjCommand(interp, "emc_joint_backlash", emc_joint_backlash,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_load_comp", emc_axis_load_comp,
+    Tcl_CreateObjCommand(interp, "emc_joint_load_comp", emc_joint_load_comp,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_enable", emc_axis_enable,
+    Tcl_CreateObjCommand(interp, "emc_joint_enable", emc_joint_enable,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_teleop_enable", emc_teleop_enable,

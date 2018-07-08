@@ -21,7 +21,12 @@
 EMC_AXIS_STAT::EMC_AXIS_STAT():
 EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
 {
-    axisType = EMC_AXIS_LINEAR;
+}
+
+EMC_JOINT_STAT::EMC_JOINT_STAT():
+EMC_JOINT_STAT_MSG(EMC_JOINT_STAT_TYPE, sizeof(EMC_JOINT_STAT))
+{
+    jointType = EMC_LINEAR;
     units = 1.0;
     backlash = 0.0;
     minPositionLimit = -1.0;
@@ -51,7 +56,8 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     linearUnits = 1.0;
     angularUnits = 1.0;
     cycleTime = 0.0;
-    axes = 1;
+    joints = 1;
+    deprecated_axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
     enabled = OFF;
@@ -94,12 +100,12 @@ EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
 {
     int i;
 
-    for (i = 0; i < EMC_MAX_DIO; i++) {
+    for (i = 0; i < EMCMOT_MAX_DIO; i++) {
 	synch_di[i] = 0;
 	synch_do[i] = 0;
     }
 
-    for (i = 0; i < EMC_MAX_AIO; i++) {
+    for (i = 0; i < EMCMOT_MAX_AIO; i++) {
 	analog_input[i] = 0.0;
 	analog_output[i] = 0.0;
     }

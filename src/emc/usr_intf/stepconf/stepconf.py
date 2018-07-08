@@ -20,12 +20,20 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-import pygtk
-pygtk.require("2.0")
-import gtk
-import gtk.glade
+#import pygtk
+#pygtk.require("2.0")
+
+#import gtk
+#import gtk.glade
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+#import gobject
+from gi.repository import GObject
+from gi.repository import Gdk
+
 import sys
 import os
 from optparse import Option, OptionParser
@@ -37,10 +45,11 @@ import errno
 import textwrap
 import commands
 import hal
-import gobject
 import shutil
 import time
-from multifilebuilder import MultiFileBuilder
+from multifilebuilder_gtk3 import MultiFileBuilder
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -52,9 +61,9 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = gtk.MessageDialog(w,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+    m = Gtk.MessageDialog(w,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                 _("Stepconf encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
                 + "".join(lines))
@@ -127,9 +136,13 @@ class Private_Data:
         self.in_pport_prepare = True
         self.distdir = distdir
         self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
-                                ['base',_('Base Information'),True],['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
-                                ['options',_('Options'), True],['axisx', _('Axis X'), True],
-                                ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],['axisa', _('Axis A'), True],
+                                ['base',_('Base Information'),True],
+                                ['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
+                                ['options',_('Options'), True],['halui_page', _('HALUI'), True],
+                                ['axisx', _('Axis X'), True],
+                                ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],
+                                ['axisu', _('Axis U'), True],['axisv', _('Axis V'), True],
+                                ['axisa', _('Axis A'), True],
                                 ['spindle',_('Spindle'), True],['finished',_('Almost Done'),True]
                              ]
         # internalname / displayed name / steptime/ step space / direction hold / direction setup
@@ -153,6 +166,7 @@ class Private_Data:
 
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
             self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
+            self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
             self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
             self.MIST, self.FLOOD, self.ESTOP, self.AMP,
             self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
@@ -160,35 +174,37 @@ class Private_Data:
         ) = self.hal_output_names = [
             "xstep", "xdir", "ystep", "ydir",
             "zstep", "zdir", "astep", "adir",
+            "ustep", "udir", "vstep", "vdir",
             "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "xenable",
             "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
             "unused-output"]
 
         (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
-            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A,
-            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A,
-            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A,
-            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A,
-            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A,
-            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,
-            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,
+            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
+            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
+            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
+            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
+            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
+            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
+            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
             self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
             self.UNUSED_INPUT
         ) = self.hal_input_names = [
             "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
-            "home-x", "home-y", "home-z", "home-a",
-            "min-home-x", "min-home-y", "min-home-z", "min-home-a",
-            "max-home-x", "max-home-y", "max-home-z", "max-home-a",
-            "both-home-x", "both-home-y", "both-home-z", "both-home-a",
-            "min-x", "min-y", "min-z", "min-a",
-            "max-x", "max-y", "max-z", "max-a",
-            "both-x", "both-y", "both-z", "both-a",
+            "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
+            "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
+            "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
+            "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
+            "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
+            "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
+            "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
             "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
             "unused-input"]
 
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
             _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
+            _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
             _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
             _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
             _("Charge Pump"),
@@ -197,19 +213,25 @@ class Private_Data:
 
         self.human_input_names = (_("ESTOP In"), _("Probe In"),
             _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
-            _("Home X"), _("Home Y"), _("Home Z"), _("Home A"),
+            _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
             _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
             _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
+            _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
             _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
             _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
+            _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
             _("Both Limit + Home X"), _("Both Limit + Home Y"),
             _("Both Limit + Home Z"), _("Both Limit + Home A"),
+            _("Both Limit + Home U"), _("Both Limit + Home V"),
             _("Minimum Limit X"), _("Minimum Limit Y"),
             _("Minimum Limit Z"), _("Minimum Limit A"),
+            _("Minimum Limit U"), _("Minimum Limit V"),
             _("Maximum Limit X"), _("Maximum Limit Y"),
             _("Maximum Limit Z"), _("Maximum Limit A"),
+            _("Maximum Limit U"), _("Maximum Limit V"),
             _("Both Limit X"), _("Both Limit Y"),
             _("Both Limit Z"), _("Both Limit A"),
+            _("Both Limit U"), _("Both Limit V"),
             _("All limits"), _("All home"), _("All limits + homes"),
             _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
             _("Unused"))
@@ -220,7 +242,7 @@ class Private_Data:
         self.MESS_CL_REWRITE =_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. ")
         self.MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
         self.MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
-        self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. ")
+        self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel file ?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named custompanel_backup.xml will be lost. ")
         self.MESS_ABORT = _("Quit Stepconf and discard changes?")
         self.MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
@@ -238,6 +260,7 @@ class Data:
         #pw = pwd.getpwuid(os.getuid())
         self.createsymlink = True
         self.createshortcut = True
+        self.sim_hardware = True
         self.sim_hardware = False
         self._lastconfigname= ""
         self._chooselastconfig = True
@@ -274,6 +297,9 @@ class Data:
         self.modbus = 0
         self.ladderhaltype = 0 # no HAL connections specified
         self.ladderconnect = 1 # HAL connections allowed
+
+        self.select_axis = True
+        self.select_gmoccapy = False
 
         self.pin1inv = 0
         self.pin2inv = 0
@@ -324,56 +350,24 @@ class Data:
             p = 'pp2_pin%d_in_inv' % pin
             self[p] = 0
 
-        self.xsteprev = 200
-        self.xmicrostep = 2
-        self.xpulleynum = 1
-        self.xpulleyden = 1
-        self.xleadscrew = 20
-        self.xmaxvel = 0
-        self.xmaxacc = 0
+        for i in ('x','y','z','u','v'):
+             self[i+'steprev'] = 200
+             self[i+'microstep'] = 2
+             self[i+'pulleynum'] = 1
+             self[i+'pulleyden'] = 1
+             self[i+'leadscrew'] = 20
+             self[i+'maxvel'] = 0
+             self[i+'maxacc'] = 0
 
-        self.xhomepos = 0
-        self.xminlim =  0
-        self.xmaxlim =  0
-        self.xhomesw =  0
-        self.xhomevel = 0
-        self.xlatchdir = 0
-        self.xscale = 0
+             self[i+'homepos'] = 0
+             self[i+'minlim'] =  0
+             self[i+'maxlim'] =  0
+             self[i+'homesw'] =  0
+             self[i+'homevel'] = 0
+             self[i+'latchdir'] = 0
+             self[i+'scale'] = 0
 
-        self.ysteprev = 200
-        self.ymicrostep = 2
-        self.ypulleynum = 1
-        self.ypulleyden = 1
-        self.yleadscrew = 20
-        self.ymaxvel = 0
-        self.ymaxacc = 0
-
-        self.yhomepos = 0
-        self.yminlim =  0
-        self.ymaxlim =  0
-        self.yhomesw =  0
-        self.yhomevel = 0
-        self.ylatchdir = 0
-        self.yscale = 0
-
-
-        self.zsteprev = 200
-        self.zmicrostep = 2
-        self.zpulleynum = 1
-        self.zpulleyden = 1
-        self.zleadscrew = 20
-        self.zmaxvel = 0
-        self.zmaxacc = 0
-
-        self.zhomepos = 0
-        self.zminlim = 0
-        self.zmaxlim =  0
-        self.zhomesw = 0
-        self.zhomevel = 0
-        self.zlatchdir = 0
-        self.zscale = 0
-
-        # set xyz axes defaults depending on units true = imperial
+        # set xyzuv axes defaults depending on units true = imperial
         self.set_axis_unit_defaults(True)
 
         self.asteprev = 200
@@ -409,6 +403,7 @@ class Data:
         self.floatsin = 10
         self.floatsout = 10
         self.halui = 0
+        self.halui_list = []
         self.createsymlink = 1
         self.createshortcut = 1
 
@@ -416,7 +411,7 @@ class Data:
     # This only sets data that makes sense to change eg gear ratio don't change
     def set_axis_unit_defaults(self, units=True):
         if units: # imperial
-            for i in ('x','y','z'):
+            for i in ('x','y','z','u','v'):
                 self[i+'maxvel'] = 1
                 self[i+'maxacc'] = 30
                 self[i+'homevel'] = .05
@@ -428,7 +423,7 @@ class Data:
                     self.zminlim = -4
                     self.zmaxlim = 0
         else: # metric
-            for i in ('x','y','z'):
+            for i in ('x','y','z','u','v'):
                 self[i+'maxvel'] = 25
                 self[i+'maxacc'] = 750
                 self[i+'homevel'] = 1.5
@@ -471,13 +466,20 @@ class Data:
         xhz = self.hz('x')
         yhz = self.hz('y')
         zhz = self.hz('z')
+        uhz = self.hz('u')
+        vhz = self.hz('v')
         ahz = self.hz('a')
         if self.axes == 1:
             pps = max(xhz, yhz, zhz, ahz)
         elif self.axes == 0:
             pps = max(xhz, yhz, zhz)
-        else:
+        elif self.axes == 2:
             pps = max(xhz, zhz)
+        elif self.axes == 3:
+            pps = max(xhz, yhz, uhz, vhz)
+        else:
+            print 'error in ideal period calculation - number of axes unrecognized'
+            return
         if self.doublestep():
             base_period = 1e9 / pps
         else:
@@ -587,9 +589,9 @@ class Data:
             warnings.append("")
             warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
             if app:
-                dialog = gtk.MessageDialog(app.w.window1,
-                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                dialog = Gtk.MessageDialog(app.w.window1,
+                    Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                    Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,
                          "\n".join(warnings))
                 dialog.show_all()
                 dialog.run()
@@ -718,7 +720,6 @@ class Widgets:
         return r
 
 class StepconfApp:
- 
     def __init__(self, dbgstate):
         global debug
         debug = self.debug = dbgstate
@@ -729,7 +730,6 @@ class StepconfApp:
         # Private data holds the array of pages to load, signals, and messages
         self._p = Private_Data()
         self.d = Data(self._p)
-
         # build the glade files
         self.builder = MultiFileBuilder()
         self.builder.set_translation_domain(domain)
@@ -741,7 +741,7 @@ class StepconfApp:
             dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
             self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
             page = self.builder.get_object(x)
-            notebook1.append_page(page)
+            notebook1.append_page(page, Gtk.Label(x))
         notebook1.set_show_tabs(False)
 
         self.w = Widgets(self.builder)
@@ -750,13 +750,15 @@ class StepconfApp:
         self.HAL = build_HAL.HAL(self)
         self.builder.set_translation_domain(domain) # for locale translations
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
-        wiz_pic = gtk.gdk.pixbuf_new_from_file(wizard)
+        #wiz_pic = Gdk.pixbuf_new_from_file(wizard)
+        image = Gtk.Image()
+        image.set_from_file(wizard)
+        wiz_pic = image.get_pixbuf()
         self.w.wizard_image.set_from_pixbuf(wiz_pic)
         self.d.load_preferences()
         self.p.initialize()
         window.show()
         #self.w.xencoderscale.realize()
-        self.origbg = self.w.xsteprev.style.bg[gtk.STATE_NORMAL]
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
@@ -785,7 +787,7 @@ class StepconfApp:
         self.HAL.write_halfile(base)
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_QUIT,False):
-            gtk.main_quit()
+            Gtk.main_quit()
 
 #*******************
 # GUI Helper functions
@@ -827,21 +829,21 @@ class StepconfApp:
     # pop up dialog
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = gtk.MessageDialog(app.w.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+           dialog = Gtk.MessageDialog(app.w.window1,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
            dialog.show_all()
            result = dialog.run()
            dialog.destroy()
            return True
         else:   
-            dialog = gtk.MessageDialog(self.w.window1,
-               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
+            dialog = Gtk.MessageDialog(self.w.window1,
+               Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+               Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO, message)
             dialog.show_all()
             result = dialog.run()
             dialog.destroy()
-            if result == gtk.RESPONSE_YES:
+            if result == Gtk.ResponseType.YES:
                 return True
             else:
                 return False
@@ -972,9 +974,6 @@ class StepconfApp:
             p = 'pp2_pin%d' % pin
             if d[p] == SIG.PWM: return True
 
-        # check for encoder signals (in either pp1 or pp2)
-        if self.has_spindle_encoder() is True: return True
-
         # if we get to here - there are no spindle control signals
         return False
 
@@ -996,7 +995,8 @@ class StepconfApp:
 
     # for Axis page calculation updates
     def update_pps(self, axis):
-        def get(n): return float(self.w[axis + n].get_text())
+        def get(n):
+            return float(self.w[axis + n].get_text())
         self.axis_sanity_test(axis)
         try:
             pitch = get("leadscrew")
@@ -1029,18 +1029,37 @@ class StepconfApp:
             self.p.set_buttons_sensitive(0,0)
             self.w[axis + "axistest"].set_sensitive(0)
 
-    def axis_sanity_test(self,axis):
-        def get(n): return float(self.w[axis + n].get_text())
+    def axis_sanity_test(self, axis):
+        return
+        # I hate the inner function
+        def get(n):
+            return float(self.w[axis + n].get_text())
+
+        # List of field with background color can change
         datalist = ('steprev','microstep','pulleynum','pulleyden','leadscrew',
                     'maxvel','maxacc')
+        mystyle =""
         for i in datalist:
+            # Damn! this is a bug. GTKBuilder sets the widget name to be the builder ID.
+            widget_name = Gtk.Buildable.get_name(self.w[axis+i])
             try:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                self.w[axis+i].modify_base(gtk.STATE_NORMAL, self.w[axis+i].get_colormap().alloc_color("red"))
+                mystyle = mystyle + '#' + widget_name + ' { background-color: red; color: red}' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ':selected { background-color: red; color: @selected_fg_color; }' + os.linesep
             else:
-                self.w[axis+i].modify_base(gtk.STATE_NORMAL, self.origbg)
+                mystyle = mystyle + '#' + widget_name + ' { background-color: @bg_color; color: @fg_color; }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ':selected { background-color: @selected_bg_color; color: @selected_fg_color; }' + os.linesep
+
+        # Really I have not found a better way to change the background color
+        # I hate the person who removed the get_background_color function in GTK3...
+        provider = Gtk.CssProvider()
+        provider.load_from_data(mystyle)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     # pport functions
     # disallow some signal combinations
@@ -1145,7 +1164,7 @@ class StepconfApp:
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
                                 "latency-test", ["latency-test"])
         self.w['window1'].set_sensitive(0)
-        gobject.timeout_add(15, self.latency_running_callback)
+        GObject.timeout_add(15, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
@@ -1262,6 +1281,8 @@ class StepconfApp:
         if debug:
             halrun.write("echo\n")
         axnum = "xyza".index(axis)
+        step = axis + "step"
+        dir = axis + "dir"
 
         halrun.write("""
             loadrt steptest
@@ -1365,7 +1386,7 @@ class StepconfApp:
 
         if axis == "a":
             self.w.testvelunit.set_text(_("deg / s"))
-            self.w.testaccunit.set_text(_("deg / s²"))
+            self.w.testaccunit.set_text(_(u"deg / s²"))
             self.w.testampunit.set_text(_("deg"))
             self.w.testvel.set_increments(1,5)
             self.w.testacc.set_increments(1,5)
@@ -1379,7 +1400,7 @@ class StepconfApp:
             self.w.testamplitude.set_value(10)
         elif self.d.units:
             self.w.testvelunit.set_text(_("mm / s"))
-            self.w.testaccunit.set_text(_("mm / s²"))
+            self.w.testaccunit.set_text(_(u"mm / s²"))
             self.w.testampunit.set_text(_("mm"))
             self.w.testvel.set_increments(1,5)
             self.w.testacc.set_increments(1,5)
@@ -1393,7 +1414,7 @@ class StepconfApp:
             self.w.testamplitude.set_value(15)
         else:
             self.w.testvelunit.set_text(_("in / s"))
-            self.w.testaccunit.set_text(_("in / s²"))
+            self.w.testaccunit.set_text(_(u"in / s²"))
             self.w.testampunit.set_text(_("in"))
             self.w.testvel.set_increments(.1,5)
             self.w.testacc.set_increments(1,5)
@@ -1542,5 +1563,5 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
-    gtk.main()
+    Gtk.main()
 

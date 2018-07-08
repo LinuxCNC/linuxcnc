@@ -12,7 +12,7 @@
 //
 //   You should have received a copy of the GNU General Public License
 //   along with this program; if not, write to the Free Software
-//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 component invert """Compute the inverse of the input signal
 The output will be the mathematical inverse of the input, ie \\fBout\\fR = 1/\\fBin\\fR.
 The parameter \\fBdeadband\\fR can be used to control how close to 0 the denominator can be

@@ -18,7 +18,7 @@
 .\"
 .\" You should have received a copy of the GNU General Public
 .\" License along with this manual; if not, write to the Free
-.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
 .\"
 .\"
@@ -321,6 +321,13 @@ parameter.
 
 "\fBthread\fR" generates one \fBaddf\fR command for each function
 in each realtime thread.
+
+"\fBunconnectedinpins\fR generates a setp command for each unconnected
+hal input pin.
+
+If \fIitem\fR is \fBallu\fR), \fBsave\fR does the
+equivalent of \fBcomp\fR, \fBalias\fR, \fBsigu\fR, \fBnetla\fR, \fBparam\fR,
+\fBthread\fR, and \fBunconnectedinpins\fR.
 
 If \fIitem\fR is omitted (or \fBall\fR), \fBsave\fR does the
 equivalent of \fBcomp\fR, \fBalias\fR, \fBsigu\fR, \fBnetla\fR, \fBparam\fR,

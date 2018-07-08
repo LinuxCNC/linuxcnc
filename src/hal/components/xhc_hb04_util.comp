@@ -1,18 +1,11 @@
 component xhc_hb04_util "xhc-hb04 convenience utility";
 description """Provides logic for a start/pause button and an interface
-to halui.program.is_paused, is_idle, is_running to generate outputs for
-halui.program.pause, resume, run.
+to \\fBhalui.program.is_paused\\fR, \\fBis_idle\\fR, \\fBis_running\\fR to generate outputs for \\fBhalui.program.pause\\fR, \\fBresume\\fR, \\fBrun\\fR.
 
-Includes 4 simple lowpass filters with coef and scale pins.  The coef value should
-be 0 <= coef <=1, smaller coef values slow response.
+Includes 4 simple lowpass filters with \\fBcoef\\fR and \\fBscale\\fR pins.  The coef value should
+be 0 <= coef <=1, smaller coef values slow response.  See the lowpass manpage for
+calculating the filter time constant ($ man lowpass).
 
-Includes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The amux.N.in0
-inputs are used by default, the amux.N.in1 inputs are selected when the is-manual
-pin is True.
-
-The pin named is-manual is typically connected to halui.mode.is-manual.
-
-The pin named jogenable-off is not used.
 """;
 
 pin in bit start_or_pause;
@@ -44,24 +37,6 @@ pin in float coef3 = 1.0;
 pin in  float divide_by_k_in;
 pin out float divide_by_k_out;
 pin in  float k = 1.0;
-
-pin in  bit   is_manual;
-pin in  bit   jogenable_off;
-
-pin in  float amux0_in0;
-pin in  float amux1_in0;
-pin in  float amux2_in0;
-pin in  float amux3_in0;
-
-pin in  float amux0_in1;
-pin in  float amux1_in1;
-pin in  float amux2_in1;
-pin in  float amux3_in1;
-
-pin out float amux0_out;
-pin out float amux1_out;
-pin out float amux2_out;
-pin out float amux3_out;
 
 option data xhc_data;
 
@@ -95,19 +70,6 @@ FUNCTION(_) {
     out1 =  ceil(value1 * scale1 - .5);
     out2 =  ceil(value2 * scale2 - .5);
     out3 =  ceil(value3 * scale3 - .5);
-
-    // accel muxes:
-    if (is_manual) {
-        amux0_out = amux0_in1;
-        amux1_out = amux1_in1;
-        amux2_out = amux2_in1;
-        amux3_out = amux3_in1;
-    } else {
-        amux0_out = amux0_in0;
-        amux1_out = amux1_in0;
-        amux2_out = amux2_in0;
-        amux3_out = amux3_in0;
-    }
 
     if (data.old_start_or_pause == start_or_pause) return;
     data.old_start_or_pause = start_or_pause;

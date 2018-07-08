@@ -9,7 +9,6 @@
 *
 ********************************************************************/
 
-#include <boost/python.hpp>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -229,7 +228,7 @@ void enqueue_SET_SPINDLE_MODE(double mode) {
 
 void enqueue_SET_SPINDLE_SPEED(double speed) {
     if(qc().empty()) {
-    if(debug_qc) printf("immediate set spindle speed %f\n", speed);
+        if(debug_qc) printf("immediate set spindle speed %f\n", speed);
         SET_SPINDLE_SPEED(speed);
         return;
     }

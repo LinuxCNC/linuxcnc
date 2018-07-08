@@ -2,6 +2,7 @@
 
 # library procs:
 source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
+source [file join $::env(HALLIB_DIR) util_lib.tcl]
 
 # Usage:
 # In ini file, include:
@@ -17,7 +18,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #   scales = 1 1 1 1 (optional)
 #   threadname = servo-thread (optional)
 #   sequence = 1     (optional: 1|2)
-#   jogmode = normal (optional: normal|vnormal|plus-minus(Experimental))
+#   jogmode = normal (optional: normal|vnormal)
 #   require_pendant = yes (optional: yes|no)
 #   inch_or_mm = in  (optional: in|mm, default is mm)
 
@@ -38,7 +39,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #       SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
 #       or (for ubuntu12 and up):
 #       ATTR{idProduct}=="eb70",  ATTR{idVendor}=="10ce",  MODE="666", OWNER="root", GROUP="users"
-#    4) For jogmode==vnormal (man motion -- see axis.N.jog-vel-mode),
+#    4) For jogmode==vnormal (man motion -- see joint.N.jog-vel-mode),
 #       the max movement is limited by the machine velocity and acceleration limits
 #       such that delta_x = 0.5 * vmax**2/accelmx
 #       so for sim example:
@@ -47,21 +48,12 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #       Typically:
 #         (-s1) sequence 1 (1,10,100,1000) is ok for mm-based machines
 #         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
-#    4) jogmode==plus-minus -- Experimental implementation for  halui plus-minus jogging which
-#       seems to work in both joint and world modes
-#       (tested on git master branch before integration of joints_axesN branch)
 #
-#    5) 19feb2014 notes for future work
-#       jogging non-trivkins machines in world mode
-#
-#       jogmode==plus-minus-increment reserved for halui plus-minus-increment jogging
-#       incremental, world-mode jogging is not working in current git master
-#       (at this date, current git master has not merged a joint_axesN branch)
-#
-#       see:
-#       http://www.linuxcnc.org/docs/html/man/man9/gantrykins.9.html
-#       Joint-mode (aka Free mode) supports continuous and incremental jogging.
-#       World-mode (aka Teleop mode) only supports continuous jogging.
+#    5) updated for joints_axes: support only configs with known kins
+#       and they must be KINEMATICS_IDENTITY (trivkins)
+#       a) connect axis.L.jog-counts to joint.N.jog-counts
+#                  axis.L.jog-scale  to joint.L.jog-scale
+#       c) use  [AXIS_N]MAX_ACCELERATION for both axis.L, joint.N
 
 #-----------------------------------------------------------------------
 # Copyright: 2014-16
@@ -79,7 +71,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------
 
 proc is_uniq {list_name} {
@@ -140,7 +132,7 @@ proc wheel_setup {jogmode} {
          set g [expr -1 * $g]
          puts stderr "$::progname: mpg_accel #$idx must be positive was:$g1, is:$g"
       }
-      set ::XHC_HB04_CONFIG(accel,$idx) $g
+      set ::XHC_HB04_CONFIG(accel,$idx) [format %f $g] ;# ensure floatingpt
       incr idx
     }
   }
@@ -183,7 +175,7 @@ proc wheel_setup {jogmode} {
   #   divide the xhc-hb04.jog.scale by $kvalue
   #   and
   #   multiply the pendant_util.scale$idx by $kvalue
-  # to manipulate the integer (s32) axis.N.jog-counts
+  # to manipulate the integer (s32) joint.N.jog-counts
 
   set kvalue 100.0; # allow fractional scales (.1, .01)
                     # Note: larger values not advised as the
@@ -194,16 +186,12 @@ proc wheel_setup {jogmode} {
   makenet pendant:jog-prescale    => pendant_util.divide-by-k-in
 
   makenet pendant:jog-scale       <= pendant_util.divide-by-k-out
-  #   pendant:jog-scale connects to each axis.$axno.jog-scale
+  #   pendant:jog-scale connects to each:
+  #           and axis.$coord.jog-scale
+  #           joint.$jnum.jog-scale (if applicable)
 
   makenet pendant:wheel-counts     <= xhc-hb04.jog.counts
   makenet pendant:wheel-counts-neg <= xhc-hb04.jog.counts-neg
-
-  makenet pendant:is-manual <= halui.mode.is-manual
-  makenet pendant:is-manual => pendant_util.is-manual
-
-  makenet pendant:jogenable-off <= xhc-hb04.jog.enable-off
-  makenet pendant:jogenable-off => pendant_util.jogenable-off
 
   set anames        {x y z a}
   set available_idx {0 1 2 3}
@@ -238,7 +226,12 @@ proc wheel_setup {jogmode} {
 
   set mapmsg ""
   foreach coord $::XHC_HB04_CONFIG(coords) {
-    set axno $::XHC_HB04_CONFIG($coord,axno)
+    if [catch {set jnum [joint_number_for_axis $coord]} msg] {
+      puts stderr "$::progname: $msg"
+      set has_jnum 0
+    } else {
+      set has_jnum 1
+    }
     set use_lbl($coord) [lindex $anames $use_idx($coord)]
     set idx $use_idx($coord)
     if {"$use_lbl($coord)" != "$coord"} {
@@ -250,76 +243,78 @@ proc wheel_setup {jogmode} {
     setp pendant_util.scale$idx [expr $kvalue * $::XHC_HB04_CONFIG(scale,$idx)]
 
     set acoord [lindex $anames $idx]
-    makenet pendant:pos-$coord <= halui.axis.$axno.pos-feedback \
-                           => xhc-hb04.$acoord.pos-absolute
-    makenet pendant:pos-rel-$coord <= halui.axis.$axno.pos-relative \
-                               => xhc-hb04.$acoord.pos-relative
+    # accommodate existing signames for halui outpins:
+    makenet [existing_outpin_signame halui.axis.$coord.pos-feedback pendant:pos-$coord] \
+                                  <= halui.axis.$coord.pos-feedback \
+                                  => xhc-hb04.$acoord.pos-absolute
 
-    if ![pin_exists axis.$axno.jog-scale] {
-      err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
-      missing axis.$axno.* pins"
-    }
-    makenet pendant:jog-scale => axis.$axno.jog-scale
+    makenet [existing_outpin_signame halui.axis.$coord.pos-relative pendant:pos-rel-$coord] \
+                                  <= halui.axis.$coord.pos-relative \
+                                  => xhc-hb04.$acoord.pos-relative
+
+    makenet pendant:jog-scale => axis.$coord.jog-scale
 
     makenet pendant:wheel-counts                 => pendant_util.in$idx
     makenet pendant:wheel-counts-$coord-filtered <= pendant_util.out$idx \
-                                             => axis.$axno.jog-counts
+                                                 => axis.$coord.jog-counts
 
-    #-----------------------------------------------------------------------
-    # multiplexer for ini.N.max_acceleration
-    if [catch {set std_accel [set ::AXIS_[set axno](MAX_ACCELERATION)]} msg] {
-      err_exit "Error: missing \[AXIS_[set axno]\]MAX_ACCELERATION"
-    }
-    setp pendant_util.amux$idx-in0 $std_accel
-    if ![info exists ::XHC_HB04_CONFIG(accel,$idx)] {
-      set ::XHC_HB04_CONFIG(accel,$idx) $std_accel ;# if not specified
-    }
-    setp pendant_util.amux$idx-in1 $::XHC_HB04_CONFIG(accel,$idx)
 
-    # This signal is named using $axno so the connection can be made
-    # later when the ini pins have been created
-    makenet pendant:muxed-accel-$axno <= pendant_util.amux$idx-out
-    # a script running after task is started must connect:
-    # makenet pendant:muxed-accel-$axno => ini.$axno.max_acceleration
-
-    #-----------------------------------------------------------------------
-    switch $jogmode {
-      normal - vnormal {
-        makenet pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
-                               => axis.$axno.jog-enable
-      }
-      plus-minus {
-        # (Experimental) connect halui plus,minus pins
-        makenet pendant:jog-plus-$coord  <= xhc-hb04.jog.plus-$acoord  \
-                                     => halui.jog.$axno.plus
-        makenet pendant:jog-minus-$coord <= xhc-hb04.jog.minus-$acoord \
-                                     => halui.jog.$axno.minus
-      }
-    }
+    set COORD [string toupper $coord]
+    makenet pendant:jog-$coord <= xhc-hb04.jog.enable-$acoord \
+                               => axis.$coord.jog-enable
     switch $jogmode {
       vnormal {
-        setp axis.$axno.jog-vel-mode 1
+        setp axis.$coord.jog-vel-mode 1
       }
     }
-  }
+
+    set afraction 1.0 ;# default
+    if [catch {
+      set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+                          /[set ::AXIS_[set COORD](MAX_ACCELERATION)] ]
+              } msg] {
+      err_exit "Missing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+    }
+    setp axis.$coord.jog-accel-fraction $afraction
+
+    # connect for joint pins if known (trivkins)
+    if $has_jnum {
+      if ![pin_exists joint.$jnum.jog-scale] {
+        err_exit "Not configured for coords = $::XHC_HB04_CONFIG(coords),\
+        missing joint.$jnum.* pins"
+      }
+      makenet pendant:jog-scale => joint.$jnum.jog-scale
+      makenet pendant:wheel-counts-$coord-filtered => joint.$jnum.jog-counts
+      if [catch {set std_accel [set ::JOINT_[set jnum](MAX_ACCELERATION)]} msg] {
+        err_exit "Error: missing \[JOINT_[set jnum]\]MAX_ACCELERATION"
+      }
+      if {   [set ::JOINT_[set jnum](MAX_ACCELERATION)]
+          != [set ::AXIS_[set COORD](MAX_ACCELERATION)] } {
+        puts stderr "$::progname: Warning accel values differ:"
+        puts stderr "  \[JOINT_[set jnum]\]MAX_ACCELERATION=[set ::JOINT_[set jnum](MAX_ACCELERATION)]"
+        puts stderr "  \[AXIS_[set COORD]\]MAX_ACCELERATION=[set ::AXIS_[set COORD](MAX_ACCELERATION)]"
+      }
+      makenet pendant:jog-$coord => joint.$jnum.jog-enable
+
+      set jfraction 1.0 ;# default
+      if [catch {
+        set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+                            /[set ::JOINT_[set jnum](MAX_ACCELERATION)] ]
+                } msg] {
+        err_exit "Missing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+      }
+      setp joint.$jnum.jog-accel-fraction $jfraction
+
+      switch $jogmode {
+        vnormal {
+          setp joint.$jnum.jog-vel-mode 1
+        }
+      }
+
+    }
+  } ;# for coord
   if {"$mapmsg" != ""} {
     puts "\n$::progname:\n$mapmsg"
-  }
-
-  switch $jogmode {
-    normal - vnormal {
-      makenet pendant:jog-speed <= halui.max-velocity.value
-      # not used: xhc-hb04.jog.velocity
-      # not used: xhc-hb04.jog.max-velocity
-    }
-    plus-minus {
-      # (Experimental)
-      # Note: the xhc-hb04 driver manages xhc-hb04.jog.velocity
-      makenet pendant:jog-max-velocity <= halui.max-velocity.value
-      makenet pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
-      makenet pendant:jog-speed        <= xhc-hb04.jog.velocity
-      makenet pendant:jog-speed        => halui.jog-speed
-    }
   }
 
   setp halui.feed-override.scale 0.01
@@ -329,24 +324,33 @@ proc wheel_setup {jogmode} {
   makenet pendant:wheel-counts  => halui.spindle-override.counts
 
   makenet pendant:feed-override-enable => halui.feed-override.count-enable \
-                                   <= xhc-hb04.jog.enable-feed-override
-
-  makenet pendant:feed-override <= halui.feed-override.value \
-                            => xhc-hb04.feed-override
-
-  makenet pendant:feed-value <= motion.current-vel \
-                         => xhc-hb04.feed-value
+                                       <= xhc-hb04.jog.enable-feed-override
 
   makenet pendant:spindle-override-enable => halui.spindle-override.count-enable \
-                                      <= xhc-hb04.jog.enable-spindle-override
+                                          <= xhc-hb04.jog.enable-spindle-override
 
-  makenet pendant:spindle-override <= halui.spindle-override.value \
-                               => xhc-hb04.spindle-override
 
-  set sname [existing_outpin_signame \
-                motion.spindle-speed-out-rps-abs pendant:spindle-rps]
-  makenet $sname <= motion.spindle-speed-out-rps-abs \
-             => xhc-hb04.spindle-rps
+  # accommodate existing signames for motion outpins
+  makenet [existing_outpin_signame   motion.current-vel pendant:feed-value] \
+                                  <= motion.current-vel \
+                                  => xhc-hb04.feed-value
+
+  makenet [existing_outpin_signame motion.spindle-speed-out-rps-abs pendant:spindle-rps] \
+                                <= motion.spindle-speed-out-rps-abs \
+                                => xhc-hb04.spindle-rps
+
+  # accommodate existing signames for halui outpins:
+  makenet [existing_outpin_signame   halui.max-velocity.value pendant:jog-speed] \
+                                  <= halui.max-velocity.value
+
+  makenet [existing_outpin_signame   halui.feed-overide.value pendant:feed-override] \
+                                  <= halui.feed-override.value \
+                                  => xhc-hb04.feed-override
+
+  makenet [existing_outpin_signame   halui.spindle-override.value pendant:spindle-override] \
+                                  <= halui.spindle-override.value \
+                                  => xhc-hb04.spindle-override
+
 } ;# wheel_setup
 
 proc existing_outpin_signame {pinname newsigname} {
@@ -365,23 +369,29 @@ proc existing_outpin_signame {pinname newsigname} {
 
 proc std_start_pause_button {} {
   # hardcoded setup for button-start-pause
-  makenet    pendant:start-or-pause <= xhc-hb04.button-start-pause \
-                                => pendant_util.start-or-pause
+  makenet pendant:start-or-pause  <= xhc-hb04.button-start-pause \
+                                  => pendant_util.start-or-pause
 
-  makenet    pendant:is-idle    <= halui.program.is-idle \
-                            => pendant_util.is-idle
-  makenet    pendant:is-paused  <= halui.program.is-paused \
-                            => pendant_util.is-paused
-  makenet    pendant:is-running <= halui.program.is-running \
-                            => pendant_util.is-running
+  makenet pendant:program-resume  <= pendant_util.resume \
+                                  => halui.program.resume
+  makenet pendant:program-pause   <= pendant_util.pause \
+                                  => halui.program.pause
+  makenet pendant:program-run     <= pendant_util.run  \
+                                  => halui.program.run \
+                                  => halui.mode.auto
 
-  makenet    pendant:program-resume <= pendant_util.resume \
-                                => halui.program.resume
-  makenet    pendant:program-pause  <= pendant_util.pause \
-                                => halui.program.pause
-  makenet    pendant:program-run    <= pendant_util.run  \
-                                => halui.program.run \
-                                => halui.mode.auto
+  # accommodate existing signames for halui outpins:
+  makenet [existing_outpin_signame   halui.program.is-idle pendant:is-idle] \
+                                  <= halui.program.is-idle \
+                                  => pendant_util.is-idle
+
+  makenet [existing_outpin_signame   halui.program.is-paused pendant:is-paused] \
+                                  <= halui.program.is-paused \
+                                  => pendant_util.is-paused
+
+  makenet [existing_outpin_signame   halui.program.is-running pendant:is-running] \
+                                  <= halui.program.is-running \
+                                  => pendant_util.is-running
 } ;# std_start_pause_button
 
 proc popup_msg {msg} {
@@ -501,18 +511,6 @@ switch -glob $::XHC_HB04_CONFIG(inch_or_mm) {
   default {}
 }
 
-# jogmodes:
-#   normal,vnormal: use motion pins:
-#               axis.N.jog-counts
-#               axis.N.jog-enable
-#               axis.N.jog-scale  (machine units per count)
-#               axis.N.jog-vel-mode
-
-#   plus-minus: use halui pins:   (Experimental)
-#               halui.jog.N.plus  (jog in + dir at jog-speed)
-#               halui.jog.N.minus (jog in - dir at jog-speed)
-#               halui.jog-speed   (applies to plus-minus jogging only)
-#
 if ![info exists ::XHC_HB04_CONFIG(jogmode)] {
   set ::XHC_HB04_CONFIG(jogmode) normal ;# default
 }
@@ -521,17 +519,12 @@ set jogmode $::XHC_HB04_CONFIG(jogmode)
 switch $jogmode {
   normal {}
   vnormal {}
-  plus-minus {}
   default {
     set ::XHC_HB04_CONFIG(jogmode) normal
     set msg "Unkknown jogmode <$jogmode>"
     set msg "$msg  Using $::XHC_HB04_CONFIG(jogmode)"
     popup_msg "$msg"
   }
-}
-
-set ct 0; foreach coord {x y z a b c u v w} {
-  set ::XHC_HB04_CONFIG($coord,axno) $ct;  incr ct
 }
 
 if [info exists ::XHC_HB04_CONFIG(coords)] {

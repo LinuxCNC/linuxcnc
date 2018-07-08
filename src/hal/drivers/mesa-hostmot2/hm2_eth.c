@@ -14,7 +14,7 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <sys/fcntl.h>
@@ -100,6 +100,65 @@ int comm_active = 0;
 
 static int comp_id;
 
+static char *hm2_7i96_pin_names[] = {
+    "TB3-01",
+    "TB3-02",
+    "TB3-03",
+    "TB3-04",
+    "TB3-05",
+    "TB3-06",
+    "TB3-07",
+    "TB3-08",
+    "TB3-09",
+    "TB3-10",
+    "TB3-11",
+    "TB3-13/TB3-14",
+    "TB3-15/TB3-16",
+    "TB3-17/TB3-18",
+    "TB3-19/TB3-20",
+    "TB3-21/TB3-22",
+    "TB3-23/TB3-24",
+
+    "TB1-02/TB1-03",
+    "TB1-04/TB1-05",
+    "TB1-08/TB1-09",
+    "TB1-10/TB1-11",
+    "TB1-14/TB1-15",
+    "TB1-16/TB1-17",
+    "TB1-20/TB1-21",
+    "TB1-22-TB1-23",
+
+    "TB2-01/TB2-03",
+    "TB2-04/TB2-05",
+    "TB2-07/TB2-08",
+    "TB2-10/TB2-11",
+    "TB2-13/TB2-14",
+    "TB2-16/TB2-17",
+    "TB2-18/TB2-19",
+
+    "internal",  /* SSerial TXEN */
+    "internal",  /* SSR AC Reference pin */
+
+    "P1-01",
+    "P1-02",
+    "P1-03",
+    "P1-04",
+    "P1-05",
+    "P1-06",
+    "P1-07",
+    "P1-08",
+    "P1-09",
+    "P1-11",
+    "P1-13",
+    "P1-15",
+    "P1-17",
+    "P1-19",
+    "P1-21",
+    "P1-23",
+    "P1-25"
+};
+
+
 #define UDP_PORT 27181
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
@@ -118,8 +177,8 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 static int shell(char *command) {
     char *const argv[] = {"sh", "-c", command, NULL};
     pid_t pid;
-    int res = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(res < 0) perror("posix_spawn");
+    int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if(res < 0) perror("rtapi_spawn_as_root");
     int status;
     waitpid(pid, &status, 0);
     if(WIFEXITED(status)) return WEXITSTATUS(status);
@@ -150,7 +209,6 @@ static bool chain_exists() {
 static int iptables_state = -1;
 static bool use_iptables() {
     if(iptables_state == -1) {
-        if(geteuid() != 0) return (iptables_state = 0);
         if(!chain_exists()) {
             int res = shell("/sbin/iptables -N " CHAIN);
             if(res != EXIT_SUCCESS) {
@@ -308,6 +366,16 @@ static int fetch_hwaddr(const char *board_ip, int sockfd, unsigned char buf[6]) 
     return 0;
 }
 
+int ioctl_siocsarp(void *arg) {
+    hm2_eth_t *board = (hm2_eth_t *)arg;
+    return ioctl(board->sockfd, SIOCSARP, &board->req);
+}
+
+int ioctl_siocdarp(void *arg) {
+    hm2_eth_t *board = (hm2_eth_t *)arg;
+    return ioctl(board->sockfd, SIOCDARP, &board->req);
+}
+
 static int init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
 
@@ -368,7 +436,7 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
         return ret;
     }
 
-    ret = ioctl(board->sockfd, SIOCSARP, &board->req);
+    ret = ioctl_siocsarp(board);
     if(ret < 0) {
         perror("ioctl SIOCSARP");
         board->req.arp_flags &= ~ATF_PERM;
@@ -391,7 +459,7 @@ static int close_board(hm2_eth_t *board) {
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
-        int ret = ioctl(board->sockfd, SIOCDARP, &board->req);
+        int ret = ioctl_siocdarp(board);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
     int ret = shutdown(board->sockfd, SHUT_RDWR);
@@ -611,9 +679,9 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     return 1;
 }
 
-static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size);
+static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size);
 
-static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     if(rtapi_task_self() >= 0)
         return hm2_eth_enqueue_write(this, addr, buffer, size);
 
@@ -667,7 +735,7 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     return 1;
 }
 
-static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
@@ -787,6 +855,28 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P2";
         board->llio.ioport_connector_name[1] = "P1";
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
+    } else if (strncmp(board_name, "7I96", 8) == 0) {
+        strncpy(llio_name, board_name, 8);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 17;
+        board->llio.io_connector_pin_names = hm2_7i96_pin_names;
+
+        // DB25, 17 pins used, IO 34 to IO 50
+        board->llio.ioport_connector_name[0] = "P1";
+
+        // terminal block, 8 pins used, Step & Dir 0-3
+        board->llio.ioport_connector_name[1] = "TB1";
+
+        // terminal block, 7 pins used, Step & Dir 4, Enc A, B, Z, serial Rx/Tx
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, 11 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[3] = "TB3";
+
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 

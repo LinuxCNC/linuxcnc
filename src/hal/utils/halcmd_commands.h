@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *  THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
  *  ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
@@ -42,6 +42,9 @@
 #include "halcmd.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+
+RTAPI_BEGIN_DECLS
+
 extern int do_addf_cmd(char *funct, char *thread, char *tokens[]);
 extern int do_alias_cmd(char *pinparam, char *name, char *alias);
 extern int do_unalias_cmd(char *pinparam, char *name);
@@ -86,4 +89,7 @@ pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
 
 extern int scriptmode, comp_id;
+
+RTAPI_END_DECLS
+
 #endif

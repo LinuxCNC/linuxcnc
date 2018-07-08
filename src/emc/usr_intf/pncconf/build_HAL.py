@@ -16,7 +16,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 #    This builds the HAL files from the collected data.
 #
@@ -77,8 +77,8 @@ class HAL:
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
             print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme,fmax,geo)
-        print >>file, "loadrt trivkins"
-        print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
+        print >>file, "loadrt [KINS]KINEMATICS"
+        print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS"
         # pre process mesa commands
         mesa_load_cmnd,mesa_read_cmnd,mesa_write_cmnd = self.a.hostmot2_command_string()
         if self.d.number_pports:
@@ -138,6 +138,9 @@ class HAL:
             #if not self.d.findsignal(i+"-encoder-a") and not self.d.findsignal(i+"-resolver"):
             #    continue
             temp = temp + "pid.%s,"%i
+            tandemjoint = self.a.tandem_check(i)
+            if tandemjoint:
+                temp = temp + "pid.%s2,"%i
         # if user requested PID components add them to the list as well, starting at 0 and working up
         for i in range(0,self.d.userneededpid):
                 temp=temp+"pid.%d,"% (i)
@@ -349,21 +352,53 @@ class HAL:
         self.connect_input(file)
         print >>file
 
-        if self.d.axes == 2:
-            self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 2, 'z')
-            self.connect_axis(file, 2, 's')
-        elif self.d.axes == 0:
-            self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'y')
-            self.connect_axis(file, 2, 'z')
-            self.connect_axis(file, 3, 's')
-        elif self.d.axes == 1:
-            self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'y')
-            self.connect_axis(file, 2, 'z')
-            self.connect_axis(file, 3, 'a')
-            self.connect_axis(file, 4, 's')
+        ##############################################################
+        # connect joints 
+        ##############################################################
+        # self.d.axes:
+        # 0 = xyz
+        # 1 = xz
+        # 2 = xyza
+
+        if not self.d.axes in(0,1,2):
+            print 'error in number of axis identity: ', self.d.axes
+            return
+        jnum = 0
+        # Always add X axis
+        self.connect_joint(file, jnum, 'x')
+        tandemjoint = self.a.tandem_check('x')
+        if tandemjoint:
+            jnum += 1
+            self.connect_joint(file, jnum, 'x2')
+
+        # Maybe add Y Axis ###################
+        if self.d.axes in(0,1):
+            jnum += 1
+            self.connect_joint(file, jnum, 'y')
+            tandemjoint = self.a.tandem_check('y')
+            if tandemjoint:
+                jnum += 1
+                self.connect_joint(file, jnum, 'y2')
+
+        # Always add Z Axis ##################
+        jnum += 1
+        self.connect_joint(file, jnum, 'z')
+        tandemjoint = self.a.tandem_check('z')
+        if tandemjoint:
+            jnum += 1
+            self.connect_joint(file, jnum, 'z2')
+
+        # Maybe add A axis ###################
+        if self.d.axes == 1:
+            jnum += 1
+            self.connect_joint(file, jnum, 'a')
+            tandemjoint = self.a.tandem_check('a')
+            if tandemjoint:
+                jnum += 1
+                self.connect_joint(file, jnum, 'a2')
+
+        # Always add Spindle ##################
+        self.connect_joint(file, 9, 's') # 9 for [SPINDLE_9]
 
         print >>file
         print >>file, "#******************************"
@@ -372,20 +407,29 @@ class HAL:
         print >>file
         print >>file, _("#  ---HALUI signals---")
         print >>file
-        for axnum,axletter in enumerate(axis_convert):
+
+        jnum = 0
+        for axletter in axis_convert:
             if axletter in self.d.available_axes:
-                print >>file, "net joint-select-%s        halui.joint.%d.select"% (chr(axnum+97),axnum)
-                print >>file, "net %s-is-homed            halui.joint.%d.is-homed"% (axletter,axnum)
-                print >>file, "net jog-%s-pos             halui.jog.%d.plus"% (axletter,axnum)
-                print >>file, "net jog-%s-neg             halui.jog.%d.minus"% (axletter,axnum)
-                print >>file, "net jog-%s-analog          halui.jog.%d.analog"% (axletter,axnum)
-        print >>file, "net jog-selected-pos      halui.jog.selected.plus"
-        print >>file, "net jog-selected-neg      halui.jog.selected.minus"
+                # support for KINEMATICS_IDENTITY kins only 
+                # Assumption: gui uses halui teleop jogging for KINEMATICS_IDENTITY configs
+                #             (axis gui does this for joints_axes)
+                print >>file, "net axis-select-%s  halui.axis.%s.select"% (axletter,axletter)
+                print >>file, "net jog-%s-pos      halui.axis.%s.plus"% (axletter,axletter)
+                print >>file, "net jog-%s-neg      halui.axis.%s.minus"% (axletter,axletter)
+                print >>file, "net jog-%s-analog   halui.axis.%s.analog"% (axletter,axletter)
+
+                # joints only items (no corresponding axis item):
+                print >>file, "net %s-is-homed     halui.joint.%d.is-homed"% (axletter,jnum)
+                jnum = jnum + 1 # expect joints in sequence (like trivkins)
+
+        print >>file, "net jog-selected-pos      halui.axis.selected.plus"
+        print >>file, "net jog-selected-neg      halui.axis.selected.minus"
         print >>file, "net spindle-manual-cw     halui.spindle.forward"
         print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
         print >>file, "net spindle-manual-stop   halui.spindle.stop"
         print >>file, "net machine-is-on         halui.machine.is-on"
-        print >>file, "net jog-speed             halui.jog-speed "
+        print >>file, "net jog-speed             halui.axis.jog-speed"
         print >>file, "net MDI-mode              halui.mode.is-mdi"
         print >>file
         if pump:    
@@ -422,7 +466,7 @@ class HAL:
                 print >>file, "net jog-speed-a           <=  %s"% (self.d.joycmdrapida)
             if not self.d.joycmdrapidb =="":
                 print >>file, "net jog-speed-b           <=  %s"% (self.d.joycmdrapidb)
-            for axnum,axletter in enumerate(axis_convert):
+            for axletter in axis_convert:
                 if axletter in self.d.available_axes:
                     pin_pos = self.d["joycmd"+axletter+"pos"]
                     pin_neg = self.d["joycmd"+axletter+"neg"]
@@ -442,7 +486,7 @@ class HAL:
             if "enc" in pinname: ending = ".count"
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
-            print >>file, "net joint-selected-count     <=  %s%s"% (pinname,ending)
+            print >>file, "net axis-selected-count     <=  %s%s"% (pinname,ending)
             if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
@@ -452,16 +496,16 @@ class HAL:
                     print >>file, _("#  ---mpg signals---")
                     print >>file
                     if not self.d.multimpg:
-                        for axnum,axletter in enumerate(axis_convert):
+                        for axletter in axis_convert:
                             if axletter in self.d.available_axes:
-                                print >>file, "#       for axis %s MPG" % (axletter)
-                                print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
-                                print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
-                                print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
-                                print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
+                                print >>file, "#       for axis %s MPG" % axletter
+                                print >>file, "setp    axis.%s.jog-vel-mode 0" % axletter
+                                print >>file, "net selected-jog-incr    =>  axis.%s.jog-scale" % axletter
+                                print >>file, "net axis-select-%s       =>  axis.%s.jog-enable"% (axletter,axletter)
+                                print >>file, "net axis-selected-count =>  axis.%s.jog-counts"% axletter
                             print >>file
         # check for dedicated axis MPG jogging option
-        for axnum,axletter in enumerate(axis_convert):
+        for axletter in axis_convert:
             if axletter in self.d.available_axes:
                 pinname = self.d.make_pinname(self.d.findsignal(axletter+"-mpg-a"))
                 if pinname:
@@ -479,9 +523,9 @@ class HAL:
                         print >>file
                         if self.d.multimpg: # means MPG per axis
                             print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
-                            print >>file, "net %s-jog-enable         =>  axis.%d.jog-enable"% (axletter, axnum)            
-                            print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter, axnum)
-                            print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
+                            print >>file, "net %s-jog-enable         =>  axis.%s.jog-enable"% (axletter, axletter)
+                            print >>file, "net %s-jog-count          =>  axis.%s.jog-counts" % (axletter, axletter)
+                            print >>file, "net selected-jog-incr    =>  axis.%s.jog-scale" % axletter
                             print >>file, "sets %s-jog-enable    true"% (axletter)
                             print >>file
         if self.d.externalmpg and not self.d.frontend == _PD._TOUCHY:# TOUCHY GUI sets its own jog increments:
@@ -532,7 +576,7 @@ class HAL:
                     print >>file, "net fo-count            =>  halui.feed-override.counts"
                 else: # shared MPG
                     print >>file, "net fo-enable            => halui.feed-override.count-enable"
-                    print >>file, "net joint-selected-count => halui.feed-override.counts"
+                    print >>file, "net axis-selected-count => halui.feed-override.counts"
                 print >>file
             elif self.d.fo_useswitch:
                 print >>file, "# connect feed overide increments - switches"
@@ -586,7 +630,7 @@ class HAL:
                     print >>file, "net mvo-count            =>  halui.max-velocity.counts"
                 else: # shared MPG
                     print >>file, "net mvo-enable           =>  halui.max-velocity.count-enable"
-                    print >>file, "net joint-selected-count =>  halui.max-velocity.counts"
+                    print >>file, "net axis-selected-count =>  halui.max-velocity.counts"
                 print >>file
             elif self.d.mvo_useswitch:
                 print >>file, "# connect max velocity overide increments - switches"
@@ -635,7 +679,7 @@ class HAL:
                     print >>file, "net so-count              =>  halui.spindle-override.counts"
                 else: # shared MPG
                     print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
-                    print >>file, "net joint-selected-count  =>  halui.spindle-override.counts"
+                    print >>file, "net axis-selected-count  =>  halui.spindle-override.counts"
                 print >>file
             elif self.d.so_useswitch:
                 print >>file, "# connect spindle overide increments "
@@ -821,6 +865,7 @@ class HAL:
                 if self.d.mitsub_vfd:
                     print >>f1, "source mitsub_vfd.hal"
             print >>f1, "source custom_postgui.hal"
+            f1.close()
 
 
         # If the user asked for pyvcp sample panel add the HAL commands too
@@ -862,7 +907,7 @@ class HAL:
                 print >>f1, ("net abort                =>   touchy.abort")
                 print >>f1, ("net single-step          =>   touchy.single-block")
                 print >>f1, ("net selected-jog-incr    <=   touchy.jog.wheel.increment")
-                print >>f1, ("net joint-selected-count =>   touchy.wheel-counts")
+                print >>f1, ("net axis-selected-count =>   touchy.wheel-counts")
                 print >>f1, ("net jog-x-pos  => touchy.jog.continuous.x.positive")
                 print >>f1, ("net jog-x-neg  => touchy.jog.continuous.x.negative")
                 print >>f1, ("net jog-y-pos  => touchy.jog.continuous.y.positive")
@@ -870,9 +915,9 @@ class HAL:
                 print >>f1, ("net jog-z-pos  => touchy.jog.continuous.z.positive")
                 print >>f1, ("net jog-z-neg  => touchy.jog.continuous.z.negative")
                 print >>f1, ("net quillup  => touchy.quill-up")
-                for axnum,axletter in enumerate(axis_convert):
+                for axletter in enumerate(axis_convert):
                     if axletter in self.d.available_axes:
-                        print >>f1, "net joint-select-%s   <=   touchy.jog.wheel.%s"% (chr(axnum+97), axletter)
+                        print >>f1, "net axis-select-%s   <=   touchy.jog.wheel.%s"% (axletter, axletter)
 
         # include Automation Direct GS2 VFD HAL file
         fname = os.path.join(base, "gs2_vfd.hal")
@@ -963,7 +1008,7 @@ class HAL:
         else: unit = "a metric"
         if self.d.frontend == _PD._AXIS: display = "AXIS"
         elif self.d.frontend == _PD._TKLINUXCNC: display = "Tklinuxcnc"
-        elif self.d.frontend == _PD._MINI: display = "Mini"
+        elif self.d.frontend == _PD._GMOCCAPY: display = "TOUCHY"
         elif self.d.frontend == _PD._TOUCHY: display = "TOUCHY"
         else: display = "an unknown"
         if self.d.axes == 0:machinetype ="XYZ"
@@ -1026,10 +1071,68 @@ class HAL:
 # helper functions
 #*******************
 
-    def connect_axis(self, file, num, let):
+    def build_pid(self, file, jnum, let, stepflag):
+        title = 'JOINT'
+        if let == 's':
+            title = 'SPINDLE'
+        print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, jnum)
+        print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, jnum)
+        print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, jnum)
+        print >>file, "setp   pid.%s.bias      [%s_%d]BIAS" % (let, title, jnum)
+        print >>file, "setp   pid.%s.FF0       [%s_%d]FF0" % (let, title, jnum)
+        print >>file, "setp   pid.%s.FF1       [%s_%d]FF1" % (let, title, jnum)
+        print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (let, title, jnum)
+        print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, jnum)
+        if let =='s' and self.d.suseoutputrange2:
+            print >>file, "net ratio_select.out   pid.%s.maxoutput " % (let)
+        else:
+            print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, jnum)
+        # steppers
+        print >>file, "setp   pid.%s.error-previous-target true" % let
+        # steppers
+        if stepflag:
+            print >>file, "setp   pid.%s.maxerror .0005" % let
+        print >>file
+        if let == 's':
+            name = "spindle"
+        else:
+            name = let
+        print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (name, let)
+        print >>file, "net %s-enable        =>  pid.%s.enable" % (name, let)
+
+        if let == 's':
+            if self.d.susenegativevoltage:
+                signal = "spindle-vel-cmd-rpm"
+                fbsignal= "spindle-vel-fb-rpm"
+            else:
+                signal = "spindle-vel-cmd-rpm-abs"
+                fbsignal= "spindle-vel-fb-rpm-abs"
+            print >>file, "net %s     => pid.%s.command" % (signal, let)
+            print >>file, "net %s      => pid.%s.feedback"% (fbsignal, let)
+            if self.d.suseoutputrange2:
+                print >>file, "net spindle-pid-out  pid.s.output    => scale.gear.in"
+                print >>file, "net gear-ratio       ratio_select.out-f => scale.gear.gain"
+                print >>file, "setp ratio_select.in00 %f" % (1/float(self.d.gsincrvalue0))
+                print >>file, "setp ratio_select.in01 %f" % (1/float(self.d.gsincrvalue1))
+                #print >>file, "setp ratio_select.in2 %f" % self.d.gsincrvalue2
+                #print >>file, "setp ratio_select.in4 %f" % self.d.gsincrvalue4
+                print >>file, "net gear-select-a         =>  ratio_select.sel0"
+                #print >>file, "net gear-select-b ratio_select.sel1"
+                #print >>file, "net gear-select-c ratio_select.sel2"
+                print >>file, "net spindle-output        <=  scale.gear.out"
+            else:
+                print >>file, "net spindle-output        <=  pid.%s.output"% (let)
+        else:
+           print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
+           print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
+           print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
+           print >>file, "net %s-output        <=  pid.%s.output"% (name, let)
+           #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
+        print >>file
+
+    def connect_joint(self, file, jnum, let):
         def get(s): return self.d[let + s]
-        axnum = "xyzabcuvws".index(let)
-        title = 'AXIS'
+        title = 'JOINT'
         if let == 's':
             title = 'SPINDLE'
         closedloop = False
@@ -1044,12 +1147,12 @@ class HAL:
         tppwmpinname = self.d.make_pinname(self.a.tppwmgen_sig(let))
         tppwm_six = self.a.tppwmgen_has_6(let)
         steppinname = self.d.make_pinname(self.a.stepgen_sig(let))
-        steppinname2 = self.d.make_pinname(self.a.stepgen_sig(let+"2"))
-        bldc_control = self.d[let+"bldc_option"]
+        try:
+            bldc_control = self.d[let+"bldc_option"]
+        except:
+            bldc_control = False
         if steppinname:
             stepinvertlist = self.a.stepgen_invert_pins(self.a.stepgen_sig(let))
-        if steppinname2:
-            stepinvertlist2 = self.a.stepgen_invert_pins(self.a.stepgen_sig(let+"2"))
         encoderpinname = self.d.make_pinname(self.a.encoder_sig(let))
         amp8i20pinname = self.d.make_pinname(self.a.amp_8i20_sig(let))
         resolverpinname = self.d.make_pinname(self.a.resolver_sig(let))
@@ -1061,134 +1164,87 @@ class HAL:
         print let + " is closedloop? "+ str(closedloop)
         print " ENCODER:",encoderpinname," RESOLVER:",resolverpinname
         print " PWM:",pwmpinname," 3PWM:",tppwmpinname," 8i20:",amp8i20pinname
-        print " STEPPER:",steppinname, "STEPPER2:",steppinname2
+        print " STEPPER:",steppinname
         print " POTENTIOMETER:",potpinname
         lat = self.d.latency
         print >>file, "#*******************"
-        print >>file, "#  %s %s" % (title, let.upper())
+        if let.upper() == 'S':
+            print >>file, "#  SPINDLE"
+        elif len(let) >1:
+            print >>file, "#  Tandem AXIS %s %s %d" % (let.upper(), title, jnum )
+        else:
+            print >>file, "#  AXIS %s %s %d" % (let.upper(), title, jnum )
         print >>file, "#*******************"
         print >>file
 
         if bldc_control:
             bldc = self.d[let+"bldc_config"]
             print >>file, "# -- BLDC setup --"
-            print >>file, "setp   bldc.%d.drive-offset       %d" % (axnum,self.d[let+"bldc_drive_offset"])
-            print >>file, "setp   bldc.%s.rev                %d" % (axnum,self.d[let+"bldc_reverse"])
+            print >>file, "setp   bldc.%d.drive-offset       %d" % (jnum,self.d[let+"bldc_drive_offset"])
+            print >>file, "setp   bldc.%s.rev                %d" % (jnum,self.d[let+"bldc_reverse"])
             if "q" in(bldc):
-                print >>file, "setp   bldc.%d.scale              %d" % (axnum,self.d[let+"bldc_scale"])
-                print >>file, "setp   bldc.%d.poles              %d" % (axnum,self.d[let+"bldc_poles"])
+                print >>file, "setp   bldc.%d.scale              %d" % (jnum,self.d[let+"bldc_scale"])
+                print >>file, "setp   bldc.%d.poles              %d" % (jnum,self.d[let+"bldc_poles"])
             if "i" in(bldc):
-                print >>file, "setp   bldc.%s.initvalue          %d" % (axnum,self.d[let+"bldc_inital_value"])
+                print >>file, "setp   bldc.%s.initvalue          %d" % (jnum,self.d[let+"bldc_inital_value"])
             if "i" in(bldc) or "a" in(bldc):
-                print >>file, "setp   bldc.%s.lead-angle         %d" % (axnum,self.d[let+"bldc_lead_angle"])
-                print >>file, "setp   bldc.%d.encoder-offset     %d" % (axnum,self.d[let+"bldc_encoder_offset"])
+                print >>file, "setp   bldc.%s.lead-angle         %d" % (jnum,self.d[let+"bldc_lead_angle"])
+                print >>file, "setp   bldc.%d.encoder-offset     %d" % (jnum,self.d[let+"bldc_encoder_offset"])
             if "h" in(bldc):
-                print >>file, "setp   bldc.%d.pattern            %d" % (axnum,self.d[let+"bldc_pattern_in"])
-                print >>file, "net %s-hall1-in      bldc.%d.hall1"% (let,axnum)
-                print >>file, "net %s-hall2-in      bldc.%d.hall2"% (let,axnum)
-                print >>file, "net %s-hall3-in      bldc.%d.hall3"% (let,axnum)
+                print >>file, "setp   bldc.%d.pattern            %d" % (jnum,self.d[let+"bldc_pattern_in"])
+                print >>file, "net %s-hall1-in      bldc.%d.hall1"% (let,jnum)
+                print >>file, "net %s-hall2-in      bldc.%d.hall2"% (let,jnum)
+                print >>file, "net %s-hall3-in      bldc.%d.hall3"% (let,jnum)
             if "f" in(bldc):
-                print >>file, "net %s-c1-in     bldc.%d.C1"% (let,axnum)
-                print >>file, "net %s-c2-in     bldc.%d.C2"% (let,axnum)
-                print >>file, "net %s-c4-in     bldc.%d.C4"% (let,axnum)
-                print >>file, "net %s-c8-in     bldc.%d.C8"% (let,axnum)
+                print >>file, "net %s-c1-in     bldc.%d.C1"% (let,jnum)
+                print >>file, "net %s-c2-in     bldc.%d.C2"% (let,jnum)
+                print >>file, "net %s-c4-in     bldc.%d.C4"% (let,jnum)
+                print >>file, "net %s-c8-in     bldc.%d.C8"% (let,jnum)
             if "H" in(bldc):
-                print >>file, "setp   bldc.%d.output-pattern     %d" % (axnum,self.d[let+"bldc_pattern_out"])
-                print >>file, "net %s-hall1-out     bldc.%d.hall1-out"% (let,axnum)
-                print >>file, "net %s-hall2-out     bldc.%d.hall2-out"% (let,axnum)
-                print >>file, "net %s-hall3-out     bldc.%d.hall3-out"% (let,axnum)
+                print >>file, "setp   bldc.%d.output-pattern     %d" % (jnum,self.d[let+"bldc_pattern_out"])
+                print >>file, "net %s-hall1-out     bldc.%d.hall1-out"% (let,jnum)
+                print >>file, "net %s-hall2-out     bldc.%d.hall2-out"% (let,jnum)
+                print >>file, "net %s-hall3-out     bldc.%d.hall3-out"% (let,jnum)
             if "6" in(bldc) :
                 if "B" in(bldc):
-                    print >>file, "net %s-a-high-on     bldc.%d.A-high-on"% (let,axnum)
-                    print >>file, "net %s-a-low-on      bldc.%d.A-low-on"% (let,axnum)
-                    print >>file, "net %s-b-high-on     bldc.%d.B-high-on"% (let,axnum)
-                    print >>file, "net %s-b-low-on      bldc.%d.B-low-on"% (let,axnum)
-                    print >>file, "net %s-c-high-on     bldc.%d.C-high-on"% (let,axnum)
-                    print >>file, "net %s-c-low-on      bldc.%d.C-low-on"% (let,axnum)
+                    print >>file, "net %s-a-high-on     bldc.%d.A-high-on"% (let,jnum)
+                    print >>file, "net %s-a-low-on      bldc.%d.A-low-on"% (let,jnum)
+                    print >>file, "net %s-b-high-on     bldc.%d.B-high-on"% (let,jnum)
+                    print >>file, "net %s-b-low-on      bldc.%d.B-low-on"% (let,jnum)
+                    print >>file, "net %s-c-high-on     bldc.%d.C-high-on"% (let,jnum)
+                    print >>file, "net %s-c-low-on      bldc.%d.C-low-on"% (let,jnum)
                 else:
-                    print >>file, "net %s-a-high-value      bldc.%d.A-high"% (let,axnum)
-                    print >>file, "net %s-a-low-value       bldc.%d.A-low"% (let,axnum)
-                    print >>file, "net %s-b-high-value      bldc.%d.B-high"% (let,axnum)
-                    print >>file, "net %s-b-low-value       bldc.%d.B-low"% (let,axnum)
-                    print >>file, "net %s-c-high-value      bldc.%d.C-high"% (let,axnum)
-                    print >>file, "net %s-c-low-value       bldc.%d.C-low"% (let,axnum)
+                    print >>file, "net %s-a-high-value      bldc.%d.A-high"% (let,jnum)
+                    print >>file, "net %s-a-low-value       bldc.%d.A-low"% (let,jnum)
+                    print >>file, "net %s-b-high-value      bldc.%d.B-high"% (let,jnum)
+                    print >>file, "net %s-b-low-value       bldc.%d.B-low"% (let,jnum)
+                    print >>file, "net %s-c-high-value      bldc.%d.C-high"% (let,jnum)
+                    print >>file, "net %s-c-low-value       bldc.%d.C-low"% (let,jnum)
             elif "B" in(bldc):
-                print >>file, "net %s-a-on          bldc.%d.A-on"% (let,axnum)
-                print >>file, "net %s-b-on          bldc.%d.B-on"% (let,axnum)
-                print >>file, "net %s-c-on          bldc.%d.C-on"% (let,axnum)
+                print >>file, "net %s-a-on          bldc.%d.A-on"% (let,jnum)
+                print >>file, "net %s-b-on          bldc.%d.B-on"% (let,jnum)
+                print >>file, "net %s-c-on          bldc.%d.C-on"% (let,jnum)
             elif "F" in(bldc):
-                print >>file, "net %s-c1-out        bldc.%d.C1-out"% (let,axnum)
-                print >>file, "net %s-c2-out        bldc.%d.C2-out"% (let,axnum)
-                print >>file, "net %s-c4-out        bldc.%d.C4-out"% (let,axnum)
-                print >>file, "net %s-c8-out        bldc.%d.C8-out"% (let,axnum)
+                print >>file, "net %s-c1-out        bldc.%d.C1-out"% (let,jnum)
+                print >>file, "net %s-c2-out        bldc.%d.C2-out"% (let,jnum)
+                print >>file, "net %s-c4-out        bldc.%d.C4-out"% (let,jnum)
+                print >>file, "net %s-c8-out        bldc.%d.C8-out"% (let,jnum)
             else:
-                print >>file, "net %s-a-value       bldc.%d.A-value"% (let,axnum)
-                print >>file, "net %s-b-value       bldc.%d.B-value"% (let,axnum)
-                print >>file, "net %s-c-value       bldc.%d.C-value"% (let,axnum)
+                print >>file, "net %s-a-value       bldc.%d.A-value"% (let,jnum)
+                print >>file, "net %s-b-value       bldc.%d.B-value"% (let,jnum)
+                print >>file, "net %s-c-value       bldc.%d.C-value"% (let,jnum)
             print >>file
-            print >>file, "net %s-pos-rawcounts      bldc.%d.rawcounts"% (let,axnum)
-            print >>file, "net %s-index-enable      bldc.%d.index-enable"% (let,axnum)
-            print >>file, "net %s-bldc-current      bldc.%d.out"% (let,axnum)
-            print >>file, "net %s-meas-angle        bldc.%d.phase-angle"% (let,axnum)
-            print >>file, "net %s-output             bldc.%d.value"% (let,axnum)
-            print >>file, "net %s-enable             bldc.%d.init"% (let,axnum)
-            print >>file, "net %s-is-init           bldc.%s.init-done"% (let,axnum)
+            print >>file, "net %s-pos-rawcounts      bldc.%d.rawcounts"% (let,jnum)
+            print >>file, "net %s-index-enable      bldc.%d.index-enable"% (let,jnum)
+            print >>file, "net %s-bldc-current      bldc.%d.out"% (let,jnum)
+            print >>file, "net %s-meas-angle        bldc.%d.phase-angle"% (let,jnum)
+            print >>file, "net %s-output             bldc.%d.value"% (let,jnum)
+            print >>file, "net %s-enable             bldc.%d.init"% (let,jnum)
+            print >>file, "net %s-is-init           bldc.%s.init-done"% (let,jnum)
             print >>file
 
-        if 1==1: # FIXME
-                print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
-                print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
-                print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
-                print >>file, "setp   pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
-                print >>file, "setp   pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
-                print >>file, "setp   pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
-                print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
-                print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
-                if let =='s' and self.d.suseoutputrange2:
-                    print >>file, "net ratio_select.out   pid.%s.maxoutput " % (let)
-                else:
-                    print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
-                print >>file, "setp   pid.%s.error-previous-target true" % let
-                # steppers
-                if steppinname:
-                    print >>file, "setp   pid.%s.maxerror .0005" % let
-                print >>file
-                if let == 's':
-                    name = "spindle"
-                else:
-                    name = let
-                print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (name, let)
-                print >>file, "net %s-enable        =>  pid.%s.enable" % (name, let)
-
-                if let == 's':
-                    if self.d.susenegativevoltage:
-                        signal = "spindle-vel-cmd-rpm"
-                        fbsignal= "spindle-vel-fb-rpm"
-                    else:
-                        signal = "spindle-vel-cmd-rpm-abs"
-                        fbsignal= "spindle-vel-fb-rpm-abs"
-                    print >>file, "net %s     => pid.%s.command" % (signal, let)
-                    print >>file, "net %s      => pid.%s.feedback"% (fbsignal, let)
-                    if self.d.suseoutputrange2:
-                        print >>file, "net spindle-pid-out  pid.s.output    => scale.gear.in"
-                        print >>file, "net gear-ratio       ratio_select.out-f => scale.gear.gain"
-                        print >>file, "setp ratio_select.in00 %f" % (1/float(self.d.gsincrvalue0))
-                        print >>file, "setp ratio_select.in01 %f" % (1/float(self.d.gsincrvalue1))
-                        #print >>file, "setp ratio_select.in2 %f" % self.d.gsincrvalue2
-                        #print >>file, "setp ratio_select.in4 %f" % self.d.gsincrvalue4
-                        print >>file, "net gear-select-a         =>  ratio_select.sel0"
-                        #print >>file, "net gear-select-b ratio_select.sel1"
-                        #print >>file, "net gear-select-c ratio_select.sel2"
-                        print >>file, "net spindle-output        <=  scale.gear.out"
-                    else:
-                        print >>file, "net spindle-output        <=  pid.%s.output"% (let)
-                else:
-                    print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
-                    print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
-                    print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
-                    print >>file, "net %s-output        =>  pid.%s.output"% (name, let)
-                    #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
-                print >>file
+        stepflag = bool(steppinname !=None)
+        self.build_pid(file, jnum, let, stepflag)
 
         if tppwmpinname:
                 print >>file, "# ---TPPWM Generator signals/setup---"
@@ -1211,9 +1267,9 @@ class HAL:
                 # sserial digital potentiometer outputs for spindle eg 7i76 board
                 print >>file, "# ---digital potentionmeter output signals/setup---"
                 print >>file
-                print >>file, "setp   "+potpinname+"spinout-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
-                print >>file, "setp   "+potpinname+"spinout-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
-                print >>file, "setp   "+potpinname+"spinout-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                print >>file, "setp   "+potpinname+"spinout-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, jnum)
+                print >>file, "setp   "+potpinname+"spinout-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, jnum)
+                print >>file, "setp   "+potpinname+"spinout-scalemax  [%s_%d]OUTPUT_SCALE"% (title, jnum)
                 for i in potinvertlist:
                     if i == _PD.POTO:
                         print >>file, "setp   "+potpinname+"spindir-invert   true"
@@ -1233,26 +1289,26 @@ class HAL:
                 rawpinname = self.d.make_pinname(pwmpin,False,True) # dont want the component name
 
                 if let == 's':
-                    print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
-                    print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
-                    print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
+                    print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, jnum)
+                    print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, jnum)
+                    print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, jnum)
                     print >>file
                     print >>file, "net spindle-output      => " + pwmpinname
                     if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
                         print >>file, "net spindle-enable      => " + rawpinname + "spinena"
                 else:
-                    print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, axnum)
-                    print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, axnum)
-                    print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
+                    print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, jnum)
+                    print >>file, "setp   "+pwmpinname+"-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, jnum)
+                    print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, jnum)
                     print >>file
-                    print >>file, "net %s-output                             => "% (let) + pwmpinname
-                    print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
-                    print >>file, "net %s-enable     axis.%d.amp-enable-out"% (let,axnum)
+                    print >>file, "net %s-output     => "% (let) + pwmpinname
+                    print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
+                    print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
                     if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
                         print >>file, "net %s-enable   %spinena"% (let,rawpinname)
                     if let == "x":
                         print >>file, "# enable _all_ sserial pwmgens"
-                        print >>file, "net %s-enable   %sanalogena"% (let,rawpinname)
+                        print >>file, "net %s-enable   => %sanalogena"% (let,rawpinname)
                 print >>file
 
             else:
@@ -1261,7 +1317,7 @@ class HAL:
                 if self.d[pwmtype] == _PD.PDMP: pulsetype = 3
                 if self.d[pwmtype] == _PD.UDMU: pulsetype = 2
                 print >>file, "setp   "+pwmpinname+".output-type %d"% pulsetype 
-                print >>file, "setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                print >>file, "setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, jnum)
                 for i in pwminvertlist:
                     print >>file, "setp    "+i+".invert_output true"
                 print >>file
@@ -1275,26 +1331,29 @@ class HAL:
                         print >>file, "net spindle-enable      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
-                    print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
-                    print >>file, "net %s-enable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
+                    print >>file, "net %s-pos-cmd    joint.%d.motor-pos-cmd" % (let, jnum )
+                    print >>file, "net %s-enable     joint.%d.amp-enable-out  => "% (let,jnum) + pwmpinname +".enable"
                 print >>file
 
         if steppinname:
-            print >>file, "# Step Gen signals/setup"
+            if len(let) >1:
+                print >>file, "# Step Gen signals/setup for tandem axis"
+            else:
+                print >>file, "# Step Gen signals/setup"
             print >>file
-            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, jnum)
+            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, jnum)
+            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, jnum)
+            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, jnum)
+            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, jnum)
             print >>file, "setp   " + steppinname + ".step_type        0"
             print >>file, "setp   " + steppinname + ".control-type     1"
             if let =="s":
-                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
-                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, jnum)
+                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, jnum)
             else:
-                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
-                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, jnum)
+                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, jnum)
             for i in stepinvertlist:
                    print >>file, "setp    "+i+".invert_output true"
             if let == "s":
@@ -1306,35 +1365,13 @@ class HAL:
             print >>file
             print >>file, "# ---closedloop stepper signals---"
             print >>file
-            print >>file, "net %s-pos-cmd    <= axis.%d.motor-pos-cmd" % (let, axnum )
-            print >>file, "net %s-vel-cmd    <= axis.%d.joint-vel-cmd" % (let, axnum )
-            print >>file, "net %s-output     => "% (let) + steppinname + ".velocity-cmd"
+            print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
+            print >>file, "net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum )
+            print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
             print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
-            print >>file, "net %s-pos-fb     => axis.%d.motor-pos-fb" % (let, axnum )
-            print >>file, "net %s-enable     <= axis.%d.amp-enable-out"% (let,axnum)
+            print >>file, "net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum )
+            print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
             print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
-            print >>file
-
-        if steppinname2:
-            steppinname = steppinname2
-            print >>file, "# Step Gen signals/setup for tandem axis stepper"
-            print >>file
-            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".step_type        0"
-            print >>file, "setp   " + steppinname + ".control-type     1"
-            print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
-            print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
-            for i in stepinvertlist2:
-                   print >>file, "setp    "+i+".invert_output true"
-            print >>file
-            print >>file, "# ---Tandem stepper signals---"
-            print >>file
-            print >>file, "net %s-output                             => "% (let) + steppinname + ".velocity-cmd"
-            print >>file, "net %s-enable                             => "% (let) + steppinname +".enable"
             print >>file
 
         if encoderpinname:             
@@ -1347,7 +1384,7 @@ class HAL:
             print >>file, "setp    "+encoderpinname+".index-invert 0"
             print >>file, "setp    "+encoderpinname+".index-mask 0"
             print >>file, "setp    "+encoderpinname+".index-mask-invert 0"
-            print >>file, "setp    "+encoderpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
+            print >>file, "setp    "+encoderpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, jnum)
             print >>file
             if let == 's':
                 print >>file, "net spindle-revs             <=   " + encoderpinname + ".position"
@@ -1356,8 +1393,8 @@ class HAL:
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
                 print >>file, "net %s-vel-fb               <=  "% (let) + encoderpinname + ".velocity"
-                print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
-                print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
+                print >>file, "net %s-pos-fb               =>  joint.%d.motor-pos-fb" % (let, jnum)
+                print >>file, "net %s-index-enable    joint.%d.index-enable  <=>  "% (let, jnum) + encoderpinname + ".index-enable"
                 print >>file, "net %s-pos-rawcounts        <=  "% (let) + encoderpinname + ".rawcounts"
             print >>file
 
@@ -1365,7 +1402,7 @@ class HAL:
             print >>file, "# ---Resolver feedback signals/setup---"
             print >>file
             print >>file, "setp    "+resolverpinname+".velocity-scale 1 # mptor speed in RPS"
-            print >>file, "setp    "+resolverpinname+".scale  [%s_%d]RESOLVER_SCALE"% (title, axnum)
+            print >>file, "setp    "+resolverpinname+".scale  [%s_%d]RESOLVER_SCALE"% (title, jnum)
             print >>file
             print >>file, "net %s-pos-rawcounts        <=  "% (let) + resolverpinname + ".rawcounts"
             if let == 's':
@@ -1375,8 +1412,8 @@ class HAL:
             else:
                 print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
                 print >>file, "net %s-vel-fb               <=  "% (let) + resolverpinname + ".velocity"
-                print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
-                print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + resolverpinname + ".index-enable"
+                print >>file, "net %s-pos-fb               =>  joint.%d.motor-pos-fb" % (let, jnum)
+                print >>file, "net %s-index-enable    joint.%d.index-enable  <=>  "% (let, jnum) + resolverpinname + ".index-enable"
             print >>file
 
         if let =='s':
@@ -1438,9 +1475,9 @@ class HAL:
         if not homesig: homesig = "%s-home-sw" % let
         print >>file, "# ---setup home / limit switch signals---"       
         print >>file       
-        print >>file, "net %s     =>  axis.%d.home-sw-in" % (homesig, axnum)       
-        print >>file, "net %s     =>  axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
-        print >>file, "net %s     =>  axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
+        print >>file, "net %s     =>  joint.%d.home-sw-in" % (homesig, jnum)       
+        print >>file, "net %s     =>  joint.%d.neg-lim-sw-in" % (min_limsig, jnum)       
+        print >>file, "net %s     =>  joint.%d.pos-lim-sw-in" % (max_limsig, jnum)
         print >>file                
 
     def connect_input(self, file):

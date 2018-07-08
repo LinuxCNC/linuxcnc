@@ -71,10 +71,6 @@ include::gui/gscreen.txt[]
 
 include::gui/tklinuxcnc.txt[]
 
-include::gui/mini.txt[]
-
-include::gui/keystick.txt[]
-
 :leveloffset: 1
 
 = Programming
@@ -167,6 +163,8 @@ include::gui/gladevcp.txt[]
 
 :leveloffset: 2
 
+include::gui/panelui.txt[]
+
 include::gui/halui.txt[]
 
 include::hal/halui-examples.txt[]
@@ -201,7 +199,7 @@ include::drivers/pluto-p.txt[]
 
 include::drivers/servo-to-go.txt[]
 
-include::drivers/shuttlexpress.txt[]
+include::drivers/shuttle.txt[]
 
 include::drivers/gm.txt[]
 
@@ -275,6 +273,8 @@ include::hal/halmodule.txt[]
 :leveloffset: 1
 
 include::motion/kinematics.txt[]
+
+include::motion/5-axis-kinematics.txt[]
 
 include::motion/pid-theory.txt[]
 

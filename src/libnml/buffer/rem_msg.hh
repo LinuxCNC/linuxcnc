@@ -136,6 +136,7 @@ struct REMOTE_WRITE_REQUEST:public REMOTE_CMS_REQUEST {
 
 /* Structure returned by server to client after a write. */
 struct REMOTE_WRITE_REPLY:public REMOTE_CMS_REPLY {
+    long write_id;		/* Id from the buffer. */
     long was_read;		/* Was the message to be overwriten ever
 				   read? */
     int confirm_write;

@@ -21,10 +21,10 @@ setp hm2_5i20.0.raw.write_strobe 1
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
 
 # load kinematics
-loadrt trivkins
+loadrt [KINS]KINEMATICS
 
 # load motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[KINS]JOINTS
 
 # load charge pump
 loadrt charge_pump
@@ -122,54 +122,54 @@ setp hm2_5i20.0.stepgen.00.dirsetup        5000
 setp hm2_5i20.0.stepgen.00.dirhold         2000
 setp hm2_5i20.0.stepgen.00.steplen         2000
 setp hm2_5i20.0.stepgen.00.stepspace       2000
-setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
-setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.00.position-scale  [JOINT_0]SCALE
+setp hm2_5i20.0.stepgen.00.maxaccel        [JOINT_0]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.00.maxvel          [JOINT_0]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.01.dirsetup        5000
 setp hm2_5i20.0.stepgen.01.dirhold         2000
 setp hm2_5i20.0.stepgen.01.steplen         2000
 setp hm2_5i20.0.stepgen.01.stepspace       2000
-setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_1]SCALE
-setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.01.position-scale  [JOINT_1]SCALE
+setp hm2_5i20.0.stepgen.01.maxaccel        [JOINT_1]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.01.maxvel          [JOINT_1]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.02.dirsetup        5000
 setp hm2_5i20.0.stepgen.02.dirhold         2000
 setp hm2_5i20.0.stepgen.02.steplen         2000
 setp hm2_5i20.0.stepgen.02.stepspace       2000
-setp hm2_5i20.0.stepgen.02.position-scale  [AXIS_2]SCALE
-setp hm2_5i20.0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.02.position-scale  [JOINT_2]SCALE
+setp hm2_5i20.0.stepgen.02.maxaccel        [JOINT_2]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.02.maxvel          [JOINT_2]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.03.dirsetup        5000
 setp hm2_5i20.0.stepgen.03.dirhold         2000
 setp hm2_5i20.0.stepgen.03.steplen         2000
 setp hm2_5i20.0.stepgen.03.stepspace       2000
-setp hm2_5i20.0.stepgen.03.position-scale  [AXIS_3]SCALE
-setp hm2_5i20.0.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
-setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
+setp hm2_5i20.0.stepgen.03.position-scale  [JOINT_3]SCALE
+setp hm2_5i20.0.stepgen.03.maxaccel        [JOINT_3]STEPGEN_MAXACCEL
+setp hm2_5i20.0.stepgen.03.maxvel          [JOINT_3]STEPGEN_MAXVEL
 
 # connect position commands from motion module to step generator
-net Xpos-cmd axis.0.motor-pos-cmd hm2_5i20.0.stepgen.00.position-cmd
-net Ypos-cmd axis.1.motor-pos-cmd hm2_5i20.0.stepgen.01.position-cmd
-net Zpos-cmd axis.2.motor-pos-cmd hm2_5i20.0.stepgen.02.position-cmd
-net Apos-cmd axis.3.motor-pos-cmd hm2_5i20.0.stepgen.03.position-cmd
+net Xpos-cmd joint.0.motor-pos-cmd hm2_5i20.0.stepgen.00.position-cmd
+net Ypos-cmd joint.1.motor-pos-cmd hm2_5i20.0.stepgen.01.position-cmd
+net Zpos-cmd joint.2.motor-pos-cmd hm2_5i20.0.stepgen.02.position-cmd
+net Apos-cmd joint.3.motor-pos-cmd hm2_5i20.0.stepgen.03.position-cmd
 
 # connect position feedback from step generators to motion module
-net Xpos-fb hm2_5i20.0.stepgen.00.position-fb axis.0.motor-pos-fb
-net Ypos-fb hm2_5i20.0.stepgen.01.position-fb axis.1.motor-pos-fb
-net Zpos-fb hm2_5i20.0.stepgen.02.position-fb axis.2.motor-pos-fb
-net Apos-fb hm2_5i20.0.stepgen.03.position-fb axis.3.motor-pos-fb
+net Xpos-fb hm2_5i20.0.stepgen.00.position-fb joint.0.motor-pos-fb
+net Ypos-fb hm2_5i20.0.stepgen.01.position-fb joint.1.motor-pos-fb
+net Zpos-fb hm2_5i20.0.stepgen.02.position-fb joint.2.motor-pos-fb
+net Apos-fb hm2_5i20.0.stepgen.03.position-fb joint.3.motor-pos-fb
 
 # connect enable signals for step generators
-net Xen axis.0.amp-enable-out hm2_5i20.0.stepgen.00.enable
-net Yen axis.1.amp-enable-out hm2_5i20.0.stepgen.01.enable
-net Zen axis.2.amp-enable-out hm2_5i20.0.stepgen.02.enable
-net Aen axis.3.amp-enable-out hm2_5i20.0.stepgen.03.enable
+net Xen joint.0.amp-enable-out hm2_5i20.0.stepgen.00.enable
+net Yen joint.1.amp-enable-out hm2_5i20.0.stepgen.01.enable
+net Zen joint.2.amp-enable-out hm2_5i20.0.stepgen.02.enable
+net Aen joint.3.amp-enable-out hm2_5i20.0.stepgen.03.enable
 
 # enable velocity mode jogging
-setp axis.0.jog-vel-mode TRUE
-setp axis.1.jog-vel-mode TRUE
-setp axis.2.jog-vel-mode TRUE
-setp axis.3.jog-vel-mode TRUE
+setp joint.0.jog-vel-mode TRUE
+setp joint.1.jog-vel-mode TRUE
+setp joint.2.jog-vel-mode TRUE
+setp joint.3.jog-vel-mode TRUE
 
 # connect the charge pump signal to an output
 setp hm2_5i20.0.gpio.022.is_output TRUE
@@ -184,17 +184,17 @@ net key-on hm2_5i20.0.gpio.039.in_not debounce.0.0.in
 net machine-on debounce.0.0.out hm2_5i20.0.sserial.port-0.run hm2_5i20.0.8i20.0.0.amp_enable halui.machine.on
 
 #connect limit switches to limit inputs
-net Xmax hm2_5i20.0.gpio.024.in_not axis.0.pos-lim-sw-in
-net Xmin hm2_5i20.0.gpio.026.in_not axis.0.neg-lim-sw-in
-net Ymax hm2_5i20.0.gpio.028.in_not axis.1.pos-lim-sw-in
-net Ymin hm2_5i20.0.gpio.030.in_not axis.1.neg-lim-sw-in
-net Zmax hm2_5i20.0.gpio.032.in_not axis.2.pos-lim-sw-in
-net Zmin hm2_5i20.0.gpio.034.in_not axis.2.neg-lim-sw-in
+net Xmax hm2_5i20.0.gpio.024.in_not joint.0.pos-lim-sw-in
+net Xmin hm2_5i20.0.gpio.026.in_not joint.0.neg-lim-sw-in
+net Ymax hm2_5i20.0.gpio.028.in_not joint.1.pos-lim-sw-in
+net Ymin hm2_5i20.0.gpio.030.in_not joint.1.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.032.in_not joint.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.034.in_not joint.2.neg-lim-sw-in
 
 #connect positive limit signals to home inputs
-net Xmax axis.0.home-sw-in
-net Ymax axis.1.home-sw-in
-net Zmax axis.2.home-sw-in
+net Xmax joint.0.home-sw-in
+net Ymax joint.1.home-sw-in
+net Zmax joint.2.home-sw-in
 
 # Spindle Contactor Enable
 setp hm2_5i20.0.gpio.041.is_output TRUE
@@ -208,7 +208,7 @@ net ACOK hm2_5i20.0.gpio.035.in_not
 #net VFDOK hm2_5i20.0.gpio.031.in_not
 # A Axis Home - On Sieg machines there is no VFD fault signal,
 # it is used for the A axis home sensor on 4 axis machines
-#net AHOME hm2_5i20.0.gpio.031.in axis.3.home-sw-in
+#net AHOME hm2_5i20.0.gpio.031.in joint.3.home-sw-in
 
 # Stop on any spindle fault
 loadrt or2

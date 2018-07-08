@@ -12,7 +12,7 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef RTAPI_IO_H
 #define RTAPI_IO_H
 
@@ -20,10 +20,11 @@
 
 #ifdef __KERNEL__
 #include <asm/io.h>
-#else
+#elif defined(__i386) || defined(__x86_64)
 #include <sys/io.h>
 #endif
 
+#if defined(__i386) || defined(__x86_64)
 #define rtapi_inb inb
 #define rtapi_inw inw
 #define rtapi_inl inl
@@ -31,5 +32,13 @@
 #define rtapi_outb outb
 #define rtapi_outw outw
 #define rtapi_outl outl
+#else
+#define rtapi_inb(x) (0)
+#define rtapi_inw(x) (0)
+#define rtapi_inl(x) (0)
+#define rtapi_outb(x,y) ((void)0)
+#define rtapi_outw(x,y) ((void)0)
+#define rtapi_outl(x,y) ((void)0)
+#endif
 
 #endif

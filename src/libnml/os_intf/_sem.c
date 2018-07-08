@@ -223,7 +223,7 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
     if (timeout > 0 ) {
         memset(&sa, 0, sizeof(sa));
         sa.sa_handler = &itimer_handler;
-        sa.sa_flags = SA_ONESHOT;
+        sa.sa_flags = SA_RESETHAND;
         /* itimers are limited to three per process, better hope the limit
            is not exceeded. If it is, chances are, the HMI will exhibit
            random lockups */

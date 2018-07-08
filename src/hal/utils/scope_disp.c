@@ -16,7 +16,7 @@
 
     You should have received a copy of the GNU General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
     THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
     ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
@@ -779,7 +779,6 @@ void draw_waveform(int chan_num, int highlight)
     double yscale, yfoffset, ypoffset, fy, prev_fy = 0.;
     hal_type_t type;
     int x1, y1, x2, y2, miny, maxy, midx, ct, pn;
-    GdkPoint *points;
     int first=1;
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
 
@@ -802,7 +801,7 @@ void draw_waveform(int chan_num, int highlight)
     start = disp->start_sample;
     end = disp->end_sample;
     ct = end - start + 1;
-    points = alloca(2 * ct * sizeof(GdkPoint));
+    GdkPoint points[2*ct];
     pn = 0;
     n = start;
     dptr += n * sample_len;

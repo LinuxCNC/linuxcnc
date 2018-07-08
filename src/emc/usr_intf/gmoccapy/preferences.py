@@ -45,6 +45,6 @@ class preferences(cp):
                 o = default
         return o
 
-    def putpref(self, option, value, type = bool):
+    def putpref(self, option, value, type = str):
         self.set("DEFAULT", option, type(value))
         self.write(open(self.fn, "w"))

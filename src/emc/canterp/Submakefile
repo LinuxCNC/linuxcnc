@@ -6,4 +6,4 @@ $(call TOOBJSDEPS, $(LIBCANTERPSRCS)) : EXTRAFLAGS=-fPIC
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -ldl
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(LIBDL)

@@ -16,7 +16,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """ Python / GLADE based Virtual Control Panel for EMC
 
@@ -67,6 +67,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='Use FILEs as additional user defined modules with handlers')
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
                   , help='pass USEROPTs to Python modules')
+          , Option( '--always_above', action='store_true', dest='always_above_flag'
+                  , help="Request the window To always be above other windows")
           ]
 
 signal_func = 'on_unix_signal'
@@ -272,7 +274,8 @@ def main():
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
     if opts.maximum:
         window.window.maximize()
-
+    if opts.always_above_flag:
+        window.set_keep_above(True)
     if opts.halfile:
         if opts.halfile[-4:] == ".tcl":
             cmd = ["haltcl", opts.halfile]

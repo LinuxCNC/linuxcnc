@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #    Copyright 2007 Chris Radek
 #    Derived from a work by John Kasunich and Jeff Epler
 #
@@ -14,7 +14,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 from vismach import *
@@ -33,12 +33,11 @@ class HalToolCylinder(CylinderZ):
         return -self.comp.tool_length, 20, 0, 20
 
 c = hal.component("5axisgui")
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jx", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jy", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jz", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jb", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
@@ -63,7 +62,7 @@ tool = Collection([tool,
                    ])
 
 
-tool = HalRotate([tool],c,"joint4",1,0,-1,0)
+tool = HalRotate([tool],c,"jb",1,0,-1,0)
 
 wrist = Collection([tool,
                     CylinderY(100,75, 10,75),
@@ -72,7 +71,7 @@ wrist = Collection([tool,
                     CylinderZ(150,75, 200, 75)
                     ])
 
-wrist = HalRotate([wrist],c,"joint5",1,0,0,1)
+wrist = HalRotate([wrist],c,"jc",1,0,0,1)
 
 ram = Collection([wrist,
                   Box(-100,-100,200, 100,100,900),
@@ -80,13 +79,13 @@ ram = Collection([wrist,
 
 ram = Translate([ram], 0,0,150)
 
-ram = HalTranslate([ram],c,"joint2",0,0,1)
+ram = HalTranslate([ram],c,"jz",0,0,1)
 
 ram = Collection([ram,
                   Box(-100,100,350, 100,200,550)
                   ])
     
-ram = HalTranslate([ram],c,"joint0",1,0,0)
+ram = HalTranslate([ram],c,"jx",1,0,0)
 
 ram = Collection([ram,
                   Box(-800,200,350, 800,400,550),
@@ -94,7 +93,7 @@ ram = Collection([ram,
                   Box(800,200,-900,  1000,400,550)
                   ])
 
-ram = HalTranslate([ram],c,"joint1",0,1,0)
+ram = HalTranslate([ram],c,"jy",0,1,0)
 
 ram = Collection([ram,
                    Box(-1000,1000,-1000,  -800, -1000,-900),

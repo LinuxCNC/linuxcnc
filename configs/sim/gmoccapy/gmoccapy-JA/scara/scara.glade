@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkTable" id="table1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="n_rows">4</property>
+        <property name="n_columns">2</property>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="ypad">5</property>
+            <property name="label" translatable="yes">Joint 0</property>
+          </object>
+          <packing>
+            <property name="y_options">GTK_SHRINK</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="ypad">5</property>
+            <property name="label" translatable="yes">Joint 1</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="y_options">GTK_SHRINK</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="ypad">5</property>
+            <property name="label" translatable="yes">Joint 2</property>
+          </object>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+            <property name="y_options">GTK_SHRINK</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="ypad">5</property>
+            <property name="label" translatable="yes">Joint 3</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+            <property name="y_options">GTK_SHRINK</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Meter" id="hal_meter_j0">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="majorscale">60</property>
+            <property name="max">360</property>
+            <property name="min">-360</property>
+            <property name="minorscale">20</property>
+            <property name="z0_color">#0000ffff0000</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="z2_color">#ffff00000000</property>
+          </object>
+          <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Meter" id="hal_meter_j1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="majorscale">60</property>
+            <property name="max">360</property>
+            <property name="min">-360</property>
+            <property name="minorscale">20</property>
+            <property name="z0_color">#0000ffff0000</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="z2_color">#ffff00000000</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Meter" id="hal_meter_j2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="majorscale">25</property>
+            <property name="max">300</property>
+            <property name="min">25</property>
+            <property name="minorscale">5</property>
+            <property name="value">25</property>
+            <property name="z0_color">#0000ffff0000</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="z2_color">#ffff00000000</property>
+          </object>
+          <packing>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Meter" id="hal_meter_j3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="bg_color">#ffffffffffff</property>
+            <property name="majorscale">30</property>
+            <property name="max">180</property>
+            <property name="min">-180</property>
+            <property name="minorscale">10</property>
+            <property name="z0_color">#0000ffff0000</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="z2_color">#ffff00000000</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

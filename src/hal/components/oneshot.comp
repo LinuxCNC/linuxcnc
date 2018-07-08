@@ -13,7 +13,7 @@
 //
 //   You should have received a copy of the GNU General Public License
 //   along with this program; if not, write to the Free Software
-//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 component oneshot "one-shot pulse generator";
 
@@ -25,6 +25,7 @@ For a similar function that can run in the base thread, and which offers higher
 resolution, see "edge".""";
 
 pin in bit in "Trigger input";
+pin in bit reset "Reset";
 pin out bit out "Active high pulse";
 pin out bit out_not "Active low pulse";
 pin in float width=0 "Pulse width in seconds";
@@ -55,6 +56,13 @@ EXTRA_SETUP(){
 FUNCTION(_){ 
     int new, old, trigger;
 
+    if (reset) {
+        data.timer = 0.0;
+        data.old_in = 0;
+        out = 0;
+        out_not = 1;
+        return;
+    }
     new = in;
     old = data.old_in;
     trigger = 0;

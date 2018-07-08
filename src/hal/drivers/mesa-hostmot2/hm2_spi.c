@@ -14,7 +14,7 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <ctype.h>
@@ -127,7 +127,7 @@ static int send_queued_writes(hm2_lowlevel_io_t *llio) {
     return do_pending(this);
 }
 
-static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
+static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     if(size == 0) return 0;
     if(size % 4) return -EINVAL;
@@ -173,7 +173,7 @@ static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int
     return 1;
 }
 
-static int do_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
+static int do_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_write(llio, addr, buffer, size);
     if(r < 0) return r;

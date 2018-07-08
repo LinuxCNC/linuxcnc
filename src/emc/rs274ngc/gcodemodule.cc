@@ -14,7 +14,7 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h>
 #include <structmember.h>
@@ -401,8 +401,8 @@ void STOP_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void START_SPEED_FEED_SYNCH() {}
 void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
 void STOP_SPEED_FEED_SYNCH() {}
-void START_SPINDLE_COUNTERCLOCKWISE() {}
-void START_SPINDLE_CLOCKWISE() {}
+void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_at_speed) {}
+void START_SPINDLE_CLOCKWISE(int wait_for_at_speed) {}
 void SET_SPINDLE_MODE(double) {}
 void STOP_SPINDLE_TURNING() {}
 void SET_SPINDLE_SPEED(double rpm) {}
@@ -461,8 +461,8 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
-int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
-int LOCK_ROTARY(int line_no, int axis) {return 0;}
+int UNLOCK_ROTARY(int line_no, int joint_num) {return 0;}
+int LOCK_ROTARY(int line_no, int joint_num) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
 void PLUGIN_CALL(int len, const char *call) {}
 void IO_PLUGIN_CALL(int len, const char *call) {}
@@ -684,11 +684,20 @@ void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0, *interpname=0;
+    PyObject *initcodes=0;
     int error_line_offset = 0;
     struct timeval t0, t1;
     int wait = 1;
-    if(!PyArg_ParseTuple(args, "sO|sss", &f, &callback, &unitcode, &initcode, &interpname))
-        return NULL;
+
+    if(!PyArg_ParseTuple(args, "sOO!|s:new-parse",
+            &f, &callback, &PyList_Type, &initcodes, &interpname))
+    {
+        initcodes = nullptr;
+        PyErr_Clear();
+        if(!PyArg_ParseTuple(args, "sO|sss:parse",
+                &f, &callback, &unitcode, &initcode, &interpname))
+            return NULL;
+    }
 
     if(pinterp) {
         delete pinterp;
@@ -717,7 +726,19 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     maybe_new_line();
 
     int result = INTERP_OK;
-    if(unitcode) {
+    if(initcodes) {
+        for(int i=0; i<PyList_Size(initcodes) && RESULT_OK; i++)
+        {
+            PyObject *item = PyList_GetItem(initcodes, i);
+            if(!item) return NULL;
+            char *code = PyString_AsString(item);
+            if(!code) return NULL;
+            result = interp_new.read(code);
+            if(!RESULT_OK) goto out_error;
+            result = interp_new.execute();
+        }
+    }
+    if(unitcode && RESULT_OK) {
         result = interp_new.read(unitcode);
         if(!RESULT_OK) goto out_error;
         result = interp_new.execute();

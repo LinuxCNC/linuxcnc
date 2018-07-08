@@ -362,6 +362,7 @@ class CMS {
     char PermissionString[CMS_CONFIG_LINELEN];
     int is_local_master;
     int force_raw;
+    bool serial;
     int split_buffer;		/* Will the buffer be split into two areas so 
 				   that one area can be read while the other
 				   is written to ? */

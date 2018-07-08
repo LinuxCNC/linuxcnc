@@ -38,16 +38,16 @@ There is currently one optional indicator output:
   the panel jogging controls are live
 
 Touchy has several output pins that are meant to be connected to
-the motion controller to control wheel jogging.  They are:
+the motion controller to control wheel jogging [2].  They are:
 
-touchy.jog.wheel.increment => axis.N.jog-scale (for all relevant N)
-touchy.jog.wheel.x => axis.0.jog-enable
+touchy.jog.wheel.increment => joint.N.jog-scale (for all relevant N)
+touchy.jog.wheel.x => joint.0.jog-enable
 ... y ... => ... 1 ...,
 ... z ...
 
-Also be sure to connect the wheel/mpg to axis.N.jog-counts as well as
+Also be sure to connect the wheel/mpg to joint.N.jog-counts as well as
 to touchy.wheel-counts.  If you use ilowpass to smooth wheel jogging,
-be sure to smooth only axis.N.jog-counts and not touchy.wheel-counts.
+be sure to smooth only joint.N.jog-counts and not touchy.wheel-counts.
 
 Touchy requires you to write a file named "touchy.hal" to make
 these connections.  Touchy executes the hal commands in this file
@@ -57,7 +57,7 @@ These things should be done some day:
 
 * continuous jog inputs, from two buttons or a center-off
   bidirectional momentary toggle switch, that jog the currently 
-  selected axis.  On a many-axis machine, separate controls could 
+  selected joint.  On a many-axis machine, separate controls could 
   get unwieldy, and this would be a good compromise.
 
 These things are not done, and may or may not ever be done:
@@ -102,3 +102,8 @@ These things will never be done, don't ask:
 
 
 [1] Like "git", "touchy" is named after its author.
+[2] Assignments herein assume identity kins with no omitted axis letters
+    (as provided with trivkins):
+    #  axis X --> Joint 0
+    #  axis Y --> Joint 1
+    #  ...

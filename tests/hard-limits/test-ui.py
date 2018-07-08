@@ -16,6 +16,8 @@ def print_status(status):
     status.poll()
     print "status.axis[0]:", status.axis[0]
     print "status.axis[1]:", status.axis[1]
+    print "status.joint[0]:", status.joint[0]
+    print "status.joint[1]:", status.joint[1]
     print "status.current_vel:", status.current_vel
     print "status.echo_serial_number:", status.echo_serial_number
     print "status.enabled:", status.enabled
@@ -85,13 +87,15 @@ if s.homed != (1, 1, 1, 0, 0, 0, 0, 0, 0):
     print "s.homed:", s.homed
     sys.exit(1)
 
+c.teleop_enable(0)
+
 
 #
 # run the test: start a jog on X, then trip a limit switch
 #
 
-# jog arguments are: (jog_type, axis, velocity)
-c.jog(linuxcnc.JOG_CONTINUOUS, 0, -0.1)
+# jog arguments are: (jog_type, joint_flag, axis, velocity)
+c.jog(linuxcnc.JOG_CONTINUOUS, 1, 0, -0.1)
 
 # verify that we're starting to move
 s.poll()
@@ -109,12 +113,12 @@ print "x started moving (%.6f to %.6f)" % (old_x, s.position[0])
 print_status(s)
 
 # verify that Status reflects the situation
-assert(s.axis[0]['min_soft_limit'] == False)
-assert(s.axis[0]['min_hard_limit'] == False)
-assert(s.axis[0]['max_soft_limit'] == False)
-assert(s.axis[0]['max_hard_limit'] == False)
-assert(s.axis[0]['inpos'] == False)
-assert(s.axis[0]['enabled'] == True)
+assert(s.joint[0]['min_soft_limit'] == False)
+assert(s.joint[0]['min_hard_limit'] == False)
+assert(s.joint[0]['max_soft_limit'] == False)
+assert(s.joint[0]['max_hard_limit'] == False)
+assert(s.joint[0]['inpos'] == False)
+assert(s.joint[0]['enabled'] == True)
 
 assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
 assert(s.inpos == False)
@@ -145,24 +149,24 @@ print_status(s)
 # verify that we're stopping
 s.poll()
 start_time = time.time()
-while (s.axis[0]['velocity'] != 0.0) and (time.time() - start_time < 5):
+while (s.joint[0]['velocity'] != 0.0) and (time.time() - start_time < 5):
     time.sleep(0.1)
     s.poll()
 
-if s.axis[0]['velocity'] != 0.0:
+if s.joint[0]['velocity'] != 0.0:
     print "limit switch didn't stop movement"
     sys.exit(1)
 
-print "x stopped moving (pos=%.6f, vel=%.6f)" % (s.position[0], s.axis[0]['velocity'])
+print "x stopped moving (pos=%.6f, vel=%.6f)" % (s.position[0], s.joint[0]['velocity'])
 print_status(s)
 
 # verify that Status reflects the situation
-assert(s.axis[0]['min_soft_limit'] == False)
-assert(s.axis[0]['min_hard_limit'] == True)
-assert(s.axis[0]['max_soft_limit'] == False)
-assert(s.axis[0]['max_hard_limit'] == False)
-assert(s.axis[0]['inpos'] == True)
-assert(s.axis[0]['enabled'] == False)
+assert(s.joint[0]['min_soft_limit'] == False)
+assert(s.joint[0]['min_hard_limit'] == True)
+assert(s.joint[0]['max_soft_limit'] == False)
+assert(s.joint[0]['max_hard_limit'] == False)
+assert(s.joint[0]['inpos'] == True)
+assert(s.joint[0]['enabled'] == False)
 
 assert(s.limit == (1, 0, 0, 0, 0, 0, 0, 0, 0))
 assert(s.inpos == True)
@@ -184,19 +188,19 @@ assert_wait_complete(c)
 
 # verify that Status reflects the new situation
 s.poll()
-assert(s.axis[0]['min_soft_limit'] == False)
-assert(s.axis[0]['min_hard_limit'] == True)
-assert(s.axis[0]['max_soft_limit'] == False)
-assert(s.axis[0]['max_hard_limit'] == False)
-assert(s.axis[0]['inpos'] == True)
-assert(s.axis[0]['enabled'] == True)
+assert(s.joint[0]['min_soft_limit'] == False)
+assert(s.joint[0]['min_hard_limit'] == True)
+assert(s.joint[0]['max_soft_limit'] == False)
+assert(s.joint[0]['max_hard_limit'] == False)
+assert(s.joint[0]['inpos'] == True)
+assert(s.joint[0]['enabled'] == True)
 
 assert(s.limit == (1, 0, 0, 0, 0, 0, 0, 0, 0))
 assert(s.inpos == True)
 assert(s.enabled == True)
 
 # jog X in the positive direction, off the negative limit switch
-c.jog(linuxcnc.JOG_CONTINUOUS, 0, 1)
+c.jog(linuxcnc.JOG_CONTINUOUS, 1, 0, 1)
 
 # verify that we're starting to move
 s.poll()
@@ -220,24 +224,24 @@ comp['x-neg-lim-sw'] = False
 start_time = time.time()
 while (time.time() - start_time < 5):
     s.poll()
-    if (s.axis[0]['min_hard_limit'] == False) and (s.limit[0] == 0):
+    if (s.joint[0]['min_hard_limit'] == False) and (s.limit[0] == 0):
         break
     time.sleep(0.1)
 
 # verify that Status reflects the new situation
-assert(s.axis[0]['min_soft_limit'] == False)
-assert(s.axis[0]['min_hard_limit'] == False)
-assert(s.axis[0]['max_soft_limit'] == False)
-assert(s.axis[0]['max_hard_limit'] == False)
-assert(s.axis[0]['inpos'] == False)
-assert(s.axis[0]['enabled'] == True)
+assert(s.joint[0]['min_soft_limit'] == False)
+assert(s.joint[0]['min_hard_limit'] == False)
+assert(s.joint[0]['max_soft_limit'] == False)
+assert(s.joint[0]['max_hard_limit'] == False)
+assert(s.joint[0]['inpos'] == False)
+assert(s.joint[0]['enabled'] == True)
 
 assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
 assert(s.inpos == False)
 assert(s.enabled == True)
 
 # stop the jog
-c.jog(linuxcnc.JOG_STOP, 0)
+c.jog(linuxcnc.JOG_STOP, 1, 0)
 
 # verify that we're stopping
 s.poll()
@@ -255,13 +259,13 @@ print "x stopped moving (%.6f)" % s.position[0]
 print_status(s)
 
 # verify that Status reflects the new situation
-assert(s.axis[0]['min_soft_limit'] == False)
-assert(s.axis[0]['min_hard_limit'] == False)
-assert(s.axis[0]['max_soft_limit'] == False)
-assert(s.axis[0]['max_hard_limit'] == False)
+assert(s.joint[0]['min_soft_limit'] == False)
+assert(s.joint[0]['min_hard_limit'] == False)
+assert(s.joint[0]['max_soft_limit'] == False)
+assert(s.joint[0]['max_hard_limit'] == False)
 # FIXME: another bug
-#assert(s.axis[0]['inpos'] == True)
-assert(s.axis[0]['enabled'] == True)
+#assert(s.joint[0]['inpos'] == True)
+assert(s.joint[0]['enabled'] == True)
 
 assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
 # FIXME: another bug

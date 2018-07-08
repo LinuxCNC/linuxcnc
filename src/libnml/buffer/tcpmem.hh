@@ -28,7 +28,7 @@ extern "C" {
 class TCPMEM:public CMS {
   public:
     TCPMEM(const char *bufline, const char *procline);
-      virtual ~ TCPMEM();
+    virtual ~ TCPMEM();
 
     /* Overloaded CMS functions. */
     CMS_STATUS clear();
@@ -39,8 +39,8 @@ class TCPMEM:public CMS {
     CMS_STATUS read();
     CMS_STATUS blocking_read(double);
     CMS_STATUS peek();
-    CMS_STATUS write(void *data);
-    CMS_STATUS write_if_read(void *data);
+    CMS_STATUS write(void *data, int *serial_number_out);
+    CMS_STATUS write_if_read(void *data, int *serial_number_out);
 //    int login(const char *, const char *);
     void reconnect();
     void disconnect();

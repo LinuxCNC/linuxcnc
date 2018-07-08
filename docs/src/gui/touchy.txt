@@ -15,7 +15,7 @@ provided.
 
 .Touchy
 
-image::images/touchy.png[align="center"]
+image::images/touchy.png[align="center", alt="Touchy GUI"]
 
 == Panel Configuration
 

@@ -13,7 +13,7 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #ifndef EXTRA
 #define EXTRA
@@ -31,7 +31,7 @@ const char *fmt, *efmt;
         int modifier_l;
         int code = get_code(&efmt, &modifier_l);
         int fmt_len = efmt - fmt;
-        char *block = alloca(fmt_len + 1);
+        char block[fmt_len + 1];
         memcpy(block, fmt, fmt_len);
         block[fmt_len] = 0;
 

@@ -29,6 +29,9 @@
 #define RAD_PER_DEG TO_RAD	// from posemath.h
 #define DEFAULT_PATH "../../nc_files/"
 
+#define JOGTELEOP 0
+#define JOGJOINT  1
+
 enum LINEAR_UNIT_CONVERSION {
     LINEAR_UNITS_CUSTOM = 1,
     LINEAR_UNITS_AUTO,
@@ -100,10 +103,10 @@ extern int sendMachineOff();
 extern int sendManual();
 extern int sendAuto();
 extern int sendMdi();
-extern int sendOverrideLimits(int axis);
-extern int sendJogStop(int axis);
-extern int sendJogCont(int axis, double speed);
-extern int sendJogIncr(int axis, double speed, double incr);
+extern int sendOverrideLimits(int jnum);
+extern int sendJogStop(int jnum, int jjogmode);
+extern int sendJogCont(int jnum, int jjogmode, double speed);
+extern int sendJogIncr(int jnum, int jjogmode, double speed, double incr);
 extern int sendMistOn();
 extern int sendMistOff();
 extern int sendFloodOn();
@@ -119,8 +122,8 @@ extern int sendSpindleConstant();
 extern int sendBrakeEngage();
 extern int sendBrakeRelease();
 extern int sendAbort();
-extern int sendHome(int axis);
-extern int sendUnHome(int axis);
+extern int sendHome(int jnum);
+extern int sendUnHome(int jnum);
 extern int sendFeedOverride(double override);
 extern int sendRapidOverride(double override);
 extern int sendMaxVelocity(double velocity);
@@ -135,10 +138,9 @@ extern int sendProgramStep();
 extern int sendMdiCmd(const char *mdi);
 extern int sendLoadToolTable(const char *file);
 extern int sendToolSetOffset(int tool, double length, double diameter);
-extern int sendAxisSetBacklash(int axis, double backlash);
-extern int sendAxisSetOutput(int axis, double output);
-extern int sendAxisEnable(int axis, int val);
-extern int sendAxisLoadComp(int axis, const char *file, int type);
+extern int sendJointSetBacklash(int jnum, double backlash);
+extern int sendJointEnable(int joint, int val);
+extern int sendJointLoadComp(int joint, const char *file, int type);
 extern int sendSetTeleopEnable(int enable);
 extern int sendClearProbeTrippedFlag();
 extern int sendProbe(double x, double y, double z);

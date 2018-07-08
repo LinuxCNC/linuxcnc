@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """mkpre.py: Convert ASCII art into something that groff can render to
 text, HTML, or postscript/pdf
 

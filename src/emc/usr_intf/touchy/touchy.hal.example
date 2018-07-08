@@ -1,3 +1,9 @@
+# Note: assignments herein assume identity kins with no omitted axis letters
+#       (as provided by trivkins):
+#       axis X --> Joint 0
+#       axis Y --> Joint 1
+#       ...
+
 loadrt ilowpass
 loadrt scale count=1
 
@@ -9,13 +15,13 @@ setp scale.0.gain .00025
 addf scale.0 servo-thread
 
 net JogIncr touchy.jog.wheel.increment => scale.0.in
-net JogIncrScaled scale.0.out => axis.0.jog-scale axis.1.jog-scale axis.2.jog-scale
-net JogX touchy.jog.wheel.x => axis.0.jog-enable
-net JogY touchy.jog.wheel.y => axis.1.jog-enable
-net JogZ touchy.jog.wheel.z => axis.2.jog-enable
+net JogIncrScaled scale.0.out => joint.0.jog-scale joint.1.jog-scale joint.2.jog-scale
+net JogX touchy.jog.wheel.x => joint.0.jog-enable
+net JogY touchy.jog.wheel.y => joint.1.jog-enable
+net JogZ touchy.jog.wheel.z => joint.2.jog-enable
 net WheelCounts hm2_5i20.0.encoder.00.count => ilowpass.0.in touchy.wheel-counts
 
-net JogCountsLowpass ilowpass.0.out => axis.0.jog-counts axis.1.jog-counts axis.2.jog-counts
+net JogCountsLowpass ilowpass.0.out => joint.0.jog-counts joint.1.jog-counts joint.2.jog-counts
 
 net JogXPos hm2_5i20.0.gpio.020.in_not => touchy.jog.continuous.x.positive
 net JogXNeg hm2_5i20.0.gpio.019.in_not => touchy.jog.continuous.x.negative

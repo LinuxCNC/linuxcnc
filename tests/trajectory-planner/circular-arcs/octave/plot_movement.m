@@ -1,4 +1,4 @@
-#! /usr/bin/octave --persist
+#!/usr/bin/octave --persist
 load movement.log
 %Assume 1kHz
 t=movement(:,1);

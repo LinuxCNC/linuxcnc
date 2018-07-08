@@ -13,8 +13,6 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
-#include <boost/python.hpp>
-#include <boost/range/end.hpp>
 #include <algorithm>
 #include "config.h"
 #include <limits.h>
@@ -25,7 +23,8 @@
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
-#include "python_plugin.hh"
+#include <boost/python/object_fwd.hpp>
+#include <cmath>
 
 
 #define _(s) gettext(s)
@@ -34,19 +33,18 @@
 /*   COMPILER MACROS  */
 /**********************/
 
-#ifndef R2D
-#define R2D(r) ((r)*180.0/M_PI)
-#endif
-#ifndef D2R
-#define D2R(r) ((r)*M_PI/180.0)
-#endif
-#ifndef SQ
-#define SQ(a) ((a)*(a))
-#endif
+template<class T>
+T R2D(T r) { return r * (180. / M_PI); }
+template<class T>
+T D2R(T r) { return r * (M_PI / 180.); }
+template<class T>
+T SQ(T a) { return a*a; }
 
-#define MAX(x, y)        ((x) > (y) ? (x) : (y))
+template<class T>
+inline int round_to_int(T x) {
+    return (int)std::nearbyint(x);
+}
 
-#define round_to_int(x) ((int) ((x) < 0.0 ? ((x) - 0.5) : ((x) + 0.5)))
 /* how far above hole bottom for rapid return, in inches */
 #define G83_RAPID_DELTA 0.010
 
@@ -217,6 +215,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_49   490
 #define G_50   500
 #define G_51   510
+#define G_52   520
 #define G_53   530
 #define G_54   540
 #define G_55   550
@@ -231,6 +230,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_61_1 611
 #define G_64   640
 #define G_73   730
+#define G_74   740
 #define G_76   760
 #define G_80   800
 #define G_81   810
@@ -372,29 +372,8 @@ typedef int_remap_map::iterator int_remap_iterator;
 
 typedef struct block_struct
 {
-  block_struct ()
-    : a_flag(0), a_number(0), b_flag(0), b_number(0),
-      c_flag(0), c_number(0), d_number_float(0), d_flag(0),
-      e_flag(0), e_number(0), f_flag(0), f_number(0),
-    /* g_modes, */ h_flag(0), h_number(0), i_flag(0), i_number(0),
-    j_flag(0), j_number(0), k_flag(0), k_number(0),
-    l_number(0), l_flag(0), line_number(0), saved_line_number(0),
-    n_number(0), motion_to_be(0), m_count(0), /* m_modes, */
-    p_number(0), p_flag(0), q_number(0), q_flag(0),
-    r_flag(0), r_number(0), s_flag(0), s_number(0),
-    t_flag(0), t_number(0), u_flag(0), u_number(0),
-    v_flag(0), v_number(0), w_flag(0), w_number(0),
-    x_flag(0), x_number(0), y_flag(0), y_number(0),
-    z_flag(0), z_number(0),
+  block_struct ();
 
-    radius_flag(0), radius(0), theta_flag(0), theta(0),
-    offset(0), o_type(0), call_type(0), o_name(NULL),
-    /* params, */ param_cnt(0), breadcrumbs(),
-    executing_remap(NULL), remappings(), phase(0), builtin_used(0) {
-        std::fill(g_modes, boost::end(g_modes), 0);
-        std::fill(m_modes, boost::end(m_modes), 0);
-        std::fill(params, boost::end(params), 0);
-    }
   bool a_flag;
   double a_number;
   bool b_flag;
@@ -565,8 +544,18 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
+struct pycontext_impl;
+struct pycontext {
+    pycontext();
+    pycontext(const struct pycontext &);
+    pycontext &operator=(const struct pycontext &);
+    ~pycontext();
+    pycontext_impl *impl;
+};
+
 typedef struct context_struct {
     context_struct();
+
     long position;       // location (ftell) in file
     int sequence_number; // location (line number) in file
     const char *filename;      // name of file for this context
@@ -578,14 +567,8 @@ typedef struct context_struct {
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
+    pycontext pystuff;
     // Python-related stuff
-    boost::python::object tupleargs; // the args tuple for Py functions
-    boost::python::object kwargs; // the args dict for Py functions
-    int py_return_type;   // type of Python return value - enum retopts 
-    double py_returned_double;
-    int py_returned_int;
-    // generator object next method as returned if Python function contained a yield statement
-    boost::python::object generator_next; 
 } context;
 
 typedef context *context_pointer;
@@ -624,10 +607,10 @@ and is not represented here
 #define STACK_ENTRY_LEN 80
 #define MAX_SUB_DIRS 10
 
-typedef struct setup_struct
+struct setup
 {
-  setup_struct();
- ~setup_struct() { assert(!pythis || Py_IsInitialized()); }
+  setup();
+  ~setup();
 
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
@@ -769,13 +752,15 @@ typedef struct setup_struct
   int b_axis_wrapped;
   int c_axis_wrapped;
 
-  int a_indexer;
-  int b_indexer;
-  int c_indexer;
+  int a_indexer_jnum;
+  int b_indexer_jnum;
+  int c_indexer_jnum;
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
   int feature_set; 
+
+  int disable_g92_persistence;
 
 #define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
 #define FEATURE_RETAIN_G43           0x00000001
@@ -786,7 +771,7 @@ typedef struct setup_struct
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 #define FEATURE_OWORD_WARNONLY       0x00000020
 
-    boost::python::object pythis;  // boost::cref to 'this'
+    boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
@@ -796,16 +781,16 @@ typedef struct setup_struct
     // task calls upon interp.init() repeatedly
     // protect init() operations which are not idempotent
     int init_once;  
-} setup;
+};
 
 typedef setup *setup_pointer;
 // the externally visible singleton instance
 
-extern    PythonPlugin *python_plugin;
+extern class PythonPlugin *python_plugin;
 #define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 
 inline bool is_a_cycle(int motion) {
-    return ((motion > G_80) && (motion < G_90)) || (motion == G_73);
+    return ((motion > G_80) && (motion < G_90)) || (motion == G_73) || (motion == G_74);
 }
 /*
 

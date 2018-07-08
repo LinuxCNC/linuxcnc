@@ -16,10 +16,10 @@ Gscreen you use the Glade editor. Gscreen is not restricted to adding a custom
 panel on the right or a custom tab it is fully editable.
 
 .Gscreen Mill Base Screen
-image::images/gscreen-mill.png["Gscreen Mill",align="center"]
+image::images/gscreen-mill.png[align="center", alt="Gscreen Mill Base Screen"]
 
 .Gscreen Lathe Base Screen
-image::images/gscreen-lathe.png[align='center']
+image::images/gscreen-lathe.png[align="center", alt="Gscreen Lathe Base Screen"]
 
 Gscreen is based on 'Glade' (the editor), 'PyGTK' (the widget toolkit), and
 'GladeVCP' (LinuxCNC's connection to Glade and PyGTK). GladeVCP has some
@@ -185,7 +185,7 @@ Remember, if you use a custom screen option YOU are responsible for fixing it
 
 == Building a simple clean-sheet custom screen
 
-image::images/tester.png[align="center"]
+image::images/tester.png[align="center", alt="simple usable screen"]
 
 Lets build a simple usable screen. Build this in the Glade editor (if using a
 RIP package run it from a terminal after using . scripts/rip-environment ).
@@ -209,7 +209,7 @@ RIP package run it from a terminal after using . scripts/rip-environment ).
 * The buttons in this example are regular buttons not HAL buttons. We don't
   need the HAL pins.
 
-image::images/tester_editor.png[align="center"]
+image::images/tester_editor.png[align="center", alt="Glade editor tester.glade"]
 
 In this screen we are using VCP_actions to communicate to LinuxCNC the actions
 we want. This allows us standard functions without adding python code in the
@@ -299,13 +299,13 @@ would add a signal to a widget to call your function.
 
 === Adding Features
 
-Our tester example would be more useful if it responded to keyboard commands.
-There is a function called keybindings() that tries to set this up. While you
-can override it completely, we didn't - but it assumes some things. It assumes
-the estop toggle button is call 'button_estop' and that F1 key controls it. It
-assumes the power button is called 'button_machine_on' and the F2 key controls
-it. These are easily fixed by renaming the buttons in the Glade editor to
-match. But instead we are going to override the standard calls and add our own.
+Our tester example would be more useful if it responded to keyboard commands. +
+There is a function called keybindings() that tries to set this up. +
+While you can override it completely, we didn't - but it assumes some things. +
+It assumes the estop toggle button is call 'button_estop' and that F1 key controls it. +
+It assumes the power button is called 'button_machine_on' and the F2 key controls it. +
+These are easily fixed by renaming the buttons in the Glade editor to match. +
+But instead we are going to override the standard calls and add our own. +
 
 ----
 Add these command to the handler file:
@@ -327,30 +327,56 @@ Add these command to the handler file:
       return True
 ----
 
-So now we have overridden Gscreen's function calls of the same name and deal
-with them in our handler file. We now reference the widgets by the name we used
-in the Glade editor. We also added a built in gscreen function to make a sound
-when Estop changes. Note that we we call Gscreen's built in functions we must
-use self.gscreen.[FUNCTION NAME](). If we used self.[FUNCTION NAME]() it would
-call the function in our handler file. 
+So now we have overridden Gscreen's function calls of the same name and deal with them in our handler file. +
+We now reference the widgets by the name we used in the Glade editor. +
+We also added a built in gscreen function to make a sound when Estop changes. +
+Note that we we call Gscreen's built in functions we must use self.gscreen.[FUNCTION NAME]() +
+If we used self.[FUNCTION NAME]() it would call the function in our handler file. +
 
-Lets add another key binding that loads halmeter when F4 is pressed.
+Lets add another key binding that loads halmeter when F4 is pressed. +
 ----
 In the handler file under def initialize_widgets(self): change to:
   def initialize_widgets(self):
     self.gscreen.init_show_windows()
     self.gscreen.keylookup.add_conversion('F4','TEST','on_keycall_HALMETER')
 
-Then add: 
+Then add these functions under the HandlerClass class: 
   def on_keycall_HALMETER(self,state,SHIFT,CNTRL,ALT):
     if state:
       self.gscreen.on_halmeter()
       return True
 ----
 
-This adds a keybinding conversion that directs gscreen to call
-on_keycall_HALMETER when F4 is pressed. Then we add the function to the handle
-file to call a Gscreen builtin function to start halmeter.
+This adds a keybinding conversion that directs gscreen to call on_keycall_HALMETER when F4 is pressed. +
+Then we add the function to the handle file to call a Gscreen builtin function to start halmeter. +
+
+==== Jogging
+
+There are no special widgets to do screen-button jogging, so we must do it with python code. +
+Under the connect_signals function add this code: +
+----
+        for i in('x','y','z'):
+            self.widgets[i+'neg'].connect("pressed", self['jog_'+i],0,True)
+            self.widgets[i+'neg'].connect("released", self['jog_'+i],0,False)
+            self.widgets[i+'pos'].connect("pressed", self['jog_'+i],1,True)
+            self.widgets[i+'pos'].connect("released", self['jog_'+i],1,False)
+        self.widgets.jog_speed.connect("value_changed",self.jog_speed_changed)
+----
+
+Add these functions under the HandlerClass class:
+----
+    def jog_x(self,widget,direction,state):
+        self.gscreen.do_key_jog(_X,direction,state)
+    def jog_y(self,widget,direction,state):
+        self.gscreen.do_key_jog(_Y,direction,state)
+    def jog_z(self,widget,direction,state):
+        self.gscreen.do_key_jog(_Z,direction,state)
+    def jog_speed_changed(self,widget,value):
+        self.gscreen.set_jog_rate(absolute = value)
+----
+Finally add two buttons to the GLADE file for each axis - one for positive, one for negative direction jogging. +
+Name these buttons xneg, xpos, yneg, ypos zneg, zpos respectively. +
+add a SpeedControl widget to the GLADE file and name it jog_speed +
 
 == Gscreen Start Up
 

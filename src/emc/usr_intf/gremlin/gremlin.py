@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #    Copyright (C) 2009-2012
 #    Jeff Epler <jepler@unpythonic.net>,
 #    Pavel Shramov <psha@kamba.psha.org.ru>,
@@ -16,7 +16,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 #    2014 Steffen Noack
 #    add property 'mouse_btn_mode'
@@ -155,15 +155,15 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
-        self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
-        self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
-        self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
+        self.a_axis_wrapped = inifile.find("AXIS_A", "WRAPPED_ROTARY")
+        self.b_axis_wrapped = inifile.find("AXIS_B", "WRAPPED_ROTARY")
+        self.c_axis_wrapped = inifile.find("AXIS_C", "WRAPPED_ROTARY")
 
         live_axis_count = 0
         for i,j in enumerate("XYZABCUVW"):
             if self.stat.axis_mask & (1<<i) == 0: continue
             live_axis_count += 1
-        self.num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
+        self.num_joints = int(inifile.find("KINS", "JOINTS") or live_axis_count)
 
     def activate(self):
         glcontext = gtk.gtkgl.widget_get_gl_context(self)
@@ -301,7 +301,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_grid_size(self): return self.grid_size
 
     def get_view(self):
-        view_dict = {'x':0, 'y':1, 'z':2, 'p':3}
+        view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
 
     def is_lathe(self): return self.lathe_option

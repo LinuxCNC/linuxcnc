@@ -1,35 +1,49 @@
 /********************************************************************
 * Description: trivkins.c
-*   Trivial kinematics for 3 axis Cartesian machine
+*   general trivkins for 3 axis Cartesian machine
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
-* Author:
 * License: GPL Version 2
-* System: Linux
 *    
-* Copyright (c) 2004 All rights reserved.
+* Copyright (c) 2009 All rights reserved.
 *
-* Last change:
 ********************************************************************/
 
-#include "kinematics.h"		/* these decls */
+#include "motion.h"
+#include "hal.h"
+#include "rtapi.h"
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_math.h"
+#include "rtapi_string.h"
 
+struct data { 
+    hal_s32_t joints[EMCMOT_MAX_JOINTS];
+} *data;
+
+#define SET(f) pos->f = joints[i]
 
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    pos->tran.x = joints[0];
-    pos->tran.y = joints[1];
-    pos->tran.z = joints[2];
-    pos->a = joints[3];
-    pos->b = joints[4];
-    pos->c = joints[5];
-    pos->u = joints[6];
-    pos->v = joints[7];
-    pos->w = joints[8];
+    int i;
+
+    for(i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        switch(data->joints[i]) {
+            case 0: SET(tran.x); break;
+            case 1: SET(tran.y); break;
+            case 2: SET(tran.z); break;
+            case 3: SET(a); break;
+            case 4: SET(b); break;
+            case 5: SET(c); break;
+            case 6: SET(u); break;
+            case 7: SET(v); break;
+            case 8: SET(w); break;
+        }
+    }
 
     return 0;
 }
@@ -39,15 +53,20 @@ int kinematicsInverse(const EmcPose * pos,
 		      const KINEMATICS_INVERSE_FLAGS * iflags,
 		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    joints[0] = pos->tran.x;
-    joints[1] = pos->tran.y;
-    joints[2] = pos->tran.z;
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
+    int i;
+    for(i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        switch(data->joints[i]) {
+            case 0: joints[i] = pos->tran.x; break;
+            case 1: joints[i] = pos->tran.y; break;
+            case 2: joints[i] = pos->tran.z; break;
+            case 3: joints[i] = pos->a; break;
+            case 4: joints[i] = pos->b; break;
+            case 5: joints[i] = pos->c; break;
+            case 6: joints[i] = pos->u; break;
+            case 7: joints[i] = pos->v; break;
+            case 8: joints[i] = pos->w; break;
+        }
+    }
 
     return 0;
 }
@@ -64,28 +83,65 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
+static KINEMATICS_TYPE ktype = -1;
+
 KINEMATICS_TYPE kinematicsType()
 {
-    return KINEMATICS_IDENTITY;
+    return ktype;
 }
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"
+static char *coordinates = "XYZABCUVW";
+RTAPI_MP_STRING(coordinates, "Existing Axes");
+
+static char *kinstype = "1"; // use KINEMATICS_IDENTITY
+RTAPI_MP_STRING(kinstype, "Kinematics Type (Identity,Both)");
 
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 MODULE_LICENSE("GPL");
 
+static int next_axis_number(void) {
+    while(*coordinates) {
+	switch(*coordinates) {
+	    case 'x': case 'X': coordinates++; return 0;
+	    case 'y': case 'Y': coordinates++; return 1;
+	    case 'z': case 'Z': coordinates++; return 2;
+	    case 'a': case 'A': coordinates++; return 3;
+	    case 'b': case 'B': coordinates++; return 4;
+	    case 'c': case 'C': coordinates++; return 5;
+	    case 'u': case 'U': coordinates++; return 6;
+	    case 'v': case 'V': coordinates++; return 7;
+	    case 'w': case 'W': coordinates++; return 8;
+	    case ' ': case '\t': coordinates++; continue;
+	}
+	rtapi_print_msg(RTAPI_MSG_ERR,
+		"trivkins: ERROR: Invalid character '%c' in coordinates\n",
+		*coordinates);
+		return -1;
+    }
+    return -1;
+}
 int comp_id;
 int rtapi_app_main(void) {
+    int i;
     comp_id = hal_init("trivkins");
-    if(comp_id > 0) {
-	hal_ready(comp_id);
-	return 0;
+    if(comp_id < 0) return comp_id;
+
+    data = hal_malloc(sizeof(struct data));
+
+    for(i=0; i<EMCMOT_MAX_JOINTS; i++) {
+	data->joints[i] = next_axis_number();
     }
-    return comp_id;
+    switch (*kinstype) {
+      case 'b': case 'B': ktype = KINEMATICS_BOTH;         break;
+      case 'f': case 'F': ktype = KINEMATICS_FORWARD_ONLY; break;
+      case 'i': case 'I': ktype = KINEMATICS_INVERSE_ONLY; break;
+      case '1': default:  ktype = KINEMATICS_IDENTITY;
+    }
+
+    hal_ready(comp_id);
+    return 0;
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }

@@ -1,0 +1,47 @@
+.TH Rose Engine Kinematics "9" "LinuxCNC Documentation" "Kinematics Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+rosekins \- Kinematics for a rose engine
+
+.SH SYNOPSIS
+.HP
+.B loadrt rosekins
+
+.SH KINEMATICS
+   joint_0 linear, transverse   (perpendicular to spindle)
+   joint_1 linear, longitudinal (parallel to spindle identity to z)
+   joint_2 rotary, spindle      (workholding, not tool holding, e.g.
+                                 not a highspeed spindle)
+
+.SH PINS
+.TP
+.B rosekins.revolutions\fR float out
+Count of crossings of the negative X axis.  Clockwise crossings
+increment revolutions by 1, Counterclockwise crossings decrement by 1
+
+.TP
+.B rosekins.theta_degrees\fR float out
+Principal value for arctan(Y/X)
+
+.TP
+.B rosekins.bigtheta_degrees\fR float out
+Accumulated angle (theta + revolutions * 360)
+
+.SH NOTES
+
+Theta is the principal value of arctan(Y/X).  Joint_2 angle values are
+not limited to principal values of arctan(Y/X) but accumulate
+continuously as the spindle is rotated.  Hal pins are provided for
+the principal value and a count of the number of revolutions.
+
+The transverse motion is exactly perpendicular to the spindle.  In a
+traditional rose engine, the transverse motion is created by \'rocking\'
+the headstock about a pivot.  A typical pivot length combined with the
+limited amount of X travel in a real machine make the perpendicular
+approximation a reasonable model.

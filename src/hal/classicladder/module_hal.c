@@ -21,7 +21,7 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 #include "rtapi.h"
@@ -293,12 +293,12 @@ void CopySizesInfosFromModuleParams( void ) {
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs = numFloatIn;
 	if ( numFloatOut>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs = numFloatOut;        
-		GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words ;
-		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
-		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec ;
-		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
-		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs;
-		GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_inputs + pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
+        GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words ;
+        GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
+        GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec ;
+        GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
+        GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs;
+        GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_inputs + pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
 	if (numSymbols < GeneralParamsMirror.SizesInfos.nbr_symbols ) {  GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;  }
     
 	#endif

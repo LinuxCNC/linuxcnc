@@ -10,8 +10,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change: 2014.12.22
 ********************************************************************
 
   This is the header file to accompany genhexkins.c.  This header file
@@ -68,3 +66,58 @@
 #define DEFAULT_PLATFORM_4_Z   0.000
 #define DEFAULT_PLATFORM_5_Z   0.000
 
+/* Default unit vectors of base joints axes in world coordinates */
+
+#define DEFAULT_BASE_0_NX  0.707107
+#define DEFAULT_BASE_0_NY  0.0
+#define DEFAULT_BASE_0_NZ  0.707107
+
+#define DEFAULT_BASE_1_NX  0.0
+#define DEFAULT_BASE_1_NY -0.707107
+#define DEFAULT_BASE_1_NZ  0.707107
+
+#define DEFAULT_BASE_2_NX -0.707107
+#define DEFAULT_BASE_2_NY  0.0
+#define DEFAULT_BASE_2_NZ  0.707107
+
+#define DEFAULT_BASE_3_NX -0.707107
+#define DEFAULT_BASE_3_NY  0.0
+#define DEFAULT_BASE_3_NZ  0.707107
+
+#define DEFAULT_BASE_4_NX  0.0
+#define DEFAULT_BASE_4_NY  0.707107
+#define DEFAULT_BASE_4_NZ  0.707107
+
+#define DEFAULT_BASE_5_NX  0.707107
+#define DEFAULT_BASE_5_NY  0.0
+#define DEFAULT_BASE_5_NZ  0.707107
+
+/* Default unit vectors of platform joints axes in platform coordinates */
+
+#define DEFAULT_PLATFORM_0_NX -1.0
+#define DEFAULT_PLATFORM_0_NY  0.0
+#define DEFAULT_PLATFORM_0_NZ  0.0
+
+#define DEFAULT_PLATFORM_1_NX  0.866025
+#define DEFAULT_PLATFORM_1_NY  0.5
+#define DEFAULT_PLATFORM_1_NZ  0.0
+
+#define DEFAULT_PLATFORM_2_NX  0.866025
+#define DEFAULT_PLATFORM_2_NY  0.5
+#define DEFAULT_PLATFORM_2_NZ  0.0
+
+#define DEFAULT_PLATFORM_3_NX  0.866025
+#define DEFAULT_PLATFORM_3_NY -0.5
+#define DEFAULT_PLATFORM_3_NZ  0.0
+
+#define DEFAULT_PLATFORM_4_NX  0.866025
+#define DEFAULT_PLATFORM_4_NY -0.5
+#define DEFAULT_PLATFORM_4_NZ  0.0
+
+#define DEFAULT_PLATFORM_5_NX -1.0
+#define DEFAULT_PLATFORM_5_NY  0.0
+#define DEFAULT_PLATFORM_5_NZ  0.0
+
+/* Default lead of strut actuator screw */
+
+#define DEFAULT_SCREW_LEAD 0.0

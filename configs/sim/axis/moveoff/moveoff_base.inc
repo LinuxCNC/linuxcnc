@@ -16,19 +16,15 @@ PARAMETER_FILE = sim.var
 [EMCMOT]
       EMCMOT = motmod
 COMM_TIMEOUT = 1.0
-   COMM_WAIT = 0.010
  BASE_PERIOD = 0
 SERVO_PERIOD = 1000000
 
 [TRAJ]
     NO_FORCE_HOMING = 1
-               AXES = 3
         COORDINATES = X Y Z
-               HOME = 0 0 0
        LINEAR_UNITS = inch
       ANGULAR_UNITS = degree
-         CYCLE_TIME = 0.010
-   DEFAULT_VELOCITY = 5
+DEFAULT_LINEAR_VELOCITY = 5
 #     POSITION_FILE = position.txt
 MAX_LINEAR_VELOCITY = 5
 
@@ -39,63 +35,63 @@ MAX_LINEAR_VELOCITY = 5
 TOOL_CHANGE_POSITION = 0 0 0
 TOOL_CHANGE_QUILL_UP = 1
 
-[AXIS_0]
+[KINS]
+    JOINTS = 3
+KINEMATICS = trivkins
+
+[AXIS_X]
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 5
+MAX_ACCELERATION = 50.0
+
+[JOINT_0]
                    TYPE = LINEAR
                    HOME = 0.000
            MAX_VELOCITY = 5
        MAX_ACCELERATION = 50.0
-               BACKLASH = 0.000
-            INPUT_SCALE = 4000
-           OUTPUT_SCALE = 1.000
               MIN_LIMIT = -40.0
               MAX_LIMIT = 40.0
-                 FERROR = 0.050
-             MIN_FERROR = 0.010
             HOME_OFFSET = 0.0
         HOME_SEARCH_VEL = 20.0
          HOME_LATCH_VEL = 20.0
-         HOME_USE_INDEX = NO
-     HOME_IGNORE_LIMITS = NO
           HOME_SEQUENCE = 1
          HOME_IS_SHARED = 1
 
-[AXIS_1]
+[AXIS_Y]
+       MIN_LIMIT = -40.0
+       MAX_LIMIT = 40.0
+    MAX_VELOCITY = 5
+MAX_ACCELERATION = 50.0
+
+[JOINT_1]
                    TYPE = LINEAR
                    HOME = 0.000
            MAX_VELOCITY = 5
        MAX_ACCELERATION = 50.0
-               BACKLASH = 0.000
-            INPUT_SCALE = 4000
-           OUTPUT_SCALE = 1.000
               MIN_LIMIT = -40.0
               MAX_LIMIT = 40.0
-                 FERROR = 0.050
-             MIN_FERROR = 0.010
             HOME_OFFSET = 0.0
         HOME_SEARCH_VEL = 20.0
          HOME_LATCH_VEL = 20.0
-         HOME_USE_INDEX = NO
-     HOME_IGNORE_LIMITS = NO
           HOME_SEQUENCE = 1
          HOME_IS_SHARED = 0
 
-[AXIS_2]
+[AXIS_Z]
+       MIN_LIMIT = -8.0
+       MAX_LIMIT = 0.12
+    MAX_VELOCITY = 5
+MAX_ACCELERATION = 50.0
+
+[JOINT_2]
                    TYPE = LINEAR
                    HOME = 0.0
            MAX_VELOCITY = 5
        MAX_ACCELERATION = 50.0
-               BACKLASH = 0.000
-            INPUT_SCALE = 4000
-           OUTPUT_SCALE = 1.000
               MIN_LIMIT = -8.0
               MAX_LIMIT = 0.12
-                 FERROR = 0.050
-             MIN_FERROR = 0.010
             HOME_OFFSET = 1.0
         HOME_SEARCH_VEL = 20.0
          HOME_LATCH_VEL = 20.0
-         HOME_USE_INDEX = NO
-     HOME_IGNORE_LIMITS = NO
           HOME_SEQUENCE = 0
          HOME_IS_SHARED = 1
-

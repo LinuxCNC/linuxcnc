@@ -14,7 +14,6 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +27,7 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "rtapi_math.h"
 #include <cmath>
 
 /****************************************************************************/
@@ -3014,8 +3014,8 @@ int Interp::read_text(
     }
     _setup.sequence_number++;   /* moved from version1, was outside if */
     if (strlen(raw_line) == (LINELEN - 1)) { // line is too long. need to finish reading the line to recover
-      for (; fgetc(inport) != '\n';) {
-      }                         // could also look for EOF
+      for (; fgetc(inport) != '\n' && !feof(inport) ;) {
+      }
       ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (strlen(raw_line) - 1);        // index set on last char

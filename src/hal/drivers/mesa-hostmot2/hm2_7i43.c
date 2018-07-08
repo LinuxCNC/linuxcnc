@@ -42,7 +42,7 @@ MODULE_INFO(linuxcnc, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
-static int ioaddr[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = -1 };
+static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0, [1 ... (HM2_7I43_MAX_BOARDS-1)] = -1 };
 RTAPI_MP_ARRAY_INT(ioaddr, HM2_7I43_MAX_BOARDS, "base address of the parallel port(s) (see hm2_7i43(9) manpage)");
 
 static int ioaddr_hi[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
@@ -75,24 +75,24 @@ static int num_boards;
 // 
 
 static inline void hm2_7i43_epp_addr8(rtapi_u8 addr, hm2_7i43_t *board) {
-    outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    rtapi_outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
 static inline void hm2_7i43_epp_addr16(rtapi_u16 addr, hm2_7i43_t *board) {
-    outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
-    outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    rtapi_outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    rtapi_outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
 }
 
 static inline void hm2_7i43_epp_write(int w, hm2_7i43_t *board) {
-    outb(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+    rtapi_outb(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
 }
 
 static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
     int val;
-    val = inb(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+    val = rtapi_inb(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
     return val;
 }
@@ -101,7 +101,7 @@ static inline rtapi_u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
     uint32_t data;
 
     if (board->epp_wide) {
-	data = inl(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+	data = rtapi_inl(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "read data 0x%08X\n", data);
     } else {
         uint8_t a, b, c, d;
@@ -129,18 +129,18 @@ static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
 
 static inline uint8_t hm2_7i43_epp_read_status(hm2_7i43_t *board) {
     uint8_t val;
-    val = inb(board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
+    val = rtapi_inb(board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
     return val;
 }
 
 static inline void hm2_7i43_epp_write_status(uint8_t status_byte, hm2_7i43_t *board) {
-    outb(status_byte, board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
+    rtapi_outb(status_byte, board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
 }
 
 static inline void hm2_7i43_epp_write_control(uint8_t control_byte, hm2_7i43_t *board) {
-    outb(control_byte, board->port.base + HM2_7I43_EPP_CONTROL_OFFSET);
+    rtapi_outb(control_byte, board->port.base + HM2_7I43_EPP_CONTROL_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
 }
 
@@ -228,7 +228,7 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
 
 
 
-int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 
@@ -400,20 +400,12 @@ static void hm2_7i43_cleanup(void) {
 
 static int hm2_7i43_setup(void) {
     int i;
-    int flag = 0;
 
     LL_PRINT("loading HostMot2 Mesa 7i43 driver version %s\n", HM2_7I43_VERSION);
 
     // zero the board structs
     memset(board, 0, HM2_7I43_MAX_BOARDS * sizeof(hm2_7i43_t));
     num_boards = 0;
-    // previously the ioaddr array was initialised with two guesses, 0x378 and 0x278
-    // and the number of config strings was used to tell how many boards to expect
-    // This is in case any config out there _relies_ on this
-    if (ioaddr[0] == -1){
-        flag = 1;
-        ioaddr[0] = 0x378; ioaddr[1] = 0x278;
-    }
 
     for (i = 0; i < HM2_7I43_MAX_BOARDS; i ++) {
         if (ioaddr[i] < 0) break;
@@ -434,7 +426,7 @@ static int hm2_7i43_setup(void) {
 
         // set up the parport for EPP
 	if(board[i].port.base_hi) {
-	    outb(0x94, board[i].port.base_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+	    rtapi_outb(0x94, board[i].port.base_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
         //
@@ -486,17 +478,12 @@ static int hm2_7i43_setup(void) {
         r = hm2_register(&board[i].llio, config[i]);
         if (r != 0) {
             hal_parport_release(&board[i].port);
-            if (flag && i > 0){
-            // we found a board, and were guessing addresses so failing here is OK
-                return 0;
-            } else {
-                THIS_ERR(
+            THIS_ERR(
                 "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
                 board[i].port.base,
                 board[i].port.base_hi,
                 (board[i].epp_wide ? "ON" : "OFF"));
-                return r;
-            }
+            return r;
         }
 
         THIS_PRINT(

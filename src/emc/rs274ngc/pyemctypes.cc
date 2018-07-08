@@ -13,13 +13,15 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 // Interpreter internals - Python bindings
 // Michael Haberler 7/2011
 //
 
-#include <boost/python.hpp>
+#define BOOST_PYTHON_MAX_ARITY 9
+#include <boost/python/class.hpp>
+#include <boost/python/tuple.hpp>
 namespace bp = boost::python;
 
 #include "rs274ngc.hh"

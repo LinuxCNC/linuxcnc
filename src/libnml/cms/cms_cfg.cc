@@ -28,6 +28,7 @@ extern "C" {
 #include <ctype.h>		/* toupper(), tolower() */
 #include <netdb.h>
 #include <arpa/inet.h>		/* inet_ntoa */
+#include <netinet/in.h>		/* sockaddr_in */
 #include <stdlib.h>
 
 #ifdef __cplusplus

@@ -17,7 +17,7 @@
 .\"
 .\" You should have received a copy of the GNU General Public
 .\" License along with this manual; if not, write to the Free
-.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
 .TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
 .SH NAME
@@ -36,6 +36,8 @@ typedef ... rtapi_s32;
 .HP
 typedef ... rtapi_s64;
 .HP
+typedef ... rtapi_intptr_t;
+.HP
 typedef ... rtapi_u8;
 .HP
 typedef ... rtapi_u16;
@@ -43,6 +45,15 @@ typedef ... rtapi_u16;
 typedef ... rtapi_u32;
 .HP
 typedef ... rtapi_u64;
+.HP
+typedef ... rtapi_uintptr_t;
+.HP
+.RI #define\ RTAPI_INT xx _MIN\ ...
+.HP
+.RI #define\ RTAPI_INT xx _MAX\ ...
+.HP
+.RI #define\ RTAPI_UINT xx _MAX\ ...
+.HP
 .SH DESCRIPTION
 In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
 underlying kernel functionality, if available.

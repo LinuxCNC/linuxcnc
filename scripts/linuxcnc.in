@@ -17,16 +17,21 @@
 # Copyright (c) 2004-2009 All rights reserved.
 ################################################################################
 
+# -1. Get all rip-environment items if we are RIP
+if test "xyes" = "x@RUN_IN_PLACE@"; then
+    if test "${EMC2_HOME:-}" != "@EMC2_HOME@"; then
+        exec @EMC2_HOME@/scripts/rip-environment linuxcnc "$@"
+    fi
+fi
+
 ################################################################################
 # 0. Values that come from configure
 ################################################################################
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-LSMOD=@LSMOD@
 PIDOF="@PIDOF@ -x"
 PS=@PS@
-AWK=@AWK@
 IPCS=@IPCS@
 KILL=@KILL@
 
@@ -66,11 +71,6 @@ else
 fi
 export PYTHONPATH
 
-PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
-
-
-XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
-export XFILESEARCHPATH
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 
@@ -102,8 +102,6 @@ Usage:
 EOF
 
 }
-
-
 
 ################################################################################
 # 1.1. strip and process command line options
@@ -429,7 +427,31 @@ function GetFromIniEx {
     retval="$1"
 }
 
+# 2.1.5 check version
+GetFromIni VERSION EMC
+if [ "$retval" != "1.0" ]; then
+    if [ -z "$DISPLAY" ]; then
+        echo "ini file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
+        exit 1
+    fi
+    update_ini -d $INIFILE
+    exitval=$?
+    case "$exitval" in
+    0) ;;
+    42) echo "update_ini cancelled by user" ; exit 0;;
+    *) echo "update script failed in an unexpected way."; exit $exitval ;;
+    esac
+fi
+
+@TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
+exitval=$?
+case "$exitval" in
+  0) ;;
+  1) echo "check_config validation failed"; exit $exitval ;;
+  *) echo "check_config validation failed in an unexpected way."; exit $exitval ;;
+esac
 # 2.2. get param file
+
 GetFromIni PARAMETER_FILE RS274NGC 
 RS274NGC_PARAMFILE=$retval
 
@@ -447,8 +469,6 @@ EMCTASK=$retval
 
 if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
 
-
-
 # 2.6. we hardcode the server name, change if needed
 # linuxcncsvr now holds/creates all the NML channels,
 # so it needs to start by default, as the first process
@@ -458,20 +478,28 @@ EMCSERVER=linuxcncsvr
 GetFromIniQuiet HALUI HAL
 HALUI=$retval
 
-# 2.9. get display information
+# 2.8. get display information
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
 case $EMCDISPLAY in
     tkemc) EMCDISPLAY=tklinuxcnc ;;
-    xemc) EMCDISPLAY=xlinuxcnc ;;
 esac
 
-# 2.10. get NML config information
+# 2.9. get NML config information
 GetFromIniEx NML_FILE LINUXCNC NML_FILE EMC @DEFAULT_NMLFILE@
 NMLFILE=$retval
 export NMLFILE
+
+# 2.10. INI information that may be needed by other apps in process tree
+GetFromIni COORDINATES TRAJ
+TRAJ_COORDINATES=$retval
+export TRAJ_COORDINATES
+
+GetFromIni KINEMATICS KINS
+KINS_KINEMATICS=$retval
+export KINS_KINEMATICS
 
 ################################################################################
 # 3. Done gathering information, define a few functions
@@ -545,7 +573,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up LinuxCNC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of linuxcnc
-    for KILL_TASK in xlinuxcnc ylinuxcnc linuxcncpanel keystick iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel; do
+    for KILL_TASK in linuxcncpanel iosh linuxcncsh linuxcncrsh linuxcnctop mdi debuglevel gmoccapy gscreen; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -696,8 +724,7 @@ if ! program_available $EMCSERVER; then
     exit 1
 fi
 export INI_FILE_NAME="$INIFILE"
-$EMCSERVER -ini "$INIFILE" &
-sleep 1
+$EMCSERVER -ini "$INIFILE"
 
 # 4.3.2. Start REALTIME
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
@@ -724,7 +751,7 @@ else
         echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
 fi
 
-# 4.3.5.0. Run halui in background, if necessary
+# 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
     echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
     if ! program_available $HALUI ; then
@@ -735,9 +762,11 @@ if [ -n "$HALUI" ] ; then
     $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
 fi
 
+# 4.3.6. execute HALCMD config files (if any)
+
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
-  # if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
+  # 4.3.6.1. if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
   CFGFILE=@EMC2_TCL_LIB_DIR@/twopass.tcl
   export PRINT_FILE # twopass can append to PRINT_FILE
   if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
@@ -745,7 +774,7 @@ if [ -n "$TWOPASS" ] ; then
       exit -1
   fi
 else
-    # 4.3.6. execute HALCMD config files (if any)
+    # 4.3.6.2. conventional execution of  HALCMD config files
     # get first config file name from ini file
     NUM=1
     CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
@@ -811,7 +840,17 @@ else
     done
 fi
 
-# 4.3.7. execute discrete HAL commands from ini file (if any)
+# 4.3.7. Run task in background
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
+    Cleanup
+    exit 1
+fi
+
+halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
+
+# 4.3.8. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
 HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
@@ -829,34 +868,18 @@ while [ -n "$HALCOMMAND" ] ; do
     HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 done
 
-# 4.3.8. start the realtime stuff ticking
+# 4.3.9. start the realtime stuff ticking
 $HALCMD start
 
-# 4.3.9. Run task in background
-echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
-if ! program_available $EMCTASK ; then
-    echo "Can't execute TASK program $EMCTASK"
-    Cleanup
-    exit 1
-fi
-
-# setup LD_PRELOAD  if deemed necessary by configure
-unset LD_PRELOAD
-if [ -n "$PRELOAD_WORKAROUND" ] ; then
-	export LD_PRELOAD=$PRELOAD_WORKAROUND
-fi
-
-$EMCTASK -ini "$INIFILE" &
-
-# 4.3.9.1. run other applications
+# 4.3.10. run other applications
 run_applications
 
-# 4.3.10. Run display in foreground
+# 4.3.11. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 result=0
 case $EMCDISPLAY in
-  tklinuxcnc|mini)
-    # tklinuxcnc and mini are in the tcl directory, not the bin directory
+  tklinuxcnc)
+    # tklinuxcnc is in the tcl directory, not the bin directory
     if [ ! -x $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl ] ; then
 	echo "Can't execute DISPLAY program $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl $EMCDISPLAYARGS"
 	Cleanup
@@ -870,18 +893,8 @@ case $EMCDISPLAY in
     echo "DUMMY DISPLAY MODULE, press <ENTER> to continue."
     read foo;
   ;;
-  keystick)
-    if ! program_available keystick ; then
-	echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
-	Cleanup
-	exit 1
-    fi
-    if [ ! -z "$DISPLAY" ]; then
-        xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e keystick -ini "$INIFILE"
-    else
-        keystick -ini "$INIFILE"
-    fi
-    result=$?
+  linuxcncrsh)
+    $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS -- -ini "$INIFILE"
   ;;
   *)
     # all other displays are assumed to be commands on the PATH

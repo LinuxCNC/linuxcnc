@@ -111,7 +111,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_sserial_process_tram_read(hm2, period);
     hm2_bspi_process_tram_read(hm2, period);
     hm2_absenc_process_tram_read(hm2, period);
-    //UARTS need to be explicity handled by an external component
+    //UARTS PktUARTS need to be explicity handled by an external component
 
     hm2_tp_pwmgen_process_read(hm2); // check the status of the fault bit
     hm2_dpll_process_tram_read(hm2, period);
@@ -130,6 +130,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
+    hm2_ssr_prepare_tram_write(hm2);
     hm2_watchdog_prepare_tram_write(hm2);
     //UARTS need to be explicity handled by an external component
     hm2_tram_write(hm2);
@@ -146,6 +147,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_resolver_write(hm2, period); // Update the excitation frequency
     hm2_dpll_write(hm2, period); // Update the timer phases
     hm2_led_write(hm2);	      // Update on-board LEDs
+    hm2_ssr_write(hm2);
 
     hm2_raw_write(hm2);
     hm2_finish_write(hm2);
@@ -227,7 +229,20 @@ int hm2_get_uart(hostmot2_t** hm2, char *name){
     }
     return -1;
 }
-
+EXPORT_SYMBOL_GPL(hm2_get_pktuart);
+int hm2_get_pktuart(hostmot2_t** hm2, char *name){
+    struct rtapi_list_head *ptr;
+    int i;
+    rtapi_list_for_each(ptr, &hm2_list) {
+        *hm2 = rtapi_list_entry(ptr, hostmot2_t, list);
+        if ((*hm2)->pktuart.num_instances > 0) {
+            for (i = 0; i < (*hm2)->pktuart.num_instances ; i++) {
+                if (!strcmp((*hm2)->pktuart.instance[i].name, name)) {return i;}
+            }
+        }
+    }
+    return -1;
+}
 EXPORT_SYMBOL_GPL(hm2_get_sserial);
 // returns a pointer to a remote struct
 hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t** hm2, char *name){
@@ -275,7 +290,10 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_BSPI:            return "Buffered SPI Interface";
         case HM2_GTAG_UART_RX:         return "UART Receive Channel";
         case HM2_GTAG_UART_TX:         return "UART Transmit Channel";
+        case HM2_GTAG_PKTUART_RX:      return "PktUART Receive Channel";
+        case HM2_GTAG_PKTUART_TX:      return "PktUART Transmit Channel";
         case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
+        case HM2_GTAG_SSR:             return "SSR";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -344,8 +362,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.stepgen_width = 2; // To avoid nasty surprises with table mode
     hm2->config.num_bspis = -1;
     hm2->config.num_uarts = -1;
+    hm2->config.num_pktuarts = -1;
     hm2->config.num_dplls = -1;
     hm2->config.num_leds = -1;
+    hm2->config.num_ssrs = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
 
@@ -438,6 +458,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 10;
             hm2->config.num_uarts = simple_strtol(token, NULL, 0);
 
+        } else if (strncmp(token, "num_pktuarts=", 13) == 0) {
+            token += 13;
+            hm2->config.num_pktuarts = simple_strtol(token, NULL, 0);
+
         } else if (strncmp(token, "num_leds=", 9) == 0) {
             token += 9;
             hm2->config.num_leds = simple_strtol(token, NULL, 0);
@@ -479,6 +503,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     HM2_DBG("    num_bspis=%d\n", hm2->config.num_bspis);
     HM2_DBG("    num_uarts=%d\n", hm2->config.num_uarts);
+    HM2_DBG("    num_pktuarts=%d\n", hm2->config.num_pktuarts);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
@@ -929,13 +954,22 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_UART_TX:
                 md_accepted = hm2_uart_parse_md(hm2, md_index);
                 break;
-                
+
+            case HM2_GTAG_PKTUART_RX:
+            case HM2_GTAG_PKTUART_TX:
+                md_accepted = hm2_pktuart_parse_md(hm2, md_index);
+                break;
+
             case HM2_GTAG_HM2DPLL:
                 md_accepted = hm2_dpll_parse_md(hm2, md_index);
                 break;
                 
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
+                break;
+
+            case HM2_GTAG_SSR:
+                md_accepted = hm2_ssr_parse_md(hm2, md_index);
                 break;
 
             default:
@@ -1006,6 +1040,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_led_cleanup(hm2);
     hm2_sserial_cleanup(hm2);
     hm2_bspi_cleanup(hm2);
+    hm2_ssr_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
@@ -1024,6 +1059,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_stepgen_print_module(hm2);
     hm2_bspi_print_module(hm2);
     hm2_ioport_print_module(hm2);
+    hm2_ssr_print_module(hm2);
     hm2_watchdog_print_module(hm2);
 }
 
@@ -1040,7 +1076,7 @@ static void hm2_release_device(struct rtapi_device *dev) {
 }
 
 static int dummy_queue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr,
-        void *buffer, int size) {
+        const void *buffer, int size) {
     if(size >= 0) return this->write(this, addr, buffer, size);
     return 1; // success
 }
@@ -1346,6 +1382,12 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         name[8] = '\0';
 
         if (strncmp(name, HM2_CONFIGNAME, 9) != 0) {
+            int i;
+            // Prevent non-printable characters messing up the terminal
+            for (i = 0; i < 8; i++) {
+                if (!isprint(name[i]))
+                    name[i] = '?';
+            }
             HM2_ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME);
             r = -EINVAL;
             goto fail0;
@@ -1671,6 +1713,10 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_tp_pwmgen_force_write(hm2);
     hm2_sserial_force_write(hm2);
     hm2_bspi_force_write(hm2);
-    hm2_dpll_force_write(hm2);
+
+    // NOTE: It's important that the SSR is written *after* the
+    // ioport is written.  Initialization of the SSR requires that
+    // the IO Port pin directions is set appropriately.
+    hm2_ssr_force_write(hm2);
 }
 

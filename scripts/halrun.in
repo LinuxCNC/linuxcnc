@@ -87,6 +87,7 @@ fi
 
 HAVEFILE=false
 IS_HALTCL=false
+IS_INI=false
 case $filename in
   *.hal) HAVEFILE=true
          if [ -n "$inifile" ] ; then
@@ -104,6 +105,9 @@ case $filename in
          fi
          # haltcl only uses inifilename and filename:
          set -- "$tclargs $filename";;
+  *.ini) HAVEFILE=true
+         IS_INI=true
+         ;;
      "") # for nil filename, support interactive halcmd
          # or haltcl if -T was used
          if [ "$INTERACTIVE" != "haltcl" ] ; then
@@ -138,7 +142,14 @@ esac
 $REALTIME start || exit $?
 
 if $HAVEFILE ; then
-  if $IS_HALTCL; then
+  if $IS_INI; then
+    if ! inivar -ini "$filename" -sec HAL -var TWOPASS > /dev/null 2>&1 ; then
+        echo "$THIS: A .ini file may only be used if it specifies [HAL]TWOPASS"
+        result=1
+    else
+        halcmd_twopass "$filename"; result=$?    
+    fi
+  elif $IS_HALTCL; then
     haltcl $@; result=$?
   else
     halcmd $@; result=$?

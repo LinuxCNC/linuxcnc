@@ -8,10 +8,6 @@ linuxcnc-dev
 linuxcnc-uspace-dev
 linuxcnc-doc-*/
 *.substvars
-/linuxcnc.files
-/linuxcnc-dev.files
-/linuxcnc-uspace.files
-/linuxcnc-uspace-dev.files
-/linuxcnc-doc-*.files
+/linuxcnc*.files
 *.debhelper
 shlibs.local

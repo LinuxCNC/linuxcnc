@@ -7,8 +7,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved
-*
-* Last change:
 ********************************************************************/
 
 /*  simple_tp.c and simple_tp.h define a simple, single axis trajectory
@@ -20,6 +18,9 @@
 
 #ifndef SIMPLE_TP_H
 #define SIMPLE_TP_H
+
+// stopping criterion:
+#define TINY_DP(max_acc,period) (max_acc*period*period*0.001)
 
 #ifdef __cplusplus
 extern "C" {

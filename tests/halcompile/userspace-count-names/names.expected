@@ -1,0 +1,9 @@
+count=0
+names[0]=bibble
+names[1]=bobble
+argc=1
+argv[0]=userspace_count_names
+argv[1]=(null)
+bibble.out
+bobble.out
+

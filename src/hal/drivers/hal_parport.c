@@ -80,7 +80,7 @@
 
     You should have received a copy of the GNU General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
     THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
     ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
@@ -494,6 +494,7 @@ static int pins_and_params(char *argv[])
     long port_addr[MAX_PORTS];
     int data_dir[MAX_PORTS];
     int use_control_in[MAX_PORTS];
+    int force_epp[MAX_PORTS];
     int n, retval;
 
     /* clear port_addr and data_dir arrays */
@@ -501,6 +502,7 @@ static int pins_and_params(char *argv[])
 	port_addr[n] = 0;
 	data_dir[n] = 0;
 	use_control_in[n] = 0;
+	force_epp[n] = 0;
     }
     /* parse config string, results in port_addr[] and data_dir[] arrays */
     num_ports = 0;
@@ -525,6 +527,15 @@ static int pins_and_params(char *argv[])
 		/* anything starting with 'o' means 'out' */
 		data_dir[num_ports] = 0;
                 use_control_in[num_ports] = 0;
+		n++;
+	    } else if ((argv[n][0] == 'e') || (argv[n][0] == 'E')) {
+		/* anything starting with 'e' means 'epp', which is just
+                   like 'out' but with EPP mode requested, primarily for
+                   the G540 with its charge pump missing-pullup drive
+                   issue */
+                data_dir[num_ports] = 0;
+                use_control_in[num_ports] = 0;
+                force_epp[num_ports] = 1;
 		n++;
 	    } else if ((argv[n][0] == 'x') || (argv[n][0] == 'X')) {
                 /* experimental: some parports support a bidirectional
@@ -559,7 +570,14 @@ static int pins_and_params(char *argv[])
     }
     /* export all the pins and params for each port */
     for (n = 0; n < num_ports; n++) {
-        int modes = use_control_in[n] ? PARPORT_MODE_TRISTATE : 0;
+        int modes = 0;
+
+        if(use_control_in[n]) {
+            modes = PARPORT_MODE_TRISTATE;
+        } else if(force_epp[n]) {
+            modes = PARPORT_MODE_EPP;
+        }
+
         retval = hal_parport_get(comp_id, &port_data_array[n].portdata,
                 port_addr[n], -1, modes);
 
@@ -573,6 +591,11 @@ static int pins_and_params(char *argv[])
 	port_data_array[n].base_addr = port_data_array[n].portdata.base;
 	port_data_array[n].data_dir = data_dir[n];
 	port_data_array[n].use_control_in = use_control_in[n];
+
+        if(force_epp[n] && port_data_array[n].portdata.base_hi) {
+            /* select EPP mode in ECR */
+            outb(0x94, port_data_array[n].portdata.base_hi + 2);
+        }
 
 	/* set data port (pins 2-9) direction to "in" if needed */
 	if (data_dir[n]) {

@@ -157,7 +157,7 @@ VCC::
 
 .Pluto-Servo Pinout[[fig:Pluto-Servo-Pinout]](((pluto-servo pinout)))
 
-image::images/pluto-pinout.png[]
+image::images/pluto-pinout.png[alt="Pluto-Servo Pinout"]
 
 .Pluto-Servo Alternate Pin Functions[[table:Pluto-Servo-Alternate-Pin]](((pluto-servo alternate pin functions)))
 
@@ -219,7 +219,6 @@ problem for motors with high stall currents. For higher currents and
 voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
 
-
 == Pluto-step: 300kHz Hardware Step Generator[[sec:Pluto-step:-Hardware-step]](((pluto-step)))
 
 Pluto-step is suitable for control of a 3- or 4-axis CNC mill with
@@ -262,7 +261,7 @@ connector.
 
 .Pluto-Step Pinout[[fig:Pluto-Step-Pinout]](((pluto-step pinout)))
 
-image::images/pluto-step-pinout.png[]
+image::images/pluto-step-pinout.png[alt="Pluto-Step Pinout"]
 
 === Input latching and output updating
 
@@ -283,7 +282,7 @@ step timings are always applied to all channels.
 
 .Pluto-Step Timings[[fig:Pluto-Step-Timings]](((pluto-step timings)))
 
-image::images/pluto_step_waveform.png[]
+image::images/pluto_step_waveform.png[alt="Pluto-Step Timings"]
 
 === HAL Functions, Pins and Parameters
 

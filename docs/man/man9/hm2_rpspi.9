@@ -1,0 +1,209 @@
+.\" Copyright (c) 2016 W. Martinjak
+.\" Copyright (c) 2017 B. Stultiens
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.TH HM2_RPSPI "9" "2017-06-05" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+hm2_rpspi \- LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware.
+.SH SYNOPSIS
+
+.HP
+.B loadrt hm2_rpspi
+.RS 4
+.TP
+\fBconfig\fR [default: ""]
+HostMot2 config strings, described in the
+.BR hostmot2 (9)
+manpage.
+.TP
+\fBspiclk_rate\fR [default: 31250]
+Specify the SPI clock rate in kHz. See
+.BR SPI\ CLOCK\ RATES
+below.
+.TP
+\fBspiclk_rate_rd\fR [default: -1 (same as \fBspiclk_rate\fR)]
+Specify the SPI read clock rate in kHz. Usually you read and write at the same
+speed. However, you may want to reduce the reading speed if the round-trip is
+too long (see
+.BR SPI\ CLOCK\ RATES
+below).
+.TP
+\fBspiclk_base\fR [default: 400000000]
+This is the SPI clock divider calculation fallback value. Usually, the base
+rate is read from
+.I /sys/kernel/debug/clk/vpu/clk_rate
+and used in the divider calculation (for the Rpi3 it should be 250\ MHz). The
+\fBspiclk_base\fR is \fIonly\fR used as a fallback if the system's cannot be
+read. It is normally safe (and recommended) that you leave this parameter as
+is.
+.br
+You should set this manually to 250000000 if your system does not provide
+access to the kernel clock settings. Otherwise, your SPI clock frequency will
+be only 62.5% of the requested value.
+.TP
+\fBspi_pull_miso\fR [default: 1 (pull\-down)]
+.TP
+\fBspi_pull_mosi\fR [default: 1 (pull\-down)]
+.TP
+\fBspi_pull_sclk\fR [default: 1 (pull\-down)]
+Enable or disable pull\-up/pull-down on the SPI lines. A value of 0 disables
+any pull\-up/down on the pin. A value of 1 means pull\-down and 2 means
+pull\-up. The chip enable line(s) are always pull\-up enabled.
+.TP
+\fBspi_probe\fR [default: 1]
+Probe SPI port and CE lines for a card. This is a bit\-field indicating which
+combinations of SPI and CE should be probed:
+ \-  1 = SPI0/CE0,
+ \-  2 = SPI0/CE1,
+ \-  4 = SPI1/CE0,
+ \-  8 = SPI1/CE1,
+ \- 16 = SPI1/CE2.
+
+The probe is performed exactly in above order. Any boards found will be
+numbered 0...4 in the order found. See also
+.BR INTERFACE\ CONFGURATION
+below.
+
+It is an error if a probe fails and the driver will abort.  The SPI0/SPI1
+peripherals are located at gpio pins (with 40-pin I/O header pin\-number in
+parentheses):
+ \- SPI0: MOSI=10(19), MISO=9(21), SCLK=11(23), CE0=8(24), CE1=7(26)
+ \- SPI1: MOSI=20(38), MISO=19(35), SCLK=21(40), CE0=18(12), CE1=17(11), CE2=16(36)
+
+.TP
+\fBspi_debug\fR [default: \-1]
+Set the message level of the running process. The message level is set if
+\fBspi_debug\fR is set to a positive value between 0 and 5, where 0 means no
+messages at all and 5 means everything. A value of \-1 does not touch the
+current message level.
+
+Caveat Emptor: changing the message level is process-wide and all modules
+within the process will spit out messages at the requested level. This may
+cause quite some clutter in your terminal.
+
+.SH DESCRIPTION
+
+hm2_rpspi is a device driver for the Raspberry Pi 2/3 that interfaces Mesa's
+SPI based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC HAL.
+This driver is not based on the linux spidev driver, but on a dedicated
+BCM2835\-SPI driver.
+
+It is \fBstrongly\fR recommended that you unload/disable the kernel's spidev
+driver by disabling it using
+.BR raspi-config .
+Please note that having both kernel and user\-space SPI drivers installed can
+result in unexpected interactions and system instabilities.
+
+The supported boards are: 7I90HD.
+
+The board must have a compatible firmware (ie.: 7i90_spi_svst4_8.bit) loaded on
+the board by the
+.BR mesaflash (1)
+program.
+
+hm2_rpspi is only available when linuxcnc is configured with "uspace" realtime.
+It works with Raspian and PREEMPT_RT kernel.
+
+.SH INTERFACE CONFIGURATION
+
+Up to five devices (7i90 boards) are supported. Two on SPI0 and three on SPI1.
+It is recommended that you, at most, use two devices and each device connected
+to a separate SPI port. You can choose which CE lines you prefer or fit the
+design and setup the \fBspi_probe\fR parameter to instruct the driver where to
+search for the board(s).
+
+.SH REALTIME PERFORMANCE OF THE BCM2835-SPI DRIVER
+
+TBD.
+.\"As of kernel 3.8, most or all kernel SPI drivers do not achieve the high"
+.\"realtime response rate required for a typical linuxcnc configuration.  The"
+.\"driver was tested with ..."
+
+.SH SPI CLOCK RATES
+The maximum SPI clock of the BCM2835-SPI driver and the 7i90 is documented over
+32MHz. The SPI driver can provide frequencies well beyond what is acceptable
+for the 7i90. A safe value to start with would be 12.5\ MHz (spiclk_rate=12500)
+and then work your way up from there.
+
+The SPI driver generates (very) discrete clock frequency values, especially in
+the MHz range because of a simple clock divider structure. The base frequency
+is 250\ MHz and the divider for SPI0/SPI1 scales using discrete factors. The
+following list specifies the \fBspiclk_rate\fR setting and the discrete SPI
+clock frequency (250\ MHz\ /\ (2n) for n\ >\ 1):
+ \- 62500 \- 62.500\ MHz,
+ \- 41667 \- 41.667\ MHz,
+ \- 31250 \- 31.250\ MHz,
+ \- 25000 \- 25.000\ MHz,
+ \- 20834 \- 20.833\ MHz,
+ \- 17858 \- 17.857\ MHz,
+ \- 15625 \- 15.625\ MHz,
+ \- 13889 \- 13.889\ MHz,
+ \- 12500 \- 12.500\ MHz,
+ \- 11364 \- 11.364\ MHz,
+ \- 10417 \- 10.417\ MHz,
+ \-  9616 \-  9.615\ MHz,
+ \- ....
+
+The lowest selectable SPI clock frequency is 30\ kHz (spiclk_rate=30) for SPI0
+and SPI1. Theoretically, the SPI0 port could go slower, but there is no point
+in doing so. You should not expect any real\-time performance with such slow
+setting, unless your machine is located next to a black hole.
+
+The highest SPI clock frequency is, theoretically, 125\ MHz. However, you will
+not be able to build any reliable hardware interface at that frequency. The
+driver limits the clock to 62.5\ MHz (cpiclk_rate=62500). The chances are
+rather slim that you get the interface to work reliably at this frequency. The
+7i90 interface only supports frequencies up to 50\ MHz and that is with perfect
+cabling and impedance matching (in write direction only).
+
+Writing to the 7i90 may be done faster than reading. This is especially
+important if you have "long" wires or any buffers on the SPI\-bus path. You can
+set the read clock frequency to a lower value (using \fBspiclk_rate_rd\fR) to
+counter the effects of the SPI\-bus round-trip needed for read actions. For
+example, you can write at 41.67\ MHz and read at 25.00\ MHz.
+
+It should be noted that the Rpi3 \fBmust\fR have an adequate 5V power supply
+and the power should be properly decoupled right on the 40\-pin I/O header. At
+high speeds and noise on the supply, there is the possibility of noise throwing
+off the SoC's PLL(s), resulting in strange behaviour.
+
+For optimal performance on the Rpi3, you must disable the "ondemand" CPU
+frequency governor. You may add the following to your /etc/rc.local file:
+ echo -n 1200000 > /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
+ echo -n performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+
+Be sure to have a proper heatsink mounted on the SoC or it will get too warm
+and crash.
+
+.SH SEE ALSO
+
+.BR hostmot2 (9)
+
+.SH LICENSE
+
+GPL

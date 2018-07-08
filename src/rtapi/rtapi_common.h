@@ -46,7 +46,7 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 /** THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
@@ -72,6 +72,7 @@
 #endif
 
 #include "rtapi_bitops.h"
+#include <rtapi_mutex.h>
 
 /* maximum number of various resources */
 #define RTAPI_MAX_MODULES 64
@@ -168,7 +169,7 @@ typedef struct {
 typedef struct {
     int magic;			/* magic number to validate data */
     int rev_code;		/* revision code for matching */
-    unsigned long mutex;	/* mutex against simultaneous access */
+    rtapi_mutex_t mutex;	/* mutex against simultaneous access */
     int rt_module_count;	/* loaded RT modules */
     int ul_module_count;	/* running UL processes */
     int task_count;		/* task IDs in use */

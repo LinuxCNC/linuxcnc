@@ -65,7 +65,14 @@ suppression can produce more concise output. Future versions might
 include an option for suppressing superfluous commands.
 
 ****************************************************************************/
-#include <boost/python.hpp>
+#define BOOST_PYTHON_MAX_ARITY 4
+#include "python_plugin.hh"
+#include <boost/python/dict.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/import.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/scope.hpp>
+#include <boost/python/tuple.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,6 +99,8 @@ include an option for suppressing superfluous commands.
 
 #include "units.h"
 
+namespace bp = boost::python;
+
 extern char * _rs274ngc_errors[];
 
 const char *Interp::interp_status(int status) {
@@ -111,7 +120,7 @@ static char savedError[LINELEN+1];
 
 Interp::Interp()
     : log_file(stderr),
-      _setup(setup_struct())
+    _setup{}
 {
     _setup.init_once = 1;  
     init_named_parameters();  // need this before Python init.
@@ -130,12 +139,12 @@ Interp::Interp()
 	// since interp.init() may be called repeatedly this would create a new
 	// wrapper instance on every init(), abandoning the old one and all user attributes
 	// tacked onto it, so make sure this is done exactly once
-	_setup.pythis = boost::python::object(boost::cref(*this));
+	_setup.pythis = new boost::python::object(boost::cref(*this));
 	
 	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
 	// besides 'this', eventually use proper instance names to handle
 	// several instances 
-	bp::scope(interp_module).attr("this") =  _setup.pythis;
+	bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
 	// make "this" visible without importing interpreter explicitly
 	bp::object retval;
@@ -444,9 +453,6 @@ int Interp::_execute(const char *command)
 		      (_setup.mdi_interrupt)) { 
 
 		      status = convert_control_functions(eblock, &_setup);
-		      // a prolog might yield INTERP_EXECUTE_FINISH too
-		      if (status == INTERP_EXECUTE_FINISH) 
-			  _setup.mdi_interrupt = true;
 		      CHP(status);
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
@@ -649,7 +655,15 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	    block->remappings.insert(STEP_PREPARE);
     }
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5))
+    if (IS_USER_MCODE(block,settings,5) &&
+	!(((block->m_modes[5] == 62) && remap_in_progress("M62")) ||
+	  ((block->m_modes[5] == 63) && remap_in_progress("M63")) ||
+	  ((block->m_modes[5] == 64) && remap_in_progress("M64")) ||
+	  ((block->m_modes[5] == 65) && remap_in_progress("M65")) ||
+	  ((block->m_modes[5] == 66) && remap_in_progress("M66")) ||
+	  ((block->m_modes[5] == 67) && remap_in_progress("M67")) ||
+	  ((block->m_modes[5] == 68) && remap_in_progress("M68"))))
+	// non-recursive behavior
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
@@ -752,7 +766,7 @@ int Interp::exit()
       bp::object retval, tupleargs, kwargs;
       bp::list plist;
 
-      plist.append(_setup.pythis); // self
+      plist.append(*_setup.pythis); // self
       tupleargs = bp::tuple(plist);
       kwargs = bp::dict();
 
@@ -817,9 +831,9 @@ int Interp::init()
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
   _setup.random_toolchanger = 0;
-  _setup.a_indexer = 0;
-  _setup.b_indexer = 0;
-  _setup.c_indexer = 0;
+  _setup.a_indexer_jnum = -1; // -1 means not used
+  _setup.b_indexer_jnum = -1; // -1 means not used
+  _setup.c_indexer_jnum = -1; // -1 means not used
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
@@ -842,15 +856,21 @@ int Interp::init()
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
           inifile.Find(&_setup.tool_change_with_spindle_on, "TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO");
-          inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_3");
-          inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_4");
-          inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_5");
+          inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_A");
+          inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_B");
+          inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
 
-          inifile.Find(&_setup.a_indexer, "LOCKING_INDEXER", "AXIS_3");
-          inifile.Find(&_setup.b_indexer, "LOCKING_INDEXER", "AXIS_4");
-          inifile.Find(&_setup.c_indexer, "LOCKING_INDEXER", "AXIS_5");
+          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
+              _setup.a_indexer_jnum = atol(inistring);
+          }
+          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
+              _setup.b_indexer_jnum = atol(inistring);
+          }
+          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
+              _setup.c_indexer_jnum = atol(inistring);
+          }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
@@ -1004,6 +1024,11 @@ int Interp::init()
               Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
           }
 
+	  // ini file g52/g92 offset persistence default setting
+	  inifile.Find(&_setup.disable_g92_persistence,
+		       "DISABLE_G92_PERSISTENCE",
+		       "RS274NGC");
+
           // close it
           inifile.Close();
       }
@@ -1043,6 +1068,15 @@ int Interp::init()
                  _setup.u_origin_offset ,
                  _setup.v_origin_offset ,
                  _setup.w_origin_offset);
+
+  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in .ini file.
+  // This can't be done with the static _required_parameters[], where
+  // the .vars file contents would reflect that setting, so instead
+  // edit the restored parameters here.
+  if (_setup.disable_g92_persistence)
+      // Persistence disabled:  clear g92 parameters
+      for (k = 5210; k < 5220; k++)
+	  pars[k] = 0;
 
   if (pars[5210]) {
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
@@ -1206,7 +1240,7 @@ int Interp::init()
 	  bp::object retval, tupleargs, kwargs;
 	  bp::list plist;
 
-	  plist.append(_setup.pythis); // self
+	  plist.append(*_setup.pythis); // self
 	  tupleargs = bp::tuple(plist);
 	  kwargs = bp::dict();
 
@@ -1335,7 +1369,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
          NULL), NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
     length = strlen(line);
     if (length == (LINELEN - 1)) {   // line is too long. need to finish reading the line to recover
-      for (; fgetc(_setup.file_pointer) != '\n';);      // could look for EOF
+      for (; fgetc(_setup.file_pointer) != '\n' && !feof(_setup.file_pointer););
       ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (length - 1);  // index set on last char
@@ -1840,31 +1874,19 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
-  if(access(filename, F_OK)==0) 
-  {
-    // rename as .bak
-    int r;
-    r = snprintf(line, sizeof(line), "%s%s", filename, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
-    CHKS((r >= (int)sizeof(line)), NCE_CANNOT_CREATE_BACKUP_FILE);
-    CHKS((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
-
-    // open backup for reading
-    infile = fopen(line, "r");
-    CHKS((infile == NULL), NCE_CANNOT_OPEN_BACKUP_FILE);
-  } else {
-    // it's OK if the parameter file doesn't exist yet
-    // it will now be created with a default list of parameters
-    infile = fopen("/dev/null", "r");
-  }
-  // open original for writing
-  outfile = fopen(filename, "w");
+  std::string tempfile = std::string(filename) + ".new";
+  outfile = fopen(tempfile.c_str(), "w");
   CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
+
+  infile = fopen(filename, "r");
+  if(!infile)
+    infile = fopen("/dev/null", "r");
 
   k = 0;
   index = 0;
   required = _required_parameters[index++];
   while (feof(infile) == 0) {
-    if (fgets(line, 256, infile) == NULL) {
+    if (fgets(line, sizeof(line), infile) == NULL) {
       break;
     }
     // try for a variable-value match
@@ -1901,7 +1923,17 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
       required = _required_parameters[index++];
     }
   }
+
+  fflush(outfile);
+  fdatasync(fileno(outfile));
   fclose(outfile);
+  std::string bakfile = std::string(filename)
+                            + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
+  unlink(bakfile.c_str());
+  if(link(filename, bakfile.c_str()) < 0)
+    perror("link (updating variable file)");
+  if(rename(tempfile.c_str(), filename) < 0)
+    perror("rename (updating variable file)");
   return INTERP_OK;
 }
 
@@ -1963,7 +1995,7 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  // read_inputs(&_setup); // input/probe/toolchange 
+  // read_inputs(&_setup); // input/probe/toolchange
 
   write_settings(&_setup);
 
@@ -2511,8 +2543,8 @@ const char *strstore(const char *s)
 
 context_struct::context_struct()
 : position(0), sequence_number(0), filename(""), subName(""),
-context_status(0), call_type(0), py_return_type(0), py_returned_double(0),
-py_returned_int(0)
+context_status(0), call_type(0)
+
 {
     memset(saved_params, 0, sizeof(saved_params));
     memset(saved_g_codes, 0, sizeof(saved_g_codes));

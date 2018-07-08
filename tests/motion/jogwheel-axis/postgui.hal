@@ -1,0 +1,48 @@
+
+#
+# axis x
+#
+
+net axis-x-jog-enable <= test-ui.axis-x-jog-enable
+net axis-x-jog-enable => axis.x.jog-enable
+
+net axis-x-jog-counts <= test-ui.axis-x-jog-counts
+net axis-x-jog-counts => axis.x.jog-counts
+
+net axis-x-jog-scale <= test-ui.axis-x-jog-scale
+net axis-x-jog-scale => axis.x.jog-scale
+
+net Xpos => test-ui.axis-x-position
+
+
+#
+# axis y
+#
+
+net axis-y-jog-enable <= test-ui.axis-y-jog-enable
+net axis-y-jog-enable => axis.y.jog-enable
+
+net axis-y-jog-counts <= test-ui.axis-y-jog-counts
+net axis-y-jog-counts => axis.y.jog-counts
+
+net axis-y-jog-scale <= test-ui.axis-y-jog-scale
+net axis-y-jog-scale => axis.y.jog-scale
+
+net Ypos => test-ui.axis-y-position
+
+
+#
+# axis z
+#
+
+net axis-z-jog-enable <= test-ui.axis-z-jog-enable
+net axis-z-jog-enable => axis.z.jog-enable
+
+net axis-z-jog-counts <= test-ui.axis-z-jog-counts
+net axis-z-jog-counts => axis.z.jog-counts
+
+net axis-z-jog-scale <= test-ui.axis-z-jog-scale
+net axis-z-jog-scale => axis.z.jog-scale
+
+net Zpos => test-ui.axis-z-position
+

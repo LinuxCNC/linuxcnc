@@ -12,7 +12,7 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #ifndef RS274NGC_INTERP_H
 #define RS274NGC_INTERP_H
@@ -267,10 +267,10 @@ public:
  int convert_cycle_g83(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z,
                              double delta);
- int convert_cycle_g84(block_pointer block, CANON_PLANE plane, double x, double y,
+ int convert_cycle_g74_g84(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z,
                              CANON_DIRECTION direction,
-                             CANON_SPEED_FEED_MODE mode);
+                             CANON_SPEED_FEED_MODE mode,int motion, double dwell);
  int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z);
  int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
@@ -587,7 +587,14 @@ int read_inputs(setup_pointer settings);
      (m == 61) ||					\
      (m == 0) ||					\
      (m == 1) ||					\
-     (m == 60))
+     (m == 60) ||					\
+     (m == 62) ||					\
+     (m == 63) ||					\
+     (m == 64) ||					\
+     (m == 65) ||					\
+     (m == 66) ||					\
+     (m == 67) ||					\
+     (m == 68))
 
 
 
@@ -646,8 +653,8 @@ int read_inputs(setup_pointer settings);
     int unwind_call(int status, const char *file, int line, const char *function);
 
 
- int convert_straight_indexer(int, block*, setup*);
- int issue_straight_index(int, double, int, setup*);
+ int convert_straight_indexer(int anum, int jnum, block* blk, setup* settings);
+ int issue_straight_index(int anum, int jnum, double end, int lineno, setup* settings);
 
  void doLog(unsigned int flags, const char *file, int line,
 	    const char *fmt, ...) __attribute__((format(printf,5,6)));

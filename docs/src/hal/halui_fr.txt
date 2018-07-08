@@ -262,7 +262,7 @@ Si les deux entrées du composant _and2.0_ sont TRUE, la sortie _and2.0.out_
 sera TRUE également et le programme sera démarré. 
 
 .Exemple de commande distante
-image::images/remote-start.png[]
+image::images/remote-start.png[alt="Exemple de commande distante"]
 
 Les commandes de Hal pour accomplir ces actions sont les suivantes: 
 ----

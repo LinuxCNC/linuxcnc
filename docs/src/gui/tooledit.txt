@@ -4,7 +4,7 @@
 
 == Overview
 
-image::images/tooledit.png[align="center",width=640]
+image::images/tooledit.png[align="center", width="640", alt="Tool Edit GUI - Overview"]
 
 The 'tooledit' program can update the tool table file with
 edited changes by using the SaveFile button.  The SaveFile button
@@ -21,13 +21,7 @@ order by clicking on the column header.  A second click sorts
 in descending order.  Column sorting requires that the machine
 is configured with the default tcl version >= 8.5.
 
-image::images/tooledit-sort.png[align="center"]
-
-On Ubuntu Lucid 10.04 tcl/tk8.4 is the default.  You can add tcl/tk8.5 with
-the commands:
-----
-sudo apt-get install tcl8.5 tk8.5
-----
+image::images/tooledit-sort.png[align="center", alt="Tool Edit GUI - Column Sorting"]
 
 Depending upon other applications installed on the system, it may be
 necessary to enable tcl/tk8.5 with the commands:
@@ -42,7 +36,7 @@ tool table parameter columns.  Since few machines use all
 parameters, the columns displayed can be limited with the
 following ini file setting:
 
-image::images/tooledit-columns.png[align="center"]
+image::images/tooledit-columns.png[align="center", alt="Tool Edit GUI - Column Selection"]
 
 .INI File Syntax
 ----

@@ -1,0 +1,48 @@
+.TH LINEARDELTAKINS "9" "2013-07-11" "LinuxCNC Documentation" "Kinematics Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+lineardeltakins \- Kinematics for a linear delta robot
+
+.SH SYNOPSIS
+.HP
+.B loadrt lineardeltakins
+
+.SH KINEMATICS
+The kinematics model is appropriate for a rostock/kossel-style design
+with three joints arranged in an equilateral triangle.  (0,0) is always
+the center of the working volume.  Joint 0 is at (0,R) and subsequent
+joints are 120 degrees clockwise (note that joint 0 is not at zero
+radians).  The length of the arm is L.
+
+Joints 0-2 are the linear carriages.  Axes ABC and UVW are passed
+through unchanged in joints 3-8, so that e.g., A can still be used to
+control an extruder.
+
+.SH PINS
+.TP 
+.B lineardeltakins.R\fR float in
+Effective diameter of the platform.
+
+R is different than the distance from the center of the table to the
+center of the belt/smooth rod/extrusion that the joints ride on.  In
+RepRap delta parlance, R is DELTA_RADIUS which is computed as
+
+DELTA_SMOOTH_ROD_OFFSET - DELTA_EFFECTOR_OFFSET - DELTA_CARRIAGE_OFFSET.
+
+.TP
+.B lineardeltakins.L\fR float in
+Length of the rod connecting the carriage to the effector.  In RepRap
+delta parlance, L is DELTA_DIAGONAL_ROD
+
+.SH NOTES
+The R and L values can be adjusted while LinuxCNC is running.  However,
+doing so while in coordinated mode will lead to a step change in joint
+position, which generally will trigger a following error if in joint
+mode with machine on.
+

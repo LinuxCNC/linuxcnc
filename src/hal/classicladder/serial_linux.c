@@ -19,7 +19,7 @@
 
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
-/* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
+/* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include <termios.h>
 #include <stdio.h>
@@ -230,15 +230,15 @@ int SerialReceive( char * Buff, int MaxBuffLength, int TimeOutResp )
                 tv.tv_sec = TimeOutResp / 1000; //seconds
                 tv.tv_usec = (TimeOutResp % 1000) * 1000; //micro-seconds
                 if ( ModbusDebugLevel>=3 )
-	                printf("select() for serial reading...\n");
+                        printf("select() for serial reading...\n");
                 recep_descrip = select( 16, &myset, NULL, NULL, &tv );
                 if ( recep_descrip>0 )
                 {
-		        if ( ModbusDebugLevel>=2 )
-			        printf("Serial reading...\n");
-			NbrCarsReceived = read(fd,Buff,MaxBuffLength);
-		        if ( ModbusDebugLevel>=2 )
-			        printf("%d chars found\n", NbrCarsReceived);
+                        if ( ModbusDebugLevel>=2 )
+                                printf("Serial reading...\n");
+                        NbrCarsReceived = read(fd,Buff,MaxBuffLength);
+                        if ( ModbusDebugLevel>=2 )
+                                printf("%d chars found\n", NbrCarsReceived);
                 }
 	}
 	return NbrCarsReceived;

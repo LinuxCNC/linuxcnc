@@ -9,6 +9,7 @@ LIBEMCSRCS := \
     emc/nml_intf/canon_position.cc \
     emc/ini/emcIniFile.cc \
     emc/ini/iniaxis.cc \
+    emc/ini/inijoint.cc \
     emc/ini/initool.cc \
     emc/ini/initraj.cc \
     emc/ini/inihal.cc \

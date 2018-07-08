@@ -84,18 +84,23 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
-        set ::savelabel "Save Watch List" ;# identifier for entryconfigure
-        $filemenu add command -label [msgcat::mc $::savelabel] \
-            -command {savewatchlist}
+        set ::savelabel1 "Save Watch List" ;# identifier for entryconfigure
+        set ::savelabel2 "Save Watch List (multiline)" ;# identifier for entryconfigure
+        $filemenu add command -label [msgcat::mc $::savelabel1] \
+            -command savewatchlist
+        $filemenu add command -label [msgcat::mc $::savelabel2] \
+            -command [list savewatchlist multiline]
         $filemenu add command -label [msgcat::mc "Load Watch List"] \
             -command {getwatchlist}
         $filemenu add command -label [msgcat::mc "Exit"] \
             -command {destroy .; exit}
         $filemenu configure -postcommand {
           if {$::watchlist != ""} {
-            $filemenu entryconfigure [msgcat::mc $::savelabel] -state normal
+            $filemenu entryconfigure [msgcat::mc $::savelabel1] -state normal
+            $filemenu entryconfigure [msgcat::mc $::savelabel2] -state normal
           } else {
-            $filemenu entryconfigure [msgcat::mc $::savelabel] -state disabled
+            $filemenu entryconfigure [msgcat::mc $::savelabel1] -state disabled
+            $filemenu entryconfigure [msgcat::mc $::savelabel2] -state disabled
           }
         }
 set viewmenu [menu $menubar.view -tearoff 0]
@@ -171,7 +176,7 @@ proc listHAL {} {
                 makeNodeP $node [set ${node}str]
             }
             sig {
-                makeNodeSig $sigstr
+                makeNodeP $node [set ${node}str]
             }
             comp {-}
             funct {-}
@@ -215,72 +220,6 @@ proc makeNodeP {which pstring} {
     array unset pcounts {}
 }
 
-# signal node assumes more about HAL than pins or params.
-# For this reason the hard coded variable ::signodes
-proc makeNodeSig {sigstring} {
-    # build sublists dotstring, each signode element, and remainder
-    foreach nodename $::signodes {
-        set nodesig$nodename ""
-    }
-    set dotsig ""
-    set remainder ""
-    foreach tmp $sigstring {
-        set i 0
-        if {[string match *.* $tmp]} {
-            lappend dotsig $tmp
-            set i 1
-        }
-   
-        foreach nodename $::signodes {
-            if {$i == 0 && [string match *$nodename* $tmp]} {
-                lappend nodesig$nodename $tmp
-                set i 1
-            }
-        }
-        if {$i == 0} {
-            lappend remainder $tmp
-        }
-    }
-    set i 0
-    # build the signode named nodes and leaves
-    foreach nodename $::signodes {
-        set tmpstring [set nodesig$nodename]
-        if {$tmpstring != ""} {
-            set snode "sig+$nodename"
-            writeNode "$i sig $snode $nodename 1"
-            incr i
-            set j 0
-            foreach tmp [set nodesig$nodename] {
-                set ssnode sig+$tmp
-                writeNode "$j $snode $ssnode $tmp 0"
-                incr j
-            }
-        }
-    }
-    set j 0
-    # build the linkpp based signals just below signode
-    foreach tmp $dotsig {
-        set tmplist [split $tmp "."]
-        set tmpmain [lindex $tmplist 0]
-        set tmpname [lindex $tmplist end] 
-        set snode sig+$tmpmain
-        if {! [$::treew exists "$snode"] } {
-            writeNode "$i sig $snode $tmpmain 1"
-            incr i
-        }
-        set ssnode sig+$tmp
-        writeNode "$j $snode $ssnode $tmp 0"
-        incr j
-    }
-    # build the remaining leaves at the bottom of list
-    foreach tmp $remainder {
-        set snode sig+$tmp
-        writeNode "$i sig $snode $tmp 0"
-        incr i
-    }
-
-}
-
 proc makeNodeOther {which otherstring} {
     set i 0
     foreach element $otherstring {
@@ -297,7 +236,7 @@ proc makeNodeOther {which otherstring} {
 # builds a global list -- ::treenodes -- but not leaves
 proc writeNode {arg} {
     scan $arg {%i %s %s %s %i} j base node name leaf
-    $::treew insert $j  $base  $node -text $name
+    $::treew insert end  $base  $node -text $name
     if {$leaf > 0} {
         lappend ::treenodes $node
     }
@@ -421,6 +360,13 @@ proc showEx {what} {
     $::disp configure -state disabled
 }
 
+set ::last_watchfile_tail my.halshow
+set ::last_watchfile_dir  [pwd]
+set ::filetypes { {{HALSHOW} {.halshow}}\
+                  {{TXT}     {.txt}}\
+                  {{ANY}     {.*}}\
+                }
+
 set ::watchlist ""
 set ::watchstring ""
 proc watchHAL {which} {
@@ -437,9 +383,6 @@ proc watchHAL {which} {
     if {[lsearch $::watchlist $which] != -1} {
         return
     }
-    lappend ::watchlist $which
-    set i [llength $::watchlist]
-    set label [lindex [split $which +] end]
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
@@ -456,6 +399,10 @@ proc watchHAL {which} {
 	# e.g., clicking "Pins / axis / 0"
 	if {[catch {hal ptype $varname} type]} { return }
     }
+
+    lappend ::watchlist $which
+    set i [llength $::watchlist]
+    set label [lindex [split $which +] end]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
@@ -488,15 +435,27 @@ proc watchLoop {} {
         scan $var {%i %s %s} cnum vartype varname
         if {$vartype == "sig" } {
             set ret [hal gets $varname]
+            set varnumtype [hal stype $varname]
         } else {
             set ret [hal getp $varname]
+            set varnumtype [hal ptype $varname]
         }
         if {$ret == "TRUE"} {
             $::cisp itemconfigure oval$cnum -fill yellow
         } elseif {$ret == "FALSE"} {
             $::cisp itemconfigure oval$cnum -fill firebrick4
         } else {
-            set value [expr $ret]
+            switch $varnumtype {
+              u32 - s32  {set varnumtype int}
+              float      {set varnumtype float}
+            }
+            set value [expr $ret] ;# supersede if format provided
+            if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
+               set value [format "$::ffmt" $ret]
+            }
+            if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
+               set value [format "$::ifmt" $ret]
+            }
             $::cisp itemconfigure text$cnum -text $value
         }
     }
@@ -539,8 +498,9 @@ proc displayThis {str} {
 
 proc getwatchlist {} {
   set lfile [tk_getOpenFile \
-            -initialdir  [pwd]\
-            -initialfile  my.halshow\
+            -filetypes   $::filetypes\
+            -initialdir  $::last_watchfile_dir\
+            -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Load a watch list"]\
             ]
   loadwatchlist $lfile
@@ -549,27 +509,45 @@ proc getwatchlist {} {
 proc loadwatchlist {filename} {
   if {"$filename" == ""} return
   set f [open $filename r]
-  set wl [gets $f]
+  set wl ""
+  while {![eof $f]} {
+     set nextline [string trim [gets $f]]
+     if {[string first "#" $nextline] == 0} continue ;# ignore comment lines
+     set wl "$wl $nextline"
+  }
   close $f
+  set ::last_watchfile_tail [file tail    $filename]
+  set ::last_watchfile_dir  [file dirname $filename]
   if {"$wl" == ""} return
   watchReset all
   $::top raise pw
   foreach item $wl { watchHAL $item }
 }
 
-proc savewatchlist {} {
+proc savewatchlist { {fmt oneline} } {
   if {"$::watchlist" == ""} {
     return -code error "savewatchlist: null ::watchlist"
   }
   set sfile [tk_getSaveFile \
-            -initialdir  [pwd]\
-            -initialfile my.halshow\
+            -filetypes   $::filetypes\
+            -initialdir  $::last_watchfile_dir\
+            -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Save current watch list"]\
             ]
   if {"$sfile" == ""} return
   set f [open $sfile w]
-  puts $f $::watchlist
+  switch $fmt {
+    multiline {
+      puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
+      foreach line $::watchlist {
+        puts $f $line
+      }
+    }
+    default {puts $f $::watchlist}
+  }
   close $f
+  set ::last_watchfile_tail [file tail    $sfile]
+  set ::last_watchfile_dir  [file dirname $sfile]
 }
 
 #----------start up the displays----------
@@ -589,12 +567,13 @@ proc usage {} {
   puts "Usage:"
   puts "  $prog \[Options\] \[watchfile\]"
   puts "  Options:"
-  puts "           --help  (this help)"
+  puts "           --help    (this help)"
+  puts "           --fformat format_string_for_float"
+  puts "           --iformat format_string_for_int"
   puts ""
   puts "Notes:"
   puts "       Create watchfile in halshow using: 'File/Save Watch List'"
   puts "       linuxcnc must be running for standalone usage"
-  #puts "     -ini inifilename (not currently used)"
   exit 0
 }
 
@@ -602,10 +581,20 @@ if {[llength $::argv] > 0} {
   set idx 0
   while {$idx < [llength $::argv]} {
      switch [lindex $::argv $idx] {
-       "--help" {incr idx; usage}
+       "--help"    {incr idx; usage}
+       "--iformat" {incr idx;
+                    set ::ifmt [lindex $::argv $idx]
+                    incr idx
+                   }
+       "--fformat" {incr idx;
+                    set ::ffmt [lindex $::argv $idx]
+                    incr idx
+                   }
        default { set watchfile [lindex $::argv $idx]
                  if [file readable $watchfile] {
                     loadwatchlist $watchfile
+                    set ::last_watchfile_tail [file tail    $watchfile]
+                    set ::last_watchfile_dir  [file dirname $watchfile]
                  } else {
                     puts "\nCannot read file <$watchfile>\n"
                     usage

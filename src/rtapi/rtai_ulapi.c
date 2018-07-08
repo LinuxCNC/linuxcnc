@@ -39,7 +39,7 @@
 
    You should have received a copy of the GNU General Lesser Public
    License along with this library; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
 /** THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
@@ -71,6 +71,7 @@
 #include <errno.h>		/* errno */
 
 #include "rtapi.h"		/* public RTAPI decls */
+#include <rtapi_mutex.h>
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 /* the following are internal functions that do the real work associated
@@ -445,7 +446,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		rtapi_print_msg(RTAPI_MSG_WARN,
+		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: Warning: shmem already mapped\n");
 		return -EINVAL;
 	    }
@@ -852,3 +853,11 @@ unsigned char rtapi_inb(unsigned int port)
 
 int rtapi_is_realtime() { return 1; }
 int rtapi_is_kernelspace() { return 1; }
+
+void rtapi_delay(long ns) {
+    if(ns > rtapi_delay_max()) ns = rtapi_delay_max();
+    struct timespec ts = {0, ns};
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+}
+
+long int rtapi_delay_max() { return 999999999; }

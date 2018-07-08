@@ -12,7 +12,7 @@
 //
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef EMC_TASK_HH
 #define EMC_TASK_HH
 #include "taskclass.hh"
@@ -24,6 +24,9 @@ extern int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg);
 extern int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg);
 extern int emcTaskOnce(const char *inifile);
 extern int emcRunHalFiles(const char *filename);
+
+// Returns 0 if all joints are homed, 1 if any joints are un-homed.
+int all_homed(void);
 
 int emcTaskInit();
 int emcTaskHalt();

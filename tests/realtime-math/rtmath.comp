@@ -32,14 +32,8 @@ pin in float pow-base;
 pin in float pow-exponent;
 pin out float pow-out;
 
-// rtapi_math.h includes a declaration for round(), but the LinuxCNC RTAI
-// packages up through RTAI 3.8.1 (which we packaged for Ubuntu Lucid)
-// did not include round(), so we skip that test here.  RTAI 3.9 and
-// 5.0-test1 (packaged for Debian Wheezy and Jessie, and Ubuntu Precise)
-// do include round().
-
-// pin in float round-in;
-// pin out float round-out;
+pin in float round-in;
+pin out float round-out;
 
 pin in float ceil-in;
 pin out float ceil-out;
@@ -52,6 +46,14 @@ pin out bit isnan-out;
 
 pin in float isinf-in;
 pin out bit isinf-out;
+
+pin in float exp-in;
+pin out float exp-out;
+
+pin in float fmod-in;
+pin out float fmod-out;
+
+pin out float nan-out;
 
 function _;
 
@@ -72,10 +74,13 @@ FUNCTION(_) {
     asin_out = asin(asin_in);
     acos_out = acos(acos_in);
     pow_out = pow(pow_base, pow_exponent);
-    // round_out = round(round_in);
+    round_out = round(round_in);
     ceil_out = ceil(ceil_in);
     floor_out = floor(floor_in);
     isnan_out = isnan(isnan_in);
     isinf_out = isinf(isinf_in);
+    exp_out = exp(exp_in);
+    fmod_out = fmod(fmod_in,fmod_in);
+    nan_out = nan("");
 }
 

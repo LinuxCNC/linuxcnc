@@ -18,12 +18,12 @@ setp comp_y.hyst .02
 setp comp_z.hyst .02
 
 net Xhomesw <= comp_x.out
-net Yhomesw <= comp_y.out => axis.1.home-sw-in
+net Yhomesw <= comp_y.out => joint.1.home-sw-in
 net Zhomesw <= comp_z.out
 
 net Xhomesw => or2_0.in0
 net Zhomesw => or2_0.in1
-net XZhomesw or2_0.out => axis.0.home-sw-in axis.2.home-sw-in
+net XZhomesw or2_0.out => joint.0.home-sw-in joint.2.home-sw-in
 
 addf comp_x servo-thread
 addf comp_y servo-thread

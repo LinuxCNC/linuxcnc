@@ -13,8 +13,11 @@ hm2_7i43 \- LinuxCNC HAL driver for the Mesa Electronics 7i43 EPP Anything IO bo
 .B loadrt hm2_7i43 [ioaddr=\fIN\fB[,\fIN\fB...]] [ioaddr_hi=\fIN\fB[,\fIN\fB...]] [epp_wide=\fIN\fB[,\fIN\fB...]] [config=\fI"str[,str...]"\fB] [debug_epp=\fIN\fB[,\fIN\fB...]]
 .RS 4
 .TP
-\fBioaddr\fR [default: 0x378]
+\fBioaddr\fR [default: 0 (parport0)]
 The base address of the parallel port.
+
+The number of ioaddr indexes/addresses given is used by the driver to
+determine how many boards to search for.
 .TP
 \fBioaddr_hi\fR [default: 0]
 The secondary address of the parallel port, used to set EPP mode.

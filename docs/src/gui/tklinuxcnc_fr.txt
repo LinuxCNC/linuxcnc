@@ -16,7 +16,7 @@ portable (elle fonctionne sur une multitude de plateformes).
 [[cap:affichage-TkLinuxCNC]]
 .L'affichage de TkLinuxCNC
 
-image::images/tklinuxcnc_fr.png[]
+image::images/tklinuxcnc_fr.png[alt="L'affichage de TkLinuxCNC"]
 
 == Utiliser TkLinuxCNC
 
@@ -135,7 +135,7 @@ menu _Vues → Parcours d'outil_.
 [[cap:TkLinuxCNC-Interpreteur]]
 .Interpréteur de TkLinuxCNC
 
-image::images/tklinuxcnc_interp_fr.png[]
+image::images/tklinuxcnc_interp_fr.png[alt="Interpréteur de TkLinuxCNC"]
 
 ==== Boutons de contrôle
 
@@ -193,7 +193,7 @@ s'affiche en rouge.
 [[cap:Override-Limits]]
 .Exemple de dépassement de limite et incréments de jog
 
-image::images/tkemc-override-limits.png[]
+image::images/tkemc-override-limits.png[alt="Exemple de dépassement de limite et incréments de jog"]
 
 ==== Le groupe de boutons _Broche_(((broche)))
 
@@ -217,9 +217,10 @@ pas en marche ni mise en mode MDI, l'entrée de code n'est pas possible.
 
 .Le champ de saisie des entrées manuelles
 
-image::images/tkemc-mdi.png[]
+image::images/tkemc-mdi.png[alt="Le champ de saisie des entrées manuelles"]
 
-==== MDI:
+docs: image alt-tags added
+Signed-off-by: Thoren Seufl <t_seufl@gmx.de>==== MDI:
 
 Le mode MDI permet d'exécuter une commande en G-code en pressant la
 touche _Entrée_.

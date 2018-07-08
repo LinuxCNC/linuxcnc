@@ -1,0 +1,2 @@
+loadrt logic names=gateC personality=0x503
+loadusr -w halcmd list pin

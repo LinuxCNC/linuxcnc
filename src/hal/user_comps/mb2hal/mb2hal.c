@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301-1307
  * USA.
  */
 
@@ -161,6 +161,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             if (ret_available == 0) {
                 DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
+                usleep(1000);
                 continue;
             }
 
@@ -176,6 +177,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             if (ret_connected == 0) {
                 DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
+                usleep(1000);
                 continue;
             }
 
@@ -359,14 +361,22 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
     //set response and byte timeout according to each mb_tx
     timeout.tv_sec  = this_mb_tx->mb_response_timeout_ms / 1000;
     timeout.tv_usec = (this_mb_tx->mb_response_timeout_ms % 1000) * 1000;
+#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+    modbus_set_response_timeout(this_mb_link->modbus, timeout.tv_sec, timeout.tv_usec);
+#else
     modbus_set_response_timeout(this_mb_link->modbus, &timeout);
+#endif
     //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] response timeout [%d] ([%d] [%d])",
     //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_response_timeout_ms,
     //    (int) timeout.tv_sec, (int) timeout.tv_usec);
 
     timeout.tv_sec  = this_mb_tx->mb_byte_timeout_ms / 1000;
     timeout.tv_usec = (this_mb_tx->mb_byte_timeout_ms % 1000) * 1000;
+#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+    modbus_set_byte_timeout(this_mb_link->modbus, timeout.tv_sec, timeout.tv_usec);
+#else
     modbus_set_byte_timeout(this_mb_link->modbus, &timeout);
+#endif
     //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] byte timeout [%d] ([%d] [%d])",
     //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_byte_timeout_ms,
     //    (int) timeout.tv_sec, (int) timeout.tv_usec);

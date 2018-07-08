@@ -34,3 +34,29 @@ proc show_env {} {
   parray ::env
 } ;# show_env
 
+proc joint_number_for_axis {axis_letter} {
+  # For JOINTS_AXES:
+  # Apply rule for known kins with KINEMATICS_IDENTITY
+  set kinematics [lindex $::env(KINS_KINEMATICS) 0]
+  set coordinates $::env(TRAJ_COORDINATES)
+  if {[ string first " " $coordinates] < 0} {
+    set coordinates [split $coordinates ""]
+  }
+  set coordinates [string toupper $coordinates]
+  set axis_letter [string toupper $axis_letter]
+
+  # rules for known kinematics types
+  switch $kinematics {
+    trivkins {set joint_number [lsearch $coordinates $axis_letter]}
+    default     {return -code error \
+      "joint_number_for_axis: <$axis_letter> unavailable for kinematics:\
+<$::env(KINS_KINEMATICS)>"
+    }
+  }
+  #puts stderr "kins=$kinematics coords=$coordinates a=$axis_letter j=$joint_number"
+  if { $joint_number < 0} {
+    return -code error \
+    "joint_number_for_axis <$axis_letter> not in $::env(TRAJ_COORDINATES)"
+  }
+  return $joint_number
+} ;# joint_number_for_axis

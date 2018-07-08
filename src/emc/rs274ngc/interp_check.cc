@@ -11,7 +11,6 @@
 *
 * Last change:
 ********************************************************************/
-#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,6 +99,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
       CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
   } else if (mode1 == G_5_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+  } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
         NCE_MUST_USE_G0_OR_G1_WITH_G53);
@@ -302,6 +302,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
           (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) && 
           (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
           (motion != G_2) && (motion != G_3) &&
+	  (motion != G_74) && (motion != G_84) &&
           (block->m_modes[9] != 50) && (block->m_modes[9] != 51) && (block->m_modes[9] != 52) &&
           (block->m_modes[9] != 53) && (block->m_modes[5] != 62) && (block->m_modes[5] != 63) &&
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
@@ -328,7 +329,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->r_flag) {
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_76) &&
-         ((motion < G_81) || (motion > G_89)) && (motion != G_73) && 
+         ((motion < G_81) || (motion > G_89)) && (motion != G_73) &&
+	 (motion != G_74) &&
          (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
          (block->g_modes[0] != G_10) && (block->m_modes[7] != 19) ),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);

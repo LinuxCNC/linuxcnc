@@ -13,13 +13,14 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 // Interpreter internals - Python bindings
 // Michael Haberler 7/2011
 //
 
-#include <boost/python.hpp>
+#define BOOST_PYTHON_MAX_ARITY 7
+#include <boost/python/object.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <map>
 
@@ -79,12 +80,12 @@ void export_Internals()
 	.def_readwrite("named_params",  &context::named_params)
 
 	.def_readwrite("call_type",  &context::call_type)
-	.def_readwrite("tupleargs",  &context::tupleargs)
-	.def_readwrite("kwargs",  &context::kwargs)
-	.def_readwrite("py_return_type",  &context::py_return_type)
-	.def_readwrite("py_returned_double",  &context::py_returned_double)
-	.def_readwrite("py_returned_int",  &context::py_returned_int)
-	.def_readwrite("generator_next",  &context::generator_next)
+	//.def_readwrite("tupleargs",  &context::tupleargs)
+	//.def_readwrite("kwargs",  &context::kwargs)
+	//.def_readwrite("py_return_type",  &context::py_return_type)
+	//.def_readwrite("py_returned_double",  &context::py_returned_double)
+	//.def_readwrite("py_returned_int",  &context::py_returned_int)
+	//.def_readwrite("generator_next",  &context::generator_next)
 
 	;
     // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)

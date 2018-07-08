@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 namespace eval linuxcnc {
     variable HOME @EMC2_HOME@
@@ -130,4 +130,22 @@ proc linuxcnc::standard_fixed_font {} {
         return fixed
     }
     list [standard_fixed_font_family] [standard_font_size]
+}
+
+proc parse_ini {filename} {
+    # create associative arrays for all ini file sections
+    # like: ::EMC(VERSION), ::KINS(JOINTS), ... etc
+    set f [open $filename]
+
+    while {[gets $f line] >= 0} {
+        set line [string trim $line]
+        if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
+            # nothing
+        } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
+            upvar $section s
+            lappend s([string trim $k]) $v
+        }
+    }
+
+    close $f
 }
