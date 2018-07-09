@@ -199,7 +199,7 @@ G_83, G_84, G_85, G_86, G_87, G_88, G_89, G_90, G_90_1, G_91, G_91_1, G_92,
 G_92_1, G_92_2, G_92_3, G_93, G_94, G_95, G_96, G_97, G_98, G_99
 
 *homed*:: '(returns tuple of integers)' -
-0 = not homed, 1 = homed.
+currently homed joints, 0 = not homed, 1 = homed.
 
 *id*:: '(returns integer)' -
 currently executing motion id.
