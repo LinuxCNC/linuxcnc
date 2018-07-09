@@ -612,7 +612,14 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	set the feedrate.
 
 `flood(int)`::
-	turn on/off flooding.
+	turn on/off flooding. +
+	Syntax: +
+	flood(command) +
+	flood(linuxcnc.FLOOD_ON) +
+	flood(linuxcnc.FLOOD_OFF) +
+	Constants: +
+	FLOOD_ON +
+	FLOOD_OFF
 
 `home(int)`::
 	home a given joint.
