@@ -142,6 +142,12 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
      </property>
+     <property name="reference_type" stdset="0">
+      <enum>DROLabel::Relative</enum>
+     </property>
+     <property name="axis">
+      <enum>DROLabel::X</enum>
+     </property>
      <property name="Qreference_type" stdset="0">
       <number>1</number>
      </property>
@@ -158,6 +164,9 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <property name="styleSheet">
       <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
 color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="reference_type" stdset="0">
+      <enum>DROLabel::Relative</enum>
      </property>
      <property name="Qjoint_number" stdset="0">
       <number>1</number>
@@ -178,6 +187,12 @@ color: rgb(255, 255, 255);</string>
      <property name="styleSheet">
       <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
 color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="reference_type" stdset="0">
+      <enum>DROLabel::Relative</enum>
+     </property>
+     <property name="axis">
+      <enum>DROLabel::Z</enum>
      </property>
      <property name="Qjoint_number" stdset="0">
       <number>2</number>
@@ -445,8 +460,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>489</x>
-       <y>325</y>
+       <x>418</x>
+       <y>171</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -457,7 +472,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <rect>
        <x>130</x>
        <y>30</y>
-       <width>380</width>
+       <width>800</width>
        <height>247</height>
       </rect>
      </property>
