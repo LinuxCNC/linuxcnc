@@ -1027,6 +1027,9 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
+NOTE: Inline comments on O words should not be used see the O Code
+<<ocode:comments, comments>> section for more information.
+
 [[gcode:messages]]
 == Messages
 
