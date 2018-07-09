@@ -120,9 +120,6 @@ SUBDIRS := \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
     \
-    emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
-    emc/usr_intf/gmoccapy \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     emc/motion-logger \
@@ -133,6 +130,12 @@ SUBDIRS := \
     \
     ../docs/src ../docs/src/source-highlight \
 
+ifeq ($(BUILD_GUI), yes)
+	SUBDIRS += emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
+		   emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
+		   emc/usr_intf/gmoccapy \
+
+endif
 
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c

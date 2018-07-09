@@ -100,8 +100,9 @@ po/gmoccapy/gmoccapy.pot: $(GMOCCAPY_I18N_SRCS)
 	$(XGETTEXT) --from-code=UTF-8 --language=Python \
 		--keyword=_ --keyword=N_ \
 		--output=$@ $^
-TARGETS += po/gmoccapy/gmoccapy.pot
-
+ifeq ($(BUILD_GUI), yes)
+	TARGETS += po/gmoccapy/gmoccapy.pot
+endif
 clean: gmoccapy_i18n_clean
 gmoccapy_i18n_clean:
 	@rm -f $(INTLTOOL_GLADE)

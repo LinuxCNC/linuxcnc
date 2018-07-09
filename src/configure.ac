@@ -531,6 +531,36 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
     ]
 )
 
+#
+# check for GUI 
+#
+
+AC_ARG_ENABLE([gui],
+    AS_HELP_STRING(
+        [--disable-gui],
+	 [Specify whether or not build the gui interfaces.]
+    ),
+    [
+	case "$enableval" in
+	Y*|y*)
+	    BUILD_GUI=yes ;;
+	*)
+	    BUILD_GUI=no ;;
+	esac
+    ],
+    [BUILD_GUI=yes])
+
+AC_MSG_CHECKING([for GUI interface])
+AS_IF(
+     [test "x$BUILD_GUI" = "xyes"],
+     [ 
+	AC_MSG_RESULT(yes)
+     ],
+     [
+	AC_MSG_RESULT(no)
+     ]
+)
+AC_SUBST([BUILD_GUI])
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
@@ -779,6 +809,13 @@ AC_ARG_ENABLE(gtk,
 	esac
     ],
     [BUILD_GTK=yes])
+
+AS_IF(
+     [test "x$BUILD_GUI" = "xno"], 
+     [ 
+      BUILD_GTK=no
+      AC_MSG_RESULT(BUILD_GTK=no)	 
+     ],[])
 
 if test "$BUILD_GTK" = "yes"; then
   AC_MSG_CHECKING([for GTK 2.4.0 or above])
@@ -1277,50 +1314,55 @@ else
    TCL_LIBS="$TCL_STUB_LIB_SPEC"
 fi
 
-AC_MSG_CHECKING([for tk])
 
-AC_ARG_WITH(tkConfig,
-    AS_HELP_STRING(
-        [--with-tkConfig=PATH],
-        [Specify the path to tkConfig.]
-    ),
-    [
-        TKCONFIG=$withval
-    ],[
-        TKCONFIG=
-    ])
+if test "x$BUILD_GUI" = "xyes"; then
 
-# if not specified, search for tclConfig.sh
-if test -z "$TKCONFIG"; then
-    TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
-    if ! test -f $TKCONFIG; then unset TKCONFIG; fi
-fi
-if (test "x$TKCONFIG" = "x"); then
-    # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
-    if (test "x$TKCONFIG" = "x"); then
-	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
-    fi
-fi
-
-if (test "x$TKCONFIG" = "x"); then
-   AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
-		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
-   AC_CHECK_HEADERS([tk.h])
-   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4 tk8.5],[],[AC_MSG_ERROR([tk lib not found])])
-else
-# tkConfig.sh found,
-# extracting vars
-   AC_MSG_RESULT([$TKCONFIG found])
-   . "$TKCONFIG"
-   TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES" 
-   TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
-fi
-
-if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" = "$TK_VERSION" ; then
-    AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
-Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
-to override the autodetected versions.])
+   AC_MSG_CHECKING([for tk])
+   
+   
+   AC_ARG_WITH(tkConfig,
+       AS_HELP_STRING(
+           [--with-tkConfig=PATH],
+           [Specify the path to tkConfig.]
+       ),
+       [
+           TKCONFIG=$withval
+       ],[
+           TKCONFIG=
+       ])
+   
+   # if not specified, search for tclConfig.sh
+   if test -z "$TKCONFIG"; then
+       TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
+       if ! test -f $TKCONFIG; then unset TKCONFIG; fi
+   fi
+   if (test "x$TKCONFIG" = "x"); then
+       # search for tkConfig.sh
+       TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
+       if (test "x$TKCONFIG" = "x"); then
+   	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+       fi
+   fi
+   
+   if (test "x$TKCONFIG" = "x"); then
+      AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
+   		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
+      AC_CHECK_HEADERS([tk.h])
+      AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4 tk8.5],[],[AC_MSG_ERROR([tk lib not found])])
+   else
+   # tkConfig.sh found,
+   # extracting vars
+      AC_MSG_RESULT([$TKCONFIG found])
+      . "$TKCONFIG"
+      TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES" 
+      TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+   fi
+   
+   if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" = "$TK_VERSION" ; then
+       AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
+   Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
+   to override the autodetected versions.])
+   fi
 fi
 
 if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
@@ -1352,14 +1394,14 @@ AC_MSG_RESULT($RUNTIME_CHECK)
 
 if test "$RUNTIME_CHECK" = "yes"; then
 AC_MSG_CHECKING([for BWidget using $TCLSH])
-if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
+   if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
     AC_MSG_RESULT([found])
-else
+   else
     AC_MSG_RESULT(no)
     AC_MSG_ERROR([BWidget not found!
-install with "sudo apt-get install bwidget"])
+    install with "sudo apt-get install bwidget"])
+   fi
 fi
-
 AC_MSG_CHECKING([for BLT using tclsh8.5])
 if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
     AC_MSG_RESULT([found])
@@ -1386,14 +1428,15 @@ else
 install with "sudo apt-get install tclx"])
 fi
 
-AC_MSG_CHECKING([for python pango and cairo modules])
-if $PYTHON -c 'import pango,cairo'; then
-    AC_MSG_RESULT([found])
-else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Python pango and cairo modules not found!
-install with "sudo apt-get install python-gtk2"])
-fi
+if test "x$BUILD_GUI" = "xyes"; then
+    AC_MSG_CHECKING([for python pango and cairo modules])
+    if $PYTHON -c 'import pango,cairo'; then
+       AC_MSG_RESULT([found])
+    else
+       AC_MSG_RESULT(no)
+       AC_MSG_ERROR([Python pango and cairo modules not found!
+       install with "sudo apt-get install python-gtk2"])
+    fi
 fi
 
 AC_SUBST([TCL_DBGX])
@@ -1422,16 +1465,18 @@ AC_PATH_XTRA
 AC_SUBST([X_LIBS])
 AC_SUBST([X_CFLAGS])
 
-AC_CHECK_HEADERS(X11/extensions/Xinerama.h,
+if test "x$BUILD_GUI" = "xyes"; then
+   AC_CHECK_HEADERS(X11/extensions/Xinerama.h,
 	    [HAVE_XINERAMA=yes],
 	    [HAVE_XINERAMA=no])
 
-AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
+   AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
 	    [],
 	    [HAVE_XINERAMA=no])
 
-if test "x$HAVE_XINERAMA" = "xno"; then
-    AC_MSG_ERROR([Xinerama library or headers not found])
+    if test "x$HAVE_XINERAMA" = "xno"; then
+        AC_MSG_ERROR([Xinerama library or headers not found])
+   fi
 fi
 
 #clean out LIBS
@@ -1572,21 +1617,25 @@ AC_MSG_CHECKING([version of python libraries])
 LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
 AC_MSG_RESULT($LIBPYTHON)
 
-AC_MSG_CHECKING([match between tk and Tkinter versions])
+if "x$BUILD_GUI" = "xyes"; then
+	AC_MSG_CHECKING([match between tk and Tkinter versions])
     
-PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+	PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+	PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
 
-if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
-    AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
-    AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
-Install this version and specify --with-tclConfig and --with-tkConfig if necessary])
+	if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
+    		AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
+    		AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
+	Install this version and specify --with-tclConfig and --with-tkConfig if necessary])
+	fi
+	
+	if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
+    	AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
+    	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
+	fi
+	AC_MSG_RESULT([$PYTHON_TK_VERSION])
+
 fi
-if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
-    AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
-    AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
-fi
-AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(location of Python header files)
 INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
@@ -1622,23 +1671,25 @@ AC_MSG_CHECKING(for site-package location)
 SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
 AC_MSG_RESULT($SITEPY)
 
-AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+if test "x$BUILD_GUI" = "xyes"; then
+	AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+	AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
-AC_MSG_CHECKING(for working GLU quadrics)
-AC_TRY_COMPILE([
-#include <GL/gl.h>
-#include <GL/glu.h>
-],
-    [GLUquadric *q;],
-    [AC_MSG_RESULT(yes)],[
+	AC_MSG_CHECKING(for working GLU quadrics)
+	AC_TRY_COMPILE([
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	],
+    	[GLUquadric *q;],
+    	[AC_MSG_RESULT(yes)],[
             AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])]
     
-)
+	)
 
-AC_MSG_CHECKING(for Xmu headers)
-AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+	AC_MSG_CHECKING(for Xmu headers)
+	AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+fi
 
 AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
