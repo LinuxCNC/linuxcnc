@@ -5,18 +5,32 @@
 O-codes provide for flow control in NC programs. Each block has an
 associated number, which is the number used after O. Care must be taken
 to properly match the O-numbers. O codes use the letter 'O' not the
-number zero as the first character in the number like O100.
+number zero as the first character in the number like O100 or o100.
 
+== Numbering
+
+Numbered O codes must have a unique number for each subroutine, 
 .Numbering Example
 ----
+(the start of o100)
 o100 sub
 (notice that the if-endif block uses a different number)
+  (the start of o110)
   o110 if [#2 GT 5]
     (some code here)
+  (the end of o110)
   o110 endif
   (some more code here)
+(the end of o100)
 o100 endsub
 ----
+
+[[ocode:comments]]
+== Comments
+(((Comments)))
+
+Comments on the same line as the O word should not be used as the behavior can
+change in the future.
 
 The behavior is undefined if:
 
@@ -29,36 +43,22 @@ Using the lower case o makes it easier to distinguish from a 0
 that might have been mistyped. For example o100 is easier to
 see than O100 that it is not a 0.
 
-The following statements  cause an error message and  abort the
-interpreter:
-
- - a `return` or `endsub` not within a sub defintion
- - a label on `repeat` which is defined elsewhere
- - a label on `while` which is defińed elsewhere and not referring to a `do`
- - a label on `if` defined elsewhere
- - a undefined label on `else` or `elseif`
- - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
- - a label on `break` or `continue` which does not point to a matching `while` or `do`
- - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
-    
-To make these errors non-fatal  warnings on stderr, set bit 0x20 in
-the `[RS274NGC]FEATURE=` mask ini option. 
-
 [[ocode:subroutines]]
 == Subroutines
 (((Subroutines)))
 
-Subroutines extend from a 'O- sub' to an 'O- endsub' . The lines
-between 'O- sub' and 'O- endsub' are not executed until
-the subroutine is called with 'O- call'. 
+Subroutines starts at 'Onnn sub' and ends at 'Onnn endsub'. The lines between
+'Onnn sub' and 'Onnn endsub' are not executed until the subroutine is called
+with 'Onnn call'. Each subroutine must use a unique number.
 
 .Subroutine Example
 ----
 o100 sub
   G53 G0 X0 Y0 Z0 (rapid move to machine home)
 o100 endsub
-...
-o100 call (call the subroutine here)
+
+(the subroutine is called)
+o100 call
 M2
 ----
 See <<gcode:g53,G53>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more
@@ -71,10 +71,13 @@ returns to the calling code, just as though 'O- endsub' was encountered.
 .O- Return Example
 ----
 o100 sub
-  o110 if [#2 GT 5] (test if parameter #2 is greater than 5)
-    o100 return (return to top of subroutine if test is true)
+  (test if parameter #2 is greater than 5)
+  o110 if [#2 GT 5]
+    (return to top of subroutine if test is true)
+    o100 return
   o110 endif
-  (some code here that only gets executed if parameter #2 is less than 5)
+    (this only gets executed if parameter #2 is not greater than 5)
+    (DEBUG, parameter 1 is [#1])
 o100 endsub
 ----
 See the <<gcode:binary-operators,Binary Operators>> & <<gcode:parameters,Parameters>> sections for more information.
@@ -95,7 +98,17 @@ square brackets. The following calls a subroutine with 3 arguments:
 
 .O- Call Example
 ----
-o200 call [1] [2] [3]
+o100 sub
+  (test if parameter #2 is greater than 5)
+  o110 if [#2 GT 5]
+    (return to top of subroutine if test is true)
+    o100 return
+  o110 endif
+    (this only gets executed if parameter #2 is not greater than 5)
+    (DEBUG, parameter 1 is [#1])
+o100 endsub
+
+o100 call [1] [2]
 ----
 
 Subroutine bodies may not be nested. They may only be called after
@@ -174,18 +187,22 @@ evaluated to true no more conditions are evaluated in the group.
 
 .If Endif Example
 ----
-o101 if [#31 EQ 3] (if parameter #31 is equal to 3 set S2000)
+(if parameter #31 is equal to 3 set S2000)
+o101 if [#31 EQ 3]
   S2000
 o101 endif
 ----
 
 .If ElseIf Else EndIf Example
 ----
-o102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
+(if parameter #2 is greater than 5 set F100)
+o102 if [#2 GT 5]
   F100
-o102 elseif [#2 LT 2] (else if parameter #2 is less than 2 set F200)
+o102 elseif [#2 LT 2]
+(else if parameter #2 is less than 2 set F200)
   F200
-o102 else (else if parameter #2 is 2 through 5 set F150)
+(else if parameter #2 is 2 through 5 set F150)
+o102 else
   F150
 o102 endif
 ----
@@ -195,11 +212,14 @@ Several conditons may be tested for by 'elseif' statements until the
 
 .If Elseif Else Endif Example
 ----
-O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
+(if parameter #2 is greater than 5 set F100)
+O102 if [#2 GT 5]
   F100
-O102 elseif [#2 LT 2] (else if parameter #2 less than 2 set F200)
+(else if parameter #2 less than 2 set F200)
+O102 elseif [#2 LT 2]
   F20
-O102 else (parameter #2 between 2 and 5)
+(parameter #2 is between 2 and 5)
+O102 else
   F200
 O102 endif
 ----
@@ -297,5 +317,25 @@ A subroutine return value is stored in the '#<_value>'
 the '#<_value_returned>' predefined parameter is set to 1, to indicate
 a value was returned. Both parameters are global, and are cleared just
 before the next subroutine call.
+
+[[ocode:errors]]
+== Errors
+(((O-Code Errors)))
+
+The following statements  cause an error message and  abort the
+interpreter:
+
+ - a `return` or `endsub` not within a sub defintion
+ - a label on `repeat` which is defined elsewhere
+ - a label on `while` which is defińed elsewhere and not referring to a `do`
+ - a label on `if` defined elsewhere
+ - a undefined label on `else` or `elseif`
+ - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
+ - a label on `break` or `continue` which does not point to a matching `while` or `do`
+ - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
+    
+To make these errors non-fatal  warnings on stderr, set bit 0x20 in
+the `[RS274NGC]FEATURE=` mask ini option. 
+
 
 // vim: set syntax=asciidoc:
