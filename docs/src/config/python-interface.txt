@@ -497,7 +497,9 @@ commanded output position.
 non-zero means limits are overridden.
 
 *units*:: '(returns float)' -
-units per mm, deg for linear, angular
+joint units per mm, or per degree for angular joints. +
+(joint units are the same as machine units, unless set otherwise
+by the configuration parameter [JOINT_n]UNITS)
 
 *velocity*:: '(returns float)' -
 current velocity.
