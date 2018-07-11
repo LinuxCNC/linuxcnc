@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 '''
     This IconView widget shows the contents of the currently selected

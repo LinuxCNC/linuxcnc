@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 #
-# run as  python zmqringsub.py [[destination] [optional list of ring names]]
+# run as  python2 zmqringsub.py [[destination] [optional list of ring names]]
 #
 # see also zmqringpub.py and zmqdemo.hal
 #

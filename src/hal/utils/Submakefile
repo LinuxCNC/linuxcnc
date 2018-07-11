@@ -33,6 +33,17 @@ $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) -lm -lstdc++
 TARGETS += ../bin/halcmd
 
+ifdef TARGET_PLATFORM_SOCFPGA
+HM2UTILRCS := hal/utils/mksocmemio.c
+$(call TOOBJSDEPS, $(HM2UTILRCS)) : EXTRAFLAGS = -Wall -Werror -std=c99
+USERSRCS += $(HM2UTILRCS)
+../bin/mksocmemio: $(call TOOBJS, $(HM2UTILRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(LDFLAGS) -g -Wall -o $@ $^
+TARGETS += ../bin/mksocmemio
+endif
+
 ifdef HAVE_GTK
 HALMETERSRCS := \
     hal/utils/meter.c \

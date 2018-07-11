@@ -220,6 +220,7 @@ message Container {
     optional EmcStatusIo emc_status_io = 602 [(nanopb).type = FT_IGNORE];
     optional EmcStatusTask emc_status_task = 603 [(nanopb).type = FT_IGNORE];
     optional EmcStatusInterp emc_status_interp = 604 [(nanopb).type = FT_IGNORE];
+    optional EmcStatusUI emc_status_ui = 605 [(nanopb).type = FT_IGNORE];
 
     optional EmcCommandParameters emc_command_params = 610  [(nanopb).type = FT_IGNORE];
 

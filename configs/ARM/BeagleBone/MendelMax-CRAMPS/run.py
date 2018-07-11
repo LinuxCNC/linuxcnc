@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import sys
 import os
@@ -13,6 +13,7 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 try:
     launcher.check_installation()
     launcher.cleanup_session()
+    launcher.ensure_mklauncher()
     launcher.load_bbio_file('cramps2_cape.bbio')
     launcher.start_process("configserver -n MendelMax ~/Machineface")
     launcher.start_process('linuxcnc CRAMPS.ini')

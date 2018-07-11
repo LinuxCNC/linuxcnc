@@ -1215,13 +1215,19 @@ bool inst_name_exists(const int use_halmutex, char *name)
     }
 }
 
-int loadrt(const int use_halmutex, char *mod_name, char *args[])
+int loadrt(const int use_halmutex, char *mod_path, char *args[])
 {
     char *cp1;
     int n, retval;
     char arg_string[MAX_CMD_LEN+1];
 
-    retval = rtapi_loadrt(rtapi_instance, mod_name, (const char **)args);
+    // Get the basename of args->name
+    char *mod_name = mod_path; // default case:  module loaded by rpath
+    for (int i=0; mod_path[i] != 0; i++)
+      if (mod_path[i] == '/')
+        mod_name = mod_path + i + 1;
+
+    retval = rtapi_loadrt(rtapi_instance, mod_path, (const char **)args);
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d:\n%s\n"
 		     "See %s for more information.\n",
@@ -1518,7 +1524,7 @@ int do_unloadrt_cmd(char *name)
 	goto FATAL;
 
     args.user_arg1 = 0; // now unload those which exported vtables
-    halg_foreach(1, &args, unload_rt_cb);
+    ret = halg_foreach(1, &args, unload_rt_cb);
     if (ret < 0)
 	goto FATAL;
     return 0;
@@ -3413,7 +3419,7 @@ int do_newring_cmd(char *ring, char *ring_size, char **opt)
 	    }
 
 	} else {
-	    halcmd_error("newring: invalid option '%s' (use one or several of: record stream"
+	    halcmd_error("newring: invalid option '%s' (use one or several of: record stream multi"
 			 " rtapi hal rmutex wmutex scratchpad=<size>)\n",s);
 	    return -EINVAL;
 	}

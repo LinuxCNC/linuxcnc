@@ -50,6 +50,8 @@
 #define HAVE_RTAPI_WAIT_HOOK
 #define HAVE_RTAPI_TASK_SELF_HOOK
 #define HAVE_RTAPI_TASK_UPDATE_STATS_HOOK
+#define HAVE_RTAPI_TASK_PLL_GET_REFERENCE_HOOK
+#define HAVE_RTAPI_TASK_PLL_SET_CORRECTION_HOOK
 
 #if !defined(__i386__) && !defined(__x86_64__)
 #define HAVE_RTAPI_GET_CLOCKS_HOOK // needed for e.g. ARM, see rtapi_time.c

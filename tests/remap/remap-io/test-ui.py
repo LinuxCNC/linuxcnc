@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 import linuxcnc, hal
 import sys
@@ -26,6 +26,12 @@ def do_dout(cmd, with_motion=False):
     s.poll()
     print "After %s:  s.dout[0] = %s, s.dout[1] = %s" % \
         (cmd, s.dout[0], s.dout[1])
+    expected_dout0 = 1 if cmd in ('M64', 'M62') else 0
+    if s.dout[0] != expected_dout0 or s.dout[1] != 0:
+        print("   Error:  expected s.dout[0] = %d, s.dout[1] = 0" %
+              expected_dout0)
+        sys.exit(1)
+        
 
 # M64/M65 test:  toggle DIO & verify
 do_dout('M64')

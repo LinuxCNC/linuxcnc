@@ -1,4 +1,4 @@
-Travis: image:https://travis-ci.org/machinekit/machinekit.svg?branch=master["Travis Build Status", link="https://travis-ci.org/machinekit/machinekit"]
+Machinekit: image:https://jenkins.machinekit.io/buildStatus/icon?job=machinekit-builder[]
 
 Manpages: image:https://jenkins.machinekit.io/buildStatus/icon?job=machinekit-manpages[]
 
@@ -36,8 +36,7 @@ Please go to link:http://www.machinekit.io/[www.machinekit.io] for this and all 
 including documentation.
 
 
-History
--------
+== History
 
 The open-source Machinekit project forked from the open-source LinuxCNC project
 (http://www.linuxcnc.org) in 2014. At the present time, identifiers such as

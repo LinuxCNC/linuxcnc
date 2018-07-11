@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 
 #    Gscreen a GUI for linuxcnc cnc controller 
 #    Chris Morley copyright 2012
@@ -60,16 +60,27 @@ try:
 except:
     print "**** GSCREEN INFO: You don't seem to have pynotify installed"
 
+global debver
+with open("/etc/debian_version") as f:
+        debver = f.read()[0]
+#print debver
+
 # try to add ability for audio feedback to user.
-try:
+
+# Stretch does not have a gst module available
+if debver < 9:
+    try:
+	_AUDIO_AVAILABLE = False
+        import pygst
+	pygst.require("0.10")
+        import gst
+	_AUDIO_AVAILABLE = True
+        print "**** GSCREEN INFO: audio available!"
+    except:
+	print "**** GSCREEN INFO: no audio alerts available - PYGST libray not installed?"
+else:
     _AUDIO_AVAILABLE = False
-    import pygst
-    pygst.require("0.10")
-    import gst
-    _AUDIO_AVAILABLE = True
-    print "**** GSCREEN INFO: audio available!"
-except:
-    print "**** GSCREEN INFO: no audio alerts available - PYGST libray not installed?"
+
 
 # BASE is the absolute path to linuxcnc base
 # libdir is the path to Gscreen python files

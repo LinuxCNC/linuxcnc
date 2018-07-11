@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 import os,time,sys
 
 from nose import with_setup

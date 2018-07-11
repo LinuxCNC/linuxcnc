@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 """\
 This script decodes hex floats (e.g., in dmesg) into real floats.  In the
 future maybe it will do other emc2-specific dmesg decoding.

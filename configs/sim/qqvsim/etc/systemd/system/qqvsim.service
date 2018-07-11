@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 ExecStart=/bin/bash -a -c "source /home/pi/proj/machinekit/scripts/rip-environment && \
-                           /usr/bin/python /home/pi/proj/machinekit/bin/mklauncher /home/pi/proj/remote-ui/qqvsim"
+                           /usr/bin/python2 /home/pi/proj/machinekit/bin/mklauncher /home/pi/proj/remote-ui/qqvsim"
 ExecStopPost=/bin/bash -a -c "/home/pi/bin/linuxcnc_stop"
 User=pi
 LimitMEMLOCK=33554432

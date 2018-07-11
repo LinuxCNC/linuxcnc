@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 from machinekit import hal
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 '''
     This widget can be used to show small popup windows showing messages.

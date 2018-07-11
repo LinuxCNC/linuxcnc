@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import bisect
 import os
@@ -16,8 +16,7 @@ class R2Temp:
         self.loadTable(name)
 
         if len(self.thermistor_table_raw) == 0:
-            sys.stderr.write('thermistor_table_raw table not found\n')
-            exit(1)
+            raise RuntimeError('thermistor_table_raw table not found')
 
         # Shuffle array to make three lists of values (Temp, Resistane, Alpha)
         # so we can use bisect to efficiently do table lookups
@@ -31,12 +30,14 @@ class R2Temp:
         localInputFile = os.path.join(os.getcwd(), 'thermistor_tables', name + '.txt')
         systemInputFile = os.path.join(c.datadir, 'fdm', 'thermistor_tables', name + '.txt')
         
-        if os.path.exists(localInputFile):
+        if os.path.exists(name):
+            inputFile = name
+        elif os.path.exists(localInputFile):
             inputFile = localInputFile
         elif os.path.exists(systemInputFile):
             inputFile = systemInputFile
         else:
-            sys.stderr.write('Thermistor table was not found\n')
+            raise RuntimeError('Thermistor table was not found')
         
         with open(inputFile, "r") as f:
             self.thermistor_table_raw = []

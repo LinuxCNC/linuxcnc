@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #    This is 'instcomp', a tool to write instantiated components for
 #    Machinekit
 #

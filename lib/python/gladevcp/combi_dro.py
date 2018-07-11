@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 # GladeVcp Widget - DRO widget, showing all 3 reference types
 # This widgets displays linuxcnc axis position information.

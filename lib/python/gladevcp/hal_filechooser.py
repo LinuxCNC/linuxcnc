@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # vim: sts=4 sw=4 et
 # GladeVcp FileChooser related widgets
 #

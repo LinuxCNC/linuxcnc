@@ -1,0 +1,15 @@
+#!/bin/bash
+#                                                       -*-shell-script-*-
+
+# Skip the linuxcncrsh test if neither of the netcat binaries it uses are installed
+# this typically happens on Stretch and above, then screws up all the subsequent tests
+
+if [ -x /usr/bin/tcping ]; then
+    exit 0
+else
+    if [ -x /usr/bin/nc ]; then
+	exit 0
+    else
+        exit 1
+    fi
+fi

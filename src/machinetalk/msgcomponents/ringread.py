@@ -5,7 +5,7 @@
 #
 # run as:
 # halrun -I ringwrite.hal
-# python ringread.py
+# python2 ringread.py
 
 import os, time
 from machinekit import hal

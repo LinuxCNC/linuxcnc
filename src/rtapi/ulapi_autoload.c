@@ -116,6 +116,8 @@ static rtapi_switch_t dummy_ulapi_switch_struct = {
     .rtapi_clock_set_period = &_ulapi_dummy,
     .rtapi_delay = &_ulapi_dummy,
     .rtapi_delay_max = &_ulapi_dummy,
+    .rtapi_task_pll_get_reference = &_ulapi_dummy,
+    .rtapi_task_pll_set_correction = &_ulapi_dummy,
 
     .rtapi_get_time = (rtapi_get_time_t) &_ulapi_dummy,
     .rtapi_get_clocks = (rtapi_get_clocks_t) &_ulapi_dummy,

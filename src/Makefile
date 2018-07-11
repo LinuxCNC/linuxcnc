@@ -140,7 +140,7 @@ modules:  userspace
 
 ifeq ($(HAVE_KERNEL_THREADS),yes)
     @test -f ../libexec/linuxcnc_module_helper -a \
-    	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
+	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
 	    ! -u ../libexec/linuxcnc_module_helper \) \
         && need_setuid=1; 
 endif
@@ -1397,13 +1397,18 @@ endif
 ifdef TARGET_PLATFORM_BEAGLEBONE
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
-hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o
+hal_bb_gpio-objs := hal/drivers/hal_bb_gpio/hal_bb_gpio.o
 obj-$(CONFIG_PEPPER) += pepper.o
 pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
 
 obj-m += hal_arm335xQEP.o
 hal_arm335xQEP-objs := hal/drivers/hal_arm335xQEP.o $(MATHSTUB)
+endif
+
+ifdef TARGET_PLATFORM_H3
+obj-$(CONFIG_HAL_GPIO) += hal_gpio_h3.o
+hal_gpio_h3-objs := hal/drivers/hal_gpio_h3.o
 endif
 
 ifdef TARGET_PLATFORM_CHIP
@@ -1459,7 +1464,7 @@ endif
 endif
 
 ifeq ($(BUILD_HOSTMOT2),yes)
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o setsserial.o
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
 hm2_eth-objs  :=			  \
@@ -1509,7 +1514,7 @@ hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-setsserial-objs :=			  \
+setsserial-objs +=			  \
     hal/drivers/mesa-hostmot2/setsserial.o  \
     $(MATHSTUB)
 endif
@@ -1611,10 +1616,10 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 # vtexport-objs += hal/vtable-example/vcode.o
 
 obj-m += jplan.o
-jplan-objs := hal/jplanner/jplan.o
+jplan-objs := hal/jplanner/jplan.o machinetalk/build/machinetalk/protobuf/jplan.npb.o
 
 obj-m += interpolate.o
-interpolate-objs := hal/interpolator/interpolate.o
+interpolate-objs := hal/interpolator/interpolate.o machinetalk/build/machinetalk/protobuf/ros.npb.o
 
 obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o
@@ -1824,6 +1829,7 @@ $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
 $(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
+$(RTLIBDIR)/setsserial$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(setsserial-objs))
 ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
 endif
@@ -1847,6 +1853,10 @@ $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs)
 $(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
 $(RTLIBDIR)/hal_arm335xQEP$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_arm335xQEP-objs))
 endif
+endif
+
+ifdef TARGET_PLATFORM_H3
+$(RTLIBDIR)/hal_gpio_h3$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio_h3-objs))
 endif
 
 ifdef TARGET_PLATFORM_CHIP

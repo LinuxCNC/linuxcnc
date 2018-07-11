@@ -25,16 +25,16 @@ FUNCTION(_)
     /* apply first order limit */
     lin = in;
     if ( lin < min_ ) {
-	lin = min_;
+        lin = min_;
     }
     if ( lin > max_ ) {
-	lin = max_;
+        lin = max_;
     }
 
     if(load) {
-	old_in = old_out = out = lin;
-	old_v = 0.0;
-	return 0;
+        old_in = old_out = out = lin;
+        old_v = 0.0;
+        return 0;
     }
 
     /* calculate input derivative */
@@ -43,54 +43,52 @@ FUNCTION(_)
     /* determine v and out that can be reached in one period */
     min_v = old_v - maxa * dt;
     if ( min_v < -maxv ) {
-	min_v = -maxv;
+        min_v = -maxv;
     }
     max_v = old_v + maxa * dt;
     if ( max_v > maxv ) {
-	max_v = maxv;
+        max_v = maxv;
     }
     min_out = old_out + min_v * dt;
     max_out = old_out + max_v * dt;
     if ( ( lin >= min_out ) && ( lin <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) {
-	/* we can follow the command without hitting a limit */
-	lout = lin;
-	old_v = ( lout - old_out ) / dt;
+        /* we can follow the command without hitting a limit */
+        lout = lin;
     } else {
-	/* can't follow commanded path while obeying limits */
-	/* determine which way we need to ramp to match v */
-	if ( in_v > old_v ) {
-	    ramp_a = maxa;
-	} else {
-	    ramp_a = -maxa;
-	}
-	/* determine how long the match would take */
-	match_time = ( in_v - old_v ) / ramp_a;
-	/* where we will be at the end of the match */
-	avg_v = ( in_v + old_v + ramp_a * dt ) * 0.5;
-	est_out = old_out + avg_v * match_time;
-	/* calculate the expected command position at that time */
-	est_in = old_in + in_v * match_time;
-	/* calculate position error at that time */
-	err = est_out - est_in;
-	/* calculate change in final position if we ramp in the
-	   opposite direction for one period */
-	dv = -2.0 * ramp_a * dt;
-	dp = dv * match_time;
-	/* decide what to do */
-	if ( rtapi_fabs(err+dp*2.0) < rtapi_fabs(err) ) {
-	    ramp_a = -ramp_a;
-	}
-	if ( ramp_a < 0.0 ) {
-	    lout = min_out;
-	    old_v = min_v;
-	} else {
-	    lout = max_out;
-	    old_v = max_v;
-	}
+        /* can't follow commanded path while obeying limits */
+        /* determine which way we need to ramp to match v */
+        if ( in_v > old_v ) {
+            ramp_a = maxa;
+        } else {
+            ramp_a = -maxa;
+        }
+        /* determine how long the match would take */
+        match_time = ( in_v - old_v ) / ramp_a;
+        /* where we will be at the end of the match */
+        avg_v = ( in_v + old_v + ramp_a * dt ) * 0.5;
+        est_out = old_out + avg_v * match_time;
+        /* calculate the expected command position at that time */
+        est_in = old_in + in_v * match_time;
+        /* calculate position error at that time */
+        err = est_out - est_in;
+        /* calculate change in final position if we ramp in the
+           opposite direction for one period */
+        dv = -2.0 * ramp_a * dt;
+        dp = dv * match_time;
+        /* decide what to do */
+        if ( rtapi_fabs(err+dp*2.0) < rtapi_fabs(err) ) {
+            ramp_a = -ramp_a;
+        }
+        if ( ramp_a < 0.0 ) {
+            lout = min_out;
+        } else {
+            lout = max_out;
+        }
     }
+    old_v = ( lout - old_out ) / dt;
     old_out = lout;
     old_in = lin;
     out = lout;
 
-return 0;
+    return 0;
 }

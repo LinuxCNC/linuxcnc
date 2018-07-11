@@ -240,6 +240,86 @@ void enqueue_SET_SPINDLE_SPEED(double speed) {
     qc().push_back(q);
 }
 
+void enqueue_SET_MOTION_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate motion output on\n");
+        SET_MOTION_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_MOTION_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue motion output on\n");
+    qc().push_back(q);
+}
+
+void enqueue_CLEAR_MOTION_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate motion output off\n");
+        CLEAR_MOTION_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QCLEAR_MOTION_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue motion output off\n");
+    qc().push_back(q);
+}
+
+void enqueue_SET_AUX_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate aux output on\n");
+        SET_AUX_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_AUX_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue aux output on\n");
+    qc().push_back(q);
+}
+
+void enqueue_CLEAR_AUX_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate aux output off\n");
+        CLEAR_AUX_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QCLEAR_AUX_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue aux output off\n");
+    qc().push_back(q);
+}
+
+void enqueue_MOTION_OUTPUT_VALUE(int index, double value) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate motion output value change\n");
+        SET_MOTION_OUTPUT_VALUE(index, value);
+        return;
+    }
+    queued_canon q;
+    q.type = QMOTION_OUTPUT_VALUE;
+	q.data.mcommand.p_number = index;
+    q.data.mcommand.q_number = value;
+    if(debug_qc) printf("enqueue motion output value change\n");
+    qc().push_back(q);
+}
+
+void enqueue_AUX_OUTPUT_VALUE(int index, double value) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate aux output value change\n");
+        SET_AUX_OUTPUT_VALUE(index, value);
+        return;
+    }
+    queued_canon q;
+    q.type = QAUX_OUTPUT_VALUE;
+	q.data.mcommand.p_number = index;
+    q.data.mcommand.q_number = value;
+    if(debug_qc) printf("enqueue aux output value change\n");
+    qc().push_back(q);
+}
+
 void enqueue_COMMENT(const char *c) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate comment \"%s\"\n", c);
@@ -521,6 +601,30 @@ void dequeue_canons(setup_pointer settings) {
         case QSET_SPINDLE_SPEED:
             if(debug_qc) printf("issuing set spindle speed\n");
             SET_SPINDLE_SPEED(q.data.set_spindle_speed.speed);
+            break;
+        case QSET_MOTION_OUTPUT:
+            if(debug_qc) printf("issuing set motion output\n");
+            SET_MOTION_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QCLEAR_MOTION_OUTPUT:
+            if(debug_qc) printf("issuing clear motion output\n");
+            CLEAR_MOTION_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QSET_AUX_OUTPUT:
+            if(debug_qc) printf("issuing set aux output\n");
+            SET_AUX_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QCLEAR_AUX_OUTPUT:
+            if(debug_qc) printf("issuing clear aux output\n");
+            CLEAR_AUX_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QMOTION_OUTPUT_VALUE:
+            if(debug_qc) printf("issuing set motion output value\n");
+            SET_MOTION_OUTPUT_VALUE((int)q.data.mcommand.p_number, q.data.mcommand.q_number);
+            break;
+        case QAUX_OUTPUT_VALUE:
+            if(debug_qc) printf("issuing set aux output value\n");
+            SET_AUX_OUTPUT_VALUE((int)q.data.mcommand.p_number, q.data.mcommand.q_number);
             break;
         case QCOMMENT:
             if(debug_qc) printf("issuing comment\n");

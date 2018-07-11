@@ -1,7 +1,7 @@
 # HAL ring example
 # run as:
 #   halrun -I recordread.hal
-#   python ringwrite..py
+#   python2 ringwrite..py
 #
 # create new rings
 # inspect rings

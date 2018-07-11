@@ -22,78 +22,76 @@ FUNCTION(_)
     hal_float_t lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
     hal_float_t min_out, max_out, match_time, est_in, est_out;
 
-    // apply first order limit 
+    // apply first order limit
     lin = gf(in);
-    if ( lin < gf(min_) ) 
+    if ( lin < gf(min_) )
         lin = gf(min_);
-    if ( lin > gf(max_) ) 
+    if ( lin > gf(max_) )
         lin = gf(max_);
-    
-    if(gb(load)) 
+
+    if(gb(load))
         {
         sf(out, old_in = old_out = lin);
         old_v = 0.0;
         return 0;
         }
 
-    // calculate input derivative 
+    // calculate input derivative
     dt = (hal_float_t) period * 0.000000001;
     in_v = (lin - old_in) / dt;
-    
-    // determine v and out that can be reached in one period 
+
+    // determine v and out that can be reached in one period
     min_v = old_v - gf(maxa) * dt;
-    if ( min_v < -gf(maxv) ) 
+    if ( min_v < -gf(maxv) )
         min_v = -gf(maxv);
     max_v = old_v + gf(maxa) * dt;
-    if ( max_v > gf(maxv) ) 
+    if ( max_v > gf(maxv) )
         max_v = gf(maxv);
-    
+
     min_out = old_out + min_v * dt;
     max_out = old_out + max_v * dt;
-    if ( ( lin >= min_out ) && ( lin <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) 
-        {
-        // we can follow the command without hitting a limit 
+    if ( ( lin >= min_out ) && ( lin <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) )
+    {
+        // we can follow the command without hitting a limit
         lout = lin;
-        old_v = ( lout - old_out ) / dt;
-        } 
-    else 
-        {
-        // can't follow commanded path while obeying limits 
-        // determine which way we need to ramp to match v 
-        if ( in_v > old_v ) 
+    }
+    else
+    {
+        // can't follow commanded path while obeying limits
+        // determine which way we need to ramp to match v
+        if ( in_v > old_v )
             ramp_a = gf(maxa);
-        else 
+        else
             ramp_a = -gf(maxa);
-        // determine how long the match would take 
+        // determine how long the match would take
         match_time = ( in_v - old_v ) / ramp_a;
-        // where we will be at the end of the match 
+        // where we will be at the end of the match
         avg_v = ( in_v + old_v + ramp_a * dt ) * 0.5;
         est_out = old_out + avg_v * match_time;
-        // calculate the expected command position at that time 
+        // calculate the expected command position at that time
         est_in = old_in + in_v * match_time;
-        // calculate position error at that time 
+        // calculate position error at that time
         err = est_out - est_in;
         // calculate change in final position if we ramp in the
-        //opposite direction for one period 
+        //opposite direction for one period
         dv = -2.0 * ramp_a * dt;
         dp = dv * match_time;
-        // decide what to do 
+        // decide what to do
         if ( rtapi_fabs(err+dp*2.0) < rtapi_fabs(err) )
             ramp_a = -ramp_a;
-        if ( ramp_a < 0.0 ) 
-            {
+        if ( ramp_a < 0.0 )
+        {
             lout = min_out;
-            old_v = min_v;
-            } 
-        else
-            {
-            lout = max_out;
-            old_v = max_v;
-            }
         }
+        else
+        {
+            lout = max_out;
+        }
+    }
+    old_v = ( lout - old_out ) / dt;
     old_out = lout;
     old_in = lin;
     sf(out, lout);
 
-return 0;
+    return 0;
 }

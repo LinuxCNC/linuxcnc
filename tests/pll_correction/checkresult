@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+import sys, os
+
+# Source params.py.sh
+execfile(os.path.join(os.path.dirname(__file__), "params.py.sh"))
+# Params from pll_correction.hal
+period = int(PERIOD)
+# Params from pll_correction.comp
+numsamps = int(NUMSAMPS)
+# Number of periods in the future to lock onto
+pll_periods = int(PLL_PERIODS)
+
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+# Read last line of file
+with open("result", 'r') as f:
+    for line in f:
+        line = line.rstrip('[ \n]')
+
+(cycle_count, period_actual, pll_err, samp_avg, phase_diff, mode) = (
+    [int(s) for s in line.split(' ')])
+
+target = period * pll_periods
+if mode < 500:
+    sys.stderr.write(
+        "PLL didn't converge:  samples w/ <1%% error = %d/%d\n" %
+        (mode,numsamps))
+    with open("result", "r") as f: # Dump results to stderr
+        for line in f:
+            sys.stderr.write(line)
+    sys.exit(-1)

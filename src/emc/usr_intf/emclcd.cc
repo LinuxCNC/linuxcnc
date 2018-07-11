@@ -23,6 +23,11 @@
 *
 * Supported interfaces include Serial and USB.
 *
+* NOTE: Some of programs whose output is parsed (ifconfig and netstat)
+*	are from the package net-tools.  
+*	This ceased to be installed by default from Debian Stretch
+*	and will need installing specifically for this program to 
+*	have a chance of working.
 ********************************************************************/
 
 #include <stdio.h>
@@ -1700,6 +1705,13 @@ int main(int argc, char *argv[])
 
     initMain();
     printf("emclcd starting\n");
+
+    // net-tools not installed by default Stretch onwards, see header
+    if( (access("/bin/netstat", F_OK ) == -1) || 
+	(access("/sbin/ifconfig", F_OK ) == -1) ){
+        fprintf(stderr, "Package net-tools required to run emclcd\n");
+	exit(1);
+    }
 
     // process local arguments
     strncpy(server, DEFAULT_SERVER, strlen(DEFAULT_SERVER) + 1);

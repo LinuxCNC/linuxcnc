@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 #
 #    This is stepconf, a graphical configuration editor for Machinekit
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
@@ -90,7 +90,7 @@ class INI:
         print >>file, "png = image-to-gcode"
         print >>file, "gif = image-to-gcode"
         print >>file, "jpg = image-to-gcode"
-        print >>file, "py = python"        
+        print >>file, "py = python2"        
 
         print >>file
         print >>file, "[TASK]"

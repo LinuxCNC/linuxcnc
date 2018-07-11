@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import remap
 
 def __init__(self):

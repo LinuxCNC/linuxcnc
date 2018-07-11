@@ -2,7 +2,7 @@
 
 loadrt hal_gpio
 newthread fast 100000
-newthread slow 1000000
+newthread slow 1000000 fp
 
 loadrt stepgen step_type=5 ctrl_type=v 
 

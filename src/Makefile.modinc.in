@@ -73,7 +73,7 @@ else
 include @EMC2_HOME@/share/linuxcnc/Makefile.inc
 endif
 
-EXTRA_CFLAGS := $(RTFLAGS) \
+EXTRA_CFLAGS := $(RTFLAGS) $(EXTRA_RTFLAGS) \
 	-D__MODULE__ \
 	$(call cc-option,-mieee-fp) \
 	$(KERNEL_MATH_CFLAGS)

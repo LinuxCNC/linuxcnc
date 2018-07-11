@@ -328,7 +328,7 @@ static void *realtime_thread(void *arg) {
 
     clock_gettime(CLOCK_MONOTONIC, &extra_task_data[task_id(task)].next_time);
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
-		       task->period, 0);
+		       task->period + task->pll_correction, 0);
 
     _rtapi_task_update_stats_hook(); // inital stats update
 
@@ -423,7 +423,7 @@ int _rtapi_wait_hook(const int flags) {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
 		    &extra_task_data[task_id(task)].next_time, NULL);
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
-		       task->period, 0);
+		       task->period + task->pll_correction, 0);
     clock_gettime(CLOCK_MONOTONIC, &ts);
     if (ts.tv_sec > extra_task_data[task_id(task)].next_time.tv_sec
 	|| (ts.tv_sec == extra_task_data[task_id(task)].next_time.tv_sec
@@ -476,6 +476,28 @@ int _rtapi_task_self_hook(void) {
 	n++;
     }
     return -EINVAL;
+}
+
+long long _rtapi_task_pll_get_reference_hook(void) {
+    int task_id = _rtapi_task_self_hook();
+    if (task_id < 0) return 0;
+    return extra_task_data[task_id].next_time.tv_sec * 1000000000LL
+        + extra_task_data[task_id].next_time.tv_nsec;
+}
+
+int _rtapi_task_pll_set_correction_hook(long value) {
+    int task_id = _rtapi_task_self_hook();
+    task_data *task = &task_array[task_id];
+    if (task <= 0) return -EINVAL;
+    if (value > task->pll_correction_limit)
+        value = task->pll_correction_limit;
+    if (value < -(task->pll_correction_limit))
+        value = -(task->pll_correction_limit);
+    task->pll_correction = value;
+    /* rtapi_print_msg(RTAPI_MSG_DBG, */
+    /*     	    "Task %d pll correction set to %ld\n", */
+    /*                 task_id, value); */
+    return 0;
 }
 
 #endif /* RTAPI */

@@ -12,7 +12,7 @@
 #
 # in a separate window, start the subscriber demo:
 #
-#     python zmqringsub.py tcp://127.0.0.1:5555
+#     python2 zmqringsub.py tcp://127.0.0.1:5555
 #
 # adapted from: https://github.com/zeromq/pyzmq/tree/master/examples/pubsub
 

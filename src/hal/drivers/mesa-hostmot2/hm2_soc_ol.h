@@ -56,5 +56,6 @@ typedef struct {
     int no_init_llio;
     int num;
     int debug;
+    int already_programmed;
 } hm2_soc_t;
 

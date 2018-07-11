@@ -93,10 +93,14 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_clock_set_period = &_rtapi_clock_set_period,
     .rtapi_delay = &_rtapi_delay,
     .rtapi_delay_max = &_rtapi_delay_max,
+    .rtapi_task_pll_get_reference = &_rtapi_task_pll_get_reference,
+    .rtapi_task_pll_set_correction = &_rtapi_task_pll_set_correction,
 #else
     .rtapi_clock_set_period = &_rtapi_dummy,
     .rtapi_delay = &_rtapi_dummy,
     .rtapi_delay_max = &_rtapi_dummy,
+    .rtapi_task_pll_get_reference = &_rtapi_dummy,
+    .rtapi_task_pll_set_correction = &_rtapi_dummy,
 #endif
     .rtapi_get_time = &_rtapi_get_time,
     .rtapi_get_clocks = &_rtapi_get_clocks,

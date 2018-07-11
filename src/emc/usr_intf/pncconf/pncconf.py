@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 # -*- encoding: utf-8 -*-
 #    This is pncconf, a graphical configuration editor for LinuxCNC
 #    Chris Morley copyright 2009
@@ -1400,7 +1400,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "png = image-to-gcode"
         print >>file, "gif = image-to-gcode"
         print >>file, "jpg = image-to-gcode"
-        print >>file, "py = python"        
+        print >>file, "py = python2"        
 
         print >>file
         print >>file, "[TASK]"

@@ -1,0 +1,24 @@
+# stepgen demo using orange pi (H3) hal_gpio_h3 driver
+
+loadrt hal_gpio_h3 output_pins=3,5,7,8
+newthread fast 100000
+newthread slow 1000000 fp
+
+loadrt stepgen step_type=5 ctrl_type=v 
+
+net a stepgen.0.phase-A => hal_gpio_h3.pin-03-out
+net b stepgen.0.phase-B => hal_gpio_h3.pin-05-out
+net c stepgen.0.phase-C => hal_gpio_h3.pin-07-out
+net d stepgen.0.phase-D => hal_gpio_h3.pin-08-out
+
+net speed stepgen.0.velocity-cmd
+
+addf stepgen.update-freq slow
+addf stepgen.make-pulses fast
+addf hal_gpio_h3.write fast
+
+setp stepgen.0.enable 1
+sets speed 5000
+start
+
+

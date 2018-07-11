@@ -480,11 +480,12 @@ KSOURCE_LOCATION_HINTS=$(echo \
 # TARGET_PLATFORM_PC
 # TARGET_PLATFORM_SOCFPGA
 # TARGET_PLATFORM_BEAGLEBONE
+# TARGET_PLATFORM_H3
 # TARGET_PLATFORM_CHIP
 # TARGET_PLATFORM_RASPBERRY
 # TARGET_PLATFORM_ZEDBOARD
 #
-# Platforms. set by --with-platform-{pc,beaglebone,chip,socfpga,raspberry,zedboard}
+# Platforms. set by --with-platform-{pc,beaglebone,h3,chip,socfpga,raspberry,zedboard}
 # see Section 2.3 to enable other platforms, and 2.7 to AC_DEFINE it
 
 # xenomai equivalent of pkg-config
@@ -498,7 +499,7 @@ XENO_CONFIG=
 # Configure several basic features:                                          #
 # - some etc/linuxcnc/machinekit.ini  values                                 #
 # - the MKUUID instance UUID                                                 #
-# - Platform (PC, Raspberry Pi, CHIP, BeagleBone,SocFpga, Zedboard)                        #
+# - Platform (PC, Raspberry Pi, CHIP, BeagleBone, H3 SoC, SocFpga, Zedboard) #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
 # - emcweb UI                                                                #
@@ -618,6 +619,35 @@ AC_ARG_WITH(platform-beaglebone,
 	esac
     ])
 
+AC_ARG_WITH(platform-h3,
+    [AS_HELP_STRING(
+        [--with-platform-h3],
+	[Build for H3 SoC platform (default for ARM arch)])],
+    [
+        case $with_platform_h3 in
+	    (y*)
+	    	TARGET_PLATFORM_H3=true
+		platform_specified=true
+		platform_h3_reason="$cmdl_enab_msg"
+		;;
+	    (*)
+	    	TARGET_PLATFORM_H3=false
+		platform_h3_reason="$cmdl_disab_msg"
+		;;
+	esac
+    ],
+    [
+        case $host_cpu in
+	    (arm*)
+	        TARGET_PLATFORM_H3=unk
+		;;
+	    (*)
+	    	TARGET_PLATFORM_H3=false
+		platform_h3_reason="$arch_disab_msg"
+		;;
+	esac
+    ])
+
 AC_ARG_WITH(platform-chip,
     [AS_HELP_STRING(
         [--with-platform-chip],
@@ -722,6 +752,10 @@ if $platform_specified; then
 	TARGET_PLATFORM_BEAGLEBONE=false
 	platform_beaglebone_reason="$cmdl_notspec_msg"
     fi
+    if test $TARGET_PLATFORM_H3 = unk; then
+	TARGET_PLATFORM_H3=false
+	platform_h3_reason="$cmdl_notspec_msg"
+    fi
     if test $TARGET_PLATFORM_CHIP = unk; then
 	TARGET_PLATFORM_CHIP=false
 	platform_chip_reason="$cmdl_notspec_msg"
@@ -750,6 +784,10 @@ else
         TARGET_PLATFORM_BEAGLEBONE=true
 	platform_beaglebone_reason="$arch_enab_msg"
     fi
+    if test $TARGET_PLATFORM_H3 = unk; then
+        TARGET_PLATFORM_H3=true
+	platform_h3_reason="$arch_enab_msg"
+    fi
     if test $TARGET_PLATFORM_CHIP = unk; then
         TARGET_PLATFORM_CHIP=true
 	platform_chip_reason="$arch_enab_msg"
@@ -776,6 +814,9 @@ AC_MSG_RESULT([$platform_pc_reason])
 
 AC_MSG_CHECKING(platform-beaglebone)
 AC_MSG_RESULT([$platform_beaglebone_reason])
+
+AC_MSG_CHECKING(platform-h3)
+AC_MSG_RESULT([$platform_h3_reason])
 
 AC_MSG_CHECKING(platform-chip)
 AC_MSG_RESULT([$platform_chip_reason])
@@ -1847,6 +1888,12 @@ if $TARGET_PLATFORM_BEAGLEBONE; then
 fi
 AC_SUBST(TARGET_PLATFORM_BEAGLEBONE,$target_platform_beaglebone_val)
 
+if $TARGET_PLATFORM_H3; then
+   AC_DEFINE(TARGET_PLATFORM_H3, [], [build for H3 SoC platform])
+   target_platform_h3_val=yes
+fi
+AC_SUBST(TARGET_PLATFORM_H3,$target_platform_h3_val)
+
 if $TARGET_PLATFORM_CHIP; then
    AC_DEFINE(TARGET_PLATFORM_CHIP, [], [build for Chip platform])
    target_platform_chip_val=yes
@@ -2333,26 +2380,26 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-if test -n "${rtai_kernels}${xenomai_kernels}${shmdrv_kernels}"; then
+#if test -n "${rtai_kernels}${xenomai_kernels}${shmdrv_kernels}"; then
     # Kernel module tools only needed for kthreads
-    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-    if test $INSMOD = "none"
-    then
-	AC_MSG_ERROR([insmod not found])
-    fi
+#    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+#    if test $INSMOD = "none"
+#    then
+#	AC_MSG_ERROR([insmod not found])
+#    fi
 
-    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-    if test $RMMOD = "none"
-    then
-	AC_MSG_ERROR([rmmod not found])
-    fi
+#    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+#    if test $RMMOD = "none"
+#    then
+#	AC_MSG_ERROR([rmmod not found])
+#    fi
 
-    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-    if test $LSMOD = "none"
-    then
-	AC_MSG_ERROR([lsmod not found])
-    fi
-fi
+#    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+#    if test $LSMOD = "none"
+#    then
+#	AC_MSG_ERROR([lsmod not found])
+#    fi
+#fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
 if test $PIDOF = "none"
@@ -2423,7 +2470,7 @@ AC_ARG_WITH(python,
     [
         PYTHON=$withval
     ],[
-        PYTHON=python
+        PYTHON=python2
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none")
 if test $PYTHON = "none"
@@ -3120,7 +3167,7 @@ done
 cat machinekitcfg.py-tmp2 > $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 rm machinekitcfg.py-tmp2
 AC_MSG_CHECKING(usability of $BUILD_TOPLEVEL/lib/python/machinekit/config.py)
-python $BUILD_TOPLEVEL/lib/python/machinekit/config.py
+python2 $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 AC_MSG_RESULT(done)
 
 ##############################################################################

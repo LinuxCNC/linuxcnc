@@ -1,0 +1,98 @@
+component pll_correction;
+
+// Cumulative difference between expected and actual period
+pin out s32 pll_err = 0;
+// Actual period of this cycle
+pin out s32 period_actual;
+// expected cycle start time
+pin out u32 time_base_hi = 0;
+pin out u32 time_base_lo = 0;
+// cycle start time
+pin out u32 now_hi;
+pin out u32 now_lo;
+// previous cycle start time
+pin out u32 prev_hi;
+pin out u32 prev_lo;
+// PLL reference
+pin out u32 ref_hi;
+pin out u32 ref_lo;
+// Number of cycles
+pin out u32 cycle_count = 0;
+
+// Buffer for average
+// - Number of samples here must match numsamps in checkresult
+// - Number of samples here must be 1/4 halsampler -n ### in pll_correction.hal
+pin in u32 numsamps;
+variable int samps[1000];
+variable int samp_last;
+pin out s32 samp_avg;
+
+// Mode:  number of samples where pll error under 1% of period
+pin out u32 mode;
+
+// PLL settings
+pin in u32 pll_periods; // Lock on to this many phases in the future
+// Monitor phase difference
+pin out s32 phase_diff;
+
+function _;
+license "GPL";
+;;
+
+// time_set(foo, bar) splits ull bar into foo_hi and foo_lo
+#define time_set(dst, src) do {                 \
+    dst ## _hi = (uint32_t) (src>>32);          \
+    dst ## _lo = (uint32_t) src;                \
+  } while (0)
+
+// time(foo) returns ull of joined foo_hi and foo_lo
+#define time(src)                                               \
+  ((unsigned long long)                                         \
+   ((((unsigned long long) src ## _hi) << 32) + src ## _lo))    \
+
+#define min(x,y) (x<y ? x : y)
+
+FUNCTION(_) {
+  // Get current time
+  time_set(now, rtapi_get_time());
+  if (cycle_count == 0) {
+    // at first cycle, set time_base and prev to now
+    time_set(time_base, time(now));
+    time_set(prev, time(now) - period);
+  } else
+    // increment time base by period
+    time_set(time_base, time(time_base) + period);
+    
+  // Difference between expected and actual period start
+  period_actual = time(now) - time(prev);
+
+  // Phase difference from base
+  phase_diff = time(now) - time(time_base);
+
+  // Incremental phase error
+  pll_err = phase_diff - period*pll_periods;
+
+  // Adjust phase
+  rtapi_task_pll_set_correction(-pll_err);
+
+  // Get reference (unused)
+  time_set(ref, rtapi_task_pll_get_reference());
+  
+  // Average
+  samps[(samp_last++)%numsamps] = pll_err;
+  samp_avg = 0;
+  int avgsamps = min(numsamps,samp_last);
+  for (int i=0; i<min(numsamps,samp_last); i++)
+    // Avoid integer overflow by dividing first (round result)
+    samp_avg += (samps[i] + avgsamps/2)/avgsamps;
+
+  // Mode
+  mode = 0;
+  for (int i=0; i<min(numsamps,samp_last); i++)
+    if (samps[i] < period*0.01)
+      mode++;
+
+  // Updates for next cycle
+  time_set(prev, time(now));
+  cycle_count++;
+}

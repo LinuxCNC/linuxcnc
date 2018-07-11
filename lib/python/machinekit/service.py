@@ -1,16 +1,19 @@
+# coding=utf-8
 import avahi
 import dbus
 import os
 import uuid
 
 
-class ZeroconfService:
+class ZeroconfService(object):
     """A simple class to publish a network service with zeroconf using
     avahi.
     """
 
     def __init__(self, name, port, stype="_http._tcp", subtype=None,
-                 domain="", host="", text="", loopback=False):
+                 domain="", host="", text=None, loopback=False):
+        if text is None:
+            text = []
         self.name = name
         self.stype = stype
         self.domain = domain
@@ -61,12 +64,12 @@ class ZeroconfService:
         self.group.Reset()
 
 
-class Service:
+class Service(object):
     """A simple class to publish a Machinekit network service using zeroconf.
     """
 
     def __init__(self, type, svcUuid, dsn, port, name=None, host=None,
-                loopback=False, debug=False):
+                 loopback=False, debug=False):
         self.dsn = dsn
         self.svcUuid = svcUuid
         self.type = type
@@ -92,15 +95,17 @@ class Service:
 
         if self.debug:
             print(('service: ' + 'dsname = ' + self.dsn +
-                                 ' port = ' + str(self.port) +
-                                 ' txtrec = ' + str(self.statusTxtrec) +
-                                 ' name = ' + self.name))
+                   ' port = ' + str(self.port) +
+                   ' txtrec = ' + str(self.statusTxtrec) +
+                   ' name = ' + self.name))
 
-        self.statusService = ZeroconfService(self.name, self.port,
-                                            stype=self.stype,
-                                            subtype=self.subtype,
-                                            text=self.statusTxtrec,
-                                            loopback=self.loopback)
+        self.statusService = ZeroconfService(
+            self.name, self.port,
+            stype=self.stype,
+            subtype=self.subtype,
+            text=self.statusTxtrec,
+            loopback=self.loopback,
+        )
 
     def publish(self):
         self.statusService.publish()
