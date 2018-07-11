@@ -34,6 +34,7 @@
 """
 import sys, os, subprocess
 import traceback
+import warnings
 
 import hal
 from optparse import Option, OptionParser
@@ -78,10 +79,10 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 signal_func = 'on_unix_signal'
 
 gladevcp_debug = 0
-def dbg(str):
+def dbg(string):
     global gladevcp_debug
     if not gladevcp_debug: return
-    print str
+    print string
 
 def on_window_destroy(widget, data=None):
         gtk.main_quit()
@@ -215,13 +216,31 @@ def main():
     handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
 
     builder.connect_signals(handlers)
+
+    # This option puts the gladevcp panel into a plug and pushed the plug's
+    # X window id number to standard output - so it can be reparented exterally
     if opts.push_XID:
+        if not opts.debug:
+            # supress warnings when x window closes
+            warnings.filterwarnings("ignore")
+        # block X errors since gdk error handling silently exits the
+        # program without even the atexit handler given a chance
+        gtk.gdk.error_trap_push()
+
+        window = xembed.add_plug(window)
         window.realize()
         gdkwin = window.get_window()
         w_id = gdkwin.xid
         print >> sys.stdout,w_id
         sys.stdout.flush()
+
+    # This option reparents gladevcp in a given X window id.
+    # it also forwards keyboard events from gladevcp to AXIS
+    # This was required for AXIS as it doesn't support embedding.
     if opts.parent:
+        if not opts.debug:
+            # supress warnings when x window closes
+            warnings.filterwarnings("ignore")
         # block X errors since gdk error handling silently exits the
         # program without even the atexit handler given a chance
         gtk.gdk.error_trap_push()
@@ -231,11 +250,6 @@ def main():
         forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
         if forward:
             xembed.keyboard_forward(window, forward)
-        window.realize()
-        gdkwin = window.get_window()
-        w_id = gdkwin.xid
-        print >> sys.stdout,w_id
-        sys.stdout.flush()
 
     window.connect("destroy", on_window_destroy)
     window.show()
@@ -314,10 +328,10 @@ def main():
     finally:
         halcomp.exit()
 
-    if opts.parent:
+    if opts.parent or opts.push_XID:
         gtk.gdk.flush()
         error = gtk.gdk.error_trap_pop()
-        if error:
+        if error and opts.debug:
             print >> sys.stderr, "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
 
 
