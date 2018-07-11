@@ -5,7 +5,7 @@ import traceback
 import hal
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
-from qtvcp.core import Status
+from qtvcp.core import Status, Info
 from qtvcp.lib import xembed
 
 # Set up the base logger
@@ -24,6 +24,7 @@ log = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
 from qtvcp import qt_makepins, qt_makegui
 
 STATUS = Status()
+INFO = Info()
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -344,7 +345,7 @@ class QTVCP:
 
     # finds the postgui file name and INI file path
     def postgui(self):
-        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
+        postgui_halfile = INFO.POSTGUI_HALFILE_PATH
         log.info("postgui filename: yellow<{}>".format(postgui_halfile))
         if postgui_halfile:
             if postgui_halfile.lower().endswith('.tcl'):

@@ -141,12 +141,12 @@ class _IStat(object):
             self.ZIPPED_USRMESS = zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME)
         except:
             self.ZIPPED_USRMESS = None
-        self.TAB_NAMES = self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")
-        self.TAB_LOCATION = self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")
-        self.TAB_CMD   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
+        self.TAB_NAMES = (self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")) or None
+        self.TAB_LOCATION = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or None
+        self.TAB_CMD   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
         self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
         self.TOOL_FILE_PATH = (self.inifile.find("EMCIO", "TOOL_TABLE")) or None
-
+        self.POSTGUI_HALFILE_PATH = (self.inifile.find("HAL", "POSTGUI_HALFILE")) or None
     ###################
     # helper functions
     ###################
