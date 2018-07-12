@@ -297,14 +297,6 @@ class QTVCP:
         if opts.always_top:
             window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
-        # maximize
-        if opts.maximum:
-            window.showMaximized()
-
-        # fullscreen
-        if opts.fullscreen:
-            window.showFullScreen()
-
         # theme (styles in QT speak)
         if opts.theme:
             if not opts.theme in (QtWidgets.QStyleFactory.keys()):
@@ -333,7 +325,14 @@ class QTVCP:
         window.setWindowTitle(title)
 
         log.debug('Show window')
-        window.show()
+        # maximize
+        if opts.maximum:
+            window.showMaximized()
+        # fullscreen
+        elif opts.fullscreen:
+            window.showFullScreen()
+        else:
+            window.show()
         if INIPATH:
             self.postgui()
 
