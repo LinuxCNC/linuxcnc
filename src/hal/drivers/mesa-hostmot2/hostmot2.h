@@ -411,12 +411,14 @@ typedef struct {
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *error;
+            hal_float_t *joint_pos_fb;
         } pin;
 
         struct {
             hal_float_t scale;
             hal_float_t vel_scale;
             hal_u32_t index_div;
+            hal_bit_t use_abs;
         } param;
 
     } hal;
