@@ -1,0 +1,11 @@
+# in case they were linked already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+# Need a qt tool change dialog added to screen for this to work
+# though it uses the same pin names as the AXIS version
+# the Qt version intergrates better.
+
+net tool-change hal_manualtoolchange.change iocontrol.0.tool-change
+net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
