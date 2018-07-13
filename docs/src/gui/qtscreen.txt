@@ -1,19 +1,37 @@
 [[cha:qtscreen]]
 
-= QTscreen
+= Qtvcp
 
-QTscreen is an infrastructure to display a custom screen or VCP panel in LinuxCNC. +
+Qtvcp is an infrastructure to display a custom CNC screen or control panel in LinuxCNC. +
 It displays a UI file built with the QTDesigner screen editor or combines this +
 with python programming to create a GUI screen for running a CNC machine. +
-QTscreen is customizable - you can add different buttons and status LEDs etc. +
+Qtvcp is completely customizable - you can add different buttons and status LEDs etc. +
+or add python code for even finer grain customizations. +
 
-.QT_cnc - 3 Axis Sample
+.qtdefault - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
 
-= QTvcp Widgets
+== Overview
 
-Qtscreen uses QTvcp widgets for linuxcnc integration.
-Widget is the general name for the UI objects such as buttons and labels in pyQT5. +
+There are two files that can be used, individually or in combination to add +
+customization. +
+A UI file that is made with QT's Designer graphical editor. +
+A handler file which is a text file with python code. +
+Normally qtvcp uses the stock UI and handler file. +
+You can specify qtvcp to use 'local' UI and handler files. +
+A 'local' file is one that is in the configuration folder that defines the +
+rest of the machine's requirments. +
+One is not restricted to adding a custom panel on the right or a custom tab. +
+qtvcp leverages 'QT Designer' (the editor) and 'PyQT5' (the widget toolkit). +
+QTvcp has some special widgets and actions added just for LinuxCNC. +
+There are special widgets to bridge third party widgets to HAL pins. +
+It's possible to create widget responses by connecting signals  to python +
+code in the handler file. + 
+
+=== QTvcp Widgets
+
+Qtvcp uses the PyQt5 toolkit's widgets for linuxcnc integration. +
+Widget is the general name for objects such as buttons and labels in PyQT5. +
 You are free to use any available widgets in the QTDesigner editor. +
 There are also special widgets made for linuxcnc that make integration easier. +
 This are split in three heading on the left side of the editor. +
@@ -21,26 +39,17 @@ One is for HAL only widgets. +
 One is for cnc control widgets. +
 One is for dialog widgets. +
 you are free to mix them in any way on your panel. +
-A very important widget is the screenoptions widget. +
+A very important widget for CNC control is the screenoptions widget. +
 It does not add anything visually to the screen. +
 But allows important details to be selected rather then be coded in the handler file. +
 
-= Overview
-
-There are two files that can be used, individually or in combination to add +
-customization. Normally QTscreen uses the stock UI and handler file. +
-You can specify QTscreen to use 'local' UI and handler files. +
-One is not restricted to adding a custom panel on the right or a custom tab. +
-QTscreen leverages 'QT Designer' (the editor) and 'PyQT5' (the widget toolkit). +
-QTvcp has some special widgets and actions added just for LinuxCNC. +
-
-== INI Settings
+=== INI Settings
 
 If you are using this to make a CNC control screen: +
 Under the [DISPLAY] heading:
 
 ----
-DISPLAY = qtscreen <screen_name>
+DISPLAY = qtvcp <screen_name>
   options:
     -d debugging on
     -a set window always on top
@@ -49,29 +58,201 @@ DISPLAY = qtscreen <screen_name>
     -m maximise window
     -f fullscreen the window
     -t theme. Default is system theme
+    -x embed into a X11 window that doesn't supoort embedding.
+    --push_xid send qtvcp's X11 window id number to standard output; for embedding
     <screen_name> is the base name of the .ui and _handler.py files.
     If <screen_name> is missing the default screen will be loaded.
 ----
-QTscreen assumes the UI file and the handler file use this same base name. +
-QTscreen will search the LinuxCNC configuration file that was launched first for the files,  +
+Qtvcp assumes the UI file and the handler file use this same base name. +
+Qtvcp will search the LinuxCNC configuration file that was launched first for the files,  +
 then in the system skin folder. the skin folders holds standard screens. +
 
-
-== QTDesigner UI File
+=== QTDesigner UI File
 
 A designer file is a text file organized in the XML standard that describes the +
 layout and the widgets of the screen. Pyqt5 uses this file to build the display +
 and react to those widgets. The QTDesigner editor makes it relatively easy to build +
 and edit this file. +
 
-== Handler Files
+=== Handler Files
 
-A handler file is a file containing python code, which QTscreen adds to it's +
+A handler file is a file containing python code, which qtvcp adds to it's +
 default routines. A handler file allows one to modify defaults, or add logic +
-to a QTscreen skin without having to modify QTscreen proper.  +
-If present a handler file will be loaded. +
-Only one file is allowed. QTscreen looks for the handler file. +
+to a qtvcp skin without having to modify qtvcp's core code. +
 In this way you can have custom behaviour. +
+If present a handler file will be loaded. +
+Only one file is allowed. +
+
+=== Libraries modules
+Qtvcp as built does little more then display the screen and react to widgets. +
+For more prebuilt behaviours there are available libraries. +
+(found in lib/python/qtvcp/lib in RIP linuxcnc install) +
+libraries are prebuilt python modules that give added features to Qtvcp. +
+In this way you can select what features you want - yet don't have to build common ones yourself. +
+Such libraries include: +
+
+audio_player +
+aux_program_loader +
+keybindings +
+message +
+preferences +
+notify +
+virtual_keyboard +
+machine_log +
+
+
+=== Themes
+
+Themes are a way to modify the look and feel of the widgets on the screen. +
+For instance the color or size of buttons and sliders can be changed using
+themes. +
+The Windows theme is default for screens. System theme is default for panels. +
+to see available themes load qtvcp with -d -t SHOWTHEMES +
+
+qtvcp can also be customized with Qt stylesheets using css. +
+
+=== Local Files
+
+If present, local UI files in the configuration folder will be loaded instead +
+of the stock UI files. Local UI files allow you to use your customized +
+designs rather then the default screens. +
+qtvcp will look for MYNAME.ui and MYNAME_handler.py in the launched configuration folder. +
+
+
+=== Modifying Stock Screens
+
+If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
+
+
+== Build a simple clean-sheet custom screen
+
+.Ugly custom screen
+image::images/qtvcp_tester.png["QTscreen Mill",align="left"]
+
+=== Overview
+
+To build a panel or screen use QTDesigner to build a design you like. +
+Save this design to your configuration folder with a name of your choice, ending with .ui +
+modify the configurations INI file to load qtvcp with your new .ui file. +
+Then connect any required HAL pins in a HAL file +
+
+=== Get Designer to include linuxcnc widgets
+
+You must have designer installed; These commands should add it: +
+Or use your package manager to install the same: +
+'sudo apt-get install qttools5-dev-tools' +
+'sudo apt-get install qttools5.dev' +
+
+Then you need the python-module loading library added. +
+Qtvcp uses QT5 with python2 - this combination is not normally available from +
+repositories. You can compile it your self or there are precompiled versions +
+available for common systems. +
+in 'lib/python/qtvcp/designer' there are folders based on system architectures +
+and then QT version. +
+You must pick the cpu architecture folder then pick the series; 5.5 or 5.7 of Qt. +
+currently Debian stretch uses 5.7, Mint 12 uses 5.5 +
+if in doubt check the version of QT5 on the system. +
+
+You must copy that proper version of 'libpyqt5_py2.so' to this folder: +
+'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer' +
+(x86_64-linux-gnu might be called something slightly different +
+on different systems) +
+
+You will require super user privileges to copy the file to the folder. +
+
+then you must link the qtvcp_plugin.py to the folder that designer will search. +
+
+This can be: +
+'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' +
+or +
+'~/.designer/plugins/python' +
+
+open a terminal, set the environment for linuxcnc '. scripts/rip-environment' +
+then load designer with : designer -qt=5 +
+
+=== build the screen .ui file
+
+When Designer is first started there is a 'New Form' dialog displayed. +
+Pick 'Main Window' and press the 'create' button. +
+Do not rename this window - Qtvcp requires the name to be 'MainWindow' +
+ +
+A MainWindow widget is Displayed. Grab the corner of the window and resize to +
+an appropriate size say 1000x600. right click on the window and click +
+set minimum size. Do it again and set maximum size.Our sample widget will +
+now not be resizable. +
+ +
+Drag and drop the screenoption widget onto the main window (anywhere). +
+This widget doesn't add anything visually but sets up some common options. +
+
+Drag and drop a FileDialog widget on the window anywhere. +
+This will show the dialog and we want it hidden. +
+On the right hand side there is a panel with tabs for a Property editor and +
+an object inspector. On the Object inspector click on the FileDialog. then +
+switch switch to the property Editor. Under the heading 'FileDialog' toggle +
+'State' until the dialog disappears. +
+
+Drag and drop a GCodeGraphics widget and a GcodeEditor widget. +
+Place and resize them as you see fit leaving some room for buttons. +
+
+Now we will add action buttons. +
+Add 7 action buttons on to the main window. If you double click the button, you +
+can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', +
+'Run', 'Pause' and 'stop'. +
+Action buttons default to Estop action so we must change the the other buttons. +
+Select the 'Machine On' button. Now go to the 'Property Editor' on the right +
+side of Designer. Scroll down until you find the 'ActionButton' heading. +
+You will see a list of properties and values. find the 'machine on action' and +
+click the checkbox. the button will now control machine on/off. +
+Do the same for all the other button with the addition of: +
+
+ - With the 'Home' button we must also change the joint_number property to -1, +
+Which tells the controller to home all the axes rather then a specific axis. +
+
+ - With the 'Pause' button under the heading 'Indicated_PushButton' check the +
+'indicator_option' and under the 'QAbstactButton' heading check 'checkable'
+
+.Qt Designer - Selecting Pause button's properties
+image::images/designer_button_property.png["designer button property",align="left"]
+
+We then need to save this design as 'tester.ui' in the sim/qtvcp folder +
+We are saving it as tester as that is a file name that qtvcp recognizes and +
+will use a built in handler file to display it. +
+
+=== Handler file
+a handler file is required. It allows customizations to be written in python. +
+For instance keyboard controls are usually written in the handler file. +
+ +
+In this example the built in file 'tester_handler.py' is automatically used. +
+It does the minimum required to display the tester.ui defined screen and do +
+basic keyboard jogging. +
+
+=== INI
+
+If you are using qtvcp to make a CNC control screen: +
+Under the '[DISPLAY]' heading: +
+ +
+'DISPLAY = qtvcp <screen_name>' +
+ +
+'<screen_name>' is the base name of the .ui and _handler.py files. +
+
+In our example there is already a sim configuration called tester, that we +
+will use to display our test screen.
+
+=== HAL
+
+If your screen used widgets with HAL pins the you must connect then in a HAL file. +
+qtvcp looks under the heading '[HAL]' for the entry 'POSTGUI_HALFILE=<filename>' +
+Typically '<filename>' would be the screens base name + '_postgui' + '.hal' +
+eg. 'qtvcp_postgui.hal' +
+These commands are executed after the screen is built, guaranteeing the widget HAL +
+pins are available. +
+ +
+In our example there are no HAl pins to connect. +
+
+== Handler file in detail
+handler files are used to create custom controls using python.+
+
+=== Overview
 Here is a sample handler file. +
 It's broken up in sections for ease of discussion. +
 
@@ -167,9 +348,9 @@ class HandlerClass:
     def on_state_off(self,w):
         print 'machine off'
 
-    #####################################
-    # **** QTFORM CALLBACK SECTION **** #
-    #####################################
+    #################################
+    # **** callbacks from form **** #
+    #################################
 
     def zero_axis(self):
         name = self.w.sender().text()
@@ -223,168 +404,145 @@ class HandlerClass:
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
 ----
-== Libraries modules
-Qtscreen as built does little more then display the screen and react to widgets. +
-For more prebuilt behaviours there are available libraries. +
-(found in lib/python/qtvcp/lib in RIP linuxcnc install) +
-libraries are prebuilt python modules that give added features to QTvcp. +
-In this way you can select what features you want - yet don't have to build common ones yourself. +
-Such libraries include: +
 
-audio_player +
-aux_program_loader +
-keybindings +
-message +
-preferences +
-notify +
-virtual_keyboard +
+=== IMPORT SECTION
+This section is for importing libraries required for your screen. +
+It would be typical to import qtvcp's keybinding, Status and action +
+libraries. +
 
-== Themes
+=== INSTANTIATE LIBRARIES SECTION
+By instantiating the libraries here we create global reference. +
+You can note this by the commands that don't have 'self.' in front of them. +
+By convention we capitalize the names of global referenced libraries. +
 
-Themes are a way to modify the look and feel of the widgets on the screen. +
-For instance the color or size of buttons and sliders can be changed using
-themes. +
-The Windows theme is default for screens. System theme is default for panels. +
-to see available themes load qtscreen with -d -t SHOWTHEMES +
+=== HANDLER CLASS section 
+The custom code is placed in a class so qtvcp can utilize it. +
+This is the definitions on the handler class. +
 
-Qtscreen can also be customized with Qt stylesheets using css. +
+=== INITIALIZE section
+Like all python libraies the __init__ function is called when the library +
+is first instaniated. You can defaults and reference variables here. +
+The widget references are not available at this point. +
 
-=== Local Files
+=== SPECIAL FUNCTIONS section
+There are several special functions that qtvcp looks for in the handler file. +
+If qtvcp finds these it will call them, if not it will silently ignore them. +
 
-If present, local UI files in the configuration folder will be loaded instead +
-of the stock UI files. Local UI files allow you to use your customized +
-designs rather then the default screens. +
-QTscreen will look for MYNAME.ui and MYNAME_handler.py in the launched configuration folder. +
+==== initialized__(self):
+This function is called after the widgets and HAL pins are built +
+    You can manipulate the widgets and HAL pins or add more HAL pins here. +
+    Typically preferences can be checked and set, styles applied to  +
+    widgets or status of linuxcnc be connected to functions. +
+    
+==== processed_key_event__(self, receiver,event,is_pressed,key,code,shift,cntrl):
+This function is called to fascilitate keyboard jogging etc. +
+By using the keybindings library this can be used to easily add +
+functions bound to keypresses.+
 
+==== keypress_event__(self,receiver, event)):
+This function gives raw key press events. It takes presidence over +
+the processed_key_event. +
+ 
+==== keyrelease_event__(receiver, event)
+This function gives raw key release events. It takes presidence over +
+the processed_key_event. +
 
-=== Modifying Stock Screens
+==== closing_cleanup__(self):
+This function is called just before the screen closes. It can be used +
+to do cleanup before closing. +
 
-If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
+=== STATUS CALLBACKS section
+By convention this is where you would put functions that are callbacks +
+from STATUS definitions. +
 
+=== CALLBACKS FROM FORM section
+By convention this is where you would put functions that are callbacks +
+from the widgets that you have connected to the MainWindow with the +
+designer editor. +
 
-== Build a simple clean-sheet custom screen
-.Ugly custom screen
-image::images/qtvcp_tester.png["QTscreen Mill",align="left"]
+=== GENERAL FUNCTIONS section
+By convention this is where you put your general functions +
+
+=== KEY BINDING section
+If you are using the keybinding library this is where you place your +
+custom key call routines. +
+The function signature is: +
+[source,python]
+----
+    def on_keycall_KEY(self,event,state,shift,cntrl):
+        if state:
+            self.do_something_function()
+----
+'KEY' being the code (from the keybindings library) for the desired key. +
+
+=== CLOSING EVENT section
+Putting the close event function here will catch closing events. +
+This replaces any predefined closeEvent function from qtvcp +
+It's usally better to use the special closing_cleanup__ function. +
+[source,python]
+----
+    def closeEvent(self, event):
+        self.do_something()
+        event.accept()
+----
+
+== Connecting widgets to python code
+It's possible to connect widgets to python code using signals and slots. +
+In this way you can give new functions to linuxcnc widgets or utilize +
+standard widgets to control linuxcnc. +
 
 === Overview
+In the Designer editor you would create user function slots and connect +
+them to widgets using signals. +
+In the handler file you would create the slot's functions defined in Designer. +
 
-To build a panel or screen use QTDesigner to build a design you like. +
-Save this design to your configuration folder with a name of your choice, ending with .ui +
-modify the configurations INI file to load Qtscreen with your new .ui file. +
-Then connect any required HAL pins in a HAL file +
+=== Using Designer to add slots
+When you have loaded your screen into designer add a plain PushButton to the screen. +
+You could change the name of the button to something interesting like 'test_button' +
+There are two ways to edit connections - This is the graphical way +
+There is a button in the top tool bar of designer for editing signals. +
+After pushing it, if you click-and-hold on the button it will show a arrow +
+(looks like a ground signal from electrical schematic) +
+Slide this arrow to a part of the main window that does not have widgets on it. +
+A 'Configure Connections' dialog will pop up. +
+The list on the left are the available signals from the widget. +
+The list on the right is the available slots on the main window and you can add to it. +
 
-=== Get Designer to include linuxcnc widgets
+Pick the signal 'clicked()' - this makes the slots side available. +
+click 'edit' on the slots list. +
+A 'Slots/Signals of MainWindow' dialog will pop up. +
+On the slots list at the top there is a plus icon - click it. +
+you can now edit a new slot name. +
+Erase the default name 'slot()' and change it to test_button() +
+press the ok button. +
+You'll be back to the 'Configure Connections' dialog. +
+now you can select your new slot in the slot list. +
+then press ok and save the file. +
 
-You must have designer installed; These commands should add it: +
-Or use your package manager to install the same: +
-'sudo apt-get install qttools5-dev-tools' +
-'sudo apt-get install qttools5.dev' +
+.Designer signal/slot selection
+image::images/designer_slots.png["QTvcp",align="left"]
 
-Then you need the python-module loading library added. +
-Qtvcp uses QT5 with python2 - this combination is not normally available from +
-repositories. You can compile it your self or there are precompiled versions +
-available for common systems. +
-in 'lib/python/qtvcp/designer' there are folders based on system architectures +
-and then QT version. +
-You must pick the cpu architecture folder then pick the series; 5.5 or 5.7 of Qt. +
-currently Debian stretch uses 5.7, Mint 12 uses 5.5 +
-if in doubt check the version of QT5 on the system. +
+=== Handler file changes
+Now you must add the function to the handler file. +
+The function signature is 'def slotname(self):' +
+We will add some code to print the widget name. +
 
-You must copy that proper version of 'libpyqt5_py2.so' to this folder: +
-'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer' +
-(x86_64-linux-gnu might be called something slightly different +
-on different systems) +
+So for our example:
+[source,python]
+----
+def test_button(self):
+    name = self.w.sender().text()
+    print name
+----
 
-You will require super user privileges to copy the file to the folder. +
+Add this code under the section named:
 
-then you must link the qtvcp_plugin.py to the folder that designer will search. +
+    #######################
+    # callbacks from form #
+    #######################
 
-This can be: +
-'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' +
-or +
-'~/.designer/plugins/python' +
-
-open a terminal, set the environment for linuxcnc '. scripts/rip-environment' +
-then load designer with : designer -qt=5 +
-
-=== build the screen .ui file
-
-When Designer is first started there is a 'New Form' dialog displayed. +
-Pick 'Main Window' and press the 'create' button. +
-Do not rename this window - Qtvcp requires the name to be 'MainWindow' +
- +
-A mainwindow widget is Displayed. Grab the corner of the window and resize to +
-an appropriate size say 1000x600. right click on the window and click +
-set minimum size. Do it again and set maximum size.Our sample widget will +
-now not be resizable. +
- +
-Drag and drop the screenoption widget onto the main window (anywhere). +
-This widget doesn't add anything visually but sets up some common options. +
-
-Drag and drop a FileDialog widget on the window anywhere. +
-This will show the dialog and we want it hidden. +
-On the right hand side there is a panel with tabs for a Property editor and +
-an object inspector. On the Object inspector click on the FileDialog. then +
-switch switch to the property Editor. Under the heading 'FileDialog' toggle +
-'State' until the dialog disappears. +
-
-Drag and drop a GCodeGraphics widget and a GcodeEditor widget. +
-Place and resize them as you see fit leaving some room for buttons. +
-
-Now we will add action buttons. +
-Add 7 action buttons on to the main window. If you double click the button, you +
-can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', +
-'Run', 'Pause' and 'stop'. +
-Action buttons default to Estop action so we must change the the other buttons. +
-Select the 'Machine On' button. Now go to the 'Property Editor' on the right +
-side of Designer. Scroll down until you find the 'ActionButton' heading. +
-You will see a list of properties and values. find the 'machine on action' and +
-click the checkbox. the button will now control machine on/off. +
-Do the same for all the other button with the addition of: +
-
- - With the 'Home' button we must also change the joint_number property to -1, +
-Which tells the controller to home all the axes rather then a specific axis. +
-
- - With the 'Pause' button under the heading 'Indicated_PushButton' check the +
-'indicator_option' and under the 'QAbstactButton' heading check 'checkable'
-
-.Qt Designer - Selecting Pause button's properties
-image::images/designer_button_property.png["designer button property",align="left"]
-
-We then need to save this design as 'tester.ui' in the sim/qtscreen folder +
-We are saving it as tester as that is a file name that qtscreen recognizes and +
-will use a built in handler file to display it. +
-
-=== Handler file
-a handler file is required. It allows customizations to be written in python. +
-For instance keyboard controls are usually written in the handler file. +
- +
-In this example the built in file 'tester_handler.py' is automatically used. +
-It does the minimum required to display the tester.ui defined screen and do +
-basic keyboard jogging. +
-
-=== INI
-
-If you are using Qtscreen to make a CNC control screen: +
-Under the '[DISPLAY]' heading: +
- +
-'DISPLAY = qtscreen <screen_name>' +
- +
-'<screen_name>' is the base name of the .ui and _handler.py files. +
-
-In our example there is already a sim configuration called tester, that we +
-will use to display our test screen.
-
-=== HAL
-
-If your screen used widgets with HAL pins the you must connect then in a HAL file. +
-Qtscreen looks under the heading '[HAL]' for the entry 'POSTGUI_HALFILE=<filename>' +
-Typically '<filename>' would be the screens base name + '_postgui' + '.hal' +
-eg. 'qtscreen_postgui.hal' +
-These commands are executed after the screen is built, guaranteeing the widget HAL +
-pins are available. +
- +
-In our example there are no HAl pins to connect. +
-
-
-
+In fact it doesn't matter where in the handler class you put the commands
+but by convention this is where to put it. +
+Save the handler file. +
+Now when you load your screen and press the button it should print the name +
+of the button in the terminal. +
