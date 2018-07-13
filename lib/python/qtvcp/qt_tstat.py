@@ -55,6 +55,7 @@ class _TStat(object):
         self.tool_info = None
         self.current_tool_num = -1
         self.model = []
+        self.toolinfo = None
 
     def GET_TOOL_INFO(self, toolnum):
         self.current_tool_num = int(toolnum)
