@@ -123,7 +123,6 @@ class HandlerClass:
             else:
                 print 'abort'
                 self.cmnd.abort()
-            self.w.button_home.click()
 
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
