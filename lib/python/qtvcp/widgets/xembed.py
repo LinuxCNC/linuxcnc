@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess
 
 from PyQt5.QtCore import QSize, QEvent, pyqtProperty
@@ -44,6 +45,9 @@ class XEmbed(XEmbeddable, _HalWidgetBase):
         self.command = None
 
     def _hal_init(self):
+        # send embedded program our X window id so it can forward events to us.
+        wid = int(self.QTVCP_INSTANCE_.winId())
+        os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
         self.embed(self.command)
 
     def set_command(self, data):

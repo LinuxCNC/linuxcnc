@@ -219,6 +219,7 @@ def main():
 
     # This option puts the gladevcp panel into a plug and pushed the plug's
     # X window id number to standard output - so it can be reparented exterally
+    # it also forwards events to qtvcp
     if opts.push_XID:
         if not opts.debug:
             # supress warnings when x window closes
@@ -233,10 +234,12 @@ def main():
         w_id = gdkwin.xid
         print >> sys.stdout,w_id
         sys.stdout.flush()
+        forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
+        if forward:
+            xembed.keyboard_forward(window, forward)
 
     # This option reparents gladevcp in a given X window id.
     # it also forwards keyboard events from gladevcp to AXIS
-    # This was required for AXIS as it doesn't support embedding.
     if opts.parent:
         if not opts.debug:
             # supress warnings when x window closes
