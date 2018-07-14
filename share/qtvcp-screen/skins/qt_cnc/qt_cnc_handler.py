@@ -65,7 +65,7 @@ class HandlerClass:
             print 'Using preference file:',self.w.PREFS_.fn
         STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
         # set custom theme
-        self.STYLE.bright_style()
+        self.STYLE.dark_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')

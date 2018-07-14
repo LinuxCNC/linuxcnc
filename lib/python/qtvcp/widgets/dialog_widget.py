@@ -269,7 +269,8 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.setDirectory(path)
         STATUS.emit('focus-overlay-changed', False, None, None)
         if fname:
-            self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
+            if self.PREFS_:
+                self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
             f = open(fname, 'r')
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
