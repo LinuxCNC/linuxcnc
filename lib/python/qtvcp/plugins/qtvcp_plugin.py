@@ -33,6 +33,7 @@ from qtvcp.plugins.actionbutton_plugin import ActionButtonPlugin
 from qtvcp.plugins.dialog_plugin import *
 from qtvcp.plugins.overlay_plugin import FocusOverlayPlugin
 from qtvcp.plugins.status_slider_plugin import StatusSliderPlugin
+from qtvcp.plugins.status_adjustment_bar_plugin import StatusAdjustmentBarPlugin
 from qtvcp.plugins.screenoptions_plugin import LcncScreenOptionsPlugin
 from qtvcp.plugins.jogincrements_plugin import JogIncrementsPlugin
 from qtvcp.plugins.camview_plugin import CamViewPlugin

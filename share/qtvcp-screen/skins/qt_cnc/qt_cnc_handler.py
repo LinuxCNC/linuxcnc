@@ -65,7 +65,7 @@ class HandlerClass:
             print 'Using preference file:',self.w.PREFS_.fn
         STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
         # set custom theme
-        self.STYLE.dark_style()
+        self.STYLE.bright_style()
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
@@ -318,6 +318,49 @@ min-height: 30px;
 #frame_man { border: 3px solid gray;border-radius: 15px;
 background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
  }
+QProgressBar {
+    border: 1px solid #76797C;
+    text-align: center;
+    color:black;
+}
+
+    QProgressBar::chunk {
+        background-color:green ;
+}
+QProgressBar {
+    border: 1px solid gray;
+text-align: top;
+color:yellow;
+padding: 1px;
+border-top-right-radius: 7px;
+border-top-left-radius: 7px;
+border-bottom-right-radius: 7px;
+border-bottom-left-radius: 7px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
+
+
+}
+QProgressBar::chunk {
+background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,
+stop: 0 #78d,
+
+stop: 1 #238 );
+border-top-right-radius: 7px;
+border-top-left-radius: 7px;
+border-bottom-right-radius: 7px;
+border-bottom-left-radius: 7px;
+border: 1px solid black;
+}
+QToolButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 11px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 25px;
+}
 
 ''')
 
@@ -454,6 +497,40 @@ min-height: 30px;
 #frame_man { border: 3px solid gray;border-radius: 15px;
 background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
  }
+QProgressBar {
+    border: 1px solid gray;
+text-align: top;
+color:yellow;
+padding: 1px;
+border-top-right-radius: 7px;
+border-top-left-radius: 7px;
+border-bottom-right-radius: 7px;
+border-bottom-left-radius: 7px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+
+
+}
+QProgressBar::chunk {
+background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,
+stop: 0 #78d,
+
+stop: 1 #238 );
+border-top-right-radius: 7px;
+border-top-left-radius: 7px;
+border-bottom-right-radius: 7px;
+border-bottom-left-radius: 7px;
+border: 1px solid black;
+}
+QToolButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 11px;
+padding: px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 30px;
+}
 
 ''')
         bgpath = self.IMAGE_PATH+'/frame_bg_blue.png'

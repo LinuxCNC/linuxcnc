@@ -445,7 +445,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>489</x>
+       <x>505</x>
        <y>325</y>
        <width>700</width>
        <height>400</height>
@@ -457,7 +457,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <rect>
        <x>130</x>
        <y>30</y>
-       <width>380</width>
+       <width>800</width>
        <height>247</height>
       </rect>
      </property>
@@ -1757,115 +1757,6 @@ file</string>
      </widget>
     </widget>
    </widget>
-   <widget class="StatusSlider" name="StatusSlider">
-    <property name="geometry">
-     <rect>
-      <x>860</x>
-      <y>550</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::NoTicks</enum>
-    </property>
-    <property name="tickInterval">
-     <number>10</number>
-    </property>
-   </widget>
-   <widget class="StatusSlider" name="StatusSlider_2">
-    <property name="geometry">
-     <rect>
-      <x>860</x>
-      <y>580</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>200</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::NoTicks</enum>
-    </property>
-    <property name="tickInterval">
-     <number>10</number>
-    </property>
-    <property name="rapid_rate" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="feed_rate" stdset="0">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="StatusSlider" name="StatusSlider_6">
-    <property name="geometry">
-     <rect>
-      <x>860</x>
-      <y>610</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <number>50</number>
-    </property>
-    <property name="maximum">
-     <number>150</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::NoTicks</enum>
-    </property>
-    <property name="tickInterval">
-     <number>10</number>
-    </property>
-    <property name="rapid_rate" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="spindle_rate" stdset="0">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="StatusSlider" name="StatusSlider_5">
-    <property name="geometry">
-     <rect>
-      <x>860</x>
-      <y>640</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::NoTicks</enum>
-    </property>
-    <property name="tickInterval">
-     <number>10</number>
-    </property>
-    <property name="rapid_rate" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="jograte_rate" stdset="0">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="StatusLabel" name="mcodes_label">
     <property name="geometry">
      <rect>
@@ -1889,115 +1780,6 @@ file</string>
     </property>
     <property name="mcodes_status" stdset="0">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="ActionButton" name="actionbutton_15">
-    <property name="geometry">
-     <rect>
-      <x>955</x>
-      <y>580</y>
-      <width>51</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>FO</string>
-    </property>
-    <property name="feed_over_action" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="toggle_float_option" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="float_alt_num" stdset="0">
-     <double>75.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="ActionButton" name="actionbutton_16">
-    <property name="geometry">
-     <rect>
-      <x>955</x>
-      <y>550</y>
-      <width>51</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>RO</string>
-    </property>
-    <property name="feed_over_action" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="rapid_over_action" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="toggle_float_option" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="float_alt_num" stdset="0">
-     <double>25.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="ActionButton" name="actionbutton_17">
-    <property name="geometry">
-     <rect>
-      <x>955</x>
-      <y>610</y>
-      <width>51</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>SO</string>
-    </property>
-    <property name="feed_over_action" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="rapid_over_action" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="spindle_over_action" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="toggle_float_option" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="float_alt_num" stdset="0">
-     <double>90.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="ActionButton" name="actionbutton_18">
-    <property name="geometry">
-     <rect>
-      <x>955</x>
-      <y>640</y>
-      <width>51</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Jog</string>
-    </property>
-    <property name="jog_rate_action" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="feed_over_action" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="rapid_over_action" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="spindle_over_action" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="toggle_float_option" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="float_num" stdset="0">
-     <double>60.000000000000000</double>
-    </property>
-    <property name="float_alt_num" stdset="0">
-     <double>15.000000000000000</double>
     </property>
    </widget>
    <widget class="QFrame" name="frame_auto_2">
@@ -2467,9 +2249,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <widget class="QFrame" name="frame_auto_4">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>840</x>
       <y>460</y>
-      <width>171</width>
+      <width>181</width>
       <height>221</height>
      </rect>
     </property>
@@ -2593,6 +2375,103 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="incr_mm_number" stdset="0">
       <double>0.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="StatusAdjustmentBar" name="statusadjustmentbar">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>180</y>
+       <width>201</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="rapid_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jograte_rate" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="text_template" stdset="0">
+      <string>Jog Rate</string>
+     </property>
+    </widget>
+    <widget class="StatusAdjustmentBar" name="statusadjustmentbar_2">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>140</y>
+       <width>201</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="rapid_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="spindle_rate" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="jograte_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="text_template" stdset="0">
+      <string>Spindle</string>
+     </property>
+    </widget>
+    <widget class="StatusAdjustmentBar" name="statusadjustmentbar_3">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>100</y>
+       <width>201</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="rapid_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="feed_rate" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="spindle_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jograte_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="text_template" stdset="0">
+      <string>Feed</string>
+     </property>
+    </widget>
+    <widget class="StatusAdjustmentBar" name="statusadjustmentbar_4">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>60</y>
+       <width>201</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="rapid_rate" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="feed_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="spindle_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jograte_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="show_toggle_button" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="show_setting_menu" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="text_template" stdset="0">
+      <string>Rapid</string>
      </property>
     </widget>
    </widget>
@@ -2761,7 +2640,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <rect>
       <x>680</x>
       <y>460</y>
-      <width>171</width>
+      <width>161</width>
       <height>221</height>
      </rect>
     </property>
@@ -2780,7 +2659,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <rect>
        <x>10</x>
        <y>110</y>
-       <width>151</width>
+       <width>141</width>
        <height>21</height>
       </rect>
      </property>
@@ -2897,15 +2776,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>macrotabdialog</zorder>
    <zorder>originoffsetdialog</zorder>
    <zorder>StatusStacked</zorder>
-   <zorder>StatusSlider</zorder>
-   <zorder>StatusSlider_2</zorder>
-   <zorder>StatusSlider_6</zorder>
-   <zorder>StatusSlider_5</zorder>
    <zorder>mcodes_label</zorder>
-   <zorder>actionbutton_15</zorder>
-   <zorder>actionbutton_16</zorder>
-   <zorder>actionbutton_17</zorder>
-   <zorder>actionbutton_18</zorder>
    <zorder>frame_auto_8</zorder>
    <zorder>gcodes_label</zorder>
    <zorder>state_label_10</zorder>
@@ -2935,9 +2806,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
   </customwidget>
   <customwidget>
    <class>MDILine</class>
