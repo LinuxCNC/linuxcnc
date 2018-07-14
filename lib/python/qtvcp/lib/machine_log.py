@@ -25,6 +25,8 @@ class MachineLogger():
             self.log_message_date(message)
         elif option == 'DELETE':
             self.delete_log()
+        elif option == 'INITIAL':
+            self.initial_greeting()
         else:
             self.log_message(message)
 

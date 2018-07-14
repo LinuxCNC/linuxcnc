@@ -27,7 +27,7 @@ from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
 from qtvcp.lib.machine_log import MachineLogger
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, Tool
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -42,6 +42,7 @@ STATUS = Status()
 NOTE = Notify()
 MSG = Message()
 INFO = Info()
+TOOL = Tool()
 MLOG = MachineLogger()
 LOG = logger.getLogger(__name__)
 
@@ -132,9 +133,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                         self.notify_start_timeout, self. notify_start_timeout)
         # clear and add an intial machine log message
         STATUS.emit('update-machine-log', '', 'DELETE')
-        MLOG.initial_greeting()
+        STATUS.emit('update-machine-log', '', 'INITIAL')
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         # We supply our own dialog for closing
         self.CLOSE_DIALOG = CloseDialog()
+
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to ther widgets
     def _pref_init(self):
@@ -186,6 +189,28 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 except:
                     pass
             event.accept()
+
+        # [0] = tool number
+        # [1] = pocket number
+        # [2] = X offset
+        # [3] = Y offset
+        # [4] = Z offset
+        # [5] = A offset
+        # [6] = B offset
+        # [7] = C offset
+        # [8] = U offset
+        # [9] = V offset
+        # [10] = W offset
+        # [11] = tool diameter
+        # [12] = frontangle
+        # [13] = backangle
+        # [14] = tool orientation
+        # [15] = tool comment
+    def _tool_file_info(self, tool_entry, index):
+        toolnum = tool_entry[0]
+        tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
+        text = 'Tool %s: %s'%(str(tool_table_line[0]),str(tool_table_line[index]))
+        STATUS.emit('update-machine-log', text, 'TIME')
 
     ########################################################################
     # This is how designer can interact with our widget properties.
