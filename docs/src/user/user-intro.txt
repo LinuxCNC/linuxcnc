@@ -29,9 +29,11 @@ which has one stepper motor connected to it. Each drive receives two independent
 command the drive to move its associated stepper motor in a clockwise or anti-clockwise direction, and a
 second signal that defines the speed at which that stepper motor rotates. 
 
-While a stepper motor system under parallel port control is illustrated, a LinuxCNC system can also control
-servo motors via servo interface cards, or dispense with the parallel port altogether and utilise dedicated
-interface cards by http://www.mesanet.com[Mesa Electronics] for increased speed and I/O capabilities.
+While a stepper motor system under parallel port control is illustrated, a LinuxCNC system can also take
+advantage of a wide variety of dedicated hardware motion control interfaces for increased speed and I/O 
+capabilities. A full list of interfaces supported by LinuxCNC can be found on the 
+http://http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the
+Wiki.
 
 In most circumstances, users will create a configuration specific to their mill setup using either the
 <<cha:stepconf-wizard,Stepper Configuration Wizard>> (for CNC systems operating using the computers'
