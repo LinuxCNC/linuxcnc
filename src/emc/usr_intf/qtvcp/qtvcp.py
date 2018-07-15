@@ -3,6 +3,7 @@ import os
 import sys
 import traceback
 import hal
+import signal
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
 from qtvcp.core import Status, Info
@@ -241,7 +242,7 @@ class QTVCP:
         window.instance()
 
         # make QT widget HAL pins
-        panel = qt_makepins.QTPanel(self.halcomp,xmlpath,window,opts.debug,PATH)
+        self.panel = qt_makepins.QTPanel(self.halcomp,xmlpath,window,opts.debug,PATH)
 
         # call handler file's initialized function
         if opts.usermod:
@@ -336,11 +337,15 @@ class QTVCP:
         if INIPATH:
             self.postgui()
 
+        # catch control c and terminate signals
+        signal.signal(signal.SIGTERM, self.shutdown)
+        signal.signal(signal.SIGINT, self.shutdown)
+
         # start loop
         self.app.exec_()
-        self.halcomp.exit()
+
+        # now shut it all down
         self.shutdown()
-        sys.exit(0)
 
     # finds the postgui file name and INI file path
     def postgui(self):
@@ -353,14 +358,17 @@ class QTVCP:
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", postgui_halfile])
             if res: raise SystemExit, res
 
-    def shutdown(self):
+    # This can be called normally or by control c
+    # call any widget cleanup functions
+    # shut down STATUS so no error is called
+    # close out HAL pins
+    def shutdown(self,signum=None,stack_frame=None):
+        self.panel.shutdown()
         STATUS.shutdown()
+        self.halcomp.exit()
+        sys.exit(0)
 
 # starts Qtvcp
 if __name__ == "__main__":
-    try:
         APP = QTVCP()
-    except KeyboardInterrupt:
-        APP.shutdown()
-        sys.exit(0)
 

@@ -28,10 +28,11 @@ from PyQt5.QtCore import QObject
 import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
-#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
     def __init__(self,halcomp,xmlname,window,debug,PATH):
+        self.window = window
         preference = None
         self.hal = QComponent(halcomp)
         # see if a screenoptions widget is present
@@ -52,6 +53,15 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 log.debug('HAL-ified instance found: {}'.format(idname))
                 widget.hal_init(self.hal, str(idname), widget, window,PATH,preference)
+
+    def shutdown(self):
+        log.debug('search for widget closing cleanup functions')
+        for widget in self.window.findChildren(QObject):
+            idname = widget.objectName()
+            if isinstance(widget, _HalWidgetBase):
+                if 'closing_cleanup__' in dir(widget):
+                    log.debug('Closing cleanup on: {}'.format(idname))
+                    widget.closing_cleanup__()
 
 if __name__ == "__main__":
     print "qtvcp_make_pins cannot be run on its own"

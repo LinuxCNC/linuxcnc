@@ -191,6 +191,9 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         self.jograte = False
         self.texttemplate = 'Value =  %s'
 
+    # self.PREFS_
+    # self.HAL_NAME_
+    # comes from base class
     def _hal_init(self):
         self.buildWidget()
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -207,9 +210,18 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         if self.jograte:
             STATUS.connect('jograte-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
+        if self.PREFS_:
+            self.hi_value = self.PREFS_.getpref(self.HAL_NAME_+'-hi-value', 75, int, 'SCREEN_CONTROL_LAST_SETTING')
+            self.low_value = self.PREFS_.getpref(self.HAL_NAME_+'-low-value', 25, int, 'SCREEN_CONTROL_LAST_SETTING')
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)
+
+    # when qtvcp closes this gets called
+    def closing_cleanup__(self):
+        if self.PREFS_:
+            self.PREFS_.putpref(self.HAL_NAME_+'-hi-value', self.hi_value, int, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-low-value', self.low_value, int, 'SCREEN_CONTROL_LAST_SETTING')
 
     def _action(self, value):
         if self.rapid:
