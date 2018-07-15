@@ -13,10 +13,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# Fond on Code Cookbook
+# base code Found on Code Cookbook
 #
 # This widget pops up an onscreen keyboard for entries
-# Used in the Macro widget
+# Used in the Macro and MDI line widget
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from decimal import Decimal
@@ -30,7 +30,19 @@ class MyFlatPushButton(QtWidgets.QPushButton):
         self.MIN_SIZE = min_size
         super(MyFlatPushButton, self).__init__(caption)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
-
+        self.setStyleSheet('''
+MyFlatPushButton {
+font-weight: bold;
+color: #333;
+border: 2px solid #555;
+border-radius: 11px;
+padding: px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 30px;
+}
+        ''')
     def sizeHint(self):
         return QtCore.QSize(self.MIN_SIZE[0], self.MIN_SIZE[1])
 
@@ -59,6 +71,19 @@ class SoftInputWidget(QtWidgets.QDialog):
 
         self.signalMapper.mapped[int].connect(self.buttonClicked)
 
+        self.setStyleSheet('''
+SoftInputWidget {
+font-weight: bold;
+color: #333;
+border: 2px solid #555;
+border-radius: 15px;
+padding: px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 30px;
+}
+''')
     def do_layout(self, keyboard_type='default'):
         """
         @param   keyboard_type:
@@ -143,10 +168,8 @@ class SoftInputWidget(QtWidgets.QDialog):
         if keyboard_type == 'numeric':
             widget_list = number_widget_list
         elif keyboard_type == 'alpha':
-            print 'alpha'
             widget_list = alpha_widget_list
         else:
-            print 'custom key layout', keyboard_type
             widget_list = list()
             widget_list.extend(number_widget_list)
             widget_list.append('new_row')
@@ -200,7 +223,7 @@ class SoftInputWidget(QtWidgets.QDialog):
         else:
             keyPress = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, char_ord, QtCore.Qt.NoModifier, chr(char_ord))
         # hide on enter or esc button click
-        if char_ord == QtCore.Qt.Key_Escape:
+        if char_ord in (QtCore.Qt.Key_Escape,QtCore.Qt.Key_Enter):
             self.hide()
         else:
             # send keypress event to widget
@@ -267,8 +290,7 @@ class TouchInterface(QtCore.QObject):
     def childEvent(self, event):
         if event.type() == QtCore.QEvent.ChildAdded:
             if isinstance(event.child(), *SIP_WIDGETS):
-                print 'install'
-            event.child().installEventFilter(self)
+                event.child().installEventFilter(self)
 
     def eventFilter(self, widget, event):
       try:
