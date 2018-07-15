@@ -6,90 +6,76 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>237</height>
+    <width>688</width>
+    <height>534</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="StateLED" name="stateled">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>20</y>
-      <width>15</width>
-      <height>15</height>
-     </rect>
-    </property>
-    <property name="is_estopped_status" stdset="0">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="ActionButton" name="actionbutton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>45</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Estop</string>
-    </property>
-   </widget>
-   <widget class="StateLED" name="stateled_2">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>50</y>
-      <width>15</width>
-      <height>15</height>
-     </rect>
-    </property>
-    <property name="color">
-     <color>
-      <red>10</red>
-      <green>255</green>
-      <blue>0</blue>
-     </color>
-    </property>
-   </widget>
-   <widget class="ActionButton" name="actionbutton_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>45</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Power</string>
-    </property>
-    <property name="machine_on_action" stdset="0">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="CamView" name="camview">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>-10</y>
-      <width>261</width>
-      <height>191</height>
-     </rect>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="ActionButton" name="actionbutton_2">
+        <property name="text">
+         <string>SET Origin</string>
+        </property>
+        <property name="mdi_command_action" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="command_text_string" stdset="0">
+         <string>MDI_COMMAND_LIST0</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ActionButton" name="actionbutton">
+        <property name="text">
+         <string> GOTO Origin</string>
+        </property>
+        <property name="mdi_command_action" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="command_text_string" stdset="0">
+         <string>MDI_COMMAND_LIST0</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="CamView" name="camview">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>360</width>
+     <width>688</width>
      <height>27</height>
     </rect>
    </property>
@@ -97,16 +83,6 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>StateLED</class>
-   <extends>LED</extends>
-   <header>qtvcp.widgets.state_led</header>
-  </customwidget>
   <customwidget>
    <class>CamView</class>
    <extends>QWidget</extends>

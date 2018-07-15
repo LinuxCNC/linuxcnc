@@ -58,8 +58,15 @@ class _Lcnc_Action(object):
         self.cmd.mdi('%s'%code)
 
     def CALL_INI_MDI(self, number):
-        mdi = INFO.MDI_COMMAND_LIST[number]
-        self.CALL_MDI(mdi)
+        try:
+            mdi = INFO.MDI_COMMAND_LIST[number]
+        except:
+            log.error('MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number))
+            return
+        mdi_list = mdi.split(';')
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        for code in(mdi_list):
+            self.cmd.mdi('%s'% code)
 
     def UPDATE_VAR_FILE(self):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
