@@ -340,8 +340,8 @@ Unload(){
     # This helps to debug issues during the critical shutdown phase;
     # if msgd exited right away those messages would be lost.
 
-    # Wait 2.5s to see if rtapi_msgd exits on its own
-    if ! anywait msgd:$MK_INSTANCE 5 ''; then
+    # Wait 5s to see if rtapi_msgd exits on its own
+    if ! anywait msgd:$MK_INSTANCE 10 ''; then
 	# It didn't; get nasty
 	echo "ERROR:  msgd:$MK_INSTANCE failed to exit on its own;" \
 	     "sending SIGTERM" >&2
