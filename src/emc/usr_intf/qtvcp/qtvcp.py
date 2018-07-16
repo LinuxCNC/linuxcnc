@@ -260,10 +260,9 @@ class QTVCP:
         if opts.parent:
             window = xembed.reparent_qt_to_x11(window, opts.parent)
             forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
-            log.critical('Forwarding events to AXIS is not functional yet')
-            #print forward
-            #if forward:
-                #xembed.keyboard_forward(window, forward)
+            log.critical('Forwarding events to AXIS is not well tested yet')
+            if forward:
+                xembed.XEmbedFowarding(window, forward)
 
         # push the window id for embedment into an external program
         if opts.push_XID:

@@ -43,6 +43,7 @@ class MyEventFilter(QtCore.QObject):
             return super(MyEventFilter,self).eventFilter(receiver, event)
         if(event.type() == QtCore.QEvent.KeyPress):
             handled = False
+            handled = self.w.keyPressTrap(event)
             if (self.has_key_p_handler):
                 handled = self.w.handler_instance.keypress_event__(receiver,event)
             elif self.has_process_key_handler:
@@ -52,6 +53,8 @@ class MyEventFilter(QtCore.QObject):
                 handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
             if handled: return True
         elif (event.type() == QtCore.QEvent.KeyRelease):
+            handled = False
+            handled = self.w.keyReleaseTrap(event)
             if (self.has_key_r_handler):
                 handled = self.w.handler_instance.keyrelease_event__(event)
             elif self.has_process_key_handler:
@@ -71,6 +74,18 @@ class MyWindow(QtWidgets.QMainWindow):
         self.halcomp = halcomp
         self.has_closing_handler = None
         self.setFocus(True)
+
+    # These catch events if using a plain VCP panel and there is no handler file
+    def keyPressEvent(self, e):
+        self.keyPressTrap(e)
+    def keyreleaseEvent(self, e):
+        self.keyReleaseTrap(e)
+
+    # These can get class patched by xembed library to catch events
+    def keyPressTrap(self, e):
+        return False
+    def keyReleaseTrap(self, e):
+        return False
 
     def closeEvent(self, event):
         if self.has_closing_handler:
