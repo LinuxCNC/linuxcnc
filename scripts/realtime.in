@@ -12,6 +12,8 @@ RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
 INIVAR=@EMC2_LIBEXEC_DIR@/inivar
 LSMOD=@LSMOD@
 PIDOF=@PIDOF@
+PS=@PS@
+AWK=@AWK@
 SHM_DEV=/dev/shmdrv
 SHM_STAT=/sys/devices/virtual/misc/shmdrv/status
 
@@ -118,16 +120,55 @@ done
 
 
 
-# wait for a pid to exit
+# wait for a process to exit
 anywait(){
-    pid=$1
-    for (( n=0; $n<20; $((n++)) )); do
+    proc_name=$1
+    tries=${2:-20}
+    sig=${3:-0}
+    pid=$(FindRunningProcs $proc_name)
+    if test -z "$pid"; then
+	return 0 # Already exited
+    fi
+
+    # Kill proc if requested
+    if test -n "$sig"; then
+	kill -$sig "$pid" >/dev/null 2>&1 || return 0
+    fi
+
+    # Wait to see if it exited
+    for (( n=0; $n<$tries; $((n++)) )); do
 	# return success if process died
-	kill -0 "$pid" >/dev/null 2>&1 || return 0
-	# otherwise, wait 1/2 second and try again, up to 10 seconds
+	if ! CheckRunningProcs $proc_name; then
+	    return 0
+	fi
+	# otherwise, wait 1/2 second and try again, up to $tries/2 seconds
 	sleep 0.5
     done
     return 1
+}
+
+FindRunningProcs() {
+    # Usage: FindRunningProcs $proc_name
+    # Find non-zombie procs named $proc_name and echo their PIDs
+    local proc_name=$1
+    local all="$(${PIDOF} ${proc_name})"
+    if test -z "$all"; then
+	return  # No procs named $proc_name found at all
+    fi
+    local live="$(ps -p "$all" -o pid=,s= | ${AWK} '$2 != "Z" {print $1}')"
+    if test -z "$live"; then
+	return  # No non-zombie procs named $proc_name found
+    fi
+    echo $live
+    return 0
+}
+
+CheckRunningProcs() {
+    # Usage: CheckRunningProcs $proc_name
+    # Return true if there are any non-zombie procs named $proc_name, else false
+    local proc_name=$1
+    local live="$(FindRunningProcs "$proc_name")"
+    test -n "$live"
 }
 
 CheckStatus(){
@@ -137,7 +178,7 @@ CheckStatus(){
     progs="msgd:${MK_INSTANCE} rtapi:${MK_INSTANCE}"
 
     for prog in $progs; do
-	if test -n "$($PIDOF $prog)"; then
+	if CheckRunningProcs $prog; then
 	    echo "$prog running" >&2
 	else
 	    echo "$prog stopped" >&2
@@ -268,8 +309,7 @@ Unload(){
 
     # shutdown rtapi if it exists
 
-    RTAPI_PID=`$PIDOF rtapi:$MK_INSTANCE`
-    if [ "$RTAPI_PID" != "" ] ; then
+    if CheckRunningProcs rtapi:$MK_INSTANCE; then
 	if [ $DEBUG -gt 0 ] ; then
 	    halcmd shutdown
 	else
@@ -300,19 +340,18 @@ Unload(){
     # This helps to debug issues during the critical shutdown phase;
     # if msgd exited right away those messages would be lost.
 
-    sleep 2.5
-
-    # and get nasty only if it didnt
-    MSGD_PID=`$PIDOF msgd:$MK_INSTANCE`
-    if [ "$MSGD_PID" != "" ] ; then
-	kill -TERM $MSGD_PID
-	# ...and get even nastier if SIGTERM fails.  FIXME this needs
-	# to be reviewed; if we get this far, then we might need
-	# operator intervention, including debugging
-	if ! anywait $MSGD_PID; then
+    # Wait 5s to see if rtapi_msgd exits on its own
+    if ! anywait msgd:$MK_INSTANCE 10 ''; then
+	# It didn't; get nasty
+	echo "ERROR:  msgd:$MK_INSTANCE failed to exit on its own;" \
+	     "sending SIGTERM" >&2
+	if ! anywait msgd:$MK_INSTANCE 20 TERM; then
+	    # ...and get even nastier if SIGTERM fails.  FIXME this needs
+	    # to be reviewed; if we get this far, then we might need
+	    # operator intervention, including debugging
 	    echo "ERROR:  msgd:$MK_INSTANCE failed to exit after SIGTERM;" >&2
 	    echo "sending SIGKILL" >&2
-	    kill -KILL $MSGD_PID
+	    kill -KILL $(FindRunningProcs msgd:$MK_INSTANCE)
 	fi
     fi
 
@@ -338,8 +377,9 @@ CheckUnloaded(){
     # if msgd:$MK_INSTANCE is still around, this might still be a running instance 
     # after all - this applies to all flavors - msgd is always there, so cop out
 
-    MSGD_PID=`$PIDOF msgd:$MK_INSTANCE`
-    if [ "$MSGD_PID" != "" ] ; then
+
+    if CheckRunningProcs msgd:$MK_INSTANCE; then
+	MSGD_PID=`FindRunningProcs msgd:$MK_INSTANCE`
 	echo "instance $MK_INSTANCE still running;" \
 	     "process msgd:$MK_INSTANCE present (pid $MSGD_PID) !" >&2
 	exit 1
@@ -349,8 +389,8 @@ CheckUnloaded(){
     # should be last to exit
     # this is a noop in kthreads, but clearly an error in uthreads
 
-    RTAPI_PID=`$PIDOF rtapi:$MK_INSTANCE`
-    if [ "$RTAPI_PID" != "" ] ; then
+    if CheckRunningProcs rtapi:$MK_INSTANCE; then
+	RTAPI_PID=`FindRunningProcs rtapi:$MK_INSTANCE`
 	echo "instance $MK_INSTANCE inproperly shutdown!" >&2
 	echo "msgd:$MK_INSTANCE gone," \
 	     "but rtapi:$MK_INSTANCE alive (pid $RTAPI_PID)" >&2
