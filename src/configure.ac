@@ -1387,7 +1387,7 @@ install with "sudo apt-get install tclx"])
 fi
 
 AC_MSG_CHECKING([for python pango and cairo modules])
-if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3060000)'
+if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
 then
 
 	if $PYTHON -c "import gi;gi.require_version('Pango', '1.0');from gi.repository import Pango"; then
@@ -1585,9 +1585,18 @@ LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print("python" + (distutils.s
 AC_MSG_RESULT($LIBPYTHON)
 
 AC_MSG_CHECKING([match between tk and Tkinter versions])
-    
-PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TK_VERSION)'`"
-PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TCL_VERSION)'`"
+if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
+then
+
+	PYTHON_TK_VERSION="`$PYTHON -c 'import tkinter; print(tkinter.TkVersion)'`"
+	PYTHON_TCL_VERSION="`$PYTHON -c 'import tkinter; print(tkinter.TclVersion)'`"
+
+else
+
+	PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TK_VERSION)'`"
+	PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TCL_VERSION)'`"
+
+fi
 
 if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
     AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
@@ -1599,6 +1608,8 @@ if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
     AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
 fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
+
+############################
 
 AC_MSG_CHECKING(location of Python header files)
 INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_vars().get("INCLUDEPY"))'`
