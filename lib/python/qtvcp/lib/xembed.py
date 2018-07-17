@@ -118,14 +118,6 @@ class XEmbedFowarding():
                     same_screen=1)        # not from our screen
         return klass(time=time_lie, **kw)
 
-    def send_client_event(self, dest_id):
-        mess_type = self.d.intern_atom('gladevcp')
-        cm_event = event.ClientMessage(
-            window = dest_id,
-            client_type = mess_type,
-            data = (8, "Visible\0\0\0\0\0\0\0\0\0\0\0\0\0"))
-        self.fw.send_event(cm_event)
-
     def forward(self, e, keycode):
 #        if e.keyval in ignore:
 #            return
@@ -136,4 +128,20 @@ class XEmbedFowarding():
 
         self.fw.send_event(fe)
 
+class X11ClientMessage():
+    def __init__(self, receiver_id):
+        self.d = display.Display()
+        self.fw = drawable.Window(self.d.display, receiver_id, 0)
+        self.receiver_id = receiver_id
+
+    def send_client_message(self, message="Visible\0\0\0\0\0\0\0\0\0\0\0\0\0", mtype='Gladevcp'):
+        print 'X11 message sent'
+        mess_type = self.d.intern_atom(mtype)
+        #TODO add check of message for 20 characters
+
+        cm_event = event.ClientMessage(
+            window = self.receiver_id,
+            client_type = mess_type,
+            data = (8, message))
+        self.d.send_event(self.receiver_id, cm_event)
 

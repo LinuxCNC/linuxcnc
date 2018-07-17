@@ -7,6 +7,7 @@ from PyQt5.QtGui import QWindow, QResizeEvent
 from PyQt5.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.lib import xembed
 
 class XEmbeddable(QWidget):
     def __init__(self, parent=None):
@@ -14,7 +15,8 @@ class XEmbeddable(QWidget):
 
     def embed(self, command):
         try:
-            window = QWindow.fromWinId(self.launch_xid(command))
+            self.external_id = self.launch_xid(command)
+            window = QWindow.fromWinId(self.external_id)
             self.container = QWidget.createWindowContainer(window, self)
             self.show()
         except  Exception,e:
@@ -36,7 +38,7 @@ class XEmbeddable(QWidget):
         self.ob = subprocess.Popen(c,stdin = subprocess.PIPE,
                                    stdout = subprocess.PIPE)
         sid = self.ob.stdout.readline()
-        #print 'XID:',sid
+        print 'XID:',sid
         return int(sid)
 
 class XEmbed(XEmbeddable, _HalWidgetBase):
@@ -47,8 +49,14 @@ class XEmbed(XEmbeddable, _HalWidgetBase):
     def _hal_init(self):
         # send embedded program our X window id so it can forward events to us.
         wid = int(self.QTVCP_INSTANCE_.winId())
+        print 'parent wind id', wid
         os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
         self.embed(self.command)
+        self.x11mess = xembed.X11ClientMessage(self.external_id)
+
+
+    def send_x11_message(self,):
+        self.x11mess.send_client_message()
 
     def set_command(self, data):
         self.command = data
