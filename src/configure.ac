@@ -1387,13 +1387,25 @@ install with "sudo apt-get install tclx"])
 fi
 
 AC_MSG_CHECKING([for python pango and cairo modules])
-if $PYTHON -c 'import pango,cairo'; then
-    AC_MSG_RESULT([found])
+if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3060000)'
+then
+
+	if $PYTHON -c "import gi;gi.require_version('Pango', '1.0');from gi.repository import Pango"; then
+	    AC_MSG_RESULT([found])
+	else
+	    AC_MSG_RESULT(no)
+	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python3-gi"])
+	fi
+
 else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Python pango and cairo modules not found!
-install with "sudo apt-get install python-gtk2"])
-fi
+
+	if $PYTHON -c 'import pango,cairo'; then
+	    AC_MSG_RESULT([found])
+	else
+	    AC_MSG_RESULT(no)
+	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python-gtk2"])
+	fi
+	fi
 fi
 
 AC_SUBST([TCL_DBGX])
