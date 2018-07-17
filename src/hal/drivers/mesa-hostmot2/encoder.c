@@ -159,7 +159,9 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
     *hm2->encoder.hal->pin.sample_frequency = hm2->encoder.clock_frequency/(filter_rate + 2);
     HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
     if (hm2->encoder.has_skew) {
-        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew)/(1e9/hm2->encoder.clock_frequency);
+        rtapi_u32 divisor = (1e9/hm2->encoder.clock_frequency);
+        // Unsigned division rounding for integers. This is only valid for unsigned division 
+        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew + (divisor/2))/divisor;
         
         if (skew > 15) {
             skew = 15;
