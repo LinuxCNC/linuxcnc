@@ -522,7 +522,7 @@ void USE_LENGTH_UNITS(CANON_UNITS u) { }
 void SELECT_PLANE(CANON_PLANE pl) {
     _pl = pl;
     maybe_new_line();
-    // if(interp_error) return;
+    if(interp_error) return;
 
     machinetalk::Preview *p = output.add_preview();
     p->set_type(machinetalk::PV_SELECT_PLANE);
@@ -605,7 +605,7 @@ void SET_FEED_RATE(double rate) {
 
 void DWELL(double time) {
     maybe_new_line();
-    // if(interp_error) return;
+    if(interp_error) return;
     // PyObject *result =
     //     callmethod(callback, "dwell", "f", time);
     // if(result == NULL) interp_error ++;
