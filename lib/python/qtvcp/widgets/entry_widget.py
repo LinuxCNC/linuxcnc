@@ -223,11 +223,13 @@ min-width: 30px;
         else:
             keyPress = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, char_ord, QtCore.Qt.NoModifier, chr(char_ord))
         # hide on enter or esc button click
-        if char_ord in (QtCore.Qt.Key_Escape,QtCore.Qt.Key_Enter):
+        if char_ord == QtCore.Qt.Key_Escape:
             self.hide()
         else:
             # send keypress event to widget
             QtWidgets.QApplication.sendEvent(w, keyPress)
+            if char_ord == QtCore.Qt.Key_Enter:
+                self.hide()
 
         # line edit returnPressed event is triggering twise for press and release both
         # that is why do not send release event for special key
