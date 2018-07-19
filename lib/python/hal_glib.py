@@ -687,17 +687,36 @@ class _GStat(gobject.GObject):
     def get_current_mode(self):
         return self.old['mode']
 
-    def get_jograte(self):
-        return self.current_jog_rate
-
+    # linear - in machine units
     def set_jog_rate(self,upm):
         self.current_jog_rate = upm
         self.emit('jograte-changed', upm)
 
+    def get_jograte(self):
+        return self.current_jog_rate
+
+    def set_jograte_angular(self,rate):
+        self.angular_jog_velocity = rate
+
+    def get_jograte_angular(self):
+        return self.angular_jog_velocity
+
+    def get_jog_increment_angular(self):
+        return self.current_jog_distance_angular
+
+    def set_jog_increment_angular(self, distance, text):
+        self.current_jog_distance_angular = distance
+        self.current_jog_distance_text_angular = text
+        self.emit('jogincrement-changed', distance, text)
+
+    # should be in machine units
     def set_jog_increments(self, distance, text):
         self.current_jog_distance = distance
         self.current_jog_distance_text = text
         self.emit('jogincrement-changed', distance, text)
+
+    def get_jog_increment(self):
+        return self.current_jog_distance
 
     def is_all_homed(self):
         return self._is_all_homed

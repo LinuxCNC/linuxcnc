@@ -116,7 +116,7 @@ class _Lcnc_Action(object):
     def SET_JOG_RATE(self, rate):
         STATUS.set_jog_rate(float(rate))
     def SET_JOG_INCR(self, incr):
-        pass
+        STATUS.set_jog_increments(incr)
 
     def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100):
         self.cmd.spindle(direction,rpm)
@@ -143,11 +143,11 @@ class _Lcnc_Action(object):
         self.ensure_mode(self.last_mode)
 
     def DO_JOG(self, axisnum, direction):
-        distance = STATUS.current_jog_distance
+        distance = STATUS.get_jog_increment()
         if axisnum in (3,4,5):
             rate = STATUS.angular_jog_velocity/60
         else:
-            rate = STATUS.current_jog_rate/60
+            rate = STATUS.get_jograte()/60
         self.JOG(axisnum, direction, rate, distance)
 
     def JOG(self, axisnum, direction, rate, distance=0):

@@ -428,6 +428,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         else:
             LOG.error('No action recognised')
 
+    # If direction = 0 (button release) and distance is not 0, then we are
+    # doing a jog increment so don't stop jog on release. 
     def jog_action(self, direction):
         if direction == 0 and STATUS.current_jog_distance != 0: return
         if direction:
@@ -439,23 +441,18 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def incr_action(self):
         if STATUS.is_metric_mode():  # metirc mode G21
             if self.jog_incr_mm:
-                scale = self.conversion(1/25.4)
+                incr = INFO.convert_metric_to_machine(self.jog_incr_mm)
                 text = '%s mm' % str(self.jog_incr_mm)
-                value = round(self.jog_incr_mm, 4)
             else:
-                scale = 1
-                value = 0
+                incr = 0
                 text = 'Continous'
         else:
             if self.jog_incr_imperial:
-                scale = self.conversion(1)
+                incr = INFO.convert_imperial_to_machine(self.jog_incr_imperial)
                 text = '''%s "''' % str(self.jog_incr_imperial)
-                value = round(self.jog_incr_imperial, 4)
             else:
-                scale = 1
-                value = 0
                 text = 'Continous'
-        STATUS.set_jog_increments(value * scale, text)
+        STATUS.set_jog_increments(incr , text)
 
     # convert the units based on what the machine is based on.
     def conversion(self, data):

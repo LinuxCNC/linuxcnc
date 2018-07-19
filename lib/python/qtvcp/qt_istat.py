@@ -61,10 +61,12 @@ class _IStat(object):
             self.MACHINE_IS_METRIC = True
             self.MACHINE_UNIT_CONVERSION = 1.0/25.4
             self.MACHINE_UNIT_CONVERSION_9 = [1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+            log.debug('Machine is METRIC based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION ))
         else:
             self.MACHINE_IS_METRIC = False
             self.MACHINE_UNIT_CONVERSION = 25.4
             self.MACHINE_UNIT_CONVERSION_9 = [25.4]*3+[1]*3+[25.4]*3
+            log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION ))
 
         axes = self.inifile.find("TRAJ", "COORDINATES")
         if axes is not None: # i.e. LCNC is running, not just in Qt Desinger
@@ -150,6 +152,32 @@ class _IStat(object):
     ###################
     # helper functions
     ###################
+    def convert_metric_to_machine(self, data):
+        if self.MACHINE_IS_METRIC:
+            return data
+        else:
+            return data * (1/25.4)
+
+    def convert_imperial_to_machine(self, data):
+        if self.MACHINE_IS_METRIC:
+            return data * 25.4
+        else:
+            return data 
+
+    def convert_9_metric_to_machine(self,v):
+        if self.MACHINE_IS_METRIC:
+            return v
+        else:
+            c = [1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+            return map(lambda x,y: x*y, v, c)
+
+    def convert_9_imperial_to_machine(self,v):
+        if self.MACHINE_IS_METRIC:
+            c = [25.4]*3+[1]*3+[25.4]*3
+            return map(lambda x,y: x*y, v, c)
+        else:
+            return v
+
     def convert_units(self, data):
         return data * self.MACHINE_UNIT_CONVERSION
 
