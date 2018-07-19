@@ -451,6 +451,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 incr = INFO.convert_imperial_to_machine(self.jog_incr_imperial)
                 text = '''%s "''' % str(self.jog_incr_imperial)
             else:
+                incr = 0
                 text = 'Continous'
         STATUS.set_jog_increments(incr , text)
 
