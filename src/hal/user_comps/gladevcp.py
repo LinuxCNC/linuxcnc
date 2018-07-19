@@ -63,6 +63,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
+          , Option( '--xid', action='store_true', dest='push_XID'
+                  , help="reparent window into a plug add push the plug xid number to standardout")
           , Option( '-u', dest='usermod', action='append', default=[], metavar='FILE'
                   , help='Use FILEs as additional user defined modules with handlers')
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
@@ -169,7 +171,6 @@ def main():
     parser.add_options(options)
 
     (opts, args) = parser.parse_args()
-
     if not args:
         parser.print_help()
         sys.exit(1)
@@ -212,7 +213,12 @@ def main():
     handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
 
     builder.connect_signals(handlers)
-
+    if opts.push_XID:
+        window.realize()
+        gdkwin = window.get_window()
+        w_id = gdkwin.xid
+        print >> sys.stdout,w_id
+        sys.stdout.flush()
     if opts.parent:
         # block X errors since gdk error handling silently exits the
         # program without even the atexit handler given a chance
@@ -223,6 +229,11 @@ def main():
         forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
         if forward:
             xembed.keyboard_forward(window, forward)
+        window.realize()
+        gdkwin = window.get_window()
+        w_id = gdkwin.xid
+        print >> sys.stdout,w_id
+        sys.stdout.flush()
 
     window.connect("destroy", on_window_destroy)
     window.show()

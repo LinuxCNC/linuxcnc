@@ -1,0 +1,2441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>2350</width>
+    <height>1629</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>3840</width>
+    <height>2160</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="21" column="4">
+     <widget class="ScreenOptions" name="ScreenOptions">
+      <property name="play_sounds_option" stdset="0">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QFrame" name="frame_auto_3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="3" column="0">
+        <widget class="DROLabel" name="drolabel_z">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 255, 255);
+font: 18pt &quot;Courier 10 Pitch&quot;;</string>
+         </property>
+         <property name="text">
+          <string>0.0000</string>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="axis">
+          <enum>DROLabel::Z</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="StateLED" name="led_home_y">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color alpha="214">
+           <red>255</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="flashRate">
+          <number>600</number>
+         </property>
+         <property name="invert_state_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_joint_homed_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number_status" stdset="0">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="StateLED" name="led_home_x">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color alpha="214">
+           <red>255</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="flashRate">
+          <number>600</number>
+         </property>
+         <property name="invert_state_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_joint_homed_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="DROLabel" name="drolabel_x">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 255, 255);
+font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
+         </property>
+         <property name="text">
+          <string>0.0000</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="axis">
+          <enum>DROLabel::X</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="ActionButton" name="actionbutton_3">
+         <property name="text">
+          <string>Zero X</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="zero_axis_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="StateLED" name="led_home_z">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color alpha="214">
+           <red>255</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="flashRate">
+          <number>600</number>
+         </property>
+         <property name="invert_state_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_joint_homed_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number_status" stdset="0">
+          <number>2</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="DROLabel" name="drolabel_y">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 255, 255);
+font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
+         </property>
+         <property name="text">
+          <string>0.0000</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="ActionButton" name="actionbutton_2">
+         <property name="text">
+          <string>Zero Y</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="zero_axis_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="ActionButton" name="actionbutton">
+         <property name="text">
+          <string>Zero Z</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="zero_axis_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>2</number>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="3">
+        <widget class="StatusLabel" name="StatusLabel_2">
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;;&quot;&gt;Jog Inc. &lt;/span&gt; &lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;&amp;nbsp;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="jogincr_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="3">
+        <widget class="StatusLabel" name="state_label_5">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Jog Rate&lt;/span&gt;&lt;span style=&quot;font-size:18pt; color:#ffff00;&quot;&gt;&amp;nbsp;100.00&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Jog Rate&lt;/span&gt;&lt;span style=&quot;font-size:18pt; color:#ffff00;&quot;&gt;&amp;nbsp;%.2f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="jograte_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="3">
+     <widget class="QFrame" name="frame_auto_5">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>30</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="1">
+        <widget class="StatusLabel" name="StatusLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="tool_diameter_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="StatusLabel" name="state_label_4">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="tool_number_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Diameter&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="StatusLabel" name="state_label_10">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;200.00&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SFPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%.2f&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SFPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="alt_textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%.2f&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SMPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="actual_surface_speed_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Number&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="StatusLabel" name="statuslabel">
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="gcodes_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="tool_comment_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="StatusLabel" name="state_label_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#d1d1d1;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#d1d1d1;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="actual_spindle_speed_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="17" column="0" rowspan="2" colspan="3">
+     <widget class="QFrame" name="frame_auto_6">
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="StatusLabel" name="state_label_2">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="StatusLabel" name="state_label">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;RO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;RO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="feed_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="rapid_override_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="StatusLabel" name="state_label_3">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;SO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;SO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="feed_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="spindle_override_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="17" column="3">
+     <widget class="QFrame" name="frame_auto_7">
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="ActionButton" name="actionbutton_9">
+         <property name="text">
+          <string>MAN</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="manual_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ActionButton" name="actionbutton_10">
+         <property name="text">
+          <string>MDI</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="mdi_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ActionButton" name="actionbutton_11">
+         <property name="text">
+          <string>AUTO</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
+          <bool>true</bool>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="auto_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="4" colspan="7">
+     <widget class="QFrame" name="frame_auto_4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>10</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="3" column="1">
+        <widget class="StatusSlider" name="StatusSlider_6">
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>150</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+         <property name="rapid_rate" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="spindle_rate" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="ActionButton" name="actionbutton_30">
+         <property name="text">
+          <string>Large</string>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="indicator_size" stdset="0">
+          <double>0.500000000000000</double>
+         </property>
+         <property name="jog_incr_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="incr_imperial_number" stdset="0">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="incr_mm_number" stdset="0">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="StatusSlider" name="StatusSlider_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+         <property name="rapid_rate" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jograte_rate" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="StatusSlider" name="StatusSlider_2">
+         <property name="maximum">
+          <number>200</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+         <property name="rapid_rate" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="feed_rate" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="ActionButton" name="actionbutton_31">
+         <property name="text">
+          <string>Continous</string>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="indicator_size" stdset="0">
+          <double>0.500000000000000</double>
+         </property>
+         <property name="jog_incr_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="incr_imperial_number" stdset="0">
+          <double>0.000000000000000</double>
+         </property>
+         <property name="incr_mm_number" stdset="0">
+          <double>0.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="ActionButton" name="actionbutton_8">
+         <property name="text">
+          <string>Med</string>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="indicator_size" stdset="0">
+          <double>0.500000000000000</double>
+         </property>
+         <property name="jog_incr_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="incr_imperial_number" stdset="0">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="incr_mm_number" stdset="0">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="ActionButton" name="actionbutton_7">
+         <property name="text">
+          <string>Fine</string>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="HAL_pin_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="indicator_size" stdset="0">
+          <double>0.500000000000000</double>
+         </property>
+         <property name="jog_incr_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="incr_imperial_number" stdset="0">
+          <double>0.001000000000000</double>
+         </property>
+         <property name="incr_mm_number" stdset="0">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="ActionButton" name="actionbutton_15">
+         <property name="text">
+          <string>FO</string>
+         </property>
+         <property name="feed_over_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="toggle_float_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="float_alt_num" stdset="0">
+          <double>75.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="ActionButton" name="actionbutton_17">
+         <property name="text">
+          <string>SO</string>
+         </property>
+         <property name="feed_over_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="rapid_over_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="spindle_over_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="toggle_float_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="float_alt_num" stdset="0">
+          <double>90.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="StatusSlider" name="StatusSlider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickInterval">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="ActionButton" name="actionbutton_16">
+         <property name="text">
+          <string>RO</string>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="feed_over_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="rapid_over_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="toggle_float_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="float_alt_num" stdset="0">
+          <double>25.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="ActionButton" name="actionbutton_18">
+         <property name="text">
+          <string>Jog</string>
+         </property>
+         <property name="jog_rate_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="feed_over_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="rapid_over_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="spindle_over_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="toggle_float_option" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="float_num" stdset="0">
+          <double>60.000000000000000</double>
+         </property>
+         <property name="float_alt_num" stdset="0">
+          <double>15.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QFrame" name="frame_auto_2">
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="3" column="0">
+        <widget class="StateLED" name="StateLED_9">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_paused_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_flood_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_block_delete_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_limits_overridden_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_limits_overriden_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="StateLED" name="led_machine_on">
+         <property name="diameter">
+          <number>25</number>
+         </property>
+         <property name="color">
+          <color>
+           <red>85</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_on_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_idle_status" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="StateLED" name="StateLED">
+         <property name="diameter">
+          <number>25</number>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_estopped_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="StateLED" name="StateLED_8">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color>
+           <red>85</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_paused_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_flood_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_block_delete_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="ActionButton" name="actionbutton_block_delete">
+         <property name="text">
+          <string>Block Delete</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="limits_override_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="block_delete_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="3">
+        <widget class="StateLED" name="StateLED_6">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color>
+           <red>85</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_paused_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_mist_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="StateLED" name="StateLED_7">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color>
+           <red>85</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="state">
+          <bool>false</bool>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="invert_state_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_paused_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_flood_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_optional_stop_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="4">
+        <widget class="ActionButton" name="actionbutton_flood">
+         <property name="text">
+          <string>Flood</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="limits_override_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="flood_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="StateLED" name="StateLED_4">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="is_paused_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="ActionButton" name="actionbutton_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Abort</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="abort_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="pause_action" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="ActionButton" name="actionbutton_5">
+         <property name="text">
+          <string>Pause</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="abort_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="pause_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="3">
+        <widget class="StateLED" name="StateLED_5">
+         <property name="diameter">
+          <number>10</number>
+         </property>
+         <property name="color">
+          <color>
+           <red>85</red>
+           <green>255</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="flashing" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_paused_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="is_flood_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="4">
+        <widget class="ActionButton" name="actionbutton_optional_stop">
+         <property name="text">
+          <string>Optional Stop</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="limits_override_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="block_delete_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="optional_stop_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="ActionButton" name="button_machineon">
+         <property name="styleSheet">
+          <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Power </string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="machine_on_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="ActionButton" name="button_estop">
+         <property name="font">
+          <font>
+           <family>Noto Sans</family>
+           <pointsize>20</pointsize>
+           <weight>9</weight>
+           <italic>true</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Estop  </string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="4">
+        <widget class="ActionButton" name="actionbutton_mist">
+         <property name="text">
+          <string>Mist</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="limits_override_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="mist_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="ActionButton" name="actionbutton_override_limits">
+         <property name="text">
+          <string>Override Limits </string>
+         </property>
+         <property name="limits_override_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="2" colspan="9">
+     <widget class="QFrame" name="frame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>30</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="7" rowspan="7">
+        <widget class="GCodeGraphics" name="Graphics">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="_dro" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_18">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="text">
+          <string>X</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_19">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Y</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="StatusLabel" name="state_label_8">
+         <property name="midLineWidth">
+          <number>0</number>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="feed_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="user_system_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="StateLabel" name="StateLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="true_textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="false_textTemplate" stdset="0">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="4">
+        <widget class="StateLabel" name="StateLabel_2">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="metric_mode_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="diameter_mode_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="true_textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;DIAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="false_textTemplate" stdset="0">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2" colspan="3">
+        <widget class="StatusLabel" name="state_label_7">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.1f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="feed_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="spindle_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="current_feedrate_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2" colspan="3">
+        <widget class="StatusLabel" name="state_label_9">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="feed_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="spindle_override_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="current_feedrate_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="current_FPU_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8" rowspan="3">
+        <widget class="QFrame" name="frame_2">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="ActionButton" name="actionbutton_19">
+            <property name="text">
+             <string>View P</string>
+            </property>
+            <property name="view_change_action" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ActionButton" name="actionbutton_22">
+            <property name="text">
+             <string>View X</string>
+            </property>
+            <property name="view_change_action" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="view_type_string" stdset="0">
+             <string>x</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ActionButton" name="actionbutton_21">
+            <property name="text">
+             <string>View Y</string>
+            </property>
+            <property name="view_change_action" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="view_type_string" stdset="0">
+             <string>y</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ActionButton" name="actionbutton_23">
+            <property name="text">
+             <string>View Y2</string>
+            </property>
+            <property name="view_change_action" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="view_type_string" stdset="0">
+             <string>y2</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ActionButton" name="actionbutton_20">
+            <property name="text">
+             <string>View Z</string>
+            </property>
+            <property name="view_change_action" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="view_type_string" stdset="0">
+             <string>z</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ActionButton" name="actionbutton_24">
+            <property name="text">
+             <string>View Z2</string>
+            </property>
+            <property name="view_change_action" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="view_type_string" stdset="0">
+             <string>z2</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="4">
+        <widget class="DROLabel" name="drolabel_2">
+         <property name="styleSheet">
+          <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
+color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="text">
+          <string>0.0000</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="4">
+        <widget class="DROLabel" name="drolabel">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="text">
+          <string>0.0000</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::AutoText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="axis">
+          <enum>DROLabel::X</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_20">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Z</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="4">
+        <widget class="DROLabel" name="drolabel_3">
+         <property name="styleSheet">
+          <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
+color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="text">
+          <string>0.0000</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="axis">
+          <enum>DROLabel::Z</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="2">
+        <widget class="StateLabel" name="statelabel_3">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::AutoText</enum>
+         </property>
+         <property name="true_textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;mmPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="false_textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="2">
+        <widget class="QLabel" name="label_22">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(255, 255, 255);
+font: 75 18pt &quot;Noto Sans&quot;;</string>
+         </property>
+         <property name="text">
+          <string>Velocity:</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::AutoText</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="2" colspan="9">
+     <widget class="GcodeEditor" name="gcodeeditor">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>100</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <widget class="CamViewDialog" name="camviewdialog">
+       <property name="geometry">
+        <rect>
+         <x>4155</x>
+         <y>860</y>
+         <width>700</width>
+         <height>400</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="ToolOffsetDialog" name="tooloffsetdialog">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>30</y>
+         <width>800</width>
+         <height>247</height>
+        </rect>
+       </property>
+       <property name="state">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item row="19" column="3" rowspan="3" colspan="8">
+     <widget class="QFrame" name="frame_auto_10">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="StatusLabel" name="gcodes_label">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Gcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Gcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="gcodes_status" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="mcodes_status" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="19" column="0" rowspan="3" colspan="3">
+     <widget class="QFrame" name="frame_auto_9">
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="StatusLabel" name="mcodes_label">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Mcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="textTemplate" stdset="0">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Mcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="gcodes_status" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="mcodes_status" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="2" colspan="9">
+     <widget class="QFrame" name="frame_auto_8">
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;MDI:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="MDILine" name="mdi_line">
+         <property name="font">
+          <font>
+           <pointsize>15</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="soft_keyboard_option" stdset="0">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="3" colspan="2">
+     <widget class="StatusStacked" name="StatusStacked">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page_man">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QFrame" name="frame_man">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="4" column="0">
+            <widget class="ActionButton" name="actionbutton_28">
+             <property name="text">
+              <string>-</string>
+             </property>
+             <property name="spindle_down_action" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="ActionButton" name="actionbutton_26">
+             <property name="text">
+              <string>Rev</string>
+             </property>
+             <property name="spindle_rev_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="spindle_down_action" stdset="0">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" colspan="2">
+            <widget class="ActionButton" name="actionbutton_13">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Cam View</string>
+             </property>
+             <property name="camview_dialog_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="macro_dialog_action" stdset="0">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="ActionButton" name="actionbutton_14">
+             <property name="text">
+              <string>offsets</string>
+             </property>
+             <property name="origin_offset_dialog_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="macro_dialog_action" stdset="0">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" rowspan="2" colspan="2">
+            <widget class="ActionButton" name="actionbutton_29">
+             <property name="text">
+              <string>Stop</string>
+             </property>
+             <property name="spindle_stop_action" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="ActionButton" name="actionbutton_25">
+             <property name="text">
+              <string>Fwd</string>
+             </property>
+             <property name="spindle_fwd_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="spindle_rev_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="spindle_stop_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="spindle_up_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="spindle_down_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="view_change_action" stdset="0">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="4">
+            <widget class="StateEnableGridLayout" name="state_enable_gridLayout_5">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="is_on_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="is_idle_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="3" column="0">
+               <spacer name="verticalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="0">
+               <widget class="QFrame" name="frame_3">
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_9">
+                 <item row="3" column="2">
+                  <widget class="ActionButton" name="jog_pos_x">
+                   <property name="text">
+                    <string>X+</string>
+                   </property>
+                   <property name="estop_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="ActionButton" name="jog_neg_y">
+                   <property name="text">
+                    <string>Y-</string>
+                   </property>
+                   <property name="estop_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="jog_joint_number" stdset="0">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="ActionButton" name="jog_neg_x">
+                   <property name="text">
+                    <string>X-</string>
+                   </property>
+                   <property name="estop_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="4">
+                  <widget class="ActionButton" name="jog_pos_z">
+                   <property name="text">
+                    <string>Z+</string>
+                   </property>
+                   <property name="estop_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>2</number>
+                   </property>
+                   <property name="jog_joint_number" stdset="0">
+                    <number>2</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="ActionButton" name="jog_pos_y">
+                   <property name="text">
+                    <string>Y+</string>
+                   </property>
+                   <property name="estop_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="jog_joint_number" stdset="0">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="4">
+                  <widget class="ActionButton" name="jog_neg_z">
+                   <property name="text">
+                    <string>Z-</string>
+                   </property>
+                   <property name="estop_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_joint_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>2</number>
+                   </property>
+                   <property name="jog_joint_number" stdset="0">
+                    <number>2</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="JogIncrements" name="JogIncrements"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="ActionButton" name="actionbutton_27">
+             <property name="text">
+              <string>+</string>
+             </property>
+             <property name="spindle_up_action" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="StateLED" name="StateLED_3">
+             <property name="diameter">
+              <number>25</number>
+             </property>
+             <property name="color">
+              <color alpha="214">
+               <red>255</red>
+               <green>255</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="flashing" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="invert_state_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="is_homed_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="3">
+            <widget class="ActionButton" name="button_home">
+             <property name="styleSheet">
+              <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+             </property>
+             <property name="text">
+              <string>Home</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="estop_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="home_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="joint_number" stdset="0">
+              <number>-1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_mdi">
+       <layout class="QGridLayout" name="gridLayout_20">
+        <item row="0" column="0">
+         <widget class="QFrame" name="frame_mdi">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_12">
+           <item row="2" column="0">
+            <widget class="ActionButton" name="actionbutton_32">
+             <property name="text">
+              <string>Go to
+Origion Zero</string>
+             </property>
+             <property name="mdi_command_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="command_text_string" stdset="0">
+              <string>MDI_COMMAND_LIST = 0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="ActionButton" name="actionbutton_33">
+             <property name="text">
+              <string>Go to
+ Machine Zero</string>
+             </property>
+             <property name="mdi_command_action" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="command_text_string" stdset="0">
+              <string>G53 G0 X0Y0Z0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="ActionButton" name="actionbutton_12">
+             <property name="text">
+              <string>Macro</string>
+             </property>
+             <property name="macro_dialog_action" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_auto">
+       <layout class="QGridLayout" name="gridLayout_21">
+        <item row="0" column="0">
+         <widget class="QFrame" name="frame_auto">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <item row="0" column="0">
+            <widget class="ActionButton" name="actionbutton_load">
+             <property name="text">
+              <string>load
+file</string>
+             </property>
+             <property name="estop_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="load_dialog_action" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="ActionButton" name="actionbutton_4">
+             <property name="text">
+              <string>Run</string>
+             </property>
+             <property name="estop_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="run_action" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+   <widget class="ToolDialog" name="tooldialog">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>760</y>
+      <width>316</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="FocusOverlay" name="focusoverlay">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1027</width>
+      <height>847</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+    <property name="show_image_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="image_path" stdset="0">
+     <string>STD_IMAGE_DIR/lcnc_swoop.png</string>
+    </property>
+   </widget>
+   <widget class="LcncDialog" name="lcncdialog">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>770</y>
+      <width>336</width>
+      <height>104</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="FileDialog" name="filedialog">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>240</y>
+      <width>635</width>
+      <height>448</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+    <property name="color" stdset="0">
+     <color alpha="150">
+      <red>0</red>
+      <green>0</green>
+      <blue>255</blue>
+     </color>
+    </property>
+   </widget>
+   <widget class="MacroTabDialog" name="macrotabdialog">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>230</y>
+      <width>600</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="OriginOffsetDialog" name="originoffsetdialog">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>40</y>
+      <width>800</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <zorder>lcncdialog</zorder>
+   <zorder>frame_auto_9</zorder>
+   <zorder>frame_auto_6</zorder>
+   <zorder>frame</zorder>
+   <zorder>gcodeeditor</zorder>
+   <zorder>tooldialog</zorder>
+   <zorder>filedialog</zorder>
+   <zorder>ScreenOptions</zorder>
+   <zorder>macrotabdialog</zorder>
+   <zorder>originoffsetdialog</zorder>
+   <zorder>StatusStacked</zorder>
+   <zorder>focusoverlay</zorder>
+   <zorder>frame_auto_2</zorder>
+   <zorder>frame_auto_3</zorder>
+   <zorder>frame_auto_5</zorder>
+   <zorder>frame_auto_4</zorder>
+   <zorder>frame_auto_10</zorder>
+   <zorder>frame_auto_7</zorder>
+   <zorder>frame_auto_8</zorder>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CamViewDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>LcncDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>MacroTabDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
+   <class>OriginOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateEnableGridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusStacked</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.status_stacked</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>FileDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QFrame</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>halbuttonclicked()</slot>
+  <slot>estop_toggled()</slot>
+  <slot>machineon_toggled()</slot>
+  <slot>home_clicked()</slot>
+  <slot>jog_pressed()</slot>
+  <slot>jog_released()</slot>
+  <slot>change_jograte()</slot>
+  <slot>loadfile_clicked()</slot>
+  <slot>runfile_clicked()</slot>
+  <slot>launch_status()</slot>
+  <slot>zero_axis()</slot>
+  <slot>launch_halmeter()</slot>
+  <slot>stopfile_clicked()</slot>
+  <slot>change_feedrate()</slot>
+  <slot>change_rapidrate()</slot>
+  <slot>pausefile_clicked()</slot>
+ </slots>
+</ui>
