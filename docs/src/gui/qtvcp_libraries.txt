@@ -37,50 +37,50 @@ IINFO is a library to collect and filters data from the INI file. +
 
 The available data and defaults: +
 ----
-inifile = linuxcnc.ini(INIPATH) +
-MDI_HISTORY_PATH = '~/.axis_mdi_history' +
-PREFERENCE_PATH = '~/.Preferences' +
-SUB_PATH = None +
-PROGRAM_FILTERS = None +
-PARAMETER_FILE = None +
-MACHINE_IS_LATHE = False +
-MACHINE_IS_METRIC = False +
-MACHINE_UNIT_CONVERSION = 1 +
-MACHINE_UNIT_CONVERSION_9 = [1]*9 +
-AVAILABLE_AXES = ('X','Y','Z') +
-AVAILABLE_AXES_INT = (0,1,2) +
-NO_HOME_REQUIRED = False +
-JOG_INCREMENTS = None +
-ANGULAR_INCREMENTS = None +
- +
-MAX_LINEAR_VELOCITY = 60 +
-DEFAULT_LINEAR_VELOCITY = 15.0 +
- +
-DEFAULT_SPINDLE_SPEED = 200 +
-MAX_FEED_OVERRIDE = 1.5 +
-MAX_SPINDLE_OVERRIDE = 1.5 +
-MIN_SPINDLE_OVERRIDE = 0.5 +
+inifile = linuxcnc.ini(INIPATH)
+MDI_HISTORY_PATH = '~/.axis_mdi_history'
+PREFERENCE_PATH = '~/.Preferences'
+SUB_PATH = None
+PROGRAM_FILTERS = None
+PARAMETER_FILE = None
+MACHINE_IS_LATHE = False
+MACHINE_IS_METRIC = False
+MACHINE_UNIT_CONVERSION = 1
+MACHINE_UNIT_CONVERSION_9 = [1]*9
+AVAILABLE_AXES = ('X','Y','Z')
+AVAILABLE_AXES_INT = (0,1,2)
+NO_HOME_REQUIRED = False
+JOG_INCREMENTS = None
+ANGULAR_INCREMENTS = None
 
-# user message dialog info +
-USRMESS_BOLDTEXT = +
-USRMESS_TEXT = +
-USRMESS_TYPE = +
-USRMESS_PINNAME = +
-USRMESS_DETAILS = +
-USRMESS_ICON = +
-ZIPPED_USRMESS = +
+MAX_LINEAR_VELOCITY = 60
+DEFAULT_LINEAR_VELOCITY = 15.0
 
-# embeded program info +
-TAB_NAMES = +
-TAB_LOCATION = +
-TAB_CMD = +
+DEFAULT_SPINDLE_SPEED = 200
+MAX_FEED_OVERRIDE = 1.5
+MAX_SPINDLE_OVERRIDE = 1.5
+MIN_SPINDLE_OVERRIDE = 0.5
+
+# user message dialog info
+USRMESS_BOLDTEXT =
+USRMESS_TEXT =
+USRMESS_TYPE =
+USRMESS_PINNAME =
+USRMESS_DETAILS =
+USRMESS_ICON =
+ZIPPED_USRMESS =
+
+# embeded program info
+TAB_NAMES =
+TAB_LOCATION =
+TAB_CMD =
 ----
 There are some 'helper functions' - mostly used for widget support +
 ----
-convert_units(self, data)
-convert_units_9(self,data):
-get_filter_program(self, fname):
-get_qt_filter_extensions(self,):
+convert_units(data)
+convert_units_9(data)
+get_filter_program(fname)
+get_qt_filter_extensions()
 ----
 To import this modules add this python code to your import section: +
 [source,python]
@@ -100,7 +100,7 @@ if INFO.MACHINE_IS_METRIC is True:
     print 'Metric based'
 ----
 
-=== Action
+== Action
 
 This library is used to command linuxcnc's motion controller. +
 It tries to hide incidental details and add convenience methods for developers. +
@@ -120,11 +120,71 @@ To access Lcnc_Action commands use general syntax such as these: +
 ----
 ACTION.SET_ESTOP_STATE(state)
 ACTION.SET_MACHINE_STATE(state)
-ACTION.SET_AUTO_MODE()
-ACTION.RUN()
-ACTION.DO_JOG(joint_number, direction)
-----
 
+ACTION.SET_MACHINE_HOMING(joint)
+ACTION.SET_MACHINE_UNHOMED(joint)
+
+ACTION.SET_LIMITS_OVERRIDE()
+
+ACTION.SET_MDI_MODE()
+ACTION.SET_MANUAL_MODE()
+ACTION.SET_AUTO_MODE()
+
+ACTION.CALL_MDI(code)
+ACTION.CALL_INI_MDI(number)
+
+ACTION.OPEN_PROGRAM(filename)
+
+ACTION.SET_AXIS_ORIGIN(axis,value)
+
+ACTION.RUN()
+ACTION.ABORT()
+ACTION.PAUSE()
+
+ACTION.SET_RAPID_RATE(rate)
+ACTION.SET_FEED_RATE(rate)
+ACTION.SET_SPINDLE_RATE(rate)
+ACTION.SET_JOG_RATE(rate)
+ACTION.SET_JOG_INCR(incr)
+
+ACTION.SET_SPINDLE_ROTATION(direction = 1, rpm = 100)
+ACTION.SET_SPINDLE_FASTER()
+ACTION.SET_SPINDLE_SLOWER()
+ACTION.SET_SPINDLE_STOP()
+
+ACTION.ZERO_G92_OFFSET()
+ACTION.ZERO_ROTATIONAL_OFFSET()
+
+ACTION.RECORD_CURRENT_MODE()
+ACTION.RESTORE_RECORDED_MODE()
+
+ACTION.DO_JOG(axisnum, direction)
+ACTION.JOG(axisnum, direction, rate, distance=0)
+
+ACTION.TOGGLE_FLOOD()
+ACTION.SET_FLOOD_ON()
+ACTION.SET_FLOOD_OFF()
+
+ACTION.TOGGLE_MIST()
+ACTION.SET_MIST_ON()
+ACTION.SET_MIST_OFF()
+
+ACTION.RELOAD_TOOLTABLE()
+ACTION.UPDATE_VAR_FILE()
+    
+ACTION.TOGGLE_OPTIONAL_STOP()
+ACTION.SET_OPTIONAL_STOP_ON()
+ACTION.SET_OPTIONAL_STOP_OFF()
+
+ACTION.TOGGLE_BLOCK_DELETE()
+ACTION.SET_BLOCK_DELETE_ON()
+ACTION.SET_BLOCK_DELETE_OFF()
+----
+There are some 'helper functions' - mostly used for this library's support +
+----
+ensure_mode(modes)
+open_filter_program(filename, filter)
+----
 == aux_program_loader
 
 This module allows an easy way to load auxiliary programs linuxcnc often uses. +
@@ -258,9 +318,10 @@ The screenoptions widget can automatically set up the preference file. +
 
 == audio player
 
-This module allows playing non-blocking sounds using gstreamer. +
-It can play sounds using the beep library (currently blocks while beeping) +
-It can speak using the espeak library (non blocks while speaking) +
+This module allows playing sounds using gstreamer, beep and espeak+
+It can play sounds/music files using 'gstreamer' (non blocking) +
+It can play sounds using the 'beep' library (currently blocks while beeping) +
+It can speak using the 'espeak' library (non blocks while speaking) +
 There are default alert sounds using Mint or freedesktop default sounds.+
 You can play arbitrary sounds or even songs by specifying the path. +
 STATUS has messages to control this module. +
