@@ -30,7 +30,7 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
@@ -140,17 +140,13 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def conversion(self, data, metric = True):
         if STATUS.is_metric_mode():
             if metric:
-                print 'metric metric'
                 return INFO.convert_metric_to_machine(data)
             else:
-                print 'metric imperial'
                 return INFO.convert_imperial_to_machine(data)
         else:
             if metric:
-                print 'imperial metric'
                 return INFO.convert_metric_to_machine(data)
             else:
-                print 'imperial imperial'
                 return INFO.convert_imperial_to_machine(data)
 
 

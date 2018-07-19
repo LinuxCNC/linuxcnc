@@ -5,7 +5,7 @@ import linuxcnc
 import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class _IStat(object):
 

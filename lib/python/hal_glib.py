@@ -312,7 +312,6 @@ class _GStat(gobject.GObject):
         state_new = self.old['state']
         if state_new != state_old:
             if state_new > linuxcnc.STATE_ESTOP:
-                print 'estop-reset'
                 self.emit('state-estop-reset')
             else:
                 self.emit('state-estop')
@@ -336,7 +335,6 @@ class _GStat(gobject.GObject):
         interp_new = self.old['interp']
         if interp_new != interp_old:
             if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
-                print "Emit", "interp-run"
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
         # paused
@@ -553,7 +551,6 @@ class _GStat(gobject.GObject):
         return True
 
     def forced_update(self):
-        print 'Gstat forced update!'
         try:
             self.stat.poll()
         except:
