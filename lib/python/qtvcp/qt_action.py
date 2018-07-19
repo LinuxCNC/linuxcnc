@@ -127,10 +127,10 @@ class _Lcnc_Action(object):
     def SET_SPINDLE_STOP(self):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF)
 
-    def ZERO_G92_OFFSET (self, widget):
+    def ZERO_G92_OFFSET(self):
         self.CALL_MDI("G92.1")
         STATUS.emit('reload-display')
-    def ZERO_ROTATIONAL_OFFSET(self, widget):
+    def ZERO_ROTATIONAL_OFFSET(self):
         self.CALL_MDI("G10 L2 P0 R 0")
         STATUS.emit('reload-display')
 
