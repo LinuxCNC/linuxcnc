@@ -141,14 +141,14 @@ class DROLabel(QtWidgets.QLabel, AXIS, REFERENCE, UNITS, _HalWidgetBase):
     def getMMTextTemplate(self):
         return self._mm_text_template
     def resetMMTextTemplate(self):
-        self._mm_text_template = '%9.4f'
+        self._mm_text_template = '%10.3f'
 
     def setInchTextTemplate(self, data):
         self._inch_text_template = data
     def getInchTextTemplate(self):
         return self._inch_text_template
     def resetInchTextTemplate(self):
-        self._inch_text_template = '%10.3f'
+        self._inch_text_template = '%9.4f'
 
     mm_template = QtCore.pyqtProperty(str, getMMTextTemplate, setMMTextTemplate, resetMMTextTemplate)
     inch_template = QtCore.pyqtProperty(str, getInchTextTemplate, setInchTextTemplate, resetInchTextTemplate)
