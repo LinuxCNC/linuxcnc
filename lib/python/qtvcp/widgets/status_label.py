@@ -43,7 +43,9 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.rapid_override = False
         self.spindle_override = False
         self.jograte = False
+        self.jograte_angular = False
         self.jogincr = False
+        self.joginct_angle = False
         self.tool_number = False
         self.current_feedrate = False
         self.current_feedunit = False
@@ -68,8 +70,12 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('spindle-override-changed', lambda w, data: _f(data))
         elif self.jograte:
             STATUS.connect('jograte-changed', lambda w, data: _f(data))
+        elif self.jograte_angular:
+            STATUS.connect('jograte-angular-changed', lambda w, data: _f(data))
         elif self.jogincr:
             STATUS.connect('jogincrement-changed', lambda w, data, text: _f(text))
+        elif self.joginct_angle:
+            STATUS.connect('jogincrement-angular-changed', lambda w, data, text: _f(text))
         elif self.tool_number:
             STATUS.connect('tool-in-spindle-changed', lambda w, data: _f(data))
         elif self.current_feedrate:
@@ -97,6 +103,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
             STATUS.connect('metric-mode-changed', self._switch_units)
+        else:
+            LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s
@@ -189,7 +197,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
 
     def _toggle_properties(self, picked):
         data = ('feed_override', 'rapid_override', 'spindle_override', 'jograte',
-                'jogincr', 'tool_number', 'current_feedrate', 'current_feedunit',
+                'jograte_angular', 'jogincr', 'joginct_angle', 'tool_number',
+                'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed')
@@ -261,6 +270,16 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     def reset_jograte(self):
         self.jograte = False
 
+    # jograte_angular status
+    def set_jograte_angular(self, data):
+        self.jograte_angular = data
+        if data:
+            self._toggle_properties('jograte_angular')
+    def get_jograte_angular(self):
+        return self.jograte_angular
+    def reset_jograte_angular(self):
+        self.jograte_angular = False
+
     # jogincr status
     def set_jogincr(self, data):
         self.jogincr = data
@@ -270,6 +289,16 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         return self.jogincr
     def reset_jogincr(self):
         self.jogincr = False
+
+    # joginct_angle status
+    def set_joginct_angle(self, data):
+        self.joginct_angle = data
+        if data:
+            self._toggle_properties('joginct_angle')
+    def get_joginct_angle(self):
+        return self.joginct_angle
+    def reset_joginct_angle(self):
+        self.joginct_angle = False
 
     # tool number status
     def set_tool_number(self, data):
@@ -388,7 +417,9 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     spindle_override_status = QtCore.pyqtProperty(bool, get_spindle_override, set_spindle_override,
                                                   reset_spindle_override)
     jograte_status = QtCore.pyqtProperty(bool, get_jograte, set_jograte, reset_jograte)
+    jograte_angular_status = QtCore.pyqtProperty(bool, get_jograte_angular, set_jograte_angular, reset_jograte_angular)
     jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
+    joginct_angle_status = QtCore.pyqtProperty(bool, get_joginct_angle, set_joginct_angle, reset_joginct_angle)
     tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
     current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate,
                                                   reset_current_feedrate)

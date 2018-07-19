@@ -89,6 +89,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.joint_number = 0
         self.jog_incr_imperial = .010
         self.jog_incr_mm = .025
+        self.jog_incr_angle = -1
         self.float = 100.0
         self.float_alt = 50.0
         self.view_type = 'p'
@@ -121,13 +122,14 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
         def _checkincrements(value, text):
             value = round(value , 5)
-            scale = self.conversion(1/25.4)
             if STATUS.is_metric_mode():
-                if round(self.jog_incr_mm * scale , 5) == value:
+                machn_units = INFO.convert_metric_to_machine(self.jog_incr_mm)
+                if round(machn_units , 5) == value:
                     _safecheck(True)
                     return
             else:
-                if self.jog_incr_imperial == value:
+                machn_units = INFO.convert_imperial_to_machine(self.jog_incr_imperial)
+                if  round(machn_units , 5) == value:
                     _safecheck(True)
                     return
             _safecheck(False)
@@ -438,22 +440,33 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     # We must convert the increments from current 'mode' units to
     # whatever units the machine is based on.
+    # If the setting is negative don't set it
     def incr_action(self):
         if STATUS.is_metric_mode():  # metirc mode G21
-            if self.jog_incr_mm:
+            if self.jog_incr_mm < 0: return
+            elif self.jog_incr_mm:
                 incr = INFO.convert_metric_to_machine(self.jog_incr_mm)
                 text = '%s mm' % str(self.jog_incr_mm)
             else:
                 incr = 0
                 text = 'Continous'
         else:
-            if self.jog_incr_imperial:
+            if self.jog_incr_imperial < 0: return
+            elif self.jog_incr_imperial:
                 incr = INFO.convert_imperial_to_machine(self.jog_incr_imperial)
                 text = '''%s "''' % str(self.jog_incr_imperial)
             else:
                 incr = 0
                 text = 'Continous'
         STATUS.set_jog_increments(incr , text)
+        # set an angular increment if not negative
+        if self.jog_incr_angle < 0: return
+        elif self.jog_incr_angle == 0:
+            incr = 0
+            text = 'Continous'
+        else:
+            text = '''%s deg''' % str(self.jog_incr_angle)
+        STATUS.set_jog_increment_angular(incr , text)
 
     # convert the units based on what the machine is based on.
     def conversion(self, data):
@@ -830,6 +843,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_incr_mm(self):
         self.jog_incr_mm = 0.025
 
+    def set_incr_angle(self, data):
+        self.jog_incr_angle = data
+    def get_incr_angle(self):
+        return self.jog_incr_angle
+    def reset_incr_angle(self):
+        self.jog_incr_angle = -1
+
     def set_float(self, data):
         self.float = data
     def get_float(self):
@@ -918,6 +938,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
     incr_imperial_number = QtCore.pyqtProperty(float, get_incr_imperial, set_incr_imperial, reset_incr_imperial)
     incr_mm_number = QtCore.pyqtProperty(float, get_incr_mm, set_incr_mm, reset_incr_mm)
+    incr_angular_number = QtCore.pyqtProperty(float, get_incr_angle, set_incr_angle, reset_incr_angle)
     float_num = QtCore.pyqtProperty(float, get_float, set_float, reset_float)
     float_alt_num = QtCore.pyqtProperty(float, get_float_alt, set_float_alt, reset_float_alt)
     view_type_string = QtCore.pyqtProperty(str, get_view_type, set_view_type, reset_view_type)

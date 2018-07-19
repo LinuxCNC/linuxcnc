@@ -43,22 +43,29 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         self.feed = False
         self.spindle = False
         self.jograte = False
+        self.jograte_angular = False
 
     def _hal_init(self):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
         if self.rapid:
             STATUS.connect('rapid-override-changed', lambda w, data: self.setValue(data))
-        if self.feed:
+        elif self.feed:
             STATUS.connect('feed-override-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_FEED_OVERRIDE))
-        if self.spindle:
+        elif self.spindle:
             STATUS.connect('spindle-override-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_SPINDLE_OVERRIDE))
             self.setMinimum(int(INFO.MIN_SPINDLE_OVERRIDE))
-        if self.jograte:
+        elif self.jograte:
             STATUS.connect('jograte-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
+        elif self.jograte_angular:
+            STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
+
+        else:
+            LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)
@@ -72,6 +79,10 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             ACTION.SET_SPINDLE_RATE(value)
         elif self.jograte:
             ACTION.SET_JOG_RATE(value)
+        elif self.jograte_anglar:
+            ACTION.SET_JOG_RATE_ANGULAR(value)
+        else:
+            LOG.error('{} : no action recognised'.format(self.HAL_NAME_))
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -82,7 +93,7 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('rapid', 'feed', 'spindle', 'jograte')
+        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_anjular')
 
         for i in data:
             if not i == picked:
@@ -124,11 +135,20 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     def resetjograte(self):
         self.jograte = False
 
+    def setjograte_angular(self, data):
+        self.jograte_angular = data
+        if data:
+            self._toggle_properties('jograte_angular')
+    def getjograte_angular(self):
+        return self.jograte_angular
+    def resetjograte_angular(self):
+        self.jograte_angular = False
+
     rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
     feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
     spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)
     jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
-
+    jograte_angular_rate = pyqtProperty(bool, getjograte_angular, setjograte_angular, resetjograte_angular)
     ##############################
     # required class boiler code #
     ##############################

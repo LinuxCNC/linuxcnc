@@ -36,33 +36,81 @@ LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def __init__(self, parent=None):
         super(JogIncrements, self).__init__(parent)
-        for item in (INFO.JOG_INCREMENTS):
-            self.addItem(item)
-        self.currentIndexChanged.connect(self.selectionchange)
+        self.linear = True
+        self._block_signal = False
 
     # Default to continous jogging
     # with a combo box display, it's assumed the showing increment
     # is valid - so we must update the rate if the units mode changes.
     def _hal_init(self):
+        if self.linear:
+            for item in (INFO.JOG_INCREMENTS):
+                self.addItem(item)
+            STATUS.connect('metric-mode-changed', self._switch_units)
+            STATUS.connect('jogincrement-changed', lambda w, value, text: self._checkincrements(value, text))
+        else:
+            for item in (INFO.ANGULAR_INCREMENTS):
+                self.addItem(item)
+        STATUS.connect('jogincrement-angular-changed', lambda w, value, text: self._checkincrements(value, text))
+        self.currentIndexChanged.connect(self.selectionchange)
         self.selectionchange(0)
-        STATUS.connect('metric-mode-changed', self._switch_units)
 
     def _switch_units(self, w, data):
         self.selectionchange(-1)
 
+    # search the combo box for the value STATUS sent us
+    # If there is a match, change the combobox to it
+    # otherwise display a blank in the combobox.
+    # in this way if some other widget sets a rate change
+    # the combo box doesn't lie
+    def _checkincrements(self,value, text):
+        for count in range(self.count()):
+            label = self.itemText(count)
+            if 'cont' in label.lower():
+                machn_incr = 0
+            else:
+                if self.linear:
+                    machn_incr = self.parse_increment(label)
+                else:
+                    machn_incr = self.parse_angular_increment(label)
+            #print count,self.itemText(count), machn_incr,value
+            if round(machn_incr,6) == round(value,6):
+                self._block_signal = True
+                self.setCurrentIndex(count)
+                self._block_signal = False
+                return
+        self.setCurrentIndex(-1)
+
     def selectionchange(self, i):
+        if self._block_signal: return
         text = str(self.currentText())
-        print text
+        if i == -1 and text == '': return
         try:
             if 'cont' in text.lower():
                 inc = 0
             else:
-                inc = self.parse_increment(text)
+                if self.linear:
+                    inc = self.parse_increment(text)
+                else:
+                    inc = self.parse_angular_increment(text)
+
         except Exception as e:
             LOG.debug('Exception parsing increment - setting increment at 0', exc_info=e)
             inc = 0
-        LOG.debug("Current index: {} Increment: {} , selection changed {}".format(i, inc, text))
-        STATUS.set_jog_increments(inc, text)
+        if self.linear:
+            LOG.debug("Linear Current index: {} Increment: {} , selection changed {}".format(i, inc, text))
+            STATUS.set_jog_increments(inc, text)
+        else:
+            LOG.debug("Angular Current index: {} Increment: {} , selection changed {}".format(i, inc, text))
+            STATUS.set_jog_increment_angular(inc, text)
+
+    def parse_angular_increment(self, jogincr):
+        scale = 1
+        if jogincr.endswith("deg"):
+            scale = 1
+        incr = jogincr.rstrip(" deg")
+        incr = float(incr)
+        return incr * scale
 
     # We convert INI parced increments to machine units
     def parse_increment(self, jogincr):
@@ -104,6 +152,33 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
             else:
                 print 'imperial imperial'
                 return INFO.convert_imperial_to_machine(data)
+
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('linear')
+        for i in data:
+            if not i == picked:
+                self[i+'_option'] = False
+
+    # BOOL VARIABLES----------------------
+    def set_linear(self, data):
+        self.linear = data
+    def get_linear(self):
+        return self.linear
+    def reset_linear(self):
+        self.linear = True
+
+    # designer will show these properties in this order:
+    # BOOL
+    linear_option = QtCore.pyqtProperty(bool, get_linear, set_linear, reset_linear)
 
 if __name__ == "__main__":
 

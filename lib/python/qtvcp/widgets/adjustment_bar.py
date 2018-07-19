@@ -36,6 +36,8 @@ AUX_PRGM = Aux_program_loader()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
+# Set the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 # So we can customize the label
@@ -189,27 +191,43 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         self.feed = False
         self.spindle = False
         self.jograte = False
+        self.jograte_angular = False
         self.texttemplate = 'Value =  %s'
 
     # self.PREFS_
     # self.HAL_NAME_
     # comes from base class
     def _hal_init(self):
+
+        # if we build the widget before now, designer options are not
+        # taken account
         self.buildWidget()
+
+        # when estopped disable buttons
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
+
+        # set options
         if self.rapid:
             STATUS.connect('rapid-override-changed', lambda w, data: self.setValue(data))
-        if self.feed:
+        elif self.feed:
             STATUS.connect('feed-override-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_FEED_OVERRIDE))
-        if self.spindle:
+        elif self.spindle:
             STATUS.connect('spindle-override-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_SPINDLE_OVERRIDE))
             self.setMinimum(int(INFO.MIN_SPINDLE_OVERRIDE))
-        if self.jograte:
+        elif self.jograte:
             STATUS.connect('jograte-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
+        elif self.jograte_angular:
+            STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
+            print int(INFO.MAX_ANGULAR_JOG_VEL)
+            self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
+        else:
+           LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
+
+        # If there is a preference file object use it to load the hi/low toggle points
         if self.PREFS_:
             self.hi_value = self.PREFS_.getpref(self.HAL_NAME_+'-hi-value', 75, int, 'SCREEN_CONTROL_LAST_SETTING')
             self.low_value = self.PREFS_.getpref(self.HAL_NAME_+'-low-value', 25, int, 'SCREEN_CONTROL_LAST_SETTING')
@@ -220,6 +238,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     # when qtvcp closes this gets called
     def closing_cleanup__(self):
         if self.PREFS_:
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
             self.PREFS_.putpref(self.HAL_NAME_+'-hi-value', self.hi_value, int, 'SCREEN_CONTROL_LAST_SETTING')
             self.PREFS_.putpref(self.HAL_NAME_+'-low-value', self.low_value, int, 'SCREEN_CONTROL_LAST_SETTING')
 
@@ -232,7 +251,10 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             ACTION.SET_SPINDLE_RATE(value)
         elif self.jograte:
             ACTION.SET_JOG_RATE(value)
-
+        elif self.jograte_angular:
+            ACTION.SET_JOG_RATE_ANGULAR(value)
+        else:
+           LOG.error('{} no action recognised'.format(self.HAL_NAME_))
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -242,7 +264,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('rapid', 'feed', 'spindle', 'jograte')
+        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_angular')
 
         for i in data:
             if not i == picked:
@@ -284,6 +306,15 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     def resetjograte(self):
         self.jograte = False
 
+    def setjograteangular(self, data):
+        self.jograte_angular = data
+        if data:
+            self._toggle_properties('jograte_angular')
+    def getjograteangular(self):
+        return self.jograte_angular
+    def resetjograteangular(self):
+        self.jograte_angular = False
+
     def setshowtoggle(self, data):
         self.showToggleButton = data
     def getshowtoggle(self):
@@ -309,6 +340,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
     spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)
     jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
+    jograte_angular_rate = pyqtProperty(bool, getjograteangular, setjograteangular, resetjograteangular)
     show_toggle_button = pyqtProperty(bool, getshowtoggle, setshowtoggle, resetshowtoggle)
     show_setting_menu = pyqtProperty(bool, getsettingmenu, setsettingmenu, resetsettingmenu)
     text_template = pyqtProperty(str, gettexttemplate, settexttemplate, resettexttemplate)
