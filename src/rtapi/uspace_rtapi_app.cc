@@ -209,7 +209,7 @@ static int do_comp_args(void *module, vector<string> args) {
 	remove_quotes(s);
         size_t idx = s.find('=');
         if(idx == string::npos) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid paramter `%s'\n",
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid parameter `%s'\n",
                     s.c_str());
             return -1;
         }

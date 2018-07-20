@@ -1,41 +1,106 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkListStore" id="machine_type_store">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">XYZ</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">XYZA</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">XZ Lathe</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="mesa_boardname_store">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="pport_dir_store">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">In</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Out</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="servo_adjustment">
+    <property name="lower">5000</property>
+    <property name="upper">5000000</property>
+    <property name="step_increment">1000</property>
+  </object>
+  <object class="GtkListStore" id="units_store">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Inch</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">mm</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkVBox" id="base">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <child>
       <object class="GtkAlignment" id="alignment8">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="xscale">0.76999998092651367</property>
         <child>
           <object class="GtkFrame" id="frame6">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <child>
               <object class="GtkAlignment" id="alignment30">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="left_padding">12</property>
                 <child>
                   <object class="GtkHBox" id="hbox20">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkVBox" id="vbox12">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox22">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label2">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Machine Name:</property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -43,11 +108,16 @@
                               <object class="GtkEntry" id="machinename">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
-                                <signal name="changed" handler="on_machinename_changed"/>
+                                <property name="invisible_char">●</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <signal name="changed" handler="on_machinename_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -61,9 +131,11 @@
                         <child>
                           <object class="GtkHBox" id="hbox21">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <child>
                               <object class="GtkLabel" id="label1">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Configuration directory:</property>
                               </object>
@@ -83,6 +155,8 @@
                                 <property name="selectable">True</property>
                               </object>
                               <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -96,27 +170,32 @@
                         <child>
                           <object class="GtkHBox" id="hbox23">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label3">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Axis configuration:</property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkAlignment" id="alignment48">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">1</property>
                                 <property name="xscale">0</property>
                                 <child>
                                   <object class="GtkComboBox" id="axes">
                                     <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
                                     <property name="model">machine_type_store</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext4"/>
@@ -129,6 +208,7 @@
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -142,30 +222,35 @@
                         <child>
                           <object class="GtkHBox" id="hbox24">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="spacing">2</property>
                             <property name="homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label4">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Machine units:</property>
                                 <property name="use_underline">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkAlignment" id="alignment47">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">1</property>
                                 <property name="xscale">0</property>
                                 <child>
                                   <object class="GtkComboBox" id="units">
                                     <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
                                     <property name="model">units_store</property>
-                                    <signal name="changed" handler="on_units_changed"/>
+                                    <signal name="changed" handler="on_units_changed" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext6"/>
                                       <attributes>
@@ -177,6 +262,7 @@
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -189,6 +275,8 @@
                         </child>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -199,6 +287,7 @@
             <child type="label">
               <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">&lt;b&gt;Machine Basics&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
@@ -215,31 +304,38 @@
     <child>
       <object class="GtkAlignment" id="alignment9">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="xscale">0.030000030994415283</property>
         <child>
           <object class="GtkFrame" id="frame7">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <child>
               <object class="GtkAlignment" id="alignment31">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="left_padding">12</property>
                 <child>
                   <object class="GtkHBox" id="hbox25">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkTable" id="table35">
                         <property name="visible">True</property>
-                        <property name="n_rows">3</property>
+                        <property name="can_focus">False</property>
+                        <property name="n_rows">2</property>
                         <property name="n_columns">2</property>
                         <property name="homogeneous">True</property>
                         <child>
                           <object class="GtkHBox" id="hbox34">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <child>
                               <object class="GtkLabel" id="label437">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Actual Servo Period:             </property>
                                 <property name="use_markup">True</property>
@@ -247,6 +343,7 @@
                               </object>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -254,7 +351,11 @@
                               <object class="GtkSpinButton" id="servoperiod">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
                                 <property name="adjustment">servo_adjustment</property>
                                 <property name="climb_rate">100</property>
                                 <property name="numeric">True</property>
@@ -269,6 +370,7 @@
                             <child>
                               <object class="GtkLabel" id="label443">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">ns</property>
                               </object>
@@ -281,20 +383,19 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_EXPAND</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label444">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Recommend servo period:    1000000</property>
                           </object>
                           <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                           </packing>
                         </child>
                         <child>
@@ -305,25 +406,20 @@ Period Jitter </property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_underline">True</property>
-                            <signal name="clicked" handler="on_latency_test_clicked"/>
+                            <signal name="clicked" handler="on_latency_test_clicked" swapped="no"/>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_EXPAND</property>
                             <property name="y_options">GTK_EXPAND</property>
                           </packing>
                         </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -334,6 +430,7 @@ Period Jitter </property>
             <child type="label">
               <object class="GtkLabel" id="label41">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">&lt;b&gt;Computer Response Time&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
@@ -348,46 +445,47 @@ Period Jitter </property>
       </packing>
     </child>
     <child>
+      <object class="GtkLabel" id="label_divider1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">False</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
       <object class="GtkAlignment" id="alignment10">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="xscale">0.68999999761581421</property>
         <child>
           <object class="GtkFrame" id="frame8">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
             <child>
               <object class="GtkTable" id="table1">
                 <property name="visible">True</property>
-                <property name="n_rows">2</property>
+                <property name="can_focus">False</property>
+                <property name="n_rows">3</property>
                 <property name="n_columns">2</property>
                 <child>
                   <object class="GtkCheckButton" id="mesa0_checkbutton">
-                    <property name="label" translatable="yes">Mesa0 PCI / Parport Card:</property>
+                    <property name="label" translatable="yes">Mesa0 PCI/ Etho/ Parport Card:</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_mesa_checkbutton_toggled"/>
+                    <signal name="toggled" handler="on_mesa_checkbutton_toggled" swapped="no"/>
                   </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="mesa1_checkbutton">
-                    <property name="label" translatable="yes">Mesa1 PCI / Parport Card:</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_mesa_checkbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkHBox" id="hbox1">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkRadioButton" id="radio_none">
                         <property name="label" translatable="yes">None</property>
@@ -451,9 +549,29 @@ Period Jitter </property>
                   </object>
                   <packing>
                     <property name="right_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
+                    <property name="y_options"/>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="mesa1_checkbutton">
+                    <property name="label" translatable="yes">Mesa1 PCI/ Etho/ Parport Card:</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_mesa_checkbutton_toggled" swapped="no"/>
+                  </object>
+                  <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
                   </packing>
                 </child>
               </object>
@@ -461,6 +579,7 @@ Period Jitter </property>
             <child type="label">
               <object class="GtkLabel" id="label42">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">&lt;b&gt;I/O Control Ports/ Boards&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
@@ -471,99 +590,13 @@ Period Jitter </property>
       <packing>
         <property name="expand">False</property>
         <property name="fill">False</property>
-        <property name="position">2</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label6">
-        <property name="visible">True</property>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">False</property>
         <property name="position">3</property>
       </packing>
     </child>
     <child>
-      <object class="GtkAlignment" id="alignment42">
+      <object class="GtkLabel" id="label_divider2">
         <property name="visible">True</property>
-        <property name="xalign">0</property>
-        <property name="xscale">0.87999999523162842</property>
-        <child>
-          <object class="GtkFrame" id="frame22">
-            <property name="visible">True</property>
-            <property name="label_xalign">0</property>
-            <child>
-              <object class="GtkAlignment" id="alignment43">
-                <property name="visible">True</property>
-                <property name="xalign">0.15000000596046448</property>
-                <property name="xscale">0.5</property>
-                <child>
-                  <object class="GtkVBox" id="vbox14">
-                    <property name="visible">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="GUIAXIS">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="active">True</property>
-                        <property name="draw_indicator">True</property>
-                        <child>
-                          <object class="GtkLabel" id="label916">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Axis</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="GUITKLINUXCNC">
-                        <property name="label" translatable="yes">TKLinuxCNC</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
-                        <property name="group">GUIAXIS</property>
-                      </object>
-                      <packing>
-                        <property name="position">3</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="GUITOUCHY">
-                        <property name="label" translatable="yes">Touchy</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
-                        <property name="group">GUIAXIS</property>
-                      </object>
-                      <packing>
-                        <property name="position">5</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child type="label">
-              <object class="GtkLabel" id="label930">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;GUI frontend list&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </object>
-            </child>
-          </object>
-        </child>
+        <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -572,66 +605,152 @@ Period Jitter </property>
       </packing>
     </child>
     <child>
-      <placeholder/>
+      <object class="GtkExpander" id="Options">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="expanded">True</property>
+        <property name="use_markup">True</property>
+        <child>
+          <object class="GtkTable" id="table30">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="n_rows">4</property>
+            <property name="n_columns">3</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="individual_homing">
+                <property name="label" translatable="yes">Force individual manual homing</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+                <property name="y_options"/>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="random_toolchanger">
+                <property name="label" translatable="yes">Random position toolchanger </property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="y_options"/>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="require_homing">
+                <property name="label" translatable="yes">Require homing before MDI / Running</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="y_options"/>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="toolchangeprompt">
+                <property name="label" translatable="yes">Popup Manual Toolchange Prompt</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="active">True</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="y_options"/>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="allow_spindle_on_toolchange">
+                <property name="label" translatable="yes">Leave spindle on during tool change</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="y_options"/>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="raise_z_on_toolchange">
+                <property name="label" translatable="yes">Move spindle up before tool change</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="y_options"/>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="restore_joint_position">
+                <property name="label" translatable="yes">Restore joint position after shutdown</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="y_options"/>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="label412">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">&lt;b&gt;Defaults and Options&lt;/b&gt;</property>
+            <property name="use_markup">True</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">5</property>
+      </packing>
     </child>
     <child>
       <placeholder/>
     </child>
-  </object>
-  <object class="GtkListStore" id="mesa_boardname_store">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="pport_dir_store">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">In</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Out</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="units_store">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Inch</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">mm</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="machine_type_store">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">XYZ</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">XYZA</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">XZ Lathe</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkAdjustment" id="servo_adjustment">
-    <property name="lower">5000</property>
-    <property name="upper">5000000</property>
-    <property name="step_increment">1000</property>
   </object>
 </interface>

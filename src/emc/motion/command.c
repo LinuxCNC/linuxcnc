@@ -8,7 +8,7 @@
 *
 *   Most of the configs would be better off being passed via an ioctl
 *   implimentation leaving pure realtime data to be handled by
-*   emcmotCommmandHandler() - This would provide a small performance
+*   emcmotCommandHandler() - This would provide a small performance
 *   increase on slower systems.
 *
 * jmk says:
@@ -448,11 +448,17 @@ void emcmotCommandHandler(void *arg, long period)
             || emcmotCommand->command == EMCMOT_JOG_ABS
            ) {
            if (GET_MOTION_TELEOP_FLAG() && axis_num < 0) {
-               emsg = "command.com teleop bad axis_num";
+               emsg = "command.com teleop: unexpected negative axis_num";
+               if (joint_num >= 0) {
+                   emsg = "Mode is TELEOP, cannot jog joint";
+               }
                abort = 1;
            }
            if (!GET_MOTION_TELEOP_FLAG() && joint_num < 0) {
-               emsg = "command.com !teleop bad joint_num";
+               emsg = "command.com !teleop: unexpected negative joint_num";
+               if (axis_num >= 0) {
+                   emsg = "Mode is NOT TELEOP, cannot jog axis coordinate";
+               }
                abort = 1;
            }
            if (GET_MOTION_TELEOP_FLAG()) {
@@ -468,16 +474,13 @@ void emcmotCommandHandler(void *arg, long period)
         if (abort) {
           switch (emcmotCommand->command) {
           case EMCMOT_JOG_CONT:
-               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_CONT %s cmd=%d\n",
-                               emsg,emcmotCommand->command);
+               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_CONT %s\n",emsg);
                break;
           case EMCMOT_JOG_INCR:
-               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR %s cmd=%d\n",
-                               emsg,emcmotCommand->command);
+               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_INCR %s\n",emsg);
                break;
           case EMCMOT_JOG_ABS:
-               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS %s cmd=%d\n",
-                               emsg,emcmotCommand->command);
+               rtapi_print_msg(RTAPI_MSG_ERR,"JOG_ABS %s\n",emsg);
                break;
           default: break;
           }
@@ -492,6 +495,7 @@ void emcmotCommandHandler(void *arg, long period)
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
                 && (joint->home_sequence < 0)
+                && !emcmotStatus->homing_active
                ) {
                   if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
                       rtapi_print_msg(RTAPI_MSG_ERR,

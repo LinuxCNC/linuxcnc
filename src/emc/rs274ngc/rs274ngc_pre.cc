@@ -445,7 +445,7 @@ int Interp::_execute(const char *command)
 	      if (cblock->remappings.find(- status) == cblock->remappings.end()) {
 		  ERS("BUG: execute_block: got %d - not in remappings() !! (next_remap=%d)",- status,next_remap);
 	      }
-	      logRemap("inital phase %d",-status);
+	      logRemap("initial phase %d",-status);
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
@@ -1369,7 +1369,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
          NULL), NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
     length = strlen(line);
     if (length == (LINELEN - 1)) {   // line is too long. need to finish reading the line to recover
-      for (; fgetc(_setup.file_pointer) != '\n';);      // could look for EOF
+      for (; fgetc(_setup.file_pointer) != '\n' && !feof(_setup.file_pointer););
       ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (length - 1);  // index set on last char

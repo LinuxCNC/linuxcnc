@@ -3,11 +3,11 @@ component latencybins
 
 Usage:
   Read availablebins pin for the number of bins available.
-  Set the maxbinnumber pin for the number of +/- bins.
+  Set the maxbinnumber pin for the number of \(+- bins.
     Ensure maxbinnumber <= availablebins
     For maxbinnumber = N, the bins are numbered:
-       -N ... 0 ... + N bins
-    (the -0 bin is not populated)
+       \-N ... 0 ... + N bins
+    (the \-0 bin is not populated)
     (total effective bins = 2*maxbinnumber +1)
   Set nsbinsize pin for the binsize (ns)
   Iterate:
@@ -15,14 +15,14 @@ Usage:
     Read check pin and verify that check pin == index pin.
     Read output pins:
          pbinvalue is count for bin = +index
-         nbinvalue is count for bin = -index
+         nbinvalue is count for bin = \-index
          pextra    is count for all bins > maxbinnumber
          nextra    is count for all bins < maxbinnumber
          latency-min is max negative latency
          latency-max is max positive latency
 
    If index is out of range ( index < 0 or index > maxbinnumber)
-   then pbinvalue = nbinvalue = -1.
+   then pbinvalue = nbinvalue = \-1.
    The reset pin may be used to restart.
    The latency pin outputs the instantaneous latency.
 

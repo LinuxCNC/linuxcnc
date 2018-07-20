@@ -953,7 +953,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 		DrawCurrentSection( );
 	if ( InfosGene->HardwareErrMsgToDisplay[ 0 ]!='\0' )
 	{
-		ShowMessageBox( "Config hardware error occured!", InfosGene->HardwareErrMsgToDisplay, "Ok" );
+		ShowMessageBox( "Config hardware error occurred!", InfosGene->HardwareErrMsgToDisplay, "Ok" );
 		InfosGene->HardwareErrMsgToDisplay[ 0 ] = '\0';
 	}
         CheckForErrors ( );

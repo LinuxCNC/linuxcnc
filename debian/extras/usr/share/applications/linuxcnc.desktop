@@ -1,6 +1,5 @@
 [Desktop Entry]
-Encoding=UTF-8
-Version=
+Version=1.0
 Type=Application
 Exec=/usr/bin/linuxcnc
 Icon=linuxcncicon
@@ -10,3 +9,4 @@ Name=LinuxCNC
 Comment=Configuration Launcher
 StartupNotify=false
 Categories=X-CNC;
+Keywords=cnc;linuxcnc;

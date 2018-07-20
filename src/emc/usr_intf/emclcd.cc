@@ -1126,7 +1126,7 @@ static void parseConnect()
         pch = strtok(NULL, delims);
         sscanf(pch, "%d", &lcdParms.cellHeight);
         break;
-      case cpUnknown: printf("Unknow parameter: %s\n", pch);
+      case cpUnknown: printf("Unknown parameter: %s\n", pch);
       }
     pch = strtok(NULL, delims);
     }

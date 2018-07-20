@@ -108,9 +108,9 @@ void display_help (void)
 	       "eg: loadusr -w classicladder  --modmaster ladtest.clp\n"
 	       "\n"
 	       "   --nogui            do not create a GUI, only load a configuration\n"
-	       "   --config=filename  initilize modbus master I/O & load config file-( deprecated- use --modmaster)\n" 
-	       "   --modmaster        initilize modbus master I/O ( modbus config is loaded with other objects )\n" 
-	       "   --modslave         initilize modbus slave I/O (TCP only- B and W variables accesable\n"
+	       "   --config=filename  initialize modbus master I/O & load config file-( deprecated- use --modmaster)\n"
+	       "   --modmaster        initialize modbus master I/O ( modbus config is loaded with other objects )\n"
+	       "   --modslave         initialize modbus slave I/O (TCP only- B and W variables accesable\n"
 	       "   --modbus_port=portnumber  used for modbus slave using TCP ( ethernet )\n"
 	       "   --debug            sets the RTAPI debuglevel for printing debug messages\n"
 	       "Please also note that the classicladder realtime module must be loaded first\n"
@@ -186,7 +186,7 @@ void process_options (int argc, char *argv[])
 //for EMC: do_exit
 static void do_exit(int unused) {
 		hal_exit(compId);
-		printf("ERROR CLASSICLADDER-   Error intializing classicladder user module.\n");
+		printf("ERROR CLASSICLADDER-   Error initializing classicladder user module.\n");
 		exit(0);
 }
 void DoPauseMilliSecs( int Time )
@@ -222,11 +222,11 @@ void RunBackIfStopped( void )
 		InfosGene->LadderStoppedToRunBack = FALSE;
 	}
 }
-// after processing options and intiallising HAL, MODBUS and registering shared memory
+// after processing options and initializing HAL, MODBUS and registering shared memory
 // the main function is divided into  NOGUI true or NOGUI FALSE
 // The difference between them is mostly about checking if a program has already been loaded (only when GUI is to be shown)
 // if rungs are used and a ladder program was not specified on the command line
-// then a program is already in memory so we dont re initallize memory we just start the GUI
+// then a program is already in memory so we dont re initialize memory we just start the GUI
 
 int main( int   argc, char *argv[] )
 {

@@ -1575,6 +1575,7 @@ class GlCanonDraw:
 
             if self.get_show_machine_speed():
                 posstrs.append(format % ("Vel", spd))
+                droposstrs.append(diaformat % ("Vel", spd))
 
             if self.get_show_distance_to_go():
                 posstrs.append(format % ("DTG", dtg))

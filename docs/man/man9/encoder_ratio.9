@@ -27,32 +27,32 @@ If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default value is 
 
 .SH FUNCTIONS
 .TP
-.B encoder-ratio.sample
+.B encoder\-ratio.sample
 Read all input pins.  Must be called at twice the maximum desired count rate.
 .TP
-.B encoder-ratio.update (uses floating-point)
+.B encoder\-ratio.update (uses floating-point)
 Updates all output pins.  May be called from a slower thread.
 
 .SH NAMING
 The names for pins and parameters are prefixed as:
-  \fBencoder-ratio.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBencoder\-ratio.N.\fR for N=0,1,...,num\-1 when using \fBnum_chan=num\fR
   \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
 
-The \fBencoder-ratio.N.\fR format is shown in the following descriptions.
+The \fBencoder\-ratio.N.\fR format is shown in the following descriptions.
 
 .SH PINS
 
 .TP
-.B encoder-ratio.\fIN\fB.master-A\fR bit in
+.B encoder\-ratio.\fIN\fB.master\-A\fR bit in
 .TQ
-.B encoder-ratio.\fIN\fB.master-B\fR bit in
+.B encoder\-ratio.\fIN\fB.master\-B\fR bit in
 .TQ
-.B encoder-ratio.\fIN\fB.slave-A\fR bit in
+.B encoder\-ratio.\fIN\fB.slave\-A\fR bit in
 .TQ
-.B encoder-ratio.\fIN\fB.slave-B\fR bit in
+.B encoder\-ratio.\fIN\fB.slave\-B\fR bit in
 The encoder channels of the master and slave axes
 .TP
-.B encoder-ratio.\fIN\fB.enable\fR bit in
+.B encoder\-ratio.\fIN\fB.enable\fR bit in
 When the enable pin is FALSE, the error pin simply reports the slave axis
 position, in revolutions.  As such, it would normally be connected to the
 feedback pin of a PID block for closed loop control of the slave axis.
@@ -63,18 +63,18 @@ scale factor is the ratio of master teeth to slave teeth.  As the master moves,
 error becomes non-zero, and the PID loop will drive the slave axis to track the
 master.  
 .TP
-.B encoder-ratio.\fIN\fB.error\fR float out
+.B encoder\-ratio.\fIN\fB.error\fR float out
 The error in the position of the slave (in revolutions)
 .SH PARAMETERS
 .TP
-.B encoder-ratio.N.master-ppr\fR unsigned rw
+.B encoder\-ratio.N.master\-ppr\fR unsigned rw
 .TQ
-.B encoder-ratio.N.slave-ppr\fR unsigned rw
+.B encoder\-ratio.N.slave\-ppr\fR unsigned rw
 The number of pulses per revolution of the master and slave axes
 .TP
-.B encoder-ratio.N.master-teeth\fR unsigned rw
+.B encoder\-ratio.N.master\-teeth\fR unsigned rw
 .TQ
-.B encoder-ratio.N.slave-teeth\fR unsigned rw
+.B encoder\-ratio.N.slave\-teeth\fR unsigned rw
 The number of "teeth" on the master and slave gears.
 
 .SH SEE ALSO

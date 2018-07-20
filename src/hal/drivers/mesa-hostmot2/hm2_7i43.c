@@ -75,24 +75,24 @@ static int num_boards;
 // 
 
 static inline void hm2_7i43_epp_addr8(rtapi_u8 addr, hm2_7i43_t *board) {
-    outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    rtapi_outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
 static inline void hm2_7i43_epp_addr16(rtapi_u16 addr, hm2_7i43_t *board) {
-    outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
-    outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    rtapi_outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    rtapi_outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
 }
 
 static inline void hm2_7i43_epp_write(int w, hm2_7i43_t *board) {
-    outb(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+    rtapi_outb(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
 }
 
 static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
     int val;
-    val = inb(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+    val = rtapi_inb(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
     return val;
 }
@@ -101,7 +101,7 @@ static inline rtapi_u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
     uint32_t data;
 
     if (board->epp_wide) {
-	data = inl(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
+	data = rtapi_inl(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "read data 0x%08X\n", data);
     } else {
         uint8_t a, b, c, d;
@@ -129,18 +129,18 @@ static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
 
 static inline uint8_t hm2_7i43_epp_read_status(hm2_7i43_t *board) {
     uint8_t val;
-    val = inb(board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
+    val = rtapi_inb(board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
     return val;
 }
 
 static inline void hm2_7i43_epp_write_status(uint8_t status_byte, hm2_7i43_t *board) {
-    outb(status_byte, board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
+    rtapi_outb(status_byte, board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
 }
 
 static inline void hm2_7i43_epp_write_control(uint8_t control_byte, hm2_7i43_t *board) {
-    outb(control_byte, board->port.base + HM2_7I43_EPP_CONTROL_OFFSET);
+    rtapi_outb(control_byte, board->port.base + HM2_7I43_EPP_CONTROL_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
 }
 
@@ -228,7 +228,7 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
 
 
 
-int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 
@@ -426,7 +426,7 @@ static int hm2_7i43_setup(void) {
 
         // set up the parport for EPP
 	if(board[i].port.base_hi) {
-	    outb(0x94, board[i].port.base_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+	    rtapi_outb(0x94, board[i].port.base_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
         //

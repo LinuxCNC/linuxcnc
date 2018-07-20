@@ -59,10 +59,10 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         // The fractional part gives accurate velocity at low speeds, and
         // sub-step position feedback (like sw stepgen).
         acc_delta = (rtapi_s64)acc - (rtapi_s64)hm2->stepgen.instance[i].prev_accumulator;
-        if (acc_delta > INT32_MAX) {
-            acc_delta -= UINT32_MAX;
-        } else if (acc_delta < INT32_MIN) {
-            acc_delta += UINT32_MAX;
+        if (acc_delta > RTAPI_INT32_MAX) {
+            acc_delta -= RTAPI_UINT32_MAX;
+        } else if (acc_delta < RTAPI_INT32_MIN) {
+            acc_delta += RTAPI_UINT32_MAX;
         }
 
         hm2->stepgen.instance[i].subcounts += acc_delta;

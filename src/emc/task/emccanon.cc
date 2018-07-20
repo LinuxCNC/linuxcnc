@@ -1456,9 +1456,9 @@ void ARC_FEED(int line_number,
 
 
     canon_debug("start = %f %f %f\n",
-            canonEndPoint.x,
-            canonEndPoint.y,
-            canonEndPoint.z);
+            canon.endPoint.x,
+            canon.endPoint.y,
+            canon.endPoint.z);
     canon_debug("end = %f %f %f\n",
             end_cart.x,
             end_cart.y,
@@ -1704,7 +1704,7 @@ void ARC_FEED(int line_number,
 
     // Limit velocity by maximum
     double vel = MIN(canon.linearFeedRate, v_max);
-    canon_debug("current F = %f\n",currentLinearFeedRate);
+    canon_debug("current F = %f\n",canon.linearFeedRate);
     canon_debug("vel = %f\n",vel);
 
     canon_debug("v_max = %f\n",v_max);
@@ -2180,7 +2180,7 @@ void ENABLE_FEED_OVERRIDE()
 }
 
 
-//refers to adaptive feed override (HAL input, usefull for EDM for example)
+//refers to adaptive feed override (HAL input, useful for EDM for example)
 void DISABLE_ADAPTIVE_FEED()
 {
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;

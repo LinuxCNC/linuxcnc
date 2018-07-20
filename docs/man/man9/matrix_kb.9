@@ -48,7 +48,7 @@ In the optional scan-generation mode the \fBmatrix_kb.\fIN\fB.keycode\fR pin
 changes to an output pin and a set of output row pins and input column pins are
 created. 
 These need to be connected to physical inputs and outputs to scan the matrix and
-return values to HAL. Note the \fBnegative-logic\fR parameter described below,
+return values to HAL. Note the \fBnegative\-logic\fR parameter described below,
 this will need to be set on the most common forms of inputs which float high
 when unconnected.  
 
@@ -62,7 +62,7 @@ Perform all requested functions. Should be run in a slow thread for effective
 debouncing. 
 .SH PINS
 .TP
-.B matrix_kb.\fIN\fB.col-\fICC\fB-in\fR bit in
+.B matrix_kb.\fIN\fB.col\-\fICC\fB\-in\fR bit in
 The input pin corresponding to column C.
 .TP
 .B matrix_kb.\fIN\fB.key.r\fIR\fBc\fIC\fR bit out
@@ -72,7 +72,7 @@ The pin corresponding to the key at row R column C of the matrix.
 This pin should be connected to the scancode generator if hardware such as a 
 7i73 is being used. In this mode it is an input pin. In the internally-generated
 scanning mode this pin is an output, but will not normally be connected. 
-.B matrix_kb.\fIN\fB.row-\fIRR\fB-out bit out
+.B matrix_kb.\fIN\fB.row\-\fIRR\fB\-out bit out
 The row scan drive pins.Should be connected to external hardware pins connected
 to the keypad. 
 
@@ -86,7 +86,7 @@ number of keys may be pressed simultaneously. Increase the value of this paramet
 if such a keyboard is connected, or if phantom keystrokes are more acceptable
 than only two keys being active at one time. 
 .TP
-.B matrix_kb.\fIN\fB.negative-logic\fR bit r/w (default 1) only in scan mode
+.B matrix_kb.\fIN\fB.negative\-logic\fR bit r/w (default 1) only in scan mode
 When no keys are pressed a typical digital input will float high. The input will
 then be pulled low by the keypad when the corresponding poll line is low.
 Set this parameter to 0 if the IO in use requires one row at a time to be high,

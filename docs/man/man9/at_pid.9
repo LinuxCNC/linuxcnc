@@ -37,24 +37,24 @@ cycle to characterize the process. From this, \fBPgain/Igain/Dgain\fR or
 .P
 During auto tuning, the \fBcommand\fR input should not change. The limit
 cycle is setup around the commanded position. No initial tuning values are
-required to start auto tuning.  Only \fBtune-cycles\fR, \fBtune-effort\fR
-and \fBtune-mode\fR need be set before starting auto tuning.  When auto tuning
+required to start auto tuning.  Only \fBtune\-cycles\fR, \fBtune\-effort\fR
+and \fBtune\-mode\fR need be set before starting auto tuning.  When auto tuning
 completes, the tuning parameters will be set. If running from LinuxCNC, the
 FERROR setting for the axis being tuned may need to be loosened up as it must
 be larger than the limit cycle amplitude in order to avoid a following error.
 .P
 To perform auto tuning, take the following steps.  Move the axis to be tuned,
-to somewhere near the center of it's travel.  Set \fBtune-cycles\fR (the
-default value should be fine in most cases) and \fBtune-mode\fR. Set
-\fBtune-effort\fR to a small value. Set \fBenable\fR to true. Set
-\fBtune-mode\fR to true. Set \fBtune-start\fR to true. If no oscillation
-occurs, or the oscillation is too small, slowly increase \fBtune-effort\fR.
+to somewhere near the center of it's travel.  Set \fBtune\-cycles\fR (the
+default value should be fine in most cases) and \fBtune\-mode\fR. Set
+\fBtune\-effort\fR to a small value. Set \fBenable\fR to true. Set
+\fBtune\-mode\fR to true. Set \fBtune\-start\fR to true. If no oscillation
+occurs, or the oscillation is too small, slowly increase \fBtune\-effort\fR.
 Auto tuning can be aborted at any time by setting \fBenable\fR or
-\fBtune-mode\fR to false.
+\fBtune\-mode\fR to false.
 
 .SH NAMING
 The names for pins, parameters, and functions are prefixed as:
-  \fBpid.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBpid.N.\fR for N=0,1,...,num\-1 when using \fBnum_chan=num\fR
   \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
 
 The \fBpid.N.\fR format is shown in the following descriptions.
@@ -62,7 +62,7 @@ The \fBpid.N.\fR format is shown in the following descriptions.
 
 .SH FUNCTIONS
 .TP 
-\fBpid.\fIN\fB.do-pid-calcs\fR (uses floating-point)
+\fBpid.\fIN\fB.do\-pid\-calcs\fR (uses floating-point)
 Does the PID calculations for control loop \fIN\fR.
 
 .SH PINS
@@ -84,11 +84,11 @@ The output of the PID loop, which goes to some actuator such as a motor.
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
 .TP
-\fBpid.\fIN\fB.tune-mode\fR bit in
+\fBpid.\fIN\fB.tune\-mode\fR bit in
 When true, enables auto tune mode.  When false, normal PID calculations are
 performed.
 .TP
-\fBpid.\fIN\fB.tune-start\fR bit io
+\fBpid.\fIN\fB.tune\-start\fR bit io
 When set to true, starts auto tuning.  Cleared when the auto tuning completes.
 
 .SH PARAMETERS
@@ -188,18 +188,18 @@ Limit on command second derivative.  The command second derivative used by
 used to prevent \fBFF2\fR from producing large output spikes if there is a
 step change on the command.  Not normally needed.
 .TP
-\fBpid.\fIN\fB.tune-type\fR u32 rw
+\fBpid.\fIN\fB.tune\-type\fR u32 rw
 When set to 0, \fBPgain/Igain/Dgain\fR are caclulated. When set to 1,
 \fBPgain/Igain/FF1\fR are calculated.
 .TP
-\fBpid.\fIN\fB.tune-cycles\fR u32 rw
+\fBpid.\fIN\fB.tune\-cycles\fR u32 rw
 Determines the number of cycles to run to characterize the process.
-\fBtune-cycles\fR actually sets the number of half cycles. More cycles results
+\fBtune\-cycles\fR actually sets the number of half cycles. More cycles results
 in a more accurate characterization as the average of all cycles is used.
 .TP
-\fBpid.\fIN\fB.tune-effort\fR float rw
+\fBpid.\fIN\fB.tune\-effort\fR float rw
 Determines the effor used in setting up the limit cycle in the process.
-\fBtune-effort\fR should be set to a positive value less than \fBmaxoutput\fR.
+\fBtune\-effort\fR should be set to a positive value less than \fBmaxoutput\fR.
 Start with something small and work up to a value that results in a good
 portion of the maximum motor current being used. The smaller the value, the
 smaller the amplitude of the limit cycle.
@@ -217,11 +217,11 @@ Derivative of command.  This is the value that is multiplied by \fBFF1\fR to pro
 Second derivative of command.  This is the value that is multiplied by
 \fBFF2\fR to produce the second order feed-forward term of the output.
 .TP
-\fBpid.\fIN\fB.ultimate-gain\fR float ro (only if debug=1)
-Determined from process characterization. \fBultimate-gain\fR is the ratio of
-\fBtune-effort\fR to the limit cycle amplitude multipled by 4.0 divided by Pi.
-\fBpid.\fIN\fB.ultimate-period\fR float ro (only if debug=1)
-Determined from process characterization. \fBultimate-period\fR is the period
+\fBpid.\fIN\fB.ultimate\-gain\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate\-gain\fR is the ratio of
+\fBtune\-effort\fR to the limit cycle amplitude multipled by 4.0 divided by Pi.
+\fBpid.\fIN\fB.ultimate\-period\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate\-period\fR is the period
 of the limit cycle.
 
 .SH BUGS

@@ -79,13 +79,12 @@ class _EMC_ActionBase(_HalWidgetBase):
 
     def is_all_homed(self):
         self.stat.poll()
-        axis_count = homed_count = 0
+        homed_count = 0
         for i,h in enumerate(self.stat.homed):
-            if h:
-                if self.stat.axis_mask & (1<<i): homed_count +=1
-            if self.stat.axis_mask & (1<<i) == 0: continue
-            axis_count += 1
-        if homed_count == axis_count:
+            #Don't worry about joint to axis mapping
+            if h: homed_count +=1
+        print self.stat.joints
+        if homed_count == self.stat.joints:
             return True
         return False
 
@@ -491,7 +490,7 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
         self.set_sensitive(self.machine_on())
         return False
 
-class EMC_Action_Home(_EMC_Action):
+class EMC_Action_UnHome(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
     axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to unhome. -1 to unhome all')
@@ -505,6 +504,7 @@ class EMC_Action_Home(_EMC_Action):
 
     def on_activate(self, w):
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
+        self.linuxcnc.teleop_enable(False)
         self.linuxcnc.unhome(self.axis)
 
 def prompt_areyousure(type, message, secondary=None):
@@ -543,6 +543,7 @@ class EMC_Action_Home(_EMC_Action):
             if not prompt_areyousure(gtk.MESSAGE_WARNING,
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
+        self.linuxcnc.teleop_enable(False)
         self.linuxcnc.home(self.axis)
 
 

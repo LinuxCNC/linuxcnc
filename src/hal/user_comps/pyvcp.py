@@ -31,7 +31,7 @@
     myfile.xml is an XML file which specifies the layout of the VCP.
     Valid XML tags are described in the documentation for pyvcp_widgets.py
 
-    -g option allows setting of the inital size and/or position of the panel
+    -g option allows setting of the initial size and/or position of the panel
 """
 
 import sys, os

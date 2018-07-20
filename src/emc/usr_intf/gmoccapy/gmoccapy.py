@@ -2230,7 +2230,55 @@ class gmoccapy(object):
         elif self.stat.task_mode == linuxcnc.MODE_AUTO:
             self.widgets.gcode_view.grab_focus()
 
+    # Three back buttons to be able to leave notebook pages
+    # All use the same callback offset
+    def on_btn_back_clicked(self, widget, data=None):
+        if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
+            self.widgets.ntb_button.set_current_page(_BB_AUTO)
+            if self.widgets.tbtn_fullsize_preview1.get_active():
+                self.widgets.vbx_jog.set_visible(False)
+        elif self.widgets.ntb_button.get_current_page() == _BB_LOAD_FILE:  # File selection mode
+            self.widgets.ntb_button.set_current_page(_BB_AUTO)
+        else:  # else we go to main button on manual
+            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
+            self.widgets.ntb_main.set_current_page(0)
+            self.widgets.ntb_preview.set_current_page(0)
 
+    # The offset settings, set to zero
+    def on_btn_touch_clicked(self, widget, data=None):
+        self.widgets.ntb_button.set_current_page(_BB_TOUCH_OFF)
+        self._show_offset_tab(True)
+        if self.widgets.rbtn_show_preview.get_active():
+            self.widgets.ntb_preview.set_current_page(0)
+
+    def on_tbtn_edit_offsets_toggled(self, widget, data=None):
+        state = widget.get_active()
+        self.widgets.offsetpage1.edit_button.set_active(state)
+        widgetlist = ["btn_set_value_x", "btn_set_value_y", "btn_set_value_z", 
+                      "btn_set_selected", "ntb_jog", "btn_set_selected", 
+                      "btn_zero_g92"
+                      ]
+        self._sensitize_widgets(widgetlist, not state)
+
+        if state:
+            self.widgets.ntb_preview.set_current_page(1)
+        else:
+            self.widgets.ntb_preview.set_current_page(0)
+
+        # we have to replace button calls in our list to make all hardware button
+        # activate the correct button call
+        if state and self.widgets.chk_use_tool_measurement.get_active():
+            self.widgets.btn_zero_g92.show()
+            self.widgets.btn_block_height.hide()
+            self._replace_list_item(4, "btn_block_height", "btn_zero_g92")
+        elif not state and self.widgets.chk_use_tool_measurement.get_active():
+            self.widgets.btn_zero_g92.hide()
+            self.widgets.btn_block_height.show()
+            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
+
+        if not state:  # we must switch back to manual mode, otherwise jogging is not possible
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
 
     def on_btn_zero_g92_clicked(self, widget, data=None):
         self.command.mode(linuxcnc.MODE_MDI)

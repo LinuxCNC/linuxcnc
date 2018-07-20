@@ -212,7 +212,7 @@ int rtapi_app_main(void){
         if (retval != 0) {
             return retval;
         }
-        lcd->insts[i].last_page = 0xFFFF; // force screen refresh
+        lcd->insts[i].last_page = -1; // force screen refresh
         retval = hal_pin_u32_newf(HAL_OUT, &(lcd->insts[i].out), comp_id,
                                   "lcd.%02i.out",i);
         if (retval != 0) {
@@ -230,8 +230,22 @@ int rtapi_app_main(void){
             return retval;
         }
         lcd->insts[i].f_ptr = 0;
-        lcd->insts[i].buff[0] = 0x11; // turn off cursor. More init can be added
-        lcd->insts[i].buff[0] = 0;
+        lcd->insts[i].buff[0]  = 0x0D; // CR  (0x1A - clear screen does
+        lcd->insts[i].buff[1]  = 0x0A; // LF  not seem to work reliably)
+        lcd->insts[i].buff[2]  = 0x18; // CLEAR
+        lcd->insts[i].buff[3]  = 0x0D; // CR
+        lcd->insts[i].buff[4]  = 0x0A; // LF
+        lcd->insts[i].buff[5]  = 0x18; // CLEAR
+        lcd->insts[i].buff[6]  = 0x0D; // CR
+        lcd->insts[i].buff[7]  = 0x0A; // LF
+        lcd->insts[i].buff[8] = 0x18; // CLEAR
+        lcd->insts[i].buff[9] = 0x0D; // CR
+        lcd->insts[i].buff[10] = 0x0A; // LF
+        lcd->insts[i].buff[11] = 0x18; // CLEAR
+        lcd->insts[i].buff[12] = 0x11; // cursor off
+                                       // More init can be added
+                                       // Max = MAX_ENTRY
+        lcd->insts[i].buff[13] = 0;
         lcd->insts[i].c_ptr = 0;
     }
 
@@ -247,17 +261,20 @@ void write(void *arg, long period){
     lcd = arg;
 
     for (i = 0; i < lcd->num_insts; i++){
-        
         lcd_inst_t *inst = &lcd->insts[i];
         write_one(inst);
     }
 }
 
 static void write_one(lcd_inst_t *inst){
-
+    static int counter = 100; //100 cycle delay before start
     int retval;
     char c1, c2;
     
+    if (counter > 0){
+        --counter;
+        return;}
+
     if (inst->buff[inst->c_ptr] != 0){
         *inst->out = inst->buff[inst->c_ptr++];
         return;
@@ -265,24 +282,27 @@ static void write_one(lcd_inst_t *inst){
     
     inst->c_ptr = 0;
     inst->buff[0] = 0;
+
+    if (*inst->page_num >= inst->num_pages) return; // should this error?
     
     if (*inst->page_num != inst->last_page){
         inst->last_page = *inst->page_num;
         *inst->out = 0x11; //cursor off
-        inst->buff[0] = 0x1A; //dummy
-        inst->buff[1] = 0; //end
+        inst->buff[0] = 0x1E; //cursor home
+        inst->buff[1] = 0x1A; //clear screen
+        inst->buff[2] = 0; // end
         inst->c_ptr = 0;
         inst->f_ptr = 0;
         inst->a_ptr = 0;
         return;
-    }    
-    
-    if (*inst->page_num >= inst->num_pages) return; // should this error?
+    }
 
-    if (inst->f_ptr > inst->pages[*inst->page_num].length){
-        *inst->out = 0x18; // clear line
-        inst->buff[0] = 0x1E; // home
-        inst->buff[1] = 0; //end
+    if (inst->f_ptr >= inst->pages[*inst->page_num].length){
+        *inst->out = 0x1B; // ESC
+        inst->buff[0] = 0x3D; // =
+        inst->buff[1] = 0x20; // Line 0
+        inst->buff[2] = 0x20; // Column 0
+        inst->buff[3] = 0; // end
         inst->c_ptr = 0;
         inst->f_ptr = 0;
         inst->a_ptr = 0;
@@ -331,11 +351,14 @@ static void write_one(lcd_inst_t *inst){
                 default: //check for hex
                     c2 = inst->pages[*inst->page_num].fmt[++inst->f_ptr];
                     inst->f_ptr++;
-                    c1 &= 0xDF; c2 &= 0xDF; //upper case
+                    if (c1 > '9') c1 &= 0xDF; //upper case
+                    if (c2 > '9') c2 &= 0xDF;
                     if (strchr(digits, c1) && strchr(digits, c2)){
                         inst->buff[0] = (16 * (strchr(digits, c1) - digits) 
                                                + (strchr(digits, c2) - digits));
                         inst->buff[1] = 0;
+                    } else {
+                        inst->buff[0] = 0;
                     }
             }
             *inst->out = inst->buff[0];
@@ -392,7 +415,6 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             case '.':
                 if (d) return -EINVAL;
                 d = 1;
-                dp = '.';
                 break;
             case ' ':
                 fill = ' ';

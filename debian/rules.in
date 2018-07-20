@@ -60,10 +60,19 @@ endif
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
+
+	# Version 0.22 and newer of the desktop-file-validate program
+	# (in Jessie and newer) can deal with multiple files specified
+	# on the command line.	Version 0.20 (in Wheezy) says it can,
+	# but can't.  So feed it the files one by one.
+	for F in $(shell find debian/extras/ -name *.desktop); do \
+		desktop-file-validate $$F; \
+	done
+
 	-(cd debian/@EXTRAS@ && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc

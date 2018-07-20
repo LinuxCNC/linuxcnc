@@ -1,6 +1,5 @@
 [Desktop Entry]
-Version=
-Encoding=UTF-8
+Version=1.0
 Name=French Getting Started Guide
 Type=Application
 Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_fr.pdf
@@ -10,4 +9,4 @@ Terminal=false
 Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
 Categories=X-CNC;
-GenericName[en_US]=
+Keywords=cnc;linuxcnc;

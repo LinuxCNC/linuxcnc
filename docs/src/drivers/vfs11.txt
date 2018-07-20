@@ -150,7 +150,7 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n  option.
               number of Modbus transactions which returned an error
 
 * '<n>.max-speed' (bit, in)
-              ignore the loop-time paramater and run Modbus at maximum
+              ignore the loop-time parameter and run Modbus at maximum
               speed, at the expense of higher CPU usage. Suggested use
               during spindle positioning.
 

@@ -25,7 +25,7 @@ This function performs writes of data to the specified UART.It should be used
 inside a function in a realtime or userspace HAL component.
 
 .SH RETURN VALUE
-Returns the number of bytes sent on success and -1 on failure.
+Returns the number of bytes sent on success and \-1 on failure.
 
 .SH SEE ALSO
 man hm2_uart_setup, man hm2_uart_read

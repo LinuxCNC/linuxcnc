@@ -1818,7 +1818,7 @@ int Interp::read_name(
   int done = 0;
   int i;
 
-  CHKS(((line[*counter] != '<') && !isalpha(line[*(counter)])),
+  CHKS((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // skip over the '<'
@@ -2029,7 +2029,7 @@ int Interp::read_parameter_setting(
   *counter = (*counter + 1);
 
   // named parameters look like '<letter...>' or '<_letter.....>'
-  if((line[*counter] == '<') || isalpha(line[*(counter)]))
+  if(line[*counter] == '<')
   {
       CHP(read_named_parameter_setting(line, counter, &param, parameters));
 
@@ -2151,7 +2151,7 @@ int Interp::read_named_parameter_setting(
   *param = paramNameBuf;
 
   logDebug("entered %s", name);
-  CHKS(((line[*counter] != '<') && !isalpha(line[*(counter)])),
+  CHKS((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   status=read_name(line, counter, paramNameBuf);
@@ -3014,8 +3014,8 @@ int Interp::read_text(
     }
     _setup.sequence_number++;   /* moved from version1, was outside if */
     if (strlen(raw_line) == (LINELEN - 1)) { // line is too long. need to finish reading the line to recover
-      for (; fgetc(inport) != '\n';) {
-      }                         // could also look for EOF
+      for (; fgetc(inport) != '\n' && !feof(inport) ;) {
+      }
       ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (strlen(raw_line) - 1);        // index set on last char

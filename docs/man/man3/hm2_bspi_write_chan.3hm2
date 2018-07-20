@@ -22,10 +22,17 @@ typically used for setup and chip enabling purposes. It should not be used in
 the main loop for regular data transfers (but is appropriate to use for on-the-
 fly setup changes).
 
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code and from within realtime tasks.
+Not available in userspace components.
+
 .SH RETURN VALUE
-Returns 0 on success and -1 on failure.
+Returns 0 on success and \-1 on failure.
 
 .SH SEE ALSO
-man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame
-man hm2_allocate_bspi_tram.
+\fBhm2_allocate_bspi_tram(3hm2)\fR,
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_setup_chan(3hm2)\fR,
+\fBhm2_bspi_set_write_function(3hm2)\fR,
+\fBhm2_tram_add_bspi_frame(3hm2)\fR,
 See src/hal/drivers mesa_7i65.comp for an example usage.

@@ -3,7 +3,7 @@
 linuxcncrsh \- text-mode interface for commanding LinuxCNC over the network
 .SH SYNOPSIS
 .B
-linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
+linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .br
 .SH DESCRIPTION
 \fBlinuxcncrsh\fP is a user interface for LinuxCNC.  Instead of popping up a GUI
@@ -15,20 +15,20 @@ All features of LinuxCNC are available via the \fBlinuxcncrsh\fP interface.
 .SH OPTIONS
 .P
 .B
--p,--port PORT_NUMBER
+\-p,\-\-port PORT_NUMBER
 .RS
 Specify the port for linuxcncrsh to listen on.  Defaults to 5007 if omitted.
 .RE
 .P
 .B
--n,--name SERVER_NAME
+\-n,\-\-name SERVER_NAME
 .RS
 Sets the server name that linuxcncrsh will use to identify itself during
 handshaking with a new client.  Defaults to EMCNETSVR if omitted.
 .RE
 .P
 .B
--w,--connectpw PASSWORD
+\-w,\-\-connectpw PASSWORD
 .RS
 Specify the connection password to use during handshaking with a new
 client.  Note that the password is sent in the clear, so it can be read
@@ -37,7 +37,7 @@ the client.  Defaults to EMC if omitted.
 .RE
 .P
 .B
--e,--enablepw PASSWORD
+\-e,\-\-enablepw PASSWORD
 .RS
 Specify the password required to enable LinuxCNC via linuxcncrsh.  Note that the
 password is sent in the clear, so it can be read by anyone who can read
@@ -46,9 +46,9 @@ EMCTOO if omitted.
 .RE
 .P
 .B
--s,--sessions MAX_SESSIONS
+\-s,\-\-sessions MAX_SESSIONS
 .RS
-Specify the maximum number of simultaneous connections.  Defaults to -1
+Specify the maximum number of simultaneous connections.  Defaults to \-1
 (no limit) if not specified.
 .RE
 .P
@@ -56,10 +56,10 @@ In addition to the options listed above, linuxcncrsh accepts an optional
 special LINUXCNC_OPTION at the end:
 .P
 .B
--ini LINUXCNC_INI_FILE
+\-ini LINUXCNC_INI_FILE
 .RS
-LinuxCNC .ini file to use.  The -ini option \fBmust\fP be preceeded by two
-dashes: "--".  Defaults to emc.ini if omitted.
+LinuxCNC .ini file to use.  The \-ini option \fBmust\fP be preceded by two
+dashes: "\-\-".  Defaults to emc.ini if omitted.
 .RE
 .SH Starting linuxcncrsh
 .P
@@ -78,13 +78,13 @@ at the end of your .hal file, or run it by hand in a terminal window.
 To start it from hal, add a line like this to the end of your .hal file:
 .RS
 .P
-.B loadusr linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
+.B loadusr linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .RE
 .P
 To start it from the terminal, run linuxcncrsh manually like this:
 .RS
 .P
-.B linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
+.B linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .RE
 .SH Connecting
 .P
@@ -96,12 +96,12 @@ Once LinuxCNC is up and linuxcncrsh is running, you can connect to it using
 .RS
 HOST is the hostname or IP address of the computer running linuxcncrsh, and
 PORT is the port it's listening on (5007 if you did not give linuxcncrsh the
---port option).
+\-\-port option).
 
 .RE
 .SH Network protocol
 .P
-linuxcncrsh accepts TCP connections on the port specified by the --port option,
+linuxcncrsh accepts TCP connections on the port specified by the \-\-port option,
 or 5007 if not specified.
 .P
 The client sends requests, and the linuxcncrsh server returns replies.
@@ -118,7 +118,7 @@ The supported commands are as follows:
 \fBhello <password> <client> <version>\fR
 .RS
 <password> must match linuxcncrsh's connect password, or "EMC" if no
---connectpw was supplied.  The three arguments may not contain whitespace.
+\-\-connectpw was supplied.  The three arguments may not contain whitespace.
 If a valid password was entered the server will respond with:
 .RS
 \fIHELLO ACK <ServerName> <ServerVersion>\fR
@@ -193,7 +193,7 @@ and starts out OFF on new connections.
 The session's enable state indicates whether the current connection is
 enabled to perform control functions.  With get, any parameter is ignored,
 and the current enable state is returned.  With set and a valid password
-matching linuxcncrsh's --enablepw (EMCTOO if not specified), the current
+matching linuxcncrsh's \-\-enablepw (EMCTOO if not specified), the current
 connection is enabled for control functions.  "OFF" may not be used as
 a password and disables control functions for this connection.
 .RE
@@ -409,7 +409,7 @@ override as specified.
 \fBspindle_override <percent>\fR
 .RS
 With get, any parameter is ignored and the current spindle override
-is returnd (as a percentage of commanded speed).  With set, sets the
+is returned (as a percentage of commanded speed).  With set, sets the
 spindle override as specified.
 .RE
 .P
@@ -496,7 +496,7 @@ the linuxcnc working directory (the directory of the active .ini file).
 .RS
 With set, runs the opened program.  If no StartLine is specified, runs
 from the beginning.  If a StartLine is specified, start line, runs from
-that line. A start line of -1 runs in verify mode.
+that line. A start line of \-1 runs in verify mode.
 .RE
 .P
 \fBpause\fR
@@ -686,7 +686,7 @@ Connected to 127.0.0.1
 .br
 Escape character is '^]'.
 .br
-\fBhello EMC user-typing-at-telnet 1.0\fR
+\fBhello EMC user\-typing\-at\-telnet 1.0\fR
 .br
 HELLO ACK EMCNETSVR 1.1
 .br

@@ -64,28 +64,28 @@ to 3 (control from Modbus, with Stop enabled on the keypad).
 
 .SH OPTIONS
 .B
-.IP -n\ --name\ <halname>
+.IP \-n\ \-\-name\ <halname>
 set the HAL component name
 .B
-.IP -d\ --debug
+.IP \-d\ \-\-debug
 Turn on debugging messages. Also toggled by sending a USR1 signal to the
 vfdb_vfd process.
 .B
-.IP -m\ --modbus-debug
+.IP \-m\ \-\-modbus\-debug
 Turn on Modbus debugging messages. This will cause all Modbus messages to
 be printed in hex on the terminal.  Also toggled by sending a USR2 signal
 to the vfdb_vfd process.
 .B
-.IP -I\ --ini\ <inifilename>
+.IP \-I\ \-\-ini\ <inifilename>
 take configuration from this ini
 file. Defaults to environment variable INI_FILE_NAME.  Most vfdb_vfd
 configuration comes from the ini file, not from command-line arguments.
 .B
-.IP -S\ --section\ <section\ name>
+.IP \-S\ \-\-section\ <section\ name>
 take configuration from this
 section in the ini file. Defaults to 'VFD-B'.
 .B
-.IP -r\ --report-device
+.IP \-r\ \-\-report\-device
 report device propertiers on console at startup
 
 .SH INI CONFIG VARIABLES
@@ -132,107 +132,107 @@ and is generally printed on the motor's name plate.
 
 .SH PINS
 .B
-.IP <name>.at-speed\ (bit,\ out)
+.IP <name>.at\-speed\ (bit,\ out)
 True when drive is at commanded speed (see
 .I
-speed-tolerance
+speed\-tolerance
 below)
 .B
 .IP <name>.enable\ (bit,\ in)
 Enable the VFD. If False, all operating parameters are still read but
 control is released and panel control is enabled (subject to VFD setup).
 .B
-.IP <name>.frequency-command\ (float,\ out)
-Current target frequency in HZ as set through speed-command (which is in
+.IP <name>.frequency\-command\ (float,\ out)
+Current target frequency in HZ as set through speed\-command (which is in
 RPM), from the VFD.
 .B
-.IP <name>.frequency-out\ (float,\ out)
+.IP <name>.frequency\-out\ (float,\ out)
 Current output frequency of the VFD.
 .B
-.IP <name>.inverter-load-percentage\ (float,\ out)
+.IP <name>.inverter\-load\-percentage\ (float,\ out)
 Current load report from VFD.
 .B
-.IP <name>.is-e-stopped\ (bit,\ out)
+.IP <name>.is\-e\-stopped\ (bit,\ out)
 The VFD is in emergency stop status (blinking "E" on panel).
 .B
-.IP <name>.is-stopped\ (bit,\ out)
+.IP <name>.is\-stopped\ (bit,\ out)
 True when the VFD reports 0 Hz output.
 .B
-.IP <name>.jog-mode\ (bit,\ in)
+.IP <name>.jog\-mode\ (bit,\ in)
 1 for ON and 0 for OFF, enables the VFD-B 'jog mode'. Speed control
 is disabled.  This might be useful for spindle orientation.
 .B
-.IP <name>.max-rpm\ (float,\ out)
+.IP <name>.max\-rpm\ (float,\ out)
 Actual RPM limit based on maximum frequency the VFD may generate, and
 the motors nameplate values. For instance, if
-.I nameplate-HZ
+.I nameplate\-HZ
 is 50, and
-.I nameplate-RPM
+.I nameplate\-RPM
 is 1410, but the VFD may generate up to 80Hz, then
-.I max-rpm
+.I max\-rpm
 would read as 2256 (80*1410/50). The frequency limit is read from the VFD
 at startup.  To increase the upper frequency limit, the UL and FH
 parameters must be changed on the panel.  See the VFD-B manual for
 instructions how to set the maximum frequency.
 .B
-.IP <name>.modbus-ok\ (bit,\ out)
+.IP <name>.modbus\-ok\ (bit,\ out)
 True when the Modbus session is successfully established and the last 10
 transactions returned without error.
 .B
-.IP <name>.motor-RPM\ (float,\ out)
+.IP <name>.motor\-RPM\ (float,\ out)
 Estimated current RPM value, from the VFD.
 .B
-.IP <name>.motor-RPS\ (float,\ out)
+.IP <name>.motor\-RPS\ (float,\ out)
 Estimated current RPS value, from the VFD.
 .B
-.IP <name>.output-voltage\ (float,\ out)
+.IP <name>.output\-voltage\ (float,\ out)
 From the VFD.
 .B
-.IP <name>.output-current\ (float,\ out)
+.IP <name>.output\-current\ (float,\ out)
 From the VFD.
 .B
-.IP <name>.speed-command\ (float,\ in)
+.IP <name>.speed\-command\ (float,\ in)
 Speed sent to VFD in RPM. It is an error to send a speed faster than the
 Motor Max RPM as set in the VFD.
 .B
-.IP <name>.spindle-on\ (bit,\ in)
+.IP <name>.spindle\-on\ (bit,\ in)
 1 for ON and 0 for OFF sent to VFD, only on when running.
 .B
-.IP <name>.max-speed\ (bit,\ in)
-Ignore the loop-time paramater and run Modbus at maximum
+.IP <name>.max\-speed\ (bit,\ in)
+Ignore the loop-time parameter and run Modbus at maximum
 speed, at the expense of higher CPU usage. Suggested use
 during spindle positioning.
 .B
 .IP <name>.status\ (s32,\ out)
 Drive Status of the VFD (see the VFD manual). A bitmap.
 .B
-.IP <name>.error-count\ (s32,\ out)
+.IP <name>.error\-count\ (s32,\ out)
 Total number of transactions returning a Modbus error.
 .B
-.IP <name>.error-code\ (s32,\ out)
+.IP <name>.error\-code\ (s32,\ out)
 Most recent Error Code from VFD.
 .B
-.IP <name>.frequency-limit\ (float,\ out)
+.IP <name>.frequency\-limit\ (float,\ out)
 Upper limit read from VFD setup.
 .B
 
 .SH PARAMETERS
 .B
-.IP <name>.loop-time\ (float,\ RW)
+.IP <name>.loop\-time\ (float,\ RW)
 How often the Modbus is polled (default interval 0.1 seconds).
 .B
-.IP <name>.nameplate-HZ\ (float,\ RW)
+.IP <name>.nameplate\-HZ\ (float,\ RW)
 Nameplate Hz of motor (default 50). Used to calculate target frequency
 (together with
-.I nameplate-RPM
-) for a target RPM value as given by speed-command.
+.I nameplate\-RPM
+) for a target RPM value as given by speed\-command.
 .B
-.IP <name>.nameplate-RPM\ (float,\ RW)
+.IP <name>.nameplate\-RPM\ (float,\ RW)
 Nameplate RPM of motor (default 1410)
 .B
-.IP <name>.rpm-limit\ (float,\ RW)
+.IP <name>.rpm\-limit\ (float,\ RW)
 Do-not-exceed soft limit for motor RPM (defaults to
-.I nameplate-RPM
+.I nameplate\-RPM
 ).
 .B
 .IP <name>.tolerance\ (float,\ RW)

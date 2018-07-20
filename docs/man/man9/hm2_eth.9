@@ -32,7 +32,7 @@ hm2_eth \- LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO boa
 .SH SYNOPSIS
 
 .HP
-.B loadrt hm2_eth [config=\fI"str[,str...]"\fB] [board_ip=\fIip[,ip...]\fB] [board_mac=\fImac[,mac...]\]fB]
+.B loadrt hm2_eth [config=\fI"str[,str...]"\fB] [board_ip=\fIip[,ip...]\fB] [board_mac=\fImac[,mac...]\fB]
 .RS 4
 .TP
 \fBconfig\fR [default: ""]
@@ -46,7 +46,7 @@ hm2_eth is a device driver that interfaces Mesa's ethernet
 based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
 HAL.
 
-The supported boards are: 7i76E, 7I80DB, 7I80HD, 7i92, 7i93.
+The supported boards are: 7i76E, 7I80DB, 7I80HD, 7i92, 7i93, 7i96.
 
 The board must have its hardware loaded on the board by the mesaflash(1) program.
 
@@ -88,7 +88,7 @@ static address:
 auto eth1
 iface eth1 inet static
     address 192.168.1.1
-    hardware-irq-coalesce-rx-usecs 0
+    hardware\-irq\-coalesce\-rx\-usecs 0
 .EE
 
 .SH PACKET LOSS
@@ -98,9 +98,9 @@ The hm2_eth driver has a limited ability to deal with lost packets.  Packet
 loss is detected by transmitting an expected read or write packet count with
 each request, and checking the value with each read response.  When a lost
 packet is detected, the
-.B packet-error
+.B packet\-error
 pin is asserted in that cycle, the
-.B packet-error-level
+.B packet\-error\-level
 pin is increased, and if it reaches a threshold then a permanent low-level
 I/O error is signaled.
 
@@ -118,7 +118,7 @@ instead of the stale feedback value, appears to improve tuning.  This can be
 accomplished with a
 .B mux2(9)
 component for each feedback signal, using
-.B packet-error
+.B packet\-error
 as the mux2
 .B sel
 input.
@@ -129,16 +129,16 @@ In addition to the pins documented in
 creates additional pins:
 
 .TP
-(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error
+(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error
 This pin is TRUE when the most recent cycle detected a read or write error,
 and FALSE at other times.
 .TP
-(s32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-level
+(s32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-level
 This pin shows the current error level, with higher numbers indicating
 a greater number of recent detected errors.  The error level is always in
-the range from 0 to packet-error-limit, inclusive.
+the range from 0 to packet\-error\-limit, inclusive.
 .TP
-(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-exceeded
+(bit, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-exceeded
 This pin is TRUE when the current error level is equal to the maximum,
 and FALSE at other times.
 
@@ -148,23 +148,23 @@ In addition to the parameters documented in
 creates additional parameters:
 
 .TP
-(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-decrement
-The amount deducted from \fIpacket-error-level\fR in a cycle without
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-decrement
+The amount deducted from \fIpacket\-error\-level\fR in a cycle without
 detected read or write errors, without going below zero.
 
 .TP
-(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-increment
-The amount added to \fIpacket-error-level\fR in a cycle without
-detected read or write errors, without going above packet-error-limit.
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-increment
+The amount added to \fIpacket\-error\-level\fR in a cycle without
+detected read or write errors, without going above packet\-error\-limit.
 
 .TP
-(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-error-limit
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-limit
 The level at which a detected read or write error is treated as a permament
-error.  When this error level is reached, the board's \fIio-error\fR pin
+error.  When this error level is reached, the board's \fIio\-error\fR pin
 becomes TRUE and the condition must be manually reset.
 
 .TP
-(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet-read-timeout
+(s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-read\-timeout
 The length of time that must pass before a read request times out.
 If the value is less than or equal to 0, it is interpreted as 80% of the thread
 period.  If the value is less than 100, it is interpreted as a percentage of
@@ -176,18 +176,18 @@ high can cause realtime delay errors.
 
 
 .SH NOTES
-hm2_eth uses an iptables chain called "hm2-eth-rules-output" to control access
+hm2_eth uses an iptables chain called "hm2\-eth\-rules\-output" to control access
 to the network interface while hal is running.  The chain is created if it does
 not exist, and a jump to it is inserted at the beginning of the OUTPUT chain if
 it is not there already.  If you have an existing iptables setup, you can insert
-a direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate to
+a direct jump from OUTPUT to hm2\-eth\-rules\-output in an order appropriate to
 your local network.
 
 At (normal) exit, hm2_eth will remove the rules.  After a crash, you can
-manually clear the rules with \fBsudo iptables -F hm2-eth-rules-output\fR;
+manually clear the rules with \fBsudo iptables \-F hm2\-eth\-rules\-output\fR;
 the rules are also removed by a reboot.
 
-"hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet
+"hardware\-irq\-coalesce\-rx\-usecs" decreases time waiting to receive a packet
 on most systems, but on at least some Marvel-chipset NICs it is harmful.
 If the line does not improve system performance, then remove it.  A reboot
 is required for the value to be set back to its power-on default.  This

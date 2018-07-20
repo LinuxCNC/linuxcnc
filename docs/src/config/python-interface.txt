@@ -199,7 +199,7 @@ G_83, G_84, G_85, G_86, G_87, G_88, G_89, G_90, G_90_1, G_91, G_91_1, G_92,
 G_92_1, G_92_2, G_92_3, G_93, G_94, G_95, G_96, G_97, G_98, G_99
 
 *homed*:: '(returns tuple of integers)' -
-0 = not homed, 1 = homed.
+currently homed joints, 0 = not homed, 1 = homed.
 
 *id*:: '(returns integer)' -
 currently executing motion id.
@@ -612,7 +612,14 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	set the feedrate.
 
 `flood(int)`::
-	turn on/off flooding.
+	turn on/off flooding. +
+	Syntax: +
+	flood(command) +
+	flood(linuxcnc.FLOOD_ON) +
+	flood(linuxcnc.FLOOD_OFF) +
+	Constants: +
+	FLOOD_ON +
+	FLOOD_OFF
 
 `home(int)`::
 	home a given joint.
@@ -621,7 +628,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	Syntax: +
 	jog(command, joint-flag, axis-or-joint-number, velocity[, distance]]) +
 	jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number) +
-	jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity) +
+	jog(linuxcnc.JOG_CONTINUOUS, joint-flag, axis-or-joint-number, velocity) +
 	jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 	Command Constants;;
 	JOG_STOP +

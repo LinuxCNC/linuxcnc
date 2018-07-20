@@ -433,11 +433,11 @@ The search path begins with the standard directory specified by:
 
   [DISPLAY]PROGRAM_PREFIX = directory_name
 
-followed by multiple directories specfied by:
+followed by multiple directories specified by:
 
   [RS274NGC]SUBROUTINE_PATH = directory1_name:directory1_name:directory3_name ...
 
-Directories may be specifed as absolute paths or relative paths.
+Directories may be specified as absolute paths or relative paths.
 ....
 Example: [DISPLAY]PROGRAM_PREFIX = /home/myname/linuxcnc/nc_files
 Example: [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files

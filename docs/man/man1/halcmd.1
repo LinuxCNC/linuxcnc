@@ -46,31 +46,31 @@ interactively.  Use the up arrow to recall previous commands, and press tab to
 complete the names of items such as pins and signals.
 .SH OPTIONS
 .TP
-\fB-I\fR
+\fB\-I\fR
 Before tearing down the realtime environment, run an interactive halcmd.
-\fBhalrun\fR only.  If \fB-I\fR is used, it must precede all other
+\fBhalrun\fR only.  If \fB\-I\fR is used, it must precede all other
 commandline arguments.
 .TP
-\fB\-f\fR [\fIfile\fR]
+\fB\\-f\fR [\fIfile\fR]
 Ignore commands on command line, take input from \fIfile\fR
 instead.  If \fIfile\fR is not specified, take input from
 \fIstdin\fR.
 .TP
-\fB-i \fIinifile\fR
+\fB\-i \fIinifile\fR
 Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
 below.
 .TP
-\fB\-k\fR
+\fB\\-k\fR
 Keep going after failed command(s).  The default is to stop
 and return failure if any command fails.
 .TP
-\fB\-q\fR
+\fB\\-q\fR
 display errors only (default)
 .TP
-\fB\-Q\fR
+\fB\\-Q\fR
 display nothing, execute commands silently
 .TP
-\fB\-s\fR
+\fB\\-s\fR
 Script-friendly mode.  In this mode, \fIshow\fR will not output titles for the items
 shown.  Also, module names will be printed instead of ID codes in pin, param, and funct
 listings.  Threads are printed on a single line, with the thread period, FP usage and
@@ -78,22 +78,22 @@ name first, followed by all of the functions in the thread, in execution order. 
 are printed on a single line, with the type, value, and signal name first, followed by
 a list of pins connected to the signal, showing both the direction and the pin name.
 .TP
-\fB-R\fR
+\fB\-R\fR
 Release the HAL mutex.  This is useful for recovering when a HAL component has crashed
 while holding the HAL mutex.
 .TP
-\fB\-v\fR
+\fB\\-v\fR
 display results of each command
 .TP
-\fB\-V\fR
+\fB\\-V\fR
 display lots of debugging junk
 .TP
-\fB\-h\fR [\fIcommand\fR]
+\fB\\-h\fR [\fIcommand\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
 .SH COMMANDS
 Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR
 reads a single command from the command line and executes it.
-If the '\fB-f\fR' option is used to read commands from a file,
+If the '\fB\-f\fR' option is used to read commands from a file,
 \fBhalcmd\fR reads each line of the file as a new command.
 Anything following '\fB#\fR' on a line is a comment.
 .TP
@@ -131,21 +131,21 @@ also works by execing \fBlinuxcnc_module_helper\fR or \fBrtapi_app\fR, just like
 \fI[flags]\fR may be one or more of:
 .RS
 .IP \(bu 4
-\fB-W\fR to wait for the component to become ready.  The component
+\fB\-W\fR to wait for the component to become ready.  The component
 is assumed to have the same name as the first argument of the command.
 .IP \(bu 4
-\fB-Wn name\fR to wait for the component, which will have the given
+\fB\-Wn name\fR to wait for the component, which will have the given
 name.
 .IP \(bu 4
-\fB-w\fR to wait for the program to exit
+\fB\-w\fR to wait for the program to exit
 .IP \(bu 4
-\fB-i\fR to ignore the program return value (with -w)
+\fB\-i\fR to ignore the program return value (with \-w)
 .RE
 .TP
 \fBwaitusr\fR \fIname\fR
 (\fIwait\fR for \fIUs\fRe\fIr\fRspace component) Waits for user
 space component \fIname\fR to disconnect from HAL (usually on exit).
-The component must already be loaded.  Usefull near the end of a
+The component must already be loaded.  Useful near the end of a
 HAL file to wait until the user closes some user interface component
 before cleaning up and exiting.
 .TP
@@ -279,7 +279,7 @@ Prints HAL items to \fIstdout\fR in human readable format.
 \fIitem\fR can be one of "\fBcomp\fR" (components), "\fBpin\fR",
 "\fBsig\fR" (signals), "\fBparam\fR" (parameters), "\fBfunct\fR"
 (functions), "\fBthread\fR", or "\fBalias\fR".  The type "\fBall\fR"
-can be used to show matching items of all the preceeding types.
+can be used to show matching items of all the preceding types.
 If \fIitem\fR is omitted, \fBshow\fR will print everything.
 .TP
 \fBitem\fR
@@ -289,7 +289,7 @@ This is equivalent to \fBshow all [item]\fR.
 \fBsave\fR [\fIitem\fR]
 Prints HAL items to \fIstdout\fR in the form of HAL commands.
 These commands can be redirected to a file and later executed
-using \fBhalcmd -f\fR to restore the saved configuration.
+using \fBhalcmd \-f\fR to restore the saved configuration.
 \fIitem\fR can be one of the following:
 
 "\fBcomp\fR" generates
@@ -357,7 +357,7 @@ Removes any alias from the pin or parameter alias.
   those names that match the pattern, which may be a
   'shell glob'.
   For '\fBsig\fR', '\fBpin\fR' and '\fBparam\fR', the first pattern may be
-  -t\fBdatatype\fR where datatype is the data type (e.g., 'float')
+  \-t\fBdatatype\fR where datatype is the data type (e.g., 'float')
   in this case, the listed pins, signals, or parameters
   are restricted to the given data type
   Names are printed on a single line, space separated.
@@ -392,7 +392,7 @@ Environment variables have the following formats:
 \fB$(ENVVAR)\fR
 .SS Inifile Variables
 Inifile variables are available only when an inifile was specified with the
-halcmd \fB-i\fR flag.  They have the following formats:
+halcmd \fB\-i\fR flag.  They have the following formats:
 .IP
 \fB[SECTION]VAR\fR followed by end-of-line or whitespace
 .IP

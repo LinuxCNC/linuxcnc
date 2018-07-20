@@ -86,7 +86,7 @@ void NML_DIAGNOSTICS_INFO::print()
 	if (dpi->max_difference >= dpi->min_difference) {
 	    rcs_print("\t Maximum time between accesses: %f\n",
 		dpi->max_difference);
-	    rcs_print("\t Minumum time between accesses: %f\n",
+	    rcs_print("\t Minimum time between accesses: %f\n",
 		dpi->min_difference);
 	}
 	double total_time = dpi->last_access_time - dpi->first_access_time;

@@ -292,7 +292,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             line[newLinePos] = 0;        /* make the newline 0 */
         }
         // honor backslash (\) as line-end escape
-        if (line[newLinePos-1] == '\\') {
+        if (newLinePos > 0 && line[newLinePos-1] == '\\') {
            newLinePos = newLinePos-1;
            line[newLinePos] = 0;
            if (!extend_ct) {

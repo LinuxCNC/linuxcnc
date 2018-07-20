@@ -20,7 +20,7 @@ The base address of the port (if port >= 16) or the linux port number of the
 port (if port < 16)
 .IP \fIbase_hi\fR
 The "high" address of the port (location of the ECP registers), 0 to use a
-probed high address, or -1 to disable the high address
+probed high address, or \-1 to disable the high address
 .IP \fImodes\fR
 Advise the driver of the desired port modes, from <linux/parport.h>.  If a
 linux-detected port does not provide the requested modes, a warning is printed
@@ -35,7 +35,7 @@ before the component exits with \fBhal_exit\fR.
 If the port is a parallel port known to Linux, and Linux detected a high
 I/O address, this value is used.  Otherwise, if base+0x400 is not registered
 to any device, it is used.  Otherwise, no address is used.  If no high address
-is detected, port->base_hi is 0.
+is detected, port\->base_hi is 0.
 .SH PARPORT STRUCTURE
 .in +4n
 .nf

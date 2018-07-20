@@ -1,4 +1,4 @@
-; restore metric/inch absolute/relative, feed as per paramter values
+; restore metric/inch absolute/relative, feed as per parameter values
 ; call as 'O<restore> call [originalmetric] [originalabs] [originalfeed]
 ;
 O<restore> sub

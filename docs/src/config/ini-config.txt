@@ -632,7 +632,7 @@ Section.
     HALFILES are found using a search.  If the named file is found in the directory
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
-    A HALFILE may also be specifed as an absolute path (when the name starts with
+    A HALFILE may also be specified as an absolute path (when the name starts with
     a '/' character).  Absolute paths are not recommended as their use may limit
     relocation of configurations.
 
@@ -913,7 +913,10 @@ small, tight corners, since you're limited by cornering acceleration.
     coordinates it had on shutdown. This assumes there was no movement of
     the machine while powered off. If unset, joint positions are not stored
     and will begin at 0 each time LinuxCNC is started. This can help on smaller
-    machines without home switches.
+    machines without home switches. If using the Mesa resolver interface
+    this file can be used to emulate absolute encoders and eliminate the
+    need for homing (with no loss of accuracy). See the hostmot2 manpage
+    for more details.
 
 * 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the
    user to home the machine before any MDI command or a program is run.
@@ -1167,12 +1170,15 @@ These parameters are Homing related, for a better explanation read the
     If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
 
 * 'HOME_SEQUENCE = <n>' -
-     Used to define the "Home All" sequence. <n> starts at 0 and no numbers
-    may be skipped. If left out the joint will not be homed by the
-    "Home All" function. More than one joint can be homed at the same
+    Used to define the "Home All" sequence. <n> must start at 0 or
+    1 or -1.  Additional sequences may be specified with numbers increasing
+    by 1 (in absolute value).  Skipping of sequence numbers is not allowed.
+    If a HOME_SEQUENCE is omitted, the joint will not be homed by the
+    "Home All" function.  More than one joint can be homed at the same
     time by specifying the same sequence number for more than one joint.
     A negative sequence number is used to defer the final move for
     all joints having that (negative or positive) sequence number.
+    For additional info, see: <<sec:homing-section,HOME SEQUENCE>>
 
 * 'VOLATILE_HOME = 0' -
      When enabled (set to 1) this joint will be unhomed if the Machine

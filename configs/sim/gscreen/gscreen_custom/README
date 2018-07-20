@@ -29,4 +29,8 @@ tester.ini
    If you run this without adding a GLADE
    file to the folder, it will load a default
    gscreen file.
+   This is for imperial based machines
 
+tester_metric.ini
+   This is for metric based machines.
+   It works/requires all the same as test.ini above.

@@ -33,17 +33,32 @@ class INI:
             print >>file, "DISPLAY = axis"
         elif self.d.frontend == _PD._TKLINUXCNC:
             print >>file, "DISPLAY = tklinuxcnc"
+        elif self.d.frontend == _PD._GMOCCAPY:
+            print >>file, "DISPLAY = gmoccapy"
         elif self.d.frontend == _PD._TOUCHY:
             print >>file, "DISPLAY = touchy"
         if self.d.gladevcp:
             theme = self.d.gladevcptheme
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
-            if self.d.centerembededgvcp:
-                print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
-            elif self.d.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
+            if self.d.frontend in(_PD._AXIS, _PD._TOUCHY):
+                if self.d.centerembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = GladeVCP"
+                    print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+                elif self.d.sideembededgvcp:
+                    print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
+            elif self.d.frontend == _PD._GMOCCAPY:
+                if self.d.centerembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = Center_panel"
+                    print >>file, "EMBED_TAB_LOCATION = ntb_preview"
+                elif self.d.sideembededgvcp:
+                    print >>file, "EMBED_TAB_NAME = Right Panel"
+                    print >>file, "EMBED_TAB_LOCATION = box_right"
+                else:
+                    print >>file, "EMBED_TAB_NAME = User Panel"
+                    print >>file, "EMBED_TAB_LOCATION = ntb_user_tabs"
+                print >>file, "EMBED_TAB_COMMAND = gladevcp -c gladevcp %s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
+
         if self.d.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -124,7 +139,7 @@ class INI:
         print >>file, "HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.d.machinename
         print >>file, "HALFILE = custom.hal"
-        if self.d.frontend == _PD._AXIS:
+        if self.d.frontend in( _PD._AXIS, _PD._GMOCCAPY):
             print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
@@ -135,19 +150,59 @@ class INI:
                 if cmd =="": break
                 print >>file,"MDI_COMMAND = %s"% cmd           
 
-        # self.d.axes codes:
-        if   self.d.axes == 0: num_joints = 3; coords = "X Y Z"
-        elif self.d.axes == 1: num_joints = 4; coords = "X Y Z A"
-        elif self.d.axes == 2: num_joints = 2; coords = "X Z"
-        else:
+        # Build axis/joints info
+
+        # add X axis
+        num_joints = 1; coords = "X"; tandemflag = False
+        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("x2"))
+        if tandemjoint:
+            #add tandem to X
+            tandemflag = True
+            num_joints += 1
+            coords += 'X'
+
+        if self.d.axes in (0,1): # xyz or xyyza
+            # add Y axis
+            num_joints += 1
+            coords += 'Y'
+            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("y2"))
+            if tandemjoint:
+                #add tandem to Y
+                tandemflag = True
+                num_joints += 1
+                coords += 'Y'
+
+        # add Z axis
+        num_joints += 1
+        coords += 'Z'
+        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("z2"))
+        if tandemjoint:
+            tandemflag = True
+            num_joints += 1
+            coords += 'Z'
+
+        if self.d.axes == 1: # for xyza
+            # add A axis 
+            num_joints += 1
+            coords += 'A'
+            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("a2"))
+            if tandemjoint:
+                # add tandem to A
+                tandemflag = True
+                num_joints += 1
+                coords += 'A'
+        if not self.d.axes in (0,1,2):
             print "___________________unknown self.d.axes",self.d.axes
+            return
         print >>file
         print >>file,  "[KINS]"
         # trivial kinematics: no. of joints == no.of axes)
         # with trivkins, axes do not have to be consecutive
         print >>file, "JOINTS = %d"%num_joints
-        print >>file, "KINEMATICS = trivkins coordinates=%s"%coords.replace(" ","")
-
+        if tandemflag:
+            print >>file, "KINEMATICS = trivkins coordinates=%s kinstype=BOTH"%coords.replace(" ","")
+        else:
+            print >>file, "KINEMATICS = trivkins coordinates=%s"%coords.replace(" ","")
         print >>file
         print >>file, "[TRAJ]"
         print >>file, "COORDINATES = ",coords
@@ -185,30 +240,68 @@ class INI:
             print >>file, "RANDOM_TOOLCHANGER = 1"
         
         all_homes = self.a.home_sig("x") and self.a.home_sig("z")
-        if self.d.axes != 2: all_homes = all_homes and self.a.home_sig("y")
-        if self.d.axes == 4: all_homes = all_homes and self.a.home_sig("a")
+        if self.d.axes in (0,1): all_homes = all_homes and self.a.home_sig("y")
+        if self.d.axes == 1: all_homes = all_homes and self.a.home_sig("a")
 
+        ##############################################################
+        # build axis/joint info
+        ##############################################################
+        # self.d.axes:
+        # 0 = xyz
+        # 1 = xz
+        # 2 = xyza
         # todo: simplify hardcoding for trivkins sequential joint no.s
-        if   self.d.axes == 0: # "X Y Z"
-            self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-        elif self.d.axes == 1: # "X Y Z A"
-            self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-            self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-            self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
-        elif self.d.axes == 2: # "X Z"
-            self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-            self.write_one_axis(file, 1, "z", "LINEAR", all_homes)
 
-        self.write_one_axis(file, 9, "s", "null", all_homes)
+        jnum = 0
+        # Always X AXIS
+        self.write_one_axis(file, 'x')
+        tandemjoint = self.a.tandem_check('x')
+        self.write_one_joint(file, 0, "x", "LINEAR", all_homes, bool(not tandemjoint is None))
+        if tandemjoint:
+            jnum += 1
+            self.write_one_joint(file, jnum, "x", "LINEAR", all_homes, True)
+        jnum += 1
+        print >>file, "#******************************************"
+
+        # Maybe add Y AXIS
+        if self.d.axes in(0,1): # xyz or xyza
+            self.write_one_axis(file, 'y')
+            tandemjoint = self.a.tandem_check('y')
+            self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, bool(not tandemjoint is None))
+            if tandemjoint:
+                jnum += 1
+                self.write_one_joint(file, jnum, "y", "LINEAR", all_homes, True)
+            jnum += 1
+            print >>file, "#******************************************"
+
+        # Always add Z AXIS
+        self.write_one_axis(file, 'z')
+        tandemjoint = self.a.tandem_check('z')
+        self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, bool(not tandemjoint is None))
+        if tandemjoint:
+            jnum += 1
+            self.write_one_joint(file, jnum, "z", "LINEAR", all_homes, True)
+        jnum += 1
+        print >>file, "#******************************************"
+
+        # Maybe add A AXIS
+        if self.d.axes == 1: # xyza
+            self.write_one_axis(file, 'a')
+            tandemjoint = self.a.tandem_check('a')
+            self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, bool(not tandemjoint is None))
+            if tandemjoint:
+                jnum += 1
+                self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, True)
+            jnum += 1
+            print >>file, "#******************************************"
+
+        # always add SPINDLE
+        self.write_one_joint(file, 9, "s", "null", all_homes, False)
         file.close()
         self.d.add_md5sum(filename)
 
-    def write_one_axis(self, file, num, letter, type, all_homes):
-        order = "1203"
-        def get(s): return self.d[letter + s]       
+    def write_one_joint(self, file, num, letter, type, all_homes, tandemflag):
+        def get(s): return self.d[letter + s]
         pwmgen = self.a.pwmgen_sig(letter)
         tppwmgen = self.a.tppwmgen_sig(letter)
         stepgen = self.a.stepgen_sig(letter)
@@ -223,16 +316,10 @@ class INI:
         #print "INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen
 
         print >>file
-        print >>file, "#********************"
         if letter == 's':
-            print >>file, "# Spindle "
-            print >>file, "#********************"
             print >>file, "[SPINDLE_%d]" % num
         else:
-            print >>file
-            print >>file, "# Joint %d" % num
             print >>file, "[JOINT_%d]" % num
-            print >>file, "#********************"
             print >>file, "TYPE = %s" % type
             print >>file, "HOME = %s" % get("homepos")
             print >>file, "FERROR = %s"% get("maxferror")
@@ -247,8 +334,8 @@ class INI:
                     factor = 2.0
                 else:
                     factor = 1.25
-                    print >>file, "STEPGEN_MAXVEL = %.2f" % (float(get("maxvel")) * factor)
-                    print >>file, "STEPGEN_MAXACCEL = %.2f" % (float(get("maxacc")) * factor)
+                print >>file, "STEPGEN_MAXVEL = %.2f" % (float(get("maxvel")) * factor)
+                print >>file, "STEPGEN_MAXACCEL = %.2f" % (float(get("maxacc")) * factor)
 
         print >>file, "P = %s" % get("P")
         print >>file, "I = %s" % get("I") 
@@ -309,15 +396,7 @@ class INI:
             print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
         if get("usebacklash"):
             print >>file, "BACKLASH = %s" % get("backlash")
-        # linuxcnc doesn't like having home right on an end of travel,
-        # so extend the travel limit by up to .01in or .1mm
-        minlim = -abs(get("minlim"))
-        maxlim = get("maxlim")
-        home = get("homepos")
-        if self.d.units == _PD._METRIC: extend = .01
-        else: extend = .001
-        minlim = min(minlim, home - extend)
-        maxlim = max(maxlim, home + extend)
+        minlim, maxlim = self.find_limits(letter)
         print >>file, "MIN_LIMIT = %s" % minlim
         print >>file, "MAX_LIMIT = %s" % maxlim
         thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
@@ -350,25 +429,44 @@ class INI:
                 if self.d.findsignal(i):
                     print >>file, "HOME_IGNORE_LIMITS = YES"
                     break
+            # if all axis have homing switches and user doesn't request
+            # manual individual homing:
             if all_homes and not self.d.individual_homing:
-                print >>file, "HOME_SEQUENCE = %s" % order[num]
+                seqnum = int(get("homesequence"))
+                # if a tandem joint we wish to finish the home sequence together
+                if tandemflag: wait ='-'
+                else: wait = ''
+                print >>file, "HOME_SEQUENCE = %s%d" % (wait,seqnum)
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
 
+    def write_one_axis(self, file, letter):
         # For KINEMATICS_IDENTITY:
         #     use axis MIN,MAX values identical corresponding joint values
+        def get(s): return self.d[letter + s]
+        minlim, maxlim = self.find_limits(letter)
         if not letter == "s":
             axis_letter = letter.upper()
-            print >>file, "# Axis %s" % axis_letter
-            print >>file, "#********************"
+            print >>file
+            print >>file, "#******************************************"
             print >>file, "[AXIS_%s]" % axis_letter
             print >>file, "MAX_VELOCITY = %s" % get("maxvel")
             print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
             print >>file, "MIN_LIMIT = %s" % minlim
             print >>file, "MAX_LIMIT = %s" % maxlim
-            print >>file
 
-
+    # linuxcnc doesn't like having home right on an end of travel,
+    # so extend the travel limit by up to .01in or .1mm
+    def find_limits(self, letter):
+        def get(s): return self.d[letter + s]
+        minlim = -abs(get("minlim"))
+        maxlim = get("maxlim")
+        home = get("homepos")
+        if self.d.units == _PD._METRIC: extend = .01
+        else: extend = .001
+        minlim = min(minlim, home - extend)
+        maxlim = max(maxlim, home + extend)
+        return (minlim, maxlim)
 
 # BOILER CODE
     def __getitem__(self, item):
