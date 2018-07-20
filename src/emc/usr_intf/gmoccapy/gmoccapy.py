@@ -1627,10 +1627,6 @@ class gmoccapy(object):
             format_string_mm = "%" + str(13 - self.dro_digits + 1) + "." + str(self.dro_digits - 1) + "f"
 
         for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("mm_text_template", format_string_mm)
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("imperial_text_template", format_string_inch)
 
@@ -1643,10 +1639,6 @@ class gmoccapy(object):
         self.prefs.putpref("toggle_readout", state)
         self.toggle_readout = state
         for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
 
 
@@ -1735,10 +1727,6 @@ class gmoccapy(object):
             widget.set_label(_("mm"))
             metric_units = True
         for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_to_inch(not metric_units)
         if self.lathe_mode:
             self.widgets.Combi_DRO_1.set_to_inch(not metric_units)
@@ -2996,11 +2984,6 @@ class gmoccapy(object):
                 self._show_error(pin,(13, message))
                 return
 
-        if axis not in "xyz":
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
         if direction == 1:
             widget = self.widgets["btn_{0}_plus".format(axis)]
         else:
