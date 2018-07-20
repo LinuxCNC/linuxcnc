@@ -59,6 +59,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.camview_dialog = False
         self.jog_joint_pos = False
         self.jog_joint_neg = False
+        self.jog_selected_pos = False
+        self.jog_selected_neg = False
         self.zero_axis = False
         self.launch_halmeter = False
         self.launch_status = False
@@ -173,16 +175,25 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
         elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog:
             pass
-        elif self.jog_joint_pos or self.jog_joint_neg:
+        elif self.jog_joint_pos or self.jog_joint_neg or \
+                    self.jog_selected_pos or self.jog_selected_neg:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             if self.jog_joint_pos:
                 self.pressed.connect(lambda: self.jog_action(1))
-            else:
+                self.released.connect(lambda: self.jog_action(0))
+            elif self.jog_joint_neg:
                 self.pressed.connect(lambda: self.jog_action(-1))
-            self.released.connect(lambda: self.jog_action(0))
+                self.released.connect(lambda: self.jog_action(0))
+            elif self.jog_selected_pos:
+                self.pressed.connect(lambda: self.jog_selected_action(1))
+                self.released.connect(lambda: self.jog_selected_action(0))
+            elif self.jog_selected_neg:
+                self.pressed.connect(lambda: self.jog_selected_action(-1))
+                self.released.connect(lambda: self.jog_selected_action(0))
+
             # jog button use diferent action signals so
             # leave early to aviod the standard 'clicked' signal
             return
@@ -431,7 +442,16 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             LOG.error('No action recognised')
 
     # If direction = 0 (button release) and distance is not 0, then we are
-    # doing a jog increment so don't stop jog on release. 
+    # doing a jog increment so don't stop jog on release.
+    def jog_selected_action(self, direction):
+        number = STATUS.get_selected_axis()
+        if direction == 0 and STATUS.current_jog_distance != 0: return
+        if direction:
+            ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
+        ACTION.DO_JOG(number, direction)
+
+    # If direction = 0 (button release) and distance is not 0, then we are
+    # doing a jog increment so don't stop jog on release.
     def jog_action(self, direction):
         if direction == 0 and STATUS.current_jog_distance != 0: return
         if direction:
@@ -485,7 +505,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     def _toggle_properties(self, picked):
         data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause',
-                'load_dialog', 'jog_joint_pos', 'jog_joint_neg', 'zero_axis',
+                'load_dialog', 'jog_joint_pos', 'jog_joint_neg',
+                'jog_selected_pos', 'jog_selected_neg', 'zero_axis',
                 'launch_halmeter', 'launch_status', 'launch_halshow',
                 'auto', 'mdi', 'manual', 'macro_dialog', 'origin_offset_dialog',
                 'camview_dialog', 'jog_incr', 'feed_over', 'rapid_over',
@@ -588,6 +609,24 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.jog_joint_neg
     def reset_jog_joint_neg(self):
         self.jog_joint_neg = False
+
+    def set_jog_selected_pos(self, data):
+        self.jog_selected_pos = data
+        if data:
+            self._toggle_properties('jog_selected_pos')
+    def get_jog_selected_pos(self):
+        return self.jog_selected_pos
+    def reset_jog_selected_pos(self):
+        self.jog_selected_pos = False
+
+    def set_jog_selected_neg(self, data):
+        self.jog_selected_neg = data
+        if data:
+            self._toggle_properties('jog_selected_neg')
+    def get_jog_selected_neg(self):
+        return self.jog_selected_neg
+    def reset_jog_selected_neg(self):
+        self.jog_selected_neg = False
 
     def set_run(self, data):
         self.run = data
@@ -915,6 +954,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     zero_axis_action = QtCore.pyqtProperty(bool, get_zero_axis, set_zero_axis, reset_zero_axis)
     jog_joint_pos_action = QtCore.pyqtProperty(bool, get_jog_joint_pos, set_jog_joint_pos, reset_jog_joint_pos)
     jog_joint_neg_action = QtCore.pyqtProperty(bool, get_jog_joint_neg, set_jog_joint_neg, reset_jog_joint_neg)
+    jog_selected_pos_action = QtCore.pyqtProperty(bool, get_jog_selected_pos, set_jog_selected_pos, reset_jog_selected_pos)
+    jog_selected_neg_action = QtCore.pyqtProperty(bool, get_jog_selected_neg, set_jog_selected_neg, reset_jog_selected_neg)
     jog_incr_action = QtCore.pyqtProperty(bool, get_jog_incr, set_jog_incr, reset_jog_incr)
     jog_rate_action = QtCore.pyqtProperty(bool, get_jog_rate, set_jog_rate, reset_jog_rate)
     feed_over_action = QtCore.pyqtProperty(bool, get_feed_over, set_feed_over, reset_feed_over)

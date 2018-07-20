@@ -108,6 +108,8 @@ class _GStat(gobject.GObject):
         'jogincrement-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
         'jogincrement-angular-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
 
+        'axis-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
+
         'program-pause-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'optional-stop-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'block-delete-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
@@ -204,6 +206,7 @@ class _GStat(gobject.GObject):
         self.current_jog_distance_text =''
         self.current_jog_distance_angular= 0
         self.current_jog_distance_angular_text =''
+        self.selected_axis = -1
         self._is_all_homed = False
         self.set_timer()
 
@@ -721,6 +724,13 @@ class _GStat(gobject.GObject):
 
     def get_jog_increment(self):
         return self.current_jog_distance
+
+    def set_selected_axis(self, data):
+        self.selected_axis = data
+        self.emit('axis-selection-changed', 0, data)
+
+    def get_selected_axis(self):
+        return self.selected_axis
 
     def is_all_homed(self):
         return self._is_all_homed
