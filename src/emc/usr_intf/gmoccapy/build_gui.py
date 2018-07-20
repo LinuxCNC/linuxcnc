@@ -50,7 +50,7 @@ from gmoccapy import dialogs       # this takes the code of all our dialogs
 
 
 from gladevcp.combi_dro import Combi_DRO
-from lxml.cssselect import is_int
+#from lxml.cssselect import is_int
 
 from hal_glib import GStat
 
@@ -197,6 +197,7 @@ class Build_GUI(gobject.GObject):
         self._make_ref_button()
         self._make_touch_button()
         self._make_jog_increments()
+        self._make_jog_button()
         self._make_macro_button()
  
         # check for virtual keyboard
@@ -474,6 +475,25 @@ class Build_GUI(gobject.GObject):
             self.incr_dic[rbt.name] = rbt
         self.active_increment = rbt0
         return self.active_increment, self.incr_dic
+
+    def _make_jog_button(self):
+        
+        dic = self.axis_list
+        num_elements = len(dic)
+
+        for axis in self.axis_list:
+            print ("Axis = {0}".format(axis))
+            btn = gtk.Button(str(axis))
+            btn.connect("clicked", self._on_btn_jog_pressed, axis)
+            btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
+            btn.set_property("name", "jog_{0}".format(axis))
+            btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+            self.widgets.tbl_jog_btn_axes.attach(btn,0,1,0,1)
+            btn.show()
+
+    def _on_btn_jog_pressed(self, widget, axis, data):
+        print ("Axis = {0}".format(axis))
+
 
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
