@@ -148,7 +148,7 @@ class _Lcnc_Action(object):
     def DO_JOG(self, axisnum, direction):
         if axisnum in (3,4,5):
             distance = STATUS.get_jog_increment_angular()
-            rate = STATUS.angular_jog_velocity/60
+            rate = STATUS.get_jograte_angular()/60
         else:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
