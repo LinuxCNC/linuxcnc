@@ -1292,8 +1292,8 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">5</property>
-                                                            <property name="n_rows">3</property>
-                                                            <property name="n_columns">4</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">5</property>
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>

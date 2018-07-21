@@ -2984,10 +2984,15 @@ class gmoccapy(object):
                 self._show_error(pin,(13, message))
                 return
 
+        children = self.widgets.hbtb_touch_off.get_children()
+        for child in children:
+            self.touch_button_dic[child.name] = child
+
+
         if direction == 1:
-            widget = self.widgets["btn_{0}_plus".format(axis)]
+            widget = self.widgets["{0}+".format(axis)]
         else:
-            widget = self.widgets["btn_{0}_minus".format(axis)]
+            widget = self.widgets["{0}-".format(axis)]
         if pin.get():
             self.on_btn_jog_pressed(widget)
         else:

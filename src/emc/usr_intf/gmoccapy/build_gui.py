@@ -480,19 +480,22 @@ class Build_GUI(gobject.GObject):
         
         dic = self.axis_list
         num_elements = len(dic)
-
+        btnlst = []
+        
         for axis in self.axis_list:
-            print ("Axis = {0}".format(axis))
-            btn = gtk.Button(str(axis))
-            btn.connect("clicked", self._on_btn_jog_pressed, axis)
-            btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
-            btn.set_property("name", "jog_{0}".format(axis))
-            btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-            self.widgets.tbl_jog_btn_axes.attach(btn,0,1,0,1)
-            btn.show()
+            for direction in ["+","-"]:
+                name = "{0}{1}".format(str(axis), direction)
+                btn = gtk.Button(name.upper())
+                btn.connect("clicked", self._on_btn_jog_pressed, axis)
+                btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
+                btn.set_property("name", name)
+                btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+                btnlst.append(btn)
+                
+        self._arange_jog_button(btnlst)
 
-    def _on_btn_jog_pressed(self, widget, axis, data):
-        print ("Axis = {0}".format(axis))
+    def _on_btn_jog_pressed(self, widget, axis):
+        print ("Axis = {0}".format(widget.get_property("name")))
 
 
     # check if macros are in the INI file and add them to MDI Button List
@@ -1521,6 +1524,106 @@ class Build_GUI(gobject.GObject):
                     col += 1
             else:
                 row += 1
+
+    def _arange_jog_button(self, btnlst):
+        num_axis = len(btnlst)
+        print("length of buttonlist = {0}".format(num_axis))
+
+        if num_axis <= 3:
+            # we can resite the jog_btn_table
+            self.widgets.tbl_jog_btn_axes.resize(3, 3)
+            # This is probaly a lathe, but we will better check that
+            if self.lathe_mode:
+                # OK this is a lathe, lets see if it is a backtool_lathe
+                if self.backtool_lathe:
+                    # Now we are sure we have a backtool lathe
+                    # as we only expect X an Z, letz place them in the table
+                    for btn in btnlst:
+                        name = btn.get_property("name")
+                        if name == "x+":
+                            col = 2
+                            row = 1
+                        if name =="x-":
+                            col = 0
+                            row = 1
+                        if name == "y+":
+                            col = 1
+                            row = 0
+                        if name =="y-":
+                            col = 1
+                            row = 2
+                        if name == "z+":
+                            col = 2
+                            row = 0
+                        if name =="z-":
+                            col = 0
+                            row = 2
+                        
+                    
+        for btn in btnlst:
+
+            name = btn.get_property("name")
+            if name == "x+":
+                col = 2
+                row = 1
+            if name =="x-":
+                col = 0
+                row = 1
+            if name == "y+":
+                col = 1
+                row = 0
+            if name =="y-":
+                col = 1
+                row = 2
+            if name == "z+":
+                col = 2
+                row = 0
+            if name =="z-":
+                col = 0
+                row = 2
+            if name == "a+":
+                col = 4
+                row = 3
+            if name =="a-":
+                col = 3
+                row = 3
+            if name == "b+":
+                col = 2
+                row = 3
+            if name =="b-":
+                col = 0
+                row = 3
+            if name == "c+":
+                col = 2
+                row = 2
+            if name =="c-":
+                col = 0
+                row = 0
+            if name == "u+":
+                col = 4
+                row = 0
+            if name =="u-":
+                col = 3
+                row = 0
+            if name == "v+":
+                col = 4
+                row = 1
+            if name =="v-":
+                col = 3
+                row = 1
+            if name == "w+":
+                col = 4
+                row = 2
+            if name =="w-":
+                col = 3
+                row = 2
+                
+                
+            self.widgets.tbl_jog_btn_axes.attach(btn, col, col + 1, row, row + 1)
+            btn.show()
+
+            print("Jog Button = {0}".format(btn.get_property("name")))
+            print("Position = {0},{1}".format(col,row))
 
     def _get_ini_data(self):
         # get the axis list from INI
