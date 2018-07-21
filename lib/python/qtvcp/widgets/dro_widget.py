@@ -44,6 +44,7 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.display_units_mm = 0
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
+        self.angular_text_template = '%9.2f'
         self.setText('--------------')
 
     def _hal_init(self):
@@ -62,6 +63,7 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
             tmpl = lambda s: self.mm_text_template % s
         else:
             tmpl = lambda s: self.imperial_text_template % s
+        degtmpl = lambda s: self.angular_text_template % s
         # only joint 0 (X) can use diameter mode
         if self.diameter and self.joint_number == 0:
             scale = 2.0
@@ -69,11 +71,20 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
             scale = 1
         try:
             if self.reference_type == 0:
-                self.setText(tmpl(absolute[self.joint_number]*scale))
+                if self.joint_number in (3,5,5):
+                    self.setText(degtmpl(absolute[self.joint_number]*scale))
+                else:
+                    self.setText(tmpl(absolute[self.joint_number]*scale))
             elif self.reference_type == 1:
-                self.setText(tmpl(relative[self.joint_number]*scale))
+                if self.joint_number in (3,5,5):
+                    self.setText(degtmpl(relative[self.joint_number]*scale))
+                else:
+                    self.setText(tmpl(relative[self.joint_number]*scale))
             elif self.reference_type == 2:
-                self.setText(tmpl(dtg[self.joint_number]*scale))
+                if self.joint_number in (3,5,5):
+                    self.setText(degtmpl(dtg[self.joint_number]*scale))
+                else:
+                    self.setText(tmpl(dtg[self.joint_number]*scale))
         except:
             pass
         return True
