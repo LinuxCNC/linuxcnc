@@ -24,6 +24,7 @@ import sys
 import os
 
 from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -50,6 +51,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         super( GCodeGraphics, self).__init__(parent)
         self.colors['overlay_background'] = (0.0, 0.0, 0.57)  # blue
         self.colors['back'] = (0.0, 0.0, 0.75)  # blue
+        self._color = QColor(0, 0, 0.75, 150)
         self.show_overlay = False  # no DRO or DRO overlay
         self._reload_filename = None
 
@@ -155,6 +157,28 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getmetric(self):
         return self.metric_units
     _metric = pyqtProperty(bool, getmetric, setmetric)
+
+    # overlay
+    def setoverlay(self, overlay):
+        self.show_overlay = overlay
+        self.updateGL()
+    def getoverlay(self):
+        return self.show_overlay
+    def resetoverlay(self):
+        self.show_overlay(False)
+    overlay = pyqtProperty(bool, getoverlay, setoverlay, resetoverlay)
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+        #print value.getRgbF()
+        self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
+        self.updateGL()
+    def resetState(self):
+        self._color = QColor(0, 0, .75, 150)
+    background_color = pyqtProperty(QColor, getColor, setColor)
+
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
