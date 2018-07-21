@@ -705,7 +705,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
      <property name="joint_number" stdset="0">
-      <number>2</number>
+      <number>3</number>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_18">
@@ -727,7 +727,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
      <property name="joint_number" stdset="0">
-      <number>2</number>
+      <number>4</number>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_34">
@@ -749,7 +749,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
      <property name="joint_number" stdset="0">
-      <number>2</number>
+      <number>5</number>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_35">
@@ -771,7 +771,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
      <property name="joint_number" stdset="0">
-      <number>2</number>
+      <number>6</number>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_36">
@@ -793,7 +793,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
      <property name="joint_number" stdset="0">
-      <number>2</number>
+      <number>7</number>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_37">
@@ -815,7 +815,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <bool>true</bool>
      </property>
      <property name="joint_number" stdset="0">
-      <number>2</number>
+      <number>8</number>
      </property>
     </widget>
    </widget>
@@ -2416,6 +2416,130 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="ActionButton" name="actionbutton_8">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>170</y>
+       <width>45</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Med</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="incr_angular_number" stdset="0">
+      <double>60.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>170</y>
+       <width>45</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Fine</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.001000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="incr_angular_number" stdset="0">
+      <double>10.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_30">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>170</y>
+       <width>45</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Large</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="incr_angular_number" stdset="0">
+      <double>120.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_31">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>170</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Continous</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="incr_angular_number" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_3">
     <property name="geometry">
@@ -2582,130 +2706,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="ActionButton" name="actionbutton_7">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>45</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Fine</string>
-     </property>
-     <property name="indicator_option" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="jog_incr_action" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="incr_imperial_number" stdset="0">
-      <double>0.001000000000000</double>
-     </property>
-     <property name="incr_mm_number" stdset="0">
-      <double>0.010000000000000</double>
-     </property>
-     <property name="incr_angular_number" stdset="0">
-      <double>10.000000000000000</double>
-     </property>
-    </widget>
-    <widget class="ActionButton" name="actionbutton_8">
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>10</y>
-       <width>45</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Med</string>
-     </property>
-     <property name="indicator_option" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="jog_incr_action" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="incr_imperial_number" stdset="0">
-      <double>0.010000000000000</double>
-     </property>
-     <property name="incr_mm_number" stdset="0">
-      <double>0.100000000000000</double>
-     </property>
-     <property name="incr_angular_number" stdset="0">
-      <double>60.000000000000000</double>
-     </property>
-    </widget>
-    <widget class="ActionButton" name="actionbutton_30">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>10</y>
-       <width>45</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Large</string>
-     </property>
-     <property name="indicator_option" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="jog_incr_action" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="incr_imperial_number" stdset="0">
-      <double>0.100000000000000</double>
-     </property>
-     <property name="incr_mm_number" stdset="0">
-      <double>1.000000000000000</double>
-     </property>
-     <property name="incr_angular_number" stdset="0">
-      <double>120.000000000000000</double>
-     </property>
-    </widget>
-    <widget class="ActionButton" name="actionbutton_31">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>40</y>
-       <width>121</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Continous</string>
-     </property>
-     <property name="indicator_option" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="jog_incr_action" stdset="0">
-      <bool>true</bool>
-     </property>
-     <property name="incr_imperial_number" stdset="0">
-      <double>0.000000000000000</double>
-     </property>
-     <property name="incr_mm_number" stdset="0">
-      <double>0.000000000000000</double>
-     </property>
-     <property name="incr_angular_number" stdset="0">
-      <double>0.000000000000000</double>
-     </property>
-    </widget>
     <widget class="StatusAdjustmentBar" name="statusadjustmentbar">
      <property name="geometry">
       <rect>
@@ -2729,7 +2729,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="geometry">
       <rect>
        <x>-10</x>
-       <y>140</y>
+       <y>100</y>
        <width>201</width>
        <height>52</height>
       </rect>
@@ -2751,7 +2751,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="geometry">
       <rect>
        <x>-10</x>
-       <y>100</y>
+       <y>60</y>
        <width>201</width>
        <height>52</height>
       </rect>
@@ -2776,7 +2776,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="geometry">
       <rect>
        <x>-10</x>
-       <y>60</y>
+       <y>20</y>
        <width>201</width>
        <height>52</height>
       </rect>
@@ -2801,6 +2801,28 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="text_template" stdset="0">
       <string>Rapid</string>
+     </property>
+    </widget>
+    <widget class="StatusAdjustmentBar" name="statusadjustmentbar_5">
+     <property name="geometry">
+      <rect>
+       <x>-10</x>
+       <y>140</y>
+       <width>201</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="rapid_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jograte_rate" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jograte_angular_rate" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="text_template" stdset="0">
+      <string>Rotary\nRate</string>
      </property>
     </widget>
    </widget>
@@ -3083,15 +3105,15 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="_metric" stdset="0">
      <bool>false</bool>
     </property>
-    <property name="_overlay" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="background_color" stdset="0">
      <color>
       <red>0</red>
       <green>0</green>
       <blue>0</blue>
      </color>
+    </property>
+    <property name="_overlay" stdset="0">
+     <bool>false</bool>
     </property>
     <property name="overlay_color" stdset="0">
      <color alpha="150">
