@@ -98,8 +98,18 @@ class MyWindow(QtWidgets.QMainWindow):
         for widget in instance.findChildren(QtCore.QObject):
             log.debug('QTVCP Widget: {}'.format(widget))
 
+    def apply_styles(self, fname = None):
+        if fname is None:
+            fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,self._paths.BASENAME+'.qss')
+        try:
+            qss_file = open(fname).read()
+        except:
+            print 'qss file not found'
+        else:
+            self.setStyleSheet(qss_file)
 
     def load_extension(self,handlerpath,paths=None):
+        self._paths = paths
         methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath],self.halcomp,self,paths)
         for i in methods:
             self[i] = methods[i]

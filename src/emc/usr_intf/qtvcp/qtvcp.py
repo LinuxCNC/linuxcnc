@@ -315,7 +315,7 @@ class QTVCP:
                 QtWidgets.qApp.setStyle(opts.theme)
         # windows theme is default for screens
         elif INIPATH:
-            QtWidgets.qApp.setStyle('Windows')
+            window.apply_styles()
 
         # title
         if INIPATH:
