@@ -40,7 +40,7 @@
      <rect>
       <x>210</x>
       <y>10</y>
-      <width>811</width>
+      <width>431</width>
       <height>231</height>
      </rect>
     </property>
@@ -228,16 +228,6 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="false_textTemplate" stdset="0">
       <string/>
-     </property>
-    </widget>
-    <widget class="GCodeGraphics" name="Graphics">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>0</y>
-       <width>400</width>
-       <height>231</height>
-      </rect>
      </property>
     </widget>
     <widget class="StateLabel" name="StateLabel_2">
@@ -3075,6 +3065,42 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="GCodeGraphics" name="Graphics">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>10</y>
+      <width>400</width>
+      <height>231</height>
+     </rect>
+    </property>
+    <property name="_dro" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="_dtg" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="_metric" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="_overlay" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="background_color" stdset="0">
+     <color>
+      <red>0</red>
+      <green>0</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="overlay_color" stdset="0">
+     <color alpha="150">
+      <red>16</red>
+      <green>12</green>
+      <blue>12</blue>
+     </color>
+    </property>
+   </widget>
    <zorder>lcncdialog</zorder>
    <zorder>frame_auto_5</zorder>
    <zorder>state_label_4</zorder>
@@ -3109,6 +3135,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <zorder>gcodes_label</zorder>
    <zorder>state_label_10</zorder>
    <zorder>focusoverlay</zorder>
+   <zorder>Graphics</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
