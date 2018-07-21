@@ -445,7 +445,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     # doing a jog increment so don't stop jog on release.
     def jog_selected_action(self, direction):
         number = STATUS.get_selected_axis()
-        if direction == 0 and STATUS.current_jog_distance != 0: return
+        if direction == 0:
+            if number in (3,4,5): # angualr axis
+                if STATUS.get_jog_increment_angular() != 0: return
+            elif STATUS.get_jog_increment() != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         ACTION.DO_JOG(number, direction)
@@ -453,7 +456,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     # If direction = 0 (button release) and distance is not 0, then we are
     # doing a jog increment so don't stop jog on release.
     def jog_action(self, direction):
-        if direction == 0 and STATUS.current_jog_distance != 0: return
+        if direction == 0:
+            if self.joint_number in (3,4,5): # anglar axis
+                if STATUS.get_jog_increment_angular() != 0: return
+            elif STATUS.get_jog_increment() != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
         ACTION.DO_JOG(self.joint_number, direction)

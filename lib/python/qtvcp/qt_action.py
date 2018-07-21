@@ -144,14 +144,18 @@ class _Lcnc_Action(object):
     def RESTORE_RECORDED_MODE(self):
         self.ensure_mode(self.last_mode)
 
+    # jog based on STATUS's rate and distace
     def DO_JOG(self, axisnum, direction):
-        distance = STATUS.get_jog_increment()
         if axisnum in (3,4,5):
+            distance = STATUS.get_jog_increment_angular()
             rate = STATUS.angular_jog_velocity/60
         else:
+            distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         self.JOG(axisnum, direction, rate, distance)
 
+    # jog based on given varaibles
+    # checks for jog joint mode first
     def JOG(self, axisnum, direction, rate, distance=0):
         jjogmode,j_or_a = STATUS.get_jog_info(axisnum)
         if direction == 0:
