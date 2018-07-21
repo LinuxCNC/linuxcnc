@@ -78,7 +78,11 @@ class _IStat(object):
             for letter in axes:
                 self.AVAILABLE_AXES.append(letter.upper())
                 self.AVAILABLE_AXES_INT.append(conversion[letter.upper()])
-
+                # AXIS sanity check
+                av = self.inifile.find('AXIS_%s'% letter.upper(), 'MAX_VELOCITY') or None
+                aa = self.inifile.find('AXIS_%s'% letter.upper(), 'MAX_ACCELERATION') or None
+                if av is None or aa is None:
+                    log.critical('MISSING [AXIS_{}] MAX VeLOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
         self.NO_HOME_REQUIRED = int(self.inifile.find("TRAJ", "NO_FORCE_HOMING") or 0)
 
         # jogging increments
