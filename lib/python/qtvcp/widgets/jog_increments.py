@@ -51,7 +51,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
         else:
             for item in (INFO.ANGULAR_INCREMENTS):
                 self.addItem(item)
-        STATUS.connect('jogincrement-angular-changed', lambda w, value, text: self._checkincrements(value, text))
+            STATUS.connect('jogincrement-angular-changed', lambda w, value, text: self._checkincrements(value, text))
         self.currentIndexChanged.connect(self.selectionchange)
         self.selectionchange(0)
 
