@@ -158,14 +158,13 @@ class HAdjustmentBar(QWidget):
         if value < self.minimum(): value = self.minimum()
         if value > self.maximum(): value = self.maximum()
         self.value = int(value)
-        tmpl = lambda s: str(self.texttemplate) % s
+        tmpl = lambda s: self.texttemplate % s
         try:
             self.bar.text = tmpl(int(value))
         except:
             self.bar.text = self.texttemplate
         self.bar.setValue(int(value))
         self.bar.update()
-
 
     def setHigh(self):
         self.hi_value = self.value
@@ -329,7 +328,10 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     def resetsettingmenu(self):
         self.showSettingMenu = True
 
+    # Designer makes '\n' into '\\n' if added
+    # we put fix it here so we actually get the newline
     def settexttemplate(self, data):
+        data = data.replace('\\n' , '\n')
         self.texttemplate = data
     def gettexttemplate(self):
         return self.texttemplate
@@ -359,8 +361,13 @@ def main():
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    widget = HAdjustmentBar()
+    widget = StatusAdjustmentBar()
+    widget.PREFS_=None
+    widget.buildWidget()
+    widget.settexttemplate('Text %s')
+    widget.setValue(75)
     widget.show()
+
     sys.exit(app.exec_())
 if __name__ == "__main__":
     main()
