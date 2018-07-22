@@ -21,6 +21,7 @@ except ImportError:
 LIB_GOOD = True
 try:
     from OpenGL import GL
+    from OpenGL import GLU
 except ImportError:
     log.error('Qtvcp Error with graphics - is python-openGL installed?')
     LIB_GOOD = False
@@ -183,6 +184,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.enable_dro = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
+        self.use_gradient_background = False
 
         self.a_axis_wrapped = self.inifile.find("AXIS_A", "WRAPPED_ROTARY")
         self.b_axis_wrapped = self.inifile.find("AXIS_B", "WRAPPED_ROTARY")
@@ -394,16 +396,75 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         #GL.glRotated(self.xRot / 16.0, 1.0, 0.0, 0.0) # rotate on x
         #GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0) # rotate on y
         #GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0) # rotate on z
-        try:
-            if self.perspective: self.redraw_perspective()
-            else: self.redraw_ortho()
-        except:
 
+        
+        try:
+            if self.perspective:
+                self.redraw_perspective()
+            else: self.redraw_ortho()
+
+        except Exception as e:
+            print'error',e
+            return
             #genList = GL.glGenLists(1)
             #self.draw_small_origin(genList)
             #GL.glCallList(genList)
             # display something - probably in QtDesigner
             GL.glCallList(self.object)
+
+    #@with_context_swap
+    def redraw_perspective(self):
+
+        w = self.winfo_width()
+        h = self.winfo_height()
+        GL.glViewport(0, 0, w, h)
+        if self.use_gradient_background:
+                GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glMatrixMode(GL.GL_PROJECTION)
+
+                GL.glPushMatrix()
+                GL.glLoadIdentity()
+    
+                GL.glMatrixMode(GL.GL_MODELVIEW)
+                GL.glLoadIdentity()
+                GL.glDisable(GL.GL_DEPTH_TEST)
+                GL.glBegin(GL.GL_QUADS)
+                #//blue color
+                GL.glColor3f(0.0, 0.0, 1)
+                GL.glVertex3f(-1.0, -1.0, -1.0)
+                GL.glVertex3f(1.0, -1.0, -1.0)
+                #//black color
+                GL.glColor3f(0.0, 0.0, 0.0)
+                GL.glVertex3f(1.0, 1.0, -1.0)
+                GL.glVertex3f(-1.0, 1.0, -1.0)
+               
+                GL.glEnd()
+                GL.glEnable(GL.GL_DEPTH_TEST)
+                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glPopMatrix()
+                GL.glMatrixMode(GL.GL_MODELVIEW)
+                GL.glLoadIdentity()
+        else:
+            pass
+            # Clear the background and depth buffer.
+            GL.glClearColor(*(self.colors['back'] + (0,)))
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GLU.gluPerspective(self.fovy, float(w)/float(h), self.near, self.far + self.distance)
+
+        GLU.gluLookAt(0, 0, self.distance,
+            0, 0, 0,
+            0., 1., 0.)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glPushMatrix()
+        try:
+            self.redraw()
+        finally:
+            GL.glFlush()                               # Tidy up
+            GL.glPopMatrix()                   # Restore the matrix
 
     # resizes the view to fit the window
     def resizeGL(self, width, height):
@@ -477,7 +538,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def user_plot(self):
         pass
-        GL.glCallList(self.object)
+        #GL.glCallList(self.object)
 
     ############################################################
     # display for when linuxcnc isn't runnimg - forQTDesigner
