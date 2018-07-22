@@ -42,7 +42,7 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.reference_type = 0
         self.joint_number = 0
         self.display_units_mm = 0
-        self.mm_text_template = '%10.3f'
+        self.metric_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.angular_text_template = '%9.2f'
         self.setText('--------------')
@@ -60,7 +60,7 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
             dtg = INFO.convert_units_9(dtg)
 
         if self.display_units_mm:
-            tmpl = lambda s: self.mm_text_template % s
+            tmpl = lambda s: self.metric_text_template % s
         else:
             tmpl = lambda s: self.imperial_text_template % s
         degtmpl = lambda s: self.angular_text_template % s
@@ -71,17 +71,17 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
             scale = 1
         try:
             if self.reference_type == 0:
-                if self.joint_number in (3,5,5):
+                if self.joint_number in (3,4,5):
                     self.setText(degtmpl(absolute[self.joint_number]*scale))
                 else:
                     self.setText(tmpl(absolute[self.joint_number]*scale))
             elif self.reference_type == 1:
-                if self.joint_number in (3,5,5):
+                if self.joint_number in (3,4,5):
                     self.setText(degtmpl(relative[self.joint_number]*scale))
                 else:
                     self.setText(tmpl(relative[self.joint_number]*scale))
             elif self.reference_type == 2:
-                if self.joint_number in (3,5,5):
+                if self.joint_number in (3,4,5):
                     self.setText(degtmpl(dtg[self.joint_number]*scale))
                 else:
                     self.setText(tmpl(dtg[self.joint_number]*scale))
@@ -126,6 +126,30 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
     def resetreference_type(self):
         self.reference_type = 0
     Qreference_type = QtCore.pyqtProperty(int, getreference_type, setreference_type, resetreference_type)
+
+    def setmetrictemplate(self, data):
+        self.metric_text_template = data
+    def getmetrictemplate(self):
+        return self.metric_text_template
+    def resetmetrictemplate(self):
+        self.metric_text_template =  '%10.3f'
+    metric_template = QtCore.pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+
+    def setimperialtexttemplate(self, data):
+        self.imperial_text_template = data
+    def getimperialtexttemplate(self):
+        return self.imperial_text_template
+    def resetimperialtexttemplate(self):
+        self.imperial_text_template =  '%9.4f'
+    imperial_template = QtCore.pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+
+    def setangulartexttemplate(self, data):
+        self.angular_text_template = data
+    def getangulartexttemplate(self):
+        return self.angular_text_template
+    def resetangulartexttemplate(self):
+        self.angular_text_template =  '%9.2f'
+    angular_template = QtCore.pyqtProperty(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
 
 # for testing without editor:
 def main():
