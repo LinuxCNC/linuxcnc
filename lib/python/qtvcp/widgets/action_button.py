@@ -491,6 +491,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             incr = 0
             text = 'Continous'
         else:
+            incr = self.jog_incr_angle
             text = '''%s deg''' % str(self.jog_incr_angle)
         STATUS.set_jog_increment_angular(incr , text)
 
