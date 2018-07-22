@@ -439,6 +439,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      <property name="Qreference_type" stdset="0">
       <number>1</number>
      </property>
+     <property name="angular_template" stdset="0">
+      <string>%9.2f</string>
+     </property>
     </widget>
     <widget class="DROLabel" name="drolabel_10">
      <property name="geometry">
@@ -2822,7 +2825,8 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <bool>true</bool>
      </property>
      <property name="text_template" stdset="0">
-      <string>Rotary\nRate</string>
+      <string>Rotary 
+Jog Rate</string>
      </property>
     </widget>
    </widget>
