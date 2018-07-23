@@ -105,12 +105,11 @@ class MyWindow(QtWidgets.QMainWindow):
             return
         
         # apply default qss file or specified file
-        temp = os.path.join(os.path.expanduser(fname))
         if fname is None:
             fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,self._paths.BASENAME+'.qss')
         elif not os.path.isfile(fname):
+            temp = os.path.join(os.path.expanduser(fname))
             fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,fname+'.qss')
-            print fname
             if not os.path.isfile(fname):
                 fname = temp
         try:
