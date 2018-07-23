@@ -88,13 +88,14 @@ class HandlerClass:
             elif isinstance(receiver,QtWidgets.QDialog):
                 print 'dialog'
                 return True
+
         try:
-            KEYBIND.call(self,event,is_pressed,shift,cntrl)
-            return True
+            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
+        except NameError as e:
+            LOG.debug('Exception in KEYBINDING: {}'.format (e))
         except Exception as e:
-            LOG.info('Exception loading Macros:', exc_info=e)
+            LOG.debug('Exception in KEYBINDING:', exc_info=e)
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            print 'from %s'% receiver
             return False
 
     ########################
@@ -109,18 +110,25 @@ class HandlerClass:
     # general functions #
     #####################
 
+    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        if linear:
+            distance = STATUS.get_jog_increment()
+            rate = STATUS.get_jograte()/60
+        else:
+            distance = STATUS.get_jog_increment_angular()
+            rate = STATUS.get_jograte_angular()/60
+        if state:
+            if fast:
+                rate = rate * 2
+            ACTION.JOG(joint, direction, rate, distance)
+        else:
+            ACTION.JOG(joint, 0, 0, 0)
+
     #####################
     # KEY BINDING CALLS #
     #####################
-    def on_keycall_ABORT(self,event,state,shift,cntrl):
-        if state:
-            print 'abort'
-            if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
-                self.w.close()
-            else:
-                print 'abort'
-                self.cmnd.abort()
 
+    # Machine control
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
@@ -133,7 +141,14 @@ class HandlerClass:
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
+    def on_keycall_ABORT(self,event,state,shift,cntrl):
+        if state:
+            if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
+                self.w.close()
+            else:
+                self.cmnd.abort()
 
+    # dialogs
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
             self.w.originoffsetdialog.load_dialog()
@@ -147,40 +162,32 @@ class HandlerClass:
         if state:
             self.w.tooloffsetdialog.load_dialog()
 
+    # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(0, 1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(0, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 0, 1, shift)
+
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(0, -1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(0, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(1, 1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(1, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(1, -1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(1, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(2, 1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(2, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(2, -1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(2, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 2, -1, shift)
+
+    def on_keycall_APOS(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, 1, shift, False)
+
+    def on_keycall_ANEG(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, -1, shift, linear=False)
 
     ###########################
     # **** closing event **** #

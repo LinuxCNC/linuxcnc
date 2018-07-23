@@ -16,6 +16,12 @@
 
 from PyQt5.QtCore import Qt
 
+# Set up logging
+from qtvcp import logger
+log = logger.getLogger(__name__)
+# Set the log level for this module
+#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 def key_pressed( event):
         """ Handle key presses (on any window) """
 
@@ -44,7 +50,7 @@ def key_pressed( event):
                 Qt.Key_Shift: "Key_Shift",	
                 Qt.Key_Control: "Key_Control",	
                 Qt.Key_Meta: "Key_Meta",
-                Qt.Key_Alt: "Key_Alt",
+                #Qt.Key_Alt: "Key_Alt",
                 Qt.Key_AltGr: "Key_AltGr",	
                 Qt.Key_CapsLock: "Key_CapsLock",	
                 Qt.Key_NumLock: "Key_NumLock",	
@@ -169,8 +175,6 @@ def key_pressed( event):
         mods = []
         if event.modifiers() & Qt.AltModifier:
             mods.append("Alt")
-        if event.modifiers() & Qt.ControlModifier:
-            mods.append("Ctrl")
         # For letters we want upper and lower in the keyname
         # if control was used the keyname uses an upper letter
         # we will also not add +shift to the keyname
@@ -179,8 +183,6 @@ def key_pressed( event):
                 char = char+chr(event.key())
             else:
                 char = char+event.text()
-        elif event.modifiers() & Qt.ShiftModifier:
-            mods.append("Shift")
 
         txt = "+".join(mods) + (mods and "+" or "") + char
         return txt
@@ -197,6 +199,10 @@ class _Keycalls:
         self.Key_PageDown = 'on_keycall_YNEG'
         self.Key_Up = 'on_keycall_ZPOS'
         self.Key_Down = 'on_keycall_ZNEG'
+        self.Key_BracketLeft ='on_keycall_APOS'
+        self.Key_BracketRight ='on_keycall_ANEG'
+        self.Key_BraceLeft ='on_keycall_APOS'
+        self.Key_BraceRight ='on_keycall_ANEG'
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -215,7 +221,8 @@ class Keylookup:
     def call(self,handler_instance,event,state,shift,cntrl):
         function_name = self.convert(event)
         if function_name is None:
-            raise AttributeError
+            raise NameError('No KeyCall binding defined for %s'% key_pressed(event))
+            #return False
         handler_instance[function_name](event,state,shift,cntrl)
 
     # convert a Qt event to a function name
@@ -224,6 +231,7 @@ class Keylookup:
             b = key_pressed(event)
             return self.keycall[b]
         except:
+            log.info("no function name conversion for QT Event: '{}'".format(b))
             return None
 
     # get a function name from a keyname
