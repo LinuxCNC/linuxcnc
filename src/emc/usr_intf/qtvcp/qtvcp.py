@@ -297,24 +297,11 @@ class QTVCP:
         if opts.always_top:
             window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
-        # theme (styles in QT speak)
+        # theme (styles in QT speak) specify a qss file
         if opts.theme:
-            if not opts.theme in (QtWidgets.QStyleFactory.keys()):
-                log.warning("{} theme not available".format(opts.theme))
-                if opts.debug:
-                    current_theme = QtWidgets.qApp.style().objectName()
-                    themes=['\nQTvcp Available themes:']
-                    for i in (QtWidgets.QStyleFactory.keys()):
-                        if i == current_theme:
-                            themes.append('  * green<{}>'.format(i))
-                        else:
-                             themes.append('  * {}'.format(i))
-
-                    log.info('\n'.join(themes))
-            else:
-                QtWidgets.qApp.setStyle(opts.theme)
-        # windows theme is default for screens
-        elif INIPATH:
+            window.apply_styles(opts.theme)
+        # appy qss file or default theme
+        else:
             window.apply_styles()
 
         # title

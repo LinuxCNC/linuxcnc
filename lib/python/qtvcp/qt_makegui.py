@@ -99,14 +99,37 @@ class MyWindow(QtWidgets.QMainWindow):
             log.debug('QTVCP Widget: {}'.format(widget))
 
     def apply_styles(self, fname = None):
+        # apply one word system theme
+        if fname in (QtWidgets.QStyleFactory.keys()):
+            QtWidgets.qApp.setStyle(fname)
+            return
+        
+        # apply default qss file or specified file
+        temp = os.path.join(os.path.expanduser(fname))
         if fname is None:
             fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,self._paths.BASENAME+'.qss')
+        elif not os.path.isfile(fname):
+            fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,fname+'.qss')
+            print fname
+            if not os.path.isfile(fname):
+                fname = temp
         try:
             qss_file = open(fname).read()
-        except:
-            print 'qss file not found'
-        else:
             self.setStyleSheet(qss_file)
+            return
+        except:
+            log.error('QSS Filepath Error: {}'.format(fname))
+        # warnings
+        log.warning("{} theme not available".format(fname))
+        current_theme = QtWidgets.qApp.style().objectName()
+        themes=['\nQTvcp Available system themes:']
+        for i in (QtWidgets.QStyleFactory.keys()):
+            if i == current_theme:
+                themes.append('  * green<{}>'.format(i))
+            else:
+                themes.append('  * {}'.format(i))
+            log.info('\n'.join(themes))
+
 
     def load_extension(self,handlerpath,paths=None):
         self._paths = paths
