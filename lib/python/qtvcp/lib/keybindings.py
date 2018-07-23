@@ -224,6 +224,7 @@ class Keylookup:
             raise NameError('No KeyCall binding defined for %s'% key_pressed(event))
             #return False
         handler_instance[function_name](event,state,shift,cntrl)
+        return True
 
     # convert a Qt event to a function name
     def convert(self,event):
