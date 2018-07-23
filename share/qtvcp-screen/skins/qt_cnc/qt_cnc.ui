@@ -109,13 +109,12 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <rect>
       <x>210</x>
       <y>10</y>
-      <width>811</width>
+      <width>411</width>
       <height>231</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">#frame{
-border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_blue.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -242,7 +241,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
       <rect>
        <x>280</x>
        <y>190</y>
-       <width>131</width>
+       <width>121</width>
        <height>31</height>
       </rect>
      </property>
@@ -285,16 +284,6 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="false_textTemplate" stdset="0">
       <string/>
-     </property>
-    </widget>
-    <widget class="GCodeGraphics" name="Graphics">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>0</y>
-       <width>400</width>
-       <height>231</height>
-      </rect>
      </property>
     </widget>
     <widget class="StateLabel" name="StateLabel_2">
@@ -1795,8 +1784,7 @@ file</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2239,8 +2227,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2259,8 +2246,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2488,8 +2474,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2508,8 +2493,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2528,8 +2512,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2567,8 +2550,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2580,9 +2562,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="geometry">
       <rect>
        <x>60</x>
-       <y>-4</y>
-       <width>271</width>
-       <height>41</height>
+       <y>3</y>
+       <width>279</width>
+       <height>35</height>
       </rect>
      </property>
      <property name="font">
@@ -2648,8 +2630,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame{
-border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -2739,6 +2720,17 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="GCodeGraphics" name="Graphics">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>10</y>
+      <width>400</width>
+      <height>231</height>
+     </rect>
+    </property>
+   </widget>
+   <zorder>Graphics</zorder>
    <zorder>lcncdialog</zorder>
    <zorder>frame_auto_5</zorder>
    <zorder>state_label_4</zorder>

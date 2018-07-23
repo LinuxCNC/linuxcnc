@@ -1,5 +1,5 @@
-
 #MainWindow {background: black; }
+
 QStatusBar {
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
@@ -108,6 +108,15 @@ min-height: 30px;
 }
 
 QProgressBar {
+    border: 1px solid #76797C;
+    text-align: center;
+    color:black;
+}
+
+    QProgressBar::chunk {
+        background-color:green ;
+}
+QProgressBar {
     border: 1px solid gray;
 text-align: top;
 color:yellow;
@@ -116,7 +125,7 @@ border-top-right-radius: 7px;
 border-top-left-radius: 7px;
 border-bottom-right-radius: 7px;
 border-bottom-left-radius: 7px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
 
 
 }
@@ -131,79 +140,35 @@ border-bottom-right-radius: 7px;
 border-bottom-left-radius: 7px;
 border: 1px solid black;
 }
+
 QToolButton {
 color: #333;
 border: 2px solid #555;
 border-radius: 11px;
-padding: px;
+padding: 5px;
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
 radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 30px;
+min-width: 25px;
 }
 
-#frame_auto { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+#frame { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #141529, stop: 1 #0000ff);
  }
 
-#frame_man { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+#frame_man,#frame_mdi,#frame_auto { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #141529, stop: 1 #0000ff);
  }
 
-#frame {
+#frame_auto_2,#frame_auto_3 { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
+ }
+
+#frame_auto_4, #frame_auto_5, #frame_auto_9, #frame_auto_10{ 
 border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
+ }
 
-#frame_mdi {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_2 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_3 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_4 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_5 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_6 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_7 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_8 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_9 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-#frame_auto_10 {
-border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529)
-}
-
-
-
+#frame_auto_6, #frame_auto_7, #frame_auto_8 { border: 3px solid gray;border-radius: 15px;
+background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #141529, stop: 1 #0000ff);
+ }
