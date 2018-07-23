@@ -27,6 +27,10 @@ struct joint {
 
     hal_float_t *curr_pos;	// current position
     hal_float_t *curr_vel;	// current velocity
+
+	hal_float_t *home_pos;	// "home" position : will be used as curr_pos when
+	hal_bit_t *home_set;	// home_set is high. Thus enabling homing
+
     hal_bit_t * active;		// non-zero if motion in progress
     hal_bit_t *enable;		// if zero, motion stops ASAP
 };
@@ -46,11 +50,22 @@ static int update_joint(struct joint *joint,
                         const double pos_cmd,
                         const double max_vel,
                         const double max_acc,
+                        const double home_pos,
+                        const bool   home_set,
                         const double period)
 {
     double max_dv, tiny_dp, pos_err, vel_req;
 
     bool active = 0;
+
+    // If home_set is high, pos_cmd will be set to home_pos
+    // thus when enabling doing no planning, but enabling homing the output
+    // curr-pos value to a new value.
+    // n.b. when home_pos and pos-cmd are equal, there will be no activity
+    // because there is no position error
+    if (home_set) {
+        *(joint->curr_pos) = *(joint->home_pos);
+    }
 
     /* compute max change in velocity per servo period */
     max_dv = max_acc * period;
@@ -164,6 +179,8 @@ static int update(void *arg, const hal_funct_args_t *fa)
                                *(jp->pos_cmd),
                                *(jp->max_vel),
                                *(jp->max_acc),
+                               *(jp->home_pos),
+                               *(jp->home_set),
                                period);
     }
     *(ip->joints_active) = active;
@@ -212,7 +229,9 @@ static int instantiate_jplan(const int argc, const char **argv)
         if (hal_pin_bit_newf(HAL_OUT, &(jp->active), inst_id, "%s.%d.active", name, i) ||
             hal_pin_bit_newf(HAL_IN, &(jp->enable), inst_id, "%s.%d.enable", name, i)  ||
             hal_pin_float_newf(HAL_OUT, &(jp->curr_pos), inst_id, "%s.%d.curr-pos", name, i)  ||
-            hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i))
+            hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i) ||
+            hal_pin_float_newf(HAL_IN, &(jp->home_pos), inst_id, "%s.%d.home-pos", name, i)   ||
+		    hal_pin_bit_newf(HAL_IN, &(jp->home_set), inst_id, "%s.%d.home-set", name, i))
             return -1;
 
         hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IN;
