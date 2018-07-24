@@ -54,6 +54,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._color = QColor(0, 0, 0.75, 150)
         self.show_overlay = False  # no DRO or DRO overlay
         self._reload_filename = None
+        self.use_gradient_background = False
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
