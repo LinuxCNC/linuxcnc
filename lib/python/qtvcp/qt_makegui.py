@@ -127,7 +127,7 @@ class MyWindow(QtWidgets.QMainWindow):
                 themes.append('  * green<{}>'.format(i))
             else:
                 themes.append('  * {}'.format(i))
-            log.info('\n'.join(themes))
+        log.info('\n'.join(themes))
 
 
     def load_extension(self,handlerpath,paths=None):
