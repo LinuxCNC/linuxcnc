@@ -1579,12 +1579,19 @@ int emcPositionLoad() {
     if(!f) return 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	int r = fscanf(f, "%lf", &positions[i]);
-	if(r != 1) { fclose(f); return -1; }
+	if(r != 1) {
+            fclose(f);
+            rcs_print("%s: failed to load joint %d position from %s, ignoring\n", __FUNCTION__, i, posfile);
+            return -1;
+        }
     }
     fclose(f);
     int result = 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
-	if(emcJointSetMotorOffset(i, -positions[i]) != 0) result = -1;;
+	if(emcJointSetMotorOffset(i, -positions[i]) != 0) {
+            rcs_print("%s: failed to set joint %d position (%.6f) from %s, ignoring\n", __FUNCTION__, i, positions[i], posfile);
+            result = -1;
+        }
     }
     return result;
 }
