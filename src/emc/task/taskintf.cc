@@ -1568,6 +1568,29 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     return 0;
 }
 
+
+int setup_inihal(void) {
+    // Must be called after emcTrajInit(), which loads the number of
+    // joints from the ini file.
+    if (emcmotion_initialized != 1) {
+        rcs_print_error("%s: emcMotionInit() has not completed, can't setup inihal\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (ini_hal_init(TrajConfig.Joints)) {
+        rcs_print_error("%s: ini_hal_init(%d) failed\n", __FUNCTION__, TrajConfig.Joints);
+        return -1;
+    }
+
+    if (ini_hal_init_pins(TrajConfig.Joints)) {
+        rcs_print_error("%s: ini_hal_init_pins(%d) failed\n", __FUNCTION__, TrajConfig.Joints);
+        return -1;
+    }
+
+    return 0;
+}
+
+
 int emcPositionLoad() {
     double positions[EMCMOT_MAX_JOINTS];
     IniFile ini;
@@ -1624,44 +1647,44 @@ int emcPositionSave() {
 }
 
 // EMC_MOTION functions
+
+// This function gets called by Task from emctask_startup().
+// emctask_startup() calls this function in a loop, retrying it until
+// it succeeds or until the retries time out.
 int emcMotionInit()
 {
-    int r1, r2, r3, r4;
+    int r;
     int joint, axis;
     
-    r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
+    r = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
     // it also determines the number of existing joints, and axes
+    if (r != 0) {
+        rcs_print("%s: emcTrajInit failed\n", __FUNCTION__);
+        return -1;
+    }
 
-    r2 = 0;
     for (joint = 0; joint < TrajConfig.Joints; joint++) {
 	if (0 != emcJointInit(joint)) {
-	    r2 = -1;		// at least one is busted
+            rcs_print("%s: emcJointInit(%d) failed\n", __FUNCTION__, joint);
+            return -1;
 	}
     }
 
-    r3 = 0;
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
         if (TrajConfig.AxisMask & (1<<axis)) {
 	    if (0 != emcAxisInit(axis)) {
-	        r3 = -1;		// at least one is busted
+                rcs_print("%s: emcAxisInit(%d) failed\n", __FUNCTION__, axis);
+                return -1;
 	    }
 	}
     }
 
-    r4 = emcPositionLoad();
+    // Ignore errors from emcPositionLoad(), because what are you going to do?
+    (void)emcPositionLoad();
 
-    if (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) {
-	emcmotion_initialized = 1;
-        if (ini_hal_init(TrajConfig.Joints)) {
-	    rcs_print("emcMotionInit: ini_hal_init fail, continuing\n");
-        }
+    emcmotion_initialized = 1;
 
-        if (ini_hal_init_pins(TrajConfig.Joints)) {
-	    rcs_print("emcMotionInit: ini_hal_init_pins fail, continuing\n");
-        }
-    }
-
-    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
+    return 0;
 }
 
 int emcMotionHalt()
