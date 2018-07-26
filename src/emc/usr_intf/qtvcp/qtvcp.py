@@ -198,12 +198,12 @@ class QTVCP:
 
             # if no handler file specified, use stock test one
             if not opts.usermod:
-                log.info('No handler file specified - using {}'.format(PATH.HANDLER))
+                log.info('No handler file specified on command line')
                 opts.usermod = PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
-                log.info('No HAL component base name specified - using: {}'.format(PATH.BASENAME))
+                log.info('No HAL component base name specified on command line using: {}'.format(PATH.BASENAME))
                 opts.component = PATH.BASENAME
 
         #################
@@ -356,10 +356,12 @@ class QTVCP:
             if res: raise SystemExit, res
 
     # This can be called normally or by control c
-    # call any widget cleanup functions
+    # call optional handlerfile cleanup function
+    # call optional widget cleanup functions
     # shut down STATUS so no error is called
     # close out HAL pins
     def shutdown(self,signum=None,stack_frame=None):
+        self.panel.window.shutdown()
         self.panel.shutdown()
         STATUS.shutdown()
         self.halcomp.exit()

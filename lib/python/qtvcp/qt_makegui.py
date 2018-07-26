@@ -89,9 +89,9 @@ class MyWindow(QtWidgets.QMainWindow):
     def keyReleaseTrap(self, e):
         return False
 
-    def closeEvent(self, event):
+    def shutdown(self):
         if self.has_closing_handler:
-            log.debug('Calling handler file Closing_cleanup__ function : {}'.format(idname))
+            log.debug('Calling handler file Closing_cleanup__ function.')
             self.handler_instance.closing_cleanup__()
 
     def instance(self):
