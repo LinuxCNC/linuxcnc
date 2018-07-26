@@ -51,32 +51,76 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           ]
 
 
+# BASE is the absolute path to linuxcnc base
+# LIBDIR is the path to qtvcp python files
+# DATADIR is where the standarad UI files are
+# IMAGEDIR is for icons
 class Paths():
-    def __init__(self,filename):
+    def __init__(self,filename, isscreen = True):
+        self.WORKINGDIR = os.getcwd()
+        self.IS_SCREEN = isscreen
+        if isscreen:
+            # path to the configuration the user requested
+            self.CONFIGPATH = os.environ['CONFIG_DIR']
+            sys.path.insert(0, self.CONFIGPATH)
 
+        # Linuxcnc project base directory
+        self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+        # PyQt's .ui file's basename 
         self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
         log.debug('BASENAME {}'.format(self.BASENAME))
-        self.VCP_UI = '%s.ui'% os.path.splitext(filename)[0]
-        self.VCP_HANDLER = '%s_handler.py'% self.BASENAME
-        if not os.path.exists(self.VCP_HANDLER):
-            self.VCP_HANDLER = None
+        # python library directory
+        self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
+        sys.path.insert(0, self.LIBDIR)
+        self.IMAGEDIR = os.path.join(self.BASEDIR, "share","qtvcp-screen","images")
+        self.SKINDIR = os.path.join(self.BASEDIR, "share","qtvcp-screen","skins")
+        self.PANELDIR = os.path.join(self.BASEDIR, "share","qtvcp-screen","panels")
+
+        # look for custom handler files:
+        handler_fn = "{}_handler.py".format(self.BASENAME)
+        if self.IS_SCREEN:
+            local_handler_path = os.path.join(self.CONFIGPATH, handler_fn)
+            default_handler_path = os.path.join(self.SKINDIR, self.BASENAME, handler_fn)
+        else:
+            local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
+            default_handler_path = os.path.join(self.PANELDIR, self.BASENAME, handler_fn)
+        log.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
+
+        if os.path.exists(local_handler_path):
+            self.HANDLER = local_handler_path
+            log.info("Using specified handler file path: yellow<{}>".format(self.HANDLER))
+        else:
+            log.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
+            if os.path.exists(default_handler_path):
+                self.HANDLER = default_handler_path
+                log.info("Using default handler file path: yellow<{}>".format(self.HANDLER))
+            else:
+                self.HANDLER = None
+                log.info("No handler file found")
+
+        # look for custom ui file
+        if self.IS_SCREEN:
+            localui = os.path.join(self.CONFIGPATH,"%s.ui"% self.BASENAME)
+            defaultui = os.path.join(self.SKINDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
+        else:
+            localui = os.path.join(self.WORKINGDIR, "%s.ui"% self.BASENAME)
+            defaultui = os.path.join(self.PANELDIR, self.BASENAME, "%s.ui"% self.BASENAME)
+        log.debug("Checking for .ui in: yellow<{}>".format(localui))
+        if os.path.exists(localui):
+            log.info("Using specified ui file from yellow<{}>".format(localui))
+            self.XML = localui
+        else:
+            log.debug("Checking for .ui in: yellow<{}>".format(defaultui))
+            if os.path.exists(defaultui):
+                log.info("Using DEFAULT ui file from yellow<{}>".format(defaultui))
+                self.XML = defaultui
+            else:
+                # error
+                self.XML = None
+                log.critical("No UI file found")
+                sys.exit(0)
 
     def add_screen_paths(self):
-        # BASE is the absolute path to linuxcnc base
-        # libdir is the path to qtvcp python files
-        # DATADIR is where the standarad UI files are
-        # IMAGEDIR is for icons
-        self.BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-        self.libdir = os.path.join(self.BASE, "lib", "python")
-        sys.path.insert(0, self.libdir)
-        self.IMAGEDIR = os.path.join(self.BASE, "share","qtvcp-screen","images")
-        self.SKINDIR = os.path.join(self.BASE, "share","qtvcp-screen","skins")
-        #self.themedir = "/usr/share/themes"
-        self.userthemedir = os.path.join(os.path.expanduser("~"), ".themes")
-        # path to the configuration the user requested
-        self.CONFIGPATH = os.environ['CONFIG_DIR']
-        sys.path.insert(0, self.CONFIGPATH)
-
         # check for a local translation folder
         locallocale = os.path.join(self.CONFIGPATH,"locale")
         if os.path.exists(locallocale):
@@ -90,44 +134,8 @@ class Paths():
                 self.DOMAIN = self.BASENAME
                 log.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
             else:
-                self.LOCALEDIR = os.path.join(self.BASE, "share", "locale")
+                self.LOCALEDIR = os.path.join(self.BASEDIR, "share", "locale")
                 self.DOMAIN = "linuxcnc"
-        # check for local XML file
-        # look in config folder:
-        localui = os.path.join(self.CONFIGPATH,"%s.ui"% self.BASENAME)
-        log.debug("Checking for .ui in: yellow<{}>".format(localui))
-        if os.path.exists(localui):
-            log.info("Using CUSTOM ui file from yellow<{}>".format(localui))
-            self.XML = localui
-        else:
-            # look in stock skin folder
-            localui = os.path.join(self.SKINDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
-            log.debug("Checking for .ui in: yellow<{}>".format(localui))
-            if os.path.exists(localui):
-                log.info("Using SKIN ui file from yellow<{}>".format(localui))
-                self.XML = localui
-            else:
-                # error
-                self.XML = None
-                log.error("No UI file found")
-                sys.exit(0)
-
-        # look for custom handler files:
-        handler_fn = "{}_handler.py".format(self.BASENAME)
-        local_handler_path = os.path.join(self.CONFIGPATH, handler_fn)
-        skin_handler_path = os.path.join(self.SKINDIR, self.BASENAME, handler_fn)
-        log.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
-        log.debug("Checking for handler file in: yellow<{}>".format(skin_handler_path))
-        if os.path.exists(local_handler_path):
-            self.HANDLER = local_handler_path
-            log.info("Local handler file path: yellow<{}>".format(self.HANDLER))
-        elif os.path.exists(skin_handler_path):
-            self.HANDLER = skin_handler_path
-            log.debug("Skin handler file path: yellow<{}>".format(self.HANDLER))
-        else:
-            self.HANDLER = None
-            log.critical("No handler file found")
-            sys.exit(0)
 
 class QTVCP: 
     def __init__(self):
@@ -166,13 +174,13 @@ class QTVCP:
             sys.exit()
 
         # set paths using basename
-        PATH = Paths(basepath)
+        PATH = Paths(basepath, bool(INIPATH))
 
         #################
         # Screen specific
         #################
         if INIPATH:
-            log.debug('Linuxcnc Main Screen')
+            log.debug('Building A Linuxcnc Main Screen')
             import linuxcnc
             # internationalization and localization
             import locale, gettext
@@ -190,25 +198,28 @@ class QTVCP:
 
             # if no handler file specified, use stock test one
             if not opts.usermod:
+                log.info('No handler file specified - using {}'.format(PATH.HANDLER))
                 opts.usermod = PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
+                log.info('No HAL component base name specified - using: {}'.format(PATH.BASENAME))
                 opts.component = PATH.BASENAME
-            # find screen xml file
-            xmlpath = PATH.XML
 
         #################
         # VCP specific
         #################
         else:
-            log.debug('VCP screen')
-            xmlpath = PATH.VCP_UI
-            # If no handler file was specified, check for one using basename
+            log.debug('Building A VCP Panel')
+            # if no handler file specified, use stock test one
             if not opts.usermod:
-                if PATH.VCP_HANDLER:
-                    log.debug('found VCP handler')
-                    opts.usermod = PATH.VCP_HANDLER
+                log.info('No handler file specified - using {}'.format(PATH.HANDLER))
+                opts.usermod = PATH.HANDLER
+
+            # specify the HAL component name if missing
+            if opts.component is None:
+                log.info('No HAL component base name specified - using: {}'.format(PATH.BASENAME))
+                opts.component = PATH.BASENAME
 
         ##############
         # Build ui
@@ -227,12 +238,12 @@ class QTVCP:
 
         # initialize the window
         self.app = QtWidgets.QApplication(sys.argv)
-        window = qt_makegui.MyWindow(xmlpath,self.halcomp)
+        window = qt_makegui.MyWindow(self.halcomp, PATH)
  
         # load optional user handler file
         if opts.usermod:
             log.debug('Loading the handler file')
-            window.load_extension(opts.usermod,PATH)
+            window.load_extension(opts.usermod)
             # add filter to catch keyboard events
             log.debug('Adding the key events filter')
             myFilter = qt_makegui.MyEventFilter(window)
@@ -242,7 +253,7 @@ class QTVCP:
         window.instance()
 
         # make QT widget HAL pins
-        self.panel = qt_makepins.QTPanel(self.halcomp,xmlpath,window,opts.debug,PATH)
+        self.panel = qt_makepins.QTPanel(self.halcomp, PATH, window, opts.debug)
 
         # call handler file's initialized function
         if opts.usermod:
@@ -308,7 +319,7 @@ class QTVCP:
         if INIPATH:
             title = 'QTvcp-Screen-%s'% opts.component
         else:
-            title = 'QTvcp-%s'% opts.component
+            title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
 
         log.debug('Show window')

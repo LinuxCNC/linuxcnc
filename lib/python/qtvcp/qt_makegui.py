@@ -67,13 +67,15 @@ class MyEventFilter(QtCore.QObject):
         return super(MyEventFilter,self).eventFilter(receiver, event)
 
 class MyWindow(QtWidgets.QMainWindow):
-    def __init__(self,filename,halcomp):
+    def __init__(self, halcomp, path):
         super(MyWindow, self).__init__()
 
-        self.filename = filename
+        self.filename = path.XML
         self.halcomp = halcomp
         self.has_closing_handler = None
         self.setFocus(True)
+        self.PATHS = path
+        self.PREFS_ = None
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):
@@ -89,6 +91,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         if self.has_closing_handler:
+            log.debug('Calling handler file Closing_cleanup__ function : {}'.format(idname))
             self.handler_instance.closing_cleanup__()
 
     def instance(self):
@@ -99,6 +102,12 @@ class MyWindow(QtWidgets.QMainWindow):
             log.debug('QTVCP Widget: {}'.format(widget))
 
     def apply_styles(self, fname = None):
+        if self.PATHS.IS_SCREEN:
+            DIR = self.PATHS.SKINDIR
+            BNAME = self.PATHS.BASENAME
+        else:
+            DIR =self.PATHS.PANELDIR
+            BNAME = self.PATHS.BASENAME
         # apply one word system theme
         if fname in (QtWidgets.QStyleFactory.keys()):
             QtWidgets.qApp.setStyle(fname)
@@ -106,39 +115,40 @@ class MyWindow(QtWidgets.QMainWindow):
         
         # apply default qss file or specified file
         if fname is None:
-            fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,self._paths.BASENAME+'.qss')
+            qssname = os.path.join(DIR, BNAME, BNAME+'.qss')
         elif not os.path.isfile(fname):
             temp = os.path.join(os.path.expanduser(fname))
-            fname = os.path.join(self._paths.SKINDIR, self._paths.BASENAME,fname+'.qss')
+            qssname = os.path.join(DIR, BNAME,fname+'.qss')
             if not os.path.isfile(fname):
-                fname = temp
+                qssname = temp
+        else:
+            qssname = fname
         try:
-            qss_file = open(fname).read()
+            qss_file = open(qssname).read()
             self.setStyleSheet(qss_file)
             return
         except:
-            log.error('QSS Filepath Error: {}'.format(fname))
-        # warnings
-        log.warning("{} theme not available".format(fname))
-        current_theme = QtWidgets.qApp.style().objectName()
-        themes=['\nQTvcp Available system themes:']
-        for i in (QtWidgets.QStyleFactory.keys()):
-            if i == current_theme:
-                themes.append('  * green<{}>'.format(i))
-            else:
-                themes.append('  * {}'.format(i))
-        log.info('\n'.join(themes))
+            if fname:
+                log.error('QSS Filepath Error: {}'.format(qssname))
+                # warnings
+                log.warning("{} theme not available".format(fname))
+                current_theme = QtWidgets.qApp.style().objectName()
+                themes=['\nQTvcp Available system themes:']
+                for i in (QtWidgets.QStyleFactory.keys()):
+                    if i == current_theme:
+                        themes.append('  * green<{}>'.format(i))
+                    else:
+                        themes.append('  * {}'.format(i))
+                log.info('\n'.join(themes))
 
-
-    def load_extension(self,handlerpath,paths=None):
-        self._paths = paths
-        methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath],self.halcomp,self,paths)
+    def load_extension(self,handlerpath):
+        methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath], self.halcomp,self)
         for i in methods:
             self[i] = methods[i]
         # See if the handler file has a closing function to call first
         self.has_closing_handler = 'closing_cleanup__' in dir(self.handler_instance)
 
-    def _load_handlers(self,usermod,halcomp,widgets,paths):
+    def _load_handlers(self,usermod,halcomp,widgets):
         hdl_func = 'get_handlers'
         mod = None
         object = None
@@ -173,7 +183,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
                 if h and callable(h):
                     log.debug("module '{}' : '{}' function found".format(mod.__name__,hdl_func))
-                    objlist = h(halcomp,widgets,paths) # this sets the handler class signature
+                    objlist = h(halcomp,widgets,self.PATHS) # this sets the handler class signature
                 else:
                     # the module has no get_handlers() callable.
                     # in this case we permit any callable except class Objects in the module to register as handler
