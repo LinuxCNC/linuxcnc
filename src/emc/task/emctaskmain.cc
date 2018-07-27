@@ -2977,6 +2977,11 @@ static int emctask_startup()
 	return -1;
     }
 
+    if (setup_inihal() != 0) {
+	rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
+	return -1;
+    }
+
     end = RETRY_TIME;
     good = 0;
     do {
