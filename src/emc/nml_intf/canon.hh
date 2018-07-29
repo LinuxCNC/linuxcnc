@@ -780,31 +780,17 @@ extern double GET_EXTERNAL_POSITION_V();
 // returns the current w-axis position
 extern double GET_EXTERNAL_POSITION_W();
 
-// Returns the machine A-axis position at the last probe trip.
+
+// Returns the position of the specified axis at the last probe trip,
+// in the current work coordinate system.
 extern double GET_EXTERNAL_PROBE_POSITION_A();
-
-// Returns the machine B-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_B();
-
-// Returns the machine C-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_C();
-
-// Returns the machine X-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_X();
-
-// Returns the machine Y-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_Y();
-
-// Returns the machine Z-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_Z();
-
-// Returns the machine U-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_U();
-
-// Returns the machine V-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_V();
-
-// Returns the machine W-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_W();
 
 // Returns the value for any analog non-contact probing.
