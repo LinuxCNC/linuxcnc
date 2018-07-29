@@ -203,7 +203,7 @@ FUNCTION(_){
     case 'E': // index + position, both edges.
         p = current_position;
         if (homed){
-            if ( !old_index == sense(1) ){
+            if ( old_index != sense(1) ){
                 if (motor_fwd){
                     p += 1;
                     if (p > inst_pockets) p -= inst_pockets;
@@ -307,6 +307,7 @@ FUNCTION(_){
             motor_rev = hold_dc;
             active = 0;
             if (enable) ready = 1;
+            state = 4;
             break;
         }
     case 3:
