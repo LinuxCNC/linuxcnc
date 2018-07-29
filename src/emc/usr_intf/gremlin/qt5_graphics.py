@@ -404,7 +404,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             else: self.redraw_ortho()
 
         except Exception as e:
-            print'error',e
+            #print'error',e
             return
             #genList = GL.glGenLists(1)
             #self.draw_small_origin(genList)
@@ -453,11 +453,15 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
-        GLU.gluPerspective(self.fovy, float(w)/float(h), self.near, self.far + self.distance)
+        GLU.gluPerspective(self.fovy,               # The vertical Field of View, in radians: the amount of "zoom".
+                                                    # Think "camera lens". Usually between 90 (extra wide) and 30 (quite zoomed in)
+                        float(w)/float(h),          # Aspect Ratio. Notice that 4/3 == 800/600 screen resolution
+                        self.near,                  # near clipping plane. Keep as big as possible, or you'll get precision issues.
+                        self.far + self.distance)   # Far clipping plane. Keep as little as possible.
 
-        GLU.gluLookAt(0, 0, self.distance,
-            0, 0, 0,
-            0., 1., 0.)
+        GLU.gluLookAt(0, 0, self.distance,  # the position of your camera, in world space
+            0, 0, 0,                        # where you want to look at, in world space
+            0., 1., 0.)                     # probably glm::vec3(0,1,0), but (0,-1,0) would make you looking upside-down
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glPushMatrix()
         try:
