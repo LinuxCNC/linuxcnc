@@ -23,6 +23,7 @@
 #include "rs274ngc_interp.hh"
 #include "interp_return.hh"
 #include "canon.hh"
+#include "canon_position.hh"
 #include "config.h"		// LINELEN
 
 int _task = 0; // control preview behaviour when remapping
@@ -496,6 +497,8 @@ void RIGID_TAP(int line_number,
     Py_XDECREF(result);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
+// FIXME: this is bogus
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION_ABS() { CANON_POSITION pos; return pos; }
 double GET_EXTERNAL_PROBE_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_PROBE_POSITION_Y() { return _pos_y; }
 double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
