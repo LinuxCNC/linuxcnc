@@ -2627,6 +2627,13 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     return position;
 }
 
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION_ABS()
+{
+    flush_segments();
+    CANON_POSITION position(emcStatus->motion.traj.probedPosition);
+    return position;
+}
+
 CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
 {
     CANON_POSITION position;

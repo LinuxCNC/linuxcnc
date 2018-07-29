@@ -920,6 +920,13 @@ double GET_EXTERNAL_POSITION_W()
     return 0.;
 }
 
+// FIXME: this is totally bogus
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION_ABS()
+{
+  CANON_POSITION pos;
+  return pos;
+}
+
 double GET_EXTERNAL_PROBE_POSITION_U()
 {
     return 0.;

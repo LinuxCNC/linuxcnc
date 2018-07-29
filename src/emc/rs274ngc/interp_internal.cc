@@ -435,7 +435,21 @@ Called by:  Interp::read
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
   double a, b, c;
+  CANON_POSITION probe_pos_abs;
+
   refresh_actual_position(settings);
+
+  probe_pos_abs = GET_EXTERNAL_PROBE_POSITION_ABS();
+  settings->parameters[5081] = probe_pos_abs.x;
+  settings->parameters[5082] = probe_pos_abs.y;
+  settings->parameters[5083] = probe_pos_abs.z;
+  settings->parameters[5084] = probe_pos_abs.a;
+  settings->parameters[5085] = probe_pos_abs.b;
+  settings->parameters[5086] = probe_pos_abs.c;
+  settings->parameters[5087] = probe_pos_abs.u;
+  settings->parameters[5088] = probe_pos_abs.v;
+  settings->parameters[5089] = probe_pos_abs.w;
+
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();

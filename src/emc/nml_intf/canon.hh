@@ -16,6 +16,7 @@
 #include <stdio.h>		// FILE
 #include <vector>
 
+#include "canon_position.hh"
 #include "emcpos.h"
 #include "emctool.h"
 
@@ -780,6 +781,9 @@ extern double GET_EXTERNAL_POSITION_V();
 // returns the current w-axis position
 extern double GET_EXTERNAL_POSITION_W();
 
+// Returns the position at the last probe trip, in absolute (G53)
+// coordinates.
+CANON_POSITION GET_EXTERNAL_PROBE_POSITION_ABS();
 
 // Returns the position of the specified axis at the last probe trip,
 // in the current work coordinate system.
