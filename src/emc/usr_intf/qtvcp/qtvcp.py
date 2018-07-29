@@ -50,7 +50,6 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTs to Python modules')
           ]
 
-
 # BASE is the absolute path to linuxcnc base
 # LIBDIR is the path to qtvcp python files
 # DATADIR is where the standarad UI files are
@@ -139,8 +138,8 @@ class Paths():
 
 class QTVCP: 
     def __init__(self):
+        sys.excepthook = self.excepthook
         INIPATH = None
-
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
         parser.disable_interspersed_args()
@@ -366,6 +365,14 @@ class QTVCP:
         STATUS.shutdown()
         self.halcomp.exit()
         sys.exit(0)
+
+        # Throws up a dialog with debug info when an error is encountered 
+    def excepthook(self, exc_type, exc_obj, exc_tb):
+        lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
+        message = ("Qtvcp encountered an error.  The following "
+                    + "information may be useful in troubleshooting:\n\n"
+                    + "".join(lines))
+        d = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
 
 # starts Qtvcp
 if __name__ == "__main__":
