@@ -1093,9 +1093,9 @@ when the programmed point is reached,
 or when the requested change in the probe input takes place,
 whichever occurs first.
 
-After successful probing, parameters 5061 to 5069 will be set to the
-coordinates of X, Y, Z, A, B, C, U, V, W of the location of the controlled point
-at the time the probe changed state.
+After successful probing, parameters #5061 to #5069 will be set to the
+X, Y, Z, A, B, C, U, V, W coordinates of the location of the controlled point
+at the time the probe changed state (in the current work coordinate system).
 After unsuccessful probing, they are set to the coordinates of the programmed point.
 Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed.
 If the probing operation failed, G38.2 and G38.4 will signal an error
