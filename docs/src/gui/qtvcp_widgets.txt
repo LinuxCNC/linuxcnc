@@ -148,14 +148,29 @@ This will be available to all widgets through STATUS. +
 
 It is based on pyQT's combobox
 
+=== screenOption widget
+
+This widget doesn't add anything visually to a screen but sets up important +
+options. +
+
+.These include: 
+* monitoring the linuxcnc error channel.
+* Hooking into the desktop notification bubbles for error and messages
+* catching the close event to pop up a 'are you sure' prompt
+* playing sounds
+* user defined pop up message dialogs
+* setting up a preference file
+
+
 === Slider Widget
 
 This widget allow the user to adjust linuxcnc setting via a slide. +
-The widget can adjust: +
-jog rate +
-Feed rate +
-spindle override rate +
-rapid override rate +
+.The widget can adjust:
+* Jog rate
++ Angular jog rate
+* Feed rate
+* spindle override rate
+* Rapid override rate
 
 It is based on pyQT's QSlider
 
@@ -165,6 +180,20 @@ This widget gives status on linuxcnc's state. +
 
 It is based on the LED widget 
 
+=== StatusAdjustmentBar
+
+This widget allows setting values using buttons while displaying a bar. +
+It also has an optional hi/low toggle button that can be held down to set the +
+levels. 
+.The widget can adjust:
+* Jog rate
+* angular jog rate
+* Feed rate
+* Spindle override rate
+* Rapid override rate
+
+It is based on pyQT's QProgressBar
+
 ===  Macro Widget
 
 This Widget allows a user to select and adjust special macro programs for 
@@ -172,7 +201,7 @@ doing small jobs. +
 It uses svg images for visual representation of the macro and for an icon. +
 The macros are Oword subroutine with special comments to work with the launcher. +
 
-== MDI line Widget
+=== MDI line Widget
 
 More todo +
 There are Embedded commands available from this Widget. +
@@ -190,19 +219,7 @@ This widget allows one to modify User System origin offsets directly
 
 It is based on pyQT's
 
-===  Screen options Widget
-
-This widget allow common functionality to be selected and added to a screen. +
-These include: +
-Catching closing requests to pop up a confirm dialog. +
-Hooking into desktop notify system. +
-Set up for playing sounds +
-Set up user message dialogs. +
-Set up the use of a preference file. +
-
-It is based on pyQT's
-
-== State Enable Gridlayout Widgets
+==+ State Enable Gridlayout Widgets
 
 This is a container that other widgets can be placed in. +
 It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
