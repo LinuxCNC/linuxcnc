@@ -274,11 +274,12 @@ example '##2'  means the value of the parameter whose index is the
 * '31-5000' - G code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
 
-* '5061-5069' - Coordinates of a "G38.2" Probe result of
-  X, Y, Z, A, B, C, U, V & W. Volatile.
+* '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
+  Z, A, B, C, U, V & W).  Coordinates are in the coordinate system in
+  which the G38 took place.  Volatile.
 
-* '5070' - "G38" probe result - 1 if success, 0 if probe failed to close.
-  Used with G38.3 and G38.5. Volatile.
+* '5070' - <<gcode:g38,G38>> probe result: 1 if success, 0 if probe
+  failed to close.  Used with G38.3 and G38.5. Volatile.
 
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 
