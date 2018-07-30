@@ -125,7 +125,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             MSG.message_option('use_focus_overlay', self.usrMsg_use_FocusOverlay)
         # If there is a widget named statusBar give a reference to desktop notify
         try:
-            NOTE.statusbar = self.QTVCP_INSTANCE_.statusBar
+            NOTE.statusbar = self.QTVCP_INSTANCE_.statusbar
         except Exception as e:
             LOG.info('Exception adding status to notify:', exc_info=e)
         if self.desktop_notify:

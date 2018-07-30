@@ -434,7 +434,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>505</x>
+       <x>485</x>
        <y>325</y>
        <width>700</width>
        <height>400</height>
@@ -2777,7 +2777,7 @@ file</string>
    <zorder>state_label_10</zorder>
    <zorder>focusoverlay</zorder>
   </widget>
-  <widget class="QStatusBar" name="statusBar">
+  <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
     <bool>true</bool>
    </property>
