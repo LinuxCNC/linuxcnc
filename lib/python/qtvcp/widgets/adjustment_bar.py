@@ -16,7 +16,7 @@
 
 import os
 
-from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout,QLabel, QMenu, QAction
+from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout,QLabel, QMenu, QAction, QSizePolicy
 from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QPainter, QFont, QIcon
 
@@ -80,6 +80,7 @@ class HAdjustmentBar(QWidget):
         self.showToggleButton = True
         self.showSettingMenu = True
         self.bar = LabeledBar()
+        #self.bar.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         # black magic class patching
         # so calling these functions actually calls the self.bar's functions.
         self.minimum = self.bar.minimum
@@ -87,6 +88,7 @@ class HAdjustmentBar(QWidget):
 
     def buildWidget(self):
         layout = QHBoxLayout(self)
+        layout.setContentsMargins(0,0,0,0)
         SettingMenu = QMenu()
         exitButton = QAction(QIcon('exit24.png'), 'Set As High', self)
         exitButton.triggered.connect(self.setHigh)
