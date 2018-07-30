@@ -42,9 +42,8 @@ class HandlerClass:
         self.stat = linuxcnc.stat()
         self.cmnd = linuxcnc.command()
         self.error = linuxcnc.error_channel()
-        self.PATH = paths.CONFIGPATH
+        self.PATHS = paths
         self.IMAGE_PATH = paths.IMAGEDIR
-        self.STYLE = Styles(widgets, paths)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -54,14 +53,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        # Give notify library a reference to the statusbar
-        STATUS.forced_update()
-        # set custom theme
-        self.STYLE.dark_style()
-        #self.STYLE.bright_style()
-        KEYBIND.add_call('Key_F3','on_keycall_F3')
-        KEYBIND.add_call('Key_F4','on_keycall_F4')
-        KEYBIND.add_call('Key_F5','on_keycall_F5')
+        pass
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -100,18 +92,27 @@ class HandlerClass:
     # general functions #
     #####################
 
+    # keyboard jogging from key binding calls
+    # double the rate if fast is true 
+    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        if linear:
+            distance = STATUS.get_jog_increment()
+            rate = STATUS.get_jograte()/60
+        else:
+            distance = STATUS.get_jog_increment_angular()
+            rate = STATUS.get_jograte_angular()/60
+        if state:
+            if fast:
+                rate = rate * 2
+            ACTION.JOG(joint, direction, rate, distance)
+        else:
+            ACTION.JOG(joint, 0, 0, 0)
+
     #####################
     # KEY BINDING CALLS #
     #####################
-    def on_keycall_ABORT(self,event,state,shift,cntrl):
-        if state:
-            print 'abort'
-            if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
-                self.w.close()
-            else:
-                print 'abort'
-                self.cmnd.abort()
 
+    # Machine control
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
@@ -124,49 +125,39 @@ class HandlerClass:
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
-    def on_keycall_F3(self,event,state,shift,cntrl):
+    def on_keycall_ABORT(self,event,state,shift,cntrl):
         if state:
-            self.w.originoffsetdialog.load_dialog()
-    def on_keycall_F4(self,event,state,shift,cntrl):
-        if state:
-            self.w.camviewdialog.load_dialog()
-    def on_keycall_F5(self,event,state,shift,cntrl):
-        if state:
-            self.w.macrotabdialog.load_dialog()
+            if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
+                self.w.close()
+            else:
+                self.cmnd.abort()
+
+    # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(0, 1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(0, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 0, 1, shift)
+
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(0, -1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(0, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(1, 1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(1, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(1, -1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(1, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(2, 1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(2, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if state:
-            STATUS.do_jog(2, -1, STATUS.current_jog_distance)
-        else:
-            STATUS.do_jog(2, 0, STATUS.current_jog_distance)
+        self.kb_jog(state, 2, -1, shift)
+
+    def on_keycall_APOS(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, 1, shift, False)
+
+    def on_keycall_ANEG(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, -1, shift, linear=False)
 
     ###########################
     # **** closing event **** #
@@ -187,268 +178,3 @@ class HandlerClass:
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
-
-#####################################################################
-# Styles - put them here to keep things tidy
-#####################################################################
-class Styles:
-    def __init__(self, widgets, paths):
-        self.w = widgets
-        self.PATH = paths.CONFIGPATH
-        self.IMAGE_PATH = paths.IMAGEDIR
-
-    def bright_style(self):
-        self.w.setStyleSheet('''#MainWindow {background: black; }
-QLineEdit {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-padding: 1px;
-border-style: solid;
-border: 2px solid gray;
-border-radius: 8px;
-}
-
-QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 40px;
-}
-
- QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-QPushButton:checked {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: white;
-height: 5px;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal {
-background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
-    stop: 0 #66e, stop: 1 #bbf);
-background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-    stop: 0 #bbf, stop: 1 #55f);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::add-page:horizontal {
-background: #fff;
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #eee, stop:1 #ccc);
-border: 1px solid #777;
-width: 20px;
-margin-top: -7px;
-margin-bottom: -75px;
-border-radius: 4px;
-
-}
-
-QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #fff, stop:1 #ddd);
-border: 1px solid #444;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal:disabled {
-background: #bbb;
-border-color: #999;
-}
-
-QSlider::add-page:horizontal:disabled {
-background: #eee;
-border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
-min-height: 30px;
-}
-#frame_man { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
- }
-
-''')
-
-        style ='''#frame { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
- } '''
-        try:
-            self.w.frame.setStyleSheet(style)
-        except:
-            pass
-        try:
-            style ='''QFrame { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #0000ff, stop: 1 #141529);
- } '''
-            self.w.frame_mdi.setStyleSheet(style)
-            self.w.frame_auto.setStyleSheet(style)
-            self.w.frame_auto_2.setStyleSheet(style)
-            self.w.frame_auto_3.setStyleSheet(style)
-            self.w.frame_auto_4.setStyleSheet(style)
-            self.w.frame_auto_5.setStyleSheet(style)
-            self.w.frame_auto_6.setStyleSheet(style)
-            self.w.frame_auto_7.setStyleSheet(style)
-            self.w.frame_auto_8.setStyleSheet(style)
-            self.w.frame_auto_9.setStyleSheet(style)
-            self.w.frame_auto_10.setStyleSheet(style)
-        except:
-            pass
-
-    def dark_style(self):
-        self.w.setStyleSheet('''#MainWindow {background: black; }
-QLineEdit {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-padding: 1px;
-border-style: solid;
-border: 2px solid gray;
-border-radius: 8px;
-}
-
-QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 11px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 40px;
-}
-
- QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-QPushButton:checked {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: white;
-height: 5px;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal {
-background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
-    stop: 0 #66e, stop: 1 #bbf);
-background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-    stop: 0 #bbf, stop: 1 #55f);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::add-page:horizontal {
-background: #fff;
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #eee, stop:1 #ccc);
-border: 1px solid #777;
-width: 20px;
-margin-top: -7px;
-margin-bottom: -75px;
-border-radius: 4px;
-
-}
-
-QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #fff, stop:1 #ddd);
-border: 1px solid #444;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal:disabled {
-background: #bbb;
-border-color: #999;
-}
-
-QSlider::add-page:horizontal:disabled {
-background: #eee;
-border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
-min-height: 30px;
-}
-#frame_man { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
- }
-
-''')
-
-        style ='''QFrame { border: 3px solid gray;border-radius: 15px;
-background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
- } '''
-        try:
-
-            self.w.frame.setStyleSheet(style)
-        except:
-            pass
-        try:
-            self.w.frame_mdi.setStyleSheet(style)
-            self.w.frame_auto.setStyleSheet(style)
-            self.w.frame_auto_2.setStyleSheet(style)
-            self.w.frame_auto_3.setStyleSheet(style)
-            self.w.frame_auto_4.setStyleSheet(style)
-            self.w.frame_auto_5.setStyleSheet(style)
-            self.w.frame_auto_6.setStyleSheet(style)
-            self.w.frame_auto_7.setStyleSheet(style)
-            self.w.frame_auto_8.setStyleSheet(style)
-            self.w.frame_auto_9.setStyleSheet(style)
-            self.w.frame_auto_10.setStyleSheet(style)
-        except:
-            pass
