@@ -57,6 +57,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.mcodes = False
         self.tool_diameter = False
         self.tool_comment = False
+        self.filename = False
+        self.machine_state = False
 
     def _hal_init(self):
         def _f(data):
@@ -103,6 +105,14 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
             STATUS.connect('metric-mode-changed', self._switch_units)
+        elif self.filename:
+            STATUS.connect('file-loaded', self._file_loaded)
+        elif self.machine_state:
+            STATUS.connect('state-estop', lambda w: self._machine_state('Estopped'))
+            STATUS.connect('interp-run', lambda w: self._machine_state('Running'))
+            STATUS.connect('interp-idle', lambda w: self._machine_state('Stopped'))
+            STATUS.connect('interp-paused', lambda w: self._machine_state('Paused'))
+            #STATUS.connect('interp-waiting', lambda w: self._machine_state('Waiting'))
         else:
             LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -187,6 +197,11 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         else:
             self._set_text(circ * self._actual_RPM)
 
+    def _file_loaded(self, w, name):
+        self.setText(name)
+
+    def _machine_state(self, text):
+        self.setText(text)
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -201,7 +216,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
-                'tool_comment',  'actual_surface_speed')
+                'tool_comment',  'actual_surface_speed', 'filename', 'machine_state')
 
         for i in data:
             if not i == picked:
@@ -410,6 +425,26 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     def reset_actual_surface_speed(self):
         self.actual_surface_speed = False
 
+    # filename status
+    def set_filename(self, data):
+        self.filename = data
+        if data:
+            self._toggle_properties('filename')
+    def get_filename(self):
+        return self.filename
+    def reset_filename(self):
+        self.filename = False
+
+    # machine_state status
+    def set_machine_state(self, data):
+        self.machine_state = data
+        if data:
+            self._toggle_properties('machine_state')
+    def get_machine_state(self):
+        return self.machine_state
+    def reset_machine_state(self):
+        self.machine_state = False
+
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
@@ -435,6 +470,10 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
     actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
                                                       reset_actual_surface_speed)
+    filename_status = QtCore.pyqtProperty(bool, get_filename, set_filename,
+                                                      reset_filename)
+    machine_state_status = QtCore.pyqtProperty(bool, get_machine_state, set_machine_state,
+                                                      reset_machine_state)
 
     # boilder code
     def __getitem__(self, item):
