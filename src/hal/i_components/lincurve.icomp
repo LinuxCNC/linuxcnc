@@ -57,7 +57,7 @@ FUNCTION(_)
     while (x < (x_val(i))) { i--;}
 
     f = (x - x_val(i)) / ( x_val(i+1) - x_val(i) ) ;
-    out_ = ( y_val(i) + f) * (y_val(i+1) - y_val(i) ) ;
+    out_ = y_val(i) + f * (y_val(i+1) - y_val(i) ) ;
     out_io = out_;
 
 return 0;
