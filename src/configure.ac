@@ -889,6 +889,12 @@ then
     AC_MSG_ERROR([fuser not found])
 fi
 
+AC_PATH_PROG(YAPPS, yapps, "none", $SPATH)
+if test $YAPPS = "none"
+then
+    AC_MSG_ERROR([yapps not found])
+fi
+
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
 
