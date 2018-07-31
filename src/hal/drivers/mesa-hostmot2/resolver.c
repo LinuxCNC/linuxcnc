@@ -238,7 +238,16 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
             
-            
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.joint-pos-fb",
+                           hm2->llio->name, i);
+            ret= hal_pin_float_new(name, HAL_IN,
+                                 &(hm2->resolver.instance[i].hal.pin.joint_pos_fb),
+                                 hm2->llio->comp_id);
+            if (ret < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.scale", 
                            hm2->llio->name, i);
@@ -264,6 +273,16 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                            hm2->llio->name, i);
             ret= hal_param_u32_new(name, HAL_RW,
                                      &(hm2->resolver.instance[i].hal.param.index_div),
+                                     hm2->llio->comp_id);
+            if (ret < 0) {
+                HM2_ERR("error adding param '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.use-position-file",
+                           hm2->llio->name, i);
+            ret= hal_param_bit_new(name, HAL_RW,
+                                     &(hm2->resolver.instance[i].hal.param.use_abs),
                                      hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
@@ -299,6 +318,9 @@ fail0:
 void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
     int i;
     hm2_resolver_instance_t *res;
+    double scale;
+    static int cycle_count = 0;
+    static double old_pos;
     
     if (hm2->resolver.num_instances <= 0) return;
     
@@ -316,7 +338,32 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
             HM2_ERR("resolver.%02d.velocity-scale == 0.0, bogus, setting to 1.0\n", i);
             res->hal.param.vel_scale = 1.0;
         }
+
+        scale = res->hal.param.scale;
         
+        if (res->hal.param.use_abs){ // pseudo-absolute behviour enabled but not initialised
+            double new_pos;
+            int turns;
+
+            old_pos = *res->hal.pin.joint_pos_fb;
+            if (old_pos == 0 && cycle_count++ < 5000 ) { // position.txt not updated yet. Or (small probability) position.txt = 0
+                continue; // stop and process next resolver
+            }
+
+            // find the best guess for complete turns
+            turns = floor(old_pos / scale);
+            new_pos = hm2->resolver.position_reg[i] / 0x1P32 * scale;
+            if (fabs((turns * scale + new_pos) - old_pos) > fabs(((turns + 1) * scale + new_pos) - old_pos)){
+                turns += 1;
+            } else if (fabs((turns * scale + new_pos) - old_pos) > fabs(((turns - 1) * scale + new_pos) - old_pos)){
+                turns -= 1;
+            }
+            res->offset = -((turns * scale) - old_pos) * (0x1p32 / scale);
+            res->old_reg = hm2->resolver.position_reg[i]; // prevent wrap detection at init.
+            res->accum = hm2->resolver.position_reg[i];   //necessary to allow rawcounts to still work for commutation
+            res->hal.param.use_abs = 0;                   // tag as initialised
+        }
+
         // PROCESS THE REGISTERS, SET THE PINS
         
         res->accum += (rtapi_s32)(hm2->resolver.position_reg[i] - res->old_reg );
@@ -343,15 +390,15 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         if (*res->hal.pin.reset){
             res->offset = res->accum;
         }
-        
+
         res->old_reg = hm2->resolver.position_reg[i];
         
-        *res->hal.pin.angle = hm2->resolver.position_reg[i] / 4294967296.0;
+        *res->hal.pin.angle = hm2->resolver.position_reg[i] / 0x1P32;
         *res->hal.pin.rawcounts = (res->accum >> 8);
         *res->hal.pin.count = (res->accum - res->offset) >> 8;
-        *res->hal.pin.position = (res->accum - res->offset) / 4294967296.0
+        *res->hal.pin.position = (res->accum - res->offset) / 0x1P32
                                  * res->hal.param.scale;
-        *res->hal.pin.velocity = ((hm2->resolver.velocity_reg[i] / 4294967296.0)
+        *res->hal.pin.velocity = ((hm2->resolver.velocity_reg[i] / 0x1P32)
                                   * hm2->resolver.kHz * res->hal.param.vel_scale);
         *res->hal.pin.error = *hm2->resolver.status_reg & (1 << i);
     }

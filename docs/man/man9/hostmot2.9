@@ -647,6 +647,21 @@ the bldc HAL component if the resolver was being used to commutate a motor.
 Resets the position and counts pins to zero immediately.
 
 .TP
+(bit, in)  joint-pos-fb
+The Mesa resolver driver has the capability of emulating an absolute
+encoder using a position file (see the INI-config section of the manual)
+and the single-turn absolute operation of resolvers.
+At startup, and only if the \fBuse-position-file\fR parameter is set to "true"
+the resolver driver will wait for a value to be written by the system to
+the axis.N.joint-pos-fb pin (which must be netted to this resolver pin)
+and will calculate the number of full turns that best matches the
+current reolver position. It will then pre-load the driver output with this
+offset. This should only be used on systems where axis movement in the
+unpowered state is unlikely. This feature will only work properly if the
+machine is initially homed to "index" and if the axis home positions are
+exactly zero.
+
+.TP
 (bit, in/out) index\-enable
 When this pin is set high the position and counts
 pins will be reset the next time the resolver passes through the zero position.
@@ -692,6 +707,11 @@ CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively.
 The parameter will be set to the closest available of the three frequencies.
  A value of \-1 (the default) indicates that the current setting should be
 retained. 
+
+.TP
+(bit, read/write) use-position-file
+In conjunction with \fBjoint-pos-fb\fR (qv) emulate absolute encoders.
+
 
 
 .SH pwmgen

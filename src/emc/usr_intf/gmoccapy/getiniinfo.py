@@ -211,10 +211,10 @@ class GetIniInfo:
             temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )
             if temp:
                 temp = float(temp) / 2
-                print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing half on MAX_LINEAR_VELOCITY")
+                print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing half on MAX_LINEAR_VELOCITY")
             else:
                 temp = 3.0
-                print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing default value of 180 units / min")
+                print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing default value of 180 units / min")
         return float(temp) * 60
 
     def get_max_jog_vel(self):
@@ -223,7 +223,7 @@ class GetIniInfo:
         temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
-            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_LINEAR_VELOCITY entry found in [TRAY] of INI file\nUsing default value of 600 units / min")
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing default value of 600 units / min")
         return float(temp) * 60
 
     def get_default_spindle_speed(self):
