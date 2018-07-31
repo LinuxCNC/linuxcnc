@@ -175,9 +175,9 @@ setup::setup() :
     lathe_diameter_mode(0),
     mdi_interrupt(0),
     feature_set(0),
-    disable_g92_persistence(0),
     disable_fanuc_style_sub(false),
     loop_on_main_m99(false),
+    disable_g92_persistence(0),
     pythis(),
     on_abort_command(NULL),
     init_once(0)
