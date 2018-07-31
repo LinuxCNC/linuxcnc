@@ -71,6 +71,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.user_messages = True
         self.use_pref_file = True
         self.pref_filename = '~/.qtvcp_screen_preferences'
+        self._close_color = QtGui.QColor(100, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -174,8 +175,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  details=self.shutdown_msg_detail,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type=MSG.YN_TYPE,
-                                                                 focus_text='ARE YOU SURE',
-                                                                 focus_color=QtGui.QColor(100, 0, 0, 150),
+                                                                 focus_text='Shutdown Requested!',
+                                                                 focus_color=self._close_color,
                                                                  play_alert=sound)
             if not answer:
                 event.ignore()
@@ -260,6 +261,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_pref_filename(self):
         self.pref_filename = '~/.qtvcp_screen_preferences'
 
+    def getColor(self):
+        return self._close_color
+    def setColor(self, value):
+        self._close_color = value
+    def resetState(self):
+        self._close_color = QtGui.QColor(100, 0, 0, 150)
+
     # designer will show these properties in this order:
     notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)
     catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
@@ -267,3 +275,4 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     play_sounds_option = QtCore.pyqtProperty(bool, get_play_sounds, set_play_sounds, reset_play_sounds)
     use_pref_file_option = QtCore.pyqtProperty(bool, get_use_pref_file, set_use_pref_file, reset_use_pref_file)
     pref_filename_string = QtCore.pyqtProperty(str, get_pref_filename, set_pref_filename, reset_pref_filename)
+    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)
