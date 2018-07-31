@@ -2352,7 +2352,7 @@ are called 'queue busters', and they are:
 
 - reading a HAL pin's value with M66: value of HAL pin not predictable
 - loading a new tool with M6: tool geometry not predictable
-- executing a probe with G38.x: final position and success/failure not predictable
+- executing a probe with G38.n: final position and success/failure not predictable
 
 === How queue-busters are dealt with
 

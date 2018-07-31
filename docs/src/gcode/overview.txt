@@ -274,11 +274,12 @@ example '##2'  means the value of the parameter whose index is the
 * '31-5000' - G code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
 
-* '5061-5069' - Coordinates of a "G38.2" Probe result of
-  X, Y, Z, A, B, C, U, V & W. Volatile.
+* '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
+  Z, A, B, C, U, V & W).  Coordinates are in the coordinate system in
+  which the G38 took place.  Volatile.
 
-* '5070' - "G38" probe result - 1 if success, 0 if probe failed to close.
-  Used with G38.3 and G38.5. Volatile.
+* '5070' - <<gcode:g38,G38>> probe result: 1 if success, 0 if probe
+  failed to close.  Used with G38.3 and G38.5. Volatile.
 
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 
@@ -676,7 +677,7 @@ can be added easily without changes to the source code.
     1.0 if the executing interpreter instance is part of milltask, 0.0
     otherwise. Sometimes it is necessary to treat this case specially
     to retain proper preview, for instance when testing the success of 
-    a probe (G38.x) by inspecting #5070, which will always fail in the
+    a probe (G38.n) by inspecting #5070, which will always fail in the
     preview interpreter (e.g. Axis).
 
 * '#<_call_level>' -
@@ -952,7 +953,7 @@ being in effect. The modal groups are shown in the following Table.
 |====
 |Modal Group Meaning                   | Member Words
 |Non-modal codes (Group 0)             | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3, 
-.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
                                        | G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode (Group 3)               | G90, G91
@@ -1180,7 +1181,7 @@ position of each item on the line, but by the following list:
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system 
   data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94). 
-* Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified
+* Perform motion (G0 to G3, G33, G38.n, G73, G76, G80 to G89), as modified
   (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
 
