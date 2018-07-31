@@ -88,6 +88,7 @@ include an option for suppressing superfluous commands.
 #include <libintl.h>
 #include <set>
 #include <stdexcept>
+#include <new>
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -1029,6 +1030,13 @@ int Interp::init()
 		       "DISABLE_G92_PERSISTENCE",
 		       "RS274NGC");
 
+	  // ini file m98/m99 subprogram default setting
+	  inifile.Find(&_setup.disable_fanuc_style_sub,
+		       "DISABLE_FANUC_STYLE_SUB",
+		       "RS274NGC");
+	  logDebug("init:  DISABLE_FANUC_STYLE_SUB = %d",
+		   _setup.disable_fanuc_style_sub);
+
           // close it
           inifile.Close();
       }
@@ -1254,6 +1262,12 @@ int Interp::init()
   
   return INTERP_OK;
 }
+
+void Interp::set_loop_on_main_m99(bool state) {
+    // Enable/disable M99 main program endless looping
+    _setup.loop_on_main_m99 = state;
+}
+
 
 /***********************************************************************/
 
@@ -1543,10 +1557,14 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
 
   if ((_setup.call_state > CS_NORMAL) && 
-      (eblock->call_type > CT_NGC_OWORD_SUB)  && 
+      (eblock->call_type != CT_NGC_OWORD_SUB)  &&
+      (eblock->call_type != CT_NGC_M98_SUB)  &&
+      (eblock->call_type != CT_NONE)  &&
       ((eblock->o_type == O_call) ||
+       (eblock->o_type == M_98) ||
        (eblock->o_type == O_return) ||
-       (eblock->o_type == O_endsub))) {
+       (eblock->o_type == O_endsub) ||
+       (eblock->o_type == M_99))) {
 
       logDebug("read(): skipping read");
       _setup.line_length = 0;
@@ -1608,8 +1626,12 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
             EXECUTING_BLOCK(_setup).o_type = 0;
 	}
     }
-  } else if (read_status == INTERP_ENDFILE);
-  else
+  } else if (read_status == INTERP_ENDFILE) {
+      // If skipping but not defining the main program, we hit EOF
+      // before finding the sub we're looking for; error out
+      CHKS((_setup.skipping_o != NULL),
+	   "Failed to find sub 'O%s' before EOF", _setup.skipping_o);
+  } else
     ERP(read_status);
   return read_status;
 }
@@ -1639,10 +1661,11 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	    sub->subName = 0;
 	}
 
-	for(i=0; i<INTERP_SUB_PARAMS; i++) {
-	    _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-		sub->saved_params[i];
-	}
+	if (sub->call_type != CT_NGC_M98_SUB) // M98:  pass #1..#30 from parent
+	    for(i=0; i<INTERP_SUB_PARAMS; i++) {
+		_setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		    sub->saved_params[i];
+	    }
 
 	// When called from Interp::close via Interp::reset, this one is NULL
 	if (!_setup.file_pointer) continue;
@@ -1663,7 +1686,6 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	_setup.sequence_number = sub->sequence_number;
 	logDebug("unwind_call: setting sequence number=%d from frame %d",
 		_setup.sequence_number,_setup.call_level);
-
     }
     // call_level == 0 here.
  
@@ -2543,11 +2565,15 @@ const char *strstore(const char *s)
 
 context_struct::context_struct()
 : position(0), sequence_number(0), filename(""), subName(""),
-context_status(0), call_type(0)
-
+  m98_loop_counter(-1), context_status(0), call_type(0)
 {
     memset(saved_params, 0, sizeof(saved_params));
     memset(saved_g_codes, 0, sizeof(saved_g_codes));
     memset(saved_m_codes, 0, sizeof(saved_m_codes));
     memset(saved_settings, 0, sizeof(saved_settings));
+}
+
+void context_struct::clear()
+{
+    new (this) context_struct();
 }

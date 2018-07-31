@@ -40,7 +40,7 @@
 #define NCE_BUG_CODE_NOT_G98_OR_G99 _("Bug code not g98 or g99")
 #define NCE_BUG_CODE_NOT_IN_G52_G92_SERIES _("Bug code not in g52 or g92 series")
 #define NCE_BUG_CODE_NOT_IN_RANGE_G54_TO_G593 _("Bug code not in range g54 to g593")
-#define NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60 _("Bug code not m0 m1 m2 m30 m60")
+#define NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60_M99 _("Bug code not m0 m1 m2 m30 m60 m99")
 #define NCE_BUG_DISTANCE_MODE_NOT_G90_OR_G91 _("Bug distance mode not g90 or g91")
 #define NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED _("Bug function should not have been called")
 #define NCE_BUG_IN_TOOL_RADIUS_COMP _("Bug in tool radius comp")

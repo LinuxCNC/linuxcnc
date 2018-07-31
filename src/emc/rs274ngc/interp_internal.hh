@@ -172,6 +172,9 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_return   13
 #define O_repeat   14
 #define O_endrepeat 15
+#define M_98       16
+#define M_99       17
+#define O_         18
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -507,7 +510,9 @@ enum call_states {
 
 // detail for O_call; tags the frame
 enum call_types {
+    CT_NONE,             // not in a call
     CT_NGC_OWORD_SUB,    // no restartable Python code involved
+    CT_NGC_M98_SUB,      // like above; Fanuc-style, pass in params #1..#30
     CT_PYTHON_OWORD_SUB, // restartable Python code may be involved
     CT_REMAP,            // restartable Python code may be involved
 };
@@ -555,11 +560,13 @@ struct pycontext {
 
 typedef struct context_struct {
     context_struct();
+    void clear();
 
     long position;       // location (ftell) in file
     int sequence_number; // location (line number) in file
     const char *filename;      // name of file for this context
     const char *subName;       // name of the subroutine (oword)
+    int m98_loop_counter;      // loop counter for Fanuc-style sub calls
     double saved_params[INTERP_SUB_PARAMS];
     parameter_map named_params;
     unsigned char context_status;		// see CONTEXT_ defines below
@@ -758,7 +765,12 @@ struct setup
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
-  int feature_set; 
+  int feature_set;
+
+    int disable_fanuc_style_sub;
+    // M99 in main is treated as program end by default; this causes
+    // control to skip to beginning of file
+    bool loop_on_main_m99;
 
   int disable_g92_persistence;
 
