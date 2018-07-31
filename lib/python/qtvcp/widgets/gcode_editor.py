@@ -329,6 +329,9 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
                 LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
+            # TODO send this out as a STATUS message or QT signal?
+            # It could be used to update a % done progress bar
+            #print 'LINES',self.lines(),line,line*100/self.lines()
         self.markerAdd(line, self.ARROW_MARKER_NUM)
         if self.last_line:
             self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
