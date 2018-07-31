@@ -130,6 +130,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self._show_buttons = False
         self._show_image = False
         self._image_transp = 0.3
+        self._show_text = True
         self.box()
 
     # This is how we plant the very top level parent into
@@ -148,7 +149,22 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
             self.play_sound = False
         self.top_level = self.QTVCP_INSTANCE_
         self.newParent()
-        def _f(data, text, color):
+        # look for special path names and change to real path
+        if 'STD_IMAGE_DIR/' in self._image_path:
+            t = self._image_path.split('STD_IMAGE_DIR/', )[1]
+            d = os.path.join(self.PATHS_.IMAGEDIR, t)
+        elif 'CONFIG_DIR/' in self._image_path:
+            t = self._image_path.split('CONFIG_DIR/', )[1]
+            d = os.path.join(self.PATHS_.CONFIGPATH, t)
+        else:
+            return
+        if os.path.exists(d):
+            self._image = QImage(d)
+        else:
+            LOG.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: self._status_response(data, text, color))
+
+    def _status_response(self, data, text, color):
             if data:
                 if color:
                     self.bg_color = color
@@ -165,20 +181,6 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
             else:
                 self.hide()
                 LOG.debug('Overlay - Hide')
-        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: _f(data, text, color))
-        # look for special path names and change to real path
-        if 'STD_IMAGE_DIR/' in self._image_path:
-            t = self._image_path.split('STD_IMAGE_DIR/', )[1]
-            d = os.path.join(self.PATHS_.IMAGEDIR, t)
-        elif 'CONFIG_DIR/' in self._image_path:
-            t = self._image_path.split('CONFIG_DIR/', )[1]
-            d = os.path.join(self.PATHS_.CONFIGPATH, t)
-        else:
-            return
-        if os.path.exists(d):
-            self._image = QImage(d)
-        else:
-            LOG.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
 
     # Ok paint everything
     def paintEvent(self, event):
@@ -229,6 +231,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                        font-weight:600;">%s</span></p></body></html>' % self.text, self)
         self.mb.setStyleSheet("background-color: black; color: white")
         self.mb.setAlignment(Qt.AlignVCenter | Qt.AlignCenter)
+        self.mb.setVisible(self._show_text)
         hbox = QHBoxLayout()
         hbox.addStretch(1)
 
@@ -281,6 +284,15 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def resetOverayColor(self, value):
         self.bg_color = value
 
+    def setShowText(self, value):
+        self._show_text = value
+        self.mb.setVisible(value)
+    def getShowText(self):
+        return self._show_text
+    def resetShowText(self):
+        self._show_text = True
+        self.mb.setVisible(value)
+
     def setshow_image(self, data):
         self._show_image = data
         #self.hide()
@@ -323,6 +335,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 
     overlay_color = pyqtProperty(QColor, getOverayColor, setOverayColor, resetOverayColor)
     state = pyqtProperty(bool, getState, setState, resetState)
+    show_text = pyqtProperty(bool, getShowText, setShowText, resetShowText)
     show_image_option = pyqtProperty(bool, getshow_image, setshow_image, resetshow_image)
     image_transparency = pyqtProperty(float, get_image_transp, set_image_transp, reset_image_transp)
     show_buttons_option = pyqtProperty(bool, getshow_buttons, setshow_buttons, resetshow_buttons)
