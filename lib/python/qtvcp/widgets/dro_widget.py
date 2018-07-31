@@ -46,12 +46,15 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.imperial_text_template = '%9.4f'
         self.angular_text_template = '%9.2f'
         self.setText('--------------')
+        self.allow_reference_change_requests = True
 
     def _hal_init(self):
         # get position update from STATUS every 100 ms
         STATUS.connect('current-position', self.update)
         STATUS.connect('metric-mode-changed', self._switch_units)
         STATUS.connect('diameter-mode', self._switch_modes)
+        if self.allow_reference_change_requests:
+            STATUS.connect('dro-reference-change-request', self._status_reference_change)
 
     def update(self, widget, absolute, relative, dtg):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
@@ -88,6 +91,9 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         except:
             pass
         return True
+
+    def _status_reference_change(self,w ,value):
+        self.reference_type = value
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data

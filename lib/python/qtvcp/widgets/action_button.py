@@ -85,6 +85,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.block_delete = False
         self.optional_stop = False
         self.mdi_command = False
+        self.dro_relative = False
+        self.dro_absolute = False
+        self.dro_dtg = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -287,6 +290,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        elif self.dro_absolute or self.dro_relative or self.dro_dtg:
+            pass
+
         # connect a signal and callback function to the button
         self.clicked[bool].connect(self.action)
 
@@ -437,6 +443,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 ACTION.CALL_INI_MDI(num)
             else:
                 ACTION.CALL_MDI(self.command_text)
+        elif self.dro_absolute:
+            STATUS.emit('dro-reference-change-request', 0)
+        elif self.dro_relative:
+            STATUS.emit('dro-reference-change-request', 1)
+        elif self.dro_dtg:
+            STATUS.emit('dro-reference-change-request', 2)
         # defult error case
         else:
             LOG.error('No action recognised')
@@ -520,7 +532,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'spindle_over', 'jog_rate', 'view_x', 'view_p', 'spindle_fwd',
                 'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
                 'limits_override', 'flood', 'mist', 'optional_stop',
-                'command_text', 'block_delete')
+                'command_text', 'block_delete', 'dro_absolute', 'dro_relative',
+                'dro_dtg')
 
         for i in data:
             if not i == picked:
@@ -874,6 +887,34 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_mdi_command(self):
         self.mdi_command = False
 
+    def set_dro_absolute(self, data):
+        self.dro_absolute = data
+        if data:
+            self._toggle_properties('dro_absolute')
+    def get_dro_absolute(self):
+        return self.dro_absolute
+    def reset_dro_absolute(self):
+        self.dro_absolute = False
+
+    def set_dro_relative(self, data):
+        self.dro_relative = data
+        if data:
+            self._toggle_properties('dro_relative')
+    def get_dro_relative(self):
+        return self.dro_relative
+    def reset_dro_relative(self):
+        self.dro_relative = False
+
+    def set_dro_dtg(self, data):
+        self.dro_dtg = data
+        if data:
+            self._toggle_properties('dro_dtg')
+    def get_dro_dtg(self):
+        return self.dro_dtg
+    def reset_dro_dtg(self):
+        self.dro_dtg = False
+
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -920,7 +961,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.view_change = False
 
     def set_view_type(self, data):
-        if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p'):
+        if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear'):
             data = 'p'
         self.view_type = data
     def get_view_type(self):
@@ -981,6 +1022,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     block_delete_action = QtCore.pyqtProperty(bool, get_block_delete, set_block_delete, reset_block_delete)
     optional_stop_action = QtCore.pyqtProperty(bool, get_optional_stop, set_optional_stop, reset_optional_stop)
     mdi_command_action = QtCore.pyqtProperty(bool, get_mdi_command, set_mdi_command, reset_mdi_command)
+    dro_absolute_action = QtCore.pyqtProperty(bool, get_dro_absolute, set_dro_absolute, reset_dro_absolute)
+    dro_relative_action = QtCore.pyqtProperty(bool, get_dro_relative, set_dro_relative, reset_dro_relative)
+    dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)

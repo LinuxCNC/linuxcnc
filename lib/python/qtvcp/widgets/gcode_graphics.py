@@ -64,7 +64,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('view-changed', self.set_view_signal)
 
     def set_view_signal(self, w, view):
-        self.set_view(view)
+        if view.lower() == 'clear':
+            self.clear_live_plotter()
+        else:
+            self.set_view(view)
 
     def load_program(self, g, fname):
         LOG.debug('load the display: {}'.format(fname))
