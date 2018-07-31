@@ -240,9 +240,15 @@
                        <property name="text">
                         <string>P</string>
                        </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
                        <property name="view_change_action" stdset="0">
                         <bool>true</bool>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
                       </widget>
                      </item>
                      <item>
@@ -250,12 +256,18 @@
                        <property name="text">
                         <string>X</string>
                        </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
                        <property name="view_change_action" stdset="0">
                         <bool>true</bool>
                        </property>
                        <property name="view_type_string" stdset="0">
                         <string>x</string>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
                       </widget>
                      </item>
                      <item>
@@ -263,12 +275,18 @@
                        <property name="text">
                         <string>Y</string>
                        </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
                        <property name="view_change_action" stdset="0">
                         <bool>true</bool>
                        </property>
                        <property name="view_type_string" stdset="0">
                         <string>y</string>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
                       </widget>
                      </item>
                      <item>
@@ -276,19 +294,35 @@
                        <property name="text">
                         <string>Z</string>
                        </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
                        <property name="view_change_action" stdset="0">
                         <bool>true</bool>
                        </property>
                        <property name="view_type_string" stdset="0">
                         <string>z</string>
                        </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
                       </widget>
                      </item>
                      <item>
                       <widget class="ActionButton" name="actionbutton_24"/>
                      </item>
                      <item>
-                      <widget class="ActionButton" name="actionbutton_25"/>
+                      <widget class="ActionButton" name="actionbutton_25">
+                       <property name="text">
+                        <string>Clear</string>
+                       </property>
+                       <property name="view_change_action" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                       <property name="view_type_string" stdset="0">
+                        <string>clear</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <widget class="ActionButton" name="actionbutton_26"/>
@@ -535,6 +569,15 @@
                           <property name="text">
                            <string>ABS</string>
                           </property>
+                          <property name="checkable">
+                           <bool>true</bool>
+                          </property>
+                          <property name="dro_absolute_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <attribute name="buttonGroup">
+                           <string notr="true">buttonGroup_2</string>
+                          </attribute>
                          </widget>
                         </item>
                         <item>
@@ -542,6 +585,18 @@
                           <property name="text">
                            <string>REL</string>
                           </property>
+                          <property name="checkable">
+                           <bool>true</bool>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                          <property name="dro_relative_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <attribute name="buttonGroup">
+                           <string notr="true">buttonGroup_2</string>
+                          </attribute>
                          </widget>
                         </item>
                         <item>
@@ -549,6 +604,15 @@
                           <property name="text">
                            <string>DTG</string>
                           </property>
+                          <property name="checkable">
+                           <bool>true</bool>
+                          </property>
+                          <property name="dro_dtg_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <attribute name="buttonGroup">
+                           <string notr="true">buttonGroup_2</string>
+                          </attribute>
                          </widget>
                         </item>
                        </layout>
@@ -1047,7 +1111,7 @@
                       </size>
                      </property>
                      <property name="text">
-                      <string>      </string>
+                      <string/>
                      </property>
                     </widget>
                    </item>
@@ -1818,4 +1882,8 @@
  </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
+ </buttongroups>
 </ui>
