@@ -140,7 +140,7 @@ These pins, parameters, and functions are created by the realtime
     (bit, out) TRUE when the machine is on a soft limit.
 
 * 'motion.probe-input' - 
-     (bit, in) 'G38.n'  uses the value on this pin to determine when the
+     (bit, in) 'G38.x'  uses the value on this pin to determine when the
     probe has made contact. 
     TRUE for probe contact closed (touching), 
     FALSE for probe contact open.

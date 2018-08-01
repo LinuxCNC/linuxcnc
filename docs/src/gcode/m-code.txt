@@ -165,12 +165,9 @@ classicladder.
 == M7, M8, M9 Coolant Control
 (((M7, M8, M9 Coolant Control)))
 
-* 'M7' - turn mist coolant on. M7 controls iocontrol.0.coolant-mist pin.
-* 'M8' - turn flood coolant on. M8 controls iocontrol.0.coolant-flood pin.
-* 'M9' - turn both M7 and M8 off.
-
-Connect one or both of the coolant control pins in HAL before M7 or M8 will
-control an output. M7 and M8 can be used to turn on any output via G code.
+* 'M7' - turn mist coolant on.
+* 'M8' - turn flood coolant on.
+* 'M9' - turn all coolant off.
 
 It is OK to use any of these commands, regardless of the current coolant
 state.
