@@ -24,21 +24,21 @@
 
 struct haldata
 {
-    hal_float_t *r, *l, *j0off, *j1off, *j2off;
+    hal_float_t *r, *l, *j0off, *j1off, *j2off, *r1off, *r2off, *a1off, *a2off;
 } *haldata;
 
 int kinematicsForward(const double * joints,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
-    set_geometry(*haldata->r, *haldata->l,*haldata ->j0off,*haldata ->j1off,*haldata ->j2off);
+    set_geometry(*haldata->r, *haldata->l,*haldata ->j0off,*haldata ->j1off,*haldata ->j2off,*haldata ->r1off,*haldata ->r2off,*haldata ->a1off,*haldata ->a2off);
     return kinematics_forward(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose *pos, double *joints,
         const KINEMATICS_INVERSE_FLAGS *iflags,
         KINEMATICS_FORWARD_FLAGS *fflags) {
-    set_geometry(*haldata->r, *haldata->l,*haldata ->j0off,*haldata ->j1off,*haldata ->j2off);
+    set_geometry(*haldata->r, *haldata->l,*haldata ->j0off,*haldata ->j1off,*haldata ->j2off,*haldata ->r1off,*haldata ->r2off,*haldata ->a1off,*haldata ->a2off);
     return kinematics_inverse(pos, joints);
 }
 
@@ -66,10 +66,10 @@ int rtapi_app_main(void)
 
     vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
     if (vtable_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
-			name, name, VTVERSION, &vtk, vtable_id );
-	return -ENOENT;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+            "%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+            name, name, VTVERSION, &vtk, vtable_id );
+    return -ENOENT;
     }
 
     if(retval == 0)
@@ -93,14 +93,29 @@ int rtapi_app_main(void)
     if(retval == 0)
         retval = hal_pin_float_newf(HAL_IN, &haldata->j2off, comp_id,
                 "lineardeltakins.J2off");
-
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->r1off, comp_id,
+                "lineardeltakins.R1off");
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->r2off, comp_id,
+                "lineardeltakins.R2off");
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->a1off, comp_id,
+                "lineardeltakins.A1off");
+    if(retval == 0)
+        retval = hal_pin_float_newf(HAL_IN, &haldata->a2off, comp_id,
+                "lineardeltakins.A2off");
     if(retval == 0)
     {
         *haldata->r = DELTA_RADIUS;
         *haldata->l = DELTA_DIAGONAL_ROD;
-	*haldata->j0off = JOINT_0_OFFSET;
-	*haldata->j1off = JOINT_1_OFFSET;
-	*haldata->j2off = JOINT_2_OFFSET;
+        *haldata->j0off = JOINT_0_OFFSET;
+        *haldata->j1off = JOINT_1_OFFSET;
+        *haldata->j2off = JOINT_2_OFFSET;
+        *haldata->r1off = JOINT_1_RADIUS_OFFSET;
+        *haldata->r2off = JOINT_2_RADIUS_OFFSET;
+        *haldata->a1off = JOINT_1_ANGLE_OFFSET;
+        *haldata->a2off = JOINT_2_ANGLE_OFFSET;
     }
 
     if(retval == 0)

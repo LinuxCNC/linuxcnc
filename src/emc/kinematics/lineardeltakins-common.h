@@ -35,19 +35,24 @@
 #include "emcpos.h"
 #include "rtapi_math.h"
 
-static double L, R, J0off, J1off, J2off;
+static double L, R, J0off, J1off, J2off, R1off, R2off, A1off, A2off;
 static double Ax, Ay, Bx, By, Cx, Cy, L2;
 
 #define SQ3    (rtapi_sqrt(3))
+
+#define ANGLE1 (210)
+#define ANGLE2 (330)
+#define ANGLE0 (90)
+#define RADIAN (M_PI/180)
 
 #define SIN_60 (SQ3/2)
 #define COS_60 (.5)
 
 static double sq(double x) { return x*x; }
 
-static void set_geometry(double r_, double l_, double j0off_, double j1off_, double j2off_)
+static void set_geometry(double r_, double l_, double j0off_, double j1off_, double j2off_, double r1off_, double r2off_, double a1off_, double a2off_)
 {
-    if((L == l_) && (R == r_) && (J0off == j0off_) && (J1off == j1off_) && (J2off == j2off_)) return;
+    if((L == l_) && (R == r_) && (J0off == j0off_) && (J1off == j1off_) && (J2off == j2off_) &&  (R1off == r1off_) && (R2off == r2off_) && (A1off == a1off_)&& (A2off == a2off_)) return;
 
     L = l_;
     R = r_;
@@ -58,14 +63,21 @@ static void set_geometry(double r_, double l_, double j0off_, double j1off_, dou
     J1off = j1off_;
     J2off = j2off_;
 	
-    Ax = 0.0;
-    Ay = R;
+    R1off = r1off_;
+    R2off = r2off_;
 
-    Bx = -SIN_60 * R;
-    By = -COS_60 * R;
+    A1off = a1off_;
+    A2off = a2off_;
 
-    Cx = SIN_60 * R;
-    Cy = -COS_60 * R;
+
+    Ax = rtapi_cos(RADIAN * (ANGLE0)) * (R ); // at angle 90 cos will give 0
+    Ay = rtapi_sin(RADIAN * (ANGLE0)) * (R ); // at angle 90 sin will give 1
+
+    Bx = rtapi_cos(RADIAN * (ANGLE1 + A1off)) * (R + R1off);
+    By = rtapi_sin(RADIAN * (ANGLE1 + A1off)) * (R + R1off);
+
+    Cx = rtapi_cos(RADIAN * (ANGLE2 + A2off)) * (R + R2off);
+    Cy = rtapi_sin(RADIAN * (ANGLE2 + A2off)) * (R + R2off);
 }
 
 static int kinematics_inverse(const EmcPose *pos, double *joints)
@@ -148,6 +160,19 @@ static int kinematics_forward(const double *joints, EmcPose *pos)
 
 // Horizontal offset of the universal joints on the carriages.
 #define JOINT_2_OFFSET 0.00 // mm
+
+// Radius offset of on JOINT 1
+#define JOINT_1_RADIUS_OFFSET 0.00  // mm
+
+// Radius offset of on JOINT 2
+#define JOINT_2_RADIUS_OFFSET 0.00  // mm
+
+// Angle offset of on JOINT 1
+#define JOINT_1_ANGLE_OFFSET 0.00  // degree
+
+// Angle offset of on JOINT 1
+#define JOINT_2_ANGLE_OFFSET 0.00  // degree
+ 
 
 // Effective horizontal distance bridged by diagonal push rods.
 #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
