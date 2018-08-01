@@ -1,7 +1,6 @@
 import os
 
 from machinekit import hal
-#from machinekit import rtapi as rt
 from machinekit import config as c
 
 from fdm.config import base
