@@ -51,7 +51,7 @@ The LinuxCNC IRC channel is #linuxcnc on freenode.
 
 The simplest way to get on the IRC is to use 
 the embedded java client on this 
-http://www.linuxcnc.org/index.php/english/community[page].
+https://webchat.freenode.net/?channels=%23linuxcnc[page].
 
 .Some IRC etiquette
 
@@ -88,6 +88,14 @@ you set up your account.
 
 You can subscribe to the emc-users mailing list at:
 https://lists.sourceforge.net/lists/listinfo/emc-users
+
+=== Web Forum
+
+A web forum can be found at https://forum.linuxcnc.org or by following the link at the
+top of the linuxcnc.org home page. 
+This is quite active but the demographic is more user-biased than the mailing list. if
+you want to be sure that your message is seen by the Develpers then the mailing list is
+to be preferred. 
 
 === LinuxCNC Wiki
 

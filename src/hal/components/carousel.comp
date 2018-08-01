@@ -18,6 +18,7 @@ Default = 4.
 .TP
 \\fBdir\\fR Set to 1 for unidirectional or  2 for bidirectional operation.
 Default = bidirectional
+.TP
 \\fBparity\\fR Set to 1 for odd parity, 0 for even parity checking.
 Default = 0 (even)
 .RE""";
@@ -57,11 +58,11 @@ both the index and pulse inputs are true. If there is no pulse line at the
 index position then a HAL "or2" function can be used to allow the index sensor
 to toggle both inputs. Setting "enable" low does not halt the homing move, so if
 homing on first tool change is not needed then the enable pin can be toggled by
-an axis homing pin or a script. /fedge/fR is a special case of index mode for tool
+an axis homing pin or a script. \\fBedge\\fR is a special case of index mode for tool
 changers with pockets on both the rising and falling edges of the position sensor.
 (Seen on at least one Denford Orac.)
 
-For tool changers which lock the carousel against a stop the /fBrev-pulse/fR pin can
+For tool changers which lock the carousel against a stop the \\fBrev-pulse\\fR pin can
 be set to a non-zero value. The motor-rev pin will then be set for this many seconds
 at the completion of the tool search and at the same time the reverse duty/cycle
 velocity value will be sent to the motor-vel pin. 
