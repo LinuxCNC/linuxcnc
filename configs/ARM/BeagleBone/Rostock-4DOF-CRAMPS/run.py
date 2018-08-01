@@ -16,7 +16,7 @@ try:
     if os.path.exists('/dev/video0'):  # automatically start videoserver
          launcher.start_process('videoserver -i video.ini Webcam1')
     launcher.start_process("configserver -n MendelMax ~/Cetus ~/Machineface")
-    launcher.start_process('linuxcnc CRAMPS.4DOF.ini')
+    launcher.start_process('linuxcnc CRAMPS.3DOF.ini')
     while True:
         launcher.check_processes()
         time.sleep(1)
