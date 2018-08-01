@@ -184,4 +184,3 @@ compensate without losing steps.
 More advanced implementations of closed loop operation bring the encoder signal all the way back to the host
 computer, but require that a much higher hardware and software overhead be installed to manage the encoder
 feedback and calculation and delivery of drive compensation.
-
