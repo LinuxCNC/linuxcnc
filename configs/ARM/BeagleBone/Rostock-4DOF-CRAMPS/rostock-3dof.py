@@ -40,21 +40,20 @@ base.setup_stepper(section='AXIS_0', axisIndex=0, stepgenIndex=0, thread='servo-
 base.setup_stepper(section='AXIS_1', axisIndex=1, stepgenIndex=1, thread='servo-thread')
 # Z [2] Axis
 base.setup_stepper(section='AXIS_2', axisIndex=2, stepgenIndex=2, thread='servo-thread')
-
 # Extruder, velocity controlled
 for i in range(0, numExtruders):
     base.setup_stepper(section='EXTRUDER_%i' % i, stepgenIndex=3,
-                       axisIndex=(i+3), thread='servo-thread')
+                       velocitySignal='ve-extrude-vel', thread='servo-thread')
 
 # Extruder Multiplexer
 base.setup_extruder_multiplexer(extruders=numExtruders, thread='servo-thread')
 
 # Stepper Multiplexer
-#multiplexSections = []
-#for i in range(0, numExtruders):
-#    multiplexSections.append('EXTRUDER_%i' % i)
-#base.setup_stepper_multiplexer(stepgenIndex=5, sections=multiplexSections,
-#                               selSignal='extruder-sel', thread='servo-thread')
+multiplexSections = []
+for i in range(0, numExtruders):
+    multiplexSections.append('EXTRUDER_%i' % i)
+base.setup_stepper_multiplexer(stepgenIndex=4, sections=multiplexSections,
+                               selSignal='extruder-sel', thread='servo-thread')
 
 # Fans
 for i in range(0, numFans):
