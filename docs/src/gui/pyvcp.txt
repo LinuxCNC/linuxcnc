@@ -41,7 +41,7 @@ image::images/pyvcp_mypanel.png[]
 If you place this text in a file called tiny.xml, and run
 
 ----------------------------------------------
-halrun -I loadusr pyvcp -c mypanel tiny.xml
+halcmd loadusr pyvcp -c mypanel tiny.xml
 ----------------------------------------------
 
 PyVCP will create the panel for you, which includes two widgets, a
