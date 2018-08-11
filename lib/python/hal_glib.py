@@ -726,8 +726,8 @@ class _GStat(gobject.GObject):
         return self.current_jog_distance
 
     def set_selected_axis(self, data):
-        self.selected_axis = data
-        self.emit('axis-selection-changed', 0, data)
+        self.selected_axis = int(data)
+        self.emit('axis-selection-changed', 0, int(data))
 
     def get_selected_axis(self):
         return self.selected_axis

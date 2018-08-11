@@ -1,15 +1,15 @@
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Action
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
-# INFO is INI file details
+# ACTION is for linuxcnc commands
 # LOG is for running code logging
 STATUS = Status()
-INFO = Info()
+ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
@@ -28,7 +28,7 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
 
     def btnstate(self,b):
        if b.isChecked() == True:
-            STATUS.set_selected_axis(self.joint)
+            ACTION.SET_SELECTED_AXIS(self.joint)
 
     def setAxis(self, data):
         self.axis = data

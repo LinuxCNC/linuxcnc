@@ -144,6 +144,9 @@ class _Lcnc_Action(object):
     def RESTORE_RECORDED_MODE(self):
         self.ensure_mode(self.last_mode)
 
+    def SET_SELECTED_AXIS(self, data):
+        STATUS.set_selected_axis(data)
+
     # jog based on STATUS's rate and distace
     def DO_JOG(self, axisnum, direction):
         if axisnum in (3,4,5):
