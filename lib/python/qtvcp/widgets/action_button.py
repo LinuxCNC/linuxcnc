@@ -507,13 +507,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             text = '''%s deg''' % str(self.jog_incr_angle)
         STATUS.set_jog_increment_angular(incr , text)
 
-    # convert the units based on what the machine is based on.
-    def conversion(self, data):
-        if INFO.MACHINE_IS_METRIC:
-            return INFO.convert_units(data)
-        else:
-            return data
-
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
