@@ -44,8 +44,51 @@ QStatusBar {
     border-style: solid;
     border: 2px solid gray;
     border-radius: 8px;
+    font: 95 18pt "Noto Sans";
 }
 
+QToolButton {
+    color: #333;
+    border: 2px solid #555;
+    border-radius: 11px;
+    padding: px;
+    background: qradialgradient(cx: 0.3, cy: -0.4, fx: 0.3, fy: -0.4,
+        radius: 1.35, stop: 0 #fff, stop: 1 #888);
+        min-width: 30px;
+}
+
+AxisToolButton {
+    font: 95 18pt "Noto Sans";
+    border-color: black;
+    border-style: solid;
+    border-radius: 4px;
+    border-width: 2px;
+    min-width: 40px;
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #b6b6b6, stop: 1.0 #626262);
+}
+AxisToolButton:enabled{
+    color: #000;
+}
+
+AxisToolButton:disabled{
+    color: darkgray;
+}
+
+AxisToolButton:hover {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #A19E9E, stop: 1.0 #5C5959);
+}
+
+AxisToolButton:pressed {
+    background:  qlineargradient(x1: 0, y1: 0,
+        stop: 0 #5C5959, stop: 1.0 #A19E9E)
+}
+
+AxisToolButton:checked {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #4a6aa7, stop: 1.0 #6f96cd)
+}
 
 QPushButton {
     font: 95 18pt "Noto Sans";
@@ -57,6 +100,10 @@ QPushButton {
     min-width: 40px;
     background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
         stop: 0 #b6b6b6, stop: 1.0 #626262);
+}
+
+QPushButton:disabled{
+    color: darkgray;
 }
 
 QPushButton:hover {
@@ -157,15 +204,7 @@ stop: 1 #238 );
     border: 1px solid black;
 }
 
-QToolButton {
-    color: #333;
-    border: 2px solid #555;
-    border-radius: 11px;
-    padding: px;
-    background: qradialgradient(cx: 0.3, cy: -0.4, fx: 0.3, fy: -0.4,
-        radius: 1.35, stop: 0 #fff, stop: 1 #888);
-        min-width: 30px;
-}
+
 
 
 QTabWidget::pane { /* The tab widget frame */
