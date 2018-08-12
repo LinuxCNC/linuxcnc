@@ -16,7 +16,8 @@
 import os
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, \
-        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout
+        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout, \
+        QHBoxLayout, QLineEdit
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
@@ -25,6 +26,7 @@ from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import MacroTab
+from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -675,6 +677,60 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
+############################################
+# Entry Dialog
+############################################
+class EntryDialog(QDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(EntryDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+        self.play_sound = False
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+
+        l = QVBoxLayout()
+        self.setLayout(l)
+
+        o = TouchInputWidget()
+
+        self.Num = QLineEdit()
+        self.Num.returnPressed.connect(lambda: self.close())
+        # actiate touch input
+        self.Num.keyboard_type = 'numeric'
+        gl = QVBoxLayout()
+        gl.addWidget(self.Num)
+        o.setLayout(gl)
+        l.addWidget(o)
+
+    def _hal_init(self):
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
+        else:
+            self.play_sound = False
+
+    def showdialog(self):
+        STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
+        self.setWindowTitle('Numerical Entry');
+        if self.play_sound:
+            STATUS.emit('play-alert', self.play_sound)
+        retval = self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        LOG.debug("Value of pressed button: {}".format(retval))
+        try:
+            return float(self.Num.text())
+        except:
+            return None
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
 
 ################################
 # for testing without editor:

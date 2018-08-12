@@ -22,6 +22,7 @@ from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.dialog_widget import EntryDialog
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -61,6 +62,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         SettingMenu.addAction(setlowButton)
         self.setMenu(SettingMenu)
         self.clicked.connect(self.SelectAxis)
+        self.dialog = EntryDialog()
         #self.setPopupMode(QToolButton.DelayedPopup)
 
     def _hal_init(self):
@@ -89,9 +91,11 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     def SetOrigin(self):
         axis, now = self._a_from_j(self._joint)
         if axis:
+            num = self.dialog.showdialog()
+            if num is None: return
             self._last = now
-            ACTION.SET_AXIS_ORIGIN(axis, 1)
-            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis,1), 'TIME')
+            ACTION.SET_AXIS_ORIGIN(axis, num)
+            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
 
     def Divide(self):
         axis, now = self._a_from_j(self._joint)
