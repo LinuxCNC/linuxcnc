@@ -22,7 +22,7 @@
 }
 #tool_description_label, #program_name_label, #at_speed_label, #spindle_speed_label,
 #tool_number_label, #blank_label1, #blank_label_2, #blank_label_3, #blank_label_4,
-#blank_label_5, #machine_state_label, #spindle_disable_label {
+#blank_label_5, #machine_state_label, #spindle_disable_label, #mdiline {
     border: 1px solid blue;
     border-radius: 10px;
     padding: 2px;
@@ -31,6 +31,9 @@
     color: orange;
 }
 
+#mdiline:disabled {
+    background: gray
+}
 
 /* #########################################################*/
 /* General widget styling */

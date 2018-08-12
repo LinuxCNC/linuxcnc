@@ -778,6 +778,20 @@
                           </property>
                          </spacer>
                         </item>
+                        <item>
+                         <layout class="QHBoxLayout" name="horizontalLayout_23">
+                          <item>
+                           <widget class="QLabel" name="label_4">
+                            <property name="text">
+                             <string>MDI:</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="MDILine" name="mdiline"/>
+                          </item>
+                         </layout>
+                        </item>
                        </layout>
                       </item>
                      </layout>
@@ -915,10 +929,10 @@
                     </sizepolicy>
                    </property>
                    <property name="jograte_rate" stdset="0">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="jograte_angular_rate" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="text_template" stdset="0">
                     <string>Rotary Rate
@@ -1271,7 +1285,7 @@
                       </size>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>     </string>
                      </property>
                     </widget>
                    </item>
@@ -1991,6 +2005,12 @@
    <header>qtvcp.widgets.adjustment_bar</header>
   </customwidget>
   <customwidget>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>StateLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.state_label</header>
@@ -2048,7 +2068,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>
