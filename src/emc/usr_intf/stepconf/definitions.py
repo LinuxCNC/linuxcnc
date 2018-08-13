@@ -168,8 +168,14 @@ available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
 				['finished',_('Almost Done'),True]
 ]
 
+"""
 available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page', 'gui_pyvcp', 'gui_gladevcp',
 					'tool_change', 'axis_helper_functions', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished', 'general_helper_functions',
+]
+"""
+
+available_page_lib =['gui_pyvcp', 'gui_gladevcp',
+					'tool_change', 'axis_helper_functions', 'general_helper_functions',
 ]
 
 # OUTPUT

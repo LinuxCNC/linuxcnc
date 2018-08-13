@@ -39,8 +39,6 @@ import commands
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
-from importlib import import_module
-from pages import pages
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -60,10 +58,10 @@ gettext.bindtextdomain(DOMAIN, LOCALEDIR)
 #**********************************
 # Due to traslation put here module with locale
 from stepconf.definitions import *
-from stepconf import preset
 from stepconf import build_INI
 from stepconf import build_HAL
 from stepconf import data
+from stepconf import pages
 
 #**********************************
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -143,7 +141,7 @@ class StepconfApp:
 		notebook1.set_show_tabs(False)
 
 		self.w = Widgets(self.builder)
-		self.p = Pages(self)
+		self.p = pages.Pages(self)
 		self.INI = build_INI.INI(self)
 		self.HAL = build_HAL.HAL(self)
 		self.builder.set_translation_domain(DOMAIN) # for locale translations

@@ -53,19 +53,6 @@ def select_combo_machine(self, combo, index):
 			return
 		treeiter = liststore.iter_next(treeiter)
 
-"""
-def hz(self, axname):
-	steprev = getattr(self.d, axname+"steprev")
-	microstep = getattr(self.d, axname+"microstep")
-	pulleynum = getattr(self.d, axname+"pulleynum")
-	pulleyden = getattr(self.d, axname+"pulleyden")
-	leadscrew = getattr(self.d, axname+"leadscrew")
-	maxvel = getattr(self.d, axname+"maxvel")
-	if self.d.units or axname == 'a': leadscrew = 1./leadscrew
-	pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
-	return abs(pps)
-"""
-
 def hz(self, axname):
 	steprev = self.d[axname+"steprev"]
 	microstep = self.d[axname+"microstep"]
@@ -137,38 +124,6 @@ def __getitem__(self, item):
 	return getattr(self, item)
 def __setitem__(self, item, value):
 	return setattr(self, item, value)
-
-#*******************
-# GUI Helper functions
-#*******************
-# print debug strings
-def dbg(self,str):
-	if not self._p.debug:
-		return
-	print "DEBUG: %s"%str
-
-# pop up dialog
-def warning_dialog(self,message,is_ok_type):
-	if is_ok_type:
-	   dialog = Gtk.MessageDialog(self.w.window1,
-			Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-			Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
-	   dialog.show_all()
-	   result = dialog.run()
-	   dialog.destroy()
-	   return True
-	else:   
-		dialog = Gtk.MessageDialog(self.w.window1,
-		   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-		   Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO, message)
-		dialog.show_all()
-		result = dialog.run()
-		dialog.destroy()
-		if result == Gtk.ResponseType.YES:
-			return True
-		else:
-			return False
-
 
 # check for spindle output signals
 def check_spindle_speed_control(self):
@@ -291,16 +246,6 @@ def build_output_set(self):
 			p = 'pp2_pin%d' % pin
 			output_set += (self.d[p],)
 	return set(output_set)
-
-"""
-def find_input(self, input):
-	inputs = set((10, 11, 12, 13, 15))
-	for i in inputs:
-		pin = getattr(self.d, "pin%d" % i)
-		inv = getattr(self.d, "pin%dinv" % i)
-		if pin == input: return i
-	return None
-"""
 
 def find_output(self, output):
 	found_list = []
