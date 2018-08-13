@@ -3,6 +3,7 @@
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.action_button import ActionButton
+from qtvcp.widgets.action_button_round import RoundButton
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -68,3 +69,35 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
     # a module path.
     def includeFile(self):
         return "qtvcp.widgets.action_button"
+
+####################################
+# RoundButton
+####################################
+class RoundButtonPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(RoundButtonPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return RoundButton(parent)
+    def name(self):
+        return "RoundButton"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('roundbutton')))
+    def toolTip(self):
+        return "Round shaped Button for actions"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="RoundButton" name="Roundbutton" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.action_button_round"

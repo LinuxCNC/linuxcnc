@@ -29,7 +29,7 @@ from qtvcp.plugins.widgets_plugin import *
 from qtvcp.plugins.state_led_plugin import StateLEDPlugin
 from qtvcp.plugins.status_label_plugin import StatusLabelPlugin
 from qtvcp.plugins.state_label_plugin import StateLabelPlugin
-from qtvcp.plugins.actionbutton_plugin import ActionButtonPlugin
+from qtvcp.plugins.actionbutton_plugin import *
 from qtvcp.plugins.dialog_plugin import *
 from qtvcp.plugins.overlay_plugin import FocusOverlayPlugin
 from qtvcp.plugins.status_slider_plugin import StatusSliderPlugin
