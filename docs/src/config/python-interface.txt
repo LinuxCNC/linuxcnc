@@ -668,6 +668,9 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `program_open(string)`::
 	open an NGC file.
 
+`rapidrate()`::
+	set rapid override factor
+
 `reset_interpreter()`::
 	reset the RS274NGC interpreter
 
