@@ -79,7 +79,7 @@ ini file values>> for an example.
 === linuxcnc.stat attributes
 
 *acceleration* :: '(returns float)' -
-default acceleration, reflects the ini entry [TRAJ] DEFAULT_ACCELERATION.
+default acceleration, reflects the ini entry [TRAJ]DEFAULT_ACCELERATION.
 
 *active_queue*:: '(returns integer)' -
 number of motions blending.
@@ -100,14 +100,14 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
 current value of the analog output pins.
 
 *joints*:: '(returns string)' -
-reflects [KINS] JOINTS ini value.
+reflects [KINS]JOINTS ini value.
 
 *axis*:: '(returns tuple of dicts)' -
 reflecting current axis values. See
 <<sec:the-axis-dictionary,The axis dictionary>>.
 
 *axis_mask*:: '(returns integer)' -
-mask of axis available as defined by [TRAJ] COORDINATES in the ini
+mask of axis available as defined by [TRAJ]COORDINATES in the ini
 file. Returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64,
 V=128, W=256.
 
@@ -251,10 +251,10 @@ machine linear units per mm, reflects [TRAJ]LINEAR_UNITS ini value.
 reflects 'iocontrol.0.lube_level'.
 
 *max_acceleration*:: '(returns float)' -
-maximum  acceleration. reflects [TRAJ] MAX_ACCELERATION.
+maximum  acceleration. reflects [TRAJ]MAX_ACCELERATION.
 
 *max_velocity*:: '(returns float)' -
-maximum  velocity. reflects [TRAJ] MAX_VELOCITY.
+maximum  velocity. reflects [TRAJ]MAX_VELOCITY.
 
 *mcodes*:: '(returns tuple of 10 integers)' -
 currently active M-codes.
