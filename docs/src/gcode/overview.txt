@@ -200,9 +200,9 @@ global variables are visible. The local variables of a
 calling procedure are not visible in a called procedure.
 
 Behavior of uninitialized parameters::
-* Unitialized global parameters, and unused subroutine parameters
+* Uninitialized global parameters, and unused subroutine parameters
    return the value zero when used in an expression.
-* Unitialized named parameters signal an error when used in an expression.
+* Uninitialized named parameters signal an error when used in an expression.
 
 Mode:: Most parameters are read/write and may be assigned to
 within an assignment statement. However, for many predefined
