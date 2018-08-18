@@ -638,6 +638,12 @@ def select_line(event):
     o.tkRedraw()
     return "break"
 
+def release_select_line(event):
+    o.set_highlight_line(None)
+    o.set_current_line(None)
+    o.tkRedraw()
+    return "break"
+
 def select_prev(event):
     if o.highlight_line is None:
         i = o.last_line
@@ -3731,6 +3737,7 @@ t.tag_configure("ignored", background="#ffffff", foreground="#808080")
 t.tag_configure("lineno", foreground="#808080")
 t.tag_configure("executing", background="#804040", foreground="#ffffff")
 t.bind("<Button-1>", select_line)
+t.bind("<Double-Button-1>", release_select_line)
 t.bind("<B1-Motion>", lambda e: "break")
 t.bind("<B1-Leave>", lambda e: "break")
 t.bind("<Button-4>", scroll_up)
