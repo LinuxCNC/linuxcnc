@@ -877,13 +877,15 @@ class pyvcp_spinbox(Spinbox):
             [ <max_>123</max_> ]  sets the maximum value to 123
             [ <initval>100</initval> ]  sets initial value to 100  TJP 12 04 2007
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013            
+            [ <min_pin>"my-spinbox-min"</min_pin> ] if set, minimum can be set externally
+            [ <max_pin>"my-spinbox-max"</max_pin> ] if set, maximum can be set externally
         </spinbox>
     """
     # FIXME: scale resolution when shift/ctrl/alt is held down?
  
     n=0
     def __init__(self,master,pycomp,halpin=None, halparam=None,param_pin=0,
-                    min_=0,max_=100,initval=0,resolution=1,format="2.1f",**kw):
+                    min_=0,max_=100,min_pin=None,max_pin=None,initval=0,resolution=1,format="2.1f",**kw):
         self.v = DoubleVar()
         if 'increment' not in kw: kw['increment'] = resolution
         if 'from' not in kw: kw['from'] = min_
@@ -906,13 +908,27 @@ class pyvcp_spinbox(Spinbox):
 
         pyvcp_spinbox.n += 1
         
-        if initval < min_:
-            self.value=min_
-        elif initval > max_:
-            self.value=max_
+        if min_pin != None:
+            self.min_pin = min_pin
+            pycomp.newpin(min_pin, HAL_FLOAT, HAL_IN)
+            self.min_ = pycomp[self.min_pin]
+        else:
+            self.min_ = min_
+
+        if max_pin != None:
+            self.max_pin = max_pin
+            pycomp.newpin(max_pin, HAL_FLOAT, HAL_IN)
+            self.max_ = pycomp[self.max_pin]
+        else:
+            self.max_ = max_
+
+        if initval < self.min_:
+            self.value=self.min_
+        elif initval > self.max_:
+            self.value=self.max_
         else:
             self.value=initval
-        self.oldvalue=min_
+        self.oldvalue=self.min_
 
         if self.param_pin == 1:
             self.init=self.value
@@ -920,8 +936,6 @@ class pyvcp_spinbox(Spinbox):
             pycomp[self.halparam] = self.init
             
         self.format = "%(b)"+format
-        self.max_=max_
-        self.min_=min_
         self.resolution=resolution
         self.v.set( str( self.format  % {'b':self.value} ) )
         pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
@@ -932,10 +946,18 @@ class pyvcp_spinbox(Spinbox):
 
     def return_pressed(self, event):
         self.value = self.v.get()
-        if self.value < self.min_:
-            self.value = self.min_
-        if self.value > self.max_:
-            self.value = self.max_
+        if self.min_pin != None:
+            if self.value < pycomp[self.min_pin]:
+                self.value = pycomp[self.min_pin]
+        else:
+            if self.value < self.min_:
+                self.value = self.min_
+        if self.max_pin != None:
+            if self.value > pycomp[self.max_pin]:
+                self.value = pycomp[self.max_pin]
+        else:
+            if self.value > self.max_:
+                self.value = self.max_
 
 
     def command(self):
@@ -956,14 +978,22 @@ class pyvcp_spinbox(Spinbox):
           
     def wheel_up(self,event):
         self.value += self.resolution
-        if self.value > self.max_:
-            self.value = self.max_
+        if self.max_pin != None:
+            if self.value > pycomp[self.max_pin]:
+                self.value = pycomp[self.max_pin]
+        else:
+            if self.value > self.max_:
+                self.value = self.max_
           
      
     def wheel_down(self,event):
         self.value -= self.resolution
-        if self.value < self.min_:
-            self.value = self.min_
+        if self.min_pin != None:
+            if self.value < pycomp[self.min_pin]:
+                self.value = pycomp[self.min_pin]
+        else:
+            if self.value < self.min_:
+                self.value = self.min_
           
 
 
