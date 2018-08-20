@@ -954,7 +954,7 @@ class pyvcp_spinbox(Spinbox):
                 self.value = self.min_
         if self.max_pin != None:
             if self.value > pycomp[self.max_pin]:
-                self.value = pycomp[self.max_pin]:
+                self.value = pycomp[self.max_pin]
         else:
             if self.value > self.max_:
                 self.value = self.max_
