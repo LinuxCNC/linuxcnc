@@ -58,6 +58,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
 
     case mbtx_03_READ_HOLDING_REGISTERS:
     case mbtx_04_READ_INPUT_REGISTERS:
+    case mbtx_06_WRITE_SINGLE_REGISTER:
     case mbtx_16_WRITE_MULTIPLE_REGISTERS:
         mb_tx->float_value= hal_malloc(sizeof(hal_float_t *) * mb_tx->mb_tx_nelem);
         mb_tx->int_value  = hal_malloc(sizeof(hal_s32_t *) * mb_tx->mb_tx_nelem);
@@ -138,6 +139,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             //mb_tx->scale[pin_counter] = 1;
             //mb_tx->offset[pin_counter] = 0;
             break;
+        case mbtx_06_WRITE_SINGLE_REGISTER:
         case mbtx_16_WRITE_MULTIPLE_REGISTERS:
             if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
                                         "%s", hal_pin_name)) {

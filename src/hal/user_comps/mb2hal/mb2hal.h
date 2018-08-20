@@ -26,6 +26,7 @@
 #define MB2HAL_MAX_FNCT03_ELEMENTS 100
 #define MB2HAL_MAX_FNCT04_ELEMENTS 100
 #define MB2HAL_MAX_FNCT05_ELEMENTS 100
+#define MB2HAL_MAX_FNCT06_ELEMENTS 1
 #define MB2HAL_MAX_FNCT15_ELEMENTS 100
 #define MB2HAL_MAX_FNCT16_ELEMENTS 100
 
@@ -43,6 +44,7 @@ typedef enum { mbtxERR,
                mbtx_02_READ_DISCRETE_INPUTS,
                mbtx_03_READ_HOLDING_REGISTERS,
                mbtx_04_READ_INPUT_REGISTERS,
+               mbtx_06_WRITE_SINGLE_REGISTER,
                mbtx_15_WRITE_MULTIPLE_COILS,
                mbtx_16_WRITE_MULTIPLE_REGISTERS,
                mbtxMAX
@@ -180,4 +182,5 @@ retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
 retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
+retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
 retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link);
