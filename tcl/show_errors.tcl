@@ -19,9 +19,12 @@
 package require Linuxcnc
 
 proc insert_file {w title f {p {}}} {
-    set f [open $f r]
-    set t [read $f]
-    close $f
+    if [catch {set f [open $f r]
+               set t [read $f]
+               close $f
+              } msg] {
+       set t "$::argv0: $msg" ;# info on failed open
+    }
 
     if {$p != {} && [regexp -all -linestop -lineanchor -indices $p $t match]} {
         set match [lindex $match 0]
