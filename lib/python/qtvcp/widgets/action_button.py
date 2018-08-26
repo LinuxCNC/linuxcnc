@@ -47,7 +47,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False
-        self.estop = True
+        self.estop = False
         self.machine_on = False
         self.home = False
         self.run = False

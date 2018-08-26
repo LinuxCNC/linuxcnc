@@ -445,8 +445,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>505</x>
-       <y>325</y>
+       <x>489</x>
+       <y>323</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -2087,6 +2087,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="checked">
       <bool>false</bool>
      </property>
+     <property name="estop_action" stdset="0">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="ActionButton" name="button_machineon">
      <property name="geometry">
@@ -3053,14 +3056,14 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ToolDialog</class>
-   <extends>LcncDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>
