@@ -22,7 +22,8 @@
 }
 #tool_description_label, #program_name_label, #at_speed_label, #spindle_speed_label,
 #tool_number_label, #blank_label1, #blank_label_2, #blank_label_3, #blank_label_4,
-#blank_label_5, #machine_state_label, #spindle_disable_label, #mdiline {
+#blank_label_5, #machine_state_label, #spindle_disable_label, #mdiline, #jog_inc_label,
+#user_system_label {
     border: 1px solid blue;
     border-radius: 10px;
     padding: 2px;
@@ -60,7 +61,7 @@ QToolButton {
         min-width: 30px;
 }
 
-AxisToolButton {
+AxisToolButton, SystemToolButton {
     font: 95 18pt "Noto Sans";
     border-color: black;
     border-style: solid;
@@ -70,20 +71,20 @@ AxisToolButton {
     background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
         stop: 0 #b6b6b6, stop: 1.0 #626262);
 }
-AxisToolButton:enabled{
+AxisToolButton:enabled, SystemToolButton:enabled{
     color: #000;
 }
 
-AxisToolButton:disabled{
+AxisToolButton:disabled, SystemToolButton:disabled{
     color: darkgray;
 }
 
-AxisToolButton:hover {
+AxisToolButton:hover, SystemToolButton:hover {
     background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
         stop: 0 #A19E9E, stop: 1.0 #5C5959);
 }
 
-AxisToolButton:pressed {
+AxisToolButton:pressed, SystemToolButton:pressed {
     background:  qlineargradient(x1: 0, y1: 0,
         stop: 0 #5C5959, stop: 1.0 #A19E9E)
 }
