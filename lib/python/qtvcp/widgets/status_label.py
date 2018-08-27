@@ -142,7 +142,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self._actual_RPM = rpm
 
     def _set_user_system_text(self, widgets, data):
-        self._set_text(int(data)+53)
+        convert = { 1:"54", 2:"55", 3:"56", 4:"57", 5:"58", 6:"59", 7:"59.1", 8:"59.2", 9:"59.3"}
+        self._set_text(convert[int(data)])
 
     def _set_machine_units(self, u, c):
         self.machine_units_mm = u
