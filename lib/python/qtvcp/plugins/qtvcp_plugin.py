@@ -37,3 +37,4 @@ from qtvcp.plugins.status_adjustment_bar_plugin import StatusAdjustmentBarPlugin
 from qtvcp.plugins.screenoptions_plugin import LcncScreenOptionsPlugin
 from qtvcp.plugins.jogincrements_plugin import JogIncrementsPlugin
 from qtvcp.plugins.camview_plugin import CamViewPlugin
+from qtvcp.plugins.toolbutton_plugin import SystemToolButtonPlugin
