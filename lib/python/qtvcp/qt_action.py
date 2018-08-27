@@ -129,6 +129,14 @@ class _Lcnc_Action(object):
     def SET_SPINDLE_STOP(self):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF)
 
+    def SET_USER_SYSTEM(self, system):
+        systemnum = str(system).strip('gG')
+        if systemnum in('54', '55', '56', '57', '58', '59', '59.1', '59.2', '59.3'):
+            fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+            self.cmd.mdi('G'+systemnum)
+            self.cmd.wait_complete()
+            self.ensure_mode(premode)
+            
     def ZERO_G92_OFFSET(self):
         self.CALL_MDI("G92.1")
         STATUS.emit('reload-display')
