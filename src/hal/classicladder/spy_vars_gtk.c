@@ -155,7 +155,7 @@ static gint OffsetBoolVar_activate_event(GtkWidget *widget, void * NumVarSpy)
 }
 
 // return true so window is not destroyed
-// set toggle to 3 so hitting vars button again wiil hide everything
+// set toggle to 3 so hitting vars button again will hide everything
 // unless we were only showing BoolVars window then start from the beginning
 gint BoolVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
@@ -383,7 +383,7 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 }
 
 //return true so window is not destroyed
-//set toggle to 3 so hitting vars button again wiil hide everything
+//set toggle to 3 so hitting vars button again will hide everything
 //unless we were only showing FreeVars window then start from the beginning
 gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
