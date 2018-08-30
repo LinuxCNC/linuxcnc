@@ -403,13 +403,13 @@ will be on_color when the halpin is true, and off_color otherwise.
 * '<off_color>color</off_color>' - sets the color of the LED when the pin is
   false. default is 'red'
 
-* '<height>n<height>' - sets the height of the LED in pixels
+* '<height>n</height>' - sets the height of the LED in pixels
 
-* '<width>n<width>' - sets the width of the LED in pixels
+* '<width>n</width>' - sets the width of the LED in pixels
 
-* '<disable_pin>false<disable_pin>' - when true adds a disable pin to the led.
+* '<disable_pin>false</disable_pin>' - when true adds a disable pin to the led.
 
-* '<disabled_color>color<disabled_color>' - sets the color of the LED when the
+* '<disabled_color>color</disabled_color>' - sets the color of the LED when the
   pin is disabled.
 
 .Round LED
