@@ -857,7 +857,7 @@ width of the border.
     Where 'n' is the width of the border.
 
 [source,xml]
----------------------------------------
+----
 <hbox>
     <button>
         <relief>FLAT</relief>
@@ -885,11 +885,39 @@ width of the border.
         <bd>3</bd>
     </button>
 </hbox>
----------------------------------------
+----
 
 The above code produced this example.
 
 image::images/pyvcp_borders.png[]
+
+
+.Fill
+
+Container fill are specified with the '<boxfill fill=""/>' tag. Valid entries
+are none, x, y and both. The x fill is a horizontal fill and the y fill is a 
+vertical fill
+
+* '<boxfill fill ="style"/>' - 
+    Where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
+
+.Anchor
+
+Container anchors are specificed with the <boxanchor anchor=""/> tag. The anchor
+specifies where to position each slave in its parcel. Valid entries are center,
+n, s, e, w, for center, north, south, east and west. Combinations like sw, se,
+nw and ne are also valid.
+
+* '<boxanchor anchor="position"/>' -
+    Where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
+
+.Expand
+
+Container expand is specificed with the boolean <boxexpand expand=""/> tag.
+Valid entries are yes, no.
+
+* '<boxexpand expand="boolean"/>' -
+    Where 'boolean' is either yes or no. Default is yes.
 
 .Hbox
 
@@ -914,9 +942,8 @@ image::images/pyvcp_hbox.png[]
 
 Inside an Hbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
 , and '<boxexpand expand=""/>' tags to choose how items in the box behave when
-the window is re-sized. For details of how fill, anchor, and expand behave,
-refer to the Tk 'pack' manual page, 'pack(3tk)'. By default, 'fill="y"',
-'anchor="center"', 'expand="yes"'.
+the window is re-sized.The default is 'fill="y"', 'anchor="center"', 'expand="yes"'
+for a Hbox.
 
 .Vbox
 
@@ -939,11 +966,10 @@ The above code produced this example.
 
 image::images/pyvcp_vbox.png[]
 
-Inside a Hbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
+Inside a Vbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
 , and '<boxexpand expand=""/>' tags to choose how items in the box behave
-when the window is re-sized. For details of how fill, anchor, and expand
-behave, refer to the Tk 'pack' manual page, 'pack(3tk)'. By default, 'fill="x"',
-'anchor="center"', 'expand="yes"'.
+when the window is re-sized. The default is 'fill="x"', 'anchor="center"',
+'expand="yes"' for a Hbox.
 
 .Labelframe
 
