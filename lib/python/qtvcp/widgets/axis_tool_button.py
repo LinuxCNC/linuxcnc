@@ -45,7 +45,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self._joint = 0
         self._last = 0
         self._block_signal = False
-        self._use_hal_pins = True
+        self._halpin_option = True
 
         SettingMenu = QMenu()
         exitButton = QAction(QIcon('exit24.png'), 'Zero', self)
@@ -78,7 +78,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
         STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
         STATUS.connect('axis-selection-changed', lambda w,x,data: self.ChangeState(data))
-        if self._use_hal_pins:
+        if self._halpin_option:
             self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
 
     def Zero(self):
@@ -154,7 +154,15 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     def reset_joint(self):
         self._joint = -1
 
+    def set_halpin_option(self, value):
+        self._halpin_option = value
+    def get_halpin_option(self):
+        return self._halpin_option
+    def reset_halpin_option(self):
+        self._halpin_option = True
+
     joint_number = pyqtProperty(int, get_joint, set_joint, reset_joint)
+    halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
 
 # for testing without editor:
 def main():
