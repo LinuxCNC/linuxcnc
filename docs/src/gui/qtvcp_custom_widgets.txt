@@ -238,7 +238,18 @@ the lambda function accepts the widget instance (w) that GObject sends it and th
 self._flip_state(True) +
 Lambda was used to strip the (w) object before calling the self._flip_state function. +
 It also allowed use to send self._flip_state() the True state. +
-you will also see code like this (no lambda):
+
+[source,python]
+----
+    def _flip_state(self, data):
+            if self.invert_state:
+                data = not data
+            self.change_state(data)
+----
+This is the function that actually flips the state of the LED. +
+It is what gets called when the appropriate STATUS message is accepted. +
+ +
+You will also see code like this (no lambda):
 [source,python]
 ----
 STATUS.connect('current-feed-rate', self._set_feedrate_text)
@@ -249,16 +260,6 @@ and the function called looks like this:
     def _set_feedrate_text(self, widget, data):
 ----
 in which the widget and any data must be accepted by the function. +
- +
-[source,python]
-----
-    def _flip_state(self, data):
-            if self.invert_state:
-                data = not data
-            self.change_state(data)
-----
-This is the function that actually flips the state of the LED. +
-It is what gets called when the appropriate STATUS message is accepted. +
 
 === In the  'Designer properties setter/getters/resetters' section
 This is how Designer sets the attributes of the widget. +

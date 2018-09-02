@@ -67,21 +67,80 @@ These widgets interact to the Machine Controller state.
 === Action Button Widget
 
 These buttons are used to control action of the machine controller. +
-You can select these actions: +
+You can select one of these actions: +
 Estop +
 Machine On +
-Home +
-Run +
-Pause +
-Abort +
-Load File +
+Auto +
+mdi +
+manual +
+run +
+abort +
+pause +
+load dialog (requires a dialog widget present) +
+Camview dialog (requires camview dialog widget present) +
+origin offset dialog (requires origin offset dialog widget present) +
+macro dialog (requires macro dialog widget present) +
 Launch Halmeter +
 Launch Status +
 Launch Halshow +
-Set machine mode +
-Jog Axes +
+Home (set the joint number to -1 for all-home) +
+zero axis +
+jog joint positive (set the joint number) +
+jog joint negative (set the joint number) +
+jog selected positive (selected with a different widget or STATUS) +
+jog selected negative (selected with a different widget or STATUS) +
+jog increment (set metric/imperial/angular numbers) +
+jog rate (set the float/alt float number) +
+feed override (set the float/alt float number) +
+rapid override (set the float/alt float number) +
+spindle override (set the float/alt float number) +
+spindle fwd
+spindle bacward
+spindle stop
+spindle up
+spindle down +
+view change (set view type string) +
+limits override +
+flood +
+mist +
+block delete +
+optional stop +
+mdi command (set command string) +
+dro absolute +
+dro relative +
+dro dtg +
+
+These set attributes of the selected action. Availability depends on the widget. +
+ +
+'toggle float option' - allows jog rate and overrides to toggle between two rates +
+'joint number' - selects the joint/axis that the button controls +
+'incr imperial number' - sets the imperial jog increment (set negative to ignore) +
+'incr mm number' -sets the metric jog increment (set negative to ignore) +
+'incr angular number' -sets the angular jog increment (set negative to ignore) +
+'float number' - used for jograte and overrides +
+'float alternate number' -for jograte and overrides that can toggle between two float numbers +
+'view type string' - can be p, x, y, y2, z, z2, clear +
+'command string' - MDI command string. can be a direct command or a reference to +
+the INI file [MDI_COMMAND_LIST] section. To use the INI reference type 'MDI_COMMAND_LIST=0', 0 being +
+an integer of the INI's MDI_COMMAND line starting at 0. Then in the INI file, under the heading +
+'[MDI_COMMAND_LIST]' add a line: 'MDI_COMMAND=<some command>' some command being the MDI command. +
 
 It is based on pyQT's QButton
+
+=== Axis Tool Button
+This allows one to select and set an AXIS.
+If the button is set checkable, it will indicate which axis is selected. +
+If you press and hold the button a pop up menu will show allowing one to: +
+
+* Zero the axis
+* divide the axis by 2
+* set the axis arbitrarily
+* reset the axis to the last number recorded
+
+You select the axis by setting the joint number +
+You can select a halpin option that is set true when the axis is selected +
+
+It is based on pyQT's QToolButton
 
 === Camview Widget
 This is used to align the work piece or zero part features using a webcam. +
@@ -165,9 +224,10 @@ options. +
 === Slider Widget
 
 This widget allow the user to adjust linuxcnc setting via a slide. +
+
 .The widget can adjust:
 * Jog rate
-+ Angular jog rate
+* Angular jog rate
 * Feed rate
 * spindle override rate
 * Rapid override rate
@@ -184,7 +244,8 @@ It is based on the LED widget
 
 This widget allows setting values using buttons while displaying a bar. +
 It also has an optional hi/low toggle button that can be held down to set the +
-levels. 
+levels.
+
 .The widget can adjust:
 * Jog rate
 * angular jog rate
@@ -193,6 +254,12 @@ levels.
 * Rapid override rate
 
 It is based on pyQT's QProgressBar
+
+=== SystemToolButton
+This widget allows you to manually select a user system by pressing and holding. +
+If you don't set the button text it will automatically update to the current system. +
+
+It is based on pyQT's QToolButton
 
 ===  Macro Widget
 
@@ -219,7 +286,7 @@ This widget allows one to modify User System origin offsets directly
 
 It is based on pyQT's
 
-==+ State Enable Gridlayout Widgets
+=== State Enable Gridlayout Widgets
 
 This is a container that other widgets can be placed in. +
 It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
