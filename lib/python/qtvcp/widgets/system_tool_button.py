@@ -45,7 +45,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         self._joint = 0
         self._last = 0
         self._block_signal = False
-
+        self._auto_label_flag = True
         SettingMenu = QMenu()
         for system in('G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3'):
 
@@ -54,11 +54,12 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
             SettingMenu.addAction(Button)
 
         self.setMenu(SettingMenu)
-        #self.clicked.connect(self.SelectAxis)
         self.dialog = EntryDialog()
         #self.setPopupMode(QToolButton.DelayedPopup)
 
     def _hal_init(self):
+        if not self.text() == '':
+            self._auto_label_flag = False
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -71,7 +72,6 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
         STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
         STATUS.connect('user-system-changed', self._set_user_system_text)
-        #STATUS.connect('axis-selection-changed', lambda w,x,data: self.ChangeState(data))
 
     def G54(self):
         ACTION.SET_USER_SYSTEM('54')
@@ -102,7 +102,8 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
 
     def _set_user_system_text(self, w, data):
         convert = { 1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}
-        self.setText(convert[int(data)])
+        if self._auto_label_flag:
+            self.setText(convert[int(data)])
 
     def ChangeState(self, joint):
         if int(joint) != self._joint:
@@ -110,8 +111,6 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
             self.setChecked(False)
             self._block_signal = False
             self.hal_pin.set(False)
-
-
 
     ##############################
     # required class boiler code #
@@ -121,22 +120,6 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
-
-    #########################################################################
-    # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
-    # it will use the get set and reset calls to do those actions
-    #
-    ########################################################################
-
-    def set_joint(self, data):
-        self._joint = data
-    def get_joint(self):
-        return self._joint
-    def reset_joint(self):
-        self._joint = -1
-
-    joint_number = pyqtProperty(int, get_joint, set_joint, reset_joint)
 
 # for testing without editor:
 def main():
