@@ -414,197 +414,80 @@
                         <enum>QLayout::SetFixedSize</enum>
                        </property>
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_14">
-                         <item>
-                          <widget class="AxisToolButton" name="axistoolbutton">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>X</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="horizontalSpacer_28">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
-                          <widget class="DROLabel" name="dro_x">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
+                        <widget class="StatusLabel" name="tool_number_label">
+                         <property name="textTemplate" stdset="0">
+                          <string>Tool %s</string>
+                         </property>
+                         <property name="tool_number_status" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_15">
-                         <item>
-                          <widget class="AxisToolButton" name="axistoolbutton_2">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>Y</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                           <property name="joint_number" stdset="0">
-                            <number>1</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="horizontalSpacer_27">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
-                          <widget class="DROLabel" name="dro_y">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                             <horstretch>1</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>101.0010</string>
-                           </property>
-                           <property name="Qjoint_number" stdset="0">
-                            <number>1</number>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
+                        <widget class="QLabel" name="label_5">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>220</width>
+                           <height>200</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="pixmap">
+                          <pixmap>../../images/b4_endmill.png</pixmap>
+                         </property>
+                         <property name="scaledContents">
+                          <bool>true</bool>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_16">
-                         <item>
-                          <widget class="AxisToolButton" name="axistoolbutton_3">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>Z</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                           <property name="joint_number" stdset="0">
-                            <number>2</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="horizontalSpacer_29">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
-                          <widget class="DROLabel" name="dro_z">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="Qjoint_number" stdset="0">
-                            <number>2</number>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
+                        <widget class="StatusLabel" name="tool_description_label">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="tool_comment_status" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <layout class="QHBoxLayout" name="horizontalLayout_17">
-                         <item>
-                          <widget class="AxisToolButton" name="axistoolbutton_4">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>A</string>
-                           </property>
-                           <property name="checkable">
-                            <bool>true</bool>
-                           </property>
-                           <property name="joint_number" stdset="0">
-                            <number>3</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="horizontalSpacer_30">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                         <item>
-                          <widget class="DROLabel" name="dro_a">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="Qjoint_number" stdset="0">
-                            <number>3</number>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
+                        <widget class="StatusLabel" name="tool_diameter_label">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="textTemplate" stdset="0">
+                          <string>Diameter: %s</string>
+                         </property>
+                         <property name="tool_diameter_status" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="tool_comment_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
                        </item>
                        <item>
                         <spacer name="verticalSpacer_4">
@@ -627,7 +510,17 @@
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_22">
                            <item>
-                            <widget class="ActionButton" name="actionbutton_42"/>
+                            <widget class="ActionButton" name="actionbutton_34">
+                             <property name="text">
+                              <string>Flood</string>
+                             </property>
+                             <property name="checkable">
+                              <bool>true</bool>
+                             </property>
+                             <property name="flood_action" stdset="0">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
                            </item>
                            <item>
                             <spacer name="horizontalSpacer_20">
@@ -643,7 +536,17 @@
                             </spacer>
                            </item>
                            <item>
-                            <widget class="ActionButton" name="actionbutton_41"/>
+                            <widget class="ActionButton" name="actionbutton_37">
+                             <property name="text">
+                              <string>Mist</string>
+                             </property>
+                             <property name="checkable">
+                              <bool>true</bool>
+                             </property>
+                             <property name="mist_action" stdset="0">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
                            </item>
                           </layout>
                          </item>
@@ -687,104 +590,6 @@
                           </layout>
                          </item>
                          <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_21">
-                           <item>
-                            <widget class="SystemToolButton" name="system_toolbutton">
-                             <property name="sizePolicy">
-                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                               <horstretch>0</horstretch>
-                               <verstretch>0</verstretch>
-                              </sizepolicy>
-                             </property>
-                             <property name="text">
-                              <string>SYS</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <spacer name="horizontalSpacer_19">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>0</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item>
-                            <widget class="StatusLabel" name="user_system_label">
-                             <property name="textTemplate" stdset="0">
-                              <string>User System: G%s</string>
-                             </property>
-                             <property name="user_system_status" stdset="0">
-                              <bool>true</bool>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_26">
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_46">
-                             <property name="text">
-                              <string>ABS</string>
-                             </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="checked">
-                              <bool>true</bool>
-                             </property>
-                             <property name="dro_absolute_action" stdset="0">
-                              <bool>true</bool>
-                             </property>
-                             <attribute name="buttonGroup">
-                              <string notr="true">buttonGroup_2</string>
-                             </attribute>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_48">
-                             <property name="text">
-                              <string>REL</string>
-                             </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="checked">
-                              <bool>false</bool>
-                             </property>
-                             <property name="dro_relative_action" stdset="0">
-                              <bool>true</bool>
-                             </property>
-                             <attribute name="buttonGroup">
-                              <string notr="true">buttonGroup_2</string>
-                             </attribute>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_47">
-                             <property name="text">
-                              <string>DTG</string>
-                             </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="dro_dtg_action" stdset="0">
-                              <bool>true</bool>
-                             </property>
-                             <attribute name="buttonGroup">
-                              <string notr="true">buttonGroup_2</string>
-                             </attribute>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                         <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_24"/>
                          </item>
                          <item>
@@ -799,20 +604,6 @@
                             </size>
                            </property>
                           </spacer>
-                         </item>
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_23">
-                           <item>
-                            <widget class="QLabel" name="label_4">
-                             <property name="text">
-                              <string>MDI:</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="MDILine" name="mdiline"/>
-                           </item>
-                          </layout>
                          </item>
                         </layout>
                        </item>
@@ -891,7 +682,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
                  <property name="spacing">
                   <number>0</number>
                  </property>
@@ -916,8 +707,8 @@
                     <bool>true</bool>
                    </property>
                    <property name="text_template" stdset="0">
-                    <string>Feed Rate
-%s</string>
+                    <string>Feed Override
+ %s</string>
                    </property>
                   </widget>
                  </item>
@@ -936,8 +727,22 @@
                     <bool>false</bool>
                    </property>
                    <property name="text_template" stdset="0">
-                    <string>Rapid Rate
-%s</string>
+                    <string>Rapid Override
+ %s</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusAdjustmentBar" name="statusadjustmentbar_6">
+                   <property name="spindle_rate" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="show_toggle_button" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text_template" stdset="0">
+                    <string>Spindle Override
+   %d</string>
                    </property>
                   </widget>
                  </item>
@@ -982,11 +787,25 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="StatusLabel" name="jog_inc_label">
-                   <property name="jogincr_status" stdset="0">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
+                  <layout class="QHBoxLayout" name="horizontalLayout_39">
+                   <item>
+                    <widget class="StatusLabel" name="jog_angular_inc_label">
+                     <property name="jogincr_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StatusLabel" name="jog_inc_label">
+                     <property name="jogincr_status" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="joginct_angle_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_38">
@@ -1081,6 +900,56 @@
                      </property>
                      <property name="incr_angular_number" stdset="0">
                       <double>0.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_6">
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_19">
+                     <property name="text">
+                      <string>SPDL -</string>
+                     </property>
+                     <property name="spindle_rev_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="spindle_down_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_33">
+                     <property name="text">
+                      <string>STOP</string>
+                     </property>
+                     <property name="spindle_stop_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_18">
+                     <property name="text">
+                      <string>SPDL +</string>
+                     </property>
+                     <property name="spindle_fwd_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="spindle_up_action" stdset="0">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -1697,6 +1566,19 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
+             <widget class="StatusLabel" name="spindle_speed_label">
+              <property name="textTemplate" stdset="0">
+               <string>Spindle %d</string>
+              </property>
+              <property name="requested_spindle_speed_status" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="actual_spindle_speed_status" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="StateLabel" name="at_speed_label">
               <property name="true_textTemplate" stdset="0">
                <string>At Speed</string>
@@ -1707,15 +1589,15 @@
              </widget>
             </item>
             <item>
-             <widget class="StatusLabel" name="spindle_speed_label">
+             <widget class="StatusLabel" name="spindle_override_label">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
               <property name="textTemplate" stdset="0">
-               <string>Spindle %s</string>
+               <string>%d%%</string>
               </property>
-              <property name="requested_spindle_speed_status" stdset="0">
+              <property name="spindle_override_status" stdset="0">
                <bool>true</bool>
-              </property>
-              <property name="actual_spindle_speed_status" stdset="0">
-               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -1734,35 +1616,32 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_20">
             <item>
-             <widget class="ActionButton" name="actionbutton_8"/>
-            </item>
-            <item>
-             <widget class="StatusLabel" name="tool_number_label">
+             <widget class="StatusLabel" name="feedrate_label">
               <property name="textTemplate" stdset="0">
-               <string>Tool %s</string>
+               <string>Feedrate: %3.2f</string>
               </property>
-              <property name="tool_number_status" stdset="0">
+              <property name="current_feedrate_status" stdset="0">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="ActionButton" name="actionbutton_7"/>
+             <widget class="StatusLabel" name="feed_override_label">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%d%%</string>
+              </property>
+              <property name="feed_override_status" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="spindle_override_status" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="StatusLabel" name="tool_description_label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="tool_comment_status" stdset="0">
-             <bool>true</bool>
-            </property>
-           </widget>
           </item>
           <item>
            <widget class="Line" name="line_3">
@@ -1775,90 +1654,225 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_34">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetMinimumSize</enum>
-            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_34"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_21">
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="SystemToolButton" name="system_toolbutton">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="minimumSize">
+              <property name="text">
+               <string>SYS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_19">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>0</width>
-                <height>0</height>
+                <height>20</height>
                </size>
               </property>
-              <property name="maximumSize">
-               <size>
-                <width>200</width>
-                <height>200</height>
-               </size>
+             </spacer>
+            </item>
+            <item>
+             <widget class="StatusLabel" name="user_system_label">
+              <property name="textTemplate" stdset="0">
+               <string>User System: G%s</string>
+              </property>
+              <property name="user_system_status" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_7">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <property name="text">
-               <string/>
+               <string>Z</string>
               </property>
-              <property name="pixmap">
-               <pixmap>../../images/b4_endmill.png</pixmap>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
-              <property name="scaledContents">
+              <property name="joint_number" stdset="0">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_29">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_z">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="Qjoint_number" stdset="0">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Y</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_27">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_y">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>101.0010</string>
+              </property>
+              <property name="Qjoint_number" stdset="0">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>X</string>
+              </property>
+              <property name="checkable">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <property name="sizeConstraint">
-               <enum>QLayout::SetMinimumSize</enum>
+             <spacer name="horizontalSpacer_28">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-             </layout>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_x">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_35">
+           <layout class="QHBoxLayout" name="horizontalLayout_17">
             <item>
-             <spacer name="horizontalSpacer_17">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="ActionButton" name="actionbutton_9">
-              <property name="minimumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="ActionButton" name="actionbutton_16">
-              <property name="minimumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
+             <widget class="AxisToolButton" name="axistoolbutton_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <property name="text">
-               <string>Select tool</string>
+               <string>A</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>3</number>
               </property>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_24">
+             <spacer name="horizontalSpacer_30">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -1869,6 +1883,77 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_a">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="Qjoint_number" stdset="0">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_26">
+            <item>
+             <widget class="ActionButton" name="actionbutton_46">
+              <property name="text">
+               <string>ABS</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="dro_absolute_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_2</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_48">
+              <property name="text">
+               <string>REL</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="dro_relative_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_2</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_47">
+              <property name="text">
+               <string>DTG</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="dro_dtg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_2</string>
+              </attribute>
+             </widget>
             </item>
            </layout>
           </item>
@@ -1883,73 +1968,31 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
-             <widget class="ActionButton" name="actionbutton_17">
-              <property name="text">
-               <string>100%</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="StatusLabel" name="spindle_disable_label"/>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="StatusAdjustmentBar" name="statusadjustmentbar_6">
-            <property name="spindle_rate" stdset="0">
-             <bool>true</bool>
+           <widget class="StatusLabel" name="gcode_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="show_toggle_button" stdset="0">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="scaledContents">
              <bool>false</bool>
             </property>
-            <property name="text_template" stdset="0">
-             <string>spindle Override =  %s</string>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="gcodes_status" stdset="0">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_9">
-            <item>
-             <widget class="ActionButton" name="actionbutton_19">
-              <property name="text">
-               <string>SPDL -</string>
-              </property>
-              <property name="spindle_rev_action" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="ActionButton" name="actionbutton_33">
-              <property name="text">
-               <string>STOP</string>
-              </property>
-              <property name="spindle_stop_action" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="ActionButton" name="actionbutton_18">
-              <property name="text">
-               <string>SPDL +</string>
-              </property>
-              <property name="spindle_fwd_action" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="Line" name="line_6">
-            <property name="frameShadow">
-             <enum>QFrame::Plain</enum>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="StatusLabel" name="mcode_label">
+            <property name="mcodes_status" stdset="0">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -1999,42 +2042,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
-             <widget class="ActionButton" name="actionbutton_37">
-              <property name="text">
-               <string>Mist</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="mist_action" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="ActionButton" name="actionbutton_36">
-              <property name="text">
-               <string>Acc</string>
-              </property>
-              <property name="mdi_command_action" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="ActionButton" name="actionbutton_34">
-              <property name="text">
-               <string>Flood</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="flood_action" stdset="0">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
             <item row="4" column="2" rowspan="3">
              <widget class="RoundButton" name="Roundbutton">
               <property name="sizePolicy">
@@ -2072,6 +2079,78 @@
                <number>-1</number>
               </property>
              </widget>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_35">
+              <item>
+               <widget class="ActionButton" name="actionbutton_35">
+                <property name="text">
+                 <string>Man</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="manual_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="spindle_rev_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="spindle_down_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_36">
+                <property name="text">
+                 <string>MDI</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="mdi_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="spindle_stop_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_38">
+                <property name="text">
+                 <string>Auto</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="auto_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="spindle_fwd_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="spindle_up_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" colspan="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>MDI:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="MDILine" name="mdiline"/>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
@@ -2223,7 +2302,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

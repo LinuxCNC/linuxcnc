@@ -22,8 +22,9 @@
 }
 #tool_description_label, #program_name_label, #at_speed_label, #spindle_speed_label,
 #tool_number_label, #blank_label1, #blank_label_2, #blank_label_3, #blank_label_4,
-#blank_label_5, #machine_state_label, #spindle_disable_label, #mdiline, #jog_inc_label,
-#user_system_label {
+#blank_label_5, #machine_state_label, #spindle_override_label, #mdiline, #jog_inc_label,
+#jog_angular_inc_label, #feedrate_label, #user_system_label, #feed_override_label,
+#gcode_label, #mcode_label, #tool_diameter_label {
     border: 1px solid blue;
     border-radius: 10px;
     padding: 2px;
