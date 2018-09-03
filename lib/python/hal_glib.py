@@ -767,6 +767,9 @@ class _GStat(gobject.GObject):
     def is_metric_mode(self):
         return self.old['metric']
 
+    def is_spindle_on(self):
+        return self.old['spindle-enabled']
+
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
         m = "G10 L10 P%d %s%f"%(tool,axis,value)

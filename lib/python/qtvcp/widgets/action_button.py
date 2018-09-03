@@ -399,9 +399,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.spindle_stop:
             ACTION.SET_SPINDLE_STOP()
         elif self.spindle_up:
-            ACTION.SET_SPINDLE_FASTER()
+            if STATUS.is_spindle_on():
+                ACTION.SET_SPINDLE_FASTER()
+            else:
+                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED)
         elif self.spindle_down:
-            ACTION.SET_SPINDLE_SLOWER()
+            if STATUS.is_spindle_on():
+                ACTION.SET_SPINDLE_SLOWER()
+            else:
+                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED)
         elif self.limits_override:
             ACTION.SET_LIMITS_OVERRIDE()
         elif self.flood:
