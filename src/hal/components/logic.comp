@@ -4,25 +4,31 @@ pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
 function _ nofp;
-description """
-General `logic function' component.  Can perform `and', `or'
-and `xor' of up to 16 inputs.
-.LP
+
+description 
+"""
+General logic function' component.  Can perform AND, OR and XOR of up to 16 inputs.
+
 Determine the proper value for `personality'
 by adding the inputs and outputs then convert to hex:
-.IP \\(bu 4
-The number of input pins, usually from 2 to 16
-.IP \\(bu
-256 (0x100)  if the `and' output is desired
-.IP \\(bu
-512 (0x200)  if the `or' output is desired
-.IP \\(bu
-1024 (0x400)  if the `xor' (exclusive or) output is desired
-.LP
-Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
-would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
+
+    The number of input pins, usually from 2 to 16
+
+    256 (0x100)  if the `and' output is desired
+
+    512 (0x200)  if the `or' output is desired
+
+    1024 (0x400)  if the `xor' (exclusive or) output is desired
+
+Outputs can be combined, for example: 
+
+2 + 256 + 1024 = 1282 converted to hex
+would be 0x502 and would have two inputs and have both XOR and AND outputs.
 """;
+
+
 license "GPL";
+
 ;;
 FUNCTION(_) {
     int i, a=1, o=0, x=0;

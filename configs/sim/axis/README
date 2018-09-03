@@ -6,14 +6,15 @@ axis.ini          basic demo (in)
 axis_9axis.ini    9 axes
 axis_foam         foam cutter
 axis_mm.ini       basic demo (mm)
+axis_mm_drawbot   demo that module loads and allows homing - do not use to run gcode yet
 canterp           libcanterp.so
 gantry.ini        gantry demo
 lathe.ini         lathe demo
 profile_axis.ini  profiling
 random_tc.ini     random tool changer
 
-Select one of these if you have no functional machine but want to edit some basic configuration stuff or play with one of the LinuxCNC displays.
+Select one of these if you have no functional machine but want to edit some basic configuration stuff or play with one of the Machinekit displays.
 
 Additional configurations are provided in subdirectories.
 
-These configurations demonstrate LinuxCNC functionality using the axis gui as the interface.  (The functionality demonstrated may be available in other guis also)
+These configurations demonstrate Machinekit functionality using the axis gui as the interface.  (The functionality demonstrated may be available in other guis also)

@@ -126,6 +126,25 @@ int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
     return TP_ERR_OK;
 }
 
+
+/**
+ * Check if a segment can be consumed without disrupting motion or synced IO.
+ */
+int tcCanConsume(TC_STRUCT const * const tc)
+{
+    if (!tc) {
+        return false;
+    }
+
+    if (tc->syncdio.anychanged || tc->blend_prev || tc->atspeed) {
+        //TODO add other conditions here (for any segment that should not be consumed by blending
+        return false;
+    }
+
+    return true;
+
+}
+
 /**
  * Find the geometric tangent vector to a helical arc.
  * Unlike the acceleration vector, the result of this calculation is a vector
@@ -267,6 +286,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
     }
 
+
+    // Used for arc-length to angle conversion with spiral segments
+    double angle = 0.0;
+    int res_fit = TP_ERR_OK;
+
     switch (tc->motion_type){
         case TC_RIGIDTAP:
             if(tc->coords.rigidtap.state > REVERSING) {
@@ -290,8 +314,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &abc);
             break;
         case TC_CIRCULAR:
+            res_fit = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+                    &tc->coords.circle.fit,
+                    progress, &angle);
             pmCirclePoint(&tc->coords.circle.xyz,
-                    progress * tc->coords.circle.xyz.angle / tc->target,
+                    angle,
                     &xyz);
             pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
@@ -309,8 +336,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
     }
 
-    pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
-    return 0;
+    if (res_fit == TP_ERR_OK) {
+        // Don't touch pos unless we know the value is good
+        pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
+    }
+    return res_fit;
 }
 
 
@@ -408,10 +438,10 @@ int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
     if (T2 == 0) {
         T2 = tc->nominal_length * tolerance_ratio;
     }
-    *nominal_tolerance = fmin(T1,T2);
+    *nominal_tolerance = rtapi_fmin(T1,T2);
     //Blend tolerance is the limit of what we can reach by blending alone,
     //consuming half a segment or less (parabolic equivalent)
-    double blend_tolerance = fmin(fmin(*nominal_tolerance, 
+    double blend_tolerance = rtapi_fmin(rtapi_fmin(*nominal_tolerance, 
                 prev_tc->nominal_length * tolerance_ratio),
             tc->nominal_length * tolerance_ratio);
     *T_blend = blend_tolerance;
@@ -461,7 +491,15 @@ double pmLine9Target(PmLine9 * const line9)
     } else if (!line9->abc.tmag_zero) {
         return line9->abc.tmag;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR,"line can't have zero length!\n");
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                "line can't have zero length! "
+                "xyz start = %.12e,%.12e,%.12e, end = %.12e,%.12e,%.12e\n",
+                line9->xyz.start.x,
+                line9->xyz.start.y,
+                line9->xyz.start.z,
+                line9->xyz.end.x,
+                line9->xyz.end.y,
+                line9->xyz.end.z);
         //FIXME yet it does return zero...
         return 0;
     }
@@ -518,6 +556,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
     tc->reqvel = vel;
     // Initial guess at target velocity is just the requested velocity
     tc->target_vel = vel;
+    // To be filled in by tangent calculation, negative = invalid (KLUDGE)
+    tc->kink_vel = -1.0;
 
     return TP_ERR_OK;
 }
@@ -577,9 +617,11 @@ int pmCircle9Init(PmCircle9 * const circ9,
     int abc_fail = pmCartLineInit(&circ9->abc, &start_abc, &end_abc);
     int uvw_fail = pmCartLineInit(&circ9->uvw, &start_uvw, &end_uvw);
 
-    if (xyz_fail || abc_fail || uvw_fail) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
-                xyz_fail, abc_fail, uvw_fail);
+    int res_fit = findSpiralArcLengthFit(&circ9->xyz,&circ9->fit);
+
+    if (xyz_fail || abc_fail || uvw_fail || res_fit) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d, %d\n",
+                xyz_fail, abc_fail, uvw_fail, res_fit);
         return TP_ERR_FAIL;
     }
     return TP_ERR_OK;
@@ -588,14 +630,11 @@ int pmCircle9Init(PmCircle9 * const circ9,
 double pmCircle9Target(PmCircle9 const * const circ9)
 {
 
-    double helix_z_component;   // z of the helix's cylindrical coord system
-    double helix_length;
+    double h2;
+    pmCartMagSq(&circ9->xyz.rHelix, &h2);
+    double helical_length = pmSqrt(pmSq(circ9->fit.total_planar_length) + h2);
 
-    pmCartMag(&circ9->xyz.rHelix, &helix_z_component);
-    double planar_arc_length = circ9->xyz.angle * circ9->xyz.radius;
-    helix_length = pmSqrt(pmSq(planar_arc_length) +
-            pmSq(helix_z_component));
-    return helix_length;
+    return helical_length;
 }
 
 /**
@@ -609,7 +648,6 @@ int tcFinalizeLength(TC_STRUCT * const tc)
 {
     //Apply velocity corrections
     if (!tc) {
-        tp_debug_print("Missing prev_tc in finalize!\n");
         return TP_ERR_FAIL;
     }
 
@@ -626,9 +664,47 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     if (tc->motion_type == TC_CIRCULAR) {
         tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, tc->maxvel, tc->maxaccel, parabolic);
     }
+
+    tcClampVelocityByLength(tc);
+
     tc->finalized = 1;
     return TP_ERR_OK;
 }
+
+
+int tcClampVelocityByLength(TC_STRUCT * const tc)
+{
+    //Apply velocity corrections
+    if (!tc) {
+        return TP_ERR_FAIL;
+    }
+
+    //Reduce max velocity to match sample rate
+    //Assume that cycle time is valid here
+    double sample_maxvel = tc->target / tc->cycle_time;
+    tp_debug_print("sample_maxvel = %f\n",sample_maxvel);
+    tc->maxvel = rtapi_fmin(tc->maxvel, sample_maxvel);
+    return TP_ERR_OK;
+}
+
+/**
+ * compute the total arc length of a circle segment
+ */
+int tcUpdateTargetFromCircle(TC_STRUCT * const tc)
+{
+    if (!tc || tc->motion_type !=TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+
+    double h2;
+    pmCartMagSq(&tc->coords.circle.xyz.rHelix, &h2);
+    double helical_length = pmSqrt(pmSq(tc->coords.circle.fit.total_planar_length) + h2);
+
+    tc->target = helical_length;
+    return TP_ERR_OK;
+}
+
+
 
 int pmRigidTapInit(PmRigidTap * const tap,
         EmcPose const * const start,
@@ -655,10 +731,14 @@ int pmRigidTapInit(PmRigidTap * const tap,
 
 }
 
-int pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
+double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
 {
     // allow 10 turns of the spindle to stop - we don't want to just go on forever
-    return tap->xyz.tmag + 10. * uu_per_rev;
+    double overrun = 10. * uu_per_rev;
+    double target = tap->xyz.tmag + overrun;
+    tp_debug_print("initial tmag = %.12g, added %.12g for overrun, target = %.12g\n",
+            tap->xyz.tmag, overrun,target);
+    return target;
 }
 
 /** Returns true if segment has ONLY rotary motion, false otherwise. */
@@ -668,3 +748,52 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc)
         (tc->coords.line.xyz.tmag_zero) &&
         (tc->coords.line.uvw.tmag_zero);
 }
+
+
+/**
+ * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
+ * NOTE: does not yet support ABC or UVW motion!
+ */
+int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
+{
+
+    //Update targets with new arc length
+    if (!circ || tc->motion_type != TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+    if (!tc->coords.circle.abc.tmag_zero || !tc->coords.circle.uvw.tmag_zero) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ does not supportABC or UVW motion\n");
+        return TP_ERR_FAIL;
+    }
+
+    // Store the new circular segment (or use the current one)
+
+    if (!circ) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ missing new circle definition\n");
+        return TP_ERR_FAIL;
+    }
+
+    tc->coords.circle.xyz = *circ;
+    // Update the arc length fit to this new segment
+    findSpiralArcLengthFit(&tc->coords.circle.xyz, &tc->coords.circle.fit);
+
+    // compute the new total arc length using the fit and store as new
+    // target distance
+    tc->target = pmCircle9Target(&tc->coords.circle);
+
+    return TP_ERR_OK;
+}
+
+int tcClearFlags(TC_STRUCT * const tc)
+{
+    if (!tc) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
+    //KLUDGE this will need to be updated manually if any other flags are added.
+    tc->is_blending = false;
+
+    return TP_ERR_OK;
+}
+
+

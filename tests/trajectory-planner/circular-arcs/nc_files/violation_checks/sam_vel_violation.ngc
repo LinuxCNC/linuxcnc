@@ -1,0 +1,48 @@
+g21
+g10l2p1r90
+f100000
+#<scale> = .7
+
+G0	X[#<scale>*74.845]	Y[#<scale>*114.166]					
+				
+G1	X[#<scale>*6.886]	Y[#<scale>*101.058]					
+X[#<scale>*8.421]	Y[#<scale>*102.985]						
+G2	X[#<scale>*11.765]	Y[#<scale>*106.375]	I[#<scale>*19.526]	J[#<scale>*-15.915]			
+X[#<scale>*15.204]	Y[#<scale>*108.741]	I[#<scale>*14.436]	J[#<scale>*-17.299]				
+X[#<scale>*19.878]	Y[#<scale>*111.637]	I[#<scale>*13.058]	J[#<scale>*-15.857]				
+X[#<scale>*20.982]	Y[#<scale>*112.115]	I[#<scale>*11.434]	J[#<scale>*-24.89]				
+X[#<scale>*23.688]	Y[#<scale>*113.163]	I[#<scale>*24.885]	J[#<scale>*-60.239]				
+G0	Z[#<scale>*5.0]						
+X[#<scale>*-7.011]	Y[#<scale>*-14.163]						
+Z[#<scale>*-14.825]							
+G1	Z[#<scale>*-18.0]						
+Y[#<scale>*-13.662]							
+G3	X[#<scale>*-7.208]	Y[#<scale>*-13.133]	I[#<scale>*-1.009]	J[#<scale>*-0.074]			
+X[#<scale>*-7.848]	Y[#<scale>*-12.447]	I[#<scale>*-2.972]	J[#<scale>*-2.13]				
+G2	X[#<scale>*-9.149]	Y[#<scale>*-11.177]	I[#<scale>*17.217]	J[#<scale>*18.945]			
+X[#<scale>*-10.464]	Y[#<scale>*-9.587]	I[#<scale>*13.874]	J[#<scale>*12.812]				
+X[#<scale>*-13.001]	Y[#<scale>*-5.023]	I[#<scale>*15.204]	J[#<scale>*11.436]				
+G1	X[#<scale>*-13.16]	Y[#<scale>*-4.609]					
+Z[#<scale>*-9.825]							
+X[#<scale>*-7.155]	Y[#<scale>*-13.24]						
+Z[#<scale>*-14.825]							
+Z[#<scale>*-18.0]							
+X[#<scale>*-7.011]	Y[#<scale>*-13.16]						
+X[#<scale>*-2.574]	Y[#<scale>*-13.158]						
+G3	X[#<scale>*-2.438]	Y[#<scale>*-12.611]	I[#<scale>*-0.038]	J[#<scale>*0.3]			
+G2	X[#<scale>*-5.097]	Y[#<scale>*-10.626]	I[#<scale>*45.476]	J[#<scale>*63.701]			
+X[#<scale>*-6.825]	Y[#<scale>*-9.014]	I[#<scale>*12.543]	J[#<scale>*15.17]				
+X[#<scale>*-7.945]	Y[#<scale>*-7.654]	I[#<scale>*11.703]	J[#<scale>*10.782]				
+X[#<scale>*-10.056]	Y[#<scale>*-3.835]	I[#<scale>*12.765]	J[#<scale>*9.548]				
+X[#<scale>*-11.017]	Y[#<scale>*-0.094]	I[#<scale>*14.693]	J[#<scale>*5.767]				
+X[#<scale>*-11.072]	Y[#<scale>*3.739]	I[#<scale>*16.063]	J[#<scale>*2.148]				
+X[#<scale>*-10.165]	Y[#<scale>*7.662]	I[#<scale>*15.855]	J[#<scale>*-1.6]				
+G3	X[#<scale>*-10.325]	Y[#<scale>*9.374]	I[#<scale>*-1.937]	J[#<scale>*0.683]			
+G2	X[#<scale>*-11.327]	Y[#<scale>*11.506]	I[#<scale>*18.408]	J[#<scale>*9.961]			
+G1	X[#<scale>*-12.056]	Y[#<scale>*13.194]					
+G2	X[#<scale>*-12.709]	Y[#<scale>*15.067]	I[#<scale>*13.945]	J[#<scale>*5.912]			
+G1	X[#<scale>*-13.16]	Y[#<scale>*16.664]					
+G0	Z[#<scale>*5.0]						
+G0	Z[#<scale>*30.0]
+g10l2p1r90
+m30

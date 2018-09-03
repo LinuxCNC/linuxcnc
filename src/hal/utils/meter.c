@@ -17,6 +17,8 @@
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
+	Adapted for new Machinekit halobject-headers 2015 by Mick Grant
+						<arceye AT mgware DOT co DOT uk>
 */
 
 /** This program is free software; you can redistribute it and/or
@@ -383,15 +385,64 @@ probe_t *probe_new(char *probe_name)
     return new;
 }
 
+static int fill_list(hal_object_ptr o, foreach_args_t *args)
+{
+gchar *name;
+int row = 0;
+probe_t *probe = (probe_t *) args->user_ptr1;
+
+	if(args->type == HAL_PIN)
+		{
+		hal_pin_t *pin = o.pin;
+		name = (char *)ho_name(pin);
+		gtk_clist_append(GTK_CLIST(probe->lists[0]), &name);
+		// if we have a pin selected, and it matches the current one
+		// mark this row
+		if ((probe->listnum == 0) && (probe->pin == pin))
+			{
+			gtk_clist_select_row(GTK_CLIST(probe->lists[0]), row, 0);
+			// Get the text from the list
+			gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0, &(probe->pickname));
+			args->user_arg1 = 1;
+			}
+		}
+	else if(args->type == HAL_SIGNAL)
+		{
+		hal_sig_t *sig = o.sig;
+		name = (char *)ho_name(sig);
+		gtk_clist_append(GTK_CLIST(probe->lists[1]), &name);
+		// if we have a signal selected, and it matches the current
+		// one, mark this row
+		if ((probe->listnum == 1) && (probe->sig == sig))
+			{
+			gtk_clist_select_row(GTK_CLIST(probe->lists[1]), row, 0);
+			// Get the text from the list
+			gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0, &(probe->pickname));
+			args->user_arg1 = 1;
+			}
+		}
+	else if(args->type == HAL_PARAM)
+		{
+		hal_param_t *param = o.param;
+		name =  (char *)ho_name(param);
+		gtk_clist_append(GTK_CLIST(probe->lists[2]), &name);
+
+		// if we have a param selected, and it matches the current
+		// one, mark this row)
+		if ((probe->listnum == 2) && (probe->param == param)) {
+			gtk_clist_select_row(GTK_CLIST(probe->lists[2]), row, 0);
+			// Get the text from the list
+			gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0, &(probe->pickname));
+			args->user_arg1 = 1;
+			}
+		}
+
+	return 0;
+}
+
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
-    probe_t *probe;
-    int next, row, match;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
-    gchar *name;
-
+probe_t *probe;
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
 
@@ -405,86 +456,53 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));
     gtk_clist_clear(GTK_CLIST(probe->lists[1]));
     gtk_clist_clear(GTK_CLIST(probe->lists[2]));
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    row = 0; match = 0;
-    gtk_clist_freeze(GTK_CLIST(probe->lists[0]));
-    while (next != 0) {
-	pin = SHMPTR(next);
-	name = pin->name;
-	gtk_clist_append(GTK_CLIST(probe->lists[0]), &name);
 
-	/* if we have a pin selected, and it matches the current one,
-	   mark this row) */
-	if ((probe->listnum == 0) && (probe->pin == pin)) {
-	    gtk_clist_select_row(GTK_CLIST(probe->lists[0]), row, 0);
-	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0,
-		&(probe->pickname));
-	    match = 1;
-	}
-	
-	next = pin->next_ptr;
-	row++;
-    }
+// pins
+    foreach_args_t args1 =  {
+	.type = HAL_PIN,
+	.user_ptr1 = probe,
+	.user_arg1 = 0
+    };
+    gtk_clist_freeze(GTK_CLIST(probe->lists[0]));
+
+    halg_foreach(true, &args1, fill_list);
+
     gtk_clist_thaw(GTK_CLIST(probe->lists[0]));
     // if no match, unselect the first row, otherwise it will stay selected
     // and confuse the user
-    if (!match)
+    if (!args1.user_arg1)
     	gtk_clist_unselect_row(GTK_CLIST(probe->lists[0]), 0, 0);
-    
-    next = hal_data->sig_list_ptr;
-    row = 0; match = 0;
+
+// signals
+    foreach_args_t args2 =  {
+	.type = HAL_SIGNAL,
+	.user_ptr1 = probe,
+	.user_arg1 = 0
+    };
     gtk_clist_freeze(GTK_CLIST(probe->lists[1]));
-    while (next != 0) {
-	sig = SHMPTR(next);
-	name = sig->name;
-	gtk_clist_append(GTK_CLIST(probe->lists[1]), &name);
 
-	/* if we have a signal selected, and it matches the current
-	   one, mark this row) */
-	if ((probe->listnum == 1) && (probe->sig == sig)) {
-	    gtk_clist_select_row(GTK_CLIST(probe->lists[1]), row, 0);
-	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0,
-		&(probe->pickname));
-	    match = 1;
-	}
+    halg_foreach(true, &args2, fill_list);
 
-	next = sig->next_ptr;
-	row++;
-    }
     gtk_clist_thaw(GTK_CLIST(probe->lists[1]));
     // if no match, unselect the first row, otherwise it will stay selected
     // and confuse the user
-    if (!match)
+    if (!args2.user_arg1)
     	gtk_clist_unselect_row(GTK_CLIST(probe->lists[1]), 0, 0);
 
-    next = hal_data->param_list_ptr;
-    row = 0; match = 0;
+// params
+    foreach_args_t args3 =  {
+	.type = HAL_PARAM,
+	.user_ptr1 = probe,
+	.user_arg1 = 0
+    };
     gtk_clist_freeze(GTK_CLIST(probe->lists[2]));
-    while (next != 0) {
-	param = SHMPTR(next);
-	name = param->name;
-	gtk_clist_append(GTK_CLIST(probe->lists[2]), &name);
 
-	/* if we have a param selected, and it matches the current
-	   one, mark this row) */
-	if ((probe->listnum == 2) && (probe->param == param)) {
-	    gtk_clist_select_row(GTK_CLIST(probe->lists[2]), row, 0);
-	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0,
-		&(probe->pickname));
-	    match = 1;
-	}
-	
-	next = param->next_ptr;
-	row++;
-    }
+    halg_foreach(true, &args3, fill_list);
+
     gtk_clist_thaw(GTK_CLIST(probe->lists[2]));
     // if no match, unselect the first row, otherwise it will stay selected
     // and confuse the user
-    if (!match)
+    if (!args3.user_arg2)
     	gtk_clist_unselect_row(GTK_CLIST(probe->lists[2]), 0, 0);
 
     if (probe->listnum >= 0) {
@@ -493,8 +511,8 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	gtk_notebook_set_page(GTK_NOTEBOOK(probe->notebook), 0);
     }
 
-    rtapi_mutex_give(&(hal_data->mutex));
     gtk_widget_show_all(probe->window);
+
 }
 
 static void quit(int sig)
@@ -510,68 +528,69 @@ static void exit_from_hal(void)
 /* this function refreshes the value display */
 static int refresh_value(gpointer data)
 {
-    meter_t *meter;
-    probe_t *probe;
-    char *value_str, *name_str;
-    hal_sig_t *sig;
-    static int first = 1;
+meter_t *meter;
+probe_t *probe;
+const char *value_str, *name_str;
+//hal_sig_t *sig;
+static int first = 1;
 
     meter = (meter_t *) data;
     probe = meter->probe;
 
     if ( first ) {
-	first = 0;
-	if ( probe->pickname == NULL ) {
-	    g_signal_emit_by_name(meter->button_select, "clicked");
-	}
-    }
+		first = 0;
+		if ( probe->pickname == NULL )
+			g_signal_emit_by_name(meter->button_select, "clicked");
+		}
 
-    rtapi_mutex_get(&(hal_data->mutex));
     if (probe->pin != NULL) {
-	if (probe->pin->name[0] == '\0') {
-	    /* pin has been deleted, can't display it any more */
-	    probe->pin = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 1;
-	}
-	name_str = probe->pin->name;
-	if (probe->pin->signal == 0) {
-	    /* pin is unlinked, get data from dummysig */
-	    value_str = data_value(probe->pin->type, &(probe->pin->dummysig));
-	} else {
-	    /* pin is linked to a signal */
-	    sig = SHMPTR(probe->pin->signal);
-	    value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
-	}
-    } else if (probe->sig != NULL) {
-	if (probe->sig->name[0] == '\0') {
+		if(! ho_valid(probe->pin))
+			{
+			/* pin has been deleted, can't display it any more */
+			probe->pin = NULL;
+			return 1;
+			}
+		name_str = ho_name(probe->pin);
+		value_str = data_value(pin_type(probe->pin), pin_value(probe->pin));
+		/* if (!probe->pin->signal == 0) */
+		/* 	/\* pin is unlinked, get data from dummysig *\/ */
+		/* 	value_str = data_value(probe->pin->type, &(probe->pin->dummysig)); */
+		/* else { */
+		/* 	/\* pin is linked to a signal *\/ */
+		/* 	sig = SHMPTR(probe->pin->signal); */
+		/* 	value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr)); */
+		/* 	} */
+		}
+	else if (probe->sig != NULL) {
+		if(! ho_valid(probe->sig))
+		{
 	    /* signal has been deleted, can't display it any more */
 	    probe->sig = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
 	    return 1;
-	}
-	name_str = probe->sig->name;
-	value_str =
-	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
-    } else if (probe->param != NULL) {
-	if (probe->param->name[0] == '\0') {
-	    /* parameter has been deleted, can't display it any more */
-	    probe->param = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 1;
-	}
-	name_str = probe->param->name;
-	value_str =
-	    data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
-    } else {
-	name_str = "-----";
-	value_str = "---";
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
+		}
+		name_str = ho_name(probe->sig);
+		value_str = data_value(sig_type(probe->sig),sig_value(probe->sig));
+		}
+	else if (probe->param != NULL) {
+		if(! ho_valid(probe->param))
+			{
+			/* parameter has been deleted, can't display it any more */
+			probe->param = NULL;
+	        return 1;
+		}
+		name_str = ho_name(probe->param);
+		value_str = data_value(param_type(probe->param),param_value(probe->param));
+
+		//value_str = data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
+		}
+	else {
+		name_str = "-----";
+		value_str = "---";
+		}
     gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
-    if (!small) {
-	gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
-    }
+    if (!small)
+		gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
+
     return 1;
 }
 
@@ -579,7 +598,7 @@ static int refresh_value(gpointer data)
 static char *data_value(int type, void *valptr)
 {
     char *value_str;
-    static char buf[25];
+    static char buf[100];
 
     switch (type) {
     case HAL_BIT:
@@ -589,16 +608,23 @@ static char *data_value(int type, void *valptr)
 	    value_str = "TRUE";
 	break;
     case HAL_FLOAT:
-	snprintf(buf, 14, "%.7g", (double)*((hal_float_t *) valptr));
+	snprintf(buf, sizeof(buf), "%.7g", (double)*((hal_float_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 24, "%10ld", (long)*((hal_s32_t *) valptr));
+	snprintf(buf, sizeof(buf), "%10ld", (long)*((hal_s32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 24, "%10lu (0x%08lX)", (unsigned long)*((hal_u32_t *) valptr),
-	    *((unsigned long *) valptr));
+	snprintf(buf, sizeof(buf), "%10lu", (unsigned long)*((hal_u32_t *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S64:
+	snprintf(buf, sizeof(buf), "%lld", (long long)*((hal_s64_t *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U64:
+	snprintf(buf, sizeof(buf), "%llu", (unsigned long long)*((hal_u64_t *) valptr));
 	value_str = buf;
 	break;
     default:

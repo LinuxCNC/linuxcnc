@@ -13,7 +13,7 @@
 * Last change:
 ********************************************************************/
 
-#include <math.h>		// fabs()
+#include "rtapi_math.h"		// fabs()
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <stdlib.h>		// malloc()

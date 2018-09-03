@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+<labelframe text="Extruder 0">
+    <table flexible_columns="[3]">
+        <tablerow/>
+            <label text="PV" />
+            <tablespan columns="2"/>
+            <bar halpin="e0.pv" min_="0" max_="300" bgcolor="grey" fillcolor="red"/>
+        <tablerow/>
+            <label text="SV" />
+            <tablespan columns="2"/>
+            <bar halpin="e0.sv" min_="0" max_="300" bgcolor="grey" fillcolor="green"/>
+        <tablerow/>
+            <tablesticky sticky="ew" />
+            <led halpin="e0.on" on_color="red" off_color="grey"/>
+            <checkbutton halpin="e0.ov" text="OV" initval="0" />
+            <scale halpin="e0.set-sv" min_="0" max_="300" orient="horizontal"/>
+    </table>
+</labelframe>
+<labelframe text="Heated Bed">
+    <table flexible_columns="[3]">
+        <tablerow/>
+            <label text="PV" />
+            <tablespan columns="2"/>
+            <bar halpin="bed.pv" min_="0" max_="120" bgcolor="grey" fillcolor="red"/>
+        <tablerow/>
+            <label text="SV" />
+            <tablespan columns="2"/>
+            <bar halpin="bed.sv" min_="0" max_="120" bgcolor="grey" fillcolor="green"/>
+        <tablerow/>
+            <tablesticky sticky="ew" />
+            <led halpin="bed.on" on_color="red" off_color="grey"/>
+            <checkbutton halpin="bed.ov" text="OV" initval="0" />
+            <scale halpin="bed.set-sv" min_="0" max_="120" orient="horizontal"/>
+    </table>
+</labelframe>
+</pyvcp>

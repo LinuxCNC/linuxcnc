@@ -32,7 +32,7 @@ Sticky parameters are handled properly.
 
 Usage:
 
-linuxcnc cycle.ini
+machinekit cycle.ini
 
 hit run and see what happens.
 

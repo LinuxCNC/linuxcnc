@@ -699,7 +699,7 @@ void EmcController::GetActiveCodes(char *out_buf)
 	}
 	sprintf(buf, "F%.0f ", emcStatus->task.activeSettings[1]);
 	strcat(out_buf, buf);
-	sprintf(buf, "S%.0f", fabs(emcStatus->task.activeSettings[2]));
+	sprintf(buf, "S%.0f", rtapi_fabs(emcStatus->task.activeSettings[2]));
 	strcat(out_buf, buf);
 }
 

@@ -19,6 +19,8 @@
 #include "emcglb.h"		// EMC_AXIS_MAX
 #include "nml_type.hh"
 #include "motion_types.h"
+#include <stdint.h>
+#include "modal_state.hh"
 
 // Forward class declarations
 class EMC_AXIS_STAT;
@@ -110,6 +112,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
 #define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)
 #define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
+#define EMC_TRAJ_SET_RAPID_SCALE_TYPE                ((NMLTYPE) 238)
 #define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)
 
 #define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)
@@ -409,6 +412,7 @@ extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 
 // implementation functions for EMC_TRAJ types
 
+extern int emcTrajUpdateTag(StateTag const &tag);
 extern int emcTrajSetAxes(int axes, int axismask);
 extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
@@ -419,6 +423,7 @@ extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
+extern int emcTrajSetRapidScale(double scale);
 extern int emcTrajSetFOEnable(unsigned char mode);   //feed override enable
 extern int emcTrajSetFHEnable(unsigned char mode);   //feed hold enable
 extern int emcTrajSetSpindleScale(double scale);
@@ -461,9 +466,9 @@ extern int emcMotionInit();
 extern int emcMotionHalt();
 extern int emcMotionAbort();
 extern int emcMotionSetDebug(int debug);
-extern int emcMotionSetAout(unsigned char index, double start, double end,
+extern int emcMotionSetAout(unsigned int index, double start, double end,
                             unsigned char now);
-extern int emcMotionSetDout(unsigned char index, unsigned char start,
+extern int emcMotionSetDout(unsigned int index, unsigned char start,
 			    unsigned char end, unsigned char now);
 
 extern int emcMotionUpdate(EMC_MOTION_STAT * stat);
@@ -549,8 +554,9 @@ int emcSetMaxFeedOverride(double maxFeedScale);
 int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
-        double arcBlendGapCycles,
-        double arcBlendRampFreq);
+        int arcBlendGapCycles,
+        double arcBlendRampFreq,
+        double arcBlendTangentKinkRatio);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

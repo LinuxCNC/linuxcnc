@@ -11,11 +11,8 @@ build-stamp
 *.mod.c
 *.cmd
 .tmp*
-# Ignore generated html files, 
-/docs/src/*/*.html
 # Except Gcode quick-ref cards (en,de,sp,fr) which are maintained by hand
-!docs/html/gcode*.html
-# Ignore all LyX files, we're done with them now. 
+# Ignore all LyX files, we're done with them now.
 *.lyx
 debian/*.debhelper.log
 rtlib/Module.symvers
@@ -23,11 +20,8 @@ share/*/*.desktop
 share/menus/CNC.menu
 share/desktop-directories/cnc.directory
 src/modules.order
-docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
-/docs/src/source-highlight/local
-/docs/src/man/man1/linuxcnc.1
 lib/python/gremlin.py
 lib/python/touchy
 tests/*/skip
@@ -53,9 +47,9 @@ cscope.*
 oprofile*
 *.log
 position.txt
-*.9
+*.9comp
 **/DOTGIT
-src/machinetalk/generated/*
+src/machinetalk/build/*
 lib/python/*_pb2.py
 lib/python/pb2json.py
 lib/python/google/
@@ -63,9 +57,14 @@ lib/python/nanopb_generator.py
 lib/python/protoc-gen-nanopb
 lib/python/machinekit/__init__.py
 lib/python/machinekit/config.py
+lib/python/machinetalk
 tests/*/*/*/NUM_PINS_FOUND
 src/machinekitcfg.py-tmp
 scripts/machinekit.ini.tmpl
 src/objects/*
 debian/linuxcnc-*.files
 src/hal/cython/machinekit/*.c
+# mk-build-deps artifact
+/machinekit-build-deps_*.deb
+.directory
+*.9icomp

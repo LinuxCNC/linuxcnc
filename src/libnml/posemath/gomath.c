@@ -34,9 +34,9 @@ extern int printf(const char * fmt, ...);
 go_real go_cbrt(go_real x)
 {
   if (x < 0.0) {
-    return (go_real) -pow((double) -x, 1.0/3.0);
+    return (go_real) -rtapi_pow((double) -x, 1.0/3.0);
   }
-  return (go_real) pow((double) x, 1.0/3.0);
+  return (go_real) rtapi_pow((double) x, 1.0/3.0);
 }
 
 
@@ -46,13 +46,13 @@ int go_cart_sph_convert(const go_cart * v, go_sph * s)
 {
   go_real r;
 
-  s->theta = atan2(v->y, v->x);
-  r = sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
+  s->theta = rtapi_atan2(v->y, v->x);
+  r = rtapi_sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
   s->r = r;
   if (GO_TRAN_SMALL(r)) {
     s->phi = 0;
   } else {
-    s->phi = acos(v->z / r);
+    s->phi = rtapi_acos(v->z / r);
   }
 
   return GO_RESULT_OK;
@@ -60,8 +60,8 @@ int go_cart_sph_convert(const go_cart * v, go_sph * s)
 
 int go_cart_cyl_convert(const go_cart * v, go_cyl * c)
 {
-  c->theta = atan2(v->y, v->x);
-  c->r = sqrt(go_sq(v->x) + go_sq(v->y));
+  c->theta = rtapi_atan2(v->y, v->x);
+  c->r = rtapi_sqrt(go_sq(v->x) + go_sq(v->y));
   c->z = v->z;
 
   return GO_RESULT_OK;
@@ -96,8 +96,8 @@ int go_sph_cyl_convert(const go_sph * s, go_cyl * c)
 
 int go_cyl_cart_convert(const go_cyl * c, go_cart * v)
 {
-  v->x = c->r * cos(c->theta);
-  v->y = c->r * sin(c->theta);
+  v->x = c->r * rtapi_cos(c->theta);
+  v->y = c->r * rtapi_sin(c->theta);
   v->z = c->z;
 
   return GO_RESULT_OK;
@@ -106,11 +106,11 @@ int go_cyl_cart_convert(const go_cyl * c, go_cart * v)
 int go_cyl_sph_convert(const go_cyl * c, go_sph * s)
 {
   s->theta = c->theta;
-  s->r = sqrt(go_sq(c->r) + go_sq(c->z));
+  s->r = rtapi_sqrt(go_sq(c->r) + go_sq(c->z));
   if (GO_TRAN_SMALL(s->r)) {
     s->phi = 0.0;
   } else {
-    s->phi = acos(c->z / s->r);
+    s->phi = rtapi_acos(c->z / s->r);
   }
 
   return GO_RESULT_OK;
@@ -231,14 +231,14 @@ int go_quat_rvec_convert(const go_quat * q, go_rvec * r)
   go_real sh;
   go_real mag;
 
-  sh = sqrt(go_sq(q->x) + go_sq(q->y) + go_sq(q->z));
+  sh = rtapi_sqrt(go_sq(q->x) + go_sq(q->y) + go_sq(q->z));
 
   if (GO_ROT_SMALL(sh)) {
     r->x = 0;
     r->y = 0;
     r->z = 0;
   } else {
-    mag = 2 * atan2(sh, q->s) / sh;
+    mag = 2 * rtapi_atan2(sh, q->s) / sh;
     r->x = mag * q->x;
     r->y = mag * q->y;
     r->z = mag * q->z;
@@ -312,12 +312,12 @@ int go_mat_rvec_convert(const go_mat * m, go_rvec * r)
   e1 = (c32 - c23) / 4*e4
   e2 = (c13 - c31) / 4*e4
   e3 = (c21 - c12) / 4*e4
-  e4 = sqrt(1 + c11 + c22 + c33) / 2
+  e4 = rtapi_sqrt(1 + c11 + c22 + c33) / 2
 
   if e4 == 0
-  e1 = sqrt(1 + c11 - c33 - c22) / 2
-  e2 = sqrt(1 + c22 - c33 - c11) / 2
-  e3 = sqrt(1 + c33 - c11 - c22) / 2
+  e1 = rtapi_sqrt(1 + c11 - c33 - c22) / 2
+  e2 = rtapi_sqrt(1 + c22 - c33 - c11) / 2
+  e3 = rtapi_sqrt(1 + c33 - c11 - c22) / 2
 
   to determine whether to take the positive or negative sqrt value
   since e4 == 0 indicates a 180* rotation then (0 x y z) = (0 -x -y -z).
@@ -347,19 +347,19 @@ int go_mat_quat_convert(const go_mat * m, go_quat * q)
   discr = 1.0 + m->x.x + m->y.y + m->z.z;
   if (discr < 0.0) discr = 0.0;	/* give sqrt some slack for tiny negs */
   
-  q->s = 0.5 * sqrt(discr);
+  q->s = 0.5 * rtapi_sqrt(discr);
 
   if (GO_ROT_SMALL(q->s)) {
     q->s = 0;
     discr = 1.0 + m->x.x - m->y.y - m->z.z;
     if (discr < 0.0) discr = 0.0;
-    q->x = sqrt(discr) / 2.0;
+    q->x = rtapi_sqrt(discr) / 2.0;
     discr = 1.0 + m->y.y - m->x.x - m->z.z;
     if (discr < 0.0) discr = 0.0;
-    q->y = sqrt(discr) / 2.0;
+    q->y = rtapi_sqrt(discr) / 2.0;
     discr = 1.0 + m->z.z - m->y.y - m->x.x;
     if (discr < 0.0) discr = 0.0;
-    q->z = sqrt(discr) / 2.0;
+    q->z = rtapi_sqrt(discr) / 2.0;
 
     if (q->x > q->y && q->x > q->z) {
       if (m->x.y < 0.0) {
@@ -394,19 +394,19 @@ int go_mat_quat_convert(const go_mat * m, go_quat * q)
 
 int go_mat_zyz_convert(const go_mat * m, go_zyz * zyz)
 {
-  zyz->y = atan2(sqrt(go_sq(m->x.z) + go_sq(m->y.z)), m->z.z);
+  zyz->y = rtapi_atan2(rtapi_sqrt(go_sq(m->x.z) + go_sq(m->y.z)), m->z.z);
 
   if (GO_ROT_SMALL(zyz->y)) {
     zyz->z = 0;
     zyz->y = 0;			/* force Y to 0 */
-    zyz->zp = atan2(-m->y.x, m->x.x);
+    zyz->zp = rtapi_atan2(-m->y.x, m->x.x);
   } else if (GO_ROT_CLOSE(zyz->y, GO_PI)) {
     zyz->z = 0;
     zyz->y = GO_PI;		/* force Y to 180 */
-    zyz->zp = atan2(m->y.x, -m->x.x);
+    zyz->zp = rtapi_atan2(m->y.x, -m->x.x);
   } else {
-    zyz->z = atan2(m->z.y, m->z.x);
-    zyz->zp = atan2(m->y.z, -m->x.z);
+    zyz->z = rtapi_atan2(m->z.y, m->z.x);
+    zyz->zp = rtapi_atan2(m->y.z, -m->x.z);
   }
 
   return GO_RESULT_OK;
@@ -414,19 +414,19 @@ int go_mat_zyz_convert(const go_mat * m, go_zyz * zyz)
 
 int go_mat_zyx_convert(const go_mat * m, go_zyx * zyx)
 {
-  zyx->y = atan2(-m->x.z, sqrt(go_sq(m->x.x) + go_sq(m->x.y)));
+  zyx->y = rtapi_atan2(-m->x.z, rtapi_sqrt(go_sq(m->x.x) + go_sq(m->x.y)));
 
   if (GO_ROT_CLOSE(zyx->y, GO_PI_2)) {
     zyx->z = 0;
     zyx->y = GO_PI_2;		/* force it */
-    zyx->x = atan2(m->y.x, m->y.y);
+    zyx->x = rtapi_atan2(m->y.x, m->y.y);
   } else if (GO_ROT_CLOSE(zyx->y, GO_PI_2)) {
     zyx->z = 0;
     zyx->y = -GO_PI_2;		/* force it */
-    zyx->x = -atan2(m->y.z, m->y.y);
+    zyx->x = -rtapi_atan2(m->y.z, m->y.y);
   } else {
-    zyx->z = atan2(m->x.y, m->x.x);
-    zyx->x = atan2(m->y.z, m->z.z);
+    zyx->z = rtapi_atan2(m->x.y, m->x.x);
+    zyx->x = rtapi_atan2(m->y.z, m->z.z);
   }
 
   return GO_RESULT_OK;
@@ -434,19 +434,19 @@ int go_mat_zyx_convert(const go_mat * m, go_zyx * zyx)
 
 int go_mat_rpy_convert(const go_mat * m, go_rpy * rpy)
 {
-  rpy->p = atan2(-m->x.z, sqrt(go_sq(m->x.x) + go_sq(m->x.y)));
+  rpy->p = rtapi_atan2(-m->x.z, rtapi_sqrt(go_sq(m->x.x) + go_sq(m->x.y)));
 
   if (GO_ROT_CLOSE(rpy->p, GO_PI_2)) {
-    rpy->r = atan2(m->y.x, m->y.y);
+    rpy->r = rtapi_atan2(m->y.x, m->y.y);
     rpy->p = GO_PI_2;		/* force it */
     rpy->y = 0;
   } else if (GO_ROT_CLOSE(rpy->p, GO_PI_2)) {
-    rpy->r = -atan2(m->y.z, m->y.y);
+    rpy->r = -rtapi_atan2(m->y.z, m->y.y);
     rpy->p = -GO_PI_2;		/* force it */
     rpy->y = 0;
   } else {
-    rpy->r = atan2(m->y.z, m->z.z);
-    rpy->y = atan2(m->x.y, m->x.x);
+    rpy->r = rtapi_atan2(m->y.z, m->z.z);
+    rpy->y = rtapi_atan2(m->x.y, m->x.x);
   }
 
   return GO_RESULT_OK;
@@ -477,13 +477,13 @@ int go_zyz_mat_convert(const go_zyz * zyz, go_mat * m)
   go_real sa, sb, sg;
   go_real ca, cb, cg;
 
-  sa = sin(zyz->z);
-  sb = sin(zyz->y);
-  sg = sin(zyz->zp);
+  sa = rtapi_sin(zyz->z);
+  sb = rtapi_sin(zyz->y);
+  sg = rtapi_sin(zyz->zp);
 
-  ca = cos(zyz->z);
-  cb = cos(zyz->y);
-  cg = cos(zyz->zp);
+  ca = rtapi_cos(zyz->z);
+  cb = rtapi_cos(zyz->y);
+  cg = rtapi_cos(zyz->zp);
 
   m->x.x = ca * cb * cg - sa * sg;
   m->y.x = -ca * cb * sg - sa * cg;
@@ -549,13 +549,13 @@ int go_zyx_mat_convert(const go_zyx * zyx, go_mat * m)
   go_real sa, sb, sg;
   go_real ca, cb, cg;
 
-  sa = sin(zyx->z);
-  sb = sin(zyx->y);
-  sg = sin(zyx->x);
+  sa = rtapi_sin(zyx->z);
+  sb = rtapi_sin(zyx->y);
+  sg = rtapi_sin(zyx->x);
 
-  ca = cos(zyx->z);
-  cb = cos(zyx->y);
-  cg = cos(zyx->x);
+  ca = rtapi_cos(zyx->z);
+  cb = rtapi_cos(zyx->y);
+  cg = rtapi_cos(zyx->x);
 
   m->x.x = ca * cb;
   m->y.x = ca * sb * sg - sa * cg;
@@ -617,13 +617,13 @@ int go_rpy_mat_convert(const go_rpy * rpy, go_mat * m)
   go_real sa, sb, sg;
   go_real ca, cb, cg;
 
-  sa = sin(rpy->y);
-  sb = sin(rpy->p);
-  sg = sin(rpy->r);
+  sa = rtapi_sin(rpy->y);
+  sb = rtapi_sin(rpy->p);
+  sg = rtapi_sin(rpy->r);
 
-  ca = cos(rpy->y);
-  cb = cos(rpy->p);
-  cg = cos(rpy->r);
+  ca = rtapi_cos(rpy->y);
+  cb = rtapi_cos(rpy->p);
+  cg = rtapi_cos(rpy->r);
 
   m->x.x = ca * cb;
   m->y.x = ca * sb * sg - sa * cg;
@@ -769,7 +769,7 @@ int go_cart_cart_cross(const go_cart * v1, const go_cart * v2,
 
 int go_cart_mag(const go_cart * v, go_real * d)
 {
-  *d = sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
+  *d = rtapi_sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
 
   return GO_RESULT_OK;
 }
@@ -812,7 +812,7 @@ go_flag go_cart_cart_perp(const go_cart *v1, const go_cart *v2)
 int go_cart_cart_disp(const go_cart * v1, const go_cart * v2,
 			    go_real * d)
 {
-  *d = sqrt(go_sq(v2->x - v1->x) + 
+  *d = rtapi_sqrt(go_sq(v2->x - v1->x) + 
 	    go_sq(v2->y - v1->y) + 
 	    go_sq(v2->z - v1->z));
 
@@ -859,7 +859,7 @@ int go_cart_neg(const go_cart * v1, go_cart * vout)
 
 int go_cart_unit(const go_cart * v, go_cart * vout)
 {
-  go_real size = sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
+  go_real size = rtapi_sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
 
   if (GO_TRAN_SMALL(size)) {
     vout->x = GO_INF;
@@ -880,7 +880,7 @@ int go_cart_unit(const go_cart * v, go_cart * vout)
 
 int go_cart_is_norm(const go_cart * v)
 {
-  return GO_TRAN_CLOSE(sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z)), 1);
+  return GO_TRAN_CLOSE(rtapi_sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z)), 1);
 }
 
 int go_cart_cart_rot(const go_cart * v1,
@@ -905,7 +905,7 @@ int go_cart_cart_rot(const go_cart * v1,
   (void) go_cart_cart_cross(&u1, &u2, &cross);
   /* the magnitude of the mutual normal is sin theta */
   (void) go_cart_mag(&cross, &mag);
-  th = asin(mag);
+  th = rtapi_asin(mag);
   /* dot them to get parallel (1) or antiparallel (-1) */
   (void) go_cart_cart_dot(&u1, &u2, &dot);
   /* make the cross a unit vector so we can theta-ize it */
@@ -987,7 +987,7 @@ int go_cart_cart_angle(const go_cart * v1, const go_cart * v2,
   else if (dot < -1.)
     dot = -1.;
 
-  *a = acos(dot);
+  *a = rtapi_acos(dot);
 
   return GO_RESULT_OK;
 }
@@ -999,13 +999,13 @@ int go_cart_normal(const go_cart * v, go_cart * vout)
 
   /* pick the X, Y or Z vector that is most perpendicular to 'v' */
   cart.x = 1, cart.y = 0, cart.z = 0; /* start with X */
-  min = fabs(v->x);
-  ymin = fabs(v->y);
+  min = rtapi_fabs(v->x);
+  ymin = rtapi_fabs(v->y);
   if (ymin < min) {
     min = ymin;			/* Y is more perp */
     cart.x = 0, cart.y = 1, cart.z = 0;
   }
-  if (fabs(v->z) < min) {
+  if (rtapi_fabs(v->z) < min) {
     cart.x = 0, cart.y = 0, cart.z = 1;
   }
 
@@ -1174,13 +1174,13 @@ int go_cart_centroidize(const go_cart * vinarray,
 
   9z2 - 27 = 0,
   z2 - 3 = 0,
-  z = sqrt(3).
+  z = rtapi_sqrt(3).
 
   Then
 
-  d = 6 + 3 sqrt(3),
-  e = 18 + 12 sqrt(3),
-  f = 24 + 12 sqrt(3),
+  d = 6 + 3 rtapi_sqrt(3),
+  e = 18 + 12 rtapi_sqrt(3),
+  f = 24 + 12 rtapi_sqrt(3),
 
   and the cubic in y is
 
@@ -1189,13 +1189,13 @@ int go_cart_centroidize(const go_cart * vinarray,
   Then one root is
 
   y = 3f/[(e3-27f2)1/3-e],
-  = 3(24+12 sqrt[3])/([18+12 sqrt(3)]3-27[24+12 sqrt(3)]2)1/3-18-12 sqrt[3]),
-  = (12+6 sqrt[3])/([9+6 sqrt(3)]1/3-3-2 sqrt[3]),
-  = (6+4 sqrt[3])/([2+sqrt(3)]1/3-2-sqrt[3]).
+  = 3(24+12 sqrt[3])/([18+12 rtapi_sqrt(3)]3-27[24+12 rtapi_sqrt(3)]2)1/3-18-12 sqrt[3]),
+  = (12+6 sqrt[3])/([9+6 rtapi_sqrt(3)]1/3-3-2 sqrt[3]),
+  = (6+4 sqrt[3])/([2+rtapi_sqrt(3)]1/3-2-sqrt[3]).
 
   After a lot of simplification, you get
 
-  y = -2 - sqrt(3) - (2-sqrt[3])1/3 - (2+sqrt[3])1/3,
+  y = -2 - rtapi_sqrt(3) - (2-sqrt[3])1/3 - (2+sqrt[3])1/3,
   x = -2 - (2-sqrt[3])1/3 - (2+sqrt[3])1/3
 
   (and two other roots). 
@@ -1259,30 +1259,30 @@ go_complex go_complex_scale(go_complex z, go_real scale)
 
 go_real go_complex_mag(go_complex z)
 {
-  return sqrt(go_sq(z.re) + go_sq(z.im));
+  return rtapi_sqrt(go_sq(z.re) + go_sq(z.im));
 }
 
 go_real go_complex_arg(go_complex z)
 {
-  return atan2(z.im, z.re);
+  return rtapi_atan2(z.im, z.re);
 }
 
 /*
-  go_complex_sqrt() and go_complex_cbrt() are structured so that if
+  go_complex_rtapi_sqrt() and go_complex_cbrt() are structured so that if
   the roots of complex conjugates are taken, the first roots z1 will
   be complex conjugates.  This is due to atan2 returning args in the
   range -PI to PI.
  */
 
-void go_complex_sqrt(go_complex z, go_complex * z1, go_complex * z2)
+void go_complex_rtapi_sqrt(go_complex z, go_complex * z1, go_complex * z2)
 {
   go_real r, th;
 
-  r = sqrt(go_complex_mag(z));
+  r = rtapi_sqrt(go_complex_mag(z));
   th = 0.5 * go_complex_arg(z);
 
-  z1->re = r * cos(th);
-  z1->im = r * sin(th);
+  z1->re = r * rtapi_cos(th);
+  z1->im = r * rtapi_sin(th);
   if (NULL != z2) {
     z2->re = -z1->re;
     z2->im = -z1->im;
@@ -1298,15 +1298,15 @@ void go_complex_cbrt(go_complex z, go_complex * z1, go_complex * z2, go_complex 
   r = go_cbrt(go_complex_mag(z));
   th = 1.0/3.0 * go_complex_arg(z);
 
-  z1->re = r * cos(th);
-  z1->im = r * sin(th);
+  z1->re = r * rtapi_cos(th);
+  z1->im = r * rtapi_sin(th);
   if (NULL != z2) {
-    z2->re = r * cos(th + 2.0/3.0 * GO_PI);
-    z2->im = r * sin(th + 2.0/3.0 * GO_PI);
+    z2->re = r * rtapi_cos(th + 2.0/3.0 * GO_PI);
+    z2->im = r * rtapi_sin(th + 2.0/3.0 * GO_PI);
   }
   if (NULL != z3) {
-    z3->re = r * cos(th + 4.0/3.0 * GO_PI);
-    z3->im = r * sin(th + 4.0/3.0 * GO_PI);
+    z3->re = r * rtapi_cos(th + 4.0/3.0 * GO_PI);
+    z3->im = r * rtapi_sin(th + 4.0/3.0 * GO_PI);
   }
 
   return;
@@ -1328,12 +1328,12 @@ int go_quadratic_solve(const go_quadratic * quad,
 
   discr = go_sq(quad->a) - 4.0 * quad->b;
   if (discr < 0.0) {
-    discr = sqrt(-discr);
+    discr = rtapi_sqrt(-discr);
     z1->re = z2->re = -0.5 * quad->a;
     z1->im = 0.5 * discr;
     z2->im = -0.5 * discr;
   } else {
-    discr = sqrt(discr);
+    discr = rtapi_sqrt(discr);
     z1->re = 0.5 * (-quad->a + discr);
     z2->re = 0.5 * (-quad->a - discr);
     z1->im = z2->im = 0.0;
@@ -1373,9 +1373,9 @@ int go_cubic_solve(const go_cubic * cub,
   a = cub->b - 1.0/3.0 * go_sq(cub->a);
   b = cub->c - 1.0/3.0 * cub->a * cub->b + 2.0/27.0 * go_cub(cub->a);
   z.re = 0.25 * go_sq(b) + 1.0/27.0 * go_cub(a), z.im = 0.0;
-  go_complex_sqrt(z, &A, &B);
+  go_complex_rtapi_sqrt(z, &A, &B);
 
-  /* since z is real, the pair of sqrt(z) is either pure real or 
+  /* since z is real, the pair of rtapi_sqrt(z) is either pure real or 
      pure complex */
   A.re -= 0.5 * b;
   B.re -= 0.5 * b;
@@ -1393,7 +1393,7 @@ int go_cubic_solve(const go_cubic * cub,
   }
   u1 = go_complex_add(A, B);
   u2 = u3 = go_complex_scale(u1, -0.5);
-  z = go_complex_scale(go_complex_sub(A, B), sqrt(0.75));
+  z = go_complex_scale(go_complex_sub(A, B), rtapi_sqrt(0.75));
   z = go_complex_mult(I, z);
   u2 = go_complex_add(u2, z);
   u3 = go_complex_sub(u3, z);
@@ -1541,8 +1541,8 @@ int go_quartic_solve(const go_quartic * quart,
     quad.b = g;
     retval = go_quadratic_solve(&quad, z1, z3);
     if (GO_RESULT_OK != retval) return retval;
-    go_complex_sqrt(*z1, z1, z2);
-    go_complex_sqrt(*z3, z3, z4);
+    go_complex_rtapi_sqrt(*z1, z1, z2);
+    go_complex_rtapi_sqrt(*z3, z3, z4);
     z1->re += a4;
     z2->re += a4;
     z3->re += a4;
@@ -1579,8 +1579,8 @@ int go_quartic_solve(const go_quartic * quart,
   cub.c = -1.0/64.0 * go_sq(f);
   retval = go_cubic_solve(&cub, z1, z2, z3);
   if (GO_RESULT_OK != retval) return retval;
-  go_complex_sqrt(*z1, &p, NULL);
-  go_complex_sqrt(*z2, &q, NULL);
+  go_complex_rtapi_sqrt(*z1, &p, NULL);
+  go_complex_rtapi_sqrt(*z2, &q, NULL);
   fc.re = f, fc.im = 0.0;	/* fc is complex of scalar f */
   r = go_complex_div(fc, go_complex_scale(go_complex_mult(p, q), -8.0), &retval);
   if (GO_RESULT_OK != retval) return retval;
@@ -1594,8 +1594,8 @@ int go_quartic_solve(const go_quartic * quart,
   return GO_RESULT_OK;
 }
 
-#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
-#define MAG2(a,b) sqrt((a)*(a)+(b)*(b))
+#define SIGN(a,b) ((b) >= 0.0 ? rtapi_fabs(a) : -rtapi_fabs(a))
+#define MAG2(a,b) rtapi_sqrt((a)*(a)+(b)*(b))
 
 /*!
   This computes the Householder reduction to tridiagonal form of a
@@ -1623,7 +1623,7 @@ int go_tridiag_reduce(go_real ** a, /*< the real symmetric matrix,
     h=scale=0.0;
     if (l > 0) {
       for (k=0;k<=l;k++)
-	scale += fabs(a[i][k]);
+	scale += rtapi_fabs(a[i][k]);
       if (scale == 0.0)
 	e[i]=a[i][l];
       else {
@@ -1632,7 +1632,7 @@ int go_tridiag_reduce(go_real ** a, /*< the real symmetric matrix,
 	  h += a[i][k]*a[i][k];
 	}
 	f=a[i][l];
-	g=(f >= 0.0 ? -sqrt(h) : sqrt(h));
+	g=(f >= 0.0 ? -rtapi_sqrt(h) : rtapi_sqrt(h));
 	e[i]=scale*g;
 	h -= f*g;
 	a[i][l]=f-g;
@@ -1709,8 +1709,8 @@ int go_tridiag_ql(go_real * d,
     iter=0;
     do {
       for (m=l;m<n-1;m++) {
-	dd=fabs(d[m])+fabs(d[m+1]);
-	if ((go_real)(fabs(e[m])+dd) == dd) break;
+	dd=rtapi_fabs(d[m])+rtapi_fabs(d[m+1]);
+	if ((go_real)(rtapi_fabs(e[m])+dd) == dd) break;
       }
       if (m != l) {
 	if (iter++ == 30) return GO_RESULT_ERROR;
@@ -1850,7 +1850,7 @@ static int trilaterate(go_real x2, go_real x3, go_real y3,
 
   /* return z positive, caller can make negative if they want the
      point below the base */
-  p->z = sqrt(discr);
+  p->z = rtapi_sqrt(discr);
 
   return GO_RESULT_OK;
 }
@@ -2052,9 +2052,9 @@ int go_quat_mag(const go_quat * quat, go_real * d)
 {
   go_real sh;
 
-  sh = sqrt(go_sq(quat->x) + go_sq(quat->y) + go_sq(quat->z));
+  sh = rtapi_sqrt(go_sq(quat->x) + go_sq(quat->y) + go_sq(quat->z));
 
-  *d = 2 * atan2(sh, quat->s);
+  *d = 2 * rtapi_atan2(sh, quat->s);
 
   return GO_RESULT_OK;
 }
@@ -2074,7 +2074,7 @@ int go_quat_norm(const go_quat * q1, go_quat * qout)
 {
   go_real size;
 
-  size = sqrt(go_sq(q1->s) + go_sq(q1->x) + go_sq(q1->y) + go_sq(q1->z));
+  size = rtapi_sqrt(go_sq(q1->s) + go_sq(q1->x) + go_sq(q1->y) + go_sq(q1->z));
 
   if (GO_ROT_SMALL(size)) {
     qout->s = 1;
@@ -2130,18 +2130,18 @@ int go_quat_scale_mult(const go_quat * q, go_real s, go_quat * qout)
   go_real ha;			/* half angle */
   go_real scale;		/* new sh / old sh */
     
-  sh = sqrt(go_sq(q->x) + go_sq(q->y) + go_sq(q->z));
+  sh = rtapi_sqrt(go_sq(q->x) + go_sq(q->y) + go_sq(q->z));
   if (GO_SMALL(sh)) {
     /* zero rotation-- leave it alone */
     *qout = *q;
     return GO_RESULT_OK;
   }
 
-  ha = atan2(sh, q->s);
+  ha = rtapi_atan2(sh, q->s);
   ha *= s;
-  scale = sin(ha) / sh;
+  scale = rtapi_sin(ha) / sh;
 
-  qout->s = cos(ha);
+  qout->s = rtapi_cos(ha);
   qout->x = scale * q->x;
   qout->y = scale * q->y;
   qout->z = scale * q->z;
@@ -2366,14 +2366,14 @@ int go_line_from_planes(const go_plane * plane1, const go_plane * plane2, go_lin
   /* pick the cross product component with the largest magnitude,
      which will give the most robust calculations for the point
      on the line */
-  max = fabs(line->direction.x);
+  max = rtapi_fabs(line->direction.x);
   which = X;
-  ymax = fabs(line->direction.y);
+  ymax = rtapi_fabs(line->direction.y);
   if (ymax > max) {
     max = ymax;
     which = Y;
   }
-  if (fabs(line->direction.z) > max) {
+  if (rtapi_fabs(line->direction.z) > max) {
     which = Z;
   }
 
@@ -2439,7 +2439,7 @@ int go_line_evaluate(const go_line * line, go_real d, go_cart * point)
 
 int go_poGO_RESULT_line_distance(const go_cart * point, const go_line * line, go_real * distance)
 {
-  *distance = sqrt(
+  *distance = rtapi_sqrt(
 		   go_sq(line->direction.z * (point->y - line->point.y) -
 			 line->direction.y * (point->z - line->point.z)) +
 		   go_sq(line->direction.x * (point->z - line->point.z) -
@@ -2517,7 +2517,7 @@ int go_plane_from_abcd(go_real A, go_real B, go_real C, go_real D, go_plane * pl
   if (GO_TRAN_SMALL(mag)) {
     return GO_RESULT_DIV_ERROR;
   }
-  mag = 1.0 / sqrt(mag);	/* now it's the mag multiplier */
+  mag = 1.0 / rtapi_sqrt(mag);	/* now it's the mag multiplier */
 
   plane->normal.x = A * mag;
   plane->normal.y = B * mag;
@@ -2682,7 +2682,7 @@ int ludcmp(go_real ** a,
   for (i = 0; i < n; i++) {
     big = 0.0;
     for (j = 0; j < n; j++)
-      if ((temp = fabs(a[i][j])) > big)
+      if ((temp = rtapi_fabs(a[i][j])) > big)
 	big = temp;
     if (big < go_singular_epsilon)
       return GO_RESULT_SINGULAR;
@@ -2702,7 +2702,7 @@ int ludcmp(go_real ** a,
       for (k = 0; k < j; k++)
 	sum -= a[i][k] * a[k][j];
       a[i][j] = sum;
-      if ((dum = scratchrow[i] * fabs(sum)) >= big) {
+      if ((dum = scratchrow[i] * rtapi_fabs(sum)) >= big) {
 	big = dum;
 	imax = i;
       }
@@ -2717,7 +2717,7 @@ int ludcmp(go_real ** a,
       scratchrow[imax] = scratchrow[j];
     }
     indx[j] = imax;
-    if (fabs(a[j][j]) < go_singular_epsilon)
+    if (rtapi_fabs(a[j][j]) < go_singular_epsilon)
       return GO_RESULT_SINGULAR;
     if (j != n - 1) {
       dum = 1.0 / (a[j][j]);
@@ -2768,7 +2768,7 @@ int lubksb(go_real ** a,
     sum = b[i];
     for (j = i + 1; j < n; j++)
       sum -= a[i][j] * b[j];
-    if (fabs(a[i][i]) < go_singular_epsilon)
+    if (rtapi_fabs(a[i][i]) < go_singular_epsilon)
       return GO_RESULT_SINGULAR;
     b[i] = sum / a[i][i];
   }
@@ -3650,12 +3650,12 @@ int go_pose_dh_convert(const go_pose * ph, go_dh * dh)
   go_pose_hom_convert(ph, &h);
 
   dh->a = h.tran.x;
-  dh->alpha = -atan2(h.rot.z.y, h.rot.z.z);
-  dh->theta = -atan2(h.rot.y.x, h.rot.x.x);
+  dh->alpha = -rtapi_atan2(h.rot.z.y, h.rot.z.z);
+  dh->theta = -rtapi_atan2(h.rot.y.x, h.rot.x.x);
   if (GO_ROT_SMALL(dh->alpha)) {
-    dh->d = h.tran.z / cos(dh->alpha);
+    dh->d = h.tran.z / rtapi_cos(dh->alpha);
   } else {
-    dh->d = -h.tran.y / sin(dh->alpha);
+    dh->d = -h.tran.y / rtapi_sin(dh->alpha);
   }
 
   return GO_RESULT_OK;

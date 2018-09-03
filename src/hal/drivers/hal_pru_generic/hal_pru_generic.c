@@ -14,7 +14,7 @@
 //             Refactored code to more closely match mesa-hostmot2      //
 // 2012-Dec-30 Charles Steinkuehler                                     //
 //             Initial version, based in part on:                       //
-//               hal_pru.c      Micheal Haberler                       //
+//               hal_pru.c      Micheal Haberler                        //
 //               supply.c       Matt Shaver                             //
 //               stepgen.c      John Kasunich                           //
 //               hostmot2 code  Sebastian Kuzminsky                     //
@@ -83,6 +83,7 @@
 #include <sys/stat.h>
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
+#include "hal/drivers/hal_pru_generic/beaglebone_pinmap.h"
 
 MODULE_AUTHOR("Charles Steinkuehler");
 MODULE_DESCRIPTION("AM335x PRU demo component");
@@ -121,6 +122,9 @@ RTAPI_MP_INT(num_pwmgens, "Number of PWM outputs (default: 0)");
 
 static int num_encoders = 0;
 RTAPI_MP_INT(num_encoders, "Number of encoder channels (default: 0)");
+
+static char *halname = "hal_pru_generic";
+RTAPI_MP_STRING(halname, "Prefix for hal names (default: hal_pru_generic)");
 
 static char *prucode = "";
 RTAPI_MP_STRING(prucode, "filename of PRU code (.bin, default: stepgen.bin)");
@@ -211,7 +215,7 @@ int rtapi_app_main(void)
     hpg->config.comp_id      = comp_id;
     hpg->config.pru_period   = pru_period;
     hpg->config.name         = modname;
-//    hpg->config.name         = "hpg";
+    hpg->config.halname      = halname;
 
     rtapi_print("num_pwmgens : %d\n",num_pwmgens);
     rtapi_print("num_stepgens: %d\n",num_stepgens);
@@ -278,12 +282,12 @@ static void hpg_read(void *void_hpg, long period) {
     hal_pru_generic_t *hpg = void_hpg;
 
     hpg_stepgen_read(hpg, period);
-    hpg_encoder_read(hpg);
+    hpg_encoder_read(hpg, period);
 
 }
 
 u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns) {
-    u16 p = ceil((double)ns / (double)hpg->config.pru_period);
+    u16 p = rtapi_ceil((double)ns / (double)hpg->config.pru_period);
     return p;
 }
 
@@ -329,7 +333,7 @@ int export_pru(hal_pru_generic_t *hpg)
     char name[HAL_NAME_LEN + 1];
 
     // Export functions
-    rtapi_snprintf(name, sizeof(name), "%s.update", modname);
+    rtapi_snprintf(name, sizeof(name), "%s.update", halname);
     r = hal_export_funct(name, hpg_write, hpg, 1, 0, comp_id);
     if (r != 0) {
         HPG_ERR("ERROR: function export failed: %s\n", name);
@@ -337,7 +341,7 @@ int export_pru(hal_pru_generic_t *hpg)
         return -1;
     }
 
-    rtapi_snprintf(name, sizeof(name), "%s.capture-position", modname);
+    rtapi_snprintf(name, sizeof(name), "%s.capture-position", halname);
     r = hal_export_funct(name, hpg_read, hpg, 1, 0, comp_id);
     if (r != 0) {
         HPG_ERR("ERROR: function export failed: %s\n", name);
@@ -370,7 +374,7 @@ int assure_module_loaded(const char *module)
     }
     fclose(fd);
     HPG_DBG("loading module '%s'\n", module);
-    sprintf(line, "/sbin/modprobe %s", module);
+    rtapi_snprintf(line, sizeof(line), "/sbin/modprobe %s", module);
     if ((retval = system(line))) {
         HPG_ERR("ERROR: executing '%s'  %d - %s\n", line, errno, strerror(errno));
         return -1;
@@ -382,10 +386,6 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     
     int i;
     int retval;
-
-    if (pru != 1) {
-        HPG_ERR("WARNING: PRU is %d and not 1\n",pru);
-    }
 
     if (geteuid()) {
         HPG_ERR("ERROR: not running as root - need to 'sudo make setuid'?\n");
@@ -512,7 +512,7 @@ static void *pruevent_thread(void *arg)
     if (prussdrv_pru_wait_event(event, &event_count) < 0)
         continue;
     HPG_ERR("PRU event %d received\n",event);
-    prussdrv_pru_clear_event(pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
+    prussdrv_pru_clear_event(event, pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
     } while (1);
     HPG_ERR("pruevent_thread exiting\n");
     return NULL; // silence compiler warning
@@ -526,25 +526,23 @@ void pru_shutdown(int pru)
 }
 
 int hpg_wait_init(hal_pru_generic_t *hpg) {
-    char name[HAL_NAME_LEN + 1];
     int r;
 
     hpg->wait.task.addr = pru_malloc(hpg, sizeof(hpg->wait.pru));
 
     pru_task_add(hpg, &(hpg->wait.task));
 
-    rtapi_snprintf(name, sizeof(name), "%s.pru_busy_pin", hpg->config.name);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->hal.param.pru_busy_pin), hpg->config.comp_id);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->hal.pin.pru_busy_pin), hpg->config.comp_id, "%s.pru_busy_pin", hpg->config.name);
     if (r != 0) { return r; }
 
-    hpg->hal.param.pru_busy_pin = 0x80;
+    *(hpg->hal.pin.pru_busy_pin) = 0x80;
 
     return 0;
 }
 
 void hpg_wait_force_write(hal_pru_generic_t *hpg) {
     hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
-    hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
+    hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
     hpg->wait.pru.task.hdr.dataY = 0x00;
     hpg->wait.pru.task.hdr.addr = hpg->wait.task.next;
 
@@ -556,9 +554,68 @@ void hpg_wait_force_write(hal_pru_generic_t *hpg) {
 }
 
 void hpg_wait_update(hal_pru_generic_t *hpg) {
-    if (hpg->wait.pru.task.hdr.dataX != hpg->hal.param.pru_busy_pin)
-        hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
+    if (hpg->wait.pru.task.hdr.dataX != *(hpg->hal.pin.pru_busy_pin))
+        hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
 
     PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
     *pru = hpg->wait.pru;
 }
+
+int fixup_pin(u32 hal_pin) {
+    int ret = 0;
+    u32 type, p89, index;
+
+    // Original brain-dead pin numbering
+    if (hal_pin < 192) {
+        ret = hal_pin;
+    } else {
+        type  =  hal_pin / 100;
+        p89   = (hal_pin % 1000) / 100 ;
+        index =  hal_pin % 100;
+
+        // Fixup index value for P9 pins with two CPU pins attached
+        if (p89 == 9) {
+            if ((index == 91) || (index == 92)) {
+                index = index - 50 + (47 - 41);
+            } else if (index > 46) {
+                index = 0;
+            }
+        } else if (index > 46) {
+            index = 0;
+        }
+
+        switch (type) {
+        case 8 :
+            ret = p8_pins[index].gpio_pin_num;
+            break;
+        case 9 :
+            ret = p9_pins[index].gpio_pin_num;
+            break;
+        case 18 :
+            ret = p8_pins[index].pruO_pin_num;
+            break;
+        case 19 :
+            ret = p9_pins[index].pruO_pin_num;
+            break;
+        case 28 :
+            ret = p8_pins[index].pruI_pin_num;
+            break;
+        case 29 :
+            ret = p9_pins[index].pruI_pin_num;
+            break;
+        default:
+            ret = 0;
+        }    
+
+        if (ret == 0)
+            HPG_ERR("Unknown pin: %d\n",(int)hal_pin);
+
+        if (ret < 0) {
+            HPG_ERR("Requested pin unavailable: %d\n",(int)hal_pin);
+            ret = 0;
+        }
+    }
+
+    return ret;
+}
+

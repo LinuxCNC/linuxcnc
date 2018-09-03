@@ -130,9 +130,14 @@ void rtapi_hex_dump_to_buffer(const void *buf, size_t len, int rowsize,
 }
 
 
-void rtapi_print_hex_dump(int level, int prefix_type,
-			  int rowsize, int groupsize,
-			  const void *buf, size_t len, int ascii,
+void rtapi_print_hex_dump(int level,
+			  int prefix_type,
+			  int rowsize,
+			  int groupsize,
+			  const void *buf,
+			  size_t len,
+			  int ascii,
+			  hexdump_printer_t printer,
 			  const char *fmt, ...)
 {
     const __u8 *ptr = buf;
@@ -140,6 +145,8 @@ void rtapi_print_hex_dump(int level, int prefix_type,
     unsigned char linebuf[32 * 3 + 2 + 32 + 1];
     unsigned char prefix_str[100];
     va_list args;
+    if (printer == NULL)
+	printer = rtapi_print_msg;
 
     va_start(args, fmt);
     rtapi_vsnprintf((char *)prefix_str, sizeof(prefix_str), fmt, args);
@@ -157,14 +164,13 @@ void rtapi_print_hex_dump(int level, int prefix_type,
 
 	switch (prefix_type) {
 	case RTAPI_DUMP_PREFIX_ADDRESS:
-	    rtapi_print_msg(level, "%s%p: %s\n",
-			    prefix_str, ptr + i, linebuf);
+	    printer(level, "%s%p: %s\n", prefix_str, ptr + i, linebuf);
 	    break;
 	case RTAPI_DUMP_PREFIX_OFFSET:
-	    rtapi_print_msg(level,"%s%.8x: %s\n", prefix_str, i, linebuf);
+	    printer(level,"%s%.8x: %s\n", prefix_str, i, linebuf);
 	    break;
 	default:
-	    rtapi_print_msg(level, "%s%s\n", prefix_str, linebuf);
+	    printer(level, "%s%s\n", prefix_str, linebuf);
 	    break;
 	}
     }

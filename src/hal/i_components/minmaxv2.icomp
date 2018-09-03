@@ -1,0 +1,25 @@
+component minmaxv2 "Track the minimum and maximum values of the input to the outputs";
+pin_ptr in float in;
+pin_ptr in bit reset "When reset is asserted, 'in' is copied to the outputs";
+pin_ptr out float max_;
+pin_ptr out float min_;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if(gb(reset)) 
+        {
+        sf(max_, gf(in));
+        sf(min_, gf(in)); 
+        }
+    else 
+        {
+        if(gf(in) > gf(max_)) 
+            sf(max_, gf(in));
+        if(gf(in) < gf(min_)) 
+            sf(min_, gf(in));
+        }
+
+return 0;
+}

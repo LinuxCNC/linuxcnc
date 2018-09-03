@@ -1,0 +1,35 @@
+CONST_DIR := hal/icomp-example/C++_userspace_comp
+
+CONSTV2_SRCS :=  $(addprefix $(CONST_DIR)/, \
+	constv2.cc)
+
+CONST_SRCS :=  $(addprefix $(CONST_DIR)/, \
+	const.cc)
+
+CONST_CXXFLAGS := -DULAPI 	\
+	-I$(CONST_DIR)
+
+CONST_LDFLAGS := \
+	-lstdc++ -lm
+
+$(call TOOBJSDEPS, $(CONSTV2_SRCS)) : EXTRAFLAGS += $(CONST_CXXFLAGS)
+
+../bin/constv2: $(call TOOBJS, $(CONSTV2_SRCS)) \
+	../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(CONST_LDFLAGS)
+
+USERSRCS += $(CONSTV2_SRCS)
+TARGETS += ../bin/constv2
+
+
+$(call TOOBJSDEPS, $(CONST_SRCS)) : EXTRAFLAGS += $(CONST_CXXFLAGS)
+
+../bin/const: $(call TOOBJS, $(CONST_SRCS)) \
+	../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(CONST_LDFLAGS)
+
+
+USERSRCS += $(CONST_SRCS)
+TARGETS += ../bin/const

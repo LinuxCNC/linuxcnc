@@ -31,10 +31,17 @@
 #include <strings.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <sys/utsname.h>
 #include <limits.h>		/* PATH_MAX */
 #include <stdlib.h>		/* exit() */
+#include <string.h>		/* exit() */
 #include <grp.h>                // getgroups
+#include <spawn.h>              // posix_spawn
+#include <sys/wait.h>           // wait_pid
+
+#include <elf.h>                // get_rpath()
+#include <link.h>
 
 // really in nucleus/heap.h but we rather get away with minimum include files
 #ifndef XNHEAP_DEV_NAME
@@ -157,35 +164,35 @@ flavor_t flavors[] = {
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_POSIX_ID,
+      .flavor_id = RTAPI_POSIX_ID,
       .flags = POSIX_FLAVOR_FLAGS // FLAVOR_USABLE
     },
     { .name = "sim", // alias for above- old habíts die hard
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_POSIX_ID,
+      .flavor_id = RTAPI_POSIX_ID,
       .flags = POSIX_FLAVOR_FLAGS
     },
     { .name = RTAPI_RT_PREEMPT_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_RT_PREEMPT_ID,
+      .flavor_id = RTAPI_RT_PREEMPT_ID,
       .flags = RTPREEMPT_FLAVOR_FLAGS
     },
      { .name = RTAPI_XENOMAI_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
-      .id = RTAPI_XENOMAI_ID,
+      .flavor_id = RTAPI_XENOMAI_ID,
       .flags = XENOMAI_FLAVOR_FLAGS
     },
     { .name = RTAPI_RTAI_KERNEL_NAME,
       .mod_ext = ".ko",
       .so_ext = ".so",
       .build_sys = "kbuild",
-      .id = RTAPI_RTAI_KERNEL_ID,
+      .flavor_id = RTAPI_RTAI_KERNEL_ID,
       .flags = RTAI_KERNEL_FLAVOR_FLAGS
     },
 
@@ -193,7 +200,7 @@ flavor_t flavors[] = {
       .mod_ext = ".ko",
       .so_ext = ".so",
       .build_sys = "kbuild",
-      .id = RTAPI_XENOMAI_KERNEL_ID,
+      .flavor_id = RTAPI_XENOMAI_KERNEL_ID,
       .flags =  XENOMAI_KERNEL_FLAVOR_FLAGS
     },
 
@@ -201,12 +208,12 @@ flavor_t flavors[] = {
       .mod_ext = "",
       .so_ext = "",
       .build_sys = "n/a",
-      .id = RTAPI_NOTLOADED_ID,
+      .flavor_id = RTAPI_NOTLOADED_ID,
       .flags = 0
     },
 
     { .name = NULL, // list sentinel
-      .id = -1,
+      .flavor_id = -1,
       .flags = 0
     }
 };
@@ -226,7 +233,7 @@ flavor_ptr flavor_byid(int flavor_id)
 {
     flavor_ptr f = flavors;
     while (f->name) {
-	if (flavor_id == f->id)
+	if (flavor_id == f->flavor_id)
 	    return f;
 	f++;
     }
@@ -468,16 +475,16 @@ int run_module_helper(const char *format, ...)
     return system(mod_helper);
 }
 
-
-
-int procfs_threadcmd(const char *format, ...)
+//int procfs_cmd(const char *path, const char *format, ...)
+// whatever is written is printf-style
+int rtapi_fs_write(const char *path, const char *format, ...)
 {
     va_list args;
     int fd;
     int retval = 0;
-    char buffer[100];
+    char buffer[4096];
 
-    if ((fd = open(PROCFS_THREADCMD,O_WRONLY)) > -1) {
+    if ((fd = open(path,O_WRONLY)) > -1) {
 	int len;
 	va_start(args, format);
 	len = vsnprintf(buffer, sizeof(buffer), format, args);
@@ -488,3 +495,262 @@ int procfs_threadcmd(const char *format, ...)
     } else
 	return -ENOENT;
 }
+
+// filename is printf-style
+int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...)
+{
+    char fname[4096];
+    va_list args;
+
+    va_start(args, name);
+    size_t len = vsnprintf(fname, sizeof(fname), name, args);
+    va_end(args);
+
+    if (len < 1)
+    return -EINVAL; // name too short
+
+    int fd, rc;
+    if ((fd = open(fname, O_RDONLY)) >= 0) {
+    rc = read(fd, buf, maxlen);
+    close(fd);
+    if (rc < 0)
+        return -errno;
+    char *s = strchr(buf, '\n');
+    if (s) *s = '\0';
+    return strlen(buf);
+    } else {
+    return -errno;
+    }
+}
+
+const char *rtapi_get_rpath(void)
+{
+  const ElfW(Dyn) *dyn = _DYNAMIC;
+  const ElfW(Dyn) *rpath = NULL;
+  const char *strtab = NULL;
+  for (; dyn->d_tag != DT_NULL; ++dyn) {
+    if (dyn->d_tag == DT_RPATH) {
+      rpath = dyn;
+    } else if (dyn->d_tag == DT_STRTAB) {
+      strtab = (const char *)dyn->d_un.d_val;
+    }
+  }
+
+  if (strtab != NULL && rpath != NULL) {
+      return strdup(strtab + rpath->d_un.d_val);
+  }
+  return NULL;
+}
+
+int get_elf_section(const char *const fname, const char *section_name, void **dest)
+{
+    int size = -1, i;
+    struct stat st;
+
+    if (stat(fname, &st) != 0) {
+	perror("stat");
+	return -1;
+    }
+    int fd = open(fname, O_RDONLY);
+    if (fd < 0) {
+	perror("open");
+	return fd;
+    }
+    char *p = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (p == NULL) {
+	perror("mmap");
+    close(fd);
+	return -1;
+    }
+
+    switch (p[EI_CLASS]) 	{
+    case ELFCLASS32:
+	{
+	    Elf32_Ehdr *ehdr = (Elf32_Ehdr*)p;
+	    Elf32_Shdr *shdr = (Elf32_Shdr *)(p + ehdr->e_shoff);
+	    int shnum = ehdr->e_shnum;
+
+	    Elf32_Shdr *sh_strtab = &shdr[ehdr->e_shstrndx];
+	    const char *const sh_strtab_p = p + sh_strtab->sh_offset;
+	    for (i = 0; i < shnum; ++i) {
+		if (strcmp(sh_strtab_p + shdr[i].sh_name, section_name) == 0) {
+		    size  = shdr[i].sh_size;
+		    if (!size)
+			continue;
+		    if (dest) {
+			*dest = malloc(size);
+			if (*dest == NULL) {
+			    perror("malloc");
+			    size = -1;
+			    break;
+			}
+			memcpy(*dest, p + shdr[i].sh_offset, size);
+			break;
+		    }
+		}
+	    }
+	}
+	break;
+
+    case ELFCLASS64:
+	{
+	    Elf64_Ehdr *ehdr = (Elf64_Ehdr*)p;
+	    Elf64_Shdr *shdr = (Elf64_Shdr *)(p + ehdr->e_shoff);
+	    int shnum = ehdr->e_shnum;
+
+	    Elf64_Shdr *sh_strtab = &shdr[ehdr->e_shstrndx];
+	    const char *const sh_strtab_p = p + sh_strtab->sh_offset;
+	    for (i = 0; i < shnum; ++i) {
+		if (strcmp(sh_strtab_p + shdr[i].sh_name, section_name) == 0) {
+		    size  = shdr[i].sh_size;
+		    if (!size)
+			continue;
+		    if (dest) {
+			*dest = malloc(size);
+			if (*dest == NULL) {
+			    perror("malloc");
+			    size = -1;
+			    break;
+			}
+			memcpy(*dest, p + shdr[i].sh_offset, size);
+			break;
+		    }
+		}
+	    }
+	}
+	break;
+    default:
+	fprintf(stderr, "%s: Unknown ELF class %d\n", fname, p[EI_CLASS]);
+    }
+    munmap(p, st.st_size);
+    close(fd);
+    return size;
+}
+
+const char **get_caps(const char *const fname)
+{
+    void  *dest;
+    int n = 0;
+    char *s;
+
+    int csize = get_elf_section(fname, RTAPI_TAGS, &dest);
+    if (csize < 0)
+	return 0;
+
+    for (s = dest; s < ((char *)dest + csize); s += strlen(s) + 1)
+	n++;
+
+    const char **rv = malloc(sizeof(char*) * (n+1));
+    if (rv == NULL) {
+	perror("malloc");
+	return NULL;
+    }
+    n = 0;
+    for (s = dest;
+	 s < ((char *)dest+csize);
+	 s += strlen(s)+1)
+	rv[n++] = s;
+
+    rv[n] = NULL;
+    return rv;
+}
+
+const char *get_cap(const char *const fname, const char *cap)
+{
+    if ((cap == NULL) || (fname == NULL))
+	return NULL;
+
+    const char **cv = get_caps(fname);
+    if (cv == NULL)
+	return NULL;
+
+    const char **p = cv;
+    size_t len = strlen(cap);
+
+    while (p && *p && strlen(*p)) {
+	if (strncasecmp(*p, cap, len) == 0) {
+	    const char *result = strdup(*p + len + 1); // skip over '='
+	    free(cv);
+	    return result;
+	}
+    }
+    free(cv);
+    return NULL;
+}
+
+int rtapi_get_tags(const char *mod_name)
+{
+    char modpath[PATH_MAX];
+    int result = 0, n = 0;
+    char *cp1 = "";
+
+    flavor_ptr flavor = default_flavor();
+
+    if (kernel_threads(flavor)) {
+	if (module_path(modpath, mod_name) < 0) {
+	    perror("module_path");
+	    return -1;
+	}
+    } else {
+	if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
+	    perror("cant get  RTLIB_DIR ?\n");
+	    return -1;
+	}
+	strcat(modpath,"/");
+	strcat(modpath, flavor->name);
+	strcat(modpath,"/");
+	strcat(modpath,mod_name);
+	strcat(modpath, flavor->mod_ext);
+    }
+    const char **caps = get_caps(modpath);
+
+    char **p = (char **)caps;
+    while (p && *p && strlen(*p)) {
+	cp1 = *p++;
+	if (strncmp(cp1,"HAL=", 4) == 0) {
+	    n = strtol(&cp1[4], NULL, 10);
+	    result |=  n ;
+	}
+    }
+    free(caps);
+    return result;
+}
+
+// lifted from hm2_ether.c by Michael Geszkiewicz  and Jeff Epler
+int run_shell(char *format, ...)
+{
+    char command[PATH_MAX];
+    va_list args;
+    int retval;
+
+    va_start(args, format);
+    retval = vsnprintf(command, sizeof(command), format, args);
+    va_end(args);
+
+    if (retval < 0) {
+    perror("vsnprintf");
+    return retval;
+    }
+    char *const argv[] = {"sh", "-c", command, NULL};
+    pid_t pid;
+    retval = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if(retval < 0)
+    perror("posix_spawn");
+
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status))
+    return WEXITSTATUS(status);
+    else if (WIFSTOPPED(status))
+    return WTERMSIG(status)+128;
+    else
+    return status;
+}
+
+// those are ok to use from userland RT modules:
+#if defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
+EXPORT_SYMBOL(run_shell);
+EXPORT_SYMBOL(is_module_loaded);
+EXPORT_SYMBOL(rtapi_fs_read);
+EXPORT_SYMBOL(rtapi_fs_write);
+#endif

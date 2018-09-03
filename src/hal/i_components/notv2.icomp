@@ -1,0 +1,12 @@
+component notv2 "Inverter";
+pin_ptr in bit in;
+pin_ptr out bit out;
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    sb(out, !gb(in));
+
+return 0;
+}

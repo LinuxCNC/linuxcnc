@@ -1,10 +1,19 @@
+# bug in stretch/1.58 boost-python-dev:
+# https://github.com/boostorg/python/commit/fe24ab9dd5440562e27422cd38f7de03356bfd16
+# solution: use exec.cpp from 1.59 and compile it into the .so
+# wget https://raw.githubusercontent.com/boostorg/python/boost-1.59.0/src/exec.cpp
+# mv exec.cpp exec.cc
+DOUBLE_CLOSE_WORKAROUND := yes
+
 #BOOST_DEBUG_FLAGS= -DBOOST_DEBUG_PYTHON -g -O0
 BOOST_DEBUG_FLAGS=
 
 INCLUDES += emc/pythonplugin
+LIBPPSRCS := emc/pythonplugin/python_plugin.cc
 
-LIBPPSRCS := $(addprefix emc/pythonplugin/, \
-	python_plugin.cc)
+ifeq ($(DOUBLE_CLOSE_WORKAROUND),yes)
+LIBPPSRCS += emc/pythonplugin/exec.cc
+endif
 
 USERSRCS += $(LIBPPSRCS)
 
@@ -20,10 +29,14 @@ TARGETS += ../lib/libpyplugin.so.0
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
-	    -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+	    -lstdc++ -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS)
 
 
 ../include/%.h: ./emc/pythonplugin/%.h
 	cp $^ $@
 ../include/%.hh: ./emc/pythonplugin/%.hh
 	cp $^ $@
+
+clean: pythonplugin-clean
+pythonplugin-clean:
+	rm -f ../lib/libpyplugin.so*

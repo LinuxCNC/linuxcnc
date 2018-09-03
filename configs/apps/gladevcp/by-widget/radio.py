@@ -57,7 +57,7 @@ class HandlerClass:
         self.halcomp.exit() # avoid lingering HAL component
         gtk.main_quit()
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
         self.useropts = useropts
@@ -76,11 +76,11 @@ class HandlerClass:
                                 }
         self.on_showoutput_btn_toggled(self.builder.get_object('showoutput_btn'))
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     global debug
     for cmd in useropts:
         exec cmd in globals()
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]
 

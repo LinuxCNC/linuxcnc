@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <tcl.h>
 #include <tk.h>
 
@@ -2216,7 +2216,7 @@ static int emc_program_codes(ClientData clientdata,
     // fill in F and S codes also
     sprintf(string, "F%.0f ", emcStatus->task.activeSettings[1]);
     strcat(codes_string, string);
-    sprintf(string, "S%.0f", fabs(emcStatus->task.activeSettings[2]));
+    sprintf(string, "S%.0f", rtapi_fabs(emcStatus->task.activeSettings[2]));
     strcat(codes_string, string);
 
     setresult(interp,codes_string);

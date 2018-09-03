@@ -1,0 +1,152 @@
+component lut5 """Arbitrary 5-input logic function based on a look-up table""";
+pin in bit in_0;
+pin in bit in_1;
+pin in bit in_2;
+pin in bit in_3;
+pin in bit in_4;
+pin out bit out;
+pin io u32 function;
+function _ nofp;
+description """
+.B lut5
+constructs a logic function with up to 5 inputs using a
+\\fBl\\fRook-\\fBu\\fRp \\fBt\\fRable. The value for \\fBfunction\\fR can be
+determined by writing the truth table, and computing the sum of \\fBall\\fR
+the \\fBweights\\fR for which the output value would be \\fRtrue\\fR.
+The weights are hexadecimal not decimal so hexadecimal math must be used to
+sum the weights. A wiki page has a calculator to assist in computing the proper
+value for function.
+.PP
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Lut5
+.PP
+Note that LUT5 will generate any of the 4,294,967,296
+logical functions of 5 inputs so \\fBAND\\fR, \\fBOR\\fR, \\fBNAND\\fR,
+\\fBNOR\\fR, \\fBXOR\\fR and every other combinatorial function is possible.
+.PP
+.SS Example Functions
+A 5-input
+\\fIand\\fR function is true only when all the inputs are true, so the correct
+value for \\fBfunction\\fR is \\fB0x80000000\\fR.
+.PP
+A 2-input \\fIor\\fR function would be the sum of \\fB0x2\\fR + \\fB0x4\\fR +
+\\fB0x8\\fR, so the correct value for \\fBfunction\\fR is \\fB0xe\\fR.
+.PP
+A 5-input \\fIor\\fR
+function is true whenever any of the inputs are true, so the correct value for
+\\fBfunction\\fR is \\fB0xfffffffe\\fR. Because every weight except \\fB0x1\\fR
+is true the function is the sum of every line except the first one.
+.PP
+A 2-input \\fIxor\\fR function is
+true whenever exactly one of the inputs is true, so the correct value for
+\\fBfunction\\fR is \\fB0x6\\fR.  Only \\fBin-0\\fR and \\fBin-1\\fR should be
+connected to signals, because if any other bit is \\fBtrue\\fR then the output
+will be \\fBfalse\\fR.
+.PP
+.ie '\*[.T]'html' \\{\\
+.HTML \\
+<STYLE> \\
+#weight TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
+#weight TH { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
+#weight TD.W { text-align: right; } \\
+</STYLE> \\
+<TABLE ID="weight" STYLE="border: 1px solid black; border-collapse: collapse"> \\
+    <COL SPAN=5 STYLE="margin: .2ex"><COL SPAN=1 STYLE="border-left: 1px solid black"> \\
+<TR STYLE="border-bottom: 1px solid black"> \\
+    <TH COLSPAN=6>Weights for each line of truth table \\
+<TR STYLE="border-bottom: 1px solid black"> \\
+    <TH>Bit 4<TH>Bit 3<TH>Bit 2<TH>Bit 1<TH>Bit 0<TH> Weight \\
+<TR><TD>0<TD>0<TD>0<TD>0<TD>0<TD CLASS="w">0x1 \\
+<TR><TD>0<TD>0<TD>0<TD>0<TD>1<TD CLASS="w">0x2 \\
+<TR><TD>0<TD>0<TD>0<TD>1<TD>0<TD CLASS="w">0x4 \\
+<TR><TD>0<TD>0<TD>0<TD>1<TD>1<TD CLASS="w">0x8 \\
+<TR><TD>0<TD>0<TD>1<TD>0<TD>0<TD CLASS="w">0x10 \\
+<TR><TD>0<TD>0<TD>1<TD>0<TD>1<TD CLASS="w">0x20 \\
+<TR><TD>0<TD>0<TD>1<TD>1<TD>0<TD CLASS="w">0x40 \\
+<TR><TD>0<TD>0<TD>1<TD>1<TD>1<TD CLASS="w">0x80 \\
+<TR><TD>0<TD>1<TD>0<TD>0<TD>0<TD CLASS="w">0x100 \\
+<TR><TD>0<TD>1<TD>0<TD>0<TD>1<TD CLASS="w">0x200 \\
+<TR><TD>0<TD>1<TD>0<TD>1<TD>0<TD CLASS="w">0x400 \\
+<TR><TD>0<TD>1<TD>0<TD>1<TD>1<TD CLASS="w">0x800 \\
+<TR><TD>0<TD>1<TD>1<TD>0<TD>0<TD CLASS="w">0x1000 \\
+<TR><TD>0<TD>1<TD>1<TD>0<TD>1<TD CLASS="w">0x2000 \\
+<TR><TD>0<TD>1<TD>1<TD>1<TD>0<TD CLASS="w">0x4000 \\
+<TR><TD>0<TD>1<TD>1<TD>1<TD>1<TD CLASS="w">0x8000 \\
+<TR><TD>1<TD>0<TD>0<TD>0<TD>0<TD CLASS="w">0x10000 \\
+<TR><TD>1<TD>0<TD>0<TD>0<TD>1<TD CLASS="w">0x20000 \\
+<TR><TD>1<TD>0<TD>0<TD>1<TD>0<TD CLASS="w">0x40000 \\
+<TR><TD>1<TD>0<TD>0<TD>1<TD>1<TD CLASS="w">0x80000 \\
+<TR><TD>1<TD>0<TD>1<TD>0<TD>0<TD CLASS="w">0x100000 \\
+<TR><TD>1<TD>0<TD>1<TD>0<TD>1<TD CLASS="w">0x200000 \\
+<TR><TD>1<TD>0<TD>1<TD>1<TD>0<TD CLASS="w">0x400000 \\
+<TR><TD>1<TD>0<TD>1<TD>1<TD>1<TD CLASS="w">0x800000 \\
+<TR><TD>1<TD>1<TD>0<TD>0<TD>0<TD CLASS="w">0x1000000 \\
+<TR><TD>1<TD>1<TD>0<TD>0<TD>1<TD CLASS="w">0x2000000 \\
+<TR><TD>1<TD>1<TD>0<TD>1<TD>0<TD CLASS="w">0x4000000 \\
+<TR><TD>1<TD>1<TD>0<TD>1<TD>1<TD CLASS="w">0x8000000 \\
+<TR><TD>1<TD>1<TD>1<TD>0<TD>0<TD CLASS="w">0x10000000 \\
+<TR><TD>1<TD>1<TD>1<TD>0<TD>1<TD CLASS="w">0x20000000 \\
+<TR><TD>1<TD>1<TD>1<TD>1<TD>0<TD CLASS="w">0x40000000 \\
+<TR><TD>1<TD>1<TD>1<TD>1<TD>1<TD CLASS="w">0x80000000 \\
+</TABLE>
+\\}
+.el \\{\\
+.TS
+box tab(;);
+cb s s s s s
+cb cb cb cb cb | cb
+c  c  c  c  c  | r.
+Weights for each line of truth table
+_
+Bit 4;Bit 3;Bit 2;Bit 1;Bit 0; Weight
+_
+0;0;0;0;0;0x1
+0;0;0;0;1;0x2
+0;0;0;1;0;0x4
+0;0;0;1;1;0x8
+0;0;1;0;0;0x10
+0;0;1;0;1;0x20
+0;0;1;1;0;0x40
+0;0;1;1;1;0x80
+0;1;0;0;0;0x100
+0;1;0;0;1;0x200
+0;1;0;1;0;0x400
+0;1;0;1;1;0x800
+0;1;1;0;0;0x1000
+0;1;1;0;1;0x2000
+0;1;1;1;0;0x4000
+0;1;1;1;1;0x8000
+1;0;0;0;0;0x10000
+1;0;0;0;1;0x20000
+1;0;0;1;0;0x40000
+1;0;0;1;1;0x80000
+1;0;1;0;0;0x100000
+1;0;1;0;1;0x200000
+1;0;1;1;0;0x400000
+1;0;1;1;1;0x800000
+1;1;0;0;0;0x1000000
+1;1;0;0;1;0x2000000
+1;1;0;1;0;0x4000000
+1;1;0;1;1;0x8000000
+1;1;1;0;0;0x10000000
+1;1;1;0;1;0x20000000
+1;1;1;1;0;0x40000000
+1;1;1;1;1;0x80000000
+.TE
+\\}
+""";
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    hal_s32_t shift = 0;
+    if(in_0) shift += 1;
+    if(in_1) shift += 2;
+    if(in_2) shift += 4;
+    if(in_3) shift += 8;
+    if(in_4) shift += 16;
+
+    out = (function & (1<<shift)) != 0;
+
+return 0;
+}

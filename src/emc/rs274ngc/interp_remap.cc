@@ -623,8 +623,10 @@ int Interp::init_remap_sets()
 	_setup.g_remappable[i] = 0;
     }
 
-    // all unallocated M-codes > 199 are freely remappable
-    for (i = 200; i < 1000; i++) _setup.m_remappable[i] = 1;
+    // all unallocated M-codes > 100 are freely remappable
+    // range 100-199: a remap takes precedence over an external executable
+    // named M100-M199
+    for (i = 100; i < 1000; i++) _setup.m_remappable[i] = 1;
 
     // in the range 1..99 unused M-codes are remappable
     for (i = 1; i < 100; i++) {
@@ -640,7 +642,17 @@ int Interp::init_remap_sets()
     _setup.m_remappable[0] = 1;   // program pause
     _setup.m_remappable[1] = 1;   // program pause if the optional stop switch is on
 
+
+    _setup.m_remappable[19] = 1;  //spindle orientation
+
     _setup.m_remappable[60] = 1;  //Pallet Change Pause
+
+    // analog/digital IO
+    _setup.m_remappable[62] = 1;  // digital io output on synched
+    _setup.m_remappable[63] = 1;  // digital io output off synched
+    _setup.m_remappable[64] = 1;  // digital io output on immediate
+    _setup.m_remappable[65] = 1;  // digital io output off immediate
+    _setup.m_remappable[66] = 1;  // analog io input
 
 
     // the G codes:

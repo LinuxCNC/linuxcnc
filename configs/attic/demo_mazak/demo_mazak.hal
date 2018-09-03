@@ -3,7 +3,9 @@
 # kinematics
 loadrt trivkins
 # first load the motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD tp=tp kins=trivkins
 
 # next load I/O drivers.  This retrofit uses three different I/O devices
 #
@@ -27,9 +29,11 @@ loadrt hal_parport cfg="0x0378_in"
 
 # 4) Weighted summer, driven by toolchanger slot position inputs
 #     This adds together the 5 bits (with bit 4 being equal to 13)
-#     and outputs the sum as an S32
+#     and outputs the sum as a S32
 #
-loadrt weighted_sum wsum_sizes=5
+# Not in fact connected in this demo
+# this line would create a new icomp called wsum with 5 in pins and 5 weights
+# newinst weighted_sum wsum pincount=5
 
 # I/O Mapping - Physical I/O points to driver pins
 # --------------------------------------------------------
@@ -88,7 +92,8 @@ loadrt mux4 count=1
 loadrt wcomp count=2
 loadrt scale count=3
 loadrt modmath mod_dir=2
-loadrt charge_pump
+# keeps old configs going
+loadrt charge_pump names=charge-pump
 loadrt tristate_bit
 loadrt tristate_float count=3
 loadrt conv_s32_float
@@ -100,7 +105,7 @@ loadrt encoder num_chan=1
 
 # PID loops: 3 for axis control and one for spindle orient
 #
-loadrt pid num_chan=4
+loadrt pid count=4
 
 # classicladder for machine logic
 # (load the realtime portion)
@@ -110,7 +115,7 @@ loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonost
 loadusr -w classicladder --nogui demo_mazak.clp
 
 # load debounce to handle the pushbuttons on the operator panels
-loadrt debounce cfg="8"
+newinst debounce debounce.0 pincount=8
 setp debounce.0.delay 3
 
 # -----------------------------------------------
@@ -405,7 +410,7 @@ net arm-retracted ax5214h.0.in-29
 net arm-extended ax5214h.0.in-30
 # FIXME!!  This sensor is broken, so we are using a delay
 # instead - 2 seconds after the cylinder is actuated, we
-# assume that we have reached the desired position and 
+# assume that we have reached the desired position and
 # set the signal true.  The commented out line below is
 # the proper source for the signal.  But for now, it is
 # driven by classicladder output number 27 (see ladder

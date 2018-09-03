@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # vim: sts=4 sw=4 et
-#    This is a component of LinuxCNC
+#    This is a component of Machinekit
 #    complex.py Copyright 2011 Michael Haberler
 #
 #
@@ -75,10 +75,10 @@ class HandlerClass:
         hal_widget.set_label(text)
         self.colorize(hal_widget, gtk.STATE_NORMAL, color)
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
 
         self.hal_button1 = builder.get_object('hal_button1')
  
 
-def get_handlers(halcomp,builder,useropts):
-    return [HandlerClass(halcomp,builder,useropts)]
+def get_handlers(halcomp,builder,useropts,compname):
+    return [HandlerClass(halcomp,builder,useropts,compname)]

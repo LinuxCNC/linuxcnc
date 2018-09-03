@@ -25,7 +25,7 @@
             files  for  "Closed Loop Servo" 
 	 	 and hardware stepper
                   	machines</property>
-            <property name="watermark">linuxcnc-wizard.gif</property>
+            <property name="watermark">machinekit-wizard.gif</property>
           </widget>
         </child>
         <child>
@@ -67038,7 +67038,7 @@ If you experience lost steps while running LinuxCNC, first verify that you enter
 
 If you experience the "Unexpected Realtime Delay" message, run a more thorough latency test as described on the linuxcnc.org wiki: 
  http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting</property>
-            <property name="watermark">linuxcnc-wizard.gif</property>
+            <property name="watermark">machinekit-wizard.gif</property>
             <signal name="finish" handler="on_complete_finish"/>
             <signal name="back" handler="on_complete_back"/>
           </widget>

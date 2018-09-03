@@ -90,7 +90,7 @@ sudo $(which config-pin) -f - <<- EOF
 	P8.19	low	# Z Step
 
 # eMMC signals, uncomment *ONLY* if you have disabled the on-board eMMC!
-# MachineKit images disable eMMC and HDMI audio by default in uEnv.txt:
+# Machinekit images disable eMMC and HDMI audio by default in uEnv.txt:
 #  capemgr.disable_partno=BB-BONELT-HDMI,BB-BONE-EMMC-2G
 #	P8.22	low	# Servo 4
 #	P8.23	low	# Servo 3

@@ -1,3 +1,8 @@
+/* avahi event loopt adapter for czmq
+ *
+ * Copyright Michael Haberler 2013-2015
+ * License: Mozilla Public License Version 2.0
+ */
 #ifndef _czmq_watch_h
 #define _czmq_watch_h
 

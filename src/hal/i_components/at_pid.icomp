@@ -1,0 +1,456 @@
+/********************************************************************
+ * Description:  at_pid.comp
+ *               This file, 'pid.comp', is a HAL component that provides
+ *               Proportional/Integeral/Derivative control loops.
+ *               Ported from the 'pid.c' component.
+ *
+ *  Authors: John Kasunich 2003
+ *  and Peter G. Vavaroutsos <pete AT vavaroutsos DOT com> 2007
+ *
+ *  Ported to icomp by ArcEye <arceye@mgware.co.uk> 2015
+ *  Pin names adapted by Strahlex <mail AT roessler DOT systems> 2015
+ *
+ *  Copyright (c) 2003-2015 All rights reserved.
+ *
+ ********************************************************************/
+component at_pid "HAL component that provides Proportional \
+    Integeral/Derivative control loops.  It is a realtime component.";
+
+description """ \
+  This file, 'at_pid.icomp', is a HAL component that provides Proportional/
+  Integeral/Derivative control loops.  It is a realtime component.
+
+  In this documentation, it is assumed that we are discussing position
+  loops.  However this component can be used to implement other loops
+  such as speed loops, torch height control, and others.
+
+  The three most important pins are 'command', 'feedback', and
+  'output'.  For a position loop, 'command' and 'feedback' are
+  in position units.  For a linear axis, this could be inches,
+  mm, metres, or whatever is relavent.  Likewise, for a angular
+  axis, it could be degrees, radians, etc.  The units of the
+  'output' pin represent the change needed to make the feedback
+  match the command.  As such, for a position loop 'Output' is
+  a velocity, in inches/sec, mm/sec, degrees/sec, etc.
+
+  Each loop has several other pins as well.  'error' is equal to
+  'command' minus 'feedback'.  'enable' is a bit that enables
+  the loop.  If 'enable' is false, all integrators are reset,
+  and the output is forced to zero.  If 'enable' is true, the
+  loop operates normally.
+
+  The PID gains, limits, and other 'tunable' features of the
+  loop are implemented as parameters.  These are as follows:
+
+  Pgain        Proportional gain
+  Igain        Integral gain
+  Dgain        Derivative gain
+  bias         Constant offset on output
+  FF0          Zeroth order Feedforward gain
+  FF1          First order Feedforward gain
+  FF2          Second order Feedforward gain
+  deadband     Amount of error that will be ignored
+  maxerror     Limit on error
+  maxerrorI    Limit on error integrator
+  maxerrorD    Limit on error differentiator
+  maxcmdD      Limit on command differentiator
+  maxcmdDD     Limit on command 2nd derivative
+  maxoutput    Limit on output value
+
+  All of the limits (max____) are implemented such that if the
+  parameter value is zero, there is no limit.
+
+  A number of internal values which may be usefull for testing
+  and tuning are also available as parameters.  To avoid cluttering
+  the parameter list, these are only exported if "debug=1" is
+  specified on the insmod command line.
+
+  errorI       Integral of error
+  errorD       Derivative of error
+  cmdD     Derivative of the command
+  cmdDd    2nd derivative of the command
+
+  The PID loop calculations are as follows (see the code for
+  all the nitty gritty details):
+
+  error = command - feedback
+  if ( fabs(error) < deadband ) then error = 0
+  limit error to +/- maxerror
+  errorI += error * period
+  limit errorI to +/- maxerrorI
+  errorD = (error - previouserror) / period
+  limit errorD to +/- paxerrorD
+  cmdD = (command - previouscommand) / period
+  limit cmdD to +/- maxcmdD
+  cmdDd = (cmdD - previouscmdD) / period
+  limit cmdDd to +/- maxcmdDD
+  output = bias + error * Pgain + errorI * Igain +
+           errorD * Dgain + command * FF0 + cmdD * FF1 +
+           cmdDd * FF2
+  limit output to +/- maxoutput
+
+  This component exports one function called '<name>.do-pid-calcs'
+
+""";
+
+pin in float deadband = 0.0 "Amount of error that will be ignored";
+pin in float maxerror = 0.0 "Limit on error";
+pin in float maxerrorI = 0.0 "Limit on error integrator";
+pin in float maxerrorD = 0.0 "Limit on error differentiator";
+pin in float maxcmdD = 0.0 "Limit on command differentiator";
+pin in float maxcmdDD = 0.0 "Limit on command 2nd derivative";
+
+pin io float bias = 0.0 "Constant offset on output";
+pin io float Pgain = 1.0 "Proportional gain";
+pin io float Igain = 0.0 "Integral gain";
+pin io float Dgain = 0.0 "Derivative gain";
+pin io float FF0 = 0.0 "Zeroth order Feedfoioard gain";
+pin io float FF1 = 0.0 "First order Feedforward gain";
+pin io float FF2 = 0.0 "Second order Feedforward gain";
+pin io float maxoutput = 0.0 "Limit on output value";
+pin io float tuneEffort = 0.5 " Control effort for limit cycle.";
+pin io u32 tuneCycles = 50;
+pin io u32 tuneType = 0;
+
+pin out float errorI "Integral of error";
+pin out float errorD "Derivative of error";
+pin out float commandD "Derivative of the command";
+pin out float commandDD "2nd derivative of the command";
+pin out float ultimateGain "Calc by auto-tune from limit cycle.";
+pin io float ultimatePeriod  "Calc by auto-tune from limit cycle.";
+
+
+pin in bit enable = 0 "Enable/disabled the PID loop";
+pin in float command = 0.0 "Commanded value";
+pin in float feedback = 0.0 "Feedback input";
+pin out float error "Current error";
+pin out float output "Ouput value";
+pin in bit tuneMode = 0  "0=PID, 1=tune.";
+pin io bit tuneStart = 0  "Set to 1 to start an auto-tune cycle. \
+                        Clears automatically when the cycle has finished.";
+
+variable hal_float_t prevError = 0.0;
+variable hal_float_t prevCmd = 0.0;
+variable hal_float_t limitState = 0.0;
+variable hal_u32_t cycleCount;
+variable hal_u32_t cyclePeriod;
+variable hal_float_t cycleAmplitude;
+variable hal_float_t totalTime;
+variable hal_float_t avgAmplitude;
+
+variable hal_u32_t state = 0;
+variable hal_u32_t mode = 0;
+
+function do_pid_calcs fp;
+
+license "GPL v2";
+
+author "John Kasunich";
+;;
+
+#include "rtapi_math.h"
+
+#define PI                              3.141592653589
+
+typedef enum {
+    STATE_PID = 0u,
+    STATE_TUNE_IDLE = 1u,
+    STATE_TUNE_START = 2u,
+    STATE_TUNE_POS = 3u,
+    STATE_TUNE_NEG = 4u,
+    STATE_TUNE_ABORT = 5u
+} State;
+
+//static State state;
+
+typedef enum {
+    TYPE_PID = 0u,
+    TYPE_PI_FF1 = 1u
+} Mode;
+
+//static Mode mode;
+
+static void Pid_CycleEnd(void *arg)
+{
+struct inst_data *ip = arg;
+    cycleCount++;
+    avgAmplitude += cycleAmplitude / tuneCycles;
+    cycleAmplitude = 0;
+    totalTime += cyclePeriod * 0.000000001;
+    cyclePeriod = 0;
+}
+
+/*
+ * Perform an auto-tune operation. Sets up a limit cycle using the specified
+ * tune effort. Averages the amplitude and period over the specifed number of
+ * cycles. This characterizes the process and determines the ultimate gain
+ * and period, which are then used to calculate PID.
+ *
+ * CO(t) = P * [ e(t) + 1/Ti * (f e(t)dt) - Td * (d/dt PV(t)) ]
+ *
+ * Pu = 4/PI * tuneEffort / responseAmplitude
+ * Ti = 0.5 * responsePeriod
+ * Td = 0.125 * responsePeriod
+ *
+ * P = 0.6 * Pu
+ * I = P * 1/Ti
+ * D = P * Td
+ */
+static void Pid_AutoTune(void *arg, long period)
+{
+struct inst_data *ip = arg;
+float lerror;
+
+    // Calculate the error.
+    lerror = command - feedback;
+    error = lerror;
+
+    // Check if enabled and if still in tune mode.
+    if(!enable || !tuneMode){
+        state = STATE_TUNE_ABORT;
+    }
+
+    switch(state){
+    case STATE_TUNE_IDLE:
+        // Wait for tune start command.
+        if(tuneStart)
+            state = STATE_TUNE_START;
+        break;
+
+    case STATE_TUNE_START:
+        // Initialize tuning variables and start limit cycle.
+        state = STATE_TUNE_POS;
+        cycleCount = 0;
+        cyclePeriod = 0;
+        cycleAmplitude = 0;
+        totalTime = 0;
+        avgAmplitude = 0;
+        ultimateGain = 0;
+        ultimatePeriod = 0;
+        output = bias + rtapi_fabs(tuneEffort);
+        break;
+
+    case STATE_TUNE_POS:
+    case STATE_TUNE_NEG:
+        cyclePeriod += period;
+
+        if(lerror < 0.0){
+            // Check amplitude.
+            if(-lerror > cycleAmplitude)
+                cycleAmplitude = -lerror;
+
+            // Check for end of cycle.
+            if(state == STATE_TUNE_POS){
+                state = STATE_TUNE_NEG;
+                Pid_CycleEnd(arg);
+            }
+
+            // Update output so user can ramp effort until movement occurs.
+            output = bias - rtapi_fabs(tuneEffort);
+        }else{
+            // Check amplitude.
+            if(lerror > cycleAmplitude)
+                cycleAmplitude = lerror;
+
+            // Check for end of cycle.
+            if(state == STATE_TUNE_NEG){
+                state = STATE_TUNE_POS;
+                Pid_CycleEnd(arg);
+            }
+
+            // Update output so user can ramp effort until movement occurs.
+            output = bias + rtapi_fabs(tuneEffort);
+        }
+
+        // Check if the last cycle just ended. This is really the number
+        // of half cycles.
+        if(cycleCount < tuneCycles)
+            break;
+
+        // Calculate PID.
+        ultimateGain = (4.0 * rtapi_fabs(tuneEffort))/(PI * avgAmplitude);
+        ultimatePeriod = 2.0 * totalTime / tuneCycles;
+        FF0 = 0;
+        FF2 = 0;
+
+        if(tuneType == TYPE_PID){
+            // PID.
+            Pgain = (0.6 * ultimateGain);
+            Igain = (Pgain / (ultimatePeriod / 2.0));
+            Dgain = (Pgain * (ultimatePeriod / 8.0));
+            FF1 = 0;
+        }else{
+            // PI FF1.
+            Pgain = (0.45 * ultimateGain);
+            Igain = (Pgain / (ultimatePeriod / 1.2));
+            Dgain = 0;
+
+            // Scaling must be set so PID output is in user units per second.
+            FF1 = 1;
+        }
+
+        // Fall through.
+
+    case STATE_TUNE_ABORT:
+    default:
+        // Force output to zero.
+        output = 0;
+
+        // Abort any tuning cycle in progress.
+        tuneStart = 0;
+        state = (tuneMode)? STATE_TUNE_IDLE: STATE_PID;
+    }
+}
+
+
+
+
+
+FUNCTION(do_pid_calcs)
+{
+hal_float_t  lperiod, periodRecip;
+hal_float_t  prevCmdD, lerror, loutput;
+
+    if(state != STATE_PID){
+        Pid_AutoTune(arg, period);
+        return 0;
+    }
+
+    // Calculate the error.
+    lerror = command - feedback;
+
+    // Store error to error pin.
+    error = lerror;
+
+    // Check for tuning mode request.
+    if(tuneMode){
+        errorI = 0;
+        prevError = 0;
+        errorD = 0;
+        prevCmd = 0;
+        limitState = 0;
+        commandD = 0;
+        commandDD = 0;
+
+        // Force output to zero.
+        output = 0;
+
+        // Switch to tuning mode.
+        state = STATE_TUNE_IDLE;
+
+        return 0;
+    }
+
+    // Precalculate some timing constants.
+    lperiod = period * 0.000000001;
+    periodRecip = 1.0 / lperiod;
+
+    // Apply error limits.
+    if(maxerror != 0.0){
+        if(lerror > maxerror){
+            lerror = maxerror;
+        }else if(lerror < -maxerror){
+            lerror = -maxerror;
+        }
+    }
+
+    // Apply the deadband.
+    if(lerror > deadband){
+        lerror -= deadband;
+    }else if(lerror < -deadband){
+        lerror += deadband;
+    }else{
+        lerror = 0;
+    }
+
+    // Calculate derivative term.
+    errorD = (lerror - prevError) * periodRecip;
+    prevError = lerror;
+
+    // Apply derivative limits.
+    if(maxerrorD != 0.0){
+        if(errorD > maxerrorD){
+            errorD = maxerrorD;
+        }else if(errorD < -maxerrorD){
+            errorD = -maxerrorD;
+        }
+    }
+
+    // Calculate derivative of command.
+    // Save old value for 2nd derivative calc later.
+    prevCmdD = commandD;
+    commandD = (command - prevCmd) * periodRecip;
+    prevCmd = command;
+
+    // Apply derivative limits.
+    if(maxcmdD != 0.0){
+        if(commandD > maxcmdD){
+            commandD = maxcmdD;
+        }else if(commandD < -maxcmdD){
+            commandD = -maxcmdD;
+        }
+    }
+
+    // Calculate 2nd derivative of command.
+    commandDD = (commandD - prevCmdD) * periodRecip;
+
+    // Apply 2nd derivative limits.
+    if(maxcmdDD != 0.0){
+        if(commandDD > maxcmdDD){
+            commandDD = maxcmdDD;
+        }else if(commandDD < -maxcmdDD){
+            commandDD = -maxcmdDD;
+        }
+    }
+
+    // Check if enabled.
+    if(!enable){
+        // Reset integrator.
+        errorI = 0;
+
+        // Force output to zero.
+        output = 0;
+        limitState = 0;
+
+        return 0;
+    }
+
+    // If output is in limit, don't let integrator wind up.
+    if(lerror * limitState <= 0.0){
+        // Compute integral term.
+        errorI += lerror * lperiod;
+    }
+
+    // Apply integrator limits.
+    if(maxerrorI != 0.0){
+        if(errorI > maxerrorI){
+            errorI = maxerrorI;
+        }else if(errorI < -maxerrorI){
+            errorI = -maxerrorI;
+        }
+    }
+
+    // Calculate the output value.
+    loutput = bias + Pgain * lerror + Igain * errorI +
+        Dgain * errorD;
+    loutput += command * FF0 + commandD * FF1 +
+        commandDD * FF2;
+
+    // Apply output limits.
+    if(maxoutput != 0.0){
+        if(loutput > maxoutput){
+            loutput = maxoutput;
+            limitState = 1;
+        }else if(loutput < -maxoutput){
+            loutput = -maxoutput;
+            limitState = -1;
+        }else{
+            limitState = 0;
+        }
+    }
+
+    // Write final output value to output pin.
+    output = loutput;
+    return 0;
+}
+

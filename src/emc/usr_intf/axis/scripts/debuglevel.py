@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
@@ -19,7 +19,7 @@ s.poll()
 c = linuxcnc.command()
 
 t = Tkinter.Tk(className="LinuxCNCDebugLevel")
-t.wm_title(_("LinuxCNC Debug Level"))
+t.wm_title(_("Machinekit Debug Level"))
 t.wm_iconname(_("debuglevel"))
 t.wm_resizable(0, 0)
 

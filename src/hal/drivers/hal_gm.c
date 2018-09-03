@@ -1460,7 +1460,7 @@ encoder(void *arg, long period)
 		if(vel == 0) vel = 1;
 		vel = 33333333 / ( vel * device->encoder[i].position_scale); //velocity in position units / s
 		
-		if(fabs(vel) > device->encoder[i].min_speed_estimate)
+		if(rtapi_fabs(vel) > device->encoder[i].min_speed_estimate)
 		{
 		  *(device->encoder[i].velocity) =  vel;
 		}
@@ -1549,7 +1549,7 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
 	  (device->stepgen[channel].maxvel != device->stepgen[channel].curr_maxvel) || (device->stepgen[channel].curr_position_scale != device->stepgen[channel].position_scale))
       {
 	min_period = (device->stepgen[channel].steplen + device->stepgen[channel].stepspace) * 0.000000001;
-	max_vel = 1/((hal_float_t)min_period * fabs(device->stepgen[channel].position_scale));
+	max_vel = 1/((hal_float_t)min_period * rtapi_fabs(device->stepgen[channel].position_scale));
 	
 	if(device->stepgen[channel].maxvel <= 0)
 	{
@@ -1689,7 +1689,7 @@ stepgenControl(void *arg, long period, unsigned int channel)
 	  //If we can match velocity in one period	   
 	  if(match_time < device->period_s)
 	  {
-	    if(fabs(est_err) > 0.0001) //position correction
+	    if(rtapi_fabs(est_err) > 0.0001) //position correction
 	    {
 		ref_vel -= 0.5 * est_err * device->rec_period_s;
 	    }
@@ -1702,7 +1702,7 @@ stepgenControl(void *arg, long period, unsigned int channel)
 	    dp = -2.0 * match_acc * device->period_s * match_time; 	//sum of velocity change
 
 	    //decide which way to ramp
-	    if(fabs(est_err + dp*2.0) < fabs(est_err))
+	    if(rtapi_fabs(est_err + dp*2.0) < rtapi_fabs(est_err))
 	    {
 		match_acc = -match_acc;
 	    }

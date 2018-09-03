@@ -3,7 +3,7 @@ component thc "Torch Height Control";
 description 
 """
 Torch Height Control
-Mesa THC > Encoder > LinuxCNC THC component
+Mesa THC > encoder > Machinekit THC component
 
 The Mesa THC sends a frequency based on the voltage detected to the encoder.
 The velocity from the encoder is converted to volts with the velocity scale
@@ -25,27 +25,24 @@ pass the Z position and feed back untouched.
 If not enabled pass the Z position and feed back untouched.
 
 Physical Connections
-.br
 Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
-.br
+
 THC Frequency Signal => Encoder #0, pin A (Input)
-.br
+
 Plasma Torch Arc OK Signal => input pin
-.br
+
 output pin => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
-.br
 encoder.nn.velocity => thc.encoder-vel (tip voltage)
-.br
+
 motion.spindle-on => output pin (start the arc)
-.br
+
 thc.arc-ok <= motion.digital-in-00 <= input pin (arc ok signal)
 
 HAL Motion Connections
-.br
 thc.requested-vel <= motion.requested-vel
-.br
+
 thc.current-vel <= motion.current-vel
 
 """;
@@ -72,6 +69,7 @@ pin out float z_pos_out "Z Motor Position Command Out";
 pin out float z_fb_out "Z Position Feedback to Axis";
 pin out float volts "The Calculated Volts";
 pin out bit vel_status "When the THC thinks we are at requested speed";
+pin out float offset_value "The Current Offset";
 
 // Parameters
 param rw float vel_scale "The scale to convert the Velocity signal to Volts";
@@ -81,8 +79,8 @@ param rw float voltage_tol "The deviation of Tip Voltage before correction takes
 param rw float correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
-variable float offset;
-variable float last_z_in;
+variable hal_float_t offset = 0.0;
+variable hal_float_t last_z_in = 0.0;
 
 function _;
 
@@ -94,7 +92,8 @@ FUNCTION(_) {
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
     if(volts < 0){volts = 0;} // make sure volts is not negative
-    
+    offset_value = offset;
+
     if(enable){
         float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
         if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}

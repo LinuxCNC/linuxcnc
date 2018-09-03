@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 import os,time,sys
 
 from nose import with_setup
@@ -15,9 +15,10 @@ def test_rtapi_connect():
     rt = rtapi.RTAPIcommand(uuid=uuid)
 
 def test_loadrt_ringmods():
-    rt.loadrt("ringload",   "num_rings=4", "size=16386")
-    rt.loadrt("ringread",  "ring=ring_2")
-    rt.loadrt("ringwrite", "ring=ring_2")
+    global r1
+    r1 = hal.Ring("test", size=16384)
+    rt.loadrt("ringread",  "ring=test")
+    rt.loadrt("ringwrite", "ring=test")
     rt.loadrt("charge_pump")
 
 def test_net():
@@ -27,8 +28,8 @@ def test_runthread():
     cpe = hal.Pin("charge-pump.enable")
     cpe.set(0)
 
-    rt.newthread("fast",1000000, use_fp=True)
-    rt.newthread("slow",100000000, use_fp=True)
+    rt.newthread("fast",1000000, fp=True)
+    rt.newthread("slow",100000000, fp=True)
     hal.addf("ringread","fast")
     hal.addf("ringwrite","slow")
     hal.addf("charge-pump","slow")

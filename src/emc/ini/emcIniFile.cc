@@ -29,7 +29,7 @@
  *
  ******************************************************************************/
 
-#include <math.h>           // M_PI.
+#include "rtapi_math.h"           // M_PI.
 #include "emcIniFile.hh"
 
 

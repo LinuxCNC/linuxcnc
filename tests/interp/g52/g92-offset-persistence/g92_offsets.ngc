@@ -1,0 +1,7 @@
+(G92 params 5210-5219 will persist or not depending on)
+(PERSISTENT_G92_OFFSET setting in .ini file)
+
+(PRINT,G92 flag:  param 5210 == #5210)
+(PRINT,G92 params:  #5211 #5212 #5213 #5214 #5215 #5216 #5217 #5218 #5219)
+
+M30

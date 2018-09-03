@@ -1,0 +1,10 @@
+## tests of instantiated components by various loading syntax
+#
+loadrt debounce             			# expect debounce.0 with default 8 filters to be created
+newinst debounce debounce.1 pincount=2		# expect 2 filters with specified name
+newinst debounce debounce.2		        # expect default 8 filters with specified name, proving pincount was reset
+loadrt debounce count=3				# expect 3 more instances numbered 3,4,5 with default pins, showing detects previous instances and numbers accordingly
+loadrt debounce names=debouncenamed		# expect named instance with default pins
+newinst debounce debouncebig pincount=14	# an instance above the default of 8
+list funct
+list pin

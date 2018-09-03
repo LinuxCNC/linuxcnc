@@ -1,0 +1,37 @@
+component rand;
+option userspace;
+
+pin out float out;
+license "GPL";
+;;
+#include <unistd.h>
+
+void user_mainloop(void) {
+
+#ifdef PROCESS_CMDLINE
+    int flags, opt;
+    int nsecs, tfnd;
+    while ((opt = getopt(argc, argv, "nt:")) != -1) {
+	switch (opt) {
+	case 'n':
+	    flags = 1;
+	    break;
+	case 't':
+	    nsecs = atoi(optarg);
+	    tfnd = 1;
+	    break;
+	default: /* '?' */
+	    rtapi_print_msg(RTAPI_MSG_ERR, "Usage: %s [-t nsecs] [-n] name\n",
+                           argv[0]);
+	    exit(EXIT_FAILURE);
+	}
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO, "flags=%d; tfnd=%d; optind=%d\n", flags, tfnd, optind);
+#endif
+
+    while(1) {
+        usleep(1000);
+        FOR_ALL_INSTS() out = drand48();
+    }
+}
+

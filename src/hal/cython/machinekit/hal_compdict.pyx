@@ -37,6 +37,9 @@ cdef class Components:
     def __getitem__(self, char *name):
         hal_required()
 
+        if isinstance(name, int):
+            return comp_names()[name]
+
         if name in self.comps:
             return self.comps[name]
         cdef hal_comp_t *comp
@@ -52,6 +55,8 @@ cdef class Components:
         return c
 
     def __contains__(self, arg):
+        if isinstance(arg, Component):
+            arg = arg.name
         try:
             self.__getitem__(arg)
             return True
@@ -68,5 +73,13 @@ cdef class Components:
     def __call__(self):
         hal_required()
         return comp_names()
+
+    def __repr__(self):
+        hal_required()
+        compdict = {}
+        for name in comp_names():
+            compdict[name] = self[name]
+        return str(compdict)
+
 
 components = Components()

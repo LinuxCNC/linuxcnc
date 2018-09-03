@@ -1,8 +1,8 @@
 
 
-def addf(char *func, char *thread, int position=-1):
+def addf(char *func, char *thread, int position=-1,rmb=False, wmb=False):
     hal_required()
-    r = hal_add_funct_to_thread(func, thread, position)
+    r = hal_add_funct_to_thread(func, thread, position, rmb, wmb)
     if r:
         raise RuntimeError("hal_add_funct_to_thread failed: %d  %s" % (r, hal_lasterror()))
 

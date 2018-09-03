@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # GladeVcp Widget - tooledit
 #
 # Copyright (c) 2012 Chris Morley

@@ -36,31 +36,31 @@ nanopb.pb.cc: ../../nanopb/generator/proto/nanopb.proto
 
 # show various output formats of serialisation
 pydemo:	demo_pb2.py
-	python pydemo.py text	# stock protobuf text representation
-	python pydemo.py hex   # wire format hex dump
-	python pydemo.py json  # autoconvert into JSON
-	python pydemo.py binary | od -cx  # wire format
+	python2 pydemo.py text	# stock protobuf text representation
+	python2 pydemo.py hex   # wire format hex dump
+	python2 pydemo.py json  # autoconvert into JSON
+	python2 pydemo.py binary | od -cx  # wire format
 
 # show how to parse those in c++
 cppdemo:	demo_pb2.py c++parse
-	python pydemo.py binary | ./c++parse binary
-	python pydemo.py text   | ./c++parse text
-	python pydemo.py json   | ./c++parse json
+	python2 pydemo.py binary | ./c++parse binary
+	python2 pydemo.py text   | ./c++parse text
+	python2 pydemo.py json   | ./c++parse json
 
 # show how to parse a binary wireformat message in C (realtime compatible)
 # using nanopb
 npbdemo:	demo_pb2.py npbparse
-	python pydemo.py binary | ./npbparse binary
+	python2 pydemo.py binary | ./npbparse binary
 
 
 # decode wireformat message into tag/value using protoc
 decode-raw: demo_pb2.py
-	python pydemo.py binary | protoc --decode_raw
+	python2 pydemo.py binary | protoc --decode_raw
 
 # if the message type is known and the descriptor available,
 # protoc can parse the message into its symbolic format:
 decode-symbolic: demo_pb2.py
-	python pydemo.py binary | protoc $(PROTOC_INCLUDE)  --decode=pb.DemoContainer demo.proto
+	python2 pydemo.py binary | protoc $(PROTOC_INCLUDE)  --decode=pb.DemoContainer demo.proto
 
 json2pb.o: ../../lib/json2pb.cc
 

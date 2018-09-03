@@ -239,7 +239,5 @@ typedef struct __prussdrv {
 
 
 extern int __pruss_detect_hw_version(unsigned int *pruss_io);
-extern void __prussintc_set_cmr(unsigned int *pruintc_io, unsigned short sysevt,
-				unsigned short channel);
-extern void __prussintc_set_hmr(unsigned int *pruintc_io, unsigned short channel,
-				unsigned short host);
+extern void __prussintc_set_cmr(volatile unsigned int *pruintc_io, unsigned short sysevt, unsigned short channel);
+extern void __prussintc_set_hmr(volatile unsigned int *pruintc_io, unsigned short channel, unsigned short host);

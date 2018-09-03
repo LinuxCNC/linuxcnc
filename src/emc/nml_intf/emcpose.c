@@ -292,15 +292,15 @@ int emcPoseValid(EmcPose const * const pose)
 {
 
     if (!pose || 
-            isnan(pose->tran.x) ||
-            isnan(pose->tran.y) ||
-            isnan(pose->tran.z) ||
-            isnan(pose->a) ||
-            isnan(pose->b) ||
-            isnan(pose->c) ||
-            isnan(pose->u) ||
-            isnan(pose->v) ||
-            isnan(pose->w)) {
+            rtapi_isnan(pose->tran.x) ||
+            rtapi_isnan(pose->tran.y) ||
+            rtapi_isnan(pose->tran.z) ||
+            rtapi_isnan(pose->a) ||
+            rtapi_isnan(pose->b) ||
+            rtapi_isnan(pose->c) ||
+            rtapi_isnan(pose->u) ||
+            rtapi_isnan(pose->v) ||
+            rtapi_isnan(pose->w)) {
         return 0;
     } else {
         return 1;

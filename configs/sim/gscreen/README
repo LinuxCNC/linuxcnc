@@ -1,4 +1,4 @@
-Gscreen is a customizable operator screen for linuxcnc.
+Gscreen is a customizable operator screen for machinekit.
 Built with python, GLADE, and GTK
 
 Usable with touchscreens or a mouse.

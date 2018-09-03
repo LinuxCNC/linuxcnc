@@ -554,19 +554,25 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
     return KINEMATICS_BOTH;
 }
 
 #ifdef RTAPI
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
+
+
 MODULE_LICENSE("GPL");
 
-int comp_id;
+int comp_id, vtable_id;
+static const char *name = "genserkins";
 
 int rtapi_app_main(void)
 {
@@ -633,6 +639,14 @@ int rtapi_app_main(void)
     D(4) = DEFAULT_D5;
     D(5) = DEFAULT_D6;
 
+    vtable_id = hal_export_vtable(name, VTKINEMATICS_VERSION1, &vtk, comp_id);
+
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name,  VTKINEMATICS_VERSION1, &vtk, vtable_id );
+	return -ENOENT;
+    }
     hal_ready(comp_id);
     return 0;
 
@@ -643,6 +657,7 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
+    hal_remove_vtable(vtable_id);
     hal_exit(comp_id);
 }
 #endif

@@ -3,4 +3,4 @@ Parport Test using pyvcp
 parport_0x278  test port 0x278
 parport_0x378  test port 0x378
 
-Note: For simulator, a 'root access required' message may be displayed.  Using root is not recommended for running linuxcnc.
+Note: For simulator, a 'root access required' message may be displayed.  Using root is not recommended for running machinekit.

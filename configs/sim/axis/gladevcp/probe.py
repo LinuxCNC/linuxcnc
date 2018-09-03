@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # vim: sts=4 sw=4 et
-#    This is a component of Linuxcnc
+#    This is a component of Machinekit
 #    probe.py Copyright 2010 Michael Haberler
 #
 #
@@ -42,7 +42,7 @@ class EmcInterface(object):
             self.s = linuxcnc.stat();
             self.c = linuxcnc.command()
         except Exception, msg:
-            print "cant initialize EmcInterface: %s - LinuxCNC not running?" %(msg)
+            print "cant initialize EmcInterface: %s - Machinekit not running?" %(msg)
 
     def running(self,do_poll=True):
         if do_poll: self.s.poll()
@@ -56,7 +56,7 @@ class EmcInterface(object):
 
     def ensure_mode(self,m, *p):
         '''
-        If LinuxCNC is not already in one of the modes given, switch it to the first mode
+        If Machinekit is not already in one of the modes given, switch it to the first mode
         example:
         ensure_mode(linuxcnc.MODE_MDI)
         ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
@@ -178,7 +178,7 @@ class HandlerClass:
         self.ini.restore_state(self)
 
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
 
@@ -193,7 +193,7 @@ class HandlerClass:
 
         glib.timeout_add_seconds(1, self._query_emc_status)
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     global debug
     for cmd in useropts:
@@ -201,4 +201,4 @@ def get_handlers(halcomp,builder,useropts):
 
     set_debug(debug)
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

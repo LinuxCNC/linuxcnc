@@ -1,0 +1,102 @@
+component steptestv2 """
+    Used by Stepconf to allow testing of acceleration and velocity values for an axis.""";
+pin_ptr in bit      jog-minus "Drive TRUE to jog the axis in its minus direction";
+pin_ptr in bit      jog-plus "Drive TRUE to jog the axis in its positive direction";
+pin_ptr in bit      run """
+Drive TRUE to run the axis near its current position_fb with a
+    trapezoidal velocity profile""";
+pin_ptr in float    maxvel "Maximum velocity";
+pin_ptr in float    maxaccel "Permitted Acceleration";
+pin_ptr in float    amplitude """
+    Approximate amplitude of positions to command during 'run'""";
+pin_ptr in s32      dir """
+    Direction from central point to test:
+    0 = both, 1 = positive, 2 = negative""";
+pin_ptr out float   position-cmd;
+pin_ptr in float    position-fb;
+pin_ptr out bit     running;
+pin_ptr out float   run-target;
+pin_ptr out float   run-start;
+pin_ptr out float   run-low;
+pin_ptr out float   run-high;
+pin_ptr in s32      pause = 0 "pause time for each end of run in seconds";
+// params
+pin_ptr io float    epsilon = .001;
+pin_ptr io float    elapsed "Current value of the internal timer";
+
+variable hal_bit_t    timer_on = false;
+variable hal_float_t  timer = 0.0;
+
+function _;
+
+license "GPL";
+;;
+
+extern double rtapi_fabs(double);
+
+FUNCTION(_)
+{
+    if (timer_on)
+        timer += fperiod;
+
+    sf(elapsed, timer);
+    if(gb(run))
+        {
+        if(!gb(running))
+            {
+            sb(running, true);
+            sf(run_start, gf(position_fb));
+
+            if(gs(dir) == 2)
+                sf(run_high, gf(run_start));
+            else
+                sf(run_high, (gf(run_start) + gf(amplitude)));
+
+            if(gs(dir) == 1)
+                sf(run_low, gf(run_start));
+            else
+                sf(run_low, (gf(run_start) - gf(amplitude)));
+
+            sf(position_cmd, gf(run_low));
+            }
+
+        if(rtapi_fabs(gf(position_fb) - gf(position_cmd)) < gf(epsilon))
+            {
+            if((gf(position_cmd) == gf(run_low)) || (gf(position_cmd) == gf(run_high)))
+                {
+                if (!timer_on)
+                    {
+                    timer = 0.0;
+                    timer_on = true;
+                    }
+                else if (timer >= gs(pause))
+                    {
+                    timer_on = false;
+                    if(gf(position_cmd) == gf(run_low))
+                        sf(position_cmd, gf(run_high));
+                    else
+                        sf(position_cmd, gf(run_low));
+                    }
+                }
+            }
+        }
+    else if(gb(running))
+        {
+        sf(position_cmd, gf(run_start));
+        if(rtapi_fabs(gf(position_fb) - gf(run_start)) < gf(epsilon))
+            {
+            sb(running, false);
+            timer_on = false;
+            }
+        }
+    else
+        {
+        if(gb(jog_minus))
+            sf(position_cmd, (gf(position_fb) - 2 * gf(maxvel) * fperiod));
+        else if(gb(jog_plus))
+            sf(position_cmd, (gf(position_fb) + 2 * gf(maxvel) * fperiod));
+        else
+            sf(position_cmd, gf(position_fb));
+        }
+    return 0;
+}

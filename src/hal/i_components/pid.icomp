@@ -1,0 +1,303 @@
+/********************************************************************
+ * Description:  pid.comp
+ *               This file, 'pid.comp', is a HAL component that provides
+ *               Proportional/Integeral/Derivative control loops.
+ *               Ported from the 'pid.c' component.
+ *
+ *  Author: John Kasunich 2003
+ *  Ported to icomp by Alexander Roessler 2015
+ *
+ *  Copyright (c) 2003-2015 All rights reserved.
+ *
+ ********************************************************************/
+component pid "HAL component that provides Proportional \
+    Integeral/Derivative control loops.  It is a realtime component.";
+description """
+    HAL component that provides Proportional/
+    Integeral/Derivative control loops.  It is a realtime component.
+
+    The number of pid components is set by the module parameter 'num_chan='
+    when the component is insmod'ed.  Alternatively, use the
+    names= specifier and a list of unique names separated by commas.
+    The names= and num_chan= specifiers are mutually exclusive.
+
+    In this documentation, it is assumed that we are discussing position
+    loops.  However this component can be used to implement other loops
+    such as speed loops, torch height control, and others.
+
+    Each loop has a number of pins and parameters, whose names begin
+    with 'pid.x.', where 'x' is the channel number.  Channel numbers
+    start at zero.
+
+    The three most important pins are 'command', 'feedback', and
+    'output'.  For a position loop, 'command' and 'feedback' are
+    in position units.  For a linear axis, this could be inches,
+    mm, metres, or whatever is relavent.  Likewise, for a angular
+    axis, it could be degrees, radians, etc.  The units of the
+    'output' pin represent the change needed to make the feedback
+    match the command.  As such, for a position loop 'Output' is
+    a velocity, in inches/sec, mm/sec, degrees/sec, etc.
+
+    Each loop has several other pins as well.  'error' is equal to
+    'command' minus 'feedback'.  'enable' is a bit that enables
+    the loop.  If 'enable' is false, all integrators are reset,
+    and the output is forced to zero.  If 'enable' is true, the
+    loop operates normally.
+
+    The PID gains, limits, and other 'tunable' features of the
+    loop are implemented as parameters.  These are as follows:
+
+    Pgain	Proportional gain
+    Igain	Integral gain
+    Dgain	Derivative gain
+    bias	Constant offset on output
+    FF0		Zeroth order Feedforward gain
+    FF1		First order Feedforward gain
+    FF2		Second order Feedforward gain
+    deadband	Amount of error that will be ignored
+    maxerror	Limit on error
+    maxerrorI	Limit on error integrator
+    maxerrorD	Limit on error differentiator
+    maxcmdD	Limit on command differentiator
+    maxcmdDD	Limit on command 2nd derivative
+    maxoutput	Limit on output value
+
+    All of the limits (max____) are implemented such that if the
+    parameter value is zero, there is no limit.
+
+    A number of internal values which may be usefull for testing
+    and tuning are also available as parameters.  To avoid cluttering
+    the parameter list, these are only exported if "debug=1" is
+    specified on the insmod command line.
+
+    errorI	Integral of error
+    errorD	Derivative of error
+    commandD	Derivative of the command
+    commandDD	2nd derivative of the command
+
+    The PID loop calculations are as follows (see the code for
+    all the nitty gritty details):
+
+    error = command - feedback
+    if ( abs(error) < deadband ) then error = 0
+    limit error to +/- maxerror
+    errorI += error * period
+    limit errorI to +/- maxerrorI
+    errorD = (error - previouserror) / period
+    limit errorD to +/- maxerrorD
+    commandD = (command - previouscommand) / period
+    limit commandD to +/- maxcmdD
+    commandDD = (commandD - previouscommandD) / period
+    limit commandDD to +/- maxcmdDD
+    output = bias + error * Pgain + errorI * Igain +
+             errorD * Dgain + command * FF0 + commandD * FF1 +
+             commandDD * FF2
+    limit output to +/- maxoutput
+
+    This component exports one function called 'pid.x.do-pid-calcs'
+    for each PID loop.  This allows loops to be included in different
+    threads and execute at different rates.
+""";
+
+pin in bit enable = false "Enable/disabled the PID loop";
+pin in float command = 0.0 "Commanded value";
+pin in float command_deriv = 0.0 "Derivative command input";
+pin in float feedback = 0.0 "Feedback input";
+pin in float feedback_deriv = 0.0 "Derivative feedback input";
+pin out float error "Current error";
+pin out float output "Ouput value";
+pin out bit saturated "If the PID loop is saturated";
+pin out float saturated_s "Saturated time";
+pin out s32 saturated_count "How often the PID loop was saturated";
+// parameters
+pin in float Pgain = 1.0 "Proportional gain";
+pin in float Igain = 0.0 "Integral gain";
+pin in float Dgain = 0.0 "Derivative gain";
+pin in float bias = 0.0 "Constant offset on output";
+pin in float FF0 = 0.0 "Zeroth order Feedforward gain";
+pin in float FF1 = 0.0 "First order Feedforward gain";
+pin in float FF2 = 0.0 "Second order Feedforward gain";
+pin in float deadband = 0.0 "Amount of error that will be ignored";
+pin in float maxerror = 0.0 "Limit on error";
+pin in float maxerrorI = 0.0 "Limit on error integrator";
+pin in float maxerrorD = 0.0 "Limit on error differentiator";
+pin in float maxcmdD = 0.0 "Limit on command differentiator";
+pin in float maxcmdDD = 0.0 "Limit on command 2nd derivative";
+pin in float maxoutput = 0.0 "Limit on output value";
+pin in bit index_enable = false "Index enable";
+pin in bit error_previous_target = false "Error previous target";
+// debug
+pin out float errorI "Integral of error";
+pin out float errorD "Derivative of error";
+pin out float commandD "Derivative of the command";
+pin out float commandDD "2nd derivative of the command";
+// variables
+variable hal_float_t prev_error = 0.0;
+variable hal_float_t prev_cmd = 0.0;
+variable hal_float_t prev_fb = 0.0;
+variable hal_float_t limit_state = 0.0;
+variable hal_bit_t prev_ie;
+// function
+function do_pid_calcs fp;
+// options
+// option debug 0;
+// misc
+license "GPL v2";
+author "John Kasunich";
+;;
+
+FUNCTION(do_pid_calcs) {
+    hal_float_t tmp1, tmp2;
+    hal_float_t periodfp, periodrecip;
+
+    /* precalculate some timing constants */
+    periodfp = (hal_float_t)period * 0.000000001;
+    periodrecip = 1.0 / periodfp;
+    /* calculate the error */
+    if((!(prev_ie && !index_enable)) &&
+       error_previous_target) {
+        // the user requests ferror against prev_cmd, and we can honor
+        // that request because we haven't just had an index reset that
+        // screwed it up.  Otherwise, if we did just have an index
+        // reset, we will present an unwanted ferror proportional to
+        // velocity for this period, but velocity is usually very small
+        // during index search.
+        tmp1 = prev_cmd - feedback;
+    } else {
+        tmp1 = command - feedback;
+    }
+    /* store error to error pin */
+    error = tmp1;
+    /* apply error limits */
+    if (maxerror != 0.0) {
+        if (tmp1 > maxerror) {
+            tmp1 = maxerror;
+        } else if (tmp1 < -maxerror) {
+            tmp1 = -maxerror;
+        }
+    }
+    /* apply the deadband */
+    if (tmp1 > deadband) {
+        tmp1 -= deadband;
+    } else if (tmp1 < -deadband) {
+        tmp1 += deadband;
+    } else {
+        tmp1 = 0.0;
+    }
+    /* do integrator calcs only if enabled */
+    if (enable) {
+        /* if output is in limit, don't let integrator wind up */
+        if ( ( tmp1 * limit_state ) <= 0.0 ) {
+            /* compute integral term */
+            errorI += tmp1 * periodfp;
+        }
+        /* apply integrator limits */
+        if (maxerrorI != 0.0) {
+            if (errorI > maxerrorI) {
+                errorI = maxerrorI;
+            } else if (errorI < -maxerrorI) {
+                errorI = -maxerrorI;
+            }
+        }
+    } else {
+        /* not enabled, reset integrator */
+        errorI = 0.0;
+    }
+#if 0
+    /* DEBUG: compute command and feedback derivatives to dummysigs */
+    if(!(prev_ie && !index_enable)) {
+        command_derivds = (command - prev_cmd) * periodrecip;
+        feedback_derivds = (feedback - prev_fb) * periodrecip;
+    }
+#endif
+    /* and calculate derivative term as difference of derivatives */
+    errorD = command_deriv - feedback_deriv;
+    prev_error = tmp1;
+    /* apply derivative limits */
+    if (maxerrorD != 0.0) {
+        if (errorD > maxerrorD) {
+            errorD = maxerrorD;
+        } else if (errorD < -maxerrorD) {
+            errorD = -maxerrorD;
+        }
+    }
+    /* calculate derivative of command */
+    /* save old value for 2nd derivative calc later */
+    tmp2 = commandD;
+    if(!(prev_ie && !index_enable)) {
+        // not falling edge of index_enable: the normal case
+        commandD = (command - prev_cmd) * periodrecip;
+    }
+    // else: leave commandD alone and use last period's.  prev_cmd
+    // shouldn't be trusted because index homing has caused us to have
+    // a step in position.  Using the previous period's derivative is
+    // probably a decent approximation since index search is usually a
+    // slow steady speed.
+
+    // save ie for next time
+    prev_ie = index_enable;
+
+    prev_cmd = command;
+    prev_fb = feedback;
+
+    /* apply derivative limits */
+    if (maxcmdD != 0.0) {
+        if (commandD > maxcmdD) {
+            commandD = maxcmdD;
+        } else if (commandD < -maxcmdD) {
+            commandD = -maxcmdD;
+        }
+    }
+    /* calculate 2nd derivative of command */
+    commandDD = (commandD - tmp2) * periodrecip;
+    /* apply 2nd derivative limits */
+    if (maxcmdDD != 0.0) {
+        if (commandDD > maxcmdDD) {
+            commandDD = maxcmdDD;
+        } else if (commandDD < -maxcmdDD) {
+            commandDD = -maxcmdDD;
+        }
+    }
+    /* do output calcs only if enabled */
+    if (enable) {
+    /* calculate the output value */
+    tmp1 =
+        bias + Pgain * tmp1 + Igain * errorI +
+        Dgain * errorD;
+    tmp1 += command * FF0 + commandD * FF1 +
+        commandDD * FF2;
+    /* apply output limits */
+    if (maxoutput != 0.0) {
+        if (tmp1 > maxoutput) {
+            tmp1 = maxoutput;
+            limit_state = 1.0;
+        } else if (tmp1 < -maxoutput) {
+            tmp1 = -maxoutput;
+            limit_state = -1.0;
+        } else {
+            limit_state = 0.0;
+        }
+    }
+    } else {
+        /* not enabled, force output to zero */
+        tmp1 = 0.0;
+        limit_state = 0.0;
+    }
+    /* write final output value to output pin */
+    output = tmp1;
+
+    /* set 'saturated' outputs */
+    if(limit_state) {
+        saturated = true;
+        saturated_s += (hal_float_t) period * 1e-9;
+        if(saturated_count != 2147483647)
+            saturated_count += 1;
+    } else {
+        saturated = false;
+        saturated_s = 0.0;
+        saturated_count = 0;
+    }
+    /* done */
+    return 0;
+}
+

@@ -1,0 +1,76 @@
+# HAL config file to simulate limit switches using window comparators
+#
+# first install nine comparators
+loadrt wcomp count=9
+
+# add comparators to servo thread so they will be evaluated
+# every servo period
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf wcomp.5 servo-thread
+addf wcomp.6 servo-thread
+addf wcomp.7 servo-thread
+addf wcomp.8 servo-thread
+
+# connect position feedback from step generators
+# to window comparators
+net Xpos-fb => wcomp.0.in
+net Xpos-fb => wcomp.1.in
+net Xpos-fb => wcomp.2.in
+net Ypos-fb => wcomp.3.in
+net Ypos-fb => wcomp.4.in
+net Ypos-fb => wcomp.5.in
+net Zpos-fb => wcomp.6.in
+net Zpos-fb => wcomp.7.in
+net Zpos-fb => wcomp.8.in
+
+# connect simulated switch outputs to motion controller
+net Xminlim wcomp.0.out => axis.0.neg-lim-sw-in
+net Xmaxlim wcomp.1.out => axis.0.pos-lim-sw-in
+net Xhome wcomp.2.out => axis.0.home-sw-in
+
+net Yminlim wcomp.3.out => axis.1.neg-lim-sw-in
+net Ymaxlim wcomp.4.out => axis.1.pos-lim-sw-in
+net Yhome wcomp.5.out => axis.1.home-sw-in
+
+net Zminlim wcomp.6.out => axis.2.neg-lim-sw-in
+net Zmaxlim wcomp.7.out => axis.2.pos-lim-sw-in
+net Zhome wcomp.8.out => axis.2.home-sw-in
+
+# configure the points at which the simulated switches trip
+# X axis first
+# set min limit switch to trip at -10.2, release at -1000
+setp wcomp.0.max -10.2
+setp wcomp.0.min -1000
+# set max limit switch to trip at +10.2, release at +10.21
+setp wcomp.1.min 10.20
+setp wcomp.1.max 10.21
+# set home switch to trip at 9.5 and release at 9.75
+setp wcomp.2.min 9.5
+setp wcomp.2.max 9.75
+
+# Y axis
+# set min limit switch to trip at -10.2, release at -1000
+setp wcomp.3.max -10.2
+setp wcomp.3.min -1000
+# set max limit switch to trip at +10.2, release at +10.21
+setp wcomp.4.min 10.20
+setp wcomp.4.max 10.21
+# set home switch to trip at 9.5 and release at 9.75
+setp wcomp.5.min 9.5
+setp wcomp.5.max 9.75
+
+# Z axis
+# set min limit switch to trip at -2.1, release at -1000
+setp wcomp.6.max -2.1
+setp wcomp.6.min -1000
+# set max limit switch to trip at +4.05,release at +5
+setp wcomp.7.min 4.05
+setp wcomp.7.max 5
+# set home switch to trip at 3.9 and release at 4.1
+setp wcomp.8.min 3.9
+setp wcomp.8.max 4.1
+

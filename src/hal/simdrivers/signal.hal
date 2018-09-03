@@ -14,7 +14,7 @@ net square siggen.0.clock parport.0.pin-02-out gladevcp.hal_led1
 net square parport.0.pin-03-out parport.0.pin-04-out parport.0.pin-05-out
 net square parport.0.pin-06-out parport.0.pin-07-out 
 
-loadrt threads name1=servo-thread period1=1000000 fp1=1
+newthread servo-thread 1000000
 
 addf parport.read-all  servo-thread 1
 addf siggen.0.update   servo-thread

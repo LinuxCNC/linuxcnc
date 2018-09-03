@@ -1,0 +1,52 @@
+component clarke3 "Clarke (3 phase to cartesian) transform";
+description """The Clarke transform can be used to translate a vector
+quantity from a three phase system (three components 120 degrees
+apart) to a two phase Cartesian system (plus a homopolar component
+if the three phases don't sum to zero).\n.P\n\\fBclarke3\\fR implements
+the general case of the transform, using all three phases.  If the
+three phases are known to sum to zero, see \\fBclarke2\\fR for a
+simpler version.""";
+see_also """\\fBclarke2\\fR for the 'a+b+c=0' case, \\fBclarkeinv\\fR for
+the inverse transform.""";
+pin in float a;
+pin in float b;
+pin in float c "three phase input vector";
+pin out float x;
+pin out float y "cartesian components of output";
+pin out float h "homopolar component of output";
+function _;
+license "GPL";
+;;
+
+/* for the details, google "clarke transform", or see section 3 of
+   http://focus.ti.com/lit/an/bpra048/bpra048.pdf and/or appendix B of
+   http://www.esat.kuleuven.be/electa/publications/fulltexts/pub_1610.pdf
+*/
+
+#define K1 (0.666666666666667)  /* 2/3       */
+#define K2 (0.333333333333333)  /* 1/3       */
+#define K3 (0.577350269189626)  /* 1/sqrt(3) */
+#define K4 (0.471404520791032)  /* sqrt(2)/3 */
+
+FUNCTION(_)
+{
+    x = K1*a - K2*(b+c);
+    y = K3*(b-c);
+    h = K4*(a+b+c);
+return 0;
+}
+
+
+#if 0
+#define K1 (2.0/3.0)
+#define K2 (1.0/3.0)
+#define K3 1.154700538  /* 2/sqrt(3) */
+
+FUNCTION(_)
+{
+    x = K1 * a - K2 * (b - c);
+    y = K3 * (b - c);
+    h = K1 * (a + b + c);
+return 0;
+}
+#endif

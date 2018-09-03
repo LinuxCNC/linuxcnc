@@ -1,0 +1,37 @@
+component statsv2       "compute mean and variance of a value";
+// http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+pin_ptr in float in;
+pin_ptr in bit enable;
+pin_ptr out float mean;
+pin_ptr out float variance;
+pin_ptr out u32 n;
+
+variable hal_bit_t prev_enable = false;
+variable hal_float_t m2 = 0.0;
+variable hal_float_t delta = 0.0;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if (gb(enable) ^ prev_enable) 
+        { // edge
+        if (gb(enable)) 
+            {  // positive edge
+            sf(mean, 0.0);
+            su(n, 0);
+            m2 = 0.0;
+            }
+        }
+    if (gb(enable)) 
+        {
+        incu(n);
+        delta = gf(in) - gf(mean);
+        sf(mean, (gf(mean) + (hal_float_t) delta / gu(n)));
+        m2 = m2 + delta * (gf(in) - gf(mean));
+        sf(variance, (m2/(hal_float_t)(gu(n)-1)));
+        }
+    prev_enable = gb(enable);
+
+return 0;
+}

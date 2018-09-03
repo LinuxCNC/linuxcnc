@@ -1,0 +1,41 @@
+# connect encoder count, select the one you need
+net jog-counts       pendant.jog-wheel-counts
+net jog-counts       axis.0.jog-counts 
+net jog-counts       axis.1.jog-counts 
+net jog-counts       axis.2.jog-counts
+ 
+net jog-x   axis.0.jog-enable   <=   pendant.jog-x
+net jog-y   axis.1.jog-enable   <=   pendant.jog-y
+net jog-z   axis.2.jog-enable   <=   pendant.jog-z
+
+# Set the scales per count / Faktor je count setzen
+# we could set them to fix value like
+# setp axis.2.jog-scale   0.05
+# setp axis.1.jog-scale   0.05
+# setp axis.0.jog-scale   0.05
+# but also better do connect them to the jog- increments of gmoccapy. 
+net scale axis.2.jog-scale   <=   axis.1.jog-scale   <=   axis.0.jog-scale   <=   gmoccapy.jog-increment
+
+# Connect all counts to Jogwheel-counts / Alle count san Jogwheel-counts anbinden
+net override-counts       pendant.override-wheel-counts
+net override-counts       gmoccapy.max-velocity.counts
+net override-counts       gmoccapy.feed-override.counts
+net override-counts       gmoccapy.spindle-override.counts
+net override-counts       gmoccapy.jog-speed.counts
+
+# the scales of the counts are set on the settings page of the GUI, not here
+# this is differnet from using halui pin!!
+
+# jog velocity mode on (1) or off(0) / Geschwindigkeitsmodus an (1) oder aus (0)
+# 0 is default / 0 ist Standardwert
+# Mode 0 : after spinning the dial, axis may go on moving, because counts are still pending, Mode 1 will ignore pending steps
+# Mode 0 : Nach dem drehen des Handrades kann die Achse noch weiterlaufen, da noch Schritte auszuführen sind. Mode 1 hält sofort an
+setp axis.0.jog-vel-mode 1
+setp axis.1.jog-vel-mode 1
+setp axis.2.jog-vel-mode 1
+
+net feed           gmoccapy.feed-override.count-enable      <=   pendant.feed
+net spindle        gmoccapy.spindle-override.count-enable   <=   pendant.spindle
+net maxvel         gmoccapy.max-velocity.count-enable       <=   pendant.maxvel
+net jogvel         gmoccapy.jog-speed.count-enable          <=   pendant.jogvel 
+

@@ -1,0 +1,130 @@
+syntax = "proto2";
+package machinetalk;
+
+// see README.msgid
+// msgid base: 800
+import "machinetalk/protobuf/nanopb.proto";
+
+/**
+ * Experimental axis/joint representation.
+ */
+enum KinematicsType {
+    KT_JOINT        = 1;  /// Joint kinematics.
+    KT_TRIVKINS     = 2;  /// Trivial kinematics.
+    KT_DELTA        = 3;  /// Delta kinematics.
+    // and so forth
+}
+
+/**
+ * Preview position.
+ */
+message Position {
+
+    option (nanopb_msgopt).msgid = 800; // see README.msgid
+
+    optional double x = 3;
+    optional double y = 4;
+    optional double z = 5;
+    optional double a = 6;
+    optional double b = 7;
+    optional double c = 8;
+    optional double u = 9;
+    optional double v = 10;
+    optional double w = 11;
+}
+
+/**
+ * Type for preview operations.
+ */
+enum PreviewOpType {
+    PV_STRAIGHT_PROBE     = 1;  /// Straight probe.
+    PV_RIGID_TAP          = 2;  /// Rigid tap.
+    PV_STRAIGHT_FEED      = 3;  /// Straight feed move.
+    PV_ARC_FEED           = 4;  /// Arc feed move.
+    PV_STRAIGHT_TRAVERSE  = 5;  /// Straight traverse move.
+    PV_SET_G5X_OFFSET     = 6;  /// Set G5x offset.
+    PV_SET_G92_OFFSET     = 7;  /// Set G92 offset.
+    PV_SET_XY_ROTATION    = 8;  /// Set XY rotation.
+    PV_SELECT_PLANE       = 9;  /// Select plane.
+    PV_SET_TRAVERSE_RATE  = 10; /// Set feedrate for traverse moves.
+    PV_SET_FEED_RATE      = 11; /// Set feedrate for normal moves.
+    PV_CHANGE_TOOL        = 12; /// Change tool.
+    PV_CHANGE_TOOL_NUMBER = 13; /// Change tool number.
+    PV_DWELL              = 14; /// Dwell.
+    PV_MESSAGE            = 15; /// Print message.
+    PV_COMMENT            = 16; /// GCode comment.
+    PV_USE_TOOL_OFFSET    = 17; /// Use tool offset.
+    PV_SET_PARAMS         = 18; /// kins, axismask, angle_units, length_units
+    PV_SET_FEED_MODE      = 19; /// Set the feed mode.
+    PV_SOURCE_CONTEXT     = 20; /// Change the source context.
+    PV_PREVIEW_START      = 21; /// Start of preview
+    PV_PREVIEW_END        = 22; /// End of preview
+}
+
+/**
+ * Preview source types..
+ */
+enum SourceType {
+    ST_NGC_FILE           = 1; /// An NGC file.
+    ST_NGC_STRING         = 2; /// A MDI string.
+    ST_PYTHON_METHOD      = 3; /// A Python method.
+};
+
+/**
+ * The preview data structure.
+ */
+message Preview {
+
+    option (nanopb_msgopt).msgid = 801;
+
+    required PreviewOpType type        = 1;  /// Type of the preview operation.
+    optional int32         line_number = 2;  /// The line number this preview command corresponds to.
+
+    /** move dest pos/offset for PV_STRAIGHT_*, PV_RIGID_TAP, PV_SET_* _OFFSET
+      * _position for PV_ARC_FEED, PV_USE_TOOL_OFFSET
+      */
+    optional Position      pos         = 3;
+
+    // for PV_ARC_FEED only:
+    optional double        first_end = 4;  /// First point for PV_ARC_FEED.
+    optional double       second_end = 5;  /// Second point for PV_ARC_FEED.
+    optional double       first_axis = 6;  /// First axis for PV_ARC_FEED.
+    optional double      second_axis = 7;  /// Second axis for PV_ARC_FEED.
+    optional int32          rotation = 8;  /// Rotation for PV_ARC_FEED.
+    optional double   axis_end_point = 9;  /// Axis endpoint for PV_ARC_FEED.
+
+    // for PV_SET_XY_ROTATION:
+    optional double     xy_rotation = 10;  /// XY rotation for PV_SET_XY_ROTATION.
+
+    // for PV_SELECT_PLANE:
+    optional int32            plane = 11;  /// Plane for PV_SET_XY_ROTATION.
+
+    // for PV_SET_TRAVERSE_RATE, PV_SET_FEED_RATE
+    optional double            rate = 12;  /// feedrate for PV_SET_TRAVERSE_RATE and PV_SET_FEED_RATE.
+
+    // PV_SET_FEED_MODE
+    optional int32        feed_mode = 13;  /// Mode for PV_SET_FEED_MODE.
+
+    // PV_DWELL
+    optional double            time = 14;  /// Time for PV_DWELL.
+
+    // PV_COMMENT, PV_MESSAGE
+    optional string            text = 15;  /// Text for PV_COMMENT and PV_MESSAGE.
+
+    // rarely used:
+    optional double         angular_units     = 101;  /// Angular units: rarely used.
+    optional double         length_units      = 102;  /// Length units: rarely used.
+    optional int32          probetype         = 103;  /// Probe type: rarely used.
+    optional KinematicsType kins              = 104 [ default = KT_JOINT ];  /// Kinematics type: rarely used.
+    optional int32          axismask          = 105;  /// Axis mask: rarely used.
+    optional int32          g5_index          = 106;  /// g5_index: rarely used.
+
+    //  PV_CHANGE_TOOL, PV_CHANGE_TOOL_NUMBER
+    optional int32          pocket            = 107;  /// Pocket for PV_CHANGE_TOOL and PV_CHANGE_TOOL_NUMBER.
+
+    // PV_SOURCE_CONTEXT
+    optional SourceType    stype              = 110;  /// Source type for PV_SOURCE_CONTEXT.
+    optional string        filename           = 111;  /// File name if source type is a NGC file.
+    optional string        cmdstring          = 112;  /// Command string if source type is a MDI command.
+    optional int32         call_level         = 113;  /// Call stack depth.
+}

@@ -1,4 +1,4 @@
-The hexapod configuration is a set of files that makes up a very basic LinuxCNC hexapod using ini, tbl, var. It is very similar to the sim config template, yet with 6 axes defined.
+The hexapod configuration is a set of files that makes up a very basic Machinekit hexapod using ini, tbl, var. It is very similar to the sim config template, yet with 6 axes defined.
 
 There should be (in the future) a few config files based on the hexapod type you are using.
 
@@ -6,6 +6,7 @@ minitetra.ini
 -------------
 Config file for a minitetra type hexapod.
 
-To get it working you need to #define MINITETRA inside the kinematics sources: (linuxcnc/src/linuxcnc/kinematics/genhexkins.h), and specify that genhexkins should be used instead of the normal trivkins (loadrt genhexkins in your hal file)
+To get it working you need to #define MINITETRA inside the kinematics sources: 
+(machinekit/src/emc/kinematics/genhexkins.h), and specify that genhexkins should be used instead of the normal trivkins (loadrt genhexkins in your hal file)
 
 If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES aswell, and make sure the position match (when run through the kinematics).

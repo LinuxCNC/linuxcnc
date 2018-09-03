@@ -16,7 +16,7 @@
 ( Total Machining Time including Toolchange : 7.359      Minutes)
 (*********************************************************************)
 (CHIPS, ONLY F999INISH)
- G21 G64 P.1
+ G21 G64 P0.1 Q0.01
 ( G-1 P1 Z0.0 R3.175 T00)
 ( G10 L2 P1 X0.0 Y0.0 Z0.0 Top)
  (MSG, INSERT BALLNOSE  ,1/4" ballnose)

@@ -11,7 +11,7 @@ import hal
 try:
     import emc
 except ImportError:
-    import linuxcnc as emc  # ini only
+    import machinekit as emc  # ini only
 
 try:
     import cPickle as pickle

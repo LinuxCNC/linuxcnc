@@ -20,7 +20,11 @@ extern rtapi_exception_handler_t rt_exception_handler;
 #ifdef RTAPI
 void _rtapi_module_timer_stop(void) {
     stop_rt_timer();
+#if RTAI_VERSION <= 400
     rt_free_timer();
+#else
+    rt_free_timers();
+#endif
 }
 
 
@@ -38,7 +42,6 @@ void _rtapi_delay_hook(long int nsec)
 {
      udelay(nsec / 1000);
 }
-#endif  /* RTAPI */
 
 long long int _rtapi_get_time_hook(void) {
     //struct timeval tv;
@@ -61,6 +64,7 @@ long long int _rtapi_get_time_hook(void) {
     */
     return rt_get_cpu_time_ns();
 }
+#endif  /* RTAPI */
 
 
 /***********************************************************************
@@ -119,8 +123,13 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     if (retval) return retval;
 
     /* request to handle traps in the new task */
+#ifdef HAL_NR_FAULTS
     for(v=0; v<HAL_NR_FAULTS; v++)
         rt_set_task_trap_handler(ostask_array[task_id], v, _rtapi_trap_handler);
+#else
+    for(v=0; v<IPIPE_NR_FAULTS; v++)
+        rt_set_task_trap_handler(ostask_array[task_id], v, _rtapi_trap_handler);
+#endif
 
     return 0;
 }
@@ -147,7 +156,10 @@ int _rtapi_task_start_hook(task_data *task, int task_id,
 }
 
 
-void _rtapi_wait_hook(void) {
+int _rtapi_wait_hook(const int flags) {
+
+    if (flags & TF_NOWAIT)
+	return 0;
 
     int result = rt_task_wait_period();
     if (result != 0) {

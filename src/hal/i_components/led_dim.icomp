@@ -1,0 +1,73 @@
+/******************************************************************************
+ *
+ * Copyright (C) 2015 Alexander Rössler
+ *
+ *
+ * This module allows dimming LEDs using HAL
+ *
+ ******************************************************************************
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ *
+ * THE AUTHORS OF THIS PROGRAM ACCEPT ABSOLUTELY NO LIABILITY FOR
+ * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+ * TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+ * harming persons must have provisions for completely removing power
+ * from all motors, etc, before persons enter any danger area.  All
+ * machinery must be designed to comply with local and national safety
+ * codes, and the authors of this software can not, and do not, take
+ * any responsibility for such compliance.
+ *
+ * This code was written as part of the LinuxCNC project.  For more
+ * information, go to www.linuxcnc.org.
+ *
+ ******************************************************************************/
+component led_dim "LinuxCNC HAL component for dimming LEDs";
+pin in  float in "Brightness input value -> 0 to 1";
+pin out float out "Luminance output value -> 0 to 1";
+function _  fp "Update the output value";
+description """
+Component for LED dimming according to human perception of brightness of light.
+.LP
+The output is calculated using the CIE 1931 formula.
+""";
+license "GPL";
+variable hal_float_t last_in = 0.0;
+;;
+#include <rtapi_math.h>
+#define MIN(x,y) (x < y ? x : y)
+
+FUNCTION(_) {
+    if (last_in != in)
+    {
+        hal_float_t input = MIN(MAX(in, 0.0), 1.0); // clamp to 0.0, 1.0
+
+        // luminance calculation based on CIE 1931 formula
+        // see http://forum.arduino.cc/index.php/topic,147810.0.html
+        if (input < 0.079996)
+        {
+            out = input / 9.033;
+        }
+        else
+        {
+            out = rtapi_pow((input + 0.16) / 1.16, 3.0);
+        }
+
+        last_in = in;
+    }
+
+    return 0;
+}

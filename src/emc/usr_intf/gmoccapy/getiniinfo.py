@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 '''
     This class is used to get information from a config.ini file,
@@ -71,6 +71,15 @@ class GetIniInfo:
             return False
         return True
 
+    def get_position_feedback_actual(self):
+        temp = self.inifile.find("DISPLAY", "POSITION_FEEDBACK")
+        if not temp or temp == "0":
+            return True
+        if temp.lower() == "actual":
+            return True
+        else:
+            return False
+
     def get_lathe(self):
         temp = self.inifile.find("DISPLAY", "LATHE")
         if not temp or temp == "0":
@@ -90,7 +99,6 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
             temp = 3.0
-            # self.add_alarm_entry(_("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         return float(temp) * 60
 
     def get_max_jog_vel(self):
@@ -99,7 +107,6 @@ class GetIniInfo:
         temp = self.inifile.find("DISPLAY", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
-            # self.add_alarm_entry(_("No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         return float(temp) * 60
 
 # ToDo : This may not be needed, as it could be recieved from linuxcnc.stat

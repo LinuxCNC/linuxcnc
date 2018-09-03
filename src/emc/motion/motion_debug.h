@@ -16,6 +16,7 @@
 
 /*! \todo needs mot_priv.h, but including here causes conflicts */
 #include "tp.h"			/* TP_STRUCT */
+#include "tp_shared.h"		// tp_shared_t
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
 
 /*********************************
@@ -69,6 +70,7 @@ typedef struct emcmot_debug_t {
 	/* flag that all active axes are homed */
 	unsigned char allHomed;
 
+        tp_shared_t *tps;
 	TP_STRUCT tp;	/* coordinated mode planner */
 
 /* space for trajectory planner queues, plus 10 more for safety */
@@ -98,10 +100,11 @@ typedef struct emcmot_debug_t {
 	int overriding;		/* non-zero means we've initiated an joint
 				   move while overriding limits */
 
-	int stepping;
+	hal_bit_t stepping;
 	int idForStep;
 
-#ifdef STRUCTS_IN_SHMEM
+/* Joints moved to HAL shared memory */
+#if 0 // #ifdef STRUCTS_IN_SHMEM
 	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
 #endif
 

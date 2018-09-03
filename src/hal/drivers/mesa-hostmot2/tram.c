@@ -85,6 +85,9 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     struct list_head *ptr;
     u16 offset;
     
+    int old_tram_read_size = hm2->tram_read_size;
+    int old_tram_write_size = hm2->tram_write_size;
+
     hm2->tram_read_size = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
@@ -108,12 +111,17 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         HM2_ERR("Error while (re)allocating Translation RAM read buffer (%d bytes)\n", hm2->tram_read_size);
         return -ENOMEM;
     }
-    
+    if(hm2->tram_read_size>old_tram_read_size)
+        memset(hm2->tram_read_buffer+old_tram_read_size, 0, hm2->tram_read_size-old_tram_read_size);
+
     hm2->tram_write_buffer = (u32 *)krealloc(hm2->tram_write_buffer, hm2->tram_write_size, GFP_KERNEL);
     if (hm2->tram_write_buffer == NULL) {
         HM2_ERR("Error while (re)allocating Translation RAM write buffer (%d bytes)\n", hm2->tram_write_size);
         return -ENOMEM;
     }
+    if(hm2->tram_write_size>old_tram_write_size)
+        memset(hm2->tram_write_buffer+old_tram_write_size, 0, hm2->tram_write_size-old_tram_write_size);
+
     HM2_DBG("buffer address %p\n", &hm2->tram_write_buffer);
     HM2_DBG("Translation RAM read buffer:\n");
     offset = 0;
@@ -140,18 +148,20 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
 int hm2_tram_read(hostmot2_t *hm2) {
     static u32 tram_read_iteration = 0;
     struct list_head *ptr;
-    u16 offset;
 
-    offset = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
 
-        if (!hm2->llio->read(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
+        if (!hm2->llio->queue_read(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
             HM2_ERR("TRAM read error! (addr=0x%04x, size=%d, iter=%u)\n", tram_entry->addr, tram_entry->size, tram_read_iteration);
             return -EIO;
         }
     }
 
+    if (!hm2->llio->queue_read(hm2->llio, 0, NULL, -1)) {
+        HM2_ERR("TRAM read error finishing read! iter=%u)\n",
+            tram_read_iteration);
+    }
     tram_read_iteration ++;
 
     return 0;
@@ -165,12 +175,16 @@ int hm2_tram_write(hostmot2_t *hm2) {
     list_for_each(ptr, &hm2->tram_write_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
 
-        if (!hm2->llio->write(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
+        if (!hm2->llio->queue_write(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
             HM2_ERR("TRAM write error! (addr=0x%04x, size=%d, iter=%u)\n", tram_entry->addr, tram_entry->size, tram_write_iteration);
             return -EIO;
         }
     }
 
+    if (!hm2->llio->queue_write(hm2->llio, 0, NULL, -1)) {
+        HM2_ERR("TRAM write error finishing write! iter=%u)\n",
+            tram_write_iteration);
+    }
     tram_write_iteration ++;
 
     return 0;

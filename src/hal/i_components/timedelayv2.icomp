@@ -1,0 +1,43 @@
+component timedelayv2 "The equivalent of a time-delay relay";
+
+pin_ptr in bit in;
+pin_ptr out bit out 
+"""Follows the value of \\fBin\\fR after applying the delays
+\\fBon-delay\\fR and \\fBoff-delay\\fR.""";
+
+pin_ptr in float on-delay = 0.5 
+"""The time, in seconds, for which \\fBin\\fR must be
+\\fBtrue\\fR before \\fBout\\fR becomes \\fBtrue\\fR""";
+
+pin_ptr in float off-delay = 0.5 
+"""The time, in seconds, for which \\fBin\\fR must be
+\\fBfalse\\fR before \\fBout\\fR becomes \\fBfalse\\fR""";
+
+pin_ptr out float elapsed "Current value of the internal timer";
+variable hal_float_t timer;
+
+function _;
+
+license "GPL";
+author "Jeff Epler, based on works by Stephen Wille Padnos and John Kasunich";
+;;
+hal_bit_t in_ = gb(in);
+if(in_ != gb(out)) {
+    timer += fperiod;
+    sf(elapsed, timer);
+    if(in_) {
+        if(timer >= gf(on_delay)) {
+            sb(out, true);
+            timer = 0.0;
+        }
+    } else {
+        if(timer >= gf(off_delay)) {
+            sb(out, false);
+            timer = 0.0;
+        }
+    }
+} else {
+    timer = 0.0;
+}
+
+return 0;

@@ -55,71 +55,113 @@
 using namespace std;
 
 #include <rtapi.h>
-#include <rtapi/shmdrv/shmdrv.h>
+#include <shmdrv.h>
 #include <ring.h>
 #include <setup_signals.h>
 #include <mk-backtrace.h>
 
 #include <czmq.h>
-#include "mk-zeroconf.hh"
-#include "select_interface.h"
+#include <mk-service.hh>
+#include <libwebsockets.h>  // version tags only
 
 #include <google/protobuf/text_format.h>
-#include <machinetalk/generated/message.pb.h>
+#include <message.pb.h>
 using namespace google::protobuf;
 
-
-static register_context_t *logpub_publisher;
 
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
 #endif
 #define GRACE_PERIOD 2000 // ms to wait after rtapi_app exit detected
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+
+#ifdef DEBUG
+#define DPRINTF(fmt, ...)  						\
+    fprintf(stderr, AT							\
+	    ": " fmt,							\
+	    __VA_ARGS__)
+#else
+#define DPRINTF(fmt, ...)
+#endif
+
+//  FAIL_RC(EINVAL, "severely botched foo=%d", foo);
+#define FAIL_RC(rc, fmt, ...)						\
+    do {								\
+	fprintf(stderr,AT						\
+		" ERROR: " fmt,						\
+		__VA_ARGS__);						\
+	_msgderrno = -(rc);						\
+	return -(rc);							\
+    } while (0)
+
+//  FAIL_NULL(EINVAL, "severely botched foo=%d", foo);
+#define FAIL_NULL(rc, fmt, ...)						\
+    do {								\
+	fprintf(stderr, AT						\
+		" ERROR: " fmt,						\
+		__VA_ARGS__);						\
+	_msgderrno = -(rc);						\
+	return NULL;							\
+    } while (0)
+
 int rtapi_instance;
+global_data_t *global_data;
+int shmdrv_loaded;
+long page_size;
+
+// some global defaults are set in msgd, and recorded in the
+// global segment
+static int usr_msglevel = RTAPI_MSG_INFO ;
+static int rt_msglevel = RTAPI_MSG_INFO ;
+static int halsize;
+static int hal_thread_stack_size = HAL_STACKSIZE;
+static size_t message_ring_size = MESSAGE_RING_SIZE;
+static int hal_descriptor_alignment = 0;
+static int global_segment_size = MESSAGE_RING_SIZE + GLOBAL_HEAP_SIZE + sizeof(global_data_t);
+static int actual_global_size; // as returned by create_global_segment()
+static int hal_heap_flags    =  RTAPIHEAP_TRIM;
+static int global_heap_flags =  RTAPIHEAP_TRIM;
 
 static const char *inifile;
-static FILE *inifp;
-static int log_stderr;
 static int foreground;
 static int use_shmdrv;
 static flavor_ptr flavor;
-static int usr_msglevel = RTAPI_MSG_INFO ;
-static int rt_msglevel = RTAPI_MSG_INFO ;
-static int halsize = HAL_SIZE;
 static const char *instance_name;
-static int hal_thread_stack_size = HAL_STACKSIZE;
 static int signal_fd;
-static uuid_t process_uuid;
-static char process_uuid_str[40];
-static const char *interfaces;
-static const char *service_uuid;
-static int remote = 0;
-static const char *ipaddr = "127.0.0.1";
-static AvahiCzmqPoll *av_loop;
+static bool trap_signals = true;
+static int full, locked;
+static size_t max_msgs, max_bytes; // stats
+static int _msgderrno;
 
 // messages tend to come bunched together, e.g during startup and shutdown
 // poll faster if a message was read, and decay the poll timer up to msg_poll_max
 // if no messages are pending
 // this way we retrieve bunched messages fast without much overhead in idle times
 static int msg_poll_max = 200; // maximum msgq checking interval, mS
-static int msg_poll_min = 20;  // minimum msgq checking interval
-static int msg_poll_inc = 10;  // increment interval if no message read up to msg_poll_max
-static int msg_poll =     20;  // current delay; startup fast
+
+#ifdef FASTLOG
+static int msg_poll_min = 5;  // minimum msgq checking interval
+static int msg_poll_inc = 1;  // increment interval if no message read up to msg_poll_max
+static int msg_poll =     10;  // current delay; startup fast
+#else
+static int msg_poll_min = 10;  // minimum msgq checking interval
+static int msg_poll_inc = 5;  // increment interval if no message read up to msg_poll_max
+static int msg_poll =     10;  // current delay; startup fast
+#endif
+
 static int polltimer_id;      // as returned by zloop_timer()
 static int shutdowntimer_id;
 
 // zeroMQ related
-static zloop_t* loop;
-static void *logpub;  // zeromq log publisher socket
-static zctx_t *zctx;
-static const char *logpub_uri;
-static int logpub_port;
+static mk_netopts_t netopts;
+static mk_socket_t  logpub;
+static int port = -1; // defaults to ephemeral port
 
-int shmdrv_loaded;
 static const char *shmdrv_opts;
-long page_size;
-global_data_t *global_data;
+
 static ringbuffer_t rtapi_msg_buffer;   // ring access strcuture for messages
 static const char *progname;
 static char proctitle[20];
@@ -151,17 +193,18 @@ pid_t pid_of(const char *fmt, ...)
     return pid;
 }
 
-static int create_global_segment()
+static global_data_t *create_global_segment(const size_t global_size)
 {
     int retval = 0;
 
+    // first, investigate leftovers from previous runs
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
     int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
     int halkey = OS_KEY(HAL_KEY, rtapi_instance);
 
-    int global_exists = shm_common_exists(globalkey);
-    int hal_exists = shm_common_exists(halkey);
-    int rtapi_exists = shm_common_exists(rtapikey);
+    bool global_exists = shm_common_exists(globalkey);
+    bool hal_exists = shm_common_exists(halkey);
+    bool rtapi_exists = shm_common_exists(rtapikey);
 
     if (global_exists || rtapi_exists || hal_exists) {
 	// hm, something is wrong here
@@ -185,44 +228,42 @@ static int create_global_segment()
 		   hal_loaded ? "hal_lib " : "");
 
 	    if (msgd_pid > 0)
-		fprintf(stderr,"the msgd process msgd:%d is "
-		       "already running, pid: %d\n",
-		       rtapi_instance, msgd_pid);
+		FAIL_NULL(EEXIST,
+			  "the msgd process msgd:%d is "
+			  "already running, pid: %d\n",
+			  rtapi_instance, msgd_pid);
 	    else
-		fprintf(stderr,"msgd:%d not running!\n",
-		       rtapi_instance);
-	    return -EEXIST;
+		FAIL_NULL(ENOENT,
+			  "msgd:%d not running!\n",
+			  rtapi_instance);
 	}
 
 	// running userthreads instance?
 	pid_t app_pid = pid_of("rtapi:%d", rtapi_instance);
 
 	if ((msgd_pid > -1) || (app_pid > -1)) {
-
-	    fprintf(stderr, "ERROR: found existing RT "
+	    FAIL_NULL(EEXIST, "found existing RT "
 		   "instance with the same instance id (%d)\n",
 		   rtapi_instance);
 	    if (msgd_pid > 0)
-		fprintf(stderr,"the msgd process msgd:%d is "
-		       "already running, pid: %d\n",
-		       rtapi_instance, msgd_pid);
+		FAIL_NULL(EEXIST, "the msgd process msgd:%d is "
+			  "already running, pid: %d\n",
+			  rtapi_instance, msgd_pid);
 	    else
-		fprintf(stderr,"msgd:%d not running!\n",
-		       rtapi_instance);
+		FAIL_NULL(EEXIST, "msgd:%d not running!?\n",
+			  rtapi_instance);
 
 	    if (app_pid > 0)
-		fprintf(stderr,"the RT process rtapi:%d is "
+		FAIL_NULL(EEXIST,"the RT process rtapi:%d is "
 		       "already running, pid: %d\n",
 		       rtapi_instance, app_pid);
 	    else
-		fprintf(stderr,"the RT process rtapi:%d not running!\n",
-		       rtapi_instance);
+		FAIL_NULL(ENOENT, "the RT process rtapi:%d not running!\n",
+			  rtapi_instance);
 
 	    // TBD: might check for other user HAL processes still
 	    // around. This might work with fuser on the HAL segment
 	    // but might be tricky wit shmdrv.
-
-	    return -EEXIST;
 	}
 
 	// leftover shared memory segments were around, but no using
@@ -264,29 +305,30 @@ static int create_global_segment()
 
     // now try again:
     if (shm_common_exists(globalkey)) {
-	fprintf(stderr,
-		"MSGD:%d ERROR: found existing global segment key=0x%x\n",
-		rtapi_instance, globalkey);
-
-	return -EEXIST;
+	FAIL_NULL(EEXIST, "%d: found existing global segment key=0x%x\n",
+		  rtapi_instance, globalkey);
     }
 
-    int size = sizeof(global_data_t);
+    int requested = (int) global_size; // stupid rtapi types
+    int aligned = PAGESIZE_ALIGN(requested);
+    int got = aligned;
+    DPRINTF("global: req=%d aligned=%d\n", requested, aligned);
 
-    retval = shm_common_new(globalkey, &size,
-			    rtapi_instance, (void **) &global_data, 1);
+    global_data_t *ptr;
+    retval = shm_common_new(globalkey, &got, rtapi_instance, (void **)&ptr, 1);
     if (retval < 0) {
-	fprintf(stderr,
-		"MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
-	       rtapi_instance, globalkey, strerror(-retval));
+	FAIL_NULL(-retval, "%d: cannot create global segment key=0x%x %s\n",
+		  rtapi_instance, globalkey, strerror(-retval));
     }
-    if (size != sizeof(global_data_t)) {
-	fprintf(stderr,
-		"MSGD:%d ERROR: global segment size mismatch: expect %zu got %d\n",
-	       rtapi_instance, sizeof(global_data_t), size);
-	return -EINVAL;
+    if (got < aligned) {
+	FAIL_NULL(EINVAL, "%d: global segment size mismatch: expect %d got %d\n",
+		  rtapi_instance, aligned, got);
     }
-    return retval;
+    DPRINTF("global: got=%d\n", got);
+    // clear segment
+    memset(ptr, 0, (size_t) got);
+    ptr->global_segment_size = got;
+    return ptr;
 }
 
 // salvaged from rtapi_shmem.c - msgd doesnt link against rtapi though
@@ -306,18 +348,25 @@ static void check_memlock_limit(const char *where)
 		 "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n");
 }
 
-static int init_global_data(global_data_t * data, int flavor,
-		      int instance_id, int hal_size,
-		      int rt_level, int user_level,
-		      const char *name, int stack_size,
-		      const char *service_uuid)
+static int init_global_data(global_data_t * data,
+			    int actual_global_size,
+			    int flavor,
+			    int instance_id,
+			    int hal_size,
+			    int rt_level,
+			    int user_level,
+			    const char *name,
+			    int stack_size,
+			    const char *service_uuid,
+			    int hal_descriptor_alignment,
+			    int global_heap_flags,
+			    int hal_heap_flags)
 {
+    // data is set to zero except global_segment_size is filled in
     int retval = 0;
 
     // force-lock - we're first, so thats a bit theoretical
     rtapi_mutex_try(&(data->mutex));
-    // touch all memory exposed to RT
-    memset(data, 0, sizeof(global_data_t));
 
     // lock the global data segment
     if (flavor != RTAPI_POSIX_ID) {
@@ -347,9 +396,11 @@ static int init_global_data(global_data_t * data, int flavor,
     // tell the others what we determined as the proper flavor
     data->rtapi_thread_flavor = flavor;
 
-    // HAL segment size
+    // record HAL parameters for later
     data->hal_size = hal_size;
+    data->hal_descriptor_alignment = hal_descriptor_alignment;
 
+    data->hal_heap_flags = hal_heap_flags;
     // stack size passed to rtapi_task_new() in hal_create_thread()
     data->hal_thread_stack_size = stack_size;
 
@@ -362,23 +413,38 @@ static int init_global_data(global_data_t * data, int flavor,
 	retval--;
     }
 
+    // init the global heap
+    _rtapi_heap_init(&data->heap, "global heap");
+
+    // allocate everything from global->arena to end of egment for global heap
+    size_t global_heap_size = data->global_segment_size -
+	offsetof(global_data_t, arena);
+
+    DPRINTF("global_heap_size=%zu\n", global_heap_size);
+    _rtapi_heap_addmem(&data->heap, data->arena, global_heap_size);
+    _rtapi_heap_setflags(&data->heap, global_heap_flags);
+
+    // done with heap
+    // Allocate the message ring buffer from the global heap:
+    size_t rsize = ring_memsize(RINGTYPE_RECORD, message_ring_size, 0);
+    DPRINTF("rsize=%zu message_ring_size=%zu\n", rsize, message_ring_size);
+    ringheader_t *mring = ( ringheader_t *) _rtapi_calloc(&data->heap, rsize, 1);
+    if (mring == NULL)
+	FAIL_RC(ENOMEM, "failed to allocate message ring size=%zu\n", rsize);
+
     // init the error ring
-    ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
-    memset(&data->rtapi_messages.buf[0], 0, SIZE_ALIGN(MESSAGE_RING_SIZE));
+    ringheader_init(mring, RINGTYPE_RECORD, message_ring_size, 0);
+    data->rtapi_messages_ptr = shm_off(data, mring);
 
     // attach to the message ringbuffer
-    ringbuffer_init(&data->rtapi_messages, &rtapi_msg_buffer);
-    rtapi_msg_buffer.header->refcount = 1; // rtapi not yet attached
-    rtapi_msg_buffer.header->reader = getpid();
-    data->rtapi_messages.use_wmutex = 1; // locking hint
+    ringbuffer_init(mring, &rtapi_msg_buffer);
+    mring->refcount = 1;       // rtapi not yet attached, just us
+    mring->reader = getpid();  // us
+    mring->use_wmutex = 1;     // locking hint
 
     // demon pids
     data->rtapi_app_pid = -1; // not yet started
     data->rtapi_msgd_pid = 0;
-
-    // for now, use a fixed-size memory arena
-    rtapi_heap_init(&data->heap);
-    rtapi_heap_addmem(&data->heap, data->arena, GLOBAL_HEAP_SIZE);
 
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
@@ -390,18 +456,18 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
 {
     int retval = 1;
 
-    if (f->id == RTAPI_POSIX_ID)
+    if (f->flavor_id == RTAPI_POSIX_ID)
 	return 1; // no prerequisites
 
     if (kernel_is_xenomai()) {
-	if (f->id == RTAPI_RT_PREEMPT_ID) {
+	if (f->flavor_id == RTAPI_RT_PREEMPT_ID) {
 	    fprintf(stderr,
 		    "MSGD:%d Warning: starting %s RTAPI on a Xenomai kernel\n",
 		    rtapi_instance, f->name);
 	    return 1;
 	}
-	if ((f->id != RTAPI_XENOMAI_ID) &&
-	    (f->id != RTAPI_XENOMAI_KERNEL_ID)) {
+	if ((f->flavor_id != RTAPI_XENOMAI_ID) &&
+	    (f->flavor_id != RTAPI_XENOMAI_KERNEL_ID)) {
 	    fprintf(stderr,
 		    "MSGD:%d ERROR: trying to start %s RTAPI on a Xenomai kernel\n",
 		    rtapi_instance, f->name);
@@ -410,14 +476,14 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
     }
 
     if (kernel_is_rtai() &&
-	(f->id != RTAPI_RTAI_KERNEL_ID)) {
+	(f->flavor_id != RTAPI_RTAI_KERNEL_ID)) {
 	fprintf(stderr, "MSGD:%d ERROR: trying to start %s RTAPI on an RTAI kernel\n",
 		    rtapi_instance, f->name);
 	return 0;
     }
 
     if (kernel_is_rtpreempt() &&
-	(f->id != RTAPI_RT_PREEMPT_ID)) {
+	(f->flavor_id != RTAPI_RT_PREEMPT_ID)) {
 	fprintf(stderr, "MSGD:%d ERROR: trying to start %s RTAPI on an RT PREEMPT kernel\n",
 		rtapi_instance, f->name);
 	return 0;
@@ -445,6 +511,7 @@ static void btprint(const char *prefix, const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     vsyslog_async(LOG_ERR, fmt, args);
+    va_end(args);
 }
 
 // handle signals delivered via sigaction - not all signals
@@ -512,6 +579,10 @@ static void
 cleanup_actions(void)
 {
     int retval;
+    size_t max_ringmem = max_bytes + max_msgs * 8; // includes record overhead
+    syslog_async(LOG_DEBUG,"log buffer hwm: %zu% (%zu msgs, %zu bytes out of %d)",
+		 (max_ringmem*100)/MESSAGE_RING_SIZE,
+		 max_msgs, max_ringmem, MESSAGE_RING_SIZE);
 
     if (global_data) {
 	if (global_data->rtapi_app_pid > 0) {
@@ -537,9 +608,9 @@ cleanup_actions(void)
 }
 
 // react to subscribe/unsubscribe events
-static int logpub_readable_cb(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+static int logpub_readable_cb(zloop_t *loop, zsock_t *socket, void *arg)
 {
-    zframe_t *f = zframe_recv(poller->socket);
+    zframe_t *f = zframe_recv(socket);
     const char *s = (const char *) zframe_data(f);
     syslog_async(LOG_ERR, "%s subscribe on '%s'",
 		 *s ? "start" : "stop", s+1);
@@ -558,80 +629,89 @@ static int
 message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 {
     rtapi_msgheader_t *msg;
-    size_t msg_size;
     size_t payload_length;
     int retval;
     char *cp;
-    pb::Container container;
-    pb::LogMessage *logmsg;
+    machinetalk::Container container;
+    machinetalk::LogMessage *logmsg;
     zframe_t *z_pbframe;
     int current_interval = msg_poll;
 
+    if (global_data->error_ring_full > full) {
+	syslog_async(LOG_ERR, "msgd:%d: message ring overrun (full): %d messages lost",
+		     global_data->error_ring_full - full);
+	full = global_data->error_ring_full;
+    }
+    if (global_data->error_ring_locked > locked) {
+	syslog_async(LOG_ERR, "msgd:%d: message ring overrun (locked): %d messages lost",
+		     global_data->error_ring_locked - locked);
+	locked = global_data->error_ring_locked;
+    }
+
+    size_t n_msgs = 0, n_bytes = 0;
+    ringsize_t msg_size;
 
     while ((retval = record_read(&rtapi_msg_buffer,
 				 (const void **) &msg, &msg_size)) == 0) {
 	payload_length = msg_size - sizeof(rtapi_msgheader_t);
+	n_msgs++;
+	n_bytes += msg_size;
 
-	switch (msg->encoding) {
-	case MSG_ASCII:
-	    // strip trailing newlines
-	    while ((cp = strrchr(msg->buf,'\n')))
-		*cp = '\0';
-	    syslog_async(rtapi2syslog(msg->level), "%s:%d:%s %.*s",
-		   msg->tag, msg->pid, origins[msg->origin],
-		   (int) payload_length, msg->buf);
+	// strip trailing newlines
+	while ((cp = strrchr(msg->buf,'\n')))
+	    *cp = '\0';
+	syslog_async(rtapi2syslog(msg->level), "%s:%d:%s %.*s",
+		     msg->tag, msg->pid, origins[msg->origin],
+		     (int) payload_length, msg->buf);
 
 
-	    if (logpub) {
-		// publish protobuf-encoded log message
-		container.set_type(pb::MT_LOG_MESSAGE);
+	if (logpub.socket) {
+	    // publish protobuf-encoded log message
+	    container.set_type(machinetalk::MT_LOG_MESSAGE);
 
-		struct timespec timestamp;
-		clock_gettime(CLOCK_REALTIME, &timestamp);
-		container.set_tv_sec(timestamp.tv_sec);
-		container.set_tv_nsec(timestamp.tv_nsec);
+	    struct timespec timestamp;
+	    clock_gettime(CLOCK_REALTIME, &timestamp);
+	    container.set_tv_sec(timestamp.tv_sec);
+	    container.set_tv_nsec(timestamp.tv_nsec);
 
-		logmsg = container.mutable_log_message();
-		logmsg->set_origin((pb::MsgOrigin)msg->origin);
-		logmsg->set_pid(msg->pid);
-		logmsg->set_level((pb::MsgLevel) msg->level);
-		logmsg->set_tag(msg->tag);
-		logmsg->set_text(msg->buf, strlen(msg->buf));
+	    logmsg = container.mutable_log_message();
+	    logmsg->set_origin((machinetalk::MsgOrigin)msg->origin);
+	    logmsg->set_pid(msg->pid);
+	    logmsg->set_level((machinetalk::MsgLevel) msg->level);
+	    logmsg->set_tag(msg->tag);
+	    logmsg->set_text(msg->buf, strlen(msg->buf));
 
-		z_pbframe = zframe_new(NULL, container.ByteSize());
-		assert(z_pbframe != NULL);
+	    z_pbframe = zframe_new(NULL, container.ByteSize());
+	    assert(z_pbframe != NULL);
 
-		if (container.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {
-		    // channel name:
-		    if (zstr_sendm(logpub, "log"))
-			syslog_async(LOG_ERR,"zstr_sendm(%s,pb2): %s",
-			       logpub_uri, strerror(errno));
+	    if (container.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {
+		// channel name:
+		if (zstr_sendm(logpub.socket, "log"))
+		    syslog_async(LOG_ERR,"zstr_sendm(): %s", strerror(errno));
 
-		    // and the actual pb2-encoded message
-		    // zframe_send() deallocates the frame after sending,
-		    // and frees pb_buffer through zfree_cb()
-		    if (zframe_send(&z_pbframe, logpub, 0))
-			syslog_async(LOG_ERR,"zframe_send(%s): %s",
-			       logpub_uri, strerror(errno));
+		// and the actual pb2-encoded message
+		// zframe_send() deallocates the frame after sending,
+		// and frees pb_buffer through zfree_cb()
+		if (zframe_send(&z_pbframe, logpub.socket, 0))
+		    syslog_async(LOG_ERR,"zframe_send(): %s", strerror(errno));
 
-		} else {
-		    syslog_async(LOG_ERR, "container serialization failed");
-		}
+	    } else {
+		syslog_async(LOG_ERR, "container serialization failed");
 	    }
-	    break;
-	case MSG_STASHF:
-	    break;
-	case MSG_PROTOBUF:
-	    break;
-	default: ;
-	    // whine
 	}
 	record_shift(&rtapi_msg_buffer);
-	msg_poll = msg_poll_min;
+	msg_poll = msg_poll_min; // keep going quick
     }
+    // done - decay the timer
     msg_poll += msg_poll_inc;
     if (msg_poll > msg_poll_max)
 	msg_poll = msg_poll_max;
+
+    // update stats
+    if (n_msgs > max_msgs)
+	max_msgs = n_msgs;
+    if (n_bytes > max_bytes)
+	max_bytes = n_bytes;
 
     if (current_interval != msg_poll) {
 	zloop_timer_end(loop, polltimer_id);
@@ -664,11 +744,12 @@ static struct option long_options[] = {
     { "halsize",  required_argument, 0, 'H'},
     { "halstacksize",  required_argument, 0, 'T'},
     { "shmdrv",  no_argument,        0, 'S'},
-    { "uri", required_argument,	 NULL, 'U' },
-    { "port",	required_argument,	NULL, 'p' },
+    { "port",	required_argument, NULL, 'p' },
     { "svcuuid", required_argument, 0, 'R'},
     { "interfaces", required_argument, 0, 'n'},
     { "shmdrv_opts", required_argument, 0, 'o'},
+    { "nosighdlr",   no_argument,    0, 'G'},
+    { "heapdebug",   no_argument,    0, 'P'},
 
     {0, 0, 0, 0}
 };
@@ -682,38 +763,53 @@ int main(int argc, char **argv)
 
     inifile = getenv("MACHINEKIT_INI");
 
-    uuid_generate_time(process_uuid);
-    uuid_unparse(process_uuid, process_uuid_str);
-
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against.
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     progname = argv[0];
+    page_size = sysconf(_SC_PAGESIZE);
     shm_common_init();
-
+    {
+	// default to rtapi.ini:HAL_SIZE
+	char param[10];
+	if (!get_rtapi_config(param, "HAL_SIZE", sizeof(param))) {
+	    char *cp;
+	    halsize = strtol(param, &cp, 0);
+	    if ((*cp != '\0') && (!isspace(*cp))) {
+		fprintf(stderr, "rtapi.ini: string '%s' invalid for HAL_SIZE\n",
+			param);
+		exit(1);
+	    }
+	}
+	// TBD: read global sizing params from rtapi.ini:
+	// message ring, global heap size
+    }
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hI:sFf:i:SU:W:u:r:n:T:M:",
+	c = getopt_long (argc, argv, "GhI:sFf:i:SW:u:r:T:M:p:",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
 	switch (c)	{
+	case 'G':
+	    trap_signals = false; // ease debugging with gdb
+	    break;
 	case 'F':
 	    foreground++;
 	    break;
 	case 'I':
 	    rtapi_instance = atoi(optarg);
 	    break;
+	case 'p':
+	    port = atoi(optarg);
+	    break;
 	case 'T':
 	    hal_thread_stack_size = atoi(optarg);
 	    break;
 	case 'i':
 	    instance_name = strdup(optarg);
-	    break;
-	case 'n':
-	    interfaces = strdup(optarg);
 	    break;
 	case 'M':
 	    inifile = strdup(optarg);
@@ -744,15 +840,15 @@ int main(int argc, char **argv)
 	case 'o':
 	    shmdrv_opts = strdup(optarg);
 	    break;
+	case 'P':
+	    hal_heap_flags |= (RTAPIHEAP_TRACE_MALLOC|RTAPIHEAP_TRACE_FREE);
+	    global_heap_flags |= (RTAPIHEAP_TRACE_MALLOC|RTAPIHEAP_TRACE_FREE);
+	    break;
 	case 's':
-	    log_stderr++;
 	    option |= LOG_PERROR;
 	    break;
-	case 'U':
-	    logpub_uri = strdup(optarg);
-	    break;
 	case 'R':
-	    service_uuid = strdup(optarg);
+	    netopts.service_uuid = strdup(optarg);
 	    break;
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
@@ -764,28 +860,17 @@ int main(int argc, char **argv)
 	    exit(0);
 	}
     }
-    if (inifile && ((inifp = fopen(inifile,"r")) == NULL)) {
-	fprintf(stderr,"msgd: cant open inifile '%s'\n", inifile);
+
+    if (trap_signals && (getenv("NOSIGHDLR") != NULL))
+	trap_signals = false;
+
+    if (getenv("HEAPTRACE") != NULL) {
+	hal_heap_flags |= (RTAPIHEAP_TRACE_MALLOC|RTAPIHEAP_TRACE_FREE);
+	global_heap_flags |= (RTAPIHEAP_TRACE_MALLOC|RTAPIHEAP_TRACE_FREE);
     }
 
-    // must have a MKUUID - commandline may override
-    if (service_uuid == NULL) {
-	const char *s;
-	if ((s = iniFind(inifp, "MKUUID", "MACHINEKIT"))) {
-	    service_uuid = strdup(s);
-	}
-    }
-    if (service_uuid == NULL) {
-	fprintf(stderr, "rtapi: no service UUID (-R <uuid> or MACHINEKIT_INI [GLOBAL]MKUUID) present\n");
-	exit(-1);
-    }
-    iniFindInt(inifp, "REMOTE", "MACHINEKIT", &remote);
-    if (remote && (interfaces == NULL)) {
-	const char *s;
-	if ((s = iniFind(inifp, "INTERFACES", "MACHINEKIT"))) {
-	    interfaces = strdup(s);
-	}
-    }
+    if (getenv("DEFAULTALIGN") != NULL)
+	hal_descriptor_alignment = 0;
 
     // sanity
     if (getuid() == 0) {
@@ -813,7 +898,7 @@ int main(int argc, char **argv)
     }
 
     // catch installation error: user not in xenomai group
-    if (flavor->id == RTAPI_XENOMAI_ID) {
+    if (flavor->flavor_id == RTAPI_XENOMAI_ID) {
 	int retval = user_in_xenomai_group();
 
 	switch (retval) {
@@ -858,8 +943,11 @@ int main(int argc, char **argv)
     }
 
     // the global segment every entity in HAL/RTAPI land attaches to
-    if ((retval = create_global_segment()) != 1) // must be a new shm segment
-	exit(retval);
+    if ((global_data = create_global_segment(global_segment_size)) == NULL) {
+	// must be a new shm segment
+	fprintf(stderr, "%s: failed to create global segment\n", progname);
+	exit(1);
+    }
 
     // good to go
     if (!foreground) {
@@ -882,7 +970,7 @@ int main(int argc, char **argv)
 
     openlog_async(proctitle, option , SYSLOG_FACILITY);
     // max out async syslog buffers for slow system in debug mode
-    tunelog_async(99,1000);
+    tunelog_async(99,10);
 
     // set new process name
     argv0_len = strlen(argv[0]);
@@ -896,39 +984,93 @@ int main(int argc, char **argv)
 	memset(argv[i], '\0', strlen(argv[i]));
 
 
+    // suppress default handling of signals in zsock_new()
+    // since we're using signalfd()
+    zsys_handler_set(NULL);
+
+    netopts.rundir = RUNDIR;
+    netopts.rtapi_instance = rtapi_instance;
+
+    netopts.z_loop = zloop_new ();
+    assert(netopts.z_loop);
+
+    netopts.av_loop = avahi_czmq_poll_new(netopts.z_loop);
+    assert(netopts.av_loop);
+
+    // generic binding & announcement parameters
+    // from $MACHINEKIT_INI
+    if (mk_getnetopts(&netopts))
+	exit(1);
+
     // this is the single place in all of linuxCNC where the global segment
     // gets initialized - no reinitialization from elsewhere
-    if (init_global_data(global_data, flavor->id, rtapi_instance,
-			 halsize, rt_msglevel, usr_msglevel,
-			 instance_name,hal_thread_stack_size,
-			 service_uuid)) {
+    if (init_global_data(global_data,
+			 actual_global_size,
+			 flavor->flavor_id,
+			 rtapi_instance,
+			 halsize,
+			 rt_msglevel,
+			 usr_msglevel,
+			 instance_name,
+			 hal_thread_stack_size,
+			 netopts.service_uuid,
+			 hal_descriptor_alignment,
+			 global_heap_flags,
+			 hal_heap_flags)) {
+
 	syslog_async(LOG_ERR, "%s: startup failed, exiting\n",
 		     progname);
 	exit(EXIT_FAILURE);
     } else {
-
 	syslog_async(LOG_INFO,
 		     "startup pid=%d flavor=%s "
-		     "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s version=%s",
+		     "rtlevel=%d usrlevel=%d halsize=%d shm=%s cc=%s %s  version=%s",
 		     getpid(),
 		     flavor->name,
 		     global_data->rt_msg_level,
 		     global_data->user_msg_level,
 		     global_data->hal_size,
 		     shmdrv_loaded ? "shmdrv" : "Posix",
-		     __VERSION__,
+#ifdef __clang__
+		     "clang", __clang_version__,
+#endif
+#ifdef   __GNUC__
+		     "gcc", __VERSION__,
+#endif
 		     GIT_VERSION);
     }
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
     syslog_async(LOG_DEBUG,
-		 "ØMQ=%d.%d.%d czmq=%d.%d.%d protobuf=%d.%d.%d\n",
+		 "ØMQ=%d.%d.%d czmq=%d.%d.%d protobuf=%d.%d.%d atomics=%s %s %s "
+		 " libwebsockets=%s %s\n",
 		 major, minor, patch,
 		 CZMQ_VERSION_MAJOR, CZMQ_VERSION_MINOR,CZMQ_VERSION_PATCH,
 		 GOOGLE_PROTOBUF_VERSION / 1000000,
 		 (GOOGLE_PROTOBUF_VERSION / 1000) % 1000,
-		 GOOGLE_PROTOBUF_VERSION % 1000);
-    syslog_async(LOG_INFO,"configured: %s sha=%s", CONFIG_DATE, GIT_CONFIG_SHA);
+		 GOOGLE_PROTOBUF_VERSION % 1000,
+#ifdef HAVE_CK
+		 "concurrencykit", CK_VERSION, CK_GIT_SHA,
+#else
+#ifdef __clang__
+		 "clang intrinsics", "", "",
+#endif
+#ifdef   __GNUC__
+		 "gcc intrinsics", "", "",
+#endif
+#endif
+#ifdef LWS_LIBRARY_VERSION
+		 LWS_LIBRARY_VERSION,
+#else
+		 "<no version symbol>",
+#endif
+#ifdef LWS_BUILD_HASH
+		 LWS_BUILD_HASH
+#else
+		 ""
+#endif
+		 );
+    syslog_async(LOG_INFO,"configured: sha=%s", GIT_CONFIG_SHA);
     syslog_async(LOG_INFO,"built:      %s %s sha=%s",  __DATE__, __TIME__, GIT_BUILD_SHA);
     if (strcmp(GIT_CONFIG_SHA,GIT_BUILD_SHA))
 	syslog_async(LOG_WARNING, "WARNING: git SHA's for configure and build do not match!");
@@ -945,114 +1087,55 @@ int main(int argc, char **argv)
     dup2(fd, STDIN_FILENO);
     close(fd);
 
-    signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
-    assert(signal_fd > -1);
-
-    // suppress default handling of signals in zctx_new()
-    // since we're using signalfd()
-    zsys_handler_set(NULL);
-    // zeroMQ context
-    zctx  = zctx_new();
-    loop = zloop_new();
-    assert (loop);
-
-    // start the zeromq log publisher socket
-    logpub = zsocket_new(zctx, ZMQ_XPUB);
-    zsocket_set_xpub_verbose (logpub, 1);  // enable reception
-
-    {
-	char buffer[LINELEN], ip[LINELEN];
-
-	// determine interface to bind to (default IPC socket)
-	if (remote) {
-	    if (interfaces) {
-		if (parse_interface_prefs(interfaces,  buffer, ip, NULL) == 0) {
-		    syslog_async(LOG_INFO, "%s: using preferred interface %s/%s\n",
-				 progname, buffer, ip);
-		    ipaddr = strdup(ip);
-		} else {
-		    syslog_async(LOG_INFO, "%s: INTERFACES='%s'"
-				 " - cant determine preferred interface, using %s/%s\n",
-				 progname, interfaces, buffer, ipaddr);
-		}
-	    }
-	    if (logpub_uri == NULL) {
-		// use an ephemeral URI with whatever the preferred address is
-		snprintf(buffer, sizeof(buffer), "tcp://%s:*", ipaddr);
-		logpub_uri = strdup(buffer);
-	    }
-	} else {
-	    // local case. Use IPC socket.
-	    // FIXME set umask, once we have the concept of 'security'
-	    snprintf(buffer, sizeof(buffer), ZMQIPC_FORMAT,
-		     RUNDIR, rtapi_instance,"log", service_uuid);
-	    logpub_uri = strdup(buffer);
-
-	}
-    }
-    logpub_port = zsocket_bind(logpub, logpub_uri);
-    const char *dsn = NULL;
-    if (logpub_port  < 0) {
-	syslog_async(LOG_INFO,"zsocket_bind(%s) failed: %s, ZMQ log service not available\n",
-		     logpub_uri, strerror(errno));
-	zsocket_destroy (zctx, logpub);
-	logpub = NULL;
-    } else {
-	dsn = zsocket_last_endpoint(logpub);
-	syslog_async(LOG_DEBUG, "publishing ZMQ/protobuf log messages at %s\n", dsn);
+    if (trap_signals) {
+	signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
+	assert(signal_fd > -1);
     }
 
-    if (logpub && remote) {
 
-	if (!(av_loop = avahi_czmq_poll_new(loop))) {
-	    syslog_async(LOG_ERR, "%s: zeroconf: Failed to create avahi event loop object.",
-			 progname);
-	    exit(1);
-	}
-	char name[255];
-	snprintf(name,sizeof(name), "Log service on %s pid %d", ipaddr, getpid());
-	logpub_publisher = zeroconf_service_announce(name,
-						     MACHINEKIT_DNSSD_SERVICE_TYPE,
-						     LOG_DNSSD_SUBTYPE,
-						     logpub_port,
-						     (char *)dsn,
-						     service_uuid,
-						     process_uuid_str,
-						     "log",
-						     NULL,
-						     av_loop);
-	if (logpub_publisher == NULL)
-	    syslog_async(LOG_ERR, "%s: failed to start Log zeroconf publisher\n", progname);
-    }
+    // pull msgd-specific port value from MACHINEKIT_INI
+    iniFindInt(netopts.mkinifp, "LOGPUB_PORT", "MACHINEKIT", &port);
+
+    logpub.port = port;
+    logpub.dnssd_subtype = LOG_DNSSD_SUBTYPE;
+    logpub.tag = "log";
+    logpub.socket = zsock_new (ZMQ_XPUB);
+
+    zsock_set_xpub_verbose (logpub.socket, 1);  // enable reception
+    zsock_set_linger(logpub.socket, 0);
+
+    if (mk_bindsocket(&netopts, &logpub))
+	return -1;
+    //    assert(logpub.port > -1);
+
+    if (mk_announce(&netopts, &logpub, "Log service", NULL))
+	return -1;
 
     zmq_pollitem_t signal_poller =  { 0, signal_fd,   ZMQ_POLLIN };
-    zloop_poller (loop, &signal_poller, s_handle_signal, NULL);
+    if (trap_signals)
+	zloop_poller (netopts.z_loop, &signal_poller, s_handle_signal, NULL);
 
-    if (logpub) {
-	zmq_pollitem_t logpub_poller = { logpub, 0, ZMQ_POLLIN };
-	zloop_poller (loop, &logpub_poller, logpub_readable_cb, NULL);
+    if (logpub.socket) {
+        zloop_reader (netopts.z_loop, logpub.socket, logpub_readable_cb, NULL);
     }
 
-    polltimer_id = zloop_timer (loop, msg_poll, 0, message_poll_cb, NULL);
-
+    polltimer_id = zloop_timer (netopts.z_loop, msg_poll, 0, message_poll_cb, NULL);
     global_data->rtapi_msgd_pid = getpid();
     global_data->magic = GLOBAL_READY;
 
-
     do {
-	retval = zloop_start(loop);
-    } while (!(retval || zctx_interrupted));
+	retval = zloop_start(netopts.z_loop);
+    } while (!(retval || zsys_interrupted));
 
     // stop the service announcement
-    if (remote)
-	zeroconf_service_withdraw(logpub_publisher);
+    mk_withdraw(&logpub);
 
     // deregister poll adapter
-    if (av_loop)
-        avahi_czmq_poll_free(av_loop);
+    if (netopts.av_loop)
+        avahi_czmq_poll_free(netopts.av_loop);
 
-    // shutdown zmq context
-    zctx_destroy(&zctx);
+    // shutdown zmq sockets
+    zsock_destroy(&logpub.socket);
 
     cleanup_actions();
     closelog();

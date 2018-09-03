@@ -53,6 +53,8 @@ int main(int argc, char **argv)
 	printf("%s\n", flavor->mod_ext);
     } else if (strcmp(argv[1],"-b") == 0) {
 	printf("%s\n", flavor->build_sys);
+    } else if (strcmp(argv[1],"-d") == 0) {
+	printf("%d\n", flavor->flavor_id);
     } else {
 	fprintf(stderr, "Unknown option '%s'\n",argv[1]);
 	exit(1);

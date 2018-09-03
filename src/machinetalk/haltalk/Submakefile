@@ -5,7 +5,6 @@ HALTALK_SRCS :=  $(addprefix $(HALTALK_DIR)/, \
 	haltalk_rcomp.cc 	\
 	haltalk_command.cc 	\
 	haltalk_introspect.cc 	\
-	haltalk_zeroconf.cc 	\
 	haltalk_bridge.cc 	\
 	haltalk_main.cc)
 
@@ -21,13 +20,13 @@ HALTALK_LDFLAGS := \
 	$(CZMQ_LIBS) 		\
 	$(JANSSON_LIBS) 	\
 	$(AVAHI_LIBS) 	\
-	-lstdc++
+	-lstdc++ -lm
 
 $(call TOOBJSDEPS, $(HALTALK_SRCS)) : EXTRAFLAGS += $(HALTALK_CXXFLAGS)
 
 ../bin/haltalk: $(call TOOBJS, $(HALTALK_SRCS)) \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/liblinuxcnchal.so.0 \
 	../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)

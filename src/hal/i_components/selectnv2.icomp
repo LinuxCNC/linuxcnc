@@ -1,0 +1,30 @@
+component selectnv2 "select one of n";
+pin_ptr io bit enable = true "Set enable to false to cause all outputs to be set false";
+pin_ptr in s32 sel "The number of the output to set true.  All other outputs well be set false";
+pin_ptr out bit out#[pincount] "Output bits.  If enable is set and the sel input is between 0 and 7, then the corresponding output bit will be set true";
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 16;
+
+function _ nofp;
+license "GPL";
+author "Alexander Roessler";
+;;
+FUNCTION(_)
+{
+    hal_s32_t i;
+    for (i=0; i < local_pincount ; i++)
+    {
+        if (!gb(enable) || (gs(sel) != i))
+        {
+            sb(out(i), false);
+        }
+        else
+        {
+            sb(out(i), true);
+        }
+    }
+
+    return 0;
+}

@@ -69,7 +69,7 @@ include an option for suppressing superfluous commands.
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -130,7 +130,7 @@ Interp::Interp()
 	// since interp.init() may be called repeatedly this would create a new
 	// wrapper instance on every init(), abandoning the old one and all user attributes
 	// tacked onto it, so make sure this is done exactly once
-	_setup.pythis =  boost::python::object(boost::cref(this));
+	_setup.pythis =  boost::python::object(boost::cref(*this));
 	
 	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
 	// besides 'this', eventually use proper instance names to handle
@@ -440,9 +440,6 @@ int Interp::_execute(const char *command)
 		      (_setup.mdi_interrupt)) { 
 
 		      status = convert_control_functions(eblock, &_setup);
-		      // a prolog might yield INTERP_EXECUTE_FINISH too
-		      if (status == INTERP_EXECUTE_FINISH) 
-			  _setup.mdi_interrupt = true;
 		      CHP(status);
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
@@ -602,7 +599,8 @@ int Interp::remap_finished(int phase)
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
 
-		CHP(leave_remap());
+		if (status != INTERP_EXIT) // Don't drop remap lev. at prog exit
+		    CHP(leave_remap());
 		logRemap("executing block leftover items complete, status=%s  remap_level=%d call_level=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
 			 interp_status(status),_setup.remap_level,_setup.call_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
@@ -643,7 +641,13 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	    block->remappings.insert(STEP_PREPARE);
     }
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5))
+    if (IS_USER_MCODE(block,settings,5) &&
+	!(((block->m_modes[5] == 62) && remap_in_progress("M62")) ||
+	  ((block->m_modes[5] == 63) && remap_in_progress("M63")) ||
+	  ((block->m_modes[5] == 64) && remap_in_progress("M64")) ||
+	  ((block->m_modes[5] == 65) && remap_in_progress("M65")) ||
+	  ((block->m_modes[5] == 66) && remap_in_progress("M66"))))
+	// non-recursive behavior
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
@@ -966,12 +970,68 @@ int Interp::init()
 	      CHP(parse_remap( inistring,  lineno));
 	      n++;
 	  }
+	
+	// if exist and within parameters, apply ini file arc tolerances
+	// limiting figures are defined in interp_internal.hh
+	
+	_setup.spiral_tolerance_inch = SPIRAL_TOLERANCE_INCH;
+        inifile.Find(&_setup.spiral_tolerance_inch, "TOLERANCE_INCH", "RS274NGC");
+
+	if( (_setup.spiral_tolerance_inch > SPIRAL_TOLERANCE_INCH) || _setup.spiral_tolerance_inch < MIN_SPIRAL_TOLERANCE_INCH )
+	    {
+	    logDebug("setup.spiral_tolerance_inch outside bounds at %f, set to default\n",
+		_setup.spiral_tolerance_inch );
+	    _setup.spiral_tolerance_inch = SPIRAL_TOLERANCE_INCH;
+	    }
+	logDebug("setup.spiral_tolerance_inch set to %f\n", _setup.spiral_tolerance_inch );
+
+        _setup.spiral_tolerance_mm = SPIRAL_TOLERANCE_MM;
+	inifile.Find(&_setup.spiral_tolerance_mm, "TOLERANCE_MM", "RS274NGC");
+	
+	if( (_setup.spiral_tolerance_mm > SPIRAL_TOLERANCE_MM) || _setup.spiral_tolerance_mm < MIN_SPIRAL_TOLERANCE_MM )
+	    {
+	    logDebug("setup.spiral_tolerance_mm outside bounds at %f, set to default\n",
+		_setup.spiral_tolerance_mm );
+	    _setup.spiral_tolerance_mm = SPIRAL_TOLERANCE_MM;
+	    }
+	logDebug("setup.spiral_tolerance_mm set to %f\n", _setup.spiral_tolerance_mm );
+
+	// ini file g52/g92 offset persistence default setting
+	if(NULL != (inistring = inifile.Find("PERSISTENT_G92_OFFSET",
+					     "RS274NGC")))
+	    {
+		if (strcmp(inistring,"True") == 0 ||
+		    strcmp(inistring, "true") == 0 ||
+		    strcmp(inistring, "YES") == 0) {
+		    logDebug("init:  PERSISTENT_G92_OFFSET = TRUE");
+		    _setup.persistent_g92_offset = true;
+		} else {
+		    logDebug("init:  PERSISTENT_G92_OFFSET = FALSE");
+		    _setup.persistent_g92_offset = false;
+		}
+	    } else
+	    logDebug("init:  PERSISTENT_G92_OFFSET = %s (default)",
+		     _setup.persistent_g92_offset ? "TRUE" : "FALSE");
 
           // close it
-          inifile.Close();
+        inifile.Close();
       }
   }
-
+    /**************************************************
+    If no ini file is used, as when runtests is called
+    always fail on arcs because tolerance is not set.
+    Ensure tests and any other instance of external 
+    launch of interpreter without ini file pass
+    **************************************************/
+  else
+    {
+    _setup.spiral_tolerance_inch = SPIRAL_TOLERANCE_INCH;
+    logDebug("setup.spiral_tolerance_inch set to %f\n", _setup.spiral_tolerance_inch );
+    
+    _setup.spiral_tolerance_mm = SPIRAL_TOLERANCE_MM;
+    logDebug("setup.spiral_tolerance_mm set to %f\n", _setup.spiral_tolerance_mm );
+    }
+      
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
@@ -1006,6 +1066,15 @@ int Interp::init()
                  _setup.u_origin_offset ,
                  _setup.v_origin_offset ,
                  _setup.w_origin_offset);
+
+  // Restore G92 offset if PERSISTENT_G92_OFFSET is set in .ini file.
+  // This can't be done with the static _required_parameters[], where
+  // the .vars file contents would reflect that setting, so instead
+  // edit the restored parameters here.
+  if (! _setup.persistent_g92_offset)
+      // Persistence disabled:  clear g92 parameters
+      for (k = 5210; k < 5220; k++)
+	  pars[k] = 0;
 
   if (pars[5210]) {
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
@@ -1926,7 +1995,7 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  // read_inputs(&_setup); // input/probe/toolchange 
+  read_inputs(&_setup); // input/probe/toolchange
 
   return INTERP_OK;
 }
@@ -2009,6 +2078,82 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
     settings[n] = _setup.active_settings[n];
   }
 }
+
+//TODO rename to read_state_tag?
+
+/**
+ * Unpack state information from a motion line tag into TASK_STAT-style arrays of G/M Codes.
+ * This method allows us to keep the existing infrastructure for g
+ * code status / state storage intact.
+ */
+int Interp::active_modes(int *g_codes,
+         int *m_codes,
+         double *settings,
+         StateTag const &tag)
+{
+    // Pre-checks on fields
+    if (!tag.is_valid()) {
+        return INTERP_ERROR;
+    }
+
+    // Extract as-is field values directly into appropriate array
+    // position
+    g_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    g_codes[1] = tag.fields[GM_FIELD_MOTION_MODE];
+    g_codes[2] = tag.fields[GM_FIELD_G_MODE_0];
+    g_codes[3] = tag.fields[GM_FIELD_PLANE];
+    g_codes[4] = tag.fields[GM_FIELD_CUTTER_COMP];
+
+    // Unpack flags into appropriate G code equivalents
+    g_codes[5] = tag.flags[GM_FLAG_UNITS] ? G_20 : G_21;
+    g_codes[6] = tag.flags[GM_FLAG_DISTANCE_MODE] ? G_90 : G_91;
+    g_codes[7] = tag.flags[GM_FLAG_FEED_INVERSE_TIME] ? G_93 :
+        tag.flags[GM_FLAG_FEED_UPM] ? G_94 : G_95;
+    g_codes[8] = tag.fields[GM_FIELD_ORIGIN];
+    g_codes[9] = tag.flags[GM_FLAG_TOOL_OFFSETS_ON] ? G_43 : G_49;
+    g_codes[10] = tag.flags[GM_FLAG_RETRACT_OLDZ] ? G_98 : G_99;
+    g_codes[11] =
+        tag.flags[GM_FLAG_BLEND] ? G_64 :
+        tag.flags[GM_FLAG_EXACT_STOP] ? G_61 : G_61_1;
+    // Empty status code, leave as default
+    g_codes[12] = -1;
+    g_codes[13] = tag.flags[GM_FLAG_CSS_MODE] ? G_97 : G_96;
+    g_codes[14] = tag.flags[GM_FLAG_IJK_ABS] ? G_90_1 : G_91_1;
+    g_codes[15] = tag.flags[GM_FLAG_DIAMETER_MODE] ? G_7 : G_8;
+    //TODO remove redundant line number?
+    m_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    m_codes[1] = tag.fields[GM_FIELD_M_MODES_4];
+    m_codes[2] = !tag.flags[GM_FLAG_SPINDLE_ON] ? 5 :
+        tag.flags[GM_FLAG_SPINDLE_CW] ? 3 : 4;
+    m_codes[3] = tag.fields[GM_FIELD_TOOLCHANGE];
+
+    m_codes[4] =
+        tag.flags[GM_FLAG_MIST] ? 7 : tag.flags[GM_FLAG_FLOOD] ? -1 : 9;
+    m_codes[5] =
+        tag.flags[GM_FLAG_FLOOD] ? 8 : -1;
+
+    // Copied from write_m_codes
+    if (tag.flags[GM_FLAG_FEED_OVERRIDE]) {
+        if (tag.flags[GM_FLAG_SPEED_OVERRIDE]) m_codes[6] =  48;
+        else m_codes[6] = 50;
+    } else if (tag.flags[GM_FLAG_SPEED_OVERRIDE]) {
+        m_codes[6] = 51;
+    } else m_codes[6] = 49;
+
+    m_codes[7] =                      /* 7 overrides   */
+        tag.flags[GM_FLAG_ADAPTIVE_FEED] ? 52 : -1;
+
+    m_codes[8] =                      /* 8 overrides   */
+        tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
+
+
+    settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    settings[1] = tag.feed;
+    settings[2] = tag.speed;
+
+    return INTERP_OK;
+}
+
 
 void Interp::setError(const char *fmt, ...)
 {
@@ -2354,17 +2499,9 @@ int Interp::enter_remap(void)
     CONTROLLING_BLOCK(_setup).executing_remap = NULL;
 
     // remember the line where remap was discovered
-    if (_setup.remap_level == 1) {
-	logRemap("enter_remap: toplevel - saved_line_number=%d",_setup.sequence_number);
-	CONTROLLING_BLOCK(_setup).saved_line_number  =
-	    _setup.sequence_number;
-    } else {
-	logRemap("enter_remap into %d - saved_line_number=%d",
-		 _setup.remap_level,
-		 EXECUTING_BLOCK(_setup).saved_line_number);
-	CONTROLLING_BLOCK(_setup).saved_line_number  =
-	    EXECUTING_BLOCK(_setup).saved_line_number;
-    }
+    logRemap("enter_remap into %d - saved_line_number=%d",
+	     _setup.remap_level, _setup.sequence_number);
+    CONTROLLING_BLOCK(_setup).saved_line_number = _setup.sequence_number;
     _setup.sequence_number = 0;
     return INTERP_OK;
 }
@@ -2372,19 +2509,10 @@ int Interp::enter_remap(void)
 int Interp::leave_remap(void)
 {
     // restore the line number where remap was found
-    if (_setup.remap_level == 1) {
-	// dropping to top level, so pass onto _setup
-	_setup.sequence_number = CONTROLLING_BLOCK(_setup).saved_line_number;
-	logRemap("leave_remap into toplevel, restoring seqno=%d",_setup.sequence_number);
+    logRemap("leave_remap from %d propagate saved_line_number=%d",
+	     _setup.remap_level, CONTROLLING_BLOCK(_setup).saved_line_number);
 
-    } else {
-	// just dropping a nesting level
-	EXECUTING_BLOCK(_setup).saved_line_number =
-	    CONTROLLING_BLOCK(_setup).saved_line_number ;
-	logRemap("leave_remap from %d propagate saved_line_number=%d",
-		 _setup.remap_level,
-		 EXECUTING_BLOCK(_setup).saved_line_number);
-    }
+    _setup.sequence_number = CONTROLLING_BLOCK(_setup).saved_line_number;
     _setup.blocks[_setup.remap_level].executing_remap = NULL;
     _setup.remap_level--; // drop one nesting level
     if (_setup.remap_level < 0) {
@@ -2468,7 +2596,8 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     return newFP;
 }
 
-static std::set<std::string> stringtable;
+
+static std::set<std::string>  stringtable;
 
 const char *strstore(const char *s)
 {
@@ -2476,8 +2605,13 @@ const char *strstore(const char *s)
 
     if (s == NULL)
         throw invalid_argument("strstore(): NULL argument");
-    pair< set<string>::iterator, bool > pair = stringtable.insert(s);
-    return string(*pair.first).c_str();
-}
 
+    std::set<std::string>::iterator it = stringtable.find(s);
+    if (it == stringtable.end()) {
+	std::string *p = new std::string(s);
+	stringtable.insert(*p);
+	return p->c_str();
+    }
+    return (*it).c_str();
+}
 

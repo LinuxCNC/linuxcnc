@@ -55,7 +55,11 @@
  * the future.
  */
 typedef enum {
-    TP_ERR_RADIUS = -6,
+    TP_ERR_INVALID = -10,
+    TP_ERR_INPUT_TYPE = -9,
+    TP_ERR_TOLERANCE = -8,
+    TP_ERR_ZERO_LENGTH = -7,
+    TP_ERR_RADIUS_TOO_SMALL = -6,
     TP_ERR_GEOM = -5,
     TP_ERR_RANGE = -4,
     TP_ERR_MISSING_OUTPUT = -3,
@@ -81,6 +85,8 @@ typedef struct {
      int waiting_for_atspeed;
 } tp_spindle_t;
 
+typedef struct tp_shared_t tp_shared_t; // see tp_shared.h
+
 /**
  * Trajectory planner state structure.
  * Stores persistant data for the trajectory planner that should be accessible
@@ -89,6 +95,7 @@ typedef struct {
 typedef struct {
     TC_QUEUE_STRUCT queue;
     tp_spindle_t spindle; //Spindle data
+    tp_shared_t *shared;
 
     EmcPose currentPos;
     EmcPose goalPos;
@@ -111,6 +118,7 @@ typedef struct {
     double wDotMax;		/* rotational accelleration max */
     int nextId;
     int execId;
+    struct state_tag_t execTag; /* state tag corresponding to running motion */
     int termCond;
     int done;
     int depth;			/* number of total queued motions */
@@ -126,9 +134,11 @@ typedef struct {
 				   FALSE if in position mode */
     double uu_per_rev;          /* user units per spindle revolution */
 
+    double old_spindlepos; // temporary in tpUpdateRigidTapState
 
     syncdio_t syncdio; //record tpSetDout's here
 
 } TP_STRUCT;
+
 
 #endif				/* TP_TYPES_H */

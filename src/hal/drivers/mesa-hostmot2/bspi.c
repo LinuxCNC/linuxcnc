@@ -35,7 +35,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     // some standard sanity checks
     //
     
-    int i, j, r;
+    int i, j, r = -EINVAL;
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     
     if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 3, 0x40, 0x0007)) {
@@ -87,7 +87,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     for (i = 0 ; i < hm2->bspi.num_instances ; i++){
         hm2_bspi_instance_t *chan = &hm2->bspi.instance[i];
         chan->clock_freq = md->clock_freq;
-        r = sprintf(chan->name, "%s.bspi.%01d", hm2->llio->name, i);
+        r = rtapi_snprintf(chan->name, sizeof(chan->name), "%s.bspi.%01d", hm2->llio->name, i);
         HM2_PRINT("created Buffered SPI function %s.\n", chan->name);
         chan->base_address = md->base_address + i * md->instance_stride;
         chan->register_stride = md->register_stride;
@@ -101,7 +101,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     }
     return hm2->bspi.num_instances;
 fail0:
-    return 0;
+    return r;
 }
 
 void hm2_bspi_force_write(hostmot2_t *hm2)
@@ -275,7 +275,7 @@ void hm2_bspi_print_module(hostmot2_t *hm2){
 }
 
 EXPORT_SYMBOL_GPL(hm2_bspi_set_read_function);
-int hm2_bspi_set_read_function(char *name, void *func, void *subdata){
+int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata){
     hostmot2_t *hm2;
     int i;
     i = hm2_get_bspi(&hm2, name);
@@ -299,7 +299,7 @@ int hm2_bspi_set_read_function(char *name, void *func, void *subdata){
 }
 
 EXPORT_SYMBOL_GPL(hm2_bspi_set_write_function);
-int hm2_bspi_set_write_function(char *name, void *func, void *subdata){
+int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata){
     hostmot2_t *hm2;
     int i;
     i = hm2_get_bspi(&hm2, name);
@@ -331,6 +331,9 @@ void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period)
         func = hm2->bspi.instance[i].read_function;
         if (func != NULL){
             r = func(hm2->bspi.instance[i].subdata);
+            if(r < 0)
+                HM2_ERR("BSPI read function @%p failed (returned %d)\n",
+                        func, r);
         }
     }
 }
@@ -343,6 +346,9 @@ void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period)
         func = hm2->bspi.instance[i].write_function;
         if (func != NULL){
             r = func(hm2->bspi.instance[i].subdata);
+            if(r < 0)
+                HM2_ERR("BSPI read function @%p failed (returned %d)\n",
+                        func, r);
         }
     }
 }

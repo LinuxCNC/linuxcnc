@@ -1,0 +1,31 @@
+syntax = "proto2";
+import "machinetalk/protobuf/nanopb.proto";
+// see README.msgid
+// msgid base: 900
+
+package machinetalk;
+
+message RTAPICommand {
+
+    option (nanopb_msgopt).msgid = 900; // see README.msgid
+
+
+    required int32              instance = 1;
+    optional string              modname = 2;
+    optional int32           rt_msglevel = 3;
+    optional int32         user_msglevel = 4;
+
+    // string argv-type vector; used in MT_RTAPI_APP_* and possibly others
+    repeated string                 argv = 5;
+
+    optional string          threadname  = 6;
+    optional int32          threadperiod = 7;
+    optional bool                use_fp  = 8;
+    optional int32                  cpu  = 9;
+
+    optional string              comp    = 10;
+    optional string              func    = 11;
+    optional string             instname = 12;
+    optional int32                flags  = 13;
+
+}

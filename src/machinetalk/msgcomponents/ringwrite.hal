@@ -1,23 +1,22 @@
 
-# this creates the named ring ring_0
-loadrt ringload num_rings=1 size=16386
+newring test 16384 scratchpad=256
 
-# attach to ring_0
-loadrt ringwrite ring=ring_0
+loadrt ringwrite ring=test
 
 # slow square signal on ringwrite.write
 # every edge on ringwrite.write causes a message to be queued
 loadrt charge_pump
-net square-wave charge-pump.out ringwrite.write
+net square-wave charge_pump.0.out ringwrite.write
 
 # 1ms/200ms
-loadrt threads name1=fast period1=1000000 name2=slow period2=200000000
+newthread  fast 1000000 fp
+newthread  slow 20000000 fp
 
 # the 'enqueue a message' function
 addf ringwrite fast
 
-addf charge-pump slow
+addf charge_pump.0 slow
 start
 
 # get going
-setp charge-pump.enable 1
+setp charge_pump.0.enable 1

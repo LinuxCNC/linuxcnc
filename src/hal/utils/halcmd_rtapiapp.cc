@@ -6,25 +6,36 @@
 #include "ll-zeroconf.hh"
 #include "mk-zeroconf.hh"
 #include "mk-zeroconf-types.h"
+#include "pbutil.hh"
 #include <avahi-common/malloc.h>
 
 
-#include <machinetalk/generated/message.pb.h>
+#include <message.pb.h>
+#include <google/protobuf/text_format.h>
+
 using namespace google::protobuf;
 
-static pb::Container command, reply;
+static machinetalk::Container command, reply;
 
-static zctx_t *z_context;
-static void *z_command;
+static zsock_t *z_command = NULL;
 static int timeout = 5000;
 static std::string errormsg;
+int proto_debug;
 
-int rtapi_rpc(void *socket, pb::Container &tx, pb::Container &rx)
+int rtapi_rpc(void *socket, machinetalk::Container &tx, machinetalk::Container &rx)
 {
     zframe_t *request = zframe_new (NULL, tx.ByteSize());
     assert(request);
     assert(tx.SerializeWithCachedSizesToArray(zframe_data (request)));
-
+    if (proto_debug) {
+	string buffer;
+	if (TextFormat::PrintToString(tx, &buffer)) {
+	    fprintf(stderr, "%s:%d:%s: request ---->\n%s%s\n",
+		    __FILE__,__LINE__,__FUNCTION__,
+		    buffer.c_str(),
+		    std::string(20,'=').c_str());
+	}
+    }
     assert (zframe_send (&request, socket, 0) == 0);
     zframe_t *reply = zframe_recv (socket);
     if (reply == NULL) {
@@ -33,18 +44,92 @@ int rtapi_rpc(void *socket, pb::Container &tx, pb::Container &rx)
     }
     int retval =  rx.ParseFromArray(zframe_data (reply),
 				    zframe_size (reply)) ? 0 : -1;
-    //    assert(retval == 0);
+   if (proto_debug) {
+	string buffer;
+	if (TextFormat::PrintToString(rx, &buffer)) {
+	    fprintf(stderr, "%s:%d:%s: <---- reply\n%s%s\n",
+		    __FILE__,__LINE__,__FUNCTION__,
+		    buffer.c_str(),
+		    std::string(20,'=').c_str());
+	}
+    }
     zframe_destroy(&reply);
     if (rx.note_size())
-	errormsg = rx.note(0); // simplify - one line only
+	errormsg = pbconcat(rx.note(), "\n");
     else
 	errormsg = "";
     return retval;
 }
 
-static int rtapi_loadop(pb::ContainerType type, int instance, const char *modname, const char **args)
+
+int rtapi_callfunc(int instance,
+		   const char *func,
+		   const char **args)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
+    command.Clear();
+    command.set_type(machinetalk::MT_RTAPI_APP_CALLFUNC);
+    cmd = command.mutable_rtapicmd();
+    cmd->set_func(func);
+    cmd->set_instance(instance);
+
+    int argc = 0;
+    if (args)
+	while(args[argc] && *args[argc]) {
+	    cmd->add_argv(args[argc]);
+	    argc++;
+	}
+    int retval = rtapi_rpc(z_command, command, reply);
+    if (retval)
+	return retval;
+    return reply.retcode();
+}
+
+int rtapi_newinst(int instance,
+		  const char *comp,
+		  const char *instname,
+		  const char **args)
+{
+    machinetalk::RTAPICommand *cmd;
+    command.Clear();
+    command.set_type(machinetalk::MT_RTAPI_APP_NEWINST);
+    cmd = command.mutable_rtapicmd();
+    cmd->set_instance(instance);
+
+    cmd->set_comp(comp);
+    cmd->set_instname(instname);
+
+    int argc = 0;
+    if (args)
+	while(args[argc] && *args[argc]) {
+	    cmd->add_argv(args[argc]);
+	    argc++;
+	}
+    int retval = rtapi_rpc(z_command, command, reply);
+    if (retval)
+	return retval;
+    return reply.retcode();
+}
+
+int rtapi_delinst(int instance,
+		  const char *instname)
+{
+    machinetalk::RTAPICommand *cmd;
+    command.Clear();
+    command.set_type(machinetalk::MT_RTAPI_APP_DELINST);
+    cmd = command.mutable_rtapicmd();
+    cmd->set_instance(instance);
+    cmd->set_instname(instname);
+    int retval = rtapi_rpc(z_command, command, reply);
+    if (retval)
+	return retval;
+    return reply.retcode();
+
+}
+
+static int rtapi_loadop(machinetalk::ContainerType type, int instance, const char *modname, const char **args)
+{
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
     command.set_type(type);
     cmd = command.mutable_rtapicmd();
@@ -65,20 +150,20 @@ static int rtapi_loadop(pb::ContainerType type, int instance, const char *modnam
 
 int rtapi_loadrt(int instance, const char *modname, const char **args)
 {
-    return rtapi_loadop(pb::MT_RTAPI_APP_LOADRT, instance, modname, args);
+    return rtapi_loadop(machinetalk::MT_RTAPI_APP_LOADRT, instance, modname, args);
 }
 
 int rtapi_unloadrt(int instance, const char *modname)
 {
-    return rtapi_loadop(pb::MT_RTAPI_APP_UNLOADRT, instance, modname, NULL);
+    return rtapi_loadop(machinetalk::MT_RTAPI_APP_UNLOADRT, instance, modname, NULL);
 }
 
 int rtapi_shutdown(int instance)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
 
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_EXIT);
+    command.set_type(machinetalk::MT_RTAPI_APP_EXIT);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
 
@@ -91,9 +176,9 @@ int rtapi_shutdown(int instance)
 
 int rtapi_ping(int instance)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_PING);
+    command.set_type(machinetalk::MT_RTAPI_APP_PING);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
 
@@ -103,17 +188,18 @@ int rtapi_ping(int instance)
     return reply.retcode();
 }
 
-int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp)
+int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp, int flags)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_NEWTHREAD);
+    command.set_type(machinetalk::MT_RTAPI_APP_NEWTHREAD);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
     cmd->set_threadname(name);
     cmd->set_threadperiod(period);
     cmd->set_cpu(cpu);
     cmd->set_use_fp(use_fp);
+    cmd->set_flags(flags);
 
     int retval = rtapi_rpc(z_command, command, reply);
     if (retval)
@@ -123,9 +209,9 @@ int rtapi_newthread(int instance, const char *name, int period, int cpu, int use
 
 int rtapi_delthread(int instance, const char *name)
 {
-    pb::RTAPICommand *cmd;
+    machinetalk::RTAPICommand *cmd;
     command.Clear();
-    command.set_type(pb::MT_RTAPI_APP_DELTHREAD);
+    command.set_type(machinetalk::MT_RTAPI_APP_DELTHREAD);
     cmd = command.mutable_rtapicmd();
     cmd->set_instance(instance);
     cmd->set_threadname(name);
@@ -153,7 +239,7 @@ int rtapi_connect(int instance, char *uri, const char *svc_uuid)
     }
 
 #if 0
-    // we're not doint remote RTAPI just yet
+    // we're not doing remote RTAPI just yet
     if (uri == NULL) {
 	char uuid[50];
 	snprintf(uuid, sizeof(uuid),"uuid=%s", svc_uuid);
@@ -192,22 +278,29 @@ int rtapi_connect(int instance, char *uri, const char *svc_uuid)
     }
 #endif
 
-    z_context = zctx_new ();
-    assert(z_context);
-    z_command = zsocket_new (z_context, ZMQ_DEALER);
+    z_command = zsock_new (ZMQ_DEALER);
     assert(z_command);
 
     char z_ident[30];
     snprintf(z_ident, sizeof(z_ident), "halcmd%d",getpid());
 
-    zsocket_set_identity(z_command, z_ident);
-    zsocket_set_linger(z_command, 0);
+    zsock_set_identity(z_command, z_ident);
+    zsock_set_linger(z_command, 0);
 
-    if (zsocket_connect(z_command, uri)) {
+    if (zsock_connect(z_command, "%s", uri)) {
 	perror("connect");
 	return -EINVAL;
     }
-    zsocket_set_rcvtimeo (z_command, timeout * ZMQ_POLL_MSEC);
+    zsock_set_rcvtimeo (z_command, timeout * ZMQ_POLL_MSEC);
 
     return rtapi_ping(instance);
 }
+
+void rtapi_cleanup()
+{
+    if (z_command != NULL) {
+        zsock_destroy(&z_command);
+        z_command = NULL;
+    }
+}
+

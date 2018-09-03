@@ -1,0 +1,334 @@
+                                                                                                                             /*************************************************************************************************************************************
+Machinekit HAL component to implement ATC toolchanging in Emco Compact 5 CNC lathes
+
+Mike Ross:
+I have modified the code below (generously shared by ArcEye aka - Schooner) to work on
+my Emco Compact 5 that has been converted to use a stepper motor to drive the toolchanger.
+The original was:
+  EMC2 HAL component to implement ATC toolchanging in Boxford 240(F) CNC lathes
+
+  (c) ArcEye 09052011 schooner30@tiscali.co.uk
+
+It has only 6 positions, not 8 so I have modified as needed to accomodate.
+Otherwise the component works the same - odd tools are drills or round shank parallel to Z-axis, 
+even stations are standard turning tools 90deg to the Z-axis.
+The stations on the Emco Compact 5 tool changer are equal intervals apart so even=odd moves
+30 turns of the input worm = 1 full rotation of the toolchanger
+i.e. there are tools every 60 deg so set:
+pin io float odd_move = 64
+pin io float even_move = 64 the extra 4 is to ensure the move past the ratchet (i.e. 60 degress plus some amount that was backed up)
+Stepper calcs:
+200 steps / rev * 8 microsteps *30 rev /360 deg = 133.333 step / deg   (1.8 deg/step motors)
+Set axis ini scale = 266.666 (double due to math used below and not going to figure out how to fix)
+
+The scaling takes care of the distance actually moved so the above calcs aren't strictly needed.
+
+As I changed the original file from an angular axis to a linear one I've removed some code that was used to calculate the required 
+forward move in degrees and adjust so as to not result in a move greater than 360 degrees.  There is likely left over variables 
+and code not removed that is surplus but as its working I'm not messing with it!
+
+If you want to use an index pulse, then you will have to re-write so that the position-cmd is incremented until the signal and then 
+locked back by an appropriate amount
+
+This was done with a BeagleBoneBlack as the target platform with its onboard PRU generating the steps,
+and a Xylotex interface board.
+
+######################################################### 
+# .ini file for axis - ATC set up as axis A LINEAR
+#########################################################
+TYPE =              LINEAR	
+# was ANGULAR
+MAX_VELOCITY =       20.0	
+# this appears to be ignored by the toolchanger - only the STEPGEN_MAX_VEL and MAX_ACC are observed?
+MAX_ACCELERATION =   20.0	
+# Set Stepgen max 20% higher than the axis
+STEPGEN_MAX_VEL =    50.00
+STEPGEN_MAX_ACC =    80.00
+
+#BACKLASH =           0.000
+SCALE =  -266.666
+
+
+MIN_LIMIT =             -99999
+MAX_LIMIT =             99999
+
+FERROR =     1
+MIN_FERROR = 0.25
+
+HOME =                  0.000
+HOME_OFFSET =           0.00
+#HOME_SEARCH_VEL =       -.1
+#HOME_LATCH_VEL =       0.2
+#HOME_USE_INDEX =        YES
+#HOME_IGNORE_LIMITS =    YES
+#HOME_IS_SHARED = 1
+#HOME_SEQUENCE = 2
+
+##########################################################
+#  example Hal linkages required:-
+##########################################################
+
+# axis enable chain
+newsig emcmot.03.enable bit
+sets emcmot.03.enable FALSE
+
+net emcmot.03.enable <= axis.3.amp-enable-out
+net emcmot.03.enable => hpg.stepgen.03.enable 
+
+# position command and feedback
+#net emcmot.03.pos-cmd axis.3.motor-pos-cmd 
+net emcmot.03.pos-cmd => hpg.stepgen.03.position-cmd
+
+net motor.03.pos-fb <= hpg.stepgen.03.position-fb
+#net motor.03.pos-fb => axis.3.motor-pos-fb
+
+
+# timing parameters
+setp hpg.stepgen.03.dirsetup        [AXIS_3]DIRSETUP
+setp hpg.stepgen.03.dirhold         [AXIS_3]DIRHOLD
+
+setp hpg.stepgen.03.steplen         [AXIS_3]STEPLEN
+setp hpg.stepgen.03.stepspace       [AXIS_3]STEPSPACE
+
+setp hpg.stepgen.03.position-scale  [AXIS_3]SCALE
+
+setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
+setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
+
+#setp hpg.stepgen.03.control-type    1
+setp hpg.stepgen.03.stepinvert      [AXIS_3]STEP_INVERT
+#setp hpg.stepgen.03.step_type       0
+setp hpg.stepgen.03.steppin         0x3E
+setp hpg.stepgen.03.dirpin          0x3F
+
+
+###########################################################
+# loading the toolchange component in .hal file
+###########################################################
+
+loadrt toolchanger
+addf toolchanger servo-thread
+
+net tool-change iocontrol.0.tool-change => toolchanger.toolchange
+net tool-changed iocontrol.0.tool-changed <= toolchanger.toolchanged
+net tool-number iocontrol.0.tool-prep-number => toolchanger.toolnumber
+net tool-oldnumber iocontrol.0.tool-number => toolchanger.currenttoolnumber
+
+net emcmot.03.pos-cmd toolchanger.position-cmd hpg.stepgen.03.position-cmd
+net ahomed axis.3.homed toolchanger.ishomed
+
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+################################################################################
+
+***************************************************************************************************************************************/
+
+
+component toolchanger               "This component controls the Boxford 240 Lathe Auto Tool Changer. M6 calls this";
+
+pin in bit toolchange               "Receives signal from M6 that tool change required";
+pin in s32 toolnumber               "Receives Tx data from M6 (tool number requested) Only allows 1-6";
+pin in s32 currenttoolnumber        "Receives old tool number";
+pin out float position_cmd          "Sends location required";
+
+pin out bit toolchanged =false      "Sends signal when tool change finished";
+pin in bit ishomed = false          "Status of A axis homing";
+
+pin in bit jog_forward = false       "Facilitate jogging of stepgen via component";
+pin in bit jog_back = false          "Facilitate jogging of stepgen via component";
+pin in float jog_move = 0.0            "distance to jog";
+
+// allow parameters to be changed by setp for fine tuning
+pin io float odd_move = 63      "distance from odd tool station to even one";
+pin io float even_move = 63       "distance from even tool station to odd one";
+pin io float divisor = 2          "used in calculating reverse move to lock";
+pin io float fudge_factor = 14      "additional move to ensure locking";
+
+// internal variables
+
+variable hal_s32_t progress_level = 0;    // tracks the progress of the toolchange
+variable hal_s32_t moves = 0;             // number of moves to reach tool station  
+variable hal_s32_t index = 0;             // Counter used for comparison with moves
+variable hal_bit_t bEven = false;        // Odd or Even station requested
+variable hal_bit_t bToggle = false;      // Status of current move as Odd or Even
+variable hal_float_t position_req = 0.0;    // Where we want to be
+variable hal_float_t position_accum = 0.0;  // Moves are incremental but stepgen is absolute so add them up
+
+variable hal_bit_t bWarn = false;        // one shot warning no tool set
+variable hal_s32_t delay = 0;             // delay before lock back
+variable hal_s32_t delay_index = 0;       // counter for above
+variable hal_bit_t fjog = false;         // use internal flags for jogging after initial signal to ensure that one command is
+variable hal_bit_t bjog = false;         // carried out at a time - should not be possible to be otherwise but paranoia rules
+variable hal_float_t jmove = 0.0;
+
+option singleton yes;               // makes no sense to have more than one of these components running - only one ATC
+function _;
+author "ArcEye schooner30@tiscali.co.uk";
+license "GPL";
+;;
+
+
+float rnd2(float in)
+{
+float num = in;
+long roundy;
+
+    num *= 100;
+    if(num >= 0)
+        num += 0.5;
+    else
+        num -= 0.5;
+    roundy = num;
+    num = roundy;
+    num /= 100;
+    return num;
+}
+
+FUNCTION(_)
+{
+    switch (progress_level)
+        {
+        case 0:  // idle waiting for toolchange request
+                if(jog_forward && ! fjog)
+                    {
+                    fjog = true;
+                    bjog = false;
+                    jmove = rnd2(jog_move);
+                    position_req = jmove;
+                    position_req += position_accum;
+                    //if(position_req > 360)    MR commented out as not worried about exceeding 360degrees with linear axis
+                    //            position_req -= 360;
+                    position_cmd = position_req;
+                    progress_level = 1;
+                    break;
+                    }
+                else if(jog_back && !bjog)  
+                    {
+                    bjog = true;
+                    fjog = false;
+                    jmove = rnd2(jog_move);                    
+                    position_req = position_accum - jmove;
+                    if(position_req < 0)		//MR probably surplus code now but leave it - no harm done
+                            position_req += 360;
+                    position_cmd = position_req;
+                    progress_level = 3;
+                    break;
+                    }
+                else
+                    {
+                    // axis does not remember the current tool number, so prompt for it when A axis homed  - MR could probably change this to use X and Z instead              
+                    if(ishomed && !currenttoolnumber && !bWarn)
+                        {
+                        bWarn = true;  // just warn once, its not an error as such but INFO won't display unless debugging is set 3+
+                        rtapi_print_msg(RTAPI_MSG_ERR, "No tool selected. Use M6Tx to set current tool");
+                        break;  
+                        }
+                    if(toolchange && !toolchanged)  // prevent cycling after change done
+                        {
+                        if(currenttoolnumber && toolnumber != currenttoolnumber && toolnumber > 0 && toolnumber < 7) // if a valid number
+                            {
+                            if(currenttoolnumber == 2 || currenttoolnumber == 4 || currenttoolnumber == 6)  
+                                bEven = true;    
+                            if(currenttoolnumber < toolnumber)
+                                moves = toolnumber - currenttoolnumber;
+                            else
+                                moves = (6 - currenttoolnumber) + toolnumber;
+    
+                            bToggle = bEven;
+                            
+                             while(index < moves)
+                                {
+                                if(bToggle)
+                                    position_req += even_move;
+				else
+                                    position_req += odd_move;
+                                 index++;
+                                 bToggle = !bToggle;
+                                }
+                             //if(position_req >= 70) // MR better with just delay = position_req
+                             // delay = 70;  
+                             //else
+                               delay = position_req;
+                                
+                            position_req += position_accum;
+                            //if(position_req > 360)  	MR commented out as not worried about exceeding 360degrees with linear axis 
+                            //    position_req -= 360;
+                            position_cmd = position_accum;
+                            position_cmd = position_req;
+                            progress_level = 1;
+                            }
+                         else  // if tool requested is out of range or already selected just set the toolchanged flag and exit
+                            progress_level = 5;
+                         }
+                    if(!toolchange)
+                        toolchanged = 0; // reset once toolchange flag reset by system
+                    if(toolchange && !currenttoolnumber) // if no tool is set - set to tool requested so that can work next time
+                        progress_level = 5;
+                        } // end else
+                break;
+                
+        case 1: // Forward move
+                if(position_cmd < position_req)  // have we got there yet?
+                    {
+                    break;
+                    }
+                if(!fjog  && (delay_index < (delay * 20)) )  // this figure depends upon the speed of the servo thread etc (MR was 100)
+                    delay_index++;                    
+                else
+                    {
+                    if(fjog)
+                        {
+                        fjog = bjog = false;
+                        progress_level = 5;
+                        }
+                    else
+                        {
+                        position_req -= ((moves / divisor) + fudge_factor);
+                        if(position_req < 0)
+                            position_req += 360;
+                        position_cmd = position_req;
+                        progress_level = 3;
+                        }
+                    }
+                break;
+                
+         
+                
+        case 3: // Backward locking move or backward jog
+                if(position_cmd > position_req) // have we got there yet?
+                    {
+                    break;
+                    }
+                if(bjog)
+                    {
+                    bjog = fjog = false;
+                    }
+                progress_level = 5;
+                break;
+                
+                
+        case 5: // clean up ready for next toolchange
+                position_accum = position_cmd;
+                position_req = 0;
+                delay_index = 0;
+                moves = 0;
+                index = 0;
+                bEven = false;
+                bToggle = false;
+                progress_level = 0;
+                toolchanged = 1;   // signal finished
+                break;
+                
+        case 10:   break;  // should never get here but if we do then loop endlessly doing nothing
+                
+        default:    
+                progress_level = 10;
+                rtapi_print_msg(RTAPI_MSG_ERR, "Error state in toolchanger - now disabled - unload toolchanger");            
+        
+        }
+ 
+}
+
+
+
+

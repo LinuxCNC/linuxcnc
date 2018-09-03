@@ -1,10 +1,11 @@
 
 Package: machinekit-xenomai
 Architecture: any
-Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	libxenomai1, xenomai-runtime
+Depends: machinekit (= ${binary:Version}), ${shlibs:Depends}, yapps2-runtime,
+	xenomai-runtime
 Provides:  machinekit-rt-threads
 Recommends: hostmot2-firmware-all [!armhf]
+Breaks: machinekit-dev
 Enhances: machinekit
 Description: PC based motion controller for real-time Linux
  Machinekit is the next-generation Enhanced Machine Controller which

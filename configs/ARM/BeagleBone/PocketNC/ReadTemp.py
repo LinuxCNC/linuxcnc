@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 ########################################################################
 # Description: temp.py                                                 #
@@ -255,7 +255,7 @@ if len(args.adc) != num_chan :
 if len(args.therm) != num_chan :
     raise UserWarning('Incorrect number of thermistors specified!  Expected:' + args.num_chan)
 
-syspath = '/sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/'
+syspath = '/sys/bus/iio/devices/iio:device0/'
 
 FileName = []
 

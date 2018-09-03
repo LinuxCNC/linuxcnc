@@ -1,0 +1,25 @@
+component bitslicev2 "";
+
+pin_ptr in u32 in           "The input value";
+pin_ptr out bit out-##[pincount];
+
+instanceparam int pincount = 16;
+
+option MAXCOUNT 32;
+
+author "Andy Pugh";
+license "GPL2+";
+function _ nofp;
+;;
+
+
+FUNCTION(_)
+{
+hal_s32_t i;
+
+    for (i = 0; i < local_pincount ; i++)
+        sb(out(i), (gu(in) >> i)&1);
+
+return 0;
+
+}

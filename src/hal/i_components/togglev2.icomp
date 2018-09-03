@@ -1,0 +1,41 @@
+component togglev2 "'push-on, push-off' from momentary pushbuttons";
+pin_ptr in bit in "button input";
+pin_ptr io bit out "on/off output";
+pin_ptr io u32 debounce = 2 "debounce delay in periods";
+
+variable hal_u32_t debounce_cntr = 0;
+variable hal_bit_t debounced = false;
+
+function _ nofp;
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+
+    if (( gu(debounce) < 1 ) || ( gu(debounce) > 10000 )) {
+	/* set a sane value, we don't want 2 million second delays */
+	su(debounce, 2);
+    }
+    if ( gb(in) ) {
+	/* pressed */
+	debounce_cntr++;
+	if ( debounce_cntr >= gu(debounce) ) {
+	    debounce_cntr = gu(debounce);
+	    if (!debounced ) {
+		/* toggle output */
+		sb(out, !gb(out));
+	    }
+	    debounced = true;
+	}
+    } else {
+	/* not pressed */
+	debounce_cntr--;
+	if ( debounce_cntr <= 0 ) {
+	    debounce_cntr = 0;
+	    debounced = false;
+	}
+    }
+
+return 0;
+}

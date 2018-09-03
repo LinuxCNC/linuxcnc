@@ -1,0 +1,12 @@
+component not "Inverter";
+pin in bit in;
+pin out bit out;
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    out = ! in;
+
+return 0;
+}

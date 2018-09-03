@@ -23,7 +23,10 @@
 #define HM2_TEST_MAX_BOARDS (2)
 
 typedef struct {
-    u8 test_pattern[64 * 1024];
+    union {
+        u8 tp8[64 * 1024];
+        u32 tp32[16 * 1024];
+    } test_pattern;
 
     hm2_lowlevel_io_t llio;
 } hm2_test_t;

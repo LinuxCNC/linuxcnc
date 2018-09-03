@@ -1,0 +1,39 @@
+component out_to_io "converts a signal driven by an out pin to a change sensitive io signal";
+pin in u32 in_u32 = 0;
+pin in s32 in_s32 = 0;
+pin in float in_float = 0.0;
+pin in bit in_bit = false;
+pin io u32 out_u32;
+pin io s32 out_s32;
+pin io float out_float;
+pin io bit out_bit;
+
+variable hal_u32_t last_u32 = 1;
+variable hal_s32_t last_s32 = 1;
+variable hal_u32_t last_float = 1;
+variable hal_u32_t last_bit = 1;
+
+function _;
+license "GPL";
+author "Alexander Roessler";
+;;
+FUNCTION(_)
+{
+    if (last_u32 != in_u32) {
+        out_u32 = in_u32;
+        last_u32 = in_u32;
+    }
+    if (last_s32 != in_s32) {
+        out_s32 = in_s32;
+        last_s32 = in_s32;
+    }
+    if (last_float != in_float) {
+        out_float = in_float;
+        last_float = in_float;
+    }
+    if (last_bit != in_bit) {
+        out_bit = in_bit;
+        last_bit = in_bit;
+    }
+    return 0;
+}

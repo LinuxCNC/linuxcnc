@@ -1,7 +1,7 @@
 import sys
 import zmq
 
-from message_pb2 import Container
+from machinetalk.protobuf.message_pb2 import Container
 
 #print "ZMQ=%s pyzmq=%s" % (zmq.zmq_version(), zmq.pyzmq_version())
 

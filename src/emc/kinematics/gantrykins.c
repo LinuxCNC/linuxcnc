@@ -15,12 +15,20 @@
 #include "rtapi.h"
 #include "rtapi_math.h"
 #include "rtapi_string.h"
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
 
-struct data { 
+struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];
 } *data;
 
 #define SET(f) pos->f = joints[i]
+
+char *coordinates = "XYZABC";
+RTAPI_MP_STRING(coordinates, "Mapping from axes to joints");
+#define VTVERSION VTKINEMATICS_VERSION1
+
+MODULE_LICENSE("GPL");
+
 
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
@@ -81,21 +89,11 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
     return KINEMATICS_BOTH;
 }
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"
-
-char *coordinates = "XYZABC";
-RTAPI_MP_STRING(coordinates, "Mapping from axes to joints");
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-MODULE_LICENSE("GPL");
 
 static int next_axis_number(void) {
     while(*coordinates) {
@@ -118,11 +116,29 @@ static int next_axis_number(void) {
     return -1;
 }
 
-int comp_id;
-int rtapi_app_main(void) {
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
+
+static int comp_id, vtable_id;
+static const char *name = "gantrykins";
+
+int rtapi_app_main(void)
+{
     int result, i;
-    comp_id = hal_init("gantrykins");
+    comp_id = hal_init(name);
     if(comp_id < 0) return comp_id;
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
 
     data = hal_malloc(sizeof(struct data));
 
@@ -143,4 +159,8 @@ error:
     return result;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

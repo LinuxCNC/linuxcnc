@@ -1,0 +1,31 @@
+component lutnv2;
+
+pin_ptr out bit out = 0;
+pin_ptr in bit in#[pincount] = 0;
+
+instanceparam int pincount = 2      "number of input pins, in0..inN";
+
+option MAXCOUNT 5;
+
+// this overflows ints on 32bit machines, eg an and5 is not possible
+// must convert to unsiged
+instanceparam int functn = 255      "lookup function - see man lut5";
+
+function _;
+
+author          "Michael Haberler";
+description     "LUT component with configurable number of pins";
+license         "GPLv2 or later";
+;;
+
+FUNCTION(_)
+{
+    hal_u32_t i, shift = 0;
+    ip = arg;
+
+    for (i = 0; i < local_pincount; i++)
+        if (get_bit_pin(in(i))) shift += (1 << i);
+
+    set_bit_pin(out, (local_functn & (1 << shift)) != 0);
+    return 0;
+}

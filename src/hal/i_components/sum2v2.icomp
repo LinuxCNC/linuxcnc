@@ -1,0 +1,16 @@
+component sum2v2        "Sum of two inputs (each with a gain) and an offset";
+pin_ptr in float in0;
+pin_ptr in float in1;
+pin_ptr io float gain0 = 1.0;
+pin_ptr io float gain1 = 1.0;
+pin_ptr io float offset;
+pin_ptr out float out   "out = in0 * gain0 + in1 * gain1 + offset";
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    sf(out, (gf(in0) * gf(gain0) + gf(in1) * gf(gain1) + gf(offset)));
+
+return 0;
+}

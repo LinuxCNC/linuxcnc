@@ -256,11 +256,11 @@ static int heartbeat(gpointer data)
 
 void start_capture(void)
 {
-    int n;
-    scope_chan_t *chan;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
+int n;
+scope_chan_t *chan;
+hal_pin_t *pin;
+hal_sig_t *sig;
+hal_param_t *param;
 
     if (ctrl_shm->state != IDLE) {
 	/* already running! */
@@ -274,37 +274,42 @@ void start_capture(void)
 	    /* channel source is a pin, point at it */
 	    pin = SHMPTR(chan->data_source);
 	    /* make sure it's still valid */
-	    if ( pin->name[0] == '\0' ) {
+	    if(! ho_valid(pin))
+	    {
 		/* pin has been deleted */
 		chan->data_source_type = -1;
 		chan->data_len = 0;
 		break;
 	    }
 	    /* point at pin data */
-	    if (pin->signal == 0) {
-		/* pin is unlinked, get data from dummysig */
-		ctrl_shm->data_offset[n] = SHMOFF(&(pin->dummysig));
-	    } else {
-		/* pin is linked to a signal */
-		sig = SHMPTR(pin->signal);
-		ctrl_shm->data_offset[n] = sig->data_ptr;
-	    }
+	    ctrl_shm->data_offset[n] = SHMOFF(pin_value(pin));
+	    sig = signal_of(pin);
+	    /* if (!pin_linked(pin->signal == 0) { */
+	    /* 	/\* pin is unlinked, get data from dummysig *\/ */
+	    /* 	ctrl_shm->data_offset[n] = SHMOFF(&(pin->dummysig)); */
+	    /* } else { */
+	    /* 	/\* pin is linked to a signal *\/ */
+	    /* 	sig = SHMPTR(pin->signal); */
+	    /* 	ctrl_shm->data_offset[n] = sig->data_ptr; */
+	    /* } */
 	} else if ( chan->data_source_type == 1 ) {
 	    /* channel source is a signal, point at it */
 	    sig = SHMPTR(chan->data_source);
 	    /* make sure it's still valid */
-	    if ( sig->name[0] == '\0' ) {
+	    if(! ho_valid(sig))
+	    {
 		/* signal has been deleted */
 		chan->data_source_type = -1;
 		chan->data_len = 0;
 		break;
 	    }
-	    ctrl_shm->data_offset[n] = sig->data_ptr;
+	    ctrl_shm->data_offset[n] =  SHMOFF(sig_value(sig));
 	} else if ( chan->data_source_type == 2 ) {
 	    /* channel source is a parameter, point at it */
 	    param = SHMPTR(chan->data_source);
 	    /* make sure it's still valid */
-	    if ( param->name[0] == '\0' ) {
+	    if(! ho_valid(param))
+	    {
 		/* param has been deleted */
 		chan->data_source_type = -1;
 		chan->data_len = 0;

@@ -1,0 +1,444 @@
+= instcomp HAL Component Generator
+
+[[cha:instcomp-hal-component-generator]] (((instcomp HAL Component Generator)))
+
+== Introduction
+
+instcomp is the Machinekit component compiler for instantiable components (.icomp)
+
+This manual describes its operation in respect to how it differs from comp,
+the default inherited Linuxcnc component compiler.
+
+A familiarity with comp is therefore necessary and assumed.
+
+The essential difference between normal realtime components and instantiable components
+is......KILLER EXPLANATION HERE..........................
+
+== Naming Conventions
+
+All instantiable components are named to differentiate them from normal components
+
+The component files have the extension *'.icomp'*
+
+eg
+
+*'ddt.icomp'*  is the component file
+
+produces a component called
+
+*'ddt'*
+
+== Definitions
+
+=== component -
+A component is a single real-time base module, which is loaded with 'halcmd loadrt'.
+
+One '.icomp' file specifies one component.
+
+=== newinstance -
+Each instance of a component created with a call to *'newinst'*
+
+It is created roughly equal (they all have the same functions, and data)
+
+in basic configuration, but with greater or lesser numbers of pins or parameters, different names etc
+
+New instances can be created ad hoc, one for the use at this time and another differing instance created at a later stage.
+
+=== function -
+The function is the part of the code that is attached to a thread and called at every thread period
+
+You MUST declare at least one function in the declaration part of the icomp file above the *';;'* delimiters
+
+In this instcomp differs from comp
+
+eg.
+
+*'function _;'*
+
+*';;'*
+
+This is perfectly sufficient where there is just one function
+
+If there are more than one function, they must all be declared and uniquely named
+
+eg.
+
+*'function read nofp;'*
+
+*'function write;'*
+
+*';;'*
+
+The function is exported as a xthread function.
+
+The following accessors are available within the function:
+
+        fa_period(fa) - formerly 'long period'"
+
+        fa_thread_start_time(fa): _actual_ start time of thread invocation"
+
+        fa_start_time(fa): _actual_ start time of function invocation"
+
+        fa_thread_name(fa): name of the calling thread (char *)"
+
+        fa_funct_name(fa): name of the this called function (char *)"
+
+
+== Instance creation
+
+
+*'newinst somecomponent somenewname <iprefix=""> <pincount=0> <other_instanceparam=> extra_arg1 extra_arg2 ......'*
+
+Loads somecomponent and creates a new instance of somecomponent called somenewname
+
+eg
+
+*'newinst somecomponent somenewcomp8 pincount=8'*
+
+then
+
+*'addf somecomp8 servo-thread'*
+
+adds the function to a thread
+
+If you just want a component with the default number of pins, you can either
+
+*newinst componentname newcomponentname*
+
+for a single named component instance with default pin numbers (if applicable)
+
+
+== Backwards compatability
+
+halcmd has been modified so that loadrt will work as previously, but with the new instantiated components.
+
+Thus existing configs will still work for the most part using loadrt (see Notes below)
+
+This includes the sim configs included with machinekit
+
+The singleton component is deprecated - just make sure you only load one if they clash
+
+Notes
+
+The parameters accepted are count=number. or names=name1,name2......
+
+The parameters cfg= or personality= are deprecated and have no meaning with instantiated components
+
+Those parameters will still work with the few legacy components that use them so heavily or in such a convoluted / obfuscated fashion, that they have not been converted to instantiable components
+
+At present those components are:
+
+bldc.comp
+
+logic.comp
+
+Other components not converted, are those from C sources and those integral to the system and only ever intended to be loaded once per session
+
+examples are:
+
+stepgen
+
+threads
+
+See the src/hal/components directory for the remaining legacy components
+
+
+== Reserved declarations etc.
+
+=== 'pincount'
+
+is the reserved instance parameter name, which can be used as a numerator and index for arrays
+
+If it is set the option MAXCOUNT may be set too, as below
+
+*'instanceparam int pincount = 8;'*
+
+*option MAXCOUNT 16;*
+
+(The pincount value will be used in the #define DEFAULTCOUNT as the default where no size is specified)
+
+It can be used directly in the icomp file header as an array index size specifier
+
+eg
+
+pin in float in-##[pincount];
+
+Within your code, in the function body, a local copy within the instance struct is used to get this value
+
+for( x = 0; x < localpincount; x++)
+    {
+    // do stuff
+    }
+
+=== MAXCOUNT
+
+this option sets the maximum pins allowed to be created
+
+*If any arrays of pins are used, MAXCOUNT will define the upper limit of pins set by instcomp*
+
+It can only be set in the icomp header itself and cannot be altered
+
+If not defined it is set to the value in pincount
+
+Example 1.
+
+*pin bit inval-##[pincount];*
+
+*'instanceparam int pincount = 8;'*
+
+*option MAXCOUNT 16;*
+
+Thereafter a default creation of an instance will have 8 pins <component>.inval-00 to inval-07
+
+Example 1a.
+
+In the same component, if pincount is supplied as an argument to the newinst call,
+
+it overrules the preset number of pins in arrays using 'pincount' as an index,
+
+up to a maximum (MAXCOUNT) which was set in the .comp file and fixed when the component base was compiled
+
+*newinst <component> newname pincount=16*
+
+will result in a new instance of the component called newname, with 16 pins .inval-00 to .inval-15
+
+
+== Extra args
+
+Any additional args which do not match the RTAPI_IP_PARAM parameters expected, are passed through the argc / argv mechanism to the new component
+
+Using in the comp file:-
+
+'*option extra_inst_setup; '*
+
+allows you to create a function in your component, EXTRA_INST_SETUP(), which will receive the argc / argv data.
+You can the parse and act upon extra arguments passed before the component is set 'ready'
+
+A return value other than zero from this function will abort instance creation.
+
+See the lutn example
+
+
+== Syntax and Options differences
+
+Some syntax and options are deprecated.
+
+*   *'personality'* has no meaning in these components, since instances are created singly and externally rather than within the component
+
+*   *'cfg'*         A parameter used with personality, no longer used
+
+*   *'count'*       Preserved for backward compability with simple loadrt commands, see Backward Compatability section above, but not used by the component itself or with newinst commands
+
+*   *'names'*       Just a synonym for count really, same comments apply
+
+*   *'userspace'*  No support for userspace at this time, use the comp / halcompile compiler
+
+*   *'data'*       Any data to be preserved between polls to the component can be stored in variables in the declaration section of the icomp (below the pin declarations).
+Use of typedefed structs accessed via a void *_data pointer are no longer supported
+
+== Options
+
+The differing options are:
+
+* *'option extra_inst_setup yes'* - (default: no)
+   If specified, call the function defined by 'EXTRA_INST_SETUP' for each
+   instance.
+   argc and argv are passed to this function, so it is a good place to parse
+   additional arguments passed to the component in the newinst call
+
+* *'option extra_cleanup yes'* - (default: no)
+   If specified, call the function defined by 'EXTRA_INST_CLEANUP' from the
+   automatically defined 'rtapi_app_exit', or if an error is detected
+   in the automatically defined 'rtapi_app_main'.
+
+* *'instanceparam [int / string] param_name = <value>'*
+    Instanceparams that may be passed to the component at newinst
+    If value not set, will be set to 0 or "\0" respectively
+
+*   *'option MAXCOUNT'*
+
+== Restrictions
+
+Though HAL permits a pin, a parameter, and a function to have the same
+name, instcomp does not.
+
+Variable and function names that can not be used or are likely to cause
+problems include:
+
+* Anything beginning with 'inst'
+
+* 'comp_id'
+
+* 'fperiod'
+
+* 'rtapi_app_main'
+
+* 'rtapi_app_exit'
+
+* 'extra_inst_setup'
+
+* 'extra_inst_cleanup'
+
+* 'function'
+
+* 'pincount'
+
+
+== Compiling
+
+Same syntax and options as comp, just use instcomp instead.
+
+
+== Examples
+
+Best form of explanation, below are 3 components demonstrating the
+differing option usages etc.
+
+=== constant
+
+Note this component is no different to the standard component.
+The C code that is created is different and allows instantiation
+but at comp file level, because arrays are not used and no need to
+preset an iprefix for the default pin numbers, it all looks the same
+
+[source,c]
+----
+component constant "Use a parameter to set the value of a pin";
+pin out float out;
+param rw float value;
+
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+    out = value;
+}
+----
+
+=== multiswitch
+
+This component uses an array of bit pins indexed with pincount
+Maximum number of pins are 32 and the default is 6,
+
+extra_inst_setup is used, but just for initialisation of values
+before entering the main loop
+
+[source,c]
+
+----
+component multiswitch           """This component toggles between a specified number of output bits""";
+
+pin in bit up = false           "Receives signal to toggle up";
+pin in bit down = false         "Receives signal to toggle down";
+
+param rw unsigned top-position  "Number of positions";
+param rw signed position      "Current state (may be set in the HAL)";
+
+pin out bit bit-##[pincount] = false       "Output bits";
+
+instanceparam int pincount = 6;
+
+option MAXCOUNT 16;
+
+function _ ;
+option extra_inst_setup yes;
+
+variable int old_up = 0;
+variable int old_down = 0;
+
+author "ArcEye arceye@mgware.co.uk / Andy Pugh andy@bodgesoc.org";
+license "GPL2";
+;;
+
+
+FUNCTION(_)
+{
+    int i;
+
+    // debounce
+    if (up && !old_up) { position++; }
+    if (down && !old_down) { position--;}
+    old_up = up;
+    old_down = down;
+
+    if (position < 0) position = top_position;
+    if (position > top_position) position = 0;
+
+    for (i = 0 ; i < localpincount; i++){
+        bit(i) = (i == position);
+    }
+
+}
+
+EXTRA_INST_SETUP(){
+    top_position = localpincount - 1;
+    return 0;
+}
+
+----
+
+=== lutn
+
+This component has the same instanceparam features as before,
+with an extra instanceparam defined - functn which takes a hex value
+
+It can take further args not defined as instanceparams, which are passed
+through the argc / argv mechanism and printed in extra_inst_setup()
+
+[source,c]
+----
+// instantiable lookup table component with configurable number of pins
+// usage:
+//
+// halcmd newinst lutn and2 pincount=2 functn=0x8 arg1 arg2
+// halcmd newinst lutn or2  pincount=2 functn=0xe arg1 arg2
+
+
+
+component lutn "instantiable lookup table component with configurable number of pins";
+
+    // Input Pins
+pin in bit in-##[pincount];
+pin out bit out;
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 5;
+
+instanceparam int functn = 0;
+
+option extra_inst_setup;
+
+license "GPL";
+author "Michael Haberler";
+
+function _;
+;;
+
+
+FUNCTION(_)
+{
+int i;
+int shift = 0;
+
+    for (i = 0; i < localpincount; i++)
+    if (in(i))
+        shift += (1 << i);
+
+    out = (functn & (1 << shift)) != 0;
+}
+
+// extra args not related to instanceparams can be parsed and dealt with here
+
+EXTRA_INST_SETUP()
+{
+int x;
+
+    for(x = 0; x < argc; x++)
+        hal_print_msg(RTAPI_MSG_ERR,"argv[%d] = %s", x, argv[x]);
+
+    return 0;
+}
+
+
+----

@@ -111,23 +111,22 @@ typedef struct {
             hal_s32_t       *test1;
             hal_s32_t       *test2;
             hal_s32_t       *test3;
+
+            hal_float_t     *position_scale;
+            hal_float_t     *maxvel;
+            hal_float_t     *maxaccel;
+            hal_float_t     *minvel;
+
+            hal_u32_t       *steplen;
+            hal_u32_t       *stepspace;
+            hal_u32_t       *dirsetup;
+            hal_u32_t       *dirhold;
+
+            hal_u32_t       *steppin;
+            hal_u32_t       *dirpin;
+
+            hal_bit_t       *stepinv;
         } pin;
-
-        struct {
-            hal_float_t     position_scale;
-            hal_float_t     maxvel;
-            hal_float_t     maxaccel;
-
-            hal_u32_t       steplen;
-            hal_u32_t       stepspace;
-            hal_u32_t       dirsetup;
-            hal_u32_t       dirhold;
-
-            hal_u32_t       steppin;
-            hal_u32_t       dirpin;
-
-            hal_bit_t       stepinv;
-        } param;
 
     } hal;
 
@@ -145,6 +144,8 @@ typedef struct {
     u32 written_stepspace;
     u32 written_dirsetup;
     u32 written_dirhold;
+    u32 written_steppin;
+    u32 written_dirpin;
     u32 written_task;
     hal_bit_t written_stepinv;
 } hpg_stepgen_instance_t;
@@ -164,9 +165,8 @@ typedef struct {
     hal_float_t     *hal_out1;
     hal_float_t     *hal_out2;
 
-    // HAL Parameters
-    hal_u32_t       hal_pin1;
-    hal_u32_t       hal_pin2;
+    hal_u32_t       *hal_pin1;
+    hal_u32_t       *hal_pin2;
 
 } hpg_deltasig_instance_t;
 
@@ -178,21 +178,19 @@ typedef struct {
 typedef struct {
 
     PRU_pwm_output_t    pru;
-    
+
     struct {
 
         struct {
             hal_float_t *value;
             hal_bit_t   *enable;
+            hal_float_t *scale;
+            hal_u32_t   *pin;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_u32_t   pin;
-        } param;
 
     } hal;
 
+    u32 written_pin;
 } hpg_pwmgen_output_instance_t;
 
 typedef struct {
@@ -206,8 +204,8 @@ typedef struct {
     // Instance-wide HAL variables
     struct {
         struct {
-            hal_u32_t   pwm_period;
-        } param;
+            hal_u32_t   *pwm_period;
+        } pin;
     } hal;
 
     u32 written_pwm_period;
@@ -236,27 +234,27 @@ typedef struct {
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *velocity;
+            hal_float_t *velocity_abs;
             hal_bit_t   *reset;
             hal_bit_t   *index_enable;
             hal_bit_t   *latch_enable;
             hal_bit_t   *latch_polarity;
             hal_bit_t   *quadrature_error;
+            hal_float_t *scale;
+            hal_u32_t   *A_pin;
+            hal_bit_t   *A_invert;
+            hal_u32_t   *B_pin;
+            hal_bit_t   *B_invert;
+            hal_u32_t   *index_pin;
+            hal_bit_t   *index_invert;
+            hal_bit_t   *index_mask;
+            hal_bit_t   *index_mask_invert;
+            hal_u32_t   *counter_mode;
+            hal_bit_t   *filter;
+            hal_float_t *vel_timeout;
+            hal_bit_t   *running;
+            hal_u32_t   *latency;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_u32_t   A_pin;
-            hal_bit_t   A_invert;
-            hal_u32_t   B_pin;
-            hal_bit_t   B_invert;
-            hal_u32_t   index_pin;
-            hal_bit_t   index_invert;
-            hal_bit_t   index_mask;
-            hal_bit_t   index_mask_invert;
-            hal_u32_t   counter_mode;
-            hal_bit_t   filter;
-            hal_float_t vel_timeout;
-        } param;
 
     } hal;
 
@@ -268,15 +266,9 @@ typedef struct {
 
     u32 written_state;
 
-    // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
-    s32 prev_event_rawcounts;
-    u16 prev_event_reg_timestamp;
-
-    s32 tsc_num_rollovers;
-    u16 prev_time_of_interest;
-
-    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
-
+    u64 timestamp; // Timestamp since last velocity estimation
+    u32 poll_count; // Number of hpg_encoder_read_chan() calls since last velocity estimation
+    s32 pulse_count; // Number of pulses since last velocity estimation
 } hpg_encoder_channel_instance_t;
 
 typedef struct {
@@ -314,12 +306,13 @@ typedef struct {
         int num_encoders;
         int comp_id;
         const char *name;
+        const char *halname;
     } config;
 
     struct {
         struct {
-            hal_u32_t   pru_busy_pin;
-        } param;
+            hal_u32_t  * pru_busy_pin;
+        } pin;
     } hal;
 
     u32 *pru_data;              // ARM pointer to mapped PRU data memory
@@ -355,7 +348,7 @@ typedef struct {
 
 pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len);
 void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
-
+int fixup_pin(u32 hal_pin);
 
 //
 // pwmgen functions
@@ -384,6 +377,6 @@ void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns);
 int hpg_encoder_init(hal_pru_generic_t *hpg);
 void hpg_encoder_force_write(hal_pru_generic_t *hpg);
 void hpg_encoder_update(hal_pru_generic_t *hpg);
-void hpg_encoder_read(hal_pru_generic_t *hpg);
+void hpg_encoder_read(hal_pru_generic_t *hpg, long l_period_ns);
 
 #endif

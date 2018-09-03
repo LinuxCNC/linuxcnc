@@ -5,8 +5,10 @@
 
 loadrt trivkins
 loadrt hal_gm
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
-loadrt pid num_chan=3
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+loadrt pid count=3
 loadrt not
 
 loadusr halmeter

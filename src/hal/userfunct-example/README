@@ -1,0 +1,64 @@
+HAL userfunct objects
+---------------------
+
+userfuncts are a similar to normal functs, but cannot be addf'd to a thread.
+However, they can be called from userland via halcmd, or the C or Cython RTAPI API's.
+
+userfuncts are the basic feature on which the HAL instantiation API rests.
+hal_lib is now a component and exports internal userfuncts (newinst and delinst)
+to support the instantiation API.
+
+
+ufdemo.c shows the API usage, as well as the extended thread API.
+
+SHow time!
+
+$ realtime start
+$ halcmd -f -k
+
+halcmd: loadrt ufdemo
+
+<stdin>:1: Realtime module 'ufdemo' loaded
+
+halcmd: show comp
+
+Loaded HAL Components:
+    ID  Type Flags Inst Name                                      PID   State
+ 32770  RT            0 ufdemo                                    RT    ready, u1:0 u2:0
+    71  User          0 halcmd1774                                1774  ready, u1:0 u2:0
+    70  uHAL   i      0 hal_lib1774                               1774  ready, u1:0 u2:0
+ 32769  rHAL   i      0 hal_lib                                   0     ready, u1:0 u2:0
+
+halcmd: show funct
+
+Exported Functions:
+  Comp   Inst CodeAddr  Arg       FP   Users Type    Name
+ 32769        b6e5fe6b  00000000  NO       0 user    delinst
+ 32769        b6e5fc13  00000000  NO       0 user    newinst
+ 32770        b753d83c  b753db7b  NO       0 user    ufdemo.demo-funct
+ 32770        b753d82d  b753db36  NO       0 thread  ufdemo.legacy-funct
+ 32770        b753d832  b753db5a  NO       0 xthread ufdemo.xthread-funct
+
+halcmd: call ufdemo.demo-funct foo bar baz
+<stdin>:4: function 'ufdemo.demo-funct' returned 3
+halcmd:
+
+relevant part of linuxcnc.log:
+
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt RTAPI: initing module HAL_ufdemo
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt RTAPI: module 'HAL_ufdemo' loaded, ID: 32770
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_xinit:246 HAL: legacy component 'ufdemo' id=32770 initialized
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_export_xfunctfv:70 HAL: exporting function 'ufdemo.legacy-funct' type 0
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_pin_new:121 HAL: creating pin 'ufdemo.legacy-funct.time'
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_param_new:135 HAL: creating parameter 'ufdemo.legacy-funct.tmax'
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_param_new:135 HAL: creating parameter 'ufdemo.legacy-funct.tmax-increased'
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_export_xfunctfv:70 HAL: exporting function 'ufdemo.xthread-funct' type 1
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_pin_new:121 HAL: creating pin 'ufdemo.xthread-funct.time'
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_param_new:135 HAL: creating parameter 'ufdemo.xthread-funct.tmax'
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_param_new:135 HAL: creating parameter 'ufdemo.xthread-funct.tmax-increased'
+Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt hal_export_xfunctfv:70 HAL: exporting function 'ufdemo.demo-funct' type 2
+Mar 12 21:25:28 nwheezy msgd:0: rtapi_app:1768:user ufdemo: loaded from ufdemo.so
+Mar 12 21:25:53 nwheezy msgd:0: hal_lib:1768:rt ufdemo: userfunct 'ufdemo.demo-funct' called, arg='u-instance-data' argc=3
+Mar 12 21:25:53 nwheezy msgd:0: hal_lib:1768:rt     argv[0] = "foo"
+Mar 12 21:25:53 nwheezy msgd:0: hal_lib:1768:rt     argv[1] = "bar"
+Mar 12 21:25:53 nwheezy msgd:0: hal_lib:1768:rt     argv[2] = "baz"

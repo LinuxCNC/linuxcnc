@@ -1,31 +1,40 @@
-#!/usr/bin/python
+#!/usr/bin/python2
+# -*- coding: UTF-8 -*
 import os
-import sys
-from stat import *
 import zmq
-import netifaces
 import threading
+import multiprocessing
 import time
 import math
 import socket
 import signal
+import argparse
 from urlparse import urlparse
-
+import shutil
+import tempfile
+import subprocess
+import re
+import codecs
 import ConfigParser
 import linuxcnc
-import preview
-from machinekit import service
+from machinekit import service, hal
+from machinekit import config
 
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
-from status_pb2 import *
-from preview_pb2 import *
-from object_pb2 import ProtocolParameters
+from google.protobuf.message import DecodeError
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.status_pb2 import *
+from machinetalk.protobuf.preview_pb2 import *
+from machinetalk.protobuf.motcmds_pb2 import *
+from machinetalk.protobuf.object_pb2 import ProtocolParameters
+
+
+def printError(msg):
+    sys.stderr.write('ERROR: ' + msg + '\n')
 
 
 def getFreePort():
@@ -36,27 +45,12 @@ def getFreePort():
     return port
 
 
-# Handle uploaded files to delete them after program exit
-uploadedFiles = set()
-
-
-def addUploadedFile(file):
-    global uploadedFiles
-    uploadedFiles.add(file)
-
-
-def clearUploadedFiles():
-    global uploadedFiles
-    for uploadedFile in uploadedFiles:
-        os.remove(uploadedFile)
-    uploadedFiles = set()
-
-
+# noinspection PyClassicStyleClass
 class CustomFTPHandler(FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
-        addUploadedFile(file)
+        pass  # TODO inform client about new file
 
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
@@ -65,10 +59,11 @@ class CustomFTPHandler(FTPHandler):
 
 class FileService(threading.Thread):
 
-    def __init__(self, iniFile=None, ip="", svcUuid=None,
-                debug=False):
+    def __init__(self, iniFile=None, host='', svcUuid=None,
+                loopback=False, debug=False):
         self.debug = debug
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.shutdown = threading.Event()
         self.running = False
 
@@ -79,17 +74,18 @@ class FileService(threading.Thread):
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.expanduser(self.directory)
         except linuxcnc.error as detail:
-            print(("error", detail))
+            printError(str(detail))
             sys.exit(1)
 
         self.filePort = getFreePort()
-        self.fileDsname = "ftp://" + self.ip + ":" + str(self.filePort)
+        self.fileDsname = "ftp://" + self.host + ":" + str(self.filePort)
 
         self.fileService = service.Service(type='file',
                                    svcUuid=svcUuid,
                                    dsn=self.fileDsname,
                                    port=self.filePort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
 
         #FTP
@@ -97,7 +93,7 @@ class FileService(threading.Thread):
         self.authorizer = DummyAuthorizer()
 
         # anonymous user has full read write access
-        self.authorizer.add_anonymous(self.directory, perm="lradw")
+        self.authorizer.add_anonymous(self.directory, perm="lredwm")
 
         # Instantiate FTP handler class
         self.handler = CustomFTPHandler
@@ -107,7 +103,7 @@ class FileService(threading.Thread):
         self.handler.banner = "welcome to the GCode file service"
 
         # Instantiate FTP server class and listen on some address
-        self.address = (self.ip, self.filePort)
+        self.address = ('', self.filePort)
         self.server = FTPServer(self.address, self.handler)
 
         # set a limit for connections
@@ -118,13 +114,10 @@ class FileService(threading.Thread):
         try:
             self.fileService.publish()
         except Exception as e:
-            print (('cannot register DNS service' + str(e)))
+            printError('cannot register DNS service' + str(e))
             sys.exit(1)
 
         threading.Thread.__init__(self)
-
-    def __del__(self):
-        clearUploadedFiles()
 
     def run(self):
         self.running = True
@@ -143,85 +136,238 @@ class FileService(threading.Thread):
         self.shutdown.set()
 
 
-class Canon():
-    def __init__(self, parameterFile="", debug=False):
-        self.debug = debug
-        self.aborted = False
-        self.parameterFile = parameterFile
+class PreviewCanonData(object):
+    def __init__(self):
+        self.tools = []
+        self.randomToolchanger = False
+        self.parameterFile = ""
+        self.axisMask = 0x0
+        self.blockDelete = False
+        self.angularUnits = 1.0
+        self.linearUnits = 1.0
 
-    def do_cancel(self):
-        if self.debug:
-            print("setting abort flag")
-        self.aborted = True
+
+class PreviewCanon(object):
+    def __init__(self, canon, debug=False):
+        self.c = canon
+        self.debug = debug
 
     def check_abort(self):
         if self.debug:
             print("check_abort")
-        return self.aborted
+        return False
 
-    def reset(self):
-        self.aborted = False
+    def change_tool(self, pocket):
+        if self.c.randomToolchanger:
+            self.c.tools[0], self.c.tools[pocket] = self.c.tools[pocket], self.c.tools[0]
+        elif pocket == 0:
+            self.c.tools[0] = (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+        else:
+            self.c.tools[0] = self.c.tools[pocket]
+
+    def get_tool(self, pocket):
+        if pocket >= 0 and pocket < len(self.c.tools):
+            return self.c.tools[pocket]
+        return (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+
+    def get_external_angular_units(self):
+        return self.c.angularUnits or 1.0
+
+    def get_external_length_units(self):
+        return self.c.linearUnits or 1.0
+
+    def get_axis_mask(self):
+        return self.c.axisMask
+
+    def get_block_delete(self):
+        return self.c.blockDelete
 
 
-class Preview():
-    def __init__(self, parameterFile="", debug=False):
+# Preview class works concurrently using multiprocessing
+# Queues are used for communication
+class Preview(object):
+    def __init__(self, stat, randomToolchanger=False, parameterFile="", initcode="", debug=False):
+        self.debug = debug
         self.filename = ""
         self.unitcode = ""
-        self.initcode = ""
-        self.canon = Canon(parameterFile=parameterFile, debug=debug)
-        self.debug = debug
-        self.isRunning = False
+        self.initcode = initcode
+        self.stat = stat
+        self.parameterFile = parameterFile
+        self.randomToolchanger = randomToolchanger
+        self.canon = None
+        self.preview = None
         self.errorCallback = None
+
+        # multiprocessing tools
+        self.bindEvent = multiprocessing.Event()
+        self.bindCompletedEvent = multiprocessing.Event()
+        self.previewEvent = multiprocessing.Event()
+        self.previewCompleteEvent = multiprocessing.Event()
+        self.shutdownEvent = multiprocessing.Event()
+        self.errorEvent = multiprocessing.Event()
+        self.isStarted = multiprocessing.Value('b', False, lock=False)
+        self.isBound = multiprocessing.Value('b', False, lock=False)
+        self.isRunning = multiprocessing.Value('b', False, lock=False)
+        self.aborted = multiprocessing.Value('b', False, lock=False)
+        self.inqueue = multiprocessing.Queue()  # used to send data to the process
+        self.outqueue = multiprocessing.Queue()  # used to get data from the process
+        self.process = multiprocessing.Process(target=self.run)
+        self.process.start()
 
     def register_error_callback(self, callback):
         self.errorCallback = callback
 
     def bind(self, previewUri, statusUri):
-        return preview.bind(previewUri, statusUri)
+        self.inqueue.put((previewUri, statusUri))
+        self.bindEvent.set()
+        self.bindCompletedEvent.wait()
+        return self.outqueue.get()
 
     def abort(self):
-        self.canon.do_cancel()
+        self.aborted.value = True
 
     def program_open(self, filename):
         if os.path.isfile(filename):
             self.filename = filename
         else:
-            raise Exception("file does not exist")
+            raise Exception("file does not exist " + filename)
 
     def start(self):
-        if self.isRunning:
+        if self.isRunning.value is True:
             raise Exception("Preview already running")
 
-        self.canon.reset()
-        thread = threading.Thread(target=self.run)
+        # start the monitoring daemon
+        thread = threading.Thread(target=self.monitoring_thread)
         thread.daemon = True
         thread.start()
 
-    def run(self):
-        self.isRunning = True
-        try:
-            result, last_sequence_number = preview.parse(self.filename,
-                                                       self.canon,
-                                                       self.unitcode,
-                                                       self.initcode)
+    def stop(self):
+        self.shutdownEvent.set()
+        self.previewCompleteEvent.set()  # in case we are monitoring
+        self.process.join()  # make sure to have one process at exit
 
-            if result > preview.MIN_ERROR:
+    def monitoring_thread(self):
+        if not self.isBound.value:
+            raise Exception('Preview is not bound')
+
+        self.isRunning.value = True
+
+        # create temp dir
+        tempdir = tempfile.mkdtemp()
+
+        # prepare Canon data
+        canon = PreviewCanonData()
+        tools = []
+        for entry in self.stat.tool_table:
+            tools.append(tuple(entry))
+        canon.tools = tools
+        temp_parameter = os.path.join(tempdir, os.path.basename(self.parameterFile))
+        if os.path.exists(self.parameterFile):
+            shutil.copy(self.parameterFile, temp_parameter)
+        canon.parameterFile = temp_parameter
+        canon.randomToolchanger = self.randomToolchanger
+        canon.axisMask = self.stat.axis_mask
+        canon.blockDelete = self.stat.block_delete
+        canon.angularUnits = self.stat.angular_units
+        canon.linearUnits = self.stat.linear_units
+
+        self.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
+        # put everything on the process queue
+        while not self.inqueue.empty():
+            self.inqueue.get_nowait()
+        self.inqueue.put((self.filename, self.unitcode, self.initcode, canon))
+        # release the dragon
+        self.previewCompleteEvent.clear()
+        self.previewEvent.set()
+        self.previewCompleteEvent.wait()
+        # handle error events
+        if self.errorEvent.wait(0.1):
+            (error, line) = self.outqueue.get()
+            if self.errorCallback is not None:
+                self.errorCallback(error, line)
+            self.errorEvent.clear()
+
+        # cleanup temp dir
+        shutil.rmtree(tempdir)
+
+        self.isRunning.value = False
+
+    def run(self):
+        import preview  # must be imported in new process to work properly
+        self.preview = preview
+
+        self.isStarted.value = True
+
+        # waiting for a bind event
+        while not self.bindEvent.wait(timeout=0.1):
+            if self.shutdownEvent.is_set():  # in case someone shuts down when we are not bound
+                self.isStarted.value = False
+
+        # bind the socket here
+        (previewUri, statusUri) = self.inqueue.get()
+        (previewUri, statusUri) = self.preview.bind(previewUri, statusUri)
+        self.outqueue.put((previewUri, statusUri))
+        self.isBound.value = True
+        self.bindCompletedEvent.set()
+        if self.debug:
+            print('Preview socket bound')
+
+        # wait for preview request or shutdown
+        # event handshaking is used to synchronize the monitoring thread
+        # and the process
+        while not self.shutdownEvent.is_set():
+            if self.previewEvent.wait(timeout=0.1):
+                self.do_preview()
+                self.previewCompleteEvent.set()
+                self.previewEvent.clear()
+
+        if self.debug:
+            print('Preview process exited')
+        self.isStarted.value = False
+
+    def do_preview(self):
+        # get all stuff that is modified at runtime
+        (filename, unitcode, initcode, canonData) = self.inqueue.get()
+        # make abort possible
+        canon = PreviewCanon(canonData, self.debug)
+        self.aborted.value = False
+        canon.check_abort = lambda : self.aborted.value
+        if self.debug:
+            print("Preview starting")
+            print("Filename: " + filename)
+            print("Unitcode: " + unitcode)
+            print("Initcode: " + initcode)
+        try:
+            # here we do all the actual work...
+            (result, last_sequence_number) = self.preview.parse(
+                filename,
+                canon,
+                unitcode,
+                initcode)
+
+            # check if we encountered a error during execution
+            if result > self.preview.MIN_ERROR:
+                error = " gcode error: %s " % (self.preview.strerror(result))
+                line = last_sequence_number - 1
                 if self.debug:
-                    print((error + "on line " + str(line)))
-                if self.errorCallback is not None:
-                    error = " gcode error: %s " % (preview.strerror(result))
-                    line = last_sequence_number - 1
-                    self.errorCallback(error, line)
+                    printError("preview: " + filename)
+                    printError(error + " on line " + str(line))
+                # pass error through queue
+                self.outqueue.put((error, str(line)))
+                self.errorEvent.set()
 
         except Exception as e:
-            print(("exception" + str(e)))
+            error = "preview error: " + str(e)
+            if self.debug:
+                printError(error)
+            self.outqueue.put((error, "0"))
+            self.errorEvent.set()
 
         if self.debug:
             print("Preview exiting")
-        self.isRunning = False
 
 
-class StatusValues():
+class StatusValues(object):
 
     def __init__(self):
         self.io = EmcStatusIo()
@@ -229,6 +375,7 @@ class StatusValues():
         self.motion = EmcStatusMotion()
         self.task = EmcStatusTask()
         self.interp = EmcStatusInterp()
+        self.ui = EmcStatusUI()
 
     def clear(self):
         self.io.Clear()
@@ -236,48 +383,61 @@ class StatusValues():
         self.motion.Clear()
         self.task.Clear()
         self.interp.Clear()
+        self.ui.Clear()
 
 
-class LinuxCNCWrapper():
+class LinuxCNCWrapper(object):
 
-    def preview_error(self, error, line):
-        self.linuxcncErrors.append(error + "\non line " + str(line))
-
-    def __init__(self, context, ip,
+    def __init__(self, context, host='', loopback=False,
                 iniFile=None, svcUuid=None,
                 pollInterval=None, pingInterval=2, debug=False):
         self.debug = debug
-        self.ip = ip
+        self.host = host
+        self.loopback = loopback
         self.pingInterval = pingInterval
         self.shutdown = threading.Event()
         self.running = False
 
+        # synchronization locks
+        self.commandLock = threading.Lock()
+        self.statusLock = threading.Lock()
+        self.errorLock = threading.Lock()
+        self.errorNoteLock = threading.Lock()
+
         # status
         self.status = StatusValues()
-        self.txStatus = StatusValues()
-        self.motionSubscriptions = 0
+        self.statusTx = StatusValues()
+        self.motionSubscribed = False
         self.motionFullUpdate = False
         self.motionFirstrun = True
-        self.ioSubscriptions = 0
+        self.ioSubscribed = False
         self.ioFullUpdate = False
         self.ioFirstrun = True
-        self.taskSubscriptions = 0
+        self.ioToolTableCount = 0
+        self.ioToolTableLoaded = False
+        self.taskSubscribed = False
         self.taskFullUpdate = False
         self.taskFirstrun = True
-        self.configSubscriptions = 0
+        self.configSubscribed = False
         self.configFullUpdate = False
         self.configFirstrun = True
-        self.interpSubscriptions = 0
+        self.interpSubscribed = False
         self.interpFullUpdate = False
         self.interpFirstrun = True
-        self.totalSubscriptions = 0
-        self.textSubscriptions = 0
-        self.displaySubscriptions = 0
-        self.errorSubscriptions = 0
-        self.totalErrorSubscriptions = 0
+        self.uiSubscribed = False
+        self.uiFullUpdate = False
+        self.uiFirstrun = True
+        self.statusServiceSubscribed = False
+
+        self.textSubscribed = False
+        self.displaySubscribed = False
+        self.errorSubscribed = False
+        self.errorServiceSubscribed = False
         self.newErrorSubscription = False
 
         self.linuxcncErrors = []
+        self.programExtensions = {}
+
         # Linuxcnc
         try:
             self.stat = linuxcnc.stat()
@@ -289,10 +449,49 @@ class LinuxCNCWrapper():
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.abspath(os.path.expanduser(self.directory))
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
-            self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or ""
+            self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or "linuxcnc.var"
             self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
+            self.interpInitcode = self.ini.find("EMC", "RS274NGC_STARTUP_CODE") or ""
+            if self.interpInitcode == "":
+                self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            self.randomToolChanger = self.ini.find("EMCIO", "RANDOM_TOOL_CHANGER") or 0
+
+            # setup program extensions
+            extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
+            for line in extensions:
+                splitted = line.split(' ')
+                splitted = splitted[0].split(',')
+                for extension in splitted:
+                    if extension[0] == '.':
+                        extension = extension[1:]
+                    program = self.ini.find("FILTER", extension) or ""
+                    if program is not "":
+                        self.programExtensions[extension] = program
+
+            # initialize total line count
+            self.totalLines = 0
+            # initialize tool table path
+            self.toolTablePath = self.ini.find('EMCIO', 'TOOL_TABLE') or ''
+            if self.toolTablePath is not '':
+                self.toolTablePath = os.path.abspath(os.path.expanduser(self.toolTablePath))
+            # If specified in the ini, try to open the  default file
+            openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
+            openFile = openFile.strip('"')  # quote signs are allowed
+            if openFile != "":
+                openFile = os.path.abspath(os.path.expanduser(openFile))
+                fileName = os.path.basename(openFile)
+                filePath = os.path.join(self.directory, fileName)
+                shutil.copy(openFile, filePath)
+                if self.debug:
+                    print(str("loading default file " + openFile))
+                filePath = self.preprocess_program(filePath)
+                self.command.mode(linuxcnc.MODE_AUTO)
+                self.command.wait_complete()
+                self.command.program_open(filePath)
+
         except linuxcnc.error as detail:
-            print(("error", detail))
+            printError(str(detail))
             sys.exit(1)
 
         if self.pingInterval > 0:
@@ -301,25 +500,39 @@ class LinuxCNCWrapper():
             self.pingRatio = -1
         self.pingCount = 0
 
-        self.rx = Container()
-        self.tx = Container()    # Task 1 - PUB-SUB
-        self.tx2 = Container()   # Task 2 - ROUTER-DEALER
+        self.rx = Container()          # Used by the command socket
+        self.txStatus = Container()    # Status socket - PUB-SUB
+        self.txCommand = Container()   # Command socket - ROUTER-DEALER
+        self.txError = Container()     # Error socket - PUB-SUB
         self.context = context
-        self.baseUri = "tcp://" + self.ip
+        self.baseUri = "tcp://"
+        if self.loopback:
+            self.baseUri += '127.0.0.1'
+        else:
+            self.baseUri += '*'
         self.statusSocket = context.socket(zmq.XPUB)
+        self.statusSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.statusPort = self.statusSocket.bind_to_random_port(self.baseUri)
         self.statusDsname = self.statusSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.statusDsname = self.statusDsname.replace('0.0.0.0', self.host)
         self.errorSocket = context.socket(zmq.XPUB)
+        self.errorSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.errorPort = self.errorSocket.bind_to_random_port(self.baseUri)
         self.errorDsname = self.errorSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-        self.commandSocket = context.socket(zmq.DEALER)
+        self.errorDsname = self.errorDsname.replace('0.0.0.0', self.host)
+        self.commandSocket = context.socket(zmq.ROUTER)
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-
-        self.preview = Preview(parameterFile=self.interpParameterFile,
+        self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
+        self.preview = Preview(stat=self.stat,
+                               randomToolchanger=self.randomToolChanger,
+                               parameterFile=self.interpParameterFile,
+                               initcode=self.interpInitcode,
                                debug=self.debug)
         (self.previewDsname, self.previewstatusDsname) = \
-        self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+            self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+        self.previewDsname = self.previewDsname.replace('0.0.0.0', self.host)
+        self.previewstatusDsname = self.previewstatusDsname.replace('0.0.0.0', self.host)
         self.preview.register_error_callback(self.preview_error)
         self.previewPort = urlparse(self.previewDsname).port
         self.previewstatusPort = urlparse(self.previewstatusDsname).port
@@ -328,37 +541,41 @@ class LinuxCNCWrapper():
                                    svcUuid=svcUuid,
                                    dsn=self.statusDsname,
                                    port=self.statusPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.errorService = service.Service(type='error',
                                    svcUuid=svcUuid,
                                    dsn=self.errorDsname,
                                    port=self.errorPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.commandService = service.Service(type='command',
                                    svcUuid=svcUuid,
                                    dsn=self.commandDsname,
                                    port=self.commandPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.previewService = service.Service(type='preview',
                                    svcUuid=svcUuid,
                                    dsn=self.previewDsname,
                                    port=self.previewPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
         self.previewstatusService = service.Service(type='previewstatus',
                                    svcUuid=svcUuid,
                                    dsn=self.previewstatusDsname,
                                    port=self.previewstatusPort,
-                                   ip=self.ip,
+                                   host=self.host,
+                                   loopback=self.loopback,
                                    debug=self.debug)
 
         self.publish()
 
-        threading.Thread(target=self.process_sockets).start()
-        threading.Thread(target=self.poll).start()
+        threading.Thread(target=self.process_sockets, name="process_sockets").start()
         self.running = True
 
     def process_sockets(self):
@@ -367,14 +584,43 @@ class LinuxCNCWrapper():
         poll.register(self.errorSocket, zmq.POLLIN)
         poll.register(self.commandSocket, zmq.POLLIN)
 
+        next_poll = time.time() + self.pollInterval
+        polldelay = (self.pollInterval) * 1000 # convert to ms
         while not self.shutdown.is_set():
-            s = dict(poll.poll(1000))
-            if self.statusSocket in s:
+            s = dict(poll.poll(polldelay))
+            if self.statusSocket in s and s[self.statusSocket] == zmq.POLLIN:
                 self.process_status(self.statusSocket)
-            if self.errorSocket in s:
+            if self.errorSocket in s and s[self.errorSocket] == zmq.POLLIN:
                 self.process_error(self.errorSocket)
-            if self.commandSocket in s:
+            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
                 self.process_command(self.commandSocket)
+
+            polldelay = (next_poll - time.time()) * 1000 # convert to ms
+            if (polldelay > 0):
+                continue
+
+            next_poll = time.time() + self.pollInterval
+            polldelay = (self.pollInterval) * 1000 # convert to ms
+
+            try:
+                if (self.statusServiceSubscribed):
+                    self.stat.poll()
+                    self.update_status(self.stat)
+                    if (self.pingCount == self.pingRatio):
+                        self.ping_status()
+                if (self.errorServiceSubscribed):
+                    error = self.error.poll()
+                    self.update_error(error)
+                    if (self.pingCount == self.pingRatio):
+                        self.ping_error()
+            except linuxcnc.error as detail:
+                printError(str(detail))
+                self.stop()
+
+            if (self.pingCount == self.pingRatio):
+                self.pingCount = 0
+            else:
+                self.pingCount += 1
 
         self.unpublish()
         self.running = False
@@ -389,7 +635,7 @@ class LinuxCNCWrapper():
             self.previewService.publish()
             self.previewstatusService.publish()
         except Exception as e:
-            print (('cannot register DNS service' + str(e)))
+            printError('cannot register DNS service' + str(e))
             sys.exit(1)
 
     def unpublish(self):
@@ -401,6 +647,85 @@ class LinuxCNCWrapper():
 
     def stop(self):
         self.shutdown.set()
+        self.preview.stop()
+
+    # handle program extensions
+    def preprocess_program(self, filePath):
+        fileName, extension = os.path.splitext(filePath)
+        extension = extension[1:]  # remove dot
+        if extension in self.programExtensions:
+            program = self.programExtensions[extension]
+            newFileName = fileName + '.ngc'
+            try:
+                outFile = open(newFileName, 'w')
+                process = subprocess.Popen([program, filePath], stdout=outFile)
+                #subprocess.check_output([program, filePath],
+                unused_out, err = process.communicate()
+                retcode = process.poll()
+                if retcode:
+                    raise subprocess.CalledProcessError(retcode, '', output=err)
+                outFile.close()
+                filePath = newFileName
+            except IOError as e:
+                self.add_error(str(e))
+                return ''
+            except subprocess.CalledProcessError as e:
+                self.add_error('%s failed: %s' % (program, str(e)))
+                return ''
+        # get number of lines
+        with open(filePath) as f:
+            self.totalLines = sum(1 for line in f)
+        return filePath
+
+    def load_tool_table(self, io, txIo):
+        if self.toolTablePath is '':
+            return
+
+        lines = []
+        with codecs.open(self.toolTablePath, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        # parsing pocket number and comment, not emc status object
+        toolMap = {}
+        regex = re.compile(r'(?:.*?T(\d+))(?:.*?P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
+        for line in lines:
+            match = regex.match(line)
+            if match:
+                id = int(match.group(1))
+                pocket = match.group(2)
+                comment = match.group(3)
+                if pocket == '':
+                    pocket = 0
+                toolMap[id] = {'pocket': int(pocket), 'comment': comment}
+
+        for i, toolResult in enumerate(io.tool_table):
+            txToolResult = None
+            for result in txIo.tool_table:
+                if result.index == toolResult.index:
+                    txToolResult = result
+            if not txToolResult:
+                txToolResult = txIo.tool_table.add()
+                txToolResult.CopyFrom(toolResult)
+            id = toolResult.id
+            if id in toolMap:
+                toolResult.pocket = toolMap[id]['pocket'] or 0
+                toolResult.comment = toolMap[id]['comment'] or ''
+                txToolResult.pocket = toolMap[id]['pocket'] or 0
+                txToolResult.comment = toolMap[id]['comment'] or ''
+
+    def update_tool_table(self, toolTable):
+        if self.toolTablePath is '':
+            return False
+
+        with codecs.open(self.toolTablePath, 'w', encoding='utf-8') as file:
+            for tool in toolTable:
+                line = 'T%d P%d D%f X%+f Y%+f Z%+f A%+f B%+f C%+f U%+f V%+f W%+f I%+f J%+f Q%d ;%s\n' \
+                % (tool.id, tool.pocket, tool.diameter, tool.offset.x, tool.offset.y, tool.offset.z,
+                   tool.offset.a, tool.offset.b, tool.offset.c, tool.offset.u, tool.offset.v, tool.offset.w,
+                   tool.frontangle, tool.backangle, tool.orientation, tool.comment)
+                file.write(line)
+
+        return True
 
     def notEqual(self, a, b):
         threshold = 0.0001
@@ -457,24 +782,91 @@ class LinuxCNCWrapper():
             del txPosition
             return False, None
 
+    def update_proto_value(self, obj, txObj, prop, value):
+        if getattr(obj, prop) != value:
+            setattr(obj, prop, value)
+            setattr(txObj, prop, value)
+            return True
+        return False
+
+    def update_proto_float(self, obj, txObj, prop, value):
+        if self.notEqual(getattr(obj, prop), value):
+            setattr(obj, prop, value)
+            setattr(txObj, prop, value)
+            return True
+        return False
+
+    def update_proto_list(self, obj, txObj, txObjItem, prop, values, default):
+        modified = False
+        for index, value in enumerate(values):
+            txObjItem.Clear()
+            objModified = False
+
+            if len(obj) == index:
+                obj.add()
+                obj[index].index = index
+                setattr(obj[index], prop, default)
+
+            objItem = obj[index]
+            objModified |= self.update_proto_value(objItem, txObjItem, prop, value)
+
+            if objModified:
+                txObjItem.index = index
+                txObj.add().CopyFrom(txObjItem)
+                modified = True
+
+        return modified
+
+    def update_proto_position(self, obj, txObj, prop, value):
+        modified, txPosition = self.check_position(getattr(obj, prop), value)
+        if modified:
+            getattr(obj, prop).MergeFrom(txPosition)
+            getattr(txObj, prop).CopyFrom(txPosition)
+
+        del txPosition
+        return modified
+
+    def update_config_value(self, prop, value):
+        return self.update_proto_value(self.status.config, self.statusTx.config, prop, value)
+
+    def update_config_float(self, prop, value):
+        return self.update_proto_float(self.status.config, self.statusTx.config, prop, value)
+
+    def update_io_value(self, prop, value):
+        return self.update_proto_value(self.status.io, self.statusTx.io, prop, value)
+
+    def update_task_value(self, prop, value):
+        return self.update_proto_value(self.status.task, self.statusTx.task, prop, value)
+
+    def update_interp_value(self, prop, value):
+        return self.update_proto_value(self.status.interp, self.statusTx.interp, prop, value)
+
+    def update_motion_value(self, prop, value):
+        return self.update_proto_value(self.status.motion, self.statusTx.motion, prop, value)
+
+    def update_motion_float(self, prop, value):
+        return self.update_proto_float(self.status.motion, self.statusTx.motion, prop, value)
+
+    def update_ui_value(self, prop, value):
+        return self.update_proto_value(self.status.ui, self.statusTx.ui, prop, value)
+
     def update_config(self, stat):
         modified = False
 
         if self.configFirstrun:
             self.status.config.default_acceleration = 0.0
-            self.status.config.angular_units = 0.0
+            self.status.config.angular_units = ANGULAR_UNITS_DEGREES
             self.status.config.axes = 0
             self.status.config.axis_mask = 0
             self.status.config.cycle_time = 0.0
             self.status.config.debug = 0
-            self.status.config.kinematics_type = 0
-            self.status.config.linear_units = 0.0
+            self.status.config.kinematics_type = KINEMATICS_IDENTITY
+            self.status.config.linear_units = LINEAR_UNITS_MM
             self.status.config.max_acceleration = 0.0
             self.status.config.max_velocity = 0.0
-            self.status.config.program_units = 0
             self.status.config.default_velocity = 0.0
-            self.status.config.position_offset = 0
-            self.status.config.position_feedback = 0
+            self.status.config.position_offset = EMC_CONFIG_RELATIVE_OFFSET
+            self.status.config.position_feedback = EMC_CONFIG_ACTUAL_FEEDBACK
             self.status.config.max_feed_override = 0.0
             self.status.config.min_feed_override = 0.0
             self.status.config.max_spindle_override = 0.0
@@ -494,170 +886,99 @@ class LinuxCNCWrapper():
             self.status.config.arcdivision = 0
             self.status.config.no_force_homing = False
             self.status.config.remote_path = ""
-            self.status.config.time_units = 0
+            self.status.config.time_units = TIME_UNITS_MINUTE
+            self.status.config.name = ""
             self.configFirstrun = False
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
-            txExtension = EmcProgramExtension()
-            for index, extension in enumerate(extensions):
-                txExtension.Clear()
-                extensionModified = False
+            txObjItem = EmcProgramExtension()
+            obj = self.status.config.program_extension
+            txObj = self.statusTx.config.program_extension
+            modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                               'extension', extensions, '')
+            del txObjItem
 
-                if len(self.status.config.program_extension) == index:
-                    self.status.config.program_extension.add()
-                    self.status.config.program_extension[index].index = index
-                    self.status.config.program_extension[index].extension = ""
-
-                if self.status.config.program_extension[index].extension != extension:
-                    self.status.config.program_extension[index].extension = extension
-                    txExtension.extension = extension
-                    extensionModified = True
-
-                if extensionModified:
-                    txExtension.index = index
-                    self.txStatus.config.program_extension.add().CopyFrom(txExtension)
-                    modified = True
-            del txExtension
+            commands = self.ini.findall("DISPLAY", "USER_COMMAND")
+            txObjItem = EmcStatusUserCommand()
+            obj = self.status.config.user_command
+            txObj = self.statusTx.config.user_command
+            modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                               'command', commands, '')
+            del txObjItem
 
             positionOffset = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'RELATIVE'
             if positionOffset == 'MACHINE':
                 positionOffset = EMC_CONFIG_MACHINE_OFFSET
             else:
                 positionOffset = EMC_CONFIG_RELATIVE_OFFSET
-            if (self.status.config.position_offset != positionOffset):
-                self.status.config.position_offset = positionOffset
-                self.txStatus.config.position_offset = positionOffset
-                modified = True
+            modified |= self.update_config_value('position_offset', positionOffset)
 
-            positionFeedback = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'ACTUAL'
+            positionFeedback = self.ini.find('DISPLAY', 'POSITION_FEEDBACK') or 'ACTUAL'
             if positionFeedback == 'COMMANDED':
                 positionFeedback = EMC_CONFIG_COMMANDED_FEEDBACK
             else:
                 positionFeedback = EMC_CONFIG_ACTUAL_FEEDBACK
-            if (self.status.config.position_feedback != positionFeedback):
-                self.status.config.position_feedback = positionFeedback
-                self.txStatus.config.position_feedback = positionFeedback
-                modified = True
+            modified |= self.update_config_value('position_feedback', positionFeedback)
 
-            maxFeedOverride = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
-            if (self.status.config.max_feed_override != maxFeedOverride):
-                self.status.config.max_feed_override = maxFeedOverride
-                self.txStatus.config.max_feed_override = maxFeedOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
+            modified |= self.update_config_value('max_feed_override', value)
 
-            minFeedOverride = float(self.ini.find('DISPLAY', 'MIN_FEED_OVERRIDE') or 0.5)
-            if (self.status.config.min_feed_override != minFeedOverride):
-                self.status.config.min_feed_override = minFeedOverride
-                self.txStatus.config.min_feed_override = minFeedOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_FEED_OVERRIDE') or 0.5)
+            modified |= self.update_config_value('min_feed_override', value)
 
-            maxSpindleOverride = float(self.ini.find('DISPLAY', 'MAX_SPINDLE_OVERRIDE') or 1.0)
-            if (self.status.config.max_spindle_override != maxSpindleOverride):
-                self.status.config.max_spindle_override = maxSpindleOverride
-                self.txStatus.config.max_spindle_override = maxSpindleOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_SPINDLE_OVERRIDE') or 1.0)
+            modified |= self.update_config_value('max_spindle_override', value)
 
-            minSpindleOverride = float(self.ini.find('DISPLAY', 'MIN_SPINDLE_OVERRIDE') or 0.5)
-            if (self.status.config.min_spindle_override != minSpindleOverride):
-                self.status.config.min_spindle_override = minSpindleOverride
-                self.txStatus.config.min_spindle_override = minSpindleOverride
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_SPINDLE_OVERRIDE') or 0.5)
+            modified |= self.update_config_value('min_spindle_override', value)
 
-            defaultSpindleSpeed = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
-            if (self.status.config.default_spindle_speed != defaultSpindleSpeed):
-                self.status.config.default_spindle_speed = defaultSpindleSpeed
-                self.txStatus.config.default_spindle_speed = defaultSpindleSpeed
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
+            modified |= self.update_config_value('default_spindle_speed', value)
 
-            defaultLinearVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
-            if (self.status.config.default_linear_velocity != defaultLinearVelocity):
-                self.status.config.default_linear_velocity = defaultLinearVelocity
-                self.txStatus.config.default_linear_velocity = defaultLinearVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
+            modified |= self.update_config_value('default_linear_velocity', value)
 
-            minVelocity = float(self.ini.find('DISPLAY', 'MIN_VELOCITY') or 0.01)
-            if (self.status.config.min_velocity != minVelocity):
-                self.status.config.min_velocity = minVelocity
-                self.txStatus.config.min_velocity = minVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_VELOCITY') or 0.01)
+            modified |= self.update_config_value('min_velocity', value)
 
-            maxLinearVelocity = float(self.ini.find('DISPLAY', 'MAX_LINEAR_VELOCITY') or 1.00)
-            if (self.status.config.max_linear_velocity != maxLinearVelocity):
-                self.status.config.max_linear_velocity = maxLinearVelocity
-                self.txStatus.config.max_linear_velocity = maxLinearVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_LINEAR_VELOCITY') or 1.00)
+            modified |= self.update_config_value('max_linear_velocity', value)
 
-            minLinearVelocity = float(self.ini.find('DISPLAY', 'MIN_LINEAR_VELOCITY') or 0.01)
-            if (self.status.config.min_linear_velocity != minLinearVelocity):
-                self.status.config.min_linear_velocity = minLinearVelocity
-                self.txStatus.config.min_linear_velocity = minLinearVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_LINEAR_VELOCITY') or 0.01)
+            modified |= self.update_config_value('min_linear_velocity', value)
 
-            defaultAngularVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_ANGULAR_VELOCITY') or 0.25)
-            if (self.status.config.default_angular_velocity != defaultAngularVelocity):
-                self.status.config.default_angular_velocity = defaultAngularVelocity
-                self.txStatus.config.default_angular_velocity = defaultAngularVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'DEFAULT_ANGULAR_VELOCITY') or 0.25)
+            modified |= self.update_config_value('default_angular_velocity', value)
 
-            maxAngularVelocity = float(self.ini.find('DISPLAY', 'MAX_ANGULAR_VELOCITY') or 1.00)
-            if (self.status.config.max_angular_velocity != maxAngularVelocity):
-                self.status.config.max_angular_velocity = maxAngularVelocity
-                self.txStatus.config.max_angular_velocity = maxAngularVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MAX_ANGULAR_VELOCITY') or 1.00)
+            modified |= self.update_config_value('max_angular_velocity', value)
 
-            minAngularVelocity = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
-            if (self.status.config.min_angular_velocity != minAngularVelocity):
-                self.status.config.min_angular_velocity = minAngularVelocity
-                self.txStatus.config.min_angular_velocity = minAngularVelocity
-                modified = True
+            value = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
+            modified |= self.update_config_value('min_angular_velocity', value)
 
-            increments = self.ini.find('DISPLAY', 'INCREMENTS') or ''
-            if (self.status.config.increments != increments):
-                self.status.config.increments = increments
-                self.txStatus.config.increments = increments
-                modified = True
+            value = self.ini.find('DISPLAY', 'INCREMENTS') or '0.001 0.01 0.1 1.0'
+            modified |= self.update_config_value('increments', value)
 
-            grids = self.ini.find('DISPLAY', 'GRIDS') or ''
-            if (self.status.config.grids != grids):
-                self.status.config.grids = grids
-                self.txStatus.config.grids = grids
-                modified = True
+            value = self.ini.find('DISPLAY', 'GRIDS') or ''
+            modified |= self.update_config_value('grids', value)
 
-            lathe = bool(self.ini.find('DISPLAY', 'LATHE') or False)
-            if (self.status.config.lathe != lathe):
-                self.status.config.lathe = lathe
-                self.txStatus.config.lathe = lathe
-                modified = True
+            value = bool(self.ini.find('DISPLAY', 'LATHE') or False)
+            modified |= self.update_config_value('lathe', value)
 
-            geometry = self.ini.find('DISPLAY', 'GEOMETRY') or ''
-            if (self.status.config.geometry != geometry):
-                self.status.config.geometry = geometry
-                self.txStatus.config.geometry = geometry
-                modified = True
+            value = self.ini.find('DISPLAY', 'GEOMETRY') or ''
+            modified |= self.update_config_value('geometry', value)
 
-            arcdivision = int(self.ini.find('DISPLAY', 'ARCDIVISION') or 64)
-            if (self.status.config.arcdivision != arcdivision):
-                self.status.config.arcdivision = arcdivision
-                self.txStatus.config.arcdivision = arcdivision
-                modified = True
+            value = int(self.ini.find('DISPLAY', 'ARCDIVISION') or 64)
+            modified |= self.update_config_value('arcdivision', value)
 
-            noForceHoming = bool(self.ini.find('TRAJ', 'NO_FORCE_HOMING') or False)
-            if (self.status.config.no_force_homing != noForceHoming):
-                self.status.config.no_force_homing = noForceHoming
-                self.txStatus.config.no_force_homing = noForceHoming
-                modified = True
+            value = bool(self.ini.find('TRAJ', 'NO_FORCE_HOMING') or False)
+            modified |= self.update_config_value('no_force_homing', value)
 
-            maxVelocity = float(self.ini.find('TRAJ', 'MAX_VELOCITY') or 5.0)
-            if (self.status.config.max_velocity != maxVelocity):
-                self.status.config.max_velocity = maxVelocity
-                self.txStatus.config.max_velocity = maxVelocity
-                modified = True
+            value = float(self.ini.find('TRAJ', 'MAX_VELOCITY') or 5.0)
+            modified |= self.update_config_value('max_velocity', value)
 
-            maxAcceleration = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
-            if (self.status.config.max_acceleration != maxAcceleration):
-                self.status.config.max_acceleration = maxAcceleration
-                self.txStatus.config.max_acceleration = maxAcceleration
-                modified = True
+            value = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
+            modified |= self.update_config_value('max_acceleration', value)
 
             timeUnits = str(self.ini.find('DISPLAY', 'TIME_UNITS') or 'min')
             if (timeUnits in ['min', 'minute']):
@@ -666,33 +987,46 @@ class LinuxCNCWrapper():
                 timeUnitsConverted = TIME_UNITS_SECOND
             else:
                 timeUnitsConverted = TIME_UNITS_MINUTE
-            if (self.status.config.time_units != timeUnitsConverted):
-                self.status.config.time_units = timeUnitsConverted
-                self.txStatus.config.time_units = timeUnitsConverted
-                modified = True
+            modified |= self.update_config_value('time_units', timeUnitsConverted)
 
-            if (self.status.config.remote_path != self.directory):
-                self.status.config.remote_path = self.directory
-                self.txStatus.config.remote_path = self.directory
-                modified = True
+            linearUnits = str(self.ini.find('TRAJ', 'LINEAR_UNITS') or 'mm')
+            if linearUnits in ['mm', 'metric']:
+                linearUnitsConverted = LINEAR_UNITS_MM
+            elif linearUnits in ['in', 'inch', 'imperial']:
+                linearUnitsConverted = LINEAR_UNITS_INCH
+            elif linearUnits in ['cm']:
+                linearUnitsConverted = LINEAR_UNITS_CM
+            else:
+                linearUnitsConverted = LINEAR_UNITS_MM
+            modified |= self.update_config_value('linear_units', linearUnitsConverted)
 
-        if self.notEqual(self.status.config.default_acceleration, stat.acceleration):
-            self.status.config.default_acceleration = stat.acceleration
-            self.txStatus.config.default_acceleration = stat.acceleration
-            modified = True
+            angularUnits = str(self.ini.find('TRAJ', 'ANGULAR_UNITS') or 'deg')
+            if angularUnits in ['deg', 'degree']:
+                angularUnitsConverted = ANGULAR_UNITS_DEGREES
+            elif angularUnits in ['rad', 'radian']:
+                angularUnitsConverted = ANGULAR_UNITS_RADIAN
+            elif angularUnits in ['grad', 'gon']:
+                angularUnitsConverted = ANGULAR_UNITS_GRAD
+            else:
+                angularUnitsConverted = ANGULAR_UNITS_DEGREES
+            modified |= self.update_config_value('angular_units', angularUnitsConverted)
 
-        if self.notEqual(self.status.config.angular_units, stat.angular_units):
-            self.status.config.angular_units = stat.angular_units
-            self.txStatus.config.angular_units = stat.angular_units
-            modified = True
+            modified |= self.update_config_value('remote_path', self.directory)
 
-        if (self.status.config.axes != stat.axes):
-            self.status.config.axes = stat.axes
-            self.txStatus.config.axes = stat.axes
-            modified = True
+            name = str(self.ini.find('EMC', 'MACHINE') or '')
+            modified |= self.update_config_value('name', name)
+
+        for name in ['axis_mask', 'debug', 'kinematics_type', 'axes']:
+            modified |= self.update_config_value(name, getattr(stat, name))
+
+        for name in ['cycle_time']:
+            modified |= self.update_config_float(name, getattr(stat, name))
+
+        modified |= self.update_config_float('default_acceleration', stat.acceleration)
+        modified |= self.update_config_float('default_velocity', stat.velocity)
 
         txAxis = EmcStatusConfigAxis()
-        for index, axis in enumerate(stat.axis):
+        for index, statAxis in enumerate(stat.axis):
             txAxis.Clear()
             axisModified = False
 
@@ -702,104 +1036,55 @@ class LinuxCNCWrapper():
             if len(self.status.config.axis) == index:
                 self.status.config.axis.add()
                 self.status.config.axis[index].index = index
-                self.status.config.axis[index].axisType = 0
+                self.status.config.axis[index].axis_type = EMC_AXIS_LINEAR
                 self.status.config.axis[index].backlash = 0.0
                 self.status.config.axis[index].max_ferror = 0.0
                 self.status.config.axis[index].max_position_limit = 0.0
                 self.status.config.axis[index].min_ferror = 0.0
                 self.status.config.axis[index].min_position_limit = 0.0
-                self.status.config.axis[index].units = 0.0
                 self.status.config.axis[index].home_sequence = -1
+                self.status.config.axis[index].max_velocity = 0.0
+                self.status.config.axis[index].max_acceleration = 0.0
+                self.status.config.axis[index].increments = ""
 
-            if self.status.config.axis[index].axisType != axis['axisType']:
-                self.status.config.axis[index].axisType = axis['axisType']
-                txAxis.axisType = axis['axisType']
-                axisModified = True
+                axis = self.status.config.axis[index]
+                axisName = 'AXIS_%i' % index
+                value = int(self.ini.find(axisName, 'HOME_SEQUENCE') or -1)
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'home_sequence', value)
 
-            if self.notEqual(self.status.config.axis[index].backlash, axis['backlash']):
-                self.status.config.axis[index].backlash = axis['backlash']
-                txAxis.backlash = axis['backlash']
-                axisModified = True
+                value = float(self.ini.find(axisName, 'MAX_VELOCITY') or 0.0)
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'max_velocity', value)
 
-            if self.notEqual(self.status.config.axis[index].max_ferror, axis['max_ferror']):
-                self.status.config.axis[index].max_ferror = axis['max_ferror']
-                txAxis.max_ferror = axis['max_ferror']
-                axisModified = True
+                value = float(self.ini.find(axisName, 'MAX_ACCELERATION') or 0.0)
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'max_acceleration', value)
 
-            if self.notEqual(self.status.config.axis[index].max_position_limit, axis['max_position_limit']):
-                self.status.config.axis[index].max_position_limit = axis['max_position_limit']
-                txAxis.max_position_limit = axis['max_position_limit']
-                axisModified = True
+                value = self.ini.find(axisName, 'INCREMENTS') or ''
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        'increments', value)
 
-            if self.notEqual(self.status.config.axis[index].min_ferror, axis['min_ferror']):
-                self.status.config.axis[index].min_ferror = axis['min_ferror']
-                txAxis.min_ferror = axis['min_ferror']
-                axisModified = True
+            axis = self.status.config.axis[index]
+            axisModified |= self.update_proto_value(axis, txAxis, 'axis_type', statAxis['axisType'])
 
-            if self.notEqual(self.status.config.axis[index].min_position_limit, axis['min_position_limit']):
-                self.status.config.axis[index].min_position_limit = axis['min_position_limit']
-                txAxis.min_position_limit = axis['min_position_limit']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].units, axis['units']):
-                self.status.config.axis[index].units = axis['units']
-                txAxis.units = axis['units']
-                axisModified = True
-
-            homeSequence = int(self.ini.find('AXIS_' + str(index), 'HOME_SEQUENCE') or -1)
-            if (self.status.config.axis[index].home_sequence != homeSequence):
-                self.status.config.axis[index].home_sequence = homeSequence
-                txAxis.home_sequence = homeSequence
-                modified = True
+            for name in ['backlash', 'max_ferror', 'max_position_limit',
+                         'min_ferror', 'min_position_limit']:
+                axisModified |= self.update_proto_float(axis, txAxis, name, statAxis[name])
 
             if axisModified:
                 txAxis.index = index
-                self.txStatus.config.axis.add().CopyFrom(txAxis)
+                self.statusTx.config.axis.add().CopyFrom(txAxis)
                 modified = True
 
         del txAxis
-
-        if (self.status.config.axis_mask != stat.axis_mask):
-            self.status.config.axis_mask = stat.axis_mask
-            self.txStatus.config.axis_mask = stat.axis_mask
-            modified = True
-
-        if self.notEqual(self.status.config.cycle_time, stat.cycle_time):
-            self.status.config.cycle_time = stat.cycle_time
-            self.txStatus.config.cycle_time = stat.cycle_time
-            modified = True
-
-        if (self.status.config.debug != stat.debug):
-            self.status.config.debug = stat.debug
-            self.txStatus.config.debug = stat.debug
-            modified = True
-
-        if (self.status.config.kinematics_type != stat.kinematics_type):
-            self.status.config.kinematics_type = stat.kinematics_type
-            self.txStatus.config.kinematics_type = stat.kinematics_type
-            modified = True
-
-        if self.notEqual(self.status.config.linear_units, stat.linear_units):
-            self.status.config.linear_units = stat.linear_units
-            self.txStatus.config.linear_units = stat.linear_units
-            modified = True
-
-        if (self.status.config.program_units != stat.program_units):
-            self.status.config.program_units = stat.program_units
-            self.txStatus.config.program_units = stat.program_units
-            modified = True
-
-        if self.notEqual(self.status.config.default_velocity, stat.velocity):
-            self.status.config.default_velocity = stat.velocity
-            self.txStatus.config.default_velocity = stat.velocity
-            modified = True
 
         if self.configFullUpdate:
             self.add_pparams()
             self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
             self.configFullUpdate = False
         elif modified:
-            self.send_config(self.txStatus.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_config(self.statusTx.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_io(self, stat):
         modified = False
@@ -815,150 +1100,88 @@ class LinuxCNCWrapper():
             self.status.io.tool_offset.MergeFrom(self.zero_position())
             self.ioFirstrun = False
 
-        if (self.status.io.estop != stat.estop):
-            self.status.io.estop = stat.estop
-            self.txStatus.io.estop = stat.estop
-            modified = True
+        for name in ['estop', 'flood', 'lube', 'lube_level', 'mist',
+                     'pocket_prepped', 'tool_in_spindle']:
+            modified |= self.update_io_value(name, getattr(stat, name))
 
-        if (self.status.io.flood != stat.flood):
-            self.status.io.flood = stat.flood
-            self.txStatus.io.flood = stat.flood
-            modified = True
-
-        if (self.status.io.lube != stat.lube):
-            self.status.io.lube = stat.lube
-            self.txStatus.io.lube = stat.lube
-            modified = True
-
-        if (self.status.io.lube_level != stat.lube_level):
-            self.status.io.lube_level = stat.lube_level
-            self.txStatus.io.lube_level = stat.lube_level
-            modified = True
-
-        if (self.status.io.mist != stat.mist):
-            self.status.io.mist = stat.mist
-            self.txStatus.io.mist = stat.mist
-            modified = True
-
-        if (self.status.io.pocket_prepped != stat.pocket_prepped):
-            self.status.io.pocket_prepped = stat.pocket_prepped
-            self.txStatus.io.pocket_prepped = stat.pocket_prepped
-            modified = True
-
-        if (self.status.io.tool_in_spindle != stat.tool_in_spindle):
-            self.status.io.tool_in_spindle = stat.tool_in_spindle
-            self.txStatus.io.tool_in_spindle = stat.tool_in_spindle
-            modified = True
-
-        positionModified = False
-        txPosition = None
-        positionModified, txPosition = self.check_position(self.status.io.tool_offset, stat.tool_offset)
-        if positionModified:
-            self.status.io.tool_offset.MergeFrom(txPosition)
-            self.txStatus.io.tool_offset.CopyFrom(txPosition)
-            modified = True
-        del txPosition
+        modified |= self.update_proto_position(self.status.io, self.statusTx.io,
+                                               'tool_offset', stat.tool_offset)
 
         txToolResult = EmcToolData()
-        for index, toolResult in enumerate(stat.tool_table):
+        toolTableChanged = False
+        tableIndex = 0
+        for index, statToolResult in enumerate(stat.tool_table):
             txToolResult.Clear()
-            toolResultModified = False
+            resultModified = False
+            newItem = False
 
-            if (toolResult.id == -1) and (index > 0):  # last tool in table
-                break
+            if (index == 0 and not self.randomToolChanger):
+                continue
 
-            if len(self.status.io.tool_table) == index:
-                self.status.io.tool_table.add()
-                self.status.io.tool_table[index].index = index
-                self.status.io.tool_table[index].id = 0
-                self.status.io.tool_table[index].xOffset = 0.0
-                self.status.io.tool_table[index].yOffset = 0.0
-                self.status.io.tool_table[index].zOffset = 0.0
-                self.status.io.tool_table[index].aOffset = 0.0
-                self.status.io.tool_table[index].bOffset = 0.0
-                self.status.io.tool_table[index].cOffset = 0.0
-                self.status.io.tool_table[index].uOffset = 0.0
-                self.status.io.tool_table[index].vOffset = 0.0
-                self.status.io.tool_table[index].wOffset = 0.0
-                self.status.io.tool_table[index].diameter = 0.0
-                self.status.io.tool_table[index].frontangle = 0.0
-                self.status.io.tool_table[index].backangle = 0.0
-                self.status.io.tool_table[index].orientation = 0
+            if (statToolResult.id == -1 and not self.randomToolChanger):
+                break  # last tool in table, except index = 0 (spindle !)
 
-            if self.status.io.tool_table[index].id != toolResult.id:
-                self.status.io.tool_table[index].id = toolResult.id
-                txToolResult.id = toolResult.id
-                toolResultModified = True
+            if len(self.status.io.tool_table) == tableIndex:  # item added
+                item = self.status.io.tool_table.add()
+                item.index = tableIndex
+                item.id = 0
+                item.offset.MergeFrom(self.zero_position())
+                item.diameter = 0.0
+                item.frontangle = 0.0
+                item.backangle = 0.0
+                item.orientation = 0
+                item.comment = ""
+                item.pocket = 0
+                newItem = True
 
-            if self.notEqual(self.status.io.tool_table[index].xOffset, toolResult.xoffset):
-                self.status.io.tool_table[index].xOffset = toolResult.xoffset
-                txToolResult.xOffset = toolResult.xoffset
-                toolResultModified = True
+            toolResult = self.status.io.tool_table[tableIndex]
 
-            if self.notEqual(self.status.io.tool_table[index].yOffset, toolResult.yoffset):
-                self.status.io.tool_table[index].yOffset = toolResult.yoffset
-                txToolResult.yOffset = toolResult.yoffset
-                toolResultModified = True
+            for name in ['id', 'orientation']:
+                value = getattr(statToolResult, name)
+                resultModified |= self.update_proto_value(toolResult, txToolResult,
+                                                          name, value)
+            for name in ['diameter', 'frontangle', 'backangle']:
+                value = getattr(statToolResult, name)
+                resultModified |= self.update_proto_float(toolResult, txToolResult,
+                                                          name, value)
 
-            if self.notEqual(self.status.io.tool_table[index].zOffset, toolResult.zoffset):
-                self.status.io.tool_table[index].zOffset = toolResult.zoffset
-                txToolResult.zOffset = toolResult.zoffset
-                toolResultModified = True
+            position = range(0, 9)
+            for i, axis in enumerate(['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']):
+                value = getattr(statToolResult, axis + 'offset')
+                position[i] = value
+            resultModified |= self.update_proto_position(toolResult, txToolResult,
+                                                         'offset', position)
 
-            if self.notEqual(self.status.io.tool_table[index].aOffset, toolResult.aoffset):
-                self.status.io.tool_table[index].aOffset = toolResult.aoffset
-                txToolResult.aOffset = toolResult.aoffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].bOffset, toolResult.boffset):
-                self.status.io.tool_table[index].bOffset = toolResult.boffset
-                txToolResult.bOffset = toolResult.boffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].cOffset, toolResult.coffset):
-                self.status.io.tool_table[index].cOffset = toolResult.coffset
-                txToolResult.cOffset = toolResult.coffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].uOffset, toolResult.uoffset):
-                self.status.io.tool_table[index].uOffset = toolResult.uoffset
-                txToolResult.uOffset = toolResult.uoffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].vOffset, toolResult.voffset):
-                self.status.io.tool_table[index].vOffset = toolResult.voffset
-                txToolResult.vOffset = toolResult.voffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].wOffset, toolResult.woffset):
-                self.status.io.tool_table[index].wOffset = toolResult.woffset
-                txToolResult.wOffset = toolResult.woffset
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].diameter, toolResult.diameter):
-                self.status.io.tool_table[index].diameter = toolResult.diameter
-                txToolResult.diameter = toolResult.diameter
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].frontangle, toolResult.frontangle):
-                self.status.io.tool_table[index].frontangle = toolResult.frontangle
-                txToolResult.frontangle = toolResult.frontangle
-                toolResultModified = True
-
-            if self.notEqual(self.status.io.tool_table[index].backangle, toolResult.backangle):
-                self.status.io.tool_table[index].backangle = toolResult.backangle
-                txToolResult.backangle = toolResult.backangle
-                toolResultModified = True
-
-            if self.status.io.tool_table[index].orientation != toolResult.orientation:
-                self.status.io.tool_table[index].orientation = toolResult.orientation
-                txToolResult.orientation = toolResult.orientation
-                toolResultModified = True
-
-            if toolResultModified:
-                txToolResult.index = index
-                self.txStatus.io.tool_table.add().CopyFrom(txToolResult)
+            if resultModified:
+                txToolResult.index = tableIndex
+                if newItem:
+                    self.statusTx.io.tool_table.add().CopyFrom(toolResult)  # make sure to send update
+                else:
+                    self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
                 modified = True
+                toolTableChanged = True
+
+            tableIndex += 1
+
+        # cleanup dead entries
+        while tableIndex < len(self.status.io.tool_table):
+            del self.status.io.tool_table[-1]
+
+        # check if new tool table is smaller
+        # if so we need to send empty messages (only index) to the subscribers
+        if tableIndex < self.ioToolTableCount:
+            for i in range(tableIndex, self.ioToolTableCount):
+                txToolResult.Clear()
+                txToolResult.index = i
+                self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
+            toolTableChanged = True
+        self.ioToolTableCount = tableIndex
+
+        if toolTableChanged or self.ioToolTableLoaded:
+            # update pocket and comment from tool table file
+            self.load_tool_table(self.status.io, self.statusTx.io)
+            self.ioToolTableLoaded = False
+            modified = True
         del txToolResult
 
         if self.ioFullUpdate:
@@ -966,168 +1189,78 @@ class LinuxCNCWrapper():
             self.send_io(self.status.io, MT_EMCSTAT_FULL_UPDATE)
             self.ioFullUpdate = False
         elif modified:
-            self.send_io(self.txStatus.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_io(self.statusTx.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_task(self, stat):
         modified = False
 
         if self.taskFirstrun:
             self.status.task.echo_serial_number = 0
-            self.status.task.exec_state = 0
+            self.status.task.exec_state = EMC_TASK_EXEC_ERROR
             self.status.task.file = ""
             self.status.task.input_timeout = False
             self.status.task.optional_stop = False
             self.status.task.read_line = 0
-            self.status.task.task_mode = 0
+            self.status.task.task_mode = EMC_TASK_MODE_MANUAL
             self.status.task.task_paused = 0
-            self.status.task.task_state = 0
+            self.status.task.task_state = EMC_TASK_STATE_ESTOP
+            self.status.task.total_lines = 0
             self.taskFirstrun = False
 
-        if (self.status.task.echo_serial_number != stat.echo_serial_number):
-            self.status.task.echo_serial_number = stat.echo_serial_number
-            self.txStatus.task.echo_serial_number = stat.echo_serial_number
-            modified = True
+        for name in ['echo_serial_number', 'exec_state', 'file',
+                     'input_timeout', 'optional_stop', 'read_line',
+                     'task_mode', 'task_paused', 'task_state']:
+            modified |= self.update_task_value(name, getattr(stat, name))
 
-        if (self.status.task.exec_state != stat.exec_state):
-            self.status.task.exec_state = stat.exec_state
-            self.txStatus.task.exec_state = stat.exec_state
-            modified = True
-
-        if (self.status.task.file != stat.file):
-            self.status.task.file = stat.file
-            self.txStatus.task.file = stat.file
-            modified = True
-
-        if (self.status.task.input_timeout != stat.input_timeout):
-            self.status.task.input_timeout = stat.input_timeout
-            self.txStatus.task.input_timeout = stat.input_timeout
-            modified = True
-
-        if (self.status.task.optional_stop != stat.optional_stop):
-            self.status.task.optional_stop = stat.optional_stop
-            self.txStatus.task.optional_stop = stat.optional_stop
-            modified = True
-
-        if (self.status.task.read_line != stat.read_line):
-            self.status.task.read_line = stat.read_line
-            self.txStatus.task.read_line = stat.read_line
-            modified = True
-
-        if (self.status.task.task_mode != stat.task_mode):
-            self.status.task.task_mode = stat.task_mode
-            self.txStatus.task.task_mode = stat.task_mode
-            modified = True
-
-        if (self.status.task.task_paused != stat.task_paused):
-            self.status.task.task_paused = stat.task_paused
-            self.txStatus.task.task_paused = stat.task_paused
-            modified = True
-
-        if (self.status.task.task_state != stat.task_state):
-            self.status.task.task_state = stat.task_state
-            self.txStatus.task.task_state = stat.task_state
-            modified = True
+        modified |= self.update_task_value('total_lines', self.totalLines)
 
         if self.taskFullUpdate:
             self.add_pparams()
             self.send_task(self.status.task, MT_EMCSTAT_FULL_UPDATE)
             self.taskFullUpdate = False
         elif modified:
-            self.send_task(self.txStatus.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_task(self.statusTx.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_interp(self, stat):
         modified = False
 
         if self.interpFirstrun:
             self.status.interp.command = ""
-            self.status.interp.interp_state = 0
+            self.status.interp.interp_state = EMC_TASK_INTERP_IDLE
             self.status.interp.interpreter_errcode = 0
+            self.status.interp.program_units = CANON_UNITS_INCH
             self.interpFirstrun = False
 
-        if (self.status.interp.command != stat.command):
-            self.status.interp.command = stat.command
-            self.txStatus.interp.command = stat.command
-            modified = True
+        for name in ['command', 'interp_state', 'interpreter_errcode', 'program_units']:
+            modified |= self.update_interp_value(name, getattr(stat, name))
 
-        txStatusGCode = EmcStatusGCode()
-        for index, gcode in enumerate(stat.gcodes):
-            txStatusGCode.Clear()
-            gcodeModified = False
+        txObjItem = EmcStatusGCode()
+        obj = self.status.interp.gcodes
+        txObj = self.statusTx.interp.gcodes
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.gcodes, 0)
+        del txObjItem
 
-            if len(self.status.interp.gcodes) == index:
-                self.status.interp.gcodes.add()
-                self.status.interp.gcodes[index].index = index
-                self.status.interp.gcodes[index].value = 0
+        txObjItem = EmcStatusMCode()
+        obj = self.status.interp.mcodes
+        txObj = self.statusTx.interp.mcodes
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.mcodes, 0)
+        del txObjItem
 
-            if self.status.interp.gcodes[index].value != gcode:
-                self.status.interp.gcodes[index].value = gcode
-                txStatusGCode.value = gcode
-                gcodeModified = True
-
-            if gcodeModified:
-                txStatusGCode.index = index
-                self.txStatus.interp.gcodes.add().CopyFrom(txStatusGCode)
-                modified = True
-        del txStatusGCode
-
-        if (self.status.interp.interp_state != stat.interp_state):
-            self.status.interp.interp_state = stat.interp_state
-            self.txStatus.interp.interp_state = stat.interp_state
-            modified = True
-
-        if (self.status.interp.interpreter_errcode != stat.interpreter_errcode):
-            self.status.interp.interpreter_errcode = stat.interpreter_errcode
-            self.txStatus.interp.interpreter_errcode = stat.interpreter_errcode
-            modified = True
-
-        txStatusMCode = EmcStatusMCode()
-        for index, mcode in enumerate(stat.mcodes):
-            txStatusMCode.Clear()
-            mcodeModified = False
-
-            if len(self.status.interp.mcodes) == index:
-                self.status.interp.mcodes.add()
-                self.status.interp.mcodes[index].index = index
-                self.status.interp.mcodes[index].value = 0
-
-            if self.status.interp.mcodes[index].value != mcode:
-                self.status.interp.mcodes[index].value = mcode
-                txStatusMCode.value = mcode
-                mcodeModified = True
-
-            if mcodeModified:
-                txStatusMCode.index = index
-                self.txStatus.interp.mcodes.add().CopyFrom(txStatusMCode)
-                modified = True
-        del txStatusMCode
-
-        txStatusSetting = EmcStatusSetting()
-        for index, setting in enumerate(stat.settings):
-            txStatusSetting.Clear()
-            settingModified = False
-
-            if len(self.status.interp.settings) == index:
-                self.status.interp.settings.add()
-                self.status.interp.settings[index].index = index
-                self.status.interp.settings[index].value = 0.0
-
-            if self.notEqual(self.status.interp.settings[index].value, setting):
-                self.status.interp.settings[index].value = setting
-                txStatusSetting.value = setting
-                settingModified = True
-
-            if settingModified:
-                txStatusSetting.index = index
-                self.txStatus.interp.settings.add().CopyFrom(txStatusSetting)
-                modified = True
-        del txStatusSetting
+        txObjItem = EmcStatusSetting()
+        obj = self.status.interp.settings
+        txObj = self.statusTx.interp.settings
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.settings, 0.0)
+        del txObjItem
 
         if self.interpFullUpdate:
             self.add_pparams()
             self.send_interp(self.status.interp, MT_EMCSTAT_FULL_UPDATE)
             self.interpFullUpdate = False
         elif modified:
-            self.send_interp(self.txStatus.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_interp(self.statusTx.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_motion(self, stat):
         modified = False
@@ -1146,7 +1279,8 @@ class LinuxCNCWrapper():
             self.status.motion.feed_hold_enabled = False
             self.status.motion.feed_override_enabled = False
             self.status.motion.feedrate = 0.0
-            self.status.motion.g5x_index = 0
+            self.status.motion.rapidrate = 0.0
+            self.status.motion.g5x_index = ORIGIN_G54
             self.status.motion.g5x_offset.MergeFrom(self.zero_position())
             self.status.motion.g92_offset.MergeFrom(self.zero_position())
             self.status.motion.id = 0
@@ -1155,7 +1289,7 @@ class LinuxCNCWrapper():
             self.status.motion.joint_position.MergeFrom(self.zero_position())
             self.status.motion.motion_line = 0
             self.status.motion.motion_type = 0
-            self.status.motion.motion_mode = 0
+            self.status.motion.motion_mode = EMC_TRAJ_MODE_FREE
             self.status.motion.paused = False
             self.status.motion.position.MergeFrom(self.zero_position())
             self.status.motion.probe_tripped = False
@@ -1172,74 +1306,70 @@ class LinuxCNCWrapper():
             self.status.motion.spindle_override_enabled = False
             self.status.motion.spindle_speed = 0.0
             self.status.motion.spindlerate = 0.0
-            self.status.motion.state = 0
+            self.status.motion.state = UNINITIALIZED_STATUS
             self.status.motion.max_velocity = 0.0
             self.status.motion.max_acceleration = 0.0
             self.motionFirstrun = False
 
-        if (self.status.motion.active_queue != stat.active_queue):
-            self.status.motion.active_queue = stat.active_queue
-            self.txStatus.motion.active_queue = stat.active_queue
-            modified = True
+        for name in ['active_queue', 'adaptive_feed_enabled', 'block_delete',
+                     'current_line', 'enabled', 'feed_hold_enabled',
+                     'feed_override_enabled', 'g5x_index', 'id', 'inpos',
+                     'motion_line', 'motion_type', 'motion_mode', 'paused',
+                     'probe_tripped', 'probe_val', 'probing', 'queue',
+                     'queue_full', 'spindle_brake', 'spindle_direction',
+                     'spindle_enabled', 'spindle_increasing',
+                     'spindle_override_enabled', 'state']:
+            modified |= self.update_motion_value(name, getattr(stat, name))
 
-        positionModified = False
-        txPosition = None
-        positionModified, txPosition = self.check_position(self.status.motion.actual_position, stat.actual_position)
-        if positionModified:
-            self.status.motion.actual_position.MergeFrom(txPosition)
-            self.txStatus.motion.actual_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
+        for name in ['current_vel', 'delay_left', 'distance_to_go',
+                     'feedrate',  'rapidrate', 'rotation_xy', 'spindle_speed',
+                     'spindlerate', 'max_acceleration', 'max_velocity']:
+            modified |= self.update_motion_float(name, getattr(stat, name))
 
-        if (self.status.motion.adaptive_feed_enabled != stat.adaptive_feed_enabled):
-            self.status.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
-            self.txStatus.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
-            modified = True
+        for name in ['actual_position', 'dtg', 'g5x_offset', 'g92_offset',
+                     'joint_actual_position', 'joint_position', 'position',
+                     'probed_position']:
+            modified |= self.update_proto_position(self.status.motion,
+                                                   self.statusTx.motion,
+                                                   name, getattr(stat, name))
 
-        txAin = EmcStatusAnalogIO()
-        for index, ain in enumerate(stat.ain):
-            txAin.Clear()
-            ainModified = False
+        txObjItem = EmcStatusAnalogIO()
+        obj = self.status.motion.ain
+        txObj = self.statusTx.motion.ain
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.ain, 0.0)
+        del txObjItem
 
-            if len(self.status.motion.ain) == index:
-                self.status.motion.ain.add()
-                self.status.motion.ain[index].index = index
-                self.status.motion.ain[index].value = 0.0
+        txObjItem = EmcStatusAnalogIO()
+        obj = self.status.motion.aout
+        txObj = self.statusTx.motion.aout
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.aout, 0.0)
+        del txObjItem
 
-            if self.notEqual(self.status.motion.ain[index].value, ain):
-                self.status.motion.ain[index].value = ain
-                txAin.value = ain
-                ainModified = True
+        txObjItem = EmcStatusDigitalIO()
+        obj = self.status.motion.din
+        txObj = self.statusTx.motion.din
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.din, False)
+        del txObjItem
 
-            if ainModified:
-                txAin.index = index
-                self.txStatus.motion.ain.add().CopyFrom(txAin)
-                modified = True
-        del txAin
+        txObjItem = EmcStatusDigitalIO()
+        obj = self.status.motion.dout
+        txObj = self.statusTx.motion.dout
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.dout, False)
+        del txObjItem
 
-        txAout = EmcStatusAnalogIO()
-        for index, aout in enumerate(stat.aout):
-            txAout.Clear()
-            aoutModified = False
-
-            if len(self.status.motion.aout) == index:
-                self.status.motion.aout.add()
-                self.status.motion.aout[index].index = index
-                self.status.motion.aout[index].value = 0.0
-
-            if self.notEqual(self.status.motion.aout[index].value, aout):
-                self.status.motion.aout[index].value = aout
-                txAout.value = aout
-                aoutModified = True
-
-            if aoutModified:
-                txAout.index = index
-                self.txStatus.motion.aout.add().CopyFrom(txAout)
-                modified = True
-        del txAout
+        txObjItem = EmcStatusLimit()
+        obj = self.status.motion.limit
+        txObj = self.statusTx.motion.limit
+        modified |= self.update_proto_list(obj, txObj, txObjItem,
+                                           'value', stat.limit, False)
+        del txObjItem
 
         txAxis = EmcStatusMotionAxis()
-        for index, axis in enumerate(stat.axis):
+        for index, statAxis in enumerate(stat.axis):
             txAxis.Clear()
             axisModified = False
 
@@ -1265,387 +1395,114 @@ class LinuxCNCWrapper():
                 self.status.motion.axis[index].override_limits = False
                 self.status.motion.axis[index].velocity = 0.0
 
-            if self.status.motion.axis[index].enabled != axis['enabled']:
-                self.status.motion.axis[index].enabled = axis['enabled']
-                txAxis.enabled = axis['enabled']
-                axisModified = True
+            axis = self.status.motion.axis[index]
+            for name in ['enabled', 'fault', 'homed', 'homing',
+                         'inpos', 'max_hard_limit', 'max_soft_limit',
+                         'min_hard_limit', 'min_soft_limit',
+                         'override_limits']:
+                axisModified |= self.update_proto_value(axis, txAxis,
+                                                        name, statAxis[name])
 
-            if self.status.motion.axis[index].fault != axis['fault']:
-                self.status.motion.axis[index].fault = axis['fault']
-                txAxis.fault = axis['fault']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].ferror_current, axis['ferror_current']):
-                self.status.motion.axis[index].ferror_current = axis['ferror_current']
-                txAxis.ferror_current = axis['ferror_current']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].ferror_highmark, axis['ferror_highmark']):
-                self.status.motion.axis[index].ferror_highmark = axis['ferror_highmark']
-                txAxis.ferror_highmark = axis['ferror_highmark']
-                axisModified = True
-
-            if self.status.motion.axis[index].homed != axis['homed']:
-                self.status.motion.axis[index].homed = axis['homed']
-                txAxis.homed = axis['homed']
-                axisModified = True
-
-            if self.status.motion.axis[index].homing != axis['homing']:
-                self.status.motion.axis[index].homing = axis['homing']
-                txAxis.homing = axis['homing']
-                axisModified = True
-
-            if self.status.motion.axis[index].inpos != axis['inpos']:
-                self.status.motion.axis[index].inpos = axis['inpos']
-                txAxis.inpos = axis['inpos']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].input, axis['input']):
-                self.status.motion.axis[index].input = axis['input']
-                txAxis.input = axis['input']
-                axisModified = True
-
-            if self.status.motion.axis[index].max_hard_limit != axis['max_hard_limit']:
-                self.status.motion.axis[index].max_hard_limit = axis['max_hard_limit']
-                txAxis.max_hard_limit = axis['max_hard_limit']
-                axisModified = True
-
-            if self.status.motion.axis[index].max_soft_limit != axis['max_soft_limit']:
-                self.status.motion.axis[index].max_soft_limit = axis['max_soft_limit']
-                txAxis.max_soft_limit = axis['max_soft_limit']
-                axisModified = True
-
-            if self.status.motion.axis[index].min_hard_limit != axis['min_hard_limit']:
-                self.status.motion.axis[index].min_hard_limit = axis['min_hard_limit']
-                txAxis.min_hard_limit = axis['min_hard_limit']
-                axisModified = True
-
-            if self.status.motion.axis[index].min_soft_limit != axis['min_soft_limit']:
-                self.status.motion.axis[index].min_soft_limit = axis['min_soft_limit']
-                txAxis.min_soft_limit = axis['min_soft_limit']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].output, axis['output']):
-                self.status.motion.axis[index].output = axis['output']
-                txAxis.output = axis['output']
-                axisModified = True
-
-            if self.status.motion.axis[index].override_limits != axis['override_limits']:
-                self.status.motion.axis[index].override_limits = axis['override_limits']
-                txAxis.override_limits = axis['override_limits']
-                axisModified = True
-
-            if self.notEqual(self.status.motion.axis[index].velocity, axis['velocity']):
-                self.status.motion.axis[index].velocity = axis['velocity']
-                txAxis.velocity = axis['velocity']
-                axisModified = True
+            for name in ['ferror_current', 'ferror_highmark', 'input',
+                         'output', 'velocity']:
+                axisModified |= self.update_proto_float(axis, txAxis,
+                                                        name, statAxis[name])
 
             if axisModified:
                 txAxis.index = index
-                self.txStatus.motion.axis.add().CopyFrom(txAxis)
+                self.statusTx.motion.axis.add().CopyFrom(txAxis)
                 modified = True
         del txAxis
-
-        if (self.status.motion.block_delete != stat.block_delete):
-            self.status.motion.block_delete = stat.block_delete
-            self.txStatus.motion.block_delete = stat.block_delete
-            modified = True
-
-        if (self.status.motion.current_line != stat.current_line):
-            self.status.motion.current_line = stat.current_line
-            self.txStatus.motion.current_line = stat.current_line
-            modified = True
-
-        if self.notEqual(self.status.motion.current_vel, stat.current_vel):
-            self.status.motion.current_vel = stat.current_vel
-            self.txStatus.motion.current_vel = stat.current_vel
-            modified = True
-
-        if self.notEqual(self.status.motion.delay_left, stat.delay_left):
-            self.status.motion.delay_left = stat.delay_left
-            self.txStatus.motion.delay_left = stat.delay_left
-            modified = True
-
-        txDin = EmcStatusDigitalIO()
-        for index, din in enumerate(stat.din):
-            txDin.Clear()
-            dinModified = False
-
-            if len(self.status.motion.din) == index:
-                self.status.motion.din.add()
-                self.status.motion.din[index].index = index
-                self.status.motion.din[index].value = False
-
-            if self.status.motion.din[index].value != din:
-                self.status.motion.din[index].value = din
-                txDin.value = din
-                dinModified = True
-
-            if dinModified:
-                txDin.index = index
-                self.txStatus.motion.din.add().CopyFrom(txDin)
-                modified = True
-        del txDin
-
-        if self.notEqual(self.status.motion.distance_to_go, stat.distance_to_go):
-            self.status.motion.distance_to_go = stat.distance_to_go
-            self.txStatus.motion.distance_to_go = stat.distance_to_go
-            modified = True
-
-        txDout = EmcStatusDigitalIO()
-        for index, dout in enumerate(stat.dout):
-            txDout.Clear()
-            doutModified = False
-
-            if len(self.status.motion.dout) == index:
-                self.status.motion.dout.add()
-                self.status.motion.dout[index].index = index
-                self.status.motion.dout[index].value = False
-
-            if self.status.motion.dout[index].value != dout:
-                self.status.motion.dout[index].value = dout
-                txDout.value = dout
-                doutModified = True
-
-            if doutModified:
-                txDout.index = index
-                self.txStatus.motion.dout.add().CopyFrom(txDout)
-                modified = True
-        del txDout
-
-        positionModified, txPosition = self.check_position(self.status.motion.dtg, stat.dtg)
-        if positionModified:
-            self.status.motion.dtg.MergeFrom(txPosition)
-            self.txStatus.motion.dtg.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.enabled != stat.enabled):
-            self.status.motion.enabled = stat.enabled
-            self.txStatus.motion.enabled = stat.enabled
-            modified = True
-
-        if (self.status.motion.feed_hold_enabled != stat.feed_hold_enabled):
-            self.status.motion.feed_hold_enabled = stat.feed_hold_enabled
-            self.txStatus.motion.feed_hold_enabled = stat.feed_hold_enabled
-            modified = True
-
-        if (self.status.motion.feed_override_enabled != stat.feed_override_enabled):
-            self.status.motion.feed_override_enabled = stat.feed_override_enabled
-            self.txStatus.motion.feed_override_enabled = stat.feed_override_enabled
-            modified = True
-
-        if self.notEqual(self.status.motion.feedrate, stat.feedrate):
-            self.status.motion.feedrate = stat.feedrate
-            self.txStatus.motion.feedrate = stat.feedrate
-            modified = True
-
-        if (self.status.motion.g5x_index != stat.g5x_index):
-            self.status.motion.g5x_index = stat.g5x_index
-            self.txStatus.motion.g5x_index = stat.g5x_index
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.g5x_offset, stat.g5x_offset)
-        if positionModified:
-            self.status.motion.g5x_offset.MergeFrom(txPosition)
-            self.txStatus.motion.g5x_offset.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        positionModified, txPosition = self.check_position(self.status.motion.g92_offset, stat.g92_offset)
-        if positionModified:
-            self.status.motion.g92_offset.MergeFrom(txPosition)
-            self.txStatus.motion.g92_offset.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.id != stat.id):
-            self.status.motion.id = stat.id
-            self.txStatus.motion.id = stat.id
-            modified = True
-
-        if (self.status.motion.inpos != stat.inpos):
-            self.status.motion.inpos = stat.inpos
-            self.txStatus.motion.inpos = stat.inpos
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.joint_actual_position, stat.joint_actual_position)
-        if positionModified:
-            self.status.motion.joint_actual_position.MergeFrom(txPosition)
-            self.txStatus.motion.joint_actual_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        positionModified, txPosition = self.check_position(self.status.motion.joint_position, stat.joint_position)
-        if positionModified:
-            self.status.motion.joint_position.MergeFrom(txPosition)
-            self.txStatus.motion.joint_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        txLimit = EmcStatusLimit()
-        for index, limit in enumerate(stat.limit):
-            txLimit.Clear()
-            limitModified = False
-
-            if index == stat.axes:
-                break
-
-            if len(self.status.motion.limit) == index:
-                self.status.motion.limit.add()
-                self.status.motion.limit[index].index = index
-                self.status.motion.limit[index].value = False
-
-            if self.status.motion.limit[index].value != limit:
-                self.status.motion.limit[index].value = limit
-                txLimit.value = limit
-                limitModified = True
-
-            if limitModified:
-                txLimit.index = index
-                self.txStatus.motion.limit.add().CopyFrom(txLimit)
-                modified = True
-        del txLimit
-
-        if (self.status.motion.motion_line != stat.motion_line):
-            self.status.motion.motion_line = stat.motion_line
-            self.txStatus.motion.motion_line = stat.motion_line
-            modified = True
-
-        if (self.status.motion.motion_type != stat.motion_type):
-            self.status.motion.motion_type = stat.motion_type
-            self.txStatus.motion.motion_type = stat.motion_type
-            modified = True
-
-        if (self.status.motion.motion_mode != stat.motion_mode):
-            self.status.motion.motion_mode = stat.motion_mode
-            self.txStatus.motion.motion_mode = stat.motion_mode
-            modified = True
-
-        if (self.status.motion.paused != stat.paused):
-            self.status.motion.paused = stat.paused
-            self.txStatus.motion.paused = stat.paused
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.position, stat.position)
-        if positionModified:
-            self.status.motion.position.MergeFrom(txPosition)
-            self.txStatus.motion.position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.probe_tripped != stat.probe_tripped):
-            self.status.motion.probe_tripped = stat.probe_tripped
-            self.txStatus.motion.probe_tripped = stat.probe_tripped
-            modified = True
-
-        if (self.status.motion.probe_val != stat.probe_val):
-            self.status.motion.probe_val = stat.probe_val
-            self.txStatus.motion.probe_val = stat.probe_val
-            modified = True
-
-        positionModified, txPosition = self.check_position(self.status.motion.probed_position, stat.probed_position)
-        if positionModified:
-            self.status.motion.probed_position.MergeFrom(txPosition)
-            self.txStatus.motion.probed_position.CopyFrom(txPosition)
-            modified = True
-        del txPosition
-
-        if (self.status.motion.probing != stat.probing):
-            self.status.motion.probing = stat.probing
-            self.txStatus.motion.probing = stat.probing
-            modified = True
-
-        if (self.status.motion.queue != stat.queue):
-            self.status.motion.queue = stat.queue
-            self.txStatus.motion.queue = stat.queue
-            modified = True
-
-        if (self.status.motion.queue_full != stat.queue_full):
-            self.status.motion.queue_full = stat.queue_full
-            self.txStatus.motion.queue_full = stat.queue_full
-            modified = True
-
-        if self.notEqual(self.status.motion.rotation_xy, stat.rotation_xy):
-            self.status.motion.rotation_xy = stat.rotation_xy
-            self.txStatus.motion.rotation_xy = stat.rotation_xy
-            modified = True
-
-        if (self.status.motion.spindle_brake != stat.spindle_brake):
-            self.status.motion.spindle_brake = stat.spindle_brake
-            self.txStatus.motion.spindle_brake = stat.spindle_brake
-            modified = True
-
-        if (self.status.motion.spindle_direction != stat.spindle_direction):
-            self.status.motion.spindle_direction = stat.spindle_direction
-            self.txStatus.motion.spindle_direction = stat.spindle_direction
-            modified = True
-
-        if (self.status.motion.spindle_enabled != stat.spindle_enabled):
-            self.status.motion.spindle_enabled = stat.spindle_enabled
-            self.txStatus.motion.spindle_enabled = stat.spindle_enabled
-            modified = True
-
-        if (self.status.motion.spindle_increasing != stat.spindle_increasing):
-            self.status.motion.spindle_increasing = stat.spindle_increasing
-            self.txStatus.motion.spindle_increasing = stat.spindle_increasing
-            modified = True
-
-        if (self.status.motion.spindle_override_enabled != stat.spindle_override_enabled):
-            self.status.motion.spindle_override_enabled = stat.spindle_override_enabled
-            self.txStatus.motion.spindle_override_enabled = stat.spindle_override_enabled
-            modified = True
-
-        if self.notEqual(self.status.motion.spindle_speed, stat.spindle_speed):
-            self.status.motion.spindle_speed = stat.spindle_speed
-            self.txStatus.motion.spindle_speed = stat.spindle_speed
-            modified = True
-
-        if self.notEqual(self.status.motion.spindlerate, stat.spindlerate):
-            self.status.motion.spindlerate = stat.spindlerate
-            self.txStatus.motion.spindlerate = stat.spindlerate
-            modified = True
-
-        if (self.status.motion.state != stat.state):
-            self.status.motion.state = stat.state
-            self.txStatus.motion.state = stat.state
-            modified = True
-
-        if self.notEqual(self.status.motion.max_acceleration, stat.max_acceleration):
-            self.status.motion.max_acceleration = stat.max_acceleration
-            self.txStatus.motion.max_acceleration = stat.max_acceleration
-            modified = True
-
-        if self.notEqual(self.status.motion.max_velocity, stat.max_velocity):
-            self.status.motion.max_velocity = stat.max_velocity
-            self.txStatus.motion.max_velocity = stat.max_velocity
-            modified = True
 
         if self.motionFullUpdate:
             self.add_pparams()
             self.send_motion(self.status.motion, MT_EMCSTAT_FULL_UPDATE)
             self.motionFullUpdate = False
         elif modified:
-            self.send_motion(self.txStatus.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_motion(self.statusTx.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
+
+    def update_ui(self, _stat):
+        modified = False
+
+        if self.uiFirstrun:
+            self.status.ui.spindle_brake_visible = False
+            self.status.ui.spindle_cw_visible = False
+            self.status.ui.spindle_ccw_visible = False
+            self.status.ui.spindle_stop_visible = False
+            self.status.ui.spindle_plus_visible = False
+            self.status.ui.spindle_minus_visible = False
+            self.status.ui.spindle_override_visible = False
+            self.status.ui.coolant_flood_visible = False
+            self.status.ui.coolant_mist_visible = False
+
+            modified |= self.update_ui_value('spindle_brake_visible', self.get_ui_element_visible(
+                "motion.spindle-brake"
+            ))
+            modified |= self.update_ui_value('spindle_cw_visible', self.get_ui_element_visible(
+                "motion.spindle-forward", "motion.spindle-on", "motion.spindle-speed-out",
+                "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_ccw_visible', self.get_ui_element_visible(
+                "motion.spindle-reverse", "motion.spindle-speed-out", "motion.spindle-speed-out-abs",
+                "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_stop_visible', self.get_ui_element_visible(
+                "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on",
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_plus_visible', self.get_ui_element_visible(
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_minus_visible', self.get_ui_element_visible(
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('spindle_override_visible', self.get_ui_element_visible(
+                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
+                "motion.spindle-speed-out-rps-abs"
+            ))
+            modified |= self.update_ui_value('coolant_flood_visible', self.get_ui_element_visible(
+                "iocontrol.0.coolant-flood"
+            ))
+            modified |= self.update_ui_value('coolant_mist_visible', self.get_ui_element_visible(
+                "iocontrol.0.coolant-mist"
+            ))
+
+        if self.uiFullUpdate:
+            self.add_pparams()
+            self.send_ui(self.status.ui, MT_EMCSTAT_FULL_UPDATE)
+            self.uiFullUpdate = False
+        elif modified:
+            self.send_ui(self.statusTx.ui, MT_EMCSTAT_INCREMENTAL_UPDATE)
+
+    @staticmethod
+    def get_ui_element_visible(*hal_pins):
+        for name in hal_pins:
+            if hal.pins[name].linked:
+                return True
+        return False
 
     def update_status(self, stat):
-        self.txStatus.clear()
-        if (self.ioSubscriptions > 0):
+        self.statusTx.clear()
+        if (self.ioSubscribed):
             self.update_io(stat)
-        if (self.taskSubscriptions > 0):
+        if (self.taskSubscribed):
             self.update_task(stat)
-        if (self.interpSubscriptions > 0):
+        if (self.interpSubscribed):
             self.update_interp(stat)
-        if (self.motionSubscriptions > 0):
+        if (self.motionSubscribed):
             self.update_motion(stat)
-        if (self.configSubscriptions > 0):
+        if (self.configSubscribed):
             self.update_config(stat)
+        if self.uiSubscribed:
+            self.update_ui(stat)
 
     def update_error(self, error):
-
-        if len(self.linuxcncErrors) > 0:
+        with self.errorNoteLock:
             for linuxcncError in self.linuxcncErrors:
-                self.tx.note.append(linuxcncError)
+                self.txError.note.append(linuxcncError)
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
             self.linuxcncErrors = []
 
@@ -1653,217 +1510,192 @@ class LinuxCNCWrapper():
             return
 
         kind, text = error
-        self.tx.note.append(text)
+        text = text.encode('utf-8')
+        self.txError.note.append(text)
 
         if (kind == linuxcnc.NML_ERROR):
-            if (self.errorSubscriptions > 0):
+            if self.errorSubscribed:
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
         elif (kind == linuxcnc.OPERATOR_ERROR):
-            if (self.errorSubscriptions > 0):
+            if self.errorSubscribed:
                 self.send_error_msg('error', MT_EMC_OPERATOR_ERROR)
         elif (kind == linuxcnc.NML_TEXT):
-            if (self.textSubscriptions > 0):
+            if self.textSubscribed:
                 self.send_error_msg('text', MT_EMC_NML_TEXT)
         elif (kind == linuxcnc.OPERATOR_TEXT):
-            if (self.textSubscriptions > 0):
+            if self.textSubscribed:
                 self.send_error_msg('text', MT_EMC_OPERATOR_TEXT)
         elif (kind == linuxcnc.NML_DISPLAY):
-            if (self.displaySubscriptions > 0):
+            if self.displaySubscribed:
                 self.send_error_msg('display', MT_EMC_NML_DISPLAY)
         elif (kind == linuxcnc.OPERATOR_DISPLAY):
-            if (self.displaySubscriptions > 0):
+            if self.displaySubscribed:
                 self.send_error_msg('display', MT_EMC_OPERATOR_DISPLAY)
 
-    def send_config(self, data, type):
-        self.tx.emc_status_config.MergeFrom(data)
+    def add_error(self, note):
+        with self.errorNoteLock:
+            self.linuxcncErrors.append(note)
+
+    def preview_error(self, error, line):
+        self.add_error("%s\non line %s" % (error, str(line)))
+
+    def send_config(self, data, type_):
+        self.txStatus.emc_status_config.MergeFrom(data)
         if self.debug:
             print("sending config message")
-        self.send_status_msg('config', type)
+        self.send_status_msg('config', type_)
 
-    def send_io(self, data, type):
-        self.tx.emc_status_io.MergeFrom(data)
+    def send_io(self, data, type_):
+        self.txStatus.emc_status_io.MergeFrom(data)
         if self.debug:
             print("sending io message")
-        self.send_status_msg('io', type)
+        self.send_status_msg('io', type_)
 
-    def send_task(self, data, type):
-        self.tx.emc_status_task.MergeFrom(data)
+    def send_task(self, data, type_):
+        self.txStatus.emc_status_task.MergeFrom(data)
         if self.debug:
             print("sending task message")
-        self.send_status_msg('task', type)
+        self.send_status_msg('task', type_)
 
-    def send_motion(self, data, type):
-        self.tx.emc_status_motion.MergeFrom(data)
+    def send_motion(self, data, type_):
+        self.txStatus.emc_status_motion.MergeFrom(data)
         if self.debug:
             print("sending motion message")
-        self.send_status_msg('motion', type)
+        self.send_status_msg('motion', type_)
 
-    def send_interp(self, data, type):
-        self.tx.emc_status_interp.MergeFrom(data)
+    def send_interp(self, data, type_):
+        self.txStatus.emc_status_interp.MergeFrom(data)
         if self.debug:
             print("sending interp message")
-        self.send_status_msg('interp', type)
+        self.send_status_msg('interp', type_)
 
-    def send_status_msg(self, topic, type):
-        self.tx.type = type
-        txBuffer = self.tx.SerializeToString()
-        self.tx.Clear()
-        self.statusSocket.send_multipart([topic, txBuffer])
+    def send_ui(self, data, type_):
+        self.txStatus.emc_status_ui.MergeFrom(data)
+        if self.debug:
+            print("sending ui message")
+        self.send_status_msg('ui', type_)
 
-    def send_error_msg(self, topic, type):
-        self.tx.type = type
-        txBuffer = self.tx.SerializeToString()
-        self.tx.Clear()
-        self.errorSocket.send_multipart([topic, txBuffer])
+    def send_status_msg(self, topic, type_):
+        with self.statusLock:
+            self.txStatus.type = type_
+            txBuffer = self.txStatus.SerializeToString()
+            self.statusSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
+            self.txStatus.Clear()
 
-    def send_command_msg(self, type):
-        self.tx2.type = type
-        txBuffer = self.tx2.SerializeToString()
-        self.tx2.Clear()
-        self.commandSocket.send(txBuffer)
+    def send_error_msg(self, topic, type_):
+        with self.errorLock:
+            self.txError.type = type_
+            txBuffer = self.txError.SerializeToString()
+            self.errorSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
+            self.txError.Clear()
+
+    def send_command_msg(self, identity, type_):
+        with self.commandLock:
+            self.txCommand.type = type_
+            txBuffer = self.txCommand.SerializeToString()
+            self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
+            self.txCommand.Clear()
 
     def add_pparams(self):
         parameters = ProtocolParameters()
-        parameters.keepalive_timer = self.pingInterval * 1000
-        self.tx.pparams.MergeFrom(parameters)
-
-    def poll(self):
-        while not self.shutdown.is_set():
-            try:
-                if (self.totalSubscriptions > 0):
-                    self.stat.poll()
-                    self.update_status(self.stat)
-                    if (self.pingCount == self.pingRatio):
-                        self.ping_status()
-
-                if (self.totalErrorSubscriptions > 0):
-                    error = self.error.poll()
-                    self.update_error(error)
-                    if (self.pingCount == self.pingRatio):
-                        self.ping_error()
-
-            except linuxcnc.error as detail:
-                print(("error", detail))
-                self.stop()
-
-            if (self.pingCount == self.pingRatio):
-                self.pingCount = 0
-            else:
-                self.pingCount += 1
-            time.sleep(self.pollInterval)
-
-        self.running = False
-        return
+        parameters.keepalive_timer = int(self.pingInterval * 1000.0)
+        self.txStatus.pparams.MergeFrom(parameters)
 
     def ping_status(self):
-        if (self.ioSubscriptions > 0):
+        if (self.ioSubscribed):
             self.send_status_msg('io', MT_PING)
-        if (self.taskSubscriptions > 0):
+        if (self.taskSubscribed):
             self.send_status_msg('task', MT_PING)
-        if (self.interpSubscriptions > 0):
+        if (self.interpSubscribed):
             self.send_status_msg('interp', MT_PING)
-        if (self.motionSubscriptions > 0):
+        if (self.motionSubscribed):
             self.send_status_msg('motion', MT_PING)
-        if (self.configSubscriptions > 0):
+        if (self.configSubscribed):
             self.send_status_msg('config', MT_PING)
+        if self.uiSubscribed:
+            self.send_status_msg('ui', MT_PING)
 
     def ping_error(self):
         if self.newErrorSubscription:        # not very clear
             self.add_pparams()
             self.newErrorSubscription = False
 
-        if (self.errorSubscriptions > 0):
+        if (self.errorSubscribed):
             self.send_error_msg('error', MT_PING)
-        if (self.textSubscriptions > 0):
+        if (self.textSubscribed):
             self.send_error_msg('text', MT_PING)
-        if (self.displaySubscriptions > 0):
+        if (self.displaySubscribed):
             self.send_error_msg('display', MT_PING)
 
     def process_status(self, socket):
         try:
-            rc = socket.recv(zmq.NOBLOCK)
+            with self.statusLock:
+                rc = socket.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
             if subscription == 'motion':
-                if status:
-                    self.motionSubscriptions += 1
-                    self.motionFullUpdate = True
-                else:
-                    self.motionSubscriptions -= 1
+                self.motionSubscribed = status
+                self.motionFullUpdate = status
             elif subscription == 'task':
-                if status:
-                    self.taskSubscriptions += 1
-                    self.taskFullUpdate = True
-                else:
-                    self.taskSubscriptions -= 1
+                self.taskSubscribed = status
+                self.taskFullUpdate = status
             elif subscription == 'io':
-                if status:
-                    self.ioSubscriptions += 1
-                    self.ioFullUpdate = True
-                else:
-                    self.ioSubscriptions -= 1
+                self.ioSubscribed = status
+                self.ioFullUpdate = status
             elif subscription == 'config':
-                if status:
-                    self.configSubscriptions += 1
-                    self.configFullUpdate = True
-                else:
-                    self.configSubscriptions -= 1
+                self.configSubscribed = status
+                self.configFullUpdate = status
             elif subscription == 'interp':
-                if status:
-                    self.interpSubscriptions += 1
-                    self.interpFullUpdate = True
-                else:
-                    self.interpSubscriptions -= 1
+                self.interpSubscribed = status
+                self.interpFullUpdate = status
+            elif subscription == 'ui':
+                self.uiSubscribed = status
+                self.uiFullUpdate = status
 
-            self.totalSubscriptions = self.motionSubscriptions \
-            + self.taskSubscriptions \
-            + self.ioSubscriptions \
-            + self.configSubscriptions \
-            + self.interpSubscriptions
+            self.statusServiceSubscribed = (
+                    self.motionSubscribed
+                    or self.taskSubscribed
+                    or self.ioSubscribed
+                    or self.configSubscribed
+                    or self.interpSubscribed
+                    or self.uiSubscribed
+                )
 
             if self.debug:
                 print(("process status called " + subscription + ' ' + str(status)))
-                print(("total status subscriptions: " + str(self.totalSubscriptions)))
+                print(("status service subscribed: " + str(self.statusServiceSubscribed)))
 
-        except zmq.ZMQError:
-            print("ZMQ error")
+        except zmq.ZMQError as e:
+            printError('ZMQ error: ' + str(e))
 
     def process_error(self, socket):
         try:
-            rc = socket.recv(zmq.NOBLOCK)
+            with self.errorLock:
+                rc = socket.recv()
             subscription = rc[1:]
             status = (rc[0] == "\x01")
 
             if subscription == 'error':
-                if status:
-                    self.newErrorSubscription = True
-                    self.errorSubscriptions += 1
-                else:
-                    self.errorSubscriptions -= 1
+                self.newErrorSubscription = status
+                self.errorSubscribed = status
             elif subscription == 'text':
-                if status:
-                    self.newErrorSubscription = True
-                    self.textSubscriptions += 1
-                else:
-                    self.textSubscriptions -= 1
+                self.newErrorSubscription = status
+                self.textSubscribed = status
             elif subscription == 'display':
-                if status:
-                    self.newErrorSubscription = True
-                    self.displaySubscriptions += 1
-                else:
-                    self.displaySubscriptions -= 1
+                self.newErrorSubscription = status
+                self.displaySubscribed = status
 
-            self.totalErrorSubscriptions = self.errorSubscriptions \
-            + self.textSubscriptions \
-            + self.displaySubscriptions
+            self.errorServiceSubscribed = self.errorSubscribed \
+            or self.textSubscribed \
+            or self.displaySubscribed
 
             if self.debug:
                 print(("process error called " + subscription + ' ' + str(status)))
-                print(("total error subscriptions: " + str(self.totalErrorSubscriptions)))
+                print(("error service subscribed: " + str(self.errorServiceSubscribed)))
 
-        except zmq.ZMQError:
-            print("ZMQ error")
+        except zmq.ZMQError as e:
+            printError('ZMQ error: ' + str(e))
 
     def get_active_gcodes(self):
         rawGcodes = self.stat.gcodes
@@ -1871,52 +1703,107 @@ class LinuxCNCWrapper():
         for rawGCode in rawGcodes:
             if rawGCode > -1:
                 gcodes.append('G' + str(rawGCode / 10.0))
-        return ''.join(gcodes)
+        return ' '.join(gcodes)
 
-    def send_command_wrong_params(self):
-        self.tx2.note.append("wrong parameters")
-        self.send_command_msg(MT_ERROR)
+    def send_command_wrong_params(self, identity, note="wrong parameters"):
+        self.txCommand.note.append(note)
+        self.send_command_msg(identity, MT_ERROR)
+
+    def send_command_completed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
+
+    def send_command_executed(self, identity, ticket):
+        self.txCommand.reply_ticket = ticket
+        self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
+
+    def command_completion_process(self, event):
+        self.command.wait_complete()  # wait for emcmodule
+        event.set()  # inform the listening thread
+
+    def command_completion_thread(self, identity, ticket):
+        event = multiprocessing.Event()
+        # wait in separate process to prevent GIL from causing problems
+        multiprocessing.Process(target=self.command_completion_process,
+                                args=(event,)).start()
+        # wait until the command is completed
+        event.wait()
+        self.send_command_completed(identity, ticket)
+
+        if self.debug:
+            print('command #%i from %s completed' % (ticket, identity))
+
+    def wait_complete(self, identity, ticket):
+        self.send_command_executed(identity, ticket)
+
+        if self.debug:
+            print('waiting for command #%ifrom %s to complete' % (ticket, identity))
+
+        # kick off the monitoring thread
+        threading.Thread(target=self.command_completion_thread,
+                         args=(identity, ticket, )).start()
 
     def process_command(self, socket):
-        if self.debug:
-            print("process command called")
+        with self.commandLock:
+            frames = socket.recv_multipart()
+            identity = frames[:-1]  # multipart id
+            message = frames[-1]  # last frame
 
-        message = socket.recv()
-        self.rx.ParseFromString(message)
+        if self.debug:
+            print("process command called, id: %s" % identity)
+
+        try:
+            self.rx.ParseFromString(message)
+        except DecodeError as e:
+            note = 'Protobuf Decode Error: ' + str(e)
+            self.send_command_wrong_params(identity, note=note)
+            return
 
         try:
             if self.rx.type == MT_PING:
-                self.send_command_msg(MT_PING_ACKNOWLEDGE)
+                self.send_command_msg(identity, MT_PING_ACKNOWLEDGE)
+
+            elif self.rx.type == MT_SHUTDOWN:
+                self.send_command_msg(identity, MT_CONFIRM_SHUTDOWN)
+                self.stop()  # trigger the shutdown event
 
             elif self.rx.type == MT_EMC_TASK_ABORT:
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.abort()
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                     elif self.rx.interp_name == 'preview':
                         self.preview.abort()
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_PAUSE:
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.auto(linuxcnc.AUTO_PAUSE)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_RESUME:
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.auto(linuxcnc.AUTO_RESUME)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_STEP:
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.auto(linuxcnc.AUTO_STEP)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_RUN:
                 if self.rx.HasField('emc_command_params') \
@@ -1925,55 +1812,82 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         lineNumber = self.rx.emc_command_params.line_number
                         self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                     elif self.rx.interp_name == 'preview':
-                        self.preview.initcode = self.get_active_gcodes()
                         self.preview.start()
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_SPINDLE_BRAKE_ENGAGE:
                 self.command.brake(linuxcnc.BRAKE_ENGAGE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_BRAKE_RELEASE:
                 self.command.brake(linuxcnc.BRAKE_RELEASE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SET_DEBUG:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('debug_level'):
                     debugLevel = self.rx.emc_command_params.debug_level
                     self.command.debug(debugLevel)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SCALE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('scale'):
                     feedrate = self.rx.emc_command_params.scale
                     self.command.feedrate(feedrate)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_RAPID_SCALE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('scale'):
+                    rapidrate = self.rx.emc_command_params.scale
+                    self.command.rapidrate(rapidrate)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
+                else:
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_COOLANT_FLOOD_ON:
                 self.command.flood(linuxcnc.FLOOD_ON)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_COOLANT_FLOOD_OFF:
                 self.command.flood(linuxcnc.FLOOD_OFF)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_AXIS_HOME:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.home(axis)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_ABORT:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.jog(linuxcnc.JOG_STOP, axis)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_JOG:
                 if self.rx.HasField('emc_command_params') \
@@ -1982,8 +1896,10 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     velocity = self.rx.emc_command_params.velocity
                     self.command.jog(linuxcnc.JOG_CONTINUOUS, axis, velocity)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_INCR_JOG:
                 if self.rx.HasField('emc_command_params') \
@@ -1994,19 +1910,20 @@ class LinuxCNCWrapper():
                     velocity = self.rx.emc_command_params.velocity
                     distance = self.rx.emc_command_params.distance
                     self.command.jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
-
-            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
-                self.command.load_tool_table()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('velocity'):
                     velocity = self.rx.emc_command_params.velocity
                     self.command.maxvel(velocity)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_EXECUTE:
                 if self.rx.HasField('emc_command_params') \
@@ -2015,14 +1932,20 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         command = self.rx.emc_command_params.command
                         self.command.mdi(command)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_COOLANT_MIST_ON:
                 self.command.mist(linuxcnc.MIST_ON)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_COOLANT_MIST_OFF:
                 self.command.mist(linuxcnc.MIST_OFF)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TASK_SET_MODE:
                 if self.rx.HasField('emc_command_params') \
@@ -2030,39 +1953,54 @@ class LinuxCNCWrapper():
                 and self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.mode(self.rx.emc_command_params.task_mode)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_OVERRIDE_LIMITS:
                 self.command.override_limits()
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_OPEN:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('path') \
                 and self.rx.HasField('interp_name'):
                     fileName = self.rx.emc_command_params.path
-                    if self.rx.interp_name == 'execute':
-                        self.command.program_open(fileName)
-                    elif self.rx.interp_name == 'preview':
-
-                        self.preview.program_open(fileName)
+                    fileName = self.preprocess_program(fileName)
+                    if fileName is not '':
+                        if self.rx.interp_name == 'execute':
+                            self.command.program_open(fileName)
+                            if self.rx.HasField('ticket'):
+                                self.wait_complete(identity, self.rx.ticket)
+                        elif self.rx.interp_name == 'preview':
+                            if self.rx.HasField('ticket'):
+                                self.send_command_executed(identity, self.rx.ticket)
+                            self.preview.program_open(fileName)
+                            if self.rx.HasField('ticket'):
+                                self.send_command_completed(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_INIT:
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.reset_interpreter()
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_MOTION_ADAPTIVE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     adaptiveFeed = self.rx.emc_command_params.enable
                     self.command.set_adaptive_feed(adaptiveFeed)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_MOTION_SET_AOUT:
                 if self.rx.HasField('emc_command_params') \
@@ -2071,16 +2009,20 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_analog_output(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_SET_BLOCK_DELETE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     blockDelete = self.rx.emc_command_params.enable
                     self.command.set_block_delete(blockDelete)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_MOTION_SET_DOUT:
                 if self.rx.HasField('emc_command_params') \
@@ -2089,24 +2031,30 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.enable
                     self.command.set_digital_output(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_FH_ENABLE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     feedHold = self.rx.emc_command_params.enable
                     self.command.set_feed_hold(feedHold)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_FO_ENABLE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     feedOverride = self.rx.emc_command_params.enable
                     self.command.set_feed_override(feedOverride)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_SET_MAX_POSITION_LIMIT:
                 if self.rx.HasField('emc_command_params') \
@@ -2115,8 +2063,10 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_max_limit(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_SET_MIN_POSITION_LIMIT:
                 if self.rx.HasField('emc_command_params') \
@@ -2125,24 +2075,30 @@ class LinuxCNCWrapper():
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_min_limit(axis, value)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_SET_OPTIONAL_STOP:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     optionalStop = self.rx.emc_command_params.enable
                     self.command.set_optional_stop(optionalStop)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SO_ENABLE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     spindleOverride = self.rx.emc_command_params.enable
                     self.command.set_spindle_override(spindleOverride)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_SPINDLE_ON:
                 if self.rx.HasField('emc_command_params') \
@@ -2150,28 +2106,40 @@ class LinuxCNCWrapper():
                     speed = self.rx.emc_command_params.velocity
                     direction = linuxcnc.SPINDLE_FORWARD    # always forwward, speed can be signed
                     self.command.spindle(direction, speed)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_SPINDLE_INCREASE:
                 self.command.spindle(linuxcnc.SPINDLE_INCREASE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_DECREASE:
                 self.command.spindle(linuxcnc.SPINDLE_DECREASE)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_CONSTANT:
                 self.command.spindle(linuxcnc.SPINDLE_CONSTANT)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SPINDLE_OFF:
                 self.command.spindle(linuxcnc.SPINDLE_OFF)
+                if self.rx.HasField('ticket'):
+                    self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SPINDLE_SCALE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('scale'):
                     scale = self.rx.emc_command_params.scale
                     self.command.spindleoverride(scale)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_SET_STATE:
                 if self.rx.HasField('emc_command_params') \
@@ -2179,16 +2147,20 @@ class LinuxCNCWrapper():
                 and self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.state(self.rx.emc_command_params.task_state)
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_ENABLE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('enable'):
                     teleopEnable = self.rx.emc_command_params.enable
                     self.command.teleop_enable(teleopEnable)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_VECTOR:
                 if self.rx.HasField('emc_command_params') \
@@ -2212,92 +2184,93 @@ class LinuxCNCWrapper():
                             self.command.teleop_vector(a, b, c, u)
                     else:
                         self.command.teleop_vector(a, b, c)
+
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
+                self.command.load_tool_table()
+                self.command.wait_complete()  # we need to wait for stat to be updated
+                self.ioToolTableLoaded = True
+                if self.rx.HasField('ticket'):
+                    self.send_command_completed(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('tool_data') \
-                and self.rx.emc_command_params.tool_data.index \
-                and self.rx.emc_command_params.tool_data.zOffset \
-                and self.rx.emc_command_params.tool_data.xOffset \
-                and self.rx.emc_command_params.tool_data.diameter \
-                and self.rx.emc_command_params.tool_data.frontangle \
-                and self.rx.emc_command_params.tool_data.backangle \
-                and self.rx.emc_command_params.tool_data.orientation:
+                and self.rx.emc_command_params.tool_data.HasField('offset') \
+                and self.rx.emc_command_params.tool_data.HasField('index') \
+                and self.rx.emc_command_params.tool_data.offset.HasField('z') \
+                and self.rx.emc_command_params.tool_data.offset.HasField('x') \
+                and self.rx.emc_command_params.tool_data.HasField('diameter') \
+                and self.rx.emc_command_params.tool_data.HasField('frontangle') \
+                and self.rx.emc_command_params.tool_data.HasField('backangle') \
+                and self.rx.emc_command_params.tool_data.HasField('orientation'):
                     toolno = self.rx.emc_command_params.tool_data.index
-                    z_offset = self.rx.emc_command_params.tool_data.zOffset
-                    x_offset = self.rx.emc_command_params.tool_data.xOffset
+                    z_offset = self.rx.emc_command_params.tool_data.offset.z
+                    x_offset = self.rx.emc_command_params.tool_data.offset.x
                     diameter = self.rx.emc_command_params.tool_data.diameter
                     frontangle = self.rx.emc_command_params.tool_data.frontangle
                     backangle = self.rx.emc_command_params.tool_data.backangle
                     orientation = self.rx.emc_command_params.tool_data.orientation
                     self.command.tool_offset(toolno, z_offset, x_offset, diameter,
                         frontangle, backangle, orientation)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
+
+            elif self.rx.type == MT_EMC_TOOL_UPDATE_TOOL_TABLE:
+                if self.rx.HasField('emc_command_params'):
+                    if self.rx.HasField('ticket'):
+                        self.send_command_executed(identity, self.rx.ticket)
+                    if not self.update_tool_table(self.rx.emc_command_params.tool_table):
+                        self.add_error('Cannot update tool table')
+                    if self.rx.HasField('ticket'):
+                        self.send_command_completed(identity, self.rx.ticket)
+                else:
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_MODE:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('traj_mode'):
                     self.command.traj_mode(self.rx.emc_command_params.traj_mode)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_UNHOME:
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.unhome(axis)
+                    if self.rx.HasField('ticket'):
+                        self.wait_complete(identity, self.rx.ticket)
                 else:
-                    self.send_command_wrong_params()
+                    self.send_command_wrong_params(identity)
 
             else:
-                self.tx2.note.append("unknown command")
-                self.send_command_msg(MT_ERROR)
+                self.txCommand.note.append("unknown command")
+                self.send_command_msg(identity, MT_ERROR)
 
         except linuxcnc.error as detail:
-            self.linuxcncErrors.append(detail)
+            self.add_error(detail)
         except UnicodeEncodeError:
-            self.linuxcncErrors.append("Please use only ASCII characters")
+            self.add_error("Please use only ASCII characters")
         except Exception as e:
-            print(("exception " + str(e)))
-            self.linuxcncErrors.append(str(e))
-
-
-def choose_ip(pref):
-    '''
-    given an interface preference list, return a tuple (interface, IPv4)
-    or None if no match found
-    If an interface has several IPv4 addresses, the first one is picked.
-    pref is a list of interface names or prefixes:
-
-    pref = ['eth0','usb3']
-    or
-    pref = ['wlan','eth', 'usb']
-    '''
-
-    # retrieve list of network interfaces
-    interfaces = netifaces.interfaces()
-
-    # find a match in preference oder
-    for p in pref:
-        for i in interfaces:
-            if i.startswith(p):
-                ifcfg = netifaces.ifaddresses(i)
-                # we want the first IPv4 address
-                try:
-                    ip = ifcfg[netifaces.AF_INET][0]['addr']
-                except KeyError:
-                    continue
-                return (i, ip)
-    return None
+            printError('uncaught exception ' + str(e))
+            self.add_error(str(e))
 
 
 shutdown = False
 
 
 def _exitHandler(signum, frame):
+    del signum
+    del frame
     global shutdown
     shutdown = True
 
@@ -2314,38 +2287,34 @@ def check_exit():
 
 
 def main():
-    debug = False
+    parser = argparse.ArgumentParser(description='Mkwrapper is wrapper around the linuxcnc python module as temporary workaround for Machinetalk based user interfaces')
+    parser.add_argument('-ini', help='INI file', default=None)
+    parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
 
-    if (len(sys.argv) > 1):
-        iniFile = sys.argv[1]
-        if (iniFile == '-ini') and (len(sys.argv) > 2):    # handle linuxcnc style in file passing
-            iniFile = sys.argv[2]
-    else:
-        iniFile = None
+    args = parser.parse_args()
 
+    debug = args.debug
+    iniFile = args.ini
+
+    mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
-        sys.stderr.write("no MACHINEKIT_INI environemnt variable set")
+        mkini = mkconfig.MACHINEKIT_INI
+    if not os.path.isfile(mkini):
+        sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
     mki = ConfigParser.ConfigParser()
     mki.read(mkini)
     mkUuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
-    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
         print("Remote communication is deactivated, mkwrapper will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        iface = ['lo', '127.0.0.1']
-    else:
-        iface = choose_ip(prefs)
-        if not iface:
-            sys.stderr.write("failed to determine preferred interface (preference = %s)" % prefs)
-            sys.exit(1)
 
     if debug:
-        print(("announcing mkwrapper on " + str(iface)))
+        print("announcing mkwrapper")
 
     context = zmq.Context()
     context.linger = 0
@@ -2355,35 +2324,41 @@ def main():
     fileService = None
     mkwrapper = None
     try:
-        fileService = FileService(iniFile=iniFile, svcUuid=mkUuid, ip=iface[1],
-                                 debug=debug)
+        hostname = '%(fqdn)s'  # replaced by service announcement
+        fileService = FileService(iniFile=iniFile,
+                                  svcUuid=mkUuid,
+                                  host=hostname,
+                                  loopback=(not remote),
+                                  debug=debug)
         fileService.start()
 
-        mkwrapper = LinuxCNCWrapper(context, ip=iface[1],
-                                 iniFile=iniFile,
-                                 svcUuid=mkUuid,
-                                 debug=debug)
+        mkwrapper = LinuxCNCWrapper(context,
+                                    host=hostname,
+                                    loopback=(not remote),
+                                    iniFile=iniFile,
+                                    svcUuid=mkUuid,
+                                    debug=debug)
 
         while fileService.running and mkwrapper.running and not check_exit():
             time.sleep(1)
     except Exception as e:
-        print("exception")
-        print(e)
-    except:
-        print("other exception")
+        printError("uncaught exception: " + str(e))
 
-    print("stopping threads")
+    if debug:
+        print("stopping threads")
     if fileService is not None:
         fileService.stop()
     if mkwrapper is not None:
         mkwrapper.stop()
 
     # wait for all threads to terminate
-    while threading.active_count() > 1:
+    while threading.active_count() > 2:  # one thread for every process is left
         time.sleep(0.1)
 
-    print("threads stopped")
+    if debug:
+        print("threads stopped")
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

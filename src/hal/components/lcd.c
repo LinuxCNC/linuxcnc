@@ -142,7 +142,7 @@ int rtapi_app_main(void){
             
             if (fmt_strings[i][f + 1] =='|' || fmt_strings[i][f + 1] == 0) {
                 inst->pages[p].fmt = hal_malloc(f - f1 + 2);
-                retval = snprintf(inst->pages[p].fmt,
+                retval = rtapi_snprintf(inst->pages[p].fmt,
                                   f - f1 + 2, "%s",
                                   fmt_strings[i] + f1);
                 inst->pages[p].length = f - f1 + 2;

@@ -1,6 +1,6 @@
 #!/bin/sh
 realtime start
-python <<EOF
+python2 <<EOF
 import hal
 import os
 h = hal.component("x")

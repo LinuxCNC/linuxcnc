@@ -18,7 +18,7 @@
 * Last change:
 ********************************************************************/
 
-#include <math.h>		// fabs()
+#include "rtapi_math.h"		// fabs()
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <stdlib.h>		// malloc()
@@ -457,7 +457,7 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
     }
     if (!use_iocontrol) {
 	for(int i = 0; i < CANON_POCKETS_MAX; i++) {
-	    ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+	    ttcomments[i] = (char *)malloc(CANON_TOOL_COMMENT_LEN);
 	}
     }
 

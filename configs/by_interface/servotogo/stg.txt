@@ -2,7 +2,7 @@ This configuration step is intended for servo machines running the ServoToGo car
 
 Both the STG1 and STG2 are supported, check www.servotogo.com for additional details.
 
-You can have either a standard pinout (LinuxCNC style) or  you could make a new one which would suit your own custom cabling.
+You can have either a standard pinout (Machinekit style) or  you could make a new one which would suit your own custom cabling.
 
 Right now the ini file is for metric setup, but an inch specific one could be easily added.
 
@@ -18,7 +18,7 @@ Detailed description:
 
 -- stg_motion.hal - this is the main hal file for the STG, it loads the stg driver and sets up motion specific links, it is fairly well commented, so it should be easy to read / modify.
 
--- stg_io.hal - this is the second hal file for the STG, it configures IO specific links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let LinuxCNC know about it, and let LinuxCNC interrupt the external chain too).
+-- stg_io.hal - this is the second hal file for the STG, it configures IO specific links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let Machinekit know about it, and let Machinekit interrupt the external chain too).
 
 Read more about this in the wiki at http://wiki.linuxcnc.org/
 
@@ -26,7 +26,7 @@ Read more about this in the wiki at http://wiki.linuxcnc.org/
 
 -- stg.tbl - this is the tool table file, and it holds definitions for the tools used, along with tool sizes for compensation (tool length & tool diameter)
 
--- stg.var - the variables file. This file is used by the interpreter to save internal variables when LinuxCNC shuts down, and rereads them on the next startup.
+-- stg.var - the variables file. This file is used by the interpreter to save internal variables when Machinekit shuts down, and rereads them on the next startup.
 
-Further specific information can be found in the LinuxCNC wiki:
+Further specific information can be found in the Linuxcnc wiki:
   http://wiki.linuxcnc.org/

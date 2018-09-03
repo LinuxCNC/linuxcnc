@@ -250,6 +250,17 @@ static bool checkreturn encode_basic_field(pb_ostream_t *stream,
                 return false;
             break;
         
+        case PB_HTYPE_ONEOF:
+            if (*(const pb_size_t*)pSize == field->tag)
+            {
+                if (!pb_encode_tag_for_field(stream, field))
+                    return false;
+
+                if (!func(stream, field, pData))
+                    return false;
+            }
+            break;
+            
         default:
             PB_RETURN_ERROR(stream, "invalid field type");
     }
@@ -302,7 +313,18 @@ static bool checkreturn default_extension_encoder(pb_ostream_t *stream,
     const pb_extension_t *extension)
 {
     const pb_field_t *field = (const pb_field_t*)extension->type->arg;
-    return encode_field(stream, field, extension->dest);
+    
+    if (PB_ATYPE(field->type) == PB_ATYPE_POINTER)
+    {
+        /* For pointer extensions, the pointer is stored directly
+         * in the extension structure. This avoids having an extra
+         * indirection. */
+        return encode_field(stream, field, &extension->dest);
+    }
+    else
+    {
+        return encode_field(stream, field, extension->dest);
+    }
 }
 
 /* Walk through all the registered extensions and give them a chance
@@ -556,7 +578,7 @@ static bool checkreturn pb_enc_varint(pb_ostream_t *stream, const pb_field_t *fi
     int64_t value = 0;
     
     /* Cases 1 and 2 are for compilers that have smaller types for bool
-     * or enums. */
+     * or enums, and for int_size option. */
     switch (field->data_size)
     {
         case 1: value = *(const int8_t*)src; break;
@@ -575,6 +597,8 @@ static bool checkreturn pb_enc_uvarint(pb_ostream_t *stream, const pb_field_t *f
     
     switch (field->data_size)
     {
+        case 1: value = *(const uint8_t*)src; break;
+        case 2: value = *(const uint16_t*)src; break;
         case 4: value = *(const uint32_t*)src; break;
         case 8: value = *(const uint64_t*)src; break;
         default: PB_RETURN_ERROR(stream, "invalid data_size");
@@ -589,6 +613,8 @@ static bool checkreturn pb_enc_svarint(pb_ostream_t *stream, const pb_field_t *f
     
     switch (field->data_size)
     {
+        case 1: value = *(const int8_t*)src; break;
+        case 2: value = *(const int16_t*)src; break;
         case 4: value = *(const int32_t*)src; break;
         case 8: value = *(const int64_t*)src; break;
         default: PB_RETURN_ERROR(stream, "invalid data_size");

@@ -328,7 +328,7 @@ double cubicInterpolate(CUBIC_STRUCT * ci,
     ci->interpolationTime += ci->interpolationIncrement;
 
     /* check to see if the next point is at (close to) the segment end */
-    if (fabs(ci->segmentTime - ci->interpolationTime)
+    if (rtapi_fabs(ci->segmentTime - ci->interpolationTime)
 	< 0.5 * ci->interpolationIncrement) {
 	/* just computed last point-- flag that we need a new one */
 	ci->needNextPoint = 1;

@@ -5,7 +5,7 @@
 # Derived from Ted Hyde's original hm2-servo config
 #
 # Based up work and discussion with Seb & Peter & Jeff
-# GNU license references - insert here. www.linuxcnc.org
+# GNU license references - insert here. www.machinekit.io
 #
 #
 # ########################################
@@ -29,7 +29,9 @@
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # only the 7i43 needs this, but it doesnt hurt the others
 loadrt probe_parport
@@ -48,10 +50,10 @@ loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
 addf hm2_[HOSTMOT2](BOARD).0.read         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
-# revel in the free time here from not having to run PID 
+# revel in the free time here from not having to run PID
 addf hm2_[HOSTMOT2](BOARD).0.write        servo-thread
 addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
-       
+
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -66,7 +68,7 @@ addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.00.enable
 
 
@@ -101,7 +103,7 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= axis.1.amp-enable-out
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.01.enable
 
 
@@ -136,7 +138,7 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.step_type       0
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= axis.2.amp-enable-out
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.02.enable
 
 
@@ -165,7 +167,7 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 
 
 
-# 
+#
 # The Mesa AnyIO output pins can be in open-drain mode (drive low, float
 # high) or push/pull mode (drive low, drive high).
 #

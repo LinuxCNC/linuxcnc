@@ -30,7 +30,7 @@
 #include <sys/time.h>		/* struct timeval */
 #include <stdlib.h>		/* malloc(), free() */
 #include <string.h>		/* strerror() */
-#include <math.h>		/* modf() */
+#include "rtapi_math.h"		/* modf() */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "_timer.h"		/* etime(), esleep() */
 
@@ -160,7 +160,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	if (bytes_to_read > 0) {
 	    if ((nrecv = recv(fd, ptr, bytes_to_read, flags)) == -1) {
 		if (errno == EWOULDBLOCK) {
-		    if (fabs(_timeout) < 1e-6) {
+		    if (rtapi_fabs(_timeout) < 1e-6) {
 			recvn_timedout = 1;
 			if (NULL != bytes_read_ptr) {
 			    *bytes_read_ptr = (n - nleft);

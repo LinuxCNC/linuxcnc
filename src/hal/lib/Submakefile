@@ -1,21 +1,32 @@
 HALLIBDIR := hal/lib
-
+PBDIR := ../include/machinetalk/protobuf
 INCLUDES += $(HALLIBDIR)
+INCLUDES += $(PBDIR)
+LIBS := ../lib
 
-
-../include/%.h: ./$(HALLIBDIR)/%.h
-	cp $^ $@
+../include/%.h: ./hal/lib/%.h
+	cp $< $@
 
 # link in basic nanonpb support routines
 HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_group.c \
 	$(HALLIBDIR)/hal_ring.c \
-	$(HALLIBDIR)/hal_iter.c \
 	$(HALLIBDIR)/hal_rcomp.c \
-	$(MACHINETALK)/support/nanopb.c \
-	$(MACHINETALK)/nanopb/pb_decode.c \
-	$(MACHINETALK)/nanopb/pb_encode.c \
-	$(MACHINETALK)/nanopb/pb_common.c \
+	$(HALLIBDIR)/hal_vtable.c \
+	$(HALLIBDIR)/hal_funct.c \
+	$(HALLIBDIR)/hal_procfs.c \
+	$(HALLIBDIR)/hal_thread.c \
+	$(HALLIBDIR)/hal_param.c \
+	$(HALLIBDIR)/hal_signal.c \
+	$(HALLIBDIR)/hal_pin.c \
+	$(HALLIBDIR)/hal_comp.c \
+	$(HALLIBDIR)/hal_memory.c \
+	$(HALLIBDIR)/hal_misc.c \
+	$(HALLIBDIR)/hal_instance.c \
+	$(HALLIBDIR)/hal_object.c \
+	$(HALLIBDIR)/hal_object_selectors.c \
+	$(HALLIBDIR)/hal_accessor.c \
+	$(HALLIBDIR)/hal_iring.c \
 	rtapi/rtapi_heap.c
 
 # protobuf support functions which depend on HAL - on RT host only
@@ -49,7 +60,8 @@ $(HALLIB).0: \
 	$(call TOOBJS, $(SHMDRVAPISRCS)) \
 	$(call TOOBJS, $(HALLIBMTALK_SRCS)) \
 	$(call TOOBJS, $(LIBINISRCS)) \
-	../lib/liblinuxcnc-pb2++.so
+	$(call TOOBJS, machinetalk/lib/syslog_async.c) \
+	$(LIBS)/libmachinetalk-pb2++.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
@@ -67,3 +79,27 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 
 TARGETS += $(HALLIB) $(HALLIB).0
 PYTARGETS += $(HALMODULE)
+
+
+obj-m += hal_lib.o
+hal_lib-objs := hal/lib/hal_lib.o $(MATHSTUB)
+hal_lib-objs += hal/lib/hal_group.o
+hal_lib-objs += hal/lib/hal_ring.o
+hal_lib-objs += hal/lib/hal_rcomp.o
+hal_lib-objs += hal/lib/hal_vtable.o
+hal_lib-objs += hal/lib/hal_funct.o
+hal_lib-objs += hal/lib/hal_procfs.o
+hal_lib-objs += hal/lib/hal_thread.o
+hal_lib-objs += hal/lib/hal_signal.o
+hal_lib-objs += hal/lib/hal_pin.o
+hal_lib-objs += hal/lib/hal_param.o
+hal_lib-objs += hal/lib/hal_comp.o
+hal_lib-objs += hal/lib/hal_memory.o
+hal_lib-objs += hal/lib/hal_misc.o
+hal_lib-objs += hal/lib/hal_instance.o
+hal_lib-objs += hal/lib/hal_object.o
+hal_lib-objs += hal/lib/hal_object_selectors.o
+hal_lib-objs += hal/lib/hal_accessor.o
+hal_lib-objs += hal/lib/hal_iring.o
+
+$(RTLIBDIR)/hal_lib$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_lib-objs))

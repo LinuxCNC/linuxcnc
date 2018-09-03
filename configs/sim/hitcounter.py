@@ -19,7 +19,7 @@ class HandlerClass:
         self.nhits += 1
         self.builder.get_object('hits').set_label("Hits: %d" % (self.nhits))
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         '''
         Handler classes are instantiated in the following state:
         - the widget tree is created, but not yet realized (no toplevel window.show() executed yet)
@@ -39,7 +39,7 @@ class HandlerClass:
 
 
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
     '''
     this function is called by gladevcp at import time (when this module is passed with '-u <modname>.py')
 
@@ -48,4 +48,4 @@ def get_handlers(halcomp,builder,useropts):
 
     the 'get_handlers' name is reserved - gladevcp expects it, so do not change
     '''
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

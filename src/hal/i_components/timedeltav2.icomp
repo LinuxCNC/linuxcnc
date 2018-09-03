@@ -1,0 +1,72 @@
+component timedeltav2 """
+Machinekit HAL component that measures thread scheduling timing behavior""";
+pin_ptr out s32         out;
+pin_ptr out s32         err=0;
+pin_ptr out s32         min_=0;
+pin_ptr out s32         max_=0;
+pin_ptr out s32         jitter=0;
+pin_ptr out s32       avgerr=0.0;
+
+pin_ptr in bit          reset;
+
+function _ nofp;
+
+variable hal_s64_t last=0;
+variable hal_s32_t first=1;
+variable hal_s32_t count = 1; // prevent divide by zero error
+license "GPL";
+;;
+#undef max
+#define max(a,b) ((a)>(b)?(a):(b))
+
+FUNCTION(_)
+{
+hal_s64_t now = rtapi_get_time();
+hal_s64_t del = (now - last);
+hal_s64_t absl = del - period;
+
+    ss(out, del);
+
+    if(last != 0)
+        {
+        // only want average of actual pos overrun errors , not neg underruns as well
+        // they normally balance out which will give a meaningless figure of 0-5 ish average
+        if(absl > 0L)
+            ss(err, gs(err) + (hal_s32_t)absl);
+        if(first)
+            {
+            first = 0;
+            ss(min_, del);
+            ss(max_, del);
+            ss(jitter, 0);
+            }
+        else
+            {
+            if(del < gs(min_))
+                ss(min_, del);
+            if(del > gs(max_))
+                ss(max_,  del);
+            ss(jitter, max(gs(max_) - period, period - gs(min_)));
+            }
+        if(absl > 0L)
+            count++;
+        // this is an actual average of all the overruns
+        ss(avgerr, (gs(err) / count));
+        }
+
+    if(gb(reset))
+        {
+        first = 1;
+        last = 0L;
+        ss(out, 0);
+        ss(jitter, 0);
+        ss(max_, 0);
+        ss(min_, 0);
+        ss(avgerr,0);
+        absl = 0;
+        }
+    else
+        last = now;
+
+    return 0;
+}

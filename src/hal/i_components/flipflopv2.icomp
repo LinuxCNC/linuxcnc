@@ -1,0 +1,31 @@
+component flipflopv2 "D type flip-flop";
+pin_ptr in bit data_ "data input";
+pin_ptr in bit clk "clock, rising edge writes data to out";
+pin_ptr in bit set "when true, force out true";
+pin_ptr in bit reset "when true, force out false; overrides set";
+pin_ptr io bit out "output";
+variable hal_bit_t oldclk;
+
+function _ nofp;
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+hal_bit_t c;
+    c = gb(clk);
+    if ( gb(reset) )
+        {
+        sb(out, false);
+        }
+    else if ( gb(set) )
+        {
+        sb(out, true);
+        }
+    else if ( c && ! oldclk )
+        {
+        sb(out, gb(data_));
+        }
+    oldclk = c;
+    return 0;
+}

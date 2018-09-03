@@ -1,4 +1,4 @@
-These sim configurations demonstrate use of an XHC-HB04 wireless MPG pendant in LinuxCNC using a HAL module created by Frederic Rible (frible@teaser.fr) (Copyright (C) 2013).  Ref:
+These sim configurations demonstrate use of an XHC-HB04 wireless MPG pendant in Machinekit using a HAL module created by Frederic Rible (frible@teaser.fr) (Copyright (C) 2013).  Ref:
 
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
 

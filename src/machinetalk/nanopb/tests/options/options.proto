@@ -22,12 +22,14 @@ message Message2
 // Field level options
 message Message3
 {
+    option (nanopb_msgopt).msgid = 103;
     required string fieldsize = 1 [(nanopb).max_size = 40];
 }
 
 // Forced callback field
 message Message4
 {
+    option (nanopb_msgopt).msgid = 104;
     required int32 int32_callback = 1 [(nanopb).type = FT_CALLBACK];
 }
 
@@ -47,6 +49,7 @@ message EnumTest
 // Short enum names inside message
 message Message5
 {
+    option (nanopb_msgopt).msgid = 105;
     enum Enum2
     {
        option (nanopb_enumopt).long_names = false;
@@ -75,3 +78,12 @@ message SkippedMessage
     option (nanopb_msgopt).skip_message = true;
     required int32 foo = 1;
 }
+
+// Message with oneof field
+message OneofMessage
+{
+    oneof foo {
+        int32 bar = 1;
+    }
+}
+

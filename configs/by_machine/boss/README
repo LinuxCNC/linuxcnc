@@ -14,14 +14,14 @@ Detailed description:
 
 * hal files
 
--- boss.hal - this is the main hal file for the Motenc, it loads the motenc driver and sets up motion and IO links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let LinuxCNC know about it, and let LinuxCNC interrupt the external chain too).  Read more about this in the wiki at http://wiki.linuxcnc.org/
+-- boss.hal - this is the main hal file for the Motenc, it loads the motenc driver and sets up motion and IO links (like the pin number where the X limit switch is, or where the spindle start pin is connected), it is fairly well commented, so it should be easy to read / modify.  This servo setup is mostly for serious machines, so the ESTOP should really be planned / implemented properly (that means use an external ESTOP chain, and let Machinekit know about it, and let Machinekit interrupt the external chain too).  Read more about this in the wiki at http://wiki.linuxcnc.org/
 
 * additional files
 
 -- boss.tbl - this is the tool table file, and it holds definitions for the tools used, along with tool sizes for compensation (tool length & tool diameter)
 
--- boss.var - the variables file. This file is used by the interpreter to save internal variables when LinuxCNC shuts down, and rereads them on the next startup.
+-- boss.var - the variables file. This file is used by the interpreter to save internal variables when Machinekit shuts down, and rereads them on the next startup.
 
-Further specific information can be found in the LinuxCNC wiki:
+Further specific information can be found in the Linuxcnc wiki:
 http://wiki.linuxcnc.org/
 

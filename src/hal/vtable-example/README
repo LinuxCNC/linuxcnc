@@ -1,0 +1,56 @@
+HAL vtable objects
+------------------
+
+see https://github.com/machinekit/machinekit/issues/438
+
+
+$ halcmd -f -k
+
+halcmd: loadrt vtexport
+<stdin>:1: Realtime module 'vtexport' loaded
+halcmd: loadrt vt
+vtexport  vtuse
+halcmd: loadrt vtuse
+<stdin>:2: Realtime module 'vtuse' loaded
+halcmd: show comp
+Loaded HAL Components:
+ID      Type  Name                                      PID   State
+    73  RT    vtuse                                     RT    ready, u1:0 u2:0
+    71  RT    vtexport                                  RT    ready, u1:0 u2:0
+    69  User  halcmd12463                               12463 ready, u1:0 u2:0
+
+halcmd: show vtable
+Exported vtables:
+ID      Name                  Version Refcnt  Context Owner
+    72  example-vtable        1234    1       RT      71    vtexport
+
+halcmd: unloadrt vtuse
+<stdin>:5: Realtime module 'vtuse' unloaded rc=0
+halcmd: show vtable
+Exported vtables:
+ID      Name                  Version Refcnt  Context Owner
+    72  example-vtable        1234    0       RT      71    vtexport
+
+halcmd:
+
+
+log:
+
+Feb  2 23:16:38 nwheezy msgd:0: hal_lib:12457:rt HAL: initializing component 'vtexport' type=1 arg1=0 arg2=0/0x0
+Feb  2 23:16:38 nwheezy msgd:0: hal_lib:12457:rt HAL: component 'vtexport' initialized, ID = 71
+Feb  2 23:16:38 nwheezy msgd:0: hal_lib:12457:rt HAL: created vtable 'example-vtable' vtable=0xb74fb158 version=1234
+Feb  2 23:16:38 nwheezy msgd:0: rtapi_app:12457:user vtexport: loaded from vtexport.so
+Feb  2 23:16:43 nwheezy msgd:0: hal_lib:12457:rt HAL: initializing component 'vtuse' type=1 arg1=0 arg2=0/0x0
+Feb  2 23:16:43 nwheezy msgd:0: hal_lib:12457:rt HAL: component 'vtuse' initialized, ID = 73
+Feb  2 23:16:43 nwheezy msgd:0: hal_lib:12457:rt HAL: hal_reference_vtable(example-vtable,1234) found vtable=0xb74fb158 context=0
+
+Feb  2 23:16:43 nwheezy msgd:0: hal_lib:12457:rt vte_hello: vtuse   <------------- vtable method called
+
+Feb  2 23:16:43 nwheezy msgd:0: rtapi_app:12457:user vtuse: loaded from vtuse.so
+
+Feb  2 23:17:09 nwheezy msgd:0: hal_lib:12457:rt vte_goodbye: vtuse  <------------- vtable method called
+
+Feb  2 23:17:09 nwheezy msgd:0: hal_lib:12457:rt HAL: hal_unreference_vtable(72) (name=example-vtable) refcount=0
+Feb  2 23:17:09 nwheezy msgd:0: hal_lib:12457:rt HAL: removing component 73
+Feb  2 23:17:09 nwheezy msgd:0: hal_lib:12457:rt HAL: component 73 removed, name = 'vtuse'
+Feb  2 23:17:09 nwheezy msgd:0: rtapi_app:12457:user  'vtuse' unloaded

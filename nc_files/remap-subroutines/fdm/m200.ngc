@@ -1,0 +1,4 @@
+o<m200> sub
+#500=44 ; filament diameter index
+M68 E#500 Q#<D>
+o<m200> endsub

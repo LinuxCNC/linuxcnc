@@ -3,6 +3,7 @@
 /.tmp_versions
 /Makefile.inc
 /Makefile.modinc
+/aclocal.m4
 /config.h
 /config.log
 /config.status

@@ -1,0 +1,48 @@
+/********************************************************************
+* Description: Demux16 HAL component.
+*
+* Author: Les Newell <les at sheetcam dot com>
+* License: GPL Version 2 or later
+*    
+* Copyright (c) 2009 All rights reserved.
+*
+********************************************************************/
+
+component demux16v2 "Turn on one of 16 outputs depending on one input";
+
+pin_ptr in u32 in "input in the range 0-15.";
+
+pin_ptr out bit out##[pincount]  """One output goes on if the input is in the range 0-15.\
+			    Any other value results in no outputs on""";
+
+pin_ptr io bit bargraph = 0 """If true the all outputs up to the input value turn on.\
+			Note in bargraph mode the range is 0-16 where 0= all off.\
+			In normal mode the range is 0-15 where 0= output 0 on""";
+
+instanceparam int pincount = 16;
+
+option MAXCOUNT 16;
+
+author "Les Newell, adapted by ArcEye";
+
+function _;
+license "GPL";
+;;
+
+FUNCTION(_) 
+{
+int x;
+
+    if(gb(bargraph))
+	{
+	for( x = 0; x < local_pincount ; x++ )
+	    sb(out(x), (gu(in) > x) );
+	}
+    else
+        {
+	for( x = 0; x < local_pincount ; x++ )
+	    sb(out(x), (gu(in) == x) );
+	}
+
+    return 0;
+}

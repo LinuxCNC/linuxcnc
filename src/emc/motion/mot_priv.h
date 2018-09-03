@@ -33,6 +33,7 @@
 
 /* joint data */
 #include "hal.h"
+#include "hal_priv.h"
 #include "../motion/motion.h"
 
 typedef struct {
@@ -119,8 +120,10 @@ typedef struct {
     
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
     hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
+    hal_bit_t *synch_do_io[EMCMOT_MAX_DIO]; /* RPI array: output io pins for motion synched IO */
     hal_float_t *analog_input[EMCMOT_MAX_AIO]; /* RPI array: input pins for analog Inputs */
     hal_float_t *analog_output[EMCMOT_MAX_AIO]; /* RPI array: output pins for analog Inputs */
+    hal_float_t *analog_output_io[EMCMOT_MAX_AIO]; /* RPI array: output io pins for analog Inputs */
 
 
     // creating a lot of pins for spindle control to be very flexible
@@ -253,7 +256,7 @@ extern int num_joints;
    but can be altered at motmod insmod time */
 extern int num_dio;
 
-/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=16), 
+/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=64), 
    but can be altered at motmod insmod time */
 extern int num_aio;
 
@@ -297,21 +300,22 @@ extern TP_STRUCT *emcmotPrimQueue;
 extern TP_STRUCT *emcmotAltQueue;
 extern TP_STRUCT *emcmotQueue;
 
+extern long traj_period_nsec; // motion.c commandline argument
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *
 ************************************************************************/
 
 /* function definitions */
-extern void emcmotCommandHandler(void *arg, long period);
-extern void emcmotController(void *arg, long period);
+extern int emcmotCommandHandler(void *arg, const hal_funct_args_t *fa);
+extern int emcmotController(void *arg,  const hal_funct_args_t *fa);
 extern void emcmotSetCycleTime(unsigned long nsec);
 
 /* these are related to synchronized I/O */
-extern void emcmotDioWrite(int index, char value);
-extern void emcmotAioWrite(int index, double value);
+extern void emcmotDioWrite(unsigned int index, hal_bit_t value);
+extern void emcmotAioWrite(unsigned int index, hal_float_t value);
 
-extern void emcmotSetRotaryUnlock(int axis, int unlock);
-extern int emcmotGetRotaryIsUnlocked(int axis);
+extern void emcmotSetRotaryUnlock(int axis,  hal_bit_t unlock);
+extern hal_bit_t emcmotGetRotaryIsUnlocked(int axis);
 
 /* homing is no longer in control.c, make functions public */
 extern void do_homing_sequence(void);

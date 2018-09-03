@@ -1,4 +1,4 @@
-loadrt threads name1=fast period1=100000
+newthread fast 100000 fp
 loadrt flipflop
 
 loadrt sampler depth=1000 cfg=b

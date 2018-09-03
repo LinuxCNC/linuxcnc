@@ -1,0 +1,516 @@
+syntax = "proto2";
+import "machinetalk/protobuf/nanopb.proto";
+import "machinetalk/protobuf/types.proto";
+import "machinetalk/protobuf/preview.proto";
+import "machinetalk/protobuf/emcclass.proto";
+import "machinetalk/protobuf/motcmds.proto";
+
+// see README.msgid
+// msgid base: 1100
+
+package machinetalk;
+
+/**
+ *  Types for EMC task execution state.
+ */
+enum EmcTaskExecStateType {
+    EMC_TASK_EXEC_ERROR                         = 1;  /// Error during task execution.
+    EMC_TASK_EXEC_DONE                          = 2;  /// Task execution has bee completed.
+    EMC_TASK_EXEC_WAITING_FOR_MOTION            = 3;  /// Task execution is waiting for Motion.
+    EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE      = 4;  /// Task execution is waiting for Motion queue.
+    EMC_TASK_EXEC_WAITING_FOR_IO                = 5;  /// Task execution is waiting for IO.
+    EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO     = 7;  /// Task execution is waiting for Motion and IO.
+    EMC_TASK_EXEC_WAITING_FOR_DELAY             = 8;  /// Task execution is waiting for a delay.
+    EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD        = 9;  /// Task execution is waiting for a system command.
+    EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED  = 10; /// Task execution is waiting for spindle orientation to complete.
+}
+
+/**
+ * Types for EMC task interpreter state.
+ */
+enum EmcInterpStateType {
+    EMC_TASK_INTERP_IDLE    = 1;  /// Task interpreter is idling.
+    EMC_TASK_INTERP_READING = 2;  /// Task interpreter is reading.
+    EMC_TASK_INTERP_PAUSED  = 3;  /// Task interpreter is paused.
+    EMC_TASK_INTERP_WAITING = 4;  /// Task interpreter is waiting.
+}
+
+/**
+ * Types for EMC interpreter exit codes.
+ */
+enum EmcInterpExitCodeType {
+    EMC_INTERP_EXIT_OK              = 0;  /// Interpreter exited successfully.
+    EMC_INTERP_EXIT_EXIT            = 1;  /// Interpreter exited with no status information.
+    EMC_INTERP_EXIT_EXECUTE_FINISH  = 2;  /// Interpreter execution finished.
+    EMC_INTERP_EXIT_ENDFILE         = 3;  /// Interpreter has reached end of file.
+    EMC_INTERP_EXIT_FILE_NOT_OPEN   = 4;  /// Interpreter could not open the file.
+    EMC_INTERP_EXIT_ERROR           = 5;  /// Interpreter exited with an error.
+}
+
+/**
+ * EMC kinematics type.
+ */
+enum EmcKinematicsType {
+    KINEMATICS_IDENTITY     = 1;  /// Identity kinematics.
+    KINEMATICS_FORWARD_ONLY = 2;  /// Forward only kinematics.
+    KINEMATICS_INVERSE_ONLY = 3;  /// Inverse only kinematics.
+    KINEMATICS_BOTH         = 4;  /// Forward and inverse kinematics.
+}
+
+
+/**
+ * Types for trajectory motion control.
+ */
+enum EmcTrajectoryModeType {
+    EMC_TRAJ_MODE_FREE      = 1;  /// Independent axis motion.
+    EMC_TRAJ_MODE_COORD     = 2;  /// Coordinated axis motion.
+    EMC_TRAJ_MODE_TELEOP    = 3;  /// Velocity based world coordinates motion.
+}
+
+/**
+ * Types for EMC Canon units.
+ */
+enum EmcCanonUnitsType {
+    CANON_UNITS_INCH    = 1;  /// Inches.
+    CANON_UNITS_MM      = 2;  /// Millimeters.
+    CANON_UNITS_CM      = 3;  /// Centimeters.
+}
+
+/**
+ * Types for EMC linear units.
+ */
+enum EmcLinearUnitsType {
+    LINEAR_UNITS_INCH   = 1;  /// Inches.
+    LINEAR_UNITS_MM     = 2;  /// Millimeters.
+    LINEAR_UNITS_CM     = 3;  /// Centimeters.
+}
+
+/**
+ * Types for EMC angular units.
+ */
+enum EmcAngularUnitsType {
+    ANGULAR_UNITS_DEGREES = 1;  /// Degrees.
+    ANGULAR_UNITS_RADIAN  = 2;  /// Radian.
+    ANGULAR_UNITS_GRAD    = 3;  /// Grad.
+}
+
+/**
+ * Types for EMC time units.
+ */
+enum EmcTimeUnitsType {
+    TIME_UNITS_MINUTE  = 1;  /// Minutes.
+    TIME_UNITS_SECOND  = 2;  /// Seconds.
+}
+
+/**
+ * Types for EMC task modes.
+ */
+enum EmcTaskModeType {
+    EMC_TASK_MODE_MANUAL    = 1;  /// Manual task mode. For example jogging.
+    EMC_TASK_MODE_AUTO      = 2;  /// Automatic task mode. For example program execution.
+    EMC_TASK_MODE_MDI       = 3;  /// MDI task mode. MDI commands only.
+}
+
+/**
+ * Types for EMC task state.
+ */
+enum EmcTaskStateType {
+    EMC_TASK_STATE_ESTOP        = 1;  /// Task is in ESTOP.
+    EMC_TASK_STATE_ESTOP_RESET  = 2;  /// Task is trying to reset an ESTOP.
+    EMC_TASK_STATE_OFF          = 3;  /// Task is turned off (no ESTOP)
+    EMC_TASK_STATE_ON           = 4;  /// Task is turned on.
+}
+
+/**
+ * Axis types.
+ */
+enum EmcAxisType {
+    EMC_AXIS_LINEAR     = 1;  /// Axis is using linear units.
+    EMC_AXIS_ANGULAR    = 2;  /// Axis is using angular units.
+}
+
+/**
+ * Position offset types.
+ */
+enum EmcPositionOffsetType {
+    EMC_CONFIG_RELATIVE_OFFSET = 1;  /// Offset in relative coordinates.
+    EMC_CONFIG_MACHINE_OFFSET = 2;   /// Offset in machine coordinates.
+}
+
+/**
+ * Position feedback types.
+ */
+enum EmcPositionFeedbackType {
+    EMC_CONFIG_ACTUAL_FEEDBACK = 1;     /// Feed back current position.
+    EMC_CONFIG_COMMANDED_FEEDBACK = 2;  /// Feed back commanded position.
+}
+
+/**
+ * Tool table data.
+ */
+message EmcToolData {
+
+    option (nanopb_msgopt).msgid = 1100; // see README.msgid
+
+
+    required int32          index       = 1;  /// Tool table index (not tool id).
+    optional int32          id          = 2;  /// ID/number of the tool.
+    //optional double         xOffset     = 3; offsets replaced by Position message
+    //optional double         yOffset     = 4;
+    //optional double         zOffset     = 5;
+    //optional double         aOffset     = 6;
+    //optional double         bOffset     = 7;
+    //optional double         cOffset     = 8;
+    //optional double         uOffset     = 9;
+    //optional double         vOffset     = 10;
+    //optional double         wOffset     = 11;
+    optional double         diameter    = 12;  /// Diameter of the tool.
+    optional double         frontangle  = 13;  /// Front angle of the tool (only on lathe).
+    optional double         backangle   = 14;  /// Back angle of the tool (only on lathe).
+    optional int32          orientation = 15;  /// Orientation of the tool (lathe only, 0-9).
+    optional Position       offset      = 16;  /// Position offset of the tool.
+    optional string         comment     = 17;  /// User comment.
+    optional int32          pocket      = 18;  /// Tool pocket position.
+}
+
+/**
+ * Stores per axis information from motion.
+ */
+message EmcStatusMotionAxis {
+
+    option (nanopb_msgopt).msgid = 1101;
+
+    required int32          index           = 1;  /// Axis index.
+    optional bool           enabled         = 2;  /// Axis is enabled.
+    optional bool           fault           = 3;  /// Axis amp fault.
+    optional double         ferror_current  = 4;  /// Current following error.
+    optional double         ferror_highmark = 5;  /// Magnitude of maximum following error.
+    optional bool           homed           = 6;  /// Axis has been homed.
+    optional bool           homing          = 7;  /// Homing currently progress.
+    optional bool           inpos           = 8;  /// Axis is in position.
+    optional double         input           = 9;  /// Current input position.
+    optional bool           max_hard_limit  = 10; /// Maximum hard limit exceeded.
+    optional bool           max_soft_limit  = 11; /// Maximum position limit was exceeded.
+    optional bool           min_hard_limit  = 12; /// Minimum hard limit was exceeded.
+    optional bool           min_soft_limit  = 13; /// Minimum position limit was exceeded.
+    optional double         output          = 14; /// Commanded output position.
+    optional bool           override_limits = 15; /// Limits are overridden.
+    optional double         velocity        = 16; /// Current velocity.
+}
+
+/**
+ * Stores per axis information from configuration.
+ */
+message EmcStatusConfigAxis {
+
+    option (nanopb_msgopt).msgid = 1102;
+
+    required int32          index               = 1;  /// Axis index.
+    optional EmcAxisType    axis_type           = 2;  /// Type of axis. Reflects [AXIS_N]TYPE
+    optional double         backlash            = 3;  /// Axis backlash. Reflects [AXIS_N]BACKLASH
+    optional double         max_ferror          = 4;  /// Maximum following error. Reflects [AXIS_N]FERROR
+    optional double         max_position_limit  = 5;  /// Maximum position limit. Reflects [AXIS_N]MAX_LIMIT
+    optional double         min_ferror          = 6;  /// Minimum following error. Reflects [AXIS_N]MIN_FERROR
+    optional double         min_position_limit  = 7;  /// Minimum position limit. Reflects [AXIS_N]MIN_LIMIT
+    //optional double         units               = 8;  // Units per mm. field removed
+    optional int32          home_sequence       = 9;  /// Homing sequence index. Reflects [AXIS_N]HOME_SEQUENCE
+    optional double         max_acceleration    = 10; /// Maximum acceleration. Reflects [AXIS_N]MAX_ACCELERATION
+    optional double         max_velocity        = 11; /// Maximum velocity. Reflects [AXIS_N]MAX_VELOCITY
+    optional string         increments          = 12; /// Axis increments space separated.Reflects [AXIS_N]INCREMENTS or [DISPLAY]INCREMENTS
+}
+
+/**
+ * Program extension message.
+ */
+message EmcProgramExtension {
+
+    option (nanopb_msgopt).msgid = 1103;
+
+    required int32          index = 1;      /// Index of the program extension.
+    optional string         extension = 2;  /// Supported program extension. E.g. .gcode GCode program
+}
+
+/**
+ * Analog IO pin message.
+ */
+message EmcStatusAnalogIO {
+
+    option (nanopb_msgopt).msgid = 1104;
+
+    required int32          index = 1;  /// Index of analog IO pin.
+    optional double         value = 2;  /// Current value of analog IO pin.
+}
+
+/**
+ * Digital IO pin message.
+ */
+message EmcStatusDigitalIO {
+
+    option (nanopb_msgopt).msgid = 1105;
+
+    required int32          index = 1;  /// Index of digital IO pin.
+    optional bool           value = 2;  /// Current value of digital IO pin.
+}
+
+/**
+ * Limit mask message.
+ */
+message EmcStatusLimit {
+
+    option (nanopb_msgopt).msgid = 1106;
+
+    required int32          index = 1;  /// Axis index.
+    optional int32          value = 2;  /// Axis limit mask. minHardLimit=1, maxHardLimit=2, minSoftLimit=4, maxSoftLimit=8
+}
+
+/**
+ * Currently active GCodes message.
+ */
+message EmcStatusGCode {
+
+    option (nanopb_msgopt).msgid = 1107;
+
+    required int32          index = 1;  /// Index of the GCode.
+    optional int32          value = 2;  /// GCode value. E.g. 210 for G21
+}
+
+/**
+ * Currently active MCodes message.
+ */
+message EmcStatusMCode {
+
+    option (nanopb_msgopt).msgid = 1108;
+
+    required int32          index = 1;  /// Index of MCode.
+    optional int32          value = 2;  /// MCode value. E.g. 100 for M100
+}
+
+/**
+ * Interpreter setting message.
+ */
+message EmcStatusSetting {
+
+    option (nanopb_msgopt).msgid = 1109;
+
+    required int32          index = 1;  /// Index of interpreter setting.
+    optional double         value = 2;  /// Interpreter settings value.
+}
+
+/**
+ * EMC status configuration message.
+ */
+message EmcStatusConfig {
+
+    option (nanopb_msgopt).msgid = 1110;
+
+    optional double                     default_acceleration     = 1;  /// Default acceleration. Reflects parameter [TRAJ]DEFAULT_ACCELERATION.
+    //optional double                     angular_units            = 2;  // Angular units scale. Reflects [TRAJ]ANGULAR_UNITS field removed
+    optional int32                      axes                     = 3;  /// Number of axes. Reflects [TRAJ]AXES
+    repeated EmcStatusConfigAxis        axis                     = 4;  /// Per axis configuration values.
+    optional int32                      axis_mask                = 5;  /// Mask of axes. Reflects [TRAJ]COORDINATES and returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64, V=128, W=256.
+    optional double                     cycle_time               = 6;  /// Polling cycle time. Reflects [TRAJ]CYCLE_TIME
+    optional int32                      debug                    = 7;  /// Debug flag.
+    optional EmcKinematicsType          kinematics_type          = 8;  /// Kinematics type.
+    //optional double                     linear_units             = 9;  // Linear units scale. Reflects [TRAJ]LINEAR_UNITS field removed
+    optional double                     max_acceleration         = 10; /// Maximum acceleration. Reflects [TRAJ]MAX_ACCELERATION
+    optional double                     max_velocity             = 11; /// Maximum velocity. Reflects [TRAJ]MAX_VELOCITY
+    optional EmcLinearUnitsType         linear_units             = 12; /// Linear machine units. Reflects [TRAJ]LINEAR_UNITS
+    optional double                     default_velocity         = 13; /// Default velocity. Reflects [TRAJ]DEFAULT_VELOCITY
+    repeated EmcProgramExtension        program_extension        = 14; /// List if program supported program extensions.
+    optional EmcPositionOffsetType      position_offset          = 15; /// Position offset type. Reflects [DISPLAY]POSITION_OFFSET
+    optional EmcPositionFeedbackType    position_feedback        = 16; /// Position feedback type. Reflects [DISPLAY]POSITION_FEEDBACK
+    optional double                     max_feed_override        = 17; /// Maximum feed override. Reflects [DISPLAY]MAX_FEED_OVERRIDE
+    optional double                     min_feed_override        = 18; /// Minimum feed override. Reflects [DISPLAY]MIN_FEED_OVERRIDE
+    optional double                     max_spindle_override     = 19; /// Maximum spindle speed override. Reflects [DISPLAY]MAX_SPINDLE_OVERRIDE
+    optional double                     min_spindle_override     = 20; /// Minimum spindle override. Reflects [DISPLAY]MIN_SPINDLE_OVERRIDE
+    optional double                     default_spindle_speed    = 21; /// Default spindle speed. Reflects [DISPLAY]DEFAULT_SPINDLE_SPEED
+    optional double                     default_linear_velocity  = 22; /// Default linear velocity. Reflects [DISPLAY]DEFAULT_LINEAR_VELOCITY
+    optional double                     min_velocity             = 23; /// Minimum velocity override. Reflects [DISPLAY]MIN_VELOCITY
+    optional double                     max_linear_velocity      = 24; /// Maximum linear velocity. Reflects [DISPLAY]MAX_LINEAR_VELOCITY
+    optional double                     min_linear_velocity      = 25; /// Minimum linear velocity. Reflects [DISPLAY]MIN_LINEAR_VELOCITY
+    optional double                     default_angular_velocity = 26; /// Default angular velocity. Reflects [DISPLAY]DEFAULT_ANGULAR_VELOCITY
+    optional double                     max_angular_velocity     = 27; /// Maximum angular velocity. Reflects [DISPLAY]MAX_ANGULAR_VELOCITY
+    optional double                     min_angular_velocity     = 28; /// Minimum angular velocity. Reflects [DISPLAY]MIN_ANGULAR_VELOCITY
+    optional string                     increments               = 29; /// White space separated jog increments. Reflects [DISPLAY]INCREMENTS
+    optional string                     grids                    = 30; /// Grid intervals. Reflects [DISPLAY]GRIDS
+    optional bool                       lathe                    = 31; /// Is machine a lathe. Reflects [DISPLAY]LATHE
+    optional string                     geometry                 = 32; /// Geometry of machine. E.g. XYZ. Reflects [DISPLAY]GEOMETRY
+    optional uint32                     arcdivision              = 33; /// Display granularity for arcs. Reflects [DISPLAY]ARCDIVISION
+    optional bool                       no_force_homing          = 34; /// Do not enforce homing. Reflects [DISPLAY]NO_FORCE_HOMING
+    optional string                     remote_path              = 35; /// Remote file path. Reflects [DISPLAY]PROGRAM_PREFIX
+    optional EmcTimeUnitsType           time_units               = 36; /// Time units type. Reflects [DISPLAY]TIME_UNITS
+    optional string                     name                     = 37; /// Machine name. Reflects [EMC]MACHINE
+    repeated EmcStatusUserCommand       user_command             = 38; /// List of user commands. Reflects [DISPLAY]USER_COMMAND
+    optional EmcAngularUnitsType        angular_units            = 39; /// Angular machine units. Reflects [TRAJ]ANGULAR_UNITS
+}
+
+/**
+ * EMC status motion message.
+ */
+message EmcStatusMotion {
+
+    option (nanopb_msgopt).msgid = 1111;
+
+    optional int32                  active_queue            = 1;  /// Number of motions blending.
+    optional Position               actual_position         = 2;  /// Current trajectory position.
+    optional bool                   adaptive_feed_enabled   = 3;  /// Status of adaptive feed override.
+    repeated EmcStatusAnalogIO      ain                     = 4;  /// Status of analog input pins.
+    repeated EmcStatusAnalogIO      aout                    = 5;  /// Status of analog output pins.
+    repeated EmcStatusMotionAxis    axis                    = 6;  /// Per axis motion values.
+    optional bool                   block_delete            = 7;  /// Block delete on or off.
+    optional int32                  current_line            = 8;  /// Currently executing line.
+    optional double                 current_vel             = 9;  /// Current velocity in Cartesian space.
+    optional double                 delay_left              = 10; /// Remaining time on dwell (G4) command.
+    repeated EmcStatusDigitalIO     din                     = 11; /// Status of digital input pins.
+    optional double                 distance_to_go          = 12; /// Remaining distance of current move reported by trajectory planner.
+    repeated EmcStatusDigitalIO     dout                    = 13; /// Status of digital output pins.
+    optional Position               dtg                     = 14; /// Remaining distance of current move reported by trajectory planner.
+    optional bool                   enabled                 = 15; /// Trajectory planner enabled flag.
+    optional bool                   feed_hold_enabled       = 16; /// Enable flag for feed hold.
+    optional bool                   feed_override_enabled   = 17; /// Enable flag for feed override.
+    optional double                 feedrate                = 18; /// Current feedrate override.
+    optional OriginIndex            g5x_index               = 19; /// Currently active coordinate system.
+    optional Position               g5x_offset              = 20; /// Offset of the currently active coordinate system.
+    optional Position               g92_offset              = 21; /// Current G92 offset.
+    optional int32                  id                      = 23; /// Currently executing motion id.
+    optional bool                   inpos                   = 24; /// Machine in position flag.
+    optional Position               joint_actual_position   = 25; /// Actual joint position.
+    optional Position               joint_position          = 26; /// Desired joint position.
+    repeated EmcStatusLimit         limit                   = 27; /// Axis limit masks.
+    optional int32                  motion_line             = 28; /// Source line number motion is currently executing. Relation to id is unclear.
+    optional MotionType             motion_type             = 29; /// Trajectory planner mode.
+    optional EmcTrajectoryModeType  motion_mode             = 30; /// Trajectory mode.
+    optional bool                   paused                  = 31; /// Motion paused flag.
+    optional Position               position                = 32; /// Trajectory position.
+    optional bool                   probe_tripped           = 33; /// True if probe has tripped.
+    optional int32                  probe_val               = 34; /// Reflects the value of the motion.probe-input pin
+    optional Position               probed_position         = 35; /// Position where probe has tripped
+    optional bool                   probing                 = 36; /// Probe operation in progress.
+    optional int32                  queue                   = 37; /// Current size of trajectory planner queue.
+    optional bool                   queue_full              = 38; /// Trajectory planner queue is full.
+    optional double                 rotation_xy             = 39; /// Current XY rotation around Z axis.
+    optional bool                   spindle_brake           = 40; /// Spindle braked.
+    optional int32                  spindle_direction       = 41; /// Rotational direction of the spindle. forward=1, reverse=-1.
+    optional bool                   spindle_enabled         = 42; /// Spindle enabled.
+    optional int32                  spindle_increasing      = 43; /// Spindle speed is increasing.
+    optional bool                   spindle_override_enabled = 44; /// Spindle override is enabled.
+    optional double                 spindle_speed           = 45; /// Spindle speed value in rpm. > 0 is clockwise, < 0 is counterclockwise
+    optional double                 spindlerate             = 46; /// Spindle speed override.
+    optional RCS_STATUS             state                   = 47; /// Current command execution status.
+    optional double                 max_velocity            = 48; /// Maximum velocity override.
+    optional double                 max_acceleration        = 49; /// TODO remove
+    optional double                 rapidrate               = 50; /// Current rapid override.
+}
+
+/**
+ * EMC IO message.
+ */
+message EmcStatusIo {
+
+    option (nanopb_msgopt).msgid = 1112;
+
+    optional bool           estop           = 1;  /// Estop active.
+    optional bool           flood           = 2;  /// Flood enabled.
+    optional bool           lube            = 3;  /// Lube enabled.
+    optional bool           lube_level      = 4;  /// Lube level. Reflects iocontrol.0.lube_level
+    optional bool           mist            = 5;  /// Mist enabled.
+    //optional bool           pocket_prepped  = 6;  /// replaced with field 10
+    //optional bool           tool_in_spindle = 7;  /// replaced with field 11
+    optional Position       tool_offset     = 8;  /// Offset values of the current tool.
+    repeated EmcToolData    tool_table      = 9;  /// List of tool entries.
+    optional int32          pocket_prepped  = 10; /// A Tx command completed and this pocket is prepared
+    optional int32          tool_in_spindle = 11; /// Current tool number.
+}
+
+/**
+ * EMC status task message.
+ */
+message EmcStatusTask {
+
+    option (nanopb_msgopt).msgid = 1113;
+
+    /**
+     * The serial number of the last executed command set by a UI to task.
+     * All commands carry a serial number. Once the command has been executed,
+     * its serial number is reflected in echo_serial_number.
+     */
+    optional int32                  echo_serial_number  = 1;
+    optional EmcTaskExecStateType   exec_state          = 2;  /// Task execution state.
+    optional string                 file                = 3;  /// Currently executing gcode file.
+    optional bool                   input_timeout       = 4;  /// Flag for M66 timer in progress.
+    optional bool                   optional_stop       = 5;  /// Optional stop enabled.
+    optional int32                  read_line           = 6;  /// Line the RS274NGC interpreter is currently reading. TODO move to interp
+    optional EmcTaskModeType        task_mode           = 7;  /// Current task mode.
+    optional int32                  task_paused         = 8;  /// Task paused.
+    optional EmcTaskStateType       task_state          = 9;  /// Current task state.
+    optional int32                  total_lines         = 10; /// Total number of lines of currently active program file.
+}
+
+/**
+ * EMC status interpreter message.
+ */
+message EmcStatusInterp {
+
+    option (nanopb_msgopt).msgid = 1114;
+
+    optional string                 command             = 1;  /// Currently executing command.
+    repeated EmcStatusGCode         gcodes              = 2;  /// Currently active GCodes.
+    optional EmcInterpStateType     interp_state        = 3;  /// Current state of RS274NGC interpreter.
+    optional EmcInterpExitCodeType  interpreter_errcode = 4;  /// Current RS274NGC interpreter return code.
+    repeated EmcStatusMCode         mcodes              = 5;  /// Currently active MCodes.
+    repeated EmcStatusSetting       settings            = 6;  /// Current interpreter settings. [0] = sequence number, [1] = feed rate, [2] = velocity
+    optional EmcCanonUnitsType      program_units       = 7;  /// Current interpreter program units.
+}
+
+/**
+ * EMC command parameters.
+ */
+message EmcCommandParameters {
+
+    option (nanopb_msgopt).msgid = 1115;
+
+    optional uint32                 index       = 1;  /// General purpose index.
+    optional uint32                 debug_level = 2;  /// Debug level.
+    optional int32                  line_number = 3;  /// General purpose line number.
+    optional double                 scale = 4;        /// General purpose scale value.
+    optional double                 velocity = 5;     /// General purpose velocity value.
+    optional double                 distance = 6;     /// General purpose distance value.
+    optional double                 value = 7;        /// General purpose value.
+    optional bool                   enable = 8;       /// General purpose enable value.
+    optional string                 command = 9;      /// General purpose command string.
+    optional string                 path = 10;        /// General purpose path string.
+    optional EmcTaskModeType        task_mode = 100;  /// Task mode.
+    optional EmcTaskStateType       task_state = 101; /// Task state.
+    optional EmcTrajectoryModeType  traj_mode = 102;  /// Trajectory mode.
+    optional EmcPose                pose = 103;       /// General purpose pose.
+    optional EmcToolData            tool_data = 104;  /// Tool data.
+    repeated EmcToolData            tool_table = 105; /// Complete tool table.
+}
+
+/**
+ * User command message.
+ */
+message EmcStatusUserCommand {
+
+    option (nanopb_msgopt).msgid = 1116;
+
+    required int32          index = 1;   /// User command index.
+    optional string         command = 2; /// User command separated by semicolon. E.g. G1A20;G1A0 Remove Filament.
+}
+
+/**
+ * EMC status user interface message.
+ */
+message EmcStatusUI {
+    option (nanopb_msgopt).msgid = 1117;
+
+    optional bool spindle_brake_visible = 1;     /// Spindle brake control visible
+    optional bool spindle_cw_visible = 2;        /// Spindle CW control visible
+    optional bool spindle_ccw_visible = 3;       /// Spindle CCW control visible
+    optional bool spindle_stop_visible = 4;      /// Spindle stop control visible
+    optional bool spindle_plus_visible = 5;      /// Spindle plus control visible
+    optional bool spindle_minus_visible = 6;     /// Spindle minus control visible
+    optional bool spindle_override_visible = 7;  /// Spindle override control visible
+    optional bool coolant_flood_visible = 8;     /// Coolant flood control visible
+    optional bool coolant_mist_visible = 9;      /// Coolant mist control visible
+}

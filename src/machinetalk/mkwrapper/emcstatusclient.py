@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import zmq
 import sys
 
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.config_pb2 import *
+from machinetalk.protobuf.types_pb2 import *
 
 
 class EmcStatusClient:

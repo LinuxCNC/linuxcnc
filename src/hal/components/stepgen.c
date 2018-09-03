@@ -882,7 +882,7 @@ static void update_freq(void *arg, long period)
 	    stepgen->maxvel = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_freq */
-	    desired_freq = stepgen->maxvel * fabs(stepgen->pos_scale);
+	    desired_freq = stepgen->maxvel * rtapi_fabs(stepgen->pos_scale);
 	    if (desired_freq > max_freq) {
 		/* parameter is too high, complain about it */
 		if(!stepgen->printed_error) {
@@ -895,10 +895,10 @@ static void update_freq(void *arg, long period)
 		    stepgen->printed_error = 1;
 		}
 		/* parameter is too high, limit it */
-		stepgen->maxvel = max_freq / fabs(stepgen->pos_scale);
+		stepgen->maxvel = max_freq / rtapi_fabs(stepgen->pos_scale);
 	    } else {
 		/* lower max_freq to match parameter */
-		max_freq = stepgen->maxvel * fabs(stepgen->pos_scale);
+		max_freq = stepgen->maxvel * rtapi_fabs(stepgen->pos_scale);
 	    }
 	}
 	/* set internal accel limit to its absolute max, which is
@@ -910,12 +910,12 @@ static void update_freq(void *arg, long period)
 	    stepgen->maxaccel = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_ac */
-	    if ((stepgen->maxaccel * fabs(stepgen->pos_scale)) > max_ac) {
+	    if ((stepgen->maxaccel * rtapi_fabs(stepgen->pos_scale)) > max_ac) {
 		/* parameter is too high, lower it */
-		stepgen->maxaccel = max_ac / fabs(stepgen->pos_scale);
+		stepgen->maxaccel = max_ac / rtapi_fabs(stepgen->pos_scale);
 	    } else {
 		/* lower limit to match parameter */
-		max_ac = stepgen->maxaccel * fabs(stepgen->pos_scale);
+		max_ac = stepgen->maxaccel * rtapi_fabs(stepgen->pos_scale);
 	    }
 	}
 	/* at this point, all scaling, limits, and other parameter
@@ -959,7 +959,7 @@ static void update_freq(void *arg, long period)
 	    est_err = est_out - est_cmd;
 	    if (match_time < dt) {
 		/* we can match velocity in one period */
-		if (fabs(est_err) < 0.0001) {
+		if (rtapi_fabs(est_err) < 0.0001) {
 		    /* after match the position error will be acceptable */
 		    /* so we just do the velocity match */
 		    new_vel = vel_cmd;
@@ -979,7 +979,7 @@ static void update_freq(void *arg, long period)
 		dv = -2.0 * match_ac * dt;
 		dp = dv * match_time;
 		/* decide which way to ramp */
-		if (fabs(est_err + dp * 2.0) < fabs(est_err)) {
+		if (rtapi_fabs(est_err + dp * 2.0) < rtapi_fabs(est_err)) {
 		    match_ac = -match_ac;
 		}
 		/* and do it */

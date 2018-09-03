@@ -1,10 +1,8 @@
-# this creates the named ring ring_0 as stream ring
-loadrt ringload num_rings=1 size=16384 mode=2
+newring test 16384 stream
 
-loadrt ringread ring=ring_0
+loadrt ringread ring=test
 
-# 1ms
-loadrt threads name1=fast period1=1000000
+newthread fast 1000000    fp
 
 # the 'dequeue and print message' thread function
 addf ringread  fast

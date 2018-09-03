@@ -12,6 +12,8 @@ RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
 INIVAR=@EMC2_LIBEXEC_DIR@/inivar
 LSMOD=@LSMOD@
 PIDOF=@PIDOF@
+PS=@PS@
+AWK=@AWK@
 SHM_DEV=/dev/shmdrv
 SHM_STAT=/sys/devices/virtual/misc/shmdrv/status
 
@@ -90,10 +92,16 @@ if [ "$SHMDRV_OPTS" != "" ]  ; then
     MSGD_OPTS="$MSGD_OPTS --shmdrv_opts=$SHMDRV_OPTS"
 fi
 
+# SYSLOG_TO_STDERR:  when set, log to stdout instead of syslog
+if test -n "$SYSLOG_TO_STDERR"; then
+    MSGD_OPTS+=" -s"
+    RTAPI_APP_OPTS+=" -s"
+fi
+
 # set the default instance, if not already set
-INSTANCE=`printf '%d' $INSTANCE`
-if [ "$INSTANCE_NAME" != "" ]  ; then
-    NAME_CMD=--instance_name="$INSTANCE_NAME"
+MK_INSTANCE=`printf '%d' $MK_INSTANCE`
+if [ "$MK_INSTANCE_NAME" != "" ]  ; then
+    NAME_CMD=--instance_name="$MK_INSTANCE_NAME"
 else
     unset NAME_CMD
 fi
@@ -112,26 +120,65 @@ done
 
 
 
-# wait for a pid to exit
+# wait for a process to exit
 anywait(){
-    pid=$1
-    for (( n=0; $n<20; $((n++)) )); do
+    proc_name=$1
+    tries=${2:-20}
+    sig=${3:-0}
+    pid=$(FindRunningProcs $proc_name)
+    if test -z "$pid"; then
+	return 0 # Already exited
+    fi
+
+    # Kill proc if requested
+    if test -n "$sig"; then
+	kill -$sig "$pid" >/dev/null 2>&1 || return 0
+    fi
+
+    # Wait to see if it exited
+    for (( n=0; $n<$tries; $((n++)) )); do
 	# return success if process died
-	kill -0 "$pid" >/dev/null 2>&1 || return 0
-	# otherwise, wait 1/2 second and try again, up to 10 seconds
+	if ! CheckRunningProcs $proc_name; then
+	    return 0
+	fi
+	# otherwise, wait 1/2 second and try again, up to $tries/2 seconds
 	sleep 0.5
     done
     return 1
+}
+
+FindRunningProcs() {
+    # Usage: FindRunningProcs $proc_name
+    # Find non-zombie procs named $proc_name and echo their PIDs
+    local proc_name=$1
+    local all="$(${PIDOF} ${proc_name})"
+    if test -z "$all"; then
+	return  # No procs named $proc_name found at all
+    fi
+    local live="$(ps -p "$all" -o pid=,s= | ${AWK} '$2 != "Z" {print $1}')"
+    if test -z "$live"; then
+	return  # No non-zombie procs named $proc_name found
+    fi
+    echo $live
+    return 0
+}
+
+CheckRunningProcs() {
+    # Usage: CheckRunningProcs $proc_name
+    # Return true if there are any non-zombie procs named $proc_name, else false
+    local proc_name=$1
+    local live="$(FindRunningProcs "$proc_name")"
+    test -n "$live"
 }
 
 CheckStatus(){
     local res=0
 
     # check if rtapi_msgd and rtapi_app are running
-    progs="msgd:${INSTANCE} rtapi:${INSTANCE}"
+    progs="msgd:${MK_INSTANCE} rtapi:${MK_INSTANCE}"
 
     for prog in $progs; do
-	if test -n "$($PIDOF $prog)"; then
+	if CheckRunningProcs $prog; then
 	    echo "$prog running" >&2
 	else
 	    echo "$prog stopped" >&2
@@ -174,17 +221,24 @@ Load(){
     # rtapi_msgd creates the global segment containing the error ring buffer
     # so start this first:
 
-    ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
-	--rtmsglevel=$DEBUG \
-	--usrmsglevel=$DEBUG \
-	--halsize=$HAL_SIZE $MSGD_OPTS || \
-	(echo "rtapi_msgd startup failed - aborting"; exit $?)
+    local cmd=(${rtapi_msgd} --instance=$MK_INSTANCE $NAME_CMD
+			     --rtmsglevel=$DEBUG
+			     --usrmsglevel=$DEBUG
+			     --halsize=$HAL_SIZE $MSGD_OPTS)
+    [ $DEBUG -eq 0 ] || echo "rtapi_msgd command:  ${cmd[@]}" >&2
+    "${cmd[@]}" || (
+	e=$?; echo "rtapi_msgd startup failed - aborting" >&2; exit $e)
 
     # rtapi_app_<flavor> now handles the kernel module loading
     # for kthreads as needed
+    local cmd=(${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS)
     if [ $DEBUG -gt 0 ] ; then
-	    ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS  || \
-		(echo "rtapi_app startup failed - aborting"; exit $?)
+	echo "rtapi_app command:  ${cmd[@]}" >&2
+	"${cmd[@]}" || (
+	    e=$?; echo "rtapi_app startup failed; aborting" >&2; exit $e)
+    else
+	"${cmd[@]}" 2>&1 || (
+	    e=$?; echo "rtapi_app startup failed; aborting" >&2; exit $e)
     fi
     # wait until rtapi_app responds, meaning setup is complete
     # this avoids startup races
@@ -255,13 +309,10 @@ Unload(){
 
     # shutdown rtapi if it exists
 
-    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
-    if [ "$RTAPI_PID" != "" ] ; then
+    if CheckRunningProcs rtapi:$MK_INSTANCE; then
 	if [ $DEBUG -gt 0 ] ; then
-	    halcmd unload all
 	    halcmd shutdown
 	else
-	    halcmd unload all          >/dev/null 2>&1
 	    halcmd shutdown            >/dev/null 2>&1
         fi
     fi
@@ -271,7 +322,7 @@ Unload(){
 	    # remove any linuxcnc-specific POSIX shm segments if they exist
 	    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 
-	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE`
+	INSTKEY=`printf 'linuxcnc-%d-' $MK_INSTANCE`
 	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
     fi
 
@@ -289,19 +340,18 @@ Unload(){
     # This helps to debug issues during the critical shutdown phase;
     # if msgd exited right away those messages would be lost.
 
-    sleep 2.5
-
-    # and get nasty only if it didnt
-    MSGD_PID=`$PIDOF msgd:$INSTANCE`
-    if [ "$MSGD_PID" != "" ] ; then
-	kill -TERM $MSGD_PID
-	# ...and get even nastier if SIGTERM fails.  FIXME this needs
-	# to be reviewed; if we get this far, then we might need
-	# operator intervention, including debugging
-	if ! anywait $MSGD_PID; then
-	    echo "ERROR:  msgd:$INSTANCE failed to exit after SIGTERM;" >&2
+    # Wait 5s to see if rtapi_msgd exits on its own
+    if ! anywait msgd:$MK_INSTANCE 10 ''; then
+	# It didn't; get nasty
+	echo "ERROR:  msgd:$MK_INSTANCE failed to exit on its own;" \
+	     "sending SIGTERM" >&2
+	if ! anywait msgd:$MK_INSTANCE 20 TERM; then
+	    # ...and get even nastier if SIGTERM fails.  FIXME this needs
+	    # to be reviewed; if we get this far, then we might need
+	    # operator intervention, including debugging
+	    echo "ERROR:  msgd:$MK_INSTANCE failed to exit after SIGTERM;" >&2
 	    echo "sending SIGKILL" >&2
-	    kill -KILL $MSGD_PID
+	    kill -KILL $(FindRunningProcs msgd:$MK_INSTANCE)
 	fi
     fi
 
@@ -324,23 +374,26 @@ Unload(){
 
 CheckUnloaded(){
 
-    # if msgd:$INSTANCE is still around, this might still be a running instance 
+    # if msgd:$MK_INSTANCE is still around, this might still be a running instance 
     # after all - this applies to all flavors - msgd is always there, so cop out
 
-    MSGD_PID=`$PIDOF msgd:$INSTANCE`
-    if [ "$MSGD_PID" != "" ] ; then
-	echo "instance $INSTANCE still running - process msgd:$INSTANCE present (pid $MSGD_PID) !"
+
+    if CheckRunningProcs msgd:$MK_INSTANCE; then
+	MSGD_PID=`FindRunningProcs msgd:$MK_INSTANCE`
+	echo "instance $MK_INSTANCE still running;" \
+	     "process msgd:$MK_INSTANCE present (pid $MSGD_PID) !" >&2
 	exit 1
     fi
 
-    # if msgd:$INSTANCE isnt running but rtapi:$INSTANCE is, that's bad - msgd
+    # if msgd:$MK_INSTANCE isnt running but rtapi:$MK_INSTANCE is, that's bad - msgd
     # should be last to exit
     # this is a noop in kthreads, but clearly an error in uthreads
 
-    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
-    if [ "$RTAPI_PID" != "" ] ; then
-	echo "instance $INSTANCE inproperly shutdown!"
-	echo "msgd:$INSTANCE gone, but rtapi:$INSTANCE alive (pid $RTAPI_PID)"
+    if CheckRunningProcs rtapi:$MK_INSTANCE; then
+	RTAPI_PID=`FindRunningProcs rtapi:$MK_INSTANCE`
+	echo "instance $MK_INSTANCE inproperly shutdown!" >&2
+	echo "msgd:$MK_INSTANCE gone," \
+	     "but rtapi:$MK_INSTANCE alive (pid $RTAPI_PID)" >&2
 	exit 1
     fi
 
@@ -351,13 +404,15 @@ CheckUnloaded(){
     # if any, determine if a process is still using it; complain if so,
     # else remove with a note
 
-    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $INSTANCE`
+    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $MK_INSTANCE`
 
     for seg in `ls $POSIXSHM 2>/dev/null` ; do
 	if pids=`fuser $seg  2>/dev/null` ; then
-	    echo instance $INSTANCE: shared memory $seg still in use by pid: $pids !
+	    echo "instance $MK_INSTANCE: " \
+		 "shared memory $seg still in use by pid: $pids !" >&2
 	else
-	    echo instance $INSTANCE: leftover shared memory $seg unused, removing
+	    echo "instance $MK_INSTANCE: " \
+		 "leftover shared memory $seg unused, removing" >&2
 	    rm -f $seg
 	fi
     done
@@ -372,7 +427,7 @@ CheckUnloaded(){
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
 	if $LSMOD | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    echo "ERROR: Could not unload '$module'"
+	    echo "ERROR: Could not unload '$module'" >&2
 	    STATUS=error
 	fi
     done

@@ -120,6 +120,48 @@
             <format>"+4.4f"</format>
         </number>
     </hbox>
+
+
+    <label>
+        <text>"A Axis"</text>
+    </label>
+    <hbox>
+        <label>
+            <text>"+Acc"</text>
+        </label>
+        <number>
+            <halpin>"paacc"</halpin>
+            <font>("Helvetica",24)</font>
+            <format>"+4.4f"</format>
+        </number>
+        <label>
+            <text>"+Vel"</text>
+        </label>
+        <number>
+            <halpin>"pavel"</halpin>
+            <font>("Helvetica",24)</font>
+            <format>"+4.4f"</format>
+        </number>
+    </hbox>
+    <hbox>
+        <label>
+            <text>"-Acc"</text>
+        </label>
+        <number>
+            <halpin>"naacc"</halpin>
+            <font>("Helvetica",24)</font>
+            <format>"+4.4f"</format>
+        </number>
+        <label>
+            <text>"-Vel"</text>
+        </label>
+        <number>
+            <halpin>"navel"</halpin>
+            <font>("Helvetica",24)</font>
+            <format>"+4.4f"</format>
+        </number>
+    </hbox>
+
     <button>
         <halpin>"resetmm"</halpin>
         <text>"reset"</text>

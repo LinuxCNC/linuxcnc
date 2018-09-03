@@ -4,5 +4,5 @@ Start halrun in an xterm
 First command 'help' shows commands
 
 Note:
-  Linuxcnc must not be running
+  Machinekit must not be running
   Any other instance of halrun is terminated.

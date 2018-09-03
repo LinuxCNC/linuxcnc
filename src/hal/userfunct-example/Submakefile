@@ -1,0 +1,15 @@
+USERFUNCTEXAMPLE_DIR := hal/userfunct-example
+INCLUDES += $(USERFUNCTEXAMPLE_DIR)
+
+../include/%.h: ./$(USERFUNCTEXAMPLE_DIR)/%.h
+	cp $^ $@
+
+# obj-m += ufdemo.o
+# vtexport-objs := \
+# 	$(USERFUNCTEXAMPLE_DIR)/ufdemo.o
+
+
+# ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+# $(RTLIBDIR)/ufdemo$(MODULE_EXT): \
+# 	$(addprefix $(OBJDIR)/,$(ufdemo-objs))
+# endif

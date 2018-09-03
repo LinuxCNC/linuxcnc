@@ -32,7 +32,7 @@ secondary address.
 .TP
 \\fBepp_wide\\fR [default: 1]
 Set to zero to disable "wide EPP mode".  "Wide" mode allows 16- and 32-bit EPP
-transfers, which can reduce the time spent in the read and write functions.
+transfers, which can reduce the time spent in the ppread and ppwrite functions.
 However, this mode may not work on all EPP parallel ports.
 
 .TP
@@ -136,8 +136,8 @@ option extra_cleanup;
 
 option data internal;
 
-function read "Read all the inputs from the pluto-step board";
-function write "Write all the outputs on the pluto-step board";
+function ppread "Read all the inputs from the pluto-step board";
+function ppwrite "Write all the outputs on the pluto-step board";
 
 see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
@@ -168,7 +168,7 @@ typedef struct {
 
 #define ONE (1<<F)
 #define MAX_STEP_RATE (1<<(F-1))
-FUNCTION(write) {
+FUNCTION(ppwrite) {
     int r = 0;
     int i;
     int stepspace_ticks = stepgen_stepspace/PLUTO_SPEED_NS;
@@ -266,7 +266,7 @@ FUNCTION(write) {
 }
 
 
-FUNCTION(read) {
+FUNCTION(ppread) {
     int i;
     __u32 ppdata;
 

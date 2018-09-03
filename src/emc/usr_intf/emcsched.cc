@@ -20,7 +20,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <sys/types.h>
 #include <list>
 #include <stdint.h>

@@ -1,0 +1,63 @@
+# HAL config file to check vel/acc constraints
+#
+loadrt wcomp count=6
+
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf wcomp.5 servo-thread
+
+net Xacc => wcomp.0.in
+net Xvel => wcomp.1.in
+net Yacc => wcomp.2.in
+net Yvel => wcomp.3.in
+net Zacc => wcomp.4.in
+net Zvel => wcomp.5.in
+
+net acc-ok-x <= wcomp.0.out
+net vel-ok-x <= wcomp.1.out
+net acc-ok-y <= wcomp.2.out
+net vel-ok-y <= wcomp.3.out
+net acc-ok-z <= wcomp.4.out
+net vel-ok-z <= wcomp.5.out
+
+setp wcomp.0.max 20.001
+setp wcomp.0.min -20.001
+setp wcomp.1.max 1.2001
+setp wcomp.1.min -1.2001
+setp wcomp.2.max 20.001
+setp wcomp.2.min -20.001
+setp wcomp.3.max 1.2001
+setp wcomp.3.min -1.2001
+setp wcomp.4.max 20.001
+setp wcomp.4.min -20.001
+setp wcomp.5.max 1.2001
+setp wcomp.5.min -1.2001
+
+loadrt match8 count=1
+
+addf match8.0 servo-thread
+
+net acc-ok-x => match8.0.a0
+setp match8.0.b0 1
+net vel-ok-x => match8.0.a1
+setp match8.0.b1 1
+net acc-ok-y => match8.0.a2
+setp match8.0.b2 1
+net vel-ok-y => match8.0.a3
+setp match8.0.b3 1
+net acc-ok-z => match8.0.a4
+setp match8.0.b4 1
+net vel-ok-z => match8.0.a5
+setp match8.0.b5 1
+
+setp match8.0.a6 0
+setp match8.0.a7 0
+setp match8.0.b6 0
+setp match8.0.b7 0
+
+setp match8.0.in 1
+
+net constraints-ok <= match8.0.out

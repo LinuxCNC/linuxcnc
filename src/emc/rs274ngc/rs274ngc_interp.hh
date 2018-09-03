@@ -82,6 +82,12 @@ public:
 // copy active F, S settings into array [0]..[2]
  void active_settings(double *settings);
 
+ // Update the state vectors from a state tag
+ int active_modes(int *g_codes,
+         int *mcodes,
+         double *settings,
+         StateTag const &tag);
+
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
  char *error_text(int error_code, char *error_text,
@@ -144,27 +150,69 @@ public:
 
 /* Function prototypes for all  functions */
 
- int arc_data_comp_ijk(int move, int plane, int side, double tool_radius,
-                          double current_x, double current_y,
-                          double end_x, double end_y,
-                          int ij_absolute, double i_number, double j_number,
-                          int p_number,
-                          double *center_x, double *center_y, int *turn,
-                          double tolerance);
- int arc_data_comp_r(int move, int plane, int side, double tool_radius,
-                        double current_x, double current_y, double end_x,
-                        double end_y, double big_radius, int p_number, double *center_x,
-                        double *center_y, int *turn, double tolerance);
- int arc_data_ijk(int move, int plane, double current_x, double current_y,
-                     double end_x, double end_y,
-                     int ij_absolute, double i_number, double j_number,
-                     int p_number,
-                     double *center_x, double *center_y,
-                     int *turn, double tolerance);
- int arc_data_r(int move, int plane, double current_x, double current_y,
-                      double end_x, double end_y, double radius, int p_number,
-                      double *center_x, double *center_y, int *turn,
-		      double tolerance);
+ int arc_data_comp_ijk(int move,
+         int plane,
+         int side,
+         double tool_radius,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         int ij_absolute,
+         double i_number,
+         double j_number,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance,
+         double spiral_abs_tolerance,
+         double spiral_rel_tolerance);
+
+ int arc_data_comp_r(int move,
+         int plane,
+         int side,
+         double tool_radius,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         double big_radius,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance);
+
+ int arc_data_ijk(int move,
+         int plane,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         int ij_absolute,
+         double i_number,
+         double j_number,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance,
+         double spiral_abs_tolerance,
+         double spiral_rel_tolerance);
+
+ int arc_data_r(int move,
+         int plane,
+         double current_x,
+         double current_y,
+         double end_x,
+         double end_y,
+         double radius,
+         int p_number,
+         double *center_x,
+         double *center_y,
+         int *turn,
+         double radius_tolerance);
  int check_g_codes(block_pointer block, setup_pointer settings);
  int check_items(block_pointer block, setup_pointer settings);
  int check_m_codes(block_pointer block);
@@ -298,6 +346,7 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
@@ -411,9 +460,15 @@ public:
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
- int gen_settings(double *current, double *saved, char *cmd);
- int gen_g_codes(int *current, int *saved, char *cmd);
- int gen_m_codes(int *current, int *saved, char *cmd);
+ int restore_from_tag(StateTag const &tag);
+ int gen_settings(double *current, double *saved, std::string &cmd);
+ int gen_g_codes(int *current, int *saved, std::string &cmd);
+ int gen_m_codes(int *current, int *saved, std::string &cmd);
+ int gen_restore_cmd(int *current_g,
+         int *current_m,
+         double *current_settings,
+         StateTag const &saved,
+         std::string &cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);
@@ -460,6 +515,7 @@ public:
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
+ int write_state_tag(block_pointer block, setup_pointer settings, StateTag &state);
  int unwrap_rotary(double *, double, double, double, char);
  bool isreadonly(int index);
 

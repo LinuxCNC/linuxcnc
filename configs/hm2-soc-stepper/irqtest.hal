@@ -1,0 +1,179 @@
+
+# test config for socfgpga / Charles' DB25 adapter / 7i76
+
+newthread servo nowait
+
+loadrt hostmot2 irq_period_nsec=1000000  debug_module_descriptors=1 debug_modules=1 debug_pin_descriptors=1
+
+# new style of loading hm2_soc_ol:
+# instance name must match device name from DTBO
+newinst hm2_soc_ol hm2-socfpga0 config="firmware=socfpga/dtbo/DE0_Nano_SoC_DB25.7I76_7I85S_GPIO_GPIO.dtbo " debug=1
+#newinst hm2_soc_ol hm2-socfpga0 config="firmware=zynq/dtbo/zturn_ztio7020_ol.dtbo" debug=1
+
+# in theory this disables DPLL tracking:
+setp hm2_de0n.0.dpll.plimit 0
+
+# new options:
+# config="...  nofwid .."
+# no_init_llio=1
+# descriptor=custom.bin
+
+loadrt siggen names=test
+setp test.frequency 2  # Hz
+
+
+newinst scale rate
+setp rate.gain 10
+setp rate.offset 0
+net sq-out test.square
+net sq-out rate.in
+
+newinst period servo-period
+newinst stats sp-stats
+net sp servo-period.actual-period-ns sp-stats.in
+setp sp-stats.enable 1
+
+newsig enable bit
+
+
+addf hm2_de0n.0.read           servo
+
+addf test.update               servo
+addf rate 		       servo
+
+addf hm2_de0n.0.write          servo
+addf servo-period              servo
+addf sp-stats                  servo
+
+addf hm2_de0n.0.waitirq        servo
+
+
+# -- stepgen.00
+setp hm2_de0n.0.stepgen.00.dirsetup        100
+setp hm2_de0n.0.stepgen.00.dirhold         100
+setp hm2_de0n.0.stepgen.00.steplen         100
+setp hm2_de0n.0.stepgen.00.stepspace       100
+
+setp hm2_de0n.0.stepgen.00.position-scale  320
+setp hm2_de0n.0.stepgen.00.maxvel          25000
+setp hm2_de0n.0.stepgen.00.maxaccel        1250
+setp hm2_de0n.0.stepgen.00.step_type       0
+
+#setp hm2_de0n.0.stepgen.00.control-type    0  # position mode
+setp hm2_de0n.0.stepgen.00.control-type    1  # velocity mode
+net enable hm2_de0n.0.stepgen.00.enable
+
+# this generates a 3.5Mhz step signal on TB2-2:
+setp hm2_de0n.0.stepgen.00.velocity-cmd 10000000000
+
+
+# -- stepgen.01
+setp hm2_de0n.0.stepgen.01.dirsetup        650
+setp hm2_de0n.0.stepgen.01.dirhold         650
+setp hm2_de0n.0.stepgen.01.steplen         1900
+setp hm2_de0n.0.stepgen.01.stepspace       1900
+
+setp hm2_de0n.0.stepgen.01.position-scale  320
+setp hm2_de0n.0.stepgen.01.maxvel          250
+setp hm2_de0n.0.stepgen.01.maxaccel        1250
+setp hm2_de0n.0.stepgen.01.step_type       0
+
+setp hm2_de0n.0.stepgen.01.control-type    0  # position mode
+#setp hm2_de0n.0.stepgen.01.control-type    1  # velocity mode
+net enable  hm2_de0n.0.stepgen.01.enable 
+
+
+# -- stepgen.02
+setp hm2_de0n.0.stepgen.02.dirsetup        650
+setp hm2_de0n.0.stepgen.02.dirhold         650
+setp hm2_de0n.0.stepgen.02.steplen         1900
+setp hm2_de0n.0.stepgen.02.stepspace       1900
+
+setp hm2_de0n.0.stepgen.02.position-scale  320
+setp hm2_de0n.0.stepgen.02.maxvel          250
+setp hm2_de0n.0.stepgen.02.maxaccel        1250
+setp hm2_de0n.0.stepgen.02.step_type       0
+
+#setp hm2_de0n.0.stepgen.02.control-type    0  # position mode
+setp hm2_de0n.0.stepgen.02.control-type    1  # velocity mode
+net enable  hm2_de0n.0.stepgen.02.enable
+
+
+# -- stepgen.03
+setp hm2_de0n.0.stepgen.03.dirsetup        650
+setp hm2_de0n.0.stepgen.03.dirhold         650
+setp hm2_de0n.0.stepgen.03.steplen         1900
+setp hm2_de0n.0.stepgen.03.stepspace       1900
+
+setp hm2_de0n.0.stepgen.03.position-scale  320
+setp hm2_de0n.0.stepgen.03.maxvel          250
+setp hm2_de0n.0.stepgen.03.maxaccel        1250
+setp hm2_de0n.0.stepgen.03.step_type       0
+
+setp hm2_de0n.0.stepgen.03.control-type    0  # position mode
+#setp hm2_de0n.0.stepgen.03.control-type    1  # velocity mode
+net enable  hm2_de0n.0.stepgen.03.enable
+
+
+# -- stepgen.04
+setp hm2_de0n.0.stepgen.04.dirsetup        650
+setp hm2_de0n.0.stepgen.04.dirhold         650
+setp hm2_de0n.0.stepgen.04.steplen         1900
+setp hm2_de0n.0.stepgen.04.stepspace       1900
+
+setp hm2_de0n.0.stepgen.04.position-scale  320
+setp hm2_de0n.0.stepgen.04.maxvel          250
+setp hm2_de0n.0.stepgen.04.maxaccel        1250
+setp hm2_de0n.0.stepgen.04.step_type       0
+
+setp hm2_de0n.0.stepgen.04.control-type    0  # position mode
+#setp hm2_de0n.0.stepgen.04.control-type    1  # velocity mode
+net enable  hm2_de0n.0.stepgen.04.enable 
+
+
+net move rate.out
+
+#net move hm2_de0n.0.stepgen.00.position-cmd
+#net move hm2_de0n.0.stepgen.00.velocity-cmd
+
+net move hm2_de0n.0.stepgen.01.position-cmd
+net move hm2_de0n.0.stepgen.01.velocity-cmd
+
+net move hm2_de0n.0.stepgen.02.position-cmd
+net move hm2_de0n.0.stepgen.02.velocity-cmd
+
+net move hm2_de0n.0.stepgen.03.position-cmd
+net move hm2_de0n.0.stepgen.03.velocity-cmd
+
+net move hm2_de0n.0.stepgen.04.position-cmd
+net move hm2_de0n.0.stepgen.04.velocity-cmd
+
+
+# enable all stepgens
+sets enable 1
+
+
+# square signal
+net clock test.clock
+
+# in theory the leds should blink:
+net clock hm2_de0n.0.led.CR01
+net clock hm2_de0n.0.led.CR02
+net clock hm2_de0n.0.led.CR03
+net clock hm2_de0n.0.led.CR04
+
+
+# this should produce a scopeable signal on the following pins
+# 7i76 #0 TB6-17 OUTPUT0
+#net clock hm2_de0n.0.7i76.0.0.output-00
+
+
+# test for second 7i76
+# 7i76 #1 TB6-17 OUTPUT0
+# test inverting output
+#setp hm2_de0n.0.7i76.0.0.output-00-invert 1
+#net clock hm2_de0n.0.7i76.0.2.output-00
+
+#loadusr halscope
+
+#start

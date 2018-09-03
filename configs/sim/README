@@ -1,5 +1,5 @@
-Sim configurations make it possible to run LinuxCNC without special hardware on a simulated basis.
+Sim configurations make it possible to run Machinekit without special hardware on a simulated basis.
 
-LinuxCNC supports multiple guis and there are multiple examples for the most popular guis.
+Machinekit supports multiple guis and there are multiple examples for the most popular guis.
 
 The sim configurations are meant to run with no special hardware requirements

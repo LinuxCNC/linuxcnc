@@ -1,0 +1,13 @@
+component tristate_bitv2 "Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics";
+
+pin_ptr in bit in_ "Input value";
+pin_ptr io bit out "Output value";
+pin_ptr in bit enable "When TRUE, copy in to out";
+
+function _ nofp "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
+license "GPL";
+;;
+
+if(gb(enable)) sb(out, gb(in_));
+
+return 0;

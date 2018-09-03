@@ -1,6 +1,6 @@
 STEPCONF_MODULES = pages build_INI build_HAL
 
-PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxcnc/linuxcnc-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
+PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxcnc/machinekit-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
 	../share/linuxcnc/stepconf/main_page.glade \
 	../share/linuxcnc/stepconf/base.glade \
 	../share/linuxcnc/stepconf/start.glade \
@@ -100,7 +100,7 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/linuxcnc-wizard.gif: ../linuxcnc-wizard.gif
+../share/linuxcnc/machinekit-wizard.gif: ../machinekit-wizard.gif
 	cp $< $@
 
 ../bin/stepconf: emc/usr_intf/stepconf/stepconf.py
@@ -108,3 +108,7 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+clean: stepconf-clean
+stepconf-clean:
+	rm -rf ../lib/python/stepconf

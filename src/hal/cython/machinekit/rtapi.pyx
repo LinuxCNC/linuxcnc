@@ -105,8 +105,9 @@ cdef class RTAPILogger:
         self._tag = tag
 
     def write(self,line):
-        l = line.rstrip(" \t\f\v\n\r")
-        rtapi_print_msg(self._level, l)
+        cdef bytes py_bytes = line.rstrip(" \t\f\v\n\r").encode()
+        cdef char *c_string = py_bytes
+        rtapi_print_msg(self._level, "%s", c_string)
 
     def flush(self):
         pass
@@ -134,6 +135,34 @@ cdef char ** _to_argv(args):
     ret[l] =  NULL # zero-terminate
     return ret
 
+import sys
+import os
+from machinekit import hal, config
+if sys.version_info >= (3, 0):
+    import configparser
+else:
+    import ConfigParser as configparser
+
+# enums for classify_comp
+CS_NOT_LOADED = 0
+CS_NOT_RT = 1
+CS_RTLOADED_NOT_INSTANTIABLE = 2
+CS_RTLOADED_AND_INSTANTIABLE = 3
+
+autoload = True  #  autoload components on newinst
+
+# classifies a component for newinst
+def classify_comp(comp):
+    if not comp in hal.components:
+        return CS_NOT_LOADED
+    c = hal.components[comp]
+    if c.type != hal.TYPE_RT:
+        return CS_NOT_RT
+    if not c.has_ctor:
+        return CS_RTLOADED_NOT_INSTANTIABLE
+    return CS_RTLOADED_AND_INSTANTIABLE
+
+
 class RTAPIcommand:
     ''' connect to the rtapi_app RT demon to pass commands '''
 
@@ -143,15 +172,28 @@ class RTAPIcommand:
         cdef char* c_uri = uri
         if uri == "":
             c_uri = NULL
-        if uuid == "" and uri == "":
-            raise RuntimeError("need either a uuid=<uuid> or uri=<uri> parameter")
+        if uuid == "" and uri == "":  # try to get the uuid from the ini
+            mkconfig = config.Config()
+            mkini = os.getenv("MACHINEKIT_INI")
+            if mkini is None:
+                mkini = mkconfig.MACHINEKIT_INI
+            if not os.path.isfile(mkini):
+                raise RuntimeError("MACHINEKIT_INI " + mkini + " does not exist")
+
+            cfg = configparser.ConfigParser()
+            cfg.read(mkini)
+            try:
+                uuid = cfg.get("MACHINEKIT", "MKUUID")
+            except configparser.NoSectionError or configparser.NoOptionError:
+                raise RuntimeError("need either a uuid=<uuid> or uri=<uri> parameter")
+            c_uuid = uuid
         r = rtapi_connect(instance, c_uri, c_uuid)
         if r:
             raise RuntimeError("cant connect to rtapi: %s" % strerror(-r))
 
-    def newthread(self,char *name, int period, instance=0,use_fp=0,cpu=-1):
+    def newthread(self,char *name, int period, instance=0,fp=0,cpu=-1, flags=0):
         cdef char *c_name = name
-        r = rtapi_newthread(instance, c_name, period, cpu, use_fp)
+        r = rtapi_newthread(instance, c_name, period, cpu, fp, flags)
         if r:
             raise RuntimeError("rtapi_newthread failed:  %s" % strerror(-r))
 
@@ -161,18 +203,22 @@ class RTAPIcommand:
         if r:
             raise RuntimeError("rtapi_delthread failed:  %s" % strerror(-r))
 
-    def loadrt(self,*args, instance=0):
+    def loadrt(self,*args, instance=0, **kwargs):
         cdef char** argv
         cdef char *name
 
         if len(args) < 1:
             raise RuntimeError("loadrt needs at least the module name as argument")
         name = args[0]
+        for key in kwargs.keys():
+            args +=('%s=%s' % (key, str(kwargs[key])), )
         argv = _to_argv(args[1:])
         r = rtapi_loadrt( instance, name, <const char **>argv)
         free(argv)
         if r:
             raise RuntimeError("rtapi_loadrt '%s' failed: %s" % (args,strerror(-r)))
+
+        return hal.components[name.split('/')[-1]]
 
     def unloadrt(self,char *name, int instance=0):
         if name == NULL:
@@ -180,6 +226,51 @@ class RTAPIcommand:
         r = rtapi_unloadrt( instance, name)
         if r:
             raise RuntimeError("rtapi_unloadrt '%s' failed: %s" % (name,strerror(-r)))
+
+    def newinst(self, *args, instance=0, **kwargs):
+        cdef char** argv
+        cdef char** tmpArgv
+        cdef char *name
+
+        if len(args) < 2:
+            raise RuntimeError("newinst needs at least module and instance name as argument")
+        comp = args[0]
+        instname = args[1]
+        for key in kwargs.keys():
+            args +=('%s=%s' % (key, str(kwargs[key])), )
+        argv = _to_argv(args[2:])
+
+        status = classify_comp(comp)
+        if status is CS_NOT_LOADED:
+            if autoload:  # flag to prevent creating a new instance
+                tmpArgv = _to_argv([])
+                rtapi_loadrt(instance, comp, <const char **>tmpArgv)
+            else:
+                raise RuntimeError("component '%s' not loaded\n" % comp)
+        elif status is CS_NOT_RT:
+            raise RuntimeError("'%s' not an RT component\n" % comp)
+        elif status is CS_RTLOADED_NOT_INSTANTIABLE:
+            raise RuntimeError("legacy component '%s' loaded, but not instantiable\n" % comp)
+        elif status is CS_RTLOADED_AND_INSTANTIABLE:
+            pass  # good
+
+        #TODO check singleton
+
+        if instname in hal.instances:
+            raise RuntimeError('instance with name ' + instname + ' already exists')
+
+        r = rtapi_newinst(instance, comp, instname, <const char **>argv)
+        free(argv)
+        if r:
+            raise RuntimeError("rtapi_newinst '%s' failed: %s" % (args,strerror(-r)))
+
+        return hal.instances[instname]
+
+    def delinst(self, char *instname, instance=0):
+        r = rtapi_delinst( instance, instname)
+        if r:
+            raise RuntimeError("rtapi_delinst '%s' failed: %s" % (instname,strerror(-r)))
+
 
 # default module to connect to RTAPI:
 __rtapimodule = None
@@ -199,3 +290,25 @@ atexit.register(_atexit)
 
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.default_int_handler))()
+
+# global RTAPIcommand to use in HAL config files
+__rtapicmd = None
+def init_RTAPI(**kwargs):
+    global __rtapicmd
+    if not __rtapicmd:
+        __rtapicmd = RTAPIcommand(**kwargs)
+        for method in dir(__rtapicmd):
+            if callable(getattr(__rtapicmd, method)) and method is not '__init__':
+                setattr(sys.modules[__name__], method, getattr(__rtapicmd, method))
+    else:
+        raise RuntimeError('RTAPIcommand already initialized')
+    if not __rtapicmd:
+        raise RuntimeError('unable to initialize RTAPIcommand - realtime not running?')
+
+
+# make sure to close the zmq socket when done
+def _cleanup_rtapi():
+    rtapi_cleanup()
+
+import atexit
+atexit.register(_cleanup_rtapi)

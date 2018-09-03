@@ -14,19 +14,19 @@ extern "C"
 
 // need to get at enum ContainerType and some tags
 #if defined(GOOGLE_PROTOBUF_VERSION)
-#include <protobuf/generated/types.pb.h>
+#include <protobuf/protobuf/types.pb.h>
 
-#define MSGTYPE          pb::ContainerType
-#define EMCMOT_LOWER     pb::MT_EMCMOT_LOWER
-#define EMCMOT_UPPER     pb::MT_EMCMOT_UPPER
-#define EMC_NML_LOWER    pb::MT_EMC_NML_LOWER
-#define EMC_NML_UPPER    pb::MT_EMC_NML_UPPER
-#define CONTAINER        pb::Container
+#define MSGTYPE          machinetalk::ContainerType
+#define EMCMOT_LOWER     machinetalk::MT_EMCMOT_LOWER
+#define EMCMOT_UPPER     machinetalk::MT_EMCMOT_UPPER
+#define EMC_NML_LOWER    machinetalk::MT_EMC_NML_LOWER
+#define EMC_NML_UPPER    machinetalk::MT_EMC_NML_UPPER
+#define CONTAINER        machinetalk::Container
 
 #elif defined(PROTOBUF_C_MAJOR)
-#include <protobuf/generated/types.pb-c.h>
+#include <protobuf/protobuf/types.pb-c.h>
 
-#define MSGTYPE          _Pb__ContainerType
+#define MSGTYPE          _Machinetalk__ContainerType
 #define EMCMOT_LOWER     MSG_TYPE__MT_EMCMOT_LOWER
 #define EMCMOT_UPPER     MSG_TYPE__MT_EMCMOT_UPPER
 #define EMC_NML_LOWER    MSG_TYPE__MT_EMC_NML_LOWER
@@ -34,14 +34,14 @@ extern "C"
 #define CONTAINER        _Container
 
 #elif defined(NANOPB_VERSION)
-#include <machinetalk/generated/types.npb.h>
-#include <machinetalk/generated/message.npb.h>
-#define MSGTYPE          pb_ContainerType
-#define EMCMOT_LOWER     pb_ContainerType_MT_EMCMOT_LOWER
-#define EMCMOT_UPPER     pb_ContainerType_MT_EMCMOT_UPPER
-#define EMC_NML_LOWER    pb_ContainerType_MT_EMC_NML_LOWER
-#define EMC_NML_UPPER    pb_ContainerType_MT_EMC_NML_UPPER
-#define CONTAINER        struct pb_Container
+#include <machinetalk/protobuf/types.npb.h>
+#include <machinetalk/protobuf/message.npb.h>
+#define MSGTYPE          machinetalk_ContainerType
+#define EMCMOT_LOWER     machinetalk_ContainerType_MT_EMCMOT_LOWER
+#define EMCMOT_UPPER     machinetalk_ContainerType_MT_EMCMOT_UPPER
+#define EMC_NML_LOWER    machinetalk_ContainerType_MT_EMC_NML_LOWER
+#define EMC_NML_UPPER    machinetalk_ContainerType_MT_EMC_NML_UPPER
+#define CONTAINER        struct machinetalk_Container
 #else
 #error "include container.h after protobuf-specific headers"
 #endif

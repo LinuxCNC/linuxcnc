@@ -25,9 +25,9 @@ loadrt hal_pru prucode="pruexample.bin" disabled=1 pru=0
 # hal_prudebug.IEP_COUNT     # u32,out 200Mhz TSC counter in IEP (Industrial Ethernet) module
 
 loadrt hal_prudebug
+newthread thread1  20000000 # 20msec
 
-loadrt threads period1=20000000 # 20msec
-addf hal_pru.update thread1
+addf hal_pru.update      thread1
 addf hal_prudebug.update thread1
 #
 

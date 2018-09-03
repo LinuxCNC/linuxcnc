@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 #------------------------------------------------------------------------------
 # Copyright: 2013
@@ -89,6 +89,7 @@ g_delta_pixels    = 10
 g_move_delay_secs = 0.2
 g_progname        = os.path.basename(sys.argv[0])
 g_verbose         = False
+g_childwindow	  = False
 
 LOCALEDIR = linuxcnc.SHARE + "/locale"
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
@@ -98,7 +99,14 @@ def ini_setup ():
     # Note:
     #   hal_gremlin gets inifile from os.environ (only)
     #   hal_gremlin expects cwd to be same as ini file
-    ini_filename = get_linuxcnc_ini_file()
+######################################################################
+##  linuxcnc script now exports the inifile name as $INIFILE
+##  so that gremlin_view can easily find it, pgrep does not work
+######################################################################
+    ini_filename = os.environ.get('INIFILE')
+    print ini_filename
+    if ini_filename == None :
+	ini_filename = get_linuxcnc_ini_file()
     if ini_filename is not None:
         os.putenv('INI_FILE_NAME',ini_filename)    # ineffective
         os.environ['INI_FILE_NAME'] = ini_filename # need for hal_gremlin
@@ -128,6 +136,9 @@ def get_linuxcnc_ini_file():
     ans = p.split()[p.split().index('-ini')+1]
     return ans
 
+# x and yoffset added to allow placement in a screen
+# ArcEye 2015
+
 class GremlinView():
     """Implement a standalone gremlin with some buttons
        and provide means to embed using a glade ui file"""
@@ -136,6 +147,8 @@ class GremlinView():
                 ,parent=None
                 ,width=None
                 ,height=None
+                ,xoffset=None
+                ,yoffset=None
                 ,alive=True
                 ,gtk_theme_name="Follow System Theme"
                 ):
@@ -251,6 +264,11 @@ class GremlinView():
         if height < minheight:
             height = minheight
 
+        if (xoffset is None):
+            xoffset = '0'
+        if (yoffset is None):
+            yoffset = '0'
+
         # err from gremlin if omit this
         self.halg.width  = width
         self.halg.height = height
@@ -301,6 +319,10 @@ class GremlinView():
 
         self.topwindow.connect('destroy',self._topwindowquit)
         self.topwindow.show_all()
+        
+        ## offset the window if required 
+        self.topwindow.move(int(xoffset), int(yoffset))
+        
         self.running = True
 
         if self.last_file is not None:
@@ -319,8 +341,11 @@ class GremlinView():
         self.ct +=1
         self.halg.poll()
 
-        if self.parent is None:
-            self.topwindow.deiconify()
+	# prevent it forcing to the top when embedded into another window
+	# that gremlin_view knows nothing about
+	if g_childwindow == False:
+	    if self.parent is None:
+        	self.topwindow.deiconify()
 
         if (self.parent is not None) and (self.ct) == 2:
             # not sure why delay is needed for reparenting
@@ -506,7 +531,13 @@ class GremlinView():
 
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
+
+# x and yoffset added to allow placement in a screen from QtAxis
+# ArcEye 2015
+
 def standalone_gremlin_view():
+    global ini_file
+    global g_childwindow
 
     import getopt
     #---------------------------------------
@@ -518,6 +549,9 @@ Options: [-h | --help]
          [-v | --verbose]
          [-W | --width]  width
          [-H | --height] height
+         [-X | --xoffset] xoffset
+         [-Y | --yoffset] yoffset
+         [-c | --childwindow] is a child window
          [-f | --file]   glade_file
 
 Note: linuxcnc must be running on same machine
@@ -529,14 +563,20 @@ Note: linuxcnc must be running on same machine
     glade_file  = None
     width       = None
     height      = None
+    xoffset     = None
+    yoffset     = None
     vbose       = False
+
     try:
         options,remainder = getopt.getopt(sys.argv[1:]
-                                         , 'f:hH:vW:'
+                                         , 'f:hH:vW:X:Y:c'
                                          , ['file='
                                            ,'help'
                                            ,'width='
                                            ,'height='
+                                           ,'xoffset='
+                                           ,'yoffset='
+					   ,'childwindow'
                                            ]
                                          )
     except getopt.GetoptError,msg:
@@ -549,8 +589,15 @@ Note: linuxcnc must be running on same machine
         if opt in ('-v','--verbose'):
             g_verbose = True
             continue
+	if opt in ('-c','--childwindow'): 
+	    g_childwindow = True
+	    continue
+
         if opt in ('-W','--width' ): width=arg
         if opt in ('-H','--height'): height=arg
+        if opt in ('-X','--xoffset'): xoffset=arg
+        if opt in ('-Y','--yoffset'): yoffset=arg
+
         if opt in ('-f','--file'):   glade_file=arg
     if remainder:
         usage('unknown argument:%s' % remainder)
@@ -560,6 +607,8 @@ Note: linuxcnc must be running on same machine
         g = GremlinView(glade_file=glade_file
                        ,width=width
                        ,height=height
+                       ,xoffset=xoffset
+                       ,yoffset=yoffset
                        )
         gtk.main()
     except linuxcnc.error,detail:
@@ -568,3 +617,4 @@ Note: linuxcnc must be running on same machine
         usage()
 
 # vim: sts=4 sw=4 et
+

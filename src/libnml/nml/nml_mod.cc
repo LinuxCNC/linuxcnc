@@ -54,7 +54,7 @@ extern "C"
 #include <string.h>		// strcpy()
 #include <errno.h>		// errno
 #include <stdarg.h>
-#include <math.h>		// fabs()
+#include "rtapi_math.h"		// fabs()
 
 #ifdef __cplusplus
 }
@@ -1164,5 +1164,5 @@ NML_MODULE::loadDclock (double expiration)
 int
 NML_MODULE::checkDclock ()
 {
-  return (fabs (etime () - Dclock_start_time) < Dclock_expiration);
+  return (rtapi_fabs(etime () - Dclock_start_time) < Dclock_expiration);
 }

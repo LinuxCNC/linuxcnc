@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 # This file is from PyOpenGL-2.0.1.07.  That distribution's license is
 # """License :: OSI Approved :: BSD License""",

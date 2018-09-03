@@ -12,7 +12,7 @@
 *
 ********************************************************************/
 
-#include <math.h>		// isnan()
+#include "rtapi_math.h"		// isnan()
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
@@ -110,7 +110,7 @@ int emcAxisSetUnits(int axis, double units)
 int emcAxisSetBacklash(int axis, double backlash)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(backlash)) {
+    if (rtapi_isnan(backlash)) {
 	printf("isnan error in emcAxisSetBacklash()\n");
 	return -1;
     }
@@ -135,7 +135,7 @@ static double saveMaxLimit[EMCMOT_MAX_JOINTS];
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(limit)) {
+    if (rtapi_isnan(limit)) {
 	printf("isnan error in emcAxisSetMinPosition()\n");
 	return -1;
     }
@@ -157,7 +157,7 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(limit)) {
+    if (rtapi_isnan(limit)) {
 	printf("isnan error in emcAxisSetMaxPosition()\n");
 	return -1;
     }
@@ -179,7 +179,7 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
 int emcAxisSetMotorOffset(int axis, double offset) 
 {
 #ifdef ISNAN_TRAP
-    if (isnan(offset)) {
+    if (rtapi_isnan(offset)) {
 	printf("isnan error in emcAxisSetMotorOffset()\n");
 	return -1;
     }
@@ -198,7 +198,7 @@ int emcAxisSetMotorOffset(int axis, double offset)
 int emcAxisSetFerror(int axis, double ferror)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(ferror)) {
+    if (rtapi_isnan(ferror)) {
 	printf("isnan error in emcAxisSetFerror()\n");
 	return -1;
     }
@@ -218,7 +218,7 @@ int emcAxisSetFerror(int axis, double ferror)
 int emcAxisSetMinFerror(int axis, double ferror)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(ferror)) {
+    if (rtapi_isnan(ferror)) {
 	printf("isnan error in emcAxisSetMinFerror()\n");
 	return -1;
     }
@@ -240,8 +240,8 @@ int emcAxisSetHomingParams(int axis, double home, double offset, double home_fin
 			   int sequence,int volatile_home, int locking_indexer)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(home) || isnan(offset) || isnan(home_final_vel) ||
-	isnan(search_vel) || isnan(latch_vel)) {
+    if (rtapi_isnan(home) || rtapi_isnan(offset) || rtapi_isnan(home_final_vel) ||
+	rtapi_isnan(search_vel) || rtapi_isnan(latch_vel)) {
 	printf("isnan error in emcAxisSetHoming()\n");
 	return -1;
     }
@@ -635,6 +635,13 @@ static int localEmcTrajAxisMask = 0;
 static double localEmcTrajLinearUnits = 1.0;
 static double localEmcTrajAngularUnits = 1.0;
 static int localEmcTrajMotionId = 0;
+//FIXME if you can't beat em...
+static struct state_tag_t localEmcTrajTag;
+
+int emcTrajUpdateTag(StateTag const &tag) {
+    localEmcTrajTag = tag.get_state_tag();
+    return 0;
+}
 
 int emcTrajSetAxes(int axes, int axismask)
 {
@@ -772,9 +779,9 @@ int emcTrajSetMaxAcceleration(double acc)
 int emcTrajSetHome(EmcPose home)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(home.tran.x) || isnan(home.tran.y) || isnan(home.tran.z) ||
-	isnan(home.a) || isnan(home.b) || isnan(home.c) ||
-	isnan(home.u) || isnan(home.v) || isnan(home.w)) {
+    if (rtapi_isnan(home.tran.x) || rtapi_isnan(home.tran.y) || rtapi_isnan(home.tran.z) ||
+	rtapi_isnan(home.a) || rtapi_isnan(home.b) || rtapi_isnan(home.c) ||
+	rtapi_isnan(home.u) || rtapi_isnan(home.v) || rtapi_isnan(home.w)) {
 	printf("isnan error in emcTrajSetHome()\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -793,6 +800,18 @@ int emcTrajSetScale(double scale)
     }
 
     emcmotCommand.command = EMCMOT_FEED_SCALE;
+    emcmotCommand.scale = scale;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetRapidScale(double scale)
+{
+    if (scale < 0.0) {
+	scale = 0.0;
+    }
+
+    emcmotCommand.command = EMCMOT_RAPID_SCALE;
     emcmotCommand.scale = scale;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -978,9 +997,9 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
                       int indexrotary)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
-        isnan(end.a) || isnan(end.b) || isnan(end.c) ||
-        isnan(end.u) || isnan(end.v) || isnan(end.w)) {
+    if (rtapi_isnan(end.tran.x) || rtapi_isnan(end.tran.y) || rtapi_isnan(end.tran.z) ||
+        rtapi_isnan(end.a) || rtapi_isnan(end.b) || rtapi_isnan(end.c) ||
+        rtapi_isnan(end.u) || rtapi_isnan(end.v) || rtapi_isnan(end.w)) {
 	printf("isnan error in emcTrajLinearMove()\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -991,6 +1010,7 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
     emcmotCommand.pos = end;
 
     emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1004,11 +1024,11 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 			PM_CARTESIAN normal, int turn, int type, double vel, double ini_maxvel, double acc)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
-	isnan(end.a) || isnan(end.b) || isnan(end.c) ||
-	isnan(end.u) || isnan(end.v) || isnan(end.w) ||
-	isnan(center.x) || isnan(center.y) || isnan(center.z) ||
-	isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) {
+    if (rtapi_isnan(end.tran.x) || rtapi_isnan(end.tran.y) || rtapi_isnan(end.tran.z) ||
+	rtapi_isnan(end.a) || rtapi_isnan(end.b) || rtapi_isnan(end.c) ||
+	rtapi_isnan(end.u) || rtapi_isnan(end.v) || rtapi_isnan(end.w) ||
+	rtapi_isnan(center.x) || rtapi_isnan(center.y) || rtapi_isnan(center.z) ||
+	rtapi_isnan(normal.x) || rtapi_isnan(normal.y) || rtapi_isnan(normal.z)) {
 	printf("isnan error in emcTrajCircularMove()\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -1029,6 +1049,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 
     emcmotCommand.turn = turn;
     emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.tag = localEmcTrajTag;
 
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1047,9 +1068,9 @@ int emcTrajClearProbeTrippedFlag()
 int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double acc, unsigned char probe_type)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z) ||
-        isnan(pos.a) || isnan(pos.b) || isnan(pos.c) ||
-        isnan(pos.u) || isnan(pos.v) || isnan(pos.w)) {
+    if (rtapi_isnan(pos.tran.x) || rtapi_isnan(pos.tran.y) || rtapi_isnan(pos.tran.z) ||
+        rtapi_isnan(pos.a) || rtapi_isnan(pos.b) || rtapi_isnan(pos.c) ||
+        rtapi_isnan(pos.u) || rtapi_isnan(pos.v) || rtapi_isnan(pos.w)) {
 	printf("isnan error in emcTrajProbe()\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -1058,6 +1079,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
     emcmotCommand.command = EMCMOT_PROBE;
     emcmotCommand.pos = pos;
     emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1070,7 +1092,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
 int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 {
 #ifdef ISNAN_TRAP
-    if (isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z)) {
+    if (rtapi_isnan(pos.tran.x) || rtapi_isnan(pos.tran.y) || rtapi_isnan(pos.tran.z)) {
 	printf("isnan error in emcTrajRigidTap()\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -1079,6 +1101,7 @@ int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
     emcmotCommand.command = EMCMOT_RIGID_TAP;
     emcmotCommand.pos.tran = pos.tran;
     emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
@@ -1128,6 +1151,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->activeQueue = emcmotStatus.activeDepth;
     stat->queueFull = emcmotStatus.queueFull;
     stat->id = emcmotStatus.id;
+    StateTag newtag(emcmotStatus.tag);
+    //TODO assignment operator
+    stat->tag = newtag;
     stat->motion_type = emcmotStatus.motionType;
     stat->distance_to_go = emcmotStatus.distance_to_go;
     stat->dtg = emcmotStatus.dtg;
@@ -1146,6 +1172,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->paused = emcmotStatus.pause_state;
     stat->scale = emcmotStatus.feed_scale;
+    stat->rapid_scale = emcmotStatus.rapid_scale;
     stat->spindle_scale = emcmotStatus.spindle_scale;
 
     stat->position = emcmotStatus.carte_pos_cmd;
@@ -1340,7 +1367,7 @@ int emcMotionSetDebug(int debug)
     @parameter	start	value set at start of motion
     @parameter	end	value set at end of motion
 */
-int emcMotionSetAout(unsigned char index, double start, double end, unsigned char now)
+int emcMotionSetAout(unsigned int index, double start, double end, unsigned char now)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;
     emcmotCommand.now = now;
@@ -1363,7 +1390,7 @@ int emcMotionSetAout(unsigned char index, double start, double end, unsigned cha
     @parameter	start	value set at start of motion
     @parameter	end	value set at end of motion
 */
-int emcMotionSetDout(unsigned char index, unsigned char start,
+int emcMotionSetDout(unsigned int index, unsigned char start,
 		     unsigned char end, unsigned char now)
 {
     emcmotCommand.command = EMCMOT_SET_DOUT;
@@ -1543,8 +1570,9 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
-        double arcBlendGapCycles,
-        double arcBlendRampFreq) {
+        int arcBlendGapCycles,
+        double arcBlendRampFreq,
+        double arcBlendTangentKinkRatio) {
 
     emcmotCommand.command = EMCMOT_SETUP_ARC_BLENDS;
     emcmotCommand.arcBlendEnable = arcBlendEnable;
@@ -1552,6 +1580,7 @@ int emcSetupArcBlends(int arcBlendEnable,
     emcmotCommand.arcBlendOptDepth = arcBlendOptDepth;
     emcmotCommand.arcBlendGapCycles = arcBlendGapCycles;
     emcmotCommand.arcBlendRampFreq = arcBlendRampFreq;
+    emcmotCommand.arcBlendTangentKinkRatio = arcBlendTangentKinkRatio;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

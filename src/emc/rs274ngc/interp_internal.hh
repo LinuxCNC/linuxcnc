@@ -58,9 +58,25 @@
  */
 #define MAX_NESTED_REMAPS 10
 
+// English - Metric conversion (long number keeps error buildup down)
+#define MM_PER_INCH 25.4
+//#define INCH_PER_MM 0.039370078740157477
+
 /* numerical constants */
-#define TOLERANCE_INCH 0.0005
-#define TOLERANCE_MM 0.005
+//FIXME made very large here to allow badly formed arcs into canon
+#define SPIRAL_TOLERANCE_INCH 1.0
+// Note: started from original tolerance and divided by 10 here (since that was originally done inside the interpreter)
+#define RADIUS_TOLERANCE_INCH 0.00005
+
+/* Equivalent metric constants */
+#define SPIRAL_TOLERANCE_MM (SPIRAL_TOLERANCE_INCH * MM_PER_INCH)
+#define RADIUS_TOLERANCE_MM (RADIUS_TOLERANCE_INCH * MM_PER_INCH)
+
+#define MIN_SPIRAL_TOLERANCE_INCH 0.00004
+#define MIN_SPIRAL_TOLERANCE_MM 0.001
+// Modest relative error
+#define SPIRAL_RELATIVE_TOLERANCE 0.75
+
 /* angle threshold for concavity for cutter compensation, in radians */
 #define TOLERANCE_CONCAVE_CORNER 0.05  
 #define TOLERANCE_EQUAL 0.0001 /* two numbers compare EQ if the
@@ -68,7 +84,7 @@
 
 static inline bool equal(double a, double b)
 {
-    return (fabs(a - b) < TOLERANCE_EQUAL);
+    return (rtapi_fabs(a - b) < TOLERANCE_EQUAL);
 }
 
 
@@ -76,10 +92,6 @@ static inline bool equal(double a, double b)
 
 // max number of m codes on one line
 #define MAX_EMS  4
-
-// English - Metric conversion (long number keeps error buildup down)
-#define MM_PER_INCH 25.4
-//#define INCH_PER_MM 0.039370078740157477
 
 // feed_mode
 enum feed_mode { UNITS_PER_MINUTE=0, INVERSE_TIME=1, UNITS_PER_REVOLUTION=2 };
@@ -194,6 +206,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_49   490
 #define G_50   500
 #define G_51   510
+#define G_52   520
 #define G_53   530
 #define G_54   540
 #define G_55   550
@@ -622,6 +635,8 @@ typedef struct setup_struct
   int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+  StateTag state_tag;
+
   bool arc_not_allowed;       // we just exited cutter compensation, so we error if the next move isn't straight
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
@@ -663,6 +678,8 @@ typedef struct setup_struct
   FILE *file_pointer;           // file pointer for open NC code file
   bool flood;                 // whether flood coolant is on
   CANON_UNITS length_units;     // millimeters or inches
+  double spiral_tolerance_inch; // modify with ini setting
+  double spiral_tolerance_mm;   // modify with ini setting
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read
   bool mist;                  // whether mist coolant is on
@@ -750,6 +767,8 @@ typedef struct setup_struct
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
   int feature_set; 
+
+  bool persistent_g92_offset;
 
 #define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
 #define FEATURE_RETAIN_G43           0x00000001
@@ -900,18 +919,18 @@ macros totally crash-proof. If the function call stack is deeper than
        if(radius_increment) { \
            double radius, theta; \
            CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
-           theta = atan2(bb, aa); \
-           radius = hypot(bb, aa) + radius_increment; \
-           aa = radius * cos(theta); \
-           bb = radius * sin(theta); \
+           theta = rtapi_atan2(bb, aa); \
+           radius = rtapi_hypot(bb, aa) + radius_increment; \
+           aa = radius * rtapi_cos(theta); \
+           bb = radius * rtapi_sin(theta); \
        } \
        if(theta_increment) { \
            double radius, theta; \
            CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
-           theta = atan2(bb, aa) + theta_increment; \
-           radius = hypot(bb, aa); \
-           aa = radius * cos(theta); \
-           bb = radius * sin(theta); \
+           theta = rtapi_atan2(bb, aa) + theta_increment; \
+           radius = rtapi_hypot(bb, aa); \
+           aa = radius * rtapi_cos(theta); \
+           bb = radius * rtapi_sin(theta); \
        } \
        cycle_traverse(block, plane, aa, bb, current_cc); \
        if (old_cc != r) \

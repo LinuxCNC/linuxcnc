@@ -15,17 +15,6 @@ from cpython cimport bool
 
 from .ring cimport *
 
-cdef class mview:
-    cdef void *base
-    cdef int size
-
-    def __cinit__(self, long base, size):
-        self.base = <void *>base
-        self.size = size
-
-    def __getbuffer__(self, Py_buffer *view, int flags):
-        r = PyBuffer_FillInfo(view, self, self.base, self.size, 0, flags)
-        view.obj = self
 
 cdef class Ring:
     cdef ringbuffer_t _rb
@@ -47,10 +36,10 @@ cdef class Ring:
 
         hal_required()
         if size:
-            if hal_ring_new(name, size, scratchpad_size, self.flags):
+            if halg_ring_newf(1, size, scratchpad_size, self.flags, name) == NULL:
                 raise RuntimeError("hal_ring_new(%s) failed: %s" %
                                    (name, hal_lasterror()))
-        if hal_ring_attach(name, &self._rb, &self.aflags):
+        if halg_ring_attachf(1, &self._rb, &self.aflags, name):
                 raise NameError("hal_ring_attach(%s) failed: %s" %
                                    (name, hal_lasterror()))
 
@@ -59,22 +48,24 @@ cdef class Ring:
             if self._hr == NULL:
                 raise RuntimeError("halpr_find_ring_by_name(%s) failed: %s" %
                                    (name, hal_lasterror()))
+
+
     def __dealloc__(self):
         if self._hr != NULL:
-            name = self._hr.name
-            r = hal_ring_detach(self._hr.name, &self._rb)
+            name = self.name
+            r = halg_ring_detach(1, &self._rb)
             if r:
-                raise RuntimeError("hal_ring_detach() failed: %d %s" %
-                                       (r, hal_lasterror()))
+                raise RuntimeError("hal_ring_detach(%s) failed: %d %s" %
+                                       (name, r, hal_lasterror()))
 
     def write(self, s):
-        cdef void * ptr
+        cdef void *ptr
         cdef size_t size = PyBytes_Size(s)
         cdef int r = record_write_begin(&self._rb, &ptr, size)
         if r:
             if r != EAGAIN:
-                raise IOError("Ring %s write failed: %d %s" %
-                                   (r,self._hr.name))
+                raise IOError("Ring %s write failed: %d - %s" %
+                              (self.name, r, strerror(r)))
             return False
         memcpy(ptr, PyBytes_AsString(s), size)
         record_write_end(&self._rb, ptr, size)
@@ -82,13 +73,13 @@ cdef class Ring:
 
     def read(self):
         cdef const void * ptr
-        cdef size_t size
+        cdef ringsize_t size
 
         cdef int r = record_read(&self._rb, &ptr, &size)
         if r:
             if r != EAGAIN:
-                raise IOError("Ring %s read failed: %d %s" %
-                                   (r,self._hr.name))
+                raise IOError("Ring %s read failed: %d - %s" %
+                              (self.name, r, strerror(r)))
             return None
         return memoryview(mview(<long>ptr, size))
 
@@ -126,7 +117,7 @@ cdef class Ring:
         def __get__(self): return (ring_use_wmutex(&self._rb) != 0)
 
     property name:
-        def __get__(self): return self._hr.name
+        def __get__(self): return hh_get_name(&self._hr.hdr)
 
     property scratchpad_size:
         def __get__(self): return ring_scratchpad_size(&self._rb)
@@ -148,7 +139,7 @@ cdef class RingIter:
 
     def read(self):
         cdef const void * ptr
-        cdef size_t size
+        cdef ringsize_t size
         cdef int r = record_iter_read(&self._iter, &ptr, &size)
         if r:
             if r != EAGAIN:
@@ -197,7 +188,7 @@ cdef class StreamRing:
         self._hr = (<Ring>ring)._hr
         if self._rb.header.type != RINGTYPE_STREAM:
             raise RuntimeError("ring '%s' not a stream ring: type=%d" %
-                               (self._hr.name,self._rb.header.type))
+                               (self.name,self._rb.header.type))
 
     def spaceleft(self):
         '''return number of bytes available to write.'''
@@ -288,18 +279,7 @@ cdef class MultiframeRing:
     def ready(self):
         return record_next_size(self._rb.ring) > -1
 
-# hal_iter callback: add ring names into list
-cdef int _collect_ring_names(hal_ring_t *ring,  void *userdata):
-    arg =  <object>userdata
-    arg.append(ring.name)
-    return 0
-
 def rings():
     ''' return list of ring names'''
     hal_required()
-    names = []
-    with HALMutex():
-        rc = halpr_foreach_ring(NULL, _collect_ring_names, <void *>names);
-        if rc < 0:
-            raise RuntimeError("halpr_foreach_ring failed %d" % rc)
-    return names
+    return object_names(1, hal_const.HAL_RING)

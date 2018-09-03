@@ -1,0 +1,23 @@
+component and2v2 "Two-input AND gate";
+pin_ptr in bit in0;
+pin_ptr in bit in1;
+pin_ptr out bit out """\
+\\fBout\\fR is computed from the value of \\fBin0\\fR and \\fBin1\\fR according to the following rule:
+.RS
+.TP
+\\fBin0=TRUE in1=TRUE\\fB
+\\fBout=TRUE\\fR
+.TP
+Otherwise,
+\\fBout=FALSE\\fR
+.RE"""
+;
+function _ nofp;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    sb(out, gb(in0) && gb(in1));
+
+return 0;
+}

@@ -1,0 +1,4 @@
+#!/bin/sh
+#
+# This test depends on motion-logger, not yet in this code base
+exit 1

@@ -1,0 +1,12 @@
+component constantv2 "Use a parameter to set the value of a pin";
+pin_ptr out float out;
+pin_ptr io float value;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    sf(out, gf(value));
+
+    return 0;
+}

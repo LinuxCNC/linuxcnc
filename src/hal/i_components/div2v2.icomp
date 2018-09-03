@@ -1,0 +1,40 @@
+component div2v2 """Quotient of two inputs
+The output will be quotient of the two inputs, ie \\fBout\\fR = \\fBin0\\fR/\\fBin1\\fR.
+The parameter \\fBdeadband\\fR can be used to control how close to 0 the denominator can be
+before the output is clamped to 0.  \\fBdeadband\\fR must be at least 1e-8, and must be positive.""";
+
+pin_ptr in float in0        "dividend";
+pin_ptr in float in1        "divisor";
+pin_ptr out float out       "out = in0 / in1";
+pin_ptr io float deadband   "The \\fBout\\fR will be zero if \\fBin1\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR";
+
+variable hal_float_t prev_in0 = 0.0;
+variable hal_float_t prev_in1 = 0.0;
+
+function _;
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    if (gf(deadband) < 1e-12)
+        sf(deadband, 1e-12);
+
+    if ((prev_in0 != gf(in0)) || (prev_in1 != gf(in1)))
+        {
+        if ((gf(in1) > -gf(deadband)) && (gf(in1) < 0.0))
+            {
+            sf(out, -gf(in0) / gf(deadband));
+            }
+        else if((gf(in1) >= 0.0) && (gf(in1) < gf(deadband)))
+            {
+            sf(out, gf(in0) / gf(deadband));
+            }
+        else
+            sf(out, gf(in0) / gf(in1));
+        prev_in0 = gf(in0);
+        prev_in1 = gf(in1);
+        }
+
+return 0;
+}

@@ -1,0 +1,22 @@
+component bitwise "Computes various bitwise operations on the two input values";
+pin in u32 in0 "First input value";
+pin in u32 in1 "Second input value";
+pin out u32 out-and "The bitwise AND of the two inputs";
+pin out u32 out-or "The bitwise OR of the two inputs";
+pin out u32 out-xor "The bitwise XOR of the two inputs";
+pin out u32 out-nand "The inverse of the bitwise AND";
+pin out u32 out-nor "The inverse of the bitwise OR";
+pin out u32 out-xnor "The inverse of the bitwise XOR";
+
+author "Andy Pugh";
+license "GPL 2+";
+function _ nofp;
+;;
+
+out_and = (in0 & in1);
+out_nand = ~out_and;
+out_or = (in0 | in1);
+out_nor = ~out_or;
+out_xor = (in0 ^ in1);
+out_xnor = ~out_xor;
+return 0;

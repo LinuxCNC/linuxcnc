@@ -33,7 +33,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
 #include "emc.hh"		// EMC NML
@@ -42,6 +42,7 @@
 #include "canon_position.hh"		// data type for a machine position
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
+#include "modal_state.hh"
 
 //#define EMCCANON_DEBUG
 
@@ -59,6 +60,13 @@ static int spindle_dir = 0;
 static const double tiny = 1e-7;
 static double xy_rotation = 0.;
 static int rotary_unlock_for_traverse = -1;
+
+static StateTag _tag;
+
+void UPDATE_TAG(StateTag tag) {
+    canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
+    _tag = tag;
+}
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -110,10 +118,41 @@ static int rotary_unlock_for_traverse = -1;
 
 #define AXIS_PERIOD(axisnum) (IS_PERIODIC(axisnum) ? 360 : 0)
 
+//KLUDGE kinematic data struct (instead of returning a single float value)
+//FIXME This should really be refactored into a more general structure, but this
+//means tearing up the getStraightXXX functions, which probably means
+//converting to canon_position operators
+struct VelData {
+    double tmax;
+    double vel;
+    double dtot;
+};
+
+struct AccelData{
+    double tmax;
+    double acc;
+    double dtot;
+};
+
 static PM_QUATERNION quat(1, 0, 0, 0);
 
 static void flush_segments(void);
 
+static inline void add_tag_to_msg(NMLmsg * msg, StateTag const &tag){
+    //FIXME this better be an EMC_TRAJ message or bad things will happen
+    ((EMC_TRAJ_CMD_MSG *) msg)->tag = tag;
+}
+
+
+/**
+ * Add the the given line number and append the message to the interp list.
+ * Note that the append function takes the message by reference, so this also
+ * needs to have the message passed in by reference or it barfs.
+ */
+static inline void tag_and_send(NMLmsg &msg, StateTag const &tag) {
+    add_tag_to_msg(&msg,tag);
+    interp_list.append(msg);
+}
 
 /*
   These decls were from the old 3-axis canon.hh, and refer functions
@@ -157,8 +196,8 @@ static void rotate(double &x, double &y, double theta) {
     double xx, yy;
     double t = D2R(theta);
     xx = x, yy = y;
-    x = xx * cos(t) - yy * sin(t); 
-    y = xx * sin(t) + yy * cos(t);
+    x = xx * rtapi_cos(t) - yy * rtapi_sin(t); 
+    y = xx * rtapi_sin(t) + yy * rtapi_cos(t);
 }
 
 
@@ -576,26 +615,32 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
     // nothing need be done here
 }
 
-double getStraightAcceleration(double x, double y, double z,
+/**
+ * Get the limiting acceleration for a displacement from the current position to the given position.
+ * returns a single acceleration that is the minimum of all axis accelerations.
+ */
+static AccelData getStraightAcceleration(double x, double y, double z,
                                double a, double b, double c,
                                double u, double v, double w)
 {
     double dx, dy, dz, du, dv, dw, da, db, dc;
-    double tx, ty, tz, tu, tv, tw, ta, tb, tc, tmax;
-    double acc, dtot;
+    double tx, ty, tz, tu, tv, tw, ta, tb, tc;
+    AccelData out;
 
-    acc = 0.0; // if a move to nowhere
+    out.acc = 0.0; // if a move to nowhere
+    out.tmax = 0.0;
+    out.dtot = 0.0;
 
     // Compute absolute travel distance for each axis:
-    dx = fabs(x - canonEndPoint.x);
-    dy = fabs(y - canonEndPoint.y);
-    dz = fabs(z - canonEndPoint.z);
-    da = fabs(a - canonEndPoint.a);
-    db = fabs(b - canonEndPoint.b);
-    dc = fabs(c - canonEndPoint.c);
-    du = fabs(u - canonEndPoint.u);
-    dv = fabs(v - canonEndPoint.v);
-    dw = fabs(w - canonEndPoint.w);
+    dx = rtapi_fabs(x - canonEndPoint.x);
+    dy = rtapi_fabs(y - canonEndPoint.y);
+    dz = rtapi_fabs(z - canonEndPoint.z);
+    da = rtapi_fabs(a - canonEndPoint.a);
+    db = rtapi_fabs(b - canonEndPoint.b);
+    dc = rtapi_fabs(c - canonEndPoint.c);
+    du = rtapi_fabs(u - canonEndPoint.u);
+    dv = rtapi_fabs(v - canonEndPoint.v);
+    dw = rtapi_fabs(w - canonEndPoint.w);
 
     if(!axis_valid(0) || dx < tiny) dx = 0.0;
     if(!axis_valid(1) || dy < tiny) dy = 0.0;
@@ -633,16 +678,16 @@ double getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
-        tmax = MAX3(tx, ty ,tz);
-        tmax = MAX4(tu, tv, tw, tmax);
+        out.tmax = MAX3(tx, ty ,tz);
+        out.tmax = MAX4(tu, tv, tw, out.tmax);
 
         if(dx || dy || dz)
-            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+            out.dtot = rtapi_sqrt(dx * dx + dy * dy + dz * dz);
         else
-            dtot = sqrt(du * du + dv * dv + dw * dw);
+            out.dtot = rtapi_sqrt(du * du + dv * dv + dw * dw);
         
-	if (tmax > 0.0) {
-	    acc = dtot / tmax;
+	if (out.tmax > 0.0) {
+	    out.acc = out.dtot / out.tmax;
 	}
     }
     // Pure angular move:
@@ -650,11 +695,11 @@ double getStraightAcceleration(double x, double y, double z,
 	ta = da? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
 	tb = db? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
-        tmax = MAX3(ta, tb, tc);
+        out.tmax = MAX3(ta, tb, tc);
 
-	dtot = sqrt(da * da + db * db + dc * dc);
-	if (tmax > 0.0) {
-	    acc = dtot / tmax;
+	out.dtot = rtapi_sqrt(da * da + db * db + dc * dc);
+	if (out.tmax > 0.0) {
+	    out.acc = out.dtot / out.tmax;
 	}
     }
     // Combination angular and linear move:
@@ -668,10 +713,13 @@ double getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
-        tmax = MAX9(tx, ty, tz,
+        out.tmax = MAX9(tx, ty, tz,
                     ta, tb, tc,
                     tu, tv, tw);
 
+    if(debug_velacc)
+        printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n", 
+               tx, ty, tz, ta, tb, tc, tu, tv, tw);
 /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
     a combnation move is handled like a linear move, except
     that the angular axes are allowed sufficient time to
@@ -679,42 +727,58 @@ double getStraightAcceleration(double x, double y, double z,
     the linear axes.
 */
         if(dx || dy || dz)
-            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+            out.dtot = rtapi_sqrt(dx * dx + dy * dy + dz * dz);
         else
-            dtot = sqrt(du * du + dv * dv + dw * dw);
+            out.dtot = rtapi_sqrt(du * du + dv * dv + dw * dw);
 
-	if (tmax > 0.0) {
-	    acc = dtot / tmax;
+	if (out.tmax > 0.0) {
+	    out.acc = out.dtot / out.tmax;
 	}
     }
     if(debug_velacc) 
-        printf("cartesian %d ang %d acc %g\n", cartesian_move, angular_move, acc);
-    return acc;
+        printf("cartesian %d ang %d acc %g\n", cartesian_move, angular_move, out.acc);
+    return out;
 }
 
-double getStraightVelocity(double x, double y, double z,
+static AccelData getStraightAcceleration(CANON_POSITION pos)
+{
+
+    return getStraightAcceleration(pos.x,
+            pos.y,
+            pos.z,
+            pos.a,
+            pos.b,
+            pos.c,
+            pos.u,
+            pos.v,
+            pos.w);
+}
+
+static VelData getStraightVelocity(double x, double y, double z,
 			   double a, double b, double c,
                            double u, double v, double w)
 {
     double dx, dy, dz, da, db, dc, du, dv, dw;
-    double tx, ty, tz, ta, tb, tc, tu, tv, tw, tmax;
-    double vel, dtot;
+    double tx, ty, tz, ta, tb, tc, tu, tv, tw;
+    VelData out;
 
 /* If we get a move to nowhere (!cartesian_move && !angular_move)
    we might as well go there at the currentLinearFeedRate...
 */
-    vel = currentLinearFeedRate;
+    out.vel = currentLinearFeedRate;
+    out.tmax = 0;
+    out.dtot = 0;
 
     // Compute absolute travel distance for each axis:
-    dx = fabs(x - canonEndPoint.x);
-    dy = fabs(y - canonEndPoint.y);
-    dz = fabs(z - canonEndPoint.z);
-    da = fabs(a - canonEndPoint.a);
-    db = fabs(b - canonEndPoint.b);
-    dc = fabs(c - canonEndPoint.c);
-    du = fabs(u - canonEndPoint.u);
-    dv = fabs(v - canonEndPoint.v);
-    dw = fabs(w - canonEndPoint.w);
+    dx = rtapi_fabs(x - canonEndPoint.x);
+    dy = rtapi_fabs(y - canonEndPoint.y);
+    dz = rtapi_fabs(z - canonEndPoint.z);
+    da = rtapi_fabs(a - canonEndPoint.a);
+    db = rtapi_fabs(b - canonEndPoint.b);
+    dc = rtapi_fabs(c - canonEndPoint.c);
+    du = rtapi_fabs(u - canonEndPoint.u);
+    dv = rtapi_fabs(v - canonEndPoint.v);
+    dw = rtapi_fabs(w - canonEndPoint.w);
 
     if(!axis_valid(0) || dx < tiny) dx = 0.0;
     if(!axis_valid(1) || dy < tiny) dy = 0.0;
@@ -727,7 +791,7 @@ double getStraightVelocity(double x, double y, double z,
     if(!axis_valid(8) || dw < tiny) dw = 0.0;
 
     if(debug_velacc) 
-        printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
+        printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
                dx, dy, dz, da, db, dc, du, dv, dw);
 
     // Figure out what kind of move we're making:
@@ -745,79 +809,101 @@ double getStraightVelocity(double x, double y, double z,
 
     // Pure linear move:
     if (cartesian_move && !angular_move) {
-	tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
-	ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
-	tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
-        tmax = MAX3(tx, ty ,tz);
-        tmax = MAX4(tu, tv, tw, tmax);
+        tx = dx? rtapi_fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+        ty = dy? rtapi_fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+        tz = dz? rtapi_fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+        tu = du? rtapi_fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+        tv = dv? rtapi_fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+        tw = dw? rtapi_fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
+        out.tmax = MAX3(tx, ty ,tz);
+        out.tmax = MAX4(tu, tv, tw, out.tmax);
 
         if(dx || dy || dz)
-            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+            out.dtot = rtapi_sqrt(dx * dx + dy * dy + dz * dz);
         else
-            dtot = sqrt(du * du + dv * dv + dw * dw);
+            out.dtot = rtapi_sqrt(du * du + dv * dv + dw * dw);
 
-	if (tmax <= 0.0) {
-	    vel = currentLinearFeedRate;
-	} else {
-	    vel = dtot / tmax;
-	}
+        if (out.tmax <= 0.0) {
+            out.vel = currentLinearFeedRate;
+        } else {
+            out.vel = out.dtot / out.tmax;
+        }
     }
     // Pure angular move:
     else if (!cartesian_move && angular_move) {
-	ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
-        tmax = MAX3(ta, tb, tc);
+        ta = da? rtapi_fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
+        tb = db? rtapi_fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
+        tc = dc? rtapi_fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
+        out.tmax = MAX3(ta, tb, tc);
 
-	dtot = sqrt(da * da + db * db + dc * dc);
-	if (tmax <= 0.0) {
-	    vel = currentAngularFeedRate;
-	} else {
-	    vel = dtot / tmax;
-	}
+        out.dtot = rtapi_sqrt(da * da + db * db + dc * dc);
+        if (out.tmax <= 0.0) {
+            out.vel = currentAngularFeedRate;
+        } else {
+            out.vel = out.dtot / out.tmax;
+        }
     }
     // Combination angular and linear move:
     else if (cartesian_move && angular_move) {
-	tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
-	ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
-	tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
-	ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
-        tmax = MAX9(tx, ty, tz,
-                    ta, tb, tc,
-                    tu, tv, tw);
+        tx = dx? rtapi_fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+        ty = dy? rtapi_fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+        tz = dz? rtapi_fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+        ta = da? rtapi_fabs(da / FROM_EXT_ANG(axis_max_velocity[3])): 0.0;
+        tb = db? rtapi_fabs(db / FROM_EXT_ANG(axis_max_velocity[4])): 0.0;
+        tc = dc? rtapi_fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])): 0.0;
+        tu = du? rtapi_fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+        tv = dv? rtapi_fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+        tw = dw? rtapi_fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
+        out.tmax = MAX9(tx, ty, tz,
+                ta, tb, tc,
+                tu, tv, tw);
 
-/*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
-    a combnation move is handled like a linear move, except
-    that the angular axes are allowed sufficient time to
-    complete their motion coordinated with the motion of
-    the linear axes.
-*/
+        if(debug_velacc)
+            printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
+                    tx, ty, tz, ta, tb, tc, tu, tv, tw);
+
+        /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
+            a combnation move is handled like a linear move, except
+            that the angular axes are allowed sufficient time to
+            complete their motion coordinated with the motion of
+            the linear axes.
+            */
         if(dx || dy || dz)
-            dtot = sqrt(dx * dx + dy * dy + dz * dz);
+            out.dtot = rtapi_sqrt(dx * dx + dy * dy + dz * dz);
         else
-            dtot = sqrt(du * du + dv * dv + dw * dw);
+            out.dtot = rtapi_sqrt(du * du + dv * dv + dw * dw);
 
-	if (tmax <= 0.0) {
-	    vel = currentLinearFeedRate;
-	} else {
-	    vel = dtot / tmax;
-	}
+        if (out.tmax <= 0.0) {
+            out.vel = currentLinearFeedRate;
+        } else {
+            out.vel = out.dtot / out.tmax;
+        }
     }
     if(debug_velacc) 
-        printf("cartesian %d ang %d vel %g\n", cartesian_move, angular_move, vel);
-    return vel;
+        printf("cartesian %d ang %d vel %g\n", cartesian_move, angular_move, out.vel);
+    return out;
+}
+
+static VelData getStraightVelocity(CANON_POSITION pos)
+{
+
+    return getStraightVelocity(pos.x,
+            pos.y,
+            pos.z,
+            pos.a,
+            pos.b,
+            pos.c,
+            pos.u,
+            pos.v,
+            pos.w);
 }
 
 #include <vector>
-struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
+struct pt {
+    double x, y, z, a, b, c, u, v, w;
+    int line_no;
+    StateTag tag;
+};
 
 static std::vector<struct pt> chained_points;
 
@@ -837,8 +923,8 @@ static void flush_segments(void) {
     printf("\n");
 #endif
 
-    double ini_maxvel = getStraightVelocity(x, y, z, a, b, c, u, v, w),
-           vel = ini_maxvel;
+    VelData linedata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    double vel = linedata.vel;
 
     if (cartesian_move && !angular_move) {
         if (vel > currentLinearFeedRate) {
@@ -873,15 +959,16 @@ static void flush_segments(void) {
     linearMoveMsg.end.c = TO_EXT_ANG(c);
 
     linearMoveMsg.vel = toExtVel(vel);
-    linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
-    double acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    linearMoveMsg.ini_maxvel = toExtVel(linedata.vel);
+    AccelData lineaccdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    double acc = lineaccdata.acc;
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg.indexrotary = -1;
     if ((vel && acc) || synched) {
         interp_list.set_line_number(line_no);
-        interp_list.append(linearMoveMsg);
+        tag_and_send(linearMoveMsg,pos.tag);
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
@@ -939,6 +1026,7 @@ linkable(double x, double y, double z,
 
 static void
 see_segment(int line_number,
+        StateTag tag,
 	    double x, double y, double z, 
             double a, double b, double c,
             double u, double v, double w) {
@@ -953,7 +1041,7 @@ see_segment(int line_number,
     if(!chained_points.empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
-    pt pos = {x, y, z, a, b, c, u, v, w, line_number};
+    pt pos = {x, y, z, a, b, c, u, v, w, line_number, tag};
     chained_points.push_back(pos);
     if(changed_abc || changed_uvw) {
         flush_segments();
@@ -984,8 +1072,11 @@ void STRAIGHT_TRAVERSE(int line_number,
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
 
-    vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
-    acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+
+    vel = veldata.vel;
+    acc = accdata.acc;
 
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
@@ -997,8 +1088,7 @@ void STRAIGHT_TRAVERSE(int line_number,
 	STOP_SPEED_FEED_SYNCH();
 
     if(vel && acc)  {
-        interp_list.set_line_number(line_number);
-        interp_list.append(linearMoveMsg);
+        tag_and_send(linearMoveMsg, _tag);
     }
 
     if(old_feed_mode)
@@ -1017,39 +1107,41 @@ void STRAIGHT_FEED(int line_number,
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
-    see_segment(line_number, x, y, z, a, b, c, u, v, w);
+    see_segment(line_number, _tag, x, y, z, a, b, c, u, v, w);
 }
 
 
 void RIGID_TAP(int line_number, double x, double y, double z)
 {
-    double ini_maxvel, vel, acc;
+    double ini_maxvel,acc;
     EMC_TRAJ_RIGID_TAP rigidTapMsg;
     double unused=0;
 
     from_prog(x,y,z,unused,unused,unused,unused,unused,unused);
     rotate_and_offset_pos(x,y,z,unused,unused,unused,unused,unused,unused);
 
-    vel = getStraightVelocity(x, y, z, 
+    VelData veldata = getStraightVelocity(x, y, z,
                               canonEndPoint.a, canonEndPoint.b, canonEndPoint.c, 
                               canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
-    ini_maxvel = vel;
+
+    ini_maxvel = veldata.vel;
     
-    acc = getStraightAcceleration(x, y, z, 
+    AccelData accdata = getStraightAcceleration(x, y, z,
                                   canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
                                   canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+    acc = accdata.acc;
     
     rigidTapMsg.pos = to_ext_pose(x,y,z,
                                  canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
                                  canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
 
-    rigidTapMsg.vel = toExtVel(vel);
+    rigidTapMsg.vel = toExtVel(ini_maxvel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
 
     flush_segments();
 
-    if(vel && acc)  {
+    if(ini_maxvel && acc)  {
         interp_list.set_line_number(line_number);
         interp_list.append(rigidTapMsg);
     }
@@ -1077,7 +1169,8 @@ void STRAIGHT_PROBE(int line_number,
 
     flush_segments();
 
-    ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    ini_maxvel = vel = veldata.vel;
 
     if (cartesian_move && !angular_move) {
 	if (vel > currentLinearFeedRate) {
@@ -1093,7 +1186,8 @@ void STRAIGHT_PROBE(int line_number,
 	}
     }
 
-    acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    acc = accdata.acc;
 
     probeMsg.vel = toExtVel(vel);
     probeMsg.ini_maxvel = toExtVel(ini_maxvel);
@@ -1191,9 +1285,9 @@ void STOP_SPEED_FEED_SYNCH()
 
 /* Machining Functions */
 static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
-    double th1 = atan2(sy-cy, sx-cx),
-           th2 = atan2(ey-cy, ex-cx),
-           r = hypot(sy-cy, sx-cx),
+    double th1 = rtapi_atan2(sy-cy, sx-cx),
+           th2 = rtapi_atan2(ey-cy, ex-cx),
+           r = rtapi_hypot(sy-cy, sx-cx),
            dth = th2 - th1;
 
     if(rotation < 0) {
@@ -1208,11 +1302,11 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
         if(dth <= 1e-5) th2 += 2*M_PI;
     }
 
-    double included = fabs(th2 - th1);
+    double included = rtapi_fabs(th2 - th1);
     double mid = (th2 + th1) / 2;
-    mx = cx + r * cos(mid);
-    my = cy + r * sin(mid);
-    double dev = r * (1 - cos(included/2));
+    mx = cx + r * rtapi_cos(mid);
+    my = cy + r * rtapi_sin(mid);
+    double dev = r * (1 - rtapi_cos(included/2));
     return dev;
 }
 
@@ -1223,7 +1317,7 @@ static double max(double a, double b) {
     return a;
 }
 static void unit(double *x, double *y) {
-    double h = hypot(*x, *y);
+    double h = rtapi_hypot(*x, *y);
     if(h != 0) { *x/=h; *y/=h; }
 }
 
@@ -1234,7 +1328,7 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy
     double den = 2 * (y*dx - x*dy);
     CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
     to_prog(p);
-    if (fabs(den) > small) {
+    if (rtapi_fabs(den) > small) {
         double r = -(x*x+y*y)/den;
         double i = dy*r, j = -dx*r;
         double cx = x1+i, cy=y1+j;
@@ -1259,7 +1353,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
     double discr = b*b - 4*a*c;
     if(discr < 0) return 0;
 
-    double disq = sqrt(discr);
+    double disq = rtapi_sqrt(discr);
     double beta1 = (-b-disq) / 2 / a;
     double beta2 = (-b+disq) / 2 / a;
 
@@ -1309,7 +1403,7 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
 
 /**
  * Simple circular shift function for PM_CARTESIAN type.
- * Cycle around axes without changing the individual values. A circshift of 1
+ * Cycle around axes without changing the individual values. A circshift of -1
  * makes the X value become the new Y, Y become the Z, and Z become the new X.
  */
 static PM_CARTESIAN circshift(PM_CARTESIAN & vec, int steps)
@@ -1324,6 +1418,7 @@ static PM_CARTESIAN circshift(PM_CARTESIAN & vec, int steps)
     return PM_CARTESIAN(vec[X],vec[Y],vec[Z]);
 }
 
+#if 0
 static CANON_POSITION get_axis_max_velocity()
 {
     CANON_POSITION maxvel;
@@ -1371,7 +1466,7 @@ static double axis_motion_time(const CANON_POSITION & start, const CANON_POSITIO
     for (ind = 0; ind < 9; ++ind) {
         double v = maxvel[ind];
         if (v > 0.0) {
-            times[ind] = fabs(disp[ind]) / v;
+            times[ind] = rtapi_fabs(disp[ind]) / v;
         } else {
             times[ind]=0;
         }
@@ -1392,7 +1487,7 @@ static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION &
     for (int i = 0; i < 9; ++i) {
         double a = maxacc[i];
         if (a > 0.0) {
-            times[i] = fabs(disp[i]) / a;
+            times[i] = rtapi_fabs(disp[i]) / a;
         } else {
             times[i]=0;
         }
@@ -1400,6 +1495,7 @@ static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION &
 
     return times.max();
 }
+#endif
 
 void ARC_FEED(int line_number,
               double first_end, double second_end,
@@ -1422,20 +1518,20 @@ void ARC_FEED(int line_number,
 
         get_last_pos(lx, ly, lz);
 
-        a = FROM_PROG_ANG(a);
-        b = FROM_PROG_ANG(b);
-        c = FROM_PROG_ANG(c);
-        u = FROM_PROG_LEN(u);
-        v = FROM_PROG_LEN(v);
-        w = FROM_PROG_LEN(w);
-
         double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
         double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
         rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
         rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canonNaivecamTolerance) {
+	    a = FROM_PROG_ANG(a);
+	    b = FROM_PROG_ANG(b);
+	    c = FROM_PROG_ANG(c);
+	    u = FROM_PROG_LEN(u);
+	    v = FROM_PROG_LEN(v);
+	    w = FROM_PROG_LEN(w);
+	    
             rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
-            see_segment(line_number, mx, my,
+            see_segment(line_number, _tag, mx, my,
                         (lz + ae)/2, 
                         (canonEndPoint.a + a)/2, 
                         (canonEndPoint.b + b)/2, 
@@ -1443,7 +1539,7 @@ void ARC_FEED(int line_number,
                         (canonEndPoint.u + u)/2, 
                         (canonEndPoint.v + v)/2, 
                         (canonEndPoint.w + w)/2);
-            see_segment(line_number, fe, se, ae, a, b, c, u, v, w);
+            see_segment(line_number, _tag, fe, se, ae, a, b, c, u, v, w);
             return;
         }
     }
@@ -1565,11 +1661,12 @@ void ARC_FEED(int line_number,
     canon_debug("rotation = %d\n",rotation);
 
     // Use the "X" (1) and Y" (2) components of the planar projections to get
-    // the starting and ending angle. Note that atan2 arguments are atan2(Y,X).
-    double theta_start = atan2(p_start_2, p_start_1);
-    double theta_end= atan2(p_end_2,p_end_1);
-    double radius = hypot(p_start_1, p_start_2);
-    canon_debug("radius = %f\n",radius);
+    // the starting and ending angle. Note that atan2 arguments are rtapi_atan2(Y,X).
+    double theta_start = rtapi_atan2(p_start_2, p_start_1);
+    double theta_end= rtapi_atan2(p_end_2,p_end_1);
+    double start_radius = rtapi_hypot(p_start_1, p_start_2);
+    double end_radius = rtapi_hypot(p_end_1, p_end_2);
+    canon_debug("radius = %f\n",start_radius);
     canon_debug("raw values: theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
 
     // Correct for angle wrap so that theta_end - theta_start > 0
@@ -1612,12 +1709,16 @@ void ARC_FEED(int line_number,
     canon_debug("full turns = %d\n", full_turns);
 
 	canon_debug("full_angle = %.17e\n", full_angle);
-    // Compute length along normal axis
-    double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
+
+    //Use total angle to get spiral properties
+    double spiral = end_radius - start_radius;
+    double dr = spiral / rtapi_fabs(full_angle);
+    double min_radius = rtapi_fmin(start_radius, end_radius);
+    double effective_radius = rtapi_sqrt(dr*dr + min_radius*min_radius);
 
     // KLUDGE: assumes 0,1,2 for X Y Z
     // Find normal axis
-    int norm_axis_ind = 2 + shift_ind % 3;
+    int norm_axis_ind = (2 - shift_ind) % 3;
     // Find maximum velocities and accelerations for planar axes
     int axis1 = (norm_axis_ind + 1) % 3;
     int axis2 = (norm_axis_ind + 2) % 3;
@@ -1631,80 +1732,70 @@ void ARC_FEED(int line_number,
     // Get planar acceleration bounds
     double a1 = FROM_EXT_LEN(axis_max_acceleration[axis1]);
     double a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
-    double v_max_planar = MIN(v1, v2);
-    double a_max_planar = MIN(a1, a2);
+    double v_max_axes = MIN(v1, v2);
+    double a_max_axes = MIN(a1, a2);
+    //FIXME allow tangential acceleration like in TP
+    double a_max_normal = a_max_axes * rtapi_sqrt(3.0)/2.0;
+    canon_debug("a_max_axes = %f\n", a_max_axes);
 
-    //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
-    double v_max_radial = sqrt(a_max_planar * radius);
-    double v_max = MIN(v_max_radial, v_max_planar);
-    canon_debug("v_max_planar = %f\n", v_max_planar);
+    // Compute the centripetal acceleration
+    double v_max_radial = rtapi_sqrt(a_max_normal * effective_radius);
     canon_debug("v_max_radial = %f\n", v_max_radial);
+
+    // Restrict our maximum velocity in-plane if need be
+    double v_max_planar = MIN(v_max_radial, v_max_axes);
+    canon_debug("v_max_planar = %f\n", v_max_planar);
+
+    // Find the equivalent maximum velocity for a linear displacement
+    // This accounts for speed restrictions due to helical and other axes
+    VelData veldata = getStraightVelocity(endpt);
+
+    // Compute spiral length, first by the minimum circular arc length
+    double circular_length = min_radius * rtapi_fabs(full_angle);
+    // Then by linear approximation of the spiral arc length function of angle
+    // TODO use quadratic approximation
+    double spiral_length = rtapi_hypot(circular_length, spiral);
+
+    // Compute length along normal axis and total XYZ arc length
+    double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
+    double total_xyz_length = rtapi_hypot(spiral_length, axis_len);
+
+    // Next, compute the minimum time that we must take to complete the segment. 
+    // The motion computation gives us min time needed for the helical and auxiliary axes
+    double t_max_motion = veldata.tmax;
+    // Assumes worst case that velocity can be in any direction in the plane, so
+    // we assume tangential velocity is always less than the planar velocity limit.
+    // The spiral time is the min time needed to stay under the planar velocity limit.
+    double t_max_spiral = spiral_length / v_max_planar;
+
+    // Now, compute actual XYZ max velocity from this min time and the total arc length
+    double t_max = rtapi_fmax(t_max_motion, t_max_spiral);
+
+    double v_max = total_xyz_length / t_max;
     canon_debug("v_max = %f\n", v_max);
 
-    // find out how long the arc takes at ini_maxvel
-    double t_circle = fabs(full_angle * radius / v_max);
-    canon_debug("t_circle = %f\n", t_circle);
-
-    double t_motion = axis_motion_time(canonEndPoint,endpt);
-    canon_debug("t_motion = %f\n", t_motion);
-
-    double t_max = MAX(t_motion, t_circle);
-
-    // If there is helical motion, check normal axis velocity limit as well
-    if (axis_valid(norm_axis_ind)) {
-        double v_max_axial = FROM_EXT_LEN(axis_max_velocity[norm_axis_ind]);
-        double t_axial = fabs(axis_len / v_max_axial);
-        t_max = MAX(t_max, t_axial);
-    }
-
-    canon_debug("t_max = %f\n",t_max);
-
-    // Total path length including helical motion
-    double helical_length = hypot(full_angle * radius, axis_len);
-    canon_debug("full_angle = %f\n", full_angle);
-    canon_debug("helical_length = %f\n",helical_length);
-
-    // From the total path time and length, calculate new max velocity
-    if (t_max > 0.0) {
-        double v_max_helical = helical_length / t_max;
-        canon_debug("v_max_helical = %f\n",v_max_helical);
-        v_max = v_max_helical;
-    }
 
 //COMPUTE ACCEL
     
-    // Compute max acceleration from axis motion (parameterized by axis, units t^2)
-    double tt_motion = axis_acc_time(canonEndPoint, endpt);
-    double a_max = a_max_planar;
+    // Use "straight" acceleration measure to compute acceleration bounds due
+    // to non-circular components (helical axis, other axes)
+    AccelData accdata = getStraightAcceleration(endpt);
 
-    // Account for axial acceleration if we have helical motion
-    if (axis_valid(norm_axis_ind)) {
-        double a_max_axial = FROM_EXT_LEN(axis_max_acceleration[norm_axis_ind]);
-        a_max = MIN(a_max, a_max_axial);
-    }
+    double tt_max_motion = accdata.tmax;
+    double tt_max_spiral = spiral_length / a_max_axes;
+    double tt_max = rtapi_fmax(tt_max_motion, tt_max_spiral);
 
-    double tt_helix = helical_length / a_max;
-    double tt_max = MAX(tt_motion, tt_helix);
-
-    canon_debug("tt_motion = %f\n", tt_motion);
-    canon_debug("tt_helix = %f\n", tt_helix);
-    canon_debug("tt_max = %f\n", tt_max);
-
-    // From the total path time and length, calculate new max acceleration
-    if (tt_max > 0.0) {
-        double a_max_helical = helical_length / tt_max;
-        canon_debug("a_max_helical = %f\n",a_max_helical);
-        a_max = a_max_helical;
-    }
+    // a_max could be higher than a_max_axes, but the projection onto the
+    // circle plane and helical axis will still be within limits
+    double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
     double vel = MIN(currentLinearFeedRate, v_max);
-
     canon_debug("current F = %f\n",currentLinearFeedRate);
     canon_debug("vel = %f\n",vel);
+
     canon_debug("v_max = %f\n",v_max);
     canon_debug("a_max = %f\n",a_max);
-    canon_debug("v_max_planar = %f\n",v_max_planar);
 
     cartesian_move = 1;
 
@@ -1720,7 +1811,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.indexrotary = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
-            interp_list.append(linearMoveMsg);
+            tag_and_send(linearMoveMsg, _tag);
         }
     } else {
         circularMoveMsg.end = to_ext_pose(endpt);
@@ -1743,9 +1834,10 @@ void ARC_FEED(int line_number,
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
+        // seems to be a crude way to indicate a zero length segment?
         if(vel && a_max) {
             interp_list.set_line_number(line_number);
-            interp_list.append(circularMoveMsg);
+            tag_and_send(circularMoveMsg, _tag);
         }
     }
     // update the end point
@@ -1771,7 +1863,7 @@ void SPINDLE_RETRACT_TRAVERSE()
 }
 
 void SET_SPINDLE_MODE(double css_max) {
-    css_maximum = fabs(css_max);
+    css_maximum = rtapi_fabs(css_max);
 }
 
 void START_SPINDLE_CLOCKWISE()
@@ -1821,7 +1913,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 void SET_SPINDLE_SPEED(double r)
 {
     // speed is in RPMs everywhere
-    spindleSpeed = fabs(r); // interp will never send negative anyway ...
+    spindleSpeed = rtapi_fabs(r); // interp will never send negative anyway ...
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
@@ -1988,8 +2080,10 @@ void CHANGE_TOOL(int slot)
         w = FROM_EXT_LEN(tool_change_position.w);
 
 
-        vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
-        acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+        VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+        AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+        vel = veldata.vel;
+        acc = accdata.acc;
 
         linearMoveMsg.end = to_ext_pose(x, y, z, a, b, c, u, v, w);
 
@@ -2003,11 +2097,13 @@ void CHANGE_TOOL(int slot)
 	if(feed_mode)
 	    STOP_SPEED_FEED_SYNCH();
 
-        if(vel && acc) 
-            interp_list.append(linearMoveMsg);
+        if(vel && acc) {
+            tag_and_send(linearMoveMsg, _tag);
+        }
 
-	if(old_feed_mode)
-	    START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
+        if(old_feed_mode) {
+            START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
+        }
 
         canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
@@ -2457,9 +2553,9 @@ void INIT_CANON()
        can compare this against known values and set the symbolic values
        accordingly. If it doesn't match, we have an error. */
     units = GET_EXTERNAL_LENGTH_UNITS();
-    if (fabs(units - 1.0 / 25.4) < 1.0e-3) {
+    if (rtapi_fabs(units - 1.0 / 25.4) < 1.0e-3) {
 	lengthUnits = CANON_UNITS_INCHES;
-    } else if (fabs(units - 1.0) < 1.0e-3) {
+    } else if (rtapi_fabs(units - 1.0) < 1.0e-3) {
 	lengthUnits = CANON_UNITS_MM;
     } else {
 	CANON_ERROR

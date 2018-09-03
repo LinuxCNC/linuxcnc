@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 #    Copyright 2007 John Kasunich and Jeff Epler
 #
 #    This program is free software; you can redistribute it and/or modify

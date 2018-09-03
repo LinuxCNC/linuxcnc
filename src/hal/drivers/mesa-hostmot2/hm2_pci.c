@@ -42,14 +42,11 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[01235], 6i25, 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[012345], 6i25, 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
 static char *config[HM2_PCI_MAX_BOARDS];
-//CS//static int num_config_strings = HM2_PCI_MAX_BOARDS;
-//CS//module_param_array(config, charp, &num_config_strings, S_IRUGO);
-//CS//MODULE_PARM_DESC(config, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 RTAPI_MP_ARRAY_STRING(config, HM2_PCI_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
 
 static int comp_id;
@@ -268,38 +265,10 @@ static int hm2_pci_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int si
 }
 
 
-/* Bogus FPGA programming routine to check firmware loading on a 5i25 */
-/* This only exists because Charles Steinkuehler doesn't have a 5i20  */
-/* or other board that requires programming (such as a 5i20)          */
-/* Remove once configuration of PLX based boards is working           */
-static int hm2_5i25_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
 
-    // program the FPGA...
-    // ...or just dump a few bytes to make sure the bitfile got read OK
-    // Skip the first 16 bytes, which are all 0xff (preamble)
-    LL_PRINT("FPGA bitfile contents: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-        bitfile->e.data[16],
-        bitfile->e.data[17],
-        bitfile->e.data[18],
-        bitfile->e.data[19],
-        bitfile->e.data[20],
-        bitfile->e.data[21],
-        bitfile->e.data[22],
-        bitfile->e.data[23],
-        bitfile->e.data[24],
-        bitfile->e.data[25],
-        bitfile->e.data[26],
-        bitfile->e.data[27],
-        bitfile->e.data[28],
-        bitfile->e.data[29],
-        bitfile->e.data[30],
-        bitfile->e.data[31]);
-
-    return 0;
-}
-
-
-static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this,
+				    const bitfile_t *bitfile,
+				    const struct firmware *fw) {
     hm2_pci_t *board = this->private;
     int i;
     u32 status, control;
@@ -419,7 +388,9 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 
 
 
-static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this,
+				    const bitfile_t *bitfile,
+				    const struct firmware *fw) {
     hm2_pci_t *board = this->private;
     int i;
     u32 status;
@@ -591,10 +562,10 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             num_5i24 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
-            board->llio.ioport_connector_name[0] = "P2";
+            board->llio.ioport_connector_name[0] = "P4";
             board->llio.ioport_connector_name[1] = "P3";
-            board->llio.ioport_connector_name[2] = "P4";
-            board->llio.fpga_part_number = "xc6slx16ftg256";
+            board->llio.ioport_connector_name[2] = "P2";
+            board->llio.fpga_part_number = "6slx16ftg256";
             board->llio.num_leds = 2;
             break;
         }
@@ -614,8 +585,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "P3";
             board->llio.ioport_connector_name[1] = "P2";
-            board->llio.fpga_part_number = "6slx9pq144";
-            board->llio.fpga_part_number = "6slx9tqg144";   //CS// hack to match the firmware blobs in the 5i25.zip file from Mesa...for testing ONLY!!
+            board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 2;
             break;
         }
@@ -738,6 +708,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
+        case HM2_PCI_DEV_MESA5I24:
         case HM2_PCI_DEV_MESA5I25:
         case HM2_PCI_DEV_MESA6I25: {
               // BAR 0 is 64K mem (32 bit)
@@ -748,7 +719,6 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
                 r = -ENODEV;
                 goto fail0;
             }
-board->llio.program_fpga = hm2_5i25_program_fpga;
             break;
         }
 

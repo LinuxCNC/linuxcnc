@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 #
-#    This is stepconf, a graphical configuration editor for LinuxCNC
+#    This is stepconf, a graphical configuration editor for Machinekit
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #    stepconf 1.1 revamped by Chris Morley 2014
 #
@@ -71,9 +71,9 @@ class INI:
             print >>file, "MIN_ANGULAR_VELOCITY = 0"
             print >>file, "MAX_ANGULAR_VELOCITY = %.2f" % self.d.amaxvel
 
-        print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
+        print >>file, "INTRO_GRAPHIC = machinekit.gif"
         print >>file, "INTRO_TIME = 5"
-        print >>file, "PROGRAM_PREFIX = %s" % os.path.expanduser("~/linuxcnc/nc_files")
+        print >>file, "PROGRAM_PREFIX = %s" % os.path.expanduser("~/machinekit/nc_files")
         if self.d.units:
             print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
         else:
@@ -90,7 +90,7 @@ class INI:
         print >>file, "png = image-to-gcode"
         print >>file, "gif = image-to-gcode"
         print >>file, "jpg = image-to-gcode"
-        print >>file, "py = python"        
+        print >>file, "py = python2"        
 
         print >>file
         print >>file, "[TASK]"
@@ -99,7 +99,7 @@ class INI:
 
         print >>file
         print >>file, "[RS274NGC]"
-        print >>file, "PARAMETER_FILE = linuxcnc.var"
+        print >>file, "PARAMETER_FILE = machinekit.var"
 
         base_period = self.ideal_period()
 
@@ -190,7 +190,7 @@ class INI:
             print >>file, "FERROR = 0.05"
             print >>file, "MIN_FERROR = 0.01"
 
-        # linuxcnc doesn't like having home right on an end of travel,
+        # Machinekit doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = get("minlim")
         maxlim = get("maxlim")

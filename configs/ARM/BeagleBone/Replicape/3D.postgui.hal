@@ -1,0 +1,14 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+
+net e0.temp.set-actual   => pyvcp.e0.sv
+net e0.temp.meas  => pyvcp.e0.pv
+net e0.on         => pyvcp.e0.on
+net e0.temp.ov     => mux2.0.sel <= pyvcp.e0.ov
+net e0.temp.set-ov => mux2.0.in1 <= pyvcp.e0.set-sv-f
+
+net bed.temp.set-actual  => pyvcp.bed.sv
+net bed.temp.meas => pyvcp.bed.pv
+net bed.on        => pyvcp.bed.on
+net bed.temp.ov     => mux2.1.sel <= pyvcp.bed.ov
+net bed.temp.set-ov => mux2.1.in1 <= pyvcp.bed.set-sv-f

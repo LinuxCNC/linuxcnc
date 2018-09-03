@@ -1,0 +1,105 @@
+ifeq ($(BUILD_SYS),kbuild)
+
+rtapi_math-objs := rtapi/rtapi_math/s_floor.o
+rtapi_math-objs += rtapi/rtapi_math/e_pow.o
+rtapi_math-objs += rtapi/rtapi_math/w_pow.o
+rtapi_math-objs += rtapi/rtapi_math/s_fabs.o
+rtapi_math-objs += rtapi/rtapi_math/e_sqrt.o
+rtapi_math-objs += rtapi/rtapi_math/w_sqrt.o
+rtapi_math-objs += rtapi/rtapi_math/s_ceil.o
+rtapi_math-objs += rtapi/rtapi_math/e_acos.o
+rtapi_math-objs += rtapi/rtapi_math/w_acos.o
+rtapi_math-objs += rtapi/rtapi_math/e_asin.o
+rtapi_math-objs += rtapi/rtapi_math/w_asin.o
+rtapi_math-objs += rtapi/rtapi_math/s_tan.o
+rtapi_math-objs += rtapi/rtapi_math/k_tan.o
+rtapi_math-objs += rtapi/rtapi_math/s_atan.o
+rtapi_math-objs += rtapi/rtapi_math/w_atan2.o
+rtapi_math-objs += rtapi/rtapi_math/e_atan2.o
+rtapi_math-objs += rtapi/rtapi_math/s_sin.o
+rtapi_math-objs += rtapi/rtapi_math/k_sin.o
+rtapi_math-objs += rtapi/rtapi_math/s_cos.o
+rtapi_math-objs += rtapi/rtapi_math/k_cos.o
+rtapi_math-objs += rtapi/rtapi_math/e_rem_pio2.o
+rtapi_math-objs += rtapi/rtapi_math/k_rem_pio2.o
+rtapi_math-objs += rtapi/rtapi_math/s_scalbn.o
+rtapi_math-objs += rtapi/rtapi_math/k_standard.o
+rtapi_math-objs += rtapi/rtapi_math/s_cbrt.o
+rtapi_math-objs += rtapi/rtapi_math/s_copysign.o
+rtapi_math-objs += rtapi/rtapi_math/s_finite.o
+rtapi_math-objs += rtapi/rtapi_math/s_rint.o
+rtapi_math-objs += rtapi/rtapi_math/powidf.o
+rtapi_math-objs += rtapi/rtapi_math/e_hypot.o
+rtapi_math-objs += rtapi/rtapi_math/w_hypot.o
+rtapi_math-objs += rtapi/rtapi_math/e_fmod.o
+rtapi_math-objs += rtapi/rtapi_math/w_fmod.o
+rtapi_math-objs += rtapi/rtapi_math/s_fabs.o
+rtapi_math-objs += rtapi/rtapi_math/s_rint.o
+rtapi_math-objs += rtapi/rtapi_math/s_fminmax.o
+rtapi_math-objs += rtapi/rtapi_math/krtapi_math.o
+
+obj-m += rtapi_math.o
+
+ccflags-y := 	$(KERNEL_MATH_CFLAGS) \
+	-D_IEEE_LIBM \
+	-D_ISOC99_SOURCE \
+	-D_SVID_SOURCE
+
+$(RTLIBDIR)/rtapi_math$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi_math-objs))
+
+endif
+
+LIBRMSRCS := rtapi/rtapi_math/s_floor.c
+LIBRMSRCS += rtapi/rtapi_math/e_pow.c
+LIBRMSRCS += rtapi/rtapi_math/w_pow.c
+LIBRMSRCS += rtapi/rtapi_math/s_fabs.c
+LIBRMSRCS += rtapi/rtapi_math/e_sqrt.c
+LIBRMSRCS += rtapi/rtapi_math/w_sqrt.c
+LIBRMSRCS += rtapi/rtapi_math/s_ceil.c
+LIBRMSRCS += rtapi/rtapi_math/e_acos.c
+LIBRMSRCS += rtapi/rtapi_math/w_acos.c
+LIBRMSRCS += rtapi/rtapi_math/e_asin.c
+LIBRMSRCS += rtapi/rtapi_math/w_asin.c
+LIBRMSRCS += rtapi/rtapi_math/s_tan.c
+LIBRMSRCS += rtapi/rtapi_math/k_tan.c
+LIBRMSRCS += rtapi/rtapi_math/s_atan.c
+LIBRMSRCS += rtapi/rtapi_math/w_atan2.c
+LIBRMSRCS += rtapi/rtapi_math/e_atan2.c
+LIBRMSRCS += rtapi/rtapi_math/s_sin.c
+LIBRMSRCS += rtapi/rtapi_math/k_sin.c
+LIBRMSRCS += rtapi/rtapi_math/s_cos.c
+LIBRMSRCS += rtapi/rtapi_math/k_cos.c
+LIBRMSRCS += rtapi/rtapi_math/e_rem_pio2.c
+LIBRMSRCS += rtapi/rtapi_math/k_rem_pio2.c
+LIBRMSRCS += rtapi/rtapi_math/s_scalbn.c
+LIBRMSRCS += rtapi/rtapi_math/k_standard.c
+LIBRMSRCS += rtapi/rtapi_math/s_cbrt.c
+LIBRMSRCS += rtapi/rtapi_math/s_copysign.c
+LIBRMSRCS += rtapi/rtapi_math/s_finite.c
+LIBRMSRCS += rtapi/rtapi_math/s_rint.c
+LIBRMSRCS += rtapi/rtapi_math/powidf.c
+LIBRMSRCS += rtapi/rtapi_math/e_hypot.c
+LIBRMSRCS += rtapi/rtapi_math/w_hypot.c
+LIBRMSRCS += rtapi/rtapi_math/e_fmod.c
+LIBRMSRCS += rtapi/rtapi_math/w_fmod.c
+LIBRMSRCS += rtapi/rtapi_math/s_fabs.c
+LIBRMSRCS += rtapi/rtapi_math/s_rint.c
+LIBRMSRCS += rtapi/rtapi_math/s_fminmax.c
+LIBRMSRCS += rtapi/rtapi_math/librtapi_math.c
+
+ccflags-extra := -D_IEEE_LIBM \
+	-D_ISOC99_SOURCE \
+	-D_DEFAULT_SOURCE \
+	-O2 \
+	-Werror
+
+$(call TOOBJSDEPS, $(LIBRMSRCS)) : EXTRAFLAGS=-fPIC $(ccflags-extra)
+LIBRM := ../lib/librtapi_math.so
+
+$(LIBRM).0: $(call TOOBJS,$(LIBRMSRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+USERSRCS += $(LIBRMSRCS)
+TARGETS += $(LIBRM) $(LIBRM).0

@@ -21,9 +21,9 @@
 #include <machinetalk/include/pb-linuxcnc.h>
 #include <machinetalk/nanopb/pb_encode.h>
 
-#include <machinetalk/generated/types.npb.h>
-#include <machinetalk/generated/value.npb.h>
-#include <machinetalk/generated/rtapi_message.npb.h>
+#include <machinetalk/protobuf/types.npb.h>
+#include <machinetalk/protobuf/value.npb.h>
+#include <machinetalk/protobuf/rtapi_message.npb.h>
 #include "rtapi.h"
 
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -54,10 +54,10 @@ static int get_code(const char **fmt_io, int *modifier_l) {
     return *fmt;
 }
 
-int pbvprintf( pb_RTAPI_Message *msg, int level, const char *fmt, va_list ap)
+int pbvprintf( machinetalk_RTAPI_Message *msg, int level, const char *fmt, va_list ap)
 {
     int modifier_l, code;
-    pb_Value *v;
+    machinetalk_Value *v;
 
     msg->msglevel = level;
     strncpy(msg->format, fmt, MIN(strlen(fmt),
@@ -77,14 +77,14 @@ int pbvprintf( pb_RTAPI_Message *msg, int level, const char *fmt, va_list ap)
             if(modifier_l) {
 	    case 'p':
 		// dbuf_put_long(o, va_arg(ap, long));
-		v->type = pb_ValueType_INT32;
+		v->type = machinetalk_ValueType_INT32;
 		v->has_v_int32 = true;
 		v->v_int32 =  va_arg(ap, long);
 		msg->arg_count++;
             } else {
 		// XXX not sure about long vs int encoding in protobuf types
                 // dbuf_put_int(o, va_arg(ap, int));
-		v->type = pb_ValueType_INT32;
+		v->type = machinetalk_ValueType_INT32;
 		v->has_v_int32 = true;
 		v->v_int32 =  va_arg(ap, long);
 		msg->arg_count++;
@@ -93,16 +93,17 @@ int pbvprintf( pb_RTAPI_Message *msg, int level, const char *fmt, va_list ap)
             break;
         case 'e': case 'E': case 'f': case 'F': case 'g': case 'G':
 	    //            dbuf_put_double(o, va_arg(ap, double));
-	    v->type = pb_ValueType_DOUBLE;
+	    v->type = machinetalk_ValueType_DOUBLE;
 	    v->has_v_double = true;
 	    v->v_double =  va_arg(ap, double);
 	    msg->arg_count++;
             break;
         case 's':
             // dbuf_put_string(o, va_arg(ap, const char *));
-	    v->type = pb_ValueType_STRING;
+	    v->type = machinetalk_ValueType_STRING;
 	    v->has_v_string = true;
-	    strncpy(v->v_string,va_arg(ap, const char *), sizeof(v->v_string));
+	    *(v->v_string) = '\0';
+	    strncat(v->v_string, va_arg(ap, const char *), sizeof(v->v_string) - 1);
 	    msg->arg_count++;
             break;
         default:
@@ -115,7 +116,7 @@ int pbvprintf( pb_RTAPI_Message *msg, int level, const char *fmt, va_list ap)
     return 0;
 }
 
-int pbprintf(pb_RTAPI_Message *msg, int level, const char *fmt, ...) {
+int pbprintf(machinetalk_RTAPI_Message *msg, int level, const char *fmt, ...) {
     va_list ap;
     int result;
 
@@ -132,7 +133,7 @@ int main (int argc, char *argv[ ])
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     int result;
 
-    pb_RTAPI_Message msg;
+    machinetalk_RTAPI_Message msg;
     memset(&msg, 0, sizeof(msg));
 
     switch (argc) {
@@ -158,7 +159,7 @@ int main (int argc, char *argv[ ])
 	break;
     }
 
-    if ((result = pb_encode(&stream, pb_RTAPI_Message_fields, &msg))) {
+    if ((result = pb_encode(&stream, machinetalk_RTAPI_Message_fields, &msg))) {
 	fwrite(buffer, 1, stream.bytes_written, stdout);
         exit(0);
     } else {

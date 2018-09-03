@@ -108,16 +108,18 @@ void VerifyDirectorySelected( char * NewDir )
 void InitTempDir( void )
 {
 	char * TmpEnv = getenv("TMP");
+	int TempDir;
 	if ( TmpEnv==NULL )
 		TmpEnv = "/tmp";
 
 	// get a single name directory
 	sprintf( TmpDirectory, "%s/classicladder_tmp_XXXXXX", TmpEnv );
 #ifndef __WIN32__
-	if ( mkdtemp( TmpDirectory )==NULL )
+	TempDir = ( mkdtemp( TmpDirectory )==NULL );
 #else
-	if ( mktemp( TmpDirectory )==NULL )
+	TempDir = ( mktemp( TmpDirectory )==NULL );
 #endif
+	if (TempDir)
 	{
 		sprintf( TmpDirectory, "%s/classicladder_tmp", TmpEnv );
 #ifndef __WIN32__
@@ -127,7 +129,7 @@ void InitTempDir( void )
 #endif
 	}
 #ifdef __WIN32__
-	else
+	if (!TempDir)
 	{
 		mkdir( TmpDirectory );
 	}

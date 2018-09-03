@@ -23,18 +23,18 @@ class HandlerClass:
     def on_changed(self, combobox, data=None):
         print "on_changed %f %d" % (combobox.hal_pin_f.get(),combobox.hal_pin_s.get())
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
         self.useropts = useropts
 
         self.combo = self.builder.get_object('hal_combobox1')
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     global debug
     for cmd in useropts:
         exec cmd in globals()
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]
 

@@ -33,3 +33,8 @@ PYI18NSRCS += emc/usr_intf/gscreen/gscreen.py $(patsubst %,emc/usr_intf/gscreen/
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+
+clean: gscreen-clean
+gscreen-clean:
+	rm -rf ../lib/python/gscreen

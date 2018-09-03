@@ -5,7 +5,7 @@
 # Derived from Ted Hyde's original hm2-servo config
 #
 # Based up work and discussion with Seb & Peter & Jeff
-# GNU license references - insert here. www.linuxcnc.org
+# GNU license references - insert here. www.machinekit.io
 #
 #
 # ########################################
@@ -29,7 +29,9 @@
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # load low-level driver
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
@@ -42,9 +44,9 @@ loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 addf [PRUCONF](DRIVER).capture-position   servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
-# revel in the free time here from not having to run PID 
+# revel in the free time here from not having to run PID
 addf [PRUCONF](DRIVER).update             servo-thread
-       
+
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -59,7 +61,7 @@ addf [PRUCONF](DRIVER).update             servo-thread
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => [PRUCONF](DRIVER).stepgen.00.enable
 
 
@@ -96,7 +98,7 @@ setp [PRUCONF](DRIVER).stepgen.00.dirpin          0xA3
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= axis.1.amp-enable-out
 net emcmot.01.enable => [PRUCONF](DRIVER).stepgen.01.enable
 
 
@@ -133,7 +135,7 @@ setp [PRUCONF](DRIVER).stepgen.01.dirpin          0xA5
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= axis.2.amp-enable-out
 net emcmot.02.enable => [PRUCONF](DRIVER).stepgen.02.enable
 
 
@@ -164,7 +166,7 @@ setp [PRUCONF](DRIVER).stepgen.02.dirpin          0xA7
 
 
 
-# 
+#
 # The Mesa AnyIO output pins can be in open-drain mode (drive low, float
 # high) or push/pull mode (drive low, drive high).
 #

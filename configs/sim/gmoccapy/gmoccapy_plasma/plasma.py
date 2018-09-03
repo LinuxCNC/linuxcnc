@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # -*- coding:UTF-8 -*-
 """
     This file will control some options of the gmoccapy plasma screen
@@ -36,7 +36,7 @@ from gmoccapy import getiniinfo
 
 class PlasmaClass:
 
-    def __init__(self, halcomp, builder, useropts):
+    def __init__(self, halcomp, builder, useropts,compname):
         self.builder = builder
         self.halcomp = halcomp
         self.defaults = { IniFile.vars : { "thcspeedval"       : 15.0 ,
@@ -309,5 +309,5 @@ class PlasmaClass:
     def on_enable_HeightLock_toggled(self, widget, data = None):
         self.enableheightlock = widget.get_active()
 
-def get_handlers(halcomp, builder, useropts):
-    return[PlasmaClass(halcomp, builder, useropts)]
+def get_handlers(halcomp, builder, useropts,compname):
+    return[PlasmaClass(halcomp, builder, useropts,compname)]

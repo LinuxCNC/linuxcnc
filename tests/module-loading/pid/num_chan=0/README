@@ -1,0 +1,5 @@
+This test is deprecated
+
+Loading an instantiated component will create one instance by default and thus 1 channel
+
+the test is meaningless

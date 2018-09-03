@@ -34,7 +34,7 @@
 #include "canon.hh"
 #include "rs274ngc.hh"
 #include "rs274ngc_interp.hh"
-#include <math.h>
+#include "rtapi_math.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -521,7 +521,7 @@ void STRAIGHT_PROBE(int line_number,
   dx = (_program_position_x - x);
   dy = (_program_position_y - y);
   dz = (_program_position_z - z);
-  distance = sqrt((dx * dx) + (dy * dy) + (dz * dz));
+  distance = rtapi_sqrt((dx * dx) + (dy * dy) + (dz * dz));
 
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
@@ -1180,3 +1180,7 @@ void IO_PLUGIN_CALL(int len, const char *call)
 {
     printf("IO_PLUGIN_CALL(%d)\n",len);
 }
+void UPDATE_TAG(StateTag tag){
+    //Do nothing
+}
+

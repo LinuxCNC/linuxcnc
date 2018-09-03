@@ -1,0 +1,74 @@
+component xhc_hb04_util "xhc-hb04 convenience utility";
+description """Provides logic for a start/pause button and an interface
+to halui.program.is_paused,is_idle,is_running to generate outputs for
+halui.program.pause,resume,run.
+
+Includes 4 simple lowpass filters with coef and scale pins.  The coef value should
+be 0 <= coef <=1, smaller coef values slow response.  Note: the xhc_hb04
+component includes smoothing so these values can usually be left at 1.0
+""";
+
+pin in bit      start_or_pause;
+pin in bit      is_paused;
+pin in bit      is_idle;
+pin in bit      is_running;
+pin out bit     pause;
+pin out bit     resume;
+pin out bit     run;
+
+// integer low pass filters (see ilowpass.comp)
+pin in s32      in0;
+pin in s32      in1;
+pin in s32      in2;
+pin in s32      in3;
+pin out s32     out0;
+pin out s32     out1;
+pin out s32     out2;
+pin out s32     out3;
+pin in float    scale0 = 1.0;
+pin in float    scale1 = 1.0;
+pin in float    scale2 = 1.0;
+pin in float    scale3 = 1.0;
+pin in float    coef0 = 1.0;
+pin in float    coef1 = 1.0;
+pin in float    coef2 = 1.0;
+pin in float    coef3 = 1.0;
+
+variable hal_float_t value0 = 0.0;
+variable hal_float_t value1 = 0.0;
+variable hal_float_t value2 = 0.0;
+variable hal_float_t value3 = 0.0;
+variable hal_bit_t old_start_or_pause = false;
+
+function _;
+license "GPL";
+;;
+#include "rtapi_math.h"
+
+FUNCTION(_)
+{
+    // protect so that 0 <= coef <= 1
+    value0 += (in0 - value0) * (rtapi_fabs(coef0) < 1 ? rtapi_fabs(coef0) : 1);
+    value1 += (in1 - value1) * (rtapi_fabs(coef1) < 1 ? rtapi_fabs(coef1) : 1);
+    value2 += (in2 - value2) * (rtapi_fabs(coef2) < 1 ? rtapi_fabs(coef2) : 1);
+    value3 += (in3 - value3) * (rtapi_fabs(coef3) < 1 ? rtapi_fabs(coef3) : 1);
+
+    out0 =  rtapi_ceil(value0 - .5) * scale0;
+    out1 =  rtapi_ceil(value1 - .5) * scale1;
+    out2 =  rtapi_ceil(value2 - .5) * scale2;
+    out3 =  rtapi_ceil(value3 - .5) * scale3;
+
+    if (old_start_or_pause == start_or_pause)
+        return 0;
+    old_start_or_pause = start_or_pause;
+    if (!start_or_pause)
+        {
+        pause = run = resume = 0;
+        return 0;
+        }
+    if (is_paused)  {pause = 0; run = 0; resume = 1; }
+    if (is_running) {pause = 1; run = 0; resume = 0; }
+    if (is_idle)    {pause = 0; run = 1; resume = 0; }
+
+    return 0;
+}

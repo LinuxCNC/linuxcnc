@@ -1,0 +1,33 @@
+Machinekit HAL component to implement ATC toolchanging in Emco Compact 5 CNC lathes
+
+Mike Ross:
+I have modified the code below (generously shared by ArcEye aka - Schooner) to work on
+my Emco Compact 5 that has been converted to use a stepper motor to drive the toolchanger.
+The original was:
+  EMC2 HAL component to implement ATC toolchanging in Boxford 240(F) CNC lathes
+
+  (c) ArcEye 09052011 <arceyeATmgwareDOTcoDOTuk>
+
+It has only 6 positions, not 8 so I have modified as needed to accomodate.
+Otherwise the component works the same - odd tools are drills or round shank parallel to Z-axis,.
+even stations are standard turning tools 90deg to the Z-axis.
+The stations on the Emco Compact 5 tool changer are equal intervals apart so even=odd moves
+30 turns of the input worm = 1 full rotation of the toolchanger
+i.e. there are tools every 60 deg so set:
+pin io float odd_move = 64
+pin io float even_move = 64 the extra 4 is to ensure the move past the ratchet (i.e. 60 degress plus some amount that was backed up)
+Stepper calcs:
+200 steps / rev * 8 microsteps *30 rev /360 deg = 133.333 step / deg   (1.8 deg/step motors)
+Set axis ini scale = 266.666 (double due to math used below and not going to figure out how to fix)
+
+The scaling takes care of the distance actually moved so the above calcs aren't strictly needed.
+
+As I changed the original file from an angular axis to a linear one I've removed some code that was used to calculate the required.
+forward move in degrees and adjust so as to not result in a move greater than 360 degrees.  There is likely left over variables.
+and code not removed that is surplus but as its working I'm not messing with it!
+
+If you want to use an index pulse, then you will have to re-write so that the position-cmd is incremented until the signal and then.
+locked back by an appropriate amount
+
+This was done with a BeagleBoneBlack as the target platform with its onboard PRU generating the steps,
+and a Xylotex interface board.

@@ -65,7 +65,7 @@ check-rsyslog() {
 	echo "          Hint:"
 	echo "            $ sudo cp rtapi/rsyslogd-linuxcnc.conf" \
 			     "/etc/rsyslog.d/linuxcnc.conf"
-	echo "            $ sudo service rsyslogd restart"
+	echo "            $ sudo service rsyslog restart"
 	echo
     fi
     test $res -ne 0 && return 1
@@ -176,6 +176,7 @@ check-shmdrv() {
     echo
     echo "          Hint:"
     echo "            $ sudo cp rtapi/shmdrv/shmdrv.rules $udev_conf"
+    echo "            $ sudo udevadm trigger"
     echo
     return 1
 }

@@ -1,0 +1,20 @@
+component integ "Integrator with gain pin and windup limits";
+pin in float in;
+pin in float gain = 1.0;
+pin out float out "The discrete integral of 'gain * in' since 'reset' was deasserted";
+pin in bit reset "When asserted, set out to 0";
+pin in float max_ =  1e20;
+
+pin in float min_ = -1e20;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if(reset) out = 0.0;
+    else out = out + gain * in * fperiod;
+    if (out > max_) out = max_;
+    if (out < min_) out = min_;
+
+	return 0;
+}

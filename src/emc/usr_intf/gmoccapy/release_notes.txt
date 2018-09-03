@@ -1,3 +1,286 @@
+ver. 1.5.6.5
+- merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
+
+ver. 1.5.6.4
+- bugfix: if toggle button user tabs was active and the user changed the mode
+  (Manual,MDI or AUTO) the user tabs button staid active, but the screen
+  layout changed to the corresponding mode, letting the button pressed.
+- if embedded tabs was set in the INI file, the toggle button user tabs 
+  got active, even if no tab was configured for "ntb_user_tabs", changed this
+  and sorted the code to be together with the rest of user tabs
+
+ver. 1.5.6.3
+- bugfix: In _init_IconFileSelection the icon size was fixed with 48 
+  so changes the user makes to the glade file was not been taken care of
+- In glade file a signal on_btn_load_state_changed was set, but no handler present, 
+  leading to a error message on start in the terminal, erased the signal
+
+ver. 1.5.6.2.2
+- halui spindle override bug, caused by a race conflict
+  Thanks to pippin88 and dinkata to help solving his one
+
+ver. 1.5.6.2.1
+- bug in initialize optional stops
+
+ver. 1.5.6.2
+- bugfix: run from line was trying to set an entry in the alarm page, whitch
+  I drobed in 1.5.6 
+  I cleared the code from unneeded imports and comments
+
+ver. 1.5.6.1
+- bugfix: If a user did jog with keyboard and while jogging changed the increments
+  pressing "i" on the keyboard the jog move would never stop. I do check now for
+  self.stat.state and do avoid that way the increment changes
+  if the user changes the jog-increment using the hal pin, the increment will change
+  to the new value, but the jog command will be aborted.
+- corrected some typos 
+
+ver. 1.5.6
+- deleted the alarm_entry log page, as it has not been used by users
+  to report bugs, and therefor it was designed.
+- changing DRO mode by click can be disabled on settings page
+- corercted and added information to the docs
+- added a new property to combi_dro to disable readout toggling
+
+ver. 1.5.5.5
+- if using gmoccapy jog hal pin in MDI mode a error was thrown on button release
+- Typo in settings page, corrected also the translation files
+
+ver. 1.5.5.4
+- corrected a error shown on start up, because I used greeen instead of green
+- glade file did contain a signal "on_gremlin_clicked", but gmoccapy did not offer a handler,
+  resulting in error messages in the terminal on start up. the unneeded signal has been errased
+- The horizontal buttons of gmoccapy will stay synconized with the iconview widget
+ 
+ver. 1.5.5.3
+- deleted the working area limit pin, as this can be realized better
+  with standard hal pin and did not work well with gmoccapy
+- settings page, all previes settings are now in one frame
+- updated the documentation
+- new serbian translation files, and corrected the language code 
+  was rs.po instead sr.po
+
+ver. 1.5.5.2
+- unloading a tool with M61 Q0 did not reset the tool information 
+  because the tool number changed to "-1" and I tested only for "0"
+  To unload the tool with M61 Q0 the command has to be executed twice
+  because of a linuxcnc bug (IMHO)
+
+ver. 1.5.5.1
+- corrected the step by step behavior
+
+ver. 1.5.5
+- gmoccapy will take notice of the settings 
+  "DISPLAY", "POSITION_FEEDBACK" in the INI File and 
+  set the DRO accordingly (Code basis from Steffen)
+- Added keyboard shortcut F3 to change to manual mode
+- Added keyboard shortcut F5 to change to MDI Mode
+- Added keyboard shortcut "Enter" for MDI Mode to 
+  submit the selected command
+- Added keyboard shortcut "i" and "I" to switch 
+  jog increments forward and backwards like in axis
+
+ver. 1.5.4.1
+- changed fullsize preview button in manual mode to new position
+  to be the same place in auto and manual mode.
+
+ver. 1.5.4
+- changing in auto mode, being in fullsize preview to edit page leaded
+  to blank screen, I corrected that bug.
+
+ver. 1.5.3.1
+- solved a bug in widget handling, not enabling the ignore limits checkbox,
+  being on a limit switch
+
+ver. 1.5.3
+- added a gscreen patch to search also in the user dir for themes
+
+ver. 1.5.2.2
+- if a user did reduce spindle override to zero and switched on the 
+  spindle, gmoccapy produced a division by zero error. Fixed!
+  reported by "tekmobile"
+
+ver. 1.5.2.1
+- corrected a bug on btn_brake_macro, not beeing active if no virtual
+  keyboard has been installed
+  Thanks to Frans (franstrein) for reporting
+
+ver. 1.5.2
+- In Lathe mode and with startcode G7 the DRO has not been set
+  correctly, while starting in G8 was OK.
+- Some code clearance 
+
+ver. 1.5.1.4
+- Two missing self. leaded to errors if logging was active, 
+  Thanks to Frans (franstrein) for reporting
+
+ver. 1.5.1.3
+- As in full screen mode the GUI covers also the clock, I added a clock
+  and date label under the right buttons. 
+
+ver. 1.5.1.2
+- The handler from glade_status <on_change_line> got lost somehow, so 
+  some hal pin has not been updated correctly  
+- in the glade file the spindle at speed led changed its color to red,
+  I don't know how, I think glade is comming to its limit ;-)
+- changed spindle label handling, now the labels display actual values, 
+  not the read values.
+- The spindle buttons will now be sensitive in auto mode, but only the
+  one witch is active, so spindle direction is displayed clearly  
+
+ver. 1.5.1.1
+- some print commands has been commented out to avoid to much condole infos
+- there was a limit of 100 for tool sensor height, I extended to 999 mm
+
+ver. 1.5.1
+- solved a bug in counts handling, if only one MPG was used for 
+  all sliders and axis, there was a jump after changing the selection
+  Now it does not matter, if the user connect only one MPG or use for
+  each slider an own MPG 
+
+ver. 1.5.0
+- new hal pin, and some renaming of hal pin to reflect the
+  same names and behavior as halui-pin
+
+  * gmoccapy.jog-speed.counts
+  * gmoccapy.jog-speed.analog-enable
+  * gmoccapy.jog-speed.count-enable
+  * gmoccapy.jog-speed.direct-value
+
+  * gmoccapy.feed-override.counts
+  * gmoccapy.feed-override.analog-enable
+  * gmoccapy.feed-override.count-enable
+  * gmoccapy.feed-override.direct-value
+
+  * gmoccapy.spindle-override.counts
+  * gmoccapy.spindle-override.analog-enable
+  * gmoccapy.spindle-override.count-enable
+  * gmoccapy.spindle-override.direct-value
+
+  * gmoccapy.max-velocity.counts
+  * gmoccapy.max-velocity.count-enable
+  * gmoccapy.max-velocity.analog-enable
+  * gmoccapy.max-velocity.direct-value
+
+- gmoccapy will now react to some halui pin as counts or direct value
+  Be aware, that some of this may have side affects, it is strongly 
+  recomended to use the corresponding gmoccapy hal pin. 
+
+  * halui.spindle-override.counts
+  * halui.feed-override.counts
+  * halui.max-velocity.counts
+  * halui.abort
+  * halui.spindle.start
+  * halui.spindle.stop
+  * halui.spindle.reverse
+  * halui.spindle.increase
+  * halui.spindle.decrease
+  * halui.program.run
+  * halui.program.stop
+  * halui.program.pause
+  * halui.mode.manual
+  * halui.mode.mdi
+  * halui.mode.auto
+  * halui.mist.on
+  * halui.mist.off
+  * halui.flood.on
+  * halui.flood.off
+  * halui.machine.on
+  * halui.machine.off
+  * halui.home-all
+  * halui.estop.activate
+  * halui.estop.reset
+
+- to reflect the new hal pin connections I introduced a new sim config 
+  gmoccapy_pendant.ini, demonstrating the connection of a remote pendant 
+  with selection switches
+
+- deleted gmoccapy_jog_wheels.ini, as pendant.ini demonstrates it better
+
+ver. 1.4.2
+- removed the save and run button from the edit page, 
+  because of security reasons
+- removed the integrated terminal, as it was not real usefull
+  and all terminal work can be done from normal terminal
+- translations for German and Spanish has been updated
+
+ver. 1.4.1
+- corrected brocken layout style, as the jog-increment buttons has not 
+  been modified to change there background color, getting only dark grey 
+  instead of yellow, if they where active. No the follow the gmoccapy style.
+- the number of digits of the DRO can now be set on the settings page, so 
+  users of fragil machines can reduce the digits.
+
+ver. 1.4.0
+- introduced turtle jog, allowing two scales for the 
+  jog vel adjustment
+- new hal pin "gmoccapy.turtle-jog" to switch from rabbit-jog 
+  (fast mode) to turtle-jog (slow mode) using a hardware switch
+- new hal pin for analog input 
+  * gmoccapy.analog-enable (must be True to activate the analog inputs)
+  * gmoccapy.spindle-override-value
+  * gmoccapy.max-vel-value
+  * gmoccapy.jog-speed-value
+  * gmoccapy.feed-override-value
+  all four taking a float input as percentage, 
+  meaning a value from 0.0 to 1.0, setting the corresponding slider
+  directly to the given value
+- some code rework, mainly in the _init_hal_pin section and on 
+  encoder counts handling 
+
+ver. 1.3.5.1
+- forgot to reset the gcode error, resulting in showing it only once,
+  it ws not shown again if a good file was loaded and than again the 
+  wrong one, now the load and edit button do reset the error code. 
+
+ver. 1.3.5
+- added the new signal from hal_gremlin to gmoccapy so we do get 
+  a message of gcode errors when loading a file and not only when
+  the interpreter does read the wrong line. A warning box will inform 
+  about the error details.
+
+ver. 1.3.4
+- if no virtual keyboard was installed (nor onboard or matchbox),
+  the checkboxes on the settings page has not been sensitized and the
+  settings has not been reseted correctly from the preference file
+  Thanks to Roland (concierge) for finding this one
+
+ver. 1.3.3
+- the combobox for the mouse button mode has not been initialized
+  correct, if it had the default value of the glade file. It is a 
+  bug in glade. The work around is not to set a default value in glade
+  but in the python code.
+
+ver. 1.3.2
+- fixed a small bug PAUSE button did not get active on M01
+  Thanks to Rick (LAIR82) for pointing on it.
+
+ver. 1.3.1
+- fixed very serious bug PAUSE / RESUME / STOP issue
+  Program jumped to strange positions if STOP has been pressed 
+  while PAUSE was active.
+  Thanks to Mael (papaours) for finding it.
+
+ver. 1.3.0.1
+- corrected a bug, toolchange velocity hal pin have not been
+  preseted with values, if the user worked with the
+  default values, so a probing with vel = 0 was posible, 
+  resulting in an error
+- correctet an error in notifications.py, as the text to be
+  displayed has not been checked for correct pango format, a
+  message like "vel <= 0" resulted in an error. Now the necessary 
+  check is done
+
+ver. 1.3.0
+- added replace function to the edit page
+- added ignore case to allow case sensitive search
+- added reload button on edit page, so if you 
+  mixed up to much, you are able to reload the
+  original file
+- corrected an error at start up, giving a button
+  a label, conflicting with a button label
+- changed a wrong icon on the button go up one directory
+
 ver. 1.2.2
 - changed the way the window size and position is 
   handled, as bevore the default values did apear 

@@ -1,0 +1,366 @@
+# #######################################
+#
+# HAL file for BeBoPr++ with TAKE-5 (5 steppers modules)
+#
+# Derived from BeBoPr++ config
+#
+# ########################################
+
+# Launch the setup script to make sure hardware setup looks good
+loadusr -w ./setup.bridge.sh
+
+
+# ###################################
+# Core EMC/HAL Loads
+# ###################################
+
+# kinematics
+loadrt trivkins
+
+# motion controller, get name and thread periods from ini file
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+
+
+# load low-level drivers
+loadrt hal_bb_gpio output_pins=107,126,224,226 input_pins=108,109,110,114,117,118
+loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
+loadrt pid count=2
+loadrt limit1 count=2
+
+
+# Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
+# t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
+# a = analog input channel
+loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
+
+# ################################################
+# THREADS
+# ################################################
+
+addf hpg.capture-position                 servo-thread
+addf bb_gpio.read                         servo-thread
+addf motion-command-handler               servo-thread
+addf motion-controller                    servo-thread
+addf pid.0.do-pid-calcs                   servo-thread
+addf pid.1.do-pid-calcs                   servo-thread
+addf limit1.0                             servo-thread
+addf limit1.1                             servo-thread
+addf hpg.update                           servo-thread
+addf bb_gpio.write                        servo-thread
+
+
+# ######################################################
+# Axis-of-motion Specific Configs (not the GUI)
+# ######################################################
+
+
+# ################
+# X [0] Axis
+# ################
+
+# axis enable chain
+newsig emcmot.00.enable bit
+sets emcmot.00.enable FALSE
+
+net emcmot.00.enable <= axis.0.amp-enable-out
+net emcmot.00.enable => hpg.stepgen.00.enable
+
+
+# position command and feedback
+net emcmot.00.pos-cmd <= axis.0.motor-pos-cmd
+net emcmot.00.pos-cmd => hpg.stepgen.00.position-cmd
+
+net motor.00.pos-fb <= hpg.stepgen.00.position-fb
+net motor.00.pos-fb => axis.0.motor-pos-fb
+
+
+# timing parameters
+setp hpg.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
+setp hpg.stepgen.00.dirhold         [AXIS_0]DIRHOLD
+
+setp hpg.stepgen.00.steplen         [AXIS_0]STEPLEN
+setp hpg.stepgen.00.stepspace       [AXIS_0]STEPSPACE
+
+setp hpg.stepgen.00.position-scale  [AXIS_0]SCALE
+
+setp hpg.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
+setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
+
+#setp hpg.stepgen.00.step_type       0
+# P8.12 GPIO44
+setp hpg.stepgen.00.steppin         0x4C
+# P8.11 GPIO45
+setp hpg.stepgen.00.dirpin          0x4D
+
+
+# ################
+# Y [1] Axis
+# ################
+
+# axis enable chain
+newsig emcmot.01.enable bit
+sets emcmot.01.enable FALSE
+
+net emcmot.01.enable <= axis.1.amp-enable-out
+net emcmot.01.enable => hpg.stepgen.01.enable
+
+
+# position command and feedback
+net emcmot.01.pos-cmd <= axis.1.motor-pos-cmd
+net emcmot.01.pos-cmd => hpg.stepgen.01.position-cmd
+
+net motor.01.pos-fb <= hpg.stepgen.01.position-fb
+net motor.01.pos-fb => axis.1.motor-pos-fb
+
+
+# timing parameters
+setp hpg.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
+setp hpg.stepgen.01.dirhold         [AXIS_1]DIRHOLD
+
+setp hpg.stepgen.01.steplen         [AXIS_1]STEPLEN
+setp hpg.stepgen.01.stepspace       [AXIS_1]STEPSPACE
+
+setp hpg.stepgen.01.position-scale  [AXIS_1]SCALE
+
+setp hpg.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
+setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
+
+#setp hpg.stepgen.01.step_type       0
+# P8.16 GPIO46
+setp hpg.stepgen.01.steppin         0x4E
+# P8.15 GPIO47
+setp hpg.stepgen.01.dirpin          0x4F
+
+
+# ################
+# Z [2] Axis
+# ################
+
+# axis enable chain
+newsig emcmot.02.enable bit
+sets emcmot.02.enable FALSE
+
+net emcmot.02.enable <= axis.2.amp-enable-out
+net emcmot.02.enable => hpg.stepgen.02.enable
+
+
+# position command and feedback
+net emcmot.02.pos-cmd <= axis.2.motor-pos-cmd
+net emcmot.02.pos-cmd => hpg.stepgen.02.position-cmd
+
+net motor.02.pos-fb <= hpg.stepgen.02.position-fb
+net motor.02.pos-fb => axis.2.motor-pos-fb
+
+
+# timing parameters
+setp hpg.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
+setp hpg.stepgen.02.dirhold         [AXIS_2]DIRHOLD
+
+setp hpg.stepgen.02.steplen         [AXIS_2]STEPLEN
+setp hpg.stepgen.02.stepspace       [AXIS_2]STEPSPACE
+
+setp hpg.stepgen.02.position-scale  [AXIS_2]SCALE
+
+setp hpg.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
+setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
+
+#setp hpg.stepgen.02.step_type       0
+# P9.15 GPIO48
+setp hpg.stepgen.02.steppin         0x50
+# P9.23 GPIO49
+setp hpg.stepgen.02.dirpin          0x51
+
+
+# ################
+# A [3] Axis (Extruder)
+# ################
+
+# axis enable chain
+newsig emcmot.03.enable bit
+sets emcmot.03.enable FALSE
+
+net emcmot.03.enable <= axis.3.amp-enable-out
+net emcmot.03.enable => hpg.stepgen.03.enable
+
+
+# position command and feedback
+net emcmot.03.pos-cmd <= axis.3.motor-pos-cmd
+net emcmot.03.pos-cmd => hpg.stepgen.03.position-cmd
+
+net motor.03.pos-fb <= hpg.stepgen.03.position-fb
+net motor.03.pos-fb => axis.3.motor-pos-fb
+
+
+# timing parameters
+setp hpg.stepgen.03.dirsetup        [AXIS_3]DIRSETUP
+setp hpg.stepgen.03.dirhold         [AXIS_3]DIRHOLD
+
+setp hpg.stepgen.03.steplen         [AXIS_3]STEPLEN
+setp hpg.stepgen.03.stepspace       [AXIS_3]STEPSPACE
+
+setp hpg.stepgen.03.position-scale  [AXIS_3]SCALE
+
+setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
+setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
+
+#setp hpg.stepgen.03.step_type       0
+# P9.22 GPIO2
+setp hpg.stepgen.03.steppin         0x22
+# P9.21 GPIO3
+setp hpg.stepgen.03.dirpin          0x23
+
+# ################
+# B [4] Axis (2nd Extruder)
+# ################
+
+# axis enable chain
+newsig emcmot.04.enable bit
+sets emcmot.04.enable FALSE
+
+net emcmot.04.enable <= axis.4.amp-enable-out
+net emcmot.04.enable => hpg.stepgen.04.enable
+
+
+# position command and feedback
+net emcmot.04.pos-cmd <= axis.4.motor-pos-cmd
+net emcmot.04.pos-cmd => hpg.stepgen.04.position-cmd
+
+net motor.04.pos-fb <= hpg.stepgen.04.position-fb
+net motor.04.pos-fb => axis.4.motor-pos-fb
+
+
+# timing parameters
+setp hpg.stepgen.04.dirsetup        [AXIS_4]DIRSETUP
+setp hpg.stepgen.04.dirhold         [AXIS_4]DIRHOLD
+
+setp hpg.stepgen.04.steplen         [AXIS_4]STEPLEN
+setp hpg.stepgen.04.stepspace       [AXIS_4]STEPSPACE
+
+setp hpg.stepgen.04.position-scale  [AXIS_4]SCALE
+
+setp hpg.stepgen.04.maxvel          [AXIS_4]STEPGEN_MAX_VEL
+setp hpg.stepgen.04.maxaccel        [AXIS_4]STEPGEN_MAX_ACC
+
+#setp hpg.stepgen.04.step_type       0
+# P9.18 GPIO0_4
+setp hpg.stepgen.04.steppin         0x24
+# P9.17 GPIO0_5
+setp hpg.stepgen.04.dirpin          0x25
+
+
+# ##################################################
+# Standard I/O - EStop, Enables, Limit Switches, Etc
+# ##################################################
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
+
+# Axes enable signal (should or all enable outputs? for now use only one)
+net emcmot.00.enable => bb_gpio.p9.out-26
+setp bb_gpio.p9.out-26.invert 1
+
+#net emcmot.01.enable => bb_gpio.p9.out-17
+#setp bb_gpio.p9.out-17.invert 1
+#net emcmot.02.enable => bb_gpio.p9.out-26
+#setp bb_gpio.p9.out-26.invert 1
+#net emcmot.03.enable => bb_gpio.p9.out-24
+#setp bb_gpio.p9.out-24.invert 1
+#net emcmot.04.enable => bb_gpio.p9.out-24 FIXME
+#setp bb_gpio.p9.out-24.invert 1 FIXME
+
+# Machine power (BeBoPr Enable)
+# Enable tied to system Reset_n line (P9.10)
+net estop-loop => bb_gpio.p8.out-07
+setp bb_gpio.p8.out-07.invert 1
+
+
+# ##################################################
+# PWM and Temperature Signals
+# ##################################################
+
+# Define signals to use elsewhere (ie: M1xx codes)
+# If you change any names here, lots of things will break!
+newsig e0.temp.set   float
+newsig e0.temp.meas  float
+newsig bed.temp.set  float
+newsig bed.temp.meas float
+
+
+setp hpg.pwmgen.00.pwm_period       10000000
+
+# J2 E0 Heater PRU1.out1
+setp hpg.pwmgen.00.out.00.pin       0x37
+setp hpg.pwmgen.00.out.00.enable    1
+setp hpg.pwmgen.00.out.00.value     0.0
+
+# J3 E1 Heater PRU1.out0
+setp hpg.pwmgen.00.out.01.pin       0x36
+setp hpg.pwmgen.00.out.01.enable    1
+setp hpg.pwmgen.00.out.01.value     0.0
+
+# J4 Bed Heater GPIO2.16
+setp hpg.pwmgen.00.out.02.pin       0x52
+setp hpg.pwmgen.00.out.02.enable    1
+setp hpg.pwmgen.00.out.02.value     0.0
+
+# PID for Extruder 0 temperature control
+net e0.temp.meas    <= Therm.temp0
+net e0.temp.meas    => pid.0.feedback
+
+sets e0.temp.set  0
+net e0.temp.set     => pid.0.command
+
+net e0.heater  <= pid.0.output
+net e0.heater  => limit1.0.in
+net e0.heaterl <= limit1.0.out
+net e0.heaterl => hpg.pwmgen.00.out.00.value
+
+# Limit heater PWM to positive values
+# PWM mimics hm2 implementation, which generates output for negative values
+setp limit1.0.min 0
+
+# PID for Bed temperature control
+net bed.temp.meas    <= Therm.temp1
+net bed.temp.meas    => pid.1.feedback
+
+sets bed.temp.set  0
+net bed.temp.set     => pid.1.command
+
+net bed.heater  <= pid.1.output
+net bed.heater  => limit1.1.in
+net bed.heaterl <= limit1.1.out
+net bed.heaterl => hpg.pwmgen.00.out.02.value
+
+# Limit heater PWM to positive values
+# PWM mimics hm2 implementation, which generates output for negative values
+setp limit1.1.min 0
+
+# PID Parameters for adjusting temperature control
+# Extruder
+#setp pid.0.FF0      0
+#setp pid.0.FF1      0
+#setp pid.0.FF2      0
+setp pid.0.Pgain  0.30
+setp pid.0.Igain  0.00001
+setp pid.0.Dgain  0.9375
+setp pid.0.maxerrorI 1.0
+setp pid.0.bias    0.5
+setp pid.0.enable   1
+
+# Bed
+#setp pid.1.FF0      0
+#setp pid.1.FF1      0
+#setp pid.1.FF2      0
+setp pid.1.Pgain  1
+setp pid.1.Igain  0.0
+setp pid.1.Dgain  0.0
+setp pid.1.maxerrorI 1.0
+setp pid.1.bias    0.5
+setp pid.1.enable   1
+

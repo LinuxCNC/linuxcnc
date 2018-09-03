@@ -1,0 +1,8 @@
+from distutils.core import setup
+
+setup(name='machinekit',
+    version='v${Machinekit_VERSION_MAJOR}.${Machinekit_VERSION_MINOR}',
+    description='Machinekit Cython bindings',
+    package_dir={ '': '_DESTDIR_${INSTALL_PYSHARED_DIR}'},
+    package_data={'': ['*.so']},
+    packages=['machinekit'])

@@ -1,4 +1,4 @@
-#    This is a component of AXIS, a front-end for LinuxCNC
+#    This is a component of AXIS, a front-end for Machinekit
 #    Copyright 2004, 2005, 2006, 2007, 2008, 2009
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
 #
@@ -35,6 +35,9 @@ menu .menu.machine.home \
 menu .menu.machine.unhome \
 	-tearoff 0
 menu .menu.view \
+	-tearoff 0
+#  added	
+menu .menu.user \
 	-tearoff 0
 menu .menu.help \
 	-tearoff 0
@@ -179,7 +182,7 @@ setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 
 .menu.machine add command \
 	-command {exec linuxcnctop -ini $emcini &}
-setup_menu_accel .menu.machine end [_ "Sho_w LinuxCNC Status"]
+setup_menu_accel .menu.machine end [_ "Sho_w Machinekit Status"]
 
 .menu.machine add command \
 	-command {exec debuglevel -ini $emcini &}
@@ -433,6 +436,49 @@ setup_menu_accel .menu.view.grid end [_ "_Off"]
         -command set_grid_size_custom
 setup_menu_accel .menu.view.grid end [_ "_Custom"]
 
+#- Added User Menu-----------------------------------------------------------------------
+
+.menu.user add command \
+	-command user0
+setup_menu_accel .menu.user end [_ "User_0"]
+
+.menu.user add command \
+	-command user1
+setup_menu_accel .menu.user end [_ "User_1"]
+
+.menu.user add command \
+	-command user2
+setup_menu_accel .menu.user end [_ "User_2"]
+
+.menu.user add command \
+	-command user3
+setup_menu_accel .menu.user end [_ "User_3"]
+
+.menu.user add command \
+	-command user4
+setup_menu_accel .menu.user end [_ "User_4"]
+
+.menu.user add command \
+	-command user5
+setup_menu_accel .menu.user end [_ "User_5"]
+
+.menu.user add command \
+	-command user6
+setup_menu_accel .menu.user end [_ "User_6"]
+
+.menu.user add command \
+	-command user7
+setup_menu_accel .menu.user end [_ "User_7"]
+
+.menu.user add command \
+	-command user8
+setup_menu_accel .menu.user end [_ "User_8"]
+
+.menu.user add command \
+	-command user9
+setup_menu_accel .menu.user end [_ "User_9"]
+
+
 
 # ----------------------------------------------------------------------
 .menu.help add command \
@@ -461,6 +507,10 @@ setup_menu_accel .menu end [_ _Machine]
 .menu add cascade \
 	-menu .menu.view
 setup_menu_accel .menu end [_ _View]
+
+.menu add cascade \
+	-menu .menu.user
+setup_menu_accel .menu end [_ _User]
 
 .menu add cascade \
 	-menu .menu.help
@@ -809,7 +859,7 @@ radiobutton $_tabs_manual.axes.axisx \
 	-variable current_axis \
 	-width 2 \
         -text X \
-        -command axis_activated
+        -command axis_activated_x
 
 radiobutton $_tabs_manual.axes.axisy \
 	-anchor w \
@@ -818,7 +868,7 @@ radiobutton $_tabs_manual.axes.axisy \
 	-variable current_axis \
 	-width 2 \
         -text Y \
-        -command axis_activated
+        -command axis_activated_y
 
 radiobutton $_tabs_manual.axes.axisz \
 	-anchor w \
@@ -827,7 +877,7 @@ radiobutton $_tabs_manual.axes.axisz \
 	-variable current_axis \
 	-width 2 \
         -text Z \
-        -command axis_activated
+        -command axis_activated_z
 
 radiobutton $_tabs_manual.axes.axisa \
 	-anchor w \
@@ -836,7 +886,7 @@ radiobutton $_tabs_manual.axes.axisa \
 	-variable current_axis \
 	-width 2 \
         -text A \
-        -command axis_activated
+        -command axis_activated_a
 
 radiobutton $_tabs_manual.axes.axisb \
 	-anchor w \
@@ -845,7 +895,7 @@ radiobutton $_tabs_manual.axes.axisb \
 	-variable current_axis \
 	-width 2 \
         -text B \
-        -command axis_activated
+        -command axis_activated_b
 
 radiobutton $_tabs_manual.axes.axisc \
 	-anchor w \
@@ -854,7 +904,7 @@ radiobutton $_tabs_manual.axes.axisc \
 	-variable current_axis \
 	-width 2 \
         -text C \
-        -command axis_activated
+        -command axis_activated_c
 
 
 radiobutton $_tabs_manual.axes.axisu \
@@ -864,7 +914,7 @@ radiobutton $_tabs_manual.axes.axisu \
 	-variable current_axis \
 	-width 2 \
         -text U \
-        -command axis_activated
+        -command axis_activated_u
 
 radiobutton $_tabs_manual.axes.axisv \
 	-anchor w \
@@ -873,7 +923,7 @@ radiobutton $_tabs_manual.axes.axisv \
 	-variable current_axis \
 	-width 2 \
         -text V \
-        -command axis_activated
+        -command axis_activated_v
 
 radiobutton $_tabs_manual.axes.axisw \
 	-anchor w \
@@ -882,7 +932,7 @@ radiobutton $_tabs_manual.axes.axisw \
 	-variable current_axis \
 	-width 2 \
         -text W \
-        -command axis_activated
+        -command axis_activated_w
 
 # Grid widget $_tabs_manual.axes.axisa
 grid $_tabs_manual.axes.axisu \
@@ -948,7 +998,7 @@ radiobutton $_tabs_manual.joints.joint0 \
 	-variable current_axis \
 	-width 2 \
         -text 0 \
-        -command axis_activated
+        -command axis_activated_x
 
 radiobutton $_tabs_manual.joints.joint1 \
 	-anchor w \
@@ -957,7 +1007,7 @@ radiobutton $_tabs_manual.joints.joint1 \
 	-variable current_axis \
 	-width 2 \
         -text 1 \
-        -command axis_activated
+        -command axis_activated_y
 
 radiobutton $_tabs_manual.joints.joint2 \
 	-anchor w \
@@ -966,7 +1016,7 @@ radiobutton $_tabs_manual.joints.joint2 \
 	-variable current_axis \
 	-width 2 \
         -text 2 \
-        -command axis_activated
+        -command axis_activated_z
 
 radiobutton $_tabs_manual.joints.joint3 \
 	-anchor w \
@@ -975,7 +1025,7 @@ radiobutton $_tabs_manual.joints.joint3 \
 	-variable current_axis \
 	-width 2 \
         -text 3 \
-        -command axis_activated
+        -command axis_activated_a
 
 radiobutton $_tabs_manual.joints.joint4 \
 	-anchor w \
@@ -984,7 +1034,7 @@ radiobutton $_tabs_manual.joints.joint4 \
 	-variable current_axis \
 	-width 2 \
         -text 4 \
-        -command axis_activated
+        -command axis_activated_b
 
 radiobutton $_tabs_manual.joints.joint5 \
 	-anchor w \
@@ -993,7 +1043,7 @@ radiobutton $_tabs_manual.joints.joint5 \
 	-variable current_axis \
 	-width 2 \
         -text 5 \
-        -command axis_activated
+        -command axis_activated_c
 
 
 radiobutton $_tabs_manual.joints.joint6 \
@@ -1003,7 +1053,7 @@ radiobutton $_tabs_manual.joints.joint6 \
 	-variable current_axis \
 	-width 2 \
         -text 6 \
-        -command axis_activated
+        -command axis_activated_u
 
 radiobutton $_tabs_manual.joints.joint7 \
 	-anchor w \
@@ -1012,7 +1062,7 @@ radiobutton $_tabs_manual.joints.joint7 \
 	-variable current_axis \
 	-width 2 \
         -text 7 \
-        -command axis_activated
+        -command axis_activated_v
 
 radiobutton $_tabs_manual.joints.joint8 \
 	-anchor w \
@@ -1021,7 +1071,7 @@ radiobutton $_tabs_manual.joints.joint8 \
 	-variable current_axis \
 	-width 2 \
         -text 8 \
-        -command axis_activated
+        -command axis_activated_w
 
 # Grid widget $_tabs_manual.joints.joint0
 grid $_tabs_manual.joints.joint0 \
@@ -1706,6 +1756,44 @@ pack ${pane_top}.feedoverride.m \
 pack ${pane_top}.feedoverride.foentry \
 	-side right
 
+frame ${pane_top}.rapidoverride
+
+label ${pane_top}.rapidoverride.foentry \
+	-textvariable rapidrate \
+	-width 4 \
+        -anchor e
+setup_widget_accel ${pane_top}.rapidoverride.foentry 0
+
+scale ${pane_top}.rapidoverride.foscale \
+	-command set_rapidrate \
+	-orient horizontal \
+	-resolution 1.0 \
+	-showvalue 0 \
+	-takefocus 0 \
+	-to 120.0 \
+	-variable rapidrate
+
+label ${pane_top}.rapidoverride.l
+setup_widget_accel ${pane_top}.rapidoverride.l [_ "Rapid Override:"]
+label ${pane_top}.rapidoverride.m -width 1
+setup_widget_accel ${pane_top}.rapidoverride.m [_ "%"]
+
+# Pack widget ${pane_top}.rapidoverride.l
+pack ${pane_top}.rapidoverride.l \
+	-side left
+
+# Pack widget ${pane_top}.rapidoverride.foscale
+pack ${pane_top}.rapidoverride.foscale \
+	-side right
+
+# Pack widget ${pane_top}.rapidoverride.foentry
+pack ${pane_top}.rapidoverride.m \
+	-side right
+
+# Pack widget ${pane_top}.rapidoverride.foentry
+pack ${pane_top}.rapidoverride.foentry \
+	-side right
+
 toplevel .about
 bind .about <Key-Return> { wm wi .about }
 bind .about <Key-Escape> { wm wi .about }
@@ -1728,7 +1816,7 @@ text .about.message \
 	.about.message configure -cursor hand2
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
-.about.message insert end [subst [_ "LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
+.about.message insert end [subst [_ "Machinekit/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with Machinekit.\n\nVisit the Machinekit web site: "]] {} {http://www.machinekit.io/} link
 .about.message configure -state disabled
 
 button .about.ok \
@@ -1797,25 +1885,31 @@ grid ${pane_top}.feedoverride \
 	-row 2 \
 	-sticky new
 
-# Grid widget ${pane_top}.spinoverride
-grid ${pane_top}.spinoverride \
+# Grid widget ${pane_top}.rapidoverride
+grid ${pane_top}.rapidoverride \
 	-column 0 \
 	-row 3 \
 	-sticky new
 
-grid ${pane_top}.jogspeed \
+# Grid widget ${pane_top}.spinoverride
+grid ${pane_top}.spinoverride \
 	-column 0 \
 	-row 4 \
 	-sticky new
 
-grid ${pane_top}.ajogspeed \
+grid ${pane_top}.jogspeed \
 	-column 0 \
 	-row 5 \
 	-sticky new
 
-grid ${pane_top}.maxvel \
+grid ${pane_top}.ajogspeed \
 	-column 0 \
 	-row 6 \
+	-sticky new
+
+grid ${pane_top}.maxvel \
+	-column 0 \
+	-row 7 \
 	-sticky new
 
 # Grid widget .info
@@ -1920,7 +2014,7 @@ proc relief {e args} {
 }
 
 proc update_title {args} {
-    set basetitle [subst [_ "AXIS \$::version on \$::machine"]]
+    set basetitle [subst [_ "AXIS with MachineKit \$::version on \$::machine"]]
     if {$::taskfile == ""} {
         set nofile [_ "(no file)"]
         wm ti . "$basetitle $nofile"
@@ -1932,6 +2026,7 @@ proc update_title {args} {
 }
 
 proc update_state {args} {
+    set mytest "Hooray!"
     switch $::task_state \
         $::STATE_ESTOP { set ::task_state_string [_ "ESTOP"] } \
         $::STATE_ESTOP_RESET { set ::task_state_string [_ "OFF"] } \
@@ -2414,4 +2509,4 @@ proc show_menu_available {m} {
     }
 }
 
-# vim:ts=8:sts=4:et:sw=4:
+# vim:ts=8:sts=4:et:sw=4:   -value 0 \

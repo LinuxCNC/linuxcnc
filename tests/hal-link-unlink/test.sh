@@ -1,7 +1,7 @@
 #!/bin/bash
 
 realtime start
-python hallink.py
+python2 hallink.py
 
 realtime stop
 

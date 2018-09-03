@@ -1,0 +1,3 @@
+#!/bin/sh
+DIR=$(dirname "${0}")
+diff --ignore-space-change -u $DIR/expected $DIR/result

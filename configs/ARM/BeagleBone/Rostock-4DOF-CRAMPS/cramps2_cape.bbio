@@ -1,0 +1,54 @@
+# File: Hand edited to mach ARM.BeagleBone.CRAMPS/setup.sh
+# title: CRAMPS Cape 3D Printer
+overlay cape-universal
+overlay cape-bone-iio
+P8_7	in	# X Max
+P8_8	in	# X Min
+P8_9	in	# Y Max
+P8_10	in	# Y Min
+P8_11	low	# FET 1 : Heated Bed
+P8_12	low	# X Dir
+P8_13	low	# X Step
+P8_14	low	# Y Dir
+P8_15	low	# Y Step
+P8_16	high	# eMMC Enable
+P8_17	in	# ESTOP
+P8_18	low	# Z Dir
+P8_19	low	# Z Step
+# eMMC signals, uncomment *ONLY* if you have disabled the on-board eMMC!
+#  MachineKit images disable eMMC and HDMI audio by default in uEnv.txt:
+#  capemgr.disable_partno=BB-BONELT-HDMI,BB-BONE-EMMC-2G
+#	P8.22	low	# Servo 4
+#	P8.23	low	# Servo 3
+#	P8.24	low	# Servo 2
+#	P8.25	low	# Servo 1
+
+P8_26	high	# ESTOP Out
+
+P9_11	in	# Z Max
+P9_12	low	# E0 Dir
+P9_13	in	# Z Min
+P9_14	high	# Axis Enable, active low
+P9_15	low	# FET 2 : E0
+P9_16	low	# E0 Step
+P9_17	low	# E1 Step
+P9_18	low	# E1 Dir
+#   P9_19	low	# I2C SCL
+#	P9.20	low	# I2C SDA
+P9_21	low	# FET 4 : E1
+P9_22	low	# FET 6
+P9_23	low	# Machine Power
+P9_24	low	# E2 Step
+P9_25	low	# LED
+P9_26	low	# E2 Dir
+P9_27	low	# FET 3 : E2
+P9_28	low	# SPI CS0
+P9_29	low	# SPI MISO
+P9_30	low	# SPI MOSI
+P9_31	low	# SPI SCLK
+
+P9_41	low	# FET 5
+P9_91	in	# Reserved, connected to P9.41
+
+P9_42	low	# SPI CS1
+P9_92	in	# Reserved, connected to P9.42

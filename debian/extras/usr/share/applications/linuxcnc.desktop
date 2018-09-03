@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=
 Type=Application
-Exec=/usr/bin/linuxcnc
-Icon=linuxcncicon
+Exec=/usr/bin/machinekit
+Icon=machinekiticon
 X-GNOME-DocPath=
 Terminal=false
-Name=LinuxCNC
-Comment=The LinuxCNC Enhanced Machine Controller
+Name=Machinekit
+Comment=The Machinekit CNC Machine Controller
 StartupNotify=false
 Categories=X-CNC;

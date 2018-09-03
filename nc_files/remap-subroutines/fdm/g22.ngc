@@ -1,0 +1,41 @@
+o<g22> sub
+o100 if [#<_ini[FDM]VELOCITY_EXTRUSION_ENABLE> EQ 1]
+    #502=1 ; extruder enable index
+    M65 P#502
+o100 else
+    #500=#<_a>
+    o110 if [#<_selected_tool> EQ  0]
+        #501=#<_ini[EXTRUDER_0]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_0]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  1]
+        #501=#<_ini[EXTRUDER_1]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_1]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  2]
+        #501=#<_ini[EXTRUDER_2]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_2]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  3]
+        #501=#<_ini[EXTRUDER_3]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_3]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  4]
+        #501=#<_ini[EXTRUDER_4]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_4]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  5]
+        #501=#<_ini[EXTRUDER_5]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_5]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  6]
+        #501=#<_ini[EXTRUDER_6]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_6]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  7]
+        #501=#<_ini[EXTRUDER_7]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_7]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  8]
+        #501=#<_ini[EXTRUDER_8]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_8]RETRACT_VEL>
+    o110 else if [#<_selected_tool> EQ  9]
+        #501=#<_ini[EXTRUDER_9]RETRACT_LEN>
+        #502=#<_ini[EXTRUDER_9]RETRACT_VEL>
+    o110 endif
+    G1 A[#500+#501] F#502
+    G92 A#500    
+o100 endif  
+o<g22> end sub

@@ -20,26 +20,74 @@ MKUUID=a42c8c6b-4025-4f83-ba28-dad21114744a
 # -------------- enabling remote operation -----------------
 
 # enable remote service access - defaults to local; set to 1 for enabling remote operation
-# regardless of INTERFACES section below
-# REMOTE=1 means: zeroMQ sockets will use TCP on the preferred interface as per INTERFACES
+#
+# REMOTE=1 means: zeroMQ sockets will use TCP as specified below for address and port
 # REMOTE=0 means: zeroMQ will use IPC sockets in RUNDIR/<rtapi_instance>.<service>.<uuid>
 #
-# REMOTE=0 also means that zeroconf announcement will be disabled
 REMOTE=0
 
 # -------------- network setup -----------------
+# only relevant when using TCP, not needed in local case (REMOTE=0)
 
-# by default, services are bound to Unix IPC sockets, meaning the service cannot
-# be reached from outside.
+# If REMOTE=0, services are bound to Unix IPC sockets, meaning the service cannot
+# be reached from outside the current host.
 
-# if services should be remotely accessible, a primary interface can be chosen
-# by giving a list of preferred interfaces or interface prefices:
-# the first IPv4 address of the first matching interface is used to bind(2):
 
-# bind to the first Ethernet interface
-# prefer to bind to ethX; then wlanX if eth* is not present; then usbX:
+# -------------- TCP Port selection -----------------
+#
+# unless port numbers are explicitly specified, the default is to use the
+# next free port number ('ephemeral port').
+#
+# To bind the group status (STP) to a specific port number, use this form:
+#GROUP_STATUS_PORT=6200
 
-INTERFACES = eth wlan usb
+# port for remote component status protocol
+#RCOMP_STATUS_PORT=6201
 
-# localhost only - for testing TCP, but within a single machine
-#INTERFACES = lo
+# port for remote command interaction
+#COMMAND_PORT=6202
+
+# port for rtapi msgd log service
+#LOG_PORT=6203  # specific port number
+
+# -------------- interface and protocol selection -----------------
+#
+# binding zeroMQ sockets and mDNS announcements are conceptually separate,
+# but of course better add up.
+# the default is to bind on in6addr_any (ipv4 and mapped ipv6 on Linux).
+# see the zeromq docs - zmq_tcp(7) and the ZMQ_IPV6 option.
+#
+# The binding algorithm is as follows:
+#
+# Bind any addresses or interfaces in the BIND_IPV4 list (none if empty).
+# if a port number was explicitly specified above, use that port
+# else bind as ephemeral port, retrieve that assigned port number, and use
+# that port in subsequent bind operations.
+#
+# if the BIND_IPV6 list is not empty, set the zeromq ZMQ_IPV6 socket option,
+# then, for each interface/address in BIND_IPV6:
+#   if a port number was already assigned (eg by explicit port number setting or
+#   through an ephemeral binding of an IPv4 interface/address, use that.
+#   bind the current interface/address
+#
+# default binding spec is equivalent to:
+#BIND_IPV4=
+#BIND_IPV6=*
+
+
+# mDNS announcement - protocol selection:
+#ANNOUNCE_IPV4=0 and ANNOUNCE_IPV6=0: suppress any Avahi announcements.
+#ANNOUNCE_IPV4=1 and ANNOUNCE_IPV6=0: use AVAHI_PROTO_INET
+#ANNOUNCE_IPV4=1 and ANNOUNCE_IPV6=1: use AVAHI_PROTO_UNSPEC
+#ANNOUNCE_IPV4=0 and ANNOUNCE_IPV6=1: use AVAHI_PROTO_INET6
+
+#defaults are:
+#ANNOUNCE_IPV4=1
+#ANNOUNCE_IPV6=1
+
+
+
+
+
+
+

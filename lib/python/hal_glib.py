@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # vim: sts=4 sw=4 et
 
 import _hal, hal, gobject
@@ -17,8 +17,8 @@ import socket
 from servicediscovery import ServiceDiscovery
 import avahi
 
-from message_pb2 import Container
-from types_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.types_pb2 import *
 
 class GPin(gobject.GObject, hal.Pin):
     __gtype_name__ = 'GPin'

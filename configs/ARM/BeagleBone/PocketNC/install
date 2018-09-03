@@ -1,10 +1,10 @@
 #!/bin/bash
 
-echo "To start LinuxCNC preconfigured for PocketNC, simply type:"
+echo "To start Machinekit preconfigured for PocketNC, simply type:"
 echo "	PocketNC"
 
 echo '#!/bin/bash' > /usr/bin/PocketNC
-echo "linuxcnc $PWD/PocketNC.ini" >> /usr/bin/PocketNC
+echo "machinekit $PWD/PocketNC.ini" >> /usr/bin/PocketNC
 chown 750 /usr/bin/PocketNC
 chmod +x /usr/bin/PocketNC
 

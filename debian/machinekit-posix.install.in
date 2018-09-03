@@ -1,0 +1,11 @@
+usr/lib/linuxcnc/posix/*.so
+usr/lib/linuxcnc/ulapi-posix.so
+usr/libexec/linuxcnc/rtapi_app_posix
+usr/include/linuxcnc/*.hh
+usr/include/linuxcnc/*.h
+usr/lib/*.a
+usr/lib/*.so
+usr/bin/comp
+usr/share/linuxcnc/Makefile.modinc
+usr/share/linuxcnc/Makefile.inc
+

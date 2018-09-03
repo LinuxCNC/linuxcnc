@@ -16,44 +16,45 @@ pass the Z position and feed back untouched.
 
 If not enabled pass the Z position and feed back untouched.
 
-Physical Connections typical
-paraport.0.pin-12-in <= THC controller Plasma Up 
-paraport.0.pin-13-in <= THC controller Plasma Down
-parport.0.pin-15-in  <= Plasma Torch Arc Ok Signal
-parport.0.pin-16-out => Plasma Torch Start Arc Contacts
+Typical Physical Connections using a Parallel Port
+
+Parallel Pin 12 <= THC controller Plasma Up
+
+Parallel Pin 13 <= THC controller Plasma Down
+
+Parallel Pin 15  <= Plasma Torch Arc Ok Signal
+
+Parallel Pin 16 => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
-thc.torch-up <= paraport.0.pin-12-in
-thc.torch-down <= paraport.0.pin-13-in
-motion.spindle-on => parport.0.pin-16-out (start the arc)
-thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+
+net torch-up thcud.torch-up <= paraport.0.pin-12-in
+
+net torch-down thcud.torch-down <= paraport.0.pin-13-in
+
+net torch-on motion.spindle-on => parport.0.pin-16-out (start the arc)
+
+net are-ok thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
 
 HAL Motion Connections
-thc.requested-vel <= motion.requested-vel
-thc.current-vel <= motion.current-vel
+
+net requested-vel thc.requested-vel <= motion.requested-vel
+
+net current-vel thc.current-vel <= motion.current-vel
 
 Pyvcp Connections
 In the xml file you need something like:
 
-<checkbutton>
-  <text>"THC Enable"</text>
-  <halpin>"thc-enable"</halpin>
-</checkbutton>
-<spinbox>
-  <width>"5"</width>
-  <halpin>"vel-tol"</halpin>
-  <min_>.01</min_>
-  <max_>1</max_>
-  <resolution>0.01</resolution>
-  <initval>0.2</initval>
-  <format>"1.2f"</format>
-  <font>("Arial",10)</font>
-</spinbox>
+  <pyvcp>
+  <checkbutton>
+    <text>"THC Enable"</text>
+    <halpin>"thc-enable"</halpin>
+  </checkbutton>
+  </pyvcp>
 
 Connect the Pyvcp pins in the postgui.hal file like this:
 
 net thc-enable thcud.enable <= pyvcp.thc-enable
-
 """;
  
 author "John Thornton";
@@ -83,9 +84,8 @@ pin out bit removing_offset "Pin for testing";
 param rw float velocity_tol "The deviation percent from planned velocity";
 param rw float correction_vel "The Velocity to move Z to correct";
 
-// Global Variables
-variable float offset;
-variable float last_z_in;
+variable hal_float_t offset = 0.0;
+variable hal_float_t last_z_in = 0.0;
 
 function _;
 
@@ -95,7 +95,7 @@ function _;
 
 FUNCTION(_) {
     if(enable){
-        float min_velocity = requested_vel -(requested_vel*(1/velocity_tol));
+        float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
         if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
         else {vel_status =0;}
         

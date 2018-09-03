@@ -18,8 +18,11 @@
 #include "spherical_arc.h"
 #include "posemath.h"
 #include "emcpos.h"
-#include "emcmotcfg.h"
+#include "emcmotcfg.h"  // EMCMOT_MAX_DIO, EMCMOT_MAX_AIO
+#include "state_tag.h"
+#include "rtapi_bitops.h"
 
+#define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
 typedef enum {
     TC_TERM_COND_STOP = 0,
@@ -51,6 +54,18 @@ typedef enum {
 #define TC_ACCEL_TRAPZ 0
 #define TC_ACCEL_RAMP 1
 
+/**
+ * Spiral arc length approximation by quadratic fit.
+ */
+typedef struct {
+    double b0;                  /* 2nd order coefficient */
+    double b1;                  /* 1st order coefficient */
+    double total_planar_length; /* total arc length in plane */
+    int spiral_in;              /* flag indicating spiral is inward,
+                                   rather than outward */
+} SpiralArcLengthFit;
+
+
 /* structure for individual trajectory elements */
 
 typedef struct {
@@ -63,6 +78,7 @@ typedef struct {
     PmCircle xyz;
     PmCartLine abc;
     PmCartLine uvw;
+    SpiralArcLengthFit fit;
 } PmCircle9;
 
 typedef struct {
@@ -79,7 +95,7 @@ typedef unsigned long long iomask_t; // 64 bits on both x86 and x86_64
 
 typedef struct {
     char anychanged;
-    iomask_t dio_mask;
+    RTAPI_DECLARE_BITMAP(dio_mask, EMCMOT_MAX_DIO);
     iomask_t aio_mask;
     signed char dios[EMCMOT_MAX_DIO];
     double aios[EMCMOT_MAX_AIO];
@@ -110,11 +126,13 @@ typedef struct {
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
     double term_vel;        // actual velocity at termination of segment
+    double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
 
     //Acceleration
     double maxaccel;        // accel calc'd by task
     
     int id;                 // segment's serial number
+    struct state_tag_t tag; /* state tag corresponding to running motion */
 
     union {                 // describes the segment's start and end positions
         PmLine9 line;
@@ -154,6 +172,9 @@ typedef struct {
                             * after this will it take to slow to zero
                             * speed) */
     int finalized;
+
+    // Temporary status flags (reset each cycle)
+    int is_blending;
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */

@@ -20,20 +20,19 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
+#include "xenomai-common.h"
 
-#include <nucleus/types.h>		/* XNOBJECT_NAME_LEN, RTIME */
-#include <native/heap.h>		// RT_HEAP, H_SHARED, rt_heap_*
-#include <native/task.h>		// RT_TASK, rt_task_*()
+#include XENOMAI_INCLUDE(heap.h)	// RT_HEAP, H_SHARED, rt_heap_*
+#include XENOMAI_INCLUDE(task.h)	// RT_TASK, rt_task_*()
 
 #ifdef RTAPI	/* In kernel land, this is equiv. to MODULE */
 #include <linux/slab.h>			// kfree
-#include <native/types.h>		// TM_INFINITE
-#include <native/timer.h>		// rt_timer_*()
+#include XENOMAI_INCLUDE(timer.h)	// rt_timer_*()
 #include "procfs_macros.h"		// PROC_PRINT()
 
 #else /* ULAPI */
-#include <errno.h>		/* errno */
-#include <unistd.h>             // getpid()
+#include <errno.h>			/* errno */
+#include <unistd.h>			// getpid()
 
 #endif
 
@@ -124,8 +123,7 @@ long long int _rtapi_get_time_hook(void) {
    doesn't take a week every time you call it.
 */
 long long int _rtapi_get_clocks_hook(void) {
-    // Gilles says: do this - it's portable
-    return rt_timer_tsc();
+    return rt_timer_read();
 }
 
 void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
@@ -136,8 +134,8 @@ void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 
 void _rtapi_delay_hook(long int nsec) 
 {
-    long long int release = rt_timer_tsc() + nsec;
-    while (rt_timer_tsc() < release);
+    long long int release = rt_timer_read() + nsec;
+    while (rt_timer_read() < release);
 }
 #endif /* RTAPI */
 
@@ -202,7 +200,11 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-void _rtapi_wait_hook(void) {
+int _rtapi_wait_hook(const int flags) {
+
+    if (flags & TF_NOWAIT)
+	return 0;
+
     unsigned long overruns = 0;
     int result =  rt_task_wait_period(&overruns);
 

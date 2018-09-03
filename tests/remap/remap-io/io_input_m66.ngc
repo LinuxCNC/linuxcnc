@@ -1,0 +1,5 @@
+o<io_input_M66> sub
+(debug,X io_input_M66 remapping pre:  5399=#5399)
+M66 E0 L0
+(debug,X io_input_M66 remapping post:  5399=#5399)
+o<io_input_M66> endsub

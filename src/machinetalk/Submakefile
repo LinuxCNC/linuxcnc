@@ -35,12 +35,27 @@
 #
 # Michael Haberler 2/2013
 
-MACHINETALK=machinetalk
-MTINCLUDES=$(MACHINETALK)/include
-PBGEN=$(MACHINETALK)/generated
-PROTODIR=$(MACHINETALK)/proto/proto
+NAMESPACEDIR := machinetalk/protobuf
+MACHINETALK := machinetalk
+MTINCLUDES := $(MACHINETALK)/include
+PBGEN := $(MACHINETALK)/build
+PROTOSRCDIR := $(MACHINETALK)/proto/src
+PROTODIR := $(PROTOSRCDIR)/$(NAMESPACEDIR)
 NANOPB := $(MACHINETALK)/nanopb
 NPBPROTODIR :=  $(NANOPB)/generator/proto
+
+# this is a hack to get runtests to pass
+# build/header_sanity just blindly follows the breadcrumb trail for all
+# includes within headers and will not look in the subdirs nicely created
+# for some of those files, because the files that reference them, have
+# them present in the PWD in the source tree or have an INCLUDE_PATH set.
+
+../include/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
+	cp  $^ $@
+
+../include/%.h: ./$(NANOPB)/%.h
+	cp  $^ $@
+
 
 # Javascript support
 JSGEN=$(MACHINETALK)/tutorial/htdocs/js/machinetalk
@@ -64,7 +79,7 @@ JSNAMESPACE := =pb
 GENDEP := $(MACHINETALK)/proto/scripts/protoc-gen-depends
 
 # the directory where descriptor.proto lives:
-GPBINCLUDE :=  $(shell pkg-config --variable=includedir protobuf)
+GPBINCLUDE :=  $(shell $(PKG_CONFIG) --variable=includedir protobuf)
 DESCDIR    :=  $(GPBINCLUDE)/google/protobuf
 
 # search path for .proto files
@@ -77,13 +92,13 @@ PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
 USERSRCS += $(PROTO_SPECS)
 
 # C bindings library
-PROTOCLIB = ../lib/liblinuxcnc-pb2.so
+PROTOCLIB = ../lib/libmachinetalk-pb2.so
 
 # C++ bindings library
-PROTOCXXLIB = ../lib/liblinuxcnc-pb2++.so
+PROTOCXXLIB = ../lib/libmachinetalk-pb2++.so
 
 # Nanopb C bindings library
-NANOPROTOCLIB := ../lib/liblinuxcnc-npb.so
+NANOPROTOCLIB := ../lib/libmachinetalk-npb.so
 PROTOC_FLAGS :=
 PROTOCXX_LDFLAGS := $(PROTOBUF_LIBS)
 PROTOCXX_FLAGS :=
@@ -99,53 +114,57 @@ NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options
 
 # any extra flags to C compile nanopb bindings
-PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS) #-fPIC
+# this gets exported to RTFLAGS so dont add -fPIC here (stalls kthreads build)
+# machinetalk/msgcomponents/Submakefile:RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
+PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS)
 
 # nanopb library .h/.c files
 NANOPB_INCS := $(wildcard $(NANOPB)/*.h)
 NANOPB_C_SRCS := $(wildcard $(NANOPB)/*.c)
 
 PROTO_NANOPB_C_INCS := $(subst $(PROTODIR)/, \
-	$(PBGEN)/,  \
+	$(PBGEN)/$(NAMESPACEDIR)/,  \
 	$(patsubst %.proto, %.npb.h, $(PROTO_SPECS)))
 
-PROTO_NANOPB_C_INCS += $(PBGEN)/nanopb.npb.h
+PROTO_NANOPB_C_INCS += $(PBGEN)/$(NAMESPACEDIR)/nanopb.npb.h
 
 PROTO_NANOPB_C_SRCS := $(subst $(PROTODIR)/, \
-	$(PBGEN)/,  \
+	$(PBGEN)/$(NAMESPACEDIR)/,  \
 	$(patsubst %.proto, %.npb.c, $(PROTO_SPECS)))
-PROTO_NANOPB_C_SRCS += $(PBGEN)/nanopb.npb.c
+PROTO_NANOPB_C_SRCS += $(PBGEN)/$(NAMESPACEDIR)/nanopb.npb.c
 
 # Nanopb generator support
-NANOPB_SUPPORT := ../lib/python/nanopb_pb2.py
-NANOPB_SUPPORT += ../lib/python/nanopb_generator.py
-NANOPB_SUPPORT += ../lib/python/protoc-gen-nanopb
+NANOPB_SUPPORT := ../lib/python/$(NAMESPACEDIR)/nanopb_pb2.py
+NANOPB_SUPPORT += ../lib/python/$(NAMESPACEDIR)/nanopb_generator.py
+NANOPB_SUPPORT += ../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb
+NANOPB_SUPPORT += ../lib/python/$(NAMESPACEDIR)/__init__.py
+NANOPB_SUPPORT += ../lib/python/$(MACHINETALK)/__init__.py
 
 PROTO_PY_TARGETS := $(NANOPB_SUPPORT)
 
 # machinetalk/proto/*.proto derived Python bindings
 PROTO_PY_TARGETS += $(subst $(PROTODIR)/, \
-	../lib/python/, \
+	../lib/python/$(NAMESPACEDIR)/, \
 	$(patsubst %.proto, %_pb2.py, $(PROTO_SPECS)))
 
-PROTO_PY_TARGETS += ../lib/python/nanopb_pb2.py
+PROTO_PY_TARGETS += ../lib/python/$(NAMESPACEDIR)/nanopb_pb2.py
 
 # generated C++ includes
 PROTO_CXX_INCS :=
 PROTO_CXX_INCS += $(subst $(PROTODIR)/, \
-	$(PBGEN)/,  \
+	$(PBGEN)/$(NAMESPACEDIR)/,  \
 	$(patsubst %.proto, %.pb.h, $(PROTO_SPECS)))
-PROTO_CXX_INCS += ../include/machinetalk/generated/nanopb.pb.h
+PROTO_CXX_INCS += $(PBGEN)/$(NAMESPACEDIR)/nanopb.pb.h
 
 # generated C++ sources
-PROTO_CXX_SRCS  :=  $(PBGEN)/nanopb.pb.cc
+PROTO_CXX_SRCS  :=  $(PBGEN)/$(NAMESPACEDIR)/nanopb.pb.cc
 PROTO_CXX_SRCS  +=  $(subst $(PROTODIR)/, \
-	$(PBGEN)/, \
+	$(PBGEN)/$(NAMESPACEDIR)/, \
 	$(patsubst %.proto, %.pb.cc, $(PROTO_SPECS)))
 
 # headers which are to go into ../include
 MT_INSTALL_INCS := $(subst $(PBGEN), \
-	../include/$(PBGEN),  \
+	../include,  \
 	$(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS))
 
 MT_INSTALL_INCS +=  \
@@ -176,13 +195,13 @@ PROTO_DEPS :=  $(patsubst %,objects/%,$(patsubst %.proto,%.d,$(PROTO_SPECS)))
 # options to the dependency generator protoc plugin
 PBDEP_OPT :=
 #PBDEP_OPT += --debug
-PBDEP_OPT += --cgen=$(MACHINETALK)/generated
-PBDEP_OPT += --pygen=lib/python
+PBDEP_OPT += --cgen=$(PBGEN)
+PBDEP_OPT += --pygen=lib/python/$(NAMESPACEDIR)
 PBDEP_OPT += --jsgen=$(JSGEN)
 # this path must match the vpath arrangement exactly or the deps will be wrong
 # unfortunately there is no way to extract the proto path in the code
 # generator plugin
-PBDEP_OPT += --vpath=$(PROTODIR)
+PBDEP_OPT += --vpath=$(PROTOSRCDIR)
 PBDEP_OPT += --vpath=$(GPBINCLUDE)
 PBDEP_OPT += --vpath=$(DESCDIR)/compiler
 
@@ -192,9 +211,9 @@ objects/$(PROTODIR)/%.d: %.proto
 	@mkdir -p objects/$(PROTODIR)/
 	$(Q)$(PROTOC) \
 	--plugin=protoc-gen-depends=$(GENDEP) \
-	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(PROTOSRCDIR)/ \
 	--proto_path=$(GPBINCLUDE) \
-	--depends_out="$(PBDEP_OPT)":objects/$(PROTODIR) \
+	--depends_out="$(PBDEP_OPT)":./objects/$(PROTOSRCDIR)/ \
 	 $<
 
 
@@ -208,11 +227,11 @@ endif
 #
 # generate .cc/.h from proto files
 # for command.proto, generated files are: command.pb.cc	command.pb.h
-$(PBGEN)/%.pb.cc $(PBGEN)/%.pb.h: %.proto
+$(PBGEN)/$(NAMESPACEDIR)/%.pb.cc $(PBGEN)/$(NAMESPACEDIR)/%.pb.h: %.proto
 	$(ECHO) "protoc create $@ from $<"
 	@mkdir -p $(PBGEN)
 	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
-	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(PROTOSRCDIR)/ \
 	--proto_path=$(GPBINCLUDE)/ \
 	--cpp_out=./$(PBGEN)/ $<
 
@@ -220,13 +239,13 @@ $(PBGEN)/%.pb.cc $(PBGEN)/%.pb.h: %.proto
 #
 # Nanopb: generate *.npb.{c,h} from proto files
 # these depend on npb options
-$(PBGEN)/%.npb.c $(PBGEN)/%.npb.h: %.proto $(NANOPB_SUPPORT)
+$(PBGEN)/$(NAMESPACEDIR)/%.npb.c $(PBGEN)/$(NAMESPACEDIR)/%.npb.h: %.proto $(NANOPB_SUPPORT)
 	$(ECHO) "protoc create $@ from $<"
-	@mkdir -p $(PBGEN)
+	@mkdir -p $(PBGEN)/$(NAMESPACEDIR)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
-	--plugin=protoc-gen-nanopb=../lib/python/protoc-gen-nanopb \
-	--nanopb_out="--generated-include-format='#include <"$(PBGEN)"/%s>' --extension=.npb --options-file=$(MACHINETALK)/nanopb.options":$(PBGEN) \
-	--proto_path=$(PROTODIR)/ \
+	--plugin=protoc-gen-nanopb=../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb \
+	--nanopb_out="--generated-include-format='#include \""$(NAMESPACEDIR)"/%s\"' --extension=.npb --options-file=$(MACHINETALK)/nanopb.options":$(PBGEN) \
+	--proto_path=$(PROTOSRCDIR)/ \
 	--proto_path=$(GPBINCLUDE) \
 	$<
 
@@ -236,11 +255,11 @@ $(PBGEN)/%.npb.c $(PBGEN)/%.npb.h: %.proto $(NANOPB_SUPPORT)
 # adapt here if using one of the accelerated methods
 #
 # generate Python modules from proto files
-../lib/python/%_pb2.py: %.proto
+../lib/python/$(NAMESPACEDIR)/%_pb2.py: %.proto
 	$(ECHO) "protoc create $@ from $<"
-	@mkdir -p ../lib/python
+	@mkdir -p ../lib/python/$(NAMESPACEDIR)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
-	--proto_path=$(PROTODIR)/ \
+	--proto_path=$(PROTOSRCDIR)/ \
 	--proto_path=$(GPBINCLUDE)/ \
 	--python_out=../lib/python/ $<
 
@@ -267,15 +286,20 @@ PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
 
 
 # --- misc supporting files ----
-../lib/python/nanopb_generator.py: $(NANOPB)/generator/nanopb_generator.py
+../lib/python/$(NAMESPACEDIR)/nanopb_generator.py: $(NANOPB)/generator/nanopb_generator.py
+	@mkdir -p ../lib/python/$(NAMESPACEDIR)/
 	cp $^ $@
 
-../lib/python/proto/__init__.py:
-	@mkdir -p ../lib/python/proto
-	touch ../lib/python/proto/__init__.py
+../lib/python/$(NAMESPACEDIR)/__init__.py:
+	@mkdir -p ../lib/python/$(NAMESPACEDIR)/
+	touch ../lib/python/$(NAMESPACEDIR)/__init__.py
+
+../lib/python/$(MACHINETALK)/__init__.py:
+	@mkdir -p ../lib/python/$(MACHINETALK)/
+	touch ../lib/python/$(MACHINETALK)/__init__.py
 
 # the nanopb plugin executable
-../lib/python/protoc-gen-nanopb: $(NANOPB)/generator/protoc-gen-nanopb
+../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb: $(NANOPB)/generator/protoc-gen-nanopb
 	cp $^ $@
 	chmod 755 $@
 
@@ -284,7 +308,7 @@ PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
 # Nanopb C bindings library
 #
 NANOPB_LIBSRCS = $(NANOPB_C_SRCS) $(PROTO_NANOPB_C_SRCS)
-$(call TOOBJSDEPS, $(NANOPB_LIBSRCS)) : EXTRAFLAGS += $(PROTO_NANOPB_CFLAGS)
+$(call TOOBJSDEPS, $(NANOPB_LIBSRCS)) : EXTRAFLAGS += $(PROTO_NANOPB_CFLAGS) -fPIC
 
 $(NANOPROTOCLIB).0: $(patsubst %.c,objects/%.o,$(NANOPB_LIBSRCS))
 	$(ECHO) Linking $(notdir $@)
@@ -303,20 +327,29 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 # protoc generated headers are exported to ../include
-../include/%.h: ./$(PBGEN)/%.h
+../include/%.h: ./$(NAMESPACEDIR)/$(PBGEN)/%.h
+	cp $^ $@
+
+../include/%.hh: ./$(NAMESPACEDIR)/$(PBGEN)/%.hh
+	cp $^ $@
+
+# This path is backwards isnt it?
+# protoc generated headers are exported to ../include
+../include/$(NAMESPACEDIR)/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
-../include/%.hh: ./$(PBGEN)/%.hh
+../include/$(NAMESPACEDIR)/%.hh: ./$(PBGEN)/$(NAMESPACEDIR)/%.hh
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
 # as are the nanop library headers
-../include/%.h: ./$(NANOPB)/%.h
+../include/$(MACHINETALK)/%.h: ./$(NANOPB)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
 
-../include/%.h: ./$(MACHINETALK)/%.h
+../include/%.h: ./%.h
+	@mkdir -p $(dir $@)
 	cp $^ $@
 
 ../include/%.h: ./$(MACHINETALK)/include/%.h
@@ -334,8 +367,8 @@ USERSRCS +=  $(NANOPB_C_SRCS) \
 
 
 GENERATED += $(PROTO_PY_TARGETS) \
-	$(MACHINETALK)/generated/nanopb.pb.h	\
-	$(MACHINETALK)/generated/nanopb.pb.cc \
+	$(PBGEN)/$(NAMESPACEDIR)/nanopb.pb.h	\
+	$(PBGEN)/$(NAMESPACEDIR)/nanopb.pb.cc \
 	$(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS) \
 	$(PROTO_CXX_INCS) $(PROTO_NANOPB_C_INCS)
 
@@ -356,4 +389,7 @@ TARGETS += $(MT_INSTALL_INCS)
 TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
 	$(PROTOCXXLIB) $(PROTOCXXLIB).0
 
-
+clean: machinetalk-clean
+machinetalk-clean:
+	rm -rf $(PBGEN) ../include/$(MACHINETALK)
+	rm -rf ../lib/python/$(MACHINETALK)

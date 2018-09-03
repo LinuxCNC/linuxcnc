@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # vim: sts=4 sw=4 et
-#    This is a component of LinuxCNC
+#    This is a component of Machinekit
 #    classhandler_persistent.py  Copyright 2010 Michael Haberler
 #
 #
@@ -51,7 +51,7 @@ class HandlerClass:
         self.ini.restore_state(self)
 
 
-    def __init__(self, halcomp,builder,useropts):
+    def __init__(self, halcomp,builder,useropts,compname):
         self.halcomp = halcomp
         self.builder = builder
         self.useropts = useropts
@@ -81,7 +81,7 @@ class HandlerClass:
         self.ini.restore_state(self)
 
 
-def get_handlers(halcomp,builder,useropts):
+def get_handlers(halcomp,builder,useropts,compname):
 
     global debug
     for cmd in useropts:
@@ -90,4 +90,4 @@ def get_handlers(halcomp,builder,useropts):
     # get some detail what save/restore etc are doing
     set_debug(debug)
 
-    return [HandlerClass(halcomp,builder,useropts)]
+    return [HandlerClass(halcomp,builder,useropts,compname)]

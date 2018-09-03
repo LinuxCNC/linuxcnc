@@ -1,0 +1,25 @@
+An interpolator for JointTrajectoryPoint segment queues
+
+based on the Orocos KDL velocityprofile_spline code.
+
+takes commands from a ringbuffer - feeder example in the Python script
+
+
+the degree of interpolation can be modified by the <instance>.degree pin at runtime; legit values are 1 (linear), 3 (cubic), 5 (quintic).
+
+missing/incomplete:
+
+- end-of-segment logic incomplete; leftovers of the current segment are currently dropped
+- jitter-correction not yet in place
+- switching to linear interpolation on very small increments not yet in place
+- no enable/disable/stopping logic
+- force values currently ignored
+- in linear mode, the acc pin is not set
+
+demo:
+
+halrun -I interpolate.hal
+
+python feed-interpolator.py
+
+

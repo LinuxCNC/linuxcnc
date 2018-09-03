@@ -22,8 +22,8 @@
 
 #include <google/protobuf/message_lite.h>
 
-#include <machinetalk/generated/types.pb.h>
-#include <machinetalk/generated/message.pb.h>
+#include <machinetalk/protobuf/types.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 using namespace google::protobuf;
 
 #include "rs274ngc.hh"
@@ -35,13 +35,12 @@ using namespace google::protobuf;
 #include "czmq.h"
 #include "pbutil.hh" // hal/haltalk
 
-static zctx_t *z_context;
-static void *z_preview, *z_status;  // sockets
+static zsock_t *z_preview, *z_status;
 static const char *istat_topic = "status";
 static int batch_limit = 100;
 static const char *p_client = "preview"; //NULL; // single client for now
 
-static pb::Container istat, output;
+static machinetalk::Container istat, output;
 
 static size_t n_containers, n_messages, n_bytes;
 
@@ -52,13 +51,13 @@ static size_t n_containers, n_messages, n_bytes;
 int _task = 0; // control preview behaviour when remapping
 
 // publish an interpreter status change.
-static void publish_istat(pb::InterpreterStateType state)
+static void publish_istat(machinetalk::InterpreterStateType state)
 {
-    static pb::InterpreterStateType last_state = pb::INTERP_STATE_UNSET;
+    static machinetalk::InterpreterStateType last_state = machinetalk::INTERP_STATE_UNSET;
     int retval;
 
     if (state ^ last_state) {
-	istat.set_type(pb::MT_INTERP_STAT);
+	istat.set_type(machinetalk::MT_INTERP_STAT);
 	istat.set_interp_state(state);
     istat.set_interp_name("preview");
 
@@ -80,19 +79,30 @@ static void send_preview(const char *client, bool flush = false)
     if ((output.preview_size() > batch_limit) || flush) {
 	n_containers++;
 	n_bytes += output.ByteSize();
-	output.set_type(pb::MT_PREVIEW);
+	output.set_type(machinetalk::MT_PREVIEW);
 	retval = send_pbcontainer(client, output, z_preview);
 	assert(retval == 0);
     }
 }
 
+// send preview start message
+static void preview_start()
+{
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_PREVIEW_START);
+    send_preview(p_client);
+}
 
+// send preview end message
+static void preview_end()
+{
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_PREVIEW_END);
+    send_preview(p_client);
+}
 
 static int z_init(void)
 {
-    if (!z_context)
-	z_context = zctx_new ();
-
     // const char *uri = getenv("PREVIEW_URI");
     // if (uri) z_preview_uri = uri;
     // uri = getenv("STATUS_URI");
@@ -106,22 +116,22 @@ static int z_init(void)
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 
-    z_preview = zsocket_new (z_context, ZMQ_XPUB);
+    z_preview = zsock_new (ZMQ_XPUB);
 #if 0
-    rc = zsocket_bind(z_preview, z_preview_uri);
+    rc = zsock_bind(z_preview, z_preview_uri);
     assert (rc != 0);
 #endif
 
-    z_status = zsocket_new (z_context, ZMQ_XPUB);
+    z_status = zsock_new (ZMQ_XPUB);
     assert(z_status);
 #if 0 
-    rc = zsocket_bind(z_status, z_status_uri);
+    rc = zsock_bind(z_status, z_status_uri);
     assert (rc != 0);
 
 #endif
 
     note_printf(istat, "interpreter startup pid=%d", getpid());
-    publish_istat(pb::INTERP_IDLE);
+    publish_istat(machinetalk::INTERP_IDLE);
 
     return 0;
 }
@@ -132,10 +142,11 @@ static void z_shutdown(void)
     fprintf(stderr, "preview: socket shutdown\n");
     if (n_containers > 0)
     {
-        fprintf(stderr, "preview: %zu containers %zu preview msgs %zu bytes  avg=%d bytes/container\n",
+        fprintf(stderr, "preview: %zu containers %zu preview msgs %zu bytes  avg=%zu bytes/container\n",
             n_containers, n_messages, n_bytes, n_bytes/n_containers);
     }
-    zctx_destroy(&z_context);
+    zsock_destroy(&z_preview);
+    zsock_destroy(&z_status);
 }
 
 char _parameter_file_name[LINELEN];
@@ -251,8 +262,8 @@ static PyTypeObject LineCodeType = {
 static PyObject *callback;
 static int interp_error;
 static int last_sequence_number;
-static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
+CANON_PLANE _pl;
 EmcPose tool_offset;
 
 static InterpBase *pinterp;
@@ -305,17 +316,30 @@ void ARC_FEED(int line_number,
               double second_axis, int rotation, double axis_end_point,
               double a_position, double b_position, double c_position,
               double u_position, double v_position, double w_position) {
-    // XXX: set _pos_*
-    if(metric) {
-        first_end /= 25.4;
-        second_end /= 25.4;
-        first_axis /= 25.4;
-        second_axis /= 25.4;
-        axis_end_point /= 25.4;
-        u_position /= 25.4;
-        v_position /= 25.4;
-        w_position /= 25.4;
+    double x, y, z;
+    if (_pl == CANON_PLANE_XY) {
+        x = first_end;
+        y = second_end;
+        z = axis_end_point;
     }
+    else if (_pl == CANON_PLANE_XZ) {
+        x = second_end;
+        y = axis_end_point;
+        z = first_end;
+    }
+    else if (_pl == CANON_PLANE_YZ) {
+        x = axis_end_point;
+        y = first_end;
+        z = second_end;
+    }
+    else {
+        x = _pos_x;
+        y = _pos_y;
+        z = _pos_z;
+    }
+    _pos_x = x; _pos_y = y; _pos_z = z;
+    _pos_a=a_position; _pos_b=b_position; _pos_c=c_position;
+    _pos_u=u_position; _pos_v=v_position; _pos_w=w_position;
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -327,8 +351,8 @@ void ARC_FEED(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_ARC_FEED);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_ARC_FEED);
     p->set_line_number(line_number);
     p->set_first_end(first_end);
     p->set_second_end(second_end);
@@ -337,7 +361,10 @@ void ARC_FEED(int line_number,
     p->set_rotation(rotation);
     p->set_axis_end_point(axis_end_point);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
+    pos->set_x(x);
+    pos->set_y(y);
+    pos->set_z(z);
     pos->set_a(a_position);
     pos->set_b(b_position);
     pos->set_c(c_position);
@@ -355,7 +382,6 @@ void STRAIGHT_FEED(int line_number,
     _pos_x=x; _pos_y=y; _pos_z=z;
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -364,11 +390,11 @@ void STRAIGHT_FEED(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_STRAIGHT_FEED);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_STRAIGHT_FEED);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -389,7 +415,6 @@ void STRAIGHT_TRAVERSE(int line_number,
     _pos_x=x; _pos_y=y; _pos_z=z;
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -398,11 +423,11 @@ void STRAIGHT_TRAVERSE(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_STRAIGHT_TRAVERSE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_STRAIGHT_TRAVERSE);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -420,7 +445,6 @@ void SET_G5X_OFFSET(int g5x_index,
                     double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     // PyObject *result =
@@ -429,12 +453,12 @@ void SET_G5X_OFFSET(int g5x_index,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_G5X_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_G5X_OFFSET);
     //    p->set_line_number(line_number);
     p->set_g5_index(g5x_index);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -452,7 +476,6 @@ void SET_G5X_OFFSET(int g5x_index,
 void SET_G92_OFFSET(double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     // PyObject *result =
@@ -461,11 +484,11 @@ void SET_G92_OFFSET(double x, double y, double z,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_G92_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_G92_OFFSET);
     //    p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -486,22 +509,23 @@ void SET_XY_ROTATION(double t) {
     //     callmethod(callback, "set_xy_rotation", "f", t);
     // if(result == NULL) interp_error ++;
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_G92_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_G92_OFFSET);
     //    p->set_line_number(line_number);
     p->set_xy_rotation(t);
     send_preview(p_client);
 
 };
 
-void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
+void USE_LENGTH_UNITS(CANON_UNITS u) { }
 
 void SELECT_PLANE(CANON_PLANE pl) {
+    _pl = pl;
     maybe_new_line();
-    // if(interp_error) return;
+    if(interp_error) return;
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SELECT_PLANE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SELECT_PLANE);
     p->set_plane(pl);
     send_preview(p_client);
 
@@ -519,8 +543,8 @@ void SET_TRAVERSE_RATE(double rate) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_TRAVERSE_RATE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_TRAVERSE_RATE);
     //    p->set_line_number(line_number);
     p->set_rate(rate);
     send_preview(p_client);
@@ -541,17 +565,16 @@ void SET_FEED_MODE(int mode) {
 void CHANGE_TOOL(int pocket) {
     maybe_new_line();
     if(interp_error) return;
-    // PyObject *result =
-    //     callmethod(callback, "change_tool", "i", pocket);
-    // if(result == NULL) interp_error ++;
-    // Py_XDECREF(result);
+    PyObject *result =
+        callmethod(callback, "change_tool", "i", pocket);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_CHANGE_TOOL);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_CHANGE_TOOL);
     //    p->set_line_number(line_number);
     p->set_pocket(pocket);
     send_preview(p_client);
-
 }
 
 void CHANGE_TOOL_NUMBER(int pocket) {
@@ -567,14 +590,13 @@ void CHANGE_TOOL_NUMBER(int pocket) {
 void SET_FEED_RATE(double rate) {
     maybe_new_line();
     if(interp_error) return;
-    if(metric) rate /= 25.4;
     // PyObject *result =
     //     callmethod(callback, "set_feed_rate", "f", rate);
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SET_FEED_RATE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SET_FEED_RATE);
     //    p->set_line_number(line_number);
     p->set_rate(rate);
     send_preview(p_client);
@@ -583,14 +605,14 @@ void SET_FEED_RATE(double rate) {
 
 void DWELL(double time) {
     maybe_new_line();
-    // if(interp_error) return;
+    if(interp_error) return;
     // PyObject *result =
     //     callmethod(callback, "dwell", "f", time);
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_DWELL);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_DWELL);
     //    p->set_line_number(line_number);
     p->set_time(time);
     send_preview(p_client);
@@ -605,8 +627,8 @@ void MESSAGE(char *comment) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_MESSAGE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_MESSAGE);
     //    p->set_line_number(line_number);
     p->set_text(comment);
     send_preview(p_client);
@@ -626,8 +648,8 @@ void COMMENT(const char *comment) {
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_COMMENT);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_COMMENT);
     //    p->set_line_number(line_number);
     p->set_text(comment);
     send_preview(p_client);
@@ -642,20 +664,17 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
     tool_offset = offset;
     maybe_new_line();
     if(interp_error) return;
-    if(metric) {
-        offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
-        offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
 
     // PyObject *result = callmethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z,
     //     offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_USE_TOOL_OFFSET);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_USE_TOOL_OFFSET);
     //    p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(offset.tran.x);
     pos->set_y(offset.tran.y);
     pos->set_z(offset.tran.z);
@@ -687,6 +706,7 @@ void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
 void SELECT_POCKET(int pocket, int tool) {}
+void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
@@ -696,14 +716,14 @@ int  GET_EXTERNAL_TC_REASON() {return 0;}
 extern bool GET_BLOCK_DELETE(void) {
     int bd = 0;
     if(interp_error) return 0;
-    // PyObject *result =
-    //     callmethod(callback, "get_block_delete", "");
-    // if(result == NULL) {
-    //     interp_error++;
-    // } else {
-    //     bd = PyObject_IsTrue(result);
-    // }
-    // Py_XDECREF(result);
+    PyObject *result =
+        callmethod(callback, "get_block_delete", "");
+    if(result == NULL) {
+        interp_error++;
+    } else {
+        bd = PyObject_IsTrue(result);
+    }
+    Py_XDECREF(result);
     return bd;
 }
 
@@ -748,7 +768,6 @@ void STRAIGHT_PROBE(int line_number,
     _pos_x=x; _pos_y=y; _pos_z=z;
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -757,11 +776,11 @@ void STRAIGHT_PROBE(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_STRAIGHT_PROBE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_STRAIGHT_PROBE);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -776,7 +795,6 @@ void STRAIGHT_PROBE(int line_number,
 
 void RIGID_TAP(int line_number,
                double x, double y, double z) {
-    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
     // PyObject *result =
@@ -785,11 +803,11 @@ void RIGID_TAP(int line_number,
     // if(result == NULL) interp_error ++;
     // Py_XDECREF(result);
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_RIGID_TAP);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_RIGID_TAP);
     p->set_line_number(line_number);
 
-    pb::Position *pos = p->mutable_pos();
+    machinetalk::Position *pos = p->mutable_pos();
     pos->set_x(x);
     pos->set_y(y);
     pos->set_z(z);
@@ -831,15 +849,21 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
 
-    // PyObject *result =
-    //     callmethod(callback, "get_tool", "i", pocket);
-    // if(result == NULL ||
-    //    !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
-    //                       &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
-    //                       &t.diameter, &t.frontangle, &t.backangle, &t.orientation))
-    //         interp_error ++;
+    PyObject *result = callmethod(callback, "get_tool", "i", pocket);
+    PyErr_Clear(); // necessary because ParseTuple fails
+    int ok = PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno,
+                              &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
+                              &t.offset.a, &t.offset.b, &t.offset.c,
+                              &t.offset.u, &t.offset.v, &t.offset.w,
+                              &t.diameter, &t.frontangle, &t.backangle,
+                              &t.orientation);
 
-    // Py_XDECREF(result);
+    if (result == NULL || !ok)
+    {
+        interp_error ++;
+    }
+
+    Py_XDECREF(result);
     return t;
 }
 
@@ -879,13 +903,13 @@ int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
-    // PyObject *result =
-    //     callmethod(callback, "get_axis_mask", "");
-    // if(!result) { interp_error ++; return 7 /* XYZABC */; }
-    // if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
-    // int mask = PyInt_AsLong(result);
-    // Py_DECREF(result);
-    return 0x3f; // XYZABC mask;
+    PyObject *result =
+        callmethod(callback, "get_axis_mask", "");
+    if(!result) { interp_error ++; return 7 /* XYZABC */; }
+    if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
+    int mask = PyInt_AsLong(result);
+    Py_DECREF(result);
+    return mask; // XYZABC mask;
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
@@ -931,32 +955,32 @@ static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
 }
 
 double GET_EXTERNAL_ANGLE_UNITS() {
-    // PyObject *result =
-    //     callmethod(callback, "get_external_angular_units", "");
-    // if(result == NULL) interp_error++;
+    PyObject *result =
+        callmethod(callback, "get_external_angular_units", "");
+    if(result == NULL) interp_error++;
 
     double dresult = 1.0;
-    // if(!result || !PyFloat_CheckAndError("get_external_angle_units", result)) {
-    //     interp_error++;
-    // } else {
-    //     dresult = PyFloat_AsDouble(result);
-    // }
-    // Py_XDECREF(result);
+    if(!result || !PyFloat_CheckAndError("get_external_angle_units", result)) {
+        interp_error++;
+    } else {
+        dresult = PyFloat_AsDouble(result);
+    }
+    Py_XDECREF(result);
     return dresult;
 }
 
 double GET_EXTERNAL_LENGTH_UNITS() {
-    // PyObject *result =
-    //     callmethod(callback, "get_external_length_units", "");
-    // if(result == NULL) interp_error++;
+    PyObject *result =
+        callmethod(callback, "get_external_length_units", "");
+    if(result == NULL) interp_error++;
 
     double dresult = 0.03937007874016;
-    // if(!result || !PyFloat_CheckAndError("get_external_length_units", result)) {
-    //     interp_error++;
-    // } else {
-    //     dresult = PyFloat_AsDouble(result);
-    // }
-    // Py_XDECREF(result);
+    if(!result || !PyFloat_CheckAndError("get_external_length_units", result)) {
+        interp_error++;
+    } else {
+        dresult = PyFloat_AsDouble(result);
+    }
+    Py_XDECREF(result);
     return dresult;
 }
 
@@ -966,7 +990,7 @@ static bool check_abort() {
     if(!result) return 1;
     if(PyObject_IsTrue(result)) {
         Py_DECREF(result);
-	PyErr_Format(PyExc_KeyboardInterrupt, "Load aborted");
+        PyErr_Format(PyExc_KeyboardInterrupt, "Load aborted");
         return 1;
     }
     Py_DECREF(result);
@@ -1006,22 +1030,23 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 
     gettimeofday(&t0, NULL);
 
-    metric=false;
     interp_error = 0;
     last_sequence_number = -1;
 
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
+    _pl = CANON_PLANE_XY;
 
+    note_printf(istat, "open '%s'", f);
+    publish_istat(machinetalk::INTERP_RUNNING);
+    preview_start();
     interp_new.init();
     interp_new.open(f);
-    note_printf(istat, "open '%s'", f);
-    publish_istat(pb::INTERP_RUNNING);
     maybe_new_line();
 
-    pb::Preview *p = output.add_preview();
-    p->set_type(pb::PV_SOURCE_CONTEXT);
-    p->set_stype(pb::ST_NGC_FILE);
+    machinetalk::Preview *p = output.add_preview();
+    p->set_type(machinetalk::PV_SOURCE_CONTEXT);
+    p->set_stype(machinetalk::ST_NGC_FILE);
     p->set_filename(f);
     p->set_line_number(interp_new.sequence_number());
 
@@ -1048,10 +1073,12 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         error_line_offset = 0;
         result = interp_new.execute();
     }
-    publish_istat(pb::INTERP_IDLE);
-    send_preview(p_client, true);
 
 out_error:
+    preview_end();
+    send_preview(p_client, true);
+    publish_istat(machinetalk::INTERP_IDLE);
+
     if(pinterp) pinterp->close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
@@ -1251,8 +1278,8 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     unrotate(o[0], o[1], rotation_cos, rotation_sin);
     for(int ax=0; ax<9; ax++) o[ax] -= g92offset[ax];
 
-    double theta1 = atan2(o[Y]-cy, o[X]-cx);
-    double theta2 = atan2(n[Y]-cy, n[X]-cx);
+    double theta1 = rtapi_atan2(o[Y]-cy, o[X]-cx);
+    double theta2 = rtapi_atan2(n[Y]-cy, n[X]-cx);
 
     if(rot < 0) {
         while(theta2 - theta1 > -CIRCLE_FUZZ) theta2 -= 2*M_PI;
@@ -1264,7 +1291,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     if(rot < -1) theta2 += 2*M_PI*(rot+1);
     if(rot > 1) theta2 += 2*M_PI*(rot-1);
 
-    int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
+    int steps = std::max(3, int(max_segments * rtapi_fabs(theta1 - theta2) / M_PI));
     double rsteps = 1. / steps;
     PyObject *segs = PyList_New(steps);
 
@@ -1272,7 +1299,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double d[9] = {0, 0, 0, n[3]-o[3], n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
     d[Z] = n[Z] - o[Z];
 
-    double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
+    double tx = o[X] - cx, ty = o[Y] - cy, dc = rtapi_cos(dtheta*rsteps), ds = rtapi_sin(dtheta*rsteps);
     for(int i=0; i<steps-1; i++) {
         double f = (i+1) * rsteps;
         double p[9];
@@ -1305,13 +1332,13 @@ static PyObject *bind_sockets(PyObject *self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "ss", &preview_uri, &status_uri))
         return NULL;
     int rc;
-    rc = zsocket_bind(z_preview, preview_uri);
+    rc = zsock_bind(z_preview, "%s", preview_uri);
     if(!rc) {
 	PyErr_Format(PyExc_RuntimeError,
 		     "binding preview socket to '%s' failed", preview_uri);
 	return NULL;
     }
-    rc = zsocket_bind(z_status, status_uri);
+    rc = zsock_bind(z_status, "%s", status_uri);
     if(!rc) {
 	PyErr_Format(PyExc_RuntimeError,
 		     "binding status socket to '%s' failed", status_uri);
@@ -1320,8 +1347,8 @@ static PyObject *bind_sockets(PyObject *self, PyObject *args) {
     // usleep(300 *1000); // avoid slow joiner syndrome
 
     return Py_BuildValue("(ss)",
-			 zsocket_last_endpoint(z_preview),
-			 zsocket_last_endpoint(z_status));
+			 zsock_last_endpoint(z_preview),
+			 zsock_last_endpoint(z_status));
 }
 
 static PyMethodDef gcode_methods[] = {

@@ -221,7 +221,7 @@ int set_channel_source(int chan_num, int type, char *name)
 	chan->data_source_type = 0;
 	chan->data_source = SHMOFF(pin);
 	chan->data_type = pin->type;
-	chan->name = pin->name;
+	chan->name = (char *)ho_name(pin);
     } else if (type == 1) {
 	/* search the signal list */
 	sig = halpr_find_sig_by_name(name);
@@ -232,7 +232,7 @@ int set_channel_source(int chan_num, int type, char *name)
 	chan->data_source_type = 1;
 	chan->data_source = SHMOFF(sig);
 	chan->data_type = sig->type;
-	chan->name = sig->name;
+	chan->name = (char *)ho_name(sig);
     } else if (type == 2) {
 	/* search the parameter list */
 	param = halpr_find_param_by_name(name);
@@ -243,7 +243,7 @@ int set_channel_source(int chan_num, int type, char *name)
 	chan->data_source_type = 2;
 	chan->data_source = SHMOFF(param);
 	chan->data_type = param->type;
-	chan->name = param->name;
+	chan->name = (char *)ho_name(param);
     }
     switch (chan->data_type) {
     case HAL_BIT:
@@ -263,6 +263,16 @@ int set_channel_source(int chan_num, int type, char *name)
 	break;
     case HAL_U32:
 	chan->data_len = sizeof(hal_u32_t);
+	chan->min_index = -2;
+	chan->max_index = 30;
+	break;
+    case HAL_S64:
+	chan->data_len = sizeof(hal_s64_t);
+	chan->min_index = -2;
+	chan->max_index = 30;
+	break;
+    case HAL_U64:
+	chan->data_len = sizeof(hal_u64_t);
 	chan->min_index = -2;
 	chan->max_index = 30;
 	break;
@@ -1007,19 +1017,57 @@ static gboolean change_page(GtkNotebook *notebook, GtkNotebookPage *page, guint 
     return 0;
 }
 
+static int fill_list(hal_object_ptr o, foreach_args_t *args)
+{
+gchar *name;
+int row = 0;
+int chan_num = args->user_arg1;
+
+scope_vert_t *vert;
+scope_chan_t *chan;
+
+	vert = &(ctrl_usr->vert);
+	chan = &(ctrl_usr->chan[chan_num - 1]);
+
+	if(args->type == HAL_PIN)
+		{
+		hal_pin_t *pin = o.pin;
+		name =(char *) ho_name(pin);
+		row = gtk_clist_append(GTK_CLIST(vert->lists[0]), &name);
+		}
+	else if(args->type == HAL_SIGNAL)
+		{
+		hal_sig_t *signal = o.sig;
+		name = (char *)ho_name(signal);
+		row = gtk_clist_append(GTK_CLIST(vert->lists[1]), &name);
+		}
+	else if(args->type == HAL_PARAM)
+		{
+		hal_param_t *param = o.param;
+		name = (char *)ho_name(param);
+		row = gtk_clist_append(GTK_CLIST(vert->lists[2]), &name);
+		}
+
+	if ( args->user_arg2 == 0 )
+		{
+	    if ( strcmp(name, chan->name) == 0 )
+			args->user_arg3 = row;
+	    }
+	args->user_arg4 = row;
+
+	return 0;
+}
+
 static gboolean dialog_select_source(int chan_num)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
     dialog_generic_t dialog;
     gchar *title, msg[BUFLEN];
-    int next, n, initial_page, row, initial_row, max_row;
-    gchar *tab_label_text[3], *name;
+    int n, initial_page = 0, initial_row = 0, max_row = 0;
+    gchar *tab_label_text[3];
     GtkWidget *hbox, *label, *notebk, *button;
     GtkAdjustment *adj;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
@@ -1110,49 +1158,46 @@ static gboolean dialog_select_source(int chan_num)
     gtk_clist_clear(GTK_CLIST(vert->lists[0]));
     gtk_clist_clear(GTK_CLIST(vert->lists[1]));
     gtk_clist_clear(GTK_CLIST(vert->lists[2]));
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    initial_row = -1;
-    max_row = -1;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	name = pin->name;
-	row = gtk_clist_append(GTK_CLIST(vert->lists[0]), &name);
-	if ( initial_page == 0 ) {
-	    if ( strcmp(name, chan->name) == 0 ) {
-		initial_row = row;
-	    }
-	    max_row = row;
-	}
-	next = pin->next_ptr;
-    }
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
-	sig = SHMPTR(next);
-	name = sig->name;
-	row = gtk_clist_append(GTK_CLIST(vert->lists[1]), &name);
-	if ( initial_page == 1 ) {
-	    if ( strcmp(name, chan->name) == 0 ) {
-		initial_row = row;
-	    }
-	    max_row = row;
-	}
-	next = sig->next_ptr;
-    }
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	name = param->name;
-	row = gtk_clist_append(GTK_CLIST(vert->lists[2]), &name);
-	if ( initial_page == 2 ) {
-	    if ( strcmp(name, chan->name) == 0 ) {
-		initial_row = row;
-	    }
-	    max_row = row;
-	}
-	next = param->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
+
+// pins
+    foreach_args_t args1 =  {
+	.type = HAL_PIN,
+    .user_arg1 = chan_num,
+    .user_arg2 = initial_page,
+    .user_arg3 = initial_row,
+    .user_arg4 = max_row
+    };
+
+    halg_foreach(true, &args1, fill_list);
+
+// signals
+    foreach_args_t args2 =  {
+	.type = HAL_SIGNAL,
+    .user_arg1 = chan_num,
+	.user_arg2 = args1.user_arg2,
+    .user_arg3 = args1.user_arg3,
+    .user_arg4 = args1.user_arg4
+    };
+
+    halg_foreach(true, &args2, fill_list);
+
+// params
+   foreach_args_t args3 =  {
+	.type = HAL_PARAM,
+    .user_arg1 = chan_num,
+    .user_arg2 = args2.user_arg2,
+    .user_arg3 = args2.user_arg3,
+    .user_arg4 = args2.user_arg4
+    };
+
+    halg_foreach(true, &args3, fill_list);
+
+    initial_page = args3.user_arg2;
+    initial_row = args3.user_arg3;
+    max_row = args3.user_arg4;
+
+    // if initial_page was not set, ensure a valid page
+    if(initial_page == -1) initial_page = 0;
     
     if ( initial_row >= 0 ) {
 	/* highlight the currently selected name */
@@ -1191,6 +1236,7 @@ static gboolean dialog_select_source(int chan_num)
     channel_changed();
     return TRUE;
 }
+
 /* If we come here, then the user has clicked a row in the list. */
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr)

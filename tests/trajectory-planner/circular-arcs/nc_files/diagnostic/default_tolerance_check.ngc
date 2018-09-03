@@ -1,0 +1,38 @@
+o100 sub
+(Starting position)
+G0 Z1
+G0 X0 Y0 
+G1 X1 F100
+Y1
+X2
+Y2
+X3
+Y3
+X0
+(Slight zigzag for NaiveCAM test)
+X0.01 Y2.5
+X0
+X0.0 Y2
+X0.0004 Y1.5
+X0
+X0.0 Y1
+X0 Y0 
+o100 endsub
+
+G20 G90 G17
+
+("Default" blending with no G64 words)
+
+G0 Z1
+G0 X0 Y0 
+G64
+o100 call
+
+G64 P0
+o100 call
+
+G64 P0 Q0.1
+o100 call
+
+M30
+

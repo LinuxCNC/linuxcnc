@@ -17,15 +17,6 @@ cdef extern from "shmdrv.h":
         int creator
         int shmdrv_loaded
 
-    # bint c_shmdrv_available "shmdrv_available"()
-    # int c_shmdrv_driver_fd "shmdrv_driver_fd"()
-    # int c_shmdrv_status "shmdrv_status"(shm_status *shmstat)
-    # int c_shmdrv_create "shmdrv_create"(shm_status *shmstat)
-    # int c_shmdrv_attach "shmdrv_attach"(shm_status *shmstat, void **shm)
-    # int c_shmdrv_detach "shmdrv_detach" (shm_status *shmstat, void *shm)
-    # int c_shmdrv_gc "shmdrv_gc"()
-    # void c_shmdrv_print_status "shmdrv_print_status" (shm_status *sm, const char *tag)
-
     int c_shm_common_init "shm_common_init"()
     int c_shm_common_new "shm_common_new" (int key, int *size, int instance, void **shmptr, int create)
     int c_shm_common_detach "shm_common_detach" (int size, void *shmptr)

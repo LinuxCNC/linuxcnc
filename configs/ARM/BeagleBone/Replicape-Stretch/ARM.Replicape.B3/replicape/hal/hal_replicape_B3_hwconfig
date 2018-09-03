@@ -1,0 +1,154 @@
+#!/usr/bin/python
+# encoding: utf-8 
+# vim: set sw=4 sts=4 et:
+
+'''
+A machinekit/LinuxCNC user module for Replicape B3 hardware config
+
+Controlling various parameters that are exposed through bit-shifters.
+
+The settings are populated when the "enable" pin is turned on (rising edge)
+
+The following pins are exported
+* enable [IN]
+  Enable the steppers
+* stepper.x.mode [IN]
+  0 means stealthChop, 1 means spreadCycle
+* watchdog [OUT]
+  A pin that toggles at every loop informing HAL that this component is alive
+
+Copyright (c) 2013 Sam Wong
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+'''
+
+import argparse
+import sys
+import time
+
+import hal
+from spi import SPI
+
+parser = argparse.ArgumentParser(description='HAL component to configure Replicape hardware')
+parser.add_argument('-n','--name', help='HAL component name', required=True)
+args = parser.parse_args()
+
+# Initialize SPI
+spi_shifter = None
+
+# Load SPI module
+try:
+    # Init the SPI for the serial to parallel
+    try:
+        spi_shifter = SPI((0, 1))
+    except IOError:
+        spi_shifter = SPI((1, 1))
+    spi_shifter.mode = 0
+except IOError:
+    print("Unable to set up SPI")
+    exit(-1)
+
+# Initialize HAL
+h = hal.component(args.name)
+enablePin = h.newpin("enable", hal.HAL_BIT, hal.HAL_IN)
+
+N = 5 # We have 5 steppers
+modePins = [None] * N
+
+for i in xrange(N):
+    modePins[i] = h.newpin(("stepper.%d.mode" % i), hal.HAL_U32, hal.HAL_IN)
+halWatchdogPin = h.newpin("watchdog", hal.HAL_BIT, hal.HAL_OUT)
+h.ready()
+
+'''
+The bits in the shift register are as follows (Rev B3) :
+Bit - name   - init val
+D0  = (0) EN_XYZ            = 1 (Disable)
+      (1) SERVO_0_EN        = 0 (Disable)
+      (2) SERVO_1_EN        = 0 (Disable)
+      (3) EN_Extruders      = 1 (Disable)
+      (4) Stepper_Tristate  = 1 (Tied)
+D1  = CFG5 = 0 (Chopper blank time: 0=16 cycles, 1=24 cycles)
+D2  = CFG4 = 0 (Chopper hysteresis: 0=5, 1=9)
+D3  = CFG0 = 0 (Chopper off time: 0=140 cycles, 1=236 cycles)
+D4  = CFG2 = 0
+D5  = CFG2_Tristate = 0 (Hi-Z)
+D6  = CFG1 = 0
+D7  = CFG1_Tristate = 0 (Hi-Z) stealthChop
+'''
+
+def commit():
+    ''' Committing what has been specified in HAL '''
+
+    # Writing the modes
+    bytes = []
+    for i in range(0,N):
+        # State:  CFG2 CFG1 Microsteps
+        #                      Interpolation
+        #                        Chopper Mode
+        #   0x0*: open open 16 Y stealthChop
+        #   0x1*: open open 16 Y stealthChop
+        #   0x2*: GND  open 2  Y spreadCycle
+        #   0x3*: VCC  open 4  Y spreadCycle
+        #   0x4*: open open 16 Y stealthChop
+        #   0x5*: open open 16 Y stealthChop
+        #   0x6*: GND  open 2  Y spreadCycle
+        #   0x7*: VCC  open 4  Y spreadCycle
+        #   0x8*: open GND  16 Y spreadCycle
+        #   0x9*: open GND  16 Y stealthChop
+        #   0xA*: GND  GND  1  N spreadCycle
+        #   0xB*: VCC  GND  4  N spreadCycle
+        #   0xC*: open VCC  4  Y stealthChop
+        #   0xD*: open VCC  4  Y stealthChop
+        #   0xE*: GND  VCC  2  N spreadCycle
+        #   0xF*: VCC  VCC  16 N spreadCycle
+        state = modePins[i].value & 0xFE
+        if (i == 0 or i == 3) and not enablePin.value:
+            state = state | 1
+        if (i == 4):
+            state = state | 1
+        bytes.append(state)
+    # Reverse the writting orders due to serial chain sequence
+    spi_shifter.write(bytes[::-1]) 
+
+def reset():
+    ''' Turn off the stepper chips '''
+
+    # Writing the modes
+    bytes = []
+    for i in range(0,N):
+        state = modePins[i].value & 0xFE
+        if (i == 0 or i == 3):
+            state = state | 1
+        if (i == 4):
+            state = state | 1
+        bytes.append(state)
+    # Reverse the writting orders due to serial chain sequence
+    spi_shifter.write(bytes[::-1]) 
+
+watchdog = True
+try:
+    oldEnable = False
+    commit()
+    time.sleep(0.05)
+    while (True):
+        enable = enablePin.value
+        # Only commit the new values when enable changes
+        if (enable and not oldEnable):
+            commit()
+        if (oldEnable and not enable):
+            commit()
+        oldEnable = enable
+
+        watchdog = not watchdog
+        halWatchdogPin.value = watchdog
+        time.sleep(0.05)
+except BaseException as e:
+    reset()
+    print(("exiting HAL component %s: %s") % (args.name, e))
+    h.exit()
+

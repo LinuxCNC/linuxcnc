@@ -614,6 +614,7 @@ class pyvcp_radiobutton(Frame):
             n+=1
 
         self.selected = initval
+        pycomp[self.halpins[initval]]=1 
 
 
 ## ArcEye - FIXED - only update the pins if changed  ##

@@ -1,0 +1,5 @@
+o<m190> sub
+#502=0; hbp index
+M68 E#502 Q#<P>
+M66 P#502 L3 Q1000
+o<m190> end sub

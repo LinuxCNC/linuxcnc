@@ -1,0 +1,21 @@
+# the nanopb protobuf descriptors
+# needed for protobuf de/encoding in RT
+loadrt pbmsgs
+
+newring ip.traj 16384
+newinst interpolate ip count=1
+
+setp ip.degree  5
+setp ip.jitter-correct 1
+setp ip.epsilon  0.0001
+
+newthread servo 1000000 fp
+
+addf ip.update servo
+
+loadusr halscope
+
+start
+
+
+

@@ -31,6 +31,9 @@ cdef class Signals:
     def __getitem__(self, char *name):
         hal_required()
 
+        if isinstance(name, int):
+            return pin_names()[name]
+
         if name in self.sigs:
             return self.sigs[name]
 
@@ -46,6 +49,8 @@ cdef class Signals:
         return sig
 
     def __contains__(self, arg):
+        if isinstance(arg, Signal):
+            arg = arg.name
         try:
             self.__getitem__(arg)
             return True
@@ -58,7 +63,7 @@ cdef class Signals:
 
     def __delitem__(self, char *name):
         hal_required()
-
+        del self.sigs[name]
         r = hal_signal_delete(name)
         if r:
             raise RuntimeError("hal_signal_delete %s failed: %d %s" % (name, r, hal_lasterror()))
@@ -66,5 +71,12 @@ cdef class Signals:
     def __call__(self):
         hal_required()
         return sig_names()
+
+    def __repr__(self):
+        hal_required()
+        sigdict = {}
+        for name in sig_names():
+            sigdict[name] = self[name]
+        return str(sigdict)
 
 signals = Signals()

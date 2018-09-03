@@ -10,14 +10,14 @@ ENCDEC_SRCS :=  $(addprefix $(PBEX)/, \
 ENCDEC_CXX_CFLAGS = -g  $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
 ENCDEC_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS) $(JANSSON_LIBS) -lstdc++
 
-PB2CXX_PROTOLIB = ../lib/liblinuxcnc-pb2++.so
+PB2CXX_PROTOLIB = ../lib/libmachinetalk-pb2++.so
 
 $(call TOOBJSDEPS, $(ENCDEC_SRCS)) : EXTRAFLAGS += $(ENCDEC_CXX_CFLAGS)
 
 ../bin/encdec: $(call TOOBJS, $(ENCDEC_SRCS)) \
-	$(PB2CXX_PROTOLIB)  ../lib/libmtalk.so ../lib/liblinuxcnc-pb2++.so ../lib/liblinuxcncini.so
+	$(PB2CXX_PROTOLIB)  ../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(ENCDEC_CXX_LDFLAGS)
 
 #----
@@ -26,21 +26,21 @@ POSITION_SRCS :=  $(addprefix $(PBEX)/, \
 POSITION_CXX_CFLAGS = -g  $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
 POSITION_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS) $(JANSSON_LIBS) -lstdc++
 
-PB2CXX_PROTOLIB = ../lib/liblinuxcnc-pb2++.so
+PB2CXX_PROTOLIB = ../lib/libmachinetalk-pb2++.so
 
 $(call TOOBJSDEPS, $(POSITION_SRCS)) : EXTRAFLAGS += $(POSITION_CXX_CFLAGS)
 
 ../bin/position: $(call TOOBJS, $(POSITION_SRCS)) \
 	 ../lib/libmtalk.so $(PB2CXX_PROTOLIB)  ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(POSITION_CXX_LDFLAGS)
 
 #---
 
 NPDECODE_SRCS :=  $(addprefix $(PBEX)/, \
 	npbdecode.c)
-NPBC_PROTOLIB = ../lib/liblinuxcnc-npb.so
+NPBC_PROTOLIB = ../lib/libmachinetalk-npb.so
 NPDECODE_CFLAGS = -g  -I../../ -DPB_FIELD_32BIT
 NPDECODE_LDFLAGS = $(NPBC_PROTOLIB)
 
@@ -49,7 +49,7 @@ $(call TOOBJSDEPS, $(NPDECODE_SRCS)) : EXTRAFLAGS += $(NPDECODE_CFLAGS)
 ../bin/npbdecode: $(call TOOBJS, $(NPDECODE_SRCS)) \
 	$(NPBC_PROTOLIB)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(NPDECODE_LDFLAGS) $(NPDECODE_LDFLAGS)
 
 
@@ -61,9 +61,9 @@ RTPRINTF_LDFLAGS := -g
 $(call TOOBJSDEPS, $(RTPRINTF_SRCS)) : EXTRAFLAGS += $(RTPRINTF_CCFLAGS)
 
 ../bin/rtprintf: $(call TOOBJS, $(RTPRINTF_SRCS)) \
-	../lib/liblinuxcnc-npb.so
+	../lib/libmachinetalk-npb.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RTPRINTF_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(RTPRINTF_LDFLAGS)
 
 
 RAWREAD_SRCS :=  $(PBEX)/rawread.c \
@@ -75,7 +75,7 @@ $(call TOOBJSDEPS, $(RAWREAD_SRCS)) : EXTRAFLAGS += $(RAWREAD_CCFLAGS)
 
 ../bin/rawread: $(call TOOBJS, $(RAWREAD_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RAWREAD_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(RAWREAD_LDFLAGS)
 
 ../include/%.h: ./$(PBEX)/%.h
 	@mkdir -p $(dir $@)
@@ -98,7 +98,7 @@ $(call TOOBJSDEPS, $(UNIONREAD_SRCS)) : EXTRAFLAGS += $(UNIONREAD_CCFLAGS)
 
 ../bin/unionread: $(call TOOBJS, $(UNIONREAD_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(UNIONREAD_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(UNIONREAD_LDFLAGS)
 
 ../include/%.h: ./$(PBEX)/%.h
 	@mkdir -p $(dir $@)
@@ -112,7 +112,7 @@ $(call TOOBJSDEPS, $(PBEX)/sizes.c) : EXTRAFLAGS +=
 
 ../bin/sizes: $(call TOOBJS, $(PBEX)/sizes.c)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS)
 
 USERSRCS += \
 	 $(RTPRINTF_SRCS) \
@@ -150,16 +150,16 @@ LINMOVE_SRCS :=  $(addprefix $(PBEX)/, \
 LINMOVE_CXX_CFLAGS = -g $(PROTOBUF_CFLAGS)  $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
 LINMOVE_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS)  $(JANSSON_LIBS) \
 	../lib/libmtalk.so  \
-	 ../lib/liblinuxcnc-pb2++.so \
+	 ../lib/libmachinetalk-pb2++.so \
 	../lib/liblinuxcncini.so \
 	-lstdc++
 
 $(call TOOBJSDEPS, $(LINMOVE_SRCS)) : EXTRAFLAGS += $(LINMOVE_CXX_CFLAGS)
 
 ../bin/linmove: $(call TOOBJS, $(LINMOVE_SRCS)) \
-	../lib/libmtalk.so ../lib/liblinuxcnc-pb2++.so
+	../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^  \
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(LINMOVE_CXX_LDFLAGS) $(PBJSONLIB)
 
 USERSRCS += $(LINMOVE_SRCS)

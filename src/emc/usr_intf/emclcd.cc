@@ -23,6 +23,11 @@
 *
 * Supported interfaces include Serial and USB.
 *
+* NOTE: Some of programs whose output is parsed (ifconfig and netstat)
+*	are from the package net-tools.  
+*	This ceased to be installed by default from Debian Stretch
+*	and will need installing specifically for this program to 
+*	have a chance of working.
 ********************************************************************/
 
 #include <stdio.h>
@@ -33,7 +38,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <ctype.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
@@ -730,7 +735,7 @@ static int getStats()
       pch = strtok(NULL, delims);
       pch = strtok(NULL, delims);
       sscanf(pch, "%f", &tempr);
-      temp = (int)floor(tempr);
+      temp = (int)rtapi_floor(tempr);
       cpuUsed = widgetSetInt(40, temp, cpuUsed);
       temp = 100 - temp;
       cpuFree = widgetSetInt(39, temp, cpuFree);
@@ -1466,7 +1471,7 @@ static void slowLoop()
       }
     }
 
-  feedOverride = (int)floor(emcStatus->motion.traj.scale * 100.0 + 0.5);
+  feedOverride = (int)rtapi_floor(emcStatus->motion.traj.scale * 100.0 + 0.5);
   if (feedOverride != oldFeedOverride) {
     menuSetInt("Run", "feed_slider", feedOverride);
     oldFeedOverride = feedOverride;
@@ -1700,6 +1705,13 @@ int main(int argc, char *argv[])
 
     initMain();
     printf("emclcd starting\n");
+
+    // net-tools not installed by default Stretch onwards, see header
+    if( (access("/bin/netstat", F_OK ) == -1) || 
+	(access("/sbin/ifconfig", F_OK ) == -1) ){
+        fprintf(stderr, "Package net-tools required to run emclcd\n");
+	exit(1);
+    }
 
     // process local arguments
     strncpy(server, DEFAULT_SERVER, strlen(DEFAULT_SERVER) + 1);

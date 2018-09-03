@@ -24,6 +24,8 @@ RTAPI_BEGIN_DECLS
 #define RTAPI_DUMP_PREFIX_ADDRESS 1
 #define RTAPI_DUMP_PREFIX_OFFSET 2
 
+typedef void (*hexdump_printer_t)(int level, const char *fmt, ...);
+
 /**
  * rtapi_hex_dump_to_buffer - convert a blob of data to "hex ASCII" in memory
  * @buf: data blob to dump
@@ -82,11 +84,16 @@ void rtapi_hex_dump_to_buffer(const void *buf, size_t len, int rowsize,
  * Example output using %RTAPI_DUMP_PREFIX_ADDRESS and 4-byte mode:
  * ffffffff88089af0: 73727170 77767574 7b7a7978 7f7e7d7c  pqrstuvwxyz{|}~.
  */
-void rtapi_print_hex_dump(int level, int prefix_type,
-			  int rowsize, int groupsize,
-			  const void *buf, size_t len, int ascii,
+void rtapi_print_hex_dump(int level,
+			  int prefix_type,
+			  int rowsize,
+			  int groupsize,
+			  const void *buf,
+			  size_t len,
+			  int ascii,
+			  hexdump_printer_t printer,
 			  const char *fmt, ...)
-    __attribute__((format(printf,8,9)));
+    __attribute__((format(printf,9,10)));
 
 
 

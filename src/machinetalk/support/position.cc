@@ -9,10 +9,10 @@
 
 #include <google/protobuf/text_format.h>
 
-#include <machinetalk/generated/message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 #include <json2pb.hh>
 
-using namespace pb;
+using namespace machinetalk;
 using namespace std;
 using namespace google::protobuf;
 

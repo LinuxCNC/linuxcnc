@@ -44,15 +44,15 @@ void simple_tp_update(simple_tp_t *tp, double period)
 	   overshoot */
 	pos_err = tp->pos_cmd - tp->curr_pos;
 	/* positive and negative errors require some sign flipping to
-	   avoid sqrt(negative) */
+	   avoid rtapi_sqrt(negative) */
 	if (pos_err > tiny_dp) {
 	    vel_req = -max_dv +
-		       sqrt(2.0 * tp->max_acc * pos_err + max_dv * max_dv);
+		       rtapi_sqrt(2.0 * tp->max_acc * pos_err + max_dv * max_dv);
 	    /* mark planner as active */
 	    tp->active = 1;
 	} else if (pos_err < -tiny_dp) {
 	    vel_req =  max_dv -
-		       sqrt(-2.0 * tp->max_acc * pos_err + max_dv * max_dv);
+		       rtapi_sqrt(-2.0 * tp->max_acc * pos_err + max_dv * max_dv);
 	    /* mark planner as active */
 	    tp->active = 1;
 	} else {

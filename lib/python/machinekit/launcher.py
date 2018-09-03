@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import sys
 from time import *
@@ -6,12 +7,15 @@ import signal
 from machinekit import compat
 
 _processes = []
+_realtimeStarted = False
+_exiting = False
 
 
 # ends a running Machinekit session
 def end_session():
     stop_processes()
-    stop_realtime()
+    if _realtimeStarted:  # Stop realtime only when explicitely started
+        stop_realtime()
 
 
 # checks wheter a single command is available or not
@@ -20,13 +24,13 @@ def check_command(command):
                                shell=True)
     process.wait()
     if process.returncode != 0:
-        print((command + ' not found, check Machinekit installation'))
+        print(command + ' not found, check Machinekit installation')
         sys.exit(1)
 
 
 # checks the whole Machinekit installation
 def check_installation():
-    commands = ['realtime', 'configserver', 'halcmd', 'haltalk', 'webtalk']
+    commands = ['realtime', 'configserver', 'halcmd', 'haltalk']
     for command in commands:
         check_command(command)
 
@@ -36,35 +40,44 @@ def cleanup_session():
     pids = []
     commands = ['configserver', 'halcmd', 'haltalk', 'webtalk', 'rtapi']
     process = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
-    out, err = process.communicate()
+    out, _ = process.communicate()
     for line in out.splitlines():
         for command in commands:
             if command in line:
                 pid = int(line.split(None, 1)[0])
                 pids.append(pid)
 
-    if pids != []:
+    if any(pids):
+        stop_realtime()
         sys.stdout.write("cleaning up leftover session... ")
         sys.stdout.flush()
-        subprocess.check_call('realtime stop', shell=True)
         for pid in pids:
             try:
-                os.kill(pid, signal.SIGTERM)
+                os.killpg(pid, signal.SIGTERM)
             except OSError:
                 pass
         sys.stdout.write('done\n')
 
 
+# starts a command, waits for termination and checks the output
+def check_process(command):
+    sys.stdout.write("running " + command.split(None, 1)[0] + "... ")
+    sys.stdout.flush()
+    subprocess.check_call(command, shell=True)
+    sys.stdout.write('done\n')
+
+
 # starts and registers a process
-def start_process(command):
+def start_process(command, check=True, wait=1.0):
     sys.stdout.write("starting " + command.split(None, 1)[0] + "... ")
     sys.stdout.flush()
-    process = subprocess.Popen(command, shell=True)
-    sleep(1)
-    process.poll()
-    if (process.returncode is not None):
-        sys.exit(1)
+    process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
     process.command = command
+    if check:
+        sleep(wait)
+        process.poll()
+        if process.returncode is not None:
+            raise subprocess.CalledProcessError(process.returncode, command, None)
     _processes.append(process)
     sys.stdout.write('done\n')
 
@@ -72,11 +85,11 @@ def start_process(command):
 # stops a registered process by its name
 def stop_process(command):
     for process in _processes:
-        processCommand = process.command.split(None, 1)[0]
-        if command == processCommand:
+        process_command = process.command.split(None, 1)[0]
+        if command == process_command:
             sys.stdout.write('stopping ' + command + '... ')
             sys.stdout.flush()
-            process.kill()
+            os.killpg(process.pid, signal.SIGTERM)
             process.wait()
             sys.stdout.write('done\n')
 
@@ -85,18 +98,34 @@ def stop_process(command):
 def stop_processes():
     for process in _processes:
         sys.stdout.write('stopping ' + process.command.split(None, 1)[0]
-                        + '... ')
+                         + '... ')
         sys.stdout.flush()
-        process.terminate()
+        os.killpg(process.pid, signal.SIGTERM)
         process.wait()
         sys.stdout.write('done\n')
 
 
 # loads a HAL configuraton file
-def load_hal_file(filename):
+def load_hal_file(filename, ini=None):
     sys.stdout.write("loading " + filename + '... ')
     sys.stdout.flush()
-    subprocess.check_call('halcmd -f ' + filename, shell=True)
+
+    _, ext = os.path.splitext(filename)
+    if ext == '.py':
+        from machinekit import rtapi
+        if not rtapi.__rtapicmd:
+            rtapi.init_RTAPI()
+        if ini is not None:
+            from machinekit import config
+            config.load_ini(ini)
+        globals_ = {}
+        execfile(filename, globals_)
+    else:
+        command = 'halcmd'
+        if ini is not None:
+            command += ' -i ' + ini
+        command += ' -f ' + filename
+        subprocess.check_call(command, shell=True)
     sys.stdout.write('done\n')
 
 
@@ -112,9 +141,11 @@ def load_bbio_file(filename):
 # installs a comp RT component
 def install_comp(filename):
     install = True
-    base = os.path.splitext(os.path.basename(filename))[0]
+    base, ext = os.path.splitext(os.path.basename(filename))
     flavor = compat.default_flavor()
-    modulePath = compat.get_rtapi_config("RTLIB_DIR") + '/' + flavor.name + '/' + base + flavor.mod_ext
+    moduleDir = compat.get_rtapi_config("RTLIB_DIR")
+    moduleName = flavor.name + '/' + base + flavor.mod_ext
+    modulePath = os.path.join(moduleDir, moduleName)
     if os.path.exists(modulePath):
         compTime = os.path.getmtime(filename)
         moduleTime = os.path.getmtime(modulePath)
@@ -122,31 +153,45 @@ def install_comp(filename):
             install = False
 
     if install is True:
+        if ext == '.icomp':
+            cmdBase = 'instcomp'
+        else:
+            cmdBase = 'comp'
         sys.stdout.write("installing " + filename + '... ')
         sys.stdout.flush()
-        subprocess.check_call('comp --install ' + filename, shell=True)
+        if os.access(moduleDir, os.W_OK):  # if we have write access we might not need sudo
+            cmd = '%s --install %s' % (cmdBase, filename)
+        else:
+            cmd = 'sudo %s --install %s' % (cmdBase, filename)
+
+        subprocess.check_call(cmd, shell=True)
+
         sys.stdout.write('done\n')
 
 
 # starts realtime
 def start_realtime():
+    global _realtimeStarted
     sys.stdout.write("starting realtime...")
     sys.stdout.flush()
     subprocess.check_call('realtime start', shell=True)
     sys.stdout.write('done\n')
+    _realtimeStarted = True
 
 
 # stops realtime
 def stop_realtime():
+    global _realtimeStarted
     sys.stdout.write("stopping realtime... ")
     sys.stdout.flush()
     subprocess.check_call('realtime stop', shell=True)
     sys.stdout.write('done\n')
+    _realtimeStarted = False
 
 
 # rip the Machinekit environment
 def rip_environment(path=None, force=False):
-    if force == False and os.getenv('EMC2_PATH') is not None: # check if already ripped
+    if force is False and os.getenv('EMC2_PATH') is not None:   # check if already ripped
         return
 
     if path is None:
@@ -172,8 +217,8 @@ def rip_environment(path=None, force=False):
         command = '. ' + path + '/scripts/rip-environment'
 
     process = subprocess.Popen(command + ' && env',
-                        stdout=subprocess.PIPE,
-                        shell=True)
+                               stdout=subprocess.PIPE,
+                               shell=True)
     for line in process.stdout:
         (key, _, value) = line.partition('=')
         os.environ[key] = value.rstrip()
@@ -201,8 +246,14 @@ def register_exit_handler():
 
 
 def _exitHandler(signum, frame):
-    end_session()
-    sys.exit(0)
+    del signum  # unused
+    del frame  # unused
+    global _exiting
+
+    if not _exiting:
+        _exiting = True  # prevent double execution
+        end_session()
+        sys.exit(0)
 
 
 # set the Machinekit debug level
@@ -213,3 +264,13 @@ def set_debug_level(level):
 # set the Machinekit ini
 def set_machinekit_ini(ini):
     os.environ['MACHINEKIT_INI'] = ini
+
+
+# ensure mklauncher is running
+def ensure_mklauncher():
+    try:
+        subprocess.check_output(['pgrep', 'mklauncher'])
+        return
+    except subprocess.CalledProcessError:
+        pass
+    start_process('mklauncher .')

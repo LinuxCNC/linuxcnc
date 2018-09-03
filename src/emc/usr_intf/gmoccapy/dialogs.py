@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 '''
     This class is used to handle the dialogs from gmoccapy,
@@ -190,4 +190,4 @@ def restart_dialog(self):
             line = 0
     self.widgets.gcode_view.set_line_number(line)
     self.start_line = line
-    self._add_alarm_entry(_("Ready to Restart program from line %d" % line))
+    

@@ -16,112 +16,80 @@
 #include <time.h>               /* remote comp bind/unbind/update timestamps */
 #include <limits.h>             /* PATH_MAX */
 #include <stdlib.h>		/* exit() */
-#include "rtapi/shmdrv/shmdrv.h"
+#include "shmdrv.h"
 
-int hal_bind(const char *comp_name)
+int halg_bind(const int use_hal_mutex, const char *comp_name)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_bind called before hal_init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(comp_name, HAL_NAME_LEN);
     {
-	hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
 
-	rtapi_mutex_get(&(hal_data->mutex));
+	hal_comp_t *comp;
 	comp = halpr_find_comp_by_name(comp_name);
 
 	if (comp == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_bind(): no such component '%s'\n", comp_name);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "no such component '%s'", comp_name);
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_bind(%s): not a remote componet (%d)\n",
-			    comp_name, comp->type);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s' not a remote component (%d)",
+		   comp_name, comp->type);
 	}
 	if (comp->state != COMP_UNBOUND) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_bind(%s): state not unbound (%d)\n",
-			    comp_name, comp->state);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s': state not unbound (%d)",
+		   comp_name, comp->state);
 	}
 	comp->state = COMP_BOUND;
-	comp->last_bound = (long int) time(NULL);; // XXX ugly
+	comp->last_bound = (long int) time(NULL);
     }
     return 0;
 }
 
-int hal_unbind(const char *comp_name)
+int halg_unbind(const int use_hal_mutex, const char *comp_name)
 {
-
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_bind called before hal_init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(comp_name, HAL_NAME_LEN);
     {
-	hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
-
-	rtapi_mutex_get(&(hal_data->mutex));
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
+	hal_comp_t *comp;
 
 	comp = halpr_find_comp_by_name(comp_name);
 	if (comp == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_unbind(): no such component '%s'\n",
-			    comp_name);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "no such component '%s'", comp_name);
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_unbind(%s): not a remote componet (%d)\n",
-			    comp_name, comp->type);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s' not a remote component (%d)",
+		   comp_name, comp->type);
 	}
 	if (comp->state != COMP_BOUND) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_unbind(%s): state not bound (%d)\n",
-			    comp_name, comp->state);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s': state not bound (%d)",
+		   comp_name, comp->state);
 	}
 	comp->state = COMP_UNBOUND;
-	comp->last_unbound = (long int) time(NULL);; // XXX ugly
+	comp->last_unbound = (long int) time(NULL);
     }
     return 0;
 }
 
-int hal_acquire(const char *comp_name, int pid)
+int halg_acquire(const int use_hal_mutex, const char *comp_name, int pid)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_acquire called before hal_init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(comp_name, HAL_NAME_LEN);
     {
-	hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
+	hal_comp_t *comp;
 
-	rtapi_mutex_get(&(hal_data->mutex));
 	comp = halpr_find_comp_by_name(comp_name);
-
 	if (comp == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_acquire(): no such component '%s'\n",
-			    comp_name);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "no such component '%s'", comp_name);
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_acquire(%s): not a remote component (%d)\n",
-			    comp_name, comp->type);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s' not a remote component (%d)",
+		   comp_name, comp->type);
 	}
 	if (comp->state == COMP_BOUND) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_acquire(%s): cant reown a bound component (%d)\n",
-			    comp_name, comp->state);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s': cant reown a bound component (%d)",
+		   comp_name, comp->state);
 	}
 	// let a comp be 'adopted away' from the RT environment
 	// this is a tad hacky, should separate owner pid from RT/user distinction
@@ -129,258 +97,102 @@ int hal_acquire(const char *comp_name, int pid)
 	    (comp->pid != global_data->rtapi_app_pid))
 
 	    {
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: hal_acquire(%s): component already owned by pid %d\n",
-				comp_name, comp->pid);
-		return -EINVAL;
+		HALFAIL_RC(EINVAL, "component '%s': already owned by pid %d",
+		       comp_name, comp->pid);
 	    }
 	comp->pid = pid;
-	return comp->comp_id;
+	ho_incref(comp); // prevent deletion
+	return ho_id(comp);
     }
 }
 
-int hal_release(const char *comp_name)
+int halg_release(const int use_hal_mutex, const char *comp_name)
 {
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_release called before hal_init\n");
-	return -EINVAL;
-    }
+    CHECK_HALDATA();
+    CHECK_STRLEN(comp_name, HAL_NAME_LEN);
     {
-	hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
+	WITH_HAL_MUTEX_IF(use_hal_mutex);
+	hal_comp_t *comp;
 
-	rtapi_mutex_get(&(hal_data->mutex));
 	comp = halpr_find_comp_by_name(comp_name);
-
 	if (comp == NULL) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_release(): no such component '%s'\n",
-			    comp_name);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "no such component '%s'", comp_name);
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_release(%s): not a remote componet (%d)\n",
-			    comp_name, comp->type);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "component '%s' not a remote component (%d)",
+		   comp_name, comp->type);
 	}
 	if (comp->pid == 0) {
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL: hal_release(%s): component already disowned\n",
+	    HALFAIL_RC(EINVAL, "component '%s': component already disowned",
 			    comp_name);
-	    return -EINVAL;
 	}
 
 	if (comp->pid != getpid()) {
-	    hal_print_msg(RTAPI_MSG_WARN,
-			    "HAL: hal_release(%s): component owned by pid %d\n",
+	    HALFAIL_RC(EINVAL, "component '%s': component owned by pid %d",
 			    comp_name, comp->pid);
-	    // return -EINVAL;
 	}
 	comp->pid = 0;
+	ho_decref(comp); // enable deletion if last ref
     }
     return 0;
 }
 
-// introspection support for remote components.
-
-int hal_retrieve_compstate(const char *comp_name,
-			   hal_retrieve_compstate_callback_t callback,
-			   void *cb_data)
+static int count_pins_and_tracked_pins(hal_object_ptr o, foreach_args_t *args)
 {
-    int next;
-    int nvisited = 0;
-    int result;
-    hal_compstate_t state;
-
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_retrieve_compstate called before ULAPI init\n");
-	return -EINVAL;
-    }
-    {
-	hal_comp_t *comp  __attribute__((cleanup(halpr_autorelease_mutex)));
-
-	/* get mutex before accessing shared data */
-	rtapi_mutex_get(&(hal_data->mutex));
-
-	/* search for the comp */
-	next = hal_data->comp_list_ptr;
-	while (next != 0) {
-	    comp = SHMPTR(next);
-	    if (!comp_name || (strcmp(comp->name, comp_name)) == 0) {
-		nvisited++;
-		/* this is the right comp */
-		if (callback) {
-		    // fill in the details:
-		    state.type = comp->type;
-		    state.state = comp->state;
-		    state.last_update = comp->last_update;
-		    state.last_bound = comp->last_bound;
-		    state.last_unbound = comp->last_unbound;
-		    state.pid = comp->pid;
-		    state.insmod_args = comp->insmod_args;
-		    strncpy(state.name, comp->name, sizeof(comp->name));
-
-		    result = callback(&state, cb_data);
-		    if (result < 0) {
-			// callback signaled an error, pass that back up.
-			return result;
-		    } else if (result > 0) {
-			// callback signaled 'stop iterating'.
-			// pass back the number of visited comps so far.
-			return nvisited;
-		    } else {
-			// callback signaled 'OK to continue'
-			// fall through
-		    }
-		} else {
-		    // null callback passed in,
-		    // just count comps
-		    // nvisited already bumped above.
-		}
-	    }
-	    /* no match, try the next one */
-	    next = comp->next_ptr;
-	}
-	// hal_print_msg(RTAPI_MSG_DBG,
-	//		"HAL: hal_retrieve_compstate: visited %d comps\n", nvisited);
-	/* if we get here, we ran through all the comps, so return count */
-	return nvisited;
-    }
+    args->user_arg1++;     // pin count
+    if (!(o.pin->flags & PIN_DO_NOT_TRACK))
+	args->user_arg2++; // pins tracked
+    return 0;
 }
 
-int hal_retrieve_pinstate(const char *comp_name,
-			  hal_retrieve_pins_callback_t callback,
-			  void *cb_data)
+static int fill_pin_array(hal_object_ptr o, foreach_args_t *args)
 {
-    int next;
-    int nvisited = 0;
-    int result;
-    hal_comp_t *comp = NULL;
-    hal_comp_t *owner;
-    hal_pinstate_t pinstate;
-
-    if (hal_data == 0) {
-	hal_print_msg(RTAPI_MSG_ERR,
-			"HAL: ERROR: hal_retrieve_pinstate called before ULAPI init\n");
-	return -EINVAL;
-    }
-    {
-	hal_pin_t *pin __attribute__((cleanup(halpr_autorelease_mutex)));
-
-	/* get mutex before accessing shared data */
-	rtapi_mutex_get(&(hal_data->mutex));
-
-	if (comp_name != NULL) {
-	    comp = halpr_find_comp_by_name(comp_name);
-	    if (comp == NULL) {
-		hal_print_msg(RTAPI_MSG_ERR,
-				"HAL: ERROR: hal_retrieve_pinstate: component '%s' not found\n", comp_name);
-		return -EINVAL;
-	    }
-	}
-	// either comp == NULL, so visit all pins
-	// or comp != NULL, in which case visit only this
-	// component's pins
-
-	// walk the pinlist
-	next = hal_data->pin_list_ptr;
-	while (next != 0) {
-	    pin = SHMPTR(next);
-	    owner = SHMPTR(pin->owner_ptr);
-	    if (!comp_name || (owner->comp_id == comp->comp_id)) {
-		nvisited++;
-		/* this is the right comp */
-		if (callback) {
-		    // fill in the details:
-		    // NB: cover remote link case!
-		    pinstate.value = SHMPTR(pin->data_ptr_addr);
-		    pinstate.type = pin->type;
-		    pinstate.dir = pin->dir;
-		    pinstate.epsilon = hal_data->epsilon[pin->eps_index];
-		    pinstate.flags = pin->flags;
-		    strncpy(pinstate.name, pin->name, sizeof(pin->name));
-		    strncpy(pinstate.owner_name, owner->name, sizeof(owner->name));
-
-		    result = callback(&pinstate, cb_data);
-		    if (result < 0) {
-			// callback signaled an error, pass that back up.
-			return result;
-		    } else if (result > 0) {
-			// callback signaled 'stop iterating'.
-			// pass back the number of visited pins so far.
-			return nvisited;
-		    } else {
-			// callback signaled 'OK to continue'
-			// fall through
-		    }
-		} else {
-		    // null callback passed in,
-		    // just count pins
-		    // nvisited already bumped above.
-		}
-	    }
-	    /* no match, try the next one */
-	    next = pin->next_ptr;
-	}
-	hal_print_msg(RTAPI_MSG_DBG,
-			"HAL: hal_retrieve_pinstate: visited %d pins\n", nvisited);
-	/* if we get here, we ran through all the pins, so return count */
-	return nvisited;
-    }
+    hal_compiled_comp_t *tc = args->user_ptr1;
+    if (!(o.pin->flags & PIN_DO_NOT_TRACK))
+	tc->pin[args->user_arg1++] = o.pin;
+    return 0;
 }
 
 // component reporting support
-
-int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
+int halg_compile_comp(const int use_hal_mutex,
+		      const char *name,
+		      hal_compiled_comp_t **ccomp)
 {
    hal_compiled_comp_t *tc;
    int pincount = 0;
 
-   if (!name) {
-       hal_print_msg(RTAPI_MSG_ERR,
-		       "HAL:%d ERROR: hal_compile_comp() called with NULL name\n",
-		       rtapi_instance);
-	return -EINVAL;
-   }
+   CHECK_HALDATA();
+   CHECK_STRLEN(name, HAL_NAME_LEN);
    {
-       hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
-       int next, n;
-       hal_comp_t *owner;
-       hal_pin_t *pin;
+       WITH_HAL_MUTEX_IF(use_hal_mutex);
 
-       rtapi_mutex_get(&(hal_data->mutex));
+       hal_comp_t *comp;
+       int n;
 
        if ((comp = halpr_find_comp_by_name(name)) == NULL) {
-	   hal_print_msg(RTAPI_MSG_ERR,
-		       "HAL:%d ERROR: hal_comp_compile(%s): no such comp\n",
-			   rtapi_instance, name);
-	   return -EINVAL;
+	   HALFAIL_RC(EINVAL, "no such component '%s'", name);
        }
 
        // array sizing: count pins owned by this component
-       next = hal_data->pin_list_ptr;
-       n = 0;
-       while (next != 0) {
-	    pin = SHMPTR(next);
-	    owner = SHMPTR(pin->owner_ptr);
-	    if (owner->comp_id == comp->comp_id) {
-		if (!(pin->flags & PIN_DO_NOT_TRACK))
-		    n++;
-		pincount++;
-	    }
-	    next = pin->next_ptr;
-       }
+       // and how many of them are to be tracked
+       foreach_args_t args =  {
+	   .type = HAL_PIN,
+	   // technically rcomps are legacy (not instantiable)
+	   // so match on owner_id instead of owning_comp
+	   // since all pins directly owned by comp, not an inst
+	   .owner_id = ho_id(comp),
+       };
+       halg_foreach(0, &args, count_pins_and_tracked_pins);
+       pincount = args.user_arg1;
+       n = args.user_arg2;
+
        if (n == 0) {
-	   hal_print_msg(RTAPI_MSG_ERR,
-			   "ERROR: component %s has no pins to watch for changes\n",
-			   name);
-	   return -EINVAL;
+	   HALFAIL_RC(EINVAL, "component %s has no pins to watch for changes",
+		  name);
        }
        // a compiled comp is a userland/per process memory object
        if ((tc = malloc(sizeof(hal_compiled_comp_t))) == NULL)
-	   return -ENOMEM;
+	   NOMEM("allocating a compiled comp struct");
 
        memset(tc, 0, sizeof(hal_compiled_comp_t));
        tc->comp = comp;
@@ -388,37 +200,32 @@ int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
 
        // alloc pin array
        if ((tc->pin = malloc(sizeof(hal_pin_t *) * tc->n_pins)) == NULL)
-	   return -ENOMEM;
+	   NOMEM("allocating a pin reference array");
        // alloc tracking value array
        if ((tc->tracking =
 	    malloc(sizeof(hal_data_u) * tc->n_pins )) == NULL)
-	   return -ENOMEM;
+	   NOMEM("allocating a array of tracking values");
        // alloc change bitmap
        if ((tc->changed =
 	    malloc(RTAPI_BITMAP_BYTES(tc->n_pins))) == NULL)
-	    return -ENOMEM;
+	   NOMEM("allocating change bitmap");
 
        memset(tc->pin, 0, sizeof(hal_pin_t *) * tc->n_pins);
        memset(tc->tracking, 0, sizeof(hal_data_u) * tc->n_pins);
        RTAPI_ZERO_BITMAP(tc->changed,tc->n_pins);
 
        // fill in pin array
-       n = 0;
-       next = hal_data->pin_list_ptr;
-       while (next != 0) {
-	   pin = SHMPTR(next);
-	   owner = SHMPTR(pin->owner_ptr);
-	   if ((owner->comp_id == comp->comp_id) &&
-	       !(pin->flags & PIN_DO_NOT_TRACK))
-	       tc->pin[n++] = pin;
-	   next = pin->next_ptr;
-       }
-       assert(n == tc->n_pins);
+
+       // reuse args from above and pass tc
+       args.user_ptr1 = tc;
+       args.user_arg1 = 0; // pin index in cc
+       halg_foreach(0, &args, fill_pin_array);
+
+       assert(args.user_arg1 == tc->n_pins);
        tc->magic = CCOMP_MAGIC;
        *ccomp = tc;
    }
-   hal_print_msg(RTAPI_MSG_DBG, "hal_compile_comp(%s): %d pins, %d tracked",
-		   name, pincount, tc->n_pins);
+   HALDBG("ccomp '%s': %d pins, %d tracked", name, pincount, tc->n_pins);
    return 0;
 }
 
@@ -427,63 +234,55 @@ int hal_ccomp_match(hal_compiled_comp_t *cc)
     int i, nchanged = 0;
     hal_bit_t halbit;
     hal_s32_t hals32;
-    hal_s32_t halu32;
+    hal_u32_t halu32;
     hal_float_t halfloat,delta;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    void *data_ptr;
+    const hal_pin_t *hp;
 
     assert(cc->magic ==  CCOMP_MAGIC);
     RTAPI_ZERO_BITMAP(cc->changed, cc->n_pins);
 
     for (i = 0; i < cc->n_pins; i++) {
-	pin = cc->pin[i];
-	if (pin->signal != 0) {
-	    sig = SHMPTR(pin->signal);
-	    data_ptr = SHMPTR(sig->data_ptr);
-	} else {
-	    data_ptr = hal_shmem_base + SHMOFF(&(pin->dummysig));
-	}
+	hp = cc->pin[i];
 
-	switch (pin->type) {
+	switch (pin_type(hp)) {
 	case HAL_BIT:
-	    halbit = *((char *) data_ptr);
-	    if (cc->tracking[i].b != halbit) {
+	    halbit = _get_bit_pin(hp);
+	    if (get_bit_value(&cc->tracking[i]) != halbit) {
 		nchanged++;
 		RTAPI_BIT_SET(cc->changed, i);
-		cc->tracking[i].b = halbit;
+		set_bit_value(&cc->tracking[i], halbit);
 	    }
 	    break;
+
 	case HAL_FLOAT:
-	    halfloat = *((hal_float_t *) data_ptr);
-	    delta = HAL_FABS(halfloat - cc->tracking[i].f);
-	    if (delta > hal_data->epsilon[pin->eps_index]) {
+	    halfloat = _get_float_pin(hp);
+	    delta = HAL_FABS(halfloat - get_float_value(&cc->tracking[i]));
+	    if (delta > hal_data->epsilon[hp->eps_index]) {
 		nchanged++;
 		RTAPI_BIT_SET(cc->changed, i);
-		cc->tracking[i].f = halfloat;
+		set_float_value(&cc->tracking[i], halfloat);
 	    }
 	    break;
 	case HAL_S32:
-	    hals32 =  *((hal_s32_t *) data_ptr);
-	    if (cc->tracking[i].s != hals32) {
+	    hals32 = _get_s32_pin(hp);
+	    if (get_s32_value(&cc->tracking[i]) != hals32) {
 		nchanged++;
 		RTAPI_BIT_SET(cc->changed, i);
-		cc->tracking[i].s = hals32;
+		set_s32_value(&cc->tracking[i],hals32);
 	    }
 	    break;
 	case HAL_U32:
-	    halu32 =  *((hal_u32_t *) data_ptr);
-	    if (cc->tracking[i].u != halu32) {
+	    halu32 = _get_u32_pin(hp);
+	    if (get_u32_value(&cc->tracking[i]) != halu32) {
 		nchanged++;
 		RTAPI_BIT_SET(cc->changed, i);
-		cc->tracking[i].u = halu32;
+		set_u32_value(&cc->tracking[i],halu32);
 	    }
 	    break;
+
 	default:
-	    hal_print_msg(RTAPI_MSG_ERR,
-			    "HAL:%d BUG: hal_ccomp_match(%s): invalid type for pin %s: %d\n",
-			    rtapi_instance, cc->comp->name, pin->name, pin->type);
-	    return -EINVAL;
+	    HALFAIL_RC(EINVAL, "BUG: hal_ccomp_match(%s): invalid type for pin %s: %d",
+		   ho_name(cc->comp), ho_name(hp), pin_type(hp));
 	}
     }
     return nchanged;
@@ -494,9 +293,6 @@ int hal_ccomp_report(hal_compiled_comp_t *cc,
 		     void *cb_data, int report_all)
 {
     int retval, i;
-    hal_data_u *data_ptr;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
 
     if (!report_cb)
 	return 0;
@@ -505,15 +301,12 @@ int hal_ccomp_report(hal_compiled_comp_t *cc,
 
     for (i = 0; i < cc->n_pins; i++) {
 	if (report_all || RTAPI_BIT_TEST(cc->changed, i)) {
-	    pin = cc->pin[i];
-	    if (pin->signal != 0) {
-		sig = SHMPTR(pin->signal);
-		data_ptr = (hal_data_u *)SHMPTR(sig->data_ptr);
-	    } else {
-		data_ptr = (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
-	    }
+	    const hal_pin_t *pin = cc->pin[i];
+	    // XXX this is not a good API
+	    // drop the fourth argument and pass only the pin
+	    // to force accessor use in the report callback
 	    if ((retval = report_cb(REPORT_PIN, cc, pin,
-				    data_ptr, cb_data)) < 0)
+				    pin_value(pin), cb_data)) < 0)
 		return retval;
 	}
     }

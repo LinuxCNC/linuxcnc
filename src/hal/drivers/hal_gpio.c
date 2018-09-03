@@ -11,9 +11,10 @@
 * Author: Mike McCauley (mikem@open.com.au)
 * Copyright (C) 2011 Mike McCauley    
 * see http://www.open.com.au/mikem/bcm2835/
+* Copyright (c) 2012 Ben Croston - cpuinfo.*
 *
-* Last change: 
-********************************************************************/
+* Last change: made work for Raspberry2 9/2015 Michael Haberler
+s********************************************************************/
 
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
@@ -22,12 +23,18 @@
                                 /* this also includes config.h */
 #include "hal.h"		/* HAL public API decls */
 #include "bcm2835.h"
+#include "cpuinfo.h"
 
-#if !defined(BUILD_SYS_USER_DSO) 
+#define BCM2708_PERI_BASE   0x20000000
+#define BCM2708_GPIO_BASE   (BCM2708_PERI_BASE + 0x200000)
+#define BCM2709_PERI_BASE   0x3F000000
+#define BCM2709_GPIO_BASE   (BCM2709_PERI_BASE + 0x200000)
+
+#if !defined(BUILD_SYS_USER_DSO)
 #error "This driver is for usermode threads only"
 #endif
 #if !defined(TARGET_PLATFORM_RASPBERRY)
-#error "This driver is for the Raspberry platform only"
+#error "This driver is for the Raspberry and Raspberry2 platforms only"
 #endif
 
 #include <stdio.h>
@@ -48,10 +55,14 @@ static unsigned char rev1_pins[] = {3, 5, 7, 26, 24, 21, 19, 23,  8, 10, 11, 12,
 static unsigned char rev2_gpios[] = {2, 3, 4,  7,  8,  9, 10, 11, 14, 15, 17, 18, 22, 23, 24, 25, 27};
 static unsigned char rev2_pins[] = {3, 5, 7, 26, 24, 21, 19, 23, 8,  10, 11, 12, 15, 16, 18, 22, 13};
 
+// Raspberry2/3:
+static unsigned char rpi2_gpios[] = {2, 3, 4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 21, 23, 24, 25, 26, 27 };
+static unsigned char rpi2_pins[] =  {3, 5, 7, 29, 31, 26, 24, 21, 19, 23, 32, 33,  8, 10, 36, 11, 12, 35, 38, 15, 40, 16, 18, 22, 37, 13 };
+
 static int npins;
 static int  mem_fd;
 // I/O access
-volatile unsigned *gpio;
+static volatile unsigned *gpio;
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("Driver for Raspberry Pi GPIO pins");
@@ -74,13 +85,12 @@ hal_bit_t **port_data;
 static void write_port(void *arg, long period);
 static void read_port(void *arg, long period);
 
-
 static __inline__ uint32_t bcm2835_peri_read(volatile uint32_t* paddr)
 {
   // Make sure we dont return the _last_ read which might get lost
   // if subsequent code changes to a different peripheral
   uint32_t ret = *paddr;
-  uint32_t dummy = *paddr;
+  volatile uint32_t dummy = *paddr;
   return ret;
 }
 
@@ -152,86 +162,105 @@ void bcm2835_gpio_fsel(uint8_t pin, uint8_t mode)
   bcm2835_peri_set_bits(paddr, value, mask);
 }
 
-// figure Raspberry board revision number
-static int rpi_revision()
+static int setup_gpiomem_access(void)
 {
-  char *path = "/proc/cpuinfo",  *s, line[1024];
-  int rev = -1;
-  char *rev_line = "Revision";
-
-  // parse /proc/cpuinfo for the line:
-  // Revision        : 0003
-  FILE *f = fopen(path,"r");
-  if (!f) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL_GPIO: can't open %s: %d - %s\n",
-		    path, errno, strerror(errno));
+  if ((mem_fd = open("/dev/gpiomem", O_RDWR|O_SYNC)) < 0) {
+    rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: can't open /dev/gpiomem:  %d - %s", errno, strerror(errno));
     return -1;
   }
-  while (fgets(line, sizeof(line), f)) {
-    if (!strncmp(line, rev_line, strlen(rev_line))) {
-      s = strchr(line, ':');
-      if (s && 1 == sscanf(s, ":%d", &rev)) {
-	fclose(f);
-	return rev;
-      }
-    }
+
+  gpio = mmap(NULL, BCM2835_BLOCK_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, mem_fd, 0);
+
+  if (gpio == MAP_FAILED) {
+    close(mem_fd);
+    mem_fd = -1;
+    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_GPIO: mmap failed: %d - %s\n", errno, strerror(errno));
+    return -1;
   }
-  fclose(f);
-  return -1;
+
+  return 0;
 }
 
-static int  setup_gpio_access()
+static int  setup_gpio_access(int rev, int ncores)
 {
   // open /dev/mem 
   if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
-    rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: can't open /dev/mem \n");
-    return -EPERM;
+      rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: can't open /dev/mem:  %d - %s",
+		      errno, strerror(errno));
+    return -1;
   }
-  // mmap GPIO range
-  gpio = mmap(NULL, BCM2835_BLOCK_SIZE, 
-	      PROT_READ|PROT_WRITE, MAP_SHARED,
-	      mem_fd, BCM2835_GPIO_BASE);
-  
+
+  if (rev <= 2  || ncores <= 2)
+       gpio = mmap(NULL, BCM2835_BLOCK_SIZE, PROT_READ|PROT_WRITE,
+		   MAP_SHARED, mem_fd, BCM2708_GPIO_BASE);
+    else
+       gpio = mmap(NULL, BCM2835_BLOCK_SIZE, PROT_READ|PROT_WRITE,
+		   MAP_SHARED, mem_fd, BCM2709_GPIO_BASE);
+
   if (gpio == MAP_FAILED) {
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL_GPIO: mmap failed: %d - %s\n", 
 		    errno, strerror(errno));
-    return -ENOMEM;;
+    return -1;;
   }
   return 0;
-} 
+}
+
+static int number_of_cores(void)
+{
+    char str[256];
+    int procCount = 0;
+    FILE *fp;
+
+    if( (fp = fopen("/proc/cpuinfo", "r")) ) {
+	while(fgets(str, sizeof str, fp))
+	    if( !memcmp(str, "processor", 9) ) procCount++;
+    }
+    if ( !procCount ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: Unable to get proc count. Defaulting to 2");
+	procCount = 2;
+    }
+    return procCount;
+}
 
 int rtapi_app_main(void)
 {
     int n, retval = 0;
-    int rev, pinno;
+    int rev, ncores, pinno;
     char *endptr;
 
-    if ((rev = rpi_revision()) < 0)
-      return -1;
+    if ((rev = get_rpi_revision()) < 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, 
+		      "unrecognized Raspberry revision, see /proc/cpuinfo\n");
+      return -EINVAL;
+    }
+    ncores = number_of_cores();
+    rtapi_print_msg(RTAPI_MSG_INFO, "%d cores rev %d", ncores, rev);
 
     switch (rev) {
-    case 3:
-      rtapi_print_msg(RTAPI_MSG_INFO, 
-		      "Raspberry Model B Revision 1.0 + ECN0001 (no fuses, D14 removed)\n");
-      pins = rev1_pins;
-      gpios = rev1_gpios;
-      npins = sizeof(rev1_pins);
-      break;
-    case 2:
-      rtapi_print_msg(RTAPI_MSG_INFO, 
-		      "Raspberry Model B Revision 1.0\n");
-      pins = rev1_pins;
-      gpios = rev1_gpios;
-      npins = sizeof(rev1_pins);
-      break;
-      
     case 4:
-    case 5:
-    case 6:
-      rtapi_print_msg(RTAPI_MSG_INFO, 
-		      "Raspberry Model B Revision 2.0\n");
+      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry3\n");
+      pins = rpi2_pins;
+      gpios = rpi2_gpios;
+      npins = sizeof(rpi2_pins);
+      break;
+
+    case 3:
+      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry2\n");
+      pins = rpi2_pins;
+      gpios = rpi2_gpios;
+      npins = sizeof(rpi2_pins);
+      break;
+
+    case 1:
+      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry1 rev 1.0\n");
+      pins = rev1_pins;
+      gpios = rev1_gpios;
+      npins = sizeof(rev1_pins);
+      break;
+
+    case 2:
+      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry1 Rev 2.0\n");
       pins = rev2_pins;
       gpios = rev2_gpios;
       npins = sizeof(rev2_pins);
@@ -240,7 +269,7 @@ int rtapi_app_main(void)
     default:
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"HAL_GPIO: ERROR: board revision %d not supported\n", rev);
-	return -1;
+	return -EINVAL;
     }
     port_data = hal_malloc(npins * sizeof(void *));
     if (port_data == 0) {
@@ -274,8 +303,10 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    if (setup_gpio_access())
-      return -1;
+    if (setup_gpiomem_access()) {
+      if (setup_gpio_access(rev, ncores))
+        return -1;
+    }
 
     comp_id = hal_init("hal_gpio");
     if (comp_id < 0) {
@@ -335,7 +366,8 @@ void rtapi_app_exit(void)
 {
   if (gpio)
     munmap((void *) gpio, BCM2835_BLOCK_SIZE);
-  close(mem_fd);
+  if (mem_fd > -1)
+      close(mem_fd);
   hal_exit(comp_id);
 }
 
@@ -343,7 +375,6 @@ static void write_port(void *arg, long period)
 {
   int n;
 
-  // FIXME optimize this
   for (n = 0; n < npins; n++) {
     if (exclude_map & RTAPI_BIT(n)) 
       continue;
@@ -361,7 +392,6 @@ static void read_port(void *arg, long period)
 {
   int n;
 
-  // FIXME optimize this
   for (n = 0; n < npins; n++) {
     if ((~dir_map & RTAPI_BIT(n)) && (~exclude_map & RTAPI_BIT(n)))
       *port_data[n] = bcm2835_gpio_lev(gpios[n]);

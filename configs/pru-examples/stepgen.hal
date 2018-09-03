@@ -38,7 +38,7 @@ loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=1 n
 
 loadrt hal_prudebug
 
-loadrt threads period1=20000000 # 20msec
+newthread thread1  20000000 # 20msec
 addf hal_pru_generic.update thread1
 addf hal_pru_generic.capture-position thread1
 addf hal_prudebug.update thread1

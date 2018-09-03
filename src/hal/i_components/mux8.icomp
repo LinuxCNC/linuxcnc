@@ -1,0 +1,71 @@
+component mux8 "Select from one of eight input values";
+pin in bit sel0;
+pin in bit sel1;
+pin in bit sel2 """\
+Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
+""";
+pin out float out """\
+Follows the value of one of the \\fBin\\fIN\\fR values according to the three \\fBsel\\fR values
+.RS
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin0\\fR
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin1\\fR
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin2\\fR
+.TP
+\\fBsel2=FALSE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin3\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin4\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin5\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=FALSE\\fR
+\\fBout\\fR follows \\fBin6\\fR
+.TP
+\\fBsel2=TRUE\\fR, \\fBsel1=TRUE\\fR, \\fBsel0=TRUE\\fR
+\\fBout\\fR follows \\fBin7\\fR
+.RE
+""";
+pin in float in0;
+pin in float in1;
+pin in float in2;
+pin in float in3;
+pin in float in4;
+pin in float in5;
+pin in float in6;
+pin in float in7;
+function _;
+license "GPL";
+;;
+FUNCTION(_)
+{
+    if(sel0) {
+        if(sel1) {
+            if(sel2) out = in7;
+            else     out = in3;
+        }
+        else {
+            if(sel2) out = in5;
+            else     out = in1;
+        }
+    }
+    else {
+       if(sel1) {
+            if(sel2) out = in6;
+            else     out = in2;
+        }
+        else {
+            if(sel2) out = in4;
+            else     out = in0;
+        }
+    }
+
+return 0;
+}

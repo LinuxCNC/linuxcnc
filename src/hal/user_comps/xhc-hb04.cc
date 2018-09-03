@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <assert.h>
 #include <signal.h>
 #include <string.h>
@@ -167,7 +167,7 @@ void init_xhc(xhc_t *xhc)
 
 int xhc_encode_float(float v, unsigned char *buf)
 {
-	unsigned int int_v = round(fabs(v) * 10000.0);
+	unsigned int int_v = (int)rtapi_rint(rtapi_fabs(v) * 10000.0);
 	unsigned short int_part = int_v / 10000;
 	unsigned short fract_part = int_v % 10000;
 	if (v < 0) fract_part = fract_part | 0x8000;
@@ -197,18 +197,18 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	*p++ = 0xFD;
 	*p++ = 0x0C;
 
-	if (xhc->axis == axis_a) p += xhc_encode_float(round(1000 * *(xhc->hal->a_wc)) / 1000, p);
-	else p += xhc_encode_float(round(1000 * *(xhc->hal->x_wc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->y_wc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->z_wc)) / 1000, p);
-	if (xhc->axis == axis_a) p += xhc_encode_float(round(1000 * *(xhc->hal->a_mc)) / 1000, p);
-	else p += xhc_encode_float(round(1000 * *(xhc->hal->x_mc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->y_mc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->z_mc)) / 1000, p);
-	p += xhc_encode_s16(round(100.0 * *(xhc->hal->feedrate_override)), p);
-	p += xhc_encode_s16(round(100.0 * *(xhc->hal->spindle_override)), p);
-	p += xhc_encode_s16(round(60.0 * *(xhc->hal->feedrate)), p);
-	p += xhc_encode_s16(round(60.0 * *(xhc->hal->spindle_rps)), p);
+	if (xhc->axis == axis_a) p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->a_wc)) / 1000, p);
+	else p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->x_wc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->y_wc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->z_wc)) / 1000, p);
+	if (xhc->axis == axis_a) p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->a_mc)) / 1000, p);
+	else p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->x_mc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->y_mc)) / 1000, p);
+	p += xhc_encode_float(rtapi_rint(1000 * *(xhc->hal->z_mc)) / 1000, p);
+	p += xhc_encode_s16((int)rtapi_rint(100.0 * *(xhc->hal->feedrate_override)), p);
+	p += xhc_encode_s16((int)rtapi_rint(100.0 * *(xhc->hal->spindle_override)), p);
+	p += xhc_encode_s16((int)rtapi_rint(60.0 * *(xhc->hal->feedrate)), p);
+	p += xhc_encode_s16((int)rtapi_rint(60.0 * *(xhc->hal->spindle_rps)), p);
 
 	switch (*(xhc->hal->stepsize)) {
 	case    0: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_0; break;
@@ -330,7 +330,7 @@ void compute_velocity(xhc_t *xhc)
 
 	if (delta_pos) {
 		*(xhc->hal->jog_velocity) = (1 - k) * *(xhc->hal->jog_velocity) + k * velocity;
-		*(xhc->hal->jog_increment) = fabs(delta_pos);
+		*(xhc->hal->jog_increment) = rtapi_fabs(delta_pos);
 		*(xhc->hal->jog_plus_x) = (delta_pos > 0) && *(xhc->hal->jog_enable_x);
 		*(xhc->hal->jog_minus_x) = (delta_pos < 0) && *(xhc->hal->jog_enable_x);
 		*(xhc->hal->jog_plus_y) = (delta_pos > 0) && *(xhc->hal->jog_enable_y);
@@ -388,7 +388,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		*(xhc.hal->jog_counts) += ((char)in_buf[4]);
+		*(xhc.hal->jog_counts) += ((signed char)in_buf[4]);
 		*(xhc.hal->jog_counts_neg) = - *(xhc.hal->jog_counts);
 		*(xhc.hal->jog_enable_off) = (xhc.axis == axis_off);
 		*(xhc.hal->jog_enable_x) = (xhc.axis == axis_x);

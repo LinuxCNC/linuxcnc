@@ -9,9 +9,14 @@ USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS) $(HALCMDCCSRCS))
 
 $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
-../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0
+../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) \
+	../lib/liblinuxcncini.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
+	../lib/libmtalk.so.0 \
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -lm -o $@
+	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
 TARGETS += ../tcl/hal.so
 
 $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
@@ -20,22 +25,26 @@ $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS))  $(call TOOBJS, $(HALCMDCCSRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcnchal.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
-	../lib/libmtalk.so.0
+	../lib/libmachinetalk-pb2++.so.0 \
+	../lib/libmtalk.so.0 \
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS) \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) -lm -lstdc++
 TARGETS += ../bin/halcmd
 
-HALRMTSRCS := hal/utils/halrmt.c
-USERSRCS += $(HALRMTSRCS)
-
-../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/liblinuxcnchal.so.0
+ifdef TARGET_PLATFORM_SOCFPGA
+HM2UTILRCS := hal/utils/mksocmemio.c
+$(call TOOBJSDEPS, $(HM2UTILRCS)) : EXTRAFLAGS = -Wall -Werror -std=c99
+USERSRCS += $(HM2UTILRCS)
+../bin/mksocmemio: $(call TOOBJS, $(HM2UTILRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lpthread
-TARGETS += ../bin/halrmt
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(LDFLAGS) -g -Wall -o $@ $^
+TARGETS += ../bin/mksocmemio
+endif
 
-ifneq ($(GTK_VERSION),)
+ifdef HAVE_GTK
 HALMETERSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c
@@ -58,9 +67,11 @@ HALSCOPESRCS := \
 
 USERSRCS += $(HALSCOPESRCS)
 
-../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/liblinuxcnchal.so.0
+../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS) -lm
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
 TARGETS += ../bin/halscope
 
 HALGTKSRCS := \
@@ -108,6 +119,12 @@ endif
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
+../bin/instcomp: ../bin/%: objects/hal/utils/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
 ../bin/yapps: ../bin/%: hal/utils/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
@@ -118,3 +135,13 @@ TARGETS += ../bin/comp
 objects/%.py: %.g ../bin/yapps
 	@mkdir -p $(dir $@)
 	$(Q)../bin/yapps $< $@
+
+
+TARGETS += ../bin/instcomp
+objects/%.py: %.g ../bin/yapps
+	@mkdir -p $(dir $@)
+	$(Q)../bin/yapps $< $@
+
+clean: hal-utils-clean
+hal-utils-clean:
+	rm -f ../bin/yapps ../lib/python/yapps/*.pyc

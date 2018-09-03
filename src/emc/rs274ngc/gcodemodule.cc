@@ -413,6 +413,7 @@ void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
 void SELECT_POCKET(int pocket, int tool) {}
+void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
@@ -939,8 +940,8 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     unrotate(o[0], o[1], rotation_cos, rotation_sin);
     for(int ax=0; ax<9; ax++) o[ax] -= g92offset[ax];
 
-    double theta1 = atan2(o[Y]-cy, o[X]-cx);
-    double theta2 = atan2(n[Y]-cy, n[X]-cx);
+    double theta1 = rtapi_atan2(o[Y]-cy, o[X]-cx);
+    double theta2 = rtapi_atan2(n[Y]-cy, n[X]-cx);
 
     if(rot < 0) {
         while(theta2 - theta1 > -CIRCLE_FUZZ) theta2 -= 2*M_PI;
@@ -952,7 +953,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     if(rot < -1) theta2 += 2*M_PI*(rot+1);
     if(rot > 1) theta2 += 2*M_PI*(rot-1);
 
-    int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
+    int steps = std::max(3, int(max_segments * rtapi_fabs(theta1 - theta2) / M_PI));
     double rsteps = 1. / steps;
     PyObject *segs = PyList_New(steps);
 
@@ -960,7 +961,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double d[9] = {0, 0, 0, n[3]-o[3], n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
     d[Z] = n[Z] - o[Z];
 
-    double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
+    double tx = o[X] - cx, ty = o[Y] - cy, dc = rtapi_cos(dtheta*rsteps), ds = rtapi_sin(dtheta*rsteps);
     for(int i=0; i<steps-1; i++) {
         double f = (i+1) * rsteps;
         double p[9];

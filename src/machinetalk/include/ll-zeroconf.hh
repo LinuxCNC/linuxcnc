@@ -1,6 +1,9 @@
 /*
  * minimalistic zeroconf publish interface
  * low-level Avahi interface, avahi poll loop integration
+ *
+ * Copyright Michael Haberler 2013-2015
+ * License: Mozilla Public License Version 2.0
  */
 
 #ifndef _LL_ZEROCONF_H
@@ -34,6 +37,7 @@ typedef struct {
     AvahiProtocol proto; //  AVAHI_PROTO_INET6,  AVAHI_PROTO_INET, AVAHI_PROTO_UNSPEC
     int port;
     const char *type;
+    const char *uri_fmt;
     AvahiStringList *subtypes;
     AvahiIfIndex interface; // usually AVAHI_IF_UNSPEC
     AvahiStringList *txt;   // must contain uuid=<instance uuid>

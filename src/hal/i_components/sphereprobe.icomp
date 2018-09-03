@@ -1,0 +1,34 @@
+component sphereprobe "Probe a pretend hemisphere";
+author "Jeff Epler";
+license "GPL";
+
+pin in signed px;
+pin in signed py;
+pin in signed pz "\\fBrawcounts\\fR position from software encoder";
+
+pin in signed cx;
+pin in signed cy;
+pin in signed cz "Center of sphere in counts";
+pin in signed r "Radius of hemisphere in counts";
+
+pin out bit probe-out;
+
+function _ nofp "update probe-out based on inputs";
+;;
+#undef abs
+int abs(int x) { if(x < 0) return -x; else return x; }
+
+FUNCTION(_)
+{
+    __u64 dx = abs(px-cx), dy=abs(py-cy), dz=abs(pz-cz);
+    __u64 d2 = dx*dx + dy*dy;
+    __u64 r2 = (__s64)r*(__s64)r;
+    if(d2 > r2) {
+        probe_out = pz < cz;
+    } else {
+        d2 += dz*dz;
+        probe_out = d2 <= r2;
+    }
+
+return 0;
+}

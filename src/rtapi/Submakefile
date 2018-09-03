@@ -11,7 +11,6 @@ INCLUDES += rtapi rtapi_export
 	mkdir -p ../include/shmdrv
 	cp  $^ $@
 
-
 ##########################################
 # Separate sources hack
 #
@@ -30,8 +29,6 @@ rtapi/$(threads)/%: rtapi/.flavor-$(threads)-link-create-stamp
 rtapi/.flavor-$(threads)-link-create-stamp:
 	ln -s . rtapi/$(threads)
 	@touch $@
-
-
 
 ##########################################
 # Clean up
@@ -144,6 +141,86 @@ TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0
 # rtapi_app_<flavor> requires two sources plus one already in
 # ulapi.so.
 
+# rtapi_app symbols, and the "RT space" (components loaded via dlopen(3))
+#------------------------------------------------------------------------
+#
+# The HAL and RTAPI API's were devised to work in-kernel and obey its
+# visibility rules. Running 'userland shared objects' came later - first
+# through the 'simulator' rtapi_app which eventually evolved into a full
+# replacement of the kernel HAL/RTAPI environment including running
+# RT threads and drivers.
+#
+# Hence, running components in a user process like rtapi_app
+# requires that symbol visibility follows similar rules - meaning for instance
+# that API symbols (like eg hal_init()) must be exported explicitly with
+# EXPORT_SYMBOL(hal_init) to enable referring to this function from say
+# a component (see also the lengthy note in src/Makefile which explains
+# how this controlled export of API symbols is achieved).
+# This assures that inter-component symbol resolution is limited to explicit
+# API functions and no accidential symbol resolution can happen.
+#
+# Note these 'RT objects' (really shared libraries) run in the context of
+# the rtapi_app_<flavor> process and hence shares symbols between rtapi_app
+# and the RT objects. This introduces the chance that symbols used and
+# (and maybe accidentially exported by) rtapi_app are carried over into
+# the symbol set seen by the RT objects.
+#
+# This is undesirable - the symbol spaces by rtapi_app and by the RT objects
+# must be decoupled as much as possible. This is achieved as follows:
+# - in rtapi_app.cc care is taken not to accidentially export global variables or functions
+#   practically everything within rtapi_app.cc should be static so
+#   symbols do not leak outside rtapi_app
+# - linking of rtapi_app, and flags to dlopen() are critical to this step.
+#   NEVER use the -rdynamic flag with rtapi_app to avoid spilling rtapi_app
+#   symbols into RT space
+#
+# see for instance: http://stackoverflow.com/questions/20491130/impact-disadvantages-of-rdynamic-gcc-option
+# Q: What are the disadvantages of 'rdynamic' ..?
+#
+# A: rdynamic can be used with dlopen() to have a shared/global symbol table
+# for the executable which was a must in my project (dynamic_cast<> will work
+# across SO boundaries). The downside is function name collision between SOs.
+#
+# a good example for this separation is the rtapi_print_msg function which
+# logs messages to the log ring buffer, tagging the message with an origin
+# tag: log messages from rtapi_app.cc should be tagged MSG_ORIGIN_USER,
+# whereas log messages from RT objects should be tagged MSG_ORIGIN_RT.
+#
+# To that end rtapi_print_msg is available TWICE within a running HAL application:
+# - once compiled with -DULAPI -URTAPI and linked into rtapi_app, causing
+#   its log messages to be tagged with MSG_ORIGIN_USER
+# - once compiled with -DRTAPI -UULAPI and linked into the (flavor specific)
+#   rtapi.so which serves logging for RT objects.
+#
+# the following startup log fragment shows this at work:
+#
+#1. Feb 24 07:25:09 jessie64n msgd:0: rtapi_app:10219:user rtapi: loaded from rtapi.so
+#2. Feb 24 07:25:09 jessie64n msgd:0: rtapi:10219:rt rtapi_app_main:196 HAL: initializing RT hal_lib support
+#3. Feb 24 07:25:09 jessie64n msgd:0: hal_lib:10219:rt hal_xinit:68 HAL: initializing component 'hal_lib' type=4 arg1=0 arg2=0/0x0
+#...
+#4. Feb 24 07:25:09 jessie64n msgd:0: rtapi_app:10219:user hal_lib: loaded from hal_lib.so
+#
+# (1) originates from rtapi_app and uses the rtapi_print_msg function compiled with -DULAPI,
+# and linked into rtapi_app. Telltale: ':user' tag on the log message.
+#
+# (2) and (3) originate from RT objects (rtapi.so and hal_lib.so respectively)
+# and use the rtapi_print_msg code linked (and explicitily exported with EXPORT_SYMBOL)
+# from rtapi.so. Telltale: ":rt" tag on the log message.
+#
+# this is what happens if you accidentially link rtapi_app with the -rdynamic flag:
+#
+#1. Feb 23 23:46:11 jessie64n msgd:0: rtapi:18240:user RTAPI:0  posix unknown init
+#2. Feb 23 23:46:11 jessie64n msgd:0: rtapi:18240:user rtapi: loaded from rtapi.so
+#3. Feb 23 23:46:11 jessie64n msgd:0: hal_lib:18240:user hal_xinit:68 HAL: initializing component 'hal_lib' type=4 arg1=0 arg2=0/0x0
+#4. Feb 23 23:46:11 jessie64n msgd:0: hal_lib:18240:user hal_export_xfunctfv:70 HAL: exporting function 'newinst' type 2
+#
+# note ':user' origin tag on all log entries - this means that despite explicit
+# export of rtapi_print_msg with EXPORT_SYMBOL(rtapi_print_msg) for use within RT
+# the -DULAPI version of rtapi_print_msg linked into rtapi_app is called from
+# RT objects. This means that other symbols accidentially exported by rtapi_app
+# could resolve first instead of with the RT symbol space, which is undesirable.
+
+
 RTAPI_APP_SRCS := \
 	rtapi/$(threads)/rtapi_app.cc \
 	rtapi/$(threads)/rtapi_compat.c \
@@ -159,19 +236,25 @@ RTAPI_APP_RPATH=-Wl,-rpath,$(LIB_DIR)
 endif
 
 $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
-	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
+	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) $(LTTNG_UST_CFLAGS)
 
 ../libexec/rtapi_app_$(threads): \
 	$(call TOOBJS, $(RTAPI_APP_SRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcncshm.so \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0
+	../lib/libmachinetalk-pb2++.so.0 \
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
-	    -o $@ $^ $(RT_LDFLAGS) \
-	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) -lstdc++ -ldl -luuid
+	$(Q)$(CXX) -Wl,--no-as-needed \
+	    -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    $(RTAPI_APP_RPATH) \
+	    -o $@ \
+	    $^ \
+	    $(LDFLAGS) $(RT_LDFLAGS) \
+	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) $(LTTNG_UST_LIBS) \
+	    -lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
 
@@ -191,7 +274,10 @@ rtapi-objs := \
 	$(patsubst %.c,rtapi/%.o,$(XXAPI_COMMON_SRCS)) \
 	rtapi/rtapi_main.o \
 	rtapi/rtapi_compat.o
-
+rtapi-objs += machinetalk/support/nanopb.o
+rtapi-objs += machinetalk/nanopb/pb_decode.o
+rtapi-objs += machinetalk/nanopb/pb_encode.o
+rtapi-objs += machinetalk/nanopb/pb_common.o
 
 
 ifeq ($(USERMODE_PCI),yes)
@@ -211,7 +297,6 @@ $(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 
-
 endif # BUILD_THREAD_MODULES
 
 
@@ -225,6 +310,10 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := \
 	$(patsubst %.c,rtapi/%.o,$(XXAPI_COMMON_SRCS)) \
 	rtapi/rtapi_module.o
+rtapi-objs += machinetalk/support/nanopb.o
+rtapi-objs += machinetalk/nanopb/pb_decode.o
+rtapi-objs += machinetalk/nanopb/pb_encode.o
+rtapi-objs += machinetalk/nanopb/pb_common.o
 
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
@@ -257,7 +346,8 @@ TARGETS += ../libexec/kdetect
 RTAPI_MSGD_SRCS =  \
 	rtapi/rtapi_msgd.cc \
 	rtapi/rtapi_heap.c \
-	rtapi/rtapi_compat.c
+	rtapi/rtapi_compat.c \
+	rtapi/rtapi_support.c
 
 RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
@@ -277,7 +367,7 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 	../lib/liblinuxcncshm.so \
 	../lib/liblinuxcncini.so \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so
+	../lib/libmachinetalk-pb2++.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RTAPI_MSGD_LDFLAGS) -lrt

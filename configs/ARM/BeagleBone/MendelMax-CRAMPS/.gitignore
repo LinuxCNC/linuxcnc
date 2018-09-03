@@ -1,0 +1,6 @@
+*.user
+*.user.*
+~*
+*~
+.directory
+*.pyc

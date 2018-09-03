@@ -35,7 +35,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
     // some standard sanity checks
     //
     
-    int i, r;
+    int i, r = -EINVAL;
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     static int last_gtag = -1;
     
@@ -95,7 +95,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
         // For the time being we assume that all UARTS come on pairs
         if (inst->clock_freq == 0){
             inst->clock_freq = md->clock_freq;
-            r = sprintf(inst->name, "%s.uart.%01d", hm2->llio->name, i);
+            r = rtapi_snprintf(inst->name, sizeof(inst->name), "%s.uart.%01d", hm2->llio->name, i);
             HM2_PRINT("created UART Interface function %s.\n", inst->name);
         }
         if (md->gtag == HM2_GTAG_UART_TX){
@@ -136,7 +136,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
     }
     return hm2->uart.num_instances;
 fail0:
-    return 0;
+    return r;
 }
 
 EXPORT_SYMBOL_GPL(hm2_uart_setup);

@@ -24,143 +24,122 @@
 #include <hal_group.h>
 #include <hal_rcomp.h>
 #include <hal_ring.h>
-#include <machinetalk/generated/message.pb.h>
+#include "message.pb.h"
 
 // in halpb.cc:
-int halpr_describe_signal(hal_sig_t *sig, pb::Signal *pbsig);
-int halpr_describe_pin(hal_pin_t *pin, pb::Pin *pbpin);
-int halpr_describe_ring(hal_ring_t *ring, pb::Ring *pbring);
-int halpr_describe_funct(hal_funct_t *funct, pb::Function *pbfunct);
-int halpr_describe_thread(hal_thread_t *thread, pb::Thread *pbthread);
-int halpr_describe_component(hal_comp_t *comp, pb::Component *pbcomp);
-int halpr_describe_group(hal_group_t *g, pb::Group *pbgroup);
-int halpr_describe_member(hal_member_t *member, pb::Member *pbmember);
+int halpr_describe_signal(hal_sig_t *sig, machinetalk::Signal *pbsig);
+int halpr_describe_pin(hal_pin_t *pin, machinetalk::Pin *pbpin);
+int halpr_describe_ring(hal_ring_t *ring, machinetalk::Ring *pbring);
+int halpr_describe_funct(hal_funct_t *funct, machinetalk::Function *pbfunct);
+int halpr_describe_thread(hal_thread_t *thread, machinetalk::Thread *pbthread);
+int halpr_describe_component(hal_comp_t *comp, machinetalk::Component *pbcomp);
+int halpr_describe_group(hal_group_t *g, machinetalk::Group *pbgroup);
+int halpr_describe_member(hal_member_t *member, machinetalk::Member *pbmember);
 
-
-static inline const hal_data_u *hal_sig2u(const hal_sig_t *sig)
+static inline int hal_pin2pb(hal_pin_t *hp, machinetalk::Pin *p)
 {
-    return (hal_data_u *)SHMPTR(sig->data_ptr);
-}
-
-static inline const hal_data_u *hal_pin2u(const hal_pin_t *pin)
-{
-    const hal_sig_t *sig;
-    if (pin->signal != 0) {
-	sig = (const hal_sig_t *) SHMPTR(pin->signal);
-	return (hal_data_u *)SHMPTR(sig->data_ptr);
-    } else
-	return (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
-}
-
-static inline const hal_data_u *hal_param2u(const hal_param_t *param)
-{
-    return (hal_data_u *)SHMPTR(param->data_ptr);
-}
-
-static inline int hal_pin2pb(const hal_pin_t *hp, pb::Pin *p)
-{
-    const hal_data_u *vp  = hal_pin2u(hp);
+    const hal_data_u *vp  = pin_value(hp);
     switch (hp->type) {
     default:
 	return -1;
     case HAL_BIT:
-	p->set_halbit(vp->b);
+	p->set_halbit(get_bit_value(vp));
 	break;
     case HAL_FLOAT:
-	p->set_halfloat(vp->f);
+	p->set_halfloat(get_float_value(vp));
 	break;
     case HAL_S32:
-	p->set_hals32(vp->s);
+	p->set_hals32(get_s32_value(vp));
 	break;
     case HAL_U32:
-	p->set_halu32(vp->u);
+	p->set_halu32(get_u32_value(vp));
 	break;
     }
     return 0;
 }
 
-static inline int hal_sig2pb(const hal_sig_t *sp, pb::Signal *s)
+static inline int hal_sig2pb(hal_sig_t *sp, machinetalk::Signal *s)
 {
-    const hal_data_u *vp = hal_sig2u(sp);
+    const hal_data_u *vp = sig_value(sp);
     switch (sp->type) {
     default:
 	return -1;
     case HAL_BIT:
-	s->set_halbit(vp->b);
+	s->set_halbit(get_bit_value(vp));
 	break;
     case HAL_FLOAT:
-	s->set_halfloat(vp->f);
+	s->set_halfloat(get_float_value(vp));
 	break;
     case HAL_S32:
-	s->set_hals32(vp->s);
+	s->set_hals32(get_s32_value(vp));
 	break;
     case HAL_U32:
-	s->set_halu32(vp->u);
+	s->set_halu32(get_u32_value(vp));
 	break;
     }
     return 0;
 }
 
-static inline int hal_param2pb(const hal_param_t *pp, pb::Param *p)
+static inline int hal_param2pb(const hal_param_t *pp, machinetalk::Param *p)
 {
-    const hal_data_u *vp = hal_param2u(pp);
+    const hal_data_u *vp = param_value(pp);
 
     switch (pp->type) {
     default:
 	return -1;
     case HAL_BIT:
-	p->set_halbit(vp->b);
+	p->set_halbit(get_bit_value(vp));
 	break;
     case HAL_FLOAT:
-	p->set_halfloat(vp->f);
+	p->set_halfloat(get_float_value(vp));
 	break;
     case HAL_S32:
-	p->set_hals32(vp->s);
+	p->set_hals32(get_s32_value(vp));
 	break;
     case HAL_U32:
-	p->set_halu32(vp->u);
+	p->set_halu32(get_u32_value(vp));
 	break;
     }
     return 0;
 }
 
-static inline int hal_pbpin2u(const pb::Pin *p, hal_data_u *vp)
+static inline int hal_pbpin2u(const machinetalk::Pin *p, hal_data_u *vp)
 {
-    switch (p->type()) {
+    switch (static_cast<hal_type_t>(p->type())) {
     default:
 	return -1;
     case HAL_BIT:
-	vp->b = p->halbit();
+	set_bit_value(vp, p->halbit());
 	break;
     case HAL_FLOAT:
-	vp->f = p->halfloat();
+	set_float_value(vp, p->halfloat());
 	break;
     case HAL_S32:
-	vp->s = p->hals32();
+	set_s32_value(vp, p->hals32());
 	break;
     case HAL_U32:
-	vp->u = p->halu32();
+	set_u32_value(vp, p->halu32());
 	break;
     }
     return 0;
 }
 
-static inline int hal_pbsig2u(const pb::Signal *s, hal_data_u *vp)
+static inline int hal_pbsig2u(const machinetalk::Signal *s, hal_data_u *vp)
 {
-    switch (s->type()) {
+    switch (static_cast<hal_type_t>(s->type())) {
     default:
 	return -1;
     case HAL_BIT:
-	vp->b = s->halbit();
+	set_bit_value(vp, s->halbit());
 	break;
     case HAL_FLOAT:
-	vp->f = s->halfloat();
+	set_float_value(vp, s->halfloat());
 	break;
     case HAL_S32:
-	vp->s = s->hals32();
+	set_s32_value(vp, s->hals32());
 	break;
     case HAL_U32:
-	vp->u = s->halu32();
+	set_u32_value(vp, s->halu32());
 	break;
     }
     return 0;

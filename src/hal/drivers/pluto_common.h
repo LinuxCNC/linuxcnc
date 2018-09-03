@@ -39,8 +39,10 @@ RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
 RTAPI_MP_INT(watchdog,
 	"Enable hardware watchdog to tristate outputs if EMC crashes");
 
+#ifdef BUILD_SYS_KBUILD
 #ifndef llabs // linux/kernel.h may provide labs for realtime systems
 static int64_t llabs(int64_t l) { if(l < 0) return -l; return l; }
+#endif
 #endif
 
 static inline int64_t extend(int64_t old, int newlow, int nbits) {

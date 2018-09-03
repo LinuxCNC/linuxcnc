@@ -1,0 +1,16 @@
+G20 G90 G64
+F1000
+(Blending)
+G0 X0 Y0 Z0
+X.1
+G1 x1 y1
+G1 x1.025 y1
+X2
+(Possible interruption)
+G0 X0 Y0
+X.1
+G1 x1 y1
+M5
+G1 x1.025 y1
+X2
+M2

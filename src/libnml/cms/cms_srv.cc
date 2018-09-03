@@ -21,7 +21,7 @@ extern "C" {
 #include <string.h>		/* strchr(), memcpy() */
 #include <stdlib.h>		/* malloc(), free(), exit() */
 #include <ctype.h>		// isgraph()
-#include <math.h>		/* fmod() */
+#include "rtapi_math.h"		/* fmod() */
 
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
@@ -415,7 +415,7 @@ int CMS_SERVER::get_user_keys(const char *name, char *key1, char *key2)
 	return -1;
     }
     strcpy(key1, user_info->key1);
-    if (fabs(etime() - time_of_last_key_request) > 30.0) {
+    if (rtapi_fabs(etime() - time_of_last_key_request) > 30.0) {
 	memset(user_info->key2, 0, 8);
 	memset(user_info->epasswd, 0, 16);
 	gen_random_key(user_info->key2, 2);

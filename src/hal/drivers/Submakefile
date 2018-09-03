@@ -30,16 +30,22 @@ pluto_clean:
 	    pluto_servo_firmware/pluto_servo.tan.rpt \
 	    pluto_servo_firmware/pluto_servo.tan.summary \
 	    pluto_servo_firmware/undo_redo.txt
+	rm -f hal/drivers/pluto_*_rbf.h
 
 # The kernel's build system won't know how to rebuild generated files
 # so modules must depend on them explicitly
-ifneq ($(BUILD_SYS),user-dso)
 modules:                                                         \
     hal/drivers/pluto_servo_rbf.h                                \
     hal/drivers/pluto_step_rbf.h
-endif
 
 INCLUDES += hal/drivers
 
 ../include/%.h: ./hal/drivers/%.h
 	cp  $^ $@
+
+# build instructions for the hal_p260c module
+obj-m += hal_p260c.o
+# the list of parts
+hal_p260c-objs := hal/drivers/hal_p260c.o $(MATHSTUB)
+
+$(RTLIBDIR)/hal_p260c$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_p260c-objs))

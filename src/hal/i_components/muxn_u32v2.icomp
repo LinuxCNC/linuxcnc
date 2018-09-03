@@ -1,0 +1,27 @@
+component muxn_u32v2 "Select from one of N input values, U32";
+pin_ptr in s32 sel = 0;
+pin_ptr out u32 out "Follows the value of \\fBin<M>\\fR whereas M is the value of the \\fBsel\\fR input. \
+If \\fBsel\\fR is not in the range of available inputs 0 is output.";
+pin_ptr in u32 in#.[pincount];
+
+instanceparam int pincount = 2;
+
+option MAXCOUNT 16;
+
+function _;
+license "GPL";
+author "Alexander Roessler";
+;;
+FUNCTION(_)
+{
+    if ((gs(sel) >= 0) && (gs(sel) < local_pincount))
+    {
+        su(out, gu(in_(gs(sel))));
+    }
+    else
+    {
+        su(out,  0u);
+    }
+
+    return 0;
+}

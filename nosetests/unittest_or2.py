@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 from nose import with_setup
 from machinekit.nosetests.realtime import setup_module ,teardown_module
@@ -15,8 +15,8 @@ class TestOr2(TestCase):
         self.cfg.read(os.getenv("MACHINEKIT_INI"))
         self.uuid = self.cfg.get("MACHINEKIT", "MKUUID")
         self.rt = rtapi.RTAPIcommand(uuid=self.uuid)
-        self.rt.loadrt("or2")
-        self.rt.newthread("servo-thread",1000000,use_fp=True)
+        self.rt.newinst("or2", "or2.0")
+        self.rt.newthread("servo-thread",1000000,fp=True)
         hal.addf("or2.0","servo-thread")
         hal.start_threads()
 

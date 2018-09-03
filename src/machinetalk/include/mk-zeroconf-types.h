@@ -1,3 +1,10 @@
+/**
+ * machinekit SRV record types
+ *
+ * Copyright Michael Haberler 2013-2015
+ * License: Mozilla Public License Version 2.0
+*/
+
 #ifndef _MK_ZEROCONF_TYPES_H
 #define _MK_ZEROCONF_TYPES_H
 

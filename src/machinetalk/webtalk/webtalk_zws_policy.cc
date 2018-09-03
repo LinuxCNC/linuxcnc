@@ -91,14 +91,14 @@ zws_policy(wtself_t *self,
 			case '1': // subscribe command:
 			    {
 				std::string s(data + 1, data + wss->length-2);
-				zsocket_set_subscribe (wss->socket, s.c_str());
+				zsock_set_subscribe (wss->socket, s.c_str());
 				lwsl_zws("%s: SUB subscribe '%s'\n", __func__, s.c_str());
 			    }
 			    break;
 			case '0': // unsubscribe command:
 			    {
 				std::string s(data + 1, data + wss->length-2);
-				zsocket_set_unsubscribe (wss->socket, s.c_str());
+				zsock_set_unsubscribe (wss->socket, s.c_str());
 				lwsl_zws("%s: SUB unsubscribe '%s'\n", __func__, s.c_str());
 			    }
 			    break;

@@ -1,0 +1,36 @@
+component clarke2 "Two input version of Clarke transform";
+description """The Clarke transform can be used to translate a vector
+quantity from a three phase system (three components 120 degrees
+apart) to a two phase Cartesian system.\n.P\n\\fBclarke2\\fR implements
+a special case of the Clarke transform, which only needs two of the
+three input phases.  In a three wire three phase system, the sum of the
+three phase currents or voltages must always be zero.  As a result only
+two of the three are needed to completely define the current or voltage.
+\\fBclarke2\\fR assumes that the sum is zero, so it only uses phases A and
+B of the input.  Since the H (homopolar) output will always be zero in
+this case, it is not generated.""";
+see_also """\\fBclarke3\\fR for the general case, \\fBclarkeinv\\fR for
+the inverse transform.""";
+pin in float a;
+pin in float b "first two phases of three phase input";
+pin out float x;
+pin out float y "cartesian components of output";
+function _;
+license "GPL";
+;;
+
+/* for the details, google "clarke transform", or see section 3 of
+   http://focus.ti.com/lit/an/bpra048/bpra048.pdf and/or appendix B of
+   http://www.esat.kuleuven.be/electa/publications/fulltexts/pub_1610.pdf
+*/
+
+#define K1 (0.577350269189626)  /* 1/sqrt(3) */
+#define K2 (1.154700538379250)  /* 2/sqrt(3) */
+
+FUNCTION(_)
+{
+    x = a;
+    y = K1*a + K2*b;
+
+return 0;
+}

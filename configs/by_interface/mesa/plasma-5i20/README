@@ -1,4 +1,4 @@
-This configuration is to show how to connect the Mesa THCAD card with LinuxCNC on a Plasma Cutter.
+This configuration is to show how to connect the Mesa THCAD card with Machinekit on a Plasma Cutter.
 
 There are two configurations, the plasma-5i20 that requires you to have a Mesa 5i20 installed and the plasma-demo using parallel port. The plasma-demo version is just to show how this config looks and is not a good candidate for the THCAD card due to the slow update speed when using a software encoder with the parallel port.
 

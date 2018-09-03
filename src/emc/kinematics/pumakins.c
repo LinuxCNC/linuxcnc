@@ -20,10 +20,11 @@
 #include "pumakins.h"
 #include "kinematics.h"             /* decls for kinematicsForward, etc. */
 
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
+
+#define VTVERSION VTKINEMATICS_VERSION1
 
 struct haldata {
     hal_float_t *a2, *a3, *d3, *d4;
@@ -34,6 +35,8 @@ struct haldata {
 #define PUMA_A3 (*(haldata->a3))
 #define PUMA_D3 (*(haldata->d3))
 #define PUMA_D4 (*(haldata->d4))
+
+MODULE_LICENSE("GPL");
 
 
 int kinematicsForward(const double * joint,
@@ -53,20 +56,20 @@ int kinematicsForward(const double * joint,
    PmRpy rpy;
 
    /* Calculate sin of joints for future use */
-   s1 = sin(joint[0]*PM_PI/180);
-   s2 = sin(joint[1]*PM_PI/180);
-   s3 = sin(joint[2]*PM_PI/180);
-   s4 = sin(joint[3]*PM_PI/180);
-   s5 = sin(joint[4]*PM_PI/180);
-   s6 = sin(joint[5]*PM_PI/180);
+   s1 = rtapi_sin(joint[0]*PM_PI/180);
+   s2 = rtapi_sin(joint[1]*PM_PI/180);
+   s3 = rtapi_sin(joint[2]*PM_PI/180);
+   s4 = rtapi_sin(joint[3]*PM_PI/180);
+   s5 = rtapi_sin(joint[4]*PM_PI/180);
+   s6 = rtapi_sin(joint[5]*PM_PI/180);
 
    /* Calculate cos of joints for future use */
-   c1 = cos(joint[0]*PM_PI/180);
-   c2 = cos(joint[1]*PM_PI/180);
-   c3 = cos(joint[2]*PM_PI/180);
-   c4 = cos(joint[3]*PM_PI/180);
-   c5 = cos(joint[4]*PM_PI/180);
-   c6 = cos(joint[5]*PM_PI/180);
+   c1 = rtapi_cos(joint[0]*PM_PI/180);
+   c2 = rtapi_cos(joint[1]*PM_PI/180);
+   c3 = rtapi_cos(joint[2]*PM_PI/180);
+   c4 = rtapi_cos(joint[3]*PM_PI/180);
+   c5 = rtapi_cos(joint[4]*PM_PI/180);
+   c6 = rtapi_cos(joint[5]*PM_PI/180);
 
    s23 = c2 * s3 + s2 * c3;
    c23 = c2 * c3 - s2 * s3;
@@ -127,15 +130,15 @@ int kinematicsForward(const double * joint,
    *iflags = 0;
 
    /* Set shoulder-up flag if necessary */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(PUMA_D3, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (rtapi_fabs(joint[0]*PM_PI/180 - rtapi_atan2(hom.tran.y, hom.tran.x) +
+       rtapi_atan2(PUMA_D3, -rtapi_sqrt(sumSq))) < FLAG_FUZZ)
    {
      *iflags |= PUMA_SHOULDER_RIGHT;
    }
 
    /* Set elbow down flag if necessary */
-   if (fabs(joint[2]*PM_PI/180 - atan2(PUMA_A3, PUMA_D4) +
-       atan2(k, -sqrt(PUMA_A3 * PUMA_A3 +
+   if (rtapi_fabs(joint[2]*PM_PI/180 - rtapi_atan2(PUMA_A3, PUMA_D4) +
+       rtapi_atan2(k, -rtapi_sqrt(PUMA_A3 * PUMA_A3 +
        PUMA_D4 * PUMA_D4 - k * k))) < FLAG_FUZZ)
    {
       *iflags |= PUMA_ELBOW_DOWN;
@@ -145,14 +148,14 @@ int kinematicsForward(const double * joint,
    t1 = -hom.rot.z.x * s1 + hom.rot.z.y * c1;
    t2 = -hom.rot.z.x * c1 * c23 - hom.rot.z.y * s1 * c23 +
          hom.rot.z.z * s23;
-   if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ)
+   if (rtapi_fabs(t1) < SINGULAR_FUZZ && rtapi_fabs(t2) < SINGULAR_FUZZ)
    {
       *iflags |= PUMA_SINGULAR;
    }
 
    /* if not singular set wrist flip flag if necessary */
    else{
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (rtapi_fabs(joint[3]*PM_PI/180 - rtapi_atan2(t1, t2)) < FLAG_FUZZ))
      {
        *iflags |= PUMA_WRIST_FLIP;
      }
@@ -219,15 +222,15 @@ int kinematicsInverse(const EmcPose * world,
 
    /* FIXME-- is use of + sqrt shoulder right or left? */
    if (*iflags & PUMA_SHOULDER_RIGHT){
-     th1 = atan2(hom.tran.y, hom.tran.x) - atan2(PUMA_D3, -sqrt(sumSq));
+     th1 = rtapi_atan2(hom.tran.y, hom.tran.x) - rtapi_atan2(PUMA_D3, -rtapi_sqrt(sumSq));
    }
    else{
-     th1 = atan2(hom.tran.y, hom.tran.x) - atan2(PUMA_D3, sqrt(sumSq));
+     th1 = rtapi_atan2(hom.tran.y, hom.tran.x) - rtapi_atan2(PUMA_D3, rtapi_sqrt(sumSq));
    }
 
    /* save sin, cos for later calcs */
-   s1 = sin(th1);
-   c1 = cos(th1);
+   s1 = rtapi_sin(th1);
+   c1 = rtapi_cos(th1);
 
    /* Joint 3 (2 independent solutions) */
 
@@ -236,16 +239,16 @@ int kinematicsInverse(const EmcPose * world,
 
    /* FIXME-- is use of + sqrt elbow up or down? */
    if (*iflags & PUMA_ELBOW_DOWN){
-     th3 = atan2(PUMA_A3, PUMA_D4) - atan2(k, -sqrt(PUMA_A3 * PUMA_A3 + PUMA_D4 * PUMA_D4 - k * k));
+     th3 = rtapi_atan2(PUMA_A3, PUMA_D4) - rtapi_atan2(k, -rtapi_sqrt(PUMA_A3 * PUMA_A3 + PUMA_D4 * PUMA_D4 - k * k));
    }
    else{
-     th3 = atan2(PUMA_A3, PUMA_D4) -
-           atan2(k, sqrt(PUMA_A3 * PUMA_A3 + PUMA_D4 * PUMA_D4 - k * k));
+     th3 = rtapi_atan2(PUMA_A3, PUMA_D4) -
+           rtapi_atan2(k, rtapi_sqrt(PUMA_A3 * PUMA_A3 + PUMA_D4 * PUMA_D4 - k * k));
    }
 
    /* compute sin, cos for later calcs */
-   s3 = sin(th3);
-   c3 = cos(th3);
+   s3 = rtapi_sin(th3);
+   c3 = rtapi_cos(th3);
 
    /* Joint 2 */
 
@@ -256,7 +259,7 @@ int kinematicsInverse(const EmcPose * world,
    t3 = hom.tran.z * hom.tran.z + (c1 * hom.tran.x + s1 * hom.tran.y) *
         (c1 * hom.tran.x + s1 * hom.tran.y);
 
-   th23 = atan2(t1, t2);
+   th23 = rtapi_atan2(t1, t2);
    th2 = th23 - th3;
 
    /* compute sin, cos for later calcs */
@@ -267,19 +270,19 @@ int kinematicsInverse(const EmcPose * world,
 
    t1 = -hom.rot.z.x * s1 + hom.rot.z.y * c1;
    t2 = -hom.rot.z.x * c1 * c23 - hom.rot.z.y * s1 * c23 + hom.rot.z.z * s23;
-   if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ){
+   if (rtapi_fabs(t1) < SINGULAR_FUZZ && rtapi_fabs(t2) < SINGULAR_FUZZ){
      singular = 1;
      *fflags |= PUMA_REACH;
      th4 = joint[3]*PM_PI/180;            /* use current value */
    }
    else{
      singular = 0;
-     th4 = atan2(t1, t2);
+     th4 = rtapi_atan2(t1, t2);
    }
 
    /* compute sin, cos for later calcs */
-   s4 = sin(th4);
-   c4 = cos(th4);
+   s4 = rtapi_sin(th4);
+   c4 = rtapi_cos(th4);
 
    /* Joint 5 */
 
@@ -288,7 +291,7 @@ int kinematicsInverse(const EmcPose * world,
         hom.rot.z.y * (s1 * c23 * c4 - c1 * s4);
    c5 =-hom.rot.z.x * (c1 * s23) - hom.rot.z.y *
         (s1 * s23) - hom.rot.z.z * c23;
-   th5 = atan2(s5, c5);
+   th5 = rtapi_atan2(s5, c5);
 
    /* Joint 6 */
 
@@ -299,7 +302,7 @@ int kinematicsInverse(const EmcPose * world,
         c5 - c1 * s23 * s5) + hom.rot.x.y *
         ((s1 * c23 * c4 - c1 * s4) * c5 - s1 * s23 * s5) -
         hom.rot.x.z * (s23 * c4 * c5 + c23 * s5);
-   th6 = atan2(s6, c6);
+   th6 = rtapi_atan2(s6, c6);
 
    /* FIXME-- is wrist flip the normal or offset results? */
    if (*iflags & PUMA_WRIST_FLIP){
@@ -328,25 +331,36 @@ int kinematicsHome(EmcPose * world,
   return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
 //  return KINEMATICS_FORWARD_ONLY;
   return KINEMATICS_BOTH;
 }
 
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-
-int comp_id;
+static int comp_id, vtable_id;
+static const char *name = "pumakins";
 
 int rtapi_app_main(void) {
     int res=0;
     
-    comp_id = hal_init("pumakins");
+    comp_id = hal_init(name);
     if (comp_id < 0) return comp_id;
-    
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
@@ -367,4 +381,8 @@ error:
     return res;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

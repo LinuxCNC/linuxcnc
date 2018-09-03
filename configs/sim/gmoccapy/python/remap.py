@@ -1,4 +1,4 @@
-#   This is a component of LinuxCNC
+#   This is a component of Machinekit
 #   Copyright 2011, 2012, 2013, 2014 Dewey Garrett <dgarrett@panix.com>,
 #   Michael Haberler <git@mah.priv.at>, Norbert Schechner <nieson@web.de>
 #

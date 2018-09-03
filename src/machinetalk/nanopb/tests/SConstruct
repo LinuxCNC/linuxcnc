@@ -57,6 +57,7 @@ if not env.GetOption('clean'):
     if not stdbool or not stdint or not stddef or not string:
         conf.env.Append(CPPDEFINES = {'PB_SYSTEM_HEADER': '\\"pb_syshdr.h\\"'})
         conf.env.Append(CPPPATH = "#../extra")
+	conf.env.Append(SYSHDR = '\\"pb_syshdr.h\\"')
         
         if stdbool: conf.env.Append(CPPDEFINES = {'HAVE_STDBOOL_H': 1})
         if stdint: conf.env.Append(CPPDEFINES = {'HAVE_STDINT_H': 1})
@@ -71,6 +72,11 @@ if not env.GetOption('clean'):
     else:
         conf.env.Append(PROTOCPATH = '/usr/include')
     
+    # Check protoc version
+    status, output = conf.TryAction('$PROTOC --version > $TARGET')
+    if status:
+        conf.env['PROTOC_VERSION'] = output
+
     # Check if libmudflap is available (only with GCC)
     if 'gcc' in env['CC']:
         if conf.CheckLib('mudflap'):
@@ -101,7 +107,7 @@ if 'gcc' in env['CC']:
     # GNU Compiler Collection
     
     # Debug info, warnings as errors
-    env.Append(CFLAGS = '-ansi -pedantic -g -Wall -Werror -fprofile-arcs -ftest-coverage -fstack-protector-all')
+    env.Append(CFLAGS = '-ansi -pedantic -g -Wall -Werror -fprofile-arcs -ftest-coverage ')
     env.Append(CORECFLAGS = '-Wextra')
     env.Append(LINKFLAGS = '-g --coverage')
     
@@ -120,9 +126,6 @@ elif 'cl' in env['CC']:
     
     # More strict checks on the nanopb core
     env.Append(CORECFLAGS = '/W4')
-    
-    # PB_RETURN_ERROR triggers C4127 because of while(0)
-    env.Append(CFLAGS = '/wd4127')
 elif 'tcc' in env['CC']:
     # Tiny C Compiler
     env.Append(CFLAGS = '-Wall -Werror -g')
@@ -135,12 +138,18 @@ elif 'g++' in env['CXX'] or 'gcc' in env['CXX']:
     env.Append(CXXFLAGS = '-g -Wall -Werror -Wextra -Wno-missing-field-initializers')
 elif 'cl' in env['CXX']:
     env.Append(CXXFLAGS = '/Zi /W2 /WX')
-    
+
 # Now include the SConscript files from all subdirectories
 import os.path
 env['VARIANT_DIR'] = 'build'
 env['BUILD'] = '#' + env['VARIANT_DIR']
 env['COMMON'] = '#' + env['VARIANT_DIR'] + '/common'
+
+# Include common/SConscript first to make sure its exports are available
+# to other SConscripts.
+SConscript("common/SConscript", exports = 'env', variant_dir = env['VARIANT_DIR'] + '/common')
+
 for subdir in Glob('*/SConscript') + Glob('regression/*/SConscript'):
+    if str(subdir).startswith("common"): continue
     SConscript(subdir, exports = 'env', variant_dir = env['VARIANT_DIR'] + '/' + os.path.dirname(str(subdir)))
 

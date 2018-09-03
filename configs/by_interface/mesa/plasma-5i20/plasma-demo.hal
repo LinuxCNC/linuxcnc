@@ -2,7 +2,9 @@
 # If you make changes to this file, they will be
 # overwritten when you run stepconf again
 loadrt trivkins
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 loadrt probe_parport
 loadrt hal_parport cfg="0x378 out  "
 setp parport.0.reset-time 1000

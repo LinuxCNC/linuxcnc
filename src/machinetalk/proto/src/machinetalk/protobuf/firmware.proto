@@ -1,0 +1,50 @@
+syntax = "proto2";
+/** firmware descriptor for hostmot2
+The message Firmware encodes the detail which used to be hardcoded in the low-level hostmot2 driver
+in the struct hm2_lowlevel_io_struct.
+It is placed in the firmware at a well-known location including a length field.
+The lowlevel driver decodes this message, and calls hm2_register() accordingly.
+*/
+
+// the nanopb import, plus the nanopb max_size/max_count options are not
+// strictly needed but together they result in a fixed-size C struct
+// representing the decoded message in nanopb
+// see the resulting typedefs _pb_Connector and  _pb_Firmware in
+// src/machinetalk/generated/firmware.npb.h
+// this makes the struct easier to work with in RT (decoding without
+// callbacks and malloc())
+
+import "machinetalk/protobuf/nanopb.proto";
+
+// see README.msgid
+// msgid base: 380
+
+package machinetalk;
+
+/// describes a connector
+message Connector {
+    /// @exclude
+    option (nanopb_msgopt).msgid = 380;
+
+    /// will appear in the HAL name
+    optional string        name     = 1 [(nanopb).max_size = 20];
+    /// number of pins
+    optional sfixed32      pins     = 2;
+}
+
+message Firmware {
+    /// @exclude
+    option (nanopb_msgopt).msgid = 385;
+    /// the machinekit/socfpga build SHA
+    optional string       build_sha         = 1 [(nanopb).max_size = 40];
+    /// sets hm2_lowlevel_io_struct.fpga_part_number
+    optional string       fpga_part_number  = 2 [(nanopb).max_size = 20];
+    /// sets hm2_lowlevel_io_struct.num_ioport_connectors, ioport_connector_name, pins_per_connector
+    repeated Connector    connector         = 3 [(nanopb).max_count = 16];
+    /// sets hm2_lowlevel_io_struct.num_leds
+    optional sfixed32     num_leds          = 4;
+    /// sets hm2_lowlevel_io_struct.num_leds
+    optional string       board_name        = 5 [(nanopb).max_size = 30];
+    /// descriptive text, uninterpreted - use for log message if present
+    optional string       comment           = 6 [(nanopb).max_size = 80];
+}

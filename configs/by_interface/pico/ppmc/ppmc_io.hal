@@ -51,17 +51,17 @@ net Ahome => axis.3.home-sw-in
 #      prevent continued estop signal from ppmc from holding FF cleared
 net ppmcEstop ppmc.0.din.estop.in
 net ppmcEstop and2.0.in0
-net EstopOkIn estop-latch.0.fault-in
+net EstopOkIn estop_latch.0.fault-in
 net EstopOkIn and2.0.out
 net EstopOkOut ppmc.0.dout.07.out
 net EstopOkOut ppmc.0.dout.Estop.out
 net EstopOkOut iocontrol.0.emc-enable-in
-net EstopOkOut estop-latch.0.ok-out
+net EstopOkOut estop_latch.0.ok-out
 net EstopOkOut and2.0.in1
 net emc-estop-out iocontrol.0.user-enable-out
-net emc-estop-out estop-latch.0.ok-in
+net emc-estop-out estop_latch.0.ok-in
 net emc-estop-reset iocontrol.0.user-request-enable
-net emc-estop-reset estop-latch.0.reset
+net emc-estop-reset estop_latch.0.reset
 
 #newsig EstopSense bit
 #newsig EstopWrite bit

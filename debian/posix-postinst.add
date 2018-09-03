@@ -1,0 +1,13 @@
+
+# ensure the links do not pre-exist, from previous installs.
+# or user work-arounds,  which will produce error messages
+rm -f /usr/lib/linuxcnc/posix/pru_generic.bin
+rm -f /usr/lib/linuxcnc/posix/pru_generic.dbg
+rm -f /usr/lib/linuxcnc/posix/pru_decamux.bin
+rm -f /usr/lib/linuxcnc/posix/pru_decamux.dbg
+
+# make symlinks to BBB pru_*.*
+ln -sf /usr/lib/linuxcnc/prubin/pru_generic.bin /usr/lib/linuxcnc/posix/pru_generic.bin
+ln -sf /usr/lib/linuxcnc/prubin/pru_generic.dbg /usr/lib/linuxcnc/posix/pru_generic.dbg
+ln -sf /usr/lib/linuxcnc/prubin/pru_decamux.bin /usr/lib/linuxcnc/posix/pru_decamux.bin
+ln -sf /usr/lib/linuxcnc/prubin/pru_decamux.dbg /usr/lib/linuxcnc/posix/pru_decamux.dbg

@@ -14,7 +14,7 @@
 ********************************************************************/
 
 #include <stdio.h>		// sscanf()
-#include <math.h>		// fabs()
+#include "rtapi_math.h"		// fabs()
 #include <stdlib.h>		// exit()
 #include <string.h>		// strncpy()
 #include <unistd.h>             // _exit()
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
     start_time = etime();
 
-    while (fabs(etime() - start_time) < 10.0 &&
+    while (rtapi_fabs(etime() - start_time) < 10.0 &&
 	   (emcCommandChannel == NULL || emcStatusChannel == NULL
 	    || (tool_channels && (toolCommandChannel == NULL || toolStatusChannel == NULL))
 	    || emcErrorChannel == NULL)

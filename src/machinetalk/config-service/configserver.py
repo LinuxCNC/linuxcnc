@@ -1,147 +1,133 @@
-#!/usr/bin/python
+#!/usr/bin/python2
+# coding=utf-8
 import os
 import sys
-import uuid
-from stat import *
+from stat import S_ISREG, S_ISDIR
 import zmq
-import netifaces
-import avahi
-import dbus
+import threading
+import signal
+import time
+import argparse
 
 import ConfigParser
+from machinekit import service
+from machinekit import config
 
-from message_pb2 import Container
-from config_pb2 import *
-from types_pb2 import *
-
-
-class ZeroconfService:
-    """A simple class to publish a network service with zeroconf using
-    avahi.
-    """
-
-    def __init__(self, name, port, stype="_http._tcp", subtype=None,
-                 domain="", host="", text=""):
-        self.name = name
-        self.stype = stype
-        self.domain = domain
-        self.host = host
-        self.port = port
-        self.text = text
-        self.subtype = subtype
-
-    def publish(self):
-        bus = dbus.SystemBus()
-        server = dbus.Interface(
-                         bus.get_object(
-                                 avahi.DBUS_NAME,
-                                 avahi.DBUS_PATH_SERVER),
-                        avahi.DBUS_INTERFACE_SERVER)
-
-        g = dbus.Interface(
-                    bus.get_object(avahi.DBUS_NAME,
-                                   server.EntryGroupNew()),
-                    avahi.DBUS_INTERFACE_ENTRY_GROUP)
-
-        g.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, dbus.UInt32(0),
-                     self.name, self.stype, self.domain, self.host,
-                     dbus.UInt16(self.port), self.text)
-
-        if self.subtype:
-            g.AddServiceSubtype(avahi.IF_UNSPEC,
-                                avahi.PROTO_UNSPEC,
-                                dbus.UInt32(0),
-                                self.name, self.stype, self.domain,
-                                self.subtype)
-
-        g.Commit()
-        self.group = g
-
-    def unpublish(self):
-        self.group.Reset()
+from google.protobuf.message import DecodeError
+from machinetalk.protobuf.message_pb2 import Container
+from machinetalk.protobuf.config_pb2 import CLEARTEXT, QT5_QML, GLADEVCP, JAVASCRIPT
+import machinetalk.protobuf.types_pb2 as pb
 
 
-class ConfigServer:
-    def __init__(self, context, uri, appDirs=[], topdir=".",
-                 interface="", ipv4="", svc_uuid=None, debug=False):
+class ConfigServer(object):
+    def __init__(self, context, appDirs=None, topdir=".",
+                 host='', svcUuid=None, debug=False, name=None,
+                 hostInName=True, loopback=False):
+        if appDirs is None:
+            appDirs = []
+
         self.appDirs = appDirs
-        self.interface = interface
-        self.ipv4 = ipv4
+        self.host = host
+        self.loopback = loopback
+        self.name = name
         self.debug = debug
+        self.shutdown = threading.Event()
+        self.running = False
         self.cfg = ConfigParser.ConfigParser()
 
         for rootdir in self.appDirs:
-            for root, subFolders, files in os.walk(rootdir):
+            for root, _, files in os.walk(rootdir):
                 if 'description.ini' in files:
                     inifile = os.path.join(root, 'description.ini')
                     cfg = ConfigParser.ConfigParser()
                     cfg.read(inifile)
-                    name = cfg.get('Default', 'name')
+                    appName = cfg.get('Default', 'name')
                     description = cfg.get('Default', 'description')
                     appType = cfg.get('Default', 'type')
-                    self.cfg.add_section(name)
-                    self.cfg.set(name, 'description', description)
-                    self.cfg.set(name, 'type', appType)
-                    self.cfg.set(name, 'files', root)
-                    if debug:
-                        print "name:", cfg.get('Default', 'name')
-                        print "description:", cfg.get('Default', 'description')
-                        print "type:", cfg.get('Default', 'type')
-                        print "files:", root
-
-        self.topdir = topdir
-        self.context = context
-        self.socket = context.socket(zmq.ROUTER)
-        self.port = self.socket.bind_to_random_port(uri)
-        self.dsname = self.socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-
-        if self.debug: print "dsname = ", self.dsname, "port =",self.port
-
-        me = uuid.uuid1()
-        self.txtrec = [str('dsn=' + self.dsname),
-                       str('uuid=' + svc_uuid),
-                       str('service=' + 'config'),
-                       str('instance=' + str(me))]
-
-        if self.debug: print "txtrec:",self.txtrec
+                    self.cfg.add_section(appName)
+                    self.cfg.set(appName, 'description', description)
+                    self.cfg.set(appName, 'type', appType)
+                    self.cfg.set(appName, 'files', root)
+                    if self.debug:
+                        print(("name: " + cfg.get('Default', 'name')))
+                        print(("description: " + cfg.get('Default', 'description')))
+                        print(("type: " + cfg.get('Default', 'type')))
+                        print(("files: " + root))
 
         self.rx = Container()
         self.tx = Container()
+        self.topdir = topdir
+        self.context = context
+        self.baseUri = "tcp://"
+        if self.loopback:
+            self.baseUri += '127.0.0.1'
+        else:
+            self.baseUri += '*'
+        self.socket = context.socket(zmq.ROUTER)
+        self.port = self.socket.bind_to_random_port(self.baseUri)
+        self.dsname = self.socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self.dsname = self.dsname.replace('0.0.0.0', self.host)
+
+        if self.name is None:
+            self.name = "Machinekit"
+        if hostInName:
+            self.name += ' on ' + self.host
+        self.service = service.Service(type='config',
+                                       svcUuid=svcUuid,
+                                       dsn=self.dsname,
+                                       port=self.port,
+                                       host=self.host,
+                                       name=self.name,
+                                       loopback=self.loopback,
+                                       debug=self.debug)
+
+        self.publish()
+
+        threading.Thread(target=self.process_sockets).start()
+        self.running = True
+
+    def process_sockets(self):
         poll = zmq.Poller()
         poll.register(self.socket, zmq.POLLIN)
+
+        while not self.shutdown.is_set():
+            s = dict(poll.poll(1000))
+            if self.socket in s:
+                self.process(self.socket)
+
+        self.unpublish()
+        self.running = False
+
+    def publish(self):
         try:
-            self.name = 'Machinekit on %s' % self.ipv4
-            self.service = ZeroconfService(self.name, self.port,
-                                           stype='_machinekit._tcp',
-                                           subtype="_config._sub._machinekit._tcp",
-                                           text=self.txtrec)
             self.service.publish()
-        except Exception, e:
-            print 'cannot register DNS service',e
+        except Exception as e:
+            print(('cannot register DNS service' + str(e)))
             sys.exit(1)
 
-        try:
-            while True:
-                s = dict(poll.poll())
-                if self.socket in s:
-                    self.process(self.socket)
-        except KeyboardInterrupt:
-            self.service.unpublish()
+    def unpublish(self):
+        self.service.unpublish()
+
+    def stop(self):
+        self.shutdown.set()
 
     def typeToPb(self, type):
         if type == 'QT5_QML':
             return QT5_QML
         elif type == 'GLADEVCP':
             return GLADEVCP
-        else:
+        elif type == 'JAVASCRIPT':
             return JAVASCRIPT
+        else:
+            raise TypeError('Unsupported type %s' % type)
 
     def send_msg(self, dest, type):
         self.tx.type = type
         txBuffer = self.tx.SerializeToString()
-        print "send_msg", str(self.tx)
+        if self.debug:
+            print(("send_msg " + str(self.tx)))
         self.tx.Clear()
-        self.socket.send_multipart([dest, txBuffer])
+        self.socket.send_multipart(dest + [txBuffer], zmq.NOBLOCK)
 
     def list_apps(self, origin):
         for name in self.cfg.sections():
@@ -149,122 +135,163 @@ class ConfigServer:
             app.name = name
             app.description = self.cfg.get(name, 'description')
             app.type = self.typeToPb(self.cfg.get(name, 'type'))
-        self.send_msg(origin, MT_DESCRIBE_APPLICATION)
+        self.send_msg(origin, pb.MT_DESCRIBE_APPLICATION)
 
-    def add_files(self, dir, app):
-        print "addfiles", dir
-        for f in os.listdir(dir):
-            pathname = os.path.join(dir, f)
+    def add_files(self, basePath, path, app):
+        if self.debug:
+            print(("add files " + path))
+        for f in os.listdir(path):
+            pathname = os.path.join(path, f)
             mode = os.stat(pathname).st_mode
             if S_ISREG(mode):
-                print "add", pathname
-                buffer = open(pathname, 'rU').read()
-                file = app.file.add()
-                file.name = str(f)
-                file.encoding = CLEARTEXT
-                file.blob = str(buffer)
+                filename = os.path.join(os.path.relpath(path, basePath), f)
+                if self.debug:
+                    print(("add " + pathname))
+                    print(("name " + filename))
+                fileBuffer = open(pathname, 'rb').read()
+                appFile = app.file.add()
+                appFile.name = filename
+                appFile.encoding = CLEARTEXT
+                appFile.blob = fileBuffer
+            elif S_ISDIR(mode):
+                self.add_files(basePath, pathname, app)
 
     def retrieve_app(self, origin, name):
-        print "retrieve app", name
+        if self.debug:
+            print(("retrieve app " + name))
         app = self.tx.app.add()
         app.name = name
         app.description = self.cfg.get(name, 'description')
         app.type = self.typeToPb(self.cfg.get(name, 'type'))
-        self.add_files(self.cfg.get(name, 'files'), app)
+        self.add_files(self.cfg.get(name, 'files'),
+                       self.cfg.get(name, 'files'), app)
 
-        self.send_msg(origin, MT_APPLICATION_DETAIL)
+        self.send_msg(origin, pb.MT_APPLICATION_DETAIL)
 
     def process(self, s):
-        print "process called"
+        frames = s.recv_multipart()
+        identity = frames[:-1]  # multipart id
+        message = frames[-1]  # last frame
+
+        if self.debug:
+            print("process called, id: %s" % identity)
+
         try:
-            (origin, msg) = s.recv_multipart()
-        except Exception, e:
-            print "Exception",e
-            return
-        self.rx.ParseFromString(msg)
-
-        if self.rx.type == MT_LIST_APPLICATIONS:
-            self.list_apps(origin)
+            self.rx.ParseFromString(message)
+        except DecodeError as e:
+            note = 'Protobuf Decode Error: ' + str(e)
+            self.tx.note.append(note)
+            self.send_msg(identity, pb.MT_ERROR)
             return
 
-        if self.rx.type == MT_RETRIEVE_APPLICATION:
+        if self.rx.type == pb.MT_LIST_APPLICATIONS:
+            self.list_apps(identity)
+
+        elif self.rx.type == pb.MT_RETRIEVE_APPLICATION:
             a = self.rx.app[0]
-            self.retrieve_app(origin,a.name)
-        return
+            self.retrieve_app(identity, a.name)
 
-        note = self.tx.note.add()
-        note = "unsupported request type %d" % (self.rx.type)
-        self.send_msg(origin,MT_ERROR)
+        elif self.rx.type == pb.MT_PING:
+            self.send_msg(identity, pb.MT_PING_ACKNOWLEDGE)
+
+        else:
+            note = "unsupported request type %d" % (self.rx.type)
+            self.tx.note.append(note)
+            self.send_msg(identity, pb.MT_ERROR)
 
 
-def choose_ip(pref):
-    '''
-    given an interface preference list, return a tuple (interface, IPv4)
-    or None if no match found
-    If an interface has several IPv4 addresses, the first one is picked.
-    pref is a list of interface names or prefixes:
+shutdown = False
 
-    pref = ['eth0','usb3']
-    or
-    pref = ['wlan','eth', 'usb']
-    '''
 
-    # retrieve list of network interfaces
-    interfaces = netifaces.interfaces()
+def _exitHandler(signum, frame):
+    del signum  # ignored
+    del frame  # ignored
+    global shutdown
+    shutdown = True
 
-    # find a match in preference oder
-    for p in pref:
-        for i in interfaces:
-            if i.startswith(p):
-                ifcfg = netifaces.ifaddresses(i)
-                # we want the first IPv4 address
-                try:
-                    ip = ifcfg[netifaces.AF_INET][0]['addr']
-                except KeyError:
-                    continue
-                return (i, ip)
-    return None
+
+# register exit signal handlers
+def register_exit_handler():
+    signal.signal(signal.SIGINT, _exitHandler)
+    signal.signal(signal.SIGTERM, _exitHandler)
+
+
+def check_exit():
+    global shutdown
+    return shutdown
 
 
 def main():
-    debug = False
+    parser = argparse.ArgumentParser(description='Configserver is the entry point for Machinetalk based user interfaces')
+    parser.add_argument('-n', '--name', help='Name of the machine', default="Machinekit")
+    parser.add_argument('-s', '--suppress_ip', help='Do not show ip of machine in service name', action='store_false')
+    parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
+    parser.add_argument('dirs', nargs='*', help="List of directories to scan for user interface configurations")
 
+    args = parser.parse_args()
+
+    debug = args.debug
+
+    mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
-        print >> sys.stderr, "no MACHINEKIT_INI environemnt variable set"
+        mkini = mkconfig.MACHINEKIT_INI
+    if not os.path.isfile(mkini):
+        sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
     mki = ConfigParser.ConfigParser()
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
-    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
-        print("Remote communication is deactivated, configserver will not start")
+        print("Remote communication is deactivated, configserver will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        sys.exit(0)
-
-    iface = choose_ip(prefs)
-    if not iface:
-        print >> sys.stderr, "failed to determine preferred interface (preference = %s)" % prefs
-        sys.exit(1)
 
     if debug:
-        print(("announcing configserver on ", iface))
+        print(("announcing configserver"))
 
     context = zmq.Context()
     context.linger = 0
 
-    uri = "tcp://" + iface[0]
+    register_exit_handler()
 
-    cfg = ConfigServer(context, uri,
-                       svc_uuid=uuid,
-                       topdir=".",
-                       interface=iface[0],
-                       ipv4=iface[1],
-                       appDirs=sys.argv[1:],
-                       debug=debug)
+    configService = None
+
+    try:
+        hostname = '%(fqdn)s'  # replaced by service announcement
+        configService = ConfigServer(context,
+                                     svcUuid=uuid,
+                                     topdir=".",
+                                     host=hostname,
+                                     appDirs=args.dirs,
+                                     name=args.name,
+                                     hostInName=bool(args.suppress_ip),
+                                     loopback=(not remote),
+                                     debug=debug)
+
+        while configService.running and not check_exit():
+            time.sleep(1)
+    except Exception as e:
+        print("exception")
+        print(e)
+    except:
+        print("other exception")
+
+    if debug:
+        print("stopping threads")
+    if configService is not None:
+        configService.stop()
+
+    # wait for all threads to terminate
+    while threading.active_count() > 1:
+        time.sleep(0.1)
+
+    if debug:
+        print("threads stopped")
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

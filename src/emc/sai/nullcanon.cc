@@ -6,7 +6,7 @@
 #include "canon.hh"
 #include "rs274ngc.hh"
 #include "rs274ngc_interp.hh"
-#include <math.h>
+#include "rtapi_math.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>

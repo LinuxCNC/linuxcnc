@@ -1,0 +1,6 @@
+o<m207> sub
+#500=47 ; retract length index
+#501=48 ; retract velocity index
+M68 E#500 Q#<P>
+M68 E#501 Q#<Q>
+o<m207> endsub

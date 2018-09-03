@@ -1,0 +1,33 @@
+{
+  "name": "machinetalk-protobuf",
+  "version": "1.0.1",
+  "description": "Protobuf definitions to communicate with Machinetalk",
+  "main": "js/index.js",
+  "scripts": {
+      "prepublish": "js/scripts/install.js",
+      "bundle": "js/scripts/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machinekit/machinetalk-protobuf.git"
+  },
+  "author": "Bob van der Linden <bobvanderlinden@gmail.com>",
+  "keywords": [
+    "machinetalk",
+    "machinekit",
+    "protobuf"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/machinekit/machinetalk-protobuf/issues"
+  },
+  "homepage": "https://github.com/machinekit/machinetalk-protobuf#readme",
+  "dependencies": {
+    "mkdirp": "0.5.1",
+    "protobufjs": "5.0.0"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "minifyify": "^7.1.0"
+  }
+}

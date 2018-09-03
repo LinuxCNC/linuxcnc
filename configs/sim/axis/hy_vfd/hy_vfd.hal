@@ -1,0 +1,17 @@
+# spindle speed
+net spindle-speed motion.spindle-speed-out
+
+# Load the Huanyang VFD user component 
+loadusr -Wn spindle-vfd hy_vfd -n spindle-vfd -d /dev/ttyUSB0 -p none -r 9600
+
+# connect the spindle direction pins to the VFD
+net hy-spindle-fwd  <= motion.spindle-forward => spindle-vfd.spindle-forward
+net hy-spindle-rev  <= motion.spindle-reverse => spindle-vfd.spindle-reverse
+
+# connect the spindle on pin to the VFD
+net hy-spindle-on <= motion.spindle-on => spindle-vfd.spindle-on
+
+# connect the spindle RPM to the VFD
+net spindle-speed => spindle-vfd.speed-command
+
+

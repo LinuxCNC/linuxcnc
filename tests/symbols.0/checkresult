@@ -1,3 +1,3 @@
 #!/bin/sh
-grep -q 'test_use: dlopen: .*: undefined symbol: testuse' `dirname $1`/stderr \
+grep -q 'do_load_cmd: dlopen: .*: undefined symbol: testuse' `dirname $1`/stderr \
 || dmesg | grep -q 'test_use: Unknown symbol testuse'

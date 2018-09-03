@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# usage: hm2soc_program_fpga <path-to-rbf>
+
+set_bridge () {
+    bridge=$1
+    value=$2
+    echo $value > "/sys/class/fpga-bridge/$bridge/enable"
+}
+
+RBF="$1"
+
+# remove the gpio_altera module - programming
+# the fpga with the module loaded causes a panic
+# (at least with 3.10.37-ltsi)
+
+modprobe -r gpio_altera
+
+set_bridge hps2fpga 0
+set_bridge fpga2hps 0
+set_bridge lwhps2fpga 0
+
+
+# Program the FPGA
+dd if="$RBF" of=/dev/fpga0 || exit 1
+
+# Enable the LWHPS2FPGA bridge only
+set_bridge hps2fpga 0
+set_bridge fpga2hps 0
+set_bridge lwhps2fpga 1
+
+# re-enable
+modprobe  gpio_altera
+

@@ -24,7 +24,9 @@ XFAIL=0
 VERBOSE=0
 
 clean () {
-    find $* \( -name "stderr" -or -name "result" \) -print0 | xargs -0 rm -f
+    find $* \( -name "stderr" -or -name "result" \
+	-or -name "*.var" -or -name "*.var.bak" \) \
+	-print0 | xargs -0 rm -f
 }
 
 run_and_log() {
@@ -134,7 +136,7 @@ run_tests () {
 		reason="checkresult exited with $exitcode"
 	    elif [ -f $testdir/expected ]; then
 		exitcode=0
-		if ! diff -u $testdir/expected $testdir/result > \
+		if ! diff --ignore-trailing-space -u $testdir/expected $testdir/result > \
 		    $TMPDIR/diff; then
 		    exitcode=1
 		    reason="result differed from expected"
@@ -157,7 +159,8 @@ run_tests () {
 		XFAIL=$(($XFAIL+1))
 		echo "*** $testdir: XFAIL: $reason"
 		if [ $NOCLEAN -eq 0 ]; then
-		    rm -f $testdir/stderr $testdir/result
+		    rm -f $testdir/stderr $testdir/result \
+			$testdir/*.var $testdir/*.var.bak
 		fi
 	    else
 		FAIL=$(($FAIL+1))
@@ -170,7 +173,8 @@ run_tests () {
 		echo "*** $testdir: XPASS: Passed, but was expected to fail"
 	    else
 		if [ $NOCLEAN -eq 0 ]; then
-		    rm -f $testdir/stderr $testdir/result
+		    rm -f $testdir/stderr $testdir/result \
+			$testdir/*.var $testdir/*.var.bak
 		fi
 	    fi
 	fi

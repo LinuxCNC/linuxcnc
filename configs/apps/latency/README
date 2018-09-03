@@ -1,6 +1,6 @@
 Latency evaluation programs
 
-latency-test -- Standard test for linuxcnc
+latency-test -- Standard test for machinekit
 
 latency-plot -- Plot latencies for default base and servo threads
 

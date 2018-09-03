@@ -1,8 +1,8 @@
-This config is for a plasma cutting machine with "stepper" control, along with ClassicLadder connections to some of the LinuxCNC IO.
+This config is for a plasma cutting machine with "stepper" control, along with ClassicLadder connections to some of the Machinekit IO.
 
 It is based on the classicladder stepper sample config, but also includes a charge pump and a Torch Height Control system for Bob Cambells THC300 and CandCNC THC systems.
 
 The stepper pinouts are for a standard breakout board/combo board as provided by Bob Campbell.
 
 This configuration is out of date and will not run without updating, since it
-uses freqgen, which has been removed in preparation for Linuxcnc 2.6.
+uses freqgen, which has been removed in preparation for Machinekit 2.6.

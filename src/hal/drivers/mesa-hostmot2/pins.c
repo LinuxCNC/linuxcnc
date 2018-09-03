@@ -217,6 +217,18 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
+        case HM2_GTAG_PKTUART_RX:
+            switch (sec_pin) {
+                case 0x1: return "RX Data";
+            }
+            break;
+        case HM2_GTAG_PKTUART_TX:    
+            switch (sec_pin) {
+                case 0x1: return "TX Data";
+                case 0x2: return "Drv Enable";
+            }
+            break;
+
         case HM2_GTAG_DPLL: // Not Supported Currently
             switch (sec_pin) {
                 case 0x1: return "SynchIn";
@@ -242,13 +254,13 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             switch (sec_pin) {
                 case 0x41: return "Strobe";
                 default:
-                    sprintf(unknown, "Data%02x",sec_pin - 1);
+                    rtapi_snprintf(unknown, sizeof(unknown),  "Data%02x",sec_pin - 1);
                     return unknown;
             }
             break;
 
         case HM2_GTAG_BINOSC: // Not Supported Currently
-             sprintf(unknown, "Out%02x",sec_pin -1);
+             rtapi_snprintf(unknown, sizeof(unknown), "Out%02x",sec_pin -1);
              return unknown;
              break;
 
@@ -278,14 +290,24 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0x6: return "Timer 4 Pin";
             }
             break;
+            
+        case HM2_GTAG_CAPSENSE:
+            switch (sec_pin) {
+                case 1: return "Charge Out Pin";
+                case 2: return "Sense 0 Pin";
+                case 3: return "Sense 1 Pin";
+                case 4: return "Sense 2 Pin";
+                case 5: return "Sense 3 Pin";
+            }
+            break;
 
         case HM2_GTAG_TWIDDLER: // Not Supported Currently
              if (sec_pin < 0x20){
-                 sprintf(unknown, "In%02x", sec_pin - 1);
+                 rtapi_snprintf(unknown, sizeof(unknown), "In%02x", sec_pin - 1);
              } else if (sec_pin > 0xC0){
-                 sprintf(unknown, "IO%02x", sec_pin - 1);
+                 rtapi_snprintf(unknown, sizeof(unknown), "IO%02x", sec_pin - 1);
              } else {
-                 sprintf(unknown, "Out%02x", sec_pin - 1);
+                 rtapi_snprintf(unknown, sizeof(unknown), "Out%02x", sec_pin - 1);
              }
              return unknown;
              break;
@@ -396,18 +418,23 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
                     "invalid\n", pin->bit_num );
             return -EINVAL;
         }
-        switch (hm2->idrom.port_width) {
-            case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
-                pin->port_pin = ((i % 24) * 2) + 1;
-                break;
-            case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
-                pin->port_pin = DB25[i % 17];
-                break;
-            case 32:      /* 5I21 punt on this for now */
-                pin->port_pin = i + 1;
-                break;
-            default:
-                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+        if(hm2->fwid.dmsg == NULL) {
+            switch (hm2->idrom.port_width) {
+                case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
+                    pin->port_pin = ((i % 24) * 2) + 1;
+                    break;
+                case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
+                    pin->port_pin = DB25[i % 17];
+                    break;
+                case 32:      /* 5I21 punt on this for now */
+                    pin->port_pin = i + 1;
+                    break;
+                default:
+                    HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+            }
+        }
+        else {
+            pin->port_pin = i + 1;
         }
         
         addr += 4;
@@ -576,6 +603,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
 
     // encoder and pwmgen just get all their enabled instances' pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
+
     // Abs encoders are all packed together, not necessarily contiguously
     hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, MAX_ABSENCS);
     hm2_pins_allocate_all(hm2, HM2_GTAG_BISS, MAX_ABSENCS);
@@ -586,12 +614,13 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_RX,  hm2->uart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_TX ,  hm2->uart.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_RX,  hm2->pktuart.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_TX ,  hm2->pktuart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->sserial.num_instances);
     // muxed encoder gets the sel pins
-    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->muxed_encoder.num_instances);
     // and about half as many I/Os as you'd expect
-    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->muxed_encoder.num_instances+1)/2);
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_CAPSENSE, 1);
 }
-
-

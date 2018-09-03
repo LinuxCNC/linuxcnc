@@ -1,0 +1,43 @@
+//   This is a component for Machinekit
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component blend "Perform linear interpolation between two values";
+
+pin in float in1 "First input.  If select is equal to 1.0, the output is equal to in1";
+pin in float in2 "Second input.  If select is equal to 0.0, the output is equal to in2";
+pin in float select "Select input.  For values between 0.0 and 1.0, the output changes linearly from in2 to in1";
+pin out float out "Output value.";
+
+pin io bit open "If true, select values outside the range 0.0 to 1.0 give values outside the range in2 to in1.  If false, outputs are clamped to the the range in2 to in1";
+
+function _;
+license "GPL";
+
+;;
+
+FUNCTION(_) {
+    hal_float_t select_ = select;
+    if(!open)
+        {
+        if(select_ < 0.0) select_ = 0.0;
+        if(select_ > 1.0) select_ = 1.0;
+        }
+    out = in1 * select_ + in2 * (1.0 - select_);
+
+return 0;
+
+}

@@ -13,6 +13,8 @@ cdef extern from "hal_iter.h":
     ctypedef int (*hal_group_callback_t) (hal_group_t *group,  void *cb_data)
     ctypedef int (*hal_member_callback_t)(int level, hal_group_t **groups,
                                           hal_member_t *member, void *cb_data)
+    ctypedef int (*hal_vtable_callback_t)(hal_vtable_t *vtable,  void *arg)
+    ctypedef int (*hal_inst_callback_t)  (hal_inst_t *vtable,  void *cb_data)
 
     int halpr_foreach_comp(const char *name,
                            hal_comp_callback_t callback,
@@ -39,3 +41,10 @@ cdef extern from "hal_iter.h":
                              hal_member_callback_t callback,
                              void *cb_data,
                              int flags)
+    int halpr_foreach_vtable(const char *name,
+                             hal_vtable_callback_t
+                             callback,
+                             void *arg)
+    int halpr_foreach_inst(const char *name,
+                           hal_inst_callback_t callback,
+                           void *arg)

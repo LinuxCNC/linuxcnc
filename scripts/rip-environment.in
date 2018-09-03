@@ -41,6 +41,7 @@ case "$PATH" in
 	return ;;
 esac
 
+RIP=@RUN_IN_PLACE@; export RIP
 EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
 EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 LINUXCNC_EMCSH=@WISH@; export LINUXCNC_EMCSH
@@ -67,12 +68,12 @@ fi
 
 if [ -z "$MANPATH" ]; then
     if type -path manpath > /dev/null 2>&1; then
-	MANPATH=$EMC2_HOME/docs/man:"$(manpath)"
+	MANPATH=$EMC2_HOME/man:"$(manpath)"
     else
-	MANPATH=$EMC2_HOME/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+	MANPATH=$EMC2_HOME/man:/usr/local/man:/usr/local/share/man:/usr/share/man
     fi
 else
-    MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
+    MANPATH=$EMC2_HOME/man:"$MANPATH"
 fi
 
 if [ -z "$GLADE_CATALOG_PATH" ]; then
@@ -92,7 +93,7 @@ elif [ $BASH_VERSINFO -eq 2 ]; then
     complete -C "halcmd -C" halcmd
 else
     _iningc () {
-        case "$3" in 
+        case "$3" in
         *.ini)
         COMPREPLY=$(compgen -o plusdirs -f -X '!*.ngc' -- "$2")
         ;;

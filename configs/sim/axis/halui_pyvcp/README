@@ -2,4 +2,4 @@ Sample config to show the usage of halui & pyvcp.
 
 pyvcp = HAL Virtual Control Panel is a way to define virtual buttons & sliders, they will be instantiated as buttons on a GUI, but will behave just like real hardware. Check the Integrators Manual for additional details.
 
-halui = HAL User Interface is a tool to allow LinuxCNC to be controlled by hardware panels (knobs, switches, leds, etc).
+halui = HAL User Interface is a tool to allow Machinekit to be controlled by hardware panels (knobs, switches, leds, etc).

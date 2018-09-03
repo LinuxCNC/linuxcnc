@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -90,13 +90,13 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
   case MODULO:                 /* always calculates a positive answer */
     *left = fmod(*left, *right);
     if (*left < 0.0) {
-      *left = (*left + fabs(*right));
+      *left = (*left + rtapi_fabs(*right));
     }
     break;
   case POWER:
-    CHKS(((*left < 0.0) && (floor(*right) != *right)),
+    CHKS(((*left < 0.0) && (rtapi_floor(*right) != *right)),
         NCE_ATTEMPT_TO_RAISE_NEGATIVE_TO_NON_INTEGER_POWER);
-    *left = pow(*left, *right);
+    *left = rtapi_pow(*left, *right);
     break;
   case TIMES:
     *left = (*left * *right);
@@ -302,6 +302,10 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (settings->toolchange_flag)
       return (INTERP_EXECUTE_FINISH);
 
+  // All changes to settings are complete
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
   return INTERP_OK;
 }
 
@@ -346,17 +350,17 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
   case ACOS:
     CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
         NCE_ARGUMENT_TO_ACOS_OUT_OF_RANGE);
-    *double_ptr = acos(*double_ptr);
+    *double_ptr = rtapi_acos(*double_ptr);
     *double_ptr = ((*double_ptr * 180.0) / M_PIl);
     break;
   case ASIN:
     CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
         NCE_ARGUMENT_TO_ASIN_OUT_OF_RANGE);
-    *double_ptr = asin(*double_ptr);
+    *double_ptr = rtapi_asin(*double_ptr);
     *double_ptr = ((*double_ptr * 180.0) / M_PIl);
     break;
   case COS:
-    *double_ptr = cos((*double_ptr * M_PIl) / 180.0);
+    *double_ptr = rtapi_cos((*double_ptr * M_PIl) / 180.0);
     break;
   case EXISTS:
     // do nothing here
@@ -366,10 +370,10 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
     *double_ptr = exp(*double_ptr);
     break;
   case FIX:
-    *double_ptr = floor(*double_ptr);
+    *double_ptr = rtapi_floor(*double_ptr);
     break;
   case FUP:
-    *double_ptr = ceil(*double_ptr);
+    *double_ptr = rtapi_ceil(*double_ptr);
     break;
   case LN:
     CHKS((*double_ptr <= 0.0), NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN);
@@ -380,14 +384,14 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
       ((int) (*double_ptr + ((*double_ptr < 0.0) ? -0.5 : 0.5)));
     break;
   case SIN:
-    *double_ptr = sin((*double_ptr * M_PIl) / 180.0);
+    *double_ptr = rtapi_sin((*double_ptr * M_PIl) / 180.0);
     break;
   case SQRT:
     CHKS((*double_ptr < 0.0), NCE_NEGATIVE_ARGUMENT_TO_SQRT);
-    *double_ptr = sqrt(*double_ptr);
+    *double_ptr = rtapi_sqrt(*double_ptr);
     break;
   case TAN:
-    *double_ptr = tan((*double_ptr * M_PIl) / 180.0);
+    *double_ptr = rtapi_tan((*double_ptr * M_PIl) / 180.0);
     break;
   default:
     ERS(NCE_BUG_UNKNOWN_OPERATION);

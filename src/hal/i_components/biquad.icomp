@@ -1,0 +1,167 @@
+/******************************************************************************
+ *
+ * Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
+ *
+ *
+ * This module implements a biquad IIR filter.
+ *
+ ******************************************************************************
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2 of the GNU General
+ * Public License as published by the Free Software Foundation.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+ *
+ * THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+ * ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+ * TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+ * harming persons must have provisions for completely removing power
+ * from all motors, etc, before persons enter any danger area.  All
+ * machinery must be designed to comply with local and national safety
+ * codes, and the authors of this software can not, and do not, take
+ * any responsibility for such compliance.
+ *
+ * This code was written as part of the EMC HAL project.  For more
+ * information, go to www.machinekit.io
+ *
+ ******************************************************************************/
+
+component biquad "Biquad IIR filter";
+
+description """Biquad IIR filter. Implements the following transfer function:
+H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)""";
+
+pin in float in "Filter input.";
+pin out float out "Filter output.";
+pin in bit enable = false "Filter enable. When false, the in is passed to out \
+without any filtering. A transition from false to true causes filter \
+coefficients to be calculated according to parameters";
+pin out bit valid = false "When false, indicates an error occured when caclulating \
+filter coefficients.";
+
+pin io u32 type_ = 0 "Filter type determines the type of filter \
+coefficients calculated. When 0, coefficients must be loaded directly. When 1, \
+a low pass filter is created. When 2, a notch filter is created.";
+pin io float f0 = 250.0 "The corner frequency of the filter.";
+pin io float Q = 0.7071 "The Q of the filter.";
+
+pin io float d1 = 0.0 "1st-delayed denominator coef";
+pin io float d2 = 0.0 "2nd-delayed denominator coef";
+pin io float n0 = 1.0 "non-delayed numerator coef";
+pin io float n1 = 0.0 "1st-delayed numerator coef";
+pin io float n2 = 0.0 "2nd-delayed numerator coef";
+pin io float s1 = 0.0;
+pin io float s2 = 0.0;
+
+variable hal_bit_t lastEnable;
+
+option extra_inst_setup;
+
+function _;
+
+license "GPL";
+;;
+
+
+#include <float.h>
+#include <rtapi_math.h>
+
+
+#define PI                      3.141592653589
+
+
+void Biquad_CalcCoeffs(void *arg, unsigned long period);
+
+
+typedef enum {
+    TYPE_DIRECT,
+    TYPE_LOW_PASS,
+    TYPE_NOTCH,
+} Type;
+
+
+EXTRA_INST_SETUP()
+{
+    lastEnable = false;
+
+    return(0);
+}
+
+
+FUNCTION(_)
+{
+    if(lastEnable != enable){
+        lastEnable = enable;
+
+        if(enable)
+            Biquad_CalcCoeffs(arg, period);
+    }
+
+    if(!enable || !valid){
+        out = in;
+    }else{
+        // Transposed direct form II.
+        out = in * n0 + s1;
+        s1 = in * n1 - out * d1 + s2;
+        s2 = in * n2 - out * d2;
+    }
+
+return 0;
+}
+
+
+void
+Biquad_CalcCoeffs(void *arg, unsigned long period)
+{
+struct inst_data *ip = arg;
+
+    hal_float_t sampleRate, w0, alpha;
+    hal_float_t b0, b1, b2, a0, a1, a2;
+
+    // If not direct coefficient loading.
+    if(type_ != TYPE_DIRECT){
+        valid = false;
+
+        sampleRate = (1.0 / ((hal_float_t)period * 1e-9)); 
+
+        if((f0 > sampleRate / 2.0) || (Q > 2.0) || (Q < 0.5))
+            return;
+
+        w0 = 2.0 * PI * f0 / sampleRate;
+        alpha = rtapi_sin(w0) / (2.0 * Q);
+
+        if(type_ == TYPE_LOW_PASS){
+            b0 = (1.0 - rtapi_cos(w0)) / 2.0;
+            b1 = 1.0 - rtapi_cos(w0);
+            b2 = (1.0 - rtapi_cos(w0)) / 2.0;
+            a0 = 1.0 + alpha;
+            a1 = -2.0 * rtapi_cos(w0);
+            a2 = 1.0 - alpha;
+        }else if(type_ == TYPE_NOTCH){
+            b0 = 1.0;
+            b1 = -2.0 * rtapi_cos(w0);
+            b2 = 1.0;
+            a0 = 1.0 + alpha;
+            a1 = -2.0 * rtapi_cos(w0);
+            a2 = 1.0 - alpha;
+        }else{
+            return;
+        }
+
+        n0 = b0 / a0;
+        n1 = b1 / a0;
+        n2 = b2 / a0;
+        d1 = a1 / a0;
+        d2 = a2 / a0;
+        s1 = s2 = 0.0;
+    }
+
+    valid = true;
+}

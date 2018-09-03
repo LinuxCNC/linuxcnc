@@ -36,7 +36,7 @@
   <property name="latency" type="float" value="15000.0"/>
   <property name="machinename" type="string" value="Gecko_540B4"/>
   <property name="manualtoolchange" type="bool" value="True"/>
-  <property name="md5sums" type="eval" value="[('/home/john/linuxcnc/configs/Gecko_540B4/README', 'd6795c1e5c02e4d01df374bed0ecb468'), ('/home/john/linuxcnc/configs/Gecko_540B4/Gecko_540B4.ini', 'afbe6ca64d782a9c579a7e28220e24b2'), ('/home/john/linuxcnc/configs/Gecko_540B4/Gecko_540B4.hal', '0b77650d27113f38df9ab36c05e6f2f5')]"/>
+  <property name="md5sums" type="eval" value="[('/home/john/machinekit/configs/Gecko_540B4/README', 'd6795c1e5c02e4d01df374bed0ecb468'), ('/home/john/machinekit/configs/Gecko_540B4/Gecko_540B4.ini', 'afbe6ca64d782a9c579a7e28220e24b2'), ('/home/john/machinekit/configs/Gecko_540B4/Gecko_540B4.hal', '0b77650d27113f38df9ab36c05e6f2f5')]"/>
   <property name="modbus" type="bool" value="False"/>
   <property name="number_pports" type="int" value="1"/>
   <property name="period" type="int" value="25000"/>

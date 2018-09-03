@@ -1,0 +1,23 @@
+syntax = "proto2";
+package machinetalk;
+
+// see README.msgid
+// msgid base: 350
+
+import "machinetalk/protobuf/nanopb.proto";
+
+
+message JplanJoint {
+    option (nanopb_msgopt).msgid = 352;
+
+    optional double pos_cmd = 1;
+    optional double max_vel = 2;
+    optional double max_acc = 3;
+    optional bool   enable  = 4;  // enable/disable this joint
+};
+
+message JplanCommand {
+    option (nanopb_msgopt).msgid = 354;
+
+    repeated JplanJoint joint =  2  [(nanopb).max_count = 10];;
+};

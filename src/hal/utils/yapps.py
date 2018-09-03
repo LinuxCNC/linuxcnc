@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 #
 # Yapps 2 - yet another python parser system
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     optlist, args = getopt.getopt(sys.argv[1:], 'f:', ['help', 'dump', 'use-devel-grammar'])
     if not args or len(args) > 2:
         print >>sys.stderr, 'Usage:'
-        print >>sys.stderr, '  python', sys.argv[0], '[flags] input.g [output.py]'
+        print >>sys.stderr, '  python2', sys.argv[0], '[flags] input.g [output.py]'
         print >>sys.stderr, 'Flags:'
         print >>sys.stderr, ('  --dump' + ' '*40)[:35] + 'Dump out grammar information'
         print >>sys.stderr, ('  --use-devel-grammar' + ' '*40)[:35] + 'Use the devel grammar parser from yapps_grammar.py instead of the stable grammar from grammar.py'

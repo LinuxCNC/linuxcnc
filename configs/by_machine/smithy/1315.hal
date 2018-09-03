@@ -23,7 +23,9 @@ setp hm2_5i20.0.raw.write_strobe 1
 loadrt trivkins
 
 # load motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 # classicladder for machine logic
 # (load the realtime portion)
@@ -32,7 +34,7 @@ loadrt classicladder_rt
 loadusr -w classicladder --nogui 924.clp
 
 # load charge pump
-loadrt charge_pump
+loadrt charge_pump names=charge-pump
 setp charge-pump.enable TRUE
 
 #configure the spindle encoder
@@ -98,7 +100,7 @@ net chargepump hm2_5i20.0.gpio.022.out charge-pump.out
 # Safety Relay Monitoring Contacts
 net estop-enable hm2_5i20.0.gpio.037.in iocontrol.0.emc-enable-in
 # Run Switch
-loadrt debounce cfg=1
+loadrt debounce
 setp debounce.0.delay 1000
 net key-on hm2_5i20.0.gpio.039.in_not debounce.0.0.in
 net machine-on debounce.0.0.out halui.machine.on

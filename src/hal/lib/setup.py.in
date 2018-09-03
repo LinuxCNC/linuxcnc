@@ -1,0 +1,8 @@
+from distutils.core import setup
+
+setup(name='hal',
+    version='v${Machinekit_VERSION_MAJOR}.${Machinekit_VERSION_MINOR}',
+    description='Machinekit python bindings',
+    package_dir={ '': '_DESTDIR_${INSTALL_PYSHARED_DIR}'},
+    package_data={'': ['_hal.so']},
+    packages=['hal'])

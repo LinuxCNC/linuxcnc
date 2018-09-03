@@ -32,9 +32,3 @@ Graphical tools for editing .po files
 =====================================
 On Dapper there seem to be two graphical front-ends for editing .po files:
 gtranslator (a part of the Gnome desktop) and kbabel (part of KDE).
-
-
-Required versions of xgettext and msgmerge
-==========================================
-Configure tries to detect several problems with xgettext and msgmerge.
-Version 0.14.5 is known to work properly.

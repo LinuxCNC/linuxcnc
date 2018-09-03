@@ -1,0 +1,116 @@
+#!/bin/bash -e
+#
+# Update the Changelog file to create packages with version/release
+# that continuously increments (to ensure `apt-get upgrade` works) and
+# that contains identifying information about the package's source (to
+# indicate who built the package, how, and from what revision).
+
+
+# Whether to actually build the source
+BUILD_SOURCE=$1
+if test "$1" != "true" -a "$1" != "false"; then
+    echo "Usage:  $0 [ true | false ]" >&2
+    exit 1
+fi
+
+# Computed variables
+SOURCE_DIR=$(readlink -f $(dirname ${0})/..)
+test ${TRAVIS_PULL_REQUEST:-false} = false && IS_PR=false || IS_PR=true
+
+case $TAG in
+    *_8) DISTRO=jessie ;;
+    *_9) DISTRO=stretch ;;
+    *_10) DISTRO=buster ;;
+esac
+
+COMMIT_TIMESTAMP="$(git log -1 --pretty=format:%at)"
+SHA1SHORT="$(git log -1 --pretty=format:%h)"
+COMMITTER_NAME="$(git log -1 --pretty=format:%an)"
+COMMITTER_EMAIL="$(git log -1 --pretty=format:%ae)"
+BRANCH_NAME="$(git rev-parse --symbolic-full-name HEAD)"
+BRANCH_NAME="${BRANCH_NAME//*\//}"  # convert / to -
+
+# Supplied variables for package configuration
+MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
+TRAVIS_REPO=${TRAVIS_REPO_SLUG:+travis.${TRAVIS_REPO_SLUG/\//.}}
+PKGSOURCE="${PKGSOURCE:-${TRAVIS_REPO:-$(hostname)}}"
+DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
+REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
+
+# Compute version
+if ${IS_PR}; then
+    # Use build timestamp (now) as pkg version patchlevel
+    TIMESTAMP="$(date +%s)"
+    PR_OR_BRANCH="pr${TRAVIS_PULL_REQUEST}"
+    COMMIT_URL="${REPO_URL}/pull/${TRAVIS_PULL_REQUEST}"
+else
+    # Use merge commit timestamp as pkg version patchlevel
+    TIMESTAMP="$COMMIT_TIMESTAMP"
+    PR_OR_BRANCH="${TRAVIS_BRANCH:-${BRANCH_NAME:-unk.branch}}"
+    COMMIT_URL="${REPO_URL}/commit/${SHA1SHORT}"
+fi
+
+# sanitize upstream identifier
+UPSTREAM_ID=${PKGSOURCE//[-_]/}.${PR_OR_BRANCH//[-_]/}
+
+# Final version
+VERSION="${MAJOR_MINOR_VERSION}.${TIMESTAMP}.git${SHA1SHORT}"
+
+# Final release
+#RELEASE="1${UPSTREAM_ID}~1${DISTRO}"
+RELEASE="1~${DISTRO}"
+
+###########################################################
+# Debug output
+echo "COMMIT_TIMESTAMP=$COMMIT_TIMESTAMP"
+echo "SHA1SHORT=$SHA1SHORT"
+echo "COMMITTER_NAME=$COMMITTER_NAME"
+echo "COMMITTER_EMAIL=$COMMITTER_EMAIL"
+echo "BRANCH_NAME=$BRANCH_NAME"
+echo "MAJOR_MINOR_VERSION=$MAJOR_MINOR_VERSION"
+echo "TRAVIS_REPO=$TRAVIS_REPO"
+echo "PKGSOURCE=$PKGSOURCE"
+echo "DEBIAN_SUITE=$DEBIAN_SUITE"
+echo "REPO_URL=$REPO_URL"
+echo "TIMESTAMP=$TIMESTAMP"
+echo "PR_OR_BRANCH=$PR_OR_BRANCH"
+echo "COMMIT_URL=$COMMIT_URL"
+echo "UPSTREAM_ID=$UPSTREAM_ID"
+echo "VERSION=$VERSION"
+echo "RELEASE=$RELEASE"
+
+
+###########################################################
+# Generate debian/changelog entry
+#
+# https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
+# 
+cd ${SOURCE_DIR}
+
+rm -f debian/changelog
+
+cat > debian/changelog <<EOF
+machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
+  * Travis CI rebuild
+    - TAG ${TAG}
+    - PR/branch ${PR_OR_BRANCH}
+    - Commit ${SHA1SHORT}
+    - ${COMMIT_URL}
+ -- ${COMMITTER_NAME} <${COMMITTER_EMAIL}>  $(date -R)
+
+EOF
+
+echo "New changelog entry:"
+cat debian/changelog # debug output
+cat debian/changelog.in >> debian/changelog
+
+if $BUILD_SOURCE; then
+    set -x # Let user see what's going on
+
+    # create .orig tarball
+    git archive HEAD | \
+	bzip2 -z | dd of=../machinekit_${VERSION}.orig.tar.bz2
+
+    # build source package
+    dpkg-source -b .
+fi

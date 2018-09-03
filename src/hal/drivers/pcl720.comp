@@ -45,7 +45,7 @@ license "GPL";
 author "Andy Pugh";
 ;;
 
-#include <asm/io.h>
+#include <rtapi_io.h>
 #define MAX_CHAN 8
 
 static int ioaddr[MAX_CHAN] = {-1, -1, -1, -1, -1, -1, -1, -1};

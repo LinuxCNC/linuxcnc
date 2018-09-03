@@ -13,7 +13,7 @@
  ********************************************************************/
 
 #include "canon_position.hh"
-#include "math.h"
+#include "rtapi_math.h"
 #include "posemath.h"
 
 static double noElement = 0.0;
@@ -167,28 +167,28 @@ const CANON_POSITION CANON_POSITION::operator-(const EmcPose &o) const {
 
 const double CANON_POSITION::max() const{
     double res = x;
-    res = fmax(res, this->y);
-    res = fmax(res, this->z);
-    res = fmax(res, this->a);
-    res = fmax(res, this->b);
-    res = fmax(res, this->c);
-    res = fmax(res, this->u);
-    res = fmax(res, this->v);
-    res = fmax(res, this->w);
+    res = rtapi_fmax(res, this->y);
+    res = rtapi_fmax(res, this->z);
+    res = rtapi_fmax(res, this->a);
+    res = rtapi_fmax(res, this->b);
+    res = rtapi_fmax(res, this->c);
+    res = rtapi_fmax(res, this->u);
+    res = rtapi_fmax(res, this->v);
+    res = rtapi_fmax(res, this->w);
     return res;
 }
 
 const CANON_POSITION CANON_POSITION::abs() const{
     CANON_POSITION result;
-    result.x = fabs(this->x);
-    result.y = fabs(this->y);
-    result.z = fabs(this->z);
-    result.a = fabs(this->a);
-    result.b = fabs(this->b);
-    result.c = fabs(this->c);
-    result.u = fabs(this->u);
-    result.v = fabs(this->v);
-    result.w = fabs(this->w);
+    result.x = rtapi_fabs(this->x);
+    result.y = rtapi_fabs(this->y);
+    result.z = rtapi_fabs(this->z);
+    result.a = rtapi_fabs(this->a);
+    result.b = rtapi_fabs(this->b);
+    result.c = rtapi_fabs(this->c);
+    result.u = rtapi_fabs(this->u);
+    result.v = rtapi_fabs(this->v);
+    result.w = rtapi_fabs(this->w);
     return result;
 }
 

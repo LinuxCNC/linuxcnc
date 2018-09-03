@@ -17,6 +17,10 @@
  * stores the most-significant byte first. */
 /* #define __BIG_ENDIAN__ 1 */
 
+/* Define this if your CPU / compiler combination does not support
+ * unaligned memory access to packed structures. */
+/* #define PB_NO_PACKED_STRUCTS 1 */
+
 /* Increase the number of required fields that are tracked.
  * A compiler warning will tell if you need this. */
 /* #define PB_MAX_REQUIRED_FIELDS 256 */
@@ -46,7 +50,7 @@
 
 /* Version of the nanopb library. Just in case you want to check it in
  * your own program. */
-#define NANOPB_VERSION nanopb-0.3.0
+#define NANOPB_VERSION nanopb-0.3.3-dev
 
 /* Include all the system headers needed by nanopb. You will need the
  * definitions of the following:
@@ -75,7 +79,12 @@
 /* Macro for defining packed structures (compiler dependent).
  * This just reduces memory requirements, but is not required.
  */
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(PB_NO_PACKED_STRUCTS)
+    /* Disable struct packing */
+#   define PB_PACKED_STRUCT_START
+#   define PB_PACKED_STRUCT_END
+#   define pb_packed
+#elif defined(__GNUC__) || defined(__clang__)
     /* For GCC and clang */
 #   define PB_PACKED_STRUCT_START
 #   define PB_PACKED_STRUCT_END
@@ -174,6 +183,7 @@ typedef uint8_t pb_type_t;
 #define PB_HTYPE_REQUIRED 0x00
 #define PB_HTYPE_OPTIONAL 0x10
 #define PB_HTYPE_REPEATED 0x20
+#define PB_HTYPE_ONEOF    0x30
 #define PB_HTYPE_MASK     0x30
 
 /**** Field allocation types ****/
@@ -447,9 +457,11 @@ struct pb_extension_s {
     0, \
     pb_membersize(st, m), 0, ptr}
 
+#define PB_OPTEXT_POINTER(tag, st, m, fd, ltype, ptr) \
+    PB_OPTIONAL_POINTER(tag, st, m, fd, ltype, ptr)
+
 #define PB_OPTEXT_CALLBACK(tag, st, m, fd, ltype, ptr) \
-    {tag, PB_ATYPE_CALLBACK | PB_HTYPE_OPTIONAL | ltype, \
-    0, 0, pb_membersize(st, m), 0, ptr}
+    PB_OPTIONAL_CALLBACK(tag, st, m, fd, ltype, ptr)
 
 /* The mapping from protobuf types to LTYPEs is done using these macros. */
 #define PB_LTYPE_MAP_BOOL       PB_LTYPE_VARINT
@@ -491,28 +503,44 @@ struct pb_extension_s {
         PB_DATAOFFSET_ ## placement(message, field, prevfield), \
         PB_LTYPE_MAP_ ## type, ptr)
 
+/* Field description for oneof fields. This requires taking into account the
+ * union name also, that's why a separate set of macros is needed.
+ */
+#define PB_ONEOF_STATIC(u, tag, st, m, fd, ltype, ptr) \
+    {tag, PB_ATYPE_STATIC | PB_HTYPE_ONEOF | ltype, \
+    fd, pb_delta(st, which_ ## u, u.m), \
+    pb_membersize(st, u.m), 0, ptr}
+
+#define PB_ONEOF_POINTER(u, tag, st, m, fd, ltype, ptr) \
+    {tag, PB_ATYPE_POINTER | PB_HTYPE_ONEOF | ltype, \
+    fd, pb_delta(st, which_ ## u, u.m), \
+    pb_membersize(st, u.m[0]), 0, ptr}
+
+#define PB_ONEOF_FIELD(union_name, tag, type, rules, allocation, placement, message, field, prevfield, ptr) \
+        PB_ ## rules ## _ ## allocation(union_name, tag, message, field, \
+        PB_DATAOFFSET_ ## placement(message, union_name.field, prevfield), \
+        PB_LTYPE_MAP_ ## type, ptr)
 
 /* These macros are used for giving out error messages.
  * They are mostly a debugging aid; the main error information
  * is the true/false return value from functions.
  * Some code space can be saved by disabling the error
  * messages if not used.
+ *
+ * PB_SET_ERROR() sets the error message if none has been set yet.
+ *                msg must be a constant string literal.
+ * PB_GET_ERROR() always returns a pointer to a string.
+ * PB_RETURN_ERROR() sets the error and returns false from current
+ *                   function.
  */
 #ifdef PB_NO_ERRMSG
-#define PB_RETURN_ERROR(stream,msg) \
-    do {\
-        PB_UNUSED(stream); \
-        return false; \
-    } while(0)
+#define PB_SET_ERROR(stream, msg) PB_UNUSED(stream)
 #define PB_GET_ERROR(stream) "(errmsg disabled)"
 #else
-#define PB_RETURN_ERROR(stream,msg) \
-    do {\
-        if ((stream)->errmsg == NULL) \
-            (stream)->errmsg = (msg); \
-        return false; \
-    } while(0)
+#define PB_SET_ERROR(stream, msg) (stream->errmsg = (stream)->errmsg ? (stream)->errmsg : (msg))
 #define PB_GET_ERROR(stream) ((stream)->errmsg ? (stream)->errmsg : "(none)")
 #endif
+
+#define PB_RETURN_ERROR(stream, msg) return PB_SET_ERROR(stream, msg), false
 
 #endif

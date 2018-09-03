@@ -1,0 +1,6 @@
+demonstrates the HAL instantiation API, and the 'extended thread
+function' API which makes extra context available to a thread funct,
+see lutn.c:lut()
+
+
+icomp.c doubles as unit test - see nosetests/unittest_icomp.py

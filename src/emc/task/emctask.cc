@@ -173,6 +173,16 @@ int emcTaskHalt()
     return 0;
 }
 
+int emcTaskStateRestore()
+{
+    // Do NOT restore on MDI command
+    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+        // Validity of state tag checked within restore function
+        pinterp->restore_from_tag(emcStatus->motion.traj.tag);
+    }
+    return 0;
+}
+
 int emcTaskAbort()
 {
     emcMotionAbort();
@@ -678,9 +688,21 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // command set in main
 
     // update active G and M codes
-    interp.active_g_codes(&stat->activeGCodes[0]);
-    interp.active_m_codes(&stat->activeMCodes[0]);
-    interp.active_settings(&stat->activeSettings[0]);
+    // Start by assuming that we can't unpack a state tag from motion
+    int res_state = INTERP_ERROR;
+    if (emcStatus->task.interpState != EMC_TASK_INTERP_IDLE) {
+        res_state = interp.active_modes(&stat->activeGCodes[0],
+                &stat->activeMCodes[0],
+                &stat->activeSettings[0],
+                emcStatus->motion.traj.tag);
+    }
+    // If we get an error from trying to unpack from the motion state, always
+    // use interp's internal state, so the active state is never out of date
+    if (emcStatus->task.mode != EMC_TASK_MODE_AUTO || res_state == INTERP_ERROR) {
+        interp.active_g_codes(&stat->activeGCodes[0]);
+        interp.active_m_codes(&stat->activeMCodes[0]);
+        interp.active_settings(&stat->activeSettings[0]);
+    }
 
     //update state of optional stop
     stat->optional_stop_state = GET_OPTIONAL_PROGRAM_STOP();

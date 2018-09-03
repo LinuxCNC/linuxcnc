@@ -26,13 +26,17 @@ HAL integration by Michael Haberler, 2/2013.
 
 Demo: messaging between RT components:
 --------------------------------------
- $ halcmd -f ring-demo.hal
+ $ halrun -I ring-demo.hal
+
+and watch /var/log/linuxcnc.log
+
 
 Demo: sending messages from a Python program to an RT component:
 --------------------------------------
- $ halcmd -f recordread.hal
- $ python ringwrite.py
+ $ halrun -I recordread.hal
+ $ python ringwrite.py  # second window
 
+and watch /var/log/linuxcnc.log
 
 Other demos - see various .py files.
 

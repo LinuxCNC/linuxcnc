@@ -18,6 +18,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_read.cc \
 	interp_write.cc \
 	interp_o_word.cc \
+	modal_state.cc \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
 	interp_python.cc \
@@ -38,12 +39,15 @@ $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC  $(BOOST_DEBUG_FLAGS)
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
 ../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) \
-	../lib/liblinuxcncini.so ../lib/libpyplugin.so ../lib/liblinuxcnchal.so.0
+	../lib/liblinuxcncini.so \
+	../lib/libpyplugin.so \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
-	    -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) -ldl
+	    -lstdc++ -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) -ldl
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@
@@ -61,8 +65,6 @@ $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 
 PYTARGETS += $(GCODEMODULE)
 
-ifeq ($(BUILD_DEV),yes)
-
 PREVIEWMODULESRCS := \
 	emc/rs274ngc/previewmodule.cc
 PYSRCS += $(PREVIEWMODULESRCS)
@@ -73,11 +75,10 @@ $(call TOOBJSDEPS, $(PREVIEWMODULESRCS)) : EXTRAFLAGS += -Ihal/haltalk $(CZMQ_CF
 PREVIEWMODULE := ../lib/python/preview.so
 $(PREVIEWMODULE): $(call TOOBJS, $(PREVIEWMODULESRCS)) \
 	../lib/librs274.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS)  $(PROTOBUF_LIBS)
 
 
 PYTARGETS += $(PREVIEWMODULE)
-endif

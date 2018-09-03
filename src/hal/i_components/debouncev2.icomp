@@ -1,0 +1,50 @@
+component debouncev2 "Debounce filter for Machinekit HAL";
+
+// Input Pins
+pin_ptr in bit #.in[pincount];
+pin_ptr out bit #.out[pincount];
+
+pin_ptr io s32 #.state[pincount];
+pin_ptr io s32 delay = 5;
+
+instanceparam int pincount = 8;
+
+option MAXCOUNT 16;
+
+license "GPL";
+
+author "John Kasunich, adapted by ArcEye";
+
+function _;
+;;
+
+
+FUNCTION(_)
+{
+hal_s32_t n;
+
+    // first make sure delay is sane
+    if (gs(delay) < 0)
+        ss(delay, 1);
+
+    // loop through filters
+    for (n = 0; n < local_pincount; n++)
+        {
+        if(gb(_in(n)))
+            {
+            /* input true, is state at threshold? */
+            if (gs(_state(n)) < gs(delay))
+                incs(_state(n));
+            else
+                sb(_out(n), true);
+            }
+        else
+            {
+            if (gs(_state(n)) > 0)
+                decs(_state(n));
+            else
+                sb(_out(n), false);
+            }
+        }
+    return 0;
+}

@@ -15,10 +15,19 @@ $(USERPCI_HEADERS): ../include/userpci/%.h: rtapi/userpci/%.h
 ifeq ($(USERMODE_PCI),yes)
 # These headers need to remain in the 'userpci' subdirectory
 SUBDIRECTORY_HEADERS += $(USERPCI_HEADERS)
+INSTALL_DIRS += ../include/userpci
 
 hostmot2-objs +=			  \
     rtapi/userpci/device.o		  \
     rtapi/userpci/firmware.o		  \
     rtapi/userpci/string.o
+
+setsserial-objs +=			  \
+    rtapi/userpci/device.o		  \
+    rtapi/userpci/firmware.o		  \
+    rtapi/userpci/string.o
 endif
 
+clean: userpci-clean
+userpci-clean:
+	rm -rf ../include/userpci

@@ -10,7 +10,6 @@ MT_INSTALL_INCS +=  machinetalk/webtalk/webtalk.hh
 
 EXPERIMENTAL := -DEXPERIMENTAL_ZWS_SUPPORT=1
 WEBTALK_SRCS :=  $(addprefix $(WEBTALK_DIR)/, \
-	webtalk_zeroconf.cc 	\
 	webtalk_wsproxy.cc	\
 	webtalk_defaultpolicy.cc	\
 	webtalk_jsonpolicy.cc	\
@@ -48,7 +47,7 @@ $(call TOOBJSDEPS, $(WEBTALK_SRCS)) : EXTRAFLAGS += $(WEBTALK_CXXFLAGS) $(EXPERI
 
 ../bin/webtalk: $(call TOOBJS, $(WEBTALK_SRCS)) \
 	../lib/libmtalk.so.0 \
-	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/liblinuxcnchal.so.0 \
 	../lib/libmtalk.so.0
 	$(ECHO) Linking $(notdir $@)
@@ -75,7 +74,7 @@ $(call TOOBJSDEPS, $(EXAMPLE_PLUGIN_SRCS)) : EXTRAFLAGS += \
 ../lib/webtalk/plugins/example.o: $(call TOOBJS, $(EXAMPLE_PLUGIN_SRCS))
 	@mkdir -p $(dir $@)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ -shared
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^ -shared
 
 USERSRCS += $(EXAMPLE_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/example.o
@@ -114,7 +113,7 @@ $(call TOOBJSDEPS, $(ZWS_PLUGIN_SRCS)) : EXTRAFLAGS += \
 ../lib/webtalk/plugins/zws.o: $(call TOOBJS, $(ZWS_PLUGIN_SRCS))
 	@mkdir -p $(dir $@)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ -shared
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^ -shared
 
 USERSRCS += $(ZWS_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/zws.o
@@ -131,9 +130,17 @@ $(call TOOBJSDEPS, $(PBZWS_PLUGIN_SRCS)) : EXTRAFLAGS += \
 ../lib/webtalk/plugins/pbzws.o: $(call TOOBJS, $(PBZWS_PLUGIN_SRCS))
 	@mkdir -p $(dir $@)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ -shared
+	$(Q)$(CC) $(CPPFLAGS) -o $@ $^ -shared
 
 USERSRCS += $(PBZWS_PLUGIN_SRCS)
 TARGETS += ../lib/webtalk/plugins/pbzws.o
 
 endif
+
+clean: webtalk-clean
+webtalk-clean:
+	rm -f \
+	    machinetalk/webtalk/zws.pb.cc \
+	    machinetalk/webtalk/zws.pb.h \
+	    ../lib/python/zws_pb2.py
+	rm -rf ../lib/webtalk

@@ -22,7 +22,7 @@
 
 static int group_report_cb(int phase, hal_compiled_group_t *cgroup,
 			   hal_sig_t *sig, void *cb_data);
-static int scan_group_cb(hal_group_t *g, void *cb_data);
+static int scan_group_cb(hal_object_ptr o, foreach_args_t *args);
 
 
 // monitor group subscribe events:
@@ -34,10 +34,10 @@ static int scan_group_cb(hal_group_t *g, void *cb_data);
 // well as retrieve all current values without constantly broadcasting all
 // signal names
 int
-handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
+handle_group_input(zloop_t *loop, zsock_t *socket, void *arg)
 {
     htself_t *self = (htself_t *) arg;
-    zframe_t *f_subscribe = zframe_recv(poller->socket);
+    zframe_t *f_subscribe = zframe_recv(socket);
     const char *s = (const char *) zframe_data(f_subscribe);
 
     if ((s == NULL) || ((*s != '\000') && (*s != '\001'))) {
@@ -60,15 +60,15 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		 gi != self->groups.end(); gi++) {
 
 		group_t *g = gi->second;
-		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
-		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
+		self->tx.set_type(machinetalk::MT_HALGROUP_FULL_UPDATE);
+		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
-		describe_group(self, gi->first.c_str(), gi->first.c_str(), poller->socket);
+		describe_group(self, gi->first.c_str(), gi->first.c_str(), socket);
 
 		// if first subscriber: activate scanning
 		if (g->timer_id < 0) { // not scanning
-		    g->timer_id = zloop_timer(self->z_loop, g->msec,
+		    g->timer_id = zloop_timer(loop, g->msec,
 					      0, handle_group_timer, (void *)g);
 		    assert(g->timer_id > -1);
 		    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -86,11 +86,11 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	    groupmap_iterator gi = self->groups.find(topic);
 	    if (gi != self->groups.end()) {
 		group_t *g = gi->second;
-		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
-		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
+		self->tx.set_type(machinetalk::MT_HALGROUP_FULL_UPDATE);
+		self->tx.set_uuid(self->netopts.proc_uuid, sizeof(self->netopts.proc_uuid));
 		self->tx.set_serial(g->serial++);
 		describe_parameters(self);
-		describe_group(self, gi->first.c_str(), gi->first.c_str(), poller->socket);
+		describe_group(self, gi->first.c_str(), gi->first.c_str(), socket);
 		rtapi_print_msg(RTAPI_MSG_DBG,
 				"%s: subscribe group='%s' serial=%d",
 				self->cfg->progname,
@@ -98,7 +98,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 
 		// if first subscriber: activate scanning
 		if (g->timer_id < 0) { // not scanning
-		    g->timer_id = zloop_timer(self->z_loop, g->msec,
+		    g->timer_id = zloop_timer(loop, g->msec,
 					      0, handle_group_timer, (void *)g);
 		    assert(g->timer_id > -1);
 		    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -108,7 +108,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		}
 	    } else {
 		// non-existant topic, complain.
-		self->tx.set_type(pb::MT_STP_NOGROUP);
+		self->tx.set_type(machinetalk::MT_STP_NOGROUP);
 		note_printf(self->tx, "no such group: '%s', currently %d valid groups",
 			    topic, self->groups.size());
 		if (self->groups.size())
@@ -117,7 +117,8 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		     g != self->groups.end(); g++) {
 		    note_printf(self->tx, "    %s", g->first.c_str());
 		}
-		int retval = send_pbcontainer(topic, self->tx, self->z_halgroup);
+		int retval = send_pbcontainer(topic, self->tx,
+					      socket);
 		assert(retval == 0);
 	    }
 	}
@@ -131,7 +132,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		rtapi_print_msg(RTAPI_MSG_DBG,
 				"%s: group %s stop scanning, tid=%d",
 				self->cfg->progname, topic, g->timer_id);
-		int retval = zloop_timer_end (self->z_loop, g->timer_id);
+		int retval = zloop_timer_end (loop, g->timer_id);
 		assert(retval == 0);
 		g->timer_id = -1;
 	    }
@@ -161,64 +162,85 @@ handle_group_timer(zloop_t *loop, int timer_id, void *arg)
 int
 scan_groups(htself_t *self)
 {
-    {   // scoped lock
-	int retval __attribute__((cleanup(halpr_autorelease_mutex)));
-	rtapi_mutex_get(&(hal_data->mutex));
+    foreach_args_t args = {};
+    args.type = HAL_GROUP;
+    args.user_ptr1 = (void *)self;
 
-	// run through all groups, execute a callback for each group found.
-	if ((retval = halpr_foreach_group(NULL, scan_group_cb, self)) < 0)
-	    return retval;
-	rtapi_print_msg(RTAPI_MSG_DBG,"found %d group(s)\n", retval);
+    // run this under HAL mutex locked in a single transaction:
+    halg_foreach(true, &args, scan_group_cb);
+
+    rtapi_print_msg(RTAPI_MSG_DBG,"adopted %d groups(s)\n",
+		    args.user_arg2);
+
+    if (args.user_arg1 > 0) { // error counter
+	rtapi_print_msg(RTAPI_MSG_DBG,"%d groups(s) failed to adopt\n",
+			args.user_arg1);
+	return -args.user_arg1;
     }
     return 0;
 }
 
 // ----- end of public functions ----
 
-static int
-add_sig_to_items(int level, hal_group_t **groups,
-		 hal_member_t *member, void *cb_data)
+// static int
+// add_sig_to_items(int level, hal_group_t **groups,
+// 		 hal_member_t *member, void *cb_data)
+static int add_sig_to_items(hal_object_ptr o, foreach_args_t *args)
 {
-    hal_sig_t *sig = (hal_sig_t *) SHMPTR(member->sig_member_ptr);
-    htself_t *self = (htself_t *)cb_data;
-    itemmap_iterator it = self->items.find(sig->handle);
+    htself_t *self = (htself_t *)args->user_ptr1;
+
+    hal_sig_t *sig = (hal_sig_t *) SHMPTR(o.member->sig_ptr);
+    itemmap_iterator it = self->items.find(ho_id(sig));
 
     if (it == self->items.end()) { // not in handle map
-	halitem_t *hi = new halitem_t();
-	hi->type = HAL_SIGNAL;
-	hi->o.signal = sig;
-	hi->ptr = SHMPTR(sig->data_ptr);
-	self->items[sig->handle] = hi;
+	// halitem_t *hi = new halitem_t();
+	// hi->type = HAL_SIGNAL;
+	// hi->o.signal = sig;
+	// hi->ptr = SHMPTR(sig->data_ptr);
+	// self->items[ho_id(sig)] = hi;
+	hal_object_ptr o;
+	o.sig = sig;
+	self->items[ho_id(sig)] = o;
     }
     return 0;
 }
 
-// walk the signals of a group, and add them to the items dict
-// for lookup-by-handle if not yet present - idempotent
-static int
-add_signals_from_group(htself_t *self, const char *name)
-{
-    return halpr_foreach_member(name, add_sig_to_items, self, RESOLVE_NESTED_GROUPS);
-}
+
+// static int
+// add_signals_from_group(htself_t *self, const char *name)
+// {
+//     return halpr_foreach_member(name, add_sig_to_items, self, RESOLVE_NESTED_GROUPS);
+// }
+
 
 static int
-scan_group_cb(hal_group_t *g, void *cb_data)
+scan_group_cb(hal_object_ptr o, foreach_args_t *args)
 {
-    htself_t *self = (htself_t *)cb_data;
+    htself_t *self = (htself_t *)args->user_ptr1;
+    hal_group_t *g = o.group;
     hal_compiled_group_t *cgroup;
     int retval;
 
-    if (self->groups.count(g->name) > 0) // already compiled
+    if (self->groups.count(ho_name(g)) > 0) // already compiled
 	return 0;
 
-    if ((retval = halpr_group_compile(g->name, &cgroup))) {
+    if ((retval = halpr_group_compile(ho_name(g), &cgroup))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"hal_group_compile(%s) failed: %d - skipping group\n",
-			g->name, retval);
+			ho_name(g), retval);
+	args->user_arg1++;
 	return 0;
     }
 
-    add_signals_from_group(self, g->name);
+    // walk the signals of a group, and add them to the items dict
+    // for lookup-by-handle if not yet present - idempotent
+    foreach_args_t margs = {};
+    margs.type = HAL_MEMBER;
+    margs.owner_id = ho_id(g); // select members owned by group
+    margs.user_ptr1 = (void *) self;
+    halg_foreach(0, &margs, add_sig_to_items);
+
+    // add_signals_from_group(self, g->name);
 
     group_t *grp = new group_t();
     grp->cg = cgroup;
@@ -230,11 +252,12 @@ scan_group_cb(hal_group_t *g, void *cb_data)
     if (grp->msec == 0)
 	grp->msec = self->cfg->default_group_timer;
 
-    self->groups[g->name] = grp;
+    self->groups[ho_name(g)] = grp;
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "%s: group '%s' - using %d mS poll interval",
-		    self->cfg->progname, g->name, grp->msec);
+		    self->cfg->progname, ho_name(g), grp->msec);
+    args->user_arg2++;
     return 0;
 }
 
@@ -258,13 +281,13 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 {
     group_t *grp = (group_t *) cb_data;
     htself_t *self = grp->self;
-    pb::Signal *signal;
+    machinetalk::Signal *signal;
     int retval;
 
     switch (phase) {
 
     case REPORT_BEGIN:	// report initialisation
-	self->tx.set_type(pb::MT_HALGROUP_INCREMENTAL_UPDATE);
+	self->tx.set_type(machinetalk::MT_HALGROUP_INCREMENTAL_UPDATE);
 	// the serial enables detection of lost updates
 	// for a client to recover from a lost update:
 	// unsubscribe + re-subscribe which will cause
@@ -274,13 +297,14 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 
     case REPORT_SIGNAL: // per-reported-signal action
 	signal = self->tx.add_signal();
-	signal->set_handle(sig->handle);
+	signal->set_handle(ho_id(sig));
 	retval = hal_sig2pb(sig, signal);
 	assert(retval == 0);
 	break;
 
     case REPORT_END: // finalize & send
-	retval = send_pbcontainer(cgroup->group->name, self->tx, self->z_halgroup);
+	retval = send_pbcontainer(ho_name(cgroup->group), self->tx,
+				  self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);
 
 #if JSON_TIMING
@@ -308,8 +332,9 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 int ping_groups(htself_t *self)
 {
     for (groupmap_iterator g = self->groups.begin(); g != self->groups.end(); g++) {
-	self->tx.set_type(pb::MT_PING);
-	int retval = send_pbcontainer(g->first.c_str(), self->tx, self->z_halgroup);
+	self->tx.set_type(machinetalk::MT_PING);
+	int retval = send_pbcontainer(g->first.c_str(), self->tx,
+				      self->mksock[SVC_HALGROUP].socket);
 	assert(retval == 0);
     }
     return 0;

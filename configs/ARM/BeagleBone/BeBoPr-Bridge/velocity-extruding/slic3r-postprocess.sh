@@ -84,7 +84,7 @@ sed -e 's|^M109 |M104 |' \
     "M66-added_$1" > "cleaned_$1"
 rm "M66-added_$1"
 
-python ./cleanup-for-velocity-extrusion.py \
+python2 ./cleanup-for-velocity-extrusion.py \
     "cleaned_$1" "$perimeters_extrusion_width" \
     "$infill_extrusion_width" \
     "$layer_height" \
@@ -111,12 +111,12 @@ rm "result-cleaned_$1"
 #G0 Z9.000 F18000.000 ; move to next layer (44)
 #M68 E4 Q0.2
 #
-python ./correct-retract-on-next-layer.py "cleaned_$1"
+python2 ./correct-retract-on-next-layer.py "cleaned_$1"
 rm "cleaned_$1"
 
 #convert g1 line segments to g2 or g3 if possible
-python g1tog23.py "swapped-cleaned_$1"
-rm "swapped-cleaned_$1.bak"
+g1-to-g23 "swapped-cleaned_$1" "swapped-cleaned_$1.bak"
+mv "swapped-cleaned_$1.bak" "swapped-cleaned_$1"
 
 # convert all M106 to B axis
 #sed '/^M106/s/M106 P/G0 B/' "$1post" > "$1"

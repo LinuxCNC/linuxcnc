@@ -159,8 +159,8 @@ option extra_cleanup;
 
 option data internal;
 
-function read "Read all the inputs from the pluto-servo board";
-function write "Write all the outputs on the pluto-servo board";
+function ppread "Read all the inputs from the pluto-servo board";
+function ppwrite "Write all the outputs on the pluto-servo board";
 
 see_also """The \\fIpluto_servo\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
@@ -173,7 +173,7 @@ mode.""";
 
 modparam dummy epp_wide = 1
     """Set to zero to disable the "wide EPP mode".  "Wide" mode allows a 16-
-and 32-bit EPP transfers, which can reduce the time spent in the read and write
+and 32-bit EPP transfers, which can reduce the time spent in the ppread and ppwrite
 functions.  However, this may not work on all EPP parallel ports.""";
 
 modparam dummy watchdog = 1
@@ -228,7 +228,7 @@ int PWM(int enable, double value, double offset, double scale, double min_dc, do
     return result;
 }
 
-FUNCTION(write) {
+FUNCTION(ppwrite) {
     int r = 0;
     int i;
     if(communication_error) return;
@@ -257,7 +257,7 @@ FUNCTION(write) {
     write16(r);
 }
 
-FUNCTION(read) {
+FUNCTION(ppread) {
     int i;
     __u32 ppdata;
 

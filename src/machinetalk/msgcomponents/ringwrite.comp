@@ -1,4 +1,16 @@
-component ringwrite;
+component ringwrite "demonstrate wring write operations";
+
+description
+"""
+Demonstration of ringwrite operations
+
+Will output
+....
+    Number of messages
+    Number of failed writes
+    Number of dropped writes
+""";
+
 pin in bit write   "send a message on pin transition";
 pin out u32 sent   "number of messages written";
 pin out u32 overrun   "number of failed write attempts";
@@ -65,7 +77,7 @@ int rtapi_app_main(void)
 			name, comp_id);
 	return -1;
     }
-    if ((retval = hal_ring_attach(ring, &rb, NULL))) {
+    if ((retval = hal_ring_attachf(&rb, NULL, ring))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
 			name, ring, retval);
@@ -91,7 +103,7 @@ void rtapi_app_exit(void)
 {
     int retval;
     rb.header->writer = 0;
-    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+    if ((retval = hal_ring_detach(&rb)) < 0)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
 			name, ring, retval);

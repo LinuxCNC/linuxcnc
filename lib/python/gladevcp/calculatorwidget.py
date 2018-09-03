@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # GladeVcp Widget - calculator input
 # This widgets allows simple calculations.
 # The result can be returned for further use.

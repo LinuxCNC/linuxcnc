@@ -12,7 +12,7 @@
 #include <boost/python.hpp>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
@@ -237,6 +237,86 @@ void enqueue_SET_SPINDLE_SPEED(double speed) {
     q.type = QSET_SPINDLE_SPEED;
     q.data.set_spindle_speed.speed = speed;
     if(debug_qc) printf("enqueue set spindle speed %f\n", speed);
+    qc().push_back(q);
+}
+
+void enqueue_SET_MOTION_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate motion output on\n");
+        SET_MOTION_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_MOTION_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue motion output on\n");
+    qc().push_back(q);
+}
+
+void enqueue_CLEAR_MOTION_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate motion output off\n");
+        CLEAR_MOTION_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QCLEAR_MOTION_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue motion output off\n");
+    qc().push_back(q);
+}
+
+void enqueue_SET_AUX_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate aux output on\n");
+        SET_AUX_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_AUX_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue aux output on\n");
+    qc().push_back(q);
+}
+
+void enqueue_CLEAR_AUX_OUTPUT_BIT(int index) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate aux output off\n");
+        CLEAR_AUX_OUTPUT_BIT(index);
+        return;
+    }
+    queued_canon q;
+    q.type = QCLEAR_AUX_OUTPUT;
+	q.data.mcommand.p_number = index;
+    if(debug_qc) printf("enqueue aux output off\n");
+    qc().push_back(q);
+}
+
+void enqueue_MOTION_OUTPUT_VALUE(int index, double value) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate motion output value change\n");
+        SET_MOTION_OUTPUT_VALUE(index, value);
+        return;
+    }
+    queued_canon q;
+    q.type = QMOTION_OUTPUT_VALUE;
+	q.data.mcommand.p_number = index;
+    q.data.mcommand.q_number = value;
+    if(debug_qc) printf("enqueue motion output value change\n");
+    qc().push_back(q);
+}
+
+void enqueue_AUX_OUTPUT_VALUE(int index, double value) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate aux output value change\n");
+        SET_AUX_OUTPUT_VALUE(index, value);
+        return;
+    }
+    queued_canon q;
+    q.type = QAUX_OUTPUT_VALUE;
+	q.data.mcommand.p_number = index;
+    q.data.mcommand.q_number = value;
+    if(debug_qc) printf("enqueue aux output value change\n");
     qc().push_back(q);
 }
 
@@ -522,6 +602,30 @@ void dequeue_canons(setup_pointer settings) {
             if(debug_qc) printf("issuing set spindle speed\n");
             SET_SPINDLE_SPEED(q.data.set_spindle_speed.speed);
             break;
+        case QSET_MOTION_OUTPUT:
+            if(debug_qc) printf("issuing set motion output\n");
+            SET_MOTION_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QCLEAR_MOTION_OUTPUT:
+            if(debug_qc) printf("issuing clear motion output\n");
+            CLEAR_MOTION_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QSET_AUX_OUTPUT:
+            if(debug_qc) printf("issuing set aux output\n");
+            SET_AUX_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QCLEAR_AUX_OUTPUT:
+            if(debug_qc) printf("issuing clear aux output\n");
+            CLEAR_AUX_OUTPUT_BIT((int)q.data.mcommand.p_number);
+            break;
+        case QMOTION_OUTPUT_VALUE:
+            if(debug_qc) printf("issuing set motion output value\n");
+            SET_MOTION_OUTPUT_VALUE((int)q.data.mcommand.p_number, q.data.mcommand.q_number);
+            break;
+        case QAUX_OUTPUT_VALUE:
+            if(debug_qc) printf("issuing set aux output value\n");
+            SET_AUX_OUTPUT_VALUE((int)q.data.mcommand.p_number, q.data.mcommand.q_number);
+            break;
         case QCOMMENT:
             if(debug_qc) printf("issuing comment\n");
             COMMENT(q.data.comment.comment);
@@ -573,12 +677,12 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
         switch(q.type) {
         case QARC_FEED:
             double r1, r2, l1, l2;
-            r1 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
+            r1 = rtapi_hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
                        q.data.arc_feed.end2 - q.data.arc_feed.center2);
             l1 = q.data.arc_feed.original_turns;
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
-            r2 = hypot(x - q.data.arc_feed.center1,
+            r2 = rtapi_hypot(x - q.data.arc_feed.center1,
                        y - q.data.arc_feed.center2);
             l2 = find_turn(endpoint[0], endpoint[1],
                            q.data.arc_feed.center1, q.data.arc_feed.center2,
@@ -586,9 +690,9 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                            x, y);
             if(debug_qc) printf("moving endpoint of arc lineno %d old sweep %f new sweep %f\n", q.data.arc_feed.line_number, l1, l2);
 
-            if(fabs(r1-r2) > .01) 
+            if(rtapi_fabs(r1-r2) > .01) 
                 ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
-            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
+            if(l1 && endpoint_valid && rtapi_fabs(l2) > rtapi_fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
                 ERS(_("Arc move in concave corner cannot be reached by the tool without gouging"));
             }
             q.data.arc_feed.end1 = x;
@@ -613,7 +717,10 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
             
             dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
-            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f dot %f endpoint_valid %d\n", atan2(y1,x1), atan2(y2,x2), dot, endpoint_valid);
+            if(debug_qc)
+                printf("moving endpoint of traverse old dir %f new dir %f dot %f endpoint_valid %d\n",
+                       rtapi_atan2(y1,x1), rtapi_atan2(y2,x2),
+                       dot, endpoint_valid);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the
@@ -652,7 +759,10 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
 
             dot = x1 * x2 + y1 * y2;
-            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f endpoint_valid %d\n", atan2(y1,x1), atan2(y2,x2), dot, endpoint_valid);
+            if(debug_qc)
+                printf("moving endpoint of feed old dir %f new dir %f dot %f endpoint_valid %d\n",
+                       rtapi_atan2(y1,x1), rtapi_atan2(y2,x2),
+                       dot, endpoint_valid);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the

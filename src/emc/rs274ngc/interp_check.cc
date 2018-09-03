@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
@@ -100,6 +100,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
       CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
   } else if (mode1 == G_5_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+  } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
         NCE_MUST_USE_G0_OR_G1_WITH_G53);
@@ -310,7 +311,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
             " or M50 M51 M52 M53 M62 M63 M64 M65 M66 or user M code to use it"));
       int p_value = round_to_int(block->p_number);
       CHKS(((motion == G_2 || motion == G_3 || (block->m_modes[7] == 19)) && 
-	    fabs(p_value - block->p_number) > 0.001),
+	    rtapi_fabs(p_value - block->p_number) > 0.001),
 	   _("P value not an integer with M19 G2 or G3"));
       CHKS((block->m_modes[7] == 19) && ((p_value > 2) || p_value < 0),
 	   _("P value must be 0,1,or 2 with M19"));

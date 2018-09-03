@@ -25,10 +25,24 @@
 int __attribute__((weak)) print_container;
 
 int
-send_pbcontainer(const std::string &dest, pb::Container &c, void *socket)
+send_pbcontainer(const std::string &dest, machinetalk::Container &c, void *socket)
+{
+    int retval = 0;
+    zmsg_t *msg = zmsg_new();
+    zframe_t *d =  zframe_new (dest.c_str(), dest.size());
+    zmsg_append(msg, &d);
+    retval = send_pbcontainer(msg, c, socket);
+    zmsg_destroy(&msg);
+    return retval;
+}
+
+// send_pbcontainer: destination can contain multiple routing points
+int
+send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
 {
     int retval = 0;
     zframe_t *f;
+    size_t nsize = zmsg_size(dest);
 
     f = zframe_new(NULL, c.ByteSize());
     if (f == NULL) {
@@ -49,14 +63,24 @@ send_pbcontainer(const std::string &dest, pb::Container &c, void *socket)
 			__func__);
 	goto DONE;
     }
-    if (dest.size()) {
-	zframe_t *d =  zframe_new (dest.c_str(), dest.size());
-	retval = zframe_send (&d, socket, ZMQ_MORE);
-	if (retval) {
-	    syslog_async(LOG_ERR,"%s: FATAL - failed to send destination frame: '%.*s'",
-			 __func__, dest.size(), dest.c_str());
+
+    for (size_t i = 0; i < nsize; ++i){
+        zframe_t *f = zmsg_pop (dest); 
+	if(f == NULL){                          
+	    syslog_async(LOG_ERR, "send_pbcontainer(): NULL zframe_t 'f' passed");
+	    retval = -1;
 	    goto DONE;
-	}
+	    }
+        if (zframe_size(f)) {
+            retval = zframe_send (&f, socket, ZMQ_MORE);
+            if (retval) {
+                std::string str( (const char *) zframe_data(f), zframe_size(f));
+                syslog_async(LOG_ERR,"%s: FATAL - failed to send destination frame: '%.*s'",
+                             __func__, str.size(), str.c_str());
+                goto DONE;
+            }
+        }
+        zframe_destroy(&f);
     }
     retval = zframe_send(&f, socket, 0);
     if (retval) {
@@ -70,7 +94,7 @@ send_pbcontainer(const std::string &dest, pb::Container &c, void *socket)
 
 
 int
-note_printf(pb::Container &c, const char *fmt, ...)
+note_printf(machinetalk::Container &c, const char *fmt, ...)
 {
     va_list ap;
     int n;
@@ -95,4 +119,15 @@ note_printf(pb::Container &c, const char *fmt, ...)
 	s = NULL;
     }
     return n;
+}
+
+std::string pbconcat(const pbstringarray_t &args, const std::string &delim, const std::string &quote)
+{
+    std::string s;
+    for (int i = 0; i < args.size(); i++) {
+	s += quote + args.Get(i) + quote;
+	if (i < args.size()-1)
+	    s += delim;
+    }
+    return s;
 }

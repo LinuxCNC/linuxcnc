@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 
 '''
     This IconView widget shows the contents of the currently selected
@@ -76,6 +76,7 @@ class IconFileSelection(gtk.HBox):
 
     __gsignals__ = {
                     'selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+                    'sensitive': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_BOOLEAN,)),
                     'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                    }
 
@@ -87,10 +88,13 @@ class IconFileSelection(gtk.HBox):
         self.start_dir = os.path.expanduser('/')
         self.cur_dir = self.start_dir
         self.user_dir = os.path.expanduser('~')
+        self.jump_to_dir = os.path.expanduser('/tmp')
         self.filetypes = ("ngc,py")
         self.sortorder = _FOLDERFIRST
         # This will hold the path we will return
         self.path = ""
+        self.button_state = {}
+        self.old_button_state = {}        
 
         # Make the GUI and connect signals
         vbox = gtk.VBox(False, 0)
@@ -113,7 +117,7 @@ class IconFileSelection(gtk.HBox):
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_GOTO_TOP, 48)
         self.btn_dir_up.set_image(image)
-        self.btn_dir_up.set_tooltip_text(_("Move to parrent directory"))
+        self.btn_dir_up.set_tooltip_text(_("Move to parent directory"))
         self.buttonbox.add(self.btn_dir_up)
 
         self.btn_sel_prev = gtk.Button()
@@ -121,7 +125,7 @@ class IconFileSelection(gtk.HBox):
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_GO_BACK, 48)
         self.btn_sel_prev.set_image(image)
-        self.btn_sel_prev.set_tooltip_text(_("Select the previos file"))
+        self.btn_sel_prev.set_tooltip_text(_("Select the previous file"))
         self.buttonbox.add(self.btn_sel_prev)
 
         self.btn_sel_next = gtk.Button()
@@ -139,7 +143,7 @@ class IconFileSelection(gtk.HBox):
 #        image.set_from_stock(gtk.STOCK_GO_DOWN,48)
 #        self.btn_go_down.set_image(image)
 #        self.buttonbox.add(self.btn_go_down)
-
+#
 #        self.btn_go_up = gtk.Button()
 #        self.btn_go_up.set_size_request(56,56)
 #        image = gtk.Image()
@@ -183,8 +187,7 @@ class IconFileSelection(gtk.HBox):
         vbox.pack_start(self.file_label, False, True, 0)
 
         self.store = self._create_store()
-        self._fill_store()
-
+        
         self.iconView = gtk.IconView(self.store)
         self.iconView.set_selection_mode(gtk.SELECTION_SINGLE)
 
@@ -202,21 +205,37 @@ class IconFileSelection(gtk.HBox):
 #        self.btn_go_down.connect("clicked", self.on_btn_go_down_clicked)
 #        self.btn_go_up.connect("clicked", self.on_btn_go_up_clicked)
         self.btn_jump_to.connect("clicked", self.on_btn_jump_to_clicked)
-        self.btn_select.connect("clicked", self.on_btn_get_selected_clicked)
+        self.btn_select.connect("clicked", self.on_btn_select_clicked)
         self.btn_exit.connect("clicked", self.on_btn_exit_clicked)
         # will be emitted, when a icon has been activated, so we keep track of the path
         self.iconView.connect("item-activated", self._on_item_activated)
         # will be emitted, when a icon is activated and the ENTER key has been pressed
         self.iconView.connect("activate-cursor-item", self._on_activate_cursor_item)
-        self.connect("destroy", gtk.main_quit)
-
+        # will be emmited if the selection has changed, this happens also if the user clicks ones on an icon
+        self.iconView.connect("selection-changed",  self._on_selection_changed)
+        # will be emitted, when the widget is destroyed
+        self.connect("destroy", gtk.main_quit)      
+        
         self.add(vbox)
         self.show_all()
 
         # To use the the events, we have to unmask them
         self.iconView.add_events(gtk.gdk.BUTTON_PRESS_MASK)
         self.iconView.connect("button_press_event", self._button_press)
-
+        
+        self._fill_store()
+        self._init_button_state()
+        
+    def _init_button_state(self):    
+        # we need this to check for differnces in the button state
+        self.button_state["btn_home"] = self.btn_home.get_sensitive()
+        self.button_state["btn_dir_up"] = self.btn_dir_up.get_sensitive()
+        self.button_state["btn_sel_prev"] = self.btn_sel_prev.get_sensitive()
+        self.button_state["btn_sel_next"] = self.btn_sel_next.get_sensitive()
+        self.button_state["btn_jump_to"] = self.btn_jump_to.get_sensitive()
+        self.button_state["btn_select"] = self.btn_select.get_sensitive()
+        self.old_button_state = self.button_state.copy()
+        
     # With the left mouse button and a dobble click, the file can be selected
     def _button_press(self, widget, event):
         # left button used?
@@ -250,10 +269,9 @@ class IconFileSelection(gtk.HBox):
         return store
 
     def _fill_store(self):
-
         if self.cur_dir == None:
             return
-
+        
         try:
             self.store.clear()
             number = 0
@@ -261,37 +279,43 @@ class IconFileSelection(gtk.HBox):
             files = []
             for fl in os.listdir(self.cur_dir):
                 # we don't want to add hidden files
-                if not fl[0] == '.':
-                    if os.path.isdir(os.path.join(self.cur_dir, fl)):
+                if fl[0] == '.':
+                    continue
+                if os.path.isdir(os.path.join(self.cur_dir, fl)):
+                    try:
+                        os.listdir(os.path.join(self.cur_dir, fl))
                         dirs.append(fl)
                         number += 1
-                    else:
-                        try:
-                            name, ext = fl.rsplit(".", 1)
-                            if "*" in self.filetypes:
-                                files.append(fl)
-                                number += 1
-                            elif ext in self.filetypes:
-                                files.append(fl)
-                                number += 1
-                        except:
-                            pass
-
+                    except OSError:
+                        #print ("no rights for ", os.path.join(self.cur_dir, fl), " skip that dir")
+                        continue
+                else:
+                    try:
+                        name, ext = fl.rsplit(".", 1)
+                        if "*" in self.filetypes:
+                            files.append(fl)
+                            number += 1
+                        elif ext in self.filetypes:
+                            files.append(fl)
+                            number += 1
+                    except:
+                        pass
+    
             if self.sortorder not in [_ASCENDING, _DESCENDING, _FOLDERFIRST, _FILEFIRST]:
                 self.sortorder = _FOLDERFIRST
-
+    
             if self.sortorder == _ASCENDING or self.sortorder == _DESCENDING:
                 allobjects = dirs
                 allobjects.extend(files)
                 allobjects.sort(cmp = None, key = None, reverse = not self.sortorder == _ASCENDING)
-
+    
                 for obj in allobjects:
                     if os.path.isdir(os.path.join(self.cur_dir, obj)):
                         self.store.append([obj, self.dirIcon, True])
                     else:
                         icon = self._get_icon(obj)
                         self.store.append([obj, icon, False])
-
+    
             dirs.sort(cmp = None, key = None, reverse = False)
             files.sort(cmp = None, key = None, reverse = False)
             if self.sortorder == _FOLDERFIRST:
@@ -306,17 +330,48 @@ class IconFileSelection(gtk.HBox):
                     self.store.append([file, icon, False])
                 for dir in dirs:
                     self.store.append([dir, self.dirIcon, True])
-
-            if number == 0:
-                self.btn_sel_next.set_sensitive(False)
-                self.btn_sel_prev.set_sensitive(False)
-                self.btn_select.set_sensitive(False)
-            else:
-                self.btn_sel_next.set_sensitive(True)
-                self.btn_sel_prev.set_sensitive(True)
-                self.btn_select.set_sensitive(True)
         except:
             pass
+        finally:
+            # check the stat of the button and set them as they should be
+            self.check_button_state()
+        
+    def check_button_state(self):
+        if self.model.get_iter_first() == None:
+            state = False
+        else:
+            state = True
+        self.btn_sel_next.set_sensitive(state)
+        self.button_state["btn_sel_next"] = state
+        self.btn_sel_prev.set_sensitive(state)
+        self.button_state["btn_sel_prev"] = state
+        self.btn_select.set_sensitive(state)
+        self.button_state["btn_select"] = state
+        state = self.cur_dir == self.user_dir
+        self.btn_home.set_sensitive(not state)
+        self.button_state["btn_home"] = not state
+        state = self.cur_dir == "/"
+        self.btn_dir_up.set_sensitive(not state)
+        self.button_state["btn_dir_up"] = not state
+        state = self.cur_dir == self.jump_to_dir
+        self.btn_jump_to.set_sensitive(not state)
+        self.button_state["btn_jump_to"] = not state
+        state = self.iconView.get_cursor() == None
+        self.btn_select.set_sensitive(not state)
+        self.button_state["btn_select"] = not state        
+        self.state_changed()
+        
+    def state_changed(self):
+        # find the differnce
+        diff = set(self.button_state.iteritems()) - set(self.old_button_state.iteritems())
+        for key in self.button_state.keys():
+            try:
+                if self.button_state[key] != self.old_button_state[key]:
+                    self.emit("sensitive",key, self.button_state[key])
+            except:
+                continue 
+
+        self.old_button_state = self.button_state.copy()
 
     def show_buttonbox(self, state):
         if state:
@@ -331,14 +386,12 @@ class IconFileSelection(gtk.HBox):
             self.file_label.hide()
 
     def on_btn_home_clicked(self, widget):
-        self.cur_dir = os.path.realpath(os.path.expanduser('~'))
+        self.cur_dir = self.user_dir
         self._fill_store()
-        self.btn_dir_up.set_sensitive(True)
 
     def on_btn_jump_to_clicked(self, widget):
         self.cur_dir = self.jump_to_dir
         self._fill_store()
-        self.btn_dir_up.set_sensitive(True)
 
     def get_iter_last(self, model):
         itr = model.get_iter_first()
@@ -358,7 +411,7 @@ class IconFileSelection(gtk.HBox):
             first = int(self.model.get_string_from_iter(self.model.get_iter_first()))
             pos = pos - 1
             if pos < first:
-                pos = first
+                pos = int(self.model.get_string_from_iter(self.get_iter_last(self.model)))
             new_iter = self.model.get_iter_from_string(str(pos))
             new_path = self.model.get_path(new_iter)
         except:
@@ -366,6 +419,7 @@ class IconFileSelection(gtk.HBox):
             new_path = self.model.get_path(new_iter)
         self.iconView.set_cursor(new_path)
         self.iconView.select_path(new_path)
+        self.check_button_state()
 
     def on_btn_sel_next_clicked(self, data):
         if not self.btn_sel_next.is_sensitive():
@@ -379,15 +433,26 @@ class IconFileSelection(gtk.HBox):
                 self.iconView.set_cursor(new_path)
                 self.iconView.select_path(new_path)
             except:
-                new_path = self.model.get_path(iter)
+                first = int(self.model.get_string_from_iter(self.model.get_iter_first()))
+                new_path = self.model.get_path(first)
                 self.iconView.set_cursor(new_path)
                 self.iconView.select_path(new_path)
         except:
             self.iconView.set_cursor(0)
             self.iconView.select_path(0)
+        self.check_button_state()
 
 # ToDo: find out how to move a line down or up
 #    def on_btn_go_down_clicked(self,data):
+#        print("This is the number of the icon selected", self.iconView.get_cursor())
+#        col = self.iconView.get_item_column(self.iconView.get_cursor()[0])
+#        row = self.iconView.get_item_row(self.iconView.get_cursor()[0])
+#        print("This is the column :", col)
+#        print("This is the row :", row)
+#        print(self.iconView.get_columns())
+
+        
+#        self.iconView.item_activated(self.iconView.get_cursor()[0])
 #        print("go down")
 #        print("columns = ",self.iconView.get_columns())
 #        print("column spacing = ", self.iconView.get_column_spacing())
@@ -395,18 +460,21 @@ class IconFileSelection(gtk.HBox):
 #        print("margin = ", self.iconView.get_margin())
 #        print("visible range = ", self.iconView.get_visible_range())
 #        print("get cursor = ", self.iconView.get_cursor())
-#        print("item row = ", self.iconView.get_item_at_row(self.get_selected()))
+#        #print("item row = ", self.iconView.get_item_at_row(self.get_selected()))
 #        print("item column = ", self.iconView.get_item_column(self.get_selected()))
-
-
+#
+#
 #    def on_btn_go_up_clicked(self,data):
 #        print("go up")
 # ToDo: end
 
     def set_icon_size(self, iconsize):
-        self.icon_size = iconsize
-        self.dirIcon = self._get_icon("folder")
-        self._fill_store()
+        try:
+            self.icon_size = iconsize
+            self.dirIcon = self._get_icon("folder")
+            self._fill_store()
+        except:
+            pass
 
     def set_directory(self, directory):
         self.cur_dir = os.path.expanduser(directory)
@@ -420,20 +488,20 @@ class IconFileSelection(gtk.HBox):
         self._fill_store()
 
     def get_selected(self):
-        return on_btn_get_selected_clicked(self)
+        return self.on_btn_select_clicked(self)
 
-    def on_btn_get_selected_clicked(self, data):
-        try:
-            self.iconView.item_activated(self.iconView.get_cursor()[0])
-            if self.path:
-                filepath = self.cur_dir + os.path.sep + self.path
-                self.file_label.set_text(filepath)
-            else:
-                self.file_label.set_text("")
-                filepath = None
-            self.emit('selected', filepath)
-        except:
-            pass
+    def on_btn_select_clicked(self, data):
+        #try:
+        self.iconView.item_activated(self.iconView.get_cursor()[0])
+        if self.path:
+            filepath = self.cur_dir + os.path.sep + self.path
+            self.file_label.set_text(filepath)
+        else:
+            self.file_label.set_text("")
+            filepath = None
+        self.emit('selected', filepath)
+        #except:
+        #    pass
 
     def on_btn_exit_clicked(self, data):
         if __name__ == "__main__":
@@ -450,18 +518,17 @@ class IconFileSelection(gtk.HBox):
 
         self.cur_dir = self.cur_dir + os.path.sep + path
         self._fill_store()
-        self.btn_dir_up.set_sensitive(True)
         # This is only to advise, that the selection wasn't a file, but an directory
         self.path = None
+
+    def _on_selection_changed(self, widget):
+        if not self.btn_select.get_sensitive():
+            self.btn_select.set_sensitive(True)
+        self.check_button_state()
 
     def on_btn_dir_up_clicked(self, widget):
         self.cur_dir = os.path.dirname(self.cur_dir)
         self._fill_store()
-        sensitive = True
-        if self.cur_dir == "/" :
-            sensitive = False
-        self.btn_dir_up.set_sensitive(sensitive)
-        return self.cur_dir
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -503,12 +570,14 @@ def main():
 
     IFS = IconFileSelection()
     IFS.set_property("filetypes", "*")
+    IFS.set_property("jump_to_dir", "/tmp")
 
     window.add(IFS)
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     window.set_size_request(680, 480)
     gtk.main()
+    
 
 if __name__ == "__main__":
     main()

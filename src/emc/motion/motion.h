@@ -77,24 +77,18 @@ to another.
 #ifndef MOTION_H
 #define MOTION_H
 
+#include "hal.h"
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"		/* EmcPose */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 #include "rtapi_limits.h"
+#include "motion_id.h"
+#include "tp.h"
 #include <stdarg.h>
+#include "state_tag.h"
 
-
-// define a special value to denote an invalid motion ID 
-// NB: do not ever generate a motion id of  MOTION_INVALID_ID
-// this should be really be tested for in command.c 
-
-#define MOTION_INVALID_ID INT_MIN
-#define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
-
-#define MOTION_PAUSED_RETURN_MOVE (MOTION_INVALID_ID+10)
-#define MOTION_PAUSED_JOG_MOVE (MOTION_INVALID_ID+11)
 
 
 #ifdef __cplusplus
@@ -111,79 +105,80 @@ extern "C" {
 /* This enum lists all the possible commands */
 
     typedef enum {
-	EMCMOT_ABORT = 1,	/* abort all motion */
-	EMCMOT_AXIS_ABORT,	/* abort one axis */ //FIXME-AJ: replace command name to EMCMOT_JOINT_ABORT
-	EMCMOT_ENABLE,		/* enable servos for active joints */
-	EMCMOT_DISABLE,		/* disable servos for active joints */
-	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
-	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_ACTIVATE_JOINT,	/* make joint active */
-	EMCMOT_DEACTIVATE_JOINT,	/* make joint inactive */
+    EMCMOT_ABORT = 1,              /* abort all motion */
+    EMCMOT_AXIS_ABORT = 2,         /* abort one axis */ //FIXME-AJ: replace command name to EMCMOT_JOINT_ABORT
+    EMCMOT_ENABLE = 3,             /* enable servos for active joints */
+    EMCMOT_DISABLE = 4,            /* disable servos for active joints */
+    EMCMOT_ENABLE_AMPLIFIER = 5,   /* enable amp outputs */
+    EMCMOT_DISABLE_AMPLIFIER = 6,  /* disable amp outputs */
+    EMCMOT_ENABLE_WATCHDOG = 7,    /* enable watchdog sound, parport */
+    EMCMOT_DISABLE_WATCHDOG = 8,   /* enable watchdog sound, parport */
+    EMCMOT_ACTIVATE_JOINT = 9,     /* make joint active */
+    EMCMOT_DEACTIVATE_JOINT = 10,  /* make joint inactive */
 
-	EMCMOT_PAUSE,		/* pause motion */
-	EMCMOT_RESUME,		/* resume motion */
-	EMCMOT_STEP,		/* resume motion until id encountered */
-	EMCMOT_FREE,		/* set mode to free (joint) motion */
-	EMCMOT_COORD,		/* set mode to coordinated motion */
-	EMCMOT_TELEOP,		/* set mode to teleop */
+    EMCMOT_PAUSE = 11,             /* pause motion */
+    EMCMOT_RESUME = 12,            /* resume motion */
+    EMCMOT_STEP = 13,              /* resume motion until id encountered */
+    EMCMOT_FREE = 14,              /* set mode to free (joint) motion */
+    EMCMOT_COORD = 15,             /* set mode to coordinated motion */
+    EMCMOT_TELEOP = 16,            /* set mode to teleop */
 
-	EMCMOT_SPINDLE_SCALE,	/* set scale factor for spindle speed */
-	EMCMOT_SS_ENABLE,	/* enable/disable scaling the spindle speed */
-	EMCMOT_FEED_SCALE,	/* set scale factor for feedrate */
-	EMCMOT_FS_ENABLE,	/* enable/disable scaling feedrate */
-	EMCMOT_FH_ENABLE,	/* enable/disable feed_hold */
-	EMCMOT_AF_ENABLE,	/* enable/disable adaptive feedrate */
-	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
+    EMCMOT_SPINDLE_SCALE = 17,     /* set scale factor for spindle speed */
+    EMCMOT_SS_ENABLE = 18,         /* enable/disable scaling the spindle speed */
+    EMCMOT_FEED_SCALE = 19,        /* set scale factor for feedrate */
+    EMCMOT_FS_ENABLE = 20,         /* enable/disable scaling feedrate */
+    EMCMOT_FH_ENABLE = 21,         /* enable/disable feed_hold */
+    EMCMOT_AF_ENABLE = 22,         /* enable/disable adaptive feedrate */
+    EMCMOT_OVERRIDE_LIMITS = 23,   /* temporarily ignore limits until jog done */
 
-	EMCMOT_HOME,		/* home a joint or all joints */
-	EMCMOT_UNHOME,		/* unhome a joint or all joints*/
-	EMCMOT_JOG_CONT,	/* continuous jog */
-	EMCMOT_JOG_INCR,	/* incremental jog */
-	EMCMOT_JOG_ABS,		/* absolute jog */
-	EMCMOT_SET_LINE,	/* queue up a linear move */
-	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
-	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
-					   world cartesian coordinates, not
-					   in joint space like EMCMOT_JOG_* */
+    EMCMOT_HOME = 24,              /* home a joint or all joints */
+    EMCMOT_UNHOME = 25,            /* unhome a joint or all joints*/
+    EMCMOT_JOG_CONT = 26,          /* continuous jog */
+    EMCMOT_JOG_INCR = 27,          /* incremental jog */
+    EMCMOT_JOG_ABS = 28,           /* absolute jog */
+    EMCMOT_SET_LINE = 29,          /* queue up a linear move */
+    EMCMOT_SET_CIRCLE = 30,        /* queue up a circular move */
+    EMCMOT_SET_TELEOP_VECTOR = 31, /* Move at a given velocity but in
+                                      world Cartesian coordinates, not
+                                      in joint space like EMCMOT_JOG_* */
 
-	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
-	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
-				   trip pos */
-	EMCMOT_RIGID_TAP,	/* go to pos, with sync to spindle speed, 
-				   then return to initial pos */
+    EMCMOT_CLEAR_PROBE_FLAGS = 32, /* clears probeTripped flag */
+    EMCMOT_PROBE = 33,             /* go to pos, stop if probe trips, record
+                                      trip pos */
+    EMCMOT_RIGID_TAP = 34,         /* go to pos, with sync to spindle speed,
+                                      then return to initial pos */
 
-	EMCMOT_SET_POSITION_LIMITS,	/* set the joint position +/- limits */
-	EMCMOT_SET_BACKLASH,	/* set the joint backlash */
-	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
-	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
-	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
-	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
-	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max joint vel */
-	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max joint accel */
-	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
-	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
-	EMCMOT_SET_NUM_AXES,	/* set the number of joints */ //FIXME-AJ: function needs to get renamed
-	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
-	EMCMOT_SET_HOMING_PARAMS,	/* sets joint homing parameters */
-	EMCMOT_SET_DEBUG,       /* sets the debug level */
-	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
-	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
-        EMCMOT_SET_SPINDLESYNC, /* syncronize motion to spindle encoder */
-	
-	EMCMOT_SPINDLE_ON,	/* start the spindle */
-	EMCMOT_SPINDLE_OFF,	/* stop the spindle */
-	EMCMOT_SPINDLE_INCREASE,	/* spindle faster */
-	EMCMOT_SPINDLE_DECREASE,	/* spindle slower */
-	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
-	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
-	EMCMOT_SPINDLE_ORIENT,          /* orient the spindle */
-	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
-	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
-        EMCMOT_SET_OFFSET, /* set tool offsets */
-        EMCMOT_SET_MAX_FEED_OVERRIDE,
-        EMCMOT_SETUP_ARC_BLENDS,
+    EMCMOT_SET_POSITION_LIMITS = 35,  /* set the joint position +/- limits */
+    EMCMOT_SET_BACKLASH = 36,         /* set the joint backlash */
+    EMCMOT_SET_MIN_FERROR = 37,       /* minimum following error, input units */
+    EMCMOT_SET_MAX_FERROR = 38,       /* maximum following error, input units */
+    EMCMOT_SET_VEL = 39,              /* set the velocity for subsequent moves */
+    EMCMOT_SET_VEL_LIMIT = 40,        /* set the max vel for all moves (tooltip) */
+    EMCMOT_SET_JOINT_VEL_LIMIT = 41,  /* set the max joint vel */
+    EMCMOT_SET_JOINT_ACC_LIMIT = 42,  /* set the max joint accel */
+    EMCMOT_SET_ACC = 43,              /* set the max accel for moves (tooltip) */
+    EMCMOT_SET_TERM_COND = 44,        /* set termination condition (stop, blend) */
+    EMCMOT_SET_NUM_AXES = 45,         /* set the number of joints */ //FIXME-AJ: function needs to get renamed
+    EMCMOT_SET_WORLD_HOME = 46,       /* set pose for world home */
+    EMCMOT_SET_HOMING_PARAMS = 47,    /* sets joint homing parameters */
+    EMCMOT_SET_DEBUG = 48,            /* sets the debug level */
+    EMCMOT_SET_DOUT = 49,             /* sets or unsets a DIO, this can be imediate or synched with motion */
+    EMCMOT_SET_AOUT = 50,             /* sets or unsets a AIO, this can be imediate or synched with motion */
+    EMCMOT_SET_SPINDLESYNC = 51,      /* synchronize motion to spindle encoder */
+
+    EMCMOT_SPINDLE_ON = 52,               /* start the spindle */
+    EMCMOT_SPINDLE_OFF = 53,              /* stop the spindle */
+    EMCMOT_SPINDLE_INCREASE = 54,         /* spindle faster */
+    EMCMOT_SPINDLE_DECREASE = 55,         /* spindle slower */
+    EMCMOT_SPINDLE_BRAKE_ENGAGE = 56,     /* engage the spindle brake */
+    EMCMOT_SPINDLE_BRAKE_RELEASE = 57,    /* release the spindle brake */
+    EMCMOT_SPINDLE_ORIENT = 58,           /* orient the spindle */
+    EMCMOT_SET_MOTOR_OFFSET = 59,         /* set the offset between joint and motor */
+    EMCMOT_SET_JOINT_COMP = 60,           /* set a compensation triplet for a joint (nominal, forw., rev.) */
+    EMCMOT_SET_OFFSET = 61,               /* set tool offsets */
+    EMCMOT_SET_MAX_FEED_OVERRIDE = 62,
+    EMCMOT_SETUP_ARC_BLENDS = 63,
+    EMCMOT_RAPID_SCALE = 64,	          /* set scale factor for rapids */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -244,7 +239,8 @@ extern "C" {
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
 	int debug;		/* debug level, from DEBUG in .ini file */
-	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
+        unsigned int out; /* these are related to synched AOUT/DOUT. out = which gets set */
+	unsigned char now, start, end;	/* now=wether now or synched, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
         unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
@@ -257,11 +253,13 @@ extern "C" {
 	double  timeout;        /* of wait for spindle orient to complete */
 	unsigned char tail;	/* flag count for mutex detect */
         int arcBlendOptDepth;
-        int arcBlendEnable;
-        int arcBlendFallbackEnable;
-        double arcBlendGapCycles;
+        hal_bit_t arcBlendEnable;
+        hal_bit_t arcBlendFallbackEnable;
+        hal_s32_t arcBlendGapCycles;
         double arcBlendRampFreq;
+        double arcBlendTangentKinkRatio;
         double maxFeedScale;
+    struct state_tag_t tag;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -497,8 +495,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double home_search_vel;	/* dir/spd to look for home switch */
 	double home_final_vel;  /* speed to travel from OFFSET to HOME position */
 	double home_latch_vel;	/* dir/spd to latch switch/index pulse */
-	double home_offset;	/* dir/dist from switch to home point */
-	double home;		/* joint coordinate of home point */
+	hal_float_t *home_offset;	/* dir/dist from switch to home point */
+	hal_float_t *home;	/* joint coordinate of home point */
 	int home_flags;		/* flags for various homing options */
 	int volatile_home;      /* joint should get unhomed when we get unhome -2 
                                    (generated by task upon estop, etc) */
@@ -586,10 +584,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 
     typedef struct {
-	double speed;		// spindle speed in RPMs
+	hal_float_t speed;		// spindle speed in RPMs
 	double css_factor;
 	double xoffset;
-	int direction;		// 0 stopped, 1 forward, -1 reverse
+	hal_s32_t direction;	// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
 	int locked;             // spindle lock engaged after orient
 	int orient_fault;       // fault code from motion.spindle-orient-fault
@@ -621,14 +619,15 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int commandNumEcho;	/* echo of input command number */
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
-	double feed_scale;	/* velocity scale factor for all motion */
+	double feed_scale;	/* velocity scale factor for all motion but rapids */
+	double rapid_scale;	/* velocity scale factor for rapids */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
-	unsigned char enables_new;	/* flags for FS, SS, etc */
+	hal_u32_t enables_new;	/* flags for FS, SS, etc */
 		/* the above set is the enables in effect for new moves */
 	/* the rest are updated every cycle */
 	double net_feed_scale;	/* net scale factor for all motion */
 	double net_spindle_scale;	/* net scale factor for spindle */
-	unsigned char enables_queued;	/* flags for FS, SS, etc */
+	hal_u32_t enables_queued;	/* flags for FS, SS, etc */
 		/* the above set is the enables in effect for the
 		   currently executing move */
 	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
@@ -652,10 +651,10 @@ Suggestion: Split this in to an Error and a Status flag register..
         unsigned char probe_type;
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
-        int spindle_index_enable;  /* hooked to a canon encoder index-enable */
-        int spindleSync;        /* we are doing spindle-synced motion */
-        double spindleRevs;     /* position of spindle in revolutions */
-        double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
+        hal_bit_t spindle_index_enable;  /* hooked to a canon encoder index-enable */
+        hal_bit_t spindleSync;        /* we are doing spindle-synced motion */
+        hal_float_t spindleRevs;     /* position of spindle in revolutions */
+        hal_float_t spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
 
 	spindle_status spindle;	/* data types for spindle status */
 	
@@ -663,6 +662,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by g-code */
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by g-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by g-code */
+
+    struct state_tag_t tag; /* Current interp state corresponding to motion line */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
@@ -693,10 +694,10 @@ Suggestion: Split this in to an Error and a Status flag register..
         double current_vel;
         double requested_vel;
 
-        unsigned int tcqlen;
+        hal_u32_t tcqlen;
         EmcPose tool_offset;
         int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
-        int spindle_is_atspeed; /* hal input */
+        hal_bit_t spindle_is_atspeed; /* hal input */
 
 	EmcPose pause_carte_pos;	// initial pause point (ipp) - where we switched to the altQueue
 	EmcPose pause_offset_carte_pos;	// ipp + current offset values, set by update_offset_pose()
@@ -759,13 +760,18 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double limitVel;	/* scalar upper limit on vel */
 	KINEMATICS_TYPE kinematics_type;
+	vtkins_t *vtk;          // pointer to kinematics vtable
+	vtp_t    *vtp;          // pointer to tp vtable
+	int kins_vid;           // HAL id of kins vtable
+	int tp_vid;             // HAL id of tp vtable
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
-        int arcBlendOptDepth;
-        int arcBlendEnable;
-        int arcBlendFallbackEnable;
-        double arcBlendGapCycles;
+        hal_s32_t arcBlendOptDepth;
+        hal_bit_t arcBlendEnable;
+        hal_bit_t arcBlendFallbackEnable;
+        hal_s32_t arcBlendGapCycles;
         double arcBlendRampFreq;
+        double arcBlendTangentKinkRatio;
         double maxFeedScale;
     } emcmot_config_t;
 
@@ -809,6 +815,9 @@ Suggestion: Split this in to an Error and a Status flag register..
     extern int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap);
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
+
+    int setTrajCycleTime(double secs);
+    int setServoCycleTime(double secs);
 
 #ifdef __cplusplus
 }

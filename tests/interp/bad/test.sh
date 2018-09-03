@@ -1,5 +1,5 @@
 #!/bin/sh
-python <<EOF
+python2 <<EOF
 import glob, os, sys
 
 fail = 0

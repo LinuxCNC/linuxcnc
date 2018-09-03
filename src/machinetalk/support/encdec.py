@@ -5,10 +5,10 @@ import binascii
 # this assumes the python modules generated from src/protobuf/proto/*.proto have
 # been built:
 
-from types_pb2 import *
-from value_pb2 import *
-from object_pb2 import *
-from message_pb2 import *
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.value_pb2 import *
+from machinetalk.protobuf.object_pb2 import *
+from machinetalk.protobuf.message_pb2 import *
 
 import google.protobuf.text_format
 

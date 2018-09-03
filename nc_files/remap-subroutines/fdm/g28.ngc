@@ -1,0 +1,54 @@
+o<g28> sub
+#500=0; home x
+#501=0; home y
+#502=0; home z
+#503=0; home a
+#504=38; probe selection io index
+#505=38; probe enable io index
+o100 if [EXISTS[#<x>] or EXISTS[#<y>] or EXISTS[#<z>] or EXISTS[#<a>]]
+    o110 if [EXISTS[#<x>]]
+        #500=1;
+    o110 endif
+    o111 if [EXISTS[#<y>]]
+        #501=1;
+    o111 endif
+    o112 if [EXISTS[#<z>]]
+        #502=1;
+    o112 endif
+    o113 if [EXISTS[#<a>]]
+        #503=1
+    o113 endif
+o100 else
+    #500=1; home x
+    #501=1; home y
+    #502=1; home z
+    #503=1; home a
+o100 endif
+; M65 P#505; disable probe sensor if it was enabled
+o101 if [#500 EQ 1]
+    G0 X0
+    ; M68 E#504 Q1; select probe
+    ; M64 P#505; enable probe sensor
+    ; G38.2 X-100.0 F100; probe X axis
+    ; M65 P#505; disable probe sensor
+o101 endif
+o102 if [#501 EQ 1]
+    G0 Y0
+    ; M68 E#504 Q2; select probe
+    ; M64 P#505; enable probe sensor
+    ; G38.2 Y-100.0 F100; probe Y axis
+    ; M65 P#505; disable probe sensor
+o102 endif
+o103 if [#502 EQ 1]
+    G0 Z0
+    ; M68 E#504 Q3; select probe
+    ; M64 P#505; enable probe sensor
+    ; G38.2 Z-10.0 F100; probe Z axis
+    ; M65 P#505; disable probe sensor
+o103 endif
+o104 if [#503 EQ 1]
+    o114 if [#<_ini[FDM]VELOCITY_EXTRUSION_ENABLE> EQ 0]    
+        G92 A0; set extruder axis to 0
+    o114 endif
+o104 endif
+o<g28> end sub 

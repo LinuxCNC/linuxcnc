@@ -1,0 +1,4 @@
+
+runs legacy encoder_ratio and encoder_ratio-v2 in sync so as to be able to compare outputs
+
+not a complet regression test yet but running it manually shows we're good

@@ -1,6 +1,6 @@
 # adapted from work by J Thornton
 
-loadrt threads name1=porttest period1=1000000
+newthread porttest 1000000
 addf parport.0.read porttest
 addf parport.0.write porttest
 

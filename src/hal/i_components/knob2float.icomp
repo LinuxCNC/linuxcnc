@@ -1,0 +1,58 @@
+//   This is a component for Machinekit
+//   Copyright 2007 John Kasunich <jmkasunich AT sourceforge DOT net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component knob2float "Convert counts (probably from an encoder) to a float value";
+
+pin in s32 counts "Counts";
+pin in bit enable "When TRUE, output is controlled by count, when FALSE, output is fixed";
+pin in float scale "Amount of output change per count";
+pin out float out "Output value";
+
+pin io float max_out=1.0 "Maximum output value, further increases in count will be ignored";
+pin io float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
+
+variable hal_s32_t old_counts;
+variable hal_s32_t old_out;
+
+function _;
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    hal_float_t delta_counts;
+    hal_float_t tmp_out;
+
+    if ( min_out > max_out ) {
+	min_out = max_out;
+    }
+    delta_counts = ( (hal_float_t) counts - old_counts);
+    if ( enable ) {
+	tmp_out = old_out + (hal_float_t)delta_counts * scale;
+	if ( tmp_out > max_out ) {
+	    old_out = max_out;
+	} else if ( tmp_out < min_out ) {
+	    old_out = min_out;
+	} else {
+	    old_out = tmp_out;
+	}
+    }
+    out = old_out;
+    old_counts += delta_counts;
+
+return 0;
+}

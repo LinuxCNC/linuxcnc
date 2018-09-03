@@ -4,7 +4,7 @@ pyngcgui -- python, gladevcp implementation of ngcgui that can be embedded in gu
 
 In the packaged version of linuxCNC, ngcgui_lib is created as a symbolic link to a system directory owned by root:
 
-/usr/share/linuxcnc/ncfiles/ngcgui_lib
+/usr/share/machinekit/ncfiles/ngcgui_lib
 
 This library is not ordinarily changed by the user.  To modify a library .ngc file, copy the .ngc file to the [DISPLAY]PROGRAM_PREFIX directory or to a directory that is included in the path specified by [RS274NGC]SUBROUTINE_PATH and (optionally) change the filename.
 

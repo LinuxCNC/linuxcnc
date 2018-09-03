@@ -1,0 +1,30 @@
+# The period1 here must match period in checkresult
+loadrt threads name1=t period1=$(PERIOD)
+
+# Load pc comp
+loadrt pll_correction names=pc
+setp pc.numsamps $(NUMSAMPS)
+setp pc.pll-periods $(PLL_PERIODS)
+addf pc t
+
+# Load sampler comp
+loadrt sampler cfg=ussssu depth=2000
+addf sampler.0 t
+
+# Net pc signals to sampler
+net cycle-count pc.cycle-count => sampler.0.pin.0
+net period-actual pc.period-actual => sampler.0.pin.1
+net pll-err pc.pll-err => sampler.0.pin.2
+net samp-avg pc.samp-avg => sampler.0.pin.3
+net phase-diff pc.phase-diff => sampler.0.pin.4
+net mode pc.mode => sampler.0.pin.5
+
+# Start threads and wait for userland sampler to exit
+start
+
+# Load userland sampler comp
+# - LinuxCNC
+#loadusr -Wn halsampler halsampler -N halsampler -n 2000
+# - Machinekit
+loadusr -w halsampler -n $(NUMSAMPS_X4)
+

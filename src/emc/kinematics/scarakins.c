@@ -23,6 +23,16 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+#define VTVERSION VTKINEMATICS_VERSION1
+
+#define DEFAULT_D1 490
+#define DEFAULT_D2 340
+#define DEFAULT_D3  50
+#define DEFAULT_D4 250
+#define DEFAULT_D5  50
+#define DEFAULT_D6  50
+
+
 struct scara_data {
     hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
 } *haldata = 0;
@@ -79,7 +89,7 @@ int kinematicsForward(const double * joint,
     double a0, a1, a3;
     double x, y, z, c;
 
-/* convert joint angles to radians for sin() and cos() */
+/* convert joint angles to radians for rtapi_sin() and rtapi_cos() */
 
     a0 = joint[0] * ( PM_PI / 180 );
     a1 = joint[1] * ( PM_PI / 180 );
@@ -89,8 +99,8 @@ int kinematicsForward(const double * joint,
     a1 = a1 + a0;
     a3 = a3 + a1;
 
-    x = D2*cos(a0) + D4*cos(a1) + D6*cos(a3);
-    y = D2*sin(a0) + D4*sin(a1) + D6*sin(a3);
+    x = D2*rtapi_cos(a0) + D4*rtapi_cos(a1) + D6*rtapi_cos(a3);
+    y = D2*rtapi_sin(a0) + D4*rtapi_sin(a1) + D6*rtapi_sin(a3);
     z = D1 + D3 - joint[2] - D5;
     c = a3;
 	
@@ -128,8 +138,8 @@ int kinematicsInverse(const EmcPose * world,
     a3 = c * ( PM_PI / 180 );
 
     /* center of end effector (correct for D6) */
-    xt = x - D6*cos(a3);
-    yt = y - D6*sin(a3);
+    xt = x - D6*rtapi_cos(a3);
+    yt = y - D6*rtapi_sin(a3);
 
     /* horizontal distance (squared) from end effector centerline
 	to main column centerline */
@@ -138,20 +148,20 @@ int kinematicsInverse(const EmcPose * world,
     cc = (rsq - D2*D2 - D4*D4) / (2*D2*D4);
     if(cc < -1) cc = -1;
     if(cc > 1) cc = 1;
-    q1 = acos(cc);
+    q1 = rtapi_acos(cc);
 
     if (*iflags)
 	q1 = -q1;
 
     /* angle to end effector */
-    q0 = atan2(yt, xt);
+    q0 = rtapi_atan2(yt, xt);
 
     /* end effector coords in inner arm coord system */
-    xt = D2 + D4*cos(q1);
-    yt = D4*sin(q1);
+    xt = D2 + D4*rtapi_cos(q1);
+    yt = D4*rtapi_sin(q1);
 
     /* inner arm angle */
-    q0 = q0 - atan2(yt, xt);
+    q0 = q0 - rtapi_atan2(yt, xt);
 
     /* q0 and q1 are still in radians. convert them to degrees */
     q0 = q0 * (180 / PM_PI);
@@ -178,31 +188,39 @@ int kinematicsHome(EmcPose * world,
   return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
   return KINEMATICS_BOTH;
 }
 
-#define DEFAULT_D1 490
-#define DEFAULT_D2 340
-#define DEFAULT_D3  50
-#define DEFAULT_D4 250
-#define DEFAULT_D5  50
-#define DEFAULT_D6  50
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsHome);
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
 
-int comp_id;
+static int comp_id, vtable_id;
+static const char *name = "scarakins";
 
-int rtapi_app_main(void) {
-    int res=0;
-    
-    comp_id = hal_init("scarakins");
+MODULE_LICENSE("GPL");
+
+int rtapi_app_main(void)
+{
+    int res = 0;
+
+    comp_id = hal_init(name);
     if (comp_id < 0) return comp_id;
-    
+
+    vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+    if (vtable_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			name, name, VTVERSION, &vtk, vtable_id );
+	return -ENOENT;
+    }
+
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
     if((res = hal_pin_float_new("scarakins.D1", HAL_IO, &(haldata->d1), comp_id)) < 0) goto error;
@@ -227,4 +245,8 @@ error:
     return res;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

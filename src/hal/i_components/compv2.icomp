@@ -1,0 +1,36 @@
+component compv2 "Two input comparator with hysteresis";
+pin_ptr in float in0 "Inverting input to the comparator";
+pin_ptr in float in1 "Non-inverting input to the comparator";
+pin_ptr out bit out "Normal output. True when \\fBin1\\fR > \\fBin0\\fR (see parameter \\fBhyst\\fR for details)";
+pin_ptr out bit equal "Match output.  True when difference between \\fBin1\\fR and \\fBin0\\fR is less than \\fBhyst\\fR/2";
+pin_ptr in float hyst=0.0 """Hysteresis of the comparator (default 0.0)
+
+With zero hysteresis, the output is true when \\fBin1\\fR > \\fBin0\\fR.  With nonzero
+hysteresis, the output switches on and off at two different values,
+separated by distance \\fBhyst\\fR around the point where \\fBin1\\fR = \\fBin0\\fR.
+Keep in mind that floating point calculations are never absolute
+and it is wise to always set \\fBhyst\\fR if you intend to use equal """;
+
+function _ fp "Update the comparator";
+license "GPL";
+;;
+FUNCTION(_)
+{
+hal_float_t tmp = gf(in1) - gf(in0);
+hal_float_t halfhyst = 0.5 * gf(hyst);
+
+    if(tmp < -halfhyst)
+        {
+        sb(out, false);
+        sb(equal, false);
+        }
+    else if(tmp > halfhyst)
+        {
+        sb(out, true);
+        sb(equal, false);
+        }
+    else
+        sb(equal,true);
+        
+    return 0;
+}

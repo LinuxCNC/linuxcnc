@@ -4,9 +4,11 @@
 # kinematics
 loadrt lineardeltakins
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=lineardeltakins
 
-loadusr -W rostock
+#loadusr -W rostock
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
@@ -14,16 +16,18 @@ addf motion-controller servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net J0pos axis.0.motor-pos-cmd => axis.0.motor-pos-fb rostock.joint0
-net J1pos axis.1.motor-pos-cmd => axis.1.motor-pos-fb rostock.joint1
-net J2pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb rostock.joint2
+net J0pos axis.0.motor-pos-cmd => axis.0.motor-pos-fb
+net J1pos axis.1.motor-pos-cmd => axis.1.motor-pos-fb
+net J2pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb
 net Apos axis.3.motor-pos-cmd => axis.3.motor-pos-fb
 
-net L lineardeltakins.L => rostock.L
-net R lineardeltakins.R => rostock.R
+#setp lineardeltakins.L 190.00
+#setp lineardeltakins.R  100.00
+setp lineardeltakins.J0off 0.00
+setp lineardeltakins.J1off 0.00
+setp lineardeltakins.J2off 0.00
 
-sets L 269
-sets R 130.25
+
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in

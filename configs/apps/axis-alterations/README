@@ -1,0 +1,88 @@
+
+-- axis_mm.ini (AXIS based config, with mm settings) ------------
+
+Demo of user keys, preview disable, load last file, write current file name, disable run, axis-remote --run etc
+
+User Defined Command keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+# precedes a halcmd
+    This will be sent and the return waited for before continuing
+....
+$ precedes a system command
+    This will be spawned to a new process and return immediately
+....
+No prefix before a gcode instruction
+
+To bind the user keys to the numeric 0-9 keys
+set NUMKEYS = YES
+Use this carefully, the main reason for its inclusion
+is to allow HID type pendant to operate commands from keystrokes
+If using a keyboard probably best set to NO and just use Alt U + n (0-9).
+.
+Example:-
+
+[USER_COMMANDS]
+USER0 = #setp iocontrol.0.lube_level 1
+USER1 = G0 X0 Y0 Z0
+USER2 = G0 X5 Y5 Z5
+USER3 = G0 X10 Y10 Z10
+USER4 = G0 X15 Y15 Z15
+USER5 = G0 X20 Y20 Z20
+USER6 = G0 X25 Y25
+USER7 = G0 X30 Y30
+USER8 = $firefox "www.machinekit.io"
+USER9 = $gedit
+NUMBERKEYS = YES
+
+Preview Disable
+~~~~~~~~~~~~~~~
+
+Loading big files can crash Axis if the preview is enabled, because it consumes huge amounts of memory
+This option turns the preview off
+The live plot will still be drawn
+
+In the ini file
+
+[USER_COMMANDS]
+DISABLE_PREVIEW = YES
+
+run-disable pin
+~~~~~~~~~~~~~~~~~
+
+A pin called axisui.run-disable is created at startup of Axis
+
+If this pin is TRUE (1) it will prevent any program being run
+
+Use this pin in your hal file netted to signals from safety interlocks etc and you will prevent
+a program being started which safety screens etc are open, but still allow jogging for touch off etc
+
+
+Open Last File
+~~~~~~~~~~~~~~
+
+Unless Machinekit is launched with a file in the command line,
+or there is a file specified to be opened in the ini file or in the environment variable,
+the file that was open when machinekit was last closed, will be re-opened if the variable in the ini file is set.
+
+[USER_COMMANDS]
+LOAD_LASTFILE = YES
+
+
+Write File Name
+~~~~~~~~~~~~~~~~
+
+To overcome the inability to interogate Axis as to what file it has open, it is now written to
+/tmp/emc.filename whenever a file is opened.
+If no file is open it will contain "No File Loaded"
+
+This info can then be used in scripts etc.
+The original purpose was to use it for a job timestamp file started and stopped with a M code script
+
+Remote Run
+~~~~~~~~~~~~
+
+axis-remote has been extended to include a 'run' switch ( -R or --run )
+
+A corresponding command in Axis will run the currently loaded file
+
+This gives the ability to not only run MDI commands remotely, but to load a file and run it remotely

@@ -1,8 +1,8 @@
-# These buffer ALL siginal used on the DB25 port
+# These buffer ALL signals used on the DB25 port
 # The board also has a pair of a set of four 0805 size jumper resistors
 # these can be used to output either the standard Spindle/Mist/flood and
 # input ALIM from the DB25 pins
-# or allow BBB SPI singals to be routed to the DB25 connector instead.
+# or allow BBB SPI singnals to be routed to the DB25 connector instead.
 # The ALIM RC buffer Capacitor would need to change if this
 # option was used.  The LIM Switch input signals are pulled to 3V3 through
 # 10K resistors
@@ -10,12 +10,12 @@
 # the cap that should be removed
 # if the SPI port (untested option)  is used.  The 4 SPI signals are also
 # directly routed
-# to six through-holes which include 3V3 and GND.  This singals are
+# to six through-holes which include 3V3 and GND.  This signals are
 # otherwise Unbuffered and
 # go directly to the BBB
-# At powerup the LVC541 enabl;e signals are pulled high, disabling the
+# At powerup the LVC541 enable signals are pulled high, disabling the
 # drivers until
-# the BBB and LinuxCNC pull the enable signal low.
+# the BBB and Machinekit pull the enable signal low.
 #
 ########################################
 
@@ -31,21 +31,23 @@ loadusr -w ./setup.sh
 loadrt trivkins
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# trajectory planner
+loadrt tp
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,113,119,126,214 input_pins=109,110,114,118,241
-loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
+loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
 #(JP) Not suing PID loop so comment out
-loadrt pid num_chan=4
+loadrt pid count=4
 loadrt limit1 count=2
 
 # ################################################
 # THREADS
 # ################################################
 
-addf [PRUCONF](DRIVER).capture-position   servo-thread
+addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
@@ -56,7 +58,7 @@ addf pid.2.do-pid-calcs                   servo-thread
 addf pid.3.do-pid-calcs                   servo-thread
 addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
-addf [PRUCONF](DRIVER).update             servo-thread
+addf hpg.update                           servo-thread
 addf bb_gpio.write                        servo-thread
 
 
@@ -73,33 +75,33 @@ newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 
 net emcmot.00.enable <= axis.0.amp-enable-out
-net emcmot.00.enable => [PRUCONF](DRIVER).stepgen.00.enable pid.0.enable
+net emcmot.00.enable => hpg.stepgen.00.enable pid.0.enable
 
 # position command and feedback
 net emcmot.00.pos-cmd axis.0.motor-pos-cmd => pid.0.command
 net emcmot.00.vel-cmd axis.0.joint-vel-cmd => pid.0.command-deriv
-net motor.00.pos-fb <= [PRUCONF](DRIVER).stepgen.00.position-fb axis.0.motor-pos-fb pid.0.feedback
-net motor.00.command pid.0.output [PRUCONF](DRIVER).stepgen.00.velocity-cmd
+net motor.00.pos-fb <= hpg.stepgen.00.position-fb axis.0.motor-pos-fb pid.0.feedback
+net motor.00.command pid.0.output hpg.stepgen.00.velocity-cmd
 setp pid.0.error-previous-target true
 setp pid.0.maxerror .001
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.00.dirsetup        [AXIS_0]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.00.dirhold         [AXIS_0]DIRHOLD
+setp hpg.stepgen.00.dirsetup        [AXIS_0]DIRSETUP
+setp hpg.stepgen.00.dirhold         [AXIS_0]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.00.steplen         [AXIS_0]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.00.stepspace       [AXIS_0]STEPSPACE
+setp hpg.stepgen.00.steplen         [AXIS_0]STEPLEN
+setp hpg.stepgen.00.stepspace       [AXIS_0]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.00.position-scale  [AXIS_0]SCALE
+setp hpg.stepgen.00.position-scale  [AXIS_0]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
+setp hpg.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
+setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
-setp [PRUCONF](DRIVER).stepgen.00.control-type    1
-setp [PRUCONF](DRIVER).stepgen.00.stepinvert      [AXIS_0]STEP_INVERT
-#setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-setp [PRUCONF](DRIVER).stepgen.00.steppin         0x4C
-setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x4D
+setp hpg.stepgen.00.control-type    1
+setp hpg.stepgen.00.stepinvert      [AXIS_0]STEP_INVERT
+#setp hpg.stepgen.00.step_type       0
+setp hpg.stepgen.00.steppin         0x4C
+setp hpg.stepgen.00.dirpin          0x4D
 
 # set PID loop gains from inifile
 setp pid.0.Pgain [AXIS_0]P
@@ -112,7 +114,7 @@ setp pid.0.FF2 [AXIS_0]FF2
 setp pid.0.deadband [AXIS_0]DEADBAND
 setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 
-#(JP) Add home switch input
+#(JP) Add home switch input on DB25-11
 net home-x bb_gpio.p8.in-10 => axis.0.home-sw-in
 #setp bb_gpio.p8.in-10.invert 1
 
@@ -125,33 +127,33 @@ newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 
 net emcmot.01.enable <= axis.1.amp-enable-out
-net emcmot.01.enable => [PRUCONF](DRIVER).stepgen.01.enable pid.1.enable
+net emcmot.01.enable => hpg.stepgen.01.enable pid.1.enable
 
 # position command and feedback
 net emcmot.01.pos-cmd axis.1.motor-pos-cmd => pid.1.command
 net emcmot.01.vel-cmd axis.1.joint-vel-cmd => pid.1.command-deriv
-net motor.01.pos-fb <= [PRUCONF](DRIVER).stepgen.01.position-fb axis.1.motor-pos-fb pid.1.feedback
-net motor.01.command pid.1.output [PRUCONF](DRIVER).stepgen.01.velocity-cmd
+net motor.01.pos-fb <= hpg.stepgen.01.position-fb axis.1.motor-pos-fb pid.1.feedback
+net motor.01.command pid.1.output hpg.stepgen.01.velocity-cmd
 setp pid.1.error-previous-target true
 setp pid.1.maxerror .001
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.01.dirsetup        [AXIS_1]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.01.dirhold         [AXIS_1]DIRHOLD
+setp hpg.stepgen.01.dirsetup        [AXIS_1]DIRSETUP
+setp hpg.stepgen.01.dirhold         [AXIS_1]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.01.steplen         [AXIS_1]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.01.stepspace       [AXIS_1]STEPSPACE
+setp hpg.stepgen.01.steplen         [AXIS_1]STEPLEN
+setp hpg.stepgen.01.stepspace       [AXIS_1]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.01.position-scale  [AXIS_1]SCALE
+setp hpg.stepgen.01.position-scale  [AXIS_1]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
+setp hpg.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
+setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
-setp [PRUCONF](DRIVER).stepgen.01.control-type    1
-setp [PRUCONF](DRIVER).stepgen.01.stepinvert      [AXIS_1]STEP_INVERT
-#setp [PRUCONF](DRIVER).stepgen.01.step_type       0
-setp [PRUCONF](DRIVER).stepgen.01.steppin         0x4E
-setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x4F
+setp hpg.stepgen.01.control-type    1
+setp hpg.stepgen.01.stepinvert      [AXIS_1]STEP_INVERT
+#setp hpg.stepgen.01.step_type       0
+setp hpg.stepgen.01.steppin         0x4E
+setp hpg.stepgen.01.dirpin          0x4F
 
 # set PID loop gains from inifile
 setp pid.1.Pgain [AXIS_1]P
@@ -165,8 +167,9 @@ setp pid.1.deadband [AXIS_1]DEADBAND
 setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 
 
-#(JP) Add home switch input
+#(JP) Add home switch input on DB25-12
 net home-y bb_gpio.p8.in-14 => axis.1.home-sw-in
+#setp bb_gpio.p8.in-14.invert 1
 
 # ################
 # Z [2] Axis
@@ -177,33 +180,33 @@ newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 
 net emcmot.02.enable <= axis.2.amp-enable-out
-net emcmot.02.enable => [PRUCONF](DRIVER).stepgen.02.enable pid.2.enable
+net emcmot.02.enable => hpg.stepgen.02.enable pid.2.enable
 
 # position command and feedback
 net emcmot.02.pos-cmd axis.2.motor-pos-cmd => pid.2.command
 net emcmot.02.vel-cmd axis.2.joint-vel-cmd => pid.2.command-deriv
-net motor.02.pos-fb <= [PRUCONF](DRIVER).stepgen.02.position-fb axis.2.motor-pos-fb pid.2.feedback
-net motor.02.command pid.2.output [PRUCONF](DRIVER).stepgen.02.velocity-cmd
+net motor.02.pos-fb <= hpg.stepgen.02.position-fb axis.2.motor-pos-fb pid.2.feedback
+net motor.02.command pid.2.output hpg.stepgen.02.velocity-cmd
 setp pid.2.error-previous-target true
 setp pid.2.maxerror .001
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.02.dirsetup        [AXIS_2]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.02.dirhold         [AXIS_2]DIRHOLD
+setp hpg.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
+setp hpg.stepgen.02.dirhold         [AXIS_2]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.02.steplen         [AXIS_2]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.02.stepspace       [AXIS_2]STEPSPACE
+setp hpg.stepgen.02.steplen         [AXIS_2]STEPLEN
+setp hpg.stepgen.02.stepspace       [AXIS_2]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.02.position-scale  [AXIS_2]SCALE
+setp hpg.stepgen.02.position-scale  [AXIS_2]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
+setp hpg.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
+setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
-setp [PRUCONF](DRIVER).stepgen.02.control-type    1 
-setp [PRUCONF](DRIVER).stepgen.02.stepinvert      [AXIS_2]STEP_INVERT
-#setp [PRUCONF](DRIVER).stepgen.02.step_type       0
-setp [PRUCONF](DRIVER).stepgen.02.steppin         0x50
-setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x51
+setp hpg.stepgen.02.control-type    1
+setp hpg.stepgen.02.stepinvert      [AXIS_2]STEP_INVERT
+#setp hpg.stepgen.02.step_type       0
+setp hpg.stepgen.02.steppin         0x50
+setp hpg.stepgen.02.dirpin          0x51
 
 # set PID loop gains from inifile
 setp pid.2.Pgain [AXIS_2]P
@@ -217,8 +220,10 @@ setp pid.2.deadband [AXIS_2]DEADBAND
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
 
-#(JP) Add home switch input
+#(JP) Add home switch input on DB25-13
 net home-z bb_gpio.p8.in-18 => axis.2.home-sw-in
+#setp bb_gpio.p8.in-18.invert 1
+
 # ################
 # A [3] Axis
 # ################
@@ -228,33 +233,33 @@ newsig emcmot.03.enable bit
 sets emcmot.03.enable FALSE
 
 net emcmot.03.enable <= axis.3.amp-enable-out
-net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable pid.3.enable
+net emcmot.03.enable => hpg.stepgen.03.enable pid.3.enable
 
 # position command and feedback
 net emcmot.03.pos-cmd axis.3.motor-pos-cmd => pid.3.command
 net emcmot.03.vel-cmd axis.3.joint-vel-cmd => pid.3.command-deriv
-net motor.03.pos-fb <= [PRUCONF](DRIVER).stepgen.03.position-fb axis.3.motor-pos-fb pid.3.feedback
-net motor.03.command pid.3.output [PRUCONF](DRIVER).stepgen.03.velocity-cmd
+net motor.03.pos-fb <= hpg.stepgen.03.position-fb axis.3.motor-pos-fb pid.3.feedback
+net motor.03.command pid.3.output hpg.stepgen.03.velocity-cmd
 setp pid.3.error-previous-target true
 setp pid.3.maxerror .001
 
 # timing parameters
-setp [PRUCONF](DRIVER).stepgen.03.dirsetup        [AXIS_3]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.03.dirhold         [AXIS_3]DIRHOLD
+setp hpg.stepgen.03.dirsetup        [AXIS_3]DIRSETUP
+setp hpg.stepgen.03.dirhold         [AXIS_3]DIRHOLD
 
-setp [PRUCONF](DRIVER).stepgen.03.steplen         [AXIS_3]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.03.stepspace       [AXIS_3]STEPSPACE
+setp hpg.stepgen.03.steplen         [AXIS_3]STEPLEN
+setp hpg.stepgen.03.stepspace       [AXIS_3]STEPSPACE
 
-setp [PRUCONF](DRIVER).stepgen.03.position-scale  [AXIS_3]SCALE
+setp hpg.stepgen.03.position-scale  [AXIS_3]SCALE
 
-setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
+setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
+setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
-setp [PRUCONF](DRIVER).stepgen.03.control-type    1
-setp [PRUCONF](DRIVER).stepgen.03.stepinvert      [AXIS_3]STEP_INVERT
-#setp [PRUCONF](DRIVER).stepgen.03.step_type       0
-setp [PRUCONF](DRIVER).stepgen.03.steppin         0x3E
-setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x3F
+setp hpg.stepgen.03.control-type    1
+setp hpg.stepgen.03.stepinvert      [AXIS_3]STEP_INVERT
+#setp hpg.stepgen.03.step_type       0
+setp hpg.stepgen.03.steppin         0x3E
+setp hpg.stepgen.03.dirpin          0x3F
 
 # set PID loop gains from inifile
 setp pid.3.Pgain [AXIS_3]P
@@ -270,6 +275,7 @@ setp pid.3.maxoutput [AXIS_3]MAX_OUTPUT
 
 #(JP) Add home switch input
 net home-a bb_gpio.p9.in-41 => axis.3.home-sw-in
+#setp bb_gpio.p9.in-41.invert 1
 
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc
@@ -285,12 +291,12 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 # (LOW) or unactive (HIGH) state
 # All external Inputs and Outputs on external boards
 # should have pullups/downs since when the interface board is
-# not enabled, it will look dosconnected for all signals
+# not enabled, it will look disconnected for all signals
 
 # this pin is output on DB25-1
 # it is also used to enable the LVC541 driver/receiver on the interface board
-#net machine-on bb_gpio.p8.out-07 bb_gpio.p8.out-26 => halui.machine.is-on
-#setp bb_gpio.p8.out-07.invert 1
+net machine-on bb_gpio.p8.out-07 bb_gpio.p8.out-26 => halui.machine.is-on
+setp bb_gpio.p8.out-07.invert 1
 
 # this currently goes to an LED on the interface board
 # it is simply a duplicate of the enable signal on DB25-1 right now
@@ -310,20 +316,10 @@ setp bb_gpio.p8.out-26.invert 1
 #net probe motion.probe-input <= bb_gpio.p8.in-18
 #setp bb_gpio.p8.in-18.invert 1
 
-# this pin is output on DB25-1
-# it is also used to enable the LVC541 driver/receiver on the interface board
-net machine-on bb_gpio.p8.out-07 bb_gpio.p8.out-26 => halui.machine.is-on
-setp bb_gpio.p8.out-07.invert 1
-
-# this currently goes to an LED on the interface board
-# it is simply a duplicate of the enable signal on DB25-1 right now
-setp bb_gpio.p8.out-26.invert 1
-
 # this input signal must be active LOW to allow the system to energize.
 # this should be fed through an NC STOP type switch from DB25-1 to DB25-10
 net estop-in bb_gpio.p8.in-09 => iocontrol.0.emc-enable-in
 setp bb_gpio.p8.in-09.invert 1
-
 
 # This output is on DB25-14 and is currently tied to spindle control (M3/M5)
 #net Output1 bb_gpio.p8.out-13 => motion.spindle-on

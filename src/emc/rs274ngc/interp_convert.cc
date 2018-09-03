@@ -16,11 +16,12 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
@@ -455,6 +456,11 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   settings->motion_mode = move;
 
+  // Should be done with changes to settings here, so we can pack the state
+  // Create a state tag and dump it to canon
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
 
   if (settings->plane == CANON_PLANE_XY) {
     if ((!settings->cutter_comp_side) ||
@@ -556,22 +562,26 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 {
   double center1;
   double center2;
-  double tolerance;             /* tolerance for difference of radii          */
   int turn;                     /* number of full or partial turns CCW in arc */
   int plane = settings->plane;
 
-  tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
-    TOLERANCE_INCH : TOLERANCE_MM;
+  // Spiral tolerance is the amount of "spiral" allowed in a given arc segment, or (r2-r1)/theta
+  double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
+	settings->spiral_tolerance_inch : settings->spiral_tolerance_mm;
+
+  // Radius tolerance allows a bit of leeway on the minimum radius for a radius defined arc.
+  double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
+    RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
   if (block->r_flag) {
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
                      block->r_number, block->p_flag? round_to_int(block->p_number) : 1,
-                     &center1, &center2, &turn, tolerance));
+                     &center1, &center2, &turn, radius_tolerance));
   } else {
       CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
                        (settings->ijk_distance_mode == MODE_ABSOLUTE),
                        offset1, offset2, block->p_flag? round_to_int(block->p_number) : 1,
-                       &center1, &center2, &turn, tolerance));
+                       &center1, &center2, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
   }
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                         turn, end1, end2, end3, block, settings);
@@ -633,7 +643,6 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double center_x, center_y;
     double gamma;                 /* direction of perpendicular to arc at end */
     int side;                     /* offset side - right or left              */
-    double tolerance;             /* tolerance for difference of radii        */
     double tool_radius;
     int turn;                     /* 1 for counterclockwise, -1 for clockwise */
     double cx, cy, cz; // current
@@ -641,22 +650,26 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
-    tolerance = (settings->length_units == CANON_UNITS_INCHES) ? TOLERANCE_INCH : TOLERANCE_MM;
+
+    double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
+        settings->spiral_tolerance_inch : settings->spiral_tolerance_mm;
+    double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
+        RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
 
     comp_get_current(settings, &cx, &cy, &cz);
 
-    CHKS((hypot((end_x - cx), (end_y - cy)) <= tool_radius),
+    CHKS((rtapi_hypot((end_x - cx), (end_y - cy)) <= tool_radius),
          _("Radius of cutter compensation entry arc is not greater than the tool radius"));
 
     if (block->r_flag) {
         CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
                             block->r_number, block->p_flag? round_to_int(block->p_number): 1,
-                            &center_x, &center_y, &turn, tolerance));
+                            &center_x, &center_y, &turn, radius_tolerance));
     } else {
         CHP(arc_data_comp_ijk(move, plane, side, tool_radius, cx, cy, end_x, end_y,
                               (settings->ijk_distance_mode == MODE_ABSOLUTE),
                               offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
-                              &center_x, &center_y, &turn, tolerance));
+                              &center_x, &center_y, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
 
     inverse_time_rate_arc(cx, cy, cz, center_x, center_y,
@@ -666,10 +679,10 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     // the tool will end up in gamma direction from the programmed arc endpoint
     if TOOL_INSIDE_ARC(side, turn) {
         // tool inside the arc: ends up toward the center
-        gamma = atan2((center_y - end_y), (center_x - end_x));
+        gamma = rtapi_atan2((center_y - end_y), (center_x - end_x));
     } else {
         // outside: away from the center
-        gamma = atan2((end_y - center_y), (end_x - center_x));
+        gamma = rtapi_atan2((end_y - center_y), (end_x - center_x));
     }
 
     settings->cutter_comp_firstmove = false;
@@ -677,8 +690,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     comp_set_programmed(settings, end_x, end_y, end_z);
 
     // move endpoint to the compensated position.  This changes the radius and center.
-    end_x += tool_radius * cos(gamma); 
-    end_y += tool_radius * sin(gamma); 
+    end_x += tool_radius * rtapi_cos(gamma); 
+    end_y += tool_radius * rtapi_sin(gamma); 
 
     /* To find the new center:
        imagine a right triangle ABC with A being the endpoint of the
@@ -688,21 +701,21 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
        itself.  We need to find a new center for the compensated arc
        (point B). */
 
-    double b_len = hypot(cy - end_y, cx - end_x) / 2.0;
-    double AB_ang = atan2(center_y - end_y, center_x - end_x);
-    double A_ang = atan2(cy - end_y, cx - end_x) - AB_ang;
+    double b_len = rtapi_hypot(cy - end_y, cx - end_x) / 2.0;
+    double AB_ang = rtapi_atan2(center_y - end_y, center_x - end_x);
+    double A_ang = rtapi_atan2(cy - end_y, cx - end_x) - AB_ang;
 
-    CHKS((fabs(cos(A_ang)) < TOLERANCE_EQUAL), NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
+    CHKS((rtapi_fabs(rtapi_cos(A_ang)) < TOLERANCE_EQUAL), NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
   
-    double c_len = b_len/cos(A_ang);
+    double c_len = b_len/rtapi_cos(A_ang);
 
     // center of the arc is c_len from end in direction AB
-    center_x = end_x + c_len * cos(AB_ang);
-    center_y = end_y + c_len * sin(AB_ang);
+    center_x = end_x + c_len * rtapi_cos(AB_ang);
+    center_y = end_y + c_len * rtapi_sin(AB_ang);
 
     /* center to endpoint distances matched before - they still should. */
-    CHKS((fabs(hypot(center_x-end_x,center_y-end_y) - 
-              hypot(center_x-cx,center_y-cy)) > tolerance),
+    CHKS((rtapi_fabs(rtapi_hypot(center_x-end_x,center_y-end_y) - 
+              rtapi_hypot(center_x-cx,center_y-cy)) > spiral_abs_tolerance),
         NCE_BUG_IN_TOOL_RADIUS_COMP);
 
     // need this move for lathes to move the tool origin first.  otherwise, the arc isn't an arc.
@@ -790,31 +803,32 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double small = TOLERANCE_CONCAVE_CORNER;      /* angle for testing corners */
     double opx, opy, opz;
     double theta;                 /* direction of tangent to last cut */
-    double tolerance;
     double tool_radius;
     int turn;                     /* number of full or partial circles CCW */
     int plane = settings->plane;
     double cx, cy, cz;
     double new_end_x, new_end_y;
 
+    double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
+        settings->spiral_tolerance_inch : settings->spiral_tolerance_mm;
+    double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
+
     /* find basic arc data: center_x, center_y, and turn */
 
     comp_get_programmed(settings, &opx, &opy, &opz);
     comp_get_current(settings, &cx, &cy, &cz);
 
-    tolerance = (settings->length_units == CANON_UNITS_INCHES) ?
-        TOLERANCE_INCH : TOLERANCE_MM;
 
     if (block->r_flag) {
         CHP(arc_data_r(move, plane, opx, opy, end_x, end_y,
                        block->r_number, block->p_flag? round_to_int(block->p_number): 1,
-                       &centerx, &centery, &turn, tolerance));
+                       &centerx, &centery, &turn, radius_tolerance));
     } else {
         CHP(arc_data_ijk(move, plane,
                          opx, opy, end_x, end_y,
                          (settings->ijk_distance_mode == MODE_ABSOLUTE),
                          offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
-                         &centerx, &centery, &turn, tolerance));
+                         &centerx, &centery, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
     }
 
     inverse_time_rate_arc(opx, opy, opz, centerx, centery,
@@ -822,10 +836,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
-    arc_radius = hypot((centerx - end_x), (centery - end_y));
-    theta = atan2(cy - opy, cx - opx);
+    arc_radius = rtapi_hypot((centerx - end_x), (centery - end_y));
+    theta = rtapi_atan2(cy - opy, cx - opx);
     theta = (side == LEFT) ? (theta - M_PI_2l) : (theta + M_PI_2l);
-    delta = atan2(centery - opy, centerx - opx);
+    delta = rtapi_atan2(centery - opy, centerx - opx);
     alpha = (move == G_3) ? (delta - M_PI_2l) : (delta + M_PI_2l);
     beta = (side == LEFT) ? (theta - alpha) : (alpha - theta);
 
@@ -834,28 +848,28 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
         // we are cutting inside the arc
-        gamma = atan2((centery - end_y), (centerx - end_x));
+        gamma = rtapi_atan2((centery - end_y), (centerx - end_x));
         CHKS((arc_radius <= tool_radius),
             NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
     } else {
-        gamma = atan2((end_y - centery), (end_x - centerx));
+        gamma = rtapi_atan2((end_y - centery), (end_x - centerx));
         delta = (delta + M_PIl);
     }
 
     // move arc endpoint to the compensated position
-    new_end_x = end_x + tool_radius * cos(gamma);
-    new_end_y = end_y + tool_radius * sin(gamma);
+    new_end_x = end_x + tool_radius * rtapi_cos(gamma);
+    new_end_y = end_y + tool_radius * rtapi_sin(gamma);
 
     if (beta < -small || 
         beta > M_PIl + small ||
         // special detection for convex corner on tangent arc->arc (like atop the middle of "m" shape)
         // or tangent line->arc (atop "h" shape)
-        (fabs(beta - M_PIl) < small && !TOOL_INSIDE_ARC(side, turn))
+        (rtapi_fabs(beta - M_PIl) < small && !TOOL_INSIDE_ARC(side, turn))
         ) {
         // concave
         if (qc().front().type != QARC_FEED) {
             // line->arc
-            double cy = arc_radius * sin(beta - M_PI_2l);
+            double cy = arc_radius * rtapi_sin(beta - M_PI_2l);
             double toward_nominal;
             double dist_from_center;
             double angle_from_center;
@@ -867,9 +881,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
                 if(turn > 0) {
-                    angle_from_center = theta + asin(l);
+                    angle_from_center = theta + rtapi_asin(l);
                 } else {
-                    angle_from_center = theta - asin(l);
+                    angle_from_center = theta - rtapi_asin(l);
                 }
             } else {
                 dist_from_center = arc_radius + tool_radius; 
@@ -877,20 +891,20 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
                 if(turn > 0) {
-                    angle_from_center = theta + M_PIl - asin(l);
+                    angle_from_center = theta + M_PIl - rtapi_asin(l);
                 } else {
-                    angle_from_center = theta + M_PIl + asin(l);
+                    angle_from_center = theta + M_PIl + rtapi_asin(l);
                 }
             }          
           
-            midx = centerx + dist_from_center * cos(angle_from_center);
-            midy = centery + dist_from_center * sin(angle_from_center);
+            midx = centerx + dist_from_center * rtapi_cos(angle_from_center);
+            midy = centery + dist_from_center * rtapi_sin(angle_from_center);
 
             CHP(move_endpoint_and_flush(settings, midx, midy));
         } else {
             // arc->arc
             struct arc_feed &prev = qc().front().data.arc_feed;
-            double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+            double oldrad = rtapi_hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
             double newrad;
             if TOOL_INSIDE_ARC(side, turn) {
                 newrad = arc_radius - tool_radius;
@@ -899,14 +913,14 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
             }
               
             double arc_cc, pullback, cc_dir, a;
-            arc_cc = hypot(prev.center2 - centery, prev.center1 - centerx);
+            arc_cc = rtapi_hypot(prev.center2 - centery, prev.center1 - centerx);
 
             CHKS((oldrad == 0 || arc_cc == 0), _("Arc to arc motion is invalid because the arcs have the same center"));
             a = (SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc);
             
             CHKS((a > 1.0 || a < -1.0), (_("Arc to arc motion makes a corner the compensated tool can't fit in without gouging")));
-            pullback = acos(a);
-            cc_dir = atan2(centery - prev.center2, centerx - prev.center1);
+            pullback = rtapi_acos(a);
+            cc_dir = rtapi_atan2(centery - prev.center2, centerx - prev.center1);
 
             double dir;
             if TOOL_INSIDE_ARC(side, prev.turn) {
@@ -921,8 +935,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                     dir = cc_dir + pullback;
             }
           
-            midx = prev.center1 + oldrad * cos(dir);
-            midy = prev.center2 + oldrad * sin(dir);
+            midx = prev.center1 + oldrad * rtapi_cos(dir);
+            midy = prev.center2 + oldrad * rtapi_sin(dir);
           
             CHP(move_endpoint_and_flush(settings, midx, midy));
         }
@@ -931,8 +945,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                          new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else if (beta > small) {           /* convex, two arcs needed */
-        midx = opx + tool_radius * cos(delta);
-        midy = opy + tool_radius * sin(delta);
+        midx = opx + tool_radius * rtapi_cos(delta);
+        midy = opy + tool_radius * rtapi_sin(delta);
         dequeue_canons(settings);
         enqueue_ARC_FEED(settings, block->line_number, 
                          0.0, // doesn't matter since we won't move this arc's endpoint
@@ -975,8 +989,8 @@ Returned Value: int
    Otherwise, it returns INTERP_OK.
    1. The function is called when cutter radius compensation is on:
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP
-   2. The g_code argument is not G_92, G_92_1, G_92_2, or G_92_3
-      NCE_BUG_CODE_NOT_IN_G92_SERIES
+   2. The g_code argument is not G_52, G_92, G_92_1, G_92_2, or G_92_3
+      NCE_BUG_CODE_NOT_IN_G52_G92_SERIES
 
 Side effects:
    SET_G92_OFFSET is called, and the coordinate
@@ -1011,7 +1025,8 @@ Since a non-zero offset may be already be in effect when the G92 is
 called, that must be taken into account.
 
 In addition to causing the axis offset values in the _setup model to be
-set, G92 sets parameters 5211 to 5216 to the x,y,z,a,b,c axis offsets.
+set, G52 and G92 set parameters 5211 to 5216 to the x,y,z,a,b,c axis
+offsets.
 
 The action of G92.2 is described in [NCMS, page 12]. There is no
 equivalent command in [Fanuc]. G92.2 resets axis offsets to zero.
@@ -1033,59 +1048,111 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
-  CHKS((block->a_flag && settings->a_axis_wrapped && (block->a_number <= -360.0 || block->a_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
-  CHKS((block->b_flag && settings->b_axis_wrapped && (block->b_number <= -360.0 || block->b_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
-  CHKS((block->c_flag && settings->c_axis_wrapped && (block->c_number <= -360.0 || block->c_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
+  CHKS((block->a_flag && settings->a_axis_wrapped &&
+	(block->a_number <= -360.0 || block->a_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->a_number, 'A');
+  CHKS((block->b_flag && settings->b_axis_wrapped &&
+	(block->b_number <= -360.0 || block->b_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->b_number, 'B');
+  CHKS((block->c_flag && settings->c_axis_wrapped &&
+	(block->c_number <= -360.0 || block->c_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->c_number, 'C');
   pars = settings->parameters;
-  if (g_code == G_92) {
-    pars[5210] = 1.0;
-    if (block->x_flag) {
-      settings->axis_offset_x =
-        (settings->current_x + settings->axis_offset_x - block->x_number);
-      settings->current_x = block->x_number;
-    }
+  if ((g_code == G_52) || (g_code == G_92)) {
+      pars[5210] = 1.0;
 
-    if (block->y_flag) {
-      settings->axis_offset_y =
-        (settings->current_y + settings->axis_offset_y - block->y_number);
-      settings->current_y = block->y_number;
-    }
+      if (g_code == G_52) {
+	  if (block->x_flag) {
+	      settings->current_x += settings->axis_offset_x - block->x_number;
+	      settings->axis_offset_x = block->x_number;
+	  }
 
-    if (block->z_flag) {
-      settings->axis_offset_z =
-        (settings->current_z + settings->axis_offset_z - block->z_number);
-      settings->current_z = block->z_number;
-    }
-    if (block->a_flag) {
-      settings->AA_axis_offset = (settings->AA_current +
-                                  settings->AA_axis_offset - block->a_number);
-      settings->AA_current = block->a_number;
-    }
-    if (block->b_flag) {
-      settings->BB_axis_offset = (settings->BB_current +
-                                  settings->BB_axis_offset - block->b_number);
-      settings->BB_current = block->b_number;
-    }
-    if (block->c_flag) {
-      settings->CC_axis_offset = (settings->CC_current +
-                                  settings->CC_axis_offset - block->c_number);
-      settings->CC_current = block->c_number;
-    }
-    if (block->u_flag) {
-      settings->u_axis_offset = (settings->u_current +
-                                 settings->u_axis_offset - block->u_number);
-      settings->u_current = block->u_number;
-    }
-    if (block->v_flag) {
-      settings->v_axis_offset = (settings->v_current +
-                                 settings->v_axis_offset - block->v_number);
-      settings->v_current = block->v_number;
-    }
-    if (block->w_flag) {
-      settings->w_axis_offset = (settings->w_current +
-                                 settings->w_axis_offset - block->w_number);
-      settings->w_current = block->w_number;
-    }
+	  if (block->y_flag) {
+	      settings->current_y += settings->axis_offset_y - block->y_number;
+	      settings->axis_offset_y = block->y_number;
+	  }
+
+	  if (block->z_flag) {
+	      settings->current_z += settings->axis_offset_z - block->z_number;
+	      settings->axis_offset_z = block->z_number;
+	  }
+	  if (block->a_flag) {
+	      settings->AA_current += settings->AA_axis_offset - block->a_number;
+	      settings->AA_axis_offset = block->a_number;
+	  }
+	  if (block->b_flag) {
+	      settings->BB_current += settings->BB_axis_offset - block->b_number;
+	      settings->BB_axis_offset = block->b_number;
+	  }
+	  if (block->c_flag) {
+	      settings->CC_current += settings->CC_axis_offset - block->c_number;
+	      settings->CC_axis_offset = block->c_number;
+	  }
+	  if (block->u_flag) {
+	      settings->u_current += settings->u_axis_offset - block->u_number;
+	      settings->u_axis_offset = block->u_number;
+	  }
+	  if (block->v_flag) {
+	      settings->v_current += settings->v_axis_offset - block->v_number;
+	      settings->v_axis_offset = block->v_number;
+	  }
+	  if (block->w_flag) {
+	      settings->w_current += settings->w_axis_offset - block->w_number;
+	      settings->w_axis_offset = block->w_number;
+	  }
+
+      } else {
+	  if (block->x_flag) {
+	      settings->axis_offset_x =
+		  (settings->current_x + settings->axis_offset_x - block->x_number);
+	      settings->current_x = block->x_number;
+	  }
+
+	  if (block->y_flag) {
+	      settings->axis_offset_y =
+		  (settings->current_y + settings->axis_offset_y - block->y_number);
+	      settings->current_y = block->y_number;
+	  }
+
+	  if (block->z_flag) {
+	      settings->axis_offset_z =
+		  (settings->current_z + settings->axis_offset_z - block->z_number);
+	      settings->current_z = block->z_number;
+	  }
+	  if (block->a_flag) {
+	      settings->AA_axis_offset = (settings->AA_current +
+					  settings->AA_axis_offset - block->a_number);
+	      settings->AA_current = block->a_number;
+	  }
+	  if (block->b_flag) {
+	      settings->BB_axis_offset = (settings->BB_current +
+					  settings->BB_axis_offset - block->b_number);
+	      settings->BB_current = block->b_number;
+	  }
+	  if (block->c_flag) {
+	      settings->CC_axis_offset = (settings->CC_current +
+					  settings->CC_axis_offset - block->c_number);
+	      settings->CC_current = block->c_number;
+	  }
+	  if (block->u_flag) {
+	      settings->u_axis_offset = (settings->u_current +
+					 settings->u_axis_offset - block->u_number);
+	      settings->u_current = block->u_number;
+	  }
+	  if (block->v_flag) {
+	      settings->v_axis_offset = (settings->v_current +
+					 settings->v_axis_offset - block->v_number);
+	      settings->v_current = block->v_number;
+	  }
+	  if (block->w_flag) {
+	      settings->w_axis_offset = (settings->w_current +
+					 settings->w_axis_offset - block->w_number);
+	      settings->w_current = block->w_number;
+	  }
+      }
 
     SET_G92_OFFSET(settings->axis_offset_x,
                    settings->axis_offset_y,
@@ -1096,7 +1163,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                    settings->u_axis_offset,
                    settings->v_axis_offset,
                    settings->w_axis_offset);
-    
+
     pars[5211] = PROGRAM_TO_USER_LEN(settings->axis_offset_x);
     pars[5212] = PROGRAM_TO_USER_LEN(settings->axis_offset_y);
     pars[5213] = PROGRAM_TO_USER_LEN(settings->axis_offset_z);
@@ -1106,6 +1173,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     pars[5217] = PROGRAM_TO_USER_LEN(settings->u_axis_offset);
     pars[5218] = PROGRAM_TO_USER_LEN(settings->v_axis_offset);
     pars[5219] = PROGRAM_TO_USER_LEN(settings->w_axis_offset);
+
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     pars[5210] = 0.0;
     settings->current_x = settings->current_x + settings->axis_offset_x;
@@ -1181,7 +1249,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                    settings->v_axis_offset,
                    settings->w_axis_offset);
   } else
-    ERS(NCE_BUG_CODE_NOT_IN_G92_SERIES);
+    ERS(NCE_BUG_CODE_NOT_IN_G52_G92_SERIES);
 
   return INTERP_OK;
 }
@@ -1592,8 +1660,8 @@ nine coordinate systems. Axis offsets are initialized to zero.
 void Interp::rotate(double *x, double *y, double theta) {
     double xx, yy;
     double t = D2R(theta);
-    xx = *x * cos(t) - *y * sin(t); 
-    yy = *x * sin(t) + *y * cos(t);
+    xx = *x * rtapi_cos(t) - *y * rtapi_sin(t); 
+    yy = *x * rtapi_sin(t) + *y * rtapi_cos(t);
     *x = xx;
     *y = yy;
 }
@@ -1608,31 +1676,31 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
        (_("Cannot change coordinate systems with cutter radius compensation on")));
   parameters = settings->parameters;
   switch (g_code) {
-  case 540:
+  case G_54:
     origin = 1;
     break;
-  case 550:
+  case G_55:
     origin = 2;
     break;
-  case 560:
+  case G_56:
     origin = 3;
     break;
-  case 570:
+  case G_57:
     origin = 4;
     break;
-  case 580:
+  case G_58:
     origin = 5;
     break;
-  case 590:
+  case G_59:
     origin = 6;
     break;
-  case 591:
+  case G_59_1:
     origin = 7;
     break;
-  case 592:
+  case G_59_2:
     origin = 8;
     break;
-  case 593:
+  case G_59_3:
     origin = 9;
     break;
   default:
@@ -1833,7 +1901,7 @@ convex corners.
  */
 static int is_near_int(int *result, double value) {
     *result = (int)(value + .5);
-    return fabs(*result - value) < .0001;
+    return rtapi_fabs(*result - value) < .0001;
 }
 
 int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutter is on (LEFT or RIGHT)
@@ -2401,6 +2469,11 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   if (CC_end != settings->CC_current && settings->c_indexer)
       issue_straight_index(5, CC_end, block->line_number, settings);
 
+  // Create a state tag and dump it to canon
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
+
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
@@ -2627,7 +2700,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
  * given two double arrays representing interpreter settings as stored in
  * _setup.active_settings, construct a G-code sequence to synchronize their state.
  */
-int Interp::gen_settings(double *current, double *saved, char *cmd)
+int Interp::gen_settings(double *current, double *saved, std::string &cmd)
 {
     int i;
     char buf[LINELEN];
@@ -2637,11 +2710,11 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
 	    case 0: break; // sequence_number - no point in restoring
 	    case 1:
 		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
-		strncat(cmd,buf,sizeof(buf));
+                cmd += buf;
 		break;
 	    case 2:
 		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
-		strncat(cmd,buf,sizeof(buf));
+                cmd += buf;
 		break;
 	    }
 	}
@@ -2654,7 +2727,7 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
  * given two int arrays representing interpreter settings as stored in
  * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
  */
-int Interp::gen_g_codes(int *current, int *saved, char *cmd)
+int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
 {
     int i, val;
     char buf[LINELEN];
@@ -2697,7 +2770,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 		    } else {
 			snprintf(buf,sizeof(buf)," G%d", val / 10);
 		    }
-		    strncat(cmd,buf,sizeof(buf));
+                    cmd += buf;
 		} else {
 		    // so complain rather loudly
 		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
@@ -2716,7 +2789,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
  * use multiple lines here because M7 and M8 may not be on the same line since
  * they are in the same modal group.
  */
-int Interp::gen_m_codes(int *current, int *saved, char *cmd)
+int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 {
     int i,val;
     char buf[LINELEN];
@@ -2743,7 +2816,7 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 	    case 8: // feed hold
 		if (val != -1) {  // unsure..
 		    snprintf(buf,sizeof(buf),"M%d\n", val);
-		    strncat(cmd,buf,sizeof(buf));
+		    cmd += buf;
 		} else {
 		    MSG("------ gen_m_codes: index %d = -1!!\n",i);
 		}
@@ -2754,6 +2827,49 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
     return INTERP_OK;
 }
 
+
+int Interp::gen_restore_cmd(int *current_g,
+         int *current_m,
+         double *current_settings,
+         StateTag const &saved,
+         std::string &cmd)
+{
+    // A local copy of the saved settings, unpacked from a state tag
+    int saved_g[ACTIVE_G_CODES];
+    int saved_m[ACTIVE_M_CODES];
+    double saved_settings[ACTIVE_SETTINGS];
+
+    //Extract saved state to local vectors
+    int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
+    if (res_unpack != INTERP_OK) {
+        return INTERP_ERROR;
+    }
+
+    /* Now we clean up any G / M modes that should be reset when ending a
+     * program. Note that most of these mode states are based on logic in
+     * write_XXX functions.
+     */
+    // Force cancellation of tool compensation
+    saved_g[4] = G_40;
+
+    //Mimic the order of restoration commands used elsewhere
+    if (current_g[5] != saved_g[5]) {
+        char buf[LINELEN];
+        snprintf(buf,sizeof(buf), "G%d",saved_g[5]/10);
+        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"), cmd.c_str());
+    }
+
+    int res_settings = gen_settings(current_settings, saved_settings, cmd);
+    int res_m = 0;
+    int res_g = gen_g_codes(current_g, saved_g, cmd);
+
+    if (res_settings || res_m || res_g) {
+        return INTERP_ERROR;
+    }
+    return INTERP_OK;
+}
+
+
 int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
@@ -2761,6 +2877,7 @@ int Interp::save_settings(setup_pointer settings)
       write_g_codes((block_pointer) NULL, settings);
       write_m_codes((block_pointer) NULL, settings);
       write_settings(settings);
+      write_state_tag((block_pointer) NULL, settings, settings->state_tag);
 
       // save in the current call frame
       active_g_codes((int *)settings->sub_context[settings->call_level].saved_g_codes);
@@ -2796,8 +2913,7 @@ int Interp::restore_settings(setup_pointer settings,
     write_m_codes((block_pointer) NULL, settings);
     write_settings(settings);
 
-    char cmd[LINELEN];
-    memset(cmd, 0, LINELEN);
+    std::string cmd;
 
     // construct gcode from the state difference and execute
     // this assures appropriate canon commands are generated if needed -
@@ -2807,18 +2923,20 @@ int Interp::restore_settings(setup_pointer settings,
     // so restoring feed lateron is interpreted in the correct context
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
-	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	CHKS(execute(cmd) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd);
-	memset(cmd, 0, LINELEN);
+        char buf[LINELEN];
+	snprintf(buf,sizeof(buf), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
+	CHKS(execute(buf) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd.c_str());
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
     gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
-    if (strlen(cmd) > 0) {
+    if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
 	// so split and execute each line
-	char *last = cmd;
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+	char *last = buf;
 	char *s;
 	while ((s = strtok_r(last, "\n", &last)) != NULL) {
 	    int status = execute(s);
@@ -2836,6 +2954,61 @@ int Interp::restore_settings(setup_pointer settings,
     // TBD: any state deemed important to restore should be restored here
     // NB: some state changes might generate canon commands so do that here
     // if needed
+
+    return INTERP_OK;
+}
+
+
+/**
+ * Variation of restore_settings to pull state from a StateTag.
+ */
+int Interp::restore_from_tag(StateTag const &tag)
+{
+
+    if (!tag.is_valid() || !tag.flags[GM_FLAG_RESTORABLE]) {
+        //Invalid line implies a bad tag, don't restore
+        return INTERP_ERROR;
+    }
+
+    // linearize state
+    write_g_codes((block_pointer) NULL, &_setup);
+    write_m_codes((block_pointer) NULL, &_setup);
+    write_settings(&_setup);
+
+    std::string cmd;
+
+    // construct gcode from the state difference and execute
+    // this assures appropriate canon commands are generated if needed -
+    // just restoring interp variables is not enough
+
+    int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
+            (int *) _setup.active_m_codes,
+            (double *) _setup.active_settings,
+            tag,
+            cmd);
+    if (res_unpack != INTERP_OK) {
+        return res_unpack;
+    }
+
+    if (!cmd.empty()) {
+        // the sequence can be multiline, separated by nl
+        // so split and execute each line
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+        char *last = buf;
+        char *s;
+        while ((s = strtok_r(last, "\n", &last)) != NULL) {
+            int status = execute(s);
+            if (status != INTERP_OK) {
+                char currentError[LINELEN+1];
+                strcpy(currentError,getSavedError());
+                CHKS(status, _("Failed to restore interp state on abort '%s': %s"), s, currentError);
+            }
+        }
+        write_g_codes((block_pointer) NULL, &_setup);
+        write_m_codes((block_pointer) NULL, &_setup);
+        write_settings(&_setup);
+    }
 
     return INTERP_OK;
 }
@@ -2887,29 +3060,23 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M67 reads a digital input
      M68 reads an analog input*/
 
-  if (IS_USER_MCODE(block,settings,5) && ONCE_M(5))  {
+  if (IS_USER_MCODE(block,settings,5) &&
+      STEP_REMAPPED_IN_BLOCK(block, STEP_M_5) &&
+      ONCE_M(5))  {
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
 				   block->m_modes[5]);
   } else if ((block->m_modes[5] == 62) && ONCE_M(5)) {
-      CHKS((settings->cutter_comp_side),
-           (_("Cannot set motion output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M62"));
-      SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
+      enqueue_SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 63) && ONCE_M(5)) {
-      CHKS((settings->cutter_comp_side),
-           (_("Cannot set motion digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M63"));
-      CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
+      enqueue_CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 64) && ONCE_M(5)){
-      CHKS((settings->cutter_comp_side),
-           (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M64"));
-      SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
+      enqueue_SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 65) && ONCE_M(5)) {
-      CHKS((settings->cutter_comp_side),
-           (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M65"));
-      CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
+      enqueue_CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if ((block->m_modes[5] == 66) && ONCE_M(5)){
 
     //P-word = digital channel
@@ -2936,6 +3103,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	 ((!block->p_flag) && (!block->e_flag)) ,
 	NCE_INVALID_OR_MISSING_P_AND_E_WORDS_FOR_WAIT_INPUT);
 
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
     if (block->p_flag) { // got a digital input
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
 	    ERS(_("invalid P-word with M66"));
@@ -2979,17 +3149,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
     //E-word = analog channel
     //Q-word = analog value
-      CHKS((settings->cutter_comp_side),
-           (_("Cannot set motion analog output with cutter radius compensation on")));  // XXX
-      CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M67")));
-      SET_MOTION_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
+    CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M67")));
+    enqueue_MOTION_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
   } else if ((block->m_modes[5] == 68)  && ONCE_M(5)) {
     //E-word = analog channel
     //Q-word = analog value
-      CHKS((settings->cutter_comp_side),
-           (_("Cannot set auxiliary analog output with cutter radius compensation on")));  // XXX
-      CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
-      SET_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
+    CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
+    enqueue_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
   }
 
   if ((block->m_modes[6] != -1)  && ONCE_M(6)){
@@ -3256,14 +3422,15 @@ Returned Value: int
       convert_setup
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. code is not G_4, G_10, G_28, G_30, G_53, G92, G_92_1, G_92_2, or G_92_3:
-      NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES
+   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92, G_92_1, G_92_2,
+          or G_92_3:
+      NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES
 
 Side effects: See below
 
 Called by: convert_g
 
-If the g_code is g10, g28, g30, g92, g92.1, g92.2, or g92.3 (all are in
+If the g_code is g10, g28, g30, g52, g92, g92.1, g92.2, or g92.3 (all are in
 modal group 0), it is executed. The other two in modal group 0 (G4 and
 G53) are executed elsewhere.
 
@@ -3291,14 +3458,15 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
 	} else {
 	    CHP(convert_savehome(code, block, settings));
 	}
-    } else if ((code == G_92) || (code == G_92_1) ||
+    } else if ((code == G_52) ||
+	       (code == G_92) || (code == G_92_1) ||
 	       (code == G_92_2) || (code == G_92_3)) {
 	CHP(convert_axis_offsets(code, block, settings));
     } else if (code == G_5_3) {
 	CHP(convert_nurbs(code, block, settings));
     } else if ((code == G_4) || (code == G_53));  /* handled elsewhere */
     else
-	ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES);
+	ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
     return INTERP_OK;
 }
 
@@ -3372,10 +3540,17 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   } else if (IS_USER_GCODE(motion)) {
       CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
+
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
     CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
     CHP(convert_nurbs(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
@@ -4021,7 +4196,7 @@ int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
     } else { /* G_96 */
         settings->spindle_mode = CONSTANT_SURFACE;
 	if(block->d_flag)
-	    enqueue_SET_SPINDLE_MODE(fabs(block->d_number_float));
+	    enqueue_SET_SPINDLE_MODE(rtapi_fabs(block->d_number_float));
 	else
 	    enqueue_SET_SPINDLE_MODE(1e30);
     }
@@ -4046,6 +4221,7 @@ Side effects:
 
    For m2 and m30, this resets the machine and then calls PROGRAM_END.
    In addition, m30 calls PALLET_SHUTTLE.
+   Clear g92 offset unless PERSISTENT_G92_OFFSET is set in the .ini file.
 
 Called by: execute_block.
 
@@ -4086,6 +4262,7 @@ settings. They occur on M2 or M30.
 7. The spindle is stopped (like M5)                   - STOP_SPINDLE_TURNING
 8. The motion mode is set to G_1 (like G1)            - no canonical call
 9. Coolant is turned off (like M9)                    - FLOOD_OFF & MIST_OFF
+10. G52/G92 is cleared unless PERSISTENT_G92_OFFSET is set in the .ini file
 
 */
 
@@ -4199,6 +4376,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       FLOOD_OFF();
       settings->flood = false;
     }
+
+/*10*/
+    if (! settings->persistent_g92_offset)
+	// Clear G92/G52 offset
+	for (index=5210; index<=5219; index++)
+	    settings->parameters[index] = 0;
 
     if (block->m_modes[4] == 30)
       PALLET_SHUTTLE();
@@ -4319,6 +4502,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  u_end, v_end, w_end,
                                  block, settings);
   }
+
+  // Create a state tag and dump it to canon
+  StateTag tag;
+  write_state_tag(block, settings, tag);
+  update_tag(tag);
 
   if ((settings->cutter_comp_side) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
@@ -4547,11 +4735,11 @@ int Interp::convert_threading_cycle(block_pointer block,
 	boring = 1;
 
     double safe_x = start_x;
-    double full_dia_depth = fabs(i_number);
-    double start_depth = fabs(i_number) + fabs(j_number);
-    double cut_increment = fabs(j_number);
-    double full_threadheight = fabs(k_number);
-    double end_depth = fabs(k_number) + fabs(i_number);
+    double full_dia_depth = rtapi_fabs(i_number);
+    double start_depth = rtapi_fabs(i_number) + rtapi_fabs(j_number);
+    double cut_increment = rtapi_fabs(j_number);
+    double full_threadheight = rtapi_fabs(k_number);
+    double end_depth = rtapi_fabs(k_number) + rtapi_fabs(i_number);
 
     double pitch = block->p_number;
     double compound_angle = block->q_number;
@@ -4567,7 +4755,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     double taper_dist = block->e_flag? block->e_number: 0.0;
     if(taper_dist < 0.0) taper_dist = 0.0;
     double taper_pitch = taper_dist > 0.0? 
-	pitch * hypot(taper_dist, full_threadheight)/taper_dist: pitch;
+	pitch * rtapi_hypot(taper_dist, full_threadheight)/taper_dist: pitch;
 
     if(end_z > start_z) taper_dist = -taper_dist;
 
@@ -4580,20 +4768,20 @@ int Interp::convert_threading_cycle(block_pointer block,
     double depth, zoff;
     int pass = 1;
 
-    double target_z = end_z + fabs(k_number) * tan(compound_angle);
+    double target_z = end_z + rtapi_fabs(k_number) * rtapi_tan(compound_angle);
 
     depth = start_depth;
-    zoff = (depth - full_dia_depth) * tan(compound_angle);
+    zoff = (depth - full_dia_depth) * rtapi_tan(compound_angle);
     while (depth < end_depth) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
 		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
 		       taper_pitch, pitch, full_threadheight, target_z);
-        depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
-        zoff = (depth - full_dia_depth) * tan(compound_angle);
+        depth = full_dia_depth + cut_increment * rtapi_pow(++pass, 1.0/degression);
+        zoff = (depth - full_dia_depth) * rtapi_tan(compound_angle);
     } 
     // full specified depth now
     depth = end_depth;
-    zoff = (depth - full_dia_depth) * tan(compound_angle);
+    zoff = (depth - full_dia_depth) * rtapi_tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
@@ -4664,15 +4852,15 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     double cx, cy, cz;
 
     comp_get_current(settings, &cx, &cy, &cz);
-    distance = hypot((px - cx), (py - cy));
+    distance = rtapi_hypot((px - cx), (py - cy));
 
     CHKS(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
     CHKS((distance <= radius), _("Length of cutter compensation entry move is not greater than the tool radius"));
 
-    alpha = atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
+    alpha = rtapi_atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
 
-    end_x = (px + (radius * cos(alpha)));
-    end_y = (py + (radius * sin(alpha)));
+    end_x = (px + (radius * rtapi_cos(alpha)));
+    end_y = (py + (radius * rtapi_sin(alpha)));
 
     // with these moves we don't need to record the direction vector.
     // they cannot get reversed because they are guaranteed to be long
@@ -4682,13 +4870,13 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
     if (move == G_0) {
         enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
-                                  cos(alpha), sin(alpha), 0, 
+                                  rtapi_cos(alpha), rtapi_sin(alpha), 0, 
                                   end_x, end_y, pz,
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
-                              cos(alpha), sin(alpha), 0,
+                              rtapi_cos(alpha), rtapi_sin(alpha), 0,
                               end_x, end_y, pz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else
@@ -4818,8 +5006,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         // some XY motion
         side = settings->cutter_comp_side;
         radius = settings->cutter_comp_radius;      /* will always be positive */
-        theta = atan2(cy - opy, cx - opx);
-        alpha = atan2(py - opy, px - opx);
+        theta = rtapi_atan2(cy - opy, cx - opx);
+        alpha = rtapi_atan2(py - opy, px - opx);
 
         if (side == LEFT) {
             if (theta < alpha)
@@ -4833,10 +5021,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             gamma = -M_PI_2l;
         } else
             ERS(NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
-        end_x = (px + (radius * cos(alpha + gamma)));
-        end_y = (py + (radius * sin(alpha + gamma)));
-        mid_x = (opx + (radius * cos(alpha + gamma)));
-        mid_y = (opy + (radius * sin(alpha + gamma)));
+        end_x = (px + (radius * rtapi_cos(alpha + gamma)));
+        end_y = (py + (radius * rtapi_sin(alpha + gamma)));
+        mid_x = (opx + (radius * rtapi_cos(alpha + gamma)));
+        mid_y = (opy + (radius * rtapi_sin(alpha + gamma)));
     
         if ((beta < -small) || (beta > (M_PIl + small))) {
             concave = 1;
@@ -4852,8 +5040,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             concave = 1;
         } else {
             concave = 0;
-            mid_x = (opx + (radius * cos(alpha + gamma)));
-            mid_y = (opy + (radius * sin(alpha + gamma)));
+            mid_x = (opx + (radius * rtapi_cos(alpha + gamma)));
+            mid_y = (opy + (radius * rtapi_sin(alpha + gamma)));
         }
 
         if (!concave && (beta > small)) {       /* ARC NEEDED */
@@ -4887,11 +5075,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 // half the angle of the inside corner
                 double halfcorner = (beta + M_PIl) / 2.0;
                 CHKS((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
-                retreat = radius / tan(halfcorner);
+                retreat = radius / rtapi_tan(halfcorner);
                 // move back along the compensated path
                 // this should replace the endpoint of the previous move
-                mid_x = cx + retreat * cos(theta + gamma);
-                mid_y = cy + retreat * sin(theta + gamma);
+                mid_x = cx + retreat * rtapi_cos(theta + gamma);
+                mid_y = cy + retreat * rtapi_sin(theta + gamma);
                 // we actually want to move the previous line's endpoint here.  That's the same as 
                 // discarding that line and doing this one instead.
                 CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
@@ -4899,16 +5087,16 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 // arc->line
                 // beware: the arc we saved is the compensated one.
                 arc_feed prev = qc().front().data.arc_feed;
-                double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+                double oldrad = rtapi_hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
                 double oldrad_uncomp;
 
                 // new line's direction
-                double base_dir = atan2(py - opy, px - opx);
+                double base_dir = rtapi_atan2(py - opy, px - opx);
                 double theta;
                 double phi;
 
                 theta = (prev.turn > 0) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
-                phi = atan2(prev.center2 - opy, prev.center1 - opx);
+                phi = rtapi_atan2(prev.center2 - opy, prev.center1 - opx);
                 if TOOL_INSIDE_ARC(side, prev.turn) {
                     oldrad_uncomp = oldrad + radius;
                 } else {
@@ -4917,7 +5105,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
                 double alpha = theta - phi;
                 // distance to old arc center perpendicular to the new line
-                double d = oldrad_uncomp * cos(alpha);
+                double d = oldrad_uncomp * rtapi_cos(alpha);
                 double d2;
                 double angle_from_center;
 
@@ -4926,20 +5114,20 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
                     if(prev.turn > 0)
-                        angle_from_center = - acos(l) + theta + M_PIl;
+                        angle_from_center = - rtapi_acos(l) + theta + M_PIl;
                     else
-                        angle_from_center = acos(l) + theta + M_PIl;
+                        angle_from_center = rtapi_acos(l) + theta + M_PIl;
                 } else {
                     d2 = d + radius;
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
                     if(prev.turn > 0)
-                        angle_from_center = acos(l) + theta + M_PIl;
+                        angle_from_center = rtapi_acos(l) + theta + M_PIl;
                     else
-                        angle_from_center = - acos(l) + theta + M_PIl;
+                        angle_from_center = - rtapi_acos(l) + theta + M_PIl;
                 }
-                mid_x = prev.center1 + oldrad * cos(angle_from_center);
-                mid_y = prev.center2 + oldrad * sin(angle_from_center);
+                mid_x = prev.center1 + oldrad * rtapi_cos(angle_from_center);
+                mid_y = prev.center2 + oldrad * rtapi_sin(angle_from_center);
                 CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
             }
         } else {
@@ -5241,3 +5429,8 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 }
 
 
+int Interp::update_tag(StateTag &tag)
+{
+  UPDATE_TAG(tag);
+  return INTERP_OK;
+}

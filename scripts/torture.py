@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #    Copyright (C) 2012 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify

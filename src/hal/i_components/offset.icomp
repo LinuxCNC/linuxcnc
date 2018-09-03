@@ -1,0 +1,45 @@
+//   This is a component for EMC2 HAL
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+component offset "Adds an offset to an input, and subtracts it from the feedback value";
+
+function update_output "Updated the output value by adding the offset to the input";
+function update_feedback "Update the feedback value by subtracting the offset from the feedback";
+
+pin in float offset "The offset value";
+
+pin in float in "The input value";
+pin out float out "The output value";
+
+pin in float fb_in "The feedback input value";
+pin out float fb_out "The feedback output value";
+
+license "GPL";
+;;
+
+FUNCTION(update_feedback)
+{
+    fb_out = fb_in - offset;
+
+return 0;
+}
+
+FUNCTION(update_output)
+{
+    out = in + offset;
+
+return 0;
+}

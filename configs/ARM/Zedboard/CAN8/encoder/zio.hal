@@ -1,0 +1,78 @@
+#
+# Test Zedboard IO as encoder for jog movments
+#
+
+# 1:1 correspondence between joints and axes.
+loadrt trivkins
+loadrt tp 
+
+# parameters defined in test.ini (motmod) 
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+
+#
+# GPIO connections:
+# hal_zed_gpio.pin-00-in emergency button
+#
+# hal_zed_gpio.pin-01-in loop cycle activation of axis
+# hal_zed_gpio.pin-02-in A channel
+# hal_zed_gpio.pin-03-in B channel
+#
+
+# loadrt hal_zed_gpio module
+loadrt hal_zed_gpio
+
+# signal inverter
+loadrt not
+
+# encoder
+loadrt encoder                              num_chan=1
+
+# to select the axis to jog (WIP)
+loadrt select8                              count=1
+loadrt updown                               count=1
+
+# add functions to threads
+addf motion-command-handler                 servo-thread
+addf motion-controller                      servo-thread
+# addf hal_zed_gpio.write                   servo-thread
+addf hal_zed_gpio.read                      servo-thread
+addf not.0                                  servo-thread
+addf encoder.update-counters                servo-thread
+addf encoder.capture-position               servo-thread
+addf updown.0                               servo-thread
+addf select8.0                              servo-thread
+
+# fake feedback from motor
+net xpos-cmd axis.0.motor-pos-cmd           => axis.0.motor-pos-fb
+net ypos-cmd axis.1.motor-pos-cmd           => axis.1.motor-pos-fb
+
+# emergency stop
+net estop                                   <= hal_zed_gpio.pin-00-in
+net estop                                   => not.0.in
+net nestop                                  <= not.0.out
+net nestop                                  => iocontrol.0.emc-enable-in
+
+# connect inputs to the encoder
+net encA encoder.0.phase-A                  <= hal_zed_gpio.pin-02-in
+net encB encoder.0.phase-B                  <= hal_zed_gpio.pin-03-in
+
+# configure jog
+net enc-counts encoder.0.counts             => axis.0.jog-counts axis.1.jog-counts
+setp axis.0.jog-scale                       0.10
+setp axis.1.jog-scale                       0.10
+setp axis.0.jog-vel-mode                    0
+setp axis.1.jog-vel-mode                    0
+
+# GPIO 1 cycle selected axis 
+net jog-button updown.0.countup             <= hal_zed_gpio.pin-01-in
+net jog-choice updown.0.count               => select8.0.sel
+
+# enable jog
+net jog-x axis.0.jog-enable                 <= select8.0.out0
+net jog-y axis.1.jog-enable                 <= select8.0.out1
+
+# loop from axis 'min' to axis 'max'
+setp updown.0.max                           1
+setp updown.0.min                           0
+setp updown.0.wrap                          1
+

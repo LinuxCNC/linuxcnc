@@ -41,7 +41,7 @@
 static int bitfile_do_small_chunk(const struct firmware *fw, bitfile_chunk_t *chunk, int *i) {
     if (*i + 2 > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
-        return -ENODATA;
+        return -EFAULT;
     }
 
     chunk->size = (fw->data[*i] * 256) + fw->data[*i + 1];
@@ -49,7 +49,7 @@ static int bitfile_do_small_chunk(const struct firmware *fw, bitfile_chunk_t *ch
 
     if (*i + chunk->size > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
-        return -ENODATA;
+        return -EFAULT;
     }
 
     chunk->data = &fw->data[*i];
@@ -70,7 +70,7 @@ static int bitfile_do_small_chunk(const struct firmware *fw, bitfile_chunk_t *ch
 static int bitfile_do_big_chunk(const struct firmware *fw, bitfile_chunk_t *chunk, int *i) {
     if (*i + 4 > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
-        return -ENODATA;
+        return -EFAULT;
     }
 
     chunk->size = ((__u32)fw->data[*i] << 24) + ((__u32)fw->data[*i + 1] << 16) + ((__u32)fw->data[*i + 2] << 8) + fw->data[*i + 3];
@@ -78,7 +78,7 @@ static int bitfile_do_big_chunk(const struct firmware *fw, bitfile_chunk_t *chun
 
     if (*i + chunk->size > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
-        return -ENODATA;
+        return -EFAULT;
     }
 
     chunk->data = &fw->data[*i];
@@ -98,7 +98,7 @@ static int bitfile_parse_and_verify_chunk(const struct firmware *fw, bitfile_t *
 
     if ((*i) > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk '%c' size fell off the end!\n", tag);
-        return -ENODATA;
+        return -EFAULT;
     }
 
     switch (tag) {
@@ -174,7 +174,7 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
 
     if (fw->size < BITFILE_HEADERLEN) {
         HM2_PRINT_NO_LL("bitfile is too short\n");
-        return -ENODATA;
+        return -EFAULT;
     }
 
     for (i = 0; i < BITFILE_HEADERLEN; i ++) {

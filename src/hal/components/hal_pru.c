@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 // load this PRU code (prefixed by EMC_RTLIB_DIR)
-#define  DEFAULT_CODE  "blinkleds.bin"
+#define  DEFAULT_CODE  "pru_generic.bin"
 
 #include "prussdrv.h"           // UIO interface to uio_pruss
 #include "pru.h"                // PRU-related defines
@@ -334,27 +334,29 @@ static int setup_pru(int pru, char *filename, int disabled)
     char pru_binpath[PATH_MAX];
 
     // default the .bin filename if not given
-    if (!strlen(filename))
+    if (!strlen(filename)){
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+	    "%s: no filename given - default to %s\n",
+	    modname, DEFAULT_CODE);
 	filename = DEFAULT_CODE;
-    
+	}
     strcpy(pru_binpath, filename);
 
     struct stat statb;
 
     if (!((stat(pru_binpath, &statb) == 0) &&
 	 S_ISREG(statb.st_mode))) {
-
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+	    "%s: filename %s does not exist.\n", modname, pru_binpath);
 	// filename not found, prefix fw_path & try that:
 	strcpy(pru_binpath, fw_path);
 	strcat(pru_binpath, filename);
 
 	if (!((stat(pru_binpath, &statb) == 0) &&
 	      S_ISREG(statb.st_mode))) {
-	    // nyet, complain
-	    getcwd(pru_binpath, sizeof(pru_binpath));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "%s: cant find %s in %s or %s\n",
-			    modname, filename, pru_binpath, fw_path);
+		"%s: cannot find filename %s\n",
+		modname, pru_binpath);
 	    return -ENOENT;
 	}
     }
@@ -371,7 +373,7 @@ static void *pruevent_thread(void *arg)
 	    continue;
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d received\n",
 		    modname, event);
-	prussdrv_pru_clear_event(pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
+	prussdrv_pru_clear_event(event, pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
     } while (1);
     rtapi_print_msg(RTAPI_MSG_ERR, "%s: pruevent_thread exiting\n",
 		    modname);

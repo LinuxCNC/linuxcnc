@@ -1,0 +1,40 @@
+component ilowpass "Low-pass filter with integer inputs and outputs";
+description """While it may find other applications, this component was written
+to create smoother motion while jogging with an MPG.
+
+In a machine with high acceleration, a short jog can behave almost like a step
+function.  By putting the \\fBilowpass\\fR component between the MPG
+encoder \\fBcounts\\fR output and the axis \\fRjog-counts\\fR input,
+this can be smoothed.
+
+Choose \\fBscale\\fR conservatively so that during a single session
+there will never be more than about 2e9/\\fBscale\\fR pulses seen
+on the MPG.  Choose \\fBgain\\fR according to the smoothing level
+desired.  Divide the \\fRaxis.\\fIN\\fR.jog-scale\\fR values by
+\\fBscale\\fR.""";
+
+pin in s32 in;
+
+pin out s32 out """\\fBout\\fR tracks \\fBin\\fR*\\fBscale\\fR through a low-pass
+filter of \\fBgain\\fR per period.""";
+
+pin io float scale = 1024.0 """A scale factor applied to the output
+value of the low-pass filter.""";
+
+pin io float gain = 0.5 """Together with the period, sets the rate at
+which the output changes.  Useful range is between 0 and 1, with higher
+values causing the input value to be tracked more quickly.  For
+instance, a setting of 0.9 causes the output value to go 90% of the way
+towards the input value in each period""";
+
+variable hal_float_t value = 0.0;
+
+function _ "Update the output based on the input and parameters";
+
+license "GPL";
+author "Jeff Epler <jepler@unpythonic.net>";
+;;
+value += ((hal_float_t)in - value) * gain;
+out = (hal_s32_t)(__s64)(value * scale);
+
+return 0;

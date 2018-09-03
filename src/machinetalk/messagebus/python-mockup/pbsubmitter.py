@@ -1,9 +1,9 @@
 import os, time
 import zmq
 from optparse import OptionParser
-from   types_pb2 import *
-from   motcmds_pb2 import *
-from   message_pb2 import Container
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.motcmds_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
 
 import google.protobuf.text_format
 

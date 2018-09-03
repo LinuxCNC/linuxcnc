@@ -22,20 +22,20 @@
 ********************************************************************/
 
 #include "config.h"
+#include "xenomai-common.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
 
-#include <sys/mman.h>		/* munlockall() */
-#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
-#include <native/task.h>	/* RT_TASK, rt_task_*() */
-#include <native/timer.h>	/* rt_timer_*() */
-#include <signal.h>		/* sigaction/SIGXCPU handling */
+#include <sys/mman.h>			/* munlockall() */
+#include XENOMAI_INCLUDE(task.h)	/* RT_TASK, rt_task_*() */
+#include XENOMAI_INCLUDE(timer.h)	/* rt_timer_*() */
+#include <signal.h>			/* sigaction/SIGXCPU handling */
 #include <sys/types.h>
-#include <unistd.h>             // getpid()
+#include <unistd.h>		        // getpid()
+#include <sched.h>			// cpu sets
 
 #ifdef RTAPI
-#include <native/mutex.h>
-#include <rtdk.h>
+#include XENOMAI_INCLUDE(mutex.h)
 #include <stdlib.h>		// abort()
 
 /*  RTAPI task functions  */
@@ -60,7 +60,6 @@ int _rtapi_init(const char *modname) {
 }
 
 int _rtapi_exit(int module_id) {
-  munlockall();
   return 0;
 }
 
@@ -92,12 +91,19 @@ int _rtapi_task_update_stats_hook(void)
 
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
+#ifdef XENOMAI_V2
     ts->flavor.xeno.modeswitches = rtinfo.modeswitches;
     ts->flavor.xeno.ctxswitches = rtinfo.ctxswitches;
     ts->flavor.xeno.pagefaults = rtinfo.pagefaults;
     ts->flavor.xeno.exectime = rtinfo.exectime;
-    ts->flavor.xeno.modeswitches = rtinfo.modeswitches;
     ts->flavor.xeno.status = rtinfo.status;
+#else
+    ts->flavor.xeno.modeswitches = rtinfo.stat.msw;
+    ts->flavor.xeno.ctxswitches = rtinfo.stat.csw;
+    ts->flavor.xeno.pagefaults = rtinfo.stat.pf;
+    ts->flavor.xeno.exectime = rtinfo.stat.xtime;
+    ts->flavor.xeno.status = rtinfo.stat.status;
+#endif
 
     ts->num_updates++;
 
@@ -231,15 +237,21 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 
     ostask_self[task_id]  = rt_task_self();
 
-    if ((ret = rt_task_set_periodic(NULL, TM_NOW, task->ratio * period)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ERROR: rt_task_set_periodic(%d,%s) failed %d %s\n",
-			task_id, task->name, ret, strerror(-ret));
-	// really nothing one can realistically do here,
-	// so just enable forensics
-	abort();
-    }
+    // starting the thread with the TF_NOWAIT flag implies it is not periodic
+    // https://github.com/machinekit/machinekit/issues/237#issuecomment-126590880
+    // NB this assumes rtapi_wait() is NOT called on this thread any more
+    // see thread_task() where this is handled for now
 
+    if (!(task->flags & TF_NOWAIT)) {
+	if ((ret = rt_task_set_periodic(NULL, TM_NOW, task->ratio * period)) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ERROR: rt_task_set_periodic(%d,%s) failed %d %s\n",
+			    task_id, task->name, ret, strerror(-ret));
+	    // really nothing one can realistically do here,
+	    // so just enable forensics
+	    abort();
+	}
+    }
 #ifdef USE_SIGXCPU
     // required to enable delivery of the SIGXCPU signal
     rt_task_set_mode(0, T_WARNSW, NULL);
@@ -270,16 +282,16 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 
 int _rtapi_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
+    int uses_fpu = 0;
     int retval;
 
-#if !defined(BROKEN_XENOMAU_CPU_AFFINITY)
+#ifdef XENOMAI_V2
     // seems to work for me
     // not sure T_CPU(n) is possible - see:
     // http://www.xenomai.org/pipermail/xenomai-help/2010-09/msg00081.html
 
     if (task->cpu > -1)  // explicitly set by threads, motmod
 	which_cpu = T_CPU(task->cpu);
-#endif
 
     // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
     // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a
@@ -287,16 +299,33 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
     // the task will start out dormant; execution begins with rt_task_start()
 
     // since this is a usermode RT task, it will be FP anyway
+    if (task->uses_fp)
+	uses_fpu = T_FPU;
+#endif
+
+    // optionally start as relaxed thread - meaning defacto a standard Linux thread
+    // without RT features
+    // see https://xenomai.org/pipermail/xenomai/2015-July/034745.html and
+    // https://github.com/machinekit/machinekit/issues/237#issuecomment-126590880
+
+    int prio = (task->flags & TF_NONRT) ? 0 :task->prio;
+
     if ((retval = rt_task_create (&ostask_array[task_id], task->name, 
-				  task->stacksize, task->prio, 
-				  (task->uses_fp ? T_FPU : 0) |
-				  which_cpu | T_JOINABLE)
+				  task->stacksize, prio,
+				  uses_fpu | which_cpu | T_JOINABLE)
 	 ) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rt_task_create failed: %d %s\n",
 			retval, strerror(-retval));
 	return -ENOMEM;
     }
+
+#ifndef XENOMAI_V2
+    // Xenomai-3 CPU affinity
+    cpu_set_t cpus;
+    CPU_SET(task->cpu, &cpus);
+    rt_task_set_affinity (&ostask_array[task_id], &cpus);
+#endif
 
     if ((retval = rt_task_start( &ostask_array[task_id],
 				 _rtapi_task_wrapper, (void *)(long)task_id))) {
@@ -328,7 +357,11 @@ int _rtapi_task_resume_hook(task_data *task, int task_id) {
     return rt_task_resume( &ostask_array[task_id] );
 }
 
-void _rtapi_wait_hook() {
+int _rtapi_wait_hook(const int flags) {
+
+    if (flags & TF_NOWAIT)
+	return 0;
+
     unsigned long overruns = 0;
     int result =  rt_task_wait_period(&overruns);
 
@@ -445,8 +478,8 @@ int _rtapi_task_self_hook(void) {
 #ifdef RTAPI
 void _rtapi_delay_hook(long int nsec)
 {
-    long long int release = rt_timer_tsc() + nsec;
-    while (rt_timer_tsc() < release);
+    long long int release = rt_timer_read() + nsec;
+    while (rt_timer_read() < release);
 }
 #endif
 
@@ -463,6 +496,5 @@ long long int _rtapi_get_time_hook(void) {
    doesn't take a week every time you call it.
 */
 long long int _rtapi_get_clocks_hook(void) {
-    // Gilles says: do this - it's portable
-    return rt_timer_tsc();
+    return rt_timer_read();
 }

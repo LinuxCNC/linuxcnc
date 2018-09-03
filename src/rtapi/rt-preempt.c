@@ -48,9 +48,6 @@ static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
 int _rtapi_task_self_hook(void);
 
-#endif  /* RTAPI */
-
-#define MODULE_OFFSET		32768
 
 typedef struct {
     int deleted;
@@ -70,6 +67,7 @@ typedef struct {
 } extra_task_data_t;
 
 extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
+#endif  /* RTAPI */
 
 #ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
 long long int _rtapi_get_clocks_hook(void)
@@ -81,7 +79,6 @@ long long int _rtapi_get_clocks_hook(void)
 
 #endif
 
-#ifdef ULAPI
 
 int _rtapi_init(const char *modname) {
     return _rtapi_next_handle();
@@ -92,63 +89,8 @@ int _rtapi_exit(int module_id) {
     return 0;
 }
 
-#else /* RTAPI */
 
-int _rtapi_init(const char *modname) {
-    int n, module_id = -ENOMEM;
-    module_data *module;
-
-    /* say hello */
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
-
-    /* get the mutex */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    /* find empty spot in module array */
-    n = 1;
-    while ((n <= RTAPI_MAX_MODULES) && (module_array[n].state != NO_MODULE)) {
-	n++;
-    }
-    if (n > RTAPI_MAX_MODULES) {
-	/* no room */
-	rtapi_mutex_give(&(rtapi_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
-			n);
-	return -EMFILE;
-    }
-    /* we have space for the module */
-    module_id = n + MODULE_OFFSET;
-    module = &(module_array[n]);
-    /* update module data */
-    module->state = REALTIME;
-    if (modname != NULL) {
-	/* use name supplied by caller, truncating if needed */
-	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "%s", modname);
-    } else {
-	/* make up a name */
-	rtapi_snprintf(module->name, RTAPI_NAME_LEN, "ULMOD%03d", module_id);
-    }
-    rtapi_data->ul_module_count++;
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module '%s' loaded, ID: %d\n",
-	module->name, module_id);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-    return module_id;
-}
-
-int _rtapi_exit(int module_id) {
-    module_id -= MODULE_OFFSET;
-
-    if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
-	return -1;
-    /* Remove the module from the module_array. */
-    rtapi_mutex_get(&(rtapi_data->mutex));
-    module_array[module_id].state = NO_MODULE;
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_exit: freed module slot %d, was %s\n",
-		    module_id, module_array[module_id].name);
-    rtapi_mutex_give(&(rtapi_data->mutex));
-
-    return 0;
-}
+#ifdef RTAPI
 
 static inline int task_id(task_data *task) {
     return (int)(task - task_array);
@@ -157,7 +99,6 @@ static inline int task_id(task_data *task) {
 /***********************************************************************
 *                           RT thread statistics update                *
 ************************************************************************/
-#ifdef RTAPI
 int _rtapi_task_update_stats_hook(void)
 {
     int task_id = _rtapi_task_self_hook();
@@ -197,7 +138,6 @@ int _rtapi_task_update_stats_hook(void)
 
     return task_id;
 }
-#endif
 
 static void _rtapi_advance_time(struct timespec *tv, unsigned long ns,
 			       unsigned long s) {
@@ -218,8 +158,11 @@ static void rtapi_set_task(task_data *t) {
     pthread_once(&task_key_once, rtapi_key_alloc);
     pthread_setspecific(task_key, (void *)t);
 
-    // set this thread's name so it can be identified in ps/top
-    if (prctl(PR_SET_NAME, t->name) < 0) {
+    // set this thread's name so it can be identified in ps -L/top
+    // to see the thread in top, run 'top -H' (threads mode)
+    // to see the thread in ps:
+    // ps H -C rtapi:0 -o 'pid tid cmd comm'
+    if (prctl(PR_SET_NAME, t->name, 0, 0, 0) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_set_task: prctl(PR_SETNAME,%s) failed: %s\n",
 			t->name,strerror(errno));
@@ -251,7 +194,6 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     return task_id;
 }
 
-
 void _rtapi_task_delete_hook(task_data *task, int task_id) {
     int err;
     void *returncode;
@@ -259,10 +201,20 @@ void _rtapi_task_delete_hook(task_data *task, int task_id) {
     /* Signal thread termination and wait for the thread to exit. */
     if (!extra_task_data[task_id].deleted) {
 	extra_task_data[task_id].deleted = 1;
+
+	// pthread_cancel() will get the thread out of any blocking system
+	// calls listed under 'Cancellation points' in man 7 pthreads
+	// read(), poll() being important ones
+	err = pthread_cancel(extra_task_data[task_id].thread);
+	if (err)
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "pthread_cancel() on RT thread '%s': %d %s\n",
+			    task->name, err, strerror(err));
 	err = pthread_join(extra_task_data[task_id].thread, &returncode);
 	if (err)
-	    rtapi_print_msg
-		(RTAPI_MSG_ERR, "pthread_join() on realtime thread failed\n");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "pthread_join() on RT thread '%s': %d %s\n",
+			    task->name, err, strerror(err));
     }
     /* Free the thread stack. */
     free(extra_task_data[task_id].stackaddr);
@@ -317,9 +269,7 @@ static int realtime_set_affinity(task_data *task) {
     return 0;
 }
 
-#ifdef RTAPI
 extern rtapi_exception_handler_t rt_exception_handler;
-#endif
 
 static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
@@ -349,24 +299,28 @@ static void *realtime_thread(void *arg) {
     extra_task_data[task_id(task)].tid = (pid_t) syscall(SYS_gettid);
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-		    "RTAPI: task '%s' at %p period = %d ratio=%d id=%d TID=%d\n",
+		    "RTAPI: task '%s' at %p"
+		    " period = %d ratio=%d id=%d TID=%d, %s scheduling\n",
 		    task->name,
 		    task, task->period, task->ratio,
-		    task_id(task), extra_task_data[task_id(task)].tid);
+		    task_id(task), extra_task_data[task_id(task)].tid,
+		    (task->flags & TF_NONRT) ? "non-RT" : "RT");
 
     if (realtime_set_affinity(task))
 	goto error;
-    if (realtime_set_priority(task)) {
+    if (!(task->flags & TF_NONRT)) {
+	if (realtime_set_priority(task)) {
 #ifdef RTAPI_POSIX // This requires privs - tell user how to obtain them
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"to get non-preemptive scheduling with POSIX threads,");
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "to get non-preemptive scheduling with POSIX threads,");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
 #else
-	goto error;
+	    goto error;
 #endif
+	}
     }
 
     /* We're done initializing. Open the barrier. */
@@ -374,7 +328,7 @@ static void *realtime_thread(void *arg) {
 
     clock_gettime(CLOCK_MONOTONIC, &extra_task_data[task_id(task)].next_time);
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
-		       task->period, 0);
+		       task->period + task->pll_correction, 0);
 
     _rtapi_task_update_stats_hook(); // inital stats update
 
@@ -456,17 +410,20 @@ void _rtapi_task_stop_hook(task_data *task, int task_id) {
     extra_task_data[task_id].destroyed = 1;
 }
 
-int _rtapi_wait_hook(void) {
+int _rtapi_wait_hook(const int flags) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
 
     if (extra_task_data[task_id(task)].deleted)
 	pthread_exit(0);
 
+    if (flags & TF_NOWAIT)
+	return 0;
+
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
 		    &extra_task_data[task_id(task)].next_time, NULL);
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
-		       task->period, 0);
+		       task->period + task->pll_correction, 0);
     clock_gettime(CLOCK_MONOTONIC, &ts);
     if (ts.tv_sec > extra_task_data[task_id(task)].next_time.tv_sec
 	|| (ts.tv_sec == extra_task_data[task_id(task)].next_time.tv_sec
@@ -482,10 +439,10 @@ int _rtapi_wait_hook(void) {
 
 	ts->flavor.rtpreempt.wait_errors++;
 
+#ifndef RTAPI_POSIX
 	rtapi_exception_detail_t detail = {0};
 	detail.task_id = task_id(task);
 
-#ifndef RTAPI_POSIX
 	if (rt_exception_handler)
 	    rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
 #endif
@@ -521,4 +478,26 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-#endif /* ULAPI/RTAPI */
+long long _rtapi_task_pll_get_reference_hook(void) {
+    int task_id = _rtapi_task_self_hook();
+    if (task_id < 0) return 0;
+    return extra_task_data[task_id].next_time.tv_sec * 1000000000LL
+        + extra_task_data[task_id].next_time.tv_nsec;
+}
+
+int _rtapi_task_pll_set_correction_hook(long value) {
+    int task_id = _rtapi_task_self_hook();
+    task_data *task = &task_array[task_id];
+    if (task <= 0) return -EINVAL;
+    if (value > task->pll_correction_limit)
+        value = task->pll_correction_limit;
+    if (value < -(task->pll_correction_limit))
+        value = -(task->pll_correction_limit);
+    task->pll_correction = value;
+    /* rtapi_print_msg(RTAPI_MSG_DBG, */
+    /*     	    "Task %d pll correction set to %ld\n", */
+    /*                 task_id, value); */
+    return 0;
+}
+
+#endif /* RTAPI */

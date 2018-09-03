@@ -58,6 +58,7 @@
 #include "emc/nml_intf/interp_return.hh"
 #include "emc/nml_intf/canon.hh"
 #include "emc/rs274ngc/interp_base.hh"
+#include "modal_state.hh"
 
 static char the_command[LINELEN] = { 0 };	// our current command
 static char the_command_name[LINELEN] = { 0 };	// just the name part
@@ -92,6 +93,11 @@ public:
     void active_g_codes(int active_gcodes[ACTIVE_G_CODES]);
     void active_m_codes(int active_mcodes[ACTIVE_M_CODES]);
     void active_settings(double active_settings[ACTIVE_SETTINGS]);
+    int active_modes(int g_codes[ACTIVE_G_CODES],
+            int m_codes[ACTIVE_M_CODES],
+            double settings[ACTIVE_SETTINGS],
+            StateTag const &tag);
+    int restore_from_tag(StateTag const &tag);
     void set_loglevel(int level);
     FILE *f;
     char filename[PATH_MAX];
@@ -722,6 +728,14 @@ int Canterp::init() { return INTERP_OK; }
 void Canterp::active_g_codes(int gees[]) { std::fill(gees, gees + ACTIVE_G_CODES, 0); }
 void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
 void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
+//NOT necessary for canterp
+int Canterp::restore_from_tag(StateTag const &tag) {return -1;}
+
+int Canterp::active_modes(int g_codes[ACTIVE_G_CODES],
+        int m_codes[ACTIVE_M_CODES],
+        double settings[ACTIVE_SETTINGS],
+        StateTag const &tag){ return -1;}
+
 void Canterp::set_loglevel(int level) {}
 
 InterpBase *makeInterp() { return new Canterp; }

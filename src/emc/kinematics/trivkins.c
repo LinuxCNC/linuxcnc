@@ -15,6 +15,12 @@
 
 #include "kinematics.h"		/* these decls */
 
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"
+
+#define VTVERSION VTKINEMATICS_VERSION1
+
 
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
@@ -64,28 +70,43 @@ int kinematicsHome(EmcPose * world,
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType()
+KINEMATICS_TYPE kinematicsType(void)
 {
     return KINEMATICS_IDENTITY;
 }
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"
-
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
 MODULE_LICENSE("GPL");
 
-int comp_id;
-int rtapi_app_main(void) {
-    comp_id = hal_init("trivkins");
+static vtkins_t vtk = {
+    .kinematicsForward = kinematicsForward,
+    .kinematicsInverse  = kinematicsInverse,
+    // .kinematicsHome = kinematicsHome,
+    .kinematicsType = kinematicsType
+};
+
+static int comp_id, vtable_id;
+static const char *name = "trivkins";
+
+int rtapi_app_main(void)
+{
+    comp_id = hal_init(name);
     if(comp_id > 0) {
+	vtable_id = hal_export_vtable(name, VTVERSION, &vtk, comp_id);
+
+	if (vtable_id < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "%s: ERROR: hal_export_vtable(%s,%d,%p) failed: %d\n",
+			    name, name, VTVERSION, &vtk, vtable_id );
+	    return -ENOENT;
+	}
 	hal_ready(comp_id);
 	return 0;
     }
     return comp_id;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_remove_vtable(vtable_id);
+    hal_exit(comp_id);
+}

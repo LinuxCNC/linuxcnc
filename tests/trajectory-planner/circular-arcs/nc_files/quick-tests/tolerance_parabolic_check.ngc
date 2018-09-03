@@ -1,0 +1,17 @@
+G90 G20
+
+G64 P0.02 Q0.0
+
+(Line blend as baseline)
+G0 Z1
+G0 X0 Y0
+G0 Z0
+G1 X1 Y1 F1000
+G1 X0 Y2
+
+G0 X0 Y0
+G1 X0.75 Y1 
+G3 X1 Y1 R[0.7071/4] P3
+G3 X0.75 Y1 R[0.7071/4] P3
+M30
+
