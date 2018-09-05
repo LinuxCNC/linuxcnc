@@ -913,7 +913,10 @@ small, tight corners, since you're limited by cornering acceleration.
     coordinates it had on shutdown. This assumes there was no movement of
     the machine while powered off. If unset, joint positions are not stored
     and will begin at 0 each time LinuxCNC is started. This can help on smaller
-    machines without home switches.
+    machines without home switches. If using the Mesa resolver interface
+    this file can be used to emulate absolute encoders and eliminate the
+    need for homing (with no loss of accuracy). See the hostmot2 manpage
+    for more details.
 
 * 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the
    user to home the machine before any MDI command or a program is run.

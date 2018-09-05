@@ -495,6 +495,7 @@ void emcmotCommandHandler(void *arg, long period)
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
                 && (joint->home_sequence < 0)
+                && !emcmotStatus->homing_active
                ) {
                   if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
                       rtapi_print_msg(RTAPI_MSG_ERR,

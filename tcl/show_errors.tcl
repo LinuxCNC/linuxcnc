@@ -19,9 +19,18 @@
 package require Linuxcnc
 
 proc insert_file {w title f {p {}}} {
-    set f [open $f r]
-    set t [read $f]
-    close $f
+    if [catch {set fd [open $f r]
+               set t [read $fd]
+               close $fd
+              } msg] {
+       set t "$::argv0:\n   $msg" ;# info on failed open
+       if {[string first dmesg $f] >= 0} {
+          set sys ""
+          catch {set sys [exec lsb_release -d]}
+          set t "$t\n\ndmesg requires root privilege on this system\n$sys"
+          set t "$t\nUse a terminal to issue the command: sudo dmesg"
+       }
+    }
 
     if {$p != {} && [regexp -all -linestop -lineanchor -indices $p $t match]} {
         set match [lindex $match 0]

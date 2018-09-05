@@ -564,9 +564,10 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if ((programStartLine < 0 ||
-				 emcStatus->task.readLine < programStartLine) &&
-				emcTaskPlanLevel() == 0) {
+			    if ( programStartLine != 0 &&
+				 emcTaskPlanLevel() == 0 &&
+				 ( programStartLine < 0 ||
+				   emcTaskPlanLine() <= programStartLine )) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -2974,6 +2975,11 @@ static int emctask_startup()
     } while (end > 0.0);
     if (!good) {
 	rcs_print_error("can't initialize motion\n");
+	return -1;
+    }
+
+    if (setup_inihal() != 0) {
+	rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
 	return -1;
     }
 

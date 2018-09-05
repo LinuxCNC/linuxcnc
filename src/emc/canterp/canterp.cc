@@ -93,6 +93,7 @@ public:
     void active_m_codes(int active_mcodes[ACTIVE_M_CODES]);
     void active_settings(double active_settings[ACTIVE_SETTINGS]);
     void set_loglevel(int level);
+    void set_loop_on_main_m99(bool state);
     FILE *f;
     char filename[PATH_MAX];
 };
@@ -723,5 +724,6 @@ void Canterp::active_g_codes(int gees[]) { std::fill(gees, gees + ACTIVE_G_CODES
 void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
 void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
 void Canterp::set_loglevel(int level) {}
+void Canterp::set_loop_on_main_m99(bool state) {}
 
 InterpBase *makeInterp() { return new Canterp; }

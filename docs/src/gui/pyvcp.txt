@@ -41,7 +41,7 @@ image::images/pyvcp_mypanel.png[]
 If you place this text in a file called tiny.xml, and run
 
 ----------------------------------------------
-halrun -I loadusr pyvcp -c mypanel tiny.xml
+halcmd loadusr pyvcp -c mypanel tiny.xml
 ----------------------------------------------
 
 PyVCP will create the panel for you, which includes two widgets, a
@@ -628,6 +628,7 @@ them to the same color).
     <halpin>"my-bar"</halpin>
     <min_>0</min_>
     <max_>150</max_>
+    <format>"3.1f"</format>
     <bgcolor>"grey"</bgcolor>
     <fillcolor>"red"</fillcolor>
     <range1>0,100,"green"</range1>

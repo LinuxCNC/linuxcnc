@@ -124,11 +124,11 @@ the joint.  Values greater than 1 or less than zero are ignored.
 When FALSE (the default), the jogwheel operates in position mode. The joint will move exactly jog\-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 
 .TP
-\fBjoint.\fIN\fB.joint\-pos\-cmd\fR OUT FLOAT
+\fBjoint.\fIN\fB.pos\-cmd\fR OUT FLOAT
 The joint (as opposed to motor) commanded position. There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
 
 .TP
-\fBjoint.\fIN\fB.joint\-pos\-fb\fR OUT FLOAT
+\fBjoint.\fIN\fB.pos\-fb\fR OUT FLOAT
 The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
 
 .TP
@@ -224,7 +224,7 @@ the commanded position).
 
 .TP
 \fBmotion.probe\-input\fR IN BIT
-G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
+G38.n uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
 
 .TP
 \fBmotion.program\-line\fR OUT S32

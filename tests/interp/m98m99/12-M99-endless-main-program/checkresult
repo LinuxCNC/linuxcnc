@@ -1,0 +1,3 @@
+#!/bin/sh
+cd $(dirname $1)
+diff -u expected.motion-logger out.motion-logger
