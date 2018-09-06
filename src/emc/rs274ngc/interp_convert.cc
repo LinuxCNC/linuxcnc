@@ -1911,12 +1911,12 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
   CHKS((settings->cutter_comp_side),
       NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_WHEN_ON);
-  if(block->g_modes[7] == G_41_1 || block->g_modes[7] == G_42_1) {
+  if(block->g_modes[GM_CUTTER_COMP] == G_41_1 || block->g_modes[GM_CUTTER_COMP] == G_42_1) {
       CHKS((!block->d_flag),
-              _("G%d.1 with no D word"), block->g_modes[7]/10 );
+              _("G%d.1 with no D word"), block->g_modes[GM_CUTTER_COMP]/10 );
       radius = block->d_number_float / 2;
       if(block->l_number != -1) {
-          CHKS((settings->plane != CANON_PLANE_XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[7]/10);
+          CHKS((settings->plane != CANON_PLANE_XZ), _("G%d.1 with L word, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
           orientation = block->l_number;
       } else {
           orientation = 0;
@@ -1928,7 +1928,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
                   _("G%d requires D word to be a whole number"),
-                   block->g_modes[7]/10);
+                   block->g_modes[GM_CUTTER_COMP]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
           CHP((find_tool_pocket(settings, tool, &pocket_number)));
       }
@@ -4080,7 +4080,7 @@ int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS27
 
 int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
 {
-    if(block->g_modes[14] == G_97) {
+    if(block->g_modes[GM_SPINDLE_MODE] == G_97) {
         settings->spindle_mode = CONSTANT_RPM;
 	enqueue_SET_SPINDLE_MODE(0);
     } else { /* G_96 */
@@ -4424,7 +4424,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   if ((settings->cutter_comp_side) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
-    CHKS((block->g_modes[0] == G_53),
+    CHKS((block->g_modes[GM_MODAL_0] == G_53),
         NCE_CANNOT_USE_G53_WITH_CUTTER_RADIUS_COMP);
 
     if(settings->plane == CANON_PLANE_XZ) {
