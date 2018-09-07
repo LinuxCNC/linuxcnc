@@ -2,7 +2,7 @@
 # The board also has a pair of a set of four 0805 size jumper resistors
 # these can be used to output either the standard Spindle/Mist/flood and
 # input ALIM from the DB25 pins
-# or allow BBB SPI singnals to be routed to the DB25 connector instead.
+# or allow BBB SPI signals to be routed to the DB25 connector instead.
 # The ALIM RC buffer Capacitor would need to change if this
 # option was used.  The LIM Switch input signals are pulled to 3V3 through
 # 10K resistors
@@ -15,43 +15,44 @@
 # go directly to the BBB
 # At powerup the LVC541 enable signals are pulled high, disabling the
 # drivers until
-# the BBB and Machinekit pull the enable signal low.
+# the BBB and LinuxCNC pull the enable signal low.
 #
 ########################################
 
 
 # Launch the setup script to make sure hardware setup looks good
+#loadusr -w /home/machinekit/machinekit/configs/ARM.BeagleBone.Xylotex/setup.sh
 loadusr -w ./setup.sh
+#loadusr -w config-pin -f ./Xylotex.bbio
 
 # ###################################
 # Core EMC/HAL Loads
 # ###################################
-
 # kinematics
 loadrt trivkins
 
-# motion controller, get name and thread periods from ini file
 # trajectory planner
 loadrt tp
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES  tp=tp kins=trivkins
 
 # load low-level drivers
-loadrt hal_bb_gpio output_pins=107,113,119,126,214 input_pins=109,110,114,118,241
-loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
-#(JP) Not suing PID loop so comment out
+loadrt hal_bb_gpio output_pins=807,811,812,813,815,816,819,826,914,915,923,913,911 input_pins=809,810,814,818
+
+loadrt [PRUCONF](DRIVER) prucode=$(LINUXCNC_HOME)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg pru_period=25000
 loadrt pid count=4
 loadrt limit1 count=2
 
 # ################################################
 # THREADS
 # ################################################
-
+# hpg = [PRUCONF](DRIVER)
 addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
-#(JP) Not doing PID for temperature sensor for PWM output
+# Not doing PID for temperature sensor for PWM output
 addf pid.0.do-pid-calcs                   servo-thread
 addf pid.1.do-pid-calcs                   servo-thread
 addf pid.2.do-pid-calcs                   servo-thread
@@ -65,11 +66,9 @@ addf bb_gpio.write                        servo-thread
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
 # ######################################################
-
 # ################
 # X [0] Axis
 # ################
-
 # axis enable chain
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
@@ -100,8 +99,8 @@ setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 setp hpg.stepgen.00.control-type    1
 setp hpg.stepgen.00.stepinvert      [AXIS_0]STEP_INVERT
 #setp hpg.stepgen.00.step_type       0
-setp hpg.stepgen.00.steppin         0x4C
-setp hpg.stepgen.00.dirpin          0x4D
+setp hpg.stepgen.00.steppin         812
+setp hpg.stepgen.00.dirpin          811
 
 # set PID loop gains from inifile
 setp pid.0.Pgain [AXIS_0]P
@@ -114,14 +113,13 @@ setp pid.0.FF2 [AXIS_0]FF2
 setp pid.0.deadband [AXIS_0]DEADBAND
 setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 
-#(JP) Add home switch input on DB25-11
+# Add X home switch input on DB25-11
 net home-x bb_gpio.p8.in-10 => axis.0.home-sw-in
 #setp bb_gpio.p8.in-10.invert 1
 
 # ################
 # Y [1] Axis
 # ################
-
 # axis enable chain
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
@@ -152,8 +150,8 @@ setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 setp hpg.stepgen.01.control-type    1
 setp hpg.stepgen.01.stepinvert      [AXIS_1]STEP_INVERT
 #setp hpg.stepgen.01.step_type       0
-setp hpg.stepgen.01.steppin         0x4E
-setp hpg.stepgen.01.dirpin          0x4F
+setp hpg.stepgen.01.steppin         816
+setp hpg.stepgen.01.dirpin          815
 
 # set PID loop gains from inifile
 setp pid.1.Pgain [AXIS_1]P
@@ -166,15 +164,12 @@ setp pid.1.FF2 [AXIS_1]FF2
 setp pid.1.deadband [AXIS_1]DEADBAND
 setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 
-
-#(JP) Add home switch input on DB25-12
+# Add Y home switch input on DB25-12
 net home-y bb_gpio.p8.in-14 => axis.1.home-sw-in
-#setp bb_gpio.p8.in-14.invert 1
 
 # ################
 # Z [2] Axis
 # ################
-
 # axis enable chain
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
@@ -202,11 +197,11 @@ setp hpg.stepgen.02.position-scale  [AXIS_2]SCALE
 setp hpg.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
-setp hpg.stepgen.02.control-type    1
+setp hpg.stepgen.02.control-type    1 
 setp hpg.stepgen.02.stepinvert      [AXIS_2]STEP_INVERT
 #setp hpg.stepgen.02.step_type       0
-setp hpg.stepgen.02.steppin         0x50
-setp hpg.stepgen.02.dirpin          0x51
+setp hpg.stepgen.02.steppin         915
+setp hpg.stepgen.02.dirpin          923
 
 # set PID loop gains from inifile
 setp pid.2.Pgain [AXIS_2]P
@@ -219,15 +214,12 @@ setp pid.2.FF2 [AXIS_2]FF2
 setp pid.2.deadband [AXIS_2]DEADBAND
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
-
-#(JP) Add home switch input on DB25-13
+# Add Z home switch input on DB25-13
 net home-z bb_gpio.p8.in-18 => axis.2.home-sw-in
-#setp bb_gpio.p8.in-18.invert 1
 
 # ################
 # A [3] Axis
 # ################
-
 # axis enable chain
 newsig emcmot.03.enable bit
 sets emcmot.03.enable FALSE
@@ -258,8 +250,8 @@ setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 setp hpg.stepgen.03.control-type    1
 setp hpg.stepgen.03.stepinvert      [AXIS_3]STEP_INVERT
 #setp hpg.stepgen.03.step_type       0
-setp hpg.stepgen.03.steppin         0x3E
-setp hpg.stepgen.03.dirpin          0x3F
+setp hpg.stepgen.03.steppin         911
+setp hpg.stepgen.03.dirpin          913
 
 # set PID loop gains from inifile
 setp pid.3.Pgain [AXIS_3]P
@@ -273,9 +265,8 @@ setp pid.3.deadband [AXIS_3]DEADBAND
 setp pid.3.maxoutput [AXIS_3]MAX_OUTPUT
 
 
-#(JP) Add home switch input
-net home-a bb_gpio.p9.in-41 => axis.3.home-sw-in
-#setp bb_gpio.p9.in-41.invert 1
+# Add A home switch input
+#net home-a bb_gpio.p9.in-41 => axis.3.home-sw-in
 
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc
@@ -291,7 +282,7 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 # (LOW) or unactive (HIGH) state
 # All external Inputs and Outputs on external boards
 # should have pullups/downs since when the interface board is
-# not enabled, it will look disconnected for all signals
+# not enabled, it will look dosconnected for all signals
 
 # this pin is output on DB25-1
 # it is also used to enable the LVC541 driver/receiver on the interface board
@@ -316,10 +307,15 @@ setp bb_gpio.p8.out-26.invert 1
 #net probe motion.probe-input <= bb_gpio.p8.in-18
 #setp bb_gpio.p8.in-18.invert 1
 
+# this currently goes to an LED on the interface board
+# it is simply a duplicate of the enable signal on DB25-1 right now
+setp bb_gpio.p8.out-26.invert 1
+
 # this input signal must be active LOW to allow the system to energize.
 # this should be fed through an NC STOP type switch from DB25-1 to DB25-10
 net estop-in bb_gpio.p8.in-09 => iocontrol.0.emc-enable-in
 setp bb_gpio.p8.in-09.invert 1
+
 
 # This output is on DB25-14 and is currently tied to spindle control (M3/M5)
 #net Output1 bb_gpio.p8.out-13 => motion.spindle-on
@@ -335,5 +331,4 @@ setp bb_gpio.p8.out-19.invert 1
 # This output is on DB25-17 (M8/M9)
 net Output3 bb_gpio.p9.out-14 => halui.flood.is-on
 setp bb_gpio.p9.out-14.invert 1
-
 

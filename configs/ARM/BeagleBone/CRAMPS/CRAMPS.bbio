@@ -1,0 +1,52 @@
+# File generated with BB pin configurator
+# title: CRAMPS
+overlay cape-universal
+overlay cape-bone-iio
+#overlay cape-univ-emmc
+#P8_03 default
+#P8_04 default
+#P8_05 default
+#P8_06 default
+P8_07 in #X Max
+P8_08 in #X Min
+P8_09 in #Y Max
+P8_10 in #Y Min
+P8_11 low #FET 1 : Heated Bed
+P8_12 low #X Dir
+P8_13 low #X Step
+P8_14 low #Y Dir
+P8_15 low #Y Step
+P8_16 high #eMMC Enable
+P8_17 in #Estop In
+P8_18 low #Z Dir
+P8_19 low #Z Step
+#P8_20 default
+#P8_21 default
+#P8_22 low #Servo 4
+#P8_23 low #Servo 3
+#P8_24 low #Servo 2
+#P8_25 low #Servo 1
+P8_26 high #Estop out
+P9_11 in #Z Max
+P9_12 low #E0 Dir
+P9_13 in #Z Min
+P9_14 high #Axis Enable, act. low
+P9_15 low #FET 2 : E0
+P9_16 low #E0 Step
+P9_17 low #E1 Step
+P9_18 low #E1 Dir
+P9_21 low #FET 4 : E1
+P9_22 low #FET 6
+P9_23 low #Machine Power
+P9_24 low #E2 Step
+#P9_25 low #LED
+P9_26 low #E2 Dir
+P9_27 low #FET 3 : E2
+#P9_28 spi #SPI CS0
+#P9_29 spi #SPI MISO
+#P9_30 spi #SPI MOSI
+#P9_31 spi #SPI SCLK
+P9_41 low #FET 5
+#P9_42 spics #SPI CS1
+P9_91 in #Reserved, con. to P9.41 
+P9_92 in #Reserved, to P9.42
