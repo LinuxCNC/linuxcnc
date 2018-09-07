@@ -1,0 +1,4 @@
+A demo sim for the watch component
+
+Shows how it could be used to initiate a temperature component and monitor
+temperature up to a desired target temperature and beyond.

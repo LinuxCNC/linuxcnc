@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+    <vbox>
+	<label><text>"Required Temp C :-"</text><font>("Arial",14)</font></label>
+	<spinbox>
+	    <halpin>"target"</halpin>
+	    <min_>0</min_>
+	    <max_>200</max_>
+	    <initval>0</initval>
+	    <resolution>1.0</resolution>
+	    <format>"2.3f"</format>
+	    <font>("Arial",14)</font>
+	    <param_pin>1</param_pin>
+	</spinbox>
+	<hbox>
+	    <button>
+		<halpin>"start"</halpin>
+		<font>("Arial",14)</font>
+		<text>"Start heating"</text>
+	    </button>
+	    <button>
+		<halpin>"reset"</halpin>
+		<font>("Arial",14)</font>
+		<text>"Reset"</text>
+	    </button>
+	</hbox>
+    </vbox>
+    <vbox>
+        <multilabel>
+            <legends>["Heating - Please Wait","Heated - Ready to Use","                     "]</legends>
+            <font>("Arial", 14)</font>
+	    <relief>SUNKEN</relief>
+	    <bd>5</bd>
+            <disable_pin>True</disable_pin>
+            <initval>2</initval>
+        </multilabel>
+	<label><text>"Current Temp C :-"</text><font>("Arial",14)</font></label>
+	<number>
+	    <halpin>"count"</halpin>
+	    <font>("Arial",14)</font>
+	    <format>"4.4f"</format>
+	</number>
+    </vbox>
+</pyvcp>
+
+

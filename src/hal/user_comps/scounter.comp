@@ -1,0 +1,50 @@
+// simple userspace counter component 
+// set target pin to value and will count up to value in half second increments
+// I used for generating changing pin values to test reading by other components
+
+component scounter;
+
+pin in u32 target = 0;
+pin out u32 count = 0;
+pin in bit trigger = 0;
+pin out bit start = 0;
+pin out bit running = 0;
+pin out bit stopped = 0;
+option singleton yes;               
+option userspace yes;
+
+author "ArcEye <arceyeATmgwareDOTcoDOTuk>";
+license "GPL";
+;;
+
+#include <stdio.h>    /* Standard input/output definitions */
+#include <stdlib.h> 
+#include <stdint.h>   /* Standard types */
+#include <unistd.h>   /* UNIX standard function definitions */
+
+void user_mainloop(void)
+{
+static int inc = 0;
+
+    while(1)
+	{
+	if(trigger)
+	    start = 1;
+	if(start && target > 0)
+	    {
+	    if(!running)
+		running = 1;
+	    if(count >= target)
+		{
+		running = 0;
+		stopped = 1;
+		start = 0;
+		exit(0);
+		}
+	    else
+		count = ++inc;
+	    usleep(500000);
+	    }
+	}
+    exit(0);
+}

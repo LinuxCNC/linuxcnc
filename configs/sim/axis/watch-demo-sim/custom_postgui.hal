@@ -1,0 +1,28 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+
+## this demonstrates setting of a signal instead of a pin as in some FDM configs
+## signal must be created before watch component is loaded
+#net awful.signame pyvcp.spinbox.0.param_pin
+#
+#newinst watch w1 --- pin_name=scounter.count preset_name=awful.signame preset_type=1 target_value=71.0 forever=1
+
+newinst watch w1 --- pin_name=scounter.count preset_name=pyvcp.spinbox.0.param_pin preset_type=0 target_value=71.0 forever=1
+
+# scounter component loaded in main hal file to ensure active by time addressed here
+setp scounter.target 100
+
+net sig0 pyvcp.start w1.trigger scounter.trigger
+net sig1 pyvcp.multilabel.0.legend0 w1.started
+net sig2 pyvcp.multilabel.0.legend1 w1.target-reached
+net sig3 pyvcp.count w1.value-out
+net sig4 pyvcp.target w1.target-value
+net sig5 pyvcp.reset w1.reset 
+
+## reverse logic to blank multilabel when w1.triggered = 0
+loadrt not
+addf not.0.funct servo-thread
+net sig6 pyvcp.multilabel.0.legend2 not.0.out
+net sig7 w1.triggered not.0.in
+
+addf w1.funct servo-thread
