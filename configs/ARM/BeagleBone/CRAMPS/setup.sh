@@ -31,29 +31,21 @@ dir_err () {
 	exit 1
 }
 
-SLOTS=/sys/devices/bone_capemgr.*/slots
+PRU=/sys/class/uio/uio0
+echo -n "Waiting for $PRU "
 
-# Make sure required device tree overlay(s) are loaded
-for DTBO in cape-universal cape-bone-iio ; do
+while [ ! -r $PRU ]
+do
+    echo -n "."
+    sleep 1
+done
+echo OK
 
-	if grep -q $DTBO $SLOTS ; then
-		echo $DTBO overlay found
-	else
-		echo Loading $DTBO overlay
-		sudo -A su -c "echo $DTBO > $SLOTS" || dtbo_err
-		sleep 1
-	fi
-done;
-
-if [ ! -r /sys/devices/ocp.*/helper.*/AIN0 ] ; then
-	echo Analog input files not found in /sys/devices/ocp.*/helper.* >&2
+if [ ! -r $PRU ] ; then
+	echo PRU control files not found in $PRU >&2
 	exit 1;
 fi
 
-if [ ! -r /sys/class/uio/uio0 ] ; then
-	echo PRU control files not found in /sys/class/uio/uio0 >&2
-	exit 1;
-fi
 
 # Export GPIO pins:
 # One pin needs to be exported to enable the low-level clocks for the GPIO
@@ -90,7 +82,7 @@ sudo $(which config-pin) -f - <<- EOF
 	P8.19	low	# Z Step
 
 # eMMC signals, uncomment *ONLY* if you have disabled the on-board eMMC!
-# Machinekit images disable eMMC and HDMI audio by default in uEnv.txt:
+# MachineKit images disable eMMC and HDMI audio by default in uEnv.txt:
 #  capemgr.disable_partno=BB-BONELT-HDMI,BB-BONE-EMMC-2G
 #	P8.22	low	# Servo 4
 #	P8.23	low	# Servo 3
@@ -113,7 +105,7 @@ sudo $(which config-pin) -f - <<- EOF
 	P9.22	low	# FET 6
 	P9.23	low	# Machine Power
 	P9.24	low	# E2 Step
-	P9.25	low	# LED
+#	P9.25	low	# LED
 	P9.26	low	# E2 Dir
 	P9.27	low	# FET 3 : E2
 	P9.28	low	# SPI CS0
@@ -124,7 +116,7 @@ sudo $(which config-pin) -f - <<- EOF
 	P9.41	low	# FET 5
 	P9.91	in	# Reserved, connected to P9.41
 
-	P9.42	low	# SPI CS1
+#	P9.42	low	# SPI CS1
 	P9.92	in	# Reserved, connected to P9.42
 EOF
 

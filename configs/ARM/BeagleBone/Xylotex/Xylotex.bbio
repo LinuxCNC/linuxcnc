@@ -1,0 +1,27 @@
+# File generated with BB pin configurator
+# title: Xylotex
+overlay cape-universal
+overlay cape-bone-iio
+#overlay cape-univ-emmc
+P8_07 out # gpio2.2 Enable System
+P8_09 in # gpio2.5 ESTOPin
+P8_10 in # gpio2.4 XLIM
+P8_11 out # gpio1.13 X_Dir
+P8_12 out # gpio1.12 X_Step
+P8_13 out # gpio0.23 PWM0/SPINDLE
+P8_14 in # gpio0.26 YLIM
+P8_15 out # gpio1.15 Y_Dir
+P8_16 out # gpio1.14 Y_Step
+P8_18 in # gpio2.1 ZLIM
+P8_19 out # gpio0.22 PWM1
+P8_26 out # ESTOP Out (ENA_LED)
+P9_11 out # gpio0.31 A_Step
+P9_13 out # gpio0.30 A_Dir
+P9_14 out # gpio1.18 PWM2
+P9_15 out # gpio1.16 Z_Step
+#P9_17 out # gpio0.5 SCS
+#P9_18 in # gpio0.4 SDI
+#P9_21 out # gpio0.3 SDO
+#P9_22 out # gpio0.2 SCK
+P9_23 out # gpio1.17 Z_Dir
+

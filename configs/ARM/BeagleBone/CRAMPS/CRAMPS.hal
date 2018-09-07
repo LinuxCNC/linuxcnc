@@ -1,27 +1,30 @@
 # #######################################
 #
-# HAL file for BeagleBone + BeBoPr cape with 4 steppers
+# HAL file for BeagleBone + CRAMPS cape with 4 steppers
 #
 # Derived from example hm2-stepper config
 #
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
+#loadusr -w /home/machinekit/machinekit/configs/ARM.BeagleBone.CRAMPS/setup.sh
 loadusr -w ./setup.sh
+#loadusr -w config-pin -f ./CRAMPS.bbio
 
 
 # ###################################
 # Core EMC/HAL Loads
 # ###################################
-
 # kinematics
 loadrt trivkins
+#loadrt core_xy_kins
 
-# motion controller, get name and thread periods from ini file
 # trajectory planner
 loadrt tp
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+#loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=core_xy_kins
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=816,822,823,824,825,826,914,923,925 input_pins=807,808,809,810,817,911,913
@@ -31,14 +34,16 @@ loadrt limit1 count=2
 
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
-# c = analog input channel and thermistor table
+# t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
+# a = analog input channel
+#loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 loadusr -Wn Therm hal_temp_bbb -n Therm -c 04:epcos_B57560G1104,05:epcos_B57560G1104 -b CRAMPS
 
 # ################################################
 # THREADS
 # ################################################
-
-addf hpg.capture-position   servo-thread
+# hpg = [PRUCONF](DRIVER)
+addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
@@ -46,19 +51,16 @@ addf pid.0.do-pid-calcs                   servo-thread
 addf pid.1.do-pid-calcs                   servo-thread
 addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
-addf hpg.update             servo-thread
+addf hpg.update                           servo-thread
 addf bb_gpio.write                        servo-thread
 
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
 # ######################################################
-
-
 # ################
 # X [0] Axis
 # ################
-
 # axis enable chain
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
@@ -238,7 +240,7 @@ net emcmot.00.enable => bb_gpio.p9.out-23
 
 # Tie machine power signal to the CRAMPS LED
 # Feel free to tie any other signal you like to the LED
-net emcmot.00.enable => bb_gpio.p9.out-25
+#net emcmot.00.enable => bb_gpio.p9.out-25
 
 # ################
 # Limit Switches

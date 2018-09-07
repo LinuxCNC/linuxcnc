@@ -31,27 +31,18 @@ dir_err () {
 	exit 1
 }
 
-SLOTS=/sys/devices/bone_capemgr.*/slots
+PRU=/sys/class/uio/uio0
+echo -n "Waiting for $PRU "
 
-# Make sure required device tree overlay(s) are loaded
-for DTBO in cape-universal cape-bone-iio ; do
+while [ ! -r $PRU ]
+do
+    echo -n "."
+    sleep 1
+done
+echo OK
 
-	if grep -q $DTBO $SLOTS ; then
-		echo $DTBO overlay found
-	else
-		echo Loading $DTBO overlay
-		sudo -A bash -c "echo $DTBO > $SLOTS" || dtbo_err
-		sleep 1
-	fi
-done;
-
-if [ ! -r /sys/devices/ocp.*/helper.*/AIN0 ] ; then
-	echo Analog input files not found in /sys/devices/ocp.*/helper.* >&2
-	exit 1;
-fi
-
-if [ ! -r /sys/class/uio/uio0 ] ; then
-	echo PRU control files not found in /sys/class/uio/uio0 >&2
+if [ ! -r $PRU ] ; then
+	echo PRU control files not found in $PRU >&2
 	exit 1;
 fi
 
@@ -76,6 +67,7 @@ fi
 sudo $(which config-pin) -f - <<- EOF
 
 	P8.07	out	# gpio2.2	Enable System
+	P8.09	in	# gpio2.5	ESTOPin
 	P8.10	in	# gpio2.4	XLIM
 	P8.11	out	# gpio1.13	X_Dir
 	P8.12	out	# gpio1.12	X_Step
@@ -85,15 +77,15 @@ sudo $(which config-pin) -f - <<- EOF
 	P8.16	out	# gpio1.14	Y_Step
 	P8.18	in	# gpio2.1	ZLIM
 	P8.19	out	# gpio0.22	PWM1
+	P8.26	out	# ESTOP Out (ENA_LED)
+	P9.11	out	# gpio0.31	A_Step
+	P9.13	out	# gpio0.30	A_Dir
 	P9.14	out	# gpio1.18	PWM2
 	P9.15	out	# gpio1.16	Z_Step
-	P9.23	out	# gpio1.17	Z_Dir
 #	P9.17	out	# gpio0.5	SCS
 #	P9.18	in	# gpio0.4	SDI
 #	P9.21	out	# gpio0.3	SDO
 #	P9.22	out	# gpio0.2	SCK
-	P9.13	out	# gpio0.30	A_Dir
-	P9.11	out	# gpio0.31	A_Step
-	P8.09	in	# gpio2.5	STOPin
+	P9.23	out	# gpio1.17	Z_Dir
 EOF
 
