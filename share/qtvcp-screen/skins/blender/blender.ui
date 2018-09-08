@@ -439,7 +439,7 @@
                          </property>
                          <property name="maximumSize">
                           <size>
-                           <width>220</width>
+                           <width>250</width>
                            <height>200</height>
                           </size>
                          </property>
@@ -447,7 +447,7 @@
                           <string/>
                          </property>
                          <property name="pixmap">
-                          <pixmap>../../images/b4_endmill.png</pixmap>
+                          <pixmap>../../images/no_tool.png</pixmap>
                          </property>
                          <property name="scaledContents">
                           <bool>true</bool>
@@ -509,6 +509,9 @@
                          </item>
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_22">
+                           <property name="sizeConstraint">
+                            <enum>QLayout::SetMinimumSize</enum>
+                           </property>
                            <item>
                             <widget class="ActionButton" name="actionbutton_34">
                              <property name="text">
@@ -529,7 +532,7 @@
                              </property>
                              <property name="sizeHint" stdset="0">
                               <size>
-                               <width>40</width>
+                               <width>0</width>
                                <height>20</height>
                               </size>
                              </property>
@@ -682,7 +685,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0">
                  <property name="spacing">
                   <number>0</number>
                  </property>
@@ -785,6 +788,19 @@
 %s</string>
                    </property>
                   </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_39">
@@ -956,229 +972,6 @@
                   </layout>
                  </item>
                  <item>
-                  <spacer name="verticalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_8">
-                   <item>
-                    <spacer name="horizontalSpacer_10">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_2">
-                     <property name="text">
-                      <string>A-</string>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>3</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="blank_label_2">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton">
-                     <property name="text">
-                      <string>A+</string>
-                     </property>
-                     <property name="jog_joint_pos_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="jog_selected_pos_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>3</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_11">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_10">
-                   <item>
-                    <spacer name="horizontalSpacer_12">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_4">
-                     <property name="text">
-                      <string>B-</string>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>4</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="blank_label_3">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_3">
-                     <property name="text">
-                      <string>B+</string>
-                     </property>
-                     <property name="jog_joint_pos_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="jog_selected_pos_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>4</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_14">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="0,0,0,0,0">
-                   <property name="sizeConstraint">
-                    <enum>QLayout::SetDefaultConstraint</enum>
-                   </property>
-                   <item>
-                    <spacer name="horizontalSpacer_15">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_6">
-                     <property name="text">
-                      <string>C-</string>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>5</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="blank_label_4">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_5">
-                     <property name="text">
-                      <string>C+</string>
-                     </property>
-                     <property name="jog_joint_pos_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="jog_selected_pos_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>5</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_16">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
                   <spacer name="verticalSpacer_3">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
@@ -1190,339 +983,6 @@
                     </size>
                    </property>
                   </spacer>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_37">
-                   <item>
-                    <spacer name="horizontalSpacer_25">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_55">
-                     <property name="text">
-                      <string>Z+</string>
-                     </property>
-                     <property name="jog_joint_pos_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>2</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_26">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_36">
-                   <item>
-                    <spacer name="horizontalSpacer_18">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="blank_label_5">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Ignored">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>35</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>16777215</width>
-                       <height>15</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_23">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>15</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_33">
-                   <item>
-                    <spacer name="horizontalSpacer_5">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_50">
-                     <property name="text">
-                      <string>Z-</string>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>2</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_4">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_27">
-                   <item>
-                    <spacer name="horizontalSpacer">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="label_3">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_2">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_29">
-                   <item>
-                    <spacer name="horizontalSpacer_6">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_51">
-                     <property name="text">
-                      <string>Y+</string>
-                     </property>
-                     <property name="jog_joint_pos_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="jog_selected_pos_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>1</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_7">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_28">
-                   <item>
-                    <spacer name="horizontalSpacer_3">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_53">
-                     <property name="text">
-                      <string>X-</string>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="jog_selected_pos_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="blank_label1">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_52">
-                     <property name="text">
-                      <string>X+</string>
-                     </property>
-                     <property name="jog_joint_pos_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_13">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_30">
-                   <item>
-                    <spacer name="horizontalSpacer_8">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <widget class="ActionButton" name="actionbutton_54">
-                     <property name="text">
-                      <string>Y-</string>
-                     </property>
-                     <property name="jog_joint_neg_action" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                     <property name="joint_number" stdset="0">
-                      <number>1</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_9">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                  </layout>
                  </item>
                 </layout>
                </widget>
@@ -1708,6 +1168,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="AxisToolButton" name="axistoolbutton_3">
               <property name="sizePolicy">
@@ -1721,6 +1184,82 @@
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_7">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_61">
+              <property name="text">
+               <string>Z-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_8">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_60">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Z+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
               </property>
               <property name="joint_number" stdset="0">
                <number>2</number>
@@ -1757,6 +1296,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="AxisToolButton" name="axistoolbutton_2">
               <property name="sizePolicy">
@@ -1770,6 +1312,82 @@
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_5">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_57">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Y+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_9">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_56">
+              <property name="text">
+               <string>Y-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
               </property>
               <property name="joint_number" stdset="0">
                <number>1</number>
@@ -1809,6 +1427,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="AxisToolButton" name="axistoolbutton">
               <property name="sizePolicy">
@@ -1826,7 +1447,77 @@
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_28">
+             <widget class="QLabel" name="blank_label_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_52">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>X+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_53">
+              <property name="text">
+               <string>X-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_13">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -1852,6 +1543,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_17">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="AxisToolButton" name="axistoolbutton_4">
               <property name="sizePolicy">
@@ -1865,6 +1559,76 @@
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_1">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_4">
+              <property name="text">
+               <string>A-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_3">
+              <property name="text">
+               <string>A+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
               </property>
               <property name="joint_number" stdset="0">
                <number>3</number>
@@ -2302,7 +2066,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
