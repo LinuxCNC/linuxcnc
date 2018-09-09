@@ -109,7 +109,8 @@ const char *Interp::interp_status(int status) {
     static const char *msgs[] = { "INTERP_OK", "INTERP_EXIT",
 	    "INTERP_EXECUTE_FINISH", "INTERP_ENDFILE", "INTERP_FILE_NOT_OPEN",
 	    "INTERP_ERROR" };
-    sprintf(statustext, "%s%s%d", ((status >= INTERP_OK) && (status
+    snprintf(statustext, sizeof(statustext),
+            "%s%s%d", ((status >= INTERP_OK) && (status
 	    <= INTERP_ERROR)) ? msgs[status] : "unknown interpreter error",
 	    (status > INTERP_MIN_ERROR) ? " - error: " : " - ", status);
     return statustext;
@@ -1924,7 +1925,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
           fclose(outfile);
           ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         } else if (k == variable) {
-          sprintf(line, "%d\t%f\n", k, parameters[k]);
+          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)
             required = _required_parameters[index++];
@@ -1932,7 +1933,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
           break;
         } else if (k == required)       // know (k < variable)
         {
-          sprintf(line, "%d\t%f\n", k, parameters[k]);
+          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           required = _required_parameters[index++];
         }
@@ -1942,7 +1943,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   fclose(infile);
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     if (k == required) {
-      sprintf(line, "%d\t%f\n", k, parameters[k]);
+      snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
       fputs(line, outfile);
       required = _required_parameters[index++];
     }
@@ -2516,13 +2517,13 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     int  dct;
 
     // look for a new file
-    sprintf(tmpFileName, "%s.ngc", basename);
+    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", basename);
 
     // find subroutine by search: program_prefix, subroutines, wizard_root
     // use first file found
 
     // first look in the program_prefix place
-    sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
+    snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->program_prefix, tmpFileName);
     newFP = fopen(newFileName, "r");
 
     // then look in the subroutines place
@@ -2530,7 +2531,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
 	    if (!settings->subroutines[dct])
 		continue;
-	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
+	    snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->subroutines[dct], tmpFileName);
 	    newFP = fopen(newFileName, "r");
 	    if (newFP) {
 		// logOword("fopen: |%s|", newFileName);
@@ -2545,7 +2546,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 
 	if (INTERP_OK == ret) {
 	    // create the long name
-	    sprintf(newFileName, "%s/%s",
+	    snprintf(newFileName, sizeof(newFileName), "%s/%s",
 		    foundPlace, tmpFileName);
 	    newFP = fopen(newFileName, "r");
 	}
