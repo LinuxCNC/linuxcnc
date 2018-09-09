@@ -269,9 +269,9 @@ void DisplayFreeVarSpy()
 		strcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
 		strcpy( BufferValue, "" );
 		if (strcmp( DisplayFormat,"Dec" )==0 )
-			sprintf(BufferValue,"%d",Value);
+			snprintf(BufferValue, sizeof(BufferValue),"%d",Value);
 		if (strcmp( DisplayFormat,"Hex" )==0 )
-			sprintf(BufferValue,"%X",Value);
+			snprintf(BufferValue, sizeof(BufferValue),"%X",Value);
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);

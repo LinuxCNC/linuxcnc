@@ -64,7 +64,7 @@ char * DisplayArithmExpr(char * Expr,int NumCarMax)
 				{
 					// buffer for index required as CreateVarName() returns on a static buffer !
 					strcpy( VarIndexBuffer, CreateVarName(IndexTypeVar,IndexNumVar) );
-					sprintf(VarBuffer, "%s[%s]", CreateVarName(TypeVar,NumVar), VarIndexBuffer );
+					snprintf(VarBuffer, sizeof(VarBuffer), "%s[%s]", CreateVarName(TypeVar,NumVar), VarIndexBuffer );
 				}
 				else
 				{
@@ -452,7 +452,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1+Height, -1, -1, "R" );
 #endif
 			/* Timer Number */
-			sprintf( BufTxt,"%cT%d", '%', Element.VarNum );
+			snprintf(BufTxt, sizeof(BufTxt),"%cT%d", '%', Element.VarNum );
 			if ( InfosGene->DisplaySymbols )
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
@@ -467,9 +467,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
-				sprintf(BufTxt,Timer->DisplayFormat,(double)Timer->Value/(double)Timer->Base);
+				snprintf(BufTxt, sizeof(BufTxt),Timer->DisplayFormat,(double)Timer->Value/(double)Timer->Base);
 			else
-				sprintf(BufTxt,Timer->DisplayFormat,(double)Timer->Preset/(double)Timer->Base);
+				snprintf(BufTxt, sizeof(BufTxt),Timer->DisplayFormat,(double)Timer->Preset/(double)Timer->Base);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
@@ -509,7 +509,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1, -1, -1, "R" );
 #endif
 			/* Monostable Number */
-			sprintf( BufTxt,"%cM%d", '%', Element.VarNum );
+			snprintf(BufTxt, sizeof(BufTxt),"%cM%d", '%', Element.VarNum );
 			if ( InfosGene->DisplaySymbols )
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
@@ -524,9 +524,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
-				sprintf(BufTxt,Monostable->DisplayFormat,(double)Monostable->Value/(double)Monostable->Base);
+				snprintf(BufTxt, sizeof(BufTxt),Monostable->DisplayFormat,(double)Monostable->Value/(double)Monostable->Base);
 			else
-				sprintf(BufTxt,Monostable->DisplayFormat,(double)Monostable->Preset/(double)Monostable->Base);
+				snprintf(BufTxt, sizeof(BufTxt),Monostable->DisplayFormat,(double)Monostable->Preset/(double)Monostable->Base);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
@@ -611,7 +611,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1+Height*2, -1, -1, "F" );
 #endif
 			/* Counter Number */
-			sprintf( BufTxt,"%cC%d", '%', Element.VarNum );
+			snprintf(BufTxt, sizeof(BufTxt),"%cC%d", '%', Element.VarNum );
 			if ( InfosGene->DisplaySymbols )
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
@@ -626,9 +626,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
-				sprintf(BufTxt,"%d",Counter->Value);
+				snprintf(BufTxt, sizeof(BufTxt),"%d",Counter->Value);
 			else
-				sprintf(BufTxt,"%d",Counter->Preset);
+				snprintf(BufTxt, sizeof(BufTxt),"%d",Counter->Preset);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
@@ -667,7 +667,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+Width-WidDiv4,y+HeiDiv2-1, -1, -1, "Q" );
 #endif
 			/* Timer IEC Number */
-			sprintf( BufTxt,"%cTM%d", '%', Element.VarNum );
+			snprintf(BufTxt, sizeof(BufTxt),"%cTM%d", '%', Element.VarNum );
 			if ( InfosGene->DisplaySymbols )
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
@@ -681,7 +681,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			DrawTextGTK2( DrawPixmap, drawing_area->style->black_gc, x+WidDiv3-Width,y+HeiDiv4+2, (Width-WidDiv3)*2, -1, BufTxt );
 #endif
 			/* Timer mode */
-			sprintf( BufTxt, "%s", TimersModesStrings[ (int)TimerIEC->TimerMode ] );
+			snprintf(BufTxt, sizeof(BufTxt), "%s", TimersModesStrings[ (int)TimerIEC->TimerMode ] );
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
@@ -691,9 +691,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 
 			/* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
-				sprintf(BufTxt,/*TimerIEC->DisplayFormat*/"%d", TimerIEC->Value);
+				snprintf(BufTxt, sizeof(BufTxt),/*TimerIEC->DisplayFormat*/"%d", TimerIEC->Value);
 			else
-				sprintf(BufTxt,/*TimerIEC->DisplayFormat*/"%d", TimerIEC->Preset);
+				snprintf(BufTxt, sizeof(BufTxt),/*TimerIEC->DisplayFormat*/"%d", TimerIEC->Preset);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
@@ -813,7 +813,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 				break;
 			case ELE_OUTPUT_CALL:
-				sprintf( BufTxt, "SR%d", Element.VarNum );
+				snprintf(BufTxt, sizeof(BufTxt), "SR%d", Element.VarNum );
 #ifndef GTK2
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 								x+1,y+HeiDiv4-2,BufTxt,strlen(BufTxt));
@@ -911,7 +911,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 		// only useful to see abnormal elements in a rung (eraser bug in versions < 0.7.124)
 		if ( Element.Type>=EDIT_CNX_WITH_TOP )
 		{
-			sprintf( BufTxt, "(%d)", Element.Type );
+			snprintf(BufTxt, sizeof(BufTxt), "(%d)", Element.Type );
 			DrawTextGTK2( DrawPixmap, TheGc, x, y, Width, Height, BufTxt );
 		}
 	}

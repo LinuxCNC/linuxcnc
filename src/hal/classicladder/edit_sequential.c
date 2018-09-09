@@ -63,7 +63,7 @@ void LoadSeqElementProperties( void )
 		switch( TypeSeqEleEdited )
 		{
 			case ELE_SEQ_STEP:
-				sprintf( TextToWrite, "%d", EditSeqDatas.Step[ OffsetSeqEleEdited ].StepNumber );
+				snprintf(TextToWrite, sizeof(TextToWrite), "%d", EditSeqDatas.Step[ OffsetSeqEleEdited ].StepNumber );
 				SetProperty(0,_("Step Nbr"),TextToWrite);
 				break;
 			case ELE_SEQ_TRANSITION:

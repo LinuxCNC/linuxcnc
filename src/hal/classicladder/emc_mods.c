@@ -286,7 +286,7 @@ void SymbolsAutoAssign (void)
    	                  found = FALSE;
 	                //set buffer to variable to check variable name
     	                strcpy(Buffer,"");
-   	                 sprintf(Buffer,"%%%s%d",SymbolBuf,i);  
+   	                 snprintf(Buffer, sizeof(Buffer),"%%%s%d",SymbolBuf,i);  
 
 	               // printf("%s\n",Buffer);
 		        scansymb=0;	
@@ -319,7 +319,7 @@ void SymbolsAutoAssign (void)
 	    	        	        //printf("%s\n",Buffer);
                                         // copy a comment if there is one...
 		        	        strcpy(Buffer,"");
-		        	        sprintf(Buffer,"%s",CommentBuf);
+		        	        snprintf(Buffer, sizeof(Buffer),"%s",CommentBuf);
 		        	        strcpy( SymbolArray[scansymb].Comment, Buffer );
 	
 		       	                 break;// we are done looking

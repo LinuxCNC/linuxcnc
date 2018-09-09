@@ -149,45 +149,45 @@ void LoadElementProperties(StrElement * Element)
 				SetProperty(0,_("JumpToLabel"),RungArray[Element->VarNum].Label);
 				break;
 			case ELE_OUTPUT_CALL:
-				sprintf(TextToWrite,"%d",Element->VarNum);
-				SetProperty(0,_("Sub-Routine"),TextToWrite);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
+				SetProperty(0,_("Sub-Routine",TextToWrite));
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("TimerNbr"),TextToWrite);
-				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
 				SetProperty(1,_("Base"),TextToWrite);
-				sprintf(TextToWrite,"%d",Timer->Preset/Timer->Base);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Timer->Preset/Timer->Base);
 				SetProperty(2,_("Preset"),TextToWrite);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("MonostNbr"),TextToWrite);
-				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
 				SetProperty(1,_("Base"),TextToWrite);
-				sprintf(TextToWrite,"%d",Monostable->Preset/Monostable->Base);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Monostable->Preset/Monostable->Base);
 				SetProperty(2,_("Preset"),TextToWrite);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("CounterNbr"),TextToWrite);
-				sprintf(TextToWrite,"%d",Counter->Preset);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Counter->Preset);
 				SetProperty(1,_("Preset"),TextToWrite);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("TimerNbr"),TextToWrite);
-				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
 				SetProperty(1,_("Base"),TextToWrite);
-				sprintf(TextToWrite,"%d",TimerIEC->Preset);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",TimerIEC->Preset);
 				SetProperty(2,_("Preset"),TextToWrite);
-				sprintf(TextToWrite,"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
 				SetProperty(3,_("TimerMode"),TextToWrite);
 				break;
 			case ELE_COMPAR:
@@ -223,35 +223,35 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:				
-				sprintf(PropertiesText, _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
 				break;
 			case ELE_OUTPUT_JUMP:
-				sprintf(PropertiesText, _("Label: %s"), RungArray[Element->VarNum].Label);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Label: %s"), RungArray[Element->VarNum].Label);
 				break;
 			case ELE_OUTPUT_CALL:
-				sprintf(PropertiesText, _("Sub-Routine: %d"), Element->VarNum);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Sub-Routine: %d"), Element->VarNum);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cT%d: Preset=%d Base=%s"), '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cT%d: Preset=%d Base=%s"), '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cM%d: Preset=%d Base=%s"), '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cM%d: Preset=%d Base=%s"), '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cC%d: Preset=%d"), '%', Element->VarNum, Counter->Preset);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cC%d: Preset=%d"), '%', Element->VarNum, Counter->Preset);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cTM%d: Preset=%d Base=%s Mode=%s"), '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cTM%d: Preset=%d Base=%s Mode=%s"), '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-				sprintf(PropertiesText,_("HAL sig: %s"),FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
+				snprintf(PropertiesText, sizeof(PropertiesText),_("HAL sig: %s"),FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
 							
 				break;
 		}
@@ -338,7 +338,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 //printf( "parser var give => %d/%d length=%d\n", VarType, VarOffset, StringLength );
 				if ( VarIndexedIsFound==FALSE )
 					strcat( NewExpr, "@" );
-				sprintf(Buffer,"%d/%d",VarType,VarOffset);
+				snprintf(Buffer, sizeof(Buffer),"%d/%d",VarType,VarOffset);
 				strcat(NewExpr,Buffer);
 				ptr = ptr + (SymbolFound==TRUE?SymbolLength:StringLength);
 				if ( *ptr!='[' && VarIndexedIsFound==FALSE )
@@ -366,7 +366,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 		if ( SimpleCharCopy )
 		{
 //printf("copy:'%c'.\n", *ptr);
-			sprintf(Buffer,"%c",*ptr);
+			snprintf(Buffer, sizeof(Buffer),"%c",*ptr);
 			strcat(NewExpr, Buffer);
 			// end of variable mark to add now after an indexed one !
 			if ( *ptr==']' )
