@@ -931,7 +931,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 	{
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 		char TextBuffer[ 20 ];
-		sprintf(TextBuffer , "%d us", InfosGene->DurationOfLastScan/1000);
+		snprintf(TextBuffer, sizeof(TextBuffer) , "%d us", InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
 		ToggleManagerWindow();
@@ -1003,7 +1003,7 @@ void UpdateWindowTitleWithProjectName( void )
 		while( ScanFileNameOnly>0 && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='/' && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='\\')
 			ScanFileNameOnly--;
 	}
-	sprintf( Buff, "Section Display of %s", &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
+	snprintf(Buff, sizeof(Buff), "Section Display of %s", &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
 	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
 }
 

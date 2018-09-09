@@ -74,10 +74,10 @@ char buffer_debug[ 50 ];
 			}
 			if ( pSection->SubRoutineNumber>=0 )
 			{
-				sprintf( BufferForSRx, "SR%d", pSection->SubRoutineNumber );
+				snprintf(BufferForSRx, sizeof(BufferForSRx), "SR%d", pSection->SubRoutineNumber );
 				RowList[ 2 ] = BufferForSRx;
 			}
-sprintf( buffer_debug, "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
+snprintf(buffer_debug, sizeof(buffer_debug), "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
 RowList[ 3 ] = buffer_debug;
 			gtk_clist_append( GTK_CLIST(SectionsList), RowList );
 			OneSectionExists = TRUE;
