@@ -33,8 +33,8 @@ void backtrace(int signo)
     char filename[512];
 
     signal(signo, SIG_IGN); // prevent multiple invocations on same signal
-    sprintf(pid_buf, "%d", getpid());
-    sprintf(filename,"/tmp/backtrace.%s", pid_buf);
+    snprintf(pid_buf, sizeof(pid_buf), "%d", getpid());
+    snprintf(filename, sizeof(filename),"/tmp/backtrace.%s", pid_buf);
 
     name_buf[readlink("/proc/self/exe", name_buf, 511)]=0;
     int child_pid = fork();
