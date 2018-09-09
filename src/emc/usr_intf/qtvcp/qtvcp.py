@@ -72,14 +72,14 @@ class Paths():
         self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
         sys.path.insert(0, self.LIBDIR)
         self.IMAGEDIR = os.path.join(self.BASEDIR, "share","qtvcp","images")
-        self.SKINDIR = os.path.join(self.BASEDIR, "share","qtvcp","screens")
+        self.SCREENDIR = os.path.join(self.BASEDIR, "share","qtvcp","screens")
         self.PANELDIR = os.path.join(self.BASEDIR, "share","qtvcp","panels")
 
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASENAME)
         if self.IS_SCREEN:
             local_handler_path = os.path.join(self.CONFIGPATH, handler_fn)
-            default_handler_path = os.path.join(self.SKINDIR, self.BASENAME, handler_fn)
+            default_handler_path = os.path.join(self.SCREENDIR, self.BASENAME, handler_fn)
         else:
             local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
             default_handler_path = os.path.join(self.PANELDIR, self.BASENAME, handler_fn)
@@ -100,7 +100,7 @@ class Paths():
         # look for custom ui file
         if self.IS_SCREEN:
             localui = os.path.join(self.CONFIGPATH,"%s.ui"% self.BASENAME)
-            defaultui = os.path.join(self.SKINDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
+            defaultui = os.path.join(self.SCREENDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
         else:
             localui = os.path.join(self.WORKINGDIR, "%s.ui"% self.BASENAME)
             defaultui = os.path.join(self.PANELDIR, self.BASENAME, "%s.ui"% self.BASENAME)
@@ -127,7 +127,7 @@ class Paths():
             self.DOMAIN = self.BASENAME
             log.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
         else:
-            locallocale = os.path.join(self.SKINDIR,"%s/locale"% self.BASENAME)
+            locallocale = os.path.join(self.SCREENDIR,"%s/locale"% self.BASENAME)
             if os.path.exists(locallocale):
                 self.LOCALEDIR = locallocale
                 self.DOMAIN = self.BASENAME

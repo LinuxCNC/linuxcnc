@@ -103,7 +103,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def apply_styles(self, fname = None):
         if self.PATHS.IS_SCREEN:
-            DIR = self.PATHS.SKINDIR
+            DIR = self.PATHS.SCREENDIR
             BNAME = self.PATHS.BASENAME
         else:
             DIR =self.PATHS.PANELDIR
