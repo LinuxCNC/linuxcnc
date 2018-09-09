@@ -1577,7 +1577,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  } else
 	      CHKS((block->p_number - n) > 0.0001,
 		   NCE_NON_INTEGER_VALUE_FOR_INTEGER);
-	  sprintf(oNameBuf, "%d", n);
+	  snprintf(oNameBuf, sizeof(oNameBuf), "%d", n);
       } else if (oNumber == 99) {
 	  // Fanuc-style subroutine return: "m99"
 
@@ -1616,7 +1616,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  {
 	      CHP(read_integer_value(line, counter, &oNumber,
 				     parameters));
-	      sprintf(oNameBuf, "%d", oNumber);
+	      snprintf(oNameBuf, sizeof(oNameBuf), "%d", oNumber);
 	  }
 
       // We stash the text the offset part of setup
@@ -1703,7 +1703,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  subName = "";
 	  logDebug("not defining_sub:|%s|", subName);
 	}
-      sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
+      snprintf(fullNameBuf, sizeof(fullNameBuf), "%s#%s", subName, oNameBuf);
       block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
