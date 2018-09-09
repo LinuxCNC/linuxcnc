@@ -1435,7 +1435,7 @@ static PyObject* Error_poll(pyErrorChannel *s) {
     default:
         {
             char error_string[256];
-            sprintf(error_string, "unrecognized error %" PRId32, type);
+            snprintf(error_string, sizeof(error_string), "unrecognized error %" PRId32, type);
             PyTuple_SET_ITEM(r, 1, PyString_FromString(error_string));
             break;
         }
