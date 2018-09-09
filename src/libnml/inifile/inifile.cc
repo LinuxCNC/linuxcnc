@@ -223,7 +223,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     /* check for section first-- if it's non-NULL, then position file at
        line after [section] */
     if(section != NULL){
-        sprintf(bracketSection, "[%s]", section);
+        snprintf(bracketSection, sizeof(bracketSection), "[%s]", section);
 
         /* find [section], and position fp just after it */
         while (!feof(fp)) {
