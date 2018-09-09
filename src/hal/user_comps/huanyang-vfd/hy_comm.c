@@ -161,7 +161,7 @@ static int check_crc16(hycomm_param_t *hc_param, uint8_t *msg,
 			ret = 0;
 	} else {
 			char s_error[64];
-			sprintf(s_error,
+			snprintf(s_error, sizeof(s_error),
 					"invalid crc received %0X - crc_calc %0X", 
 					crc_received, crc_calc);
 			ret = INVALID_CRC;
