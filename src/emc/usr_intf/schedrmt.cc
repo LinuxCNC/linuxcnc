@@ -638,7 +638,7 @@ int commandSet(connectionRecType *context)
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
-    sprintf(context->outBuf, setCmdNakStr, pch);
+    snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   switch (cmd) {
@@ -669,14 +669,14 @@ int commandSet(connectionRecType *context)
   switch (ret) {
     case rtNoError:  
       if (context->verbose) {
-        sprintf(context->outBuf, ackStr, pch);
+        snprintf(context->outBuf, sizeof(context->outBuf), ackStr, pch);
         return write(context->cliSock, context->outBuf, strlen(context->outBuf));
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
-      sprintf(context->outBuf, setCmdNakStr, pch);
+      snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch);
       return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomError: // Custom error response entered in buffer
@@ -691,8 +691,8 @@ static cmdResponseType getEcho(char *s, connectionRecType *context)
 {
   const char *pEchoStr = "ECHO %s";
   
-  if (context->echo) sprintf(context->outBuf, pEchoStr, "ON");
-  else sprintf(context->outBuf, pEchoStr, "OFF");
+  if (context->echo) snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "ON");
+  else snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "OFF");
   return rtNoError;
 }
 
@@ -700,8 +700,8 @@ static cmdResponseType getVerbose(char *s, connectionRecType *context)
 {
   const char *pVerboseStr = "VERBOSE %s";
   
-  if (context->verbose) sprintf(context->outBuf, pVerboseStr, "ON");
-  else sprintf(context->outBuf, pVerboseStr, "OFF");
+  if (context->verbose) snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "ON");
+  else snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "OFF");
   return rtNoError;
 }
 
@@ -711,8 +711,8 @@ static cmdResponseType getEnable(char *s, connectionRecType *context)
   
   if (context->cliSock == enabledConn) 
 //  if (context->enabled == true)
-    sprintf(context->outBuf, pEnableStr, "ON");
-  else sprintf(context->outBuf, pEnableStr, "OFF");
+    snprintf(context->outBuf, sizeof(context->outBuf), pEnableStr, "ON");
+  else snprintf(context->outBuf, sizeof(context->outBuf), pEnableStr, "OFF");
   return rtNoError;
 }
 
@@ -729,8 +729,8 @@ static cmdResponseType getCommMode(char *s, connectionRecType *context)
   const char *pCommModeStr = "COMM_MODE %s";
   
   switch (context->commMode) {
-    case 0: sprintf(context->outBuf, pCommModeStr, "ASCII"); break;
-    case 1: sprintf(context->outBuf, pCommModeStr, "BINARY"); break;
+    case 0: snprintf(context->outBuf, sizeof(context->outBuf), pCommModeStr, "ASCII"); break;
+    case 1: snprintf(context->outBuf, sizeof(context->outBuf), pCommModeStr, "BINARY"); break;
     }
   return rtNoError;
 }
@@ -739,7 +739,7 @@ static cmdResponseType getCommProt(char *s, connectionRecType *context)
 {
   const char *pCommProtStr = "COMM_PROT %s";
   
-  sprintf(context->outBuf, pCommProtStr, context->version);
+  snprintf(context->outBuf, sizeof(context->outBuf), pCommProtStr, context->version);
   return rtNoError;
 }
 
@@ -747,7 +747,7 @@ static cmdResponseType getDebug(char *s, connectionRecType *context)
 {
   const char *pUpdateStr = "DEBUG %d";
   
-  sprintf(context->outBuf, pUpdateStr, emcStatus->debug);
+  snprintf(context->outBuf, sizeof(context->outBuf), pUpdateStr, emcStatus->debug);
   return rtNoError;
 }
 
@@ -755,7 +755,7 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
 {
   const char *pIniFile = "INIFILE %s";
   
-  sprintf(context->outBuf, pIniFile, emc_inifile);
+  snprintf(context->outBuf, sizeof(context->outBuf), pIniFile, emc_inifile);
   return rtNoError;
 }
 
@@ -763,7 +763,7 @@ static cmdResponseType getPlat(char *s, connectionRecType *context)
 {
   const char *pPlatStr = "PLAT %s";
   
-  sprintf(context->outBuf, pPlatStr, "Linux");
+  snprintf(context->outBuf, sizeof(context->outBuf), pPlatStr, "Linux");
   return rtNoError;  
 }
 
@@ -772,10 +772,10 @@ static cmdResponseType getQMode(char *s, connectionRecType *context)
   const char *pQMode = "QMODE %s";
 
   switch (getStatus()) {
-    case qsStop: sprintf(context->outBuf, pQMode, "STOP"); break;
-    case qsRun: sprintf(context->outBuf, pQMode, "RUN"); break;
-    case qsPause: sprintf(context->outBuf, pQMode, "PAUSE"); break;
-    case qsError: sprintf(context->outBuf, pQMode, "ERROR"); break;
+    case qsStop: snprintf(context->outBuf, sizeof(context->outBuf), pQMode, "STOP"); break;
+    case qsRun: snprintf(context->outBuf, sizeof(context->outBuf), pQMode, "RUN"); break;
+    case qsPause: snprintf(context->outBuf, sizeof(context->outBuf), pQMode, "PAUSE"); break;
+    case qsError: snprintf(context->outBuf, sizeof(context->outBuf), pQMode, "ERROR"); break;
     case qsUnknown: ;
     }
   return rtNoError;
@@ -785,7 +785,7 @@ static cmdResponseType getQStatus(connectionRecType *context)
 {
   const char *pQStatus = "QSTATUS %d %d %d %d";
 
-  sprintf(context->outBuf, pQStatus, getQueueSize(), getFirstTagId(), getLastTagId(), getQueueCRC());
+  snprintf(context->outBuf, sizeof(context->outBuf), pQStatus, getQueueSize(), getFirstTagId(), getLastTagId(), getQueueCRC());
   return rtNoError;
 }
 
@@ -793,7 +793,7 @@ static cmdResponseType getTagId(connectionRecType *context)
 {
   const char *pTagId = "AUTOTAGID %d";
 
-  sprintf(context->outBuf, pTagId, getNextTagId());
+  snprintf(context->outBuf, sizeof(context->outBuf), pTagId, getNextTagId());
   return rtNoError;
 }
 
@@ -805,7 +805,7 @@ static cmdResponseType getPgmById(char *s, connectionRecType *context)
   if (strlen(s) == 0) return rtStandardError;
   if (sscanf(s, "%d", &id) <= 0) return rtStandardError;
   if (getProgramById(id, &qRec) != 0) return rtStandardError;
-  sprintf(context->outBuf, "PGMBYID %d %d %f %f %f %d %s %f %f %d", 
+  snprintf(context->outBuf, sizeof(context->outBuf), "PGMBYID %d %d %f %f %f %d %s %f %f %d", 
     qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
     qRec.feedOverride, qRec.spindleOverride, qRec.tool);
   return rtNoError;
@@ -819,7 +819,7 @@ static cmdResponseType getPgmByIndex(char *s, connectionRecType *context)
   if (strlen(s) == 0) return rtStandardError;  
   if (sscanf(s, "%d", &index) <= 0) return rtStandardError;
   if (getProgramByIndex(index, &qRec) != 0) return rtStandardError;
-  sprintf(context->outBuf, "PGMBYINDEX %d %d %f %f %f %d %s %f %f %d", 
+  snprintf(context->outBuf, sizeof(context->outBuf), "PGMBYINDEX %d %d %f %f %f %d %s %f %f %d", 
     qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
     qRec.feedOverride, qRec.spindleOverride, qRec.tool);
   return rtNoError;
@@ -834,7 +834,7 @@ static cmdResponseType getPgmAll(connectionRecType *context)
   sz = getQueueSize();
   for (i = 0; i < sz; i++) {
     if (getProgramByIndex(i, &qRec) != 0) continue;
-    sprintf(context->outBuf, "PGMBYINDEX %d %d %f %f %f %d %s %f %f %d", 
+    snprintf(context->outBuf, sizeof(context->outBuf), "PGMBYINDEX %d %d %f %f %f %d %s %f %f %d", 
       qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
       qRec.feedOverride, qRec.spindleOverride, qRec.tool);
     sockWrite(context);
@@ -849,7 +849,7 @@ static cmdResponseType getPriById(char *s, connectionRecType *context)
 
   if (sscanf(s, "%d", &id) <= 0) return rtStandardError;
   if (getPriorityById(id, pri) == -1) return rtStandardError;
-  sprintf(context->outBuf, "PRIORITYBYID %d %d", id, pri);
+  snprintf(context->outBuf, sizeof(context->outBuf), "PRIORITYBYID %d %d", id, pri);
   return rtNoError;
 }
 
@@ -860,13 +860,13 @@ static cmdResponseType getPriByIndex(char *s, connectionRecType *context)
 
   if (sscanf(s, "%d", &index) <= 0) return rtStandardError;
   if (getPriorityByIndex(index, pri) == -1) return rtStandardError;
-  sprintf(context->outBuf, "PRIORITYBYINDEX %d %d", index, pri);
+  snprintf(context->outBuf, sizeof(context->outBuf), "PRIORITYBYINDEX %d %d", index, pri);
   return rtNoError;
 }
 
 static cmdResponseType getPollRate(connectionRecType *context)
 {
-  sprintf(context->outBuf, "POLLRATE %f", pollDelay);
+  snprintf(context->outBuf, sizeof(context->outBuf), "POLLRATE %f", pollDelay);
   return rtNoError;
 }
 
@@ -919,7 +919,7 @@ int commandGet(connectionRecType *context)
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError: // Standard error response
-      sprintf(context->outBuf, setCmdNakStr, pch); 
+      snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch); 
       sockWrite(context);
       break;
     case rtCustomError: // Custom error response entered in buffer
@@ -949,7 +949,7 @@ int commandShutdown(connectionRecType *context)
 
 static int helpGeneral(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Available commands:\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Available commands:\n\r");
   strcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
   strcat(context->outBuf, "  Get <emc command>\n\r");
   strcat(context->outBuf, "  Set <emc command>\n\r");
@@ -961,7 +961,7 @@ static int helpGeneral(connectionRecType *context)
 
 static int helpHello(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
   strcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
   strcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
   strcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
@@ -980,7 +980,7 @@ static int helpHello(connectionRecType *context)
 
 static int helpGet(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\rGet <emc command>\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\rGet <emc command>\n\r");
   strcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
   strcat(context->outBuf, "  Emc command may be one of:\n\r");
   strcat(context->outBuf, "    AutoTagId\n\r");
@@ -1005,7 +1005,7 @@ static int helpGet(connectionRecType *context)
 
 static int helpSet(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r  Set <emc command>\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r  Set <emc command>\n\r");
   strcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
   strcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
   strcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
@@ -1029,7 +1029,7 @@ static int helpSet(connectionRecType *context)
 
 static int helpQuit(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
   strcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
   strcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
   strcat(context->outBuf, "  a hello, or be in control.");
@@ -1039,7 +1039,7 @@ static int helpQuit(connectionRecType *context)
 
 static int helpShutdown(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
   strcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
   strcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
   strcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
@@ -1049,7 +1049,7 @@ static int helpShutdown(connectionRecType *context)
 
 static int helpHelp(connectionRecType *context)
 {
-  sprintf(context->outBuf, "If you need help on help, it is time to look into another line of work.\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "If you need help on help, it is time to look into another line of work.\n\r");
   sockWrite(context);
   return 0;
 }
@@ -1067,7 +1067,7 @@ int commandHelp(connectionRecType *context)
   if (strcmp(pch, "QUIT") == 0) return (helpQuit(context));
   if (strcmp(pch, "SHUTDOWN") == 0) return (helpShutdown(context));
   if (strcmp(pch, "HELP") == 0) return (helpHelp(context));
-  sprintf(context->outBuf, "%s is not a valid command.", pch);
+  snprintf(context->outBuf, sizeof(context->outBuf), "%s is not a valid command.", pch);
   sockWrite(context);
   return 0;
 }
@@ -1098,7 +1098,7 @@ int parseCommand(connectionRecType *context)
   static const char *setNakStr = "SET NAK\r\n";
     
   pch = strtok(context->inBuf, delims);
-  sprintf(s, helloAckStr, serverName);
+  snprintf(s, sizeof(s), helloAckStr, serverName);
   if (pch != NULL) {
     strupr(pch);
     switch (lookupToken(pch)) {
