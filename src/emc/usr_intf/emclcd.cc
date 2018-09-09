@@ -370,7 +370,7 @@ static int widgetSetInt(int widgetNo, int newInt, int oldInt)
 {
   if (newInt == oldInt) return newInt;
 
-  sprintf(sockStr, "widget_set %s %s %d %d {%6d}\n",
+  snprintf(sockStr, sizeof(sockStr), "widget_set %s %s %d %d {%6d}\n",
     widgets[widgetNo].screenName,
     widgets[widgetNo].widgetName,
     widgets[widgetNo].x,
@@ -384,7 +384,7 @@ static const char *widgetSetStr(int widgetNo, const char *newStr, const char *ol
 {
   if (strcmp(newStr, oldStr) == 0) return newStr;
 
-  sprintf(sockStr, "widget_set %s %s %d %d {%s}\n", 
+  snprintf(sockStr, sizeof(sockStr), "widget_set %s %s %d %d {%s}\n", 
     widgets[widgetNo].screenName,
     widgets[widgetNo].widgetName,
     widgets[widgetNo].x,
@@ -400,8 +400,8 @@ static int widgetSetHbar(int widgetNo, int newVal, int oldVal)
 
   if (oldVal == newVal) return newVal;
 
-  sprintf(numBuf, "%d", newVal);
-  sprintf(sockStr, "widget_set %s %s %d %d %s\n", 
+  snprintf(numBuf, sizeof(numBuf), "%d", newVal);
+  snprintf(sockStr, sizeof(sockStr), "widget_set %s %s %d %d %s\n", 
     widgets[widgetNo].screenName,
     widgets[widgetNo].widgetName,
     widgets[widgetNo].x,
@@ -414,7 +414,7 @@ static int widgetSetHbar(int widgetNo, int newVal, int oldVal)
 static void intScreenSet(char *screen, char *attr,  int value)
 {
   if (value != -1) {
-    sprintf(sockStr, "screen_set %s %s %d\n", screen, attr, value);
+    snprintf(sockStr, sizeof(sockStr), "screen_set %s %s %d\n", screen, attr, value);
     sockSendStr(sockfd, sockStr);
     }
 }
@@ -422,7 +422,7 @@ static void intScreenSet(char *screen, char *attr,  int value)
 static void strScreenSet(const char *screen, const char *attr, const char *s)
 {
   if (s != NULL) {
-    sprintf(sockStr, "screen_set %s %s %s\n", screen, attr, s);
+    snprintf(sockStr, sizeof(sockStr), "screen_set %s %s %s\n", screen, attr, s);
     printf("screen set str: %s\n", sockStr);
     sockSendStr(sockfd, sockStr);
     }
@@ -431,7 +431,7 @@ static void strScreenSet(const char *screen, const char *attr, const char *s)
 static void heartbeatScreenSet(char *screen, heartbeatType hb)
 {
   if (hb != hbIgnore) {
-    sprintf(sockStr, "screen_set %s %s %s\n", screen, attrs[4], hbStrs[hb]);
+    snprintf(sockStr, sizeof(sockStr), "screen_set %s %s %s\n", screen, attrs[4], hbStrs[hb]);
     sockSendStr(sockfd, sockStr);
     }
 }
@@ -439,7 +439,7 @@ static void heartbeatScreenSet(char *screen, heartbeatType hb)
 static void backlightScreenSet(char *screen, backlightType bl)
 {
   if (bl != blIgnore) {
-    sprintf(sockStr, "screen_set %s %s %s\n", screen, attrs[5], blStrs[bl]);
+    snprintf(sockStr, sizeof(sockStr), "screen_set %s %s %s\n", screen, attrs[5], blStrs[bl]);
     sockSendStr(sockfd, sockStr);
     }
 }
@@ -447,7 +447,7 @@ static void backlightScreenSet(char *screen, backlightType bl)
 static void cursorScreenSet(char *screen, cursorType cu)
 {
   if (cu != cuIgnore) {
-    sprintf(sockStr, "screen_set %s %s %s\n", screen, attrs[8], cuStrs[cu]);
+    snprintf(sockStr, sizeof(sockStr), "screen_set %s %s %s\n", screen, attrs[8], cuStrs[cu]);
     sockSendStr(sockfd, sockStr);
     }
 }
@@ -457,7 +457,7 @@ static int createScreens()
   int i;
 
   for (i=0;i<SCREEN_COUNT;i++) {
-    sprintf(sockStr, "screen_add %s\n", screens[i].name);
+    snprintf(sockStr, sizeof(sockStr), "screen_add %s\n", screens[i].name);
     sockSendStr(sockfd, sockStr);
     intScreenSet(screens[i].name, attrs[1], screens[i].wid);
     intScreenSet(screens[i].name, attrs[2], screens[i].hgt);
@@ -478,7 +478,7 @@ static int deleteScreens()
   int i;
 
   for (i=0;i<SCREEN_COUNT;i++) {
-    sprintf(sockStr, "screen_del %s\n", screens[i].name);
+    snprintf(sockStr, sizeof(sockStr), "screen_del %s\n", screens[i].name);
     sockSendStr(sockfd, sockStr);
     }
   return 0;
@@ -489,7 +489,7 @@ static int createWidgets()
   int i;
 
   for (i=0; i<WIDGET_COUNT; i++) {
-    sprintf(sockStr, "widget_add %s %s %s\n", widgets[i].screenName,
+    snprintf(sockStr, sizeof(sockStr), "widget_add %s %s %s\n", widgets[i].screenName,
       widgets[i].widgetName, typeStrs[widgets[i].type]);
     sockSendStr(sockfd, sockStr);
     switch (widgets[i].type) {
@@ -515,7 +515,7 @@ static int createKeys()
   int i;
 
   for (i=0; i<KEY_COUNT; i++) {
-    sprintf(sockStr, "client_add_key %s %s\n", keyModes[keys[i].mode], keys[i].key);
+    snprintf(sockStr, sizeof(sockStr), "client_add_key %s %s\n", keyModes[keys[i].mode], keys[i].key);
     sockSendStr(sockfd, sockStr);
     }
   return(0);
@@ -540,9 +540,9 @@ static int loadFiles()
       if (strstr(entry->d_name, "ngc") != NULL) {
         strncpy(namebuf, entry->d_name, (strlen(entry->d_name)<24)?strlen(entry->d_name)-4:24);
         namebuf[strlen(entry->d_name) - 4] = '\0';
-        sprintf(sockStr, "menu_add_item open %s action {%s}\n", namebuf, namebuf);
+        snprintf(sockStr, sizeof(sockStr), "menu_add_item open %s action {%s}\n", namebuf, namebuf);
         sockSendStr(sockfd, sockStr);
-        sprintf(sockStr, "menu_set_item open %s -menu_result quit\n", namebuf);
+        snprintf(sockStr, sizeof(sockStr), "menu_set_item open %s -menu_result quit\n", namebuf);
         sockSendStr(sockfd, sockStr);
         }
       }
@@ -594,7 +594,7 @@ static int loadNetworking()
       pch = strtok(NULL, delims);
       if (strcmp(pch, "inet") == 0) {
         pch = strtok(NULL, delims);
-        sprintf(sockStr, "menu_set_item tcpip addrtype -value {%d}\n", 
+        snprintf(sockStr, sizeof(sockStr), "menu_set_item tcpip addrtype -value {%d}\n", 
           strcmp(pch, "dhcp")?1:0);
         sockSendStr(sockfd, sockStr);
         }
@@ -610,7 +610,7 @@ static int loadNetworking()
       pch = strtok(NULL, delims);
       if (strcmp(pch, "addr") == 0) {
         pch = strtok(NULL, delims);
-        sprintf(sockStr, "menu_set_item tcpip address -value {%s}\n", pch);
+        snprintf(sockStr, sizeof(sockStr), "menu_set_item tcpip address -value {%s}\n", pch);
         sockSendStr(sockfd, sockStr);
         pch = strtok(NULL, delims);
         if (strcmp(pch, "Bcast") == 0) {
@@ -618,7 +618,7 @@ static int loadNetworking()
           pch = strtok(NULL, delims);
           if (strcmp(pch, "Mask:") == 0) {
             pch = strtok(NULL, delims);
-            sprintf(sockStr, "menu_set_item tcpip netmask -value {%s}\n", pch);
+            snprintf(sockStr, sizeof(sockStr), "menu_set_item tcpip netmask -value {%s}\n", pch);
             sockSendStr(sockfd, sockStr);
             }
           }
@@ -634,7 +634,7 @@ static int loadNetworking()
       pch = strtok(buffer, delims);
       if (strcmp(pch, "default") == 0) {
         pch = strtok(NULL, delims);
-        sprintf(sockStr, "menu_set_item tcpip gateway -value {%s}\n", pch);
+        snprintf(sockStr, sizeof(sockStr), "menu_set_item tcpip gateway -value {%s}\n", pch);
         sockSendStr(sockfd, sockStr);
         }
       }
@@ -648,12 +648,12 @@ static int loadNetworking()
       pch = strtok(buffer, delims);
       if (strcmp(pch, "nameserver") == 0) {
         pch = strtok(NULL, delims);
-        sprintf(sockStr, "menu_set_item tcpip dns1 -value {%s}\n", pch);
+        snprintf(sockStr, sizeof(sockStr), "menu_set_item tcpip dns1 -value {%s}\n", pch);
         sockSendStr(sockfd, sockStr);
         pch = strtok(NULL, delims);
         if (strcmp(pch, "nameserver") == 0) {
           pch = strtok(NULL, delims);
-          sprintf(sockStr, "menu_set_item tcpip dns2 -value {%s}\n", pch);
+          snprintf(sockStr, sizeof(sockStr), "menu_set_item tcpip dns2 -value {%s}\n", pch);
           sockSendStr(sockfd, sockStr);
           }
         }
@@ -746,19 +746,19 @@ static int getStats()
 
 static void menuSetInt(const char *menu, const char *item, int value)
 {
-  sprintf(sockStr, "menu_set_item %s %s -value {%d}\n", menu, item, value);
+  snprintf(sockStr, sizeof(sockStr), "menu_set_item %s %s -value {%d}\n", menu, item, value);
   sockSendStr(sockfd, sockStr);
 }
 
 static void menuSetMin(const char *menu, const char *item, int value)
 {
-  sprintf(sockStr, "menu_set_item %s %s -minvalue {%d}\n", menu, item, value);
+  snprintf(sockStr, sizeof(sockStr), "menu_set_item %s %s -minvalue {%d}\n", menu, item, value);
   sockSendStr(sockfd, sockStr);
 }
 
 static void menuSetMax(const char *menu, const char *item, int value)
 {
-  sprintf(sockStr, "menu_set_item %s %s -maxvalue {%d}\n", menu, item, value);
+  snprintf(sockStr, sizeof(sockStr), "menu_set_item %s %s -maxvalue {%d}\n", menu, item, value);
   sockSendStr(sockfd, sockStr);
 }
 
@@ -921,7 +921,7 @@ static int openProgram(char *s)
 {
   char fname[255];
 
-  sprintf(fname, "%s/%s.ngc", EMC2_NCFILES_DIR, s);
+  snprintf(fname, sizeof(fname), "%s/%s.ngc", EMC2_NCFILES_DIR, s);
   widgetSetStr(PROG_WIDGET1, s, "");
   widgetSetStr(PROG_WIDGET2, s, "");
   if (sendTaskPlanInit() != 0) return -1;
@@ -1436,7 +1436,7 @@ static int stepCount(char *fileName)
   char buffer[80];
   int len;
 
-  sprintf(buffer, "wc -l < %s", fileName);
+  snprintf(buffer, sizeof(buffer), "wc -l < %s", fileName);
   f = popen(buffer, "r");
   memset(buffer, '\0', sizeof(buffer));
   if (f != NULL) {
@@ -1472,7 +1472,7 @@ static void slowLoop()
   if (feedOverride != oldFeedOverride) {
     menuSetInt("Run", "feed_slider", feedOverride);
     oldFeedOverride = feedOverride;
-    sprintf(buf, "%5d", feedOverride);
+    snprintf(buf, sizeof(buf), "%5d", feedOverride);
     widgetSetStr(FEED_OVERRIDE_WIDGET, buf, "");
     }
 
@@ -1538,19 +1538,19 @@ static void updatePositions()
     case LINEAR_UNITS_AUTO: break;
     }
   if (units == unmm)
-    sprintf(numStr, "%7.2f", emcStatus->motion.traj.actualPosition.tran.x * conversion);
+    snprintf(numStr, sizeof(numStr), "%7.2f", emcStatus->motion.traj.actualPosition.tran.x * conversion);
   else
-    sprintf(numStr, "%7.3f", emcStatus->motion.traj.actualPosition.tran.x * conversion);
+    snprintf(numStr, sizeof(numStr), "%7.3f", emcStatus->motion.traj.actualPosition.tran.x * conversion);
   widgetSetStr(XPOSWIDGET, numStr, oldXStr);   
   if (units == unmm)
-    sprintf(numStr, "%7.2f", emcStatus->motion.traj.actualPosition.tran.y * conversion);
+    snprintf(numStr, sizeof(numStr), "%7.2f", emcStatus->motion.traj.actualPosition.tran.y * conversion);
   else
-    sprintf(numStr, "%7.3f", emcStatus->motion.traj.actualPosition.tran.y * conversion);
+    snprintf(numStr, sizeof(numStr), "%7.3f", emcStatus->motion.traj.actualPosition.tran.y * conversion);
   widgetSetStr(YPOSWIDGET, numStr, oldYStr);
   if (units == unmm)
-    sprintf(numStr, "%6.2f", emcStatus->motion.traj.actualPosition.tran.z * conversion);
+    snprintf(numStr, sizeof(numStr), "%6.2f", emcStatus->motion.traj.actualPosition.tran.z * conversion);
   else
-    sprintf(numStr, "%6.2f", emcStatus->motion.traj.actualPosition.tran.z * conversion);
+    snprintf(numStr, sizeof(numStr), "%6.2f", emcStatus->motion.traj.actualPosition.tran.z * conversion);
   widgetSetStr(ZPOSWIDGET, numStr, oldZStr);   
 
   if ((programStartLine< 0) || (emcStatus->task.readLine < programStartLine))
@@ -1566,7 +1566,7 @@ static void updatePositions()
     oldPct = widgetSetHbar(PROGRESSWIDGET, 0, oldPct);
   else
     if (lineNo != oldLineNo) {
-      sprintf(numStr, "%d", lineNo);
+      snprintf(numStr, sizeof(numStr), "%d", lineNo);
       widgetSetStr(LINENOWIDGET, numStr, "");
       oldLineNo = lineNo;
 
