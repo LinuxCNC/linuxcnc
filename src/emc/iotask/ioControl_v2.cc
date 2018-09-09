@@ -433,13 +433,13 @@ static void quit(int sig)
 
 #define BITPIN(dir,fmt,ptr)						\
     if ((retval = hal_pin_bit_newf(dir,ptr,comp_id, fmt,n)) < 0) {	\
-	sprintf(buf,fmt,n);						\
+	snprintf(buf, sizeof(buf),fmt,n);				\
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: %s - export failed error=%d\n",progname,buf,retval); \
 	goto HAL_EXIT;							\
     }
 #define S32PIN(dir,fmt,ptr)						\
     if ((retval = hal_pin_s32_newf(dir,ptr,comp_id, fmt,n)) < 0) {	\
-	sprintf(buf,fmt,n);						\
+	snprintf(buf, sizeof(buf),fmt,n);				\
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: %s - export failed error=%d\n",progname,buf,retval); \
 	goto HAL_EXIT;							\
     }
