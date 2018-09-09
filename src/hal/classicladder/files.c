@@ -251,7 +251,7 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
     for(NumRung=0; NumRung<NBR_RUNGS; NumRung++)
     {
         char RungFile[400];
-        sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+        snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
         dbg_printf("Loading file : %s",RungFile);
         if (LoadRung(RungFile,Rungs))
         {
@@ -290,7 +290,7 @@ void LoadAllRungs(char * BaseName,StrRung * Rungs)
     for(NumRung=0; NumRung<NBR_RUNGS; NumRung++)
     {
         char RungFile[400];
-        sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+        snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
         dbg_printf("Loading file : %s",RungFile);
         if (LoadRung(RungFile,Rungs))
         {
@@ -311,7 +311,7 @@ void SaveAllRungs(char * BaseName)
     /* delete all before */
     for(NumRung=0;NumRung<NBR_RUNGS;NumRung++)
     {
-        sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+        snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
         remove(RungFile);
     }
     /* save rungs (only defined ones are saved) */
@@ -321,7 +321,7 @@ void SaveAllRungs(char * BaseName)
     {
         if ( RungArray[ NumRung ].Used )
         {
-            sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
+            snprintf(RungFile, sizeof(RungFile),"%s%d.csv",BaseName,NumRung);
             dbg_printf("Saving file : %s",RungFile);
             if (SaveRung(RungFile,&RungArray[NumRung]))
                 dbg_printf(" - ok.\n");
@@ -959,7 +959,7 @@ char LoadModbusIOConfParams(char * FileName)
 					else
 					{
 						ConvRawLineOfNumbers( Line, 6, IntDatas );
-						sprintf( pConf->SlaveAdr, "%d", IntDatas[0] );
+						snprintf(pConf->SlaveAdr, sizeof(pConf->SlaveAdr), "%d", IntDatas[0] );
 					}
 					if ( LineOk )
 					{
@@ -1305,63 +1305,63 @@ void LoadAllLadderDatas(char * DatasDirectory)
 
 	//printf("Loading datas from %s...\n", DatasDirectory);
 // this function call is not wanted because in EMC parameters are loaded with the realtime module
-//	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
+//	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 //	LoadGeneralParameters( FileName );
-        sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+        snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
 //      printf("Loading modbus com data \n");
 	LoadComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 //	printf("Loading timers datas from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
-	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
 //	printf("Loading monostables datas from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
 //	printf("Loading counters datas from %s\n",FileName);
 	LoadCountersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
 	LoadNewTimersParams(FileName);
 
-	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
 //	printf("Loading arithmetic expressions from %s\n",FileName);
 	LoadArithmeticExpr(FileName);
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
-	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
 //	printf("Loading sections datas from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
-		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+		snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 		LoadAllRungs(FileName,RungArray);
 	}
 	else
 	{
 		//printf("Rungs with old format found (no sections)\n");
-		sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+		snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 		LoadAllRungs_V1(FileName,RungArray,&InfosGene->FirstRung,&InfosGene->LastRung,&InfosGene->CurrentRung);
 		// if we load old format files, sections wasn't created, so we must write theses infos...
 		SectionArray[ 0 ].FirstRung = InfosGene->FirstRung;
 		SectionArray[ 0 ].LastRung = InfosGene->LastRung;
 	}
 #ifdef SEQUENTIAL_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
 //	printf("Loading sequential datas from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
 //	printf("Loading I/O configuration datas from %s\n",FileName);
 	LoadIOConfParams( FileName );
 #ifdef MODBUS_IO_MASTER
-	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
         if (modmaster) {    PrepareModbusMaster( );    }
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols datas from %s\n",FileName);
 	LoadSymbols(FileName);
 
@@ -1372,37 +1372,37 @@ void LoadAllLadderDatas(char * DatasDirectory)
 void SaveAllLadderDatas(char * DatasDirectory)
 {
 	CleanTmpLadderDirectory( FALSE/*DestroyDir*/ );
-	sprintf(FileName,"%s/"FILE_PREFIX"general.txt",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 	SaveGeneralParameters( FileName );
-        sprintf(FileName,"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
+        snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"com_params.txt",DatasDirectory);
 	SaveComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
 	SaveTimersParams(FileName,TimerArray);
-	sprintf(FileName,"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
 	SaveMonostablesParams(FileName,MonostableArray);
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
 	SaveCountersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
 	SaveNewTimersParams(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"arithmetic_expressions.csv",DatasDirectory);
 	SaveArithmeticExpr(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"rung_",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 	SaveAllRungs(FileName);
-	sprintf(FileName,"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
 	SaveSectionsParams( FileName );
 #ifdef SEQUENTIAL_SUPPORT
-	sprintf(FileName,"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
 	SaveSequential( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
 	SaveIOConfParams( FileName );
 #ifdef MODBUS_IO_MASTER
-	sprintf(FileName,"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 	SaveModbusIOConfParams( FileName );
 #endif
-	sprintf(FileName,"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
+	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 	SaveSymbols( FileName );
 	InfosGene->AskConfirmationToQuit = FALSE;
 }
@@ -1433,7 +1433,7 @@ void CleanTmpLadderDirectory( char DestroyDir )
 					}
 					if ( cRemoveIt )
 					{
-						sprintf(Buff, "%s/%s", TmpDirectory,pEnt->d_name);
+						snprintf(Buff, sizeof(Buff), "%s/%s", TmpDirectory,pEnt->d_name);
 						remove(Buff);
 					}
 				}
