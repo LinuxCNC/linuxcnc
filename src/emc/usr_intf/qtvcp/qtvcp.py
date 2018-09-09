@@ -71,9 +71,9 @@ class Paths():
         # python library directory
         self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
         sys.path.insert(0, self.LIBDIR)
-        self.IMAGEDIR = os.path.join(self.BASEDIR, "share","qtvcp-screen","images")
-        self.SKINDIR = os.path.join(self.BASEDIR, "share","qtvcp-screen","skins")
-        self.PANELDIR = os.path.join(self.BASEDIR, "share","qtvcp-screen","panels")
+        self.IMAGEDIR = os.path.join(self.BASEDIR, "share","qtvcp","images")
+        self.SKINDIR = os.path.join(self.BASEDIR, "share","qtvcp","screens")
+        self.PANELDIR = os.path.join(self.BASEDIR, "share","qtvcp","panels")
 
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASENAME)

@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>../../../gmoccapy/images/E-Stop.gif</file>
+    <file>tool_reload.gif</file>
+  </qresource>
+</RCC>
