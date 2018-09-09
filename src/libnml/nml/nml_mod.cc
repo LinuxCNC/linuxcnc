@@ -529,7 +529,7 @@ NML_MODULE::logError (const char *fmt, ...)
   memset (error_msg.error, 0, NML_ERROR_LEN);
   if (log_line > 0 && log_src != NULL)
     {
-      sprintf (error_msg.error, "%s:%d ", log_src, log_line);
+      snprintf (error_msg.error, sizeof(error_msg.error), "%s:%d ", log_src, log_line);
     }
 
   // write args to NML message
