@@ -361,7 +361,7 @@ retCode parse_transaction_section(const int mb_tx_num)
         strncpy(this_mb_tx->hal_tx_name, tmpstr, HAL_NAME_LEN);
     }
     else {
-        sprintf(this_mb_tx->hal_tx_name, "%02d", mb_tx_num);
+        snprintf(this_mb_tx->hal_tx_name, sizeof(this_mb_tx->hal_tx_name), "%02d", mb_tx_num);
     }
     DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->hal_tx_name);
 
@@ -380,7 +380,7 @@ retCode parse_transaction_section(const int mb_tx_num)
             strncpy(mb_tx_name, mb_tx->name, HAL_NAME_LEN);
         }
         else {
-            sprintf(mb_tx_name, "%02d", mb_tx_num);
+            snprintf(mb_tx_name, sizeof(mb_tx_name), "%02d", mb_tx_num);
         }
         memcpy(&gbl.mb_tx[mb_tx_num], mb_tx, sizeof(mb_tx_t));
         rc = create_pins(mb_tx_name, &gbl.mb_tx[mb_tx_num], pin_name);
