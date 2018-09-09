@@ -852,6 +852,14 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
         return NO_BLEND;
     }
 
+    // Can't blend segments that are explicitly disallowed
+    switch  (prev_tc->term_cond)
+    {
+    case TC_TERM_COND_EXACT:
+    case TC_TERM_COND_STOP:
+        return NO_BLEND;
+    }
+
     // Compute performance measures ("perf_xxx") for each method. This is
     // basically the blend velocity. However, because parabolic blends require
     // halving the acceleration of both blended segments, they in effect slow
@@ -1884,6 +1892,40 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
 }
 
+static bool tpCreateBlendIfPossible(
+        TP_STRUCT *tp,
+        TC_STRUCT *prev_tc,
+        TC_STRUCT *tc,
+        TC_STRUCT *blend_tc)
+{
+    tp_err_t res_create = TP_ERR_FAIL;
+    blend_type_t blend_requested = tpCheckBlendArcType(prev_tc, tc);
+
+    switch (blend_requested) {
+        case BLEND_LINE_LINE:
+            res_create = tpCreateLineLineBlend(tp, prev_tc, tc, blend_tc);
+            break;
+        case BLEND_LINE_ARC:
+            res_create = tpCreateLineArcBlend(tp, prev_tc, tc, blend_tc);
+            break;
+        case BLEND_ARC_LINE:
+            res_create = tpCreateArcLineBlend(tp, prev_tc, tc, blend_tc);
+            break;
+        case BLEND_ARC_ARC:
+            res_create = tpCreateArcArcBlend(tp, prev_tc, tc, blend_tc);
+            break;
+        case BLEND_NONE:
+        default:
+            tp_debug_print("intersection type not recognized, aborting arc\n");
+            res_create = TP_ERR_FAIL;
+            break;
+    }
+
+    // Can always do this (blend_tc may not be used, in which case it has no effect)
+    tcCheckLastParabolic(blend_tc, prev_tc);
+    return res_create == TP_ERR_OK;
+}
+
 
 /**
  * Handle creating a blend arc when a new line segment is about to enter the queue.
@@ -1891,7 +1933,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
  * blend arc. Essentially all of the blend arc functions are called through
  * here to isolate the process.
  */
-STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
+STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     tp_debug_print("*****************************************\n** Handle Blend Arc **\n");
 
@@ -1928,38 +1970,20 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     TC_STRUCT blend_tc = {0};
 
-    blend_type_t type = tpCheckBlendArcType(prev_tc, tc);
-    int res_create;
-    switch (type) { 
-        case BLEND_LINE_LINE:
-            res_create = tpCreateLineLineBlend(tp, prev_tc, tc, &blend_tc);
-            break;
-        case BLEND_LINE_ARC:
-            res_create = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);
-            break;
-        case BLEND_ARC_LINE:
-            res_create = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);
-            break;
-        case BLEND_ARC_ARC:
-            res_create = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);
-            break;
-        case BLEND_NONE:
-        default:
-            tp_debug_print("intersection type not recognized, aborting arc\n");
-            res_create = TP_ERR_FAIL;
-            break;
-    }
+    tc_blend_type_t blend_used = NO_BLEND;
 
-    if (res_create == TP_ERR_OK) {
+    bool arc_blend_ok = tpCreateBlendIfPossible(tp, prev_tc, tc, &blend_tc);
+
+    if (arc_blend_ok) {
         //Need to do this here since the length changed
-        tcCheckLastParabolic(&blend_tc, prev_tc);
+        blend_used = ARC_BLEND;
         tpAddSegmentToQueue(tp, &blend_tc, false);
-    } else if (res_create < 0){
+    } else {
         // If blend arc creation failed early on, catch it here and find the best blend
-        tpChooseBestBlend(tp, prev_tc, tc, NULL) ;
+        blend_used = tpChooseBestBlend(tp, prev_tc, tc, NULL) ;
     }
 
-    return res_create;
+    return blend_used;
 }
 
 //TODO final setup steps as separate functions
