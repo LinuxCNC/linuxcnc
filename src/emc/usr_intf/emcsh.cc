@@ -2230,9 +2230,9 @@ static int emc_program_codes(ClientData clientdata,
 	    continue;
 	}
 	if (code % 10) {
-	    sprintf(string, "G%.1f ", (double) code / 10.0);
+	    snprintf(string, sizeof(string), "G%.1f ", (double) code / 10.0);
 	} else {
-	    sprintf(string, "G%d ", code / 10);
+	    snprintf(string, sizeof(string), "G%d ", code / 10);
 	}
 	strcat(codes_string, string);
     }
@@ -2243,14 +2243,14 @@ static int emc_program_codes(ClientData clientdata,
 	if (code == -1) {
 	    continue;
 	}
-	sprintf(string, "M%d ", code);
+	snprintf(string, sizeof(string), "M%d ", code);
 	strcat(codes_string, string);
     }
 
     // fill in F and S codes also
-    sprintf(string, "F%.0f ", emcStatus->task.activeSettings[1]);
+    snprintf(string, sizeof(string), "F%.0f ", emcStatus->task.activeSettings[1]);
     strcat(codes_string, string);
-    sprintf(string, "S%.0f", fabs(emcStatus->task.activeSettings[2]));
+    snprintf(string, sizeof(string), "S%.0f", fabs(emcStatus->task.activeSettings[2]));
     strcat(codes_string, string);
 
     setresult(interp,codes_string);
