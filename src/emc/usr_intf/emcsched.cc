@@ -286,7 +286,7 @@ void updateQueue() {
             }
           else {
              q.front().getOffsets(x, y, z);
-             sprintf(cmd, "G0 X%f Y%f Z%f\n", x, y, z); 
+             snprintf(cmd, sizeof(cmd), "G0 X%f Y%f Z%f\n", x, y, z); 
              sendMdiCmd(cmd);
              if (emcCommandWaitDone() != 0) {
                queueStatus = qsError;
