@@ -653,7 +653,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 		    return -EBUSY;
 		}
 		/* determine system name for fifo */
-		sprintf(devstr, "/dev/rtf%d", fifo_id);
+		snprintf(devstr, sizeof(devstr), "/dev/rtf%d", fifo_id);
 		/* open the fifo */
 		fifo_fd_array[fifo_id] = open(devstr, flags);
 		if (fifo_fd_array[fifo_id] < 0) {
@@ -673,7 +673,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 		    return -EBUSY;
 		}
 		/* determine system name for fifo */
-		sprintf(devstr, "/dev/rtf%d", fifo_id);
+		snprintf(devstr, sizeof(devstr), "/dev/rtf%d", fifo_id);
 		/* open the fifo */
 		fifo_fd_array[fifo_id] = open(devstr, flags);
 		if (fifo_fd_array[fifo_id] < 0) {
@@ -703,7 +703,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     fifo_id = n;
     fifo = &(fifo_array[n]);
     /* determine system name for fifo */
-    sprintf(devstr, "/dev/rtf%d", fifo_id);
+    snprintf(devstr, sizeof(devstr), "/dev/rtf%d", fifo_id);
     /* open the fifo */
     fifo_fd_array[fifo_id] = open(devstr, flags);
     if (fifo_fd_array[fifo_id] < 0) {
