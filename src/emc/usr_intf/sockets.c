@@ -263,7 +263,7 @@ char* sockGetError(void)
 
   err = WSAGetLastError();
 
-  sprintf(retString, "Error code %ld: ", err);
+  snprintf(retString, sizeof(retString), "Error code %ld: ", err);
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
                 FORMAT_MESSAGE_FROM_SYSTEM | 
                 FORMAT_MESSAGE_IGNORE_INSERTS,
