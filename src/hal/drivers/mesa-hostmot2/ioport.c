@@ -359,7 +359,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 	    count_instances(hm2, i, &this_instance, &total_instances);
             char orig_base[HAL_NAME_LEN];
             char alias_base[HAL_NAME_LEN];
-            sprintf(orig_base,
+            snprintf(orig_base, sizeof(orig_base),
                 "%s.gpio.%03d",
                 hm2->llio->name,
                 i);
@@ -367,7 +367,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 HM2_ERR("error counting instances of %s, aborting\n", gtag_name);
                 return -EINVAL;
             } else if(total_instances == 1) {
-		sprintf(alias_base,
+		snprintf(alias_base, sizeof(alias_base),
 		    "%s.%s.%02d.%s",
 		    hm2->llio->name,
 		    gtag_name,
@@ -375,7 +375,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 		    funct_name
 		    );
 	    } else {
-		sprintf(alias_base,
+		snprintf(alias_base, sizeof(alias_base),
 		    "%s.%s.%02d.%d.%s",
 		    hm2->llio->name,
 		    gtag_name,
