@@ -271,7 +271,7 @@ int updateError()
 
     default:
 	// if not recognized, set the error string
-	sprintf(error_string, "unrecognized error %" PRId32, type);
+	snprintf(error_string, sizeof(error_string), "unrecognized error %" PRId32, type);
 	return -1;
 	break;
     }
@@ -1283,7 +1283,7 @@ int iniLoad(const char *filename)
 
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
-	sprintf(displayString, "JOINT_%d", t);
+	snprintf(displayString, sizeof(displayString), "JOINT_%d", t);
 	if (NULL != (inistring =
 		     inifile.Find("JOGGING_POLARITY", displayString)) &&
 	    1 == sscanf(inistring, "%d", &i) && i == 0) {
