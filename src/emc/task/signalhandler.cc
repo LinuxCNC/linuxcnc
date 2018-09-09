@@ -40,7 +40,7 @@ static void call_gdb(int sig, int start_gdb_in_window)
     FILE *f;
     char tmp_gdbrc[PATH_MAX];
 
-    sprintf(tmp_gdbrc, "/tmp/gdbrc.%d",getpid());
+    snprintf(tmp_gdbrc, sizeof(tmp_gdbrc), "/tmp/gdbrc.%d",getpid());
 
     if ((f = fopen(tmp_gdbrc,"w")) == NULL) {
 	perror(tmp_gdbrc);
@@ -55,12 +55,12 @@ static void call_gdb(int sig, int start_gdb_in_window)
     fclose(f);
     char cmd[PATH_MAX];
     if (start_gdb_in_window) {
-	sprintf(cmd, "gnome-terminal --title 'GDB - %s backtrace' -x gdb -x %s",
+	snprintf(cmd, sizeof(cmd), "gnome-terminal --title 'GDB - %s backtrace' -x gdb -x %s",
 		progname, tmp_gdbrc);
 	fprintf(stderr, "signal_handler: got signal %d, starting debugger window (pid %d)\n",sig, getpid());
 
     } else {
-	sprintf(cmd, "gdb --batch -x %s > %sbacktrace.%d &",
+	snprintf(cmd, sizeof(cmd), "gdb --batch -x %s > %sbacktrace.%d &",
 		tmp_gdbrc, dir_prefix, getpid());
 	fprintf(stderr, "signal_handler: got signal %d, generating backtrace in %sbacktrace.%d\n",sig,  dir_prefix, getpid());
     }
@@ -70,7 +70,7 @@ static void call_gdb(int sig, int start_gdb_in_window)
     } else if (rc) {
 	fprintf(stderr,"system(%s) returned %d", cmd,  rc);
     }
-    sprintf(cmd,"%s --once --attach :%d %d &", gdbserver, port, getpid());
+    snprintf(cmd, sizeof(cmd),"%s --once --attach :%d %d &", gdbserver, port, getpid());
     rc = system(cmd);
     if (rc == -1) {
 	perror(cmd);
@@ -104,7 +104,7 @@ void setup_signal_handlers()
     char exe[PATH_MAX];
 
     // determine pathname of running program for gdb
-    sprintf(path,"/proc/%d/exe", getpid());
+    snprintf(path, sizeof(path),"/proc/%d/exe", getpid());
     if (readlink(path, exe, sizeof(exe)) < 0) {
 	fprintf(stderr, "signal_handler: cant readlink(%s): %s\n",path,strerror(errno));
 	return;
