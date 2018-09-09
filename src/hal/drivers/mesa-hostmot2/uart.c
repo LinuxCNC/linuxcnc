@@ -93,7 +93,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
         // For the time being we assume that all UARTS come on pairs
         if (inst->clock_freq == 0){
             inst->clock_freq = md->clock_freq;
-            r = sprintf(inst->name, "%s.uart.%01d", hm2->llio->name, i);
+            r = snprintf(inst->name, sizeof(inst->name), "%s.uart.%01d", hm2->llio->name, i);
             HM2_PRINT("created UART Interface function %s.\n", inst->name);
         }
         if (md->gtag == HM2_GTAG_UART_TX){
