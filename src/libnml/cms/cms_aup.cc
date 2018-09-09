@@ -324,7 +324,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(short int &x)
 
     if (encoding) {
 	end_current_string[7] = 0;
-	sprintf(end_current_string, "%-6d", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-6d", x);
 	if (end_current_string[7] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -384,7 +384,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short int &x)
 
     if (encoding) {
 	end_current_string[7] = 0;
-	sprintf(end_current_string, "%-6d", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-6d", x);
 	if (end_current_string[7] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -452,7 +452,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int &x)
 		x);
 	}
 	end_current_string[7] = 0;
-	sprintf(end_current_string, "%-6d", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-6d", x);
 	if (end_current_string[7] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -517,7 +517,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int &x)
 		x);
 	}
 	end_current_string[7] = 0;
-	sprintf(end_current_string, "%-6d", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-6d", x);
 	if (end_current_string[7] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -578,7 +578,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long int &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-14ld", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-14ld", x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -631,7 +631,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned long int &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-14ld", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-14ld", x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -687,7 +687,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(float &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-13.7e", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-13.7e", x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -749,7 +749,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(double &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-13.7e", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-13.7e", x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -804,7 +804,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long double &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-13.7e", (double) x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-13.7e", (double) x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
