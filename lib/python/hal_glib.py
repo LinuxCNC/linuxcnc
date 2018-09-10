@@ -306,6 +306,8 @@ class _GStat(gobject.GObject):
         try:
             self.stat.poll()
         except:
+            # some things might not need linuxcnc status but do need periodic
+            self.emit('periodic')
             # Reschedule
             return True
         old = dict(self.old)
