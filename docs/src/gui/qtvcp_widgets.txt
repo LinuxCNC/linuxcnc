@@ -300,7 +300,7 @@ It is based on pyQT's QGridLayout +
 
 ===  Lcnc_Dialog
 
-This is a general dialog widget. =
+This is a general dialog widget. +
 If there is an Focus Overlay widget present, it can signal it to display. +
 If the sound library is set up it can play sounds. +
 
@@ -330,10 +330,11 @@ It is based on pyQT's QDialog
 
 ===  Dialog MacroTab
 
-This is a dialog for displaying the macrotab widget.+
+This is a dialog for displaying the macrotab widget. +
+Macrotab displays a choice of macro programs to run using icons. +
 If there is a Focus Overlay widget present, it will signal it to display. +
 
 ===  Dialog camview
 
-This is a dialog to display the canview object for Webcam part alignment.+
+This is a dialog to display the camview object for Webcam part alignment. +
 It is based on pyQT's QDialog
