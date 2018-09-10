@@ -165,9 +165,7 @@ int kinematicsForward(const double * joints,
     return -1;
   }
   Dz = rtapi_sqrt(Dz);
-  if (*fflags) {
-    Dz = -Dz;
-  }
+  Dz = -Dz;
 
   pos->a = joints[3];
   pos->b = joints[4];
@@ -200,10 +198,7 @@ int kinematicsInverse(const EmcPose * pos,
   CD = rtapi_sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
 
   *fflags = 1;
-/*  if (Dz < 0.0) {
-    *fflags = 1;
-  }
-*/
+
   joints[3] = pos->a;
   joints[4] = pos->b;
   joints[5] = pos->c;
@@ -364,7 +359,7 @@ static vtkins_t vtk = {
 };
 
 static int comp_id, vtable_id;
-static const char *name = "tripodkins";
+static const char *name = "itripodkins";
 
 MODULE_LICENSE("GPL");
 
@@ -385,9 +380,9 @@ int rtapi_app_main(void) {
     haldata = hal_malloc(sizeof(struct haldata));
     if(!haldata) goto error;
 
-    if((res = hal_pin_float_new("tripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("tripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("itripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("itripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("itripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) < 0) goto error;
 
     Bx = Cx = Cy = 1.0;
     hal_ready(comp_id);
