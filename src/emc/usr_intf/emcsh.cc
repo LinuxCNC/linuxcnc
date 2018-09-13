@@ -1706,8 +1706,8 @@ static int emc_mdi(ClientData clientdata,
     // bug-- check for string overflow
     rtapi_strxcpy(string, Tcl_GetStringFromObj(objv[1], 0));
     for (t = 2; t < objc; t++) {
-	strcat(string, " ");
-	strcat(string, Tcl_GetStringFromObj(objv[t], 0));
+	rtapi_strxcat(string, " ");
+	rtapi_strxcat(string, Tcl_GetStringFromObj(objv[t], 0));
     }
 
     if (0 != sendMdiCmd(string)) {
@@ -2235,7 +2235,7 @@ static int emc_program_codes(ClientData clientdata,
 	} else {
 	    snprintf(string, sizeof(string), "G%d ", code / 10);
 	}
-	strcat(codes_string, string);
+	rtapi_strxcat(codes_string, string);
     }
 
     // fill in the active M codes, settings too
@@ -2245,14 +2245,14 @@ static int emc_program_codes(ClientData clientdata,
 	    continue;
 	}
 	snprintf(string, sizeof(string), "M%d ", code);
-	strcat(codes_string, string);
+	rtapi_strxcat(codes_string, string);
     }
 
     // fill in F and S codes also
     snprintf(string, sizeof(string), "F%.0f ", emcStatus->task.activeSettings[1]);
-    strcat(codes_string, string);
+    rtapi_strxcat(codes_string, string);
     snprintf(string, sizeof(string), "S%.0f", fabs(emcStatus->task.activeSettings[2]));
-    strcat(codes_string, string);
+    rtapi_strxcat(codes_string, string);
 
     setresult(interp,codes_string);
     return TCL_OK;
@@ -3353,10 +3353,10 @@ static int localint(ClientData clientdata,
 
     if (0 != Tcl_GetDoubleFromObj(0, objv[1], &val)) {
 	resstring[0] = 0;
-	strcat(resstring, "expected number but got \"");
+	rtapi_strxcat(resstring, "expected number but got \"");
 	strncat(resstring, Tcl_GetStringFromObj(objv[1], 0),
 		sizeof(resstring) - strlen(resstring) - 2);
-	strcat(resstring, "\"");
+	rtapi_strxcat(resstring, "\"");
 	setresult(interp, resstring);
 	return TCL_ERROR;
     }
@@ -3388,10 +3388,10 @@ static int localround(ClientData clientdata,
 
     if (0 != Tcl_GetDoubleFromObj(0, objv[1], &val)) {
 	resstring[0] = 0;
-	strcat(resstring, "expected number but got \"");
+	rtapi_strxcat(resstring, "expected number but got \"");
 	strncat(resstring, Tcl_GetStringFromObj(objv[1], 0),
 		sizeof(resstring) - strlen(resstring) - 2);
-	strcat(resstring, "\"");
+	rtapi_strxcat(resstring, "\"");
 	setresult(interp,resstring);
 	return TCL_ERROR;
     }
