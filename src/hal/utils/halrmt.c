@@ -306,6 +306,7 @@
 #ifndef NO_INI
 #include "inifile.h"		/* iniFind() from libnml */
 #endif
+#include <rtapi_string.h>
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -1165,7 +1166,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     }
 
     /* make full module name '<path>/<name>.o' */
-    strcpy (mod_path, rtmod_dir);
+    rtapi_strxcpy (mod_path, rtmod_dir);
     strcat (mod_path, "/");
     strcat (mod_path, mod_name);
     strcat (mod_path, MODULE_EXT);
@@ -2472,11 +2473,11 @@ static halCommandType lookupHalCommand(char *s)
   if (strcmp(pch, pwd) != 0) return -1;
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  strcpy(context->hostName, pch);  
+  rtapi_strxcpy(context->hostName, pch);  
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   context->linked = 1;    
-  strcpy(context->version, pch);
+  rtapi_strxcpy(context->version, pch);
   printf("Connected to %s\n\r", context->hostName);
   return 0;
 }
@@ -2512,7 +2513,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
   const char *pConfigStr = "CONFIG";
 
-  strcpy(context->outBuf, pConfigStr);
+  rtapi_strxcpy(context->outBuf, pConfigStr);
   return rtNoError;
 }
 
@@ -2841,7 +2842,7 @@ static cmdResponseType setCommProt(char *s, connectionRecType *context)
   
   pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
-  strcpy(context->version, pVersion);
+  rtapi_strxcpy(context->version, pVersion);
   return rtNoError;
 }
 
@@ -3381,8 +3382,8 @@ void *readClient(void *arg)
   context->linked = 0;
   context->echo = 1;
   context->verbose = 0;
-  strcpy(context->version, "1.0");
-  strcpy(context->hostName, "Default");
+  rtapi_strxcpy(context->version, "1.0");
+  rtapi_strxcpy(context->hostName, "Default");
   connCount++;
   context->commMode = 0;
   context->commProt = 0;
