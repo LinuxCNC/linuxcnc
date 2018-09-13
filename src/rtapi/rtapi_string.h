@@ -55,6 +55,16 @@ static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size) {
     rtapi_static_assert(rtapi_is_array(dst), "dst must be non-const array"); \
     rtapi_strlcpy(dst, src, sizeof(dst)); \
 })
+
+static inline size_t rtapi_strlcat(char *dst, const char *src, size_t size) {
+    size_t l = strlen(dst);
+    return rtapi_snprintf(dst+l, size-l, "%s", src);
+}
+
+#define rtapi_strxcat(dst, src) ({ \
+    rtapi_static_assert(rtapi_is_array(dst), "dst must be non-const array"); \
+    rtapi_strlcat(dst, src, sizeof(dst)); \
+})
 RTAPI_END_DECLS
 
 #endif
