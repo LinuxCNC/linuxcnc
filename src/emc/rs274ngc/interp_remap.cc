@@ -289,13 +289,13 @@ int Interp::add_parameters(setup_pointer settings,
 
     s = missing;
     if (*s) {
-	strcat(tail," missing: ");
+	rtapi_strxcat(tail," missing: ");
     }
     while (*s) {
 	errored = true;
 	char c  = toupper(*s);
 	strncat(tail,&c,1);
-	if (*(s+1)) strcat(tail,",");
+	if (*(s+1)) rtapi_strxcat(tail,",");
 	s++;
     }
     // special cases:
@@ -309,7 +309,7 @@ int Interp::add_parameters(setup_pointer settings,
 	if (settings->feed_rate > 0.0) {
 	    STORE("f",settings->feed_rate);
 	} else {
-	    strcat(tail,"F>0,");
+	    rtapi_strxcat(tail,"F>0,");
 	    errored = true;
 	}
     }
@@ -318,7 +318,7 @@ int Interp::add_parameters(setup_pointer settings,
 	if (settings->speed > 0.0) {
 	    STORE("s",settings->speed);
 	} else {
-	    strcat(tail,"S>0,");
+	    rtapi_strxcat(tail,"S>0,");
 	    errored = true;
 	}
     }
