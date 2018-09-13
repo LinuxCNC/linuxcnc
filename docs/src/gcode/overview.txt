@@ -687,6 +687,11 @@ can be added easily without changes to the source code.
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
+[NOTE]
+Additional system parameters can be enabled by using 'FEATURES' in the
+[RS274NGC] section of the ini file. More information
+<<remap:ini-features, here>>.
+
 [[gcode:expressions]]
 
 == Expressions
