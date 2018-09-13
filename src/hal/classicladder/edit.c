@@ -336,12 +336,12 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 			{
 //printf( "parser var give => %d/%d length=%d\n", VarType, VarOffset, StringLength );
 				if ( VarIndexedIsFound==FALSE )
-					strcat( NewExpr, "@" );
+					rtapi_strxcat( NewExpr, "@" );
 				snprintf(Buffer, sizeof(Buffer),"%d/%d",VarType,VarOffset);
-				strcat(NewExpr,Buffer);
+				rtapi_strxcat(NewExpr,Buffer);
 				ptr = ptr + (SymbolFound==TRUE?SymbolLength:StringLength);
 				if ( *ptr!='[' && VarIndexedIsFound==FALSE )
-					strcat( NewExpr, "@" );
+					rtapi_strxcat( NewExpr, "@" );
 
 				if ( TEST_VAR_IS_A_BOOL( VarType,VarOffset ) )
 
@@ -366,11 +366,11 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 		{
 //printf("copy:'%c'.\n", *ptr);
 			snprintf(Buffer, sizeof(Buffer),"%c",*ptr);
-			strcat(NewExpr, Buffer);
+			rtapi_strxcat(NewExpr, Buffer);
 			// end of variable mark to add now after an indexed one !
 			if ( *ptr==']' )
 			{
-				strcat( NewExpr, "@" );
+				rtapi_strxcat( NewExpr, "@" );
 				VarIndexedIsFound = FALSE;
 			}
 			if ( *ptr=='[' )
