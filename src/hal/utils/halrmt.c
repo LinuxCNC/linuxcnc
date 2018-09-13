@@ -469,7 +469,7 @@ static int initSockets()
 
 static int sockWrite(connectionRecType *context)
 {
-   strcat(context->outBuf, "\r\n");
+   rtapi_strxcat(context->outBuf, "\r\n");
    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
@@ -1167,9 +1167,9 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 
     /* make full module name '<path>/<name>.o' */
     rtapi_strxcpy (mod_path, rtmod_dir);
-    strcat (mod_path, "/");
-    strcat (mod_path, mod_name);
-    strcat (mod_path, MODULE_EXT);
+    rtapi_strxcat (mod_path, "/");
+    rtapi_strxcat (mod_path, mod_name);
+    rtapi_strxcat (mod_path, MODULE_EXT);
     /* is there a file with that name? */
     if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */
@@ -3164,12 +3164,12 @@ int commandShutdown(connectionRecType *context)
 static int helpGeneral(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Available commands:\n\r");
-  strcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
-  strcat(context->outBuf, "  Get <emc command>\n\r");
-  strcat(context->outBuf, "  Set <emc command>\n\r");
-  strcat(context->outBuf, "  Quit\n\r");
-  strcat(context->outBuf, "  Shutdown\n\r");
-  strcat(context->outBuf, "  Help <command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
+  rtapi_strxcat(context->outBuf, "  Get <emc command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Set <emc command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Quit\n\r");
+  rtapi_strxcat(context->outBuf, "  Shutdown\n\r");
+  rtapi_strxcat(context->outBuf, "  Help <command>\n\r");
   sockWrite(context);
   return 0;
 }
@@ -3177,18 +3177,18 @@ static int helpGeneral(connectionRecType *context)
 static int helpHello(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  strcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
-  strcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
-  strcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
-  strcat(context->outBuf, "  With valid password, server responds with:\n\r");
-  strcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
-  strcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
-  strcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
-  strcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
-  strcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
-  strcat(context->outBuf, "  Hello Nak\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
+  rtapi_strxcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
+  rtapi_strxcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
+  rtapi_strxcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
+  rtapi_strxcat(context->outBuf, "  With valid password, server responds with:\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
+  rtapi_strxcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
+  rtapi_strxcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
+  rtapi_strxcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
+  rtapi_strxcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
+  rtapi_strxcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello Nak\n\r");
   sockWrite(context);
   return 0;
 }
@@ -3196,32 +3196,32 @@ static int helpHello(connectionRecType *context)
 static int helpGet(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\rGet <emc command>\n\r");
-  strcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
-  strcat(context->outBuf, "  Emc command may be one of:\n\r");
-  strcat(context->outBuf, "    Comm_mode\n\r");
-  strcat(context->outBuf, "    Comm_prot\n\r");
-  strcat(context->outBuf, "    Comp <comp name\n\r");
-  strcat(context->outBuf, "    Comps\n\r");
-  strcat(context->outBuf, "    Echo\n\r");
-  strcat(context->outBuf, "    Enable\n\r");
-  strcat(context->outBuf, "    Funct <funct name>\n\r");
-  strcat(context->outBuf, "    Functs\n\r");
-  strcat(context->outBuf, "    Param <param name>\n\r");
-  strcat(context->outBuf, "    Params\n\r");
-  strcat(context->outBuf, "    ParamVal <param name>\n\r");
-  strcat(context->outBuf, "    ParamVals\n\r");
-  strcat(context->outBuf, "    Pin <pin name>\n\r");
-  strcat(context->outBuf, "    PinVal <pin name>\n\r");
-  strcat(context->outBuf, "    Pins\n\r");
-  strcat(context->outBuf, "    PinVals\n\r");
-  strcat(context->outBuf, "    Signal <signal name>\n\r");
-  strcat(context->outBuf, "    Signals\n\r");
-  strcat(context->outBuf, "    SigVal <signal name>\n\r");
-  strcat(context->outBuf, "    SigVals\n\r");
-  strcat(context->outBuf, "    Thread <thread name>\n\r");
-  strcat(context->outBuf, "    Threads\n\r");
-  strcat(context->outBuf, "    Verbose\n\r");
-//  strcat(outBuf, "CONFIG\n\r");
+  rtapi_strxcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
+  rtapi_strxcat(context->outBuf, "  Emc command may be one of:\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_mode\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_prot\n\r");
+  rtapi_strxcat(context->outBuf, "    Comp <comp name\n\r");
+  rtapi_strxcat(context->outBuf, "    Comps\n\r");
+  rtapi_strxcat(context->outBuf, "    Echo\n\r");
+  rtapi_strxcat(context->outBuf, "    Enable\n\r");
+  rtapi_strxcat(context->outBuf, "    Funct <funct name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Functs\n\r");
+  rtapi_strxcat(context->outBuf, "    Param <param name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Params\n\r");
+  rtapi_strxcat(context->outBuf, "    ParamVal <param name>\n\r");
+  rtapi_strxcat(context->outBuf, "    ParamVals\n\r");
+  rtapi_strxcat(context->outBuf, "    Pin <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    PinVal <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Pins\n\r");
+  rtapi_strxcat(context->outBuf, "    PinVals\n\r");
+  rtapi_strxcat(context->outBuf, "    Signal <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Signals\n\r");
+  rtapi_strxcat(context->outBuf, "    SigVal <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    SigVals\n\r");
+  rtapi_strxcat(context->outBuf, "    Thread <thread name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Threads\n\r");
+  rtapi_strxcat(context->outBuf, "    Verbose\n\r");
+//  rtapi_strxcat(outBuf, "CONFIG\n\r");
   sockWrite(context);
   return 0;
 }
@@ -3229,34 +3229,34 @@ static int helpGet(connectionRecType *context)
 static int helpSet(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r  Set <emc command>\n\r");
-  strcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
-  strcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
-  strcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
-  strcat(context->outBuf, "    Comm_mode <mode>\n\r");
-  strcat(context->outBuf, "    Comm_prot <protocol>\n\r");
-  strcat(context->outBuf, "    Echo <On | Off>\n\r");
-  strcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
-  strcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
-  strcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
-  strcat(context->outBuf, "    Addf <function name> <threadname> [<parameters>]\n\r");
-  strcat(context->outBuf, "    Delf <function name>\n\r");
-  strcat(context->outBuf, "    DelSig <signal name>\n\r");
-  strcat(context->outBuf, "    Linkpp <pin name> <pin name>\n\r");
-  strcat(context->outBuf, "    Linkps <pin name> <signal name>\n\r");
-  strcat(context->outBuf, "    Linksp <signal name> <pin name>\n\r");
-  strcat(context->outBuf, "    Loadrt <name>\n\r");
-  strcat(context->outBuf, "    Loadusr <name> [<param 1> .. <param n>]\n\r");
-  strcat(context->outBuf, "    Lock <command>\n\r");
-  strcat(context->outBuf, "    Net <signal name> [<pin 1 name> .. <pin n name>\n\r");
-  strcat(context->outBuf, "    NewSig <signal name> <signal type>\n\r");
-  strcat(context->outBuf, "    Save [<hal type> [<file name>]]\n\r");
-  strcat(context->outBuf, "    Setp <pin name> <value>\n\r");
-  strcat(context->outBuf, "    Sets <signal name> <value>\n\r");
-  strcat(context->outBuf, "    Start\n\r");
-  strcat(context->outBuf, "    Stop\n\r");
-  strcat(context->outBuf, "    Unlink <pin name>\n\r");
-  strcat(context->outBuf, "    Unload <name>\n\r");
-  strcat(context->outBuf, "    Unlock <command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
+  rtapi_strxcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
+  rtapi_strxcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_mode <mode>\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_prot <protocol>\n\r");
+  rtapi_strxcat(context->outBuf, "    Echo <On | Off>\n\r");
+  rtapi_strxcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
+  rtapi_strxcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
+  rtapi_strxcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
+  rtapi_strxcat(context->outBuf, "    Addf <function name> <threadname> [<parameters>]\n\r");
+  rtapi_strxcat(context->outBuf, "    Delf <function name>\n\r");
+  rtapi_strxcat(context->outBuf, "    DelSig <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Linkpp <pin name> <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Linkps <pin name> <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Linksp <signal name> <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Loadrt <name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Loadusr <name> [<param 1> .. <param n>]\n\r");
+  rtapi_strxcat(context->outBuf, "    Lock <command>\n\r");
+  rtapi_strxcat(context->outBuf, "    Net <signal name> [<pin 1 name> .. <pin n name>\n\r");
+  rtapi_strxcat(context->outBuf, "    NewSig <signal name> <signal type>\n\r");
+  rtapi_strxcat(context->outBuf, "    Save [<hal type> [<file name>]]\n\r");
+  rtapi_strxcat(context->outBuf, "    Setp <pin name> <value>\n\r");
+  rtapi_strxcat(context->outBuf, "    Sets <signal name> <value>\n\r");
+  rtapi_strxcat(context->outBuf, "    Start\n\r");
+  rtapi_strxcat(context->outBuf, "    Stop\n\r");
+  rtapi_strxcat(context->outBuf, "    Unlink <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Unload <name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Unlock <command>\n\r");
   
   sockWrite(context);
   return 0;
@@ -3265,9 +3265,9 @@ static int helpSet(connectionRecType *context)
 static int helpQuit(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  strcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
-  strcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
-  strcat(context->outBuf, "  a hello, or be in control.");
+  rtapi_strxcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
+  rtapi_strxcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
+  rtapi_strxcat(context->outBuf, "  a hello, or be in control.");
   sockWrite(context);
   return 0;
 }
@@ -3275,9 +3275,9 @@ static int helpQuit(connectionRecType *context)
 static int helpShutdown(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  strcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
-  strcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
-  strcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
+  rtapi_strxcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
+  rtapi_strxcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
+  rtapi_strxcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
   sockWrite(context);
   return 0;
 }
@@ -3394,7 +3394,7 @@ void *readClient(void *arg)
     len = read(context->cliSock, &str, 1600);
     if (len <= 0) goto finished;
     str[len] = 0;
-    strcat(buf, str);
+    rtapi_strxcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if ((context->echo == 1) && (context->linked == 1)) {
       ret = write(context->cliSock, &buf, strlen(buf));

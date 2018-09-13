@@ -974,7 +974,7 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
 	    search_row = 0;
 	printf("next search: %d\n", search_row);
     } else {
-	strcat(search_target, event->string);
+	rtapi_strxcat(search_target, event->string);
     }
     
     for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {
