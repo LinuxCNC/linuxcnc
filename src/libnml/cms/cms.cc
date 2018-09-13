@@ -32,6 +32,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>
 #include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
@@ -269,8 +270,8 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     remote_port_type = CMS_NO_REMOTE_PORT_TYPE;
 
     /* Store the bufline and procline for debugging later. */
-    strcpy(BufferLine, bufline);
-    strcpy(ProcessLine, procline);
+    rtapi_strxcpy(BufferLine, bufline);
+    rtapi_strxcpy(ProcessLine, procline);
 
     /* Get parameters from the buffer's line in the config file. */
     if (separate_words(word, 9, bufline) != 9) {
@@ -284,7 +285,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 
     /* Use the words from the buffer line to initialize some class variables. 
      */
-    strcpy(BufferName, word[1]);
+    rtapi_strxcpy(BufferName, word[1]);
     rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%s)\n", BufferName);
 
     /* Clear errno so we can determine if all of the parameters in the */
@@ -294,9 +295,9 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     }
     char *realname = cms_check_for_host_alias(word[3]);
     if (realname == NULL) {
-	strcpy(BufferHost, word[3]);
+	rtapi_strxcpy(BufferHost, word[3]);
     } else {
-	strcpy(BufferHost, realname);
+	rtapi_strxcpy(BufferHost, realname);
     }
 
     buffer_type_name = word[2];
@@ -466,8 +467,8 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	errno = 0;
     }
 
-    strcpy(ProcessName, word[1]);
-    strcpy(ProcessHost, word[4]);
+    rtapi_strxcpy(ProcessName, word[1]);
+    rtapi_strxcpy(ProcessHost, word[4]);
 
     /* Clear errno so we can determine if all of the parameters in the */
     /* buffer line were in an acceptable form. */
@@ -476,7 +477,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     }
 
     proc_type_name = word[3];
-    strcpy(PermissionString, word[5]);
+    rtapi_strxcpy(PermissionString, word[5]);
     spawn_server = atoi(word[6]);
 
     /* Compute timeout. */
