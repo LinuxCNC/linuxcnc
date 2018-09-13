@@ -42,6 +42,7 @@
 #include "canon_position.hh"		// data type for a machine position
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
+#include <rtapi_string.h>
 
 //#define EMCCANON_DEBUG
 
