@@ -721,7 +721,7 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 				snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/(pConv->iSize2*pConv->iSize3) +pConv->iFirstVal1,
 					((OffsetVarSearched-iIdFound)/pConv->iSize3)%pConv->iSize2 +pConv->iFirstVal2, (OffsetVarSearched-iIdFound)%pConv->iSize3 +pConv->iFirstVal3 );
 		}
-		strcat(tcBuffer,tcBuffer2);
+		rtapi_strxcat(tcBuffer,tcBuffer2);
 
 		if ( InfosGene->DisplaySymbols )
 		{
