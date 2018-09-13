@@ -22,7 +22,7 @@ USERSRCS += $(LIBNMLSRCS)
 
 TARGETS += ../lib/libnml.so ../lib/libnml.so.0
 
-../lib/libnml.so.0: $(call TOOBJS,$(LIBNMLSRCS))
+../lib/libnml.so.0: $(call TOOBJS,$(LIBNMLSRCS)) ../lib/liblinuxcnchal.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
