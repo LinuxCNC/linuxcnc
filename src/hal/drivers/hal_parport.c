@@ -101,10 +101,6 @@
 
 #include "hal.h"		/* HAL public API decls */
 
-/* If FASTIO is defined, uses outb() and inb() from <asm.io>,
-   instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
-   are inlined, and save a microsecond or two (on my 233MHz box)
-*/
 #include <rtapi_io.h>
 
 #include "hal_parport.h"
