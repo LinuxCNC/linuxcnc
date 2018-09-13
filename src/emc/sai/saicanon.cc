@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <rtapi_string.h>
 
 /* where to print */
 //extern FILE * _outfile;
