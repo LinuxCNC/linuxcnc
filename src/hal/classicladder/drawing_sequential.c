@@ -33,6 +33,7 @@
 #include <pango/pango.h>
 #endif
 
+#include <rtapi_string.h>
 void DrawSeqStep(GdkPixmap * DrawPixmap,int x,int y,int Size,StrStep * pStep,char DrawingOption)
 {
 	char BufTxt[50];
@@ -148,7 +149,7 @@ void DrawSeqTransition(GdkPixmap * DrawPixmap,int x,int y,int Size,StrTransition
 			x+Size-SizeDiv3, y+SizeDiv2);
 
 	// variable for transition
-	strcpy(BufTxt, CreateVarName( pTransi->VarTypeCondi, pTransi->VarNumCondi ) );
+	rtapi_strxcpy(BufTxt, CreateVarName( pTransi->VarTypeCondi, pTransi->VarNumCondi ) );
 #ifndef GTK2
 	gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 		x+3*SizeDiv4,y+SizeDiv2+5,BufTxt,strlen(BufTxt));

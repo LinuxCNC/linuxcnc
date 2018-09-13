@@ -33,6 +33,7 @@
 #include "global.h"
 #include "classicladder_gtk.h"
 
+#include <rtapi_string.h>
 
 GdkPixmap *pixmap = NULL;
 GtkWidget *drawing_area = NULL;
@@ -305,8 +306,8 @@ void clear_label_comment()
 
 void save_label_comment_edited()
 {
-	strcpy(EditDatas.Rung.Label,gtk_entry_get_text((GtkEntry *)entrylabel));
-	strcpy(EditDatas.Rung.Comment,gtk_entry_get_text((GtkEntry *)entrycomment));
+	rtapi_strxcpy(EditDatas.Rung.Label,gtk_entry_get_text((GtkEntry *)entrylabel));
+	rtapi_strxcpy(EditDatas.Rung.Comment,gtk_entry_get_text((GtkEntry *)entrycomment));
 }
 
 void autorize_prevnext_buttons(int Yes)
@@ -366,7 +367,7 @@ char cForLoadingProject)
     if ( cForLoadingProject )
         VerifyDirectorySelected( TempDir );
     else
-        strcpy( InfosGene->CurrentProjectFileName, TempDir );
+        rtapi_strxcpy( InfosGene->CurrentProjectFileName, TempDir );
 }
 
 

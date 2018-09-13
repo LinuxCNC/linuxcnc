@@ -37,6 +37,7 @@
 #include "classicladder_gtk.h"
 #include "vars_names.h"
 #include "symbols.h"
+#include <rtapi_string.h>
 
 #include "spy_vars_gtk.h"
 
@@ -229,7 +230,7 @@ char * ConvToBin( unsigned int Val )
 	int Pos;
 	unsigned int Mask = 0x80000000;
 	char First1 = FALSE;
-	strcpy( TabBin, "" );
+	rtapi_strxcpy( TabBin, "" );
 	for ( Pos = 0; Pos<32; Pos++ )
 	{
 		if ( Val & Mask )
@@ -244,7 +245,7 @@ char * ConvToBin( unsigned int Val )
 		Mask = Mask>>1;
 	}
 	if ( Val==0 )
-		strcpy( TabBin,"0" );
+		rtapi_strxcpy( TabBin,"0" );
 	return TabBin;
 }
 // This function updates the signed Integer window
@@ -263,14 +264,14 @@ void DisplayFreeVarSpy()
 	for (NumVarSpy=0; NumVarSpy<i; NumVarSpy++)
 	{
 		Value = ReadVar(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
-		strcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
-		strcpy( BufferValue, "" );
+		rtapi_strxcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
+		rtapi_strxcpy( BufferValue, "" );
 		if (strcmp( DisplayFormat,"Dec" )==0 )
 			snprintf(BufferValue, sizeof(BufferValue),"%d",Value);
 		if (strcmp( DisplayFormat,"Hex" )==0 )
 			snprintf(BufferValue, sizeof(BufferValue),"%X",Value);
 		if (strcmp( DisplayFormat,"Bin" )==0 )
-			strcpy( BufferValue, ConvToBin( Value ) );
+			rtapi_strxcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
                 VarName= "<span foreground=\"gray\" weight=\"bold\" >Other       </span>";
                
@@ -353,7 +354,7 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 	int NewVarType,NewVarOffset;
 	int * NumVarSpy = &VarSpy[NumSpy][0];
 	char BufferVar[30];
-	strcpy(BufferVar, gtk_entry_get_text((GtkEntry *)widget) );
+	rtapi_strxcpy(BufferVar, gtk_entry_get_text((GtkEntry *)widget) );
 	if (TextParserForAVar(BufferVar , &NewVarType, &NewVarOffset, NULL, FALSE/*PartialNames*/))
 	{
 		char * OtherVarName = NULL;
