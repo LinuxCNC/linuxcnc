@@ -54,6 +54,7 @@
 #include "rcs_print.hh"
 #include "sockets.h"		// TCP/IP common socket functions
 #include "shcom.hh"		// Common NML messaging routines
+#include <rtapi_string.h>
 
 #define DEFAULT_SERVER		"localhost"
 #define DEFAULT_PORT            13666
@@ -1070,8 +1071,8 @@ static int enterEvent()
   char *pch;
 
   pch = strtok(NULL, delims);
-  strcpy(menu1, menu2);
-  strcpy(menu2, pch);
+  rtapi_strxcpy(menu1, menu2);
+  rtapi_strxcpy(menu2, pch);
   printf("menuevent enter %s\n", pch);
 
   return 0;
@@ -1107,8 +1108,8 @@ static void parseConnect()
   pch = strtok(NULL, delims);
   while (pch != NULL) {
     switch (lookupConnect(pch)) {
-      case cpVersion: strcpy(lcdParms.version, strtok(NULL, delims)); break;
-      case cpProtocol: strcpy(lcdParms.protocol, strtok(NULL, delims)); break;
+      case cpVersion: rtapi_strxcpy(lcdParms.version, strtok(NULL, delims)); break;
+      case cpProtocol: rtapi_strxcpy(lcdParms.protocol, strtok(NULL, delims)); break;
       case cpLCD: break;
       case cpWidth: 
         pch = strtok(NULL, delims);
@@ -1462,8 +1463,8 @@ static void slowLoop()
   if (emcStatus->task.file[0] != 0) {
     fname = extractFileName(emcStatus->task.file);
     if (strcmp(fname, programName) != 0) {
-      strcpy(programName, widgetSetStr(PROG_WIDGET1, fname, programName));
-      strcpy(programName, widgetSetStr(PROG_WIDGET2, fname, programName));
+      rtapi_strxcpy(programName, widgetSetStr(PROG_WIDGET1, fname, programName));
+      rtapi_strxcpy(programName, widgetSetStr(PROG_WIDGET2, fname, programName));
       totalSteps = stepCount(emcStatus->task.file);
       }
     }
@@ -1479,32 +1480,32 @@ static void slowLoop()
   switch (emcStatus->task.interpState) {
       case EMC_TASK_INTERP_READING:
       case EMC_TASK_INTERP_WAITING: 
-        strcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
+        rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
         if (runStatus != rsRun)
           widgetSetStr(JOG_WIDGET, "Step", "");
         runStatus = rsRun;
         break;
       case EMC_TASK_INTERP_PAUSED: 
-        strcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
+        rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
         runStatus = rsPause;
         break;
       default:
         if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
-          strcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
+          rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
           widgetSetStr(JOG_WIDGET, "    ", "");
           }
         else
           if (emcStatus->task.state != EMC_TASK_STATE_ON) {
-            strcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
+            rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
             widgetSetStr(JOG_WIDGET, "    ", "");
             }
           else
             if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {          
-              strcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
+              rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
               widgetSetStr(JOG_WIDGET, "Jog ", "");
               }
             else {
-              strcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
+              rtapi_strxcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
               widgetSetStr(JOG_WIDGET, "    ", "");
               }
         displayJogMode(jogMode);

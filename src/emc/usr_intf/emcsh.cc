@@ -32,6 +32,7 @@
 #include "inifile.hh"		// INIFILE
 #include "rcs_print.hh"
 #include "timer.hh"
+#include <rtapi_string.h>
 
 #include "shcom.hh"
 
@@ -1730,7 +1731,7 @@ static int emc_mdi(ClientData clientdata,
 	return TCL_ERROR;
     }
     // bug-- check for string overflow
-    strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
+    rtapi_strxcpy(string, Tcl_GetStringFromObj(objv[1], 0));
     for (t = 2; t < objc; t++) {
 	strcat(string, " ");
 	strcat(string, Tcl_GetStringFromObj(objv[t], 0));
@@ -3113,7 +3114,7 @@ static int emc_joint_load_comp(ClientData clientdata,
 	return TCL_ERROR;
     }
     // copy objv[1] to file arg, to make sure it's not modified
-    strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
+    rtapi_strxcpy(file, Tcl_GetStringFromObj(objv[2], 0));
 
     if (0 != Tcl_GetIntFromObj(0, objv[3], &type)) {
 	setresult(interp,"emc_joint_load_comp: <type> must be an int");
