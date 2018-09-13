@@ -19,6 +19,7 @@
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
 #include "rcs_print.hh"
+#include <rtapi_string.h>
 
 int emcGetArgs(int argc, char *argv[])
 {
@@ -35,7 +36,7 @@ int emcGetArgs(int argc, char *argv[])
                     fprintf(stderr, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		strcpy(emc_inifile, argv[t + 1]);
+		rtapi_strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
