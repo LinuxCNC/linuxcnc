@@ -42,6 +42,7 @@
 #include "files.h"
 #include "files_sequential.h"
 #include "files_project.h"
+#include <rtapi_string.h>
 
 
 //#ifdef GTK_INTERFACE
@@ -58,7 +59,7 @@
 #endif
 void VerifyDirectorySelected( char * NewDir )
 {
-	strcpy( InfosGene->CurrentProjectFileName, NewDir );
+	rtapi_strxcpy( InfosGene->CurrentProjectFileName, NewDir );
 	if (strlen(InfosGene->CurrentProjectFileName)>1)
 	{
 		if ( strcmp( &NewDir[ strlen( NewDir ) -4 ], ".clp" )!=0 )
@@ -260,7 +261,7 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 	FILE * pProjectFile;
 	FILE * pParametersFile;
 	char ParametersFile[300];
-	strcpy(ParametersFile,"");
+	rtapi_strxcpy(ParametersFile,"");
 
 	pProjectFile = fopen( DirAndNameOfProject, "rb" );
 	if ( pProjectFile )

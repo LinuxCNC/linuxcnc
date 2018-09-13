@@ -40,6 +40,7 @@
 #include <pango/pango.h>
 #endif
 
+#include <rtapi_string.h>
 char * DisplayArithmExpr(char * Expr,int NumCarMax)
 {
 	static char Buffer[ARITHM_EXPR_SIZE+30];
@@ -63,16 +64,16 @@ char * DisplayArithmExpr(char * Expr,int NumCarMax)
 				if ( IndexTypeVar!=-1 && IndexNumVar!=-1 )
 				{
 					// buffer for index required as CreateVarName() returns on a static buffer !
-					strcpy( VarIndexBuffer, CreateVarName(IndexTypeVar,IndexNumVar) );
+					rtapi_strxcpy( VarIndexBuffer, CreateVarName(IndexTypeVar,IndexNumVar) );
 					snprintf(VarBuffer, sizeof(VarBuffer), "%s[%s]", CreateVarName(TypeVar,NumVar), VarIndexBuffer );
 				}
 				else
 				{
-					strcpy(VarBuffer,CreateVarName(TypeVar,NumVar));
+					rtapi_strxcpy(VarBuffer,CreateVarName(TypeVar,NumVar));
 				}
 			}
 			else
-				strcpy(VarBuffer,"??");
+				rtapi_strxcpy(VarBuffer,"??");
 			strcpy(&Buffer[Fill],VarBuffer);
 			/* flush until end of a variable */
 			do
@@ -457,7 +458,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
 				if ( SymbolName )
-					strcpy( BufTxt, SymbolName->Symbol );
+					rtapi_strxcpy( BufTxt, SymbolName->Symbol );
 			}
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
@@ -514,7 +515,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
 				if ( SymbolName )
-					strcpy( BufTxt, SymbolName->Symbol );
+					rtapi_strxcpy( BufTxt, SymbolName->Symbol );
 			}
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
@@ -616,7 +617,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
 				if ( SymbolName )
-					strcpy( BufTxt, SymbolName->Symbol );
+					rtapi_strxcpy( BufTxt, SymbolName->Symbol );
 			}
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
@@ -672,7 +673,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			{
 				StrSymbol * SymbolName = ConvVarNameInSymbolPtr( BufTxt );
 				if ( SymbolName )
-					strcpy( BufTxt, SymbolName->Symbol );
+					rtapi_strxcpy( BufTxt, SymbolName->Symbol );
 			}
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
@@ -726,9 +727,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* arithmetic expression */
 			if (!EditDatas.ModeEdit)
-				strcpy(BufTxt,DisplayArithmExpr(ArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
+				rtapi_strxcpy(BufTxt,DisplayArithmExpr(ArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
 			else
-				strcpy(BufTxt,DisplayArithmExpr(EditArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
+				rtapi_strxcpy(BufTxt,DisplayArithmExpr(EditArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 						x+WidDiv3-(Width*2)+2,y+HeiDiv2+4,BufTxt,strlen(BufTxt));
@@ -760,9 +761,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* arithmetic expression */
 			if (!EditDatas.ModeEdit)
-				strcpy(BufTxt,DisplayArithmExpr(ArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
+				rtapi_strxcpy(BufTxt,DisplayArithmExpr(ArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
 			else
-				strcpy(BufTxt,DisplayArithmExpr(EditArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
+				rtapi_strxcpy(BufTxt,DisplayArithmExpr(EditArithmExpr[Element.VarNum].Expr,(Width*2+1*WidDiv3)/8));
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 						x+WidDiv3-(Width*2)+2,y+HeiDiv2+4,BufTxt,strlen(BufTxt));
@@ -780,7 +781,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			case ELE_INPUT_NOT:				
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
-				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
+				rtapi_strxcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
 				gdk_gc_set_foreground(DynaGcOff,&DynaGdkColor1);//color this text red
 				DrawTextGTK2( DrawPixmap, DynaGcOff, x, y+HeiDiv4+1, Width, -1, BufTxt );
 				gdk_gc_set_foreground(DynaGcOff,&DynaGdkColor3);//change color back to black
@@ -791,7 +792,7 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
 				
-				strcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
+				rtapi_strxcpy(BufTxt,CreateVarName(Element.VarType,Element.VarNum));
 				
 #ifndef GTK2
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,

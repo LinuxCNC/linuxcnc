@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <rtapi_string.h>
 
 #include <gtk/gtk.h>
 #include <libgnomeprint/gnome-print.h>
@@ -122,7 +123,7 @@ void DrawPrint( GnomePrintContext *gpc )
 				{
 					char BuffFormat[10] = "%s (%s)";
 					if ( RungArray[ ScanRung ].Comment[0]=='\0' )
-						strcpy( BuffFormat, "%s %s" );
+						rtapi_strxcpy( BuffFormat, "%s %s" );
 					snprintf(Buffer, sizeof(Buffer), BuffFormat, RungArray[ ScanRung ].Label, RungArray[ ScanRung ].Comment );
 					gnome_print_moveto( gpc, 50, SizePageOffset );
 					SizePageOffset = SizePageOffset-20;
