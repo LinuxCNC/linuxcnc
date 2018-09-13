@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include "classicladder.h"
 #include "global.h"
+#include <rtapi_string.h>
 
 #include "symbols.h"
 #include "vars_names.h"
@@ -705,7 +706,7 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 	pConv = ConvIdVarEnPtrSurEleConv( TypeVarSearched, OffsetVarSearched );
 	if (pConv)
 	{
-		strcpy(tcBuffer,"%");
+		rtapi_strxcpy(tcBuffer,"%");
 		iIdFound = pConv->iIdVar;
 		if (pConv->iSize2<=0 && pConv->iSize3<=0)
 		{

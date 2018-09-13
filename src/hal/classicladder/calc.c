@@ -40,6 +40,7 @@
 #include "calc_sequential.h"
 #endif
 #include "calc.h"
+#include <rtapi_string.h>
 
 void InitRungs()
 {
@@ -48,8 +49,8 @@ void InitRungs()
 	for (NumRung=0;NumRung<NBR_RUNGS;NumRung++)
 	{
 		RungArray[NumRung].Used = FALSE;
-		strcpy(RungArray[NumRung].Label,"");
-		strcpy(RungArray[NumRung].Comment,"");
+		rtapi_strxcpy(RungArray[NumRung].Label,"");
+		rtapi_strxcpy(RungArray[NumRung].Comment,"");
 		for (y=0;y<RUNG_HEIGHT;y++)
 		{
 			for(x=0;x<RUNG_WIDTH;x++)
@@ -104,7 +105,7 @@ void InitTimers()
 	{
 		TimerArray[NumTimer].Preset = 0;
 		TimerArray[NumTimer].Base = TIME_BASE_SECS;
-		strcpy( TimerArray[NumTimer].DisplayFormat, "%.1fs" );
+		rtapi_strxcpy( TimerArray[NumTimer].DisplayFormat, "%.1fs" );
 	}
 }
 void PrepareTimers()
@@ -126,7 +127,7 @@ void InitMonostables()
 	{
 		MonostableArray[NumMonostable].Preset = 0;
 		MonostableArray[NumMonostable].Base = TIME_BASE_SECS;
-		strcpy( MonostableArray[NumMonostable].DisplayFormat, "%.1fs" );
+		rtapi_strxcpy( MonostableArray[NumMonostable].DisplayFormat, "%.1fs" );
 	}
 }
 void PrepareMonostables()
@@ -175,7 +176,7 @@ void InitTimersIEC()
 		NewTimerArray[NumTimer].Preset = 0;
 		NewTimerArray[NumTimer].Base = TIME_BASE_SECS;
 		NewTimerArray[NumTimer].TimerMode = TIMER_IEC_MODE_ON;
-		strcpy( NewTimerArray[NumTimer].DisplayFormat, "%.1fs" );
+		rtapi_strxcpy( NewTimerArray[NumTimer].DisplayFormat, "%.1fs" );
 	}
 }
 void PrepareTimersIEC()
@@ -210,7 +211,7 @@ void InitArithmExpr()
 {
     int NumExpr;
     for (NumExpr=0; NumExpr<NBR_ARITHM_EXPR; NumExpr++)
-        strcpy(ArithmExpr[NumExpr].Expr,"");
+        rtapi_strxcpy(ArithmExpr[NumExpr].Expr,"");
 }
 void InitIOConf( )
 {

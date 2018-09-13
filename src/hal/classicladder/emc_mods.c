@@ -29,6 +29,7 @@
 #include "symbols.h"
 #include "vars_names.h"
 #include "emc_mods.h"
+#include <rtapi_string.h>
 
 
 
@@ -218,60 +219,60 @@ void SymbolsAutoAssign (void)
 	        {
 			case BITINS:
                                     numofvariable= NBR_PHYS_INPUTS ;
-                                    strcpy(SymbolBuf,"I");
+                                    rtapi_strxcpy(SymbolBuf,"I");
                                     break;
 			case BITOUTS:
                                     numofvariable= NBR_PHYS_OUTPUTS;
-                                    strcpy(SymbolBuf,"Q");
+                                    rtapi_strxcpy(SymbolBuf,"Q");
                                     break;
                         case BITS:
                                     numofvariable= NBR_BITS;
-                                    strcpy(SymbolBuf,"B");
+                                    rtapi_strxcpy(SymbolBuf,"B");
                                     break;
                         case WORDS:
                                     numofvariable= NBR_WORDS;
-                                    strcpy(SymbolBuf,"W");
+                                    rtapi_strxcpy(SymbolBuf,"W");
                                     break;
 			case S32INS:
                                     numofvariable= NBR_PHYS_WORDS_INPUTS ;
-                                    strcpy(SymbolBuf,"IW");
+                                    rtapi_strxcpy(SymbolBuf,"IW");
                                     break;
 			case S32OUTS:
                                     numofvariable= NBR_PHYS_WORDS_OUTPUTS;
-                                    strcpy(SymbolBuf,"QW");
+                                    rtapi_strxcpy(SymbolBuf,"QW");
                                     break;
                         case FLOATINS:
                                     numofvariable= NBR_PHYS_FLOAT_INPUTS ;
-                                    strcpy(SymbolBuf,"IF");
+                                    rtapi_strxcpy(SymbolBuf,"IF");
                                     break;
 			case FLOATOUTS:
                                     numofvariable= NBR_PHYS_FLOAT_OUTPUTS;
-                                    strcpy(SymbolBuf,"QF");
+                                    rtapi_strxcpy(SymbolBuf,"QF");
                                     break;
 		        case TIMERS:
                                     numofvariable= NBR_TIMERS;
-                                    strcpy(SymbolBuf,"T");
-                                    strcpy(CommentBuf,"Old Timer");
+                                    rtapi_strxcpy(SymbolBuf,"T");
+                                    rtapi_strxcpy(CommentBuf,"Old Timer");
                                     break;
                         case IEC_TIMERS:
                                     numofvariable= NBR_TIMERS_IEC ;
-                                    strcpy(SymbolBuf,"TM");
-                                    strcpy(CommentBuf,"New Timer");
+                                    rtapi_strxcpy(SymbolBuf,"TM");
+                                    rtapi_strxcpy(CommentBuf,"New Timer");
                                     break;
                         case MONOS:
                                     numofvariable= NBR_MONOSTABLES;
-                                    strcpy(SymbolBuf,"M");
-                                    strcpy(CommentBuf,"One-shot");
+                                    rtapi_strxcpy(SymbolBuf,"M");
+                                    rtapi_strxcpy(CommentBuf,"One-shot");
                                     break;
 			case COUNTERS:
                                     numofvariable= NBR_COUNTERS;
-                                    strcpy(SymbolBuf,"C");
-                                    strcpy(CommentBuf,"Counter");
+                                    rtapi_strxcpy(SymbolBuf,"C");
+                                    rtapi_strxcpy(CommentBuf,"Counter");
                                     break;
 		        case ERRORS:
                                     numofvariable= NBR_ERROR_BITS;
-                                    strcpy(SymbolBuf,"E");
-                                    strcpy(CommentBuf,"Error Flag Bit");
+                                    rtapi_strxcpy(SymbolBuf,"E");
+                                    rtapi_strxcpy(CommentBuf,"Error Flag Bit");
                                     break;
 			default : 
                                  rtapi_print_msg(RTAPI_MSG_ERR, "Cannot auto assign symbol names-wrong variable name");
@@ -283,7 +284,7 @@ void SymbolsAutoAssign (void)
                  {
    	                  found = FALSE;
 	                //set buffer to variable to check variable name
-    	                strcpy(Buffer,"");
+    	                rtapi_strxcpy(Buffer,"");
    	                 snprintf(Buffer, sizeof(Buffer),"%%%s%d",SymbolBuf,i);  
 
 	               // printf("%s\n",Buffer);
@@ -310,15 +311,15 @@ void SymbolsAutoAssign (void)
 		                    if (SymbolArray[ scansymb ].VarName[ 0 ] == '\0')
 		                       { 
                                            //copy variable name already in Buffer to VarName array
-			                  strcpy( SymbolArray[scansymb].VarName, Buffer ); 
+			                  rtapi_strxcpy( SymbolArray[scansymb].VarName, Buffer ); 
 	
 		                           //put a symbol name (and it's number) in buffer
-		        	          strcpy( SymbolArray[scansymb].Symbol, Buffer );
+		        	          rtapi_strxcpy( SymbolArray[scansymb].Symbol, Buffer );
 	    	        	        //printf("%s\n",Buffer);
                                         // copy a comment if there is one...
-		        	        strcpy(Buffer,"");
+		        	        rtapi_strxcpy(Buffer,"");
 		        	        snprintf(Buffer, sizeof(Buffer),"%s",CommentBuf);
-		        	        strcpy( SymbolArray[scansymb].Comment, Buffer );
+		        	        rtapi_strxcpy( SymbolArray[scansymb].Comment, Buffer );
 	
 		       	                 break;// we are done looking
 		                         }	

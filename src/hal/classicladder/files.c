@@ -43,6 +43,7 @@
 #include "vars_access.h"
 #include "protocol_modbus_master.h"
 #include "emc_mods.h"
+#include <rtapi_string.h>
 
 #ifdef debug
 #define dbg_printf printf
@@ -180,13 +181,13 @@ char LoadRung(char * FileName,StrRung * BufRung)
                         }
                         if(strncmp(&Line[1],"LABEL=",6)==0)
                         {
-                            strcpy(BufRung->Label,&Line[7]);
+                            rtapi_strxcpy(BufRung->Label,&Line[7]);
 //WIN32PORT
 //							RemoveEndLine( BufRung->Label );
                         }
                         if(strncmp(&Line[1],"COMMENT=",8)==0)
                         {
-                            strcpy(BufRung->Comment,&Line[9]);
+                            rtapi_strxcpy(BufRung->Comment,&Line[9]);
 //WIN32PORT
 //							RemoveEndLine( BufRung->Comment );
                         }
@@ -452,12 +453,12 @@ char LoadTimersParams(char * FileName,StrTimer * BufTimers)
                         case BASE_100MS:
                             BufTimers->Base = CorresDatasForBase[Params[0]].ValueInMS;
                             BufTimers->Preset = Params[1] * BufTimers->Base;
-                            strcpy(BufTimers->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
+                            rtapi_strxcpy(BufTimers->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
                             break;
                         default:
                             BufTimers->Base = 1;
                             BufTimers->Preset = 10;
-                            strcpy(BufTimers->DisplayFormat,"%f?");
+                            rtapi_strxcpy(BufTimers->DisplayFormat,"%f?");
                             printf("!!! Error loading parameter base in %s\n",FileName);
                             break;
                     }
@@ -522,12 +523,12 @@ char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables)
                         case BASE_100MS:
                             BufMonostables->Base = CorresDatasForBase[Params[0]].ValueInMS;
                             BufMonostables->Preset = Params[1] * BufMonostables->Base;
-                            strcpy(BufMonostables->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
+                            rtapi_strxcpy(BufMonostables->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
                             break;
                         default:
                             BufMonostables->Base = 1;
                             BufMonostables->Preset = 10;
-                            strcpy(BufMonostables->DisplayFormat,"%f?");
+                            rtapi_strxcpy(BufMonostables->DisplayFormat,"%f?");
                             printf("!!! Error loading parameter base in %s\n",FileName);
                             break;
                     }
@@ -646,12 +647,12 @@ char LoadNewTimersParams(char * FileName)
 						case BASE_100MS:
 							TimerIEC->Base = CorresDatasForBase[Params[0]].ValueInMS;
 							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, Params[1] );
-							strcpy(TimerIEC->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
+							rtapi_strxcpy(TimerIEC->DisplayFormat,CorresDatasForBase[Params[0]].DisplayFormat);
 							break;
 						default:
 							TimerIEC->Base = 1;
 							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, 10 );
-							strcpy(TimerIEC->DisplayFormat,"%f?");
+							rtapi_strxcpy(TimerIEC->DisplayFormat,"%f?");
 							printf("!!! Error loading parameter base in %s\n",FileName);
 							break;
 					}
@@ -714,11 +715,11 @@ char LoadArithmeticExpr(char * FileName)
 					if ( Line[0]>='0' && Line[0]<='9' )
 					{
 						NumExpr = atoi(Line);
-						strcpy(ArithmExpr[NumExpr].Expr,Line+strlen("xxxx,"));
+						rtapi_strxcpy(ArithmExpr[NumExpr].Expr,Line+strlen("xxxx,"));
 					}
 					else
 					{
-						strcpy(ArithmExpr[NumExpr].Expr,Line);
+						rtapi_strxcpy(ArithmExpr[NumExpr].Expr,Line);
 						NumExpr++;
 					}
 				}
@@ -788,7 +789,7 @@ char LoadSectionsParams(char * FileName)
                         {
                             Line[ 8 ] = '\0';
                             NumSection = atoi( &Line[5] );
-                            strcpy(SectionArray[ NumSection ].Name, &Line[9]);
+                            rtapi_strxcpy(SectionArray[ NumSection ].Name, &Line[9]);
 //WIN32PORT
 //							RemoveEndLine( SectionArray[ NumSection ].Name );
                         }
@@ -949,7 +950,7 @@ char LoadModbusIOConfParams(char * FileName)
 						{
 							ConvRawLineOfNumbers( EndFirstField+1, 5, &IntDatas[1] );
 							*EndFirstField = '\0';
-							strcpy( pConf->SlaveAdr, Line );
+							rtapi_strxcpy( pConf->SlaveAdr, Line );
 						}
 						else
 						{
@@ -1199,7 +1200,7 @@ char LoadComParameters(char * FileName)
 				char * pParameter;
 				pParameter = "MODBUS_MASTER_SERIAL_PORT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					 strcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
+					 rtapi_strxcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );

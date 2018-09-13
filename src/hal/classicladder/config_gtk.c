@@ -32,6 +32,7 @@
 //#include "hardware.h"
 #include "global.h"
 #include "config_gtk.h"
+#include <rtapi_string.h>
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 #define NBR_OBJECTS 19
@@ -391,7 +392,7 @@ GtkWidget * CreateModbusModulesIO( void )
 							switch( NumObj )
 							{
 								case 0:
-									strcpy( BuffValue, pConf->SlaveAdr );
+									rtapi_strxcpy( BuffValue, pConf->SlaveAdr );
 									PixelsLength = 120;
 									break;
 								case 2:
@@ -436,7 +437,7 @@ void GetModbusModulesIOSettings( void )
 		int MaxVars = 0;
 		char DoVerify = FALSE;
 		pConf = &ModbusMasterReq[ NumLine ];
-		strcpy( pConf->SlaveAdr, "" );
+		rtapi_strxcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
 
 		for (NumObj=0; NumObj<NBR_IO_PARAMS; NumObj++)
@@ -446,7 +447,7 @@ void GetModbusModulesIOSettings( void )
 			{
 				case 0://slave address
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
-					strcpy( BuffValue, text );
+					rtapi_strxcpy( BuffValue, text );
 					break;
 				case 1://type of request
 					pConf->TypeReq = ConvComboToNum( (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry), ModbusReqType );
@@ -497,7 +498,7 @@ switch( pConf->TypeReq )
 			if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>MaxVars )
 			{
 				printf("Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected...ASKED=%i,MAX=%i\n",  pConf->OffsetVarMapped+pConf->NbrModbusElements,MaxVars);
-				strcpy( BuffValue, "" );
+				rtapi_strxcpy( BuffValue, "" );
 				ShowMessageBox("Error","Overflow error for I,B,Q,IQ or WQ mapping detected...","Ok");
 			}
 		}
@@ -625,7 +626,7 @@ GtkWidget * CreateModbusComParametersPage( void )
 		{
 			case 0:
 				snprintf(BuffLabel, sizeof(BuffLabel), "Serial port (blank = IP mode)" );
-				strcpy( BuffValue, ModbusSerialPortNameUsed );
+				rtapi_strxcpy( BuffValue, ModbusSerialPortNameUsed );
 				break;
 			case 1:
 				snprintf(BuffLabel, sizeof(BuffLabel), "Serial baud rate" );
@@ -944,11 +945,11 @@ void GetModbusComParameters( void )
         if ( strncmp( string, "IP port", strlen("IP port") )==0 )           
              {    
                    if ( strncmp( ModbusSerialPortNameUsed, " ", strlen(" ") )!=0 )  
-                      {   update=TRUE;   strcpy( ModbusSerialPortNameUsed,"" );  }
+                      {   update=TRUE;   rtapi_strxcpy( ModbusSerialPortNameUsed,"" );  }
              }else{
                     if ( strncmp( ModbusSerialPortNameUsed, string, strlen(string) )!=0 ) 
                        {
-       	                strcpy( ModbusSerialPortNameUsed,string );update=TRUE;
+       	                rtapi_strxcpy( ModbusSerialPortNameUsed,string );update=TRUE;
                        }
                   }
       // printf("port name: ->%s<-->%s<-\n",ModbusSerialPortNameUsed, string);
