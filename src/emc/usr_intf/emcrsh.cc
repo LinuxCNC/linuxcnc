@@ -43,6 +43,7 @@
 #include "rcs_print.hh"
 #include "timer.hh"             // etime()
 #include "shcom.hh"             // NML Messaging functions
+#include <rtapi_string.h>
 
 /*
   Using linuxcncrsh:
@@ -796,7 +797,7 @@ static cmdResponseType setCommProt(char *s, connectionRecType *context)
   
   pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
-  strcpy(context->version, pVersion);
+  rtapi_strxcpy(context->version, pVersion);
   return rtNoError;
 }
 
@@ -1437,7 +1438,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
   const char *pConfigStr = "CONFIG";
 
-  strcpy(context->outBuf, pConfigStr);
+  rtapi_strxcpy(context->outBuf, pConfigStr);
   return rtNoError;
 }
 
@@ -1678,7 +1679,7 @@ static cmdResponseType getAbsCmdPos(char *s, connectionRecType *context)
   
   if (s == NULL) axis = -1; // Return all axes
   else axis = atoi(s);
-  strcpy(context->outBuf, pAbsCmdPosStr);
+  rtapi_strxcpy(context->outBuf, pAbsCmdPosStr);
   if (axis != -1) {
     snprintf(buf, sizeof(buf), " %d", axis);
     strcat(context->outBuf, buf);
@@ -1718,7 +1719,7 @@ static cmdResponseType getAbsActPos(char *s, connectionRecType *context)
   
   if (s == NULL) axis = -1; // Return all axes
   else axis = atoi(s);
-  strcpy(context->outBuf, pAbsActPosStr);
+  rtapi_strxcpy(context->outBuf, pAbsActPosStr);
   if (axis != -1) {
     snprintf(buf, sizeof(buf), " %d", axis);
     strcat(context->outBuf, buf);
@@ -1758,7 +1759,7 @@ static cmdResponseType getRelCmdPos(char *s, connectionRecType *context)
   
   if (s == NULL) axis = -1; // Return all axes
   else axis = atoi(s);
-  strcpy(context->outBuf, pRelCmdPosStr);
+  rtapi_strxcpy(context->outBuf, pRelCmdPosStr);
   if (axis != -1) {
     snprintf(buf, sizeof(buf), " %d", axis);
     strcat(context->outBuf, buf);
@@ -1798,7 +1799,7 @@ static cmdResponseType getRelActPos(char *s, connectionRecType *context)
   
   if (s == NULL) axis = -1; // Return all axes
   else axis = atoi(s);
-  strcpy(context->outBuf, pRelActPosStr);
+  rtapi_strxcpy(context->outBuf, pRelActPosStr);
   if (axis != -1) {
     snprintf(buf, sizeof(buf), " %d", axis);
     strcat(context->outBuf, buf);
@@ -1839,7 +1840,7 @@ static cmdResponseType getJointPos(char *s, connectionRecType *context)
   if (s == NULL) joint = -1; // Return all axes
   else joint = atoi(s);
   if (joint == -1) {
-    strcpy(context->outBuf, pJointPos);
+    rtapi_strxcpy(context->outBuf, pJointPos);
     for (i=0; i<6; i++) {
       snprintf(buf, sizeof(buf), " %f", emcStatus->motion.joint[i].input);
       strcat(context->outBuf, buf);
@@ -1857,7 +1858,7 @@ static cmdResponseType getPosOffset(char *s, connectionRecType *context)
   char buf[16];
   
   if (s == NULL) {
-    strcpy(context->outBuf, pPosOffset);
+    rtapi_strxcpy(context->outBuf, pPosOffset);
     snprintf(buf, sizeof(buf), " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x));
     strcat(context->outBuf, buf);
     snprintf(buf, sizeof(buf), " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y));
@@ -1896,20 +1897,20 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
   int joint, i;
   
   if (s == NULL) {
-    strcpy(context->outBuf, pJointLimit);
+    rtapi_strxcpy(context->outBuf, pJointLimit);
     for (i=0; i<6; i++) {
       if (emcStatus->motion.joint[i].minHardLimit)
-        strcpy(buf, " MINHARD");
+        rtapi_strxcpy(buf, " MINHARD");
       else
         if (emcStatus->motion.joint[i].minSoftLimit)
-	  strcpy(buf, " MINSOFT");
+	  rtapi_strxcpy(buf, " MINSOFT");
 	else
 	  if (emcStatus->motion.joint[i].maxSoftLimit)
-	    strcpy(buf, " MAXSOFT");
+	    rtapi_strxcpy(buf, " MAXSOFT");
 	  else
 	    if (emcStatus->motion.joint[i].maxHardLimit)
-	      strcpy(buf, " MAXHARD");
-	    else strcpy(buf, " OK");
+	      rtapi_strxcpy(buf, " MAXHARD");
+	    else rtapi_strxcpy(buf, " OK");
       strcat(context->outBuf, buf);
       }
     }
@@ -1917,17 +1918,17 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
     {
       joint = atoi(s);
       if (emcStatus->motion.joint[joint].minHardLimit)
-        strcpy(buf, "MINHARD");
+        rtapi_strxcpy(buf, "MINHARD");
       else
         if (emcStatus->motion.joint[joint].minSoftLimit)
-	  strcpy(buf, "MINSOFT");
+	  rtapi_strxcpy(buf, "MINSOFT");
 	else
 	  if (emcStatus->motion.joint[joint].maxSoftLimit)
-	    strcpy(buf, "MAXSOFT");
+	    rtapi_strxcpy(buf, "MAXSOFT");
 	  else
 	    if (emcStatus->motion.joint[joint].maxHardLimit)
-	      strcpy(buf, "MAXHARD");
-	    else strcpy(buf, "OK");
+	      rtapi_strxcpy(buf, "MAXHARD");
+	    else rtapi_strxcpy(buf, "OK");
       snprintf(context->outBuf, sizeof(context->outBuf), "%s %d %s", pJointLimit, joint, buf);
     }
   return rtNoError;
@@ -1940,7 +1941,7 @@ static cmdResponseType getJointFault(char *s, connectionRecType *context)
   int joint, i;
   
   if (s == NULL) {
-    strcpy(context->outBuf, pJointFault);
+    rtapi_strxcpy(context->outBuf, pJointFault);
     for (i=0; i<6; i++) {
       if (emcStatus->motion.joint[i].fault)
         strcat(context->outBuf, " FAULT");
@@ -1950,8 +1951,8 @@ static cmdResponseType getJointFault(char *s, connectionRecType *context)
   else {
       joint = atoi(s);
       if (emcStatus->motion.joint[joint].fault)
-        strcpy(buf, "FAULT");
-      else strcpy(buf, "OK");
+        rtapi_strxcpy(buf, "FAULT");
+      else rtapi_strxcpy(buf, "OK");
       snprintf(context->outBuf, sizeof(context->outBuf), "%s %d %s", pJointFault, joint, buf);
     }
   return rtNoError;
@@ -1972,7 +1973,7 @@ static cmdResponseType getJointHomed(char *s, connectionRecType *context)
   int joint, i;
   
   if (s == NULL) {
-    strcpy(context->outBuf, pJointHomed);
+    rtapi_strxcpy(context->outBuf, pJointHomed);
     for (i=0; i<6; i++) {
       if (emcStatus->motion.joint[i].homed)
         strcat(context->outBuf, " YES");
@@ -1982,8 +1983,8 @@ static cmdResponseType getJointHomed(char *s, connectionRecType *context)
   else {
       joint = atoi(s);
       if (emcStatus->motion.joint[joint].homed)
-        strcpy(buf, "YES");
-      else strcpy(buf, "NO");
+        rtapi_strxcpy(buf, "YES");
+      else rtapi_strxcpy(buf, "NO");
       snprintf(context->outBuf, sizeof(context->outBuf), "%s %d %s", pJointHomed, joint, buf);
     }
   return rtNoError;
@@ -2038,7 +2039,7 @@ static cmdResponseType getProgramCodes(char *s, connectionRecType *context)
   int code, i;
   
   buf[0] = 0;
-  strcpy(context->outBuf, pProgramCodes);
+  rtapi_strxcpy(context->outBuf, pProgramCodes);
   for (i=1; i<ACTIVE_G_CODES; i++) {
       code = emcStatus->task.activeGCodes[i];
       if (code == -1) continue;
@@ -2060,7 +2061,7 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
   int joint, i;
   
   if (s == NULL) {
-    strcpy(context->outBuf, pJointType);
+    rtapi_strxcpy(context->outBuf, pJointType);
     for (i=0; i<6; i++) {
       switch (emcStatus->motion.joint[i].jointType) {
         case EMC_LINEAR: strcat(context->outBuf, " LINEAR"); break;
@@ -2072,9 +2073,9 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
   else {
       joint = atoi(s);
       switch (emcStatus->motion.joint[joint].jointType) {
-        case EMC_LINEAR: strcpy(buf, " LINEAR"); break;
-	case EMC_ANGULAR: strcpy(buf, " ANGULAR"); break;
-	default: strcpy(buf, "CUSTOM");
+        case EMC_LINEAR: rtapi_strxcpy(buf, " LINEAR"); break;
+	case EMC_ANGULAR: rtapi_strxcpy(buf, " ANGULAR"); break;
+	default: rtapi_strxcpy(buf, "CUSTOM");
 	}
       snprintf(context->outBuf, sizeof(context->outBuf), "%s %d %s", pJointType, joint, buf);
     }
@@ -2088,7 +2089,7 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
   int joint, i;
   
   if (s == NULL) {
-    strcpy(context->outBuf, pJointUnits);
+    rtapi_strxcpy(context->outBuf, pJointUnits);
     for (i=0; i<6; i++) {
       switch (emcStatus->motion.joint[i].jointType) {
         case EMC_LINEAR: 
@@ -2122,27 +2123,27 @@ static cmdResponseType getJointUnits(char *s, connectionRecType *context)
       switch (emcStatus->motion.joint[joint].jointType) {
         case EMC_LINEAR: 
 	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, LINEAR_CLOSENESS))
-	    strcpy(buf, "MM");
+	    rtapi_strxcpy(buf, "MM");
 	  else 
 	    if (CLOSE(emcStatus->motion.joint[joint].units, INCH_PER_MM,
-	      LINEAR_CLOSENESS)) strcpy(buf, "INCH");
+	      LINEAR_CLOSENESS)) rtapi_strxcpy(buf, "INCH");
 	    else
 	      if (CLOSE(emcStatus->motion.joint[joint].units, CM_PER_MM,
-	        LINEAR_CLOSENESS)) strcpy(buf, "CM");
-	      else strcpy(buf, "CUSTOM");
+	        LINEAR_CLOSENESS)) rtapi_strxcpy(buf, "CM");
+	      else rtapi_strxcpy(buf, "CUSTOM");
 	  break;
 	case EMC_ANGULAR:
 	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, ANGULAR_CLOSENESS))
-	    strcpy(buf, "DEG");
+	    rtapi_strxcpy(buf, "DEG");
 	  else
   	    if (CLOSE(emcStatus->motion.joint[joint].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
-	      strcpy(buf, "RAD");
+	      rtapi_strxcpy(buf, "RAD");
 	    else
 	      if (CLOSE(emcStatus->motion.joint[joint].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
-	        strcpy(buf, "GRAD");
-	      else strcpy(buf, "CUSTOM");
+	        rtapi_strxcpy(buf, "GRAD");
+	      else rtapi_strxcpy(buf, "CUSTOM");
 	  break;
-	default: strcpy(buf, "CUSTOM");
+	default: rtapi_strxcpy(buf, "CUSTOM");
       snprintf(context->outBuf, sizeof(context->outBuf), "%s %d %s", pJointUnits, joint, buf);
       }
     }
@@ -2819,8 +2820,8 @@ int sockMain()
         context->linked = false;
         context->echo = true;
         context->verbose = false;
-        strcpy(context->version, "1.0");
-        strcpy(context->hostName, "Default");
+        rtapi_strxcpy(context->version, "1.0");
+        rtapi_strxcpy(context->hostName, "Default");
         context->enabled = false;
         context->commMode = 0;
         context->commProt = 0;

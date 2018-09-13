@@ -43,6 +43,7 @@
 #include "timer.hh"             // etime()
 #include "shcom.hh"             // NML Messaging functions
 #include "emcsched.hh"
+#include <rtapi_string.h>
 
 /*
   Using schedrmt:
@@ -363,11 +364,11 @@ static int commandHello(connectionRecType *context)
   if (strcmp(pch, pwd) != 0) return -1;
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  strcpy(context->hostName, pch);  
+  rtapi_strxcpy(context->hostName, pch);  
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   context->linked = true;    
-  strcpy(context->version, pch);
+  rtapi_strxcpy(context->version, pch);
   printf("Connected to %s\n", context->hostName);
   return 0;
 }
@@ -482,7 +483,7 @@ static cmdResponseType setCommProt(char *s, connectionRecType *context)
   
   pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
-  strcpy(context->version, pVersion);
+  rtapi_strxcpy(context->version, pVersion);
   return rtNoError;
 }
 
@@ -720,7 +721,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
   const char *pConfigStr = "CONFIG";
 
-  strcpy(context->outBuf, pConfigStr);
+  rtapi_strxcpy(context->outBuf, pConfigStr);
   return rtNoError;
 }
 
@@ -1157,8 +1158,8 @@ void *readClient(void *arg)
   context->linked = false;
   context->echo = true;
   context->verbose = false;
-  strcpy(context->version, "1.0");
-  strcpy(context->hostName, "Default");
+  rtapi_strxcpy(context->version, "1.0");
+  rtapi_strxcpy(context->hostName, "Default");
   context->enabled = false;
   context->commMode = 0;
   context->commProt = 0;
