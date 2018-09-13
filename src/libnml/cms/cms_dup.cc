@@ -33,6 +33,7 @@ extern "C" {
 #include "cms.hh"		/* class CMS */
 #include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */
+#include <rtapi_string.h>
 #define DEFAULT_WARNING_COUNT_MAX 100
 /* Member functions for CMS_DISPLAY_ASCII_UPDATER Class */
     CMS_DISPLAY_ASCII_UPDATER::CMS_DISPLAY_ASCII_UPDATER(CMS * _cms_parent):

@@ -460,7 +460,7 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 		strcpy(default_ptr, buf2);
 		strncpy(search.proc_line, buf, CMS_CONFIG_LINELEN);
 	    }
-	    strcat(search.proc_line, " defaultbuf");
+	    rtapi_strxcat(search.proc_line, " defaultbuf");
 	}
     }
     if (NO_PROCESS_LINE == search.error_type) {
@@ -484,7 +484,7 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 		strcpy(default_ptr, buf2);
 		strncpy(search.proc_line, buf, CMS_CONFIG_LINELEN);
 	    }
-	    strcat(search.proc_line, " defaultproc defaultbuf");
+	    rtapi_strxcat(search.proc_line, " defaultproc defaultbuf");
 	}
     }
     if (CONFIG_SEARCH_OK == search.error_type) {
