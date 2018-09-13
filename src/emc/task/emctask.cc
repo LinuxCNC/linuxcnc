@@ -69,7 +69,7 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
     //otherwise they would mix badly
     FINISH();
     rtapi_strxcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
-    strcat(fmt, " %f %f");
+    rtapi_strxcat(fmt, " %f %f");
     snprintf(system_cmd.string, sizeof(system_cmd.string), fmt, num, arg1, arg2);
     interp_list.append(system_cmd);
 }
