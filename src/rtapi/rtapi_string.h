@@ -39,7 +39,6 @@
 #define rtapi_kstrdup(a,b) kstrdup(a,b)
 #else
 #include <string.h>
-#include <rtapi.h>
 #include <rtapi_gfp.h>
 RTAPI_BEGIN_DECLS
 extern char **rtapi_argv_split(rtapi_gfp_t, const char *argstr, int *argc);
