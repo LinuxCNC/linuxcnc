@@ -35,5 +35,10 @@ extern void rtapi_argv_free(char **argv);
 #define rtapi_kstrdup(a,b) strdup(a)
 RTAPI_END_DECLS
 #endif
+RTAPI_BEGIN_DECLS
+static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size) {
+    return rtapi_snprintf(dst, size, "%s", src);
+}
+RTAPI_END_DECLS
 
 #endif
