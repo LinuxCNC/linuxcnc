@@ -241,9 +241,9 @@ char * ConvToBin( unsigned int Val )
 		if ( First1 )
 		{
 			if ( Val & Mask )
-				strcat( TabBin, "1" );
+				rtapi_strxcat( TabBin, "1" );
 			else
-				strcat( TabBin, "0" );
+				rtapi_strxcat( TabBin, "0" );
 		}
 		Mask = Mask>>1;
 	}
