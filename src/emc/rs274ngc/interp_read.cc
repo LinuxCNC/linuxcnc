@@ -29,6 +29,7 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
+#include <rtapi_string.h>
 
 /****************************************************************************/
 

@@ -89,6 +89,7 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
+#include <rtapi_string.h>
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -944,7 +945,7 @@ int Interp::init()
                  _setup.subroutines[dct] = NULL;
             }
 
-            strcpy(tmpdirs,inistring);
+            rtapi_strxcpy(tmpdirs,inistring);
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
@@ -1049,7 +1050,7 @@ int Interp::init()
   USE_LENGTH_UNITS(_setup.length_units);
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
   if (filename[0] == 0)
-    strcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
+    rtapi_strxcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
   CHP(restore_parameters(filename));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
@@ -1408,7 +1409,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
     _setup.percent_flag = false;
     _setup.sequence_number = 0; // Going back to line 0
   }
-  strcpy(_setup.filename, filename);
+  rtapi_strxcpy(_setup.filename, filename);
   reset();
   return INTERP_OK;
 }
@@ -1682,7 +1683,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 		_setup.file_pointer = fopen(sub->filename, "r");
 		logDebug("unwind_call: reopening '%s' at %ld",
 			 sub->filename, sub->position);
-		strcpy(_setup.filename, sub->filename);
+		rtapi_strxcpy(_setup.filename, sub->filename);
 	    }
 	    fseek(_setup.file_pointer, sub->position, SEEK_SET);
 	}
