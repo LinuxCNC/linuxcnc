@@ -590,7 +590,7 @@ static int pins_and_params(char *argv[])
 
         if(force_epp[n] && port_data_array[n].portdata.base_hi) {
             /* select EPP mode in ECR */
-            outb(0x94, port_data_array[n].portdata.base_hi + 2);
+            rtapi_outb(0x94, port_data_array[n].portdata.base_hi + 2);
         }
 
 	/* set data port (pins 2-9) direction to "in" if needed */
