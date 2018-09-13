@@ -32,6 +32,7 @@
 #include "timer.hh"
 #include "nml_oi.hh"
 #include "rcs_print.hh"
+#include <rtapi_string.h>
 
 #include <cmath>
 
@@ -940,7 +941,7 @@ static PyObject *mdi(pyCommandChannel *s, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "MDI commands limited to %zu characters", sizeof(m.command) - 1);
         return NULL;
     }
-    strcpy(m.command, cmd);
+    rtapi_strxcpy(m.command, cmd);
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -1166,7 +1167,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "File name limited to %zu characters", sizeof(m.file) - 1);
         return NULL;
     }
-    strcpy(m.file, file);
+    rtapi_strxcpy(m.file, file);
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
