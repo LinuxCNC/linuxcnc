@@ -56,6 +56,7 @@ static char *license = \
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
+#include <rtapi_string.h>
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -456,7 +457,7 @@ static char *halscope_suffix(GtkFileSelection *fs) {
     len = strlen(buf);
 
     suffix = strstr(buf, ".halscope");
-    if(!suffix || suffix != buf + len - 9) strcat(buf, ".halscope");
+    if(!suffix || suffix != buf + len - 9) rtapi_strxcat(buf, ".halscope");
     return buf;
 }    
 
