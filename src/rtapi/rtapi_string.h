@@ -16,6 +16,8 @@
 #ifndef RTAPI_STRING_H
 #define RTAPI_STRING_H
 
+#include <rtapi.h>
+
 #ifdef MODULE
 /* Suspect only very early kernels are missing the basic string functions.
    To be sure, see what has been implemented by looking in linux/string.h
@@ -27,7 +29,6 @@
 #define rtapi_kstrdup(a,b) kstrdup(a,b)
 #else
 #include <string.h>
-#include <rtapi.h>
 #include <rtapi_gfp.h>
 RTAPI_BEGIN_DECLS
 extern char **rtapi_argv_split(rtapi_gfp_t, const char *argstr, int *argc);
