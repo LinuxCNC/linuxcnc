@@ -537,18 +537,18 @@ static char *str_input(int status)
     static char seen[200];
 
     seen[0] = 0;
-    if (status & TI_PREPARING) strcat(seen," TI_PREPARING");
-    if (status & TI_PREPARE_COMPLETE) strcat(seen," TI_PREPARE_COMPLETE");
-    if (status & TI_CHANGING) strcat(seen," TI_CHANGING");
-    if (status & TI_CHANGE_COMPLETE) strcat(seen," TI_CHANGE_COMPLETE");
-    if (status & TI_TC_FAULT) strcat(seen," TI_TC_FAULT");
-    if (status & TI_TC_ABORT) strcat(seen," TI_TC_ABORT");
-    if (status & TI_EMC_ABORT_SIGNALED) strcat(seen," TI_EMC_ABORT_SIGNALED");
-    if (status & TI_EMC_ABORT_ACKED) strcat(seen," TI_EMC_ABORT_ACKED");
-    if (status & TI_ESTOP_CHANGED) strcat(seen," TI_ESTOP_CHANGED");
-    if (status & TI_LUBELEVEL_CHANGED) strcat(seen," TI_LUBELEVEL_CHANGED");
-    if (status & TI_START_CHANGE) strcat(seen," TI_START_CHANGE");
-    if (status & TI_START_CHANGE_ACKED) strcat(seen," TI_START_CHANGE_ACKED");
+    if (status & TI_PREPARING) rtapi_strxcat(seen," TI_PREPARING");
+    if (status & TI_PREPARE_COMPLETE) rtapi_strxcat(seen," TI_PREPARE_COMPLETE");
+    if (status & TI_CHANGING) rtapi_strxcat(seen," TI_CHANGING");
+    if (status & TI_CHANGE_COMPLETE) rtapi_strxcat(seen," TI_CHANGE_COMPLETE");
+    if (status & TI_TC_FAULT) rtapi_strxcat(seen," TI_TC_FAULT");
+    if (status & TI_TC_ABORT) rtapi_strxcat(seen," TI_TC_ABORT");
+    if (status & TI_EMC_ABORT_SIGNALED) rtapi_strxcat(seen," TI_EMC_ABORT_SIGNALED");
+    if (status & TI_EMC_ABORT_ACKED) rtapi_strxcat(seen," TI_EMC_ABORT_ACKED");
+    if (status & TI_ESTOP_CHANGED) rtapi_strxcat(seen," TI_ESTOP_CHANGED");
+    if (status & TI_LUBELEVEL_CHANGED) rtapi_strxcat(seen," TI_LUBELEVEL_CHANGED");
+    if (status & TI_START_CHANGE) rtapi_strxcat(seen," TI_START_CHANGE");
+    if (status & TI_START_CHANGE_ACKED) rtapi_strxcat(seen," TI_START_CHANGE_ACKED");
     return seen;
 }
 /********************************************************************
