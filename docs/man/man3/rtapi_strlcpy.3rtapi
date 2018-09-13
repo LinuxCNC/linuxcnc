@@ -29,9 +29,16 @@ rtapi_strlcpy \- RTAPI string manipulation functions
 #include <rtapi_string.h>
 .HP
 size_t rtapi_strlcpy(char *dst, const char *src, size_t sz);
+#define rtapi_strxcpy(dst, src) ...
+
 .SH DESCRIPTION
-Copy at most 'sz' chars from 'src' to 'dst'.
+rtapi_strlcpy will copy at most 'sz' chars from 'src' to 'dst'.
 Always leaves 'dst' NUL-terminated except if sz is 0.
+
+rtapi_strxcpy(dst, src) checks that dst is an array with known size,
+and calls rtapi_strlcpy(dst, src, sizeof(dst)).  If it is not an array
+with a known size, it is a (possibly cryptic!) syntax error.
+
 .SH RETURN VALUE
 The total length of the string strlcpy tried to create.
 For strlcpy() that means the length of src.  If the return value is
