@@ -16,6 +16,18 @@
 #ifndef RTAPI_STRING_H
 #define RTAPI_STRING_H
 
+#include <rtapi.h>
+
+#ifdef __cplusplus
+#include <assert.h>
+#include <type_traits>
+#define rtapi_static_assert(a,b) static_assert(a,b)
+#define rtapi_is_array(x) (std::is_array<decltype(x)>::value)
+#else
+#define rtapi_static_assert(a,b) _Static_assert(a,b)
+#define rtapi_is_array(x) (!__builtin_types_compatible_p(__typeof__((x)), __typeof__(&(x)[0])))
+#endif
+
 #ifdef MODULE
 /* Suspect only very early kernels are missing the basic string functions.
    To be sure, see what has been implemented by looking in linux/string.h
@@ -39,6 +51,10 @@ RTAPI_BEGIN_DECLS
 static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size) {
     return rtapi_snprintf(dst, size, "%s", src);
 }
+#define rtapi_strxcpy(dst, src) ({ \
+    rtapi_static_assert(rtapi_is_array(dst), "dst must be non-const array"); \
+    rtapi_strlcpy(dst, src, sizeof(dst)); \
+})
 RTAPI_END_DECLS
 
 #endif
