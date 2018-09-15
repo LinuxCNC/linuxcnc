@@ -185,7 +185,7 @@ state.
 * 'R' Position to rotate to from 0, valid range is 0-360 degrees
 
 * 'Q' Number of seconds to wait until orient completes. If
-      motion.spindle.is_oriented does not become true within Q timeout
+      spindle.N.is-oriented does not become true within Q timeout
       an error occurs.
 
 * 'P' Direction to rotate to position.
@@ -205,30 +205,30 @@ ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)
 
 HAL Pins
 
-* 'motion.spindle-orient-angle' (out float)
+* 'spindle.N.orient-angle' (out float)
 Desired spindle orientation for M19. Value of the M19 R word parameter 
 plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
 
-* 'motion.spindle-orient-mode' (out s32)
+* 'spindle.N.orient-mode' (out s32)
 Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0
 
-* 'motion.spindle-orient' (out bit)
+* 'spindle.N.orient' (out bit)
 Indicates start of spindle orient cycle. Set by M19. Cleared by any of 
 M3,M4,M5.
   If spindle-orient-fault is not zero during spindle-orient true, the 
 M19 command fails with an error message.
 
-* 'motion.spindle-is-oriented' (in bit)
+* 'spindle.N.is-oriented' (in bit)
 Acknowledge pin for spindle-orient. Completes orient cycle. If 
 spindle-orient was true when spindle-is-oriented
   was asserted, the spindle-orient pin is cleared and the spindle-locked 
 pin is asserted. Also, the spindle-brake pin is asserted.
 
-* 'motion.spindle-orient-fault' (in s32)
+* 'spindle.N.orient-fault' (in s32)
   Fault code input for orient cycle. Any value other than zero will 
 cause the orient cycle to abort.
 
-* 'motion.spindle-locked' (out bit)
+* 'spindle.N.locked' (out bit)
 Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
 [[mcode:m48-m49]]

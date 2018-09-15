@@ -239,83 +239,83 @@ machine velocity and acceleration limits. The value on this pin does
 not reflect the feed override or any other adjustments.
 
 .TP
-\fBmotion.spindle\-at\-speed\fR IN BIT
+\fBspindle.N.at\-speed\fR IN BIT
 Motion will pause until this pin is TRUE, under the following conditions: before the
 first feed move after each spindle start or speed change; before the start of every
 chain of spindle\-synchronized moves; and if in CSS mode, at every rapid\->feed transition.
 
 .TP
-\fBmotion.spindle\-brake\fR OUT BIT
+\fBspindle.N.brake\fR OUT BIT
 TRUE when the spindle brake should be applied
 
 .TP
-\fBmotion.spindle\-forward\fR OUT BIT
+\fBspindle.N.forward\fR OUT BIT
 TRUE when the spindle should rotate forward
 
 .TP
-\fBmotion.spindle\-index\-enable\fR I/O BIT
+\fBspindle.N.index\-enable\fR I/O BIT
 For correct operation of spindle synchronized moves, this signal must be hooked to the index\-enable pin of the spindle encoder.
 
 .TP
-\fBmotion.spindle\-inhibit\fR IN BIT
+\fBspindle.N.inhibit\fR IN BIT
 When TRUE, the spindle speed is set and held to 0.
 
 .TP
-\fBmotion.spindle\-on\fR OUT BIT
+\fBspindle.N.on\fR OUT BIT
 TRUE when spindle should rotate
 
 .TP
-\fBmotion.spindle\-reverse\fR OUT BIT
+\fBspindle.N.reverse\fR OUT BIT
 TRUE when the spindle should rotate backward
 
 .TP
-\fBmotion.spindle\-revs\fR IN FLOAT
+\fBspindle.N.revs\fR IN FLOAT
 For correct operation of spindle synchronized moves, this signal must be hooked to the position pin of the spindle encoder.
 
 .TP
-\fBmotion.spindle\-speed\-in\fR IN FLOAT
+\fBspindle.N.speed\-in\fR IN FLOAT
 Actual spindle speed feedback in revolutions per second; used for G96 (constant surface speed) and G95 (feed per revolution) modes.
 
 .TP
-\fBmotion.spindle\-speed\-out\fR OUT FLOAT
+\fBspindle.N.speed\-out\fR OUT FLOAT
 Desired spindle speed in rotations per minute
 
 .TP
-\fBmotion.spindle\-speed\-out\-abs\fR OUT FLOAT
+\fBspindle.N.speed\-out\-abs\fR OUT FLOAT
 Desired spindle speed in rotations per minute, always positive regardless of spindle direction.
 
 .TP
-\fBmotion.spindle\-speed\-out\-rps\fR OUT float
+\fBspindle.N.speed\-out\-rps\fR OUT float
 Desired spindle speed in rotations per second
 
 .TP
-\fBmotion.spindle\-speed\-out\-rps\-abs\fR OUT float
+\fBspindle.N.speed\-out\-rps\-abs\fR OUT float
 Desired spindle speed in rotations per second, always positive regardless of spindle direction.
 
 .TP
-\fBmotion.spindle\-orient\-angle\fR OUT FLOAT
+\fBspindle.N.orient\-angle\fR OUT FLOAT
 Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
 
 .TP
-\fBmotion.spindle\-orient\-mode\fR OUT BIT
+\fBspindle.N.orient\-mode\fR OUT BIT
 Desired spindle rotation mode. Reflects M19 P parameter word.
 
 .TP
-\fBmotion.spindle\-orient\fR OUT BIT
+\fBspindle.N.orient\fR OUT BIT
 Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5. 
 If spindle\-orient\-fault is not zero during spindle\-orient true, the M19 command fails with an error message.
 
 .TP
-\fBmotion.spindle\-is\-oriented\fR IN BIT
+\fBspindle.N.is\-oriented\fR IN BIT
 Acknowledge pin for spindle\-orient. Completes orient cycle. If spindle\-orient was true when spindle\-is\-oriented
 was asserted, the spindle\-orient pin is cleared and the spindle\-locked pin is asserted. Also, the spindle\-brake pin is asserted.
 
 .TP
-\fBmotion.spindle\-orient\-fault\fR IN S32
+\fBspindle.N.orient\-fault\fR IN S32
 Fault code input for orient cycle. Any value other than zero will cause the orient cycle to abort.
 
 .TP
-\fBmotion.spindle\-locked\fR OUT BIT
+\fBspindle.N.locked\fR OUT BIT
 Spindle orient complete pin. Cleared by any of M3,M4,M5. 
 
 .TP
@@ -494,7 +494,7 @@ These values are from src/emc/nml_intf/motion_types.h
 TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
 
 .TP
-\fBmotion.spindle\-is\-oriented\fR OUT S32
+\fBspindle.N.is\-oriented\fR OUT S32
 
 .TP
 \fBmotion\-command\-handler.time\fR

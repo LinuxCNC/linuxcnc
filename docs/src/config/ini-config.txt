@@ -877,6 +877,9 @@ to start.
 Finally, no amount of tweaking will speed up a toolpath with lots of 
 small, tight corners, since you're limited by cornering acceleration. 
 
+* 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
+   number matches the "num_spindles" parameter passed to the motion module.
+
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code.  It is permitted to write an axis name twice

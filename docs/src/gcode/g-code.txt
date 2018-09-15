@@ -976,7 +976,7 @@ finishes accelerating to the proper speed, and can immediately begin
 cutting a good thread.
 
 .HAL Connections
-The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G33 will work.
 See the Integrators Manual for more information on spindle synchronized motion.
 
@@ -1620,7 +1620,7 @@ It is an error if:
 * 'E-' is greater than half the drive line length
 
 .HAL Connections
-The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
 See the <<sec:motion-pins, spindle>> pins in the Motion section for more
 information.
@@ -2339,7 +2339,7 @@ controlled point should move a certain number of inches per revolution
 of the spindle, depending on what length units are being used and which
 axis or axes are moving. G95 is not suitable for threading, for
 threading use G33 or G76.
-G95 requires that motion.spindle-speed-in to be connected.
+G95 requires that spindle.N.speed-in to be connected.
 
 It is an error if:
 

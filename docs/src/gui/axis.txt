@@ -494,7 +494,7 @@ manual controls are unavailable.
 Many of the items described below are not useful on all machines. 
 When AXIS detects that a particular pin is not connected in HAL, 
 the corresponding item in the Manual Control tab is removed. 
-For instance, if the HAL pin 'motion.spindle-brake' is not connected, 
+For instance, if the HAL pin 'spindle.0.brake' is not connected, 
 then the 'Brake' button will not appear on the screen. 
 If the environment variable 'AXIS_NO_AUTOCONFIGURE' is set, 
 this behavior is disabled and all the items will appear. 
@@ -571,8 +571,8 @@ on an axis is to Unhome it._
 
 The buttons on the first row select the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. Counterclockwise will
-only show up if the pin 'motion.spindle-reverse' is in the HAL file (it
-can be 'net trick-axis motion.spindle-reverse' ). The buttons on the
+only show up if the pin 'spindle.0.reverse' is in the HAL file (it
+can be 'net trick-axis spindle.0.reverse' ). The buttons on the
 next row increase or decrease the rotation
 speed. The checkbox on the third row allows the spindle brake to be
 engaged or released. Depending on your machine configuration, not all
@@ -616,7 +616,7 @@ then the resulting feed rate will be 72.
 By moving this slider, the programmed spindle speed can be
 modified. For instance, if a program requests S8000 and the slider is
 set to 80%, then the resulting spindle speed will be 6400. This item
-only appears when the HAL pin 'motion.spindle-speed-out' is connected.
+only appears when the HAL pin 'spindle.0.speed-out' is connected.
 
 === Jog Speed
 
