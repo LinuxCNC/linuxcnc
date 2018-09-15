@@ -44,8 +44,9 @@ class QTPanel():
             idname = widget.objectName()
             if isinstance(widget, _HalWidgetBase):
                 if isinstance(widget, ScreenOptions):
-                    preference = widget._pref_init()
+                    preference, pref_fn = widget._pref_init()
                     window['PREFS_'] = preference
+                    path.PREFS_FILENAME = pref_fn
         # parse for HAL objects:
         # initiate the hal function on each
         log.debug('QTVCP: Parcing for hal widgets')

@@ -273,6 +273,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
             STATUS.connect('machine-log-changed', self.load_manual)
             STATUS.connect('mode-auto', self.reload_last)
             STATUS.connect('mode-manual', self.load_manual)
+            STATUS.connect('show-preference', self.load_preference)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)
         STATUS.connect('file-loaded', self.load_program)
@@ -308,6 +309,10 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
     def load_manual(self, w):
         if STATUS.is_man_mode():
             self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
+            self.setCursorPosition(self.lines(), 0)
+
+    def load_preference(self, w):
+            self.load_text(self.PATHS_.PREFS_FILENAME)
             self.setCursorPosition(self.lines(), 0)
 
     def load_text(self, filename):

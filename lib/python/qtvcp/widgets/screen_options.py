@@ -143,7 +143,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # be able to pass the preference object to ther widgets
     def _pref_init(self):
         if self.use_pref_file:
-            return Access(self.pref_filename)
+            return Access(self.pref_filename), self.pref_filename
         return None
 
     def on_periodic(self, w):
