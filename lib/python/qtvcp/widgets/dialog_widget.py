@@ -166,6 +166,7 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
         self.HAL_GCOMP_.comp.setprefix(oldname)
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
+            self.speak = self.PREFS_.getpref('toolDialog_speak', True, bool, 'DIALOG_OPTIONS')
             self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
         else:
             self.play_sound = False
@@ -214,6 +215,8 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info:'
             STATUS.emit('focus-overlay-changed', True, MESS, self._color)
+            if self.speak:
+                STATUS.emit('play-alert', 'speak %s' % MORE)
             if self.play_sound:
                 STATUS.emit('play-alert', self.sound_type)
             result = self.showtooldialog(MESS, MORE, DETAILS)
