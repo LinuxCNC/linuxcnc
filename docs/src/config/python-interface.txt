@@ -568,8 +568,8 @@ c.flood(linuxcnc.FLOOD_OFF)
 c.home(2)
 
 c.jog(linuxcnc.JOG_STOP, jogmode, axis) 
-c.jog(linuxcnc.JOG_CONTINUOUS, jogmode, axis, speed) 
-c.jog(linuxcnc.JOG_INCREMENT, jogmode, axis, speed, increment)
+c.jog(linuxcnc.JOG_CONTINUOUS, jogmode, axis, velocity)
+c.jog(linuxcnc.JOG_INCREMENT, jogmode, axis, velocity, increment)
 
 c.load_tool_table()
 
