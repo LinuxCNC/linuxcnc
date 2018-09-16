@@ -62,7 +62,7 @@ import sys
 import linuxcnc
 try:
     s = linuxcnc.stat() # create a connection to the status channel
-    s.poll() # get current values 
+    s.poll() # get current values
 except linuxcnc.error, detail:
     print "error", detail
     sys.exit(1)
@@ -217,7 +217,7 @@ INTERP_IDLE, INTERP_READING, INTERP_PAUSED, INTERP_WAITING.
 *interpreter_errcode*:: '(returns integer)' -
 current RS274NGC interpreter return code. One of
 INTERP_OK, INTERP_EXIT, INTERP_EXECUTE_FINISH, INTERP_ENDFILE,
-INTERP_FILE_NOT_OPEN, INTERP_ERROR. 
+INTERP_FILE_NOT_OPEN, INTERP_ERROR.
 see src/emc/nml_intf/interp_return.hh
 
 *joint*:: '(returns tuple of dicts)' -
@@ -407,8 +407,8 @@ of a particular axis:
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import linuxcnc
-s = linuxcnc.stat() 
-s.poll() 
+s = linuxcnc.stat()
+s.poll()
 print "Joint 1 homed: ", s.joint[1]["homed"]
 ---------------------------------------------------------------------
 
@@ -505,10 +505,10 @@ by the configuration parameter [JOINT_n]UNITS)
 current velocity.
 
 
-==  Preparing to send  commands 
+==  Preparing to send  commands
 
 Some commands can always be sent, regardless of mode and state; for
-instance, the `linuxcnc.command.abort()` method can always be called. 
+instance, the `linuxcnc.command.abort()` method can always be called.
 
 Other commands may be sent only in appropriate state, and those tests
 can be a bit tricky. For instance, an MDI command can be sent only if:
@@ -601,12 +601,12 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `abort()`::
     send EMC_TASK_ABORT message.
 
-`auto(int[, int])`:: 
+`auto(int[, int])`::
     run, step, pause or resume a program.
 
 `brake(int)`::
     engage or release spindle brake.
-        
+
 `debug(int)`::
     set debug level via EMC_SET_DEBUG message.
 
@@ -766,7 +766,7 @@ e = linuxcnc.error_channel()
 
 error = e.poll()
 
-if error: 
+if error:
     kind, text = error
     if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
         typus = "error"
