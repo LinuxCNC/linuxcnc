@@ -704,10 +704,15 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `set_spindle_override(int)`::
     set spindle override flag
 
-`spindle(int)`::
-    set spindle direction. Argument one of SPINDLE_FORWARD,
-    SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
-    SPINDLE_DECREASE, or SPINDLE_CONSTANT.
+`spindle(int[, float])`::
+    Syntax: +
+    spindle(command[, speed]) +
+    spindle(linuxcnc.SPINDLE_OFF) +
+    spindle(linuxcnc.SPINDLE_FORWARD, speed) +
+    spindle(linuxcnc.SPINDLE_REVERSE, speed) +
+    spindle(linuxcnc.SPINDLE_INCREASE) - Increases speed by 100rpm +
+    spindle(linuxcnc.SPINDLE_DECREASE) - Decreases speed by 100rpm +
+    spindle(linuxcnc.SPINDLE_CONSTANT) - Unclear +
 
 `spindleoverride(float)`::
     set spindle override factor
