@@ -265,6 +265,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->c_flag = false;
   block->comment[0] = 0;
   block->d_flag = false;
+  block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
   for (n = 0; n < 16; n++) {

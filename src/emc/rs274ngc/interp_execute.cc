@@ -245,20 +245,20 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   }
   if ((block->g_modes[GM_SPINDLE_MODE] != -1) && ONCE(STEP_SPINDLE_MODE)) {
 	  settings->active_spindle = 0; //must be single-spindle, default to 0
-	  if (block->e_flag){
-		  CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
-				  (_("Invalid E-number in Spindle Mode command")));
-		  settings->active_spindle = (int)block->e_number;
+	  if (block->dollar_flag){
+		  CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+				  (_("Invalid spindle ($) number in Spindle Mode command")));
+		  settings->active_spindle = (int)block->dollar_number;
 	  }
       status = convert_spindle_mode(settings->active_spindle, block, settings);
       CHP(status);
   }
   if ((block->g_modes[GM_FEED_MODE] != -1) && ONCE(STEP_FEED_MODE)) {
 	  settings->active_spindle = 0; //must be single-spindle, default to 0
-	  if (block->e_flag){
-		  CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
-				  (_("Invalid E-number in Spindle Feed command")));
-		  settings->active_spindle = (int)block->e_number;
+	  if (block->dollar_flag){
+		  CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+				  (_("Invalid spindle ($) number in Spindle Feed command")));
+		  settings->active_spindle = (int)block->dollar_number;
 	  }
       status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
       CHP(status);
@@ -276,16 +276,16 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
       /* INVERSE_TIME is handled elsewhere */
   }
   if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)){
-      if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
-    	  return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
-      } else {
-    	  if (block->e_flag){
-    		  CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
-    				  (_("Invalid E-number in Spindle speed command")));
-    		  settings->active_spindle = (int)block->e_number;
-    	  }
-		  status = convert_speed(settings->active_spindle, block, settings);
-		  CHP(status);
+    if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
+        return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
+    } else {
+        if (block->dollar_flag){
+            CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+                (_("Invalid spindle ($) number in Spindle speed command")));
+            settings->active_spindle = (int)block->dollar_number;
+        }
+        status = convert_speed(settings->active_spindle, block, settings);
+        CHP(status);
       }
   }
   if ((block->t_flag) && ONCE(STEP_PREPARE)) {

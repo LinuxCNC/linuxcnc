@@ -365,6 +365,52 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
 
 /****************************************************************************/
 
+/*! read_dollar
+
+Returned Value: int
+   If read_integer_value returns an error code, this returns that code.
+   If any of the following errors occur, this returns the error code shown.
+   Otherwise, it returns INTERP_OK.
+   1. The first character read is not d:
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
+   2. A dollar_number has already been inserted in the block:
+      NCE_MULTIPLE_$_WORDS_ON_ONE_LINE
+
+Side effects:
+   counter is reset to the character following the tool number.
+   A d_number is inserted in the block.
+
+Called by: read_one_item
+
+When this function is called, counter is pointing at an item on the
+line that starts with the character 'd', indicating an index into a
+table of tool diameters.  The function reads characters which give the
+(integer) value of the index. The value may not be more than
+_setup.tool_max and may not be negative, but it may be zero. The range
+is checked here.
+
+read_integer_value allows a minus sign, so a check for a negative value
+is made here, and the parameters argument is also needed.
+
+*/
+
+int Interp::read_dollar(char *line,   //!< string: line of RS274 code being processed
+                  int *counter, //!< pointer to a counter for position on the line
+                  block_pointer block,  //!< pointer to a block being filled from the line
+                  double *parameters)   //!< array of system parameters
+{
+  double value;
+  CHKS((line[*counter] != '$'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHKS((block->dollar_flag), NCE_MULTIPLE_$_WORDS_ON_ONE_LINE);
+  CHP(read_real_value(line, counter, &value, parameters));
+  block->dollar_number = value;
+  block->dollar_flag = true;
+  return INTERP_OK;
+}
+
+/****************************************************************************/
+
 /*! read_e
 
 Returned Value: int

@@ -3144,11 +3144,11 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
 				   block->m_modes[7]);
  } else if ((block->m_modes[7] == 3)  && ONCE_M(7)) {
-     if (block->e_flag){
-        CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
-            (_("E-word out of range in M3 Command\nnum_spindles =%i. e_number=%d\n")),settings->num_spindles,(int)block->e_number);
-        enqueue_START_SPINDLE_CLOCKWISE(block->e_number);
-        settings->spindle_turning[(int)block->e_number] = CANON_CLOCKWISE;
+     if (block->dollar_flag){
+        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
+            (_("Spindle ($) number out of range in M3 Command\nnum_spindles =%i. $=%d\n")),settings->num_spindles,(int)block->dollar_number);
+        enqueue_START_SPINDLE_CLOCKWISE(block->dollar_number);
+        settings->spindle_turning[(int)block->dollar_number] = CANON_CLOCKWISE;
      } else {
          for (int i = 0; i < settings->num_spindles; i++){
              enqueue_START_SPINDLE_CLOCKWISE(i);
@@ -3156,11 +3156,11 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
          }
      }
  } else if ((block->m_modes[7] == 4) && ONCE_M(7)) {
-     if (block->e_flag){
-        CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
-            (_("E-word out of range in M4 Command")));
-        enqueue_START_SPINDLE_COUNTERCLOCKWISE(block->e_number);
-        settings->spindle_turning[(int)block->e_number] = CANON_COUNTERCLOCKWISE;
+     if (block->dollar_flag){
+        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
+            (_("Spindle ($) number out of range in M4 Command")));
+        enqueue_START_SPINDLE_COUNTERCLOCKWISE(block->dollar_number);
+        settings->spindle_turning[(int)block->dollar_number] = CANON_COUNTERCLOCKWISE;
      } else {
          for (int i = 0; i < settings->num_spindles; i++){
              enqueue_START_SPINDLE_COUNTERCLOCKWISE(i);
@@ -3168,10 +3168,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
          }
      }
  } else if ((block->m_modes[7] == 5) && ONCE_M(7)){
-     if (block->e_flag){
-        CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
-           (_("E-word out of range in M5 Command")));
-        enqueue_STOP_SPINDLE_TURNING(block->e_number);
+     if (block->dollar_flag){
+        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
+           (_("Spindle ($) number out of range in M5 Command")));
+        enqueue_STOP_SPINDLE_TURNING(block->dollar_number);
      } else {
         for (int i = 0; i < settings->num_spindles; i++){
         	settings->spindle_turning[i] = CANON_STOPPED;
@@ -3181,17 +3181,17 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
       for (int i = 0; i < settings->num_spindles; i++)
     	  settings->spindle_turning[i] = CANON_STOPPED;
-      if (block->e_flag){
-         CHKS((block->e_number >= settings->num_spindles || block->e_number < 0),
-             (_("E-word out of range in M19 Command")));
+      if (block->dollar_flag){
+         CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
+             (_("Spindle ($) number out of range in M19 Command")));
       }
       if (block->r_flag || block->p_flag)
-      enqueue_ORIENT_SPINDLE(block->e_flag ? block->e_number : 0,
+      enqueue_ORIENT_SPINDLE(block->dollar_flag ? block->dollar_number : 0,
                              block->r_flag ? (block->r_number + settings->orient_offset) : settings->orient_offset,
                              block->p_flag ? block->p_number : 0);
       if (block->q_flag) {
 	  CHKS((block->q_number <= 0.0),(_("Q word with M19 requires a value > 0")));
-	  enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(block->e_flag ? block->e_number : 0,
+	  enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(block->dollar_flag ? block->dollar_number : 0,
 			  	  	  	  	  	  	  	   block->q_number);
       }
   } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
@@ -3294,10 +3294,10 @@ if ((block->m_modes[9] == 50)  && ONCE_M(9)){
 
 if ((block->m_modes[9] == 51)  && ONCE_M(9)){
 	int e = -1;
-	if (block->e_flag){
-		CHKS((block->e_number <= 0 || block->e_number >= settings-> num_spindles),
-				(_("Invalid E-number in M51 command")));
-		e = block->e_number;
+	if (block->dollar_flag){
+		CHKS((block->dollar_number <= 0 || block->dollar_number >= settings-> num_spindles),
+				(_("Invalid spindle ($) number in M51 command")));
+		e = block->dollar_number;
 	}
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
@@ -4133,10 +4133,10 @@ int Interp::convert_speed(int e_number,          //The E-number or -1 if none
   return INTERP_OK;
 }
 
-int Interp::convert_spindle_mode(int e_number, block_pointer block, setup_pointer settings)
+int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_pointer settings)
 {
 	for (int s = 0; s < settings->num_spindles; s++){
-		if (e_number == -1 || s == e_number){
+		if (dollar_number == -1 || s == dollar_number){
 			  if(block->g_modes[14] == G_97) {
 				settings->spindle_mode[s] = CONSTANT_RPM;
 			enqueue_SET_SPINDLE_MODE(s, 0);
@@ -4518,10 +4518,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33) {
-	if (block->e_flag){
-		CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
-				(_("Invalid E-number in G33 move")));
-		settings->active_spindle = (int)block->e_number;
+	if (block->dollar_flag){
+		CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+				(_("Invalid spindle ($) number in G33 move")));
+		settings->active_spindle = (int)block->dollar_number;
 	}
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
@@ -4533,10 +4533,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_33_1) {
-	if (block->e_flag){
-		CHKS((block->e_number < 0 || block->e_number >= settings->num_spindles),
-				(_("Invalid E-number in G33.1 move")));
-		settings->active_spindle = (int)block->e_number;
+	if (block->dollar_flag){
+		CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+				(_("Invalid spindle ($) number in G33.1 move")));
+		settings->active_spindle = (int)block->dollar_number;
 	}
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
@@ -4546,10 +4546,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     STOP_SPEED_FEED_SYNCH();
     // after the RIGID_TAP cycle we'll be in the same spot
   } else if (move == G_76) {
-	if (block->d_flag){ // D was the only letter left, every other command uses E
-		CHKS((block->d_number_float < 0 || block->d_number_float >= settings->num_spindles),
+	if (block->dollar_flag){
+		CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
 				(_("Invalid D-number in G76 cycle")));
-		settings->active_spindle = (int)block->d_number_float;
+		settings->active_spindle = (int)block->dollar_number;
 	}
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),

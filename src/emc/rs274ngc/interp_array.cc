@@ -269,7 +269,8 @@ const read_function_pointer Interp::default_readers[256] = {
 /* 20 */
 0, 0, 0,
 &Interp::read_parameter_setting, // reads # or ASCII 0x23
-0, 0, 0, 0,
+&Interp::read_dollar,   // reads $ or ASCII 0x24
+0, 0, 0,
 &Interp::read_comment, // reads ( or ASCII 0x28
 0, 0, 0, 0, 0, 0, 0, 
 /* 30 */

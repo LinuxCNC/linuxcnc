@@ -386,6 +386,8 @@ typedef struct block_struct
   char comment[256];
   double d_number_float;
   bool d_flag;
+  int dollar_number;
+  bool dollar_flag;
   bool e_flag;
   double e_number;
   bool f_flag;
