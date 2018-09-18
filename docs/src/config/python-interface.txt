@@ -646,7 +646,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 	set digital output pin to value
 
 `set_feed_hold(int)`::
-	set feed hold on/off
+	set feed hold enabled on/off
 
 `set_feed_override(int)`::
 	set feed override on/off
