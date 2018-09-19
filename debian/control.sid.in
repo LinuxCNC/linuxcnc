@@ -46,13 +46,13 @@ Architecture: any
 Depends: ${shlibs:Depends}, machinekit-rt-threads, tcl8.6, tk8.6,
     bwidget (>= 1.7), libtk-img (>=1.13),
     ${python:Depends}, ${misc:Depends},
-    python-tk, python-imaging, python-imaging-tk,
+    python-tk, python-pil, python-pil.imagetk,
     python-gnome2, python-glade2,
     python-numpy,
     python-vte, python-xlib, python-gtkglext1, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1),
     python-avahi, python-simplejson, python-pyftpdlib,
-    python-pydot, xdot, python-gst-1.0,
+    python-pydot, xdot, python-gst-1.0, python-gtksourceview2,
     tclreadline, bc, procps, psmisc
 Description: PC based motion controller for real-time Linux
  Machinekit is the next-generation Enhanced Machine Controller which
