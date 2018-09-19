@@ -238,6 +238,7 @@ SUBDIRS := \
 	hal/user_comps/devices \
 	hal/user_comps/mb2hal \
 	hal/user_comps \
+	hal/user_icomps \
 	hal/user_comps/vismach \
 	hal/user_comps/vfs11_vfd \
 	hal/user_comps/vfdb_vfd \

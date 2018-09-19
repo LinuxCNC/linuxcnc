@@ -1,0 +1,5 @@
+This dir provides a means of building instantiated components from C source using instcomp 
+as part of the source tree build
+
+The easiest way to create instantiated components is using the macro template expanded by instcomp, 
+for examples see the hal/i_components folder
