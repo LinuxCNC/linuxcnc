@@ -639,7 +639,7 @@ class HAL:
             signame ='{0:<20}'.format(signame)
         else:
             signame ='{0:<15}'.format(p)
-        if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
+        if i and not fake: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
         print >>file, "net %s => parport.%d.pin-%02d-out%s" % (signame, port, num, ending)
         if self.a.doublestep() and not fake:
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP, SIG.USTEP, SIG.VSTEP):

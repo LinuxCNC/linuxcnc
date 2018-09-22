@@ -551,6 +551,10 @@ if __name__ == "__main__":
     current directory for the ini file or as absolute paths. The list must
     contain no intervening whitespace.
 
+* 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Default 0.00005
+
+* 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Default 0.00127
+
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Specifies a list of colon (:) separated directories for user defined
    functions. Directories are specified relative to the current directory
