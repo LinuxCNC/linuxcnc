@@ -2170,6 +2170,8 @@ class TclCommands(nf.TclCommands):
             commands.set_view_x()
         elif str(widgets.view_y['relief']) == "sunken":
             commands.set_view_y()
+        elif str(widgets.view_y2['relief']) == "sunken":
+            commands.set_view_y2()
         elif str(widgets.view_z['relief']) == "sunken":
             commands.set_view_z()
         elif  str(widgets.view_z2['relief']) == "sunken":
