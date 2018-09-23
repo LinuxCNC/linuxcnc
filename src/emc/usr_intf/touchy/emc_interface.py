@@ -106,7 +106,7 @@ class emc_control:
         def spindle_forward(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(1);
+                self.emccommand.spindle(1, 1, 0);
 
         def spindle_off(self, b):
                 if self.masked: return
@@ -116,7 +116,7 @@ class emc_control:
         def spindle_reverse(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(-1);
+                self.emccommand.spindle(-1, 1, 0);
 
         def spindle_faster(self, b):
                 if self.masked: return
@@ -411,7 +411,7 @@ class emc_status:
                 set_active(self.mists['on'], mist)
                 set_active(self.mists['off'], not mist)
 
-                spin = self.emcstat.spindle_direction
+                spin = self.emcstat.spindle[0]['direction']
                 set_active(self.spindles['forward'], spin == 1)
                 set_active(self.spindles['off'], spin == 0)
                 set_active(self.spindles['reverse'], spin == -1)
@@ -423,10 +423,10 @@ class emc_status:
                 set_text(self.status['onlimit'], ol)
 
                 sd = (_("CCW"), _("Stopped"), _("CW"))
-                set_text(self.status['spindledir'], sd[self.emcstat.spindle_direction+1])
+                set_text(self.status['spindledir'], sd[self.emcstat.spindle[0]['direction']+1])
 
-                set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle_speed)
-                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle_speed)
+                set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle[0]['speed'])
+                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle[0]['speed'])
                 set_text(self.status['loadedtool'], "%d" % self.emcstat.tool_in_spindle)
 		if self.emcstat.pocket_prepped == -1:
 			set_text(self.status['preppedtool'], _("None"))

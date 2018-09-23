@@ -2500,10 +2500,10 @@ class gmoccapy(object):
                 self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
 
     def _update_halui_pin(self):
-        if self.spindle_override != self.stat.spindlerate:
+        if self.spindle_override != self.stat.spindle[0]['override']:
             self.initialized = False
-            self.widgets.spc_spindle.set_value(self.stat.spindlerate * 100)
-            self.spindle_override = self.stat.spindlerate
+            self.widgets.spc_spindle.set_value(self.stat.spindle[0]['override'] * 100)
+            self.spindle_override = self.stat.spindle[0]['override']
             self.initialized = True
         if self.feed_override != self.stat.feedrate:
             self.initialized = False
@@ -3195,32 +3195,32 @@ class gmoccapy(object):
 # spindle stuff
 
     def _update_spindle(self):
-        if self.stat.spindle_direction > 0:
+        if self.stat.spindle[0]['direction'] > 0:
             self.widgets.rbt_forward.set_active(True)
-        elif self.stat.spindle_direction < 0:
+        elif self.stat.spindle[0]['direction'] < 0:
             self.widgets.rbt_reverse.set_active(True)
         elif not self.widgets.rbt_stop.get_active():
             self.widgets.rbt_stop.set_active(True)
 
         # this is needed, because otherwise a command S0 would not set active btn_stop
-        if not abs(self.stat.spindle_speed):
+        if not abs(self.stat.spindle[0]['speed']):
             self.widgets.rbt_stop.set_active(True)
             return
 
         # set the speed label in active code frame
-        if self.stat.spindle_speed == 0:
+        if self.stat.spindle[0]['speed'] == 0:
             speed = self.stat.settings[2]
         else:
-            speed = self.stat.spindle_speed
+            speed = self.stat.spindle[0]['speed']
         self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
         self.widgets.lbl_spindle_act.set_text("S {0}".format(int(speed * self.spindle_override)))
 
     def _update_vc(self):
-        if self.stat.spindle_direction != 0:
-            if self.stat.spindle_speed == 0:
+        if self.stat.spindle[0]['direction'] != 0:
+            if self.stat.spindle[0]['speed'] == 0:
                 speed = self.stat.settings[2]
             else:
-                speed = self.stat.spindle_speed
+                speed = self.stat.spindle[0]['speed']
             if not self.lathe_mode:
                 diameter = self.halcomp["tool-diameter"]
             else:
@@ -3268,11 +3268,11 @@ class gmoccapy(object):
         # be setted to the commanded value due the next code part
         if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
-                if self.stat.spindle_direction > 0:
+                if self.stat.spindle[0]['direction'] > 0:
                     self.widgets.rbt_forward.set_sensitive(True)
                     self.widgets.rbt_reverse.set_sensitive(False)
                     self.widgets.rbt_stop.set_sensitive(False)
-                elif self.stat.spindle_direction < 0:
+                elif self.stat.spindle[0]['direction'] < 0:
                     self.widgets.rbt_forward.set_sensitive(False)
                     self.widgets.rbt_reverse.set_sensitive(True)
                     self.widgets.rbt_stop.set_sensitive(False)
@@ -3287,7 +3287,7 @@ class gmoccapy(object):
         # we take care of that but we have to check for speed override 
         # to not be zero to avoid division by zero error
         try:
-            rpm_out = rpm / self.stat.spindlerate
+            rpm_out = rpm / self.stat.spindle[0]['override']
         except:
             rpm_out = 0
         self.widgets.lbl_spindle_act.set_label("S {0}".format(int(rpm)))
@@ -3329,11 +3329,11 @@ class gmoccapy(object):
         try:
             if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
-                    speed = self.stat.spindle_speed
+                    speed = self.stat.spindle[0]['speed']
                 else:
                     speed = 0
             else:
-                speed = abs(self.stat.spindle_speed)
+                speed = abs(self.stat.spindle[0]['speed'])
             spindle_override = value / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:

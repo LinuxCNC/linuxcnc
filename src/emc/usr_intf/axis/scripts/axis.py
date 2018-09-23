@@ -852,13 +852,13 @@ class LivePlotter:
         vupdate(vars.interp_pause, self.stat.paused)
         vupdate(vars.mist, self.stat.mist)
         vupdate(vars.flood, self.stat.flood)
-        vupdate(vars.brake, self.stat.spindle_brake)
-        vupdate(vars.spindledir, self.stat.spindle_direction)
+        vupdate(vars.brake, self.stat.spindle[0]['brake'])
+        vupdate(vars.spindledir, self.stat.spindle[0]['direction'])
         vupdate(vars.motion_mode, self.stat.motion_mode)
         vupdate(vars.optional_stop, self.stat.optional_stop)
         vupdate(vars.block_delete, self.stat.block_delete)
         if time.time() > spindlerate_blackout:
-            vupdate(vars.spindlerate, int(100 * self.stat.spindlerate + .5))
+            vupdate(vars.spindlerate, int(100 * self.stat.spindle[0]['override'] + .5))
         if time.time() > feedrate_blackout:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
         if time.time() > rapidrate_blackout:
@@ -2728,7 +2728,11 @@ class TclCommands(nf.TclCommands):
     def spindle(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
-        c.spindle(vars.spindledir.get(),default_spindle_speed)
+        d = vars.spindledir.get()
+        if d == 0:
+            c.spindle(d)
+        else:
+            c.spindle(d, default_spindle_speed)
     def spindle_increase(event=None):
         c.spindle(linuxcnc.SPINDLE_INCREASE)
     def spindle_decrease(event=None):
