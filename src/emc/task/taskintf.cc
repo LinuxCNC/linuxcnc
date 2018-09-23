@@ -1886,9 +1886,9 @@ int emcSpindleUpdate(EMC_SPINDLE_STAT stat[], int num_spindles){
     for (s = 0; s < num_spindles; s++){
 		stat[s].spindle_override_enabled = enables & SS_ENABLED;
 		stat[s].enabled = emcmotStatus.spindle_status[s].speed != 0;
-		//stat[s].speed = emcmotStatus.spindle_status[s].speed;
-		//stat[s].brake = emcmotStatus.spindle_status[s].brake;
-		//stat[s].direction = emcmotStatus.spindle_status[s].direction;
+		stat[s].speed = emcmotStatus.spindle_status[s].speed;
+		stat[s].brake = emcmotStatus.spindle_status[s].brake;
+		stat[s].direction = emcmotStatus.spindle_status[s].direction;
 		stat[s].orient_state = emcmotStatus.spindle_status[s].orient_state;
 		stat[s].orient_fault = emcmotStatus.spindle_status[s].orient_fault;
 		stat[s].spindle_scale = emcmotStatus.spindle_status[s].scale;

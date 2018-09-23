@@ -1198,6 +1198,7 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     int orient_state;
     int orient_fault;
     bool spindle_override_enabled;
+    bool homed;
 };
 
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {

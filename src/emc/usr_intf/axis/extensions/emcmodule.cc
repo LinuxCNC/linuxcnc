@@ -300,6 +300,7 @@ static PyMethodDef Stat_methods[] = {
 static PyMemberDef Stat_members[] = {
 // stat 
     {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
+    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {(char*)"state", T_INT, O(status), READONLY},
 
 // task
@@ -359,15 +360,9 @@ static PyMemberDef Stat_members[] = {
     {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
     {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
 
+
 // EMC_SPINDLE_STAT motion.spindle
-    //FIXME: There may be multiple spindles now
-    {(char*)"spindlerate", T_DOUBLE, O(motion.spindle[0].spindle_scale), READONLY},
-    {(char*)"spindle_speed", T_DOUBLE, O(motion.spindle[0].speed), READONLY},
-    {(char*)"spindle_direction", T_INT, O(motion.spindle[0].direction), READONLY},
-    {(char*)"spindle_brake", T_INT, O(motion.spindle[0].brake), READONLY},
-    {(char*)"spindle_increasing", T_INT, O(motion.spindle[0].increasing), READONLY},
-    {(char*)"spindle_enabled", T_INT, O(motion.spindle[0].enabled), READONLY},
-    {(char*)"spindle_override_enabled", T_BOOL, O(motion.spindle[0].spindle_override_enabled), READONLY},
+    // MOVED TO THE "spindle" TUPLE OF DICTS
 
 // io
 // EMC_TOOL_STAT io.tool
@@ -535,6 +530,16 @@ static void dict_add(PyObject *d, const char *name, double v) {
     PyDict_SetItemString(d, name, o = PyFloat_FromDouble(v));
     Py_XDECREF(o);
 }
+static void dict_add(PyObject *d, const char *name, bool v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyBool_FromLong((long)v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, int v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyLong_FromLong((long)v));
+    Py_XDECREF(o);
+}
 #define F(x) F2(#x, x)
 #define F2(y,x) dict_add(res, y, s->status.motion.joint[jointno].x)
 static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
@@ -591,6 +596,32 @@ static PyObject *Stat_axis(pyStatChannel *s) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_AXIS);
     for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
         PyTuple_SetItem(res, i, Stat_axis_one(s, i));
+    }
+    return res;
+}
+
+#define F(x) F2(#x, x)
+#define F2(y,x) dict_add(res, y, s->status.motion.spindle[spindleno].x)
+static PyObject *Stat_spindle_one(pyStatChannel *s, int spindleno) {
+    PyObject *res = PyDict_New();
+    F(brake);
+    F(direction);
+    F(enabled);
+    F2("override_enabled", spindle_override_enabled);
+    F(speed);
+    F2("override", spindle_scale);
+    F(homed);
+    F(orient_state);
+    F(orient_fault);
+    return res;
+}
+#undef F
+#undef F2
+
+static PyObject *Stat_spindle(pyStatChannel *s) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_SPINDLES);
+    for(int i=0; i<EMCMOT_MAX_SPINDLES; i++) {
+        PyTuple_SetItem(res, i, Stat_spindle_one(s, i));
     }
     return res;
 }
@@ -663,6 +694,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"aout", (getter)Stat_aout},
     {(char*)"joint", (getter)Stat_joint},
     {(char*)"axis", (getter)Stat_axis},
+    {(char*)"spindle", (getter)Stat_spindle},
     {(char*)"din", (getter)Stat_din},
     {(char*)"dout", (getter)Stat_dout},
     {(char*)"gcodes", (getter)Stat_activegcodes},
@@ -839,7 +871,8 @@ static PyObject *rapidrate(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SPINDLE_SCALE m;
-    if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
+    m.spindle = 0;
+    if(!PyArg_ParseTuple(o, "d|i", &m.scale, &m.spindle)) return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -847,38 +880,43 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
-    double vel = 1;
-    if(!PyArg_ParseTuple(o, "i|d", &dir, &vel)) return NULL;
+    double arg1 = 0,arg2 = 0;
+    if(!PyArg_ParseTuple(o, "i|dd", &dir, &arg1, &arg2)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
         {
             EMC_SPINDLE_ON m;
-            m.speed = dir * vel;
+            m.speed = dir * arg1;
+            m.spindle = (int)arg2;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_INCREASE:
         {
             EMC_SPINDLE_INCREASE m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_DECREASE:
         {
             EMC_SPINDLE_DECREASE m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_CONSTANT:
         {
             EMC_SPINDLE_CONSTANT m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_OFF:
         {
             EMC_SPINDLE_OFF m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
@@ -1226,7 +1264,8 @@ static PyObject *set_feed_override(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_spindle_override(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SO_ENABLE m;
-    if(!PyArg_ParseTuple(o, "b", &m.mode))
+    m.spindle = 0;
+    if(!PyArg_ParseTuple(o, "b|i", &m.mode, &m.spindle))
         return NULL;
 
     emcSendCommand(s, m);

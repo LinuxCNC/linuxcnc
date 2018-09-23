@@ -330,27 +330,9 @@ current XY rotation angle around Z axis.
 current interpreter settings. settings[0] =
 sequence number, settings[1] = feed rate, settings[2] = speed.
 
-*spindle_brake*:: '(returns integer)' -
-value of the spindle brake flag.
-
-*spindle_direction*:: '(returns integer)' -
-rotational direction of the spindle. forward=1, reverse=-1.
-
-*spindle_enabled*:: '(returns integer)' -
-value of the spindle enabled flag.
-
-*spindle_increasing*:: '(returns integer)' -
-unclear.
-
-*spindle_override_enabled*:: '(returns boolean)' -
-value of the spindle override enabled flag.
-
-*spindle_speed*:: '(returns float)' -
-spindle speed value, rpm, > 0: clockwise, < 0:
-counterclockwise.
-
-*spindlerate*:: '(returns float)' -
-spindle speed override scale.
+*spindle*:: ' (returns tuple of dicts) ' -
+returns the current spindle status
+see <sec:the-spindle-dictionary, The spindle dictionary>>
 
 *state*:: '(returns integer)' -
 current command execution status. One of RCS_DONE,
@@ -504,6 +486,34 @@ by the configuration parameter [JOINT_n]UNITS)
 *velocity*:: '(returns float)' -
 current velocity.
 
+== The 'spindle' dictionary [[sec:the-spindle-dictionary] ==
+*brake*:: '(returns integer)' -
+value of the spindle brake flag.
+
+*direction*:: '(returns integer)' -
+rotational direction of the spindle. forward=1, reverse=-1.
+
+*enabled*:: '(returns integer)' -
+value of the spindle enabled flag.
+
+*increasing*:: '(returns integer)' -
+unclear.
+
+*override_enabled*:: '(returns boolean)' -
+value of the spindle override enabled flag.
+
+*speed*:: '(returns float)' -
+spindle speed value, rpm, > 0: clockwise, < 0:
+counterclockwise.
+
+*override*:: '(returns float)' -
+spindle speed override scale.
+
+*homed*:: (not currently implemented)
+
+*orient_state*:: '(returns integer)'
+
+*orient_fault*:: '(returns integer)'
 
 ==  Preparing to send  commands
 
@@ -704,18 +714,38 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `set_spindle_override(int)`::
     set spindle override flag
 
-`spindle(int[, float])`::
-    Syntax: +
-    spindle(command[, speed]) +
-    spindle(linuxcnc.SPINDLE_OFF) +
-    spindle(linuxcnc.SPINDLE_FORWARD, speed) +
-    spindle(linuxcnc.SPINDLE_REVERSE, speed) +
-    spindle(linuxcnc.SPINDLE_INCREASE) - Increases speed by 100rpm +
-    spindle(linuxcnc.SPINDLE_DECREASE) - Decreases speed by 100rpm +
-    spindle(linuxcnc.SPINDLE_CONSTANT) - Unclear +
+`spindle(int [[float] [int] [float,int]])`::
+    set spindle direction. Argument one of SPINDLE_FORWARD,
+    SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
+    SPINDLE_DECREASE, or SPINDLE_CONSTANT.
+[source, python]
+---------------------------------------------------------------------
+#!/usr/bin/env python
+import linuxcnc
+c = linuxcnc.command()
 
-`spindleoverride(float)`::
-    set spindle override factor
+#Increase speed of spindle 0 by 100rpm. Spindle must be on first
+c.spindle(linuxcnc.INCREASE) 
+
+#Increase speed of spindle 2 by 100rpm. Spindle must be on first
+c.spindle(linuxcnc.SPINDLE_INCREASE, 2)
+
+#Set speed of spindle 0 to 1024 rpm
+c.spindle.(linuxcnc.SPINDLE_FORWARD, 1024)
+
+#Set speed of spindle 1 to -666 rpm
+c.spindle.(linuxcnc.SPINDLE_REVERSE, 666,1)
+
+#Stop spindle 0
+c.spindle.(linuxcnc.SPINDLE_OFF)
+
+#Stop spindle 0 explicitly
+c.spindle.(linuxcnc.SPINDLE_OFF, 0)
+---------------------------------------------------------------------
+
+
+`spindleoverride(float [, int])`::
+    set spindle override factor. Defaults to spindle 0. 
 
 `state(int)`::
     set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF
