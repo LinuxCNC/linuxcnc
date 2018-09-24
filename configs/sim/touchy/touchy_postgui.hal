@@ -21,4 +21,4 @@ net TEST-JOG-INCR   axis.z.jog-scale    joint.2.jog-scale
 
 net TEST-CYCLE-START    touchy_test.cycle-start-button  =>   touchy.cycle-start
 
-net TEST-SPINDLE-SPEED  motion.spindle-speed-out  =>  touchy_test.spindle-speed
+net TEST-SPINDLE-SPEED  spindle.0.speed-out  =>  touchy_test.spindle-speed

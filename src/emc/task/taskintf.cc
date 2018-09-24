@@ -1806,9 +1806,8 @@ int emcSpindleAbort(int spindle)
 
 int emcSpindleSpeed(int spindle, double speed, double css_factor, double offset)
 {
-    /* Multispindle might require pre-setting of speed
     if (emcmotStatus.spindle_status[spindle].speed == 0){
-    	return 0; //spindle stopped, not updating speed */
+        return 0;} //spindle stopped, not updating speed */
 
     return emcSpindleOn(spindle, speed, css_factor, offset);
 }

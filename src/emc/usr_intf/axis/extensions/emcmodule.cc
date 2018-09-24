@@ -607,7 +607,7 @@ static PyObject *Stat_spindle_one(pyStatChannel *s, int spindleno) {
     F(brake);
     F(direction);
     F(enabled);
-    F2("override_enabled", spindle_override_enabled);
+    F2("override-enabled", spindle_override_enabled);
     F(speed);
     F2("override", spindle_scale);
     F(homed);

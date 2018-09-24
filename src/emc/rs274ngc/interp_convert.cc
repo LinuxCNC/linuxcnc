@@ -4244,8 +4244,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   // M99 as subroutine return is handled in interp_o_word.cc
   // convert_control_functions()
   CHKS((block->m_modes[4] == 99 && settings->call_level > 0),
-	   (_("Bug:  Reached convert_stop() from M99 as subprogram return")));
-
+        (_("Bug:  Reached convert_stop() from M99 as subprogram return")));
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
   } else if (block->m_modes[4] == 60) {
@@ -4254,15 +4253,17 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   } else if (block->m_modes[4] == 1) {
     OPTIONAL_PROGRAM_STOP();
   } else if (block->m_modes[4] == 99 && _setup.loop_on_main_m99) {
-      // Fanuc-style M99 main program endless loop
 
-      logDebug("M99 main program endless loop");
-      loop_to_beginning(settings);  // return control to beginning of file
-      FINISH();  // Output any final linked segments
-      return INTERP_EXECUTE_FINISH;  // tell task to issue any queued commands
+    // Fanuc-style M99 main program endless loop
+    logDebug("M99 main program endless loop");
+
+    loop_to_beginning(settings);  // return control to beginning of file
+    FINISH();  // Output any final linked segments
+    return INTERP_EXECUTE_FINISH;  // tell task to issue any queued commands
   } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30) ||
-	     (block->m_modes[4] == 99 && !_setup.loop_on_main_m99)
-	     ) {   /* reset stuff here */
+            (block->m_modes[4] == 99 && !_setup.loop_on_main_m99)
+            ) {   /* reset stuff here */
+
 /*1*/
     settings->current_x += settings->origin_offset_x;
     settings->current_y += settings->origin_offset_y;
@@ -4335,12 +4336,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*7*/
     for (int s = 0; s < settings->num_spindles; s++){
-    	STOP_SPINDLE_TURNING(s);
-    	settings->spindle_turning[s] = CANON_STOPPED;
-    	ENABLE_SPEED_OVERRIDE(s);
-    	settings->speed_override[s] = true;
-		/* turn off FPR */
-		SET_SPINDLE_MODE(s, 0);
+        STOP_SPINDLE_TURNING(s);
+        settings->spindle_turning[s] = CANON_STOPPED;
+
+        settings->speed_override[s] = true;
+        /* turn off FPR */
+        SET_SPINDLE_MODE(s, 0);
     }
 
 /*8*/ settings->motion_mode = G_1;
