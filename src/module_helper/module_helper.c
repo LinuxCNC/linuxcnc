@@ -43,7 +43,7 @@ think of a better way.
  */
 char *module_whitelist[] = {
     "rtai_math", "rtai_sem", "rtai_fifos", "rtai_up", "rtai_lxrt",
-    "rtai_hal", "rtai_sched", "rtai_shm", "rtai_smi", "rtai", "rt_mem_mgr", "adeos",
+    "rtai_hal", "rtai_sched", "rtai_smi", "rtai", "rt_mem_mgr", "adeos",
 
     NULL
 };
