@@ -1120,7 +1120,7 @@ AC_SUBST(BUILD_DOCS_HTML)
 
 if test "$RTS" '!=' uspace
 then
-for m in adeos rtai_hal rtai_ksched rtai_sched rtai_fifos rtai_sem rtai_math \
+for m in adeos rtai_hal rtai_ksched rtai_sched rtai_shm rtai_fifos rtai_sem rtai_math \
 ; do
     AC_MSG_CHECKING([for $m])
     TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
@@ -1135,6 +1135,7 @@ AC_SUBST(MODPATH_adeos)
 AC_SUBST(MODPATH_rtai_hal)
 AC_SUBST(MODPATH_rtai_ksched)
 AC_SUBST(MODPATH_rtai_sched)
+AC_SUBST(MODPATH_rtai_shm)
 AC_SUBST(MODPATH_rtai_fifos)
 AC_SUBST(MODPATH_rtai_sem)
 AC_SUBST(MODPATH_rtai_math)
