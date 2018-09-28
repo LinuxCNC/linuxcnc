@@ -256,7 +256,7 @@ origin. The home location must be inside the 'Table Travel' and not equal to
 one of the Table Travel values.
 
 * 'Home Switch Location' - The location at which the home switch trips
-or releases reletive to the machine origin. This item and the two below only
+or releases relative to the machine origin. This item and the two below only
 appear when Home Switches were chosen in the Parallel Port Pinout. If
 you combine home and limit switches the home switch location can not be
 the same as the home position or you will get a joint limit error.
