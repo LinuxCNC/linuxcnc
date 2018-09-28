@@ -162,10 +162,10 @@ if the extra zeros were not there.
 Numbers used for specific purposes in RS274/NGC are often restricted
 to some finite set of values or some to some range of values. In many
 uses, decimal numbers must be close to integers; this includes the
-values of indexes (for parameters and carousel slot numbers, for
+values of indices (for parameters and carousel slot numbers, for
 example), M codes, and G codes multiplied by ten. A decimal number
-which is supposed be close to an integer is considered close enough if
-it is within 0.0001 of an integer.
+which is intended to represent an integer is considered close enough if
+it is within 0.0001 of an integer value.
 
 
 [[gcode:parameters]](((Parameters)))
