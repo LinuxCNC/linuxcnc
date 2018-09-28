@@ -335,8 +335,8 @@ proc wheel_setup {jogmode} {
                                   <= motion.current-vel \
                                   => xhc-hb04.feed-value
 
-  makenet [existing_outpin_signame motion.spindle-speed-out-rps-abs pendant:spindle-rps] \
-                                <= motion.spindle-speed-out-rps-abs \
+  makenet [existing_outpin_signame spindle.0.speed-out-rps-abs pendant:spindle-rps] \
+                                <= spindle.0.speed-out-rps-abs \
                                 => xhc-hb04.spindle-rps
 
   # accommodate existing signames for halui outpins:

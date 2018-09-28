@@ -25,23 +25,23 @@ addf stepgen.update-freq servo-thread
 addf pwmgen.update servo-thread
 
 net spindle-cmd-rpm => pwmgen.0.value
-net spindle-on <= motion.spindle-on => pwmgen.0.enable
+net spindle-on <= spindle.0.on => pwmgen.0.enable
 net spindle-pwm <= pwmgen.0.pwm
 setp pwmgen.0.pwm-freq 100.0
 setp pwmgen.0.scale 1166.66666667
 setp pwmgen.0.offset 0.114285714286
 setp pwmgen.0.dither-pwm true
-net spindle-cmd-rpm     <= motion.spindle-speed-out
-net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs
-net spindle-cmd-rps     <= motion.spindle-speed-out-rps
-net spindle-cmd-rps-abs <= motion.spindle-speed-out-rps-abs
-net spindle-at-speed    => motion.spindle-at-speed
-net spindle-cw <= motion.spindle-forward
+net spindle-cmd-rpm     <= spindle.0.speed-out
+net spindle-cmd-rpm-abs <= spindle.0.speed-out-abs
+net spindle-cmd-rps     <= spindle.0.speed-out-rps
+net spindle-cmd-rps-abs <= spindle.0.speed-out-rps-abs
+net spindle-at-speed    => spindle.0.at-speed
+net spindle-cw <= spindle.0.forward
 
 setp encoder.0.position-scale 400.000000
-net spindle-position encoder.0.position => motion.spindle-revs
-net spindle-velocity-feedback-rps encoder.0.velocity => motion.spindle-speed-in
-net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable
+net spindle-position encoder.0.position => spindle.0.revs
+net spindle-velocity-feedback-rps encoder.0.velocity => spindle.0.speed-in
+net spindle-index-enable encoder.0.index-enable <=> spindle.0.index-enable
 net spindle-phase-a encoder.0.phase-A
 net spindle-phase-b encoder.0.phase-B
 net spindle-index encoder.0.phase-Z

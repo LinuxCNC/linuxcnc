@@ -18,9 +18,9 @@ addf stepgen.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 addf stepgen.update-freq servo-thread
-net spindle-cw <= motion.spindle-forward
+net spindle-cw <= spindle.0.forward
 net coolant-flood <= iocontrol.0.coolant-flood
-net spindle-on motion.spindle-on stepgen.4.enable
+net spindle-on spindle.0.on stepgen.4.enable
 
 
 #
@@ -41,7 +41,7 @@ setp stepgen.4.steplen 1
 setp parport.0.pin-01-out-reset 1
 loadrt or2 count=1
 net spindle-cw or2.0.in0
-net spindle-ccw motion.spindle-reverse or2.0.in1
+net spindle-ccw spindle.0.reverse or2.0.in1
 
 loadrt toggle count=1
 loadrt not count=1
@@ -57,7 +57,7 @@ setp gearchange.0.max2 5140
 setp gearchange.0.scale2 2.575
 # we're not controlling the direction with the gearchanger, so reverse isn't set
 # and the dir-in and dir-out pins aren't linked
-net spindle-speed-raw motion.spindle-speed-out gearchange.0.speed-in
+net spindle-speed-raw spindle.0.speed-out gearchange.0.speed-in
 net spindle-speed gearchange.0.speed-out stepgen.4.velocity-cmd
 
 net xdir => parport.0.pin-02-out

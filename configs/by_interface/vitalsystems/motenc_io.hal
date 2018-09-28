@@ -90,13 +90,13 @@ net EstopWrite <= iocontrol.0.user-enable-out
 
 # Connect spindle fwd/rev to I/O controller.
 net SpindleFwd => motenc.0.out-00
-net SpindleFwd <= motion.spindle-forward
+net SpindleFwd <= spindle.0.forward
 net SpindleRev => motenc.0.out-01
-net SpindleRev <= motion.spindle-reverse
+net SpindleRev <= spindle.0.reverse
 
 # Connect spindle brake to I/O controller.
 net SpindleBrakeOn => motenc.0.out-02
-net SpindleBrakeOn <= motion.spindle-brake
+net SpindleBrakeOn <= spindle.0.brake
 
 # Connect mist/flood coolant to I/O controller.
 net MistOn => motenc.0.out-05
