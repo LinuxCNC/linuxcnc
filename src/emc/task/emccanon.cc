@@ -1807,7 +1807,6 @@ void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
     }
     emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_on_msg);
-    printf("emcannon START_SPINDLE_CW_spindle %d speed %f, direction %i, .speed %f\n", emc_spindle_on_msg.spindle, emc_spindle_on_msg.speed, emcStatus->motion.spindle[s].direction, emcStatus->motion.spindle[s].speed);
 }
 
 void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
@@ -1832,7 +1831,6 @@ void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
     }
     emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_on_msg);
-    printf("emcannon START_SPINDLE_ACW_spindle %d speed %f, direction %i .speed %f\n", emc_spindle_on_msg.spindle, emc_spindle_on_msg.speed, emcStatus->motion.spindle[s].direction, emcStatus->motion.spindle[s].speed);
 }
 
 void SET_SPINDLE_SPEED(int s, double r)
@@ -1859,7 +1857,6 @@ void SET_SPINDLE_SPEED(int s, double r)
 		//   canon.css_numerator = 0; FIXME: Do we need this?
     }
     interp_list.append(emc_spindle_speed_msg);
-    printf("emcannon SET_SPINDLE_SPEED_spindle %d speed %f r = %f .speed = %f\n", emc_spindle_speed_msg.spindle, emc_spindle_speed_msg.speed, r, emcStatus->motion.spindle[s].speed );
 }
 
 void STOP_SPINDLE_TURNING(int s)
