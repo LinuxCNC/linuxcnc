@@ -29,6 +29,8 @@
 
 #include "hal_spi.h"
 
+#include "cpuinfo.c"
+
 #if !defined(BUILD_SYS_USER_DSO)
 #error "This driver is for usermode threads only"
 #endif
@@ -93,10 +95,28 @@ static void reset_board();
 static int map_gpio();
 static void setup_gpio();
 static void restore_gpio();
+static int number_of_cores();
 
-int rtapi_app_main(void) {
-	char name[HAL_NAME_LEN + 1];
-	int n, retval;
+int rtapi_app_main(void) 
+{
+char name[HAL_NAME_LEN + 1];
+int n, retval, ncores, rev;
+
+	// check what the board is
+	// RPi v3 > have different base address
+	ncores = number_of_cores();
+	if ((rev = get_rpi_revision()) < 0) 
+    	    {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"unrecognized Raspberry revision, see /proc/cpuinfo\n");
+	    return -1;
+	    }
+	
+	if (rev <= 2 || ncores <= 2)
+	    BCM2835_PERI_BASE = 0x2000000;
+	else
+	    BCM2835_PERI_BASE = 0x3F000000;
+	
 
 	/* initialise driver */
 	comp_id = hal_init(modname);
@@ -114,6 +134,7 @@ int rtapi_app_main(void) {
 		hal_exit(comp_id);
 		return -1;
 	}
+
 
 	/* configure board */
 	retval = map_gpio();
@@ -600,4 +621,23 @@ void restore_gpio() {
 	x = BCM2835_GPFSEL1;
 	x &= ~(0b111 << (0*3) | 0b111 << (1*3));
 	BCM2835_GPFSEL1 = x;
+}
+
+int number_of_cores()
+{
+char str[256];
+int procCount = 0;
+FILE *fp;
+    
+    if( (fp = fopen("/proc/cpuinfo", "r")) ) 
+	{
+	while(fgets(str, sizeof str, fp))
+	    if( !memcmp(str, "processor", 9) ) procCount++;
+	}
+    if ( !procCount ) 
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: Unable to get proc count. Defaulting to 2");
+	procCount = 2;
+	}
+    return procCount;
 }

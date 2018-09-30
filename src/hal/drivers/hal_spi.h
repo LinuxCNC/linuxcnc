@@ -38,7 +38,8 @@
 
 /* Broadcom defines */
 
-#define BCM2835_PERI_BASE	0x20000000
+//#define BCM2835_PERI_BASE	0x20000000
+unsigned int BCM2835_PERI_BASE;
 #define BCM2835_GPIO_BASE	(BCM2835_PERI_BASE + 0x200000) /* GPIO controller */
 #define BCM2835_SPI_BASE	(BCM2835_PERI_BASE + 0x204000) /* SPI controller */
 
