@@ -1,0 +1,12 @@
+This is work for producing a python3 interface to HAL using cython.
+It requires cython3 libraries
+
+In this folder run:
+python3 setup.py build_ext --inplace
+It currently assumes not RTAI
+
+then to test run:
+python3 test.py
+
+This will make a test component with some pins/signals etc
+
