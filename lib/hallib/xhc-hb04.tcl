@@ -320,13 +320,13 @@ proc wheel_setup {jogmode} {
   setp halui.feed-override.scale 0.01
   makenet pendant:wheel-counts  => halui.feed-override.counts
 
-  setp halui.spindle-override.scale 0.01
-  makenet pendant:wheel-counts  => halui.spindle-override.counts
+  setp halui.spindle.0.override.scale 0.01
+  makenet pendant:wheel-counts  => halui.spindle.0.override.counts
 
   makenet pendant:feed-override-enable => halui.feed-override.count-enable \
                                        <= xhc-hb04.jog.enable-feed-override
 
-  makenet pendant:spindle-override-enable => halui.spindle-override.count-enable \
+  makenet pendant:spindle-override-enable => halui.spindle.0.override.count-enable \
                                           <= xhc-hb04.jog.enable-spindle-override
 
 
@@ -347,8 +347,8 @@ proc wheel_setup {jogmode} {
                                   <= halui.feed-override.value \
                                   => xhc-hb04.feed-override
 
-  makenet [existing_outpin_signame   halui.spindle-override.value pendant:spindle-override] \
-                                  <= halui.spindle-override.value \
+  makenet [existing_outpin_signame   halui.spindle.0.override.value pendant:spindle-override] \
+                                  <= halui.spindle.0.override.value \
                                   => xhc-hb04.spindle-override
 
 } ;# wheel_setup
