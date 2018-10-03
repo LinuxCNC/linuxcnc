@@ -124,6 +124,9 @@ proc connect_pins {} {
 } ;# connect_pins
 
 proc wheel_setup {jogmode} {
+  for {set idx 0} {$idx < 4} {incr idx} {
+    set ::XHC_HB04_CONFIG(accel,$idx) 1.0 ;# default if unspecified
+  }
   if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
     set idx 0
     foreach g $::XHC_HB04_CONFIG(mpg_accels) {
@@ -273,7 +276,7 @@ proc wheel_setup {jogmode} {
       set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                           /[set ::AXIS_[set COORD](MAX_ACCELERATION)] ]
               } msg] {
-      err_exit "Missing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+      err_exit "<$msg>\n\nMissing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
     }
     setp axis.$coord.jog-accel-fraction $afraction
 
@@ -301,7 +304,7 @@ proc wheel_setup {jogmode} {
         set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                             /[set ::JOINT_[set jnum](MAX_ACCELERATION)] ]
                 } msg] {
-        err_exit "Missing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+        err_exit "<$msg>\n\nMissing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
       }
       setp joint.$jnum.jog-accel-fraction $jfraction
 
