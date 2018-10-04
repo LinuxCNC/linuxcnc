@@ -554,7 +554,7 @@ void STRAIGHT_PROBE(int line_number,
 }
 
 
-void RIGID_TAP(int line_number, double x, double y, double z, double mult)
+void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 {
 
 
