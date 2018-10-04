@@ -1025,8 +1025,8 @@ A rigid tapping move consists of the following sequence:
 . A move from the current coordinate to the specified coordinate, synchronized
    with the spindle at the given ratio and starting from the current coordinate
    with a spindle index pulse.
-. When reaching the endpoint, a command to reverse the spindle (e.g.,
-   from clockwise to counterclockwise).
+. When reaching the endpoint, a command to reverse the spindle, and speed up
+  by a factor set by the multiplier (e.g., from clockwise to counterclockwise).
 . Continued synchronized motion beyond the specified end coordinate
    until the spindle actually stops and reverses.
 . Continued synchronized motion back to the original coordinate.
