@@ -30,20 +30,20 @@ net mode-manual          pyvcp.mode.manual          halui.mode.manual
 net mode-auto            pyvcp.mode.auto            halui.mode.auto  
 net mode-mdi             pyvcp.mode.mdi             halui.mode.mdi   
 
-net spindle-start        pyvcp.spindle.on           halui.spindle.start
-net spindle-stop         pyvcp.spindle.off          halui.spindle.stop
-net spindle-forward      pyvcp.spindle.forward      halui.spindle.forward
-net spindle-reverse      pyvcp.spindle.reverse      halui.spindle.reverse
-net spindle-increase     pyvcp.spindle.increase     halui.spindle.increase
-net spindle-decrease     pyvcp.spindle.decrease     halui.spindle.decrease
+net spindle-start        pyvcp.spindle.on           halui.spindle.0.start
+net spindle-stop         pyvcp.spindle.off          halui.spindle.0.stop
+net spindle-forward      pyvcp.spindle.forward      halui.spindle.0.forward
+net spindle-reverse      pyvcp.spindle.reverse      halui.spindle.0.reverse
+net spindle-increase     pyvcp.spindle.increase     halui.spindle.0.increase
+net spindle-decrease     pyvcp.spindle.decrease     halui.spindle.0.decrease
 
 net mode-is-manual       pyvcp.mode.is-manual       halui.mode.is-manual
 net mode-is-auto         pyvcp.mode.is-auto         halui.mode.is-auto  
 net mode-is-mdi          pyvcp.mode.is-mdi          halui.mode.is-mdi   
 
-net spindle-is-on        pyvcp.spindle.is-on        halui.spindle.is-on
-net spindle-is-forward   pyvcp.spindle.is-forward   halui.spindle.runs-forward
-net spindle-is-backward  pyvcp.spindle.is-reverse   halui.spindle.runs-backward
+net spindle-is-on        pyvcp.spindle.is-on        halui.spindle.0.is-on
+net spindle-is-forward   pyvcp.spindle.is-forward   halui.spindle.0.runs-forward
+net spindle-is-backward  pyvcp.spindle.is-reverse   halui.spindle.0.runs-backward
 
 net j0-home              pyvcp.x.home               halui.joint.0.home
 net j0-is-homed          pyvcp.x.is-homed           halui.joint.0.is-homed
@@ -79,9 +79,9 @@ net fo-increase          pyvcp.feed-override+       halui.feed-override.increase
 net fo-decrease          pyvcp.feed-override-       halui.feed-override.decrease
 net fo-value             pyvcp.feed-override.value  halui.feed-override.value
 
-net so-increase          pyvcp.spindle-override+    halui.spindle-override.increase
-net so-decrease          pyvcp.spindle-override-    halui.spindle-override.decrease
-net so-value             pyvcp.spindle-override.value  halui.spindle-override.value
+net so-increase          pyvcp.spindle-override+    halui.spindle.0.override.increase
+net so-decrease          pyvcp.spindle-override-    halui.spindle.0.override.decrease
+net so-value             pyvcp.spindle-override.value  halui.spindle.0.override.value
 
 net os-on                pyvcp.optional-stop.on     halui.program.optional-stop.on
 net os-off               pyvcp.optional-stop.off    halui.program.optional-stop.off
