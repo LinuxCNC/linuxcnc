@@ -1408,7 +1408,7 @@ STATIC int tpSetupSyncedIO(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  * Adds a rigid tap cycle to the motion queue.
  */
 int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxvel,
-        double acc, unsigned char enables) {
+        double acc, unsigned char enables, double scale) {
     if (tpErrorCheck(tp)) {
         return TP_ERR_FAIL;
     }
@@ -1448,7 +1448,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     // Setup rigid tap geometry
     pmRigidTapInit(&tc.coords.rigidtap,
             &tp->goalPos,
-            &end);
+            &end, scale);
     tc.target = pmRigidTapTarget(&tc.coords.rigidtap, tp->uu_per_rev);
 
     // Force exact stop mode after rigid tapping regardless of TP setting
@@ -2314,7 +2314,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
-            	emcmotStatus->spindle_status[tp->spindle.spindle_num].speed *= -1.0;
+            	emcmotStatus->spindle_status[tp->spindle.spindle_num].speed *= -1.0 * tc->coords.rigidtap.reversal_scale;
                 tc->coords.rigidtap.state = REVERSING;
             }
             break;
@@ -2343,7 +2343,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
         case RETRACTION:
             tc_debug_print("RETRACTION\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
-            	emcmotStatus->spindle_status[tp->spindle.spindle_num].speed *= -1;
+            	emcmotStatus->spindle_status[tp->spindle.spindle_num].speed *= -1 / tc->coords.rigidtap.reversal_scale;
                 tc->coords.rigidtap.state = FINAL_REVERSAL;
             }
             break;

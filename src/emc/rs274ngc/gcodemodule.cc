@@ -485,7 +485,7 @@ void STRAIGHT_PROBE(int line_number,
 
 }
 void RIGID_TAP(int line_number,
-               double x, double y, double z) {
+               double x, double y, double z, double mult) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;

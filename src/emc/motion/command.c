@@ -1610,7 +1610,7 @@ void emcmotCommandHandler(void *arg, long period)
 
 	    /* append it to the emcmotDebug->coord_tp */
 	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    int res_addtap = tpAddRigidTap(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new);
+	    int res_addtap = tpAddRigidTap(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, emcmotCommand->scale);
         if (res_addtap < 0) {
             emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
             reportError(_("can't add rigid tap move at line %d, error code %d"),
