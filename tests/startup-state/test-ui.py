@@ -95,7 +95,7 @@ def print_status(status):
     print "spindle_brake:", status.spindle[0]['brake']
     print "spindle_direction:", status.spindle[0]['direction']
     print "spindle_enabled:", status.spindle[0]['enabled']
-    print "spindle_override_enabled:", status.spindle[0]['override-enabled']
+    print "spindle_override_enabled:", status.spindle[0]['override_enabled']
     print "spindle_speed:", status.spindle[0]['speed']
     print "spindlerate:", status.spindle[0]['override']
     print "state:", status.state
@@ -306,7 +306,7 @@ assert(s.settings == (0.0, 0.0, 0.0))
 assert(s.spindle[0]['brake'] == 1)
 assert(s.spindle[0]['direction'] == 0)
 assert(s.spindle[0]['enabled'] == 0)
-assert(s.spindle[0]['override-enabled'] == True)
+assert(s.spindle[0]['override_enabled'] == True)
 assert(s.spindle[0]['speed'] == 0.0)
 assert(s.spindle[0]['override'] == 1.0)
 assert(s.state == linuxcnc.STATE_ESTOP)
