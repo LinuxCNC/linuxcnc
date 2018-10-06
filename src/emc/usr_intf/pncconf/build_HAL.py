@@ -425,9 +425,9 @@ class HAL:
 
         print >>file, "net jog-selected-pos      halui.axis.selected.plus"
         print >>file, "net jog-selected-neg      halui.axis.selected.minus"
-        print >>file, "net spindle-manual-cw     halui.spindle.forward"
-        print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
-        print >>file, "net spindle-manual-stop   halui.spindle.stop"
+        print >>file, "net spindle-manual-cw     halui.spindle.0.forward"
+        print >>file, "net spindle-manual-ccw    halui.spindle.0.reverse"
+        print >>file, "net spindle-manual-stop   halui.spindle.0.stop"
         print >>file, "net machine-is-on         halui.machine.is-on"
         print >>file, "net jog-speed             halui.axis.jog-speed"
         print >>file, "net MDI-mode              halui.mode.is-mdi"
@@ -669,25 +669,25 @@ class HAL:
             if self.d.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.spindle-override.direct-value false"
-                print >>file, "    setp halui.spindle-override.scale .01"
+                print >>file, "    setp halui.spindle.0.override.direct-value false"
+                print >>file, "    setp halui.spindle.0.override.scale .01"
                 if pinname: # dedicated MPG
                     if self.d.findsignal("so-enable"): # make it enable-able externally
-                        print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
+                        print >>file, "net so-enable             =>  halui.spindle.0.override.count-enable"
                     else:
-                        print >>file, "    setp halui.spindle-override.count-enable true"
-                    print >>file, "net so-count              =>  halui.spindle-override.counts"
+                        print >>file, "    setp halui.spindle.0.override.count-enable true"
+                    print >>file, "net so-count              =>  halui.spindle.0.override.counts"
                 else: # shared MPG
-                    print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
-                    print >>file, "net axis-selected-count  =>  halui.spindle-override.counts"
+                    print >>file, "net so-enable             =>  halui.spindle.0.override.count-enable"
+                    print >>file, "net axis-selected-count  =>  halui.spindle.0.override.counts"
                 print >>file
             elif self.d.so_useswitch:
                 print >>file, "# connect spindle overide increments "
                 print >>file
-                print >>file, "    setp halui.spindle-override.count-enable true"
-                print >>file, "    setp halui.spindle-override.direct-value true"
-                print >>file, "    setp halui.spindle-override.scale .01"
-                print >>file, "net spindleoverride-incr  =>  halui.spindle-override.counts"
+                print >>file, "    setp halui.spindle.0.override.count-enable true"
+                print >>file, "    setp halui.spindle.0.override.direct-value true"
+                print >>file, "    setp halui.spindle.0.override.scale .01"
+                print >>file, "net spindleoverride-incr  =>  halui.spindle.0.override.counts"
                 print >>file, "net so-incr-a             =>  soincr.sel0"
                 print >>file, "net so-incr-b             =>  soincr.sel1"
                 print >>file, "net so-incr-c             =>  soincr.sel2"
