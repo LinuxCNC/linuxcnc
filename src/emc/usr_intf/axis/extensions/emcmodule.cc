@@ -1022,17 +1022,20 @@ static PyObject *flood(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *brake(pyCommandChannel *s, PyObject *o) {
     int dir;
-    if(!PyArg_ParseTuple(o, "i", &dir)) return NULL;
+    int spindle = 0;
+    if(!PyArg_ParseTuple(o, "i|i", &dir, &spindle)) return NULL;
     switch(dir) {
         case LOCAL_BRAKE_ENGAGE:
         {
             EMC_SPINDLE_BRAKE_ENGAGE m;
+            m.spindle = spindle;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_BRAKE_RELEASE:
         {
             EMC_SPINDLE_BRAKE_RELEASE m;
+            m.spindle = spindle;
             emcSendCommand(s, m);
         }
             break;
