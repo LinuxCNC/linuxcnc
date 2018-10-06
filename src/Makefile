@@ -121,22 +121,14 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 #
 # Following tradition, this incarnation of the modules recipe is
 # placed far away from all others.
-FLAVORUP = $(shell echo $(1) | tr a-z- A-Z_)
-FLAVORVAR = $($(call FLAVORUP,$(1))_THREADS_$(2))
+
 modules:  userspace
-	@$(foreach f,$(BUILD_THREAD_FLAVORS),\
-	    echo "Making modules for flavor $(f)"; \
-	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
-		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
-		    echo "    kernel source dir $(kd)"; \
-		    $(MAKE) modules threads=$(f) KERNELDIR=$(kd);\
-		    ),\
-	        $(MAKE) modules threads=$(f);\
-	    )\
-	)
+	for f in $(BUILD_THREAD_FLAVORS); do \
+	    $(MAKE) modules threads=$$f; \
+	done; \
 
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
-	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
+	for f in $(BUILD_THREAD_FLAVORS); do \
 	    test -f ../libexec/rtapi_app_$$f -a \
 		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
 			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
