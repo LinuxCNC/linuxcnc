@@ -1,5 +1,5 @@
 //    This is a component of AXIS, a front-end for LinuxCNC
-//    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and 
+//    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
 //    Chris Radek <chris@timeguy.com>
 //
 //    This program is free software; you can redistribute it and/or modify
@@ -114,9 +114,9 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
 
 static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
     const char *s1, *s2, *out;
-    int num = 1; 
+    int num = 1;
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
-    
+
     out = self->i->Find(s2, s1, num);
     if(out == NULL) {
         Py_INCREF(Py_None);
@@ -127,9 +127,9 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
     const char *s1, *s2, *out;
-    int num = 1; 
+    int num = 1;
     if(!PyArg_ParseTuple(args, "ss:findall", &s1, &s2)) return NULL;
-    
+
     PyObject *result = PyList_New(0);
     while(1) {
         out = self->i->Find(s2, s1, num);
@@ -274,7 +274,7 @@ static void Stat_dealloc(PyObject *self) {
 }
 
 static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
-    if(!emcStatusBuffer->valid()) { 
+    if(!emcStatusBuffer->valid()) {
         PyErr_Format( error, "emcStatusBuffer invalid err=%d", emcStatusBuffer->error_type);
         return false;
     }
@@ -298,7 +298,7 @@ static PyMethodDef Stat_methods[] = {
 
 #define O(x) offsetof(pyStatChannel,status.x)
 static PyMemberDef Stat_members[] = {
-// stat 
+// stat
     {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {(char*)"state", T_INT, O(status), READONLY},
@@ -802,7 +802,7 @@ static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "i", &t)) return NULL;
     m.state = t;
-            
+
     emcSendCommand(s, m);
 
     Py_INCREF(Py_None);
@@ -852,7 +852,7 @@ static PyObject *maxvel(pyCommandChannel *s, PyObject *o) {
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
-}    
+}
 
 static PyObject *feedrate(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SCALE m;
@@ -964,8 +964,8 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.offset.tran.z, &m.offset.tran.x, &m.diameter, 
-                         &m.frontangle, &m.backangle, &m.orientation)) 
+    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.offset.tran.z, &m.offset.tran.x, &m.diameter,
+                         &m.frontangle, &m.backangle, &m.orientation))
         return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
@@ -1083,7 +1083,7 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-// jog(JOG_STOP,       jjogmode, ja_value) 
+// jog(JOG_STOP,       jjogmode, ja_value)
 // jog(JOG_CONTINUOUS, jjogmode, ja_value, speed)
 // jog(JOG_INCREMENT,  jjogmode, ja_value, speed, increment)
 static PyObject *jog(pyCommandChannel *s, PyObject *o) {
@@ -1094,7 +1094,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "iii|dd", &fn, &jjogmode, &ja_value, &vel, &inc)) {
         return NULL;
     }
-    
+
     if(fn == LOCAL_JOG_STOP) {
         if(PyTuple_Size(o) != 3) {
             PyErr_Format( PyExc_TypeError,
@@ -1203,7 +1203,7 @@ static PyObject *debug(pyCommandChannel *s, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "i", &d.debug)) return NULL;
     emcSendCommand(s, d);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1214,7 +1214,7 @@ static PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "i", &en.enable)) return NULL;
 
     emcSendCommand(s, en);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1225,7 +1225,7 @@ static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "i", &mo.mode)) return NULL;
 
     emcSendCommand(s, mo);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1837,7 +1837,7 @@ typedef struct {
 } pyPositionLogger;
 
 static const double epsilon = 1e-4; // 1-cos(1 deg) ~= 1e-4
-static const double tiny = 1e-10; 
+static const double tiny = 1e-10;
 
 static inline bool colinear(float xa, float ya, float za, float xb, float yb, float zb, float xc, float yc, float zc) {
     double dx1 = xa-xb, dx2 = xb-xc;
@@ -1986,7 +1986,7 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                         int adjust = MAX_POINTS / 10;
                         if(adjust < 2) adjust = 2;
                         s->npts -= adjust;
-                        memmove(s->p, s->p + adjust, 
+                        memmove(s->p, s->p + adjust,
                                 sizeof(struct logger_point) * s->npts);
                     } else {
                         s->mpts = 2 * s->mpts + 2;
@@ -2312,4 +2312,3 @@ initlinuxcnc(void) {
 
 
 // # vim:sw=4:sts=4:et:ts=8:
-
