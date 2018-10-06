@@ -712,8 +712,8 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `set_optional_stop(int)`::
     set optional stop on/off
 
-`set_spindle_override(int)`::
-    set spindle override flag
+`set_spindle_override(int [, int])`::
+    set spindle override enabled. Defaults to spindle 0.
 
 `spindle(int [[float] [int] [float,int]])`::
     set spindle direction. Argument one of SPINDLE_FORWARD,
@@ -735,7 +735,7 @@ c.spindle(linuxcnc.SPINDLE_INCREASE, 2)
 c.spindle.(linuxcnc.SPINDLE_FORWARD, 1024)
 
 #Set speed of spindle 1 to -666 rpm
-c.spindle.(linuxcnc.SPINDLE_REVERSE, 666,1)
+c.spindle.(linuxcnc.SPINDLE_REVERSE, 666, 1)
 
 #Stop spindle 0
 c.spindle.(linuxcnc.SPINDLE_OFF)
