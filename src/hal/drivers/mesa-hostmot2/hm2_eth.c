@@ -614,8 +614,8 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
         board->comm_error_counter = 0;
     }
 
-    long read_timeout = board->hal ? board->hal->read_timeout : 800000;
     if(read_timeout <= 0)
+    long read_timeout = board->hal ? board->hal->read_timeout : 1600000;
         read_timeout = 80;
     if(read_timeout < 100)
         read_timeout = rtapi_div_s64(read_timeout * (unsigned long long)board->llio.period, 100);
