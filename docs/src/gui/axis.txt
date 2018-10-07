@@ -749,7 +749,7 @@ The hal_manualtoolchange component includes a hal pin for a button that
 can be connected to a physical button to complete the tool change and
 remove the window prompt (hal_manualtoolchange.change_button).
 
-The HAL configuration file 'configs/sim/axis_manualtoolchange.hal'
+The HAL configuration file 'lib/hallib/axis_manualtoolchange.hal'
 shows the HAL commands necessary to use this component.
 
 hal_manualtoolchange can be used even when AXIS is not used as the GUI. 
