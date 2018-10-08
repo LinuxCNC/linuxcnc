@@ -27,12 +27,16 @@ SHLIBDEPS_X :=  # add patterns here
 #
 # The name 'libtk8.6.so' can't be parsed by dpkg-shlibdeps, it seems:
 #     "can't extract name and version from library name 'libtk8.6.so'
-SHLIBDEPS_X += tcltk/linuxcnc/linuxcnc.so dist-packages/_togl _togl.so
+SHLIBDEPS_X += linuxcnc.so _togl.so
 #
 # libcanterp.so.0 and librs274.so.0: hack for now:  see
 # https://github.com/machinekit/machinekit/issues/324
 #     "symbol ... used by ... found in none of the libraries"
 SHLIBDEPS_X += libcanterp.so.0 librs274.so.0
+#
+# halmeter classicladder halscope link to $(GTK_LIBS), which includes
+# several libs that aren't used (but several that are needed)
+SHLIBDEPS_X += halmeter classicladder halscope
 
 # Enable/disable thread flavors; all flavors disabled by default
 THREADS_POSIX = --without-posix
