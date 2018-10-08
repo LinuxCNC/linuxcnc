@@ -1902,7 +1902,8 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	@sh move-if-change $@.tmp $@
 
 ../lib/%.so: ../lib/%.so.0
-	ln -sf $(notdir $<) $@
+	$(ECHO) Symlinking $(notdir $<) to $(notdir $@)
+	$(Q)ln -sf $(notdir $<) $@
 
 cscope:
 	cscope -Rb
