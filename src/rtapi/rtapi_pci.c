@@ -133,7 +133,7 @@ struct rtapi_pcidev * rtapi_pci_get_device(__u16 vendor, __u16 device,
 {
 	int err;
 	DIR *dir;
-	struct dirent dirent_buf, *dirent;
+	struct dirent *dirent;
 	ssize_t res;
 	char buf[256], path[256];
 	struct rtapi_pcidev *dev = NULL;
@@ -184,14 +184,17 @@ rtapi_print_msg(RTAPI_MSG_ERR,
 	while (1) {
 		unsigned int tmp;
 
-		err = readdir_r(dir, &dirent_buf, &dirent);
-		if (err) {
+		dirent = readdir(dir);
+                if (dirent==NULL) {
+                    if (errno) {
 			rtapi_print_msg(RTAPI_MSG_ERR,
 					"Failed to read UIO-pci-generic sysfs directory. (%s)\n",
 					strerror(errno));
 			closedir(dir);
 			goto error;
-		}
+                    } else // end of directory
+                        break;
+                }
 		if (from && !found_start) {
 			if (strcmp(dirent->d_name, from->busid) == 0) {
 				/* Found the start entry. */
@@ -251,14 +254,17 @@ rtapi_print_msg(RTAPI_MSG_ERR,
 	while (1) {
 		unsigned int tmp;
 
-		err = readdir_r(dir, &dirent_buf, &dirent);
-		if (err) {
+		dirent = readdir(dir);
+                if (dirent==NULL) {
+                    if (errno) {
 			rtapi_print_msg(RTAPI_MSG_ERR,
 					"Failed to read UIO directory. (%s)\n",
 					strerror(errno));
 			closedir(dir);
 			goto error;
-		}
+                    } else // end of directory
+                        break;
+                }
 		res = sscanf(dirent->d_name, "uio%u", &tmp);
 		if (res != 1)
 			continue;
