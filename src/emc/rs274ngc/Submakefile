@@ -78,7 +78,8 @@ $(PREVIEWMODULE): $(call TOOBJS, $(PREVIEWMODULESRCS)) \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS)  $(PROTOBUF_LIBS)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS) \
+	    $(PROTOBUF_LIBS)
 
 
 PYTARGETS += $(PREVIEWMODULE)
