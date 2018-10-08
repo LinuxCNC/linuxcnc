@@ -400,7 +400,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], u8 *num_frames, u16 *max_
     r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_mode_addr,
                         &buff, sizeof(u32));
     if (r < 0) {
-        HM2_ERR("%s read: hm2->llio->write failure %s\n", name);
+        HM2_ERR("%s read: hm2->llio->write failure\n", name);
                 return -1; // make the error message more detailed
     }
     countp = (buff >> 16)  & 0x1f; 
