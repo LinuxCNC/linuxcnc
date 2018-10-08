@@ -290,7 +290,6 @@ void halt_motion(struct hal_joint_t *joints) {
 
 void drawbot_home(void *args, long period) {
   int idx;
-  hal_bit_t homing = 0;
 
   for(idx = 0; idx < 4; ++idx) {
     *(haldata->joint[idx].home) = 0;
@@ -388,7 +387,7 @@ void drawbot_home_a(struct hal_joint_t *joint) {
     joint[3].tripped = 1;
     halt_motion(joint);
   } else if(!joint[3].started) {
-    joint[3].started;
+    joint[3].started = 1;
     *(joint[1].jog) = 1.0;
     *(joint[3].jog) = -1.0;
   }

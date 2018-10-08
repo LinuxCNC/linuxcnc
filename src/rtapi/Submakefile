@@ -85,7 +85,7 @@ ULAPISO := ../rtlib/ulapi-$(threads).so
 
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(ULAPI_SRCS))
-	$(ECHO) Creating shared object $@
+	$(ECHO) Creating shared object $(notdir $@)
 	@mkdir -p ../rtlib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
@@ -110,7 +110,8 @@ ULAPI_AUTOLOAD_SRCS := \
 	rtapi/ulapi_autoload.c \
 	rtapi/rtapi_compat.c \
 	rtapi/rtapi_hexdump.c \
-	rtapi/rtapi_support.c
+	rtapi/rtapi_support.c \
+	machinetalk/lib/syslog_async.c
 
 USERSRCS += $(ULAPI_AUTOLOAD_SRCS)
 
@@ -252,8 +253,8 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	    $(RTAPI_APP_RPATH) \
 	    -o $@ \
 	    $^ \
-	    $(LDFLAGS) $(RT_LDFLAGS) \
-	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) $(LTTNG_UST_LIBS) \
+	    $(LDFLAGS) \
+	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
@@ -356,7 +357,7 @@ RTAPI_MSGD_CFLAGS := \
 
 RTAPI_MSGD_LDFLAGS := \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) \
-	-lstdc++ -ldl -lz -luuid
+	-lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
 

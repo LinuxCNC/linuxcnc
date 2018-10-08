@@ -8,10 +8,10 @@
 * Author:
 * License: LGPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)
@@ -432,7 +432,7 @@ int pmMatRotConvert(PmRotationMatrix const * const m, PmRotationVector * const r
 
 int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
 {
-    /* 
+    /*
        from Stephe's "space" book e1 = (c32 - c23) / 4*e4 e2 = (c13 - c31) /
        4*e4 e3 = (c21 - c12) / 4*e4 e4 = sqrt(1 + c11 + c22 + c33) / 2
 
@@ -442,7 +442,7 @@ int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
        180* rotation then (0 x y z) = (0 -x -y -z). Thus some generallities
        can be used: 1) find which of e1, e2, or e3 has the largest magnitude
        and leave it pos. 2) if e1 is largest then if c21 < 0 then take the
-       negative for e2 if c31 < 0 then take the negative for e3 3) else if e2 
+       negative for e2 if c31 < 0 then take the negative for e3 3) else if e2
        is largest then if c21 < 0 then take the negative for e1 if c32 < 0
        then take the negative for e3 4) else if e3 is larget then if c31 < 0
        then take the negative for e1 if c32 < 0 then take the negative for e2
@@ -523,14 +523,14 @@ int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
 {
     zyx->y = rtapi_atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
-    if (fabs(zyx->y - PM_PI_2) < ZYX_Y_FUZZ) {
+    if (rtapi_fabs(zyx->y - PM_PI_2) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
 	zyx->y = PM_PI_2;	/* force it */
-	zyx->x = atan2(m->y.x, m->y.y);
-    } else if (fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
+	zyx->x = rtapi_atan2(m->y.x, m->y.y);
+    } else if (rtapi_fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
 	zyx->y = -PM_PI_2;	/* force it */
-	zyx->x = -atan2(m->y.z, m->y.y);
+	zyx->x = -rtapi_atan2(m->y.z, m->y.y);
     } else {
 	zyx->z = rtapi_atan2(m->x.y, m->x.x);
 	zyx->x = rtapi_atan2(m->y.z, m->z.z);
@@ -543,12 +543,12 @@ int pmMatRpyConvert(PmRotationMatrix const * const m, PmRpy * const rpy)
 {
     rpy->p = rtapi_atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
-    if (fabs(rpy->p - PM_PI_2) < RPY_P_FUZZ) {
-	rpy->r = atan2(m->y.x, m->y.y);
+    if (rtapi_fabs(rpy->p - PM_PI_2) < RPY_P_FUZZ) {
+	rpy->r = rtapi_atan2(m->y.x, m->y.y);
 	rpy->p = PM_PI_2;	/* force it */
 	rpy->y = 0.0;
-    } else if (fabs(rpy->p + PM_PI_2) < RPY_P_FUZZ) {
-	rpy->r = -atan2(m->y.x, m->y.y);
+    } else if (rtapi_fabs(rpy->p + PM_PI_2) < RPY_P_FUZZ) {
+	rpy->r = -rtapi_atan2(m->y.x, m->y.y);
 	rpy->p = -PM_PI_2;	/* force it */
 	rpy->y = 0.0;
     } else {
@@ -1017,7 +1017,7 @@ int pmCartUnitEq(PmCartesian * const v)
 }
 
 /*! \todo This is if 0'd out so we can find all the pmCartNorm calls that should
- be renamed pmCartUnit. 
+ be renamed pmCartUnit.
  Later we'll put this back. */
 #if 0
 
@@ -1043,7 +1043,7 @@ int pmCartCartProj(PmCartesian const * const v1, PmCartesian const * const v2, P
     int r3=1;
     double d12;
     double d22;
-    
+
     r1 = pmCartCartDot(v1, v2, &d12);
     r2 = pmCartCartDot(v2, v2, &d22);
     if (!(r1 || r1)){
@@ -1760,7 +1760,7 @@ int pmCircleInit(PmCircle * const circle,
     pmCartCartAdd(&v, center, &circle->center);
 
     /* normalize and redirect normal vector based on turns. If turn is less
-       than 0, point normal vector in other direction and make turn positive, 
+       than 0, point normal vector in other direction and make turn positive,
        -1 -> 0, -2 -> 1, etc. */
     pmCartUnit(normal, &circle->normal);
     if (turn < 0) {
@@ -1930,7 +1930,7 @@ int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
         pmCartCartSub(&new_start, &circ->center, &circ->rTan);
         pmCartCartCross(&circ->normal, &circ->rTan, &circ->rPerp);
         pmCartMag(&circ->rTan, &circ->radius);
-    } 
+    }
     //Reduce the spiral proportionally
     circ->spiral *= (new_angle / circ->angle);
     // Easy to grow / shrink from start

@@ -224,6 +224,11 @@ DONE: - spindle-override
 
 #define MDI_MAX 64
 
+#pragma GCC diagnostic push
+#if defined(__GNUC__) && (__GNUC__ > 4)
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 #define HAL_FIELDS \
     FIELD(hal_bit_t,machine_on) /* pin for setting machine On */ \
     FIELD(hal_bit_t,machine_off) /* pin for setting machine Off */ \
@@ -380,6 +385,7 @@ HAL_FIELDS
 
 typedef halui_str_base<PTR> halui_str;
 typedef halui_str_base<VALUE> local_halui_str;
+#pragma GCC diagnostic pop
 
 static halui_str *halui_data;
 static local_halui_str old_halui_data;

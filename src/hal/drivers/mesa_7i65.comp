@@ -50,7 +50,7 @@ include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
 char *bspi_chans[16] = {0,};
 RTAPI_MP_ARRAY_STRING(bspi_chans, 16, "BSPI Channel names");
 
-static void read(struct __comp_state *__comp_inst){
+static int read(struct __comp_state *__comp_inst){
     int i;
     double aout[8];
 
@@ -153,6 +153,8 @@ static void read(struct __comp_state *__comp_inst){
     for(i=0; i < 8; i++) {
         analogue_in(i) = (double)((s16)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
     }
+
+    return 0;
 }
 
 EXTRA_SETUP(){
@@ -224,7 +226,7 @@ EXTRA_SETUP(){
     r += hm2_allocate_bspi_tram(name);
 
     // Tell the bspi driver which function to call
-    r += hm2_bspi_set_read_function(name, &read, __comp_inst);
+    r += hm2_bspi_set_read_function(name, (int (*)(void *))&read, __comp_inst);
 
     // no separate write function in this example, but it would be:
     // r += hm2_bspi_set_write_function(name, &write, __comp_inst);

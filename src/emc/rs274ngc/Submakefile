@@ -60,7 +60,7 @@ PYSRCS += $(GCODEMODULESRCS)
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
 
 
 PYTARGETS += $(GCODEMODULE)
@@ -78,7 +78,8 @@ $(PREVIEWMODULE): $(call TOOBJS, $(PREVIEWMODULESRCS)) \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS)  $(PROTOBUF_LIBS)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS) \
+	    $(PROTOBUF_LIBS)
 
 
 PYTARGETS += $(PREVIEWMODULE)

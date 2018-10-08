@@ -24,13 +24,14 @@ $(call TOOBJSDEPS, $(HALSO_CXXSRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
 $(HALNGMKDIR)/hal.c: $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
 
 TARGETS += ../lib/python/machinekit/hal.so
-../lib/python/machinekit/hal.so:	../lib/liblinuxcnchal.so.0 \
-	../lib/libmtalk.so.0 \
-	 $(patsubst %.c,objects/%.o,$(HALSO_SRCS)) \
-	 $(patsubst %.cc,objects/%.o,$(HALSO_CXXSRCS))
-	$(ECHO) Linking $($@)
+../lib/python/machinekit/hal.so: \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/libmtalk.so.0 \
+		$(patsubst %.c,objects/%.o,$(HALSO_SRCS)) \
+		$(patsubst %.cc,objects/%.o,$(HALSO_CXXSRCS))
+	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(CC) -g $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CC) -g $(LDFLAGS) -shared -o $@ $^
 
 
 RTAPISO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
@@ -48,14 +49,14 @@ $(call TOOBJSDEPS, $(RTAPISO_CXXSRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
 TARGETS += ../lib/python/machinekit/rtapi.so
 
 ../lib/python/machinekit/rtapi.so: \
-	 $(patsubst %.c,objects/%.o,$(RTAPISO_CSRCS)) \
-	 $(patsubst %.cc,objects/%.o,$(RTAPISO_CXXSRCS)) \
-	../lib/liblinuxcnchal.so.0 \
-	../lib/libmachinetalk-pb2++.so.0 \
-	../lib/libmtalk.so.0
-	$(ECHO) Linking $($@)
+		$(patsubst %.c,objects/%.o,$(RTAPISO_CSRCS)) \
+		$(patsubst %.cc,objects/%.o,$(RTAPISO_CXXSRCS)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/libmachinetalk-pb2++.so.0 \
+		../lib/libmtalk.so.0
+	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(CC) -g $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CC) -g $(LDFLAGS) -shared -o $@ $^
 
 
 COMPATSO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
@@ -67,11 +68,11 @@ USERSRCS += $(COMPATSO_CSRCS)
 $(call TOOBJSDEPS, $(COMPATSO_CSRCS)) : EXTRAFLAGS=-fPIC
 TARGETS += ../lib/python/machinekit/compat.so
 ../lib/python/machinekit/compat.so: \
-	 $(patsubst %.c,objects/%.o,$(COMPATSO_CSRCS)) \
-	../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $($@)
+		$(patsubst %.c,objects/%.o,$(COMPATSO_CSRCS)) \
+		../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(CC) -g $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CC) -g $(LDFLAGS) -shared -o $@ $^
 
 
 SHMCOMMONSO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
@@ -82,10 +83,10 @@ USERSRCS += $(SHMCOMMONSO_CSRCS)
 $(call TOOBJSDEPS, $(SHMCOMMONSO_CSRCS)) : EXTRAFLAGS=-fPIC -Irtapi/shmdrv
 TARGETS += ../lib/python/machinekit/shmcommon.so
 ../lib/python/machinekit/shmcommon.so: \
-	 $(patsubst %.c,objects/%.o,$(SHMCOMMONSO_CSRCS))
-	$(ECHO) Linking $($@)
+		$(patsubst %.c,objects/%.o,$(SHMCOMMONSO_CSRCS))
+	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
+	$(Q)$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
 
 $(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
 	$(CYTHON) -o $@ $<
