@@ -2581,14 +2581,15 @@ STATIC int tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
     }
 
     if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed)) {
-    	for (s = 0; s < emcmotConfig->numSpindles; s++)
-			if(!emcmotStatus->spindle_status[s].at_speed) {
-				// spindle is still not at the right speed, so wait another cycle
-				return TP_ERR_WAITING;
-			}
-	} else {
-		tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
-	}
+        for (s = 0; s < emcmotConfig->numSpindles; s++){
+            if(!emcmotStatus->spindle_status[s].at_speed) {
+                // spindle is still not at the right speed, so wait another cycle
+                return TP_ERR_WAITING;
+            }
+        }
+        // not waiting any more
+        tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
+    }
 
     if (MOTION_ID_VALID(tp->spindle.waiting_for_index)) {
         if (emcmotStatus->spindle_status[tp->spindle.spindle_num].spindle_index_enable) {
@@ -2651,13 +2652,13 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
 
     if (needs_atspeed){
-    	int s;
-    	for (s = 0; s < emcmotConfig->numSpindles; s++){
-    		if (!emcmotStatus->spindle_status[s].at_speed) {
-    			tp->spindle.waiting_for_atspeed = tc->id;
-    			return TP_ERR_WAITING;
-    		}
-    	}
+        int s;
+        for (s = 0; s < emcmotConfig->numSpindles; s++){
+            if (!emcmotStatus->spindle_status[s].at_speed) {
+                tp->spindle.waiting_for_atspeed = tc->id;
+                return TP_ERR_WAITING;
+            }
+        }
     }
 
     if (tc->indexrotary != -1) {
