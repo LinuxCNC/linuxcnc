@@ -110,7 +110,8 @@ ULAPI_AUTOLOAD_SRCS := \
 	rtapi/ulapi_autoload.c \
 	rtapi/rtapi_compat.c \
 	rtapi/rtapi_hexdump.c \
-	rtapi/rtapi_support.c
+	rtapi/rtapi_support.c \
+	machinetalk/lib/syslog_async.c
 
 USERSRCS += $(ULAPI_AUTOLOAD_SRCS)
 
