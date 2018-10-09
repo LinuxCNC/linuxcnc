@@ -1651,13 +1651,18 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SPINDLE_ON:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON: spindle %d speed %d",
-                        emcmotCommand->spindle, (int) emcmotCommand->vel);
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON: spindle %d/%d speed %d\n",
+                        emcmotCommand->spindle, emcmotConfig->numSpindles, (int) emcmotCommand->vel);
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to start non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient))
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON");
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON\n");
 	    if (*(emcmot_hal_data->spindle[spindle_num].spindle_locked))
-		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON");
+		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON\n");
 	    *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
 	    *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
 	    emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_NONE;
@@ -1687,6 +1692,11 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SPINDLE_OFF:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_OFF");
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to stop non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    emcmotStatus->spindle_status[spindle_num].speed = 0;
 	    emcmotStatus->spindle_status[spindle_num].direction = 0;
 	    emcmotStatus->spindle_status[spindle_num].brake = 1; // engage brake
@@ -1702,6 +1712,11 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SPINDLE_ORIENT:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT");
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to orient non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    if (spindle_num > emcmotConfig->numSpindles){
             rtapi_print_msg(RTAPI_MSG_ERR, "spindle number too high in M19");
             break;
@@ -1734,6 +1749,11 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SPINDLE_INCREASE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_INCREASE");
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to increase non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    if (emcmotStatus->spindle_status[spindle_num].speed > 0) {
 		emcmotStatus->spindle_status[spindle_num].speed += 100; //FIXME - make the step a HAL parameter
 	    } else if (emcmotStatus->spindle_status[spindle_num].speed < 0) {
@@ -1744,6 +1764,11 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SPINDLE_DECREASE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_DECREASE");
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to decreasenon-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    if (emcmotStatus->spindle_status[spindle_num].speed > 100) {
 		emcmotStatus->spindle_status[spindle_num].speed -= 100; //FIXME - make the step a HAL parameter
 	    } else if (emcmotStatus->spindle_status[spindle_num].speed < -100) {
@@ -1754,6 +1779,11 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SPINDLE_BRAKE_ENGAGE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_BRAKE_ENGAGE");
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to engage brake of non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    emcmotStatus->spindle_status[spindle_num].speed = 0;
 	    emcmotStatus->spindle_status[spindle_num].direction = 0;
 	    emcmotStatus->spindle_status[spindle_num].brake = 1;
@@ -1762,6 +1792,11 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SPINDLE_BRAKE_RELEASE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_BRAKE_RELEASE");
 	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to release brake of non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
 	    emcmotStatus->spindle_status[spindle_num].brake = 0;
 	    break;
 

@@ -330,6 +330,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
     {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
     {(char*)"joints", T_INT, O(motion.traj.joints), READONLY},
+    {(char*)"spindles", T_INT, O(motion.traj.spindles), READONLY},
     {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
     {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY, (char*)"The current mode of the Motion controller.  One of TRAJ_MODE_FREE,\n"
         "TRAJ_MODE_COORD, or TRAJ_MODE_TELEOP." },
