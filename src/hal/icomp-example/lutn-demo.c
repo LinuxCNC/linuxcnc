@@ -76,7 +76,7 @@ static int lutn(void *arg, const hal_funct_args_t *fa)
 }
 
 static int instantiate_lutn(const int argc,
-			    const char**argv)
+			    char* const *argv)
 {
     const char *name = argv[1];
     struct inst_data *ip;

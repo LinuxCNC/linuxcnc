@@ -647,11 +647,13 @@ def prologue(f):
             print >>f, "static int %s(void *arg, const hal_funct_args_t *fa);\n" % to_c(name)
         names[name] = 1
 
-    print >>f, "static int instantiate(const int argc, const char**argv);\n"
+    print >>f, "static int instantiate(const int argc, char* const *argv);\n"
     # we always have a delete function now - to free local_argv
     print >>f, "static int delete(const char *name, void *inst, const int inst_size);\n"
     if options.get("extra_inst_setup") :
-        print >>f, "static int extra_inst_setup(struct inst_data* ip, const char *name, int argc, const char**argv);\n"
+        print >>f, "static int extra_inst_setup(\n" \
+            "struct inst_data* ip, const char *name, int argc,\n" \
+            "char* const *argv);\n"
     if options.get("extra_inst_cleanup"):
         print >>f, "static void extra_inst_cleanup(const char *name, void *inst, const int inst_size);\n"
 
@@ -684,7 +686,9 @@ def prologue(f):
 #
 ###########################  export_halobjs()  ######################################################
 
-    print >>f, "static int export_halobjs(struct inst_data *ip, int owner_id, const char *name, const int argc, const char **argv)\n{"
+    print >>f, "static int export_halobjs(\n" \
+        "struct inst_data *ip, int owner_id, const char *name,\n" \
+        "const int argc, char * const *argv)\n{"
 
     print >>f, "    char buf[HAL_NAME_LEN + 1];"
     print >>f, "    int r = 0;"
@@ -823,7 +827,7 @@ def prologue(f):
 ###########################  instantiate() ###############################################################
 
     print >>f, "\n// constructor - init all HAL pins, funct etc here"
-    print >>f, "static int instantiate(const int argc, const char**argv)\n{"
+    print >>f, "static int instantiate(const int argc, char* const *argv)\n{"
     print >>f, "struct inst_data *ip;"
     print >>f, "// argv[0]: component name"
     print >>f, "const char *name = argv[1];" # instance name
@@ -970,7 +974,10 @@ def prologue(f):
         if options.get("extra_inst_setup"):
             print >>f, "// if the extra_inst_setup returns non zero it will abort the module creation"
             print >>f, "#undef EXTRA_INST_SETUP"
-            print >>f, "#define EXTRA_INST_SETUP() static int extra_inst_setup(struct inst_data *ip, const char *name, int argc, const char**argv)"
+            print >>f, "#define EXTRA_INST_SETUP() \\\n" \
+                "static int extra_inst_setup( \\\n" \
+                "struct inst_data *ip, const char *name, \\\n" \
+                "int argc, char* const *argv)"
         if options.get("extra_inst_cleanup"):
             print >>f, "#undef EXTRA_INST_CLEANUP"
             print >>f, "#define EXTRA_INST_CLEANUP() static void extra_inst_cleanup(const char *name, void *inst, const int inst_size)"

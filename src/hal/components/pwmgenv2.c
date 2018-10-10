@@ -187,7 +187,7 @@ static int export_pwmgen(const char *name, const int inst_id,
 			 pwmgen_t * addr, const int output_type);
 static int make_pulses(void *arg, const hal_funct_args_t *fa);
 static int update(void *arg, const hal_funct_args_t *fa);
-static int instantiate_pwmgen(const int argc, const char**argv);
+static int instantiate_pwmgen(const int argc, char* const *argv);
 static int delete_pwmgen(const char *name, void *inst, const int inst_size);
 
 /***********************************************************************
@@ -236,7 +236,7 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-static int instantiate_pwmgen(const int argc, const char**argv)
+static int instantiate_pwmgen(const int argc, char* const *argv)
 {
     pwmgen_t *p;
     int retval;

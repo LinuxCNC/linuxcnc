@@ -301,7 +301,7 @@ int hal_ccomp_report(hal_compiled_comp_t *cc,
 
     for (i = 0; i < cc->n_pins; i++) {
 	if (report_all || RTAPI_BIT_TEST(cc->changed, i)) {
-	    const hal_pin_t *pin = cc->pin[i];
+	    hal_pin_t *pin = cc->pin[i];
 	    // XXX this is not a good API
 	    // drop the fourth argument and pass only the pin
 	    // to force accessor use in the report callback

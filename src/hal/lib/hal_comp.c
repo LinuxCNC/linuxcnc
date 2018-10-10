@@ -477,7 +477,7 @@ int free_comp_struct(hal_comp_t * comp)
 static int create_instance(const hal_funct_args_t *fa)
 {
     const int argc = fa_argc(fa);
-    const char **argv = fa_argv(fa);
+    char * const *argv = fa_argv(fa);
 
 #if 0
     HALDBG("'%s' called, arg=%p argc=%d",
@@ -510,7 +510,7 @@ static int create_instance(const hal_funct_args_t *fa)
 static int delete_instance(const hal_funct_args_t *fa)
 {
     const int argc = fa_argc(fa);
-    const char **argv = fa_argv(fa);
+    char * const *argv = fa_argv(fa);
 
     HALDBG("'%s' called, arg=%p argc=%d",
 	   fa_funct_name(fa), fa_arg(fa), argc);

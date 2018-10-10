@@ -145,7 +145,8 @@ static int halg_export_xfunctfv(const int use_hal_mutex,
 }
 #endif // RTAPI
 
-int hal_call_usrfunct(const char *name, const int argc, const char **argv, int *ureturn)
+int hal_call_usrfunct(const char *name, const int argc, char * const *argv,
+                      int *ureturn)
 {
     hal_funct_t *funct;
     int i;

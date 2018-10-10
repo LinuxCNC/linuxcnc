@@ -11,7 +11,7 @@ typedef struct {
     int magic;
     hal_comp_t *comp;
     int n_pins;
-    const hal_pin_t  **pin;
+    hal_pin_t  **pin;
     unsigned long *changed;      // bitmap
     hal_data_u    *tracking;     // tracking values of monitored pins
     void *user_data;             // uninterpreted by HAL code
@@ -35,7 +35,7 @@ typedef enum {
 
 typedef int(*comp_report_callback_t)(const int phase,
 				     const hal_compiled_comp_t *cc,
-				     const hal_pin_t  *pin,
+				     hal_pin_t  *pin,
 				     const hal_data_u *value,
 				     void *cb_data);
 

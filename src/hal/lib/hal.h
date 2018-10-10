@@ -293,7 +293,7 @@ typedef enum {
 // no instparms are applied as all arguments follow the '--' separator
 // argv = [foo, bar, instparm1=123, instparm2=3.14, --foo, --bar, baz, key=value]
 // argc = 8
-typedef int (*hal_constructor_t) (const int argc, const char**argv);
+typedef int (*hal_constructor_t) (const int argc, char* const *argv);
 typedef int (*hal_destructor_t) (const char *name, void *inst, const int inst_size);
 
 // generic base function
@@ -1149,7 +1149,8 @@ static inline int hal_unreference_vtable(int vtable_id)
 // if the return value < 0, this signifies a HAL library error code.
 // if the return value is 0, and ureturn is not NULL,
 // the usrfunct's return value is stored in *ureturn.
-int hal_call_usrfunct(const char *name, const int argc, const char **argv, int *ureturn);
+int hal_call_usrfunct(const char *name, const int argc,
+                      char * const *argv, int *ureturn);
 
 // public instance API:
 

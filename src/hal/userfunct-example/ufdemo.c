@@ -51,7 +51,7 @@ static int xthread_funct(void *arg, const hal_funct_args_t *fa)
 static int usrfunct_demo(const hal_funct_args_t *fa)
 {
     const int argc = fa_argc(fa);
-    const char **argv = fa_argv(fa);
+    char * const *argv = fa_argv(fa);
 
     rtapi_print_msg(RTAPI_MSG_INFO, "%s: userfunct '%s' called, arg='%s' argc=%d\n",
 		    compname,  fa_funct_name(fa), (const char *)fa_arg(fa), argc);
