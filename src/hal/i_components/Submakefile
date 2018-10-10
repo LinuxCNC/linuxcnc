@@ -129,7 +129,7 @@ hal/i_components/conv_float_s64.icomp: hal/i_components/conv.icomp.in hal/i_comp
     
 hal/i_components/conv_float_u64.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/i_components/mkconv.sh float u64 "" 0 18446744073709551615 < $< > $@
+	$(Q)sh hal/i_components/mkconv.sh float u64 "" 0 18446744073709551615UL < $< > $@
     
 hal/i_components/conv_bit_s64.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
