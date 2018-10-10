@@ -380,7 +380,7 @@ static inline hal_data_u *sig_value(hal_sig_t *sig) {
     return &sig->value;
 }
 
-static inline const hal_data_u *param_value(const hal_param_t *param)
+static inline hal_data_u *param_value(const hal_param_t *param)
 {
     return (hal_data_u *)SHMPTR(param->data_ptr);
 }
