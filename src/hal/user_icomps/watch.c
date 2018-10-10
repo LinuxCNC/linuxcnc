@@ -419,8 +419,6 @@ int retval = 0;
 double fval;
 long lval;
 unsigned long ulval;
-unsigned long long ullval;
-long long llval;
 char *cp = value;
 
     switch (type) {
@@ -569,12 +567,11 @@ static int watch_(void *arg, const hal_funct_args_t *fa)
 long period __attribute__((unused)) = fa_period(fa);
 struct inst_data *ip __attribute__((unused)) = arg;
 
-hal_s32_t n;
 hal_float_t valuel = 0.0;
 char value[16];
 static int counter = 0;
 static hal_float_t valuef = 0.0;
-static hal_bit_t latched = 0, triggered = 0;
+static hal_bit_t latched = 0;
 
     if(*(ip->_reset))
 	{
