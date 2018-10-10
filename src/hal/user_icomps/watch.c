@@ -158,9 +158,10 @@ static int maxpins __attribute__((unused)) = 1;
 
 static int watch_(void *arg, const hal_funct_args_t *fa);
 
-static int instantiate(const int argc, const char**argv);
+static int instantiate(const int argc, char* const *argv);
 
-static int extra_inst_setup(struct inst_data* ip, const char *name, int argc, const char**argv);
+static int extra_inst_setup(struct inst_data* ip, const char *name, int argc,
+                            char* const *argv);
 
 // var to take pin names passed to newinst
 char target_pin_name[HAL_NAME_LEN];
@@ -168,7 +169,8 @@ char preset_name[HAL_NAME_LEN];
 int preset_type;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int export_halobjs(struct inst_data *ip, int owner_id, const char *name, const int argc, const char **argv)
+static int export_halobjs(struct inst_data *ip, int owner_id, const char *name,
+                          const int argc, char * const *argv)
 {
 char buf[HAL_NAME_LEN + 1];
 int r = 0;
@@ -232,7 +234,7 @@ int r = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int instantiate(const int argc, const char**argv)
+static int instantiate(const int argc, char* const *argv)
 {
 struct inst_data *ip;
 // argv[0]: component name argv[1]: instance
@@ -640,7 +642,8 @@ static hal_bit_t latched = 0, triggered = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int extra_inst_setup(struct inst_data *ip, const char *name, int argc, const char**argv)
+static int extra_inst_setup(struct inst_data *ip, const char *name,
+                            int argc, char* const *argv)
 {
 int x;
 

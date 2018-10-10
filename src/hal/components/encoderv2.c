@@ -203,7 +203,7 @@ static const char *prefix = "encoderv2";
 static int export_encoder(const char *name, const int inst_id, counter_t *p);
 static int update(void *arg, const hal_funct_args_t *fa);
 static int capture(void *arg, const hal_funct_args_t *fa);
-static int instantiate_encoder(const int argc, const char**argv);
+static int instantiate_encoder(const int argc, char* const *argv);
 static int delete_encoder(const char *name, void *inst, const int inst_size);
 
 /***********************************************************************
@@ -252,7 +252,7 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-static int instantiate_encoder(const int argc, const char**argv)
+static int instantiate_encoder(const int argc, char* const *argv)
 {
     counter_t *p;
     int retval;

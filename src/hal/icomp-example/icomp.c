@@ -97,7 +97,7 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
 }
 
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const int argc, const char**argv)
+static int instantiate(const int argc, char* const *argv)
 {
     // argv[0]: component name
     const char *name = argv[1]; // instance name
@@ -130,6 +130,7 @@ static int instantiate(const int argc, const char**argv)
     };
     int c;
     while ((c = getopt_long(argc, argv, ":f:", longopts, NULL)) != -1) {
+        // char * const argv[]
 	switch (c) {
 	case 'f':
 	    myfile = optarg;

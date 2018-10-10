@@ -74,7 +74,7 @@ int halg_free_argv(const bool use_hal_mutex,
 		    char **argv);
 char **halg_dupargv(const bool use_hal_mutex,
 		     const int argc,
-		     const char **argv);
+		     char * const *argv);
 
 RTAPI_END_DECLS
 

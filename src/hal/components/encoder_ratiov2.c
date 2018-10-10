@@ -199,7 +199,7 @@ static int export_encoder_pair(const char *name, const int inst_id,
 			       encoder_pair_t * addr);
 static int sample(void *arg, const hal_funct_args_t *fa);
 static int update(void *arg, const hal_funct_args_t *fa);
-static int instantiate_encoder_pair(const int argc, const char**argv);
+static int instantiate_encoder_pair(const int argc, char* const *argv);
 static int delete_encoder_pair(const char *name, void *inst, const int inst_size);
 
 /***********************************************************************
@@ -250,7 +250,7 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-static int instantiate_encoder_pair(const int argc, const char**argv)
+static int instantiate_encoder_pair(const int argc, char* const *argv)
 {
     encoder_pair_t *p;
     int retval;

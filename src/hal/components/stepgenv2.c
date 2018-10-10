@@ -504,7 +504,7 @@ static int update_freq(void *arg, const hal_funct_args_t *fa);
 static int update_pos(void *arg,  const hal_funct_args_t *fa);
 static int setup_user_step_type(void);
 static CONTROL parse_ctrl_type(const char *ctrl);
-static int instantiate_stepgen( const int argc, const char**argv);
+static int instantiate_stepgen( const int argc, char* const *argv);
 static int delete_stepgen(const char *name, void *inst, const int inst_size);
 
 
@@ -579,7 +579,7 @@ int rtapi_app_main(void)
     return 0;
 }
 
-static int instantiate_stepgen(const int argc, const char**argv)
+static int instantiate_stepgen(const int argc, char* const *argv)
 {
     int retval;
     const char* name;
