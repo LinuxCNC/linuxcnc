@@ -168,7 +168,7 @@ cdef class Component(HALObject):
 # fail changed() if not one of the above
 cdef int comp_callback(const int phase,
                        const hal_compiled_comp_t * cc,
-                       const hal_pin_t *p,
+                       hal_pin_t *p,
                        const hal_data_u *value,
                        void *userdata):
     arg =  <object>userdata

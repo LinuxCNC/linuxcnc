@@ -24,7 +24,7 @@ cdef inline int shmoff(char *ptr):
     return ptr - hal_shmem_base
 
 
-cdef inline pypin_value(const hal_pin_t *pin):
+cdef inline pypin_value(hal_pin_t *pin):
     return hal2py(pin_type(pin), pin_value(pin))
 
 
