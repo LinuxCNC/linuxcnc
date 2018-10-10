@@ -13,6 +13,7 @@ license "GPL";
 #include "rtapi.h"
 #if defined(BUILD_SYS_USER_DSO)
 #include <time.h>
+#include <stdio.h>
 #endif
 #include <stdbool.h>
 static bool previous_fault;
