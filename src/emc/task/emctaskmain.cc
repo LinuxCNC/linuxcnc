@@ -1773,7 +1773,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	emcTrajSetSpindleScaleMsg = (EMC_TRAJ_SET_SPINDLE_SCALE *) cmd;
-	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->scale);
+	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->spindle,
+                                    emcTrajSetSpindleScaleMsg->scale);
 	break;
 
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
