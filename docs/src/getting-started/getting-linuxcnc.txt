@@ -34,8 +34,11 @@ Image.
 
 Download the Live/Install image by clicking here:
 
-http://www.linuxcnc.org/linuxcnc-2.7-stretch.iso
+http://www.linuxcnc.org/stretch/linuxcnc-stretch-uspace-amd64.iso
 
+Or, if you are installing on a system which does not support 64 bit operating systems,
+
+http://www.linuxcnc.org/stretch/linuxcnc-stretch-uspace-i386.iso
 
 === Download using zsync
 
@@ -55,8 +58,12 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync http://www.linuxcnc.org/linuxcnc-2.7-stretch.iso.zsync
+zsync http://www.linuxcnc.org/stretch/linuxcnc-stretch-uspace-amd64.iso.zsync
 ----
+
+Due to technical limitations, the downloaded file may have a revision number in
+the filename, so that the local file ends up being named e.g.,
+"linuxcnc-stretch-uspace-amd64-r12.iso".
 
 .zsync in Windows
 
@@ -103,7 +110,7 @@ a computer.  The image is too large to fit on a CD.
   then use this command:
 +
 -----
-dd if=linuxcnc-2.7-stretch.iso of=/dev/sde
+dd if=linuxcnc-stretch-uspace-amd64.iso of=/dev/sde
 -----
 
 The https://www.debian.org/CD/faq/#write-usb[Debian FAQ] provides more
