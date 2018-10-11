@@ -1174,7 +1174,7 @@ int emcTrajSetRapidScale(double scale)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetSpindleScale(double scale)
+int emcTrajSetSpindleScale(int spindle, double scale)
 {
     if (scale < 0.0) {
 	scale = 0.0;
@@ -1182,6 +1182,7 @@ int emcTrajSetSpindleScale(double scale)
 
     emcmotCommand.command = EMCMOT_SPINDLE_SCALE;
     emcmotCommand.scale = scale;
+    emcmotCommand.spindle = spindle;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
