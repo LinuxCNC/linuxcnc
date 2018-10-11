@@ -155,7 +155,6 @@ class Build_GUI(gobject.GObject):
                    }
 
 
-
     def __init__(self, halcomp, _RELEASE):
         super(Build_GUI, self).__init__()
         
@@ -225,6 +224,7 @@ class Build_GUI(gobject.GObject):
         # diameter and radius, we build that separately
         if self.lathe_mode:
             self._this_is_a_lathe()
+            return
         # on all other cases we build one DRO for each axis
         self.dro_dic = {} 
         for pos, axis in enumerate(self.axis_list):
@@ -234,7 +234,7 @@ class Build_GUI(gobject.GObject):
             dro.set_axis(axis)
             dro.change_axisletter(axis.upper())
             dro.show()
-            dro.set_property("name", "Combi_DRO_{0}".format(axis))
+            dro.set_property("name", "Combi_DRO_{0}".format(pos))
             dro.connect("clicked", self._on_DRO_clicked)
             self.dro_dic[dro.name] = dro
         self._arange_dro()
@@ -369,7 +369,7 @@ class Build_GUI(gobject.GObject):
             name = "touch_{0}".format(elem)
             btn = self._get_button_with_image(name, filepath, None)
             btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
-#            btn.connect("clicked", self._on_btn_touch_clicked)
+# ToDo            btn.connect("clicked", self._on_btn_touch_clicked)
 
             self.widgets.hbtb_touch_off.pack_start(btn)
             
@@ -481,6 +481,8 @@ class Build_GUI(gobject.GObject):
         dic = self.axis_list
         num_elements = len(dic)
         btnlst = []
+# ToDo : Do not use the liste, as we have the directory, this will need also a change in arange jog button        
+        self.jog_button_dic = {}
         
         for axis in self.axis_list:
             for direction in ["+","-"]:
@@ -491,6 +493,8 @@ class Build_GUI(gobject.GObject):
                 btn.set_property("name", name)
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
                 btnlst.append(btn)
+
+                self.jog_button_dic[name] = btn
                 
         self._arange_jog_button(btnlst)
 
@@ -549,10 +553,12 @@ class Build_GUI(gobject.GObject):
         name = "keyboard"
         btn = self._get_button_with_image(name, filepath, None)
         btn.set_property("tooltip-text", _("Press to display the virtual keyboard"))
-#        btn.connect("clicked", self.on_btn_show_kbd_clicked)
+        btn.connect("clicked", self.on_btn_show_kbd_clicked)
+        btn.set_property("name", name)
         self.widgets.hbtb_MDI.pack_start(btn)
 
         self.macro_dic = {}
+        
         children = self.widgets.hbtb_MDI.get_children()
         for child in children:
             self.macro_dic[child.name] = child
@@ -634,95 +640,67 @@ class Build_GUI(gobject.GObject):
         print("**** GMOCCAPY build_GUI INFO ****")
         print("**** we have a lathe here")
         
-        print(self.joint_axis_dic)
+        # on all other cases we build one DRO for each axis
+        self.dro_dic = {} 
+        for pos, axis in enumerate(self.axis_list):
+            joint = self._get_joint_from_joint_axis_dic(axis)
+            dro = Combi_DRO()
+            dro.set_joint_no(joint)
+            dro.set_axis(axis)
+            if axis =="x":
+                dro.change_axisletter("R")
+            else:
+                dro.change_axisletter(axis.upper())
+            dro.show()
+            dro.set_property("name", "Combi_DRO_{0}".format(pos))
+            dro.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            dro.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            dro.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            dro.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+            dro.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+            dro.set_property("actual", self.dro_actual)
 
-        for dro in range(len(self.axis_list) + 1, 9):
-            self.widgets["Combi_DRO_{0}".format(dro)].destroy()
-            print(" Combi_DRO_{0} has been destroyed".format(dro))
-
-        for dro in range(len(self.axis_list) + 1):
-            self.widgets.tbl_DRO.remove(self.widgets["Combi_DRO_{0}".format(dro)])
-
-        self.widgets.tbl_DRO.resize(len(self.axis_list) + 1, 1)
-
-        # We will use Joint 1 as D DRO and Joint 1 as R DRO, 
-        # that's why the are arrange them in different order 
-        self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_0, 0, 1, 0, 1)
-        self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_1, 0, 1, 1, 2)
-        self.widgets.tbl_DRO.attach(self.widgets.Combi_DRO_2, 0, 1, 2, 3)
-
-        # The DRO 1 we make to a second X DRO to indicate the diameter
-        # and the DRO has to be shown
+            dro.connect("clicked", self._on_DRO_clicked)
+            self.dro_dic[dro.name] = dro
+        
+        # as we want to insert another DRO to show the diameter, we copy the Z
+        self.dro_dic["Combi_DRO_2"] = self.dro_dic["Combi_DRO_1"]  
+        
+        # now make the new DRO for diameter and place that one in the directory
         joint = self._get_joint_from_joint_axis_dic("x")
-        print("Axis X = Joint ", joint)
-        self.widgets.Combi_DRO_0.set_joint_no(joint)
-        self.widgets.Combi_DRO_1.set_joint_no(joint)
-        self.widgets.Combi_DRO_1.set_axis("x")
-        self.widgets.Combi_DRO_1.set_to_diameter(True)
-        self.widgets.Combi_DRO_1.show()
+        dro = Combi_DRO()
+        dro.set_joint_no(joint)
+        dro.set_axis("x")
+        dro.change_axisletter("D")
+        dro.show()
+        dro.set_property("name", "Combi_DRO_1")
+        dro.connect("clicked", self._on_DRO_clicked)
+        dro.set_to_diameter(True)
+        dro.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+        dro.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+        dro.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+        dro.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+        dro.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+        dro.set_property("actual", self.dro_actual)
 
-        # we change the axis letters of the DRO's
-        self.widgets.Combi_DRO_0.change_axisletter("R")
-        self.widgets.Combi_DRO_1.change_axisletter("D")
-
-        # the DRO 2 will be the Z DRO
-        joint = self._get_joint_from_joint_axis_dic("z")
-        print("Axis Z = Joint ", joint)
-        self.widgets.Combi_DRO_2.set_joint_no(joint)
-        self.widgets.Combi_DRO_2.set_axis("z")
-        self.widgets.Combi_DRO_2.change_axisletter("Z")
-        self.widgets.Combi_DRO_2.show()
-
-
-        # we first hide the Y button to home and touch off
-        self.widgets.btn_set_value_y.hide()
-        self.widgets.lbl_replace_set_value_y.show()
-        self.widgets.btn_tool_touchoff_x.show()
-        self.widgets.lbl_hide_tto_x.hide()
-
-        # we have to re-arrange the jog buttons, so first remove all button
-        self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_minus)
-        self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_plus)
-        self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_minus)
-        self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_plus)
-        self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_minus)
-        self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_plus)
-
-        # is this a backtool lathe?
-        self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
-
-        # now we place them in a different order
-        if self.backtool_lathe:
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
-        else:
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
-        self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_plus, 2, 3, 1, 2, gtk.SHRINK, gtk.SHRINK)
-        self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_minus, 0, 1, 1, 2, gtk.SHRINK, gtk.SHRINK)
-
-        # and we will have to change the colors of the Y DRO according to the settings
-#                self.widgets.Combi_DRO_1.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-#                self.widgets.Combi_DRO_1.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-#                self.widgets.Combi_DRO_1.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-#                self.widgets.Combi_DRO_1.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-#                self.widgets.Combi_DRO_1.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-#                self.widgets.Combi_DRO_1.set_property("actual", self.dro_actual)
+        self.dro_dic["Combi_DRO_1"] = dro
+            
+        self.widgets.tbl_DRO.resize(3, 1)
+      
+        for element in self.dro_dic:
+            print ("Element = ", self.dro_dic[element])
+            line = int(element[-1])
+            self.widgets.tbl_DRO.attach(self.dro_dic[element], 
+                                        0, 1, line, line + 1, ypadding = 0)
 
         # For gremlin we don"t need the following button
-        if self.backtool_lathe:
-            self.widgets.rbt_view_y2.set_active(True)
-        else:
-            self.widgets.rbt_view_y.set_active(True)
-        self.widgets.rbt_view_p.hide()
-        self.widgets.rbt_view_x.hide()
-        self.widgets.rbt_view_z.hide()
-
-#                # check if G7 or G8 is active
-#                if "70" in self.stat.gcodes:
-#                    self._switch_to_g7(True)
-#                else:
-#                    self._switch_to_g7(False)
+#        if self.backtool_lathe:
+#            self.widgets.rbt_view_y2.set_active(True)
+#        else:
+#            self.widgets.rbt_view_y.set_active(True)
+#        self.widgets.rbt_view_p.hide()
+#        self.widgets.rbt_view_x.hide()
+#        self.widgets.rbt_view_z.hide()
 
 
 ###############################################################################
@@ -1155,16 +1133,23 @@ class Build_GUI(gobject.GObject):
         self.widgets.ntb_info.set_current_page(0)
 
     def on_btn_show_kbd_clicked(self, widget):
+        print("show Keyboard clicked")
+        print self.dro_dic
+        
+#        self.dro_dic["Combi_DRO_2"].set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+#        self.dro_dic["Combi_DRO_2"].set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+#        self.dro_dic["Combi_DRO_2"].set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+       
         # if the image is img_brake macro, we want to interrupt the running macro
-        if self.widgets.btn_show_kbd.get_image() == self.widgets.img_brake_macro:
+        if self.macro_dic["keyboard"].get_image() == self.widgets.img_brake_macro:
             self.emit("mdi_abort")
             for pos in self.macro_dic:
                 self.macro_dic[pos].set_sensitive(True)
             if self.onboard:
-                self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
-                self.widgets.btn_show_kbd.set_property("tooltip-text", _("This button will show or hide the keyboard"))
+                self.macro_dic["keyboard"].set_image(self.widgets.img_keyboard)
+                self.macro_dic["keyboard"].set_property("tooltip-text", _("This button will show or hide the keyboard"))
             else:
-                self.widgets.btn_show_kbd.set_sensitive(False)
+                self.macro_dic["keyboard"].set_sensitive(False)
         elif self.widgets.ntb_info.get_current_page() == 1:
             self.widgets.ntb_info.set_current_page(0)
         else:
@@ -1268,12 +1253,15 @@ class Build_GUI(gobject.GObject):
 # ToDo Start : shell the button remain in gmoccapy ??
 
     def on_chk_auto_units_toggled(self, widget, data=None):
+    #ToDo
+        return
+        
         for axis in self.axis_list:
             dro_name = "Combi_DRO_{0}".format(axis)
             dro = self.dro_dic[dro_name]
             dro.set_auto_units(self.widgets.chk_auto_units.get_active())
         if self.lathe_mode:
-            self.dro_dic["Combi_DRO_y"].set_auto_units(self.widgets.chk_auto_units.get_active())
+            self.dro_dic["Combi_DRO_1"].set_auto_units(self.widgets.chk_auto_units.get_active())
         self.prefs.putpref("use_auto_units", self.widgets.chk_auto_units.get_active())
 
     def on_chk_show_dro_btn_toggled(self, widget, data=None):
@@ -1460,9 +1448,9 @@ class Build_GUI(gobject.GObject):
             value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
 
-#    def _get_widget_from_dic(self, dic, name):
-#        print dic
-#        return #dic.keys()[dic.values().index(name)]
+    def get_widget_from_dic(self, dic, name):
+        print dic
+        return dic.keys()[dic.values().index(name)]
         
     def _arange_dro(self):
         # if we have less than 4 axis, we can resize the table, as we have 
@@ -1510,7 +1498,7 @@ class Build_GUI(gobject.GObject):
         col = 0
         row = 0
         for dro, axis in enumerate(self.axis_list):
-            dro_name = "Combi_DRO_{0}".format(axis)
+            dro_name = "Combi_DRO_{0}".format(dro)
 
             self.dro_dic[dro_name].set_property("font_size", dro_size)
             self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
@@ -1541,24 +1529,23 @@ class Build_GUI(gobject.GObject):
                     for btn in btnlst:
                         name = btn.get_property("name")
                         if name == "x+":
-                            col = 2
-                            row = 1
-                        if name =="x-":
-                            col = 0
-                            row = 1
-                        if name == "y+":
                             col = 1
+                            row = 0
+                        if name =="x-":
+                            col = 1
+                            row = 2
+                        if name == "y+":
+                            col = 2
                             row = 0
                         if name =="y-":
-                            col = 1
-                            row = 2
-                        if name == "z+":
-                            col = 2
-                            row = 0
-                        if name =="z-":
                             col = 0
                             row = 2
-                        
+                        if name == "z+":
+                            col = 0
+                            row = 1
+                        if name =="z-":
+                            col = 2
+                            row = 1
                     
         for btn in btnlst:
 
@@ -1779,8 +1766,26 @@ class Build_GUI(gobject.GObject):
         except:
             print("We do not have a X axis, very strange")
 
+    def switch_to_g7(self, state):
+        print state
+        if state:
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_1"].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.dro_dic["Combi_DRO_1"].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.dro_dic["Combi_DRO_1"].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.diameter_mode = True
+        else:
+            self.dro_dic["Combi_DRO_1"].set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_1"].set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_1"].set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.diameter_mode = False
 
-
+        print self.diameter_mode
 
 ###############################################################################
 ##                            signal handling                                ##
@@ -2187,8 +2192,8 @@ class Build_GUI(gobject.GObject):
         self.widgets.unhomed_colorbtn.set_color(gtk.gdk.color_parse(self.unhomed_color))
 
         # set the colors for the DRO
-        for axis in self.axis_list:
-            dro_name = "Combi_DRO_{0}".format(axis)
+        for pos, axis in enumerate(self.axis_list):
+            dro_name = "Combi_DRO_{0}".format(pos)
             dro = self.dro_dic[dro_name]
             dro.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
             dro.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
@@ -2199,26 +2204,6 @@ class Build_GUI(gobject.GObject):
 
         # set values to dro size adjustments
         self.widgets.adj_dro_size.set_value(self.dro_size)
-
-# ToDo Start : shell the button remain in gmoccapy ??
-
-        # Only used if the DRO buttons will remain in gmoccapy
-        self.widgets.chk_show_dro_btn.set_active(self.prefs.getpref("show_dro_btn", False, bool))
-        self.widgets.chk_auto_units.set_active(self.prefs.getpref("use_auto_units", True, bool))
-
-        dro = self.dro_dic[self.dro_dic.keys()[0]]
-        try: 
-            if dro.machine_units == _INCH:
-                self.widgets.tbtn_units.set_active(True)
-        except:
-            print("We do not have a X axis, very strange")
-
-        self.widgets.tbtn_rel.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_units.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-
-# ToDo End : shell the button remain in gmoccapy ??
-
 
         # set the velocity settings to adjustments
         self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
@@ -2362,6 +2347,8 @@ class Build_GUI(gobject.GObject):
         self.tool_in_spindle = 0  # will hold the toolnumber mounted in spindle
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
         self.load_tool = False    # We use this avoid mode switching on reloading the tool on start up of the GUI
+        
+        self.diameter_mode = False # Check if in lathe mode we are in diameter mode (G7 or G8)
         
 # ToDo : start check if this is needed
         self.gcodeerror = ""
