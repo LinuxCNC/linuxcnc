@@ -11,7 +11,7 @@ IN = 16
 OUT = 32
 IO = IN | OUT
 
-cdef class pin(object):
+cdef class Pin(object):
     cdef char * full_name
     cdef public chalpy.hal_type_t type
     cdef public chalpy.hal_pin_dir_t dir
@@ -42,12 +42,12 @@ cdef class pin(object):
 
 cdef class component(object):
     cdef int id
-    cdef public dict pin
+    cdef public dict pins
 
     def __cinit__(self, pname):
         global COMP_NAME
         self.id = chalpy.hal_init(pname.encode())
-        self.pin = {}
+        self.pins = {}
         COMP_NAME = pname.encode()
         if self.id < 0:
             raise HalException('failed to initialized component "{0}" return # {1}'.format(pname,self.id))
@@ -89,8 +89,16 @@ cdef class component(object):
         if not dir in (IN,OUT,IO):
             raise HalException('failed to create pin "{0}". Unknown dir {1}'.format(pname, dir))
         full_name = COMP_NAME+ b'.' + pname.encode()
-        self.pin[full_name.decode()] = pin(full_name, type, dir, self.id)
+        self.pins[pname] = Pin(full_name, type, dir, self.id)
 
-# Boiler code
     def __getitem__(self, item):
-        return getattr(self, item)
+        try:
+            return getattr(self, item)
+        except:
+            return self.pins[item]
+
+    def __getattr__(self, attr):
+        try:
+            return self.pins[attr]
+        except:
+            return getattr(self, attr)
