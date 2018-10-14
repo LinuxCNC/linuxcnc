@@ -74,14 +74,35 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._indicator_state = False
         self.draw_indicator = False
         self._HAL_pin = False
+        self._state_text = False
         self._on_color = QtGui.QColor("red")
         self._off_color = QtGui.QColor("black")
         self._size = .3
+        self._true_string = 'True'
+        self._false_string = 'False'
+        self.toggled[bool].connect(self.toggle_text)
+
+    # Override setText function so we can toggle displayed text
+    def setText(self, text):
+        if not self._state_text:
+            super(Indicated_PushButton, self).setText(text)
+            return
+        if self.isChecked():
+            super(Indicated_PushButton, self).setText(self._true_string)
+        else:
+            super(Indicated_PushButton, self).setText(self._false_string)
 
     def _hal_init(self):
         if self._HAL_pin:
             self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
+
+    # callback to toggle text when button is toggled
+    def toggle_text(self, state=None):
+        if not self._state_text:
+            return
+        else:
+            self.setText(None)
 
     def indicator_update(self, data):
         self._indicator_state = data
@@ -130,6 +151,16 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_HAL_pin(self):
         self._HAL_pin = False
 
+    def set_state_text(self, data):
+        self._state_text = data
+        if data:
+            self.setText(None)
+
+    def get_state_text(self):
+        return self._state_text
+    def reset_state_text(self):
+        self._state_text = False
+
     def get_on_color(self):
         return self._on_color
     def set_on_color(self, value):
@@ -150,12 +181,32 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._size = 0.3
         self.update()
 
+    def set_true_string(self, data):
+        self._true_string = data
+        if self._state_text:
+            self.setText(None)
+    def get_true_string(self):
+        return self._true_string
+    def reset_true_string(self):
+        self._true_string = 'False'
+
+    def set_false_string(self, data):
+        self._false_string = data
+        if self._state_text:
+            self.setText(None)
+    def get_false_string(self):
+        return self._false_string
+    def reset_false_string(self):
+        self._false_string = 'False'
+
     indicator_option = QtCore.pyqtProperty(bool, get_indicator, set_indicator, reset_indicator)
-    HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
+    indicator_HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
+    checked_state_text_option = QtCore.pyqtProperty(bool, get_state_text, set_state_text, reset_state_text)
     on_color = QtCore.pyqtProperty(QtGui.QColor, get_on_color, set_on_color)
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
-
+    true_state_string = QtCore.pyqtProperty(str, get_true_string, set_true_string, reset_true_string)
+    false_state_string = QtCore.pyqtProperty(str, get_false_string, set_false_string, reset_false_string)
 
 class PushButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):
