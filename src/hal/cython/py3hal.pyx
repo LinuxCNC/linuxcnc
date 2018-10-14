@@ -30,11 +30,18 @@ cdef class Pin(object):
     def get(self):
         if self.type is FLOAT:
             return self.ptr.f[0]
-        else:
+        elif self.type is U32:
             return self.ptr.u32[0]
+        else:
+            return self.ptr.s32[0]
 
     def set(self, val):
-        self.ptr.u32[0] = val
+        if self.type is FLOAT:
+            self.ptr.f[0] = val
+        elif self.type is U32:
+            self.ptr.u32[0] = val
+        else:
+            self.ptr.s32[0] = val
 
 # Boiler code
     def __getitem__(self, item):
