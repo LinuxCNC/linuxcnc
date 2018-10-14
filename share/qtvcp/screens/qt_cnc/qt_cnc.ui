@@ -434,8 +434,8 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>489</x>
-       <y>323</y>
+       <x>484</x>
+       <y>337</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -1318,10 +1318,22 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
         <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
        </property>
        <property name="text">
-        <string>Home</string>
+        <string>Unhomed</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="checked_state_text_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="true_state_string" stdset="0">
+        <string>Homed</string>
+       </property>
+       <property name="false_state_string" stdset="0">
+        <string>Unhomed</string>
        </property>
        <property name="estop_action" stdset="0">
         <bool>false</bool>
@@ -1331,6 +1343,15 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
        </property>
        <property name="joint_number" stdset="0">
         <number>-1</number>
+       </property>
+       <property name="state_text_option" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="checked_state_string" stdset="0">
+        <string>Homed</string>
+       </property>
+       <property name="unchecked_state_string" stdset="0">
+        <string>Unhomed</string>
        </property>
       </widget>
       <widget class="ActionButton" name="actionbutton_25">
@@ -1852,7 +1873,7 @@ file</string>
       <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="text">
-      <string>Estop  </string>
+      <string>Eclear</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -1860,8 +1881,26 @@ file</string>
      <property name="checked">
       <bool>false</bool>
      </property>
+     <property name="checked_state_text_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="true_state_string" stdset="0">
+      <string>Estop!</string>
+     </property>
+     <property name="false_state_string" stdset="0">
+      <string>Eclear</string>
+     </property>
      <property name="estop_action" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="state_text_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="checked_state_string" stdset="0">
+      <string>Estop!</string>
+     </property>
+     <property name="unchecked_state_string" stdset="0">
+      <string>Eclear</string>
      </property>
     </widget>
     <widget class="ActionButton" name="button_machineon">
@@ -1877,16 +1916,37 @@ file</string>
       <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="text">
-      <string>Power </string>
+      <string>Off</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="checked_state_text_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="true_state_string" stdset="0">
+      <string>On</string>
+     </property>
+     <property name="false_state_string" stdset="0">
+      <string>Off</string>
      </property>
      <property name="estop_action" stdset="0">
       <bool>false</bool>
      </property>
      <property name="machine_on_action" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="state_text_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="checked_state_string" stdset="0">
+      <string>On</string>
+     </property>
+     <property name="unchecked_state_string" stdset="0">
+      <string>Off</string>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_flood">
@@ -2190,6 +2250,15 @@ file</string>
      <property name="text">
       <string>Pause</string>
      </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>false</bool>
+     </property>
      <property name="estop_action" stdset="0">
       <bool>false</bool>
      </property>
@@ -2198,6 +2267,15 @@ file</string>
      </property>
      <property name="pause_action" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="state_text_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="checked_state_string" stdset="0">
+      <string>Paused</string>
+     </property>
+     <property name="unchecked_state_string" stdset="0">
+      <string>Pause</string>
      </property>
     </widget>
     <widget class="StateLED" name="StateLED_4">
