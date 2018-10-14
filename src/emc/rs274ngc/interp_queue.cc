@@ -235,7 +235,7 @@ void enqueue_SET_SPINDLE_MODE(int spindle, double mode) {
 
 void enqueue_SET_SPINDLE_SPEED(int spindle, double speed) {
     if(qc().empty()) {
-    if(debug_qc) printf("immediate set spindle speed %f\n", speed);
+        if(debug_qc) printf("immediate set spindle speed %f\n", speed);
         SET_SPINDLE_SPEED(spindle, speed);
         return;
     }

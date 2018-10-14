@@ -4120,16 +4120,15 @@ Called by: execute_block.
 
 */
 
-int Interp::convert_speed(int e_number,          //The E-number or -1 if none
+int Interp::convert_speed(int spindle,          //The spindle ($) or -1 if none
 					      block_pointer block,   //!< pointer to a block of RS274 instructions
                           setup_pointer settings)//!< pointer to machine settings
 {
-  for (int s = 0; s < settings->num_spindles; s++){
-	  if (e_number == -1 || s == e_number){
-		  enqueue_SET_SPINDLE_SPEED(s, block->s_number);
-		  settings->speed[s] = block->s_number;
-	  }
-  }
+    if (spindle >= 0 && spindle <  settings->num_spindles){
+        enqueue_SET_SPINDLE_SPEED(spindle, block->s_number);
+        settings->speed[spindle] = block->s_number;
+}
+
   return INTERP_OK;
 }
 
