@@ -125,7 +125,27 @@ the INI file [MDI_COMMAND_LIST] section. To use the INI reference type 'MDI_COMM
 an integer of the INI's MDI_COMMAND line starting at 0. Then in the INI file, under the heading +
 '[MDI_COMMAND_LIST]' add a line: 'MDI_COMMAND=<some command>' some command being the MDI command. +
 
-It is based on pyQT's QButton
+Action buttons are subclasssed from indicated_PushButton +
+
+Indicated PushButtons have three options: +
+
+* indicator_option
+* indicator_HAL_pin_option
+* checked_state_text_option
+
+Indicator_option puts a triangled 'LED' on the top right corner of the button. +
+It will indicated the current state of the button. Use the properties +
+'on_state_color', 'off_state_color', and 'indicator_size' to customized the +
+indicator. +
+
+Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
+button indicator state. +
+
+Checked_state_text_option allows a checkable button to change the text based +
+on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
+to specify the text for each state. +
+
+Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
 === Axis Tool Button
 This allows one to select and set an AXIS.
