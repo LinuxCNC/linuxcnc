@@ -123,6 +123,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self.setChecked(state)
             if self._HAL_pin is False:
                 self.indicator_update(state)
+            # if using state labels but is not checkable update label based on status
+            if self._state_text and not self.isCheckable():
+                self.setText(None)
             self._block_signal = False
 
         def _checkincrements(value, text):

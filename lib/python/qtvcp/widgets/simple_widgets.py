@@ -80,14 +80,18 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._size = .3
         self._true_string = 'True'
         self._false_string = 'False'
-        self.toggled[bool].connect(self.toggle_text)
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
         if not self._state_text:
             super(Indicated_PushButton, self).setText(text)
             return
-        if self.isChecked():
+        if self.isCheckable():
+            if self.isChecked():
+                super(Indicated_PushButton, self).setText(self._true_string)
+            else:
+                super(Indicated_PushButton, self).setText(self._false_string)
+        elif self._indicator_state:
             super(Indicated_PushButton, self).setText(self._true_string)
         else:
             super(Indicated_PushButton, self).setText(self._false_string)
@@ -182,6 +186,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.update()
 
     def set_true_string(self, data):
+        data = data.replace('\\n' , '\n')
         self._true_string = data
         if self._state_text:
             self.setText(None)
@@ -191,6 +196,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._true_string = 'False'
 
     def set_false_string(self, data):
+        data = data.replace('\\n' , '\n')
         self._false_string = data
         if self._state_text:
             self.setText(None)
