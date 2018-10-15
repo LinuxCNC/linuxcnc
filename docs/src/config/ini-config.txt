@@ -1057,31 +1057,54 @@ For more information on kinematics modules see the manpage: '$ man kins'
     can be used to make up for small deficiencies in the hardware used to
     drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
-    MAX_ACCELERATION for the joint.
+    MAX_ACCELERATION for the joint. Excessive backlash compensation can cause an
+    axis to jerk as it changes direction. If a COMP_FILE is specificed for an
+    axis BACKLASH is not used.
 
 * 'COMP_FILE = file.extension' -
-    (((Compensation))) A file holding compensation structure for the joint.
-    The file could be named joint0screw.comp (or xscrew.comp for the X axis
-    for aa config with identity kinematics). File
-    names are case sensitive and can contain letters and/or numbers. The
-    values are triplets per line separated by a space. The first value is
-    nominal (where it should be). The second and third values depend on the
-    setting of COMP_FILE_TYPE. Currently the limit inside LinuxCNC is for 256
-    triplets per joint. If COMP_FILE is specified, BACKLASH is ignored.
-    Compensation file values are in machine units.
+    (((Compensation))) The compensation file consists of map of position
+    information for the joint. Compensation file values are in machine units.
+    Each set of values are are on one line separated by a space. The first value
+    is the nominal value (the commanded position). The second and third values
+    depend on the setting of COMP_FILE_TYPE. Points in between nominal values
+    are interpolated between the two nominals. Compensation files must start
+    with the smallest nominal and be in ascending order to the largest value of
+    nominals. File names are case sensitive and can contain letters and/or
+    numbers. Currently the limit inside LinuxCNC is for 256 triplets per axis.
+    +
+    +
+    If COMP_FILE is specified for an axis, BACKLASH is not used. A 
+    'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
-* 'COMP_FILE_TYPE = 0 or 1' -
-** 'If 0:' The second and third values specify
-    the forward position (where the joint is while traveling forward) and
-    the reverse position (where the joint is while traveling reverse),
-    positions which correspond to the nominal position.'
-** 'If 1:' The second and third values specify
-    the forward trim (how far from nominal while traveling forward) and
-    the reverse trim (how far from nominal while traveling in reverse),
-    positions which correspond to the nominal position.
+* 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
+   first value is the nominal (commanded) position for both types.
 
-    Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
-    Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
+** 'Type 0:' The second value specifies the actual position as the axis is moving
+    in the positive direction (increasing value) and the third value specifies
+    the actual position as the axis is moving in the negative direction
+    (decreasing value).
+    +
+    +
+    Type 0 Example
++
+----
+-1.000 -1.005 -0.995
+0.000 0.002 -0.003
+1.000 1.003 0.998
+----
+
+** 'Type 1:' The second value specifies positive offset from nominal while
+    traveling in the positive direction. The third value specifies the negitive
+    offset from nominal while traveling in a negitive direction.
+    +
+    +
+Type 1 Example
++
+----
+-1.000 0.005 -0.005
+0.000 0.002 -0.003
+1.000 0.003 -0.004
+----
 
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
     machine units. When this limit is reached, the controller aborts axis
