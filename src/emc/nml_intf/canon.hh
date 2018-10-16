@@ -126,19 +126,21 @@ struct CANON_VECTOR {
     double x, y, z;
 };
 
+typedef struct {
+    int feed_mode;
+    int synched;
+    double speed;
+    int dir;
+    double css_maximum;
+    double css_factor;
+} CanonSpindle_t;
+
 typedef struct CanonConfig_t {
     CanonConfig_t() : rotary_unlock_for_traverse(-1) {}
 
     double xy_rotation;
     int rotary_unlock_for_traverse; // jointnumber or -1
 
-    // moved to the emcStatus->spindle[] structure
-    //double css_maximum;
-    //double css_numerator;
-
-    int feed_mode;
-    int synched;
-    int spindle;
     CANON_POSITION g5xOffset;
     CANON_POSITION g92Offset;
 /*
@@ -164,9 +166,10 @@ typedef struct CanonConfig_t {
    almost any deviation trying to keep speed up. */
    double motionTolerance;
    double naivecamTolerance;
-/* Spindle speed is saved here */
-   double spindleSpeed;
-   int spindle_dir;
+   int feed_mode;
+   int spindle_num; //current spindle for spindle-synch motion
+   CanonSpindle_t spindle[8]; // EMCMOT_MAX_SPINDLES not defined in this context
+
 /* Prepped tool is saved here */
 //   int preppedTool;
 /*
