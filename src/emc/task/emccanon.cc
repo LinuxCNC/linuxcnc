@@ -1846,7 +1846,6 @@ void SET_SPINDLE_SPEED(int s, double r)
 
     emc_spindle_speed_msg.spindle = s;
     if(canon.spindle[s].css_maximum) {
-        printf("CSS MAximum is true\n");
 		if(canon.lengthUnits == CANON_UNITS_INCHES){
 			canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
 		} else {
