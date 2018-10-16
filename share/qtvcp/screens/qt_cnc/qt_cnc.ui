@@ -434,7 +434,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>484</x>
+       <x>522</x>
        <y>337</y>
        <width>700</width>
        <height>400</height>
@@ -955,11 +955,11 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="indicator_option" stdset="0">
      <bool>true</bool>
     </property>
-    <property name="HAL_pin_option" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="manual_action" stdset="0">
      <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="ActionButton" name="actionbutton_10">
@@ -983,13 +983,13 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="indicator_option" stdset="0">
      <bool>true</bool>
     </property>
-    <property name="HAL_pin_option" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="mdi_action" stdset="0">
      <bool>true</bool>
     </property>
     <property name="manual_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
     </property>
    </widget>
@@ -1014,13 +1014,13 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     <property name="indicator_option" stdset="0">
      <bool>true</bool>
     </property>
-    <property name="HAL_pin_option" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="auto_action" stdset="0">
      <bool>true</bool>
     </property>
     <property name="manual_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
     </property>
    </widget>
@@ -2248,7 +2248,8 @@ file</string>
       </rect>
      </property>
      <property name="text">
-      <string>Pause</string>
+      <string>Pause
+Motion</string>
      </property>
      <property name="checkable">
       <bool>false</bool>
@@ -2258,6 +2259,16 @@ file</string>
      </property>
      <property name="indicator_option" stdset="0">
       <bool>false</bool>
+     </property>
+     <property name="checked_state_text_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="true_state_string" stdset="0">
+      <string>Paused</string>
+     </property>
+     <property name="false_state_string" stdset="0">
+      <string>Pause
+Motion</string>
      </property>
      <property name="estop_action" stdset="0">
       <bool>false</bool>
@@ -2350,9 +2361,6 @@ file</string>
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2361,6 +2369,9 @@ file</string>
      </property>
      <property name="incr_mm_number" stdset="0">
       <double>0.010000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_8">
@@ -2378,9 +2389,6 @@ file</string>
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2389,6 +2397,9 @@ file</string>
      </property>
      <property name="incr_mm_number" stdset="0">
       <double>0.100000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_30">
@@ -2406,9 +2417,6 @@ file</string>
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2417,6 +2425,9 @@ file</string>
      </property>
      <property name="incr_mm_number" stdset="0">
       <double>1.000000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_31">
@@ -2434,9 +2445,6 @@ file</string>
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2445,6 +2453,9 @@ file</string>
      </property>
      <property name="incr_mm_number" stdset="0">
       <double>0.000000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="StatusAdjustmentBar" name="statusadjustmentbar">
