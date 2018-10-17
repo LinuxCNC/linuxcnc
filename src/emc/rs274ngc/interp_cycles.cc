@@ -2049,6 +2049,11 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G86);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+    if (block->dollar_flag){
+        CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+            (_("Invalid spindle ($) number in G74/G84 cycle")));
+        settings->active_spindle = (int)block->dollar_number;
+     }
     CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
@@ -2061,6 +2066,11 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
       CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
       CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
+    if (block->dollar_flag){
+        CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+            (_("Invalid spindle ($) number in G74/G84 cycle")));
+        settings->active_spindle = (int)block->dollar_number;
+     }
     i = block->i_flag ? block->i_number : settings->cycle_i;
     j = block->j_flag ? block->j_number : settings->cycle_j;
     k = block->k_flag ? block->k_number : settings->cycle_k;
@@ -2080,6 +2090,11 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+    if (block->dollar_flag){
+        CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+            (_("Invalid spindle ($) number in G74/G84 cycle")));
+        settings->active_spindle = (int)block->dollar_number;
+     }
     CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_UW, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
