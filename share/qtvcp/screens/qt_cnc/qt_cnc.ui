@@ -1930,11 +1930,20 @@ file</string>
      <property name="checked_state_text_option" stdset="0">
       <bool>true</bool>
      </property>
+     <property name="python_command_option" stdset="0">
+      <bool>true</bool>
+     </property>
      <property name="true_state_string" stdset="0">
       <string>On</string>
      </property>
      <property name="false_state_string" stdset="0">
       <string>Off</string>
+     </property>
+     <property name="true_python_cmd_string" stdset="0">
+      <string>INSTANCE.test_function('MACHINE ON')</string>
+     </property>
+     <property name="false_python_cmd_string" stdset="0">
+      <string>print ('MACHINE OFF')</string>
      </property>
      <property name="estop_action" stdset="0">
       <bool>false</bool>
@@ -1944,12 +1953,6 @@ file</string>
      </property>
      <property name="python_command_action" stdset="0">
       <bool>true</bool>
-     </property>
-     <property name="true_python_cmd_string" stdset="0">
-      <string>INSTANCE.test_function('MACHINE ON')</string>
-     </property>
-     <property name="false_python_cmd_string" stdset="0">
-      <string>INSTANCE.test_function('MACHINE OFF')</string>
      </property>
      <property name="state_text_option" stdset="0">
       <bool>true</bool>
@@ -2274,6 +2277,9 @@ Motion</string>
      </property>
      <property name="checked_state_text_option" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="python_command_option" stdset="0">
+      <bool>false</bool>
      </property>
      <property name="true_state_string" stdset="0">
       <string>Paused</string>

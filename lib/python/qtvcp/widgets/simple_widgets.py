@@ -75,11 +75,14 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.draw_indicator = False
         self._HAL_pin = False
         self._state_text = False
+        self._python_command = False
         self._on_color = QtGui.QColor("red")
         self._off_color = QtGui.QColor("black")
         self._size = .3
         self._true_string = 'True'
         self._false_string = 'False'
+        self.true_python_command = '''print"true command"'''
+        self.false_python_command = '''print"false command"'''
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
@@ -100,6 +103,17 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         if self._HAL_pin:
             self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
+
+    # arbitraray python commands are possible using 'INSTANCE' in the string
+    # gives acess to widgets and handler functions 
+    def python_command(self, state = None):
+        if self._python_command:
+            globalsParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_}
+            localsParameter = {'dir': dir}
+            if state:
+                exec(self.true_python_command, globalsParameter, localsParameter)
+            else:
+                exec(self.false_python_command, globalsParameter, localsParameter)
 
     # callback to toggle text when button is toggled
     def toggle_text(self, state=None):
@@ -159,11 +173,17 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._state_text = data
         if data:
             self.setText(None)
-
     def get_state_text(self):
         return self._state_text
     def reset_state_text(self):
         self._state_text = False
+
+    def set_python_command(self, data):
+        self._python_command = data
+    def get_python_command(self):
+        return self._python_command
+    def reset_python_command(self):
+        self._python_command = False
 
     def get_on_color(self):
         return self._on_color
@@ -205,14 +225,31 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_false_string(self):
         self._false_string = 'False'
 
+    def set_true_python_command(self, data):
+        self.true_python_command = data
+    def get_true_python_command(self):
+        return self.true_python_command
+    def reset_true_python_command(self):
+        self.true_python_command = ''
+
+    def set_false_python_command(self, data):
+        self.false_python_command = data
+    def get_false_python_command(self):
+        return self.false_python_command
+    def reset_false_python_command(self):
+        self.false_python_command = ''
+
     indicator_option = QtCore.pyqtProperty(bool, get_indicator, set_indicator, reset_indicator)
     indicator_HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
     checked_state_text_option = QtCore.pyqtProperty(bool, get_state_text, set_state_text, reset_state_text)
+    python_command_option = QtCore.pyqtProperty(bool, get_python_command, set_python_command, reset_python_command)
     on_color = QtCore.pyqtProperty(QtGui.QColor, get_on_color, set_on_color)
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
     true_state_string = QtCore.pyqtProperty(str, get_true_string, set_true_string, reset_true_string)
     false_state_string = QtCore.pyqtProperty(str, get_false_string, set_false_string, reset_false_string)
+    true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)
+    false_python_cmd_string = QtCore.pyqtProperty(str, get_false_python_command, set_false_python_command, reset_false_python_command)
 
 class PushButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):

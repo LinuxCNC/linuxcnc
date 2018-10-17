@@ -42,10 +42,6 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-# This will hold the window instance
-# For access to functions and widgets
-INSTANCE = None
-
 class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
@@ -91,7 +87,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_relative = False
         self.dro_absolute = False
         self.dro_dtg = False
-        self.python_command = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -103,8 +98,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.float_alt = 50.0
         self.view_type = 'p'
         self.command_text = ''
-        self.true_python_command = '''print"true command"'''
-        self.false_python_command = '''print"false command"'''
 
     ##################################################
     # This gets called by qtvcp_makepins
@@ -123,8 +116,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     # without setting an infinite loop
     ###################################################
     def _hal_init(self):
-        global INSTANCE
-        INSTANCE = self.QTVCP_INSTANCE_
         super(ActionButton, self)._hal_init()
         def _safecheck(state, data=None):
             self._block_signal = True
@@ -305,7 +296,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             pass
 
         # connect a signal and callback function to the button
-        self.clicked[bool].connect(self.action)
+        if self.isCheckable():
+            self.clicked[bool].connect(self.action)
+        else:
+            self.pressed.connect(self.action)
 
     ###################################
     # Here we do the actions
@@ -467,16 +461,16 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.dro_dtg:
             STATUS.emit('dro-reference-change-request', 2)
         # defult error case
-        elif not self.python_command:
+        elif not self._python_command:
             LOG.error('No action recognised')
 
         # This is check after because action buttons can do an action plus
         # a python command, or just either one.
-        if self.python_command:
-            if state:
-                exec(self.true_python_command)
-            else:
-                exec(self.false_python_command)
+        if self._python_command:
+            if state == None:
+                state = not self._indicator_state
+            self.python_command(state)
+
 
     # If direction = 0 (button release) and distance is not 0, then we are
     # doing a jog increment so don't stop jog on release.
@@ -932,13 +926,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_dro_dtg(self):
         self.dro_dtg = False
 
-    def set_python_command(self, data):
-        self.python_command = data
-    def get_python_command(self):
-        return self.python_command
-    def reset_python_command(self):
-        self.python_command = False
-
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1000,22 +987,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_command_text(self):
         self.command_text = ''
 
-    def set_true_python_command(self, data):
-        self.true_python_command = data
-    def get_true_python_command(self):
-        return self.true_python_command
-    def reset_true_python_command(self):
-        self.true_python_command = ''
-
-    def set_false_python_command(self, data):
-        self.false_python_command = data
-    def get_false_python_command(self):
-        return self.false_python_command
-    def reset_false_python_command(self):
-        self.false_python_command = ''
-
-
-
     # designer will show these properties in this order:
     # BOOL
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
@@ -1063,7 +1034,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     dro_absolute_action = QtCore.pyqtProperty(bool, get_dro_absolute, set_dro_absolute, reset_dro_absolute)
     dro_relative_action = QtCore.pyqtProperty(bool, get_dro_relative, set_dro_relative, reset_dro_relative)
     dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
-    python_command_action = QtCore.pyqtProperty(bool, get_python_command, set_python_command, reset_python_command)
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
@@ -1074,8 +1044,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     float_alt_num = QtCore.pyqtProperty(float, get_float_alt, set_float_alt, reset_float_alt)
     view_type_string = QtCore.pyqtProperty(str, get_view_type, set_view_type, reset_view_type)
     command_text_string = QtCore.pyqtProperty(str, get_command_text, set_command_text, reset_command_text)
-    true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)
-    false_python_cmd_string = QtCore.pyqtProperty(str, get_false_python_command, set_false_python_command, reset_false_python_command)
 
     ##############################
     # required class boiler code #

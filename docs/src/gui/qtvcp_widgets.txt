@@ -132,8 +132,9 @@ Indicated PushButtons have three options: +
 * indicator_option
 * indicator_HAL_pin_option
 * checked_state_text_option
+* python_command_option
 
-Indicator_option puts a triangled 'LED' on the top right corner of the button. +
+Indicator_option puts a triangle 'LED' on the top right corner of the button. +
 It will indicated the current state of the button. Use the properties +
 'on_state_color', 'off_state_color', and 'indicator_size' to customized the +
 indicator. +
@@ -144,6 +145,13 @@ button indicator state. +
 Checked_state_text_option allows a checkable button to change the text based +
 on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
 to specify the text for each state. +
+
+Python_command_option allow small snippets of python code to be run from th epush of a button, +
+with out having to edit the handler file. (though it can call functions in the handler file) +
+When using the command_string properties, the capitalized word 'INSTANCE' will give access to +
+the widgets instances and handler functions. +
+'true_python_cmd_string' - a python command that will be called when the button is toggled true +
+'false_python_cmd_string' - a python command that will be called when the button is toggled false +
 
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
