@@ -2020,7 +2020,6 @@ static int print_comp_entry(hal_object_ptr o, foreach_args_t *args)
                     halcmd_output(", unbound:%lds", comp->last_unbound-now);
                 } else
                     halcmd_output(", unbound:never");
-                halcmd_output(", u1:%d u2:%d", comp->userarg1, comp->userarg2);
                 break;
             default:
                 halcmd_output(" %-5s %s", "", state_name(comp->state));
