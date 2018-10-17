@@ -104,9 +104,30 @@ Using % to wrap the G code does not do the same thing as a 'Program End'. See
 == M3, M4, M5 Spindle Control
 (((M3, M4, M5 Spindle Control)))
 
-* 'M3' - start the spindle clockwise at the 'S' speed.
-* 'M4' - start the spindle counterclockwise at the 'S' speed.
-* 'M5' - stop the spindle.
+* 'M3' - start the selected spindle clockwise at the 'S' speed.
+* 'M4' - start the selected spindle counterclockwise at the 'S' speed.
+* 'M5' - stop the selected spindle.
+
+Use $ to operate on specific spindles. If $ is omitted then thr commands
+operate on all spindles. 
+
+For example 
+[source,{ngc}]
+---
+S100 $0
+S200 $1
+S300 $2 
+M3
+----
+Will start all three spindles simultaneously at different speeds
+[source,{ngc]]
+----
+M4 $1
+----
+Will then reverse spindle 1 but leave the other spindles rotating forwards.
+
+If the $ is omitted then behaviour is exactly as normal for a single
+spindle machine
 
 It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>>
 spindle speed is set to zero. If this is done
@@ -180,7 +201,7 @@ state.
 == M19 Orient Spindle
 (((M19 Orient Spindle)))
 
-* 'M19 R- Q- [P-]'
+* 'M19 R- Q- [P-] [$-]'
 
 * 'R' Position to rotate to from 0, valid range is 0-360 degrees
 
@@ -193,6 +214,8 @@ state.
 ** '1' always rotate clockwise (same as M3 direction)
 ** '2' always rotate counterclockwise (same as M4 direction)
 
+* '$' The spindle to orient (actually only determines which HAL pins
+carry the spindle position commands)
 
 M19 is cleared by any of M3,M4,M5.
 
@@ -238,6 +261,9 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 * 'M48' - enable the spindle speed and feed rate override controls.
 * 'M49' - disable both controls.
 
+These commands also take an optional $ parameter to determine which
+spindle they operate on. 
+
 It is OK to enable or disable the controls when 
 they are already enabled or disabled. 
 See the <<sub:feed-rate,Feed Rate>> Section for more details.
@@ -258,13 +284,13 @@ and the motion will be executed at programmed feed rate.
 == M51 Spindle Speed Override Control
 (((M51 Spindle Speed Override)))
 
-* 'M51 <P1>' - enable the spindle speed override control. The P1
-               is optional. 
-* 'M51 P0' - disable the spindle speed override control program.
-             While disabled the spindle speed override will have
-             no influence, and the spindle speed will have the
-             exact program specified value of the S-word
-             (described in <<sec:set-spindle-speed,Spindle Speed>> Section).
+* 'M51 <P1> <$->'- enable the spindle speed override control for the
+                   selected spindle. The  P1 is optional. 
+* 'M51 P0 <$->'  - disable the spindle speed override control program.
+                   While disabled the spindle speed override will have
+                   no influence, and the spindle speed will have the
+                   exact program specified value of the S-word
+                   (described in <<sec:set-spindle-speed,Spindle Speed>> Section).
 
 [[mcode:m52]]
 == M52 Adaptive Feed Control
