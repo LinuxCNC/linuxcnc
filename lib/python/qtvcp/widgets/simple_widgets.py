@@ -261,6 +261,10 @@ class PushButton(Indicated_PushButton, _HalWidgetBase):
         super(PushButton, self)._hal_init()
         self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
         def _f(data):
-                self.hal_pin.set(data)
+            self.hal_pin.set(data)
+            if self._HAL_pin == False:
+                self.indicator_update(data)
+            if self._python_command:
+                self.python_command(data)
         self.pressed.connect(partial(_f, True))
         self.released.connect(partial(_f, False))
