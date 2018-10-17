@@ -1893,6 +1893,9 @@ file</string>
      <property name="estop_action" stdset="0">
       <bool>true</bool>
      </property>
+     <property name="python_command_action" stdset="0">
+      <bool>false</bool>
+     </property>
      <property name="state_text_option" stdset="0">
       <bool>true</bool>
      </property>
@@ -1938,6 +1941,15 @@ file</string>
      </property>
      <property name="machine_on_action" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="python_command_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="true_python_cmd_string" stdset="0">
+      <string>INSTANCE.test_function('MACHINE ON')</string>
+     </property>
+     <property name="false_python_cmd_string" stdset="0">
+      <string>INSTANCE.test_function('MACHINE OFF')</string>
      </property>
      <property name="state_text_option" stdset="0">
       <bool>true</bool>

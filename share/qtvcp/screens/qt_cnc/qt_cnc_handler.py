@@ -124,6 +124,9 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
+    def test_function(self, text=None):
+        print text
+
     #####################
     # KEY BINDING CALLS #
     #####################
