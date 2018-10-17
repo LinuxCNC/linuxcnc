@@ -19,6 +19,7 @@
 #include "emcpos.h"
 #include "emctool.h"
 #include "canon_position.hh"
+#include "emcmotcfg.h" // Just for EMCMOT_NUM_SPINDLES
 
 /*
   This is the header file that all applications that use the
@@ -168,7 +169,7 @@ typedef struct CanonConfig_t {
    double naivecamTolerance;
    int feed_mode;
    int spindle_num; //current spindle for spindle-synch motion
-   CanonSpindle_t spindle[8]; // EMCMOT_MAX_SPINDLES not defined in this context
+   CanonSpindle_t spindle[EMCMOT_MAX_SPINDLES];
 
 /* Prepped tool is saved here */
 //   int preppedTool;
