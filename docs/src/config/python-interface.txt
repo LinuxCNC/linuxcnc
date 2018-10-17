@@ -492,7 +492,8 @@ by the configuration parameter [JOINT_n]UNITS)
 *velocity*:: '(returns float)' -
 current velocity.
 
-== The 'spindle' dictionary [[sec:the-spindle-dictionary] ==
+== The `spindle` dictionary [[sec:the-spindle-dictionary]
+
 *brake*:: '(returns integer)' -
 value of the spindle brake flag.
 
@@ -583,7 +584,7 @@ c.flood(linuxcnc.FLOOD_OFF)
 
 c.home(2)
 
-c.jog(linuxcnc.JOG_STOP, jogmode, axis) 
+c.jog(linuxcnc.JOG_STOP, jogmode, axis)
 c.jog(linuxcnc.JOG_CONTINUOUS, jogmode, axis, velocity)
 c.jog(linuxcnc.JOG_INCREMENT, jogmode, axis, velocity, increment)
 
@@ -717,8 +718,8 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `set_optional_stop(int)`::
     set optional stop on/off
 
-`set_spindle_override(int)`::
-    set spindle override flag
+`set_spindle_override(int [, int])`::
+    set spindle override enabled. Defaults to spindle 0.
 
 `spindle(int [[float] [int] [float,int]])`::
     set spindle direction. Argument one of SPINDLE_FORWARD,
@@ -731,7 +732,7 @@ import linuxcnc
 c = linuxcnc.command()
 
 #Increase speed of spindle 0 by 100rpm. Spindle must be on first
-c.spindle(linuxcnc.INCREASE) 
+c.spindle(linuxcnc.INCREASE)
 
 #Increase speed of spindle 2 by 100rpm. Spindle must be on first
 c.spindle(linuxcnc.SPINDLE_INCREASE, 2)
@@ -740,7 +741,7 @@ c.spindle(linuxcnc.SPINDLE_INCREASE, 2)
 c.spindle.(linuxcnc.SPINDLE_FORWARD, 1024)
 
 #Set speed of spindle 1 to -666 rpm
-c.spindle.(linuxcnc.SPINDLE_REVERSE, 666,1)
+c.spindle.(linuxcnc.SPINDLE_REVERSE, 666, 1)
 
 #Stop spindle 0
 c.spindle.(linuxcnc.SPINDLE_OFF)
@@ -751,7 +752,7 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
 
 
 `spindleoverride(float [, int])`::
-    set spindle override factor. Defaults to spindle 0. 
+    set spindle override factor. Defaults to spindle 0.
 
 `state(int)`::
     set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF
