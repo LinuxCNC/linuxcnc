@@ -828,7 +828,8 @@ static inline int find_max_element(double arr[], int sz)
     }
     // Assumes at least one element
     int max_idx = 0;
-    for (int idx = 0; idx < sz; ++idx) {
+    int idx;
+    for (idx = 0; idx < sz; ++idx) {
         if (arr[idx] > arr[max_idx]) {
             max_idx = idx;
         }
