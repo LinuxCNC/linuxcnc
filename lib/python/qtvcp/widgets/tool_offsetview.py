@@ -81,6 +81,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         else:
             self.delay = 0
             self.tablemodel.update(TOOL.GET_TOOL_FILE())
+            self.resizeColumnsToContents()
         return True
 
     def currentTool(self, data):
@@ -159,6 +160,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
         TOOL.SAVE_TOOLFILE(self.tablemodel.arraydata)
         self.tablemodel.update(TOOL.GET_TOOL_FILE())
+        self.resizeColumnsToContents()
         self.editing_flag = False
 
 
@@ -182,6 +184,7 @@ class MyTableModel(QAbstractTableModel):
         if data is None:
             data = [[0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']]
         self.arraydata = data
+        self.layoutChanged.emit()
 
     # Returns the number of rows under the given parent.
     # When the parent is valid it means that rowCount is

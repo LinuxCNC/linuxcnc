@@ -59,8 +59,6 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
-        # create table
-        self.get_table_data()
         self.table = self.createTable()
 
     def _hal_init(self):
@@ -84,7 +82,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     def metricMode(self, state):
         self.metric_display = state
 
-    def get_table_data(self):
+    def createTable(self):
+        # create blank taple array
         self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 'Absolute Position'],
                           [None, None, 2, None, None, None, None, None, None, 'Rotational Offsets'],
                           [0, 0, 3, 0, 0, 0, 0, 0, 0, 'G92 Offsets'],
@@ -98,17 +97,15 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                           [0, 0, 10, 0, 0, 0, 0, 0, 0, 'System 7'],
                           [0, 0, 11, 0, 0, 0, 0, 0, 0, 'System 8'],
                           [0, 0, 12, 0, 0, 0, 0, 0, 0, 'System 9']]
-        self.reload_offsets()
 
-    def createTable(self):
         # create the view
         self.setSelectionMode(QAbstractItemView.SingleSelection)
 
         # set the table model
         header = ['X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Name']
         vheader = ['ABS', 'Rot', 'G92', 'Tool', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3']
-        tablemodel = MyTableModel(self.tabledata, header, vheader, self)
-        self.setModel(tablemodel)
+        self.tablemodel = MyTableModel(self.tabledata, header, vheader, self)
+        self.setModel(self.tablemodel)
         self.clicked.connect(self.showSelection)
         #self.dataChanged.connect(self.selection_changed)
 
@@ -189,6 +186,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                         self.tabledata[row][column] = " "
                 else:
                     self.tabledata[row][column] = locale.format(tmpl, i[column])
+        self.tablemodel.layoutChanged.emit()
+        self.resizeColumnsToContents()
 
     # We read the var file directly
     # and pull out the info we need
