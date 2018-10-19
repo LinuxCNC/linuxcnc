@@ -59,7 +59,7 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
             scale = self.hal_pin_scale.get()
             self.hal_pin_s.set(data)
             self.hal_pin_f.set(data*scale)
-        self.valueChanged.connect(partial(-f))
+        self.valueChanged.connect(partial(_f))
 
 
 class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
