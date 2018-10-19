@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
+import shutil
 import traceback
 import hal
 import signal
@@ -156,6 +157,9 @@ class QTVCP:
 
         (opts, args) = parser.parse_args()
 
+        # initialize QApp so we can pop up dialogs now. 
+        self.app = QtWidgets.QApplication(sys.argv)
+
         # ToDo: pass specific log levels as an argument, or use an INI setting
         if not opts.debug:
             # Log level defaults to DEBUG, so set higher if not debug
@@ -198,7 +202,33 @@ class QTVCP:
             # if no handler file specified, use stock test one
             if not opts.usermod:
                 log.info('No handler file specified on command line')
-                opts.usermod = PATH.HANDLER
+                target =  os.path.join(PATH.CONFIGPATH, '%s_handler.py' % PATH.BASENAME)
+                source =  os.path.join(PATH.SCREENDIR, 'tester/tester_handler.py')
+                if PATH.HANDLER is None:
+                    message = ("""
+Qtvcp encountered an error; No handler file was found.
+Would you like to copy a basic handler file into your config folder?
+This handker file will allow display of your screen and basic keyboard jogging.
+
+The new handlerfile's path will be:
+%s
+
+Pressing cancel will close linuxcnc.""" % target)
+                    rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message,QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                    if rtn == QtWidgets.QMessageBox.Ok:
+                        try:
+                            shutil.copy(source, target)
+                        except IOError as e:
+                            log.critical("Unable to copy handler file. %s" % e)
+                            sys.exit(0)
+                        except:
+                            log.critical("Unexpected error copying handler file:", sys.exc_info())
+                            sys.exit(0)
+                        opts.usermod = PATH.HANDLER = target
+                    else:
+                        log.critical('No handler file found or specified. User requested stopping')
+                else:
+                    opts.usermod = PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
@@ -236,7 +266,6 @@ class QTVCP:
             sys.exit(0)
 
         # initialize the window
-        self.app = QtWidgets.QApplication(sys.argv)
         window = qt_makegui.MyWindow(self.halcomp, PATH)
  
         # load optional user handler file
