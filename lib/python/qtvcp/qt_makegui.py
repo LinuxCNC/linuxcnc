@@ -95,7 +95,14 @@ class MyWindow(QtWidgets.QMainWindow):
             self.handler_instance.closing_cleanup__()
 
     def instance(self):
-        instance = uic.loadUi(self.filename, self)
+        try:
+            instance = uic.loadUi(self.filename, self)
+        except AttributeError as e:
+            log.critical(e)
+            log.critical('Did a widget signal call a missing function name in the handler file?')
+            message = 'Did a widget signal call a missing function name in the handler file?\nPython Error:\n'+ str(e)
+            rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
+            sys.exit(0)
 
         log.debug('QTVCP top instance: {}'.format(self))
         for widget in instance.findChildren(QtCore.QObject):
