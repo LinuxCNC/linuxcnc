@@ -106,7 +106,7 @@
                  <item>
                   <widget class="StatusLabel" name="program_name_label">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -194,6 +194,12 @@
                  </item>
                  <item>
                   <widget class="StatusLabel" name="machine_state_label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="minimumSize">
                     <size>
                      <width>100</width>
@@ -270,6 +276,7 @@
                         <blue>0</blue>
                        </color>
                       </property>
+                      <zorder>frame_2</zorder>
                      </widget>
                     </item>
                     <item>
@@ -287,6 +294,31 @@
                        <property name="bottomMargin">
                         <number>5</number>
                        </property>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="frame">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_13">
+                     <property name="sizeConstraint">
+                      <enum>QLayout::SetFixedSize</enum>
+                     </property>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_2">
                        <item>
                         <widget class="ActionButton" name="actionbutton_20">
                          <property name="text">
@@ -364,6 +396,12 @@
                         <widget class="ActionButton" name="actionbutton_24"/>
                        </item>
                        <item>
+                        <widget class="ActionButton" name="actionbutton_27"/>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_26"/>
+                       </item>
+                       <item>
                         <widget class="ActionButton" name="actionbutton_25">
                          <property name="text">
                           <string>Clear</string>
@@ -377,238 +415,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="ActionButton" name="actionbutton_26"/>
-                       </item>
-                       <item>
-                        <widget class="ActionButton" name="actionbutton_27"/>
-                       </item>
-                       <item>
                         <widget class="ActionButton" name="actionbutton_28"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="QFrame" name="frame">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_13">
-                     <property name="sizeConstraint">
-                      <enum>QLayout::SetFixedSize</enum>
-                     </property>
-                     <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_9">
-                       <property name="sizeConstraint">
-                        <enum>QLayout::SetFixedSize</enum>
-                       </property>
-                       <item>
-                        <widget class="StatusLabel" name="tool_number_label">
-                         <property name="textTemplate" stdset="0">
-                          <string>Tool %s</string>
-                         </property>
-                         <property name="tool_number_status" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_5">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>250</width>
-                           <height>200</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                         <property name="pixmap">
-                          <pixmap>../../images/no_tool.png</pixmap>
-                         </property>
-                         <property name="scaledContents">
-                          <bool>true</bool>
-                         </property>
-                         <property name="alignment">
-                          <set>Qt::AlignCenter</set>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="StatusLabel" name="tool_description_label">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="tool_comment_status" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="StatusLabel" name="tool_diameter_label">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="textTemplate" stdset="0">
-                          <string>Diameter: %s</string>
-                         </property>
-                         <property name="tool_diameter_status" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="tool_comment_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="verticalSpacer_4">
-                         <property name="orientation">
-                          <enum>Qt::Vertical</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>20</width>
-                           <height>40</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <layout class="QVBoxLayout" name="verticalLayout_10">
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_32"/>
-                         </item>
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_22">
-                           <property name="sizeConstraint">
-                            <enum>QLayout::SetMinimumSize</enum>
-                           </property>
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_34">
-                             <property name="text">
-                              <string>Flood</string>
-                             </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="flood_action" stdset="0">
-                              <bool>true</bool>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <spacer name="horizontalSpacer_20">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>0</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_37">
-                             <property name="text">
-                              <string>Mist</string>
-                             </property>
-                             <property name="checkable">
-                              <bool>true</bool>
-                             </property>
-                             <property name="mist_action" stdset="0">
-                              <bool>true</bool>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_25">
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_45"/>
-                           </item>
-                           <item>
-                            <spacer name="horizontalSpacer_21">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>40</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_44"/>
-                           </item>
-                           <item>
-                            <spacer name="horizontalSpacer_22">
-                             <property name="orientation">
-                              <enum>Qt::Horizontal</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
-                              <size>
-                               <width>40</width>
-                               <height>20</height>
-                              </size>
-                             </property>
-                            </spacer>
-                           </item>
-                           <item>
-                            <widget class="ActionButton" name="actionbutton_43"/>
-                           </item>
-                          </layout>
-                         </item>
-                         <item>
-                          <layout class="QHBoxLayout" name="horizontalLayout_24"/>
-                         </item>
-                         <item>
-                          <spacer name="verticalSpacer_5">
-                           <property name="orientation">
-                            <enum>Qt::Vertical</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>20</width>
-                             <height>40</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                        </layout>
                        </item>
                       </layout>
                      </item>
@@ -685,7 +492,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
                  <property name="spacing">
                   <number>0</number>
                  </property>
@@ -972,6 +779,200 @@
                   </layout>
                  </item>
                  <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetFixedSize</enum>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="label_5">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>250</width>
+                       <height>200</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="pixmap">
+                      <pixmap>../../images/no_tool.png</pixmap>
+                     </property>
+                     <property name="scaledContents">
+                      <bool>true</bool>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StatusLabel" name="tool_description_label">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="tool_comment_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StatusLabel" name="tool_diameter_label">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="textTemplate" stdset="0">
+                      <string>Diameter: %s</string>
+                     </property>
+                     <property name="tool_diameter_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="tool_comment_status" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_10">
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_32"/>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_22">
+                       <property name="sizeConstraint">
+                        <enum>QLayout::SetMinimumSize</enum>
+                       </property>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_34">
+                         <property name="text">
+                          <string>Flood</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="flood_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_20">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>0</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_37">
+                         <property name="text">
+                          <string>Mist</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="mist_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_25">
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_45"/>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_21">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_44"/>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_22">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_43"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_24"/>
+                     </item>
+                     <item>
+                      <spacer name="verticalSpacer_5">
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>20</width>
+                         <height>40</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
                   <spacer name="verticalSpacer_3">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
@@ -1031,33 +1032,54 @@
                <string>Spindle %d</string>
               </property>
               <property name="requested_spindle_speed_status" stdset="0">
-               <bool>true</bool>
-              </property>
-              <property name="actual_spindle_speed_status" stdset="0">
                <bool>false</bool>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="StateLabel" name="at_speed_label">
-              <property name="true_textTemplate" stdset="0">
-               <string>At Speed</string>
-              </property>
-              <property name="false_textTemplate" stdset="0">
-               <string>Waiting</string>
+              <property name="actual_spindle_speed_status" stdset="0">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
              <widget class="StatusLabel" name="spindle_override_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignCenter</set>
               </property>
               <property name="textTemplate" stdset="0">
                <string>%d%%</string>
               </property>
               <property name="spindle_override_status" stdset="0">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="StateLabel" name="at_speed_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="true_textTemplate" stdset="0">
+               <string>At Speed</string>
+              </property>
+              <property name="false_textTemplate" stdset="0">
+               <string>Waiting</string>
               </property>
              </widget>
             </item>
@@ -1087,8 +1109,14 @@
             </item>
             <item>
              <widget class="StatusLabel" name="feed_override_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignCenter</set>
               </property>
               <property name="textTemplate" stdset="0">
                <string>%d%%</string>
@@ -1098,6 +1126,19 @@
               </property>
               <property name="spindle_override_status" stdset="0">
                <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="StatusLabel" name="tool_number_label">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>Tool %s</string>
+              </property>
+              <property name="tool_number_status" stdset="0">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1125,6 +1166,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Set User Coordinate system</string>
               </property>
               <property name="text">
                <string>SYS</string>
@@ -1178,6 +1222,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Z</string>
@@ -1287,6 +1334,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="Qjoint_number" stdset="0">
                <number>2</number>
               </property>
@@ -1306,6 +1359,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Y</string>
@@ -1438,6 +1494,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string>X</string>
               </property>
@@ -1553,6 +1612,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>A</string>
@@ -2066,7 +2128,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>
