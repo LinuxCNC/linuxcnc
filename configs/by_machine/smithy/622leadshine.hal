@@ -29,7 +29,7 @@ newsig Enable bit
 sets Enable TRUE
 
 #configure the spindle speed
-net scmd motion.spindle-speed-out hm2_5i20.0.pwmgen.00.value
+net scmd spindle.0.speed-out hm2_5i20.0.pwmgen.00.value
 setp hm2_5i20.0.pwmgen.00.scale 5000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 setp hm2_5i20.0.pwmgen.pwm_frequency 100
@@ -158,11 +158,11 @@ net DRV4 hm2_5i20.0.gpio.038.in_not
 # KA1
 setp hm2_5i20.0.gpio.040.is_output TRUE
 setp hm2_5i20.0.gpio.040.invert_output TRUE
-net KA1 motion.spindle-reverse => hm2_5i20.0.gpio.040.out
+net KA1 spindle.0.reverse => hm2_5i20.0.gpio.040.out
 # KA2
 setp hm2_5i20.0.gpio.042.is_output TRUE
 setp hm2_5i20.0.gpio.042.invert_output TRUE
-net KA2 motion.spindle-on => hm2_5i20.0.gpio.042.out
+net KA2 spindle.0.on => hm2_5i20.0.gpio.042.out
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE

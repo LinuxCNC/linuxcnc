@@ -57,7 +57,7 @@ class INI:
 
         # the joints_axes conversion script named 'update_ini'
         # will try to update for joints_axes if no VERSION is set
-        print >>file, "VERSION = 1.0"
+        print >>file, "VERSION = 1.1"
 
         print >>file
         print >>file, "[DISPLAY]"

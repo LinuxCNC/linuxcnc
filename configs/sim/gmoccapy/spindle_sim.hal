@@ -11,7 +11,7 @@ addf limit_speed servo-thread
 #######################################################
 
 # spindle speed control
-net spindle-speed-cmd  motion.spindle-speed-out => limit_speed.in
+net spindle-speed-cmd  spindle.0.speed-out => limit_speed.in
 net spindle-speed-limited limit_speed.out => sim_encoder_0.speed
 
 # simulate spindle mass
@@ -35,16 +35,16 @@ setp encoder_0.position-scale 48
 
 # encoder reset control
 # hook up motion controller's sync output
-net spindle-index-enable motion.spindle-index-enable <=> encoder_0.index-enable
+net spindle-index-enable spindle.0.index-enable <=> encoder_0.index-enable
 
 # report our revolution count to the motion controller
-net spindle-pos encoder_0.position => motion.spindle-revs
+net spindle-pos encoder_0.position => spindle.0.revs
 
 # for spindle velocity estimate
 loadrt lowpass names=lowpass_velocity
 loadrt scale names=scale_to_rpm
 net spindle-rps-raw encoder_0.velocity lowpass_velocity.in
-net spindle-rps-filtered lowpass_velocity.out scale_to_rpm.in motion.spindle-speed-in
+net spindle-rps-filtered lowpass_velocity.out scale_to_rpm.in spindle.0.speed-in
 net spindle-rpm-filtered scale_to_rpm.out
 setp scale_to_rpm.gain 60
 setp lowpass_velocity.gain .07
@@ -58,9 +58,9 @@ setp near_speed.scale 1.1
 setp near_speed.difference 10
 net spindle-speed-cmd => near_speed.in1
 net spindle-rpm-filtered => near_speed.in2
-net spindle-at-speed near_speed.out motion.spindle-at-speed
+net spindle-at-speed near_speed.out spindle.0.at-speed
 
-net  spindle-fwd <= motion.spindle-forward
+net  spindle-fwd <= spindle.0.forward
 
 addf encoder.capture-position servo-thread
 addf sim-encoder.update-speed servo-thread

@@ -92,40 +92,15 @@ net cflt joint.5.amp-fault-in
 
 loadusr -W pumagui
 
-loadrt scale count=6
+net j0 joint.0.pos-fb pumagui.joint1
+net j1 joint.1.pos-fb pumagui.joint2
+net j2 joint.2.pos-fb pumagui.joint3
+net j3 joint.3.pos-fb pumagui.joint4
+net j4 joint.4.pos-fb pumagui.joint5
+net j5 joint.5.pos-fb pumagui.joint6
 
-addf scale.0 servo-thread
-addf scale.1 servo-thread
-addf scale.2 servo-thread
-addf scale.3 servo-thread
-addf scale.4 servo-thread
-addf scale.5 servo-thread
-
-net J0pos scale.0.in
-net J1pos scale.1.in
-net J2pos scale.2.in
-net J3pos scale.3.in
-net J4pos scale.4.in
-net J5pos scale.5.in
-
-setp scale.0.gain 1
-setp scale.1.gain 1
-setp scale.2.gain 1
-setp scale.3.gain 1
-setp scale.4.gain 1
-setp scale.5.gain 1
-
-net J0scaled scale.0.out pumagui.joint1
-net J1scaled scale.1.out pumagui.joint2
-net J2scaled scale.2.out pumagui.joint3
-net J3scaled scale.3.out pumagui.joint4
-net J4scaled scale.4.out pumagui.joint5
-net J5scaled scale.5.out pumagui.joint6
-
-#net j0 joint.0.pos-fb pumagui.joint1
-#net j1 joint.1.pos-fb pumagui.joint2
-#net j2 joint.2.pos-fb pumagui.joint3
-#net j3 joint.3.pos-fb pumagui.joint4
-#net j4 joint.4.pos-fb pumagui.joint5
-#net j5 joint.5.pos-fb pumagui.joint6
-#net j6 joint.6.pos-fb pumagui.grip
+setp pumakins.A2 400
+setp pumakins.A3 50
+setp pumakins.D3 100
+setp pumakins.D4 400
+setp pumakins.D6 95

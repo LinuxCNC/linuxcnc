@@ -141,7 +141,7 @@ int Interp::convert_remapped_code(block_pointer block,
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
     eblock->call_type = CT_REMAP; 
     CHKS(status != INTERP_OK,
-	 "convert_remapped_code: inital read returned %s",
+	 "convert_remapped_code: initial read returned %s",
 	 interp_status(status));
     return(- phase);
 }
@@ -313,9 +313,10 @@ int Interp::add_parameters(setup_pointer settings,
 	}
     }
     // ^...require positive speed
+    //FIXME: How do we decide which spindle they want to use? (andypugh 17/7/16)
     if (strchr(required,'^')) {
-	if (settings->speed > 0.0) {
-	    STORE("s",settings->speed);
+	if (settings->speed[0] > 0.0) {
+	    STORE("s",settings->speed[0]);
 	} else {
 	    strcat(tail,"S>0,");
 	    errored = true;

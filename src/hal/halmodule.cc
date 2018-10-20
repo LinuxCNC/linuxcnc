@@ -395,7 +395,9 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
 
     res = snprintf(pin_name, sizeof(pin_name), "%s.%s", self->prefix, name);
     if(res > HAL_NAME_LEN || res < 0) {
-        PyErr_Format(pyhal_error_type, "Invalid pin name length: max = %d characters",HAL_NAME_LEN);
+        PyErr_Format(pyhal_error_type,
+            "Invalid pin name length \"%s.%s\": max = %d characters",
+            self->prefix, name, HAL_NAME_LEN);
         return NULL;
     }
     res = hal_pin_new(pin_name, type, dir, (void**)pin.u, self->hal_id);

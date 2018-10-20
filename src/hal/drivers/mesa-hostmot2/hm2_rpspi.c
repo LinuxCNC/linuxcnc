@@ -345,7 +345,7 @@ static inline void spi1_xfer_setup(hm2_rpspi_t *hm2, bool rd)
 /*
  * HM2 interface: Write buffer to SPI1
  */
-static int hm2_rpspi_write_spi1(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, int size)
+static int hm2_rpspi_write_spi1(hm2_lowlevel_io_t *llio, uint32_t addr, const void *buffer, int size)
 {
 	hm2_rpspi_t *hm2 = (hm2_rpspi_t *)llio;
 	uint32_t cmd;
@@ -530,7 +530,7 @@ static inline void spi0_xfer_setup(hm2_rpspi_t *hm2, bool rd)
 /*
  * HM2 interface: Write buffer to SPI0
  */
-static int hm2_rpspi_write_spi0(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, int size)
+static int hm2_rpspi_write_spi0(hm2_lowlevel_io_t *llio, uint32_t addr, const void *buffer, int size)
 {
 	hm2_rpspi_t *hm2 = (hm2_rpspi_t *)llio;
 	uint32_t cs;

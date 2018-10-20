@@ -76,6 +76,7 @@ typedef enum {
  * synchronized motion code.
  */
 typedef struct {
+	 int spindle_num;
      double offset;
      double revs;
      int waiting_for_index;

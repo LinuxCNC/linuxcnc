@@ -137,7 +137,7 @@ class _GStat(gobject.GObject):
         'g-code-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'metric-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'user_system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'user-system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -186,16 +186,16 @@ class _GStat(gobject.GObject):
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
         self.old['motion-mode'] = self.stat.motion_mode
-        self.old['spindle-or'] = self.stat.spindlerate
+        self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
         self.old['rapid-or'] = self.stat.rapidrate
         self.old['feed-hold']  = self.stat.feed_hold_enabled
         self.old['g5x-index']  = self.stat.g5x_index
-        self.old['spindle-enabled']  = self.stat.spindle_enabled
-        self.old['spindle-direction']  = self.stat.spindle_direction
+        self.old['spindle-enabled']  = self.stat.spindle[0]['enabled']
+        self.old['spindle-direction']  = self.stat.spindle[0]['direction']
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
-        self.old['spindle-speed']= self.stat.spindle_speed
+        self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
         # override limits
         or_limit_list=[]

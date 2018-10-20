@@ -57,12 +57,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext18"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -106,12 +101,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext19"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -155,12 +145,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext20"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -204,12 +189,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext21"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -253,12 +233,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext22"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -302,12 +277,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext23"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -351,12 +321,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext24"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -400,12 +365,7 @@
                     <property name="model">pp2_input_list</property>
                     <property name="text_column">0</property>
                     <signal name="changed" handler="on_exclusive_check_pp2"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext25"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -453,12 +413,7 @@
                         <property name="model">pp2_input_list</property>
                         <property name="text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp2"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext17"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
+
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -502,12 +457,7 @@
                         <property name="model">pp2_input_list</property>
                         <property name="text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp2"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext13"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
+
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -551,12 +501,7 @@
                         <property name="model">pp2_input_list</property>
                         <property name="text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp2"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext14"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
+
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -600,12 +545,7 @@
                         <property name="model">pp2_input_list</property>
                         <property name="text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp2"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext15"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
+
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -649,12 +589,7 @@
                         <property name="model">pp2_input_list</property>
                         <property name="text_column">0</property>
                         <signal name="changed" handler="on_exclusive_check_pp2"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext16"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
+
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -752,12 +687,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -800,12 +730,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext2"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -848,12 +773,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext3"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -896,12 +816,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -944,12 +859,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -992,12 +902,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext6"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -1040,12 +945,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext7"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -1088,12 +988,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext8"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -1136,12 +1031,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext9"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -1185,12 +1075,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext10"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -1234,12 +1119,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext11"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -1283,12 +1163,7 @@
                     <property name="visible">True</property>
                     <property name="model">pp2_output_list</property>
                     <property name="text_column">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext12"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
+
                   </object>
                   <packing>
                     <property name="position">1</property>

@@ -54,13 +54,17 @@ class Pages:
     def on_help_window_delete_event(self, *args):
         self.w.help_window.hide()
         return True
+    def on_print_7i76_button_clicked(self,widget):
+        self.a.print_image('map_7i76')
+    def on_print_7i77_button_clicked(self,widget):
+        self.a.print_image('map_7i77')
 
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):
             gtk.main_quit()
             return True
         else:
-            return False
+            return True
 
     # seaches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
@@ -185,12 +189,12 @@ class Pages:
 
         self.a.fill_pintype_model()
 
-        self.a.add_external_folder_boardnames()
         self.intro_prepare()
         # get the original background color, must realize the widget first to get the true color.
         # we use this later to high light missing axis info
         self.w.xencoderscale.realize()
         self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
+        self.w.window1.set_geometry_hints(min_width=750)
 
 #************
 # INTRO PAGE
@@ -220,7 +224,8 @@ class Pages:
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
         self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
-        # here we initalise the mesa configure page data
+        self.a.add_external_folder_boardnames()
+        # here we initialise the mesa configure page data
         #TODO is this right place?
         self.d._mesa0_configured = False
         self.d._mesa1_configured = False
@@ -247,11 +252,6 @@ class Pages:
             self.w.mesa0_checkbutton.set_active(False)
             self.w.mesa1_checkbutton.set_active(False)
 
-        #self.w.ioaddr2.set_text(self.d.ioaddr2) 
-        #self.w.ioaddr3.set_text(self.d.ioaddr3)
-
-        #self.w.pp2_direction.set_active(self.d.pp2_direction)
-        #self.w.pp3_direction.set_active(self.d.pp3_direction)
         if self.d.number_pports == 3:
              self.w.radio_pp3.set_active(True)
         elif self.d.number_pports == 2:
@@ -260,9 +260,13 @@ class Pages:
              self.w.radio_pp1.set_active(True)
         else:
              self.w.radio_none.set_active(True)
-        if self.d.frontend == self._p._AXIS : self.w.GUIAXIS.set_active(True)
-        elif self.d.frontend == self._p._TKLINUXCNC: self.w.GUITKLINUXCNC.set_active(True)
-        elif self.d.frontend == self._p._TOUCHY: self.w.GUITOUCHY.set_active(True)
+        self.w.require_homing.set_active(self.d.require_homing)
+        self.w.individual_homing.set_active(self.d.individual_homing)
+        self.w.restore_joint_position.set_active(self.d.restore_joint_position) 
+        self.w.random_toolchanger.set_active(self.d.random_toolchanger) 
+        self.w.raise_z_on_toolchange.set_active(self.d.raise_z_on_toolchange) 
+        self.w.allow_spindle_on_toolchange.set_active(self.d.allow_spindle_on_toolchange)
+        self.w.toolchangeprompt.set_active(self.d.toolchangeprompt)
 
     def base_finish(self):
         machinename = self.w.machinename.get_text()
@@ -298,14 +302,13 @@ class Pages:
         if self.d.number_pports == 0 and self.d.number_mesa== 0 :
            self.a.warning_dialog(_("You need to designate a parport and/or mesa I/O device before continuing."),True)
            return True 
-        #self.d.pp2_direction = self.w.pp2_direction.get_active()
-        #self.d.pp3_direction = self.w.pp3_direction.get_active()
-        if self.w.GUIAXIS.get_active():
-           self.d.frontend = self._p._AXIS
-        elif self.w.GUITKLINUXCNC.get_active():
-           self.d.frontend = self._p._TKLINUXCNC
-        elif self.w.GUITOUCHY.get_active():
-           self.d.frontend = self._p._TOUCHY
+        self.d.require_homing = self.w.require_homing.get_active()
+        self.d.individual_homing = self.w.individual_homing.get_active()
+        self.d.restore_joint_position = self.w.restore_joint_position.get_active() 
+        self.d.random_toolchanger = self.w.random_toolchanger.get_active() 
+        self.d.raise_z_on_toolchange = self.w.raise_z_on_toolchange.get_active() 
+        self.d.allow_spindle_on_toolchange = self.w.allow_spindle_on_toolchange.get_active()
+        self.d.toolchangeprompt = self.w.toolchangeprompt.get_active()
 
     # BASE callbacks
     def on_mesa_checkbutton_toggled(self, *args):
@@ -395,11 +398,7 @@ class Pages:
 #************
     def screen_prepare(self):
         self.d.help = "help-gui.txt"
-        self.w.pyvcp.set_active(self.d.pyvcp)
-        self.on_pyvcp_toggled()
-        self.w.pyvcpexist.set_active(self.d.pyvcpexist)
-        self.w.pyvcp1.set_active(self.d.pyvcp1)
-        self.w.pyvcpblank.set_active(self.d.pyvcpblank)
+        self.w.combo_screentype.set_active(self.d.frontend-1)
         self.w.default_linear_velocity.set_value( self.d.default_linear_velocity*60)
         self.w.max_feed_override.set_value(self.d.max_feed_override*100 )
         self.w.max_spindle_override.set_value( self.d.max_spindle_override*100)
@@ -422,22 +421,8 @@ class Pages:
         self.w.position_offset.set_active(self.d.position_offset)
         self.w.position_feedback.set_active(self.d.position_feedback)
         self.w.geometry.set_text(self.d.geometry)
-        self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
-        self.w.require_homing.set_active(self.d.require_homing)
-        self.w.individual_homing.set_active(self.d.individual_homing)
-        self.w.restore_joint_position.set_active(self.d.restore_joint_position) 
-        self.w.random_toolchanger.set_active(self.d.random_toolchanger) 
-        self.w.raise_z_on_toolchange.set_active(self.d.raise_z_on_toolchange) 
-        self.w.allow_spindle_on_toolchange.set_active(self.d.allow_spindle_on_toolchange)
-        self.w.toolchangeprompt.set_active(self.d.toolchangeprompt)
         self.a.read_touchy_preferences()
-        for i in ("gladevcp","gladesample","gladeexists","spindlespeedbar","spindleatspeed","gladevcpforcemax",
-                "zerox","zeroy","zeroz","zeroa","autotouchz","centerembededgvcp","sideembededgvcp","standalonegvcp",
-                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax"):
-            self.w[i].set_active(self.d[i])
-        for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
-                    "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
-            self.w[i].set_value(self.d[i])
+
         for i in ("touchy","axis"):
             self.w[i+"size"].set_active(self.d[i+"size"][0])
             self.w[i+"width"].set_value(self.d[i+"size"][1])
@@ -448,17 +433,10 @@ class Pages:
         
         if os.path.exists(self._p.THEMEDIR):
             self.a.get_installed_themes()
-        self.on_gladevcp_toggled()
 
     def screen_finish(self):
         # Sanity checks
-        if not self.w.createconfig.get_active():
-            if self.w.gladevcp.get_active() and self.w.gladesample.get_active():
-                if self.a.gladevcp_sanity_check():
-                    return True
-            if self.w.pyvcp.get_active() and not self.w.pyvcpexist.get_active():
-                if self.a.pyvcp_sanity_check():
-                    return True
+
         self.d.default_linear_velocity = self.w.default_linear_velocity.get_value()/60
         self.d.max_feed_override = self.w.max_feed_override.get_value()/100
         self.d.max_spindle_override = self.w.max_spindle_override.get_value()/100
@@ -474,51 +452,12 @@ class Pages:
         self.d.geometry = self.w.geometry.get_text()
         self.d.position_offset = self.w.position_offset.get_active()
         self.d.position_feedback = self.w.position_feedback.get_active()
-        self.d.require_homing = self.w.require_homing.get_active()
-        self.d.individual_homing = self.w.individual_homing.get_active()
-        self.d.restore_joint_position = self.w.restore_joint_position.get_active() 
-        self.d.random_toolchanger = self.w.random_toolchanger.get_active() 
-        self.d.raise_z_on_toolchange = self.w.raise_z_on_toolchange.get_active() 
-        self.d.allow_spindle_on_toolchange = self.w.allow_spindle_on_toolchange.get_active()
-        self.d.toolchangeprompt = self.w.toolchangeprompt.get_active()
-        self.d.pyvcpblank = self.w.pyvcpblank.get_active()
-        self.d.pyvcp1 = self.w.pyvcp1.get_active()
-        self.d.pyvcpexist = self.w.pyvcpexist.get_active()
-        self.d.pyvcp = self.w.pyvcp.get_active()
-        self.d.pyvcpconnect = self.w.pyvcpconnect.get_active() 
-        if self.d.pyvcp == True:
-           if self.w.pyvcpblank.get_active() == True:
-              self.d.pyvcpname = "blank.xml"
-              self.d.pyvcphaltype = 0
-           if self.w.pyvcp1.get_active() == True:
-              self.d.pyvcpname = "spindle.xml"
-              self.d.pyvcphaltype = 1
-           if self.w.pyvcpexist.get_active() == True:
-              self.d.pyvcpname = "pyvcp-panel.xml"
-        for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
-            if not self.w[i].get_active():
-                self.d[i] = "default"
-            else:
-                self.d[i] = str(self.w[i+"button"].get_color())
+
+        self.d.frontend = self.w.combo_screentype.get_active() +1
+
         self.d.touchytheme = self.w.touchytheme.get_active_text()
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
-        for i in ("gladevcp","gladesample","spindlespeedbar","spindleatspeed","gladevcpforcemax",
-                "centerembededgvcp","sideembededgvcp","standalonegvcp","gladeexists",
-                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax","autotouchz"):
-            self.d[i] = self.w[i].get_active()
-        # set HALUI commands ( on advanced page) based on the user requested glade buttons
-        i =  self.d.gladevcphaluicmds = 0
-        for temp in(("zerox","G10 L20 P0 X0 ( Set X to zero )"),("zeroy","G10 L20 P0 Y0 ( Set Y to zero )"),
-                    ("zeroz","G10 L20 P0 Z0 ( Set Z to zero )"),("zeroa","G10 L20 P0 A0 ( Set A to zero )")):
-            self.d[temp[0]] = self.w[temp[0]].get_active()
-            if self.d[temp[0]]:
-                self.d.halui = True
-                self.d["halui_cmd%d"% i] = temp[1]
-                i += 1
-                self.d.gladevcphaluicmds += 1
-        for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
-                    "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
-            self.d[i] = self.w[i].get_value()
+
         for i in ("touchy","axis"):
             self.d[i+"size"][0] = self.w[i+"size"].get_active()
             self.d[i+"size"][1] = self.w[i+"width"].get_value()
@@ -526,10 +465,7 @@ class Pages:
             self.d[i+"position"][0] = self.w[i+"position"].get_active()
             self.d[i+"position"][1] = self.w[i+"xpos"].get_value()
             self.d[i+"position"][2] = self.w[i+"ypos"].get_value()
-        self.d.gladevcptheme = self.w.gladevcptheme.get_active_text()
-        # make sure there is a copy of the choosen gladevcp panel in /tmp/
-        # We will copy it later into our config folder
-        self.t.gladevcptestpanel(self)
+
         if self.w.autotouchz.get_active():
             self.d.classicladder = True
             if not self.w.ladderexist.get_active():
@@ -537,7 +473,28 @@ class Pages:
 
     # callbacks
     def on_loadladder_clicked(self, *args):self.t.load_ladder(self)
- 
+
+    def on_combo_screentype_changed(self,w):
+        if w.get_active()+1 == self._p._AXIS:
+            self.w.axis_info.set_expanded(True)
+            self.w.axis_info.show()
+            self.w.gmcpy_info.hide()
+            self.w.touchy_info.hide()
+        elif w.get_active()+1 == self._p._TOUCHY:
+            self.w.touchy_info.set_expanded(True)
+            self.w.touchy_info.show()
+            self.w.gmcpy_info.hide()
+            self.w.axis_info.hide()
+        elif w.get_active()+1 == self._p._TKLINUXCNC:
+            self.w.axis_info.hide()
+            self.w.gmcpy_info.hide()
+            self.w.touchy_info.hide()
+        elif w.get_active()+1 == self._p._GMOCCAPY:
+            self.w.gmcpy_info.set_expanded(True)
+            self.w.gmcpy_info.show()
+            self.w.axis_info.hide()
+            self.w.touchy_info.hide()
+
     def on_halui_toggled(self, *args):
         i= self.w.halui.get_active()
         self.w.haluitable.set_sensitive(i)
@@ -576,25 +533,7 @@ class Pages:
             self.w["halui_cmd%d"%(i)].set_text("G38.2 Z-2 F16   ( search for touch off plate )")
             self.w["halui_cmd%d"%(i+1)].set_text("G10 L20 P0 Z.25 ( Ofset current Origin by plate thickness )")
             self.w["halui_cmd%d"%(i+2)].set_text("G0 Z.5           ( Rapid away from touch off plate )")
-    def on_gladevcp_toggled(self,*args):
-        self.a.update_gladevcp()
-    def on_pyvcp_toggled(self,*args):
-        i= self.w.pyvcp.get_active()
-        self.w.pyvcpblank.set_sensitive(i)
-        self.w.pyvcp1.set_sensitive(i)
-        self.w.pyvcp2.set_sensitive(i)
-        self.w.pyvcpgeometry.set_sensitive(i)
-        if  self.w.createconfig.get_active():
-            self.w.pyvcpexist.set_sensitive(False)
-        else:
-            self.w.pyvcpexist.set_sensitive(i)
-        self.w.displaypanel.set_sensitive(i)
-        self.w.pyvcpconnect.set_sensitive(i)
 
-    def on_displaypanel_clicked(self,*args):
-        self.t.testpanel(self)
-    def on_displaygladevcp_clicked(self,*args):
-        self.t.display_gladevcp_panel()
     def on_xusecomp_toggled(self, *args): self.a.comp_toggle('x')
     def on_yusecomp_toggled(self, *args): self.a.comp_toggle('y')
     def on_zusecomp_toggled(self, *args): self.a.comp_toggle('z')
@@ -615,6 +554,97 @@ class Pages:
     def on_zbldc_toggled(self, *args): self.a.bldc_toggled('z')
     def on_abldc_toggled(self, *args): self.a.bldc_toggled('a')
     def on_sbldc_toggled(self, *args): self.a.bldc_toggled('s')
+
+#####################
+# VCP
+#####################
+    def vcp_prepare(self):
+        self.d.help = "help-vcp.txt"
+        self.w.pyvcp.set_active(self.d.pyvcp)
+        self.on_pyvcp_toggled()
+        self.w.pyvcpexist.set_active(self.d.pyvcpexist)
+        self.w.pyvcp1.set_active(self.d.pyvcp1)
+        self.w.pyvcpblank.set_active(self.d.pyvcpblank)
+        self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
+        for i in ("gladevcp","gladesample","gladeexists","spindlespeedbar","spindleatspeed","gladevcpforcemax",
+                "zerox","zeroy","zeroz","zeroa","autotouchz","centerembededgvcp","sideembededgvcp","standalonegvcp",
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax"):
+            self.w[i].set_active(self.d[i])
+        for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
+                    "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
+            self.w[i].set_value(self.d[i])
+        self.a.update_gladevcp()
+
+    def vcp_finish(self):
+        if not self.w.createconfig.get_active():
+            if self.w.gladevcp.get_active() and self.w.gladesample.get_active():
+                if self.a.gladevcp_sanity_check():
+                    return True
+            if self.w.pyvcp.get_active() and not self.w.pyvcpexist.get_active():
+                if self.a.pyvcp_sanity_check():
+                    return True
+        self.d.pyvcpblank = self.w.pyvcpblank.get_active()
+        self.d.pyvcp1 = self.w.pyvcp1.get_active()
+        self.d.pyvcpexist = self.w.pyvcpexist.get_active()
+        self.d.pyvcp = self.w.pyvcp.get_active()
+        self.d.pyvcpconnect = self.w.pyvcpconnect.get_active() 
+        if self.d.pyvcp == True:
+           if self.w.pyvcpblank.get_active() == True:
+              self.d.pyvcpname = "blank.xml"
+              self.d.pyvcphaltype = 0
+           if self.w.pyvcp1.get_active() == True:
+              self.d.pyvcpname = "spindle.xml"
+              self.d.pyvcphaltype = 1
+           if self.w.pyvcpexist.get_active() == True:
+              self.d.pyvcpname = "pyvcp-panel.xml"
+        for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
+            if not self.w[i].get_active():
+                self.d[i] = "default"
+            else:
+                self.d[i] = str(self.w[i+"button"].get_color())
+        for i in ("gladevcp","gladesample","spindlespeedbar","spindleatspeed","gladevcpforcemax",
+                "centerembededgvcp","sideembededgvcp","standalonegvcp","gladeexists",
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax","autotouchz"):
+            self.d[i] = self.w[i].get_active()
+        # set HALUI commands ( on advanced page) based on the user requested glade buttons
+        i =  self.d.gladevcphaluicmds = 0
+        for temp in(("zerox","G10 L20 P0 X0 ( Set X to zero )"),("zeroy","G10 L20 P0 Y0 ( Set Y to zero )"),
+                    ("zeroz","G10 L20 P0 Z0 ( Set Z to zero )"),("zeroa","G10 L20 P0 A0 ( Set A to zero )")):
+            self.d[temp[0]] = self.w[temp[0]].get_active()
+            if self.d[temp[0]]:
+                self.d.halui = True
+                self.d["halui_cmd%d"% i] = temp[1]
+                i += 1
+                self.d.gladevcphaluicmds += 1
+        for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
+                    "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
+            self.d[i] = self.w[i].get_value()
+        self.d.gladevcptheme = self.w.gladevcptheme.get_active_text()
+        # make sure there is a copy of the choosen gladevcp panel in /tmp/
+        # We will copy it later into our config folder
+        self.t.gladevcptestpanel(self)
+
+    # CALL BACKS
+    def on_gladevcp_toggled(self,*args):
+        self.a.update_gladevcp()
+    def on_pyvcp_toggled(self,*args):
+        i= self.w.pyvcp.get_active()
+        self.w.pyvcpblank.set_sensitive(i)
+        self.w.pyvcp1.set_sensitive(i)
+        self.w.pyvcp2.set_sensitive(i)
+        self.w.pyvcpgeometry.set_sensitive(i)
+        if  self.w.createconfig.get_active():
+            self.w.pyvcpexist.set_sensitive(False)
+        else:
+            self.w.pyvcpexist.set_sensitive(i)
+        self.w.displaypanel.set_sensitive(i)
+        self.w.pyvcpconnect.set_sensitive(i)
+
+    def on_displaypanel_clicked(self,*args):
+        self.t.testpanel(self)
+    def on_displaygladevcp_clicked(self,*args):
+        self.t.display_gladevcp_panel()
+
 #************
 # EXTERAL PAGE
 #************
@@ -812,15 +842,27 @@ class Pages:
 
     def mesa0_prepare(self):
         self.d.help = "help-mesa.txt"
-        temp = 0
-        for search,item in enumerate(self._p.MESA_BOARDNAMES):
-            if self._p.MESA_BOARDNAMES[search]  == self.d.mesa0_boardtitle:
-                temp = search
-        self.w.mesa0_boardtitle.set_active(temp)
+        def lookup(name):
+            temp = -1
+            for search,item in enumerate(self._p.MESA_BOARDNAMES):
+                #print self._p.MESA_BOARDNAMES[search],name
+                if self._p.MESA_BOARDNAMES[search]  == name:
+                    temp = search
+            return temp
+        # search for boardname - if it's not there add it
+        name_vector = lookup(self.d.mesa0_boardtitle)
+        if name_vector == -1:
+            self._p.MESA_BOARDNAMES.append(self.d.mesa0_boardtitle)
+            model = self.w.mesa0_boardtitle.get_model()
+            model.append((self.d.mesa0_boardtitle,))
+            name_vector = lookup(self.d.mesa0_boardtitle)
+
+        self.w.mesa0_boardtitle.set_active(name_vector)
         self._p.prepare_block = True
         self.a.init_mesa_options(0)
         self._p.prepare_block = False
         self.w.mesa0_parportaddrs.set_text(self.d.mesa0_parportaddrs)
+        self.w.mesa0_card_addrs.set_text(self.d.mesa0_card_addrs)
 
     def mesa0_finish(self):
         model = self.w.mesa0_boardtitle.get_model()
@@ -836,14 +878,23 @@ class Pages:
             return True # don't advance page
         self.d.mesa0_boardtitle = self.w.mesa0_boardtitle.get_active_text()
         self.d.mesa0_parportaddrs = self.w.mesa0_parportaddrs.get_text()
+        self.d.mesa0_card_addrs = self.w.mesa0_card_addrs.get_text()
         self.a.mesa_data_transfer(0)
         if self.d.number_mesa <2:
             error = self.a.signal_sanity_check()
             if error: return True # don't advance page
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
+    # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
+    # This is because the page in not inialized/loaded until needed
+    # callbacks:
     def on_mesapanel_clicked(self, *args):
         self.t.launch_mesa_panel()
+
+    def on_mesa0_discovery_clicked(self, *args):
+        info = self.a.discover_mesacards()
+        if not info == None:
+            self.a.discovery_selection_update(info,0)
 
 #************
 # MESA1 PAGE
@@ -863,6 +914,7 @@ class Pages:
         self.w.mesa1_boardtitle.set_active(temp)
         self.a.init_mesa_options(1)
         self.w.mesa1_parportaddrs.set_text(self.d.mesa1_parportaddrs)
+        self.w.mesa1_card_addrs.set_text(self.d.mesa1_card_addrs)
 
     def mesa1_finish(self):
         model = self.w.mesa1_boardtitle.get_model()
@@ -878,10 +930,20 @@ class Pages:
             return True
         self.d.mesa1_boardtitle = self.w.mesa1_boardtitle.get_active_text()
         self.d.mesa1_parportaddrs = self.w.mesa1_parportaddrs.get_text()
+        self.d.mesa1_card_addrs = self.w.mesa1_card_addrs.get_text()
         self.a.mesa_data_transfer(1)
         error = self.a.signal_sanity_check()
         if error: return True
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
+
+    # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
+    # This is because the page in not inialized/loaded until needed
+    # callbacks:
+
+    def on_mesa1_discovery_clicked(self, *args):
+        info = self.a.discover_mesacards()
+        if not info == None:
+            self.a.discovery_selection_update(info,1)
 
 #************
 # pport1 PAGE

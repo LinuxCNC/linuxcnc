@@ -6,7 +6,7 @@
 
 LinuxCNC 2.5 supports TWOPASS processing of hal configuration files
 that can help in the modularization and readability of hal files.
-(Hal files are specified in an LinuxCNC ini file in the HAL stanza 
+(Hal files are specified in an LinuxCNC ini file in the HAL stanza
 as [HAL]HALFILE=filename).
 
 Normally, a set of one or more hal configuration files must use
@@ -119,7 +119,7 @@ with the comp utility, numerous other comps support the names=option.
 Comps that support names= option include: at_pid, encoder,
 encoder_ratio, pid, siggen, and sim_encoder.
 
-Twopass processing occurs before the loading of a gui.  When using a 
+Twopass processing occurs before the loading of a gui.  When using a
 [HAL]POSTGUI_HALFILE, it is convenient to place all the loadrt
 statements for components needed in a halfile that is loaded earlier.
 
@@ -137,6 +137,39 @@ HALFILE = load_for_postgui.hal  <-- loadrt lines for components in postgui.hal
 POSTGUI_HALFILE = postgui.hal
 HALUI = halui
 ----
+
+== Exluding .hal files
+
+TWOPASS processing converts '.hal' files to equivalent '.tcl' files and uses
+haltcl to find loadrt and addf commands in order to accumulate and consolidate
+their usage.  Loadrt parameters that conform to the simple 'names=' (or
+'count=') parameters accepted by the HAL Component Generator ('halcompile') are
+expected.  More complex parameter items included in specialized hal components
+may not be handled properly.
+
+A '.hal' file may be excluded from TWOPASS processing by including a magic
+comment line anywhere in the '.hal' file.   The magic comment line must begin
+with the string: '#NOTWOPASS'.  Files specified with this magic comment are
+sourced by halcmd using the '-k' (keep going if failure) and '-v' (verbose)
+options.
+
+This exclusion provision can be used to isolate problems or for loading any hal
+component that does not require or benefit from TWOPASS processing that handles
+multiple component loadrt instances.
+
+Excluded '.hal' file example:
+----
+$ cat twopass_excluded.hal
+# The following magic comment causes this file to
+# be excluded from twopass processing:
+# NOTWOPASS
+
+loadrt mycomponent parm1="abc def" parm2=ghi
+show pin mycomponent
+----
+
+[NOTE]
+   Case and whitespace within the magic comment are ignored.
 
 == Post GUI
 

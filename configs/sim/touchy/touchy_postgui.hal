@@ -1,0 +1,24 @@
+# Include your customized HAL commands here
+# The commands in this file are run after TOUCHY starts
+
+# connect out test panel controls to TOUCHY
+# In a real machine you would connect similarily to REAL buttons
+
+net TEST-MPG    touchy_test.mpg =>
+net TEST-MPG    touchy.wheel-counts
+net TEST-MPG    axis.x.jog-counts   joint.0.jog-counts
+net TEST-MPG    axis.y.jog-counts   joint.1.jog-counts
+net TEST-MPG    axis.z.jog-counts   joint.2.jog-counts
+
+net TEST-JOG-ENABLE-X     touchy.jog.wheel.x   =>   axis.x.jog-enable joint.0.jog-enable
+net TEST-JOG-ENABLE-Y     touchy.jog.wheel.y   =>   axis.y.jog-enable joint.1.jog-enable
+net TEST-JOG-ENABLE-Z     touchy.jog.wheel.z   =>   axis.z.jog-enable joint.2.jog-enable
+
+net TEST-JOG-INCR   touchy.jog.wheel.increment =>
+net TEST-JOG-INCR   axis.x.jog-scale    joint.0.jog-scale
+net TEST-JOG-INCR   axis.y.jog-scale    joint.1.jog-scale
+net TEST-JOG-INCR   axis.z.jog-scale    joint.2.jog-scale
+
+net TEST-CYCLE-START    touchy_test.cycle-start-button  =>   touchy.cycle-start
+
+net TEST-SPINDLE-SPEED  spindle.0.speed-out  =>  touchy_test.spindle-speed

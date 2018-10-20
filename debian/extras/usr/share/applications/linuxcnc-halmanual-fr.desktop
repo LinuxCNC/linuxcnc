@@ -1,6 +1,5 @@
 [Desktop Entry]
-Version=
-Encoding=UTF-8
+Version=1.0
 Name=French HAL Manual
 Type=Application
 Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_HAL_User_Manual_fr.pdf
@@ -10,4 +9,4 @@ Terminal=false
 Comment=Details about the Hardware Abstract Layer.
 StartupNotify=false
 Categories=X-CNC;
-GenericName[en_US]=
+Keywords=cnc;linuxcnc;

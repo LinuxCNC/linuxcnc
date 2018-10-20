@@ -1,0 +1,9 @@
+%
+( Fanuc M98 requires P-word )
+
+M98
+
+O1
+#1 = 13
+M99
+%

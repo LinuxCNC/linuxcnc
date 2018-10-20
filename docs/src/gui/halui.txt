@@ -231,30 +231,30 @@ MDI_COMMAND = G0 X0
 
 .Spindle Override
 
-* 'halui.spindle-override.count-enable' (bit, in) - must be true for 'counts' or
+* 'halui.spindle.N.override.count-enable' (bit, in) - must be true for 'counts' or
 'direct-value' to work.
-* 'halui.spindle-override.counts' (s32, in) - counts * scale = SO percentage
-* 'halui.spindle-override.decrease' (bit, in) - pin for decreasing the SO (-=scale)
-* 'halui.spindle-override.direct-value' (bit, in) - false when using encoder to change counts, 
+* 'halui.spindle.N.override.counts' (s32, in) - counts * scale = SO percentage
+* 'halui.spindle.N.override.decrease' (bit, in) - pin for decreasing the SO (-=scale)
+* 'halui.spindle.N.override.direct-value' (bit, in) - false when using encoder to change counts, 
 true when setting counts directly. The 'count-enable' pin must be true.
-* 'halui.spindle-override.increase' (bit, in) - pin for increasing the SO (+=scale)
-* 'halui.spindle-override.scale' (float, in) - pin for setting the scale on changing the SO
-* 'halui.spindle-override.value' (float, out) - current SO value 
+* 'halui.spindle.N.override.increase' (bit, in) - pin for increasing the SO (+=scale)
+* 'halui.spindle.N.override.scale' (float, in) - pin for setting the scale on changing the SO
+* 'halui.spindle.N.override.value' (float, out) - current SO value 
 
 .Spindle
 
-* 'halui.spindle.brake-is-on' (bit, out) - indicates brake is on
-* 'halui.spindle.brake-off' (bit, in) - pin for deactivating spindle/brake
-* 'halui.spindle.brake-on' (bit, in) - pin for activating spindle-brake
-* 'halui.spindle.decrease' (bit, in) - decreases spindle speed
-* 'halui.spindle.forward' (bit, in) - starts the spindle with CW motion
-* 'halui.spindle.increase' (bit, in)- increases spindle speed
-* 'halui.spindle.is-on' (bit, out) - indicates spindle is on (either direction)
-* 'halui.spindle.reverse' (bit, in)- starts the spindle with a CCW motion
-* 'halui.spindle.runs-backward' (bit, out) - indicates spindle is on, and in reverse
-* 'halui.spindle.runs-forward' (bit, out) - indicates spindle is on, and in forward
-* 'halui.spindle.start' (bit, in) - starts the spindle
-* 'halui.spindle.stop' (bit, in) - stops the spindle
+* 'halui.spindle.N.brake-is-on' (bit, out) - indicates brake is on
+* 'halui.spindle.N.brake-off' (bit, in) - pin for deactivating spindle/brake
+* 'halui.spindle.N.brake-on' (bit, in) - pin for activating spindle-brake
+* 'halui.spindle.N.decrease' (bit, in) - decreases spindle speed
+* 'halui.spindle.N.forward' (bit, in) - starts the spindle with CW motion
+* 'halui.spindle.N.increase' (bit, in)- increases spindle speed
+* 'halui.spindle.N.is-on' (bit, out) - indicates spindle is on (either direction)
+* 'halui.spindle.N.reverse' (bit, in)- starts the spindle with a CCW motion
+* 'halui.spindle.N.runs-backward' (bit, out) - indicates spindle is on, and in reverse
+* 'halui.spindle.N.runs-forward' (bit, out) - indicates spindle is on, and in forward
+* 'halui.spindle.N.start' (bit, in) - starts the spindle
+* 'halui.spindle.N.stop' (bit, in) - stops the spindle
 
 .Tool
 

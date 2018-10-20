@@ -419,8 +419,10 @@ static void send_g5x_msg(int index) {
 
     set_g5x_msg.origin = to_ext_pose(canon.g5xOffset);
 
-    if(canon.css_maximum) {
-        SET_SPINDLE_SPEED(canon.spindleSpeed);
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
+        if(canon.spindle[s].css_maximum) {
+            SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
+        }
     }
     interp_list.append(set_g5x_msg);
 }
@@ -434,8 +436,10 @@ static void send_g92_msg(void) {
 
     set_g92_msg.origin = to_ext_pose(canon.g92Offset);
 
-    if(canon.css_maximum) {
-        SET_SPINDLE_SPEED(canon.spindleSpeed);
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
+        if(canon.spindle[s].css_maximum) {
+            SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
+        }
     }
     interp_list.append(set_g92_msg);
 }
@@ -486,9 +490,10 @@ void SET_TRAVERSE_RATE(double rate)
     // nothing need be done here
 }
 
-void SET_FEED_MODE(int mode) {
+void SET_FEED_MODE(int spindle, int mode) {
     flush_segments();
     canon.feed_mode = mode;
+    canon.spindle_num = spindle;
     if(canon.feed_mode == 0) STOP_SPEED_FEED_SYNCH();
 }
 
@@ -496,7 +501,7 @@ void SET_FEED_RATE(double rate)
 {
 
     if(canon.feed_mode) {
-	START_SPEED_FEED_SYNCH(rate, 1);
+	START_SPEED_FEED_SYNCH(canon.spindle_num, rate, 1);
 	canon.linearFeedRate = rate;
     } else {
 	/* convert from /min to /sec */
@@ -868,7 +873,7 @@ static void flush_segments(void) {
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg.indexrotary = -1;
-    if ((vel && acc) || canon.synched) {
+    if ((vel && acc) || canon.spindle[canon.spindle_num].synched) {
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
     }
@@ -994,7 +999,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     }
 
     if(old_feed_mode)
-	START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+	START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
 
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
@@ -1013,7 +1018,7 @@ void STRAIGHT_FEED(int line_number,
 }
 
 
-void RIGID_TAP(int line_number, double x, double y, double z)
+void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 {
     double ini_maxvel,acc;
     EMC_TRAJ_RIGID_TAP rigidTapMsg;
@@ -1039,7 +1044,7 @@ void RIGID_TAP(int line_number, double x, double y, double z)
     rigidTapMsg.vel = toExtVel(ini_maxvel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
-
+    rigidTapMsg.scale = scale;
     flush_segments();
 
     if(ini_maxvel && acc)  {
@@ -1162,14 +1167,15 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 
 
-void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode)
+void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode)
 {
     flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
+    spindlesyncMsg.spindle = spindle;
     spindlesyncMsg.feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
     spindlesyncMsg.velocity_mode = velocity_mode;
     interp_list.append(spindlesyncMsg);
-    canon.synched = 1;
+    canon.spindle[spindle].synched = 1;
 }
 
 void STOP_SPEED_FEED_SYNCH()
@@ -1179,7 +1185,7 @@ void STOP_SPEED_FEED_SYNCH()
     spindlesyncMsg.feed_per_revolution = 0.0;
     spindlesyncMsg.velocity_mode = false;
     interp_list.append(spindlesyncMsg);
-    canon.synched = 0;
+    canon.spindle[canon.spindle_num].synched = 0;
 }
 
 /* Machining Functions */
@@ -1456,9 +1462,9 @@ void ARC_FEED(int line_number,
 
 
     canon_debug("start = %f %f %f\n",
-            canonEndPoint.x,
-            canonEndPoint.y,
-            canonEndPoint.z);
+            canon.endPoint.x,
+            canon.endPoint.y,
+            canon.endPoint.z);
     canon_debug("end = %f %f %f\n",
             end_cart.x,
             end_cart.y,
@@ -1704,7 +1710,7 @@ void ARC_FEED(int line_number,
 
     // Limit velocity by maximum
     double vel = MIN(canon.linearFeedRate, v_max);
-    canon_debug("current F = %f\n",currentLinearFeedRate);
+    canon_debug("current F = %f\n",canon.linearFeedRate);
     canon_debug("vel = %f\n",vel);
 
     canon_debug("v_max = %f\n",v_max);
@@ -1775,88 +1781,95 @@ void SPINDLE_RETRACT_TRAVERSE()
     /*! \todo FIXME-- unimplemented */
 }
 
-void SET_SPINDLE_MODE(double css_max) {
-    canon.css_maximum = fabs(css_max);
+void SET_SPINDLE_MODE(int spindle, double css_max) {
+   canon.spindle[spindle].css_maximum = fabs(css_max);
 }
 
-void START_SPINDLE_CLOCKWISE(int wait_for_atspeed)
+void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
-    canon.spindle_dir = 1;
-
-    if(canon.css_maximum) {
-	if(canon.lengthUnits == CANON_UNITS_INCHES) 
-	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
-	else
-	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = canon.spindle_dir * canon.css_maximum;
-	emc_spindle_on_msg.factor = canon.spindle_dir * canon.css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+    canon.spindle[s].dir = 1;
+    emc_spindle_on_msg.spindle = s;
+    if(canon.spindle[s].css_maximum) {
+        if(canon.lengthUnits == CANON_UNITS_INCHES){
+            canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
+        } else {
+            canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
+		}
+		emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
+		emc_spindle_on_msg.factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
+		emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
-	emc_spindle_on_msg.speed = canon.spindle_dir * canon.spindleSpeed;
-	canon.css_numerator = 0;
+        emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
+     //   canon.css_numerator = 0; FIXME: Do we need this?
     }
     emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_on_msg);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed)
+void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
     flush_segments();
-    canon.spindle_dir = -1;
-
-    if(canon.css_maximum) {
-	if(canon.lengthUnits == CANON_UNITS_INCHES) 
-	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
-	else
-	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_on_msg.speed = canon.spindle_dir * canon.css_maximum;
-	emc_spindle_on_msg.factor = canon.spindle_dir * canon.css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+    canon.spindle[s].dir = -1;
+    emc_spindle_on_msg.spindle = s;
+    if(canon.spindle[s].css_maximum) {
+        if(canon.lengthUnits == CANON_UNITS_INCHES){
+            canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
+        } else {
+            canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
+		}
+		emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
+		emc_spindle_on_msg.factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
+		emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
-	emc_spindle_on_msg.speed = canon.spindle_dir * canon.spindleSpeed;
-	canon.css_numerator = 0;
+        emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
+     //   canon.css_numerator = 0; FIXME: Do we need this?
     }
     emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_on_msg);
 }
 
-void SET_SPINDLE_SPEED(double r)
+void SET_SPINDLE_SPEED(int s, double r)
 {
     // speed is in RPMs everywhere
-    canon.spindleSpeed = fabs(r); // interp will never send negative anyway ...
+    for (int i = 0; i < 3; i++) {printf("Before: spindle %i speed %f\n", i, canon.spindle[i].speed) ;}
+	canon.spindle[s].speed = fabs(r); // interp will never send negative anyway ...
+    for (int i = 0; i < 3; i++) {printf("After: spindle %i speed %f\n", i, canon.spindle[i].speed) ;}
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
     flush_segments();
 
-    if(canon.css_maximum) {
-	if(canon.lengthUnits == CANON_UNITS_INCHES) 
-	    canon.css_numerator = 12 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(25.4);
-	else
-	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
-	emc_spindle_speed_msg.speed = canon.spindle_dir * canon.css_maximum;
-	emc_spindle_speed_msg.factor = canon.spindle_dir * canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-    } else {
-	emc_spindle_speed_msg.speed = canon.spindle_dir * canon.spindleSpeed;
-	canon.css_numerator = 0;
+    emc_spindle_speed_msg.spindle = s;
+    if(canon.spindle[s].css_maximum) {
+		if(canon.lengthUnits == CANON_UNITS_INCHES){
+			canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
+		} else {
+			canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
+		}
+		emc_spindle_speed_msg.speed =  canon.spindle[s].dir * canon.spindle[s].css_maximum;
+		emc_spindle_speed_msg.factor =  canon.spindle[s].dir * canon.spindle[s].css_factor;
+		emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+	} else {
+        emc_spindle_speed_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
+		//   canon.css_numerator = 0; FIXME: Do we need this?
     }
     interp_list.append(emc_spindle_speed_msg);
-    
 }
 
-void STOP_SPINDLE_TURNING()
+void STOP_SPINDLE_TURNING(int s)
 {
     EMC_SPINDLE_OFF emc_spindle_off_msg;
 
     flush_segments();
-
+    emc_spindle_off_msg.spindle = s;
     interp_list.append(emc_spindle_off_msg);
+    // Added by atp 6/1/18 not sure this is right. There is a problem that the _second_ S word starts the spindle without M3/M4
+    canon.spindle[s].dir = 0;
 }
 
 void SPINDLE_RETRACT()
@@ -1864,21 +1877,23 @@ void SPINDLE_RETRACT()
     /*! \todo FIXME-- unimplemented */
 }
 
-void ORIENT_SPINDLE(double orientation, int mode)
+void ORIENT_SPINDLE(int s, double orientation, int mode)
 {
     EMC_SPINDLE_ORIENT o;
 
     flush_segments();
+    o.spindle = s;
     o.orientation = orientation;
     o.mode = mode;
     interp_list.append(o);
 }
 
-void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout)
+void WAIT_SPINDLE_ORIENT_COMPLETE(int s, double timeout)
 {
     EMC_SPINDLE_WAIT_ORIENT_COMPLETE o;
 
     flush_segments();
+    o.spindle = s;
     o.timeout = timeout;
     interp_list.append(o);
 }
@@ -1948,8 +1963,10 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
     set_offset_msg.offset.v = TO_EXT_LEN(canon.toolOffset.v);
     set_offset_msg.offset.w = TO_EXT_LEN(canon.toolOffset.w);
 
-    if(canon.css_maximum) {
-        SET_SPINDLE_SPEED(canon.spindleSpeed);
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
+        if(canon.spindle[s].css_maximum) {
+            SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
+        }
     }
     interp_list.append(set_offset_msg);
 }
@@ -2027,7 +2044,7 @@ void CHANGE_TOOL(int slot)
             interp_list.append(linearMoveMsg);
 
 	if(old_feed_mode)
-	    START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+	    START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
 
         canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
@@ -2180,7 +2197,7 @@ void ENABLE_FEED_OVERRIDE()
 }
 
 
-//refers to adaptive feed override (HAL input, usefull for EDM for example)
+//refers to adaptive feed override (HAL input, useful for EDM for example)
 void DISABLE_ADAPTIVE_FEED()
 {
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
@@ -2200,22 +2217,24 @@ void ENABLE_ADAPTIVE_FEED()
 }
 
 //refers to spindle speed
-void DISABLE_SPEED_OVERRIDE()
+void DISABLE_SPEED_OVERRIDE(int spindle)
 {
     EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
     flush_segments();
     
     set_so_enable_msg.mode = 0;
+    set_so_enable_msg.spindle = spindle;
     interp_list.append(set_so_enable_msg);
 }
 
 
-void ENABLE_SPEED_OVERRIDE()
+void ENABLE_SPEED_OVERRIDE(int spindle)
 {
     EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
     flush_segments();
     
     set_so_enable_msg.mode = 1;
+    set_so_enable_msg.spindle = spindle;
     interp_list.append(set_so_enable_msg);
 }
 
@@ -2444,10 +2463,7 @@ void INIT_CANON()
     // initialize locals to original values
     canon.xy_rotation = 0.0;
     canon.rotary_unlock_for_traverse = -1;
-    canon.css_maximum = 0.0;
-    canon.css_numerator = 0.0;
     canon.feed_mode = 0;
-    canon.synched = 0;
     canon.g5xOffset.x = 0.0;
     canon.g5xOffset.y = 0.0;
     canon.g5xOffset.z = 0.0;
@@ -2470,8 +2486,10 @@ void INIT_CANON()
     canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     SET_NAIVECAM_TOLERANCE(0);
-    canon.spindleSpeed = 0.0;
-//    canon.preppedTool = 0;
+    for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++) {
+        canon.spindle[s].speed = 0.0;
+        canon.spindle[s].synched = 0;
+    }
     canon.optional_program_stop = ON; //set enabled by default (previous EMC behaviour)
     canon.block_delete = ON; //set enabled by default (previous EMC behaviour)
     canon.cartesian_move = 0;
@@ -2690,19 +2708,19 @@ int GET_EXTERNAL_FLOOD()
     return emcStatus->io.coolant.flood;
 }
 
-double GET_EXTERNAL_SPEED()
+double GET_EXTERNAL_SPEED(int spindle)
 {
     // speed is in RPMs everywhere
-    return canon.spindleSpeed;
+    return canon.spindle[spindle].speed;
 }
 
-CANON_DIRECTION GET_EXTERNAL_SPINDLE()
+CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle)
 {
-    if (emcStatus->motion.spindle.speed == 0) {
+    if (emcStatus->motion.spindle[spindle].speed == 0) {
 	return CANON_STOPPED;
     }
 
-    if (emcStatus->motion.spindle.speed >= 0.0) {
+    if (emcStatus->motion.spindle[spindle].speed >= 0.0) {
 	return CANON_CLOCKWISE;
     }
 
@@ -2924,9 +2942,9 @@ int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()
     return emcStatus->motion.traj.feed_override_enabled;
 }
 
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE()
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle)
 {
-    return emcStatus->motion.traj.spindle_override_enabled;
+    return emcStatus->motion.spindle[spindle].spindle_override_enabled;
 }
 
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE()
@@ -3192,7 +3210,7 @@ int UNLOCK_ROTARY(int line_number, int joint_num) {
     interp_list.append(m);
     // no need to update endpoint
     if(old_feed_mode)
-	START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+	START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
 
     // now, the next move is the real indexing move, so be ready
     canon.rotary_unlock_for_traverse = joint_num;

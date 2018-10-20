@@ -111,7 +111,7 @@ start Axis in the background and start gladevcp as follows:
 FIXME: I'm not sure how this is supposed to work with axis in one
 directory and gladevcp in a different directory.
 
-FIXME: there is a conflict for motion.spindle-speed-out since it is used by both
+FIXME: there is a conflict for motion.N.spindle-speed-out since it is used by both
    axis.ini: sim_spindle_encoder.hal
    and
    manual-example.ui: manual-example.hal

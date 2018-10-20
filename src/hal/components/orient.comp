@@ -6,7 +6,7 @@ pin in  float position    "spindle position input, unit 1 rev";
 pin in  float angle       "orient target position in degrees, 0 <= angle < 360";
 pin out float command     "target spindle position, input to PID command";
 pin out float poserr      "in degrees - aid for PID tuning";
-pin out bit is-oriented   "This pin goes high when poserr < tolerance. Use to drive motion.spindle-is-oriented";
+pin out bit is-oriented   "This pin goes high when poserr < tolerance. Use to drive spindle.N.is-oriented";
 pin in float tolerance = 0.5  "The tolerance in degrees for considering the align completed";
 
 variable int   last_enable = 0;
@@ -42,26 +42,24 @@ which may be clockwise or counterclockwise.
 
 .SH HAL USAGE
 
-On \\fBmotion.spindle-orient\\fR disconnect the spindle control and connect to the orient-pid 
+On \\fBspindle.N.orient\\fR disconnect the spindle control and connect to the orient-pid 
 loop:
 
 loadrt orient names=orient
 .br
-loadrt pid    names=orient-pid
+loadrt pid names=orient-pid
 .br
-net orient-angle  motion.spindle-orient-angle orient.angle
+net orient-angle spindle.N.orient-angle orient.angle
 .br
-net orient-mode   motion.spindle-orient-mode  orient.mode
+net orient-mode spindle.N.orient-mode orient.mode
 .br
-net orient-enable motion.spindle-orient       orient.enable orient-pid.enable
+net orient-enable spindle.N.orient orient.enable orient-pid.enable
 .br
-net spindle-in-pos  orient.is-oriented motion.spindle-is-oriented
+net spindle-in-pos orient.is-oriented spindle.N.is-oriented
 .br
-net spindle-pos    ...encoder..position orient.position orient-pid.feedback
+net spindle-pos encoder.position orient.position orient-pid.feedback
 .br
 net orient-command orient.command orient-pid.command
-.br
-net spindle-in-pos orient.0.is-oriented => motion.spindle-is-oriented
 .br
 """;
 

@@ -13,7 +13,7 @@ counter \- counts input pulses \fB(DEPRECATED)\fB
 .B loadrt counter [num_chan=\fIN\fB]
 .SH DESCRIPTION
 \fBcounter\fR is a deprecated HAL component and will be removed in a future
-release.  Use the \fBencoder\fR component with encoder.X.counter-mode set to
+release.  Use the \fBencoder\fR component with encoder.X.counter\-mode set to
 TRUE.
 
 \fBcounter\fR is a HAL component that provides software-
@@ -21,9 +21,9 @@ based counting that is useful for spindle position sensing and
 maybe other things.  Instead of using a real encoder that outputs
 quadrature, some lathes have a sensor that generates a simple pulse
 stream as the spindle turns and an index pulse once per revolution.
-This component simply counts up when a "count" pulse (phase-A)
+This component simply counts up when a "count" pulse (phase\-A)
 is received, and if reset is enabled, resets when the "index"
-(phase-Z) pulse is received.
+(phase\-Z) pulse is received.
 
 This is of course only useful for a unidirectional spindle, as it
 is not possible to sense the direction of rotation.
@@ -32,25 +32,25 @@ is not possible to sense the direction of rotation.
 in the HAL manual.
 .SH FUNCTIONS
 .TP
-.B \fBcounter.capture-position\fR (uses floating-point)
+.B \fBcounter.capture\-position\fR (uses floating-point)
 Updates the counts, position and velocity outputs based on internal counters.
 .TP
-.B \fBcounter.update-counters\fR
-Samples the phase-A and phase-Z inputs and updates internal counters.
+.B \fBcounter.update\-counters\fR
+Samples the phase\-A and phase\-Z inputs and updates internal counters.
 
 
 .SH PINS
 .TP
-.B \fBcounter.\fIN\fB.phase-A\fR bit in
+.B \fBcounter.\fIN\fB.phase\-A\fR bit in
 The primary input signal.  The internal counter is incremented on each
 rising edge.
 .TP
-.B \fBcounter.\fIN\fB.phase-Z\fR bit in
-The index input signal.  When the \fBindex-enable\fR pin is TRUE and a rising
-edge on \fBphase-Z\fR is seen, \fBindex-enable\fR is set to FALSE and the
+.B \fBcounter.\fIN\fB.phase\-Z\fR bit in
+The index input signal.  When the \fBindex\-enable\fR pin is TRUE and a rising
+edge on \fBphase\-Z\fR is seen, \fBindex\-enable\fR is set to FALSE and the
 internal counter is reset to zero.
 .TP
-.B \fBcounter.\fIN\fB.index-enable\fR bit io
+.B \fBcounter.\fIN\fB.index\-enable\fR bit io
 .TQ
 .B \fBcounter.\fIN\fB.reset\fR bit io
 .TQ
@@ -61,11 +61,11 @@ internal counter is reset to zero.
 .B \fBcounter.\fIN\fB.velocity\fR float out
 These pins function according to the canonical digital encoder interface.
 .TP
-.B \fBcounter.\fIN\fB.position-scale\fR float rw
+.B \fBcounter.\fIN\fB.position\-scale\fR float rw
 This parameter functions according to the canonical digital encoder interface.
 .TP
 .B \fBcounter.\fIN\fB.rawcounts\fR signed ro
-The internal counts value, updated from \fBupdate-counters\fR and reflected
-in the output pins at the next call to \fBcapture-position\fR.
+The internal counts value, updated from \fBupdate\-counters\fR and reflected
+in the output pins at the next call to \fBcapture\-position\fR.
 .SH SEE ALSO
 \fBencoder(9)\fR. in the LinuxCNC documentation.

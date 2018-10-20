@@ -36,6 +36,8 @@ typedef ... rtapi_s32;
 .HP
 typedef ... rtapi_s64;
 .HP
+typedef ... rtapi_intptr_t;
+.HP
 typedef ... rtapi_u8;
 .HP
 typedef ... rtapi_u16;
@@ -43,6 +45,15 @@ typedef ... rtapi_u16;
 typedef ... rtapi_u32;
 .HP
 typedef ... rtapi_u64;
+.HP
+typedef ... rtapi_uintptr_t;
+.HP
+.RI #define\ RTAPI_INT xx _MIN\ ...
+.HP
+.RI #define\ RTAPI_INT xx _MAX\ ...
+.HP
+.RI #define\ RTAPI_UINT xx _MAX\ ...
+.HP
 .SH DESCRIPTION
 In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
 underlying kernel functionality, if available.

@@ -38,7 +38,7 @@ HAL Plasma Connections
 .br
 encoder.nn.velocity => thc.encoder-vel (tip voltage)
 .br
-motion.spindle-on => output pin (start the arc)
+spindle.0.on => output pin (start the arc)
 .br
 thc.arc-ok <= motion.digital-in-00 <= input pin (arc ok signal)
 
@@ -62,7 +62,7 @@ pin in float current_vel "Connect to motion.current-vel";
 pin in float requested_vel "Connect to motion.requested-vel";
 pin in float volts_requested "Tip Volts current_vel >= min_velocity requested";
 pin in float vel_tol "Velocity Tolerance (Corner Lock)";
-pin in bit torch_on "Connect to motion.spindle-on";
+pin in bit torch_on "Connect to spindle.N.on";
 pin in bit arc_ok "Arc OK from Plasma Torch";
 pin in bit enable "Enable the THC, if not enabled Z position is passed through";
 pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";

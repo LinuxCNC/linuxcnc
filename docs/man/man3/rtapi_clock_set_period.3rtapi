@@ -20,8 +20,8 @@ hardware and RTOS limitations, the actual period may not be exactly what was
 requested.  On success, the function will return the actual clock period if it
 is available, otherwise it returns the requested period.  If the requested
 period is outside the limits imposed by the hardware or RTOS, it returns
-\fB-EINVAL\fR and does not start the clock.  Once the clock is started,
-subsequent calls with non-zero \fInsec\fR return \fB-EINVAL\fR and have no
+\fB\-EINVAL\fR and does not start the clock.  Once the clock is started,
+subsequent calls with non-zero \fInsec\fR return \fB\-EINVAL\fR and have no
 effect.  Calling \fBrtapi_clock_set_period\fR with \fInsec\fR set to zero
 queries the clock, returning the current clock period, or zero if the clock has
 not yet been started.  

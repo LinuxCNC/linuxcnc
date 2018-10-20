@@ -114,6 +114,39 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
     return retOK;
 }
 
+retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+{
+    char *fnct_name = "fnct_06_write_single_register";
+    int ret, data;
+
+    if (this_mb_tx == NULL || this_mb_link == NULL) {
+        return retERR;
+    }
+    if (this_mb_tx->mb_tx_nelem > MB2HAL_MAX_FNCT06_ELEMENTS) {
+        return retERR;
+    }
+
+    float val = *(this_mb_tx->float_value[0]);
+    data = (int) val;
+
+    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+        this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
+        modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
+
+    ret = modbus_write_register(this_mb_link->modbus, this_mb_tx->mb_tx_1st_addr, data);
+    if (ret < 0) {
+        if (modbus_get_socket(this_mb_link->modbus) < 0) {
+            modbus_close(this_mb_link->modbus);
+        }
+        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+            this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
+            modbus_get_socket(this_mb_link->modbus));
+        return retERR;
+    }
+
+    return retOK;
+}
+
 retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_15_write_multiple_coils";

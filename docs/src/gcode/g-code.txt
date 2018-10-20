@@ -873,9 +873,9 @@ Only use G28 when your machine is homed to a repeatable position and the
 desired G28 position has been stored with G28.1.
 
 G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
-5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
+5161-5169 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units' as 
-specifed in the ini file. All axes defined in the ini file will be moved when
+specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
 the <<sec.machine-corrdinate-system,machine origin>>.
 
@@ -907,9 +907,9 @@ Only use G30 when your machine is homed to a repeatable position and the
 desired G30 position has been stored with G30.1.
 
 G30 functions the same as G28 but uses the values stored in
-<<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
+<<sub:numbered-parameters,parameters>> 5181-5189 as the X Y Z A B C U V W
 final point to move to. The parameter values are 'absolute' machine
-coordinates in the native machine 'units' as specifed in the ini file.
+coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
 positions are stored with G30.1 then all axes will go to the
 <<sec.machine-corrdinate-system,machine origin>>.
@@ -942,7 +942,7 @@ It is an error if :
 (((G33 Spindle Synchronized Motion)))
 
 ----
-G33 X- Y- Z- K-
+G33 X- Y- Z- K- $-
 ----
 * 'K' - distance per revolution
 
@@ -953,6 +953,10 @@ a 1 inch motion in Z over 16 revolutions of the spindle.
 This command might be part of a program to produce a 16TPI thread.
 Another example in metric, 'G33 Z-15 K1.5' produces
 a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm.
+
+The (optional) $ argument sets which spindle the motion is synchronised
+to (default is zero). For example G33 Z10 K1 $1 will move the spindle in
+synchrony with the spindle.N.revs HAL pin value. 
 
 Spindle-synchronized motion waits for the spindle index and spindle at speed
 pins, so multiple passes line up. 'G33' moves end at the programmed endpoint.
@@ -976,8 +980,11 @@ finishes accelerating to the proper speed, and can immediately begin
 cutting a good thread.
 
 .HAL Connections
-The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
-spindle must be connected in your HAL file before G33 will work.
+The pin 'spindle.N.at-speed' must be set or driven true for the motion to
+start. Additionally spindle.N.revs must increase by 1 for each revolution
+of the spindle and the spindle.N.index-enable pin must be connected to
+an encoder (or resolver) counter which resets index-enable once per rev.
+
 See the Integrators Manual for more information on spindle synchronized motion.
 
 .G33 Example
@@ -1004,25 +1011,30 @@ It is an error if:
 (((G33.1 Rigid Tapping)))
 
 ----------------
-G33.1 X- Y- Z- K-
+G33.1 X- Y- Z- K- I- $-
 ----------------
 * 'K' - distance per revolution
+* 'I' - optional spindle speed multiplier for faster return move
+* '$' - optional spindle selector
+
+[WARNING]
+For Z only tapping preposition the XY location prior to calling G33.1 and only
+use a Z word in the G33.1. If the coordinates specified are not the current
+coordinates when calling G33.1 for tapping the move will not be along the Z axis
+but will be a coordinated, spindle-synchronized move from the current location
+to the location specified and back.
 
 For rigid tapping (spindle synchronized motion with return),
 code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved
 for each revolution of the spindle.
+
 A rigid tapping move consists of the following sequence:
 
-[WARNING]
-If the X Y coordinates specified are not the current coordinates when
-calling G33.1 for tapping the move will not be along the Z axis
-but will <<gcode:g0,rapid move>> from the current location to
-the X Y location specified.
-
-. A move to the specified coordinate, synchronized with the spindle at
-   the given ratio and starting with a spindle index pulse.
-. When reaching the endpoint, a command to reverse the spindle (e.g.,
-   from clockwise to counterclockwise).
+. A move from the current coordinate to the specified coordinate, synchronized
+   with the selected spindle at the given ratio and starting from the
+   current coordinate with a spindle index pulse.
+. When reaching the endpoint, a command to reverse the spindle, and speed up
+  by a factor set by the multiplier (e.g., from clockwise to counterclockwise).
 . Continued synchronized motion beyond the specified end coordinate
    until the spindle actually stops and reverses.
 . Continued synchronized motion back to the original coordinate.
@@ -1034,8 +1046,7 @@ the X Y location specified.
 . An *unsynchronized* move back to the original coordinate.
 
 Spindle-synchronized motions wait for spindle index,
-so multiple passes line up.
-'G33.1' moves end at the original coordinate.
+so multiple passes line up.'G33.1' moves end at the original coordinate.
 
 All the axis words are optional, except that at least one must be used.
 
@@ -1059,10 +1070,10 @@ It is an error if:
 
 [[gcode:g38]]
 == G38.n Straight Probe
-(((G38.x Probe)))
+(((G38.n Probe)))
 
 ----
-G38.x axes
+G38.n axes
 ----
 
 * 'G38.2' - probe toward workpiece, stop on contact, signal error if failure
@@ -1074,10 +1085,10 @@ G38.x axes
 You will not be able to use a probe move until your
 machine has been set up to provide a probe input signal.
 The probe input signal must be connected to 'motion.probe-input' in a .hal file.
-G38.x uses motion.probe-input to determine when the probe has made (or lost) contact.
+G38.n uses motion.probe-input to determine when the probe has made (or lost) contact.
 TRUE for probe contact closed (touching), FALSE for probe contact open.
 
-Program 'G38.x axes' to perform a straight probe operation.
+Program 'G38.n axes' to perform a straight probe operation.
 The axis words are optional, except that at least one of them must be used.
 The axis words together define the destination point that the probe will move towards,
 starting from the current location. If the probe is not tripped before the destination
@@ -1095,9 +1106,9 @@ when the programmed point is reached,
 or when the requested change in the probe input takes place,
 whichever occurs first.
 
-After successful probing, parameters 5061 to 5069 will be set to the
-coordinates of X, Y, Z, A, B, C, U, V, W of the location of the controlled point
-at the time the probe changed state.
+After successful probing, parameters #5061 to #5069 will be set to the
+X, Y, Z, A, B, C, U, V, W coordinates of the location of the controlled point
+at the time the probe changed state (in the current work coordinate system).
 After unsuccessful probing, they are set to the coordinates of the programmed point.
 Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed.
 If the probing operation failed, G38.2 and G38.4 will signal an error
@@ -1493,7 +1504,7 @@ It is an error if:
 (((G74 Left-hand Tapping Cycle Dwell)))
 
 ----
-G74 (X- Y- Z-) or (U- V- W-) R- L- P-
+G74 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
 
 The 'G74' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
@@ -1505,7 +1516,7 @@ The 'G74' cycle is intended for tapping with floating chuck and dwell at the bot
 
     3. Move the Z-axis at the current feed rate to the Z position.
 
-    4. Stop Spindle.
+    4. Stop the selected spindle (chosen by the $ parameter)
 
     5. Start spindle rotation clockwise.
 
@@ -1523,7 +1534,7 @@ In example S100 F125 gives pitch of 1.25MM per revolution.
 (((G76 Threading Cycle)))
 
 ----
-G76 P- Z- I- J- R- K- Q- H- E- L-
+G76 P- Z- I- J- R- K- Q- H- E- L- $-
 ----
 
 .G76 Threading
@@ -1554,6 +1565,11 @@ threading cut will be 'J' beyond the 'thread peak' position.
 threading cut will be 'K' beyond the 'thread peak' position.
 
 Optional settings
+
+* '$-' - The spindle number to which the motion will be synchronised
+(default 0). For example is $1 is programmed then the motion will begin
+on the reset od spindle.1.index-enable and proceed in synchrony with the
+value of spindle.1.revs
 
 * 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive
 threading passes. 'R2.0' selects constant area. Values between 1.0 and
@@ -1618,7 +1634,7 @@ It is an error if:
 * 'E-' is greater than half the drive line length
 
 .HAL Connections
-The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
 See the <<sec:motion-pins, spindle>> pins in the Motion section for more
 information.
@@ -2091,7 +2107,7 @@ It is an error if:
 (((G84 Right-hand Tapping Cycle Dwell)))
 
 ----
-G84 (X- Y- Z-) or (U- V- W-) R- L- P-
+G84 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
 
 The 'G84' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
@@ -2103,7 +2119,7 @@ The 'G84' cycle is intended for tapping with floating chuck and dwell at the bot
 
     3. Move the Z-axis at the current feed rate to the Z position.
 
-    4. Stop spindle
+    4. Stop the seleted spindle (chosen by the $ parameter)
 
     5. Start spindle rotation counterclockwise.
 
@@ -2140,7 +2156,7 @@ for drilling or milling.
 (((G86 Boring, Spindle Stop, Rapid Move Out)))
 
 ----
-G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+G86 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
 
 The 'G86' cycle is intended for boring. This cycle uses a P number
@@ -2151,7 +2167,7 @@ for the number of seconds to dwell.
  . Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> to the Z
    position.
  . Dwell for the P number of seconds.
- . Stop the spindle turning.
+ . Stop the selected spindle turning. (Chosen by the $ parameter)
  . The Z-axis does a <<gcode:g0,rapid move>> to clear Z.
  . Restart the spindle in the direction it was going. 
 
@@ -2234,23 +2250,36 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 G92 axes
 ----
 
-G92 makes the current point have the coordinates you want (without
+[WARNING]
+Only use 'G92' after your machine has been positioned to the desired point. 
+
+'G92' makes the current point have the coordinates you want (without
 motion), where the axis words contain the axis numbers you want.
 All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the coordinate on
-that axis of the current point is not changed.
+If an axis word is not used for a given axis, the offset for that axis 
+will be zero. 
 
-When 'G92' is executed, the origins of all coordinate systems move.
-They move such that the value of the current controlled point, in the currently
-active coordinate system, becomes the specified value. All coordinate
-system's origins are offset this same distance.
+When 'G92' is executed, the <<sec.machine-corrdinate-system,origins>> 
+of all coordinate systems move. They move such that the value of the 
+current controlled point, in the currently active coordinate system, 
+becomes the specified value. All of the coordinate system's origins 
+(G53-G59.3) are offset this same distance. 
+
+'G92' uses the values stored in <<sub:numbered-parameters,parameters>> 
+5211-5219 as the X Y Z A B C U V W offset values for each axis. 
+The parameter values are 'absolute' machine coordinates 
+in the native machine 'units' as specified in the ini file.
+All axes defined in the ini file will be offset when G92 is active. 
+If an axis was not entered following the G92, that axis' offset 
+will be zero. 
 
 For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 x7' is programmed. This
+currently no 'G92' offset active. Then 'G92 X7' is programmed. This
 moves all origins -3 in X, which causes the
 current point to become X=7. This -3 is saved in parameter 5211.
 
-Being in incremental distance mode has no effect on the action of 'G92'.
+Being in incremental distance mode (G91 instead of G90) has no effect 
+on the action of 'G92'.
 
 'G92' offsets may be already be in effect when the 'G92' is called.
 If this is the case, the offset is replaced with a new
@@ -2277,9 +2306,8 @@ See the <<gcode:parameters,Parameters>> Section for more information.
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Reset G92 Offsets
 
-* 'G92.1' - reset G92 offsets to zero and set <<sub:numbered-parameters,parameters>>
-  5211 - 5219 to zero.
-* 'G92.2' - reset G92 offsets to zero.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available. 
 
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
@@ -2325,7 +2353,8 @@ controlled point should move a certain number of inches per revolution
 of the spindle, depending on what length units are being used and which
 axis or axes are moving. G95 is not suitable for threading, for
 threading use G33 or G76.
-G95 requires that motion.spindle-speed-in to be connected.
+G95 requires that spindle.N.speed-in to be connected. The actual spindle
+to which the feed is synchronised is chosen by the $ parameter
 
 It is an error if:
 
@@ -2338,12 +2367,13 @@ It is an error if:
 (((G96, G97 Spindle Control Mode)))
 
 ----
-G96 <D-> S- (Constant Surface Speed)
-G97 (RPM Mode)
+G96 <D-> S- <$-> (Constant Surface Speed Mode)
+G97 S- <$-> (RPM Mode)
 ----
 
 * 'D' - maximum spindle RPM
 * 'S' - surface speed
+* '$" - the spindle of which the speed will be varied. 
 
 * 'G96 D- S-' - selects constant surface speed of 'S' feet per minute
                 (if G20 is in effect) or meters per minute
@@ -2351,8 +2381,11 @@ G97 (RPM Mode)
 +                
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is
-the center of rotation or LinuxCNC will not give the desired spindle speed.
+the center of rotation or LinuxCNC will not give the desired ssurface speed.
 G96 is not affected by radius or diameter mode.
+
+To achieve CSS mode on selected spindles programme successive G96 commands
+for each spindle prior to issuing M3.
 
 * 'G97' selects RPM mode.
 

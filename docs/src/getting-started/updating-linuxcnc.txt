@@ -215,6 +215,25 @@ configurations include:
 The following subsections and the section for 'Hal Changes' list items that
 may require additional user edits to ini or hal files.
 
+=== Multiple Spindle Support
+
+LinuxCNC now supports up to 8 spindles (and can be recompiled for more)
+Existing G-code will run without modification and most configurations
+will default to single spindles. To add spindles both the "num_spindles"
+modparam to the motion module in the HAL file and the [TRAJ]SPINDLES
+entry in the INI file should be changed/added to choose the required
+number. These /must/ match. 
+The spindle control pin names have been changed to make spindles look
+more like axes and joints. motion.spindle-speed-out is now spindle.0.speed-out
+for example. The automatic update script will take care of these changes.
+To control extra spindles the G and M-codes which control spindle speed
+now accept an additional "$" argument, for example M3 $2 to start the
+third spindle. "$" was chosen to avoid clashes with any existing code
+letters. It should be possible to create custom G-codes to match any
+other multi-spindle controller. 
+See the G-code and M-code manuals for code changes, and man motion for
+the HAL pin changes. 
+
 === TRAJ velocities, accelerations names
  
 With incorporation of joints_axes functionality, some names were
@@ -932,7 +951,7 @@ purpose.
 
 === Post-joints_axes
 
-With the incorporation of joints_axes functionality, may sims provided
+With the incorporation of joints_axes functionality, many sims provided
 in the distribution now take advantage of a general purpose halfile that
 supports numerous configurations automatically.  A typical sim config
 HALFILE specification is:

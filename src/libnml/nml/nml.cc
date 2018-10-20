@@ -747,7 +747,7 @@ int NML::reset()
 * Notes:
 *  1. Use if(NULL != ???) to avoid deleting objects that were
 * never constructed.
-*  2. The delete channel function was added because an error occured in
+*  2. The delete channel function was added because an error occurred in
 * running a server unded WIN32. An exception would occur as
 * the last NML channel was being deleted from within nml_cleanup.
 * After two days of being unable to debug this problem I
@@ -850,7 +850,7 @@ int NML::get_total_subdivisions()
 *  Clears the CMS buffer associated with this NML channel.
 *
 *  Returns:
-* 0 if no error occured or -1 if error occured.
+* 0 if no error occurred or -1 if error occurred.
 *
 * Notes:
 *  1. Some buffers can be identified as PHANTOM in the config file.
@@ -939,7 +939,7 @@ int NML::check_if_read()
 /***********************************************************
 * NML Member Function: get_queue_length()
 * Purpose:
-*  Returns the number of messages queued in the buffer if queing
+*  Returns the number of messages queued in the buffer if queueing
 * was enabled for this buffer. 0 otherwise.
 ************************************************************/
 int NML::get_queue_length()
@@ -1049,7 +1049,7 @@ NMLTYPE NML::read()
 	case CMS_READ_OK:
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
-		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ("NML: New data received but type of %d is invalid.\n",
 		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
@@ -1102,7 +1102,7 @@ NMLTYPE NML::read()
 	error_type = NML_NO_ERROR;
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
-		("NML: New data recieved but type of %d is invalid.\n",
+		("NML: New data received but type of %d is invalid.\n",
 		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
@@ -1142,7 +1142,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	case CMS_READ_OK:
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
-		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ("NML: New data received but type of %d is invalid.\n",
 		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
@@ -1224,7 +1224,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
     case CMS_READ_OK:
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
-		("NML: New data recieved but type of %d is invalid.\n",
+		("NML: New data received but type of %d is invalid.\n",
 		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
@@ -1326,7 +1326,7 @@ NMLTYPE NML::peek()
 	case CMS_READ_OK:
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
-		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ("NML: New data received but type of %d is invalid.\n",
 		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
@@ -1372,7 +1372,7 @@ NMLTYPE NML::peek()
     case CMS_READ_OK:
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
-		("NML: New data recieved but type of %d is invalid.\n",
+		("NML: New data received but type of %d is invalid.\n",
 		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
@@ -1393,7 +1393,7 @@ NMLTYPE NML::peek()
 * specific format or vice versa. (Performing byte-swapping etc.)
 * Returns:
 *  0  The format was successful.
-*  -1 An error occured.
+*  -1 An error occurred.
 * Notes:
 *  1. There are 3 conditions under which format_output may be
 * called.
@@ -1565,7 +1565,7 @@ int NML::format_output()
 * NMLmsg &nml_msg - Reference to the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 *************************************************************/
 int NML::write(NMLmsg & nml_msg, int *serial_number)
 {
@@ -1579,7 +1579,7 @@ int NML::write(NMLmsg & nml_msg, int *serial_number)
 * NMLmsg *nml_msg - Address of the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 *************************************************************/
 int NML::write(NMLmsg * nml_msg, int *serial_number)
 {
@@ -1655,7 +1655,7 @@ int NML::write(NMLmsg * nml_msg, int *serial_number)
 * NMLmsg &nml_msg - Reference to the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 * Check error_type for more info.
 *************************************************************/
 int NML::set_error()
@@ -1726,7 +1726,7 @@ int NML::set_error()
 * NMLmsg &nml_msg - Reference to the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured. (Timeouts are considered errors.)
+*  -1 - An error occurred. (Timeouts are considered errors.)
 * Check error_type for more info.
 *************************************************************/
 int NML::write_if_read(NMLmsg & nml_msg, int *serial_number)
@@ -1742,7 +1742,7 @@ int NML::write_if_read(NMLmsg & nml_msg, int *serial_number)
 *  NMLmsg *nml_msg - Address of the message to be written.
 * Returns:
 *  0 - The message was successfully written.
-*  -1 - An error occured.
+*  -1 - An error occurred.
 * (Timeouts, and unread buffers  are considered errors.)
 * Check error_type for more info.
 ************************************************************/
@@ -1824,7 +1824,7 @@ int NML::write_if_read(NMLmsg * nml_msg, int *serial_number)
 *  in a neutral format before being sent over the network or into a
 *  neutral buffer.
 *        (cms->mode == CMS_ENCODE)
-*   iii. The process calling this is a server which recieved a neutrally
+*   iii. The process calling this is a server which received a neutrally
 * encoded buffer over the network which must be converted to native
 * format before being written into a raw buffer.
 *        (cms->mode == CMS_DECODE)
@@ -2280,12 +2280,12 @@ int NML::print_queue_info()
 	return (-1);
     }
     if (!cms->queuing_enabled) {
-	rcs_print_error("NML::print_queue_info() - Queing Not Enabled.\n");
+	rcs_print_error("NML::print_queue_info() - Queueing Not Enabled.\n");
 	return (-1);
     }
     if (cms->ProcessType != CMS_LOCAL_TYPE) {
 	rcs_print_error
-	    ("NML::print_queue_info() - REMOTE Connection: Queing Data Not Available.\n");
+	    ("NML::print_queue_info() - REMOTE Connection: Queueing Data Not Available.\n");
 	return (-1);
     }
     rcs_print

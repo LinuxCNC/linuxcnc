@@ -1087,7 +1087,7 @@ char SaveSymbols(char * FileName)
 	return (Okay);
 }
 
-//this function is not used because paramaters are loaded with real time module in EMC
+//this function is not used because parameters are loaded with real time module in EMC
 char LoadGeneralParameters(char * FileName)
 { 
 	FILE * File;

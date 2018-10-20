@@ -430,6 +430,7 @@ void handle_step(xhc_t *xhc)
 void cb_response_in(struct libusb_transfer *transfer)
 {
 	int i;
+	if (!*(xhc.hal->connected)) return;
 
 	if (transfer->actual_length > 0) {
 		if (simu_mode) hexdump(in_buf, transfer->actual_length);
@@ -831,7 +832,7 @@ int main (int argc,char **argv)
 			}
 		} while(dev_handle == NULL && !do_exit);
 
-		printf("%s: found XHC-HB04 device\n",modname);
+		if (dev_handle) printf("%s: found XHC-HB04 device\n",modname);
 
 		if (dev_handle) {
 			if 	(libusb_kernel_driver_active(dev_handle, 0) == 1) {
@@ -871,15 +872,18 @@ int main (int argc,char **argv)
 				xhc_set_display(dev_handle, &xhc);
 			}
 			*(xhc.hal->connected) = 0;
-			printf("%s: connection lost, cleaning up\n",modname);
-			libusb_cancel_transfer(transfer_in);
+            printf("%s: connection lost, cleaning up\n",modname);
+			if (*(xhc.hal->require_pendant)) {
+				do_exit = 1;
+			}
+			libusb_cancel_transfer(transfer_in); // ignore result
+			assert (0 == libusb_handle_events_completed(ctx, nullptr));
 			libusb_free_transfer(transfer_in);
-			libusb_release_interface(dev_handle, 0);
+			assert (0 == libusb_release_interface(dev_handle, 0));
 			libusb_close(dev_handle);
-		}
-		else {
+		} else {
 			while (!do_exit) usleep(70000);
 		}
 		libusb_exit(ctx);
-	}
+	} // while (!do_exit)
 }

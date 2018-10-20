@@ -93,6 +93,7 @@ public:
     void active_m_codes(int active_mcodes[ACTIVE_M_CODES]);
     void active_settings(double active_settings[ACTIVE_SETTINGS]);
     void set_loglevel(int level);
+    void set_loop_on_main_m99(bool state);
     FILE *f;
     char filename[PATH_MAX];
 };
@@ -248,7 +249,7 @@ int Canterp::read() {
 int Canterp::execute(const char *line) {
     int retval;
     double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
-    int i1, ln=-1;
+    int i1, i2, ln=-1;
     char s1[256];
 
     if (line) {
@@ -534,10 +535,10 @@ int Canterp::execute(const char *line) {
 #endif
 
     if (!strcmp(the_command_name, "START_SPEED_FEED_SYNCH")) {
-	if (2 != sscanf(the_command_args, "%lf %d", &d1, &i1)) {
+	if (3 != sscanf(the_command_args, "%d %lf %d", &i1, &d1, &i2)) {
             return INTERP_ERROR;
         }
-	START_SPEED_FEED_SYNCH(d1, i1);
+	START_SPEED_FEED_SYNCH(i1, d1, i2);
 	return 0;
     }
 
@@ -547,45 +548,57 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "SET_SPINDLE_SPEED")) {
-	if (1 != sscanf(the_command_args, "%lf", &d1)) {
+	if (2 != sscanf(the_command_args, "%i %lf", &i1, &d1)) {
 	    return INTERP_ERROR;
 	}
-	SET_SPINDLE_SPEED(d1);
+	SET_SPINDLE_SPEED(i1, d1);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "START_SPINDLE_CLOCKWISE")) {
-	START_SPINDLE_CLOCKWISE();
+    	if (1 != sscanf(the_command_args, "%d", &i1)) {
+    	    return INTERP_ERROR;
+    	}
+	START_SPINDLE_CLOCKWISE(i1);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "START_SPINDLE_COUNTERCLOCKWISE")) {
-	START_SPINDLE_COUNTERCLOCKWISE();
+    	if (1 != sscanf(the_command_args, "%d", &i1)) {
+    	    return INTERP_ERROR;
+    	}
+	START_SPINDLE_COUNTERCLOCKWISE(i1);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "STOP_SPINDLE_TURNING")) {
-	STOP_SPINDLE_TURNING();
+    	if (1 != sscanf(the_command_args, "%d", &i1)) {
+    	    return INTERP_ERROR;
+    	}
+	STOP_SPINDLE_TURNING(i1);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "ORIENT_SPINDLE")) {
-	if (2 != sscanf(the_command_args, "%lf %s", &d1, s1)) {
+	if (3 != sscanf(the_command_args, "%d %lf %s", &i1, &d1, s1)) {
 	    return INTERP_ERROR;
 	}
 	if (!strcmp(s1, "CANON_CLOCKWISE")) {
-	    ORIENT_SPINDLE(d1, CANON_CLOCKWISE);
+	    ORIENT_SPINDLE(i1, d2, CANON_CLOCKWISE);
 	    return 0;
 	}
 	if (!strcmp(s1, "CANON_COUNTERCLOCKWISE")) {
-	    ORIENT_SPINDLE(d1, CANON_COUNTERCLOCKWISE);
+	    ORIENT_SPINDLE(i1, d2, CANON_COUNTERCLOCKWISE);
 	    return 0;
 	}
 	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "DISABLE_SPEED_OVERRIDE")) {
-	DISABLE_SPEED_OVERRIDE();
+    	if (1 != sscanf(the_command_args, "%d", &i1)) {
+    	    return INTERP_ERROR;
+    	}
+	DISABLE_SPEED_OVERRIDE(i1);
 	return 0;
     }
 
@@ -595,7 +608,10 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "ENABLE_SPEED_OVERRIDE")) {
-	ENABLE_SPEED_OVERRIDE();
+    	if (1 != sscanf(the_command_args, "%d", &i1)) {
+    	    return INTERP_ERROR;
+    	}
+	ENABLE_SPEED_OVERRIDE(i1);
 	return 0;
     }
 
@@ -723,5 +739,6 @@ void Canterp::active_g_codes(int gees[]) { std::fill(gees, gees + ACTIVE_G_CODES
 void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
 void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
 void Canterp::set_loglevel(int level) {}
+void Canterp::set_loop_on_main_m99(bool state) {}
 
 InterpBase *makeInterp() { return new Canterp; }

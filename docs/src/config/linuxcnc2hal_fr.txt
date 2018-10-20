@@ -145,7 +145,7 @@ l'option num_aio au chargement de motmod.
 * 'motion.requested-vel' - 
      (float, out) La vitesse courante requise en unités utilisateur par seconde selon le réglage F=n du fichier G-code. Les correcteurs de vitesse et autres ajustements ne s'appliquent pas à cette pin.
 
-* 'motion.spindle-at-speed' - 
+* 'spindle.N.at-speed' - 
      (bit, in) Les mouvements passent en pause tant que cette pin est TRUE,
     sous les conditions suivantes: avant le premier mouvement d'avance
     suivant chaque démarrage de broche ou changement de vitesse; après le
@@ -162,52 +162,52 @@ l'option num_aio au chargement de motmod.
     Sinon, il est facile de générer ce signal avec le composant 'near', par
     comparaison entre la vitesse de broche demandée et la vitesse actuelle.
 
-* 'motion.spindle-brake' - 
+* 'spindle.N.brake' - 
     (bit, out) TRUE quand le frein de broche doit être activé.
 
-* 'motion.spindle-forward' - 
+* 'spindle.N.forward' - 
     (bit, in) TRUE quand la broche doit tourner en sens horaire.
 
-* 'motion.spindle-index-enable' - 
+* 'spindle.N.index-enable' - 
      (bit, I/O) Pour les mouvements avec broche synchronisée, ce signal
     doit être raccordé à la pin 'index-enable' du codeur de broche.
 
-* 'motion.spindle-on' - 
+* 'spindle.N.on' - 
     (bit, out) TRUE quand la broche doit tourner.
 
-* 'motion.spindle-reverse' - 
+* 'spindle.N.reverse' - 
     (bit, out) TRUE quand la broche doit tourner en sens anti-horaire.
 
-* 'motion.spindle-revs' - 
+* 'spindle.N.revs' - 
      (float, in) Pour le bon fonctionnement des mouvements avec broche
     synchronisée, ce signal doit être raccordé à la broche 'position' du
     codeur de broche. La position donnée par le codeur de broche doit être
     étalonnée pour que 'spindle-revs' augmente de 1.0 pour chaque tour de
     broche dans le sens horaire ('M3').
 
-* 'motion.spindle-speed-in' - 
+* 'spindle.N.speed-in' - 
      (float, in) Donne la vitesse actuelle de rotation de la broche
     exprimée en tours par seconde. Elle est utilisée pour les mouvements en
     unités par tour ('G95'). Si le pilote du codeur de broche ne dispose pas
     d'une sortie 'vitesse', il est possible d'en générer une en passant la
     position de la broche au travers d'un composant ddt. Si la machine n'a pas de
-    codeur de broche, il est possible d'utiliser 'motion.spindle-speed-out-rps'.
+    codeur de broche, il est possible d'utiliser 'spindle.N.speed-out-rps'.
 
-* 'motion.spindle-speed-out' - 
+* 'spindle.N.speed-out' - 
      (float, out) Consigne de vitesse de rotation de la broche, exprimée en
     tours par minute. Positive pour le sens horaire ('M3'), négative pour le
     sens anti-horaire ('M4').
 
-* 'motion.spindle-speed-out-abs' - 
+* 'spindle.N.speed-out-abs' - 
      (float, out) Consigne de vitesse absolue de rotation de la broche, exprimée
     en tours par minute. Toujours positive, quel que soit le sens de rotation.
 
-* 'motion.spindle-speed-out-rps' - 
+* 'spindle.N.speed-out-rps' - 
      (float, out) Consigne de vitesse de rotation de la broche, exprimée en
     tours par seconde. Positive pour le sens horaire ('M3'), négative pour le
     sens anti-horaire ('M4').
 
-* 'motion.spindle-speed-out-rps-abs' - 
+* 'spindle.N.speed-out-rps-abs' - 
      (float, out) Consigne de vitesse absolue de rotation de la broche, exprimée
     en tours par seconde. Toujours positive, quel que soit le sens de rotation.
 
@@ -219,30 +219,30 @@ l'option num_aio au chargement de motmod.
      (float, out; un par axe) montre l'offset d'outil courant. Il peut provenir
     de la table d'outils ('G43 actif'), ou du G-code ('G43.1 actif')
 
-* 'motion.spindle-orient-angle' - 
+* 'spindle.N.orient-angle' - 
      (float,out) Orientation souhaitée par M19. Contient la valeur du paramètre
     R du M19 plus la valeur du paramètre [RS274NGC]ORIENT_OFFSET du fichier ini.
 
-* 'motion.spindle-orient-mode' - 
+* 'spindle.N.orient-mode' - 
 	(s32,out) Broche en mode 'recherche d'orientation' par M19. Par défaut 0.
 
-* 'motion.spindle-orient' - 
+* 'spindle.N.orient' - 
      (out,bit) Indique le début d'un cycle d'orientation de la broche.
     Activé par M19. Révoqué par M3, M4 ou M5.
     Si 'spindle-orient-fault' est différent de zéro pendant que 'spindle-orient'
     est vrai, la commande M19 échoue avec un message d'erreur.
 
-* 'motion.spindle-is-oriented' - 
+* 'spindle.N.is-oriented' - 
      (in, bit) Pin d'acquittement pour 'spindle-orient'. Achève le cycle
     d'orientation. Si 'spindle-orient' est vraie quand 'spindle-is-oriented' est
     actif, la pin 'spindle-orient' est relâchée et les pins 'spindle-locked' et
     'spindle-brake' sont activées.
 
-* 'motion.spindle-orient-fault' - 
+* 'spindle.N.orient-fault' - 
      (s32, in) Entrée d'erreur du cycle d'orientation. Toute valeur autre que
     zéro produira l'abandon du cycle d'orientation.
 
-* 'motion.spindle-lock' - 
+* 'spindle.N.lock' - 
      (bit, out) Pin indiquant que l'orientation est atteinte et le cycle achevé.
     Relâchée par M3, M4 ou M5.
 

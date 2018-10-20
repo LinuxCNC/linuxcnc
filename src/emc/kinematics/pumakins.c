@@ -4,6 +4,8 @@
 *   Set the params using HAL to fit your robot
 *
 *   Derived from a work by Fred Proctor
+* 
+*   modified by rdp to add effect of D6 parameter (see pumagui)
 *
 * Author: 
 * License: GPL Version 2
@@ -26,7 +28,7 @@
 #include "hal.h"
 
 struct haldata {
-    hal_float_t *a2, *a3, *d3, *d4;
+    hal_float_t *a2, *a3, *d3, *d4, *d6;
 } *haldata = 0;
 
 
@@ -34,6 +36,7 @@ struct haldata {
 #define PUMA_A3 (*(haldata->a3))
 #define PUMA_D3 (*(haldata->d3))
 #define PUMA_D4 (*(haldata->d4))
+#define PUMA_D6 (*(haldata->d6))
 
 
 int kinematicsForward(const double * joint,
@@ -110,7 +113,7 @@ int kinematicsForward(const double * joint,
    /* position vector.                               */
    t1 = PUMA_A2 * c2 + PUMA_A3 * c23 - PUMA_D4 * s23;
 
-   /* Define position vector */
+   /* Define position vector */  
    hom.tran.x = c1 * t1 - PUMA_D3 * s1;
    hom.tran.y = s1 * t1 + PUMA_D3 * c1;
    hom.tran.z = -PUMA_A3 * s23 - PUMA_A2 * s2 - PUMA_D4 * c23;
@@ -157,7 +160,11 @@ int kinematicsForward(const double * joint,
        *iflags |= PUMA_WRIST_FLIP;
      }
    }
-
+  /*  add effect of d6 parameter */
+    hom.tran.x = hom.tran.x + hom.rot.z.x*PUMA_D6;
+    hom.tran.y = hom.tran.y + hom.rot.z.y*PUMA_D6;
+    hom.tran.z = hom.tran.z + hom.rot.z.z*PUMA_D6;
+    
    /* convert hom.rot to world->quat */
    pmHomPoseConvert(&hom, &worldPose);
    pmQuatRpyConvert(&worldPose.rot,&rpy);
@@ -179,7 +186,6 @@ int kinematicsInverse(const EmcPose * world,
    PmHomogeneous hom;
    PmPose worldPose;
    PmRpy rpy;
-   int singular;
 
    double t1, t2, t3;
    double k;
@@ -199,6 +205,7 @@ int kinematicsInverse(const EmcPose * world,
    double s4, c4;
    double s5, c5;
    double s6, c6;
+   double px, py, pz;
 
    /* reset flags */
    *fflags = 0;
@@ -211,18 +218,23 @@ int kinematicsInverse(const EmcPose * world,
    pmRpyQuatConvert(&rpy,&worldPose.rot);
    pmPoseHomConvert(&worldPose, &hom);
 
+  /* remove effect of d6 parameter */
+   px = hom.tran.x - PUMA_D6*hom.rot.z.x;
+   py = hom.tran.y - PUMA_D6*hom.rot.z.y;
+   pz = hom.tran.z - PUMA_D6*hom.rot.z.z;
+
    /* Joint 1 (2 independent solutions) */
 
    /* save sum of squares for this and subsequent calcs */
-   sumSq = hom.tran.x * hom.tran.x + hom.tran.y * hom.tran.y -
+   sumSq = px * px + py * py -
            PUMA_D3 * PUMA_D3;
 
    /* FIXME-- is use of + sqrt shoulder right or left? */
    if (*iflags & PUMA_SHOULDER_RIGHT){
-     th1 = atan2(hom.tran.y, hom.tran.x) - atan2(PUMA_D3, -sqrt(sumSq));
+     th1 = atan2(py, px) - atan2(PUMA_D3, -sqrt(sumSq));
    }
    else{
-     th1 = atan2(hom.tran.y, hom.tran.x) - atan2(PUMA_D3, sqrt(sumSq));
+     th1 = atan2(py, px) - atan2(PUMA_D3, sqrt(sumSq));
    }
 
    /* save sin, cos for later calcs */
@@ -231,7 +243,7 @@ int kinematicsInverse(const EmcPose * world,
 
    /* Joint 3 (2 independent solutions) */
 
-   k = (sumSq + hom.tran.z * hom.tran.z - PUMA_A2 * PUMA_A2 -
+   k = (sumSq + pz * pz - PUMA_A2 * PUMA_A2 -
        PUMA_A3 * PUMA_A3 - PUMA_D4 * PUMA_D4) / (2.0 * PUMA_A2);
 
    /* FIXME-- is use of + sqrt elbow up or down? */
@@ -249,12 +261,12 @@ int kinematicsInverse(const EmcPose * world,
 
    /* Joint 2 */
 
-   t1 = (-PUMA_A3 - PUMA_A2 * c3) * hom.tran.z +
-        (c1 * hom.tran.x + s1 * hom.tran.y) * (PUMA_A2 * s3 - PUMA_D4);
-   t2 = (PUMA_A2 * s3 - PUMA_D4) * hom.tran.z +
-        (PUMA_A3 + PUMA_A2 * c3) * (c1 * hom.tran.x + s1 * hom.tran.y);
-   t3 = hom.tran.z * hom.tran.z + (c1 * hom.tran.x + s1 * hom.tran.y) *
-        (c1 * hom.tran.x + s1 * hom.tran.y);
+   t1 = (-PUMA_A3 - PUMA_A2 * c3) * pz +
+        (c1 * px + s1 * py) * (PUMA_A2 * s3 - PUMA_D4);
+   t2 = (PUMA_A2 * s3 - PUMA_D4) * pz +
+        (PUMA_A3 + PUMA_A2 * c3) * (c1 * px + s1 * py);
+   t3 = pz * pz + (c1 * px + s1 * py) *
+        (c1 * px + s1 * py);
 
    th23 = atan2(t1, t2);
    th2 = th23 - th3;
@@ -268,12 +280,10 @@ int kinematicsInverse(const EmcPose * world,
    t1 = -hom.rot.z.x * s1 + hom.rot.z.y * c1;
    t2 = -hom.rot.z.x * c1 * c23 - hom.rot.z.y * s1 * c23 + hom.rot.z.z * s23;
    if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ){
-     singular = 1;
      *fflags |= PUMA_REACH;
      th4 = joint[3]*PM_PI/180;            /* use current value */
    }
    else{
-     singular = 0;
      th4 = atan2(t1, t2);
    }
 
@@ -316,7 +326,7 @@ int kinematicsInverse(const EmcPose * world,
    joint[4] = th5*180/PM_PI;
    joint[5] = th6*180/PM_PI;
 
-   return singular == 0 ? 0 : -1;
+   return 0;
 }
 
 int kinematicsHome(EmcPose * world,
@@ -354,11 +364,13 @@ int rtapi_app_main(void) {
     if((res = hal_pin_float_new("pumakins.A3", HAL_IO, &(haldata->a3), comp_id)) < 0) goto error;
     if((res = hal_pin_float_new("pumakins.D3", HAL_IO, &(haldata->d3), comp_id)) < 0) goto error;
     if((res = hal_pin_float_new("pumakins.D4", HAL_IO, &(haldata->d4), comp_id)) < 0) goto error;
-    
+    if((res = hal_pin_float_new("pumakins.D6", HAL_IO, &(haldata->d6), comp_id)) < 0) goto error;
+
     PUMA_A2 = DEFAULT_PUMA560_A2;
     PUMA_A3 = DEFAULT_PUMA560_A3;
     PUMA_D3 = DEFAULT_PUMA560_D3;
     PUMA_D4 = DEFAULT_PUMA560_D4;
+    PUMA_D6 = DEFAULT_PUMA560_D6;
     hal_ready(comp_id);
     return 0;
     

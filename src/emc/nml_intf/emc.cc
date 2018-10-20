@@ -2585,7 +2585,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
 	joint[i_joint].update(cms);
     cms->update(debug);
 
-    spindle.update(cms); //FIXME - is this needed ?
+    // spindle.update(cms); //FIXME - is this needed ? Let's see. andypugh 13/6/16
 
 }
 

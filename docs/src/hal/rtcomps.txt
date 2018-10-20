@@ -503,10 +503,10 @@ loops is 16 (as defined by MAX_CHAN in pid.c). Each loop is completely
 number of a specific loop. The first loop is number 0.
 
 If 'debug=1' is specified, the component will export a few extra
-parameters that
+pins that
 may be useful during debugging and tuning. By default, the extra
-parameters are not exported, to save shared memory space and avoid
-cluttering the parameter list.
+pins are not exported, to save shared memory space and avoid
+cluttering the pin list.
 
 .Removing
 
@@ -550,10 +550,9 @@ the PID block is at its maximum or minimum limit.
 * '(float) pid.<loopnum>.saturated_s' - The time the output has been saturated. 
 * '(s32) pid.<loopnum>.saturated_count' - The time the output has been saturated. 
 
-.Parameters
-
 The PID gains, limits, and other 'tunable' features of the loop are
-implemented as parameters.
+available as pins so that they can be adjusted dynamically for more
+advanced tuning possibilities.
 
 * '(float) pid.<loopnum>.Pgain' - Proportional gain 
 * '(float) pid.<loopnum>.Igain' - Integral gain 
@@ -574,11 +573,8 @@ implemented as parameters.
 * '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2nd derivative 
 * '(float) pid.<loopnum>.maxoutput' - Limit on output value
 
-All of the 'max' limits are implemented such that if the parameter
-value is zero, there is no limit.
-
 If 'debug=1' was specified when the component was installed, four
-additional parameters will be exported:
+additional pins will be exported:
 
 * '(float) pid.<loopnum>.errorI' - Integral of error.
 * '(float) pid.<loopnum>.errorD' - Derivative of error.

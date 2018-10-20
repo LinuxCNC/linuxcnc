@@ -1,0 +1,29 @@
+(Endless program)
+
+(In a standalone interpreter, this should probably exit)
+(at the main program M99.  In task, the main program M99)
+(should cause an endless loop, terminated by a counter.)
+
+(*****************************************************)
+(Don't *actually* run this program infinitely!)
+(Stop after)#101 = 3(loops in case of failure)
+#100 = [#100 + 1]  (Counter; assume it starts at 0)
+O1000 if [#100 GT #101]
+  (PRINT, "Stopping program after #101 loops")
+  #100 = 0  (Reset counter)
+  M30  (End program)
+O1000 endif
+(*****************************************************)
+O1 (Main program begin)
+(PRINT, X Loop number #100)
+G1 X1 F40 (Junk move...)
+M98 P100 (Call junk subprogram)
+G1 X5 (Another junk move...)
+M99 (Main program endless loop)
+
+(*****************************************************)
+O100 (Junk subprogram begin)
+G1 Y-4 (Subprogram junk move...)
+M99 (Return to main program)
+
+%

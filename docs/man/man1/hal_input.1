@@ -7,7 +7,7 @@
 .SH NAME
 hal_input \- control HAL pins with any Linux input device, including USB HID devices
 .SH SYNOPSIS
-\fIloadusr\fR \fBhal_input\fR \fI[-KRAL] inputspec ...\fR
+\fIloadusr\fR \fBhal_input\fR \fI[\-KRAL] inputspec ...\fR
 .SH DESCRIPTION
 hal_input is an interface between HAL and any Linux input device, including USB
 HID devices.  For each device named, \fBhal_input\fR creates pins corresponding
@@ -51,81 +51,81 @@ If the first character of the \fIinputspec\fR is a "+", then \fBhal_input\fR
 requests exclusive access to the device.  The first device matching an
 \fIinputspec\fR is used.  Any number of \fIinputspec\fRs may be used.
 .PP
-A \fIsubset option\fI may preceed each \fIinputspec\fR.  The subset option
+A \fIsubset option\fI may precede each \fIinputspec\fR.  The subset option
 begins with a dash.  Each letter in the subset option specifies a device
 feature to \fBinclude\fR.  Features that are not specified are excluded.
 For instance, to export keyboard LEDs to HAL without exporting keys, use
 .RS 12
-hal_input -L \fIkeyboard\fR ...
+hal_input \-L \fIkeyboard\fR ...
 .RE
 
 .SH DEVICE FEATURES SUPPORTED
 .IP \(bu 4
-EV_KEY (buttons and keys).  Subset -K
+EV_KEY (buttons and keys).  Subset \-K
 .IP \(bu 4
-EV_ABS (absolute analog inputs).  Subset -A
+EV_ABS (absolute analog inputs).  Subset \-A
 .IP \(bu 4
-EV_REL (relative analog inputs).  Subset -R
+EV_REL (relative analog inputs).  Subset \-R
 .IP \(bu 4
-EV_LED (LED outputs).  Subset -L
+EV_LED (LED outputs).  Subset \-L
 .SH HAL PINS AND PARAMETERS
 .SS For buttons
 .TP
-.B input.\fIN\fB.btn-\fIname\fR bit out
+.B input.\fIN\fB.btn\-\fIname\fR bit out
 .TQ
-.B input.\fIN\fB.btn-\fIname\fB-not\fR bit out
+.B input.\fIN\fB.btn\-\fIname\fB\-not\fR bit out
 Created for each button on the device.
 .SS For keys
 .TP
-.B input.\fIN\fB.key-\fIname\fB
+.B input.\fIN\fB.key\-\fIname\fB
 .TQ
-.B input.\fIN\fB.key-\fIname\fB-not
+.B input.\fIN\fB.key\-\fIname\fB\-not
 Created for each key on the device.
 .SS For absolute axes
 .TP
-.B input.\fIN\fB.abs-\fIname\fB-counts\fR s32 out
+.B input.\fIN\fB.abs\-\fIname\fB\-counts\fR s32 out
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-position\fR float out
+.B input.\fIN\fB.abs\-\fIname\fB\-position\fR float out
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-scale\fR parameter float rw
+.B input.\fIN\fB.abs\-\fIname\fB\-scale\fR parameter float rw
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-offset\fR parameter float rw
+.B input.\fIN\fB.abs\-\fIname\fB\-offset\fR parameter float rw
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-fuzz\fR parameter s32 rw
+.B input.\fIN\fB.abs\-\fIname\fB\-fuzz\fR parameter s32 rw
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-flat\fR parameter s32 rw
+.B input.\fIN\fB.abs\-\fIname\fB\-flat\fR parameter s32 rw
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-min\fR parameter s32 r
+.B input.\fIN\fB.abs\-\fIname\fB\-min\fR parameter s32 r
 .TQ
-.B input.\fIN\fB.abs-\fIname\fB-max\fR parameter s32 r
+.B input.\fIN\fB.abs\-\fIname\fB\-max\fR parameter s32 r
 Created for each absolute axis on the device.  Device positions closer than
 \fBflat\fR to \fBoffset\fR are reported as \fBoffset\fR in \fBcounts\fR, and
 \fBcounts\fR does not change until the device position changes by at least
-\fBfuzz\fR.  The position is computed as \fBposition\fR = (\fBcounts\fR -
+\fBfuzz\fR.  The position is computed as \fBposition\fR = (\fBcounts\fR \-
 \fBoffset\fR) / \fBscale\fR.  The default value of \fBscale\fR and \fBoffset\fR
-map the range of the axis reported by the operating system to [-1,1].  The
+map the range of the axis reported by the operating system to [\-1,1].  The
 default values of \fBfuzz\fR and \fBflat\fR are those reported by the operating
 system.  The values of \fBmin\fR and \fBmax\fR are those reported by the
 operating system.
 .SS For relative axes
 .TP
-.B input.\fIN\fB.rel-\fIname\fB-counts\fR s32 out
+.B input.\fIN\fB.rel\-\fIname\fB\-counts\fR s32 out
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-position\fR float out
+.B input.\fIN\fB.rel\-\fIname\fB\-position\fR float out
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-reset\fR bit in
+.B input.\fIN\fB.rel\-\fIname\fB\-reset\fR bit in
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-scale\fR parameter float rw
+.B input.\fIN\fB.rel\-\fIname\fB\-scale\fR parameter float rw
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-absolute\fR parameter s32 rw
+.B input.\fIN\fB.rel\-\fIname\fB\-absolute\fR parameter s32 rw
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-precision\fR parameter s32 rw
+.B input.\fIN\fB.rel\-\fIname\fB\-precision\fR parameter s32 rw
 .TQ
-.B input.\fIN\fB.rel-\fIname\fB-last\fR parameter s32 rw
+.B input.\fIN\fB.rel\-\fIname\fB\-last\fR parameter s32 rw
 Created for each relative axis on the device.  As long as \fBreset\fR is true,
 \fBcounts\fR is reset to zero regardless of any past or current axis movement.
 Otherwise, \fBcounts\fR increases or decreases according to the motion of the
-axis.  \fBcounts\fR is divided by \fRposition-scale\fR to give \fBposition\fR.
+axis.  \fBcounts\fR is divided by \fRposition\-scale\fR to give \fBposition\fR.
 The default value of \fBposition\fR is 1.  There are some devices, notably
 scroll wheels, which return signed values with less resolution than 32 bits.
 The default value of \fBprecision\fR is 32.  \fBprecision\fR can be set to 8
@@ -136,9 +136,9 @@ correctly.  \fBlast\fR shows the most recent count value returned by the
 device, and is used in the implementation of \fBabsolute\fR.
 .SS For LEDs
 .TP
-.B input.\fIN\fB.led-\fIname\fR bit out
+.B input.\fIN\fB.led\-\fIname\fR bit out
 .TQ
-.B input.\fIN\fB.led-\fIname\fB-invert\fR parameter bit rw
+.B input.\fIN\fB.led\-\fIname\fB\-invert\fR parameter bit rw
 Created for each LED on the device.
 .SH PERMISSIONS AND UDEV
 By default, the input devices may not be accessible to regular

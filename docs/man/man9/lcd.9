@@ -35,7 +35,7 @@ between 0 and 1.
 
 .SH PARAMETERS
 .TP
-.B lcd.\fINN\fB.decimal-separator\fR (u32) rw
+.B lcd.\fINN\fB.decimal\-separator\fR (u32) rw
 Sets the decimal separator used for floating point numbers. The default value is
 46 (0x2E) which corresponds to ".". If a comma is required then set this
 parameter to 44 (0x2C).
@@ -48,7 +48,7 @@ The component was written specifically to support the Mesa 7i73 pendant
 controller, however it may be of use streaming data to other character devices
 and, as the output format mimics the ADM3 terminal format, it could be used
 to stream data to a serial device. Perhaps even a genuine ADM3. 
-The strings contain a mixture of text values which are displayed directly, 
+The strings contain a mixture of text values (which are displayed directly), 
 "escaped" formatting codes and numerical format descriptors. 
 For a detailed description of formatting codes see: 
 http://en.wikipedia.org/wiki/Printf
@@ -66,6 +66,9 @@ is necessary to allow the format to wrap and omit the \en code.
 tab.)
 
  \eNN inserts the character defined by the hexadecimal code NN. 
+ As the ',' character is used in the format string to separate LCD instances
+ it must be represented by \e2C in the format string. (the decimal
+ separator is handled differently)
  
  \e\e Inserts a literal \e.
 
@@ -87,7 +90,7 @@ default and is not strictly necessary.
 
 "0" Pad the number to the specified width with the numeral 0. 
 
-"+" Force display of a + symbol before positive numbers. This (like the - sign)
+"+" Force display of a + symbol before positive numbers. This (like the \- sign)
 will appear immediately to the left of the digits for a space-padded number 
 and in the extreme left position for a 0-padded number. 
 
@@ -101,7 +104,8 @@ digits. The integer data types will never fill more than 10 decimal digits.
 Following the width specifier should be the decimal specifier. This can only be
 a full-stop character (.) as the comma (,) is used as the instance separator. 
 Currently lcd does not access the locale information to determine the correct
-separator and the \fBdecimal-separator\fR parameter should be used. 
+separator but the \fBdecimal\-separator\fR HAL parameter can be used to
+choose any desired separator.
 
 Following the decimal separator should be a number that determines how many
 places of decimals to display. This entry is ignored in the case of integer
@@ -122,7 +126,7 @@ variable format width, with a sign only shown for negative numbers. both %f and
 
 \fB%i %d\fR (For example %+ 4d) Creates a signed (s32) HAL pin. The example would 
 display the value at a fixed 4 characters, space padded, width including the + 
-giving a range of +999 to -999. %i and %d create identical output. 
+giving a range of +999 to \-999. %i and %d create identical output. 
 
 \fB%u\fR (for example %08u) Creates an unsigned (u32) HAL pin. The example would be a
 fixed 8 characters wide, padded with zeros. 
@@ -141,7 +145,7 @@ character.
 \fB%b\fR This specifier has no equivalent in printf. It creates a bit (boolean) type
 HAL pin. The b should be followed by two characters and the display will show
 the first of these when the pin is true, and the second when false. Note that
-the characters follow, not preceed the "b", unlike the case with other formats. 
+the characters follow, not precede the "b", unlike the case with other formats.
 The characters may be "escaped" Hex values. For example "%b\eFF " will display a
 solid black block if true, and a space if false and "%b\e7F\e7E" would display
 right-arrow for false and left-arrow for true. An unexpected value of 'E'

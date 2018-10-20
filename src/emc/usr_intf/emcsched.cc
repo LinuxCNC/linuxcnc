@@ -260,7 +260,7 @@ void updateQueue() {
         q.front().setPriority(MAX_PRIORITY); // Lock job as first job
         if (interlocksOk()) {
           sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
-          sendSpindleOverride(((double) q.front().getSpindleOverride()) / 100.0);             
+          sendSpindleOverride(0, ((double) q.front().getSpindleOverride()) / 100.0);
           sendMdi();
           sendMdiCmd("G92.1\n");
           if (emcCommandWaitDone() != 0) {

@@ -43,7 +43,7 @@ be redirected to a file or piped to some other program.
 
 .SH OPTIONS
 .TP
-.BI "-c " CHAN
+.BI "\-c " CHAN
 instructs 
 .B halsampler
 to read from FIFO
@@ -51,18 +51,18 @@ to read from FIFO
 FIFOs are numbered from zero, and the default value is zero, so
 this option is not needed unless multiple FIFOs have been created.
 .TP
-.BI "-n " COUNT
+.BI "\-n " COUNT
 instructs 
 .B halsampler
 to read
 .I COUNT
 samples from the FIFO, then exit.  If
-.B -n
+.B \-n
 is not specified,
 .B halsampler
 will read continuously until it is killed.
 .TP
-.B -t
+.B \-t
 instructs 
 .B halsampler
 to tag each line by printing the sample number in the first column.
@@ -83,21 +83,21 @@ command in a .hal file.  Then
 can be invoked to begin printing data from the FIFO to stdout.
 .P
 Data is printed one line per sample.  If
-.B -t
+.B \-t
 was specified, the sample number is printed first.  The data follows, in the
 order that the pins were defined in the config string.  For example, if the
 .B sampler
 config string was "ffbs" then a typical line of output (without
-.BR -t )
+.BR \-t )
 would look like:
 .P
-123.55 33.4 0 -12
+123.55 33.4 0 \-12
 .P
 .B halsampler
 prints data as fast as possible until the FIFO is empty, then it retries at regular intervals, until it is either killed or has printed
 .I COUNT
 samples as requested by
-.BR -n .
+.BR \-n .
 Usually, but not always, data printed by
 .B halsampler
 will be redirected to a file or piped to some other program.
@@ -109,7 +109,7 @@ is forced to overwrite old data,
 .B halsampler
 will print 'overrun' on a line by itself to mark each gap in the sampled
 data.  If
-.B -t
+.B \-t
 was specified, gaps in the sequential sample numbers in the first column
 can be used to determine exactly how many samples were lost.
 .P
@@ -122,7 +122,7 @@ input, so 'waveforms' captured with
 can be replayed using
 .BR halstreamer .
 The
-.B -t
+.B \-t
 option should not be used in this case.
 
 .SH "EXIT STATUS"
@@ -133,11 +133,11 @@ prints a message to stderr and returns failure.
 Upon printing
 .I COUNT
 samples (if
-.B -n
+.B \-n
 was specified) it will shut down and return success.  If it is terminated
 before printing the specified number of samples, it returns failure.  This
 means that when
-.B -n
+.B \-n
 is not specified, it will always return failure when terminated.
 
 .SH "SEE ALSO"

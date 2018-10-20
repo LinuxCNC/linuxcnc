@@ -172,6 +172,9 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_return   13
 #define O_repeat   14
 #define O_endrepeat 15
+#define M_98       16
+#define M_99       17
+#define O_         18
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -383,6 +386,8 @@ typedef struct block_struct
   char comment[256];
   double d_number_float;
   bool d_flag;
+  int dollar_number;
+  bool dollar_flag;
   bool e_flag;
   double e_number;
   bool f_flag;
@@ -507,7 +512,9 @@ enum call_states {
 
 // detail for O_call; tags the frame
 enum call_types {
+    CT_NONE,             // not in a call
     CT_NGC_OWORD_SUB,    // no restartable Python code involved
+    CT_NGC_M98_SUB,      // like above; Fanuc-style, pass in params #1..#30
     CT_PYTHON_OWORD_SUB, // restartable Python code may be involved
     CT_REMAP,            // restartable Python code may be involved
 };
@@ -517,7 +524,7 @@ enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION, RET_
 
 typedef block *block_pointer;
 
-// parameters will go to a std::map<const char *,paramter_value_pointer>
+// parameters will go to a std::map<const char *,parameter_value_pointer>
 typedef struct parameter_value_struct {
     double value;
     unsigned attr;
@@ -555,11 +562,13 @@ struct pycontext {
 
 typedef struct context_struct {
     context_struct();
+    void clear();
 
     long position;       // location (ftell) in file
     int sequence_number; // location (line number) in file
     const char *filename;      // name of file for this context
     const char *subName;       // name of the subroutine (oword)
+    int m98_loop_counter;      // loop counter for Fanuc-style sub calls
     double saved_params[INTERP_SUB_PARAMS];
     parameter_map named_params;
     unsigned char context_status;		// see CONTEXT_ defines below
@@ -704,11 +713,13 @@ struct setup
   int selected_pocket;          // tool slot selected but not active
     int selected_tool;          // start switchover to pocket-agnostic interp
   int sequence_number;          // sequence number of line last read
-  double speed;                 // current spindle speed in rpm or SxM
-  SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
+  int num_spindles;				// number of spindles available
+  int active_spindle;			// the spindle currently used for CSS, FPR etc.
+  double speed[EMCMOT_MAX_SPINDLES];// array of spindle speeds
+  SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// CONSTANT_RPM or CONSTANT_SURFACE
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
-  bool speed_override;        // whether speed override is enabled
-  CANON_DIRECTION spindle_turning;      // direction spindle is turning
+  bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
+  CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
   EmcPose tool_offset;          // tool length offset
@@ -758,7 +769,12 @@ struct setup
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
-  int feature_set; 
+  int feature_set;
+
+    int disable_fanuc_style_sub;
+    // M99 in main is treated as program end by default; this causes
+    // control to skip to beginning of file
+    bool loop_on_main_m99;
 
   int disable_g92_persistence;
 

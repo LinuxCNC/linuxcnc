@@ -5,7 +5,7 @@ Usage:
   Read availablebins pin for the number of bins available.
   Set the minvalue, binsize, and nbins pins.
     Ensure nbins <= availablebins
-    For nbins = N, the bins are numbered: 0 ... N-1 
+    For nbins = N, the bins are numbered: 0 ... N\-1 
   Iterate:
     Set index pin to a bin number: 0 <= index < nbins.
     Read check pin and verify that check pin == index pin.
@@ -15,7 +15,7 @@ Usage:
          (nextra   is count for all bins   < minvalue)
 
  If index is out of range (index < 0 or index > maxbinnumber)
- then binvalue == -1.
+ then binvalue == \-1.
  The input-error pin is set when input rules are violated
  and updates cease.
  The reset pin may be used to restart.

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode_vi.html
+Icon=linuxcncicon
+X-GNOME-DocPath=
+Terminal=false
+Name=Vietnamese G-Code Quick Reference
+Comment=Quick reference for G, M and O codes in LinuxCNC
+StartupNotify=false
+Categories=X-CNC;
+Keywords=cnc;linuxcnc;

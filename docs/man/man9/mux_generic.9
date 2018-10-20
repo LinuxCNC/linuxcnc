@@ -15,56 +15,56 @@ mux_generic \- choose one from several input values
 .B loadrt mux_generic config="bb8,fu12...."
 .SH FUNCTIONS
 .TP
-\fBmux-gen.\fINN\fB\fR Depending on the data types can run in either a floating
+\fBmux\-gen.\fINN\fB\fR Depending on the data types can run in either a floating
 point or non-floating point thread.
 
 .SH PINS
 .TP
-.B mux-gen.\fINN\fB.suppress-no-input\fR bit in \fR
+.B mux\-gen.\fINN\fB.suppress\-no\-input\fR bit in \fR
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
 but makes in00 unavaliable.
 
 .TP
-.B mux-gen.\fINN\fB.debounce-us\fR unsigned in \fR
+.B mux\-gen.\fINN\fB.debounce\-us\fR unsigned in \fR
 sets debouce time in microseconds.  eg. 100000 = a tenth of a second.
 The selection inputs must be stable this long before the output changes. This
 helps to ignore 'noisy' switches.
 
 .TP
-.B mux-gen.\fINN\fB.sel-bit\fIMM\fB\fR bit in  (M=0..N) \fR
+.B mux\-gen.\fINN\fB.sel\-bit\fIMM\fB\fR bit in  (M=0..N) \fR
 .TP
-.B mux-gen.\fINN\fB.sel-int\fI\fB\fR unsigned in \fR
+.B mux\-gen.\fINN\fB.sel\-int\fI\fB\fR unsigned in \fR
 Together, these determine which \fBin\fIN\fR value is copied to \fBoutput\fR.
 The bit pins are interpreted as binary bits, and the result is simply added on
-to the integer pin input. It is expected that eoither one or the other
+to the integer pin input. It is expected that either one or the other
 would normally be used. Hower, the possibility exists to use a higher-order
 bit to "shift" the values set by the integer pin. 
-The sel-bit pins are only created when the size of the mux_gen component is an
+The sel\-bit pins are only created when the size of the mux_gen component is an
 integer power of two. 
 This component (unlike mux16) does not offer the option of decoding gray-code, 
 however the same effect can be achieved by arranging the order of the input
 values to suit. 
 
 .TP
-.B mux-gen.\fINN\fB.out-[bit/float/s32/u32]\fR variable-type out \fR
+.B mux\-gen.\fINN\fB.out\-[bit/float/s32/u32]\fR variable-type out \fR
 Follows the value of one of the \fBin\fIN\fR values according to the selection 
 bits and/or the selection number. 
 Values will be converted/truncated according to standard C rules. This means,
 for example that a float input greater than 2147483647 will give an S32 output
-of -2147483648. 
+of \-2147483648. 
 
 .TP
-.B mux-gen.\fINN\fB.in-[bit/float/s32/u32]-\fIMM\fB\fR variable-type in\fR
+.B mux\-gen.\fINN\fB.in\-[bit/float/s32/u32]\-\fIMM\fB\fR variable-type in\fR
 The possible output values that are selected by the selection pins. 
 
 .SH PARAMETERS
 .TP
-.B mux-gen.\fIN\fB.elapsed\fR float r \fR
+.B mux\-gen.\fIN\fB.elapsed\fR float r \fR
 Current value of the internal debounce timer
 for debugging.
 .TP
-.B mux-gen.\fIN\fB.selected\fR s32 r \fR
+.B mux\-gen.\fIN\fB.selected\fR s32 r \fR
 Current value of the internal selection variable after conversion
 for debugging. Possibly useful for setting up gray-code switches. 
  

@@ -49,11 +49,11 @@ rx_mode and tx_mode registers are currently write-only. There should possibly be
 a get-status function.
 
 To write only to the tx_mode DriveEnable bit call this function with the bitrate
-unchanged and -1 as the rx_mode
-To change bitrate without altering mode settings send -1 to both modes. 
+unchanged and \-1 as the rx_mode
+To change bitrate without altering mode settings send \-1 to both modes. 
         
 .SH RETURN VALUE
-Returns0 on success and -1 on failure 
+Returns0 on success and \-1 on failure 
 
 .SH SEE ALSO
 man hm2_uart_send, man hm2_uart_read

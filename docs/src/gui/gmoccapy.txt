@@ -15,11 +15,9 @@ gmoccapy supports embedded tabs and side panels.
 As a good example for that see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
 
-*gmoccapy 2 does support up to 5 axis and 8 joints.* As this manual does belong
-to both releases, some option may not be available to you. If nothing special
-has been mentioned in a chapter, than it belong to both releases. As it has been
-changed to support the joint / axis changes in LinuxCNC it does not work on 2.7
-or 2.6 branch!
+*gmoccapy 2 does support up to 5 axis and 8 joints. As gmoccapy 2 has been
+changed in code to support the joint / axis changes in LinuxCNC it does not 
+work on 2.7 or 2.6 branch!
 
 It has support for integrated virtual keyboard (onboard or matchbox-keyboard),
 so there is no need for a hardware keyboard or mouse, but it can also be used
@@ -40,17 +38,14 @@ image::images/gmoccapy_5_axis.png[align="left"]
 
 == Requirements
 
-Gmoccapy has been tested on Ubuntu 10.04 and 12.04 and Debian Wheezy and 
-Jessie with 2.6, 2.7 and master, if you use other versions, please inform about 
-problems or solutions on the
+Gmoccapy 2 has been tested on Ubuntu 12.04 and Debian Wheezy, Jessie and MINT 18 
+with LinuxCNC master. It fully support joint / axis changes of LinuxCNC, making 
+it suitable as GUI for Scara, Robots or any other config with more joints than 
+axis. So it do support also gantry configs. if you use other versions, please 
+inform about problems and / or solutions on the
 http://www.linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[LinuxCNC forum] or the
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list]
-
-Gmoccapy 2 has been tested on Debian Wheesy and Jessie with the master branch.
-It fully support joint / axis changes of LinuxCNC, making it suitable as GUI
-for Scara, Robots or any other config with more joints than axis. So it do 
-support also gantry configs.
 
 The minimum screen resolution for gmoccapy, using it without side panels is
 *979 x 750 Pixel*, so it should fit to every standard screen.
@@ -93,9 +88,6 @@ You will find the following INI files included, just to show the basics: +
  * gmoccapy_sim_hardware_button.ini +
  * gmoccapy_tool_sensor.ini +
  * gmoccapy_with_user_tabs.ini +
- +
-in gmoccapy2 there are some additional configs
- +
  * gmoccapy_XYZAB.ini +
  * gmoccapy_XYZAC.ini +
  * gmoccapy_XYZCW.ini +
@@ -188,6 +180,7 @@ Is the entry to tell linuxcnc/gmoccapy where to look for the ngc files.
 If not specified Gmoccapy will look in the following order for ngc files:
 linuxcnc/nc_files and then the users home directory.
 
+[[gmoccapy:configuration-of-tabs-and-side-panels]]
 .Configuration of tabs and side panels
 
 You can add embedded programs to gmoccapy like you can do in axis, touchy and
@@ -260,6 +253,9 @@ Will add a live image from a web cam to the location you specified. Take care
 that camview-emc is installed, as it is not by default. Detailed information
 for camview and linuxcnc at: http://psha.org.ru/b/camview-emc.html[cam view]
 
+[NOTE]
+camview is not longer supported, there are several solutions availible, just see 
+the linuxcnc forum for details.
 ----
 gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui
 ----
@@ -301,7 +297,7 @@ markup language. Detailed information about the markup language can be found at
 https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
 
 ----
-MESSAGE_TEXT    = The text to be displayed, may be pango markup formated
+MESSAGE_TEXT    = The text to be displayed, may be pango markup formatted
 MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
 MESSAGE_PINNAME = is the name of the hal pin group to be created
 ----
@@ -467,7 +463,10 @@ without mouse or keyboard.
 You will have to do all connections to gmoccapy pins in your postgui.hal file,
 because they are not available before loading the GUI completely. It is possible
 to call several postgui hal files, making the config easier to debug. Just use 
-a postgui_call_list.hal file.
+a postgui_call_list.hal file. Connections to user panel must be made in a 
+separate hal file, as the panels are loaded after the GUI. 
+See <<gmoccapy:configuration-of-tabs-and-side-panels, Tabs and side panels>>
+for details.
 
 === Right And Bottom Button Lists
 
@@ -476,31 +475,11 @@ bottom. The right handed buttons will not change during operation, but the
 bottom button list will change very often. The buttons are count from up to
 down and from left to right beginning with "0".
 
+[NOTE]
+the pin name for *gmoccapy2* has changed to order them better:
+
 In hal_show you will see the right (vertical) buttons are:
 
-* gmoccapy.v-button-0
-* gmoccapy.v-button-1
-* gmoccapy.v-button-2
-* gmoccapy.v-button-3
-* gmoccapy.v-button-4
-* gmoccapy.v-button-5
-* gmoccapy.v-button-6
-
-and the bottom (horizontal) buttons are:
-
-* gmoccapy.h-button-0
-* gmoccapy.h-button-1
-* gmoccapy.h-button-2
-* gmoccapy.h-button-3
-* gmoccapy.h-button-4
-* gmoccapy.h-button-5
-* gmoccapy.h-button-6
-* gmoccapy.h-button-7
-* gmoccapy.h-button-8
-* gmoccapy.h-button-9
-
-[NOTE]
-the pin name for *gmoccapy2* has changed:
 * gmoccapy.v-button.button-0
 * gmoccapy.v-button.button-1
 * gmoccapy.v-button.button-2
@@ -508,7 +487,9 @@ the pin name for *gmoccapy2* has changed:
 * gmoccapy.v-button.button-4
 * gmoccapy.v-button.button-5
 * gmoccapy.v-button.button-6
-+
+
+and the bottom (horizontal) buttons are:
+
 * gmoccapy.h-button.button-0
 * gmoccapy.h-button.button-1
 * gmoccapy.h-button.button-2
@@ -519,7 +500,6 @@ the pin name for *gmoccapy2* has changed:
 * gmoccapy.h-button.button-7
 * gmoccapy.h-button.button-8
 * gmoccapy.h-button.button-9
-
 
 As the buttons in the bottom list will change according the mode and other
 influences, the hardware buttons will activate different functions, and you
@@ -537,40 +517,12 @@ image::images/gmoccapy_0_9_7_sim_hardware_button.png[align="left"]
 All sliders from gmoccapy can be connected to hardware encoder or hardware
 potentiometers.
 
-To connect encoders the following pin are exported:
-
-* gmoccapy.jog-speed.counts               = HAL_S32  Jog velocity
-* gmoccapy.jog-speed.count-enable         = HAL_BIT  Must be True, to enable counts
-
-* gmoccapy.feed-override.counts           = HAL_S32  feed override
-* gmoccapy.feed-override.count-enable     = HAL_BIT  Must be True, to enable counts
-* gmoccapy.reset-feed-override            = HAL_BIT  reset the feed override to 100 %
-
-* gmoccapy.spindle-override.counts        = HAL_S32  spindle override
-* gmoccapy.spindle-override.count-enable  = HAL_BIT  Must be True, to enable counts
-* gmoccapy.reset-spindle-override         = HAL_BIT  reset the spindle override to 100 %
-
-* gmoccapy.max-velocity.counts            = HAL_S32  Maximal Velocity of the machine
-* gmoccapy.max-velocity.count-enable      = HAL_BIT  Must be True, to enable counts
-
-To connect potentiometers, use the following hal pin:
-
-* gmoccapy.jog-speed.direct-value         = HAL_FLOAT To adjust the jog velocity slider
-* gmoccapy.jog-speed.analog-enable        = HAL_BIT   Must be True, to allow analog inputs
-
-* gmoccapy.feed-override.direct-value     = HAL_FLOAT To adjust the feed override slider
-* gmoccapy.feed-override.analog-enable    = HAL_BIT   Must be True, to allow analog inputs
-
-* gmoccapy.spindle-override.direct-value  = HAL_FLOAT To adjust the spindle override slider
-* gmoccapy.spindle-override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
-
-* gmoccapy.max-velocity.direct-value      = HAL_FLOAT To adjust the max velocity slider
-* gmoccapy.max-velocity.analog-enable     = HAL_BIT   Must be True, to allow analog inputs
-
 [NOTE]
 for gmoccapy2 the hal pin name has changed, as new controls has been implemented,
 max velocity does not exist any more, as rapid override has been implemented. 
 This change has been done as many user ask for that.
+
+To connect encoders the following pin are exported:
 
 * gmoccapy.jog.jog-velocity.counts        = HAL_S32  Jog velocity
 * gmoccapy.jog.jog-velocity.count-enable  = HAL_BIT  Must be True, to enable counts
@@ -600,10 +552,11 @@ To connect potentiometers, use the following hal pin:
 * gmoccapy.rapid.rapid_override.direct-value  = HAL_FLOAT To adjust the max velocity slider
 * gmoccapy.rapid.rapid_override.analog-enable = HAL_BIT   Must be True, to allow analog inputs
 
-In addition to the changed pin, gmoccapy2 offers additional hal pin to control
+In addition gmoccapy 2 offers additional hal pin to control
 the new slider widgets with momentary switches. The values how fast the increase
 or decrease will be, must be set in the glade file. In a future release it will 
 be integrated in the settings page.
+
 * gmoccapy.spc_jog_vel.increase     = HAL_BIT IN     as long as True the value of the slider will increase
 * gmoccapy.spc_jog_vel.decrease     = HAL_BIT IN     as long as True the value of the slider will decrease
 * gmoccapy.spc_jog_vel.scale        = HAL_FLOAT IN   A value to scale the output value (Handy to change units/min to units/sec
@@ -658,27 +611,10 @@ value to set = 45 %
 All axis given in the INI File have a jog-plus and a jog-minus pin, so
 hardware momentary switches can be used to jog the axis.
 
-For the standard config following hal Pin will be available:
-
-* gmoccapy.jog-x-plus
-* gmoccapy.jog-x-minus
-* gmoccapy.jog-y-plus
-* gmoccapy.jog-y-minus
-* gmoccapy.jog-z-plus
-* gmoccapy.jog-z-minus
-
-If you use a 4 axis INI file, there will be two additional pins
-
-* gmoccapy.jog-<your fourth axis letter >-plus
-* gmoccapy.jog-<your fourth axis letter >-minus
-
-For a "C" axis you will see:
-
-* gmoccapy.jog-c-plus
-* gmoccapy.jog-c-minus
-
 [NOTE]
 naming of this hal pin has changed for gmoccapy2
+
+For the standard XYZ config following hal Pin will be available:
 
 * gmoccapy.jog.axis.jog-x-plus
 * gmoccapy.jog.axis.jog-x-minus
@@ -686,9 +622,16 @@ naming of this hal pin has changed for gmoccapy2
 * gmoccapy.jog.axis.jog-y-minus
 * gmoccapy.jog.axis.jog-z-plus
 * gmoccapy.jog.axis.jog-z-minus
+
+If you use a 4 axis INI file, there will be two additional pins
+
+* gmoccapy.jog.<your fourth axis letter >-plus
+* gmoccapy.jog.<your fourth axis letter >-minus
+
+For a "C" axis you will see:
+
 * gmoccapy.jog.axis.jog-c-plus
 * gmoccapy.jog.axis.jog-c-minus
-
 
 [[gmoccapy:jog-velocity]]
 
@@ -706,11 +649,6 @@ So using a touch screen it is much easier to select smaller velocities.
 
 gmoccapy offers a hal pin to toggle between turtle and rabbit jogging
 
-* gmoccapy.turtle-jog   (Hal Bit In)
-
-[NOTE]
-in gmoccapy2 it is
-
 * gmoccapy.jog.turtle-jog   (Hal Bit In)
 
 === Jog Increment Hal Pins
@@ -721,19 +659,11 @@ of 10 hal pin for the increments given in the INI File, if you give more
 increments in your INI File, they will be not reachable from the GUI as they
 will not be displayed.
 
+[NOTE]
+gmoccapy2 uses different hal pin naming
+
 If you have 6 increments in your hal you will get *7* pins:
 jog-inc-0 is unchangeable and will represent continuous jogging.
-
-* gmoccapy.jog-inc-0
-* gmoccapy.jog-inc-1
-* gmoccapy.jog-inc-2
-* gmoccapy.jog-inc-3
-* gmoccapy.jog-inc-4
-* gmoccapy.jog-inc-5
-* gmoccapy.jog-inc-6
-
-[NOTE]
-gmoccapy2 uses differnt hal pin naming
 
 * gmoccapy.jog.jog-inc-0
 * gmoccapy.jog.jog-inc-1
@@ -802,7 +732,7 @@ MESSAGE_PINNAME = lube-fault
 MESSAGE_BOLDTEXT = NONE
 MESSAGE_TEXT = X SHEAR PIN BROKEN
 MESSAGE_TYPE = status
-MESSAGE_PINNAME = xpin
+MESSAGE_PINNAME = pin
 ----
 
 To 'connect' new pins to and input you need to do this in the postgui HAL file.
@@ -812,7 +742,7 @@ some place else in the HAL file.
 ----
 net gmoccapy-lube-fault gmoccapy.messages.lube-fault
 net gmoccapy-lube-fault-waiting gmoccapy.messages.lube-fault-waiting
-net gmoccapy-xpin gmoccapy.messages.xpin
+net gmoccapy-pin gmoccapy.messages.pin
 ----
 
 For more information on HAL files and the net command see the
@@ -882,6 +812,9 @@ image::images/gmoccapy_0_9_7_tool_info.png[align="left"]
 
 Connect them in your postgui hal.
 
+[NOTE]
+the tooloffset-x line is not needed on a mill, and will not be displayed on a 
+mill with trivial kinematics.
 ----
  net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
  net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
@@ -979,8 +912,8 @@ MAXPROBE =  -20
 
 .The Change Position Section
 
-This is not named TOOL_CHANGE_POSITION  on purpose - canon uses that name and
-will interfere otherwise. The position to move the machine before giving the
+This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
+will interfere otherwise.* The position to move the machine before giving the
 change tool command. All values are in absolute coordinates.
 
 ----
@@ -1105,6 +1038,10 @@ Keyboard::
     + 
     Default are : +  
 
+[NOTE]
+If this section is not sensitive, you have not installed a virtual keyboard,
++ supported are 'onboard' and 'matchbox-keyboard'.
+
 * show keyboard on offset = True
 * show keyboard on tooledit = False
 * show keyboard on MDI = True
@@ -1114,10 +1051,6 @@ Keyboard::
 If the keyboard layout is not correct, i.e. clicking X gives Z, than the
 layout has not been set properly, related to your locale settings. For
 onboard it can be solved with a small batch file with the following content:
-
-[NOTE]
-If this section is not sensitive, you have not installed a virtual keyboard,
-+ supported are 'onboard' and 'matchbox-keyboard'.
 
 ----
  #!/bin/bash
@@ -1136,10 +1069,6 @@ So that the layout is set automatically on starting.
 
 For matchbox-keyboard you will have to make your own layout, for a German
 layout ask in the forum.
-
-[NOTE]
-If this section is not sensitive, you have not installed a virtual keyboard,
-supported are 'onboard' and 'matchbox-keyboard'.
 
 On Touch Off::
     give the option to show the preview tab or the offset page tab if you enter the touch off mode by clicking the 
@@ -1391,7 +1320,7 @@ in absolute coordinates
 
  * X Pos. = The X position of the tool switch
  * Y Pos. = The Y position of the tool switch
- * Z Pos. = The X position of the tool switch, we will go as rapid move to 
+ * Z Pos. = The Z position of the tool switch, we will go as rapid move to 
  this coordinate
 
  * Max. Probe = is the distance to search for contact, an error will be
@@ -1475,11 +1404,6 @@ It is not recommend to use run from line, as LinuxCNC will not take care of
 any previous lines in the code before the starting line. So errors or crashes
 are very probable.
 
-.Log Actions
-
-If this button is active, nearly every button press or relevant action of
-LinuxCNC will be logged in the ALARM history. This is very useful for
-debugging.
 
 [[gmoccapy:lathe-section]]
 

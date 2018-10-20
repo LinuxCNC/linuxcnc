@@ -69,7 +69,7 @@
 /* Internal function for the proc_fs system. */
 
 /* The proc file system is available in 2.2 and 2.4 kernels with 
-  minor differences - The 2.4 kernels have a usefull helper function
+  minor differences - The 2.4 kernels have a useful helper function
   for creating the proc_fs entries.
   It is unlikely that the following implimentaion will work on a 2.0
   series kernel..

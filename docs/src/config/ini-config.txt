@@ -551,6 +551,10 @@ if __name__ == "__main__":
     current directory for the ini file or as absolute paths. The list must
     contain no intervening whitespace.
 
+* 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Default 0.00005
+
+* 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Default 0.00127
+
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Specifies a list of colon (:) separated directories for user defined
    functions. Directories are specified relative to the current directory
@@ -632,7 +636,7 @@ Section.
     HALFILES are found using a search.  If the named file is found in the directory
     containing the ini file, it is used.  If the named file is not found in this
     ini file directory, a search is made using a system library of halfiles.
-    A HALFILE may also be specifed as an absolute path (when the name starts with
+    A HALFILE may also be specified as an absolute path (when the name starts with
     a '/' character).  Absolute paths are not recommended as their use may limit
     relocation of configurations.
 
@@ -873,6 +877,9 @@ to start.
 Finally, no amount of tweaking will speed up a toolpath with lots of 
 small, tight corners, since you're limited by cornering acceleration. 
 
+* 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
+   number matches the "num_spindles" parameter passed to the motion module.
+
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code.  It is permitted to write an axis name twice
@@ -913,7 +920,10 @@ small, tight corners, since you're limited by cornering acceleration.
     coordinates it had on shutdown. This assumes there was no movement of
     the machine while powered off. If unset, joint positions are not stored
     and will begin at 0 each time LinuxCNC is started. This can help on smaller
-    machines without home switches.
+    machines without home switches. If using the Mesa resolver interface
+    this file can be used to emulate absolute encoders and eliminate the
+    need for homing (with no loss of accuracy). See the hostmot2 manpage
+    for more details.
 
 * 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the
    user to home the machine before any MDI command or a program is run.
@@ -926,7 +936,9 @@ small, tight corners, since you're limited by cornering acceleration.
 * 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
    that compute world coordinates using kinematicsForward() when switching
    from joint to teleop mode.  Up to nine coordinate values (X Y Z A B C U V W)
-   may be specified, unused trailing items may be omitted.
+   may be specified, unused trailing items may be omitted. This value is only
+   used for machines with nontrivial kinematics. On machines with trivial
+   kinematics (mill, lathe, gantry types) this value is ignored.
    Note: the sim hexapod config requires a non-zero value for the Z coordinate.
 
 [WARNING]
@@ -1045,31 +1057,54 @@ For more information on kinematics modules see the manpage: '$ man kins'
     can be used to make up for small deficiencies in the hardware used to
     drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
-    MAX_ACCELERATION for the joint.
+    MAX_ACCELERATION for the joint. Excessive backlash compensation can cause an
+    axis to jerk as it changes direction. If a COMP_FILE is specificed for an
+    axis BACKLASH is not used.
 
 * 'COMP_FILE = file.extension' -
-    (((Compensation))) A file holding compensation structure for the joint.
-    The file could be named joint0screw.comp (or xscrew.comp for the X axis
-    for aa config with identity kinematics). File
-    names are case sensitive and can contain letters and/or numbers. The
-    values are triplets per line separated by a space. The first value is
-    nominal (where it should be). The second and third values depend on the
-    setting of COMP_FILE_TYPE. Currently the limit inside LinuxCNC is for 256
-    triplets per joint. If COMP_FILE is specified, BACKLASH is ignored.
-    Compensation file values are in machine units.
+    (((Compensation))) The compensation file consists of map of position
+    information for the joint. Compensation file values are in machine units.
+    Each set of values are are on one line separated by a space. The first value
+    is the nominal value (the commanded position). The second and third values
+    depend on the setting of COMP_FILE_TYPE. Points in between nominal values
+    are interpolated between the two nominals. Compensation files must start
+    with the smallest nominal and be in ascending order to the largest value of
+    nominals. File names are case sensitive and can contain letters and/or
+    numbers. Currently the limit inside LinuxCNC is for 256 triplets per axis.
+    +
+    +
+    If COMP_FILE is specified for an axis, BACKLASH is not used. A 
+    'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
-* 'COMP_FILE_TYPE = 0 or 1' -
-** 'If 0:' The second and third values specify
-    the forward position (where the joint is while traveling forward) and
-    the reverse position (where the joint is while traveling reverse),
-    positions which correspond to the nominal position.'
-** 'If 1:' The second and third values specify
-    the forward trim (how far from nominal while traveling forward) and
-    the reverse trim (how far from nominal while traveling in reverse),
-    positions which correspond to the nominal position.
+* 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
+   first value is the nominal (commanded) position for both types.
 
-    Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
-    Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
+** 'Type 0:' The second value specifies the actual position as the axis is moving
+    in the positive direction (increasing value) and the third value specifies
+    the actual position as the axis is moving in the negative direction
+    (decreasing value).
+    +
+    +
+    Type 0 Example
++
+----
+-1.000 -1.005 -0.995
+0.000 0.002 -0.003
+1.000 1.003 0.998
+----
+
+** 'Type 1:' The second value specifies positive offset from nominal while
+    traveling in the positive direction. The third value specifies the negitive
+    offset from nominal while traveling in a negitive direction.
+    +
+    +
+Type 1 Example
++
+----
+-1.000 0.005 -0.005
+0.000 0.002 -0.003
+1.000 0.003 -0.004
+----
 
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
     machine units. When this limit is reached, the controller aborts axis
@@ -1165,12 +1200,15 @@ These parameters are Homing related, for a better explanation read the
     If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
 
 * 'HOME_SEQUENCE = <n>' -
-     Used to define the "Home All" sequence. <n> starts at 0 and no numbers
-    may be skipped. If left out the joint will not be homed by the
-    "Home All" function. More than one joint can be homed at the same
+    Used to define the "Home All" sequence. <n> must start at 0 or
+    1 or -1.  Additional sequences may be specified with numbers increasing
+    by 1 (in absolute value).  Skipping of sequence numbers is not allowed.
+    If a HOME_SEQUENCE is omitted, the joint will not be homed by the
+    "Home All" function.  More than one joint can be homed at the same
     time by specifying the same sequence number for more than one joint.
     A negative sequence number is used to defer the final move for
     all joints having that (negative or positive) sequence number.
+    For additional info, see: <<sec:homing-section,HOME SEQUENCE>>
 
 * 'VOLATILE_HOME = 0' -
      When enabled (set to 1) this joint will be unhomed if the Machine

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 # Touchy is Copyright (c) 2009  Chris Radek <chris@timeguy.com>
 #
 # Touchy is free software: you can redistribute it and/or modify
@@ -12,8 +11,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
-
 
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
@@ -704,6 +701,10 @@ class touchy:
                 self.radiobutton_mask = 1
                 s = linuxcnc.stat()
                 s.poll()
+                # Show effect of external override inputs
+                self.fo_val = s.feedrate * 100
+                self.so_val = s.spindle[0]['override'] * 100
+                self.mv_val = s.max_velocity * 60
                 am = s.axis_mask
                 if not self.resized_wheelbuttons:
                         at = self.wTree.get_widget("axis_table")
@@ -794,7 +795,6 @@ class touchy:
 		if self.wheel == "scrolling":
 			d0 = d * 10 ** (2-self.wheelinc)
 			if d != 0: self.listing.next(None, d0)
-
                 set_label(self.wTree.get_widget("fo").child, "FO: %d%%" % self.fo_val)
                 set_label(self.wTree.get_widget("so").child, "SO: %d%%" % self.so_val)
                 set_label(self.wTree.get_widget("mv").child, "MV: %d" % self.mv_val)

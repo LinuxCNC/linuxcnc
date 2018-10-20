@@ -3,7 +3,6 @@
 # we dont use argspec to avoid the generic error message of the argspec prolog and give more
 # concise ones here
 
-
 # cycle_prolog,cycle_epilog: generic code-independent support glue for oword sub cycles
 #
 # these are provided as starting point - for more concise error message you would better
@@ -11,7 +10,6 @@
 #
 # Usage:
 #REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
-
 
 import emccanon 
 from interpreter import *
@@ -88,7 +86,6 @@ def setfeed_epilog(self,**words):
         return INTERP_ERROR
     return INTERP_OK    
 
-
 # REMAP=T   prolog=prepare_prolog ngc=prepare epilog=prepare_epilog
 # exposed parameters: #<tool> #<pocket>
 
@@ -151,22 +148,22 @@ def change_prolog(self, **words):
                 self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
                 return INTERP_ERROR
             print "change_prolog: Toolchanger soft fault %d" % int(self.params[5601])
-            
-	if self.selected_pocket < 0:
+
+        if self.selected_pocket < 0:
             self.set_errormsg("M6: no tool prepared")
             return INTERP_ERROR
-	if self.cutter_comp_side:
+        if self.cutter_comp_side:
             self.set_errormsg("Cannot change tools with cutter radius compensation on")
             return INTERP_ERROR
-	self.params["tool_in_spindle"] = self.current_tool
-	self.params["selected_tool"] = self.selected_tool
-	self.params["current_pocket"] = self.current_pocket # this is probably nonsense
+        self.params["tool_in_spindle"] = self.current_tool
+        self.params["selected_tool"] = self.selected_tool
+        self.params["current_pocket"] = self.current_pocket # this is probably nonsense
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
     except Exception, e:
         self.set_errormsg("M6/change_prolog: %s" % (e))
         return INTERP_ERROR
-    
+
 def change_epilog(self, **words):
     try:
         if not self.value_returned:
@@ -266,11 +263,11 @@ def set_tool_number(self, **words):
         else:
             self.set_errormsg("M61 requires a Q parameter")
             return status 
-	(status,pocket) = self.find_tool_pocket(toolno)
-	if status != INTERP_OK:
+        (status,pocket) = self.find_tool_pocket(toolno)
+        if status != INTERP_OK:
             self.set_errormsg("M61 failed: requested tool %d not in table" % (toolno))
             return status
-	if words['q'] > -TOLERANCE_EQUAL: # 'greater equal 0 within interp's precision'
+        if words['q'] > -TOLERANCE_EQUAL: # 'greater equal 0 within interp's precision'
             self.current_pocket = pocket
             self.current_tool = toolno
             emccanon.CHANGE_TOOL_NUMBER(pocket)
@@ -278,13 +275,12 @@ def set_tool_number(self, **words):
             self.tool_change_flag = True
             self.set_tool_parameters()
             return INTERP_OK
-	else:
+        else:
             self.set_errormsg("M61 failed: Q=%4" % (toolno))
             return INTERP_ERROR
     except Exception, e:
         self.set_errormsg("M61/set_tool_number: %s" % (e))
         return INTERP_ERROR
-
 
 _uvw = ("u","v","w","a","b","c")
 _xyz = ("x","y","z","a","b","c")
@@ -298,7 +294,7 @@ _compat = {
     emccanon.CANON_PLANE_VW : (("u","r"),_xyz,"VW"),
     emccanon.CANON_PLANE_UW : (("v","r"),_xyz,"UW")}           
 
-# extract and pass parameters from current block, merged with extra paramters on a continuation line
+# extract and pass parameters from current block, merged with extra parameters on a continuation line
 # keep tjose parameters across invocations
 # export the parameters into the oword procedure
 def cycle_prolog(self,**words):
@@ -314,7 +310,7 @@ def cycle_prolog(self,**words):
             self.sticky_params[r.name] = dict()
 
         self.params["motion_code"] = c.g_modes[1]
-        
+
         (sw,incompat,plane_name) =_compat[self.plane]
         for (word,value) in words.items():
             # inject current parameters
@@ -356,7 +352,7 @@ def cycle_prolog(self,**words):
         if self.cutter_comp_side:
             return "%s: Cannot use canned cycles with cutter compensation on" % (r.name)
         return INTERP_OK
-    
+
     except Exception, e:
         raise
         return "cycle_prolog failed: %s" % (e)
@@ -370,7 +366,6 @@ def cycle_epilog(self,**words):
         return INTERP_OK
     except Exception, e:
         return "cycle_epilog failed: %s" % (e)
-
 
 # this should be called from TOPLEVEL __init__()
 def init_stdglue(self):

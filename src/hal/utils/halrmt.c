@@ -40,7 +40,7 @@
   
   ==> HELLO <==
   
-  Hello <password> <cleint> <version>
+  Hello <password> <client> <version>
   If a valid password was entered the server will respond with
   
   HELLO ACK <Server Name> <Server Version>
@@ -695,7 +695,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
     rtapi_mutex_give(&(hal_data->mutex));
     
     /* check that both pins have the same type, 
-       don't want ot create a sig, which after that won't be usefull */
+       don't want ot create a sig, which after that won't be useful */
     if (first_pin->type != second_pin->type) {
       sprintf(errorStr, "HAL:%d: ERROR: pins '%s' and '%s' not of the same type", 
 	  linenumber, first_pin_name, second_pin_name);
@@ -3184,7 +3184,7 @@ static int helpHello(connectionRecType *context)
   strcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
   strcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
   strcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the cleint requested version or latest version support by server if");
+  strcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
   strcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
   strcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
   strcat(context->outBuf, "  Hello Nak\n\r");

@@ -156,7 +156,7 @@ void usage(int argc, char **argv) {
         "        the following: 1200, 2400, 4800, 9600, 19200, 38400\n"
         "    -b, --bits BITS (default 8)\n"
         "        Set number of data bits to BITS, must be between 5 and 8 inclusive.\n"
-        "    -p, --parity PARITY (defalt none)\n"
+        "    -p, --parity PARITY (default none)\n"
         "        Set serial parity to one of 'even', 'odd', or 'none'.\n"
         "    -s, --stopbits {1,2} (default 1)\n"
         "        Set serial stop bits to 1 or 2.\n"

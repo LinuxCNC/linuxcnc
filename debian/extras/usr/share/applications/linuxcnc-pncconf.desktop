@@ -1,6 +1,5 @@
 [Desktop Entry]
-Encoding=UTF-8
-Version=
+Version=1.0
 Type=Application
 Exec=/usr/bin/pncconf
 Icon=linuxcncicon
@@ -10,3 +9,4 @@ Comment=Configuration Wizard For Mesa I/O Cards
 StartupNotify=false
 Categories=X-CNC;
 Name=Pncconf Wizard
+Keywords=cnc;linuxcnc;

@@ -30,10 +30,10 @@
 .TH HALTCL "1"  "2012-01-31" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
 haltcl \- manipulate the LinuxCNC HAL from the command line using a tcl
-interpeter.
+interpreter.
 
 .SH SYNOPSIS
-.B haltcl [\fI-i inifile\fR] [\fIfilename\fR\]
+.B haltcl [\fI\-i inifile\fR] [\fIfilename\fR\]
 .PP
 
 .SH DESCRIPTION
@@ -44,7 +44,7 @@ complex HAL configurations to be set up with a single command.
 
 .SH OPTIONS
 .TP
-\fB-i\fR \fIinifile\fR
+\fB\-i\fR \fIinifile\fR
 If specified, the inifile is read and used to create tcl global variable
 arrays.  An array is created for each SECTION of the inifile with
 elements for each ITEM in the section.
@@ -59,7 +59,7 @@ elements for each ITEM in the section.
        SECTION_A(ITEM_2) =  2
        SECTION_B(ITEM_1) = 10
 .TP
-\fB-ini\fR \fIinifile\fR -- declining usage, use \fB-i\fR \fIinifile\fR
+\fB\-ini\fR \fIinifile\fR -- declining usage, use \fB\-i\fR \fIinifile\fR
 .TP
 \fBfilename\fR
 If specified, the tcl commands of \fBfilename\fR are executed.  If no filename
@@ -70,7 +70,7 @@ is specified, haltcl opens an interactive session.
 commands for the hal language as described for \fBhalcmd\fR(1).  The augmented
 commands can be listed with the command:
 
-   haltcl: hal --commands
+   haltcl: hal \-\-commands
 
    addf alias delf delsig getp gets ptype stype help linkpp linkps linksp list loadrt loadusr lock net newsig save setexact_for_test_suite_only setp sets show source start status stop unalias unlinkp unload unloadrt unloadusr unlock waitusr
 

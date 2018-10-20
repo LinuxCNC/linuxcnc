@@ -808,6 +808,14 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
                 HM2_ERR("Remote setup failure on instance %i\n",
                         inst->device_id);
                 goto fail0;}
+            // Nothing happens without a "Do It" command
+            if ((r = hm2_register_tram_write_region(hm2,inst->command_reg_addr,
+                                       sizeof(rtapi_u32),
+                                       &inst->command_reg_write)) < 0){
+                HM2_ERR("error registering tram DoIt write to sserial "
+                "command register (%d)\n", i);
+                goto fail0;}
+
             if ((r = hm2_sserial_stopstart(hm2, md, inst, 0x900)) < 0 ){
                 HM2_ERR("Failed to restart device %i on instance\n",
                         inst->device_id);
@@ -951,7 +959,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
                                       sizeof(rtapi_u32),
                                       &inst->command_reg_read);
     if (r < 0) {
-        HM2_ERR("error registering tram write region for sserial"
+        HM2_ERR("error registering tram read region for sserial"
                 "command register (%d)\n", index);
         return -EINVAL;
     }
@@ -960,17 +968,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
                                       sizeof(rtapi_u32),
                                       &inst->data_reg_read);
     if (r < 0) {
-        HM2_ERR("error registering tram write region for sserial "
-                "command register (%d)\n", index);
-        return -EINVAL;
-
-    }
-    // Nothing happens without a "Do It" command
-    r = hm2_register_tram_write_region(hm2, inst->command_reg_addr,
-                                       sizeof(rtapi_u32),
-                                       &inst->command_reg_write);
-    if (r < 0) {
-        HM2_ERR("error registering tram write region for sserial "
+        HM2_ERR("error registering tram read region for sserial "
                 "command register (%d)\n", index);
         return -EINVAL;
 
@@ -1107,6 +1105,10 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
                 chan->confs[c].ParmMin = 0;
                 chan->confs[c].ParmMax = 1;
             }
+
+            // SmartSerial knows nothing of graycode or wrapless, used only by abs_encoder
+            chan->confs[c].Flags = 0;
+
             HM2_DBG("Process: %s  RecordType: %02X Datatype: %02X Dir: %02X Addr: %04X Length: %i\n",
                            chan->confs[c].NameString, chan->confs[c].RecordType,chan->confs[c].DataType, chan->confs[c].DataDir, chan->confs[c].ParmAddr, chan->confs[c].DataLength);
         } else if (rectype == LBP_MODE ) {
@@ -1832,6 +1834,10 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     // All seems well, handle the pins.
     for (r = 0 ; r < inst->num_remotes ; r++ ) {
         hm2_sserial_remote_t *chan = &inst->remotes[r];
+
+        // Only update this channel's pins if no transfer error
+        if (*inst->data_reg_read & (1 << chan->index)) continue;
+
         bitcount = 0;
         if (chan->reg_0_write) *chan->reg_0_write = 0;
         if (chan->reg_1_write) *chan->reg_1_write = 0;
@@ -1872,7 +1878,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                         break;
                     case LBP_BOOLEAN:
                         buff = 0;
-                        if (*pin->boolean ^ *pin->invert){
+                        if (*pin->boolean ^ ((conf->DataDir == LBP_OUT)?(*pin->invert):0)){
                             buff = (~0ull >> (64 - conf->DataLength));
                         }
                         break;
@@ -1893,7 +1899,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                         }
                         break;
                     default:
-                        HM2_ERR("Unsupported output datatype %i (name: ""%s"")\n",
+                        HM2_ERR("Unsupported output datatype 0x%02X (name: ""%s"")\n",
                                 conf->DataType, conf->NameString);
                         conf->DataType = 0; // Warn once, then ignore
                 }
@@ -2016,7 +2022,9 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 break;
             case LBP_BOOLEAN:
                 *pin->boolean = (buff != 0);
-                *pin->boolean2 = (buff == 0);
+                if(conf->DataDir == LBP_IN){
+                    *pin->boolean2 = (buff == 0);
+                }
                 break;
             case LBP_ENCODER_H:
             case LBP_ENCODER_L:
@@ -2121,7 +2129,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 break;
             }
             default:
-                HM2_ERR_NO_LL("Unsupported input datatype %02X (name: ""%s"")\n",
+                HM2_ERR_NO_LL("Unsupported input datatype 0x%02X (name: ""%s"")\n",
                         conf->DataType, conf->NameString);
 
                 conf->DataType = 0; // Only warn once, then ignore

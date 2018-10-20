@@ -3389,7 +3389,7 @@ proc ::ngcgui::newpage {creatinghdl} {
     }
   }
   if $::ngc($creatinghdl,chooser) {
-    set subfile "\"\""  ;# chooser starts with no specifed subfile
+    set subfile "\"\""  ;# chooser starts with no specified subfile
   }
 
   set prefile ""

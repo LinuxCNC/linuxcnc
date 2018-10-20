@@ -169,8 +169,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   polar_flag = (block->radius_flag) || (block->theta_flag);
   ijk_flag = ((block->i_flag) || (block->j_flag) ||
               (block->k_flag));
-  mode0 = block->g_modes[0];
-  mode1 = block->g_modes[1];
+  mode0 = block->g_modes[GM_MODAL_0];
+  mode1 = block->g_modes[GM_MOTION];
   mode_zero_covets_axes =
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
      || (mode0 == G_52) || (mode0 == G_92));
@@ -195,13 +195,13 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
     CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
     CHKS(((!axis_flag) &&
-	  (block->g_modes[0] == G_52 || block->g_modes[0] == G_92)),
+	  (block->g_modes[GM_MODAL_0] == G_52 || block->g_modes[GM_MODAL_0] == G_92)),
 	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[8] != G_43_1),
+         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
-    if (block->g_modes[8] != G_43_1) {
+    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
        block->motion_to_be = settings->motion_mode;
     }
   } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
@@ -265,6 +265,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->c_flag = false;
   block->comment[0] = 0;
   block->d_flag = false;
+  block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
   for (n = 0; n < 16; n++) {

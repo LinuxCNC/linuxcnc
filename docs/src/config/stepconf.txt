@@ -42,7 +42,7 @@ a linuxcnc config file. After the import, you will go though the pages
 of stepconf to confirm/modify the entries. The original mach xml file will
 not be changed.
 
-These next options wiil be recorded in a preference file for the next run of
+These next options will be recorded in a preference file for the next run of
 Stepconf.
 
 * 'Create Desktop Shortcut' - This will place a link on your desktop to the
@@ -256,7 +256,7 @@ origin. The home location must be inside the 'Table Travel' and not equal to
 one of the Table Travel values.
 
 * 'Home Switch Location' - The location at which the home switch trips
-or releases reletive to the machine origin. This item and the two below only
+or releases relative to the machine origin. This item and the two below only
 appear when Home Switches were chosen in the Parallel Port Pinout. If
 you combine home and limit switches the home switch location can not be
 the same as the home position or you will get a joint limit error.

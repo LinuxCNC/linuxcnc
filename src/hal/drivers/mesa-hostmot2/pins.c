@@ -301,6 +301,15 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
              return unknown;
              break;
 
+        case HM2_GTAG_SSR:
+            if ((sec_pin >= 1) && (sec_pin <= 31)) {
+                sprintf(unknown, "Out-%02d",sec_pin - 1);
+                return unknown;
+            } else if (sec_pin == 32) {
+                sprintf(unknown, "AC Ref (internal)");
+                return unknown;
+            }
+            break;
     }
 
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
@@ -680,26 +689,33 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
     HM2_PRINT("%d I/O Pins used:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        
         hm2_pin_t *pin = &(hm2->pin[i]);
-        
+        char connector_pin_name[100];
+
+        if (hm2->llio->io_connector_pin_names == NULL) {
+            snprintf(connector_pin_name, sizeof(connector_pin_name), "%s-%02d", hm2->llio->ioport_connector_name[pin->port_num], pin->port_pin);
+        } else {
+            if (hm2->llio->io_connector_pin_names[i] == NULL) {
+                continue;
+            }
+            snprintf(connector_pin_name, sizeof(connector_pin_name), "%s", hm2->llio->io_connector_pin_names[i]);
+        }
+
         if (pin->gtag == pin->sec_tag) {
             if(pin->sec_unit & 0x80)
                 HM2_PRINT(
-                    "    IO Pin %03d (%s-%02d): %s (all), pin %s (%s)\n",
+                    "    IO Pin %03d (%s): %s (all), pin %s (%s)\n",
                     i,
-                    hm2->llio->ioport_connector_name[pin->port_num],
-                    pin->port_pin,
+                    connector_pin_name,
                     hm2_get_general_function_name(pin->gtag),
                     hm2_get_pin_secondary_name(&hm2->pin[i]),
                     ((pin->sec_pin & 0x80) ? "Output" : "Input")
                 );
             else
                 HM2_PRINT(
-                    "    IO Pin %03d (%s-%02d): %s #%d, pin %s (%s)\n",
+                    "    IO Pin %03d (%s): %s #%d, pin %s (%s)\n",
                     i,
-                    hm2->llio->ioport_connector_name[pin->port_num],
-                    pin->port_pin,
+                    connector_pin_name,
                     hm2_get_general_function_name(pin->gtag),
                     pin->sec_unit,
                     hm2_get_pin_secondary_name(pin),
@@ -707,10 +723,9 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
                 );
         } else {
             HM2_PRINT(
-                "    IO Pin %03d (%s-%02d): %s\n",
+                "    IO Pin %03d (%s): %s\n",
                 i,
-                hm2->llio->ioport_connector_name[pin->port_num],
-                pin->port_pin,
+                connector_pin_name,
                 hm2_get_general_function_name(pin->gtag)
             );
         }
@@ -800,6 +815,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // and about half as many I/Os as you'd expect
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2);
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances);
 }
 
 const char *hm2_get_general_function_hal_name(int gtag) {

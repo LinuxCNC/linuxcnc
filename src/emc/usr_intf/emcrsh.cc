@@ -71,7 +71,7 @@
   
   ==> HELLO <==
   
-  Hello <password> <cleint> <version>
+  Hello <password> <client> <version>
   If a valid password was entered the server will respond with
   
   HELLO ACK <Server Name> <Server Version>
@@ -932,24 +932,39 @@ static cmdResponseType setLube(char *s, connectionRecType *context)
 
 static cmdResponseType setSpindle(char *s, connectionRecType *context)
 {
-   switch (checkSpindleStr(s)) {
-     case -1: return rtStandardError;
-     case 0: sendSpindleForward(); break;
-     case 1: sendSpindleReverse(); break;
-     case 2: sendSpindleIncrease(); break;
-     case 3: sendSpindleDecrease(); break;
-     case 4: sendSpindleConstant(); break;
-     case 5: sendSpindleOff();
-     }
-   return rtNoError;
+	int spindle = 0;
+	s = strtok(NULL, delims);
+	if (sscanf(s, "%d", &spindle) > 0){// there is a spindle number
+		s = strtok(NULL, delims);
+	} else {
+		spindle = -1;
+	}
+	switch (checkSpindleStr(s)) {
+     	 case -1: return rtStandardError;
+     	 case 0: sendSpindleForward(spindle); break;
+     	 case 1: sendSpindleReverse(spindle); break;
+     	 case 2: sendSpindleIncrease(spindle); break;
+     	 case 3: sendSpindleDecrease(spindle); break;
+     	 case 4: sendSpindleConstant(spindle); break;
+     	 case 5: sendSpindleOff(spindle);
+	}
+	return rtNoError;
 }
 
 static cmdResponseType setBrake(char *s, connectionRecType *context)
 {
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0: sendBrakeEngage(); break;
-     case 1: sendBrakeRelease();
+	int spindle = 0;
+	s = strtok(NULL, delims);
+	if (sscanf(s, "%d", &spindle) > 0){// there is a spindle number
+		if (spindle < 0 || spindle > EMCMOT_MAX_SPINDLES) return rtStandardError;
+		s = strtok(NULL, delims);
+	} else {
+		spindle = -1;
+	}
+	switch (checkOnOff(s)) {
+     	 case -1: return rtStandardError;
+     	 case 0: sendBrakeEngage(spindle); break;
+     	 case 1: sendBrakeRelease(spindle);
      }
    return rtNoError;
 }
@@ -1261,11 +1276,20 @@ static cmdResponseType setProbeClear(char *s, connectionRecType *context)
 
 static cmdResponseType setSpindleOverride(char *s, connectionRecType *context)
 {
-  int percent;
-
-  sscanf(s, "%d", &percent);
-  sendSpindleOverride(((double) percent) / 100.0);
-  return rtNoError;
+	int percent;
+	int spindle = 0;
+	s = strtok(NULL, delims);
+	if (sscanf(s, "%d", &spindle) > 0){// there is at least one number
+		s = strtok(NULL, delims);
+		if (sscanf(s, "%d", &percent) < 0){ // no second number
+			percent = spindle;
+			spindle = -1;
+		}
+	} else {
+		return rtStandardError;
+	}
+	sendSpindleOverride(spindle, ((double) percent) / 100.0);
+	return rtNoError;
 }
 
 static cmdResponseType setOptionalStop(char *s, connectionRecType *context)
@@ -1330,8 +1354,8 @@ int commandSet(connectionRecType *context)
     case scFlood: ret = setFlood(strtok(NULL, delims), context); break;
     case scLube: ret = setLube(strtok(NULL, delims), context); break;
     case scLubeLevel: ret = rtStandardError; break;
-    case scSpindle: ret = setSpindle(strtok(NULL, delims), context); break;
-    case scBrake: ret = setBrake(strtok(NULL, delims), context); break;
+    case scSpindle: ret = setSpindle(pch, context); break;
+    case scBrake: ret = setBrake(pch, context); break;
     case scTool: ret = rtStandardError; break;
     case scToolOffset: ret = setToolOffset(pch, context); break;
     case scLoadToolTable: ret = setLoadToolTable(strtok(NULL, delims), context); break;
@@ -1379,7 +1403,7 @@ int commandSet(connectionRecType *context)
     case scTeleopEnable: ret = setTeleopEnable(strtok(NULL, delims), context); break;
     case scKinematicsType: ret = rtStandardError; break;
     case scOverrideLimits: ret = setOverrideLimits(strtok(NULL, delims), context); break;
-    case scSpindleOverride: ret = setSpindleOverride(strtok(NULL, delims), context); break;
+    case scSpindleOverride: ret = setSpindleOverride(pch, context); break;
     case scOptionalStop: ret = setOptionalStop(strtok(NULL, delims), context); break;
     case scUnknown: ret = rtStandardError;
     }
@@ -1627,30 +1651,44 @@ static cmdResponseType getLubeLevel(char *s, connectionRecType *context)
 
 static cmdResponseType getSpindle(char *s, connectionRecType *context)
 {
-  const char *pSpindleStr = "SPINDLE %s";
-  
-  if (emcStatus->motion.spindle.increasing > 0)
-    sprintf(context->outBuf, pSpindleStr, "INCREASE");
-  else    
-    if (emcStatus->motion.spindle.increasing < 0)
-      sprintf(context->outBuf, pSpindleStr, "DECREASE");
-    else 
-      if (emcStatus->motion.spindle.direction > 0)
-        sprintf(context->outBuf, pSpindleStr, "FORWARD");
-      else
-        if (emcStatus->motion.spindle.direction < 0)
-          sprintf(context->outBuf, pSpindleStr, "REVERSE");
-	else sprintf(context->outBuf, pSpindleStr, "OFF");
+  const char *pSpindleStr = "SPINDLE %d %s";
+  int spindle = -1;
+  int n;
+  s = strtok(NULL, delims);
+  if (sscanf(s, "%d", &spindle) < 0) spindle = -1; // no spindle number given return all
+  for (n = 0; n < emcStatus->motion.traj.spindles; n++){
+	  if (n == spindle || spindle == -1){
+		  if (emcStatus->motion.spindle[n].increasing > 0)
+			sprintf(context->outBuf, pSpindleStr, n, "INCREASE");
+		  else
+			if (emcStatus->motion.spindle[n].increasing < 0)
+			  sprintf(context->outBuf, pSpindleStr, n, "DECREASE");
+			else
+			  if (emcStatus->motion.spindle[n].direction > 0)
+				sprintf(context->outBuf, pSpindleStr, n, "FORWARD");
+			  else
+				if (emcStatus->motion.spindle[n].direction < 0)
+				  sprintf(context->outBuf, pSpindleStr, n, "REVERSE");
+			else sprintf(context->outBuf, pSpindleStr, n, "OFF");
+	  }
+  }
   return rtNoError; 
 }
 
 static cmdResponseType getBrake(char *s, connectionRecType *context)
 {
   const char *pBrakeStr = "BRAKE %s";
-  
-  if (emcStatus->motion.spindle.brake == 1)
-    sprintf(context->outBuf, pBrakeStr, "ON");
-  else sprintf(context->outBuf, pBrakeStr, "OFF");
+  int spindle;
+  int n;
+  s = strtok(NULL, delims);
+  if (sscanf(s, "%d", &spindle) < 0) spindle = -1; // no spindle number return all
+  for (n = 0; n < emcStatus->motion.traj.spindles; n++){
+	  if (n == spindle || spindle == -1){
+		  if (emcStatus->motion.spindle[spindle].brake == 1)
+			sprintf(context->outBuf, pBrakeStr, "ON");
+		  else sprintf(context->outBuf, pBrakeStr, "OFF");
+	  }
+  }
   return rtNoError; 
 }
 
@@ -2321,11 +2359,18 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
 
 static cmdResponseType getSpindleOverride(char *s, connectionRecType *context)
 {
-  const char *pSpindleOverride = "SPINDLE_OVERRIDE %d";
+  const char *pSpindleOverride = "SPINDLE_OVERRIDE %d %d";
   int percent;
-  
-  percent = (int)floor(emcStatus->motion.traj.spindle_scale * 100.0 + 0.5);
-  sprintf(context->outBuf, pSpindleOverride, percent);
+  int spindle;
+  int n;
+  s = strtok(NULL, delims);
+  if (sscanf(s, "%d", &spindle) < 0) spindle = -1; // no spindle number return all
+  for (n = 0; n < emcStatus->motion.traj.spindles; n++){
+	  if (n == spindle || spindle == -1){
+		  percent = (int)floor(emcStatus->motion.spindle[n].spindle_scale * 100.0 + 0.5);
+		  sprintf(context->outBuf, pSpindleOverride, n, percent);
+	  }
+  }
   return rtNoError;
 }
 
@@ -2491,7 +2536,7 @@ static int helpHello(connectionRecType *context)
   strcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
   strcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
   strcat(context->outBuf, "  Server Name is the name of the LinuxCNC Server to which the client has connected.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the cleint requested version or latest version support by server if");
+  strcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
   strcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
   strcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
   strcat(context->outBuf, "  Hello Nak\n\r");

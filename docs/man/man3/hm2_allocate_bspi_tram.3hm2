@@ -21,10 +21,16 @@ This function allocates the TRAM memory and sets up the regular data transfers.
 It should be called only when all the frames have been defined by calls to 
 hm2_tram_add_bspi_frame(). 
 
+.SH REALTIME CONSIDERATIONS
+Call only from realtime init code, not from user space or realtime code.
+
 .SH RETURN VALUE
-Returns 0 on success and -1 on failure.
+Returns 0 on success and \-1 on failure.
 
 .SH SEE ALSO
-man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame
-man hm2_allocate_bspi_tram.
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_setup_chan(3hm2)\fR,
+\fBhm2_bspi_set_write_function(3hm2)\fR,
+\fBhm2_bspi_write_chan(3hm2)\fR,
+\fBhm2_tram_add_bspi_frame(3hm2)\fR,
 See src/hal/drivers mesa_7i65.comp for an example usage.

@@ -99,7 +99,10 @@ class Dialogs(gobject.GObject):
         dialog.destroy()
         if response == gtk.RESPONSE_ACCEPT:
             if value != None:
-                return float(value)
+                if integer:
+                    return int(value)
+                else:
+                    return float(value)
             else:
                 return "ERROR"
         return "CANCEL"

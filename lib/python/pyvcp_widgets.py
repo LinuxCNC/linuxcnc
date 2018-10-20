@@ -875,7 +875,7 @@ class pyvcp_spinbox(Spinbox):
             [ <halpin>"my-spinbox"</halpin> ]
             [ <min_>55</min_> ]   sets the minimum value to 55
             [ <max_>123</max_> ]  sets the maximum value to 123
-            [ <initval>100</initval> ]  sets intial value to 100  TJP 12 04 2007
+            [ <initval>100</initval> ]  sets initial value to 100  TJP 12 04 2007
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013            
         </spinbox>
     """
@@ -1112,7 +1112,7 @@ class pyvcp_bar(Canvas):
         <min_>0</min_>
         <max_>150</max_>
         <bgcolor>"grey"</bgcolor>
- 	    <range1>(0,100,"green")</range1>
+        <range1>(0,100,"green")</range1>
         <range2>(101,129,"orange")</range2>
         <range3>(130,150,"red")</range3>
         <fillcolor>"green"</fillcolor>
@@ -1121,8 +1121,9 @@ class pyvcp_bar(Canvas):
     n=0
 
     def __init__(self,master,pycomp,fillcolor="green",bgcolor="grey",
-               halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,range3=None,**kw):
-    
+               halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,
+               range3=None,format='3.1f', **kw):
+
         self.cw=200    # canvas width
         self.ch=50     # canvas height
         self.bh=30     # bar height
@@ -1137,7 +1138,7 @@ class pyvcp_bar(Canvas):
         self.halpin=halpin
         self.endval=max_
         self.startval=min_
-
+        self.format = "%" + format
 
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
         
@@ -1209,7 +1210,7 @@ class pyvcp_bar(Canvas):
         newvalue=pycomp[self.halpin]
         if newvalue != self.value:
             self.value = newvalue
-            valtext = str( "%(b)3.1f" % {'b':self.value} )
+            valtext = str(self.format % self.value)
             self.itemconfig(self.val_text,text=valtext)
             # set bar colour
             if self.ranges:
@@ -1336,7 +1337,7 @@ class pyvcp_checkbutton(Checkbutton):
         <checkbutton>
             [ <halpin>"my-checkbutton"</halpin> ]
             [ <text>"Name of Button"</text>]  text set in widget
-            [ <initval>1</initval> ]  sets intial value to 1, all values >=0.5 are assumed to be 1
+            [ <initval>1</initval> ]  sets initial value to 1, all values >=0.5 are assumed to be 1
         </checkbutton>
     """
     n=0
@@ -1445,7 +1446,7 @@ class pyvcp_scale(Scale):
             [ <orient>HORIZONTAL</orient>  ] aligns the scale horizontal
             [ <min_>-33</min_> ] sets the minimum value to -33
             [ <max_>26</max_> ] sets the maximum value to 26
-            [ <initval>10</initval> ]  sets intial value to 10
+            [ <initval>10</initval> ]  sets initial value to 10
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013
         </scale>
 
