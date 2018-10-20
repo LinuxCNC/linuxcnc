@@ -15,8 +15,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, _HalToggleBase, _HalSensitiveBase
+from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from functools import partial
 import hal
+
+AUX_PRGM = _loader()
 
 # Set up logging
 from qtvcp import logger
@@ -103,17 +106,18 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         if self._HAL_pin:
             self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
+        self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
+                                 'PROGRAM_LOADER':AUX_PRGM}
+        self._localsParameter = {'dir': dir}
 
     # arbitraray python commands are possible using 'INSTANCE' in the string
     # gives acess to widgets and handler functions 
     def python_command(self, state = None):
         if self._python_command:
-            globalsParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_}
-            localsParameter = {'dir': dir}
             if state:
-                exec(self.true_python_command, globalsParameter, localsParameter)
+                exec(self.true_python_command, self._globalParameter, self._localsParameter)
             else:
-                exec(self.false_python_command, globalsParameter, localsParameter)
+                exec(self.false_python_command, self._globalParameter, self._localsParameter)
 
     # callback to toggle text when button is toggled
     def toggle_text(self, state=None):
