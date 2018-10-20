@@ -41,7 +41,7 @@ class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_BIT, hal.HAL_OUT)
         self.hal_pin_not = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-not", hal.HAL_BIT, hal.HAL_OUT)
-        #self.value_changed.connect(lambda data: self.pin_update(data))
+        self.toggled.connect(lambda data: self._pin_update(data))
 
     def _pin_update(self, state):
         self.hal_pin.set(bool(state))
