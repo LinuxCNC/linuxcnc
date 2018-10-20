@@ -493,7 +493,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def select_prime(self, x, y):
         self.select_primed = x, y
 
+    # TODO This return statement breaks segment picking on the screen but
+    # Also stop the display from pausing plotting update while searching
+    # probably needs a thread - strange that Tkinter and GTK don't suffer...
     def select_fire(self):
+        return
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
