@@ -2755,7 +2755,7 @@ class TclCommands(nf.TclCommands):
     def spindle_forward_toggle(*args):
         if not manual_ok(): return
         s.poll()
-        if s.spindle_direction == 0:
+        if s.spindle[0]['direction'] == 0:
             c.spindle(linuxcnc.SPINDLE_FORWARD,default_spindle_speed)
         else:
             c.spindle(linuxcnc.SPINDLE_OFF)
@@ -2763,7 +2763,7 @@ class TclCommands(nf.TclCommands):
     def spindle_backward_toggle(*args):
         if not manual_ok(): return "break"
         s.poll()
-        if s.spindle_direction == 0:
+        if s.spindle[0]['direction'] == 0:
             c.spindle(linuxcnc.SPINDLE_REVERSE,default_spindle_speed)
         else:
             c.spindle(linuxcnc.SPINDLE_OFF)
