@@ -753,6 +753,10 @@ class _GStat(gobject.GObject):
     def is_auto_mode(self):
         return self.old['mode']  == linuxcnc.MODE_AUTO
 
+    def is_on_and_idle(self):
+        self.stat.poll()
+        return self.stat.task_mode > linuxcnc.STATE_OFF and self.stat.interp_state == linuxcnc.INTERP_IDLE
+
     def is_auto_running(self):
         self.stat.poll()
         return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
