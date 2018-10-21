@@ -8,11 +8,11 @@ from PyQt5 import QtGui
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.notify import Notify
-from qtvcp.lib.message import Message
+from qtvcp.widgets.dialog_widget import LcncDialog
 from qtvcp.lib.preferences import Access
 from qtvcp.widgets.overlay_widget import FocusOverlay
 
-from qtvcp.core import Status
+from qtvcp.core import Status, Action
 import linuxcnc
 import sys
 import os
@@ -23,9 +23,10 @@ import os
 
 KEYBIND = Keylookup()
 STATUS = Status()
+ACTION = Action()
 AUX_PRGM = Aux_program_loader()
 NOTE = Notify()
-MSG = Message()
+MSG = LcncDialog()
 PREFS = Access()
 
 ###################################
@@ -89,7 +90,8 @@ class HandlerClass:
 
         # add overlay to topWidget
         self.w.overlay = FocusOverlay(self.w)
-
+        self.w.overlay.setGeometry(0, 0, 800, 600)
+        self.w.overlay.hide()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -266,55 +268,74 @@ class HandlerClass:
     # general functions #
     #####################
 
+    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        if linear:
+            distance = STATUS.get_jog_increment()
+            rate = STATUS.get_jograte()/60
+        else:
+            distance = STATUS.get_jog_increment_angular()
+            rate = STATUS.get_jograte_angular()/60
+        if state:
+            if fast:
+                rate = rate * 2
+            ACTION.JOG(joint, direction, rate, distance)
+        else:
+            ACTION.JOG(joint, 0, 0, 0)
+
     def continous_jog(self, axis, direction):
         STATUS.do_jog(axis, direction)
 
     #####################
     # KEY BINDING CALLS #
     #####################
+
+    # Machine control
     def on_keycall_ESTOP(self,event,state,shift,cntrl):
         if state:
-            self.w.button_estop.click()
+            ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
     def on_keycall_POWER(self,event,state,shift,cntrl):
         if state:
-            self.w.button_machineon.click()
+            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
     def on_keycall_HOME(self,event,state,shift,cntrl):
         if state:
-            self.w.button_home.click()
+            if STATUS.is_all_homed():
+                ACTION.SET_MACHINE_UNHOMED(-1)
+            else:
+                ACTION.SET_MACHINE_HOMING(-1)
+    def on_keycall_ABORT(self,event,state,shift,cntrl):
+        if state:
+            if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
+                self.w.close()
+            else:
+                self.cmnd.abort()
 
+    # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if state:
-            self.w.jog_pos_x.pressed.emit()
-        else:
-            self.w.jog_pos_x.released.emit()
+        self.kb_jog(state, 0, 1, shift)
+
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if state:
-            self.w.jog_neg_x.pressed.emit()
-        else:
-            self.w.jog_neg_x.released.emit()
+        self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if state:
-            self.w.jog_pos_y.pressed.emit()
-        else:
-            self.w.jog_pos_y.released.emit()
+        self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if state:
-            self.w.jog_neg_y.pressed.emit()
-        else:
-            self.w.jog_neg_y.released.emit()
+        self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if state:
-            self.w.jog_pos_z.pressed.emit()
-        else:
-            self.w.jog_pos_z.released.emit()
+        self.kb_jog(state, 2, 1, shift)
+
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if state:
-            self.w.jog_neg_z.pressed.emit()
-        else:
-            self.w.jog_neg_z.released.emit()
+        self.kb_jog(state, 2, -1, shift)
+
+    def on_keycall_APOS(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, 1, shift, False)
+
+    def on_keycall_ANEG(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, -1, shift, linear=False)
+
 
     ###########################
     # **** closing event **** #
@@ -327,7 +348,7 @@ class HandlerClass:
         if self.shutdown_check:
             answer = MSG.showdialog('Do you want to shutdown now?',
                 details='You can set a preference to not see this message',
-                icon=MSG.CRITICAL, display_type=MSG.YN_TYPE)
+                 display_type=MSG.YN_TYPE)
             if not answer:
                 self.w.overlay.hide()
                 event.ignore()

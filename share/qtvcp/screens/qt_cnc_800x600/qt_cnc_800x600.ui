@@ -1180,13 +1180,13 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
   <customwidget>
    <class>GcodeEditor</class>
    <extends>QFrame</extends>
-   <header>qtvcp.widgets.gcode_widget</header>
+   <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>DROLabel</class>
    <extends>QLabel</extends>
-   <header>qtvcp.widgets.drowidget</header>
+   <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
