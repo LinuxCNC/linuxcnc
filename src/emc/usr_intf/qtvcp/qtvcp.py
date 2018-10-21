@@ -401,7 +401,22 @@ Pressing cancel will close linuxcnc.""" % target)
         message = ("Qtvcp encountered an error.  The following "
                     + "information may be useful in troubleshooting:\n\n"
                     + "".join(lines))
-        d = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
+        result = ScrollMessageBox(QtWidgets.QMessageBox.Critical,"QTvcp ERROR!",message,parent=None)
+
+class ScrollMessageBox(QtWidgets.QMessageBox):
+    def __init__(self, *args, **kwargs):
+        QtWidgets.QMessageBox.__init__(self, *args, **kwargs)
+        chldn = self.children()
+        scroll = QtWidgets.QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        grid = self.findChild(QtWidgets.QGridLayout)
+        lbl = QtWidgets.QLabel(chldn[1].text(), self)
+        lbl.setWordWrap(True)
+        scroll.setWidget(lbl)
+        scroll.setMinimumSize (400,200)
+        grid.addWidget(scroll,0,1)
+        chldn[1].setText('')
+        self.exec_()
 
 # starts Qtvcp
 if __name__ == "__main__":
