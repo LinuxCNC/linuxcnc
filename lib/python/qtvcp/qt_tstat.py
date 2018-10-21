@@ -135,7 +135,10 @@ class _TStat(object):
                                  LOG.error("toolfile integer access: {}".format(self.toolfile))
                         else:
                             try:
-                                array[offset]= ("%10.4f" % float(word.lstrip(i)))
+                                if float(word.lstrip(i)) < 0.000001:
+                                    array[offset]= ("0")
+                                else:
+                                    array[offset]= ("%10.4f" % float(word.lstrip(i)))
                             except:
                                 LOG.error("toolfile float access: {}".format(self.toolfile))
                         break
@@ -193,4 +196,5 @@ class _TStat(object):
         m = self.hash_code
         m1 = self.md5sum(self.toolfile)
         if m1 and m != m1:
-            self.toolfile_stale()
+            self._reload()
+

@@ -72,16 +72,23 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                 continue
             self.hideColumn(num+2)
 
-    # only update every 10th time periodic calls
+    # only update every 100th time periodic calls
+    # if editing don't update
+    #
     def periodic_check(self, w):
-        if self.editing_flag: return
+        try:
+            STATUS.stat.poll()
+            self.IS_RUNNING = True
+        except:
+            self.IS_RUNNING = False
+            return
         if self.delay < 999:
             self.delay += 1
             return
-        else:
-            self.delay = 0
-            self.tablemodel.update(TOOL.GET_TOOL_FILE())
-            self.resizeColumnsToContents()
+        if self.editing_flag: return
+        self.delay = 0
+        self.tablemodel.update(TOOL.GET_TOOL_FILE())
+        self.resizeColumnsToContents()
         return True
 
     def currentTool(self, data):
@@ -141,7 +148,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
             else:
                 tmpl = lambda s: self.imperial_text_template % s
 
-            # make sure we switch to correct units for machine and rotational, row 2, does not get converted
+            # #TODO make sure we switch to correct units for machine when saving file
             try:
                     qualified = float(data)
                     #qualified = float(locale.atof(data))
@@ -153,15 +160,18 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         # now update linuxcnc to the change
         try:
             if self.IS_RUNNING:
-                pass
+                TOOL.SAVE_TOOLFILE(self.tablemodel.arraydata)
+                ACTION.RECORD_CURRENT_MODE()
+                ACTION.CALL_MDI('g43')
+                ACTION.RESTORE_RECORDED_MODE()
+                STATUS.emit('reload-display')
+                self.tablemodel.update(TOOL.GET_TOOL_FILE())
+                self.resizeColumnsToContents()
         except Exception as e:
             LOG.exception("offsetpage widget error: MDI call error", exc_info=e)
-
-
-        TOOL.SAVE_TOOLFILE(self.tablemodel.arraydata)
-        self.tablemodel.update(TOOL.GET_TOOL_FILE())
-        self.resizeColumnsToContents()
         self.editing_flag = False
+
+
 
 
 #########################################
