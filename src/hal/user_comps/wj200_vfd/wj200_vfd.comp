@@ -37,14 +37,16 @@ license "GPLv2 or greater";
 
   see 'man wj200_vfd' and the WJ200 section in the Drivers manual.
 */
-#include<stdio.h>
-#include<errno.h>
-#include<getopt.h>
-#include<stdbool.h>
-#include<math.h>
-#include<modbus.h>
-#include<unistd.h>
-#include<ctype.h>
+#include <stdio.h>
+#include <errno.h>
+#include <getopt.h>
+#include <stdbool.h>
+#include <math.h>
+#include <modbus.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <signal.h>
+#include <time.h>
 
 typedef struct
 {
@@ -53,8 +55,8 @@ typedef struct
         uint8_t direction;
         uint8_t at_speed;
         uint8_t alarm;
-	float output_current;
-	float sink_temp;
+		float output_current;
+		float sink_temp;
         uint16_t frequency;
 } wj200_status;
 
@@ -116,7 +118,7 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
                 return false;
         }
 
-	// Read 1003h (output current) to 1019h (heatsink temp)
+	    /* Read 1003h (output current) to 1019h (heatsink temp)*/
         rc = modbus_read_registers(ctx, 0x1003-1, 1, currentRegister);
 
         if(rc < 0)
@@ -124,7 +126,7 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
                 return false;
         }
 
-	rc = modbus_read_registers(ctx, 0x1019-1, 1, temperatureRegister);
+		rc = modbus_read_registers(ctx, 0x1019-1, 1, temperatureRegister);
 
         if(rc < 0)
         {
@@ -138,8 +140,8 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         status->alarm = bits[9];
         status->at_speed = bits[5];
         status->frequency = registers[1];
-	status->output_current = currentRegister[0];
-	status->sink_temp = temperatureRegister[0];
+		status->output_current = currentRegister[0];
+		status->sink_temp = temperatureRegister[0];
 
         return true;
 }
@@ -182,13 +184,23 @@ int baud = 9600;
 char parity = 'N';
 int data_bits = 8;
 int stop_bits = 1;
-modbus_t *ctx;
+enum connstate {NOT_CONNECTED, CONNECTED, DONE};
+int connection_state;
+int settings_initialized;
+struct timespec ts_pooling_period = {0, 100000000};  //pooling pressure set at 100ms
+
+/**********************************************************************/
+static void userquitsignal(int sig) 
+{
+    printf("wj200_vfd: quit signaled\n");
+    connection_state = DONE;
+}
+/**********************************************************************/
 
 void userinit(int argc, char **argv)
 {
 	int opt_index = 0;
 	int opt = 0;
-
 	static char *option_string = "b:p:a:s:d:";
         static struct option options[] = {
 		{"baud",   required_argument, 0, 'b' },
@@ -199,6 +211,12 @@ void userinit(int argc, char **argv)
 		{0, 0, 0, 0}
 	};	
 
+
+    //init connection & settings
+    connection_state=NOT_CONNECTED;
+    settings_initialized = FALSE;
+    
+    //parse cmd line args
 	while ((opt = getopt_long(argc, argv, option_string, options, &opt_index)) != -1) {
     
 		switch(opt) {
@@ -214,7 +232,7 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
-                                printf("wj200_vfd: baud set to %d\n", baud);
+				printf("wj200_vfd: baud set to %d\n", baud);
 				break;
 
 			case 'p':
@@ -228,7 +246,7 @@ void userinit(int argc, char **argv)
 					exit(1);
 				}
 
-                                printf("wj200_vfd: parity set to %c\n", parity);
+				printf("wj200_vfd: parity set to %c\n", parity);
 				break;
 
 			case 'a':
@@ -241,7 +259,7 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
-                                printf("wj200_vfd: databits set to %d\n", data_bits);
+				printf("wj200_vfd: databits set to %d\n", data_bits);
 				break;
 
 			case 's':
@@ -254,119 +272,163 @@ void userinit(int argc, char **argv)
 						optarg);
 					exit(1);
 				}
-                                printf("wj200_vfd: stopbits set to %d\n", stop_bits);
+				printf("wj200_vfd: stopbits set to %d\n", stop_bits);
 				break;
+
 			case 'd':
 				device = optarg;
-                                printf("wj200_vfd: device set to %s\n", device);
+				printf("wj200_vfd: device set to %s\n", device);
 				break;
 
-
 			default:
-                                fprintf(stderr, "WARNING: invalid option index!\n");
-                                usage(argc, argv);
+				fprintf(stderr, "WARNING: invalid option index!\n");
+				usage(argc, argv);
 				exit(1);
 		}
 
 	}
 
-        if (optind < argc) {
-            fprintf(stderr, "WARNING: unhandled arguments to wj200_vfd driver:\n");
-            for (int i = optind; i < argc; i ++) {
+	if (optind < argc) {
+		fprintf(stderr, "WARNING: unhandled arguments to wj200_vfd driver:\n");
+		for (int i = optind; i < argc; i ++) {
                 fprintf(stderr, "    %s\n", argv[i]);
             }
-            usage(argc, argv);
-        }
-
-        printf("wj200_vfd: current settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d\n", device, baud, parity, data_bits, stop_bits);
-	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
-
-	if (ctx == NULL) {
-		fprintf(stderr, 
-			"ERROR: wj200_vfd unable to create libmodbus context. - %s\n", 
-			modbus_strerror(errno));
-		fprintf(stderr, "Check your commandline!\n");
-		exit(1);	
-	}
-	
-	if (modbus_connect(ctx)) {
-		fprintf(stderr, 
-			"ERROR: wj200_vfd unable to create libmodbus connection. - %s\n", 
-			modbus_strerror(errno));
+		usage(argc, argv);
 		exit(1);
 	}
+
+	printf("wj200_vfd.%d: settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d\n", comp_id, device, baud, parity, data_bits, stop_bits);
+
+    /* signal setup */
+	signal(SIGINT, userquitsignal);
+    signal(SIGTERM, userquitsignal);
+    
+    //init settings done
+    settings_initialized = TRUE;
 }
 
 void user_mainloop(void) {
 	wj200_status status;
 	uint16_t calculated_frequency;
+    modbus_t *ctx = NULL;
+    struct timeval t;
 
-	while(1) {
-	FOR_ALL_INSTS() {
-		/*
-                  until the params are set we just wait a bit
-		  and then skip to the next instance.
+	while(connection_state != DONE) {
+	    
+	    FOR_ALL_INSTS() {
+	
+		    switch(connection_state) {
 
-		  if every instance does not get a slave address,
-                  this could cause bad behavior
-		*/
-		if(mbslaveaddr == 0) {
-			sleep(1);
-			continue; 
+			case NOT_CONNECTED:
+			
+				if (settings_initialized) {
+					//instantiate context
+					ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
+					if (ctx) {
+						//define timeout
+						t.tv_sec=0;
+						t.tv_usec = 600 * 1000;
+						modbus_set_response_timeout(ctx, &t);
+						//t.tv_sec=-1;
+						modbus_set_byte_timeout(ctx, &t);
+						
+						if (modbus_connect(ctx) == 0) {
+							//update connection state
+							connection_state = CONNECTED;
+							
+						} else {	
+							fprintf(stderr, 
+							"ERROR: wj200_vfd unable to create libmodbus connection. - %s\n", 
+							modbus_strerror(errno));
+						}
+					
+					} else {
+						fprintf(stderr, 
+						"ERROR: wj200_vfd unable to create libmodbus context. - %s\n", 
+						modbus_strerror(errno));
+
+					}
+				}	
+				break;
+				
+			case CONNECTED:
+				//set slave address
+				modbus_set_slave(ctx, mbslaveaddr);
+				
+				//communicate only if a slave address is defined and component enabled
+				if ((mbslaveaddr != 0) && (enable != 0)) {
+
+					/*
+			          for each slave, receive info from the slave,
+					  update our output pins based upon vfd status,
+					  then set the vfd according to our input pins
+			
+					  if we hit an error we just re-loop. The watchdog
+					  pin won't change until we make it all the way through
+					  the loop.
+			                */
+					if(!wj200_getStatus(ctx, &status)) {	
+						print_modbus_error(__comp_inst, "failed to get status");
+						continue;
+					}
+	
+					is_running = status.running;
+					is_at_speed = status.at_speed;
+					is_ready = status.ready;
+					is_alarm = status.alarm;
+			
+					if(!status.alarm && !enable && !wj200_trip(ctx)) {
+						print_modbus_error(__comp_inst, "failed to trip");
+						continue;
+					}
+					else if(status.alarm && enable && !wj200_reset(ctx)) {
+						print_modbus_error(__comp_inst, "failed to reset");
+						continue;
+					}
+					else {
+						calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 100);
+			
+						if(calculated_frequency != status.frequency 
+						   && !wj200_setFrequency(ctx, calculated_frequency)) {
+							print_modbus_error(__comp_inst, "failed to set frequency");
+							continue;
+						}
+			
+						if(reverse != status.direction && !wj200_setDirection(ctx, reverse)) {
+							print_modbus_error(__comp_inst, "failed to set direction");
+							continue;
+						}
+			
+						if(status.running ^ run && !wj200_run(ctx, run)) {
+							print_modbus_error(__comp_inst, "failed to run");
+							continue;
+						}
+			
+						watchdog_out = !watchdog_out;
+						motor_current = status.output_current / 100;
+						heatsink_temp = status.sink_temp / 10;
+					}
+
+				}
+				
+				
+		    }	
 		}
+		
+		//lower pooling pressure
+	    nanosleep(&ts_pooling_period, NULL);
 
-		modbus_set_slave(ctx, mbslaveaddr);
-
-		/*
-                  for each slave, receive info from the slave,
-		  update our output pins based upon vfd status,
-		  then set the vfd according to our input pins
-
-		  if we hit an error we just re-loop. The watchdog
-		  pin won't change until we make it all the way through
-		  the loop.
-                */
-		if(!wj200_getStatus(ctx, &status)) {	
-			print_modbus_error(__comp_inst, "failed to get status");
-			continue;
-		}
-
-		is_running = status.running;
-		is_at_speed = status.at_speed;
-		is_ready = status.ready;
-		is_alarm = status.alarm;
-
-		if(!status.alarm && !enable && !wj200_trip(ctx)) {
-			print_modbus_error(__comp_inst, "failed to trip");
-			continue;
-		}
-		else if(status.alarm && enable && !wj200_reset(ctx)) {
-			print_modbus_error(__comp_inst, "failed to reset");
-			continue;
-		}
-		else {
-			calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 100);
-
-			if(calculated_frequency != status.frequency 
-			   && !wj200_setFrequency(ctx, calculated_frequency)) {
-				print_modbus_error(__comp_inst, "failed to set frequency");
-				continue;
-			}
-
-			if(reverse != status.direction && !wj200_setDirection(ctx, reverse)) {
-				print_modbus_error(__comp_inst, "failed to set direction");
-				continue;
-			}
-
-			if(status.running ^ run && !wj200_run(ctx, run)) {
-				print_modbus_error(__comp_inst, "failed to run");
-				continue;
-			}
-
-			watchdog_out = !watchdog_out;
-			motor_current = status.output_current / 100;
-			heatsink_temp = status.sink_temp / 10;
-		}
 	}
+	
+	printf("wj200_vfd: Done...\n");
+	if (ctx) {
+		printf("wj200_vfd: cleanup\n");
+		modbus_flush(ctx);
+		sleep(2);
+		modbus_close(ctx);
+		modbus_free(ctx);
+		ctx = NULL;
+	    hal_exit(comp_id);
 	}
+	exit(0);
 }
