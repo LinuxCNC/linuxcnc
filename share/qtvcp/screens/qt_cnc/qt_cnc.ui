@@ -2345,6 +2345,28 @@ Motion</string>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="StatusLabel" name="statuslabel_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>291</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>%A %d %H:%M %S</string>
+     </property>
+     <property name="feed_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="machine_state_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="time_stamp_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_4">
     <property name="geometry">

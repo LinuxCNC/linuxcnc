@@ -14,6 +14,7 @@
 # GNU General Public License for more details.
 ###############################################################################
 
+import time
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp import logger
@@ -38,6 +39,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self._alt_textTemplate = 'None'
         self._actual_RPM = 0
         self._diameter = 1
+        self._delay = 0
 
         self.feed_override = True
         self.rapid_override = False
@@ -59,6 +61,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.tool_comment = False
         self.filename = False
         self.machine_state = False
+        self.time_stamp = False
 
     def _hal_init(self):
         def _f(data):
@@ -113,6 +116,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('interp-idle', lambda w: self._machine_state('Stopped'))
             STATUS.connect('interp-paused', lambda w: self._machine_state('Paused'))
             #STATUS.connect('interp-waiting', lambda w: self._machine_state('Waiting'))
+        elif self.time_stamp:
+            STATUS.connect('periodic', self._set_timestamp)
         else:
             LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -203,6 +208,14 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
 
     def _machine_state(self, text):
         self.setText(text)
+
+    def _set_timestamp(self, w):
+        if self._delay < 99:
+            self._delay += 1
+            return
+        self._delay = 0
+        self.setText(time.strftime(self._textTemplate))
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -217,7 +230,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
-                'tool_comment',  'actual_surface_speed', 'filename', 'machine_state')
+                'tool_comment',  'actual_surface_speed', 'filename', 'machine_state',
+                'time_stamp')
 
         for i in data:
             if not i == picked:
@@ -225,11 +239,14 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
 
     def set_textTemplate(self, data):
         self._textTemplate = data
-        try:
-            self._set_text(100.0)
-        except Exception as e:
-            LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
-            self.setText('Error')
+        if self.time_stamp:
+            self.setText(time.strftime(self._textTemplate))
+        else:
+            try:
+                self._set_text(100.0)
+            except Exception as e:
+                LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
+                self.setText('Error')
     def get_textTemplate(self):
         return self._textTemplate
     def reset_textTemplate(self):
@@ -446,6 +463,18 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     def reset_machine_state(self):
         self.machine_state = False
 
+    # time_stamp status
+    def set_time_stamp(self, data):
+        self.time_stamp = data
+        if data:
+            self._toggle_properties('time_stamp')
+            self.set_textTemplate("%a %d %H:%M %S")
+    def get_time_stamp(self):
+        return self.time_stamp
+    def reset_time_stamp(self):
+        self.time_stamp = False
+
+
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
@@ -475,6 +504,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                                                       reset_filename)
     machine_state_status = QtCore.pyqtProperty(bool, get_machine_state, set_machine_state,
                                                       reset_machine_state)
+    time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,
+                                                      reset_time_stamp)
 
     # boilder code
     def __getitem__(self, item):
