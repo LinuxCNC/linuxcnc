@@ -25,6 +25,7 @@
 # See also:
 # http://pyqt.sourceforge.net/Docs/QScintilla2/index.html
 # https://qscintilla.com/
+# https://qscintilla.com/simple-example/
 
 import sys
 import os
@@ -33,7 +34,7 @@ from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QFont, QFontMetrics, QColor
 
 try:
-    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom
+    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
 except ImportError as e:
     LOG.critical("Can't import QsciScintilla - is package python-pyqt5.qsci installed?", exc_info=e)
     sys.exit(1)
@@ -84,8 +85,15 @@ class GcodeLexer(QsciLexerCustom):
         else:
             self.setPaper(color, style)
 
+    def language(self):
+        return"G code"
+
     def description(self, style):
-        return self._styles.get(style, '')
+        if style < len(self._styles):
+            description = "Custom lexer for the G code programming languages"
+        else:
+            description = ""
+        return description
 
     def defaultColor(self, style):
         if style == self.Default:
@@ -187,16 +195,16 @@ class EditorBase(QsciScintilla):
         # don't allow editing by default
         self.setReadOnly(True)
         # Set the default font
-        font = QFont()
-        font.setFamily('Courier')
-        font.setFixedPitch(True)
-        font.setPointSize(12)
-        self.setFont(font)
-        self.setMarginsFont(font)
+        self.font = QFont()
+        self.font.setFamily('Courier')
+        self.font.setFixedPitch(True)
+        self.font.setPointSize(12)
+        self.setFont(self.font)
+        self.setMarginsFont(self.font)
 
         # Margin 0 is used for line numbers
-        fontmetrics = QFontMetrics(font)
-        self.setMarginsFont(font)
+        fontmetrics = QFontMetrics(self.font)
+        self.setMarginsFont(self.font)
         self.setMarginWidth(0, fontmetrics.width("00000") + 6)
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
@@ -221,12 +229,7 @@ class EditorBase(QsciScintilla):
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
 
         # Set custom gcode lexer
-        self.lexer = GcodeLexer(self)
-        self.lexer.setDefaultFont(font)
-        self.setLexer(self.lexer)
-        # Set style for Python comments (style number 1) to a fixed-width
-        # courier.
-        #self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
+        self.set_gcode_lexer()
 
         # Don't want to see the horizontal scrollbar at all
         # Use raw message to Scintilla here (all messages are documented
@@ -238,6 +241,7 @@ class EditorBase(QsciScintilla):
 
         # not too small
         self.setMinimumSize(200, 100)
+        self.filepath = None
 
     # must set lexer paper background color _and_ editor background color it seems
     def set_background_color(self, color):
@@ -251,6 +255,54 @@ class EditorBase(QsciScintilla):
         else:
             self.markerAdd(nline, self.ARROW_MARKER_NUM)
 
+    def set_python_lexer(self):
+        self.lexer = QsciLexerPython()
+        self.lexer.setDefaultFont(self.font)
+        self.setLexer(self.lexer)
+        self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
+
+    def set_gcode_lexer(self):
+        self.lexer = GcodeLexer(self)
+        self.lexer.setDefaultFont(self.font)
+        self.setLexer(self.lexer)
+
+    def new_text(self):
+        self.setText('')
+
+    def load_text(self, filepath):
+        self.filepath = filepath
+        try:
+            fp = os.path.expanduser(filepath)
+            self.setText(open(fp).read())
+        except:
+            LOG.error('File path is not valid: {}'.format(filepath))
+            self.setText('')
+            return
+        self.ensureCursorVisible()
+        self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
+
+    def save_text(self):
+        with open(self.filepath + 'text', "w") as text_file:
+            text_file.write(self.text())
+
+    def search(self, text, fwd=True):
+        self.findFirst(text, False,False,False, False, fwd)
+
+    def search_Next(self):
+        self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
+        self.findNext()
+
+    def search_previous(self, text):
+        flags = 0
+        messenger = self.SendScintilla
+        #messenger(QsciScintilla.SCI_SETTARGETSTART, 0)
+        #messenger(QsciScintilla.SCI_SETTARGETEND, len(self.text()))
+        messenger(QsciScintilla.SCI_SEARCHANCHOR)
+        pos = messenger(QsciScintilla.SCI_SEARCHPREV, flags, text)
+        print pos
+        l,c = self.lineIndexFromPosition(pos)
+        self.setCursorPosition(l, c)
+        self.setSelection(l,c,l,c+len(text))
 
 ##########################################################
 # Gcode widget
@@ -377,14 +429,158 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         self.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
 
+
 #############################################
 # For testing
 #############################################
-if __name__ == "__main__":
-    from PyQt4.QtGui import QApplication
-    app = QApplication(sys.argv)
-    editor = GcodeEditor()
-    editor.show()
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction
+from PyQt5.QtCore import QSize    
+from PyQt5.QtGui import QIcon
+class TestEditor(QMainWindow):
+    def __init__(self):
+        QMainWindow.__init__(self)
 
-    editor.setText(open(sys.argv[0]).read())
-    app.exec_()
+        self.setMinimumSize(QSize(800, 300))    
+        self.setWindowTitle("PyQt5 editor test example") 
+
+        lay = QVBoxLayout()
+        wid = QWidget()
+        wid.setLayout(lay)
+        self.setCentralWidget(wid)
+
+        # add editor
+        self.editor = EditorBase(self)
+        self.editor.set_python_lexer()
+        self.editor.setReadOnly(False)
+        lay.addWidget(self.editor)
+
+        # Add button widget
+        lay.addWidget(self.createGroup())
+
+        ################################
+        # add menubar actions
+        ################################
+
+        # Create new action
+        newAction = QAction(QIcon('new.png'), '&New', self)        
+        newAction.setShortcut('Ctrl+N')
+        newAction.setStatusTip('New document')
+        newAction.triggered.connect(self.newCall)
+
+        # Create open action
+        openAction = QAction(QIcon('open.png'), '&Open', self)        
+        openAction.setShortcut('Ctrl+O')
+        openAction.setStatusTip('Open document')
+        openAction.triggered.connect(self.openCall)
+
+        # Create save action
+        saveAction = QAction(QIcon('save.png'), '&save', self)        
+        saveAction.setShortcut('Ctrl+S')
+        saveAction.setStatusTip('save document')
+        saveAction.triggered.connect(self.saveCall)
+
+        # Create exit action
+        exitAction = QAction(QIcon('exit.png'), '&Exit', self)        
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(self.exitCall)
+
+        # Create gcode lexer action
+        gCodeLexerAction = QAction(QIcon('lexer.png'), '&Gcode lexer', self)        
+        gCodeLexerAction.setShortcut('Ctrl+G')
+        gCodeLexerAction.setStatusTip('Set Gcode highlighting')
+        gCodeLexerAction.triggered.connect(self.editor.set_gcode_lexer)
+
+        # Create gcode lexer action
+        pythonLexerAction = QAction(QIcon('lexer.png'), '&python lexer', self)        
+        pythonLexerAction.setShortcut('Ctrl+P')
+        pythonLexerAction.setStatusTip('Set Python highlighting')
+        pythonLexerAction.triggered.connect(self.editor.set_python_lexer)
+
+        # Create menu bar and add action
+        menuBar = self.menuBar()
+        fileMenu = menuBar.addMenu('&File')
+        fileMenu.addAction(newAction)
+        fileMenu.addAction(openAction)
+        fileMenu.addAction(saveAction)
+        fileMenu.addAction(exitAction)
+
+        # add lexer actions
+        lexerMenu = menuBar.addMenu('&lexer')
+        lexerMenu.addAction(gCodeLexerAction)
+        lexerMenu.addAction(pythonLexerAction)
+
+    def createGroup(self):
+        groupBox = QGroupBox("Search Controls")
+
+        button1 = QPushButton('Find', self)
+        button1.clicked.connect(self.clickMethod)
+        button1.setToolTip('This is a tooltip message.')
+
+
+        button2 = QPushButton('Next', self)
+        button2.clicked.connect(self.searchNext)
+        button2.setToolTip('This is a tooltip message.')
+
+        button3 = QPushButton('Previous', self)
+        button3.clicked.connect(self.searchBack)
+        button3.setToolTip('This is a tooltip message.')
+
+        self.searchText = QLineEdit(self)
+        self.replaceText = QLineEdit(self)
+
+        vbox = QHBoxLayout()
+        vbox.addWidget(button1)
+        vbox.addWidget(button2)
+        vbox.addWidget(button3)
+        vbox.addWidget(self.searchText)
+        vbox.addWidget(self.replaceText)
+        vbox.addStretch(1)
+        groupBox.setLayout(vbox)
+
+        return groupBox
+
+    def openCall(self):
+        print('Open')
+        self.editor.load_text(sys.argv[0])
+        self.editor.setModified(False)
+
+    def saveCall(self):
+        print('save')
+        self.editor.save_text()
+
+    def newCall(self):
+        print('New')
+        self.editor.new_text()
+
+    def exitCall(self):
+        print('Exit app')
+        if self.editor.isModified():
+            print "warning document has been modifed"
+        self.close()
+
+    def clickMethod(self):
+        print(self.searchText.text())
+        self.editor.search(str(self.searchText.text()))
+
+    def searchNext(self):
+        print(self.searchText.text())
+        self.editor.search_Next()
+
+    def searchBack(self):
+        print(self.searchText.text())
+        self.editor.search_previous(self.searchText.text())
+        self.editor.search(str(self.searchText.text()),False)
+
+if __name__ == "__main__":
+    from PyQt5.QtWidgets import *
+    from PyQt5.QtCore import *
+    from PyQt5.QtGui import *
+
+    app = QtWidgets.QApplication(sys.argv)
+    mainWin = TestEditor()
+    mainWin.show()
+    sys.exit( app.exec_() )
+
+
