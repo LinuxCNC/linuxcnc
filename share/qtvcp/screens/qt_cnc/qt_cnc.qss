@@ -152,7 +152,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #888);
 min-width: 25px;
 }
 
-#frame { border: 3px solid gray;border-radius: 15px;
+#dro_frame { border: 3px solid gray;border-radius: 15px;
 background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #141529, stop: 1 #0000ff);
  }
 

@@ -105,6 +105,11 @@ class HandlerClass:
     #######################
     # callbacks from form #
     #######################
+    def widget_switch(self,data):
+        if data:
+            self.w.widgetswitcher.show_id_widget(0)
+        else:
+            self.w.widgetswitcher.show_id_widget(-1)
 
     #####################
     # general functions #

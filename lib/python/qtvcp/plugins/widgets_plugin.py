@@ -6,6 +6,7 @@ from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.widgets.gcode_editor import GcodeEditor
 from qtvcp.widgets.status_stacked import StatusStacked
+from qtvcp.widgets.widget_switcher import WidgetSwitcher
 from qtvcp.widgets.origin_offsetview import OriginOffsetView
 
 from qtvcp.widgets.qtvcp_icons import Icon
@@ -138,6 +139,38 @@ class StatusStackedPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="StatusStacked" name="statusstacked" />\n'
     def includeFile(self):
         return "qtvcp.widgets.status_stacked"
+
+####################################
+# WidgetSwitcher
+####################################
+class WidgetSwitcherPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(WidgetSwitcherPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return WidgetSwitcher(parent)
+    def name(self):
+        return "WidgetSwitcher"
+    def group(self):
+        return "Linuxcnc - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('widgetswitcher')))
+    def toolTip(self):
+        return ""
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="WidgetSwitcher" name="widgetswitcher" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.widget_switcher"
 
 ####################################
 # OriginOffsetView Widget
