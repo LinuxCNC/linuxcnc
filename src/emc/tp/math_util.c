@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: math_util.h
+* Description: math_util.c
 *
 * Simpler math helper functions that seem to be missing from rtapi_math.
 *
@@ -10,11 +10,16 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#ifndef MATH_UTIL_H
-#define MATH_UTIL_H
+#include "math_util.h"
 
-long max(long y, long x);
-long min(long y, long x);
-double signum(double x);
+long max(long y, long x) {
+    return y > x ? y : x;
+}
 
-#endif // MATH_UTIL_H
+long min(long y, long x) {
+    return y < x ? y : x;
+}
+
+double signum(double x) {
+    return (x > 0.0) ? 1.0 : (x < 0.0) ? -1.0 : 0.0;
+}
