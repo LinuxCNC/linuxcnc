@@ -52,6 +52,7 @@ class HandlerClass:
         self.error = linuxcnc.error_channel()
         self.PATH = paths.CONFIGPATH
         self.IMAGE_PATH = paths.IMAGEDIR
+        self._big_view = -1
     ##########################################
     # Special Functions called from QTVCP
     ##########################################
@@ -106,10 +107,10 @@ class HandlerClass:
     # callbacks from form #
     #######################
     def widget_switch(self,data):
-        if data:
-            self.w.widgetswitcher.show_id_widget(0)
-        else:
-            self.w.widgetswitcher.show_id_widget(-1)
+        self._big_view +=1
+        if self._big_view ==2:
+            self._big_view = -1
+        self.w.widgetswitcher.show_id_widget(self._big_view)
 
     #####################
     # general functions #

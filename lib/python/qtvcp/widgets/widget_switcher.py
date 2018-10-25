@@ -18,8 +18,7 @@
 import sys
 
 from PyQt5 import QtCore
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QStackedWidget, QLayout
 
 from collections import OrderedDict
 
@@ -43,13 +42,27 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
     # do this now so we have a reference to all the widets
     # through QTVCP_INSTANCE
     def _hal_init(self):
-        self.register_widget(self._widget1_name, self.QTVCP_INSTANCE_)
+        if self._widget1_name !=  '':
+            self.register_widget(self._widget1_name, self.QTVCP_INSTANCE_)
         if self._widget2_name !=  '':
             self.register_widget(self._widget2_name, self.QTVCP_INSTANCE_)
+        if self._widget1_name ==  '' and self._widget2_name ==  '':
+                LOG.warning('No widget names found for switching.')
 
     # add the widget info so swicther will know what to switch
     def register_widget(self, name, object):
-        self._widgetNames[name] = [object[name], object[name].parent().layout()]
+        layout, position = self.search(object[name])
+        self._widgetNames[name] = [object[name], layout, position]
+        LOG.debug( 'registering: {} {} {}'.format(name,layout,position))
+
+    # find the layout and position that the widget is in
+    def search(self, widget):
+        for i in widget.parent().findChildren(QLayout):
+            if i.indexOf(widget) > -1:
+                #print i.layout(), widget.objectName(), i.objectName()
+                return i.layout(), i.indexOf(widget)
+        LOG.error('No layout found for {}'.format(name))
+        return None, None
 
     # Show the widgets based on a rference number
     # -1 will return to default layout
@@ -81,7 +94,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
     def show_default(self):
         for i in self._widgetNames:
             obj = self._widgetNames[i]
-            obj[1].addWidget(obj[0])
+            obj[1].insertWidget(obj[2], obj[0])
             obj[0].show()
 
     def setwidget1(self, data):
@@ -100,70 +113,6 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
         self._widget2_name =  ''
     widget2_name = QtCore.pyqtProperty(str, getwidget2, setwidget2, resetwidget2)
 
-class W(QMainWindow):
-    def __init__(self):
-        QMainWindow.__init__(self)
-        self.setMinimumSize(QSize(800, 300))    
-        self.setWindowTitle("PyQt5 custom stacker") 
-
-        lay = QVBoxLayout()
-        wid = QWidget()
-        wid.setLayout(lay)
-        self.setCentralWidget(wid)
-
-        self.lbl1 = QPushButton('Object 1')
-        self.lbl2 = QPushButton('Object 2')
-
-        self.obj =  QWidget(self)
-        hbox = QHBoxLayout(self.obj)
-        hbox.addStretch(1)
-        hbox.addWidget(self.lbl1)
-        hbox.addWidget(self.lbl2)
-
-        self.stk = WidgetSwitcher(self)
-        self.stk.addWidget(self.obj)
-        lay.addWidget(self.stk)
-
-        # Add button widget
-        lay.addWidget(self.createGroup())
-
-        self.stk.register_widget('lbl1', self)
-        self.stk.register_widget('lbl2', self)
-
-    def createGroup(self):
-        groupBox = QGroupBox("Stack Controls")
-
-        button1 = QPushButton('both', self)
-        button1.clicked.connect(self.both)
-        button1.setToolTip('This is a tooltip message.')
-
-
-        button2 = QPushButton('big object 1', self)
-        button2.clicked.connect(self.bigObj1)
-        button2.setToolTip('This is a tooltip message.')
-
-        button3 = QPushButton('big object 2', self)
-        button3.clicked.connect(self.bigObj2)
-
-        vbox = QHBoxLayout()
-        vbox.addWidget(button1)
-        vbox.addWidget(button2)
-        vbox.addWidget(button3)
-        vbox.addStretch(1)
-        groupBox.setLayout(vbox)
-
-        return groupBox
-
-    def bigObj1(self):
-        self.stk.show_named_widget('lbl1')
-        return
-
-    def both(self):
-        self.stk.show_default()
-
-    def bigObj2(self):
-        self.stk.show_named_widget('lbl2')
-
     ##############################
     # required class boiler code #
     ##############################
@@ -173,8 +122,3 @@ class W(QMainWindow):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-if __name__ == "__main__":
-   app = QApplication(sys.argv)
-   gui = W()
-   gui.show()
-   sys.exit(app.exec_())

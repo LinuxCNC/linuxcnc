@@ -101,42 +101,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>0</number>
     </property>
    </widget>
-   <widget class="GcodeEditor" name="gcodeeditor">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>250</y>
-      <width>811</width>
-      <height>201</height>
-     </rect>
-    </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
-    <widget class="CamViewDialog" name="camviewdialog">
-     <property name="geometry">
-      <rect>
-       <x>522</x>
-       <y>337</y>
-       <width>700</width>
-       <height>400</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="ToolOffsetDialog" name="tooloffsetdialog">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>30</y>
-       <width>800</width>
-       <height>247</height>
-      </rect>
-     </property>
-     <property name="state">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </widget>
    <widget class="StateEnableGridLayout" name="state_enable_gridLayout">
     <property name="geometry">
      <rect>
@@ -983,6 +947,16 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          </property>
          <property name="linear_option" stdset="0">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="CamViewDialog" name="camviewdialog">
+         <property name="geometry">
+          <rect>
+           <x>478</x>
+           <y>337</y>
+           <width>700</width>
+           <height>400</height>
+          </rect>
          </property>
         </widget>
        </widget>
@@ -2018,11 +1992,11 @@ Motion</string>
       </rect>
      </property>
      <property name="text">
-      <string>Full
-Screen</string>
+      <string>Big
+View</string>
      </property>
      <property name="checkable">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
@@ -2554,339 +2528,373 @@ Screen</string>
    <widget class="WidgetSwitcher" name="widgetswitcher">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>10</y>
-      <width>831</width>
-      <height>241</height>
+      <x>190</x>
+      <y>0</y>
+      <width>841</width>
+      <height>461</height>
      </rect>
     </property>
     <property name="widget1_name" stdset="0">
      <string>Graphics</string>
     </property>
+    <property name="widget2_name" stdset="0">
+     <string>gcodeeditor</string>
+    </property>
     <widget class="QWidget" name="page">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QFrame" name="dro_frame">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="DROLabel" name="drolabel_10">
-           <property name="geometry">
-            <rect>
-             <x>80</x>
-             <y>10</y>
-             <width>291</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 255, 255);
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QFrame" name="dro_frame">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="DROLabel" name="drolabel_10">
+             <property name="geometry">
+              <rect>
+               <x>80</x>
+               <y>10</y>
+               <width>291</width>
+               <height>61</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 255, 255);
 font: 75 48pt &quot;Noto Sans&quot;;</string>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::AutoText</enum>
-           </property>
-           <property name="Qreference_type" stdset="0">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="DROLabel" name="drolabel_11">
-           <property name="geometry">
-            <rect>
-             <x>80</x>
-             <y>70</y>
-             <width>291</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::AutoText</enum>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>1</number>
+             </property>
+            </widget>
+            <widget class="DROLabel" name="drolabel_11">
+             <property name="geometry">
+              <rect>
+               <x>80</x>
+               <y>70</y>
+               <width>291</width>
+               <height>61</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
 color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="Qjoint_number" stdset="0">
-            <number>1</number>
-           </property>
-           <property name="Qreference_type" stdset="0">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="DROLabel" name="drolabel_12">
-           <property name="geometry">
-            <rect>
-             <x>80</x>
-             <y>130</y>
-             <width>291</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>1</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>1</number>
+             </property>
+            </widget>
+            <widget class="DROLabel" name="drolabel_12">
+             <property name="geometry">
+              <rect>
+               <x>80</x>
+               <y>130</y>
+               <width>291</width>
+               <height>61</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
 color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="Qjoint_number" stdset="0">
-            <number>2</number>
-           </property>
-           <property name="Qreference_type" stdset="0">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_30">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>11</y>
-             <width>72</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 255, 255);
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>2</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>1</number>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_30">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>11</y>
+               <width>72</width>
+               <height>61</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 255, 255);
 font: 75 48pt &quot;Noto Sans&quot;;</string>
-           </property>
-           <property name="text">
-            <string>X</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_31">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>70</y>
-             <width>72</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 255, 255);
+             </property>
+             <property name="text">
+              <string>X</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_31">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>70</y>
+               <width>72</width>
+               <height>61</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 255, 255);
 font: 75 48pt &quot;Noto Sans&quot;;</string>
-           </property>
-           <property name="text">
-            <string>Y</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_32">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>130</y>
-             <width>72</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 255, 255);
+             </property>
+             <property name="text">
+              <string>Y</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_32">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>130</y>
+               <width>72</width>
+               <height>61</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 255, 255);
 font: 75 48pt &quot;Noto Sans&quot;;</string>
-           </property>
-           <property name="text">
-            <string>Z</string>
-           </property>
-          </widget>
-          <widget class="StatusLabel" name="state_label_17">
-           <property name="geometry">
-            <rect>
-             <x>280</x>
-             <y>190</y>
-             <width>121</width>
-             <height>31</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::RichText</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.1f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="spindle_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="current_feedrate_status" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="StateLabel" name="StateLabel_7">
-           <property name="geometry">
-            <rect>
-             <x>370</x>
-             <y>40</y>
-             <width>41</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="true_textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="false_textTemplate" stdset="0">
-            <string/>
-           </property>
-          </widget>
-          <widget class="StateLabel" name="StateLabel_8">
-           <property name="geometry">
-            <rect>
-             <x>370</x>
-             <y>10</y>
-             <width>51</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="metric_mode_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="diameter_mode_status" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="true_textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;DIAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="false_textTemplate" stdset="0">
-            <string/>
-           </property>
-          </widget>
-          <widget class="StatusLabel" name="state_label_18">
-           <property name="geometry">
-            <rect>
-             <x>100</x>
-             <y>190</y>
-             <width>91</width>
-             <height>31</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::RichText</enum>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="spindle_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="current_feedrate_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="current_FPU_status" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="StatusLabel" name="state_label_19">
-           <property name="geometry">
-            <rect>
-             <x>370</x>
-             <y>70</y>
-             <width>51</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="midLineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::RichText</enum>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="user_system_status" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_33">
-           <property name="geometry">
-            <rect>
-             <x>200</x>
-             <y>190</y>
-             <width>101</width>
-             <height>31</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 255, 255);
+             </property>
+             <property name="text">
+              <string>Z</string>
+             </property>
+            </widget>
+            <widget class="StatusLabel" name="state_label_17">
+             <property name="geometry">
+              <rect>
+               <x>280</x>
+               <y>190</y>
+               <width>121</width>
+               <height>31</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.1f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="feed_override_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="spindle_override_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="current_feedrate_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="StateLabel" name="StateLabel_7">
+             <property name="geometry">
+              <rect>
+               <x>370</x>
+               <y>40</y>
+               <width>41</width>
+               <height>22</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="true_textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="false_textTemplate" stdset="0">
+              <string/>
+             </property>
+            </widget>
+            <widget class="StateLabel" name="StateLabel_8">
+             <property name="geometry">
+              <rect>
+               <x>370</x>
+               <y>10</y>
+               <width>51</width>
+               <height>22</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="metric_mode_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="diameter_mode_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="true_textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;DIAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="false_textTemplate" stdset="0">
+              <string/>
+             </property>
+            </widget>
+            <widget class="StatusLabel" name="state_label_18">
+             <property name="geometry">
+              <rect>
+               <x>100</x>
+               <y>190</y>
+               <width>91</width>
+               <height>31</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="feed_override_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="spindle_override_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="current_feedrate_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="current_FPU_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="StatusLabel" name="state_label_19">
+             <property name="geometry">
+              <rect>
+               <x>370</x>
+               <y>70</y>
+               <width>51</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="midLineWidth">
+              <number>0</number>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+             <property name="textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="feed_override_status" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="user_system_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_33">
+             <property name="geometry">
+              <rect>
+               <x>200</x>
+               <y>190</y>
+               <width>101</width>
+               <height>31</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 255, 255);
 font: 75 18pt &quot;Noto Sans&quot;;</string>
-           </property>
-           <property name="text">
-            <string>Velocity:</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::AutoText</enum>
-           </property>
-          </widget>
-          <widget class="StateLabel" name="statelabel_6">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+             </property>
+             <property name="text">
+              <string>Velocity:</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::AutoText</enum>
+             </property>
+            </widget>
+            <widget class="StateLabel" name="statelabel_6">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>191</y>
+               <width>81</width>
+               <height>31</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::AutoText</enum>
+             </property>
+             <property name="true_textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;mmPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="false_textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="GCodeGraphics" name="Graphics"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="GcodeEditor" name="gcodeeditor">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <widget class="ToolOffsetDialog" name="tooloffsetdialog">
            <property name="geometry">
             <rect>
-             <x>10</x>
-             <y>191</y>
-             <width>81</width>
-             <height>31</height>
+             <x>130</x>
+             <y>30</y>
+             <width>800</width>
+             <height>247</height>
             </rect>
            </property>
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::AutoText</enum>
-           </property>
-           <property name="true_textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;mmPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="false_textTemplate" stdset="0">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <property name="state">
+            <bool>false</bool>
            </property>
           </widget>
          </widget>
-        </item>
-        <item>
-         <widget class="GCodeGraphics" name="Graphics"/>
         </item>
        </layout>
       </item>
      </layout>
     </widget>
    </widget>
+   <zorder>widgetswitcher</zorder>
    <zorder>lcncdialog</zorder>
    <zorder>frame_auto_5</zorder>
    <zorder>state_label_4</zorder>
@@ -2901,7 +2909,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <zorder>drolabel_y</zorder>
    <zorder>drolabel_z</zorder>
    <zorder>drolabel_x</zorder>
-   <zorder>gcodeeditor</zorder>
    <zorder>state_enable_gridLayout</zorder>
    <zorder>label_13</zorder>
    <zorder>label_14</zorder>
@@ -2931,7 +2938,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <zorder>gcodes_label</zorder>
    <zorder>state_label_10</zorder>
    <zorder>focusoverlay</zorder>
-   <zorder>widgetswitcher</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
@@ -3069,17 +3075,17 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
  <connections>
   <connection>
    <sender>pushButton</sender>
-   <signal>toggled(bool)</signal>
+   <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>widget_switch(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>313</x>
-     <y>563</y>
+     <x>304</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>208</x>
-     <y>428</y>
+     <x>183</x>
+     <y>453</y>
     </hint>
    </hints>
   </connection>
@@ -3102,6 +3108,5 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
   <slot>change_rapidrate()</slot>
   <slot>pausefile_clicked()</slot>
   <slot>widget_switch(bool)</slot>
-  <slot>slot2()</slot>
  </slots>
 </ui>
