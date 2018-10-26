@@ -239,14 +239,16 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
 
     def set_textTemplate(self, data):
         self._textTemplate = data
-        if self.time_stamp:
-            self.setText(time.strftime(self._textTemplate))
-        else:
+        try:
+            self._set_text(100.0)
+        except ValueError:
             try:
-                self._set_text(100.0)
-            except Exception as e:
-                LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
-                self.setText('Error')
+                self.setText(time.strftime(self._textTemplate))
+            except:
+                raise
+        except Exception as e:
+            LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
+            self.setText('Error')
     def get_textTemplate(self):
         return self._textTemplate
     def reset_textTemplate(self):
