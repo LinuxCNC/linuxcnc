@@ -1,0 +1,238 @@
+.TH mitsub_vfd "1" "2018-10-25" "LinuxCNC Documentation" "HAL Component"
+
+
+.SH NAME
+
+mitsub_vfd - HAL userspace component for Mitsubishi A500 F500
+E500 A500 D700 E700 F700-series VFDs (others may work)
+
+
+.SH SYNOPSIS
+
+.B loadrt mitsub_vfd [--baud 4800] [--port /dev/ttyUSB0] name1=number1[,name2=numer2...]
+.br
+\fBname1\fR is user selectable (usually a description of the 
+controlled device).
+.br
+\fBnumber1\fR is the slave number that was set on the VFD. 
+must be two digits (Parameter 117)
+.br
+\fBname=number\fR can be repeated for multiple VFD's 
+connected together
+.br
+\fB--baud\fR is optional as it defaults to 9600
+  all networked vfds must be set to the same baudrate
+.br
+\fB--port\fR is optional as it defaults to ttyS0
+
+.SH DESCRIPTION
+
+The mitsub_vfd component interfaces a Mitsubishi VFD to 
+LinuxCNC. The VFD is connected via RS-485 serial to the 
+computer's USB or serial port using a RS-232/RS-485 converter
+
+
+.SH HARDWARE SETUP
+reference manual 'communication option reference manual' 
+and A500 technical manual for 500 series.
+Fr-A700 F700 E700 D700 technical manual for the 700 series
+.br
+The inverter must be set manually for communication
+.br
+( you may have to set PR 77 to 1 to unlock PR modifcation )
+.br
+You must power cycle the inverter for some of these. (eg 79)
+
+.TP
+\fBVFD INTERNAL PARAMETERS: \Fr
+
+\fBPARAMETER 79\fR - 1 or 0
+
+\fBPARAMETER 117\fR station number - 1
+.br
+(can be optionally set 0 - 31) if component is also set
+
+\fBPARAMETER 118\fR communication speed 96
+.br
+(can be optionally set 48,96,192 if component is also set)
+
+\fBPARAMETER 119\fR stop bit/data length - 0   
+.br      
+(8 bits, two stop - don't change)
+
+\fBPARAMETER 120\fR parity - 0
+.br
+(no parity - don't change)
+
+\fBPARAMETER 121\fR COM tries - 10
+.br
+(if maximuim 10 COM errors then inverter faults- can change)
+
+\fBPARAMETER 122\fR COM check time interval 9999
+.br
+(never check - if communication is lost inverter will 
+not know (can change)
+
+\fBPARAMETER 123\fR wait time - 9999
+.br
+no wait time is added to the serial data frame (don't change)
+
+\fBPARAMETER 124\fR CR selection - 0
+.br
+don't change
+
+.SH
+
+This driver assumes certain other VFD settings:
+-That the motor frequency status is set to show herts. 
+.br
+-That the status bit 3 is up to speed
+.br
+-That the status bit 7 is alarm
+
+some models (eg E500) cannot monitor status.
+.br
+You must set set the monitor pin to false.
+.br
+In this case pins such as up-to-speed,
+amps, alarm and status bits are not useful.
+
+.SH PINS
+\fB[VFD NAME].fwd\fR (bit, in)::
+      forward/reverse pin
+.br
+\fB[VFD NAME].run\fR (bit, in)::
+      run/stop pin
+.br
+\fB[VFD NAME].debug\fR (bit, in)::
+      set debug mode pin
+.br
+      This will print many messages to the terminal
+.br
+\fB[VFD NAME].monitor\fR (bit, in)::
+      set monitor mode pin
+      If false request-status command will not be sent to vfd.
+      Status, amps, power, motor-feedback, and alarm would then not 
+        be useful.
+.br
+\fB[VFD NAME].estop\fR (bit, in)::
+      set estop mode pin
+.br
+      This will stop the VFD. 
+      Restarting requires the run pin to cycle.
+
+\fB[VFD NAME].fwd\fR (bit, out)::
+      up-to-speed status pin
+      Motor is at requested speed within VFD's settings tolerance.
+.br
+\fB[VFD NAME].alarm\fR (bit, out)::
+      alarm status pin
+.br
+
+\fB[VFD NAME].motor-cmd\fR (float, in)::
+      The requested motor speed, is Hertz
+.br
+
+\fB[VFD NAME].motor-fb\fR (float, out)::
+      The motor feedback speed (from vfd) in hertz
+.br
+\fB[VFD NAME].motor-amps\fR (float, out)::
+      The motor current, in amps
+.br
+\fB[VFD NAME].motor-power\fR (float, out)::
+      The motor power
+.br
+
+\fB[VFD NAME].scale-cmd\fR (float, in)::
+      Motor command's scale setting defaults to 1
+.br
+\fB[VFD NAME].scale-cmd\fR (float, in)::
+      Motor command's scale setting defaults to 1
+.br
+\fB[VFD NAME].scale-cmd\fR (float, in)::
+      Motor command's scale setting defaults to 1
+.br
+
+\fB[VFD NAME].stat-bit-0\fR (bit, out)::
+      raw status bit
+.br
+\fB[VFD NAME].stat-bit-1\fR (bit, out)::
+      raw status bit
+.br
+\fB[VFD NAME].stat-bit-2\fR (bit, out)::
+      raw status bit
+.br
+\fB[VFD NAME].stat-bit-3\fR (bit, out)::
+      raw status bit
+      set the VFD so this is motor-at-speed status
+.br
+\fB[VFD NAME].stat-bit-4\fR (bit, out)::
+      raw status bit
+.br
+\fB[VFD NAME].stat-bit-5\fR (bit, out)::
+      raw status bit
+.br
+\fB[VFD NAME].stat-bit-6\fR (bit, out)::
+      raw status bit
+.br
+\fB[VFD NAME].stat-bit-7\fR (bit, out)::
+      raw status bit
+      Set the VFD so this in the alarm bit
+
+.SH SAMPLE HAL
+loadusr -Wn coolant mitsub_vfd --port /dev/ttyUSB0 spindle=02 coolant=01
+.br
+# **************** Spindle VFD setup slave 2 ****************
+.br
+net spindle-vel-cmd               spindle.motor-cmd
+.br
+net spindle-cw                    spindle.fwd              
+.br
+net spindle-on                    spindle.run              
+.br
+net spindle-at-speed              spindle.up-to-speed
+.br
+net estop-out                     spindle.estop
+.br
+#       cmd scaled to RPM (belt/gearbox driven)
+.br
+setp spindle.scale-cmd .135
+.br
+#       feedback is in rpm (recipicale of command)
+.br
+setp spindle.scale-fb 7.411
+.br
+#       turn on monitoring so feedback works
+.br
+setp spindle.monitor 1
+.br
+net spindle-speed-indicator spindle.motor-fb
+.br
+# *************** Coolant vfd setup slave 1 *****************
+.br
+net coolant-flood                         coolant.run
+.br
+net coolant-is-on              coolant.up-to-speed
+.br
+#       cmd and feedback scaled to hertz
+.br
+setp coolant.scale-cmd 1
+.br
+setp coolant.scale-fb 1
+.br
+#       command full speed
+.br
+setp coolant.motor-cmd 60
+.br
+#       allows us to see status
+.br
+setp coolant.monitor 1
+.br
+net estop-out                     coolant.estop
+
+.SH ISSUES
+
+some models (eg E500) cannot monitor status, so set the 
+monitor pin to false In this case pins such as up-to-speed,
+amps, alarm and status bits are not useful.
+

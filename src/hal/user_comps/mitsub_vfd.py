@@ -341,7 +341,7 @@ in this case pins such as up-to-speed, amps, alarm and status bits are not usefu
         --port is optional as it defaults to ttyS0'''
         print
         print ''' Sample linuxcnc code
-loadusr -Wn coolant mitsub_vfd.py spindle=02 coolant=01
+loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 # **************** Spindle VFD setup slave 2 *********************
 net spindle-vel-cmd               spindle.motor-cmd
 net spindle-cw                    spindle.fwd              
