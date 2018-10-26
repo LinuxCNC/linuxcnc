@@ -36,8 +36,7 @@ http://www.linuxcnc.org/docview/html/hal/comp.html""";
 author "Andy Pugh andy@bodgesoc.org";
 license "GPL";
 
-// undocumented feature of comp, and when it is interpreted this file has moved
-include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
+include <hostmot2-serial.h>;
 
 pin in u32 tx-data-##[16] "Data to be transmitted";
 pin out u32 rx-data-##[16] "Data received";
