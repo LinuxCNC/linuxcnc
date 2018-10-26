@@ -43,7 +43,7 @@ variable unsigned *AD7329_read[8];
 license "GPL";
 author "Andy Pugh / Cliff Blackburn";
 
-include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
+include <hostmot2-serial.h>;
 ;;
 
 // to parse the modparam
