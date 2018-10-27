@@ -13,7 +13,7 @@ set, as might be required for an LED bargraph display""";
 
 pin in bit sel-bit-## [5] "Binary-number bit selectors";
 pin in unsigned sel-u32 "Integer selection input";
-pin out bit out-## [1:personality] "The set of output bits";
+pin out bit out-## [32:personality] "The set of output bits";
 
 param rw bit bargraph = 0;
 
