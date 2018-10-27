@@ -79,7 +79,7 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             ACTION.SET_SPINDLE_RATE(value)
         elif self.jograte:
             ACTION.SET_JOG_RATE(value)
-        elif self.jograte_anglar:
+        elif self.jograte_angular:
             ACTION.SET_JOG_RATE_ANGULAR(value)
         else:
             LOG.error('{} : no action recognised'.format(self.HAL_NAME_))
@@ -93,7 +93,7 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_anjular')
+        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_angular')
 
         for i in data:
             if not i == picked:
