@@ -82,8 +82,8 @@ class ConfigServer(object):
         if host_in_name:
             self.name += ' on ' + self.host
         self.service = service.Service(
-            type='config',
-            svcUuid=svc_uuid,
+            type_='config',
+            svc_uuid=svc_uuid,
             dsn=self.dsname,
             port=self.port,
             host=self.host,

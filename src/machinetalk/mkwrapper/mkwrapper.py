@@ -80,8 +80,8 @@ class FileService(threading.Thread):
         self.file_dsname = "ftp://" + self.host + ":" + str(self.file_port)
 
         self.fileService = service.Service(
-            type='file',
-            svcUuid=svc_uuid,
+            type_='file',
+            svc_uuid=svc_uuid,
             dsn=self.file_dsname,
             port=self.file_port,
             host=self.host,
@@ -596,8 +596,8 @@ class LinuxCNCWrapper(object):
         self.previewstatus_port = parse.urlparse(self.previewstatus_dsname).port
 
         self.status_service = service.Service(
-            type='status',
-            svcUuid=svc_uuid,
+            type_='status',
+            svc_uuid=svc_uuid,
             dsn=self.status_dsname,
             port=self.status_port,
             host=self.host,
@@ -605,8 +605,8 @@ class LinuxCNCWrapper(object):
             debug=self.debug,
         )
         self.error_service = service.Service(
-            type='error',
-            svcUuid=svc_uuid,
+            type_='error',
+            svc_uuid=svc_uuid,
             dsn=self.error_dsname,
             port=self.error_port,
             host=self.host,
@@ -614,8 +614,8 @@ class LinuxCNCWrapper(object):
             debug=self.debug,
         )
         self.command_service = service.Service(
-            type='command',
-            svcUuid=svc_uuid,
+            type_='command',
+            svc_uuid=svc_uuid,
             dsn=self.command_dsname,
             port=self.command_port,
             host=self.host,
@@ -623,8 +623,8 @@ class LinuxCNCWrapper(object):
             debug=self.debug,
         )
         self.preview_service = service.Service(
-            type='preview',
-            svcUuid=svc_uuid,
+            type_='preview',
+            svc_uuid=svc_uuid,
             dsn=self.preview_dsname,
             port=self.preview_port,
             host=self.host,
@@ -632,8 +632,8 @@ class LinuxCNCWrapper(object):
             debug=self.debug,
         )
         self.previewstatus_service = service.Service(
-            type='previewstatus',
-            svcUuid=svc_uuid,
+            type_='previewstatus',
+            svc_uuid=svc_uuid,
             dsn=self.previewstatus_dsname,
             port=self.previewstatus_port,
             host=self.host,

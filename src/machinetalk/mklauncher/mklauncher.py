@@ -276,8 +276,8 @@ class Mklauncher(object):
         if host_in_name:
             self.name += ' on ' + self.host
         self.launcher_service = service.Service(
-            type='launcher',
-            svcUuid=svc_uuid,
+            type_='launcher',
+            svc_uuid=svc_uuid,
             dsn=self.launcher_ds_name,
             port=self.launcher_port,
             host=self.host,
@@ -286,8 +286,8 @@ class Mklauncher(object):
             debug=self.debug,
         )
         self.commandService = service.Service(
-            type='launchercmd',
-            svcUuid=svc_uuid,
+            type_='launchercmd',
+            svc_uuid=svc_uuid,
             dsn=self.command_ds_name,
             port=self.command_port,
             host=self.host,

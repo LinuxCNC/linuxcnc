@@ -118,8 +118,8 @@ class VideoServer(threading.Thread):
 
         try:
             video_device.service = service.Service(
-                type='video',
-                svcUuid=self.svc_uuid,
+                type_='video',
+                svc_uuid=self.svc_uuid,
                 dsn=video_device.dsname,
                 port=video_device.port,
                 host=self.host,
