@@ -399,8 +399,16 @@ static int comp_id;
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
-            if isinstance(array, tuple): array = array[1]
-            print("    for(j=0; j < (%s); j++) {" % array, file=f)
+            if isinstance(array, tuple):
+                lim, cnt = array
+                print("    if((%s) > (%s)) {" % (cnt, lim), file=f)
+                print('        rtapi_print_msg(RTAPI_MSG_ERR,' \
+                                '"Pin %s: Requested size %%d exceeds max size %%d\\n",'
+                                '(int)%s, (int)%s);' % (name, cnt, lim), file=f)
+                print("        return -ENOSPC;", file=f)
+                print("    }", file=f)
+            else: cnt = array
+            print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
@@ -422,8 +430,16 @@ static int comp_id;
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
-            if isinstance(array, tuple): array = array[1]
-            print("    for(j=0; j < %s; j++) {" % array, file=f)
+            if isinstance(array, tuple):
+                lim, cnt = array
+                print("    if((%s) > (%s)) {" % (cnt, lim), file=f)
+                print('        rtapi_print_msg(RTAPI_MSG_ERR,' \
+                                '"Parameter %s: Requested size %%d exceeds max size %%d\\n",'
+                                '(int)%s, (int)%s);' % (name, cnt, lim), file=f)
+                print("        return -ENOSPC;", file=f)
+                print("    }", file=f)
+            else: cnt = array
+            print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
@@ -1115,7 +1131,7 @@ def main():
                 if outfile is not None: os.unlink(outfile)
             except: # os.error:
                 pass
-            raise e
+            raise
 if __name__ == '__main__':
     main()
 
