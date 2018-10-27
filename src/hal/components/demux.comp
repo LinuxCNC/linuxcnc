@@ -15,6 +15,7 @@ pin in bit sel-bit-## [5] "Binary-number bit selectors";
 pin in unsigned sel-u32 "Integer selection input";
 pin out bit out-## [32:personality] "The set of output bits";
 
+option default_personality 32;
 param rw bit bargraph = 0;
 
 license "GPL 2+";
