@@ -1,7 +1,7 @@
 = QTvcp Widgets
 
-Qtscreen uses QTvcp widgets for linuxcnc integration.
-Widget is the general name for the UI objects such as buttons and labels in QTpy4. +
+Qtscreen uses QTvcp widgets for linuxcnc integration. +
+Widget is the general name for the UI objects such as buttons and labels in QTpy. +
 You are free to use any available widgets in the QTDesigner editor. +
 There are also special widgets made for linuxcnc that make integration easier. +
 This are split in two heading on the right side of the editor. +
@@ -11,7 +11,25 @@ you are free to mix them in any way on your panel. +
 
 == HAL Only Widgets
 
-These Widgets have HAL pins and don't react to the machine Controller
+These Widgets usually have HAL pins and don't react to the machine Controller
+
+=== XEmbed Widget
+
+Allows one to embed program into the widget. +
+only programs that utilize the xembed protocol will work such as: +
+
+* gladevcp virtual control panels
+* Onboard virtual keyboard
+* qtvcp virtual control panels
+* mplayer video player
+
+=== Slider Widget
+
+Allows one to adjust a HAL pins using a sliding pointer. +
+
+=== LED Widget
+
+An indicator that follows a HAL pin's logic
 
 === Checkbox Widget
 
@@ -35,8 +53,8 @@ It is based on pyQT's QpushButton
 
 === Focus Overlay Widget
 
-This widget places a coloured overlay over the screen usually while a dialog is showing.
-used to create a 'focused' feel and to draw attention to critical information. +
+This widget places a coloured overlay over the screen usually while a dialog is showing. +
+Used to create a 'focused' feel and to draw attention to critical information. +
 It can also show a translucent image. +
 It can also display message text and buttons. +
 This widget can be controller with STATUS messages. +
@@ -59,6 +77,26 @@ It is based on pyQT's QLCDNumber
 This widget displays a image from a web camera. +
 It overlays an adjustable circular and cross hair target over the image. +
 Camview was built with precision visually positioning in mind. +
+
+=== GeneralHALInput Widget
+
+This widget is used to connect an arbitrary QT widget to HAL using signals/slots. +
+It is used for widgets that should respond to HAL pin changes. +
+
+=== GeneralHALOutput Widget
+
+This widget is used to connect an arbitrary QT widget to HAL using signals/slots. +
+It is used for widgets that should control HAL pins. +
+
+=== WidgetSwitcher Widget
+
+This is used to switch the view of a multi-widget layout to  show just one widget. +
+This might be used to flip between a large view of a widget or a smaller multi widget view. +
+You must right click the widget in designer to create an initial page. +
+Then populate it with widgets/layouts you wish to see in a default form. +
+Then specify up to two widgets names for singular view. +
+ 
+It is based on the QStack widget. +
 
 == Machine Controller Widgets
 
@@ -155,6 +193,12 @@ the widgets instances and handler functions. +
 
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
+=== RoundButton
+
+Round buttons work the same as ActionButtons other then the button is cropped round. +
+They are intended only to be visually different. +
+They have two path properties for displaying images on true and false. +
+
 === Axis Tool Button
 This allows one to select and set an AXIS.
 If the button is set checkable, it will indicate which axis is selected. +
@@ -179,18 +223,22 @@ This will display the current position of an axis. +
 
 It is based on pyQT's
 
-=== Gcode Widget
+=== GcodeEditor Widget
 This displays Gcode in text form. It will highlight the currently running line. +
+This can also display MDI history when linuxcnc is in MDI mode. +
+This can also display log entries when linuxcnc is in MANUAL mode. +
+This will also display preference file entries if you enter 'PREFERENCE' in capitals +
+into the MDILine widget. +
 
 It is based on pyQT's QsciScintilla +
 
-=== Graphics Widget
+=== GCodeGraphics Widget
 This Displays the current Gcode in a graphical form. +
 
 todo +
 It is based on pyQT's opengl widget. +
 
-===  Gstat_bool_label Widget
+===  StateLabel Widget
 This will display a label based on true/false states of the machine controller. +
 You can select different text based on true or false. +
 You can use Rich text for different fonts/colours etc. +
@@ -202,7 +250,7 @@ Metric Mode +
 
 It is based on pyQT's QLabel
 
-===  Gstat Label Widget
+===  StatusLabel Widget
 This will display a label based on variable states of the machine controller. +
 You can change how the state will be display by substituting  +
 You can use Rich text for different fonts/colors etc. +
@@ -220,7 +268,7 @@ User System  +
 
 It is based on pyQT's QLabel
 
-===  Gstat stacked
+===  StatusStacked
 This widget displays on of three panels based on linuxcnc's mode. +
 This allows you to automatically display different widgets on Manual, MDI and Auto modes. +
 
@@ -235,7 +283,7 @@ This will be available to all widgets through STATUS. +
 
 It is based on pyQT's combobox
 
-=== screenOption widget
+=== ScreenOption widget
 
 This widget doesn't add anything visually to a screen but sets up important +
 options. +
@@ -249,7 +297,7 @@ options. +
 * setting up a preference file
 
 
-=== Slider Widget
+=== StatusSlider Widget
 
 This widget allow the user to adjust linuxcnc setting via a slide. +
 
@@ -296,22 +344,25 @@ doing small jobs. +
 It uses svg images for visual representation of the macro and for an icon. +
 The macros are Oword subroutine with special comments to work with the launcher. +
 
-=== MDI line Widget
+=== MDILine Widget
 
-More todo +
-There are Embedded commands available from this Widget. +
+One can enter MDI commands here. A popup keyboard is available +
+There are also embedded commands available from this Widget. +
 Type, in all capitols, any of these commands to load the respective program: +
-HALMETER +
-HALSHOW +
-HALSCOPE +
-STATUS +
-CALIBRATION +
-CLASSICLADDER +
+
+* HALMETER +
+* HALSHOW +
+* HALSCOPE +
+* STATUS +
+* CALIBRATION +
+* CLASSICLADDER +
+* PREFERENCDE - Loads the preference file onto the gcodeEditor+
+
 It is based on pyQT's QLineEdit +
 
-===  Origin Offset Widget
-This widget allows one to modify User System origin offsets directly
-
+===  OriginOffsetView Widget
+This widget allows one to modify User System origin offsets directly +
+It will update the table for changes made internally by linuxcnc. +
 It is based on pyQT's
 
 === State Enable Gridlayout Widgets
@@ -351,6 +402,13 @@ It is based on pyQT's QMessagebox
 
 ===  Dialog Origin Offset Widget
 This widget allows one to modify User System origin offsets directly +
+It is in a dialog form +
+If there is an Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT's QDialog
+
+===  Dialog tool Offset Widget
+This widget allows one to modify Tool offsets directly +
 It is in a dialog form +
 If there is an Focus Overlay widget present, it will signal it to display. +
 
