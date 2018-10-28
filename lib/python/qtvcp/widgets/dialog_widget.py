@@ -154,6 +154,17 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
     # So we record the original base name of the component, make our pins, then
     # switch it back
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('ToolChangeDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
+
         self.topParent = self.QTVCP_INSTANCE_
         #_HalWidgetBase._hal_init(self)
         oldname = self.HAL_GCOMP_.comp.getprefix()
@@ -192,7 +203,10 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
         else:
             self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             self.setDefaultButton(QMessageBox.Ok)
+        self.show()
+        self.calculate_placement()
         retval = self.exec_()
+        self.record_placement()
         if retval == QMessageBox.Cancel:
             return False
         else:
@@ -223,6 +237,51 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
             STATUS.emit('focus-overlay-changed', False, None, None)
             return result
 
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('ToolChangeDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('ToolChangeDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+
     # **********************
     # Designer properties
     # **********************
@@ -247,6 +306,16 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
 
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('FileDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
         STATUS.connect('load-file-request', lambda w: self.load_dialog())
         STATUS.connect('dialog-request', self._external_request)
         if self.PREFS_:
@@ -266,13 +335,14 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
             STATUS.emit('play-alert', self.sound_type)
-        #self.move( 400, 400 )
+        self.calculate_placement()
         fname = None
         if (self.exec_()):
             fname = self.selectedFiles()[0]
             path = self.directory().absolutePath()
             self.setDirectory(path)
         STATUS.emit('focus-overlay-changed', False, None, None)
+        self.record_placement()
         if fname:
             if self.PREFS_:
                 self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
@@ -280,6 +350,51 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         return fname
+
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('FileDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('FileDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     #**********************
     # Designer properties
@@ -348,6 +463,16 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.setModal(True)
 
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('OriginOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
@@ -369,16 +494,56 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
-        # move to botton laeft of parent
-        ph = self.topParent.geometry().height()
-        px = self.topParent.geometry().x()
-        py = self.topParent.geometry().y()
-        dw = 450
-        dh = 300
-        self.setGeometry(px, py+ph-dh, dw, dh)
+        self.calculate_placement()
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
+        self.record_placement()
+
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('OriginOffsetDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('OriginOffsetialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -454,6 +619,16 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.setModal(True)
 
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('ToolOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
@@ -475,12 +650,48 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
-        x,y,w,h = self.calculate_placement()
-        self.setGeometry(x,y,w,h)
+        self.calculate_placement()
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        if self.PREFS_ and not self._geometry_string =='default':
+        self.record_placement()
+
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('ToolOffsetDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
             LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
             
             x = self.geometry().x()
@@ -489,26 +700,6 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
             h = self.geometry().height()
             geo = '%s %s %s %s'% (x,y,w,h)
             self.PREFS_.putpref('ToolOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
-
-    def calculate_placement(self):
-        # If there is a preference file object use it to load the geometry
-        try:
-            if self.PREFS_:
-                self._geometry_string = self.PREFS_.getpref('ToolOffsetDialog-geometry', '', str, 'DIALOG_OPTIONS')
-                if self._geometry_string in('default',''):
-                    pass
-                else:
-                    x, y, w, h = self._geometry_string.split(' ')
-                    return int(x), int(y), int(w), int(h)
-        except:
-            pass
-        # move to botton laeft of parent
-        ph = self.topParent.geometry().height()
-        px = self.topParent.geometry().x()
-        py = self.topParent.geometry().y()
-        dw = 450
-        dh = 300
-        return px, py+ph-dh, dw, dh
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -569,6 +760,16 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         l.addWidget(buttonBox)
 
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('CamViewDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
@@ -578,16 +779,56 @@ class CamViewDialog(QDialog, _HalWidgetBase):
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Cam View Dialog', self._color)
-        # move to botton laeft of parent
-        ph = self.topParent.geometry().height()
-        px = self.topParent.geometry().x()
-        py = self.topParent.geometry().y()
-        dw = self.width()
-        dh = self.height()
-        self.setGeometry(px, py+ph-dh, dw, dh)
+        self.calculate_placement()
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
+        self.record_placement()
+
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('CamViewDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('CamViewDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # **********************
     # Designer properties
@@ -642,6 +883,16 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         l.addWidget(self.tab)
 
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('MacroTabDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
         # gotta call this since we instantiated this out of qtvcp's knowledge
         self.tab._hal_init()
         self.topParent = self.QTVCP_INSTANCE_
@@ -667,16 +918,57 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Lathe Macro Dialog', self._color)
         self.tab.stack.setCurrentIndex(0)
-        # move to botton laeft of parent
-        ph = self.topParent.geometry().height()
-        px = self.topParent.geometry().x()
-        py = self.topParent.geometry().y()
-        dw = self.width()
-        dh = self.height()
-        self.setGeometry(px, py+ph-dh, dw, dh)
+        self.calculate_placement()
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
+        self.record_placement()
+
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('MacroTabDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('MacroTabDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+
 
     # **********************
     # Designer properties
@@ -731,6 +1023,16 @@ class EntryDialog(QDialog, _HalWidgetBase):
         l.addWidget(o)
 
     def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('EntryDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
             self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
@@ -741,14 +1043,61 @@ class EntryDialog(QDialog, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
         self.setWindowTitle('Numerical Entry');
         if self.play_sound:
-            STATUS.emit('play-alert', self.play_sound)
+            STATUS.emit('play-alert', self.sound_type)
+        self.calculate_placement()
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
+        self.record_placement()
         LOG.debug("Value of pressed button: {}".format(retval))
         try:
             return float(self.Num.text())
         except:
             return None
+
+    def calculate_placement(self):
+        def go(x,y,w,h):
+            self.setGeometry(x,y,w,h)
+        try:
+            if self._geometry_string.replace(' ','').isdigit():
+                self._geometry_string = self.PREFS_.getpref('EntryDialog-geometry', '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if self._geometry_string in('default',''):
+                x,y,w,h = self._default_geometry
+                go(x,y,w,h)
+            elif 'center' in self._geometry_string.lower():
+                geom = self.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                self.setGeometry(geom)
+                return
+            elif 'bottomleft' in self._geometry_string.lower():
+                # move to botton left of parent
+                ph = self.topParent.geometry().height()
+                px = self.topParent.geometry().x()
+                py = self.topParent.geometry().y()
+                dw = self.geometry().width()
+                dh = self.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            else:
+                temp = self._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            go( x,y,w,h)
+
+    def record_placement(self):
+       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('EntryDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     def getColor(self):
         return self._color
