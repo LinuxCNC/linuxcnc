@@ -285,24 +285,15 @@ class EditorBase(QsciScintilla):
         with open(self.filepath + 'text', "w") as text_file:
             text_file.write(self.text())
 
-    def search(self, text, fwd=True):
-        self.findFirst(text, False,False,False, False, fwd)
+    def replace_text(self, text):
+        self.replace(text)
+
+    def search(self, text, re = False,case= False, word=False, wrap= False, fwd=True):
+        self.findFirst(text, re, case, word, wrap, fwd)
 
     def search_Next(self):
         self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
         self.findNext()
-
-    def search_previous(self, text):
-        flags = 0
-        messenger = self.SendScintilla
-        #messenger(QsciScintilla.SCI_SETTARGETSTART, 0)
-        #messenger(QsciScintilla.SCI_SETTARGETEND, len(self.text()))
-        messenger(QsciScintilla.SCI_SEARCHANCHOR)
-        pos = messenger(QsciScintilla.SCI_SEARCHPREV, flags, text)
-        print pos
-        l,c = self.lineIndexFromPosition(pos)
-        self.setCursorPosition(l, c)
-        self.setSelection(l,c,l,c+len(text))
 
 ##########################################################
 # Gcode widget
@@ -440,6 +431,7 @@ from PyQt5.QtGui import QIcon
 class TestEditor(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
+        self.isCaseSensitive = 0
 
         self.setMinimumSize(QSize(800, 300))    
         self.setWindowTitle("PyQt5 editor test example") 
@@ -463,77 +455,103 @@ class TestEditor(QMainWindow):
         ################################
 
         # Create new action
-        newAction = QAction(QIcon('new.png'), '&New', self)        
+        newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)        
         newAction.setShortcut('Ctrl+N')
         newAction.setStatusTip('New document')
         newAction.triggered.connect(self.newCall)
 
         # Create open action
-        openAction = QAction(QIcon('open.png'), '&Open', self)        
+        openAction = QAction(QIcon.fromTheme('document-open'), '&Open', self)        
         openAction.setShortcut('Ctrl+O')
         openAction.setStatusTip('Open document')
         openAction.triggered.connect(self.openCall)
 
         # Create save action
-        saveAction = QAction(QIcon('save.png'), '&save', self)        
+        saveAction = QAction(QIcon.fromTheme('document-save'), '&save', self)        
         saveAction.setShortcut('Ctrl+S')
         saveAction.setStatusTip('save document')
         saveAction.triggered.connect(self.saveCall)
 
         # Create exit action
-        exitAction = QAction(QIcon('exit.png'), '&Exit', self)        
+        exitAction = QAction(QIcon.fromTheme('application-exit'), '&Exit', self)        
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.exitCall)
 
         # Create gcode lexer action
-        gCodeLexerAction = QAction(QIcon('lexer.png'), '&Gcode lexer', self)        
+        gCodeLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&Gcode\n lexer', self)
+        gCodeLexerAction.setCheckable(1)
         gCodeLexerAction.setShortcut('Ctrl+G')
         gCodeLexerAction.setStatusTip('Set Gcode highlighting')
         gCodeLexerAction.triggered.connect(self.editor.set_gcode_lexer)
 
         # Create gcode lexer action
-        pythonLexerAction = QAction(QIcon('lexer.png'), '&python lexer', self)        
+        pythonLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&python\n lexer', self)        
         pythonLexerAction.setShortcut('Ctrl+P')
         pythonLexerAction.setStatusTip('Set Python highlighting')
         pythonLexerAction.triggered.connect(self.editor.set_python_lexer)
 
-        # Create menu bar and add action
-        menuBar = self.menuBar()
-        fileMenu = menuBar.addMenu('&File')
+        # Create toolbar and add action
+        fileMenu = self.addToolBar('File')
         fileMenu.addAction(newAction)
         fileMenu.addAction(openAction)
         fileMenu.addAction(saveAction)
         fileMenu.addAction(exitAction)
 
+        fileMenu.addSeparator()
         # add lexer actions
-        lexerMenu = menuBar.addMenu('&lexer')
-        lexerMenu.addAction(gCodeLexerAction)
-        lexerMenu.addAction(pythonLexerAction)
+        #lexerMenu = menuBar.addMenu('&lexer')
+        fileMenu.addAction(gCodeLexerAction)
+        fileMenu.addAction(pythonLexerAction)
 
     def createGroup(self):
         groupBox = QGroupBox("Search Controls")
 
-        button1 = QPushButton('Find', self)
-        button1.clicked.connect(self.clickMethod)
-        button1.setToolTip('This is a tooltip message.')
 
-
-        button2 = QPushButton('Next', self)
-        button2.clicked.connect(self.searchNext)
-        button2.setToolTip('This is a tooltip message.')
-
-        button3 = QPushButton('Previous', self)
-        button3.clicked.connect(self.searchBack)
-        button3.setToolTip('This is a tooltip message.')
 
         self.searchText = QLineEdit(self)
         self.replaceText = QLineEdit(self)
 
+        toolBar = QToolBar()
+        # Create new action
+        undoAction = QAction(QIcon.fromTheme('edit-undo'), 'Undo', self)        
+        undoAction.setStatusTip('Undo')
+        undoAction.triggered.connect(self.undoCall)
+        toolBar.addAction(undoAction)
+
+        # create redo action
+        redoAction = QAction(QIcon.fromTheme('edit-redo'), 'Redo', self)        
+        redoAction.setStatusTip('Undo')
+        redoAction.triggered.connect(self.redoCall)
+        toolBar.addAction(redoAction)
+
+        toolBar.addSeparator()
+
+        # create replace action
+        replaceAction = QAction(QIcon.fromTheme('edit-find-replace'), 'Replace', self)        
+        replaceAction.triggered.connect(self.replaceCall)
+        toolBar.addAction(replaceAction)
+
+        # create find action
+        findAction = QAction(QIcon.fromTheme('edit-find'), 'Find', self)        
+        findAction.triggered.connect(self.findCall)
+        toolBar.addAction(findAction)
+
+        # create next action
+        nextAction = QAction(QIcon.fromTheme('go-previous'), 'Find Previous', self)        
+        nextAction.triggered.connect(self.nextCall)
+        toolBar.addAction(nextAction)
+
+        toolBar.addSeparator()
+
+        # create case action
+        caseAction = QAction(QIcon.fromTheme('edit-case'), 'Case\n Sensitive', self)  
+        caseAction.setCheckable(1)      
+        caseAction.triggered.connect(self.caseCall)
+        toolBar.addAction(caseAction)
+
         vbox = QHBoxLayout()
-        vbox.addWidget(button1)
-        vbox.addWidget(button2)
-        vbox.addWidget(button3)
+        vbox.addWidget(toolBar)
         vbox.addWidget(self.searchText)
         vbox.addWidget(self.replaceText)
         vbox.addStretch(1)
@@ -543,35 +561,72 @@ class TestEditor(QMainWindow):
 
     def openCall(self):
         print('Open')
-        self.editor.load_text(sys.argv[0])
+        f = self.getFileName()
+        self.editor.load_text(f)
         self.editor.setModified(False)
 
     def saveCall(self):
         print('save')
-        self.editor.save_text()
+        self.saveFile()
 
     def newCall(self):
-        print('New')
-        self.editor.new_text()
+        if self.editor.isModified():
+            result = self.killCheck()
+            if result:
+                self.editor.new_text()
 
     def exitCall(self):
         print('Exit app')
         if self.editor.isModified():
-            print "warning document has been modifed"
+            result = self.killCheck()
+            if result:
+                return
         self.close()
 
-    def clickMethod(self):
-        print(self.searchText.text())
-        self.editor.search(str(self.searchText.text()))
+    def undoCall(self):
+        self.editor.undo()
 
-    def searchNext(self):
-        print(self.searchText.text())
+    def redoCall(self):
+        self.editor.redo()
+
+    def replaceCall(self):
+        self.editor.replace_text(str(self.replaceText.text()))
+
+    def findCall(self):
+        self.editor.search(str(self.searchText.text()),
+                             re=False, case=self.isCaseSensitive,
+                             word=False, wrap= False, fwd=True)
+
+    def nextCall(self):
+        self.editor.search(str(self.searchText.text()),False)
         self.editor.search_Next()
 
-    def searchBack(self):
-        print(self.searchText.text())
-        self.editor.search_previous(self.searchText.text())
-        self.editor.search(str(self.searchText.text()),False)
+    def caseCall(self):
+        self.isCaseSensitive -=1
+        self.isCaseSensitive *=-1
+        print self.isCaseSensitive
+    def getFileName(self):
+        name = QFileDialog.getOpenFileName(self, 'Open File')
+        return str(name[0])
+
+    def killCheck(self):
+        choice = QMessageBox.question(self, 'Warning!!',
+                                            "This file has changed since loading...Still want to proceed?",
+                                            QMessageBox.Yes | QMessageBox.No)
+        if choice == QMessageBox.Yes:
+            return True
+        else:
+            return False
+
+    def saveFile(self):
+        if self.editor.text() == '': return
+        name = QFileDialog.getSaveFileName(self, 'Save File')
+        print name
+        if name[0]:
+            return
+            file = open(name[0],'w')
+            file.write(self.editor.text())
+            file.close()
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import *
