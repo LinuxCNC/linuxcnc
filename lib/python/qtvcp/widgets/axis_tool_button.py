@@ -66,6 +66,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         #self.setPopupMode(QToolButton.DelayedPopup)
 
     def _hal_init(self):
+        self.dialog.hal_init(self.HAL_GCOMP_, self.HAL_NAME_ ,self,self.QTVCP_INSTANCE_,self.PATHS_, self.PREFS_) 
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
