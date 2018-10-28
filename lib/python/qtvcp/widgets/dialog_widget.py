@@ -475,16 +475,40 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
+        x,y,w,h = self.calculate_placement()
+        self.setGeometry(x,y,w,h)
+        self.show()
+        self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        if self.PREFS_ and not self._geometry_string =='default':
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            
+            x = self.geometry().x()
+            y = self.geometry().y()
+            w = self.geometry().width()
+            h = self.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            self.PREFS_.putpref('ToolOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+
+    def calculate_placement(self):
+        # If there is a preference file object use it to load the geometry
+        try:
+            if self.PREFS_:
+                self._geometry_string = self.PREFS_.getpref('ToolOffsetDialog-geometry', '', str, 'DIALOG_OPTIONS')
+                if self._geometry_string in('default',''):
+                    pass
+                else:
+                    x, y, w, h = self._geometry_string.split(' ')
+                    return int(x), int(y), int(w), int(h)
+        except:
+            pass
         # move to botton laeft of parent
         ph = self.topParent.geometry().height()
         px = self.topParent.geometry().x()
         py = self.topParent.geometry().y()
         dw = 450
         dh = 300
-        self.setGeometry(px, py+ph-dh, dw, dh)
-        self.show()
-        self.exec_()
-        STATUS.emit('focus-overlay-changed', False, None, None)
+        return px, py+ph-dh, dw, dh
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
