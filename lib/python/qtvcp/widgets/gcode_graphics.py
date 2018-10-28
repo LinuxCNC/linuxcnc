@@ -22,7 +22,7 @@ PyQt5 widget for plotting gcode.
 
 import sys
 import os
-
+import gcode
 from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QColor
 
