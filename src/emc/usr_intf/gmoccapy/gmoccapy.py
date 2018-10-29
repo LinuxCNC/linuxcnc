@@ -87,7 +87,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.9"
+_RELEASE = " 1.5.10"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -2293,7 +2293,7 @@ class gmoccapy( object ):
             self.initialized = True
         if self.max_velocity != self.stat.max_velocity:
             self.initialized = False
-            self.widgets.adj_max_vel.set_value( self.stat.max_velocity * 60 )
+            self.widgets.adj_max_vel.set_value( self.stat.max_velocity * 60 * self.faktor )
             self.max_velocity = self.stat.max_velocity
             self.initialized = True
 #        if self.rapidrate != self.stat.rapidrate:
@@ -2471,10 +2471,15 @@ class gmoccapy( object ):
             # machine units = imperial
             else:
                 self.faktor = 25.4
+            self.turtle_jog = self.turtle_jog * self.faktor
+            self.rabbit_jog = self.rabbit_jog * self.faktor
             self._update_slider( widgetlist )
+
         else:
             # display units equal machine units would be factor = 1,
             # but if factor not equal 1.0 than we have to reconvert from previous first
+            self.turtle_jog = self.turtle_jog / self.faktor
+            self.rabbit_jog = self.rabbit_jog / self.faktor
             if self.faktor != 1.0:
                 self.faktor = 1 / self.faktor
                 self._update_slider( widgetlist )
@@ -2617,13 +2622,16 @@ class gmoccapy( object ):
             self.rabbit_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_turtle_jog )
             active_jog_vel = self.widgets.adj_jog_vel.get_value()
+            max_jog_vel = self.widgets.adj_jog_vel.upper
             self.widgets.adj_jog_vel.configure( self.turtle_jog, 0,
-                                               self.jog_rate_max / self.turtle_jog_factor, 1, 0, 0 )
+                                                max_jog_vel / self.turtle_jog_factor, 1, 0, 0 )
         else:
             self.turtle_jog = self.widgets.adj_jog_vel.get_value()
             widget.set_image( self.widgets.img_rabbit_jog )
+            active_jog_vel = self.widgets.adj_jog_vel.get_value()
+            max_jog_vel = self.widgets.adj_jog_vel.upper
             self.widgets.adj_jog_vel.configure( self.rabbit_jog, 0,
-                                               self.jog_rate_max, 1, 0, 0 )
+                                                max_jog_vel * self.turtle_jog_factor, 1, 0, 0 )
 
     def _on_turtle_jog_enable( self, pin ):
         self.widgets.tbtn_turtle_jog.set_active( bool( pin.get() ) )
@@ -3039,8 +3047,8 @@ class gmoccapy( object ):
     def on_adj_max_vel_value_changed( self, widget, data = None ):
         if not self.initialized:
             return
-        value = widget.get_value() / 60
-        self.command.maxvel( value * ( 1 / self.faktor ) )
+        value = widget.get_value() / 60 / self.faktor
+        self.command.maxvel( value )
 
     # this are the MDI thinks we need
     def on_btn_delete_clicked( self, widget, data = None ):

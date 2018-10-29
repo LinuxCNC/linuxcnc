@@ -1,6 +1,16 @@
+ver. 1.5.10
+- fixed a misbehavior of the turtle button
+  If machine and system units was not identical, the turtle button destroyed
+  the values set on the jog vel slider
+  thanks to sliptonic from linuxcnc forum
+- while moving the max vel slider and units of machine and system not being 
+  identical, results in a jumping slider, as the factor has not been taken in 
+  account on the halui pin checking
+
+
 ver. 1.5.9
 - fixed a bug on import gst, leading to an exception if gst is not installed
-- fixed a bug, not taking care of Y-DRO (D) in lateh mode if the user changed
+- fixed a bug, not taking care of Y-DRO (D) in lathe mode if the user changed
   the size of the DRO
 
 ver. 1.5.8
