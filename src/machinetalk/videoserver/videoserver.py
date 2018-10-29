@@ -1,15 +1,15 @@
 #!/usr/bin/python2
+# coding=utf-8
 
 import os
 import sys
 import time
-from stat import *
 import subprocess
 import threading
 import socket
 import argparse
+from six.moves import configparser
 
-import ConfigParser
 from machinekit import service
 from machinekit import config
 
@@ -17,7 +17,7 @@ from machinekit import config
 MJPG_STREAMER_PLUGIN_PATH = '/usr/local/lib/mjpg-streamer/'
 
 
-class VideoDevice:
+class VideoDevice(object):
     process = None
     service = None
     txtRecord = None
@@ -26,16 +26,15 @@ class VideoDevice:
     resolution = '640x480'
     quality = 80
     device = '/dev/video0'
-    bufferSize = 1
+    buffer_size = 1
     port = 0
     dsname = ''
-    zmqUri = ''
+    zmq_uri = ''
+    arguments = ''
 
 
 class VideoServer(threading.Thread):
-
-    def __init__(self, inifile, host='', loopback=False,
-                 svc_uuid=None, debug=False):
+    def __init__(self, inifile, host='', loopback=False, svc_uuid=None, debug=False):
         threading.Thread.__init__(self)
         self.inifile = inifile
         self.host = host
@@ -44,33 +43,33 @@ class VideoServer(threading.Thread):
         self.debug = debug
 
         self.videoDevices = {}
-        self.cfg = ConfigParser.ConfigParser(defaults={'arguments': ''})
+        self.cfg = configparser.ConfigParser(defaults={'arguments': ''})
         self.cfg.read(self.inifile)
         if self.debug:
-            print (("video devices:", self.cfg.sections()))
+            print("video devices:", self.cfg.sections())
         for n in self.cfg.sections():
-            videoDevice = VideoDevice()
+            video_device = VideoDevice()
 
-            videoDevice.framerate = self.cfg.getint(n, 'framerate')
-            videoDevice.resolution = self.cfg.get(n, 'resolution')
-            videoDevice.quality = self.cfg.get(n, 'quality')
-            videoDevice.device = self.cfg.get(n, 'device')
-            videoDevice.bufferSize = self.cfg.getint(n, 'bufferSize')
-            videoDevice.arguments = self.cfg.get(n, 'arguments')
-            self.videoDevices[n] = videoDevice
+            video_device.framerate = self.cfg.getint(n, 'framerate')
+            video_device.resolution = self.cfg.get(n, 'resolution')
+            video_device.quality = self.cfg.get(n, 'quality')
+            video_device.device = self.cfg.get(n, 'device')
+            video_device.buffer_size = self.cfg.getint(n, 'bufferSize')
+            video_device.arguments = self.cfg.get(n, 'arguments')
+            self.videoDevices[n] = video_device
             if self.debug:
-                print (("framerate:", videoDevice.framerate))
-                print (("resolution:", videoDevice.resolution))
-                print (("quality:", videoDevice.quality))
-                print (("device:", videoDevice.device))
-                print (("bufferSize:", videoDevice.bufferSize))
-                print (("arguments:", videoDevice.arguments))
+                print("framerate:", video_device.framerate)
+                print("resolution:", video_device.resolution)
+                print("quality:", video_device.quality)
+                print("device:", video_device.device)
+                print("bufferSize:", video_device.buffer_size)
+                print("arguments:", video_device.arguments)
 
-    def startVideo(self, deviceId):
-        videoDevice = self.videoDevices[deviceId]
+    def start_video(self, device_id):
+        video_device = self.videoDevices[device_id]
 
-        if videoDevice.process is not None:
-            print ("video device already running")
+        if video_device.process is not None:
+            print("video device already running")
             return
 
         sock = socket.socket()
@@ -78,83 +77,90 @@ class VideoServer(threading.Thread):
         port = sock.getsockname()[1]
         sock.close()
 
-        baseUri = 'tcp://'
+        base_uri = 'tcp://'
         if self.loopback:
-            baseUri += '127.0.0.1'
+            base_uri += '127.0.0.1'
         else:
-            baseUri += '*'
+            base_uri += '*'
 
-        videoDevice.port = port
-        videoDevice.zmqUri = '%s:%i' % (baseUri, videoDevice.port)
-        videoDevice.dsname = videoDevice.zmqUri.replace('*', self.host)
+        video_device.port = port
+        video_device.zmq_uri = '%s:%i' % (base_uri, video_device.port)
+        video_device.dsname = video_device.zmq_uri.replace('*', self.host)
 
         if self.debug:
-            print ((
-                "dsname = ", videoDevice.dsname,
-                "port =", videoDevice.port))
+            print("dsname = ", video_device.dsname, "port =", video_device.port)
 
         libpath = MJPG_STREAMER_PLUGIN_PATH
         os.environ['LD_LIBRARY_PATH'] = libpath
 
         arguments = ""
-        if videoDevice.arguments is not '':
-            arguments = ' ' + videoDevice.arguments
+        if video_device.arguments is not '':
+            arguments = ' ' + video_device.arguments
 
-        command = ['mjpg_streamer -i \"' + libpath + 'input_uvc.so -n' +
-                   ' -f ' + str(videoDevice.framerate) +
-                   ' -r ' + videoDevice.resolution +
-                   ' -q ' + videoDevice.quality +
-                   ' -d ' + videoDevice.device +
-                   '" -o \"' + libpath + 'output_zmqserver.so --address ' +
-                   videoDevice.zmqUri +
-                   ' --buffer_size ' + str(videoDevice.bufferSize) + '\"' +
-                   arguments]
+        command = [
+            'mjpg_streamer -i \"{libpath}input_uvc.so -n -f {framerate} -r {resolution} -q {quality} -d {device}" '
+            '-o \" {libpath}output_zmqserver.so --address {uri} --buffer_size {buffer_size}\"{args}'.format(
+                libpath=libpath,
+                framerate=video_device.framerate,
+                resolution=video_device.resolution,
+                quality=video_device.quality,
+                device=video_device.device,
+                uri=video_device.zmq_uri,
+                buffer_size=video_device.buffer_size,
+                args=arguments,
+            )
+        ]
 
         if self.debug:
-            print (("command:", command))
+            print("command:", command)
 
-        videoDevice.process = subprocess.Popen(command, shell=True)
+        video_device.process = subprocess.Popen(command, shell=True)
 
         try:
-            videoDevice.service = service.Service(type='video',
-                                  svcUuid=self.svc_uuid,
-                                  dsn=videoDevice.dsname,
-                                  port=videoDevice.port,
-                                  host=self.host,
-                                  loopback=self.loopback,
-                                  debug=self.debug)
-            videoDevice.service.publish()
+            video_device.service = service.Service(
+                type_='video',
+                svc_uuid=self.svc_uuid,
+                dsn=video_device.dsname,
+                port=video_device.port,
+                host=self.host,
+                loopback=self.loopback,
+                debug=self.debug,
+            )
+            video_device.service.publish()
         except Exception as e:
-            print (('cannot register DNS service', e))
+            print('cannot register DNS service', e)
 
-    def stopVideo(self, deviceId):
-        videoDevice = self.videoDevices[deviceId]
+    def stop_video(self, device_id):
+        video_device = self.videoDevices[device_id]
 
-        if videoDevice.process is None:
-            print ("video device not running")
+        if video_device.process is None:
+            print("video device not running")
             return
 
-        videoDevice.service.unpublish()
-        videoDevice.process.terminate()
-        videoDevice.process = None
-        videoDevice.service = None
+        video_device.service.unpublish()
+        video_device.process.terminate()
+        video_device.process = None
+        video_device.service = None
 
     def run(self):
         if self.debug:
-            print ("run called")
+            print("run called")
 
         try:
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
             for n in self.videoDevices:
-                videoDevice = self.videoDevices[n]
-                if videoDevice.process is None:
+                video_device = self.videoDevices[n]
+                if video_device.process is None:
                     continue
-                self.stopVideo(n)
+                self.stop_video(n)
+
 
 def main():
-    parser = argparse.ArgumentParser(description='Videoserver provides a webcam interface for Machinetalk')
+    parser = argparse.ArgumentParser(
+        description='Videoserver provides a webcam interface for Machinetalk'
+    )
     parser.add_argument('-i', '--ini', help='INI file', default='video.ini')
     parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
     parser.add_argument('webcams', help='List of webcams to stream', nargs='+')
@@ -171,33 +177,33 @@ def main():
         sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
-    mki = ConfigParser.ConfigParser()
+    mki = configparser.ConfigParser()
     mki.read(mkini)
-    mkUuid = mki.get("MACHINEKIT", "MKUUID")
+    mk_uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
 
     if remote == 0:
-        print("Remote communication is deactivated, videoserver will use the loopback interfaces")
-        print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
+        print(
+            "Remote communication is deactivated, videoserver will use the loopback interfaces"
+        )
+        print("set REMOTE in " + mkini + " to 1 to enable remote communication")
 
     if debug:
-        print ("announcing videoserver")
+        print("announcing videoserver")
 
     hostname = '%(fqdn)s'  # replaced by service announcement
-    video = VideoServer(args.ini,
-                        svc_uuid=mkUuid,
-                        host=hostname,
-                        loopback=(not remote),
-                        debug=debug)
+    video = VideoServer(
+        args.ini, svc_uuid=mk_uuid, host=hostname, loopback=(not remote), debug=debug
+    )
     video.setDaemon(True)
     video.start()
 
     for webcam in args.webcams:
-        video.startVideo(webcam)
+        video.start_video(webcam)
 
     while True:
         time.sleep(1)
 
+
 if __name__ == "__main__":
     main()
-

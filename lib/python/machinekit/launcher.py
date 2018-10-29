@@ -7,21 +7,20 @@ import signal
 from machinekit import compat
 
 _processes = []
-_realtimeStarted = False
+_realtime_started = False
 _exiting = False
 
 
 # ends a running Machinekit session
 def end_session():
     stop_processes()
-    if _realtimeStarted:  # Stop realtime only when explicitely started
+    if _realtime_started:  # Stop realtime only when explicitly started
         stop_realtime()
 
 
 # checks wheter a single command is available or not
 def check_command(command):
-    process = subprocess.Popen('which ' + command, stdout=subprocess.PIPE,
-                               shell=True)
+    process = subprocess.Popen('which ' + command, stdout=subprocess.PIPE, shell=True)
     process.wait()
     if process.returncode != 0:
         print(command + ' not found, check Machinekit installation')
@@ -97,15 +96,14 @@ def stop_process(command):
 # stops all registered processes
 def stop_processes():
     for process in _processes:
-        sys.stdout.write('stopping ' + process.command.split(None, 1)[0]
-                         + '... ')
+        sys.stdout.write('stopping ' + process.command.split(None, 1)[0] + '... ')
         sys.stdout.flush()
         os.killpg(process.pid, signal.SIGTERM)
         process.wait()
         sys.stdout.write('done\n')
 
 
-# loads a HAL configuraton file
+# loads a HAL configuration file
 def load_hal_file(filename, ini=None):
     sys.stdout.write("loading " + filename + '... ')
     sys.stdout.flush()
@@ -113,13 +111,16 @@ def load_hal_file(filename, ini=None):
     _, ext = os.path.splitext(filename)
     if ext == '.py':
         from machinekit import rtapi
+
         if not rtapi.__rtapicmd:
             rtapi.init_RTAPI()
         if ini is not None:
             from machinekit import config
+
             config.load_ini(ini)
         globals_ = {}
-        execfile(filename, globals_)
+        with open(filename, 'r') as f:
+            exec(f.read(), globals_)
     else:
         command = 'halcmd'
         if ini is not None:
@@ -143,26 +144,28 @@ def install_comp(filename):
     install = True
     base, ext = os.path.splitext(os.path.basename(filename))
     flavor = compat.default_flavor()
-    moduleDir = compat.get_rtapi_config("RTLIB_DIR")
-    moduleName = flavor.name + '/' + base + flavor.mod_ext
-    modulePath = os.path.join(moduleDir, moduleName)
-    if os.path.exists(modulePath):
-        compTime = os.path.getmtime(filename)
-        moduleTime = os.path.getmtime(modulePath)
-        if (compTime < moduleTime):
+    module_dir = compat.get_rtapi_config("RTLIB_DIR")
+    module_name = flavor.name + '/' + base + flavor.mod_ext
+    module_path = os.path.join(module_dir, module_name)
+    if os.path.exists(module_path):
+        comp_time = os.path.getmtime(filename)
+        module_time = os.path.getmtime(module_path)
+        if comp_time < module_time:
             install = False
 
     if install is True:
         if ext == '.icomp':
-            cmdBase = 'instcomp'
+            cmd_base = 'instcomp'
         else:
-            cmdBase = 'comp'
+            cmd_base = 'comp'
         sys.stdout.write("installing " + filename + '... ')
         sys.stdout.flush()
-        if os.access(moduleDir, os.W_OK):  # if we have write access we might not need sudo
-            cmd = '%s --install %s' % (cmdBase, filename)
+        if os.access(
+            module_dir, os.W_OK
+        ):  # if we have write access we might not need sudo
+            cmd = '{} --install {}'.format(cmd_base, filename)
         else:
-            cmd = 'sudo %s --install %s' % (cmdBase, filename)
+            cmd = 'sudo {} --install {}'.format(cmd_base, filename)
 
         subprocess.check_call(cmd, shell=True)
 
@@ -171,54 +174,52 @@ def install_comp(filename):
 
 # starts realtime
 def start_realtime():
-    global _realtimeStarted
+    global _realtime_started
     sys.stdout.write("starting realtime...")
     sys.stdout.flush()
     subprocess.check_call('realtime start', shell=True)
     sys.stdout.write('done\n')
-    _realtimeStarted = True
+    _realtime_started = True
 
 
 # stops realtime
 def stop_realtime():
-    global _realtimeStarted
+    global _realtime_started
     sys.stdout.write("stopping realtime... ")
     sys.stdout.flush()
     subprocess.check_call('realtime stop', shell=True)
     sys.stdout.write('done\n')
-    _realtimeStarted = False
+    _realtime_started = False
 
 
 # rip the Machinekit environment
 def rip_environment(path=None, force=False):
-    if force is False and os.getenv('EMC2_PATH') is not None:   # check if already ripped
+    if force is False and os.getenv('EMC2_PATH') is not None:  # check if already ripped
         return
 
     if path is None:
         command = None
-        scriptFilePath = os.environ['HOME'] + '/.bashrc'
-        if os.path.exists(scriptFilePath):
-            with open(scriptFilePath) as f:    # use the bashrc
+        script_file_path = os.environ['HOME'] + '/.bashrc'
+        if os.path.exists(script_file_path):
+            with open(script_file_path) as f:  # use the bashrc
                 content = f.readlines()
                 for line in content:
                     if 'rip-environment' in line:
                         line = line.strip()
-                        if (line[0] == '.'):
+                        if line[0] == '.':
                             command = line
 
-        scriptFilePath = os.environ['HOME'] + '/machinekit/scripts/rip-environment'
-        if os.path.exists(scriptFilePath):
-            command = '. ' + scriptFilePath
+        script_file_path = os.environ['HOME'] + '/machinekit/scripts/rip-environment'
+        if os.path.exists(script_file_path):
+            command = '. ' + script_file_path
 
-        if (command is None):
+        if command is None:
             sys.stderr.write('Unable to rip environment')
             sys.exit(1)
     else:
         command = '. ' + path + '/scripts/rip-environment'
 
-    process = subprocess.Popen(command + ' && env',
-                               stdout=subprocess.PIPE,
-                               shell=True)
+    process = subprocess.Popen(command + ' && env', stdout=subprocess.PIPE, shell=True)
     for line in process.stdout:
         (key, _, value) = line.partition('=')
         os.environ[key] = value.rstrip()
@@ -230,10 +231,10 @@ def rip_environment(path=None, force=False):
 def check_processes():
     for process in _processes:
         process.poll()
-        if (process.returncode is not None):
+        if process.returncode is not None:
             _processes.remove(process)
             end_session()
-            if (process.returncode != 0):
+            if process.returncode != 0:
                 sys.exit(1)
             else:
                 sys.exit(0)
@@ -241,11 +242,11 @@ def check_processes():
 
 # register exit signal handlers
 def register_exit_handler():
-    signal.signal(signal.SIGINT, _exitHandler)
-    signal.signal(signal.SIGTERM, _exitHandler)
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
 
 
-def _exitHandler(signum, frame):
+def _exit_handler(signum, frame):
     del signum  # unused
     del frame  # unused
     global _exiting

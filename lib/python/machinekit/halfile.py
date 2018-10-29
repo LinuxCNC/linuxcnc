@@ -1,10 +1,10 @@
 # coding=utf-8
 import os
-import ConfigParser
-from machinekit import rtapi,hal
+from six.moves import configparser
+from machinekit import rtapi, hal
 
 # retrieve the machinekit UUID
-cfg = ConfigParser.ConfigParser()
+cfg = configparser.ConfigParser()
 cfg.read(os.getenv("MACHINEKIT_INI"))
 uuid = cfg.get("MACHINEKIT", "MKUUID")
 
