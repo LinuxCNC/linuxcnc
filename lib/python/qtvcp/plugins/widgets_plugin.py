@@ -168,7 +168,12 @@ class WidgetSwitcherPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return True
     def domXml(self):
-        return '<widget class="WidgetSwitcher" name="widgetswitcher" />\n'
+        return '''<widget class="WidgetSwitcher" name="widgetswitcher">
+<property name="widget_list" stdset="0">
+   <stringlist>
+   </stringlist>
+  </property>
+</widget>'''
     def includeFile(self):
         return "qtvcp.widgets.widget_switcher"
 

@@ -17,7 +17,7 @@
 
 import sys
 
-from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QStackedWidget, QLayout
 
 from collections import OrderedDict
@@ -33,23 +33,27 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
+    widgetChanged = pyqtSignal(int)
+
     def __init__(self, parent=None):
         super(WidgetSwitcher, self).__init__(parent)
         self._widgetNames = OrderedDict()
-        self._widget1_name =  ''
-        self._widget2_name =  ''
+        self._current_object =  None
+        self._current_number = -1
 
     # do this now so we have a reference to all the widets
     # through QTVCP_INSTANCE
     def _hal_init(self):
-        if self._widget1_name !=  '':
-            self.register_widget(self._widget1_name, self.QTVCP_INSTANCE_)
-        if self._widget2_name !=  '':
-            self.register_widget(self._widget2_name, self.QTVCP_INSTANCE_)
-        if self._widget1_name ==  '' and self._widget2_name ==  '':
+        wlist = self.property("widget_list")
+        if wlist is None:
                 LOG.warning('No widget names found for switching.')
+        else:
+            for i in wlist:
+                LOG.debug('Widget specified in list: {}'.format(i))
+                self.register_widget(i, self.QTVCP_INSTANCE_)
 
-    # add the widget info so swicther will know what to switch
+    # add the widget info so switcher will know what to switch
+    # makes a list of: widget object, widget's layout, position in the layout
     def register_widget(self, name, object):
         layout, position = self.search(object[name])
         self._widgetNames[name] = [object[name], layout, position]
@@ -64,7 +68,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
         LOG.error('No layout found for {}'.format(name))
         return None, None
 
-    # Show the widgets based on a rference number
+    # Show the widgets based on a reference number
     # -1 will return to default layout
     def show_id_widget(self, number):
         if number is -1:
@@ -75,17 +79,23 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             if num == number:
                 self.addWidget(obj[0])
                 self.setCurrentWidget(obj[0])
+                self._current_object = obj
+                self._current_number = num
+                self.widgetChanged.emit(num)
             else:
                 obj[1].addWidget(obj[0])
                 obj[0].show()
 
     # show widget based on object name (a string)
     def show_named_widget(self, name):
-        for i in self._widgetNames:
+        for num, i in enumerate(self._widgetNames):
             obj = self._widgetNames[i]
             if i == name:
                 self.addWidget(obj[0])
                 self.setCurrentWidget(obj[0])
+                self._current_object = obj
+                self._current_number = num
+                self.widgetChanged.emit(num)
             else:
                 obj[1].addWidget(obj[0])
                 obj[0].show()
@@ -96,22 +106,22 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
             obj = self._widgetNames[i]
             obj[1].insertWidget(obj[2], obj[0])
             obj[0].show()
+            self._current_object = None
+            self._current_number = -1
+            self.widgetChanged.emit(-1)
 
-    def setwidget1(self, data):
-        self._widget1_name = data
-    def getwidget1(self):
-        return self._widget1_name
-    def resetwidget1(self):
-        self._widget1_name =  ''
-    widget1_name = QtCore.pyqtProperty(str, getwidget1, setwidget1, resetwidget1)
+    def show_next(self):
+        total = len(self._widgetNames)
+        next = self._current_number + 1
+        if next == total:
+            next = -1
+        self.show_id_widget(next)
 
-    def setwidget2(self, data):
-        self._widget2_name = data
-    def getwidget2(self):
-        return self._widget2_name
-    def resetwidget2(self):
-        self._widget2_name =  ''
-    widget2_name = QtCore.pyqtProperty(str, getwidget2, setwidget2, resetwidget2)
+    def get_current_object(self):
+        return self._current_object
+
+    def get_current_number(self):
+        return self._current_number
 
     ##############################
     # required class boiler code #
