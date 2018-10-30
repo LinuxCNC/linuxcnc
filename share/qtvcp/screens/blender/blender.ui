@@ -188,7 +188,7 @@
                  <item>
                   <widget class="QProgressBar" name="progressBar">
                    <property name="value">
-                    <number>24</number>
+                    <number>0</number>
                    </property>
                   </widget>
                  </item>
@@ -276,7 +276,6 @@
                         <blue>0</blue>
                        </color>
                       </property>
-                      <zorder>frame_2</zorder>
                      </widget>
                     </item>
                     <item>
@@ -2108,7 +2107,7 @@
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
-   <extends>QFrame</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
@@ -2126,9 +2125,29 @@
  <resources>
   <include location="blender.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>gcode_editor</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>progressBar</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>589</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>661</x>
+     <y>399</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>percent(int)</slot>
+ </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
