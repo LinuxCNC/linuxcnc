@@ -30,9 +30,11 @@
 import sys
 import os
 
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import QFont, QFontMetrics, QColor
-
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject
+from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
+         QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
+            QFileDialog, QFrame, QLabel
 try:
     from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
 except ImportError as e:
@@ -234,7 +236,7 @@ class EditorBase(QsciScintilla):
         # Don't want to see the horizontal scrollbar at all
         # Use raw message to Scintilla here (all messages are documented
         # here: http://www.scintilla.org/ScintillaDoc.html)
-        #self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+        self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
 
         # default gray background
         self.set_background_color('#C0C0C0')
@@ -265,6 +267,7 @@ class EditorBase(QsciScintilla):
         self.lexer = GcodeLexer(self)
         self.lexer.setDefaultFont(self.font)
         self.setLexer(self.lexer)
+        self.set_background_color('#C0C0C0')
 
     def new_text(self):
         self.setText('')
@@ -296,13 +299,13 @@ class EditorBase(QsciScintilla):
         self.findNext()
 
 ##########################################################
-# Gcode widget
+# Gcode display widget (intended read-only)
 ##########################################################
-class GcodeEditor(EditorBase, _HalWidgetBase):
+class GcodeDisplay(EditorBase, _HalWidgetBase):
     ARROW_MARKER_NUM = 8
 
     def __init__(self, parent=None):
-        super(GcodeEditor, self).__init__(parent)
+        super(GcodeDisplay, self).__init__(parent)
         self._last_filename = None
         self.auto_show_mdi = True
         self.last_line = None
@@ -377,9 +380,7 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
                 LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
-            # TODO send this out as a STATUS message or QT signal?
-            # It could be used to update a % done progress bar
-            #print 'LINES',self.lines(),line,line*100/self.lines()
+            self.emit_percent(line*100/self.lines())
         self.markerAdd(line, self.ARROW_MARKER_NUM)
         if self.last_line:
             self.markerDelete(self.last_line, self.ARROW_MARKER_NUM)
@@ -387,6 +388,9 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
         self.ensureCursorVisible()
         self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
         self.last_line = line
+
+    def emit_percent(self, percent):
+        pass
 
     def set_line_number(self, w, line):
         pass
@@ -422,33 +426,29 @@ class GcodeEditor(EditorBase, _HalWidgetBase):
 
 
 #############################################
-# For testing
+# For Editing Gcode
 #############################################
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction
-from PyQt5.QtCore import QSize    
-from PyQt5.QtGui import QIcon
-class TestEditor(QMainWindow):
-    def __init__(self):
-        QMainWindow.__init__(self)
+
+class GcodeEditor(QWidget, _HalWidgetBase):
+    percentDone = pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        super(GcodeEditor, self).__init__(parent)
         self.isCaseSensitive = 0
 
-        self.setMinimumSize(QSize(800, 300))    
+        self.setMinimumSize(QSize(300, 200))    
         self.setWindowTitle("PyQt5 editor test example") 
 
         lay = QVBoxLayout()
-        wid = QWidget()
-        wid.setLayout(lay)
-        self.setCentralWidget(wid)
+        lay.setContentsMargins(0,0,0,0)
+        self.setLayout(lay)
 
-        # add editor
-        self.editor = EditorBase(self)
-        self.editor.set_python_lexer()
-        self.editor.setReadOnly(False)
-        lay.addWidget(self.editor)
-
-        # Add button widget
-        lay.addWidget(self.createGroup())
+        # make editor
+        self.editor = GcodeDisplay(self)
+        # class patch editor's function to ours
+        # so we get the lines percent update
+        self.editor.emit_percent = self.emit_percent
+        self.editor.setReadOnly(True)
 
         ################################
         # add menubar actions
@@ -492,22 +492,37 @@ class TestEditor(QMainWindow):
         pythonLexerAction.triggered.connect(self.editor.set_python_lexer)
 
         # Create toolbar and add action
-        fileMenu = self.addToolBar('File')
-        fileMenu.addAction(newAction)
-        fileMenu.addAction(openAction)
-        fileMenu.addAction(saveAction)
-        fileMenu.addAction(exitAction)
+        toolBar = QToolBar('File')
+        toolBar.addAction(newAction)
+        toolBar.addAction(openAction)
+        toolBar.addAction(saveAction)
+        toolBar.addAction(exitAction)
 
-        fileMenu.addSeparator()
+        toolBar.addSeparator()
+
         # add lexer actions
-        #lexerMenu = menuBar.addMenu('&lexer')
-        fileMenu.addAction(gCodeLexerAction)
-        fileMenu.addAction(pythonLexerAction)
+        toolBar.addAction(gCodeLexerAction)
+        toolBar.addAction(pythonLexerAction)
+
+        toolBar.addSeparator()
+        toolBar.addWidget(QLabel('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Edit Mode</span></p></body></html>'))
+
+        # create a frame for buttons
+        box = QHBoxLayout()
+        box.addWidget(toolBar)
+
+        self.topMenu = QFrame()
+        self.topMenu.setLayout(box)
+
+        # add widgets
+        lay.addWidget(self.topMenu)
+        lay.addWidget(self.editor)
+        lay.addWidget(self.createGroup())
+
+        self.readOnlyMode()
 
     def createGroup(self):
-        groupBox = QGroupBox("Search Controls")
-
-
+        self.bottomMenu = QFrame()
 
         self.searchText = QLineEdit(self)
         self.replaceText = QLineEdit(self)
@@ -545,19 +560,35 @@ class TestEditor(QMainWindow):
         toolBar.addSeparator()
 
         # create case action
-        caseAction = QAction(QIcon.fromTheme('edit-case'), 'Case\n Sensitive', self)  
+        caseAction = QAction(QIcon.fromTheme('edit-case'), 'Aa', self)  
         caseAction.setCheckable(1)      
         caseAction.triggered.connect(self.caseCall)
         toolBar.addAction(caseAction)
 
-        vbox = QHBoxLayout()
-        vbox.addWidget(toolBar)
-        vbox.addWidget(self.searchText)
-        vbox.addWidget(self.replaceText)
-        vbox.addStretch(1)
-        groupBox.setLayout(vbox)
+        box = QHBoxLayout()
+        box.addWidget(toolBar)
+        box.addWidget(self.searchText)
+        box.addWidget(self.replaceText)
+        box.addStretch(1)
+        self.bottomMenu.setLayout(box)
 
-        return groupBox
+        return self.bottomMenu
+
+    def _hal_init(self):
+        # name the top and bottom frames so it's easier to style
+        #print '%sBottomButtonFrame'% self.objectName()
+        self.bottomMenu.setObjectName('%sBottomButtonFrame'% self.objectName())
+        self.topMenu.setObjectName('%sTopButtonFrame'% self.objectName())
+
+    def editMode(self):
+        self.topMenu.show()
+        self.bottomMenu.show()
+        self.editor.setReadOnly(False)
+
+    def readOnlyMode(self):
+        self.topMenu.hide()
+        self.bottomMenu.hide()
+        self.editor.setReadOnly(True)
 
     def openCall(self):
         print('Open')
@@ -580,8 +611,7 @@ class TestEditor(QMainWindow):
         if self.editor.isModified():
             result = self.killCheck()
             if result:
-                return
-        self.close()
+                self.readOnlyMode()
 
     def undoCall(self):
         self.editor.undo()
@@ -605,6 +635,7 @@ class TestEditor(QMainWindow):
         self.isCaseSensitive -=1
         self.isCaseSensitive *=-1
         print self.isCaseSensitive
+
     def getFileName(self):
         name = QFileDialog.getOpenFileName(self, 'Open File')
         return str(name[0])
@@ -623,10 +654,12 @@ class TestEditor(QMainWindow):
         name = QFileDialog.getSaveFileName(self, 'Save File')
         print name
         if name[0]:
-            return
             file = open(name[0],'w')
             file.write(self.editor.text())
             file.close()
+
+    def emit_percent(self, percent):
+        self.percentDone.emit(percent)
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import *
@@ -634,8 +667,9 @@ if __name__ == "__main__":
     from PyQt5.QtGui import *
 
     app = QtWidgets.QApplication(sys.argv)
-    mainWin = TestEditor()
-    mainWin.show()
+    w = GcodeEditor()
+    w.editMode()
+    w.show()
     sys.exit( app.exec_() )
 
 

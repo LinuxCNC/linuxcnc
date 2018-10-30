@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.mdi_line import MDILine
-from qtvcp.widgets.gcode_editor import GcodeEditor
+from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeDisplay
 from qtvcp.widgets.status_stacked import StatusStacked
 from qtvcp.widgets.widget_switcher import WidgetSwitcher
 from qtvcp.widgets.origin_offsetview import OriginOffsetView
@@ -107,6 +107,39 @@ class GcodeEditorPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="GcodeEditor" name="gcode_editor" />\n'
     def includeFile(self):
         return "qtvcp.widgets.gcode_editor"
+
+####################################
+# Gcode display (read only)
+####################################
+class GcodeDisplayPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(GcodeDisplayPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return GcodeDisplay(parent)
+    def name(self):
+        return "GcodeDisplay"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('gcode_display')))
+    def toolTip(self):
+        return "Gcode display Widget (read-only)"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="GcodeDisplay" name="gcode_display" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.gcode_editor"
+
 
 ####################################
 # StatusStacked
