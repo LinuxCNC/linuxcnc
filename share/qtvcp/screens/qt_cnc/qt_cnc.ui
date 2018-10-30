@@ -952,8 +952,8 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
         <widget class="CamViewDialog" name="camviewdialog">
          <property name="geometry">
           <rect>
-           <x>478</x>
-           <y>337</y>
+           <x>489</x>
+           <y>325</y>
            <width>700</width>
            <height>400</height>
           </rect>
@@ -2528,17 +2528,18 @@ View</string>
    <widget class="WidgetSwitcher" name="widgetswitcher">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>0</y>
-      <width>841</width>
-      <height>461</height>
+      <x>200</x>
+      <y>4</y>
+      <width>819</width>
+      <height>454</height>
      </rect>
     </property>
-    <property name="widget1_name" stdset="0">
-     <string>Graphics</string>
-    </property>
-    <property name="widget2_name" stdset="0">
-     <string>gcodeeditor</string>
+    <property name="widget_list" stdset="0">
+     <stringlist>
+      <string>Graphics</string>
+      <string>gcodeeditor</string>
+      <string>dro_frame</string>
+     </stringlist>
     </property>
     <widget class="QWidget" name="page">
      <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2871,9 +2872,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
             <height>200</height>
            </size>
           </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
           <widget class="ToolOffsetDialog" name="tooloffsetdialog">
            <property name="geometry">
             <rect>
@@ -2963,11 +2961,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>StatusAdjustmentBar</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.adjustment_bar</header>
-  </customwidget>
-  <customwidget>
    <class>MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
@@ -3038,6 +3031,11 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
+  </customwidget>
+  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
@@ -3056,7 +3054,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
-   <extends>QFrame</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
@@ -3089,6 +3087,22 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>widgetswitcher</sender>
+   <signal>widgetChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_edit_mode(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>683</x>
+     <y>455</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>602</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>halbuttonclicked()</slot>
@@ -3108,5 +3122,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
   <slot>change_rapidrate()</slot>
   <slot>pausefile_clicked()</slot>
   <slot>widget_switch(bool)</slot>
+  <slot>set_edit_mode(int)</slot>
  </slots>
 </ui>

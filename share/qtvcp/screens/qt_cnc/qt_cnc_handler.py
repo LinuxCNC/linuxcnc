@@ -107,10 +107,13 @@ class HandlerClass:
     # callbacks from form #
     #######################
     def widget_switch(self,data):
-        self._big_view +=1
-        if self._big_view ==2:
-            self._big_view = -1
-        self.w.widgetswitcher.show_id_widget(self._big_view)
+        self.w.widgetswitcher.show_next()
+
+    def set_edit_mode(self, num):
+        if num == 1:
+            self.w.gcodeeditor.editMode()
+        else:
+            self.w.gcodeeditor.readOnlyMode()
 
     #####################
     # general functions #
