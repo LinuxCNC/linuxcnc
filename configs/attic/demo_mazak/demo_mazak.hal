@@ -353,13 +353,13 @@ net sp-in-low-gear ax5214h.0.in-36
 net sp-enc-pos scale.2.in
 net sp-pos-revs scale.2.out
 setp scale.2.gain 0.002777777777777
-net sp-pos-revs motion.spindle-revs
+net sp-pos-revs spindle.0.revs
 
 # rayh begins to screw it up with help from his friends
 # connect iocontrol signals for spindle run and speed
 # these work as long as a spindle command is being output.
-net spindle-run-request motion.spindle-on
-net spindle-rpm-cmd motion.spindle-speed-out
+net spindle-run-request spindle.0.on
+net spindle-rpm-cmd spindle.0.speed-out
 
 # end of spindle control
 
@@ -484,7 +484,7 @@ net sp-index-enable motenc.3.enc-03-index-enable
 net sp-index-enable tristate-bit.0.out
 setp tristate-bit.0.in 1
 net tool-change tristate-bit.0.enable
-net sp-index-enable motion.spindle-index-enable
+net sp-index-enable spindle.0.index-enable
 
 # jogwheel signals
 setp encoder.0.x4-mode 0

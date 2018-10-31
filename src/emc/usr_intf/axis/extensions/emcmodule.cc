@@ -1,5 +1,5 @@
 //    This is a component of AXIS, a front-end for LinuxCNC
-//    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and 
+//    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
 //    Chris Radek <chris@timeguy.com>
 //
 //    This program is free software; you can redistribute it and/or modify
@@ -114,9 +114,9 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
 
 static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
     const char *s1, *s2, *out;
-    int num = 1; 
+    int num = 1;
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
-    
+
     out = self->i->Find(s2, s1, num);
     if(out == NULL) {
         Py_INCREF(Py_None);
@@ -127,9 +127,9 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
     const char *s1, *s2, *out;
-    int num = 1; 
+    int num = 1;
     if(!PyArg_ParseTuple(args, "ss:findall", &s1, &s2)) return NULL;
-    
+
     PyObject *result = PyList_New(0);
     while(1) {
         out = self->i->Find(s2, s1, num);
@@ -274,7 +274,7 @@ static void Stat_dealloc(PyObject *self) {
 }
 
 static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
-    if(!emcStatusBuffer->valid()) { 
+    if(!emcStatusBuffer->valid()) {
         PyErr_Format( error, "emcStatusBuffer invalid err=%d", emcStatusBuffer->error_type);
         return false;
     }
@@ -298,7 +298,8 @@ static PyMethodDef Stat_methods[] = {
 
 #define O(x) offsetof(pyStatChannel,status.x)
 static PyMemberDef Stat_members[] = {
-// stat 
+// stat
+    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {(char*)"state", T_INT, O(status), READONLY},
 
@@ -329,6 +330,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
     {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
     {(char*)"joints", T_INT, O(motion.traj.joints), READONLY},
+    {(char*)"spindles", T_INT, O(motion.traj.spindles), READONLY},
     {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
     {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY, (char*)"The current mode of the Motion controller.  One of TRAJ_MODE_FREE,\n"
         "TRAJ_MODE_COORD, or TRAJ_MODE_TELEOP." },
@@ -341,8 +343,6 @@ static PyMemberDef Stat_members[] = {
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
     {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY},
-    {(char*)"spindlerate", T_DOUBLE, O(motion.traj.spindle_scale), READONLY},
-    
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY},
     {(char*)"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
     {(char*)"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY},
@@ -358,16 +358,12 @@ static PyMemberDef Stat_members[] = {
     {(char*)"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {(char*)"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
     {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
-    {(char*)"spindle_override_enabled", T_BOOL, O(motion.traj.spindle_override_enabled), READONLY},
     {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
     {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
 
+
 // EMC_SPINDLE_STAT motion.spindle
-    {(char*)"spindle_speed", T_DOUBLE, O(motion.spindle.speed), READONLY},
-    {(char*)"spindle_direction", T_INT, O(motion.spindle.direction), READONLY},
-    {(char*)"spindle_brake", T_INT, O(motion.spindle.brake), READONLY},
-    {(char*)"spindle_increasing", T_INT, O(motion.spindle.increasing), READONLY},
-    {(char*)"spindle_enabled", T_INT, O(motion.spindle.enabled), READONLY},
+    // MOVED TO THE "spindle" TUPLE OF DICTS
 
 // io
 // EMC_TOOL_STAT io.tool
@@ -535,6 +531,16 @@ static void dict_add(PyObject *d, const char *name, double v) {
     PyDict_SetItemString(d, name, o = PyFloat_FromDouble(v));
     Py_XDECREF(o);
 }
+static void dict_add(PyObject *d, const char *name, bool v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyBool_FromLong((long)v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, int v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyLong_FromLong((long)v));
+    Py_XDECREF(o);
+}
 #define F(x) F2(#x, x)
 #define F2(y,x) dict_add(res, y, s->status.motion.joint[jointno].x)
 static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
@@ -591,6 +597,32 @@ static PyObject *Stat_axis(pyStatChannel *s) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_AXIS);
     for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
         PyTuple_SetItem(res, i, Stat_axis_one(s, i));
+    }
+    return res;
+}
+
+#define F(x) F2(#x, x)
+#define F2(y,x) dict_add(res, y, s->status.motion.spindle[spindleno].x)
+static PyObject *Stat_spindle_one(pyStatChannel *s, int spindleno) {
+    PyObject *res = PyDict_New();
+    F(brake);
+    F(direction);
+    F(enabled);
+    F2("override_enabled", spindle_override_enabled);
+    F(speed);
+    F2("override", spindle_scale);
+    F(homed);
+    F(orient_state);
+    F(orient_fault);
+    return res;
+}
+#undef F
+#undef F2
+
+static PyObject *Stat_spindle(pyStatChannel *s) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_SPINDLES);
+    for(int i=0; i<EMCMOT_MAX_SPINDLES; i++) {
+        PyTuple_SetItem(res, i, Stat_spindle_one(s, i));
     }
     return res;
 }
@@ -663,6 +695,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"aout", (getter)Stat_aout},
     {(char*)"joint", (getter)Stat_joint},
     {(char*)"axis", (getter)Stat_axis},
+    {(char*)"spindle", (getter)Stat_spindle},
     {(char*)"din", (getter)Stat_din},
     {(char*)"dout", (getter)Stat_dout},
     {(char*)"gcodes", (getter)Stat_activegcodes},
@@ -769,7 +802,7 @@ static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "i", &t)) return NULL;
     m.state = t;
-            
+
     emcSendCommand(s, m);
 
     Py_INCREF(Py_None);
@@ -819,7 +852,7 @@ static PyObject *maxvel(pyCommandChannel *s, PyObject *o) {
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
-}    
+}
 
 static PyObject *feedrate(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SCALE m;
@@ -839,7 +872,8 @@ static PyObject *rapidrate(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SPINDLE_SCALE m;
-    if(!PyArg_ParseTuple(o, "d", &m.scale)) return NULL;
+    m.spindle = 0;
+    if(!PyArg_ParseTuple(o, "d|i", &m.scale, &m.spindle)) return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -847,38 +881,43 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
-    double vel = 1;
-    if(!PyArg_ParseTuple(o, "i|d", &dir, &vel)) return NULL;
+    double arg1 = 0,arg2 = 0;
+    if(!PyArg_ParseTuple(o, "i|dd", &dir, &arg1, &arg2)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
         {
             EMC_SPINDLE_ON m;
-            m.speed = dir * vel;
+            m.speed = dir * arg1;
+            m.spindle = (int)arg2;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_INCREASE:
         {
             EMC_SPINDLE_INCREASE m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_DECREASE:
         {
             EMC_SPINDLE_DECREASE m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_CONSTANT:
         {
             EMC_SPINDLE_CONSTANT m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_SPINDLE_OFF:
         {
             EMC_SPINDLE_OFF m;
+            m.spindle = (int)arg1;
             emcSendCommand(s, m);
         }
             break;
@@ -925,8 +964,8 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.offset.tran.z, &m.offset.tran.x, &m.diameter, 
-                         &m.frontangle, &m.backangle, &m.orientation)) 
+    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.offset.tran.z, &m.offset.tran.x, &m.diameter,
+                         &m.frontangle, &m.backangle, &m.orientation))
         return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
@@ -983,17 +1022,20 @@ static PyObject *flood(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *brake(pyCommandChannel *s, PyObject *o) {
     int dir;
-    if(!PyArg_ParseTuple(o, "i", &dir)) return NULL;
+    int spindle = 0;
+    if(!PyArg_ParseTuple(o, "i|i", &dir, &spindle)) return NULL;
     switch(dir) {
         case LOCAL_BRAKE_ENGAGE:
         {
             EMC_SPINDLE_BRAKE_ENGAGE m;
+            m.spindle = spindle;
             emcSendCommand(s, m);
         }
             break;
         case LOCAL_BRAKE_RELEASE:
         {
             EMC_SPINDLE_BRAKE_RELEASE m;
+            m.spindle = spindle;
             emcSendCommand(s, m);
         }
             break;
@@ -1044,7 +1086,7 @@ static PyObject *unhome(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-// jog(JOG_STOP,       jjogmode, ja_value) 
+// jog(JOG_STOP,       jjogmode, ja_value)
 // jog(JOG_CONTINUOUS, jjogmode, ja_value, speed)
 // jog(JOG_INCREMENT,  jjogmode, ja_value, speed, increment)
 static PyObject *jog(pyCommandChannel *s, PyObject *o) {
@@ -1055,7 +1097,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "iii|dd", &fn, &jjogmode, &ja_value, &vel, &inc)) {
         return NULL;
     }
-    
+
     if(fn == LOCAL_JOG_STOP) {
         if(PyTuple_Size(o) != 3) {
             PyErr_Format( PyExc_TypeError,
@@ -1164,7 +1206,7 @@ static PyObject *debug(pyCommandChannel *s, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "i", &d.debug)) return NULL;
     emcSendCommand(s, d);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1175,7 +1217,7 @@ static PyObject *teleop(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "i", &en.enable)) return NULL;
 
     emcSendCommand(s, en);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1186,7 +1228,7 @@ static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "i", &mo.mode)) return NULL;
 
     emcSendCommand(s, mo);
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1226,7 +1268,8 @@ static PyObject *set_feed_override(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *set_spindle_override(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_SO_ENABLE m;
-    if(!PyArg_ParseTuple(o, "b", &m.mode))
+    m.spindle = 0;
+    if(!PyArg_ParseTuple(o, "b|i", &m.mode, &m.spindle))
         return NULL;
 
     emcSendCommand(s, m);
@@ -1797,7 +1840,7 @@ typedef struct {
 } pyPositionLogger;
 
 static const double epsilon = 1e-4; // 1-cos(1 deg) ~= 1e-4
-static const double tiny = 1e-10; 
+static const double tiny = 1e-10;
 
 static inline bool colinear(float xa, float ya, float za, float xb, float yb, float zb, float xc, float yc, float zc) {
     double dx1 = xa-xb, dx2 = xb-xc;
@@ -1946,7 +1989,7 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                         int adjust = MAX_POINTS / 10;
                         if(adjust < 2) adjust = 2;
                         s->npts -= adjust;
-                        memmove(s->p, s->p + adjust, 
+                        memmove(s->p, s->p + adjust,
                                 sizeof(struct logger_point) * s->npts);
                     } else {
                         s->mpts = 2 * s->mpts + 2;
@@ -2272,4 +2315,3 @@ initlinuxcnc(void) {
 
 
 // # vim:sw=4:sts=4:et:ts=8:
-

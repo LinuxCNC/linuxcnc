@@ -134,7 +134,8 @@ extension of the language for pallet shuttle and stop. This version has
 no codes related to axis clamping.
 
 The groups are:
-group 4 = {m0,m1,m2,m30,m60} - stopping
+group 4 = {m0,m1,m2,m30,m60,
+           m99}              - stopping
 group 5 = {m62,m63,m64,m65,  - turn I/O point on/off
            m66}              - wait for Input
 group 6 = {m6,m61}           - tool change
@@ -158,7 +159,7 @@ const int Interp::_ems[] = {
    4,  6,  5,  5,  5,  5,  5,  5,  5, -1,  // 69
    7,  7,  7, 7, -1, -1, -1, -1, -1, -1,  // 79
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 89
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 99
+  -1, -1, -1, -1, -1, -1, -1, -1, -1,  4,  // 99
    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, //109
    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, //119
    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, //129
@@ -268,7 +269,8 @@ const read_function_pointer Interp::default_readers[256] = {
 /* 20 */
 0, 0, 0,
 &Interp::read_parameter_setting, // reads # or ASCII 0x23
-0, 0, 0, 0,
+&Interp::read_dollar,   // reads $ or ASCII 0x24
+0, 0, 0,
 &Interp::read_comment, // reads ( or ASCII 0x28
 0, 0, 0, 0, 0, 0, 0, 
 /* 30 */

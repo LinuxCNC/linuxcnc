@@ -238,15 +238,20 @@ void emcmotController(void *arg, long period)
 
 static void process_inputs(void)
 {
-    int joint_num;
+    int joint_num, spindle_num;
     double abs_ferror, tmp, scale;
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
     /* read spindle angle (for threading, etc) */
-    emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
-    emcmotStatus->spindleSpeedIn = *emcmot_hal_data->spindle_speed_in;
-    emcmotStatus->spindle_is_atspeed = *emcmot_hal_data->spindle_is_atspeed;
+    for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+		emcmotStatus->spindle_status[spindle_num].spindleRevs =
+				*emcmot_hal_data->spindle[spindle_num].spindle_revs;
+		emcmotStatus->spindle_status[spindle_num].spindleSpeedIn =
+				*emcmot_hal_data->spindle[spindle_num].spindle_speed_in;
+		emcmotStatus->spindle_status[spindle_num].at_speed =
+				*emcmot_hal_data->spindle[spindle_num].spindle_is_atspeed;
+    }
     /* compute net feed and spindle scale factors */
     if ( emcmotStatus->motion_state == EMCMOT_MOTION_COORD ) {
 	/* use the enables that were queued with the current move */
@@ -289,16 +294,18 @@ static void process_inputs(void)
     emcmotStatus->net_feed_scale = scale;
 
     /* now do spindle scaling */
-    scale = 1.0;
-    if ( enables & SS_ENABLED ) {
-	scale *= emcmotStatus->spindle_scale;
+    for (spindle_num=0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+		scale = 1.0;
+		if ( enables & SS_ENABLED ) {
+			scale *= emcmotStatus->spindle_status[spindle_num].scale;
+		}
+		/*non maskable (except during spindle synch move) spindle inhibit pin */
+		if ( enables & *emcmot_hal_data->spindle[spindle_num].spindle_inhibit ) {
+			scale = 0;
+		}
+		/* save the resulting combined scale factor */
+		emcmotStatus->spindle_status[spindle_num].net_scale = scale;
     }
-    /*non maskable (except during spindle synch move) spindle inhibit pin */
-	if ( enables & *emcmot_hal_data->spindle_inhibit ) {
-	    scale = 0;
-	}
-    /* save the resulting combined scale factor */
-    emcmotStatus->net_spindle_scale = scale;
 
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
@@ -383,23 +390,27 @@ static void process_inputs(void)
 
     // a fault was signalled during a spindle-orient in progress
     // signal error, and cancel the orient
-    if (*(emcmot_hal_data->spindle_orient)) {
-	if (*(emcmot_hal_data->spindle_orient_fault)) {
-	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_FAULTED;
-	    *(emcmot_hal_data->spindle_orient) = 0;
-	    emcmotStatus->spindle.orient_fault = *(emcmot_hal_data->spindle_orient_fault);
-	    reportError(_("fault %d during orient in progress"), emcmotStatus->spindle.orient_fault);
-	    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
-	    tpAbort(&emcmotDebug->coord_tp);
-	    SET_MOTION_ERROR_FLAG(1);
-	} else if (*(emcmot_hal_data->spindle_is_oriented)) {
-	    *(emcmot_hal_data->spindle_orient) = 0;
-	    *(emcmot_hal_data->spindle_locked) = 1;
-	    emcmotStatus->spindle.locked = 1;
-	    emcmotStatus->spindle.brake = 1;
-	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_COMPLETE;
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
-	}
+    for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+		if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient)) {
+			if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault)) {
+				emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_FAULTED;
+				*(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
+				emcmotStatus->spindle_status[spindle_num].orient_fault =
+						*(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault);
+				reportError(_("fault %d during orient in progress"),
+						emcmotStatus->spindle_status[spindle_num].orient_fault);
+				emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+				tpAbort(&emcmotDebug->coord_tp);
+				SET_MOTION_ERROR_FLAG(1);
+			} else if (*(emcmot_hal_data->spindle[spindle_num].spindle_is_oriented)) {
+				*(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
+				*(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 1;
+				emcmotStatus->spindle_status[spindle_num].locked = 1;
+				emcmotStatus->spindle_status[spindle_num].brake = 1;
+				emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_COMPLETE;
+				rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
+			}
+		}
     }
 }
 
@@ -1730,12 +1741,13 @@ static void compute_screw_comp(void)
 
 static void output_to_hal(void)
 {
-    int joint_num, axis_num;
+    int joint_num, axis_num, spindle_num;
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
     joint_hal_t *joint_data;
     axis_hal_t *axis_data;
-    static int old_motion_index=0, old_hal_index=0;
+    static int old_motion_index[EMCMOT_MAX_SPINDLES] = {0};
+    static int old_hal_index[EMCMOT_MAX_SPINDLES] = {0};
 
     /* output machine info to HAL for scoping, etc */
     *(emcmot_hal_data->motion_enabled) = GET_MOTION_ENABLE_FLAG();
@@ -1744,36 +1756,51 @@ static void output_to_hal(void)
     *(emcmot_hal_data->teleop_mode) = GET_MOTION_TELEOP_FLAG();
     *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
     *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
-    if(emcmotStatus->spindle.css_factor) {
-	double denom = fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
-	double speed;
-        double maxpositive;
-        if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
-	else speed = emcmotStatus->spindle.speed;
 
-	speed = speed * emcmotStatus->net_spindle_scale;
+    for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
+			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset
+								- emcmotStatus->carte_pos_cmd.tran.x);
+			double speed;
+			double maxpositive;
+			if(denom > 0) speed = emcmotStatus->spindle_status[spindle_num].css_factor / denom;
+			else speed = emcmotStatus->spindle_status[spindle_num].speed;
 
-        maxpositive = fabs(emcmotStatus->spindle.speed);
-        // cap speed to G96 D...
-        if(speed < -maxpositive)
-            speed = -maxpositive;
-        if(speed > maxpositive)
-            speed = maxpositive;
+			speed = speed * emcmotStatus->spindle_status[spindle_num].net_scale;
+				maxpositive = fabs(emcmotStatus->spindle_status[spindle_num].speed);
+				// cap speed to G96 D...
+				if(speed < -maxpositive)
+					speed = -maxpositive;
+				if(speed > maxpositive)
+					speed = maxpositive;
 
-	*(emcmot_hal_data->spindle_speed_out) = speed;
-	*(emcmot_hal_data->spindle_speed_out_rps) = speed/60.;
-    } else {
-	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
-	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
+			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) = speed;
+			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) = speed/60.;
+		} else {
+			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) =
+					emcmotStatus->spindle_status[spindle_num].speed *
+					emcmotStatus->spindle_status[spindle_num].net_scale;
+			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) =
+					emcmotStatus->spindle_status[spindle_num].speed *
+					emcmotStatus->spindle_status[spindle_num].net_scale / 60.;
+		}
+		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) =
+				fabs(*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out));
+		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) =
+				fabs(*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps));
+		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
+				emcmotStatus->spindle_status[spindle_num].speed / 60.;
+		*(emcmot_hal_data->spindle[spindle_num].spindle_on) =
+				((emcmotStatus->spindle_status[spindle_num].speed *
+						emcmotStatus->spindle_status[spindle_num].net_scale) != 0) ? 1 : 0;
+		*(emcmot_hal_data->spindle[spindle_num].spindle_forward) =
+				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out > 0) ? 1 : 0;
+		*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) =
+				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out < 0) ? 1 : 0;
+		*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
+				(emcmotStatus->spindle_status[spindle_num].brake != 0) ? 1 : 0;
     }
-    *(emcmot_hal_data->spindle_speed_out_abs) = fabs(*(emcmot_hal_data->spindle_speed_out));
-    *(emcmot_hal_data->spindle_speed_out_rps_abs) = fabs(*(emcmot_hal_data->spindle_speed_out_rps));
-    *(emcmot_hal_data->spindle_speed_cmd_rps) = emcmotStatus->spindle.speed / 60.;
-    *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
-    *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
-    *(emcmot_hal_data->spindle_reverse) = (*emcmot_hal_data->spindle_speed_out < 0) ? 1 : 0;
-    *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
-    
+
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
     *(emcmot_hal_data->motion_type) = emcmotStatus->motionType;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
@@ -1811,24 +1838,31 @@ static void output_to_hal(void)
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp.active;
     emcmot_hal_data->debug_bit_1 = emcmotStatus->enables_new & AF_ENABLED;
-    emcmot_hal_data->debug_float_0 = emcmotStatus->net_feed_scale;
-    emcmot_hal_data->debug_float_1 = emcmotStatus->spindleRevs;
-    emcmot_hal_data->debug_float_2 = emcmotStatus->spindleSpeedIn;
-    emcmot_hal_data->debug_float_3 = emcmotStatus->net_spindle_scale;
+    emcmot_hal_data->debug_float_0 = emcmotStatus->spindle_status[0].speed;
+    emcmot_hal_data->debug_float_1 = emcmotStatus->spindleSync;
+    emcmot_hal_data->debug_float_2 = emcmotStatus->vel;
+    emcmot_hal_data->debug_float_3 = emcmotStatus->spindle_status[0].net_scale;
     emcmot_hal_data->debug_s32_0 = emcmotStatus->overrideLimitMask;
     emcmot_hal_data->debug_s32_1 = emcmotStatus->tcqlen;
 
     /* two way handshaking for the spindle encoder */
-    if(emcmotStatus->spindle_index_enable && !old_motion_index) {
-        *emcmot_hal_data->spindle_index_enable = 1;
-    }
+    for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+		if(emcmotStatus->spindle_status[spindle_num].spindle_index_enable
+				&& !old_motion_index[spindle_num]) {
+			*emcmot_hal_data->spindle[spindle_num].spindle_index_enable = 1;
+			rtapi_print_msg(RTAPI_MSG_DBG, "setting index-enable on spindle %d\n", spindle_num);
+		}
 
-    if(!*emcmot_hal_data->spindle_index_enable && old_hal_index) {
-        emcmotStatus->spindle_index_enable = 0;
-    }
+		if(!*emcmot_hal_data->spindle[spindle_num].spindle_index_enable
+				&& old_hal_index[spindle_num]) {
+			emcmotStatus->spindle_status[spindle_num].spindle_index_enable = 0;
+		}
 
-    old_motion_index = emcmotStatus->spindle_index_enable;
-    old_hal_index = *emcmot_hal_data->spindle_index_enable;
+		old_motion_index[spindle_num] =
+				emcmotStatus->spindle_status[spindle_num].spindle_index_enable;
+		old_hal_index[spindle_num] =
+				*emcmot_hal_data->spindle[spindle_num].spindle_index_enable;
+    }
 
     *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tool_offset.tran.x;
     *(emcmot_hal_data->tooloffset_y) = emcmotStatus->tool_offset.tran.y;

@@ -378,18 +378,9 @@ static void calc_pid(void *arg, long period)
 	    *(pid->error_d) = -*(pid->maxerror_d);
 	}
     }
-    /* calculate derivative of command */
     /* save old value for 2nd derivative calc later */
     tmp2 = *(pid->cmd_d);
-    if(!(pid->prev_ie && !*(pid->index_enable))) {
-        // not falling edge of index_enable: the normal case
-        *(pid->cmd_d) = (command - pid->prev_cmd) * periodrecip;
-    }
-    // else: leave cmd_d alone and use last period's.  prev_cmd
-    // shouldn't be trusted because index homing has caused us to have
-    // a step in position.  Using the previous period's derivative is
-    // probably a decent approximation since index search is usually a
-    // slow steady speed.
+    *(pid->cmd_d) = *(pid->commandv);
 
     // save ie for next time
     pid->prev_ie = *(pid->index_enable);

@@ -41,7 +41,7 @@ image::images/pyvcp_mypanel.png[]
 If you place this text in a file called tiny.xml, and run
 
 ----------------------------------------------
-halrun -I loadusr pyvcp -c mypanel tiny.xml
+halcmd loadusr pyvcp -c mypanel tiny.xml
 ----------------------------------------------
 
 PyVCP will create the panel for you, which includes two widgets, a
@@ -403,13 +403,13 @@ will be on_color when the halpin is true, and off_color otherwise.
 * '<off_color>color</off_color>' - sets the color of the LED when the pin is
   false. default is 'red'
 
-* '<height>n<height>' - sets the height of the LED in pixels
+* '<height>n</height>' - sets the height of the LED in pixels
 
-* '<width>n<width>' - sets the width of the LED in pixels
+* '<width>n</width>' - sets the width of the LED in pixels
 
-* '<disable_pin>false<disable_pin>' - when true adds a disable pin to the led.
+* '<disable_pin>false</disable_pin>' - when true adds a disable pin to the led.
 
-* '<disabled_color>color<disabled_color>' - sets the color of the LED when the
+* '<disabled_color>color</disabled_color>' - sets the color of the LED when the
   pin is disabled.
 
 .Round LED
@@ -628,6 +628,7 @@ them to the same color).
     <halpin>"my-bar"</halpin>
     <min_>0</min_>
     <max_>150</max_>
+    <format>"3.1f"</format>
     <bgcolor>"grey"</bgcolor>
     <fillcolor>"red"</fillcolor>
     <range1>0,100,"green"</range1>
@@ -858,7 +859,7 @@ width of the border.
     Where 'n' is the width of the border.
 
 [source,xml]
----------------------------------------
+----
 <hbox>
     <button>
         <relief>FLAT</relief>
@@ -886,11 +887,39 @@ width of the border.
         <bd>3</bd>
     </button>
 </hbox>
----------------------------------------
+----
 
 The above code produced this example.
 
 image::images/pyvcp_borders.png[]
+
+
+.Fill
+
+Container fill are specified with the '<boxfill fill=""/>' tag. Valid entries
+are none, x, y and both. The x fill is a horizontal fill and the y fill is a 
+vertical fill
+
+* '<boxfill fill ="style"/>' - 
+    Where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
+
+.Anchor
+
+Container anchors are specificed with the <boxanchor anchor=""/> tag. The anchor
+specifies where to position each slave in its parcel. Valid entries are center,
+n, s, e, w, for center, north, south, east and west. Combinations like sw, se,
+nw and ne are also valid.
+
+* '<boxanchor anchor="position"/>' -
+    Where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
+
+.Expand
+
+Container expand is specificed with the boolean <boxexpand expand=""/> tag.
+Valid entries are yes, no.
+
+* '<boxexpand expand="boolean"/>' -
+    Where 'boolean' is either yes or no. Default is yes.
 
 .Hbox
 
@@ -915,9 +944,8 @@ image::images/pyvcp_hbox.png[]
 
 Inside an Hbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
 , and '<boxexpand expand=""/>' tags to choose how items in the box behave when
-the window is re-sized. For details of how fill, anchor, and expand behave,
-refer to the Tk 'pack' manual page, 'pack(3tk)'. By default, 'fill="y"',
-'anchor="center"', 'expand="yes"'.
+the window is re-sized.The default is 'fill="y"', 'anchor="center"', 'expand="yes"'
+for a Hbox.
 
 .Vbox
 
@@ -940,11 +968,10 @@ The above code produced this example.
 
 image::images/pyvcp_vbox.png[]
 
-Inside a Hbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
+Inside a Vbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
 , and '<boxexpand expand=""/>' tags to choose how items in the box behave
-when the window is re-sized. For details of how fill, anchor, and expand
-behave, refer to the Tk 'pack' manual page, 'pack(3tk)'. By default, 'fill="x"',
-'anchor="center"', 'expand="yes"'.
+when the window is re-sized. The default is 'fill="x"', 'anchor="center"',
+'expand="yes"' for a Hbox.
 
 .Labelframe
 

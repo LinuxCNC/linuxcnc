@@ -1004,7 +1004,7 @@ Cela signifie que Z aura atteints la position correcte juste en fin
 d'accélération à la bonne vitesse, il peux immédiatement usiner le bon filetage.
 
 .Connections de hAL
-Les pins 'motion.spindle-at-speed' et l'index 'encoder.n.phase-Z' pour la broche
+Les pins 'spindle.N.at-speed' et l'index 'encoder.n.phase-Z' pour la broche
 doivent être connectés dans le fichier HAL pour que G33 soit opérationnel.
 Voir le Manuel de l'intégrateur pour plus d'informations sur les mouvements
 synchronisés avec la broche.
@@ -1602,7 +1602,7 @@ C'est une erreur si:
 * 'E-' est supérieur à la moitié de la longueur de la ligne pilote.
 
 .Connections de HAL
-Les pins 'motion.spindle-at-speed' et l'index 'encoder.n.phase-Z' doivent être
+Les pins 'spindle.N.at-speed' et l'index 'encoder.n.phase-Z' doivent être
 connectées dans le fichier HAL pour que G76 soit opérationnel.
 Voir le Manuel de l'intégrateur pour plus d'informations sur les mouvements
 synchronisés avec la broche.

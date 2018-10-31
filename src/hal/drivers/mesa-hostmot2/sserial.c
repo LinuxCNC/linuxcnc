@@ -1105,6 +1105,10 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
                 chan->confs[c].ParmMin = 0;
                 chan->confs[c].ParmMax = 1;
             }
+
+            // SmartSerial knows nothing of graycode or wrapless, used only by abs_encoder
+            chan->confs[c].Flags = 0;
+
             HM2_DBG("Process: %s  RecordType: %02X Datatype: %02X Dir: %02X Addr: %04X Length: %i\n",
                            chan->confs[c].NameString, chan->confs[c].RecordType,chan->confs[c].DataType, chan->confs[c].DataDir, chan->confs[c].ParmAddr, chan->confs[c].DataLength);
         } else if (rectype == LBP_MODE ) {

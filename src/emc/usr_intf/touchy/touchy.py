@@ -703,7 +703,7 @@ class touchy:
                 s.poll()
                 # Show effect of external override inputs
                 self.fo_val = s.feedrate * 100
-                self.so_val = s.spindlerate * 100
+                self.so_val = s.spindle[0]['override'] * 100
                 self.mv_val = s.max_velocity * 60
                 am = s.axis_mask
                 if not self.resized_wheelbuttons:

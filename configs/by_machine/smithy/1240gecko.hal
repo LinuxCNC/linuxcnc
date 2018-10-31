@@ -28,8 +28,8 @@ addf stepgen.update-freq servo-thread
 addf pwmgen.update servo-thread
 addf match8.0 servo-thread
 
-net spindle-cmd motion.spindle-speed-out pwmgen.0.value
-net spindle-enable motion.spindle-on pwmgen.0.enable
+net spindle-cmd spindle.0.speed-out pwmgen.0.value
+net spindle-enable spindle.0.on pwmgen.0.enable
 
 net coolant-flood parport.0.pin-01-out iocontrol.0.coolant-flood
 net xdir parport.0.pin-02-out stepgen.0.dir
@@ -47,13 +47,13 @@ setp parport.0.pin-09-out-reset 1
 
 #PMDX-110
 # Need this line so AXIS shows the reverse button
-net spindle-rev motion.spindle-reverse
-net spindle-fwd parport.0.pin-14-out motion.spindle-forward
+net spindle-rev spindle.0.reverse
+net spindle-fwd parport.0.pin-14-out spindle.0.forward
 #--OR--
 #PMDX-131
 # Need this line so AXIS shows the forward button
-#net spindle-fwd motion.spindle-forward
-#net spindle-rev parport.0.pin-14-out motion.spindle-reverse
+#net spindle-fwd spindle.0.forward
+#net spindle-rev parport.0.pin-14-out spindle.0.reverse
 
 net spindle-pwm parport.0.pin-16-out pwmgen.0.pwm
 net charge-pump parport.0.pin-17-out charge-pump.out

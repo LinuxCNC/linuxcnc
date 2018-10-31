@@ -889,8 +889,20 @@ then
     AC_MSG_ERROR([fuser not found])
 fi
 
+AC_PATH_PROG(YAPPS, yapps, "none", $SPATH)
+if test $YAPPS = "none"
+then
+    AC_MSG_ERROR([yapps not found])
+fi
+
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
+
+AC_PATH_PROG(INTLTOOL_EXTRACT, intltool-extract, "none", $SPATH)
+if test $INTLTOOL_EXTRACT = "none"
+then
+    AC_MSG_ERROR([intltool-extract not found])
+fi
 
 AC_ARG_WITH(rmmod,
     AS_HELP_STRING(

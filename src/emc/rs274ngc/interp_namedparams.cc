@@ -589,12 +589,12 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = (_setup.retract_mode == OLD_Z);
 	break;
 
-    case NP_SPINDLE_RPM_MODE: // _spindle_rpm_mode G97
-	*value = (_setup.spindle_mode == CONSTANT_RPM);
+    case NP_SPINDLE_RPM_MODE: // _spindle_rpm_mode G97 currently only reports for spindle 0
+	*value = (_setup.spindle_mode[0] == CONSTANT_RPM);
 	break;
 
     case NP_SPINDLE_CSS_MODE: // _spindle_css_mode G96
-	*value = (_setup.spindle_mode == CONSTANT_SURFACE);
+	*value = (_setup.spindle_mode[0] == CONSTANT_SURFACE);
 	break;
 
     case NP_IJK_ABSOLUTE_MODE: //_ijk_absolute_mode - G90.1
@@ -612,11 +612,11 @@ int Interp::lookup_named_param(const char *nameBuf,
 	// some active_m_codes fields
 
     case NP_SPINDLE_ON: // _spindle_on
-	*value = (_setup.spindle_turning != CANON_STOPPED);
+	*value = (_setup.spindle_turning[0] != CANON_STOPPED);
 	break;
 
     case NP_SPINDLE_CW: // spindle_cw
-	*value = (_setup.spindle_turning == CANON_CLOCKWISE);
+	*value = (_setup.spindle_turning[0] == CANON_CLOCKWISE);
 	break;
 
     case NP_MIST: // mist
@@ -628,7 +628,7 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_SPEED_OVERRIDE: // speed override
-	*value = _setup.speed_override;
+	*value = _setup.speed_override[0];
 	break;
 
     case NP_FEED_OVERRIDE: // feed override
@@ -649,11 +649,11 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_RPM: // speed (rpm)
-	*value = abs(_setup.speed);
+	*value = abs(_setup.speed[0]);
 	break;
 
     case NP_CURRENT_TOOL:
-	*value = _setup.tool_table[_setup.current_pocket].toolno;
+	*value = _setup.parameters[5400];
 	break;
 
     case NP_SELECTED_POCKET:

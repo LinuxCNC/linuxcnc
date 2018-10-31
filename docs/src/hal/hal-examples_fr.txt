@@ -112,7 +112,7 @@ envoyions directement la consigne de vitesse de broche sur le servo, celui-ci
 chercherait, à partir de la vitesse courante, à atteindre la vitesse commandée
 le plus vite possible. Cette situation est problématique et peut détériorer
 le matériel. Pour amortir ce changement de vitesse, nous pouvons faire passer 
-la sortie _motion.spindle-speed-out_ à travers un limiteur avant d'aller au PID, 
+la sortie _spindle.N.speed-out_ à travers un limiteur avant d'aller au PID, 
 de sorte que la valeur de commande du PID soit amortie.
 
 Les trois composants intégrés pour amortir le signal seront:
