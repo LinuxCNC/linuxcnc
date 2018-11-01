@@ -1836,9 +1836,8 @@ void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 void SET_SPINDLE_SPEED(int s, double r)
 {
     // speed is in RPMs everywhere
-    for (int i = 0; i < 3; i++) {printf("Before: spindle %i speed %f\n", i, canon.spindle[i].speed) ;}
+
 	canon.spindle[s].speed = fabs(r); // interp will never send negative anyway ...
-    for (int i = 0; i < 3; i++) {printf("After: spindle %i speed %f\n", i, canon.spindle[i].speed) ;}
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
