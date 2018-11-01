@@ -591,7 +591,7 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
-        self.setMinimumSize(800, 200)
+        self.setMinimumSize(200, 200)
         buttonBox = QDialogButtonBox()
         buttonBox.setEnabled(False)
         STATUS.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
@@ -748,7 +748,7 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
-        self.setMinimumSize(400, 400)
+        self.setMinimumSize(200, 200)
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
         b = buttonBox.button(QDialogButtonBox.Ok)
         b.clicked.connect(lambda: self.close())
@@ -870,7 +870,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(200, 200)
         self.resize(600, 400)
         # patch class to call our button methods rather then the
         # original methods (Gotta do before instantiation)
