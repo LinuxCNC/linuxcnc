@@ -264,11 +264,26 @@ class PushButton(Indicated_PushButton, _HalWidgetBase):
     def _hal_init(self):
         super(PushButton, self)._hal_init()
         self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
+
+        def _update(state, data=None):
+            self.setChecked(state)
+            if self._HAL_pin is False:
+                self.indicator_update(state)
+            # if using state labels option update the labels
+            if self._state_text:
+                self.setText(None)
+            # if python commands call them 
+            if self._python_command:
+                if state == None:
+                    state = self._indicator_state
+                self.python_command(state)
+
         def _f(data):
             self.hal_pin.set(data)
-            if self._HAL_pin == False:
-                self.indicator_update(data)
-            if self._python_command:
-                self.python_command(data)
+            if not self.isCheckable():
+                _update(data)
+
         self.pressed.connect(partial(_f, True))
         self.released.connect(partial(_f, False))
+        if self.isCheckable():
+            self.clicked[bool].connect(_update)
