@@ -470,7 +470,6 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.time_stamp = data
         if data:
             self._toggle_properties('time_stamp')
-            self.set_textTemplate("%a %d %H:%M %S")
     def get_time_stamp(self):
         return self.time_stamp
     def reset_time_stamp(self):
