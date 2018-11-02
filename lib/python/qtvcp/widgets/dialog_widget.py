@@ -238,38 +238,7 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
             return result
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('ToolChangeDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'ToolChangeDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -352,38 +321,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         return fname
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('FileDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'FileDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -501,38 +439,7 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.record_placement()
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('OriginOffsetDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'OriginOffsetDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -543,7 +450,7 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
             w = self.geometry().width()
             h = self.geometry().height()
             geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('OriginOffsetialog-geometry', geo, str, 'DIALOG_OPTIONS')
+            self.PREFS_.putpref('OriginOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -657,38 +564,7 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.record_placement()
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('ToolOffsetDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'ToolOffsetDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -786,38 +662,7 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.record_placement()
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('CamViewDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'CamViewDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -870,7 +715,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
-        self.setMinimumSize(200, 200)
+        self.setMinimumSize(00, 200)
         self.resize(600, 400)
         # patch class to call our button methods rather then the
         # original methods (Gotta do before instantiation)
@@ -925,38 +770,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.record_placement()
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('MacroTabDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'MacroTabDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -1055,38 +869,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
             return None
 
     def calculate_placement(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref('EntryDialog-geometry', '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to botton left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(self.HAL_NAME_))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
+        geometry_parsing(self,'EntryDialog-geometry')
 
     def record_placement(self):
        if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
@@ -1107,6 +890,57 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
 
     overlay_color = pyqtProperty(QColor, getColor, setColor)
+
+# This general function parses the geometry string and places
+# the dialog based on what it finds.
+# there are directive words allowed.
+# If there are no letters in thw string , it will check the
+# preference file (if there is one) to see what the last position
+# was. If all else fails it uses it's natural Designer stated
+# geometry
+def geometry_parsing(widget, prefname):
+        def go(x,y,w,h):
+            widget.setGeometry(x,y,w,h)
+        try:
+            if widget._geometry_string.replace(' ','').isdigit():
+                widget._geometry_string = widget.PREFS_.getpref(prefname, '', str, 'DIALOG_OPTIONS')
+            # If there is a preference file object use it to load the geometry
+            if widget._geometry_string in('default',''):
+                x,y,w,h = widget._default_geometry
+                go(x,y,w,h)
+            elif 'center' in widget._geometry_string.lower():
+                geom = widget.frameGeometry()
+                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                widget.setGeometry(geom)
+                return
+            elif 'bottomleft' in widget._geometry_string.lower():
+                # move to botton left of parent
+                ph = widget.topParent.geometry().height()
+                px = widget.topParent.geometry().x()
+                py = widget.topParent.geometry().y()
+                dw = widget.geometry().width()
+                dh = widget.geometry().height()
+                go(px, py+ph-dh, dw, dh)
+            elif 'onwindow' in widget._geometry_string.lower():
+                # move relative to parent position
+                px = widget.topParent.geometry().x()
+                py = widget.topParent.geometry().y()
+                # remove everything except digits and spaces
+                temp =  filter(lambda x: (x.isdigit() or x == ' '), widget._geometry_string)
+                # remove lead and trailing spaces and then slit on spaces
+                temp = temp.strip(' ').split(' ')
+                go(px+int(temp[0]), py+int(temp[1]), int(temp[2]), int(temp[3]))
+            else:
+                temp = widget._geometry_string.split(' ')
+                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+        except Exception as e:
+            LOG.error('Calculating geometry of {} using natural placement.'.format(widget.HAL_NAME_))
+            LOG.debug('Dialog gometry python error: {}'.format(e))
+            x = widget.geometry().x()
+            y = widget.geometry().y()
+            w = widget.geometry().width()
+            h = widget.geometry().height()
+            go( x,y,w,h)
 
 ################################
 # for testing without editor:
