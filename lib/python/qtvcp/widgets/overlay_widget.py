@@ -103,7 +103,7 @@ class OverlayWidget(QWidget):
         #print 'overlay:',event
         if event.type() == QEvent.ParentAboutToChange:
             #print 'REMOVE FILTER'
-            self.parent.removeEventFilter()
+            self.parent.removeEventFilter(self)
             return True
         if event.type() == QEvent.ParentChange:
             #print 'parentEVENT:', self.parentWidget()
