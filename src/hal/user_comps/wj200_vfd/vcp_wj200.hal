@@ -1,0 +1,9 @@
+#vcp_wj200
+net spindle-at-speed vcp_wj200.hal_led_atspeed
+net spindle-on vcp_wj200.hal_led_run
+net spindle-rev vcp_wj200.hal_led_rev
+#net spindle-rpm-cmd vcp_wj200.hal_meter1
+net spindle-rpm-mon vcp_wj200.hal_meter1 scale.1.out
+
+
+

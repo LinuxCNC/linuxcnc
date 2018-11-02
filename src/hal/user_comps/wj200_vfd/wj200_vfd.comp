@@ -1,18 +1,29 @@
-component wj200_vfd "Hitachi wj200 modbus driver";
+component wj200_vfd               "Hitachi WJ200/OMRON MX2 modbus driver";
 param rw unsigned mbslaveaddr     "Modbus slave address";
-pin in float commanded_frequency  "Frequency of vfd";
+pin in float commanded_frequency  "Frequency setpoint(Hz)";
 pin in bit reverse                "1 when reverse 0 when forward";
 pin in bit run                    "run the vfd";
-pin in bit enable                 "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
+pin in bit enable                 "1 to enable the vfd. 0 will stop motor if it is running";
 pin out bit is_running            "1 when running";
 pin out bit is_at_speed           "1 when running at assigned frequency";
 pin out bit is_ready              "1 when vfd is ready to run";
 pin out bit is_alarm              "1 when vfd alarm is set";
-pin out float motor_current       "Output current in amps";
-pin out float heatsink_temp       "Temperature of drive heatsink";
-pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
+pin out float frequency_mon       "Frequency monitoring(Hz)";
+pin out float motor_current_mon   "Output current(A)";
+pin out float motor_voltage_mon   "Output voltage(V)";
+pin out float motor_torque_mon    "Output voltage(%)";
+pin out float motor_power_mon     "Output power(KW)";
+pin out float heatsink_temp       "Temperature of drive heatsink(°C)";
+pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle";
+pin out bit failure_out           "1 when slave is not accessible after several attempts";
+include "wj200_vfd.h";
+variable wj200_params_static_t inst_params_static;
+variable wj200_params_dynamic_t inst_params_dynamic;
+variable wj200_instance_state_t inst_state;
 option userspace;
 option userinit yes;
+option extra_compile_args "-I/usr/include/modbus -std=c99";
+option extra_link_args "-lmodbus -lrt";
 license "GPLv2 or greater";
 ;;
 /*
@@ -37,125 +48,326 @@ license "GPLv2 or greater";
 
   see 'man wj200_vfd' and the WJ200 section in the Drivers manual.
 */
+
 #include <stdio.h>
 #include <errno.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <math.h>
-#include <modbus.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <signal.h>
 #include <time.h>
+#include <modbus.h>
 
-typedef struct
+/**********************************************************************/
+//modbus connection settings
+char *device = "/dev/ttyS0";
+int baud = 9600;
+char parity = 'N';
+int data_bits = 8;
+int stop_bits = 1;
+bool bsettings_initialized = FALSE; //eg userinit succeed
+bool bconnected = FALSE;            //modbus connect succeed
+bool bexit_requested = FALSE;       //upstream ask for exiting
+bool balldone_exiting = FALSE;      //all instance are done
+bool bverbose_log = FALSE;          //log every loop & every instance
+struct timespec ts_pooling_period = {0, 100000000};  //pooling pressure set at 100ms
+/**********************************************************************/
+/* wj200_log
+ * simple log with a ms timing. origin is 1st log call based
+ * logtype  output to stdout unless equal to "ERR" then stderr is used 
+ *          prefered "ERR" "WAR" or "INF"                             */
+void wj200_log(const char* logtype,const char* message, ...){
+    FILE *ptr_file;
+    va_list args;
+    struct timespec ts_now;
+    int64_t inowms; 
+    static int64_t istartms=0;
+    
+    //output
+    ptr_file=stdout;
+    if (logtype=="ERR") {
+        ptr_file=stderr;
+    }
+    //calc ms
+    clock_gettime(CLOCK_MONOTONIC,&ts_now);
+    if (istartms) {
+        inowms=ts_now.tv_sec*1000+ts_now.tv_nsec/1000000-istartms;
+    } else {
+        istartms=ts_now.tv_sec*1000+ts_now.tv_nsec/1000000;
+        inowms=0;
+    }
+    va_start(args, message);
+    fprintf(ptr_file,"[%10u] wj200_vfd %3s ", (uint32_t)inowms, logtype );
+    vfprintf(ptr_file,message,args);
+    fprintf(ptr_file,"\n");
+    va_end(args);
+} 
+/**********************************************************************/
+/* concerning modbus operations : 
+ * When addresses are not contiguous, several successive operations are
+ * done. To avoid too much modbus reading, unchanging registers (like
+ * motor pole or frequency limits (...) have been grouped in a separate 
+ * function, called only once. If they are directly changed on the vfd
+ * module need to be restarted.  
+ * Modbus read operations continue even if the previous read failed  
+ * this is on purpose, depending on FW version or if a wrong address is
+ * added, we still want to read the readable ones                     */
+ 
+/*read static params*/
+bool wj200_read_params_static(struct __comp_state *__comp_inst, modbus_t *ctx)
 {
-        uint8_t running;
-        uint8_t ready;
-        uint8_t direction;
-        uint8_t at_speed;
-        uint8_t alarm;
-		float output_current;
-		float sink_temp;
-        uint16_t frequency;
-} wj200_status;
-
+    bool bresult, bresults;
+    int rc;
+    uint16_t registers[16];
+    
+    rc = modbus_read_registers( ctx, WJ200_INVERTER_MODE, 1, registers );
+    bresult = (rc == 1);
+    bresults = bresult;
+    if (bresult) {
+        inst_params_static.inverter_mode = (uint8_t)registers[0];
+    } else {
+        inst_params_static.inverter_mode = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_INVERTER_MODE, mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers( ctx, WJ200_ACCEL_TIME_CS, 4, registers );
+    bresult = (rc == 4);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_static.accel_time_s = (float)(registers[0]*0xFFFF+registers[1])/100;
+        inst_params_static.decel_time_s = (float)(registers[2]*0xFFFF+registers[3])/100;
+    } else {
+        inst_params_static.accel_time_s = 0;
+        inst_params_static.decel_time_s = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_ACCEL_TIME_CS, mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers( ctx, WJ200_FREQ_SOURCE , 4, registers );
+    bresult = (rc == 4);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_static.freq_source = (uint8_t)registers[0];
+        inst_params_static.runcmd_source = (uint8_t)registers[1];
+        inst_params_static.freq_max_hz = (float)(registers[2])/10;
+        inst_params_static.freq_base_hz = (float)(registers[3])/10;  
+    } else {
+        inst_params_static.freq_source = 0;
+        inst_params_static.runcmd_source = 0;
+        inst_params_static.freq_max_hz = 0;
+        inst_params_static.freq_base_hz = 0;  
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_FREQ_SOURCE , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers( ctx, WJ200_FREQ_UPPER_LIMIT_CHZ, 4, registers );
+    bresult = (rc == 4);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_static.freq_upper_limit_hz = (float)(registers[0]*0xFFFF+registers[1])/100;
+        inst_params_static.freq_lower_limit_hz = (float)(registers[2]*0xFFFF+registers[3])/100;
+    } else {
+        inst_params_static.freq_upper_limit_hz = 0;
+        inst_params_static.freq_lower_limit_hz = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_FREQ_UPPER_LIMIT_CHZ , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers( ctx, WJ200_MOTOR_VOLTAGE_CLASS , 1, registers );
+    bresult = (rc == 1);
+    bresults = bresult;
+    if (bresult) {
+        inst_params_static.mot_voltage_class = (uint8_t)registers[0];
+    } else {
+        inst_params_static.mot_voltage_class = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_MOTOR_VOLTAGE_CLASS , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers( ctx, WJ200_MOTOR_POWER , 2, registers );
+    bresult = (rc == 2);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_static.mot_power = (uint8_t)registers[0];
+        inst_params_static.mot_poles = (uint8_t)registers[1];
+    } else {
+        inst_params_static.mot_power = 0;
+        inst_params_static.mot_poles = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_MOTOR_POWER , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers( ctx, WJ200_COM_WATCHDOG_CS , 2, registers );
+    bresult = (rc == 2);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_static.com_watchdog_s = (float)(uint8_t)registers[0]/100;
+        inst_params_static.com_error_action = (uint8_t)registers[1];
+    } else {
+        inst_params_static.com_watchdog_s = 0;
+        inst_params_static.com_error_action = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_COM_WATCHDOG_CS , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    return bresults;
+}
+/*read dynamic params*/
+bool wj200_read_params_dynamic(struct __comp_state *__comp_inst, modbus_t *ctx)
+{
+    bool bresult, bresults;
+    int rc;
+    uint8_t bits[16];
+    uint16_t registers[4];
+    //read 10 contiguous coils(bits) in one step
+    rc = modbus_read_bits(ctx, WJ200_OPERATION_STATUS, 10, bits);
+    bresult = (rc == 10);
+    bresults = bresult;
+    if (bresult) {
+        inst_params_dynamic.running = bits[0];
+        inst_params_dynamic.direction_rev = bits[1];
+        inst_params_dynamic.ready = bits[2];
+        inst_params_dynamic.running_mode = bits[4];
+        inst_params_dynamic.cst_speed_reached = bits[5];
+        inst_params_dynamic.current_overload_adv = bits[7];
+        inst_params_dynamic.alarm = bits[9];
+    } else
+        wj200_log("ERR","failed to read bits 0x%x, mbslave=%d, mberror=%d : %s", WJ200_OPERATION_STATUS , mbslaveaddr, errno, modbus_strerror(errno));
+    
+    rc = modbus_read_registers(ctx, WJ200_FREQ_SRC_CHZ, 2, registers);
+    bresult = (rc == 2);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_dynamic.freq_src_hz = (float)(registers[0]*0xFFFF+registers[1])/100;
+    } else {
+        inst_params_dynamic.freq_src_hz = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_FREQ_SRC_CHZ , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers(ctx, WJ200_FREQ_MON_CHZ, 4, registers);
+    bresult = (rc == 4);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_dynamic.freq_mon_hz = (float)(registers[0]*0xFFFF+registers[1])/100;
+        inst_params_dynamic.current_mon_a = (float)(registers[2])/100;
+        inst_params_dynamic.rotating_mon = (uint8_t)(registers[3]);
+    } else {
+        inst_params_dynamic.freq_mon_hz = 0;
+        inst_params_dynamic.current_mon_a = 0;
+        inst_params_dynamic.rotating_mon = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_FREQ_MON_CHZ , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers(ctx, WJ200_TORQUE_MON, 3, registers);
+    bresult = (rc == 3);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_dynamic.torque_mon = (int16_t)registers[0];
+        inst_params_dynamic.voltage_mon_v = (float)(registers[1])/10;
+        inst_params_dynamic.power_mon_kw = (float)(registers[2])/10;
+    } else {
+        inst_params_dynamic.torque_mon = 0;
+        inst_params_dynamic.voltage_mon_v = 0;
+        inst_params_dynamic.power_mon_kw = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_VOLT_MON_DV , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers(ctx, WJ200_HEAT_SINK_TEMP_DC, 1, registers);
+    bresult = (rc == 1);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_dynamic.heat_sink_temp_c = (float)(registers[0])/10;
+    } else {
+        inst_params_dynamic.heat_sink_temp_c = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s", WJ200_HEAT_SINK_TEMP_DC , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    rc = modbus_read_registers(ctx, WJ200_DC_VOLTAGE_PN_DV, 1, registers);
+    bresult = (rc == 1);
+    bresults &= bresult;
+    if (bresult) {
+        inst_params_dynamic.dc_voltage_pn_v = (float)(registers[0])/10;
+    } else {
+        inst_params_dynamic.dc_voltage_pn_v  = 0;
+        wj200_log("ERR","failed to read registers 0x%x, mbslave=%d, mberror=%d : %s",  WJ200_DC_VOLTAGE_PN_DV , mbslaveaddr, errno, modbus_strerror(errno));
+    }
+    return bresults;
+}
+/*print params*/
+bool wj200_print_params_static(struct __comp_state *__comp_inst) {
+    printf("  inverter mode             = %d\n",inst_params_static.inverter_mode );
+    printf("  accel time(s)             = %8.3f\n",inst_params_static.accel_time_s );
+    printf("  decel time(s)             = %8.3f\n",inst_params_static.decel_time_s );
+    printf("  freq source               = %d\n",inst_params_static.freq_source );
+    printf("  runcmd source             = %d\n",inst_params_static.runcmd_source );
+    printf("  freq max(Hz)              = %8.3f\n",inst_params_static.freq_max_hz );
+    printf("  freq base(Hz)             = %8.3f\n",inst_params_static.freq_base_hz );
+    printf("  freq upper limit(Hz)      = %8.3f\n",inst_params_static.freq_upper_limit_hz );
+    printf("  freq lower limit(Hz)      = %8.3f\n",inst_params_static.freq_lower_limit_hz );
+    printf("  motor voltage class       = %d\n",inst_params_static.mot_voltage_class );
+    printf("  motor power               = %d\n",inst_params_static.mot_power );
+    printf("  motor poles               = %d\n",inst_params_static.mot_poles );
+    printf("  com. watchdog timeout(s)  = %8.3f\n",inst_params_static.com_watchdog_s );
+    printf("  com. error action         = %d\n\n",inst_params_static.com_error_action );
+}
+bool wj200_print_params_dynamic(struct __comp_state *__comp_inst) {
+    printf("  running                   = %d\n",inst_params_dynamic.running );
+    printf("  direction rev             = %d\n",inst_params_dynamic.direction_rev );
+    printf("  ready                     = %d\n",inst_params_dynamic.ready );
+    printf("  running mode              = %d\n",inst_params_dynamic.running_mode );
+    printf("  cst_speed_reached         = %d\n",inst_params_dynamic.cst_speed_reached );
+    printf("  current overload adv      = %d\n",inst_params_dynamic.current_overload_adv );
+    printf("  alarm                     = %d\n",inst_params_dynamic.alarm );
+    printf("  freq source(Hz)           = %8.3f\n",inst_params_dynamic.freq_src_hz );
+    printf("  freq monitoring(Hz)       = %8.3f\n",inst_params_dynamic.freq_mon_hz );
+    printf("  rotating monitoring       = %d\n",inst_params_dynamic.rotating_mon );
+    printf("  current monitoring(A)     = %8.3f\n",inst_params_dynamic.current_mon_a );
+    printf("  torque monitoring(%%)      = %d\n",inst_params_dynamic.torque_mon );
+    printf("  voltage monitoring(V)     = %8.3f\n",inst_params_dynamic.voltage_mon_v );
+    printf("  power monitoring(KW)      = %8.3f\n",inst_params_dynamic.power_mon_kw );
+    printf("  heat sink temp(°C)        = %8.3f\n",inst_params_dynamic.heat_sink_temp_c );
+    printf("  dc volt. pn monitoring(V) = %8.3f\n",inst_params_dynamic.dc_voltage_pn_v );
+}
+/**********************************************************************/
 /*sets the operating frequency of the vfd*/
-bool wj200_setFrequency(modbus_t* ctx, uint16_t frequency)
+bool wj200_setFrequency(struct __comp_state *__comp_inst, modbus_t* ctx, float frequency)
 {
-        return modbus_write_registers(ctx, 0x001, 1, &frequency) > 0;
+    uint16_t registers[2];
+    uint32_t ufrequency;
+    bool bresult;
+    
+    ufrequency = truncf(frequency*100);
+    registers[0]=(uint16_t)(ufrequency >> 16);
+    registers[1]=(uint16_t)(ufrequency & 0xFFFF);
+    bresult = (modbus_write_registers(ctx, WJ200_FREQ_SRC_CHZ, 2, registers) == 2);
+    if (!bresult)
+        wj200_log("ERR","failed to write register 0x%x, mbslave=%d, mberror=%d : %s",  WJ200_FREQ_SRC_CHZ , mbslaveaddr, errno, modbus_strerror(errno));
+    return bresult;
 }
-
-/*resets the trip status of the VFD*/
-bool wj200_reset(modbus_t* ctx)
+bool wj200_run(struct __comp_state *__comp_inst, modbus_t* ctx, bool runBit)
 {
-        /*after the reset, the wj200 vfd seem to need a second
-        before it will reply to more modbus commands*/
-        int rc = modbus_write_bit(ctx, 0x003, TRUE);
-
-        sleep(1);
-
-        return rc > 0;
+    bool bresult;
+    
+    bresult=( modbus_write_bit(ctx, WJ200_CMD_RUN , runBit) == 1);
+    if (!bresult)
+        wj200_log("ERR","failed to write coils 0x%x, mbslave=%d, mberror=%d : %s", WJ200_CMD_RUN , mbslaveaddr, errno, modbus_strerror(errno));
+    return bresult;
 }
-
-bool wj200_setDirection(modbus_t* ctx, bool direction)
+bool wj200_setDirection(struct __comp_state *__comp_inst, modbus_t* ctx, bool direction)
 {
-	return modbus_write_bit(ctx, 0x001, direction) > 0;
+    bool bresult;
+    
+    bresult = (modbus_write_bit(ctx, WJ200_CMD_ROTATION_REV, direction) == 1);
+    if (!bresult)
+        wj200_log("ERR","failed to write coils 0x%x, mbslave=%d, mberror=%d : %s", WJ200_CMD_ROTATION_REV , mbslaveaddr, errno, modbus_strerror(errno));
+    return bresult;
 }
-
-bool wj200_trip(modbus_t* ctx)
+bool wj200_trip_error(struct __comp_state *__comp_inst, modbus_t* ctx, bool berror)
 {
-        return modbus_write_bit(ctx, 0x002, TRUE) > 0;
-}
+    bool bresult;
 
-bool wj200_run(modbus_t* ctx, bool runBit)
+    bresult = (modbus_write_bit(ctx, WJ200_CMD_EXT_ERR, berror) == 1);
+    if (!bresult)
+        wj200_log("ERR","failed to write coils 0x%x, mbslave=%d, mberror=%d : %s", WJ200_CMD_EXT_ERR , mbslaveaddr, errno, modbus_strerror(errno));
+    return bresult;
+}
+/*resets the trip status of the VFD */
+bool wj200_reset(struct __comp_state *__comp_inst, modbus_t* ctx, bool breset)
 {
-        return modbus_write_bit(ctx, 0x000, runBit) > 0;
+    bool bresult;
+    //after the reset, the wj200 vfd seem to need a second
+    //before it will reply to more modbus commands
+    bresult = (modbus_write_bit(ctx, WJ200_CMD_RESET_ERR, breset) == 1);
+    sleep(1);
+    if (!bresult)
+        wj200_log("ERR","failed to write coils 0x%x, mbslave=%d, mberror=%d : %s", WJ200_CMD_RESET_ERR , mbslaveaddr, errno, modbus_strerror(errno));
+    return bresult;
 }
-
-
-bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
-{
-        int rc;
-        uint8_t bits[16];
-        uint16_t registers[2];
-	    uint16_t currentRegister[1];
-	    uint16_t temperatureRegister[1];
-
-        /*read coils 0x000F thru 0x0019 in one step*/
-        rc = modbus_read_bits(ctx, 0x000F-1, 11, bits);
-
-        if(rc < 0)
-        {
-                return false;
-        }
-
-        /*read the first 2 registers*/
-        rc = modbus_read_registers(ctx, 0x000, 2, registers);
-
-        if(rc < 0)
-        {
-                return false;
-        }
-
-	    /* Read 1003h (output current) to 1019h (heatsink temp)*/
-        rc = modbus_read_registers(ctx, 0x1003-1, 1, currentRegister);
-
-        if(rc < 0)
-        {
-                return false;
-        }
-
-		rc = modbus_read_registers(ctx, 0x1019-1, 1, temperatureRegister);
-
-        if(rc < 0)
-        {
-                return false;
-        }
-
-
-        status->running = bits[0];
-        status->direction = bits[1];
-        status->ready = bits[2];
-        status->alarm = bits[9];
-        status->at_speed = bits[5];
-        status->frequency = registers[1];
-		status->output_current = currentRegister[0];
-		status->sink_temp = temperatureRegister[0];
-
-        return true;
-}
-
-void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
-{
-	fprintf(stderr, 
-		"Error: wj200_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
-		mbslaveaddr,
-		msg,
-		errno,
-		modbus_strerror(errno));
-}
-
 void usage(int argc, char **argv) {
     printf("Usage:  %s [options]\n", argv[0]);
     printf("This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
@@ -177,258 +389,247 @@ void usage(int argc, char **argv) {
 	    "    loadusr -W wj200_vfd -d /dev/ttyUSB0 -a 9600 --parity N --data 8 --stop 1\n\n"
 	    );
 }
-
-/* modbus connection settings*/
-char *device = "/dev/ttyS0";
-int baud = 9600;
-char parity = 'N';
-int data_bits = 8;
-int stop_bits = 1;
-enum connstate {NOT_CONNECTED, CONNECTED, DONE};
-int connection_state;
-int settings_initialized;
-struct timespec ts_pooling_period = {0, 100000000};  //pooling pressure set at 100ms
-
 /**********************************************************************/
 static void userquitsignal(int sig) 
 {
-    printf("wj200_vfd: quit signaled\n");
-    connection_state = DONE;
+    wj200_log("INF","exit requested");
+    bexit_requested = TRUE;
 }
 /**********************************************************************/
-
 void userinit(int argc, char **argv)
 {
-	int opt_index = 0;
-	int opt = 0;
+    int opt_index = 0;
+    int opt = 0;
 	static char *option_string = "b:p:a:s:d:";
-        static struct option options[] = {
-		{"baud",   required_argument, 0, 'b' },
-		{"parity", required_argument, 0, 'p' },
-		{"databits", required_argument, 0, 'a' },
-		{"stopbits", required_argument, 0, 's' },
-		{"device", required_argument, 0, 'd' },
-		{0, 0, 0, 0}
-	};	
+    static struct option options[] = {
+        {"baud",   required_argument, 0, 'b' },
+        {"parity", required_argument, 0, 'p' },
+        {"databits", required_argument, 0, 'a' },
+        {"stopbits", required_argument, 0, 's' },
+        {"device", required_argument, 0, 'd' },
+        {"verbose", no_argument, 0, 'v' },
+        {0, 0, 0, 0}
+    };	
 
-
-    //init connection & settings
-    connection_state=NOT_CONNECTED;
-    settings_initialized = FALSE;
-    
+    wj200_log("INF","WJ200 modbus driver v%d.%d",WJ200_VERSION_MAJOR, WJ200_VERSION_MINOR);
     //parse cmd line args
-	while ((opt = getopt_long(argc, argv, option_string, options, &opt_index)) != -1) {
-    
-		switch(opt) {
+    while ((opt = getopt_long(argc, argv, option_string, options, &opt_index)) != -1) {
+        switch(opt) {
 			
-			case 'b':
-			
-				baud = atoi(optarg);
+            case 'b':
+                baud = atoi(optarg);
+                if(baud == 0) {
+                    wj200_log("ERR","Invalid argument: baud must be a number. Given '%s'", optarg);
+                    exit(1);
+                }
+                wj200_log("INF","baud set to %d", baud);
+                break;
 
-				if(baud == 0)
-				{
-					fprintf(stderr, 
-						"Invalid argument: baud must be a number. Given '%s'\n", 
-						optarg);
-					exit(1);
-				}
-				printf("wj200_vfd: baud set to %d\n", baud);
-				break;
+            case 'p':
+                parity = toupper(optarg[0]);
+                if(parity != 'O' && parity != 'N' && parity != 'E') {
+                    wj200_log("ERR","Invalid argument: parity must be 'o' or 'e' or 'n'. Given '%s'", optarg);
+                    exit(1);
+                }
 
-			case 'p':
-				parity = toupper(optarg[0]);
+                wj200_log("INF","parity set to %c", parity);
+                break;
 
-				if(parity != 'O' && parity != 'N' && parity != 'E')
-				{
-					fprintf(stderr, 
-						"Invalid argument: parity must be 'o' or 'e' or 'n'. Given '%s'\n", 
-						optarg);
-					exit(1);
-				}
-
-				printf("wj200_vfd: parity set to %c\n", parity);
-				break;
-
-			case 'a':
-				data_bits = atoi(optarg);
-
-				if(data_bits == 0)
-				{
-					fprintf(stderr, 
-						"Invalid argument: databits must be a number. Given '%s'\n", 
-						optarg);
-					exit(1);
-				}
-				printf("wj200_vfd: databits set to %d\n", data_bits);
-				break;
+            case 'a':
+                data_bits = atoi(optarg);
+                if(data_bits == 0) {
+                    wj200_log("ERR","Invalid argument: databits must be a number. Given '%s'", optarg);
+                    exit(1);
+                }
+                wj200_log("INF","databits set to %d", data_bits);
+                break;
 
 			case 's':
-				stop_bits = atoi(optarg);
-		
-				if(stop_bits == 0)
-				{
-					fprintf(stderr, 
-						"Invalid argument: stopbits must be a number. Given '%s'\n", 
-						optarg);
-					exit(1);
-				}
-				printf("wj200_vfd: stopbits set to %d\n", stop_bits);
-				break;
+                stop_bits = atoi(optarg);
+				if(stop_bits == 0) {
+                    wj200_log("ERR","Invalid argument: stopbits must be a number. Given '%s'", optarg);
+                    exit(1);
+                }
+                wj200_log("INF","stopbits set to %d", stop_bits);
+                break;
 
-			case 'd':
-				device = optarg;
-				printf("wj200_vfd: device set to %s\n", device);
-				break;
+            case 'd':
+                device = optarg;
+                wj200_log("INF","device set to %s", device);
+                break;
 
-			default:
-				fprintf(stderr, "WARNING: invalid option index!\n");
-				usage(argc, argv);
-				exit(1);
-		}
+            case 'v':
+                bverbose_log = TRUE;
+                wj200_log("INF","verbose mode set");
+                break;
 
-	}
+            default:
+                wj200_log("ERR","invalid option index!\n");
+                usage(argc, argv);
+                exit(1);
+        }
 
-	if (optind < argc) {
-		fprintf(stderr, "WARNING: unhandled arguments to wj200_vfd driver:\n");
-		for (int i = optind; i < argc; i ++) {
-                fprintf(stderr, "    %s\n", argv[i]);
-            }
-		usage(argc, argv);
-		exit(1);
-	}
-
-	printf("wj200_vfd.%d: settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d\n", comp_id, device, baud, parity, data_bits, stop_bits);
-
-    /* signal setup */
-	signal(SIGINT, userquitsignal);
+    }
+    if (optind < argc) {
+        wj200_log("ERR","unhandled arguments to wj200_vfd driver");
+        usage(argc, argv);
+        exit(1);
+    }
+    wj200_log("INF","settings - device=%s, baud=%d, parity=%c, data=%d, stop=%d, verbose=%d", device, baud, parity, data_bits, stop_bits, bverbose_log);
+    //signal setup
+    signal(SIGINT, userquitsignal);
     signal(SIGTERM, userquitsignal);
-    
+    //reset instances state variables
+    FOR_ALL_INSTS() {
+        inst_state.bparams_static_read_done = FALSE;
+        inst_state.uparams_static_read_retry = 0;
+        inst_state.bparams_dynamic_read_done = FALSE;
+        inst_state.uparams_dynamic_read_retry = 0;
+        inst_state.bmbslaveset = FALSE;
+        inst_state.binstance_failure = FALSE;
+        inst_state.bexit_request_done = FALSE;
+    }
     //init settings done
-    settings_initialized = TRUE;
+    bsettings_initialized = TRUE;
 }
-
+/**********************************************************************/
 void user_mainloop(void) {
-	wj200_status status;
-	uint16_t calculated_frequency;
+    float    fcalculated_frequency;
     modbus_t *ctx = NULL;
-    struct timeval t;
+    struct timeval ttimeout;
+    bool bresult;
 
-	while(connection_state != DONE) {
-	    
-	    FOR_ALL_INSTS() {
-	
-		    switch(connection_state) {
+	while ((!balldone_exiting) && (bsettings_initialized)) {
 
-			case NOT_CONNECTED:
-			
-				if (settings_initialized) {
-					//instantiate context
-					ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
-					if (ctx) {
-						//define timeout
-						t.tv_sec=0;
-						t.tv_usec = 600 * 1000;
-						modbus_set_response_timeout(ctx, &t);
-						//t.tv_sec=-1;
-						modbus_set_byte_timeout(ctx, &t);
-						
-						if (modbus_connect(ctx) == 0) {
-							//update connection state
-							connection_state = CONNECTED;
-							
-						} else {	
-							fprintf(stderr, 
-							"ERROR: wj200_vfd unable to create libmodbus connection. - %s\n", 
-							modbus_strerror(errno));
-						}
+        if (!bconnected) {
+
+            //instantiate modbus context
+            ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
+            if (ctx) {
+                //define timeout
+                ttimeout.tv_sec=0;
+                ttimeout.tv_usec = 600 * 1000;
+                modbus_set_response_timeout(ctx, &ttimeout);
+                //t.tv_sec=-1;
+                modbus_set_byte_timeout(ctx, &ttimeout);
+
+                if (modbus_connect(ctx) == 0) 
+                    bconnected = TRUE;
+                else 
+                    wj200_log("ERR","unable to connect, mberror=%d : %s", errno, modbus_strerror(errno));
 					
-					} else {
-						fprintf(stderr, 
-						"ERROR: wj200_vfd unable to create libmodbus context. - %s\n", 
-						modbus_strerror(errno));
-
-					}
-				}	
-				break;
-				
-			case CONNECTED:
-				//set slave address
-				modbus_set_slave(ctx, mbslaveaddr);
-				
-				//communicate only if a slave address is defined and component enabled
-				if ((mbslaveaddr != 0) && (enable != 0)) {
-
-					/*
-			          for each slave, receive info from the slave,
-					  update our output pins based upon vfd status,
-					  then set the vfd according to our input pins
+            } else {
+                wj200_log("ERR","unable to create modbus context : device=%s, baud=%d, parity=%c, data=%d, stop=%d, mberror=%d : %s", device, baud, parity, data_bits, stop_bits, errno, modbus_strerror(errno));
+                exit(1);
+            }
+            
+        } else { 
+            balldone_exiting = TRUE;
+            FOR_ALL_INSTS() {
+                //communicate to device instance only if a slave address 
+                //is defined 
+                bresult = (mbslaveaddr != 0);
+                if (bresult) {
+                    //set/select slave address
+                    bresult = (modbus_set_slave(ctx, mbslaveaddr)==0); 
+                    inst_state.bmbslaveset = bresult;
+                    if (!bresult) { 
+                        wj200_log("ERR","unable to set modbus slave , mbslave=%d, mberror=%d : %s", mbslaveaddr , errno, modbus_strerror(errno));
+                    } 
+                }
+                //read static params - once
+                if ((bresult) && (!inst_state.bparams_static_read_done)) {
+                    bresult = wj200_read_params_static(__comp_inst, ctx);
+                    inst_state.bparams_static_read_done = bresult; 
+                    wj200_log("INF","params static read,  mbslave=%d", mbslaveaddr );
+                    wj200_print_params_static(__comp_inst);
+                    if (!bresult) {
+                        if (++inst_state.uparams_static_read_retry == params_static_read_retry_max ) {
+                            inst_state.binstance_failure = TRUE;
+                            wj200_run(__comp_inst, ctx, FALSE); //stop motor
+                        }
+                    }
+                }
+                // read dynamic params 
+                if (bresult) { 
+                    bresult = wj200_read_params_dynamic(__comp_inst, ctx);
+                    inst_state.bparams_dynamic_read_done = bresult;
+                    if (bresult) {
+                        inst_state.uparams_dynamic_read_retry = 0;
+ 
+                        //here pins&actions updated ONLY if dynamic params 
+                        //read succeed
+                        if(reverse != inst_params_dynamic.direction_rev) 
+                            wj200_setDirection(__comp_inst, ctx, reverse);
+                        motor_current_mon = inst_params_dynamic.current_mon_a;
+                        heatsink_temp = inst_params_dynamic.heat_sink_temp_c;
+                        frequency_mon = inst_params_dynamic.freq_mon_hz;
+                        motor_voltage_mon = inst_params_dynamic.voltage_mon_v;
+                        motor_torque_mon = inst_params_dynamic.torque_mon;
+                        motor_power_mon  = inst_params_dynamic.power_mon_kw;
+                        is_running = inst_params_dynamic.running;
+                        is_at_speed = inst_params_dynamic.cst_speed_reached;
+                        is_ready = inst_params_dynamic.ready;
+                        is_alarm = inst_params_dynamic.alarm;
+                    
+                        if (bverbose_log) {
+                            wj200_log("INF","params dynamic read,  mbslave=%d", mbslaveaddr );
+                            wj200_print_params_dynamic(__comp_inst);
+                        }
+                    } else {
+                        if (++inst_state.uparams_dynamic_read_retry == params_dynamic_read_retry_max ) {
+                            inst_state.binstance_failure = TRUE;
+                            wj200_run(__comp_inst, ctx, FALSE); //stop motor
+                        }
+                    }
+                }
+                //pins updated in all cases, even failure
+                watchdog_out = !watchdog_out; //inform component is alive
+                failure_out = inst_state.binstance_failure; //update failure pin
+                //pins&actions updated ONLY if everything if fine and exit not pending
+                if ((bresult) && (!inst_state.binstance_failure) && (!bexit_requested)) { 
+                    //check if commanded_frequency is in range
+                    fcalculated_frequency = fabs(commanded_frequency);
+                    if ((fcalculated_frequency>inst_params_static.freq_upper_limit_hz) && \
+                        (inst_params_static.freq_upper_limit_hz>0.05))
+                        fcalculated_frequency = inst_params_static.freq_upper_limit_hz;
+                    if (fcalculated_frequency<inst_params_static.freq_lower_limit_hz)
+                        fcalculated_frequency = 0.0;
 			
-					  if we hit an error we just re-loop. The watchdog
-					  pin won't change until we make it all the way through
-					  the loop.
-			                */
-					if(!wj200_getStatus(ctx, &status)) {	
-						print_modbus_error(__comp_inst, "failed to get status");
-						continue;
-					}
-	
-					is_running = status.running;
-					is_at_speed = status.at_speed;
-					is_ready = status.ready;
-					is_alarm = status.alarm;
-			
-					if(!status.alarm && !enable && !wj200_trip(ctx)) {
-						print_modbus_error(__comp_inst, "failed to trip");
-						continue;
-					}
-					else if(status.alarm && enable && !wj200_reset(ctx)) {
-						print_modbus_error(__comp_inst, "failed to reset");
-						continue;
-					}
-					else {
-						calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 100);
-			
-						if(calculated_frequency != status.frequency 
-						   && !wj200_setFrequency(ctx, calculated_frequency)) {
-							print_modbus_error(__comp_inst, "failed to set frequency");
-							continue;
-						}
-			
-						if(reverse != status.direction && !wj200_setDirection(ctx, reverse)) {
-							print_modbus_error(__comp_inst, "failed to set direction");
-							continue;
-						}
-			
-						if(status.running ^ run && !wj200_run(ctx, run)) {
-							print_modbus_error(__comp_inst, "failed to run");
-							continue;
-						}
-			
-						watchdog_out = !watchdog_out;
-						motor_current = status.output_current / 100;
-						heatsink_temp = status.sink_temp / 10;
-					}
-
-				}
-				
-				
-		    }	
-		}
-		
-		//lower pooling pressure
-	    nanosleep(&ts_pooling_period, NULL);
-
-	}
-	
-	printf("wj200_vfd: Done...\n");
-	if (ctx) {
-		printf("wj200_vfd: cleanup\n");
-		modbus_flush(ctx);
-		sleep(2);
-		modbus_close(ctx);
-		modbus_free(ctx);
-		ctx = NULL;
-	    hal_exit(comp_id);
-	}
-	exit(0);
+                    if (fcalculated_frequency<0.05) {
+                        if (inst_params_dynamic.running==1)
+                            wj200_run(__comp_inst, ctx, FALSE ); //stop spindle
+                    } else {
+                        //set frequency
+                        if (abs(fcalculated_frequency - inst_params_dynamic.freq_mon_hz)>0.05) 
+                            wj200_setFrequency(__comp_inst, ctx, fcalculated_frequency);
+                        if ((inst_params_dynamic.running!=run) && (enable != 0)) {
+                            //start motor if requested and enabled
+                            wj200_run(__comp_inst, ctx, run); 
+                        } else if ((inst_params_dynamic.running==1) && (enable == 0)) {
+                            //stop motor if it is currently running and just now disabled
+                            wj200_run(__comp_inst, ctx, FALSE); 
+                        }
+                    }
+                } else if ((bexit_requested) && (!inst_state.bexit_request_done)) {
+                    //stop motor, if -at least- mbslave have been set
+                    if (inst_state.bmbslaveset)
+                        wj200_run(__comp_inst, ctx, FALSE ); 
+                    inst_state.bexit_request_done = TRUE;    
+                }
+                balldone_exiting &= inst_state.bexit_request_done;
+            }
+        }
+        //lower pooling pressure
+        nanosleep(&ts_pooling_period, NULL);
+	}		
+    wj200_log("INF","cleanup" );
+    if (ctx) {
+        modbus_flush(ctx);
+        sleep(1);
+        modbus_close(ctx);
+        modbus_free(ctx);
+        hal_exit(comp_id);
+    }
+    exit(0);
 }
