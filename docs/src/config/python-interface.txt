@@ -493,7 +493,7 @@ by the configuration parameter [JOINT_n]UNITS)
 *velocity*:: '(returns float)' -
 current velocity.
 
-== The `spindle` dictionary [[sec:the-spindle-dictionary]
+== The `spindle` dictionary [[sec:the-spindle-dictionary]]
 
 *brake*:: '(returns integer)' -
 value of the spindle brake flag.
