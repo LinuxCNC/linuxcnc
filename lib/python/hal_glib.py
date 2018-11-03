@@ -202,7 +202,7 @@ class _GStat(gobject.GObject):
             pass
 
         self.current_jog_rate = 15
-        self.angular_jog_velocity = 360
+        self.current_angular_jog_tate = 360
         self.current_jog_distance = 0
         self.current_jog_distance_text =''
         self.current_jog_distance_angular= 0
@@ -636,7 +636,7 @@ class _GStat(gobject.GObject):
         spindle_spd_new = self.old['actual-spindle-speed']
         self.emit('actual-spindle-speed-changed', spindle_spd_new)
         self.emit('jograte-changed', self.current_jog_rate)
-        self.emit('jograte-angular-changed', self.angular_jog_velocity)
+        self.emit('jograte-angular-changed', self.current_angular_jog_tate)
         self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)
         self.emit('jogincrement-angular-changed', self.current_jog_distance_angular, self.current_jog_distance_angular_text)
         tool_info_new = self.old['tool-info']
@@ -697,7 +697,7 @@ class _GStat(gobject.GObject):
         return self.old['mode']
 
     # linear - in machine units
-    def set_jog_rate(self,upm):
+    def set_jograte(self, upm):
         self.current_jog_rate = upm
         self.emit('jograte-changed', upm)
 
@@ -705,11 +705,11 @@ class _GStat(gobject.GObject):
         return self.current_jog_rate
 
     def set_jograte_angular(self,rate):
-        self.angular_jog_velocity = rate
+        self.current_angular_jog_tate = rate
         self.emit('jograte-angular-changed', rate)
 
     def get_jograte_angular(self):
-        return self.angular_jog_velocity
+        return self.current_angular_jog_tate
 
     def get_jog_increment_angular(self):
         return self.current_jog_distance_angular
@@ -812,7 +812,7 @@ class _GStat(gobject.GObject):
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
             if axisnum in (3,4,5):
-                rate = self.angular_jog_velocity
+                rate = self.current_angular_jog_tate
             else:
                 rate = self.current_jog_rate/60
             if distance == 0:

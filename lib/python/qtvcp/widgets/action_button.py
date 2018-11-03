@@ -515,7 +515,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             else:
                 incr = 0
                 text = 'Continous'
-        STATUS.set_jog_increments(incr , text)
+        ACTION.SET_JOG_INCR(incr , text)
         # set an angular increment if not negative
         if self.jog_incr_angle < 0: return
         elif self.jog_incr_angle == 0:
@@ -524,7 +524,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         else:
             incr = self.jog_incr_angle
             text = '''%s deg''' % str(self.jog_incr_angle)
-        STATUS.set_jog_increment_angular(incr , text)
+        ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
     #########################################################################
     # This is how designer can interact with our widget properties.

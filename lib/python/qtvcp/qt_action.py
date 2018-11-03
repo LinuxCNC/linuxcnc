@@ -114,11 +114,13 @@ class _Lcnc_Action(object):
     def SET_SPINDLE_RATE(self, rate):
         self.cmd.spindleoverride(rate/100.0)
     def SET_JOG_RATE(self, rate):
-        STATUS.set_jog_rate(float(rate))
+        STATUS.set_jograte(float(rate))
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
-    def SET_JOG_INCR(self, incr):
-        STATUS.set_jog_increments(incr)
+    def SET_JOG_INCR(self, incr, text):
+        STATUS.set_jog_increments(incr, text)
+    def SET_JOG_INCR_ANGULAR(self, incr, text):
+        STATUS.set_jog_increment_angular(incr, text)
 
     def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100):
         self.cmd.spindle(direction,rpm)
