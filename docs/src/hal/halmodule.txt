@@ -159,36 +159,6 @@ writing files) must be done to complete the shutdown process.
 
 == Helpful Functions
 
-// === getparam
-
-// === getpin
-
-// === newparam
-
-// === newpin
-
-// === exit
-
-// === getitem
-
-// === getprefix
-
-// === ready
-
-// === setprefix
-
-// === get
-
-// === get_dir
-
-// === get_name
-
-// === get_type
-
-// === is_pin
-
-// === set
-
 === component_exists
 
 Does the specified component exist at this time. +
@@ -200,15 +170,26 @@ Is the specified component ready at this time. +
 Example: +
 hal.component_is_ready("testpanel") +
 
-// === get_msg_level
+=== get_msg_level
 
-// === set_msg_level
+Get the current Realtime msg level. +
+
+=== set_msg_level
+
+set the current Realtime msg level. +
+used for debugging information. +
 
 === connect
 
 Connect a pin to a signal. +
 example: +
 hal.connect("pinname","signal_name")
+
+=== get_value
+
+read a pin, param or signal directly. +
+example: +
+value = hal.get_value("iocontrol.0.emc-enable-in") +
 
 === new_signal
 Create a New signal of the type specified. +
@@ -219,6 +200,18 @@ hal.new_sig("signalname",hal.HAL_BIT)
 
 Does the specified pin have a driving pin connected. +
 Returns True or False. +
+
+=== sampler_base
+
+TODO +
+
+=== stream_base
+
+TODO +
+
+=== stream
+
+TODO +
 
 === set_p
 
