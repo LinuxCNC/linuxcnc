@@ -206,7 +206,7 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
         self.show()
         self.calculate_placement()
         retval = self.exec_()
-        self.record_placement()
+        record_geometry(self,'ToolChangeDialog-geometry')
         if retval == QMessageBox.Cancel:
             return False
         else:
@@ -239,17 +239,6 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
 
     def calculate_placement(self):
         geometry_parsing(self,'ToolChangeDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('ToolChangeDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # **********************
     # Designer properties
@@ -311,7 +300,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             path = self.directory().absolutePath()
             self.setDirectory(path)
         STATUS.emit('focus-overlay-changed', False, None, None)
-        self.record_placement()
+        record_geometry(self,'FileDialog-geometry')
         if fname:
             if self.PREFS_:
                 self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
@@ -322,17 +311,6 @@ class FileDialog(QFileDialog, _HalWidgetBase):
 
     def calculate_placement(self):
         geometry_parsing(self,'FileDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('FileDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     #**********************
     # Designer properties
@@ -436,21 +414,10 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        self.record_placement()
+        record_geometry(self,'OriginOffsetDialog-geometry')
 
     def calculate_placement(self):
         geometry_parsing(self,'OriginOffsetDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('OriginOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -561,21 +528,10 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        self.record_placement()
+        record_geometry(self,'ToolOffsetDialog-geometry')
 
     def calculate_placement(self):
         geometry_parsing(self,'ToolOffsetDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('ToolOffsetDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -659,21 +615,10 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        self.record_placement()
+        record_geometry(self,'CamViewDialog-geometry')
 
     def calculate_placement(self):
         geometry_parsing(self,'CamViewDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('CamViewDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     # **********************
     # Designer properties
@@ -767,22 +712,10 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        self.record_placement()
+        record_geometry(self,'MacroTabDialog-geometry')
 
     def calculate_placement(self):
         geometry_parsing(self,'MacroTabDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('MacroTabDialog-geometry', geo, str, 'DIALOG_OPTIONS')
-
 
     # **********************
     # Designer properties
@@ -861,7 +794,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self.calculate_placement()
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        self.record_placement()
+        record_geometry(self,'EntryDialog-geometry')
         LOG.debug("Value of pressed button: {}".format(retval))
         try:
             return float(self.Num.text())
@@ -870,17 +803,6 @@ class EntryDialog(QDialog, _HalWidgetBase):
 
     def calculate_placement(self):
         geometry_parsing(self,'EntryDialog-geometry')
-
-    def record_placement(self):
-       if self.PREFS_ and self._geometry_string.replace(' ','').isdigit():
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
-            self.PREFS_.putpref('EntryDialog-geometry', geo, str, 'DIALOG_OPTIONS')
 
     def getColor(self):
         return self._color
@@ -941,6 +863,18 @@ def geometry_parsing(widget, prefname):
             w = widget.geometry().width()
             h = widget.geometry().height()
             go( x,y,w,h)
+
+def record_geometry(widget, prefname):
+    if widget.PREFS_ :
+        temp = widget._geometry_string.replace(' ','')
+        if temp =='' or temp.isdigit():
+            LOG.debug('Saving {} data from widget {} to file.'.format( prefname,widget.HAL_NAME_))
+            x = widget.geometry().x()
+            y = widget.geometry().y()
+            w = widget.geometry().width()
+            h = widget.geometry().height()
+            geo = '%s %s %s %s'% (x,y,w,h)
+            widget.PREFS_.putpref(prefname, geo, str, 'DIALOG_OPTIONS')
 
 ################################
 # for testing without editor:
