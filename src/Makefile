@@ -115,7 +115,8 @@ SUBDIRS := \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
-    hal/components hal/drivers hal/user_comps/devices hal/user_comps/mb2hal \
+    hal/components hal/drivers hal/drivers/mesa-hostmot2 \
+    hal/user_comps/devices hal/user_comps/mb2hal \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
@@ -305,6 +306,7 @@ HEADERS := \
     emc/rs274ngc/rs274ngc.hh \
     hal/hal.h \
     hal/hal_parport.h \
+    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -719,7 +721,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/../include -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
 	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
@@ -1006,7 +1008,8 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI $(EXTRA_CFLAGS) \
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -I../include \
+		$(EXTRA_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 endif
