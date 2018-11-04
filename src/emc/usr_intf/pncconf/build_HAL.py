@@ -1151,7 +1151,10 @@ class HAL:
                 print >>file, "setp   pid.%s.error-previous-target true" % let
                 # steppers
                 if steppinname:
-                    print >>file, "setp   pid.%s.maxerror .0005" % let
+                    if  self.d.units == _PD._IMPERIAL:
+                        print >>file, "setp   pid.%s.maxerror .0005" % let
+                    else:
+                        print >>file, "setp   pid.%s.maxerror .01" % let
                 print >>file
                 if let == 's':
                     name = "spindle"
