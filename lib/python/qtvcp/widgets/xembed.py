@@ -19,9 +19,11 @@ class XEmbeddable(QWidget):
             window = QWindow.fromWinId(self.external_id)
             self.container = QWidget.createWindowContainer(window, self)
             self.show()
+            return True
         except  Exception,e:
             print 'Error Embedding program: ',command
             print e
+            return False
 
     def event(self, event):
         if event.type() ==  QEvent.Resize:
@@ -51,8 +53,9 @@ class XEmbed(XEmbeddable, _HalWidgetBase):
         wid = int(self.QTVCP_INSTANCE_.winId())
         print 'parent wind id', wid
         os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
-        self.embed(self.command)
-        self.x11mess = xembed.X11ClientMessage(self.external_id)
+        result = self.embed(self.command)
+        if result:
+            self.x11mess = xembed.X11ClientMessage(self.external_id)
 
 
     def send_x11_message(self,):
