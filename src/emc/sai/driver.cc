@@ -334,7 +334,7 @@ int read_tool_file(  /* ARGUMENTS         */
       tool_file_name = buffer;
     }
 
-  return loadToolTable(tool_file_name, _tools, 0, 0, 0);
+  return loadToolTable(tool_file_name, _tools, 0, 0);
 }
 
 /************************************************************************/

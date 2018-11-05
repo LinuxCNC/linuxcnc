@@ -161,6 +161,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 
     for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = 0;
+    toolTable[t].pocketno = 0;
         ZERO_EMC_POSE(toolTable[t].offset);
 	toolTable[t].diameter = 0.0;
 	toolTable[t].orientation = 0;
@@ -213,6 +214,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 
     for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = s.toolTable[t].toolno;
+    toolTable[t].pocketno = s.toolTable[t].pocketno;
 	toolTable[t].offset = s.toolTable[t].offset;
 	toolTable[t].diameter = s.toolTable[t].diameter;
 	toolTable[t].frontangle = s.toolTable[t].frontangle;
