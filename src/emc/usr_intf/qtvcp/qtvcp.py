@@ -311,6 +311,7 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # for window resize and or position options
         if "+" in opts.geometry:
+            log.debug('-g option: moving window')
             try:
                 j =  opts.geometry.partition("+")
                 pos = j[2].partition("+")
@@ -320,6 +321,7 @@ Pressing cancel will close linuxcnc.""" % target)
                 parser.print_usage()
                 sys.exit(1)
         if "x" in opts.geometry:
+            log.debug('-g option: resizing')
             try:
                 if "+" in opts.geometry:
                     j =  opts.geometry.partition("+")
