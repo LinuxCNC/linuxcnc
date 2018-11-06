@@ -133,4 +133,17 @@ typedef struct {
 
 } TP_STRUCT;
 
+
+/**
+ * Describes blend modes used in the trajectory planner.
+ * @note these values are used as array indices, so make sure valid options
+ * start at 0 and increase by one.
+ */
+typedef enum {
+    NO_BLEND = -1,
+    PARABOLIC_BLEND,
+    TANGENT_SEGMENTS_BLEND,
+    ARC_BLEND
+} tc_blend_type_t;
+
 #endif				/* TP_TYPES_H */

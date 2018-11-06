@@ -1061,6 +1061,8 @@ For more information on kinematics modules see the manpage: '$ man kins'
     axis to jerk as it changes direction. If a COMP_FILE is specificed for an
     axis BACKLASH is not used.
 
+// add a link to machine units
+
 * 'COMP_FILE = file.extension' -
     (((Compensation))) The compensation file consists of map of position
     information for the joint. Compensation file values are in machine units.
@@ -1085,7 +1087,7 @@ For more information on kinematics modules see the manpage: '$ man kins'
     (decreasing value).
     +
     +
-    Type 0 Example
+Type 0 Example
 +
 ----
 -1.000 -1.005 -0.995

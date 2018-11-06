@@ -22,6 +22,8 @@
 #include "tc_types.h"
 #include "tp_types.h"
 
+double tcGetMaxTargetVel(TC_STRUCT const * const tc,
+        double max_scale);
 int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);

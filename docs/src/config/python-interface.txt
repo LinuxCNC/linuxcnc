@@ -9,6 +9,10 @@
 This documentation describes the 'linuxcnc' python module, which provides
 a python API for talking to LinuxCNC.
 
+////
+constants are located in src/emc/usr_intf/axis/extensions/emcmodule.cc
+////
+
 == The linuxcnc Python module
 
 User interfaces control LinuxCNC activity by sending
@@ -23,8 +27,10 @@ Beyond the NML interface to the command, status and error channels,
 the `linuxcnc` module also contains:
 
 - support for reading values from ini files
-- support for position logging  (???)
 
+////
+- support for position logging  (???)
+////
 
 == Usage Patterns for the LinuxCNC NML interface
 
@@ -182,7 +188,6 @@ currently loaded gcode filename with path.
 Flood status, either FLOOD_OFF or FLOOD_ON.
 
 *g5x_index*:: '(returns integer)' -
-**** replace with constants list
 currently active coordinate system, G54=1, G55=2 etc.
 
 *g5x_offset*:: '(returns tuple of floats)' -

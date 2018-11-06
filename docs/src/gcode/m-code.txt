@@ -41,16 +41,14 @@
 == M0, M1 Program Pause
 (((M0, M1 Program Pause)))
 
-* 'M0' - pause a running program temporarily. LinuxCNC remains
-         in the Auto Mode so MDI and other manual actions
-         are not enabled. Pressing the cycle start button
-         will restart the program at the following line.
+* 'M0' - pause a running program temporarily. LinuxCNC remains in the Auto Mode
+         so MDI and other manual actions are not enabled. Pressing the resume
+         button will restart the program at the following line.
 
-* 'M1' - pause a running program temporarily if the optional
-         stop switch is on. LinuxCNC remains in the Auto Mode
-         so MDI and other manual actions are not enabled.
-         Pressing the cycle start button
-         will restart the program at the following line.
+* 'M1' - pause a running program temporarily if the optional stop switch is on.
+         LinuxCNC remains in the Auto Mode so MDI and other manual actions are
+         not enabled. Pressing the resume button will restart the program at the
+         following line.
 
 [NOTE]
 It is OK to program 'M0' and 'M1' in MDI mode,
@@ -62,7 +60,7 @@ to stop after each line of input anyway.
 == M2, M30 Program End
 (((M2, M30 Program End)))
 
-* 'M2' - end the program. Pressing cycle start will
+* 'M2' - end the program. Pressing r will
          start the program at the beginning of the file.
          
 * 'M30' - exchange pallet shuttles and end the program.

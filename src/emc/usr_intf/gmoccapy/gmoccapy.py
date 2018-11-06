@@ -2514,6 +2514,8 @@ class gmoccapy(object):
             self.initialized = False
             self.widgets.spc_rapid.set_value(self.stat.rapidrate * 100)
             self.rapidrate = self.stat.rapidrate
+            self.widgets.adj_max_vel.set_value( self.stat.max_velocity * 60 * self.faktor )
+            self.max_velocity = self.stat.max_velocity
             self.initialized = True
 
     def _update_slider(self, widgetlist):
@@ -2701,10 +2703,15 @@ class gmoccapy(object):
             # machine units = imperial
             else:
                 self.faktor = 25.4
-            self._update_slider(widgetlist)
+            self.turtle_jog = self.turtle_jog * self.faktor
+            self.rabbit_jog = self.rabbit_jog * self.faktor
+            self._update_slider( widgetlist )
+
         else:
             # display units equal machine units would be factor = 1,
             # but if factor not equal 1.0 than we have to reconvert from previous first
+            self.turtle_jog = self.turtle_jog / self.faktor
+            self.rabbit_jog = self.rabbit_jog / self.faktor
             if self.faktor != 1.0:
                 self.faktor = 1 / self.faktor
                 self._update_slider(widgetlist)
